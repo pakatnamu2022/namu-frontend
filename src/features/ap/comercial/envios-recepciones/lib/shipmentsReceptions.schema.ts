@@ -32,13 +32,13 @@ const shipmentsReceptionsSchemaBase = z.object({
   receiver_id: requiredStringId("El receptor es requerido"),
   total_packages: z.coerce
     .number({
-      required_error: "El total de bultos es requerido",
+      error: "El total de bultos es requerido",
       invalid_type_error: "El total de bultos debe ser un número",
     })
     .min(1, "El total de bultos debe ser al menos 1"),
   total_weight: z.coerce
     .number({
-      required_error: "El peso total es requerido",
+      error: "El peso total es requerido",
       invalid_type_error: "El peso total debe ser un número",
     })
     .min(0.1, "El peso total debe ser al menos 0.1"),

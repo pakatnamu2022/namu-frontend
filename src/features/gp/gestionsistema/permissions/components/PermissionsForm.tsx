@@ -303,7 +303,7 @@ export default function PermissionsForm({ id }: { id: number }) {
         {/* Views list */}
         <div className="space-y-3">
           {isLoading ? (
-            <div className="text-center py-16 border-1 rounded-xl bg-muted/10">
+            <div className="text-center py-16 border rounded-xl bg-muted/10">
               <div className="flex flex-col items-center gap-4">
                 <div className="animate-spin rounded-full h-8 w-8 border-4 border-primary border-t-transparent"></div>
                 <div>
@@ -317,7 +317,7 @@ export default function PermissionsForm({ id }: { id: number }) {
               </div>
             </div>
           ) : allViews.length === 0 ? (
-            <div className="text-center py-12 border-1 rounded-xl">
+            <div className="text-center py-12 border rounded-xl">
               <Search className="size-12 mx-auto text-muted-foreground/50 mb-3" />
               <p className="text-sm text-muted-foreground">
                 No se encontraron vistas
@@ -336,7 +336,7 @@ export default function PermissionsForm({ id }: { id: number }) {
               return (
                 <div
                   key={view.id}
-                  className="border-1 rounded-xl bg-card hover:shadow-md transition-all"
+                  className="border rounded-xl bg-card hover:shadow-md transition-all"
                 >
                   {/* View Header */}
                   <div className="p-4 space-y-3">
@@ -466,7 +466,7 @@ export default function PermissionsForm({ id }: { id: number }) {
                           return (
                             <div
                               key={permission.id}
-                              className={`relative flex items-start gap-3 p-3 border-1 rounded-lg transition-all ${
+                              className={`relative flex items-start gap-3 p-3 border rounded-lg transition-all ${
                                 isSelected
                                   ? "border-primary bg-primary/5 shadow-sm"
                                   : "border-border bg-card hover:border-primary/50"

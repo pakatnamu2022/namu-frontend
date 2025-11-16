@@ -17,7 +17,7 @@ export const ElectronicDocumentItemSchema = z.object({
   descuento: z.number().optional(),
   subtotal: z.number(),
   sunat_concept_igv_type_id: z.number({
-    required_error: "Tipo de IGV requerido",
+    error: "Tipo de IGV requerido",
   }),
   igv: z.number(),
   total: z.number(),
@@ -29,7 +29,7 @@ export const ElectronicDocumentItemSchema = z.object({
 
 // Schema para Guía
 export const ElectronicDocumentGuideSchema = z.object({
-  guia_tipo: z.number({ required_error: "Tipo de guía requerido" }),
+  guia_tipo: z.number({ error: "Tipo de guía requerido" }),
   guia_serie_numero: z.string().max(20, "Máximo 20 caracteres"),
 });
 
@@ -57,7 +57,7 @@ export const ElectronicDocumentSchema = z
 
     // ===== ORIGEN DEL DOCUMENTO =====
     origin_module: z.enum(["comercial", "posventa"], {
-      required_error: "Módulo de origen requerido",
+      error: "Módulo de origen requerido",
     }),
     origin_entity_type: z.string().optional(),
     origin_entity_id: optionalStringId("Entidad de origen inválida"),
@@ -87,7 +87,7 @@ export const ElectronicDocumentSchema = z
     total_gratuita: z.number().optional(),
     total_otros_cargos: z.number().optional(),
     total_isc: z.number().optional(),
-    total: z.number({ required_error: "Total requerido" }),
+    total: z.number({ error: "Total requerido" }),
 
     // ===== PERCEPCIÓN =====
     percepcion_tipo: z.number().min(1).max(3).optional(),
@@ -244,7 +244,7 @@ export const CreditNoteItemSchema = z.object({
   descuento: z.number().nullable().optional(),
   subtotal: z.number(),
   sunat_concept_igv_type_id: z.number({
-    required_error: "Tipo de IGV requerido",
+    error: "Tipo de IGV requerido",
   }),
   igv: z.number(),
   total: z.number(),
@@ -289,7 +289,7 @@ export const DebitNoteItemSchema = z.object({
   descuento: z.number().nullable().optional(),
   subtotal: z.number(),
   sunat_concept_igv_type_id: z.number({
-    required_error: "Tipo de IGV requerido",
+    error: "Tipo de IGV requerido",
   }),
   igv: z.number(),
   total: z.number(),

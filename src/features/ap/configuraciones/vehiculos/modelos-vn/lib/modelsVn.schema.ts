@@ -25,7 +25,7 @@ export const modelsVnSchemaCreate = z.object({
     }),
   model_year: z.coerce
     .number({
-      required_error: "El año del modelo es requerido",
+      error: "El año del modelo es requerido",
       invalid_type_error: "El año del modelo debe ser un número válido",
     })
     .int("El año debe ser un número entero")

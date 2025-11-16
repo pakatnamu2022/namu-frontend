@@ -16,7 +16,7 @@ export const purchaseOrderItemSchema = z.object({
   unit_price: requiredNumber("Precio unitario", 0),
   quantity: z.coerce
     .number({
-      required_error: "La cantidad es requerida",
+      error: "La cantidad es requerida",
       invalid_type_error: "La cantidad debe ser un número válido",
     })
     .int("La cantidad debe ser un número entero")
@@ -40,7 +40,7 @@ const basePurchaseOrderSchema = z.object({
       message: "Número de factura es requerido",
     }),
   emission_date: z.coerce.date({
-    required_error: "La fecha de emisión es requerida",
+    error: "La fecha de emisión es requerida",
     invalid_type_error: "La fecha de emisión debe ser una fecha válida",
   }),
   due_date: z.coerce
@@ -88,7 +88,7 @@ const vehiclePurchaseOrderSchemaBase = basePurchaseOrderSchema.extend({
     }),
   year: z.coerce
     .number({
-      required_error: "El año del vehículo es requerido",
+      error: "El año del vehículo es requerido",
       invalid_type_error: "El año del vehículo debe ser un número válido",
     })
     .int("El año debe ser un número entero")

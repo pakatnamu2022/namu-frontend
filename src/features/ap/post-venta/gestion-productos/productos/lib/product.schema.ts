@@ -26,7 +26,7 @@ const productSchemaBase = z.object({
   warehouse_id: z.string().optional(),
   ap_class_article_id: requiredStringId("Clase de artículo es requerida"),
   product_type: z.enum(["GOOD", "SERVICE", "KIT"], {
-    required_error: "Tipo de producto es requerido",
+    error: "Tipo de producto es requerido",
   }),
   minimum_stock: z.coerce
     .number()

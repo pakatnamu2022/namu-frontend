@@ -23,7 +23,7 @@ export const opportunityActionSchemaCreate = z.object({
     .string()
     .min(10, "La descripción debe tener al menos 10 caracteres"),
   result: z.boolean({
-    required_error: "El resultado es requerido",
+    error: "El resultado es requerido",
   }),
 });
 
