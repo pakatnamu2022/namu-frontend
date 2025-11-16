@@ -1,0 +1,103 @@
+"use client";
+
+import { notFound, useParams, useRouter } from "next/navigation";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useCurrentModule } from "@/src/shared/hooks/useCurrentModule";
+import {
+  ERROR_MESSAGE,
+  errorToast,
+  SUCCESS_MESSAGE,
+  successToast,
+} from "@/src/core/core.function";
+import TitleFormComponent from "@/src/shared/components/TitleFormComponent";
+import FormSkeleton from "@/src/shared/components/FormSkeleton";
+import FormWrapper from "@/src/shared/components/FormWrapper";
+import { PURCHASE_REQUEST_QUOTE } from "@/src/features/ap/comercial/solicitudes-cotizaciones/lib/purchaseRequestQuote.constants";
+import {
+  findPurchaseRequestQuoteById,
+  updatePurchaseRequestQuote,
+} from "@/src/features/ap/comercial/solicitudes-cotizaciones/lib/purchaseRequestQuote.actions";
+import { PurchaseRequestQuoteSchema } from "@/src/features/ap/comercial/solicitudes-cotizaciones/lib/purchaseRequestQuote.schema";
+import { PurchaseRequestQuoteResource } from "@/src/features/ap/comercial/solicitudes-cotizaciones/lib/purchaseRequestQuote.interface";
+import { PurchaseRequestQuoteForm } from "@/src/features/ap/comercial/solicitudes-cotizaciones/components/PurchaseRequestQuoteForm";
+
+export default function EditPurchaseRequestQuotePage() {
+  const { id } = useParams();
+  const router = useRouter();
+  const queryClient = useQueryClient();
+  const { currentView, checkRouteExists } = useCurrentModule();
+  const { ROUTE, QUERY_KEY, MODEL } = PURCHASE_REQUEST_QUOTE;
+
+  const { data: PurchaseRequestQuote, isLoading: loadingPurchaseRequestQuote } =
+    useQuery({
+      queryKey: [QUERY_KEY, id],
+      queryFn: () => findPurchaseRequestQuoteById(Number(id)),
+      refetchOnWindowFocus: false,
+    });
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: (data: PurchaseRequestQuoteSchema) =>
+      updatePurchaseRequestQuote(Number(id), data),
+    onSuccess: async () => {
+      successToast(SUCCESS_MESSAGE(MODEL, "update"));
+      await queryClient.invalidateQueries({
+        queryKey: [QUERY_KEY, id],
+      });
+      router.push("../");
+    },
+    onError: (error: any) => {
+      const msg = error?.response?.data?.message || "";
+      errorToast(ERROR_MESSAGE(MODEL, "delete", msg));
+    },
+  });
+
+  const handleSubmit = (data: PurchaseRequestQuoteSchema) => {
+    mutate(data);
+  };
+
+  function mapPurchaseRequestQuoteToForm(
+    data: PurchaseRequestQuoteResource
+  ): any {
+    return {
+      sede_id: String(data.sede_id),
+      type_document: data.type_document,
+      opportunity_id: String(data.opportunity_id || ""),
+      holder_id: String(data.holder_id),
+      with_vin: !!data.ap_vehicle_id,
+      vehicle_color_id: String(data.vehicle_color_id || ""),
+      ap_models_vn_id: String(data.ap_models_vn_id || ""),
+      ap_vehicle_id: data.ap_vehicle_id?.toString(),
+      sale_price: data.base_selling_price?.toString() || "0",
+      doc_type_currency_id: data.doc_type_currency_id?.toString(),
+      comment: data.comment || "",
+      warranty: data.warranty || "",
+      // Pasar los arrays tal como vienen del API
+      bonus_discounts: data.bonus_discounts || [],
+      accessories: data.accessories || [],
+    };
+  }
+
+  const isLoadingAny = loadingPurchaseRequestQuote || !PurchaseRequestQuote;
+
+  if (isLoadingAny) {
+    return <FormSkeleton />;
+  }
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
+
+  return (
+    <FormWrapper>
+      <TitleFormComponent
+        title={currentView.descripcion}
+        mode="edit"
+        icon={currentView.icon}
+      />
+      <PurchaseRequestQuoteForm
+        defaultValues={mapPurchaseRequestQuoteToForm(PurchaseRequestQuote)}
+        onSubmit={handleSubmit}
+        isSubmitting={isPending}
+        mode="update"
+      />
+    </FormWrapper>
+  );
+}

@@ -1,0 +1,20 @@
+// import { AxiosRequestConfig } from "axios";
+
+import { api } from "@/src/core/api";
+
+export async function getUseStateGraph(): Promise<UseStateGraphResource[]> {
+  //   const config: AxiosRequestConfig = {
+  //     params: {
+  //       ...params,
+  //     },
+  //   };
+  const { data } = await api.get<UseStateGraphResource[]>(
+    "/equipment/useStateGraph"
+  );
+  return data;
+}
+
+export async function getSedeGraph(): Promise<SedeGraphResource[]> {
+  const { data } = await api.get<SedeGraphResource[]>("/equipment/sedeGraph");
+  return data;
+}

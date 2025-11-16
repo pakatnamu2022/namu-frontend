@@ -1,0 +1,66 @@
+import { EvaluationPersonResultResource } from "./evaluationPerson.interface";
+
+export const getQuickStats = (
+  evaluationPersonResult: EvaluationPersonResultResource
+) => {
+  const totalCompetence =
+    evaluationPersonResult.competenceGroups?.reduce(
+      (sum, group) => sum + group.total_sub_competences,
+      0
+    ) || 0;
+
+  const totalObjectives = evaluationPersonResult.hasObjectives
+    ? evaluationPersonResult.details?.length || 0
+    : 0;
+
+  const completedCompetence =
+    evaluationPersonResult.competenceGroups?.reduce(
+      (sum, group) => sum + group.completed_evaluations,
+      0
+    ) || 0;
+
+  const completedObjectives = evaluationPersonResult.hasObjectives
+    ? evaluationPersonResult.details?.filter(
+        (detail) => parseFloat(detail.result) > 0
+      ).length || 0
+    : 0;
+
+  const competenceCompletionPercentage = evaluationPersonResult.competenceGroups
+    ? Math.round(
+        (evaluationPersonResult.competenceGroups.reduce(
+          (sum, group) => sum + group.completed_evaluations,
+          0
+        ) /
+          evaluationPersonResult.competenceGroups.reduce(
+            (sum, group) => sum + group.total_sub_competences,
+            0
+          )) *
+          100
+      )
+    : 0;
+  const objectiveCompletionPercentage =
+    evaluationPersonResult.hasObjectives && evaluationPersonResult.details
+      ? Math.round(
+          (evaluationPersonResult.details.filter(
+            (detail) => parseFloat(detail.result) > 0
+          ).length /
+            evaluationPersonResult.details.length) *
+            100
+        )
+      : 0;
+
+  const overallCompletion = Math.round(
+    (competenceCompletionPercentage + objectiveCompletionPercentage) /
+      (evaluationPersonResult.hasObjectives ? 2 : 1)
+  );
+
+  return {
+    totalCompetence: totalCompetence,
+    completedCompetence: completedCompetence,
+    totalObjectives: totalObjectives,
+    completedObjectives: completedObjectives,
+    overallCompletion: overallCompletion,
+    competenceCompletionPercentage: competenceCompletionPercentage,
+    objectiveCompletionPercentage: objectiveCompletionPercentage,
+  };
+};

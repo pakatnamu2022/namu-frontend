@@ -1,0 +1,97 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useEconomicActivityById } from "../lib/economicActivity.hook";
+import { EconomicActivityResource } from "../lib/economicActivity.interface";
+import { EconomicActivitySchema } from "../lib/economicActivity.schema";
+import {
+  storeEconomicActivity,
+  updateEconomicActivity,
+} from "../lib/economicActivity.actions";
+import {
+  ERROR_MESSAGE,
+  errorToast,
+  SUCCESS_MESSAGE,
+  successToast,
+} from "@/src/core/core.function";
+import { GeneralModal } from "@/src/shared/components/GeneralModal";
+import { EconomicActivityForm } from "./EconomicActivityForm";
+import FormSkeleton from "@/src/shared/components/FormSkeleton";
+import { ECONOMIC_ACTIVITY } from "../lib/economicActivity.constants";
+import { AP_MASTER_COMERCIAL } from "../../../../lib/ap.constants";
+
+interface Props {
+  id?: number;
+  open: boolean;
+  onClose: () => void;
+  title: string;
+  mode: "create" | "update";
+}
+
+export default function EconomicActivityModal({
+  id,
+  open,
+  onClose,
+  title,
+  mode,
+}: Props) {
+  const queryClient = useQueryClient();
+  const { EMPTY, QUERY_KEY, MODEL } = ECONOMIC_ACTIVITY;
+  const {
+    data: bank,
+    isLoading: loadingEconomicActivity,
+    refetch,
+  } = mode === "create"
+    ? { data: EMPTY, isLoading: false, refetch: () => {} }
+    : useEconomicActivityById(id!);
+
+  function mapEconomicActivityToForm(
+    data: EconomicActivityResource
+  ): Partial<EconomicActivitySchema> {
+    return {
+      description: data.description,
+      type: AP_MASTER_COMERCIAL.ECONOMIC_ACTIVITY,
+    };
+  }
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: (data: EconomicActivitySchema) =>
+      mode === "create"
+        ? storeEconomicActivity(data)
+        : updateEconomicActivity(id!, data),
+    onSuccess: async () => {
+      successToast(SUCCESS_MESSAGE(MODEL, mode));
+      await queryClient.invalidateQueries({
+        queryKey: [QUERY_KEY],
+      });
+      await refetch();
+    },
+    onError: (error: any) => {
+      errorToast(error.response?.data?.message, ERROR_MESSAGE(MODEL, mode));
+    },
+  });
+
+  const handleSubmit = (data: EconomicActivitySchema) => {
+    mutate({
+      ...data,
+    } as any);
+
+    onClose();
+  };
+
+  const isLoadingAny = loadingEconomicActivity || !bank;
+
+  return (
+    <GeneralModal open={open} onClose={onClose} title={title}>
+      {!isLoadingAny && bank ? (
+        <EconomicActivityForm
+          defaultValues={mapEconomicActivityToForm(bank)}
+          onCancel={onClose}
+          onSubmit={handleSubmit}
+          isSubmitting={isPending}
+          mode={mode}
+        />
+      ) : (
+        <FormSkeleton />
+      )}
+    </GeneralModal>
+  );
+}

@@ -1,0 +1,17 @@
+import { ModelComplete } from "@/src/core/core.interface";
+
+const ROUTE = "categorias-jerarquicas";
+
+export const HIERARCHICAL_CATEGORY: ModelComplete = {
+  MODEL: {
+    name: "Categoría Jerárquica",
+    plural: "Categorías Jerárquicas",
+    gender: true,
+  },
+  ICON: "ChartBarStacked",
+  ENDPOINT: "/gp/gh/performanceEvaluation/hierarchicalCategory",
+  QUERY_KEY: "hierarchicalCategory",
+  ROUTE,
+  ROUTE_ADD: `${ROUTE}/agregar`,
+  ROUTE_UPDATE: `${ROUTE}/actualizar`,
+};

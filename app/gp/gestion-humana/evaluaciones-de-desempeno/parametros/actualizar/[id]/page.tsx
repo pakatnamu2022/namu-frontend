@@ -1,0 +1,94 @@
+"use client";
+
+import { notFound, useParams, useRouter } from "next/navigation";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  ERROR_MESSAGE,
+  errorToast,
+  SUCCESS_MESSAGE,
+  successToast,
+} from "@/src/core/core.function";
+import {
+  findParameterById,
+  updateParameter,
+} from "@/src/features/gp/gestionhumana/evaluaciondesempeño/parametros/lib/parameter.actions";
+import { ParameterSchema } from "@/src/features/gp/gestionhumana/evaluaciondesempeño/parametros/lib/parameter.schema";
+import { ParameterResource } from "@/src/features/gp/gestionhumana/evaluaciondesempeño/parametros/lib/parameter.interface";
+import TitleFormComponent from "@/src/shared/components/TitleFormComponent";
+import { useCurrentModule } from "@/src/shared/hooks/useCurrentModule";
+import { PARAMETER } from "@/src/features/gp/gestionhumana/evaluaciondesempeño/parametros/lib/parameter.constans";
+import ParameterForm from "@/src/features/gp/gestionhumana/evaluaciondesempeño/parametros/components/ParameterForm";
+import FormWrapper from "@/src/shared/components/FormWrapper";
+
+const { MODEL } = PARAMETER;
+
+export default function EditParameterPage() {
+  const { id } = useParams();
+  const router = useRouter();
+  const queryClient = useQueryClient();
+  const { currentView, checkRouteExists } = useCurrentModule();
+
+  const { data: parameter, isLoading: loadingParameter } = useQuery({
+    queryKey: [MODEL.name, id],
+    queryFn: () => findParameterById(id as string),
+    refetchOnWindowFocus: false,
+  });
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: (data: ParameterSchema) => updateParameter(id as string, data),
+    onSuccess: async () => {
+      successToast(SUCCESS_MESSAGE(MODEL, "update"));
+      await queryClient.invalidateQueries({
+        queryKey: [MODEL.name, id],
+      });
+      router.push("../");
+    },
+    onError: () => {
+      errorToast(ERROR_MESSAGE(MODEL, "update"));
+    },
+  });
+
+  const handleSubmit = (data: ParameterSchema) => {
+    mutate(data);
+  };
+
+  function mapParameterToForm(
+    data: ParameterResource
+  ): Partial<ParameterSchema> {
+    return {
+      name: data.name,
+      type: data.type as "objectives" | "competences" | "final",
+      detailsCount: data.details.length.toString() as "4" | "5" | "6",
+      details: data.details.map((detail) => ({
+        id: detail.id,
+        label: detail.label,
+        from: detail.from,
+        to: detail.to,
+      })),
+    };
+  }
+
+  const isLoadingAny = loadingParameter || !parameter;
+
+  if (isLoadingAny) {
+    return <div className="p-4 text-muted">Cargando competencia...</div>;
+  }
+  if (!checkRouteExists("parametros")) notFound();
+  if (!currentView) notFound();
+
+  return (
+    <FormWrapper>
+      <TitleFormComponent
+        title={currentView.descripcion}
+        mode="edit"
+        icon={currentView.icon}
+      />
+      <ParameterForm
+        defaultValues={mapParameterToForm(parameter)}
+        onSubmit={handleSubmit}
+        isSubmitting={isPending}
+        mode="update"
+      />
+    </FormWrapper>
+  );
+}

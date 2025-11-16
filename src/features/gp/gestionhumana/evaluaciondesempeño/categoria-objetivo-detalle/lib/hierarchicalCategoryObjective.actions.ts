@@ -1,0 +1,89 @@
+import { api } from "@/src/core/api";
+import { GeneralResponse } from "@/src/shared/lib/response.interface";
+import { AxiosRequestConfig } from "axios";
+import {
+  CategoryObjectivePersonResponse,
+  getHierarchicalCategoryObjectivesProps,
+  HierarchicalCategoryObjectiveResource,
+  HierarchicalCategoryObjectiveResponse,
+} from "./hierarchicalCategoryObjective.interface";
+import { CATEGORY_OBJECTIVE } from "@/src/features/gp/gestionhumana/evaluaciondesempeño/categoria-objetivo-detalle/lib/hierarchicalCategoryObjective.constants";
+
+const { ENDPOINT } = CATEGORY_OBJECTIVE;
+
+export async function getHierarchicalCategoryObjective({
+  params,
+}: getHierarchicalCategoryObjectivesProps): Promise<HierarchicalCategoryObjectiveResponse> {
+  const config: AxiosRequestConfig = {
+    params: {
+      ...params,
+    },
+  };
+  const { data } = await api.get<HierarchicalCategoryObjectiveResponse>(
+    ENDPOINT,
+    config
+  );
+  return data;
+}
+
+export async function getAllHierarchicalCategoryObjective(): Promise<
+  HierarchicalCategoryObjectiveResource[]
+> {
+  const config: AxiosRequestConfig = {
+    params: {
+      all: true,
+    },
+  };
+  const { data } = await api.get<HierarchicalCategoryObjectiveResource[]>(
+    ENDPOINT,
+    config
+  );
+  return data;
+}
+
+export async function findHierarchicalCategoryObjectiveById(
+  id: number
+): Promise<HierarchicalCategoryObjectiveResource> {
+  const response = await api.get<HierarchicalCategoryObjectiveResource>(
+    `${ENDPOINT}/${id}`
+  );
+  return response.data;
+}
+
+export async function getCategoryObjectivePersonById(
+  id: number
+): Promise<CategoryObjectivePersonResponse[]> {
+  const response = await api.get<CategoryObjectivePersonResponse[]>(
+    `${ENDPOINT}/${id}/workers`
+  );
+  return response.data;
+}
+
+export async function storeHierarchicalCategoryObjective(
+  data: any
+): Promise<HierarchicalCategoryObjectiveResponse> {
+  const response = await api.post<HierarchicalCategoryObjectiveResponse>(
+    ENDPOINT,
+    data
+  );
+  return response.data;
+}
+
+export async function updateHierarchicalCategoryObjective(
+  id: number,
+  data: any
+): Promise<HierarchicalCategoryObjectiveResponse> {
+  const response = await api.put<HierarchicalCategoryObjectiveResponse>(
+    `${ENDPOINT}/${id}`,
+    data
+  );
+  return response.data;
+}
+
+export async function deleteHierarchicalCategoryObjective(body: {
+  category_id: number;
+  objective_id: number;
+}): Promise<GeneralResponse> {
+  const { data } = await api.post<GeneralResponse>(`${ENDPOINT}/destroy`, body);
+  return data;
+}

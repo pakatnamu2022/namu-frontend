@@ -1,0 +1,161 @@
+"use client";
+
+import { ColumnDef } from "@tanstack/react-table";
+import { UserResource } from "../lib/user.interface";
+import { Button } from "@/components/ui/button";
+import { Pencil, UserRoundCog, Building2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { DeleteButton } from "@/src/shared/components/SimpleDeleteDialog";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
+export type UserColumns = ColumnDef<UserResource>;
+
+export const userColumns = ({
+  onDelete,
+  onManageSedes,
+}: {
+  onDelete: (id: number) => void;
+  onManageSedes?: (user: UserResource) => void;
+}): UserColumns[] => [
+  {
+    id: "userInfo",
+    header: "Usuario",
+    accessorFn: (row) => row, // accedes a toda la fila
+    cell: ({ getValue }) => {
+      const user = getValue() as UserResource;
+
+      return (
+        <div className="flex items-center gap-3">
+          <Avatar className="size-8">
+            <AvatarImage
+              className="object-cover object-top"
+              src={user.foto_adjunto}
+              alt={user.name}
+            />
+            <AvatarFallback>{user.name?.[0] ?? "-"}</AvatarFallback>
+          </Avatar>
+          <p className="font-semibold">{user.name}</p>
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "username",
+    header: "Usuario",
+    cell: ({ getValue }) => {
+      const value = getValue() as string;
+      return (
+        value && (
+          <Badge variant="outline" className="capitalize gap-2">
+            {value}
+          </Badge>
+        )
+      );
+    },
+  },
+  {
+    accessorKey: "role",
+    header: "Rol",
+    cell: ({ getValue }) => {
+      const value = getValue() as string;
+      return (
+        value && (
+          <Badge variant="default" className="capitalize gap-2">
+            {value}
+          </Badge>
+        )
+      );
+    },
+  },
+  {
+    accessorKey: "position",
+    header: "Cargo",
+    cell: ({ getValue }) => {
+      const value = getValue() as string;
+      return (
+        value && (
+          <Badge variant={"tertiary"} className="capitalize gap-2">
+            {value}
+          </Badge>
+        )
+      );
+    },
+  },
+  {
+    accessorKey: "empresa",
+    header: "Empresa",
+    cell: ({ getValue }) => {
+      const value = getValue() as string;
+      return (
+        value && (
+          <Badge variant="outline" className="capitalize gap-2">
+            {value}
+          </Badge>
+        )
+      );
+    },
+  },
+  {
+    accessorKey: "sede",
+    header: "Sede",
+    cell: ({ getValue }) => {
+      const value = getValue() as string;
+      return (
+        value && (
+          <Badge variant="tertiary" className="capitalize gap-2">
+            {value}
+          </Badge>
+        )
+      );
+    },
+  },
+  {
+    id: "actions",
+    header: "Acciones",
+    cell: ({ row }) => {
+      const router = useRouter();
+      const id = row.original.id;
+      const user = row.original;
+
+      return (
+        <div className="flex items-center gap-2">
+          {/* Gestionar Sedes */}
+          {onManageSedes && (
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-7"
+              onClick={() => onManageSedes(user)}
+              tooltip="Gestionar Sedes"
+            >
+              <Building2 className="size-5" />
+            </Button>
+          )}
+          {/* Rol */}
+          <Button
+            variant="outline"
+            size="icon"
+            className="size-7"
+            onClick={() => router.push(`./vistas/actualizar/${id}`)}
+            tooltip="Gestionar Rol"
+          >
+            <UserRoundCog className="size-5" />
+          </Button>
+          {/* Edit */}
+          <Button
+            variant="outline"
+            size="icon"
+            className="size-7"
+            onClick={() => router.push(`./vistas/actualizar/${id}`)}
+            tooltip="Editar Usuario"
+          >
+            <Pencil className="size-5" />
+          </Button>
+          {/* Delete */}
+          <DeleteButton onClick={() => onDelete(id)} />
+        </div>
+      );
+    },
+  },
+];

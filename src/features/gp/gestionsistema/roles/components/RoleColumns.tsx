@@ -1,0 +1,103 @@
+"use client";
+
+import { ColumnDef } from "@tanstack/react-table";
+import { RoleResource } from "../lib/role.interface";
+import { Button } from "@/components/ui/button";
+import { KeyRound, Pencil, UsersRound } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { DeleteButton } from "@/src/shared/components/SimpleDeleteDialog";
+import { Badge } from "@/components/ui/badge";
+import { RoleUsersModal } from "./RoleUsersModal";
+
+export type RoleColumns = ColumnDef<RoleResource>;
+
+interface Props {
+  onDelete: (id: number) => void;
+  onUpdate: (id: number) => void;
+}
+
+export const roleColumns = ({ onUpdate, onDelete }: Props): RoleColumns[] => [
+  {
+    accessorKey: "nombre",
+    header: "Nombre",
+    cell: ({ getValue }) => {
+      const value = getValue() as string;
+      return value && <p className="font-semibold">{value}</p>;
+    },
+  },
+  {
+    accessorKey: "descripcion",
+    header: "Descripción",
+    cell: ({ getValue }) => {
+      const value = getValue() as string;
+      return value && <p className="uppercase">{value}</p>;
+    },
+  },
+  {
+    accessorKey: "users",
+    header: "Usuarios",
+    cell: ({ getValue }) => {
+      const value = getValue() as string;
+      return <Badge className="text-xs">{value}</Badge>;
+    },
+  },
+  {
+    id: "actions",
+    header: "Acciones",
+    cell: ({ row }) => {
+      const router = useRouter();
+      const id = row.original.id;
+
+      return (
+        <div className="flex items-center gap-2">
+          {/* Users */}
+          <RoleUsersModal
+            id={id}
+            nombre={row.original.nombre}
+            trigger={
+              <Button
+                tooltip="Usuarios"
+                variant="outline"
+                size="sm"
+                className="h-7 text-xs"
+              >
+                <UsersRound className="size-5" />
+                Asignados
+              </Button>
+            }
+          />
+          {/* Accesss */}
+          <Button
+            tooltip="Permisos"
+            variant="outline"
+            size="sm"
+            className="h-7 text-xs"
+            onClick={() =>
+              router.push(
+                `./roles/permisos/${id}?nombre=${encodeURIComponent(
+                  row.original.nombre
+                )}`
+              )
+            }
+          >
+            <KeyRound className="size-5" />
+            Permisos
+          </Button>
+
+          {/* Edit */}
+          <Button
+            variant="outline"
+            size="icon"
+            className="size-7"
+            onClick={() => onUpdate(id)}
+          >
+            <Pencil className="size-5" />
+          </Button>
+
+          {/* Delete */}
+          <DeleteButton onClick={() => onDelete(id)} />
+        </div>
+      );
+    },
+  },
+];
