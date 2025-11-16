@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { ChevronLeft } from "lucide-react";
-import { Link } from 'react-router-dom'
+import { Link } from "react-router-dom";
 
 const BackButton = ({
   route = "",
@@ -16,14 +16,8 @@ const BackButton = ({
   variant?: "outline" | "default" | "ghost" | "link" | "destructive";
 }) => (
   <div className="lg:col-span-1 space-y-6">
-    <Link
-      href={route}
-      className="w-full flex justify-center items-center gap-2"
-    >
-      <Button
-        variant={variant}
-        size={size}
-      >
+    <Link to={route} className="w-full flex justify-center items-center gap-2">
+      <Button variant={variant} size={size}>
         <ChevronLeft className="w-4 h-4" />
         {size !== "icon"
           ? fullname

@@ -19,7 +19,7 @@ import {
   positionSchemaUpdate,
 } from "../lib/position.schema";
 import { Loader } from "lucide-react";
-import { Link } from 'react-router-dom'
+import { Link } from "react-router-dom";
 import { POSITION } from "@/features/gp/gestionhumana/personal/posiciones/lib/position.constant";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { FileForm } from "@/shared/components/FileForm";
@@ -51,21 +51,20 @@ export const PositionForm = ({
       mode === "create" ? positionSchemaCreate : positionSchemaUpdate
     ),
     defaultValues: {
-      name: "",
-      descripcion: "",
-      area_id: 0,
-      hierarchical_category_id: 0,
-      cargo_id: 0,
-      ntrabajadores: 0,
-      banda_salarial_min: 0,
-      banda_salarial_media: 0,
-      banda_salarial_max: 0,
-      tipo_onboarding_id: 0,
-      plazo_proceso_seleccion: 0,
-      presupuesto: 0,
-      mof_adjunto: undefined,
-      files: undefined,
-      ...defaultValues,
+      name: defaultValues?.name || "",
+      descripcion: defaultValues?.descripcion || "",
+      area_id: defaultValues?.area_id || undefined,
+      hierarchical_category_id: defaultValues?.hierarchical_category_id || undefined,
+      cargo_id: defaultValues?.cargo_id || undefined,
+      ntrabajadores: defaultValues?.ntrabajadores || undefined,
+      banda_salarial_min: defaultValues?.banda_salarial_min || undefined,
+      banda_salarial_media: defaultValues?.banda_salarial_media || undefined,
+      banda_salarial_max: defaultValues?.banda_salarial_max || undefined,
+      tipo_onboarding_id: defaultValues?.tipo_onboarding_id || undefined,
+      plazo_proceso_seleccion: defaultValues?.plazo_proceso_seleccion || undefined,
+      presupuesto: defaultValues?.presupuesto || undefined,
+      mof_adjunto: defaultValues?.mof_adjunto || undefined,
+      files: defaultValues?.files || undefined,
     },
     mode: "onChange",
   });
@@ -133,7 +132,7 @@ export const PositionForm = ({
                   <Textarea
                     placeholder="Descripción de la posición"
                     {...field}
-                    value={field.value || ""}
+                    value={field.value?.toString() ?? ""}
                   />
                 </FormControl>
                 <FormMessage />
@@ -182,11 +181,10 @@ export const PositionForm = ({
                       type="number"
                       min="0"
                       placeholder="0"
-                      {...field}
-                      value={field.value || ""}
+                      value={field.value ?? ""}
                       onChange={(e) =>
                         field.onChange(
-                          e.target.value ? parseInt(e.target.value) : undefined
+                          e.target.value ? Number(e.target.value) : undefined
                         )
                       }
                     />
@@ -215,13 +213,10 @@ export const PositionForm = ({
                       min="0"
                       step="0.01"
                       placeholder="0.00"
-                      {...field}
-                      value={field.value || ""}
+                      value={field.value ?? ""}
                       onChange={(e) =>
                         field.onChange(
-                          e.target.value
-                            ? parseFloat(e.target.value)
-                            : undefined
+                          e.target.value ? Number(e.target.value) : undefined
                         )
                       }
                     />
@@ -243,13 +238,10 @@ export const PositionForm = ({
                       min="0"
                       step="0.01"
                       placeholder="0.00"
-                      {...field}
-                      value={field.value || ""}
+                      value={field.value ?? ""}
                       onChange={(e) =>
                         field.onChange(
-                          e.target.value
-                            ? parseFloat(e.target.value)
-                            : undefined
+                          e.target.value ? Number(e.target.value) : undefined
                         )
                       }
                     />
@@ -271,13 +263,10 @@ export const PositionForm = ({
                       min="0"
                       step="0.01"
                       placeholder="0.00"
-                      {...field}
-                      value={field.value || ""}
+                      value={field.value ?? ""}
                       onChange={(e) =>
                         field.onChange(
-                          e.target.value
-                            ? parseFloat(e.target.value)
-                            : undefined
+                          e.target.value ? Number(e.target.value) : undefined
                         )
                       }
                     />

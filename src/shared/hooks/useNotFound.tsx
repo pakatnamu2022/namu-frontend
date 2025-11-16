@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 
 /**
  * Hook to trigger a redirect to the 404 page

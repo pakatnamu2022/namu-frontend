@@ -1,13 +1,23 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
-import { Heart, MessageSquare, Share2, Send, ImageIcon, Users, TrendingUp, Activity, Plus } from "lucide-react"
+import { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import {
+  Heart,
+  MessageSquare,
+  Share2,
+  Send,
+  ImageIcon,
+  Users,
+  TrendingUp,
+  Activity,
+  Plus,
+} from "lucide-react";
 
 const feedData = [
   {
@@ -25,7 +35,8 @@ const feedData = [
     comments: [
       {
         user: "Carlos Ruiz",
-        content: "¡Totalmente de acuerdo! Los nuevos protocolos son muy útiles.",
+        content:
+          "¡Totalmente de acuerdo! Los nuevos protocolos son muy útiles.",
         timestamp: "Hace 1 hora",
       },
     ],
@@ -79,27 +90,27 @@ const feedData = [
       },
     ],
   },
-]
+];
 
 const departmentColors = {
   Transporte: "#00227D",
   Depósito: "#F01E23",
   RRHH: "#00227D",
   Automotores: "#F01E23",
-}
+};
 
 export function SocialFeed() {
-  const [newPost, setNewPost] = useState("")
-  const [newComment, setNewComment] = useState("")
-  const [showCreatePost, setShowCreatePost] = useState(false)
+  const [newPost, setNewPost] = useState("");
+  const [newComment, setNewComment] = useState("");
+  const [showCreatePost, setShowCreatePost] = useState(false);
 
   const handleCreatePost = () => {
     if (newPost.trim()) {
-      console.log("Nuevo post:", newPost)
-      setNewPost("")
-      setShowCreatePost(false)
+      console.log("Nuevo post:", newPost);
+      setNewPost("");
+      setShowCreatePost(false);
     }
-  }
+  };
 
   return (
     <div className="space-y-6">
@@ -135,25 +146,38 @@ export function SocialFeed() {
           <CardContent className="p-4">
             <div className="flex gap-3 mb-4">
               <Avatar className="w-10 h-10">
-                <AvatarImage src="/placeholder.svg?height=40&width=40" alt="Juan Carlos Pérez" />
-                <AvatarFallback className="bg-primary text-white">JC</AvatarFallback>
+                <AvatarImage
+                  src="/placeholder.svg?height=40&width=40"
+                  alt="Juan Carlos Pérez"
+                />
+                <AvatarFallback className="bg-primary text-white">
+                  JC
+                </AvatarFallback>
               </Avatar>
               <div className="flex-1">
                 <Textarea
                   placeholder="¿Qué quieres compartir con tu equipo?"
                   value={newPost}
                   onChange={(e) => setNewPost(e.target.value)}
-                  className="min-h-[80px] border-primary/20 focus:border-primary resize-none"
+                  className="min-h-20 border-primary/20 focus:border-primary resize-none"
                 />
               </div>
             </div>
             <div className="flex justify-between items-center">
-              <Button variant="outline" size="sm" className="flex items-center gap-2">
-                <imgIcon className="w-4 h-4" />
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex items-center gap-2"
+              >
+                <ImageIcon className="w-4 h-4" />
                 Imagen
               </Button>
               <div className="flex gap-2">
-                <Button variant="outline" size="sm" onClick={() => setShowCreatePost(false)}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowCreatePost(false)}
+                >
                   Cancelar
                 </Button>
                 <Button
@@ -174,12 +198,18 @@ export function SocialFeed() {
       {/* Posts del feed */}
       <div className="space-y-4">
         {feedData.map((post) => (
-          <Card key={post.id} className="bg-background border border-primary/10 shadow-xs">
+          <Card
+            key={post.id}
+            className="bg-background border border-primary/10 shadow-xs"
+          >
             <CardContent className="p-4">
               {/* Header del post */}
               <div className="flex items-center gap-3 mb-3">
                 <Avatar className="w-10 h-10">
-                  <AvatarImage src={post.user.avatar || "/placeholder.svg"} alt={post.user.name} />
+                  <AvatarImage
+                    src={post.user.avatar || "/placeholder.svg"}
+                    alt={post.user.name}
+                  />
                   <AvatarFallback className="bg-primary text-white text-sm">
                     {post.user.name
                       .split(" ")
@@ -189,11 +219,17 @@ export function SocialFeed() {
                 </Avatar>
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
-                    <h4 className="font-semibold text-primary text-sm">{post.user.name}</h4>
+                    <h4 className="font-semibold text-primary text-sm">
+                      {post.user.name}
+                    </h4>
                     <Badge
                       className="text-xs text-white"
                       style={{
-                        backgroundColor: departmentColors[post.user.department as keyof typeof departmentColors],
+                        backgroundColor:
+                          departmentColors[
+                            post.user
+                              .department as keyof typeof departmentColors
+                          ],
                       }}
                     >
                       {post.user.department}
@@ -259,10 +295,16 @@ export function SocialFeed() {
                       </Avatar>
                       <div className="flex-1 bg-gray-50 rounded-lg p-2">
                         <div className="flex items-center gap-2 mb-1">
-                          <span className="font-medium text-xs text-primary">{comment.user}</span>
-                          <span className="text-xs text-gray-500">{comment.timestamp}</span>
+                          <span className="font-medium text-xs text-primary">
+                            {comment.user}
+                          </span>
+                          <span className="text-xs text-gray-500">
+                            {comment.timestamp}
+                          </span>
                         </div>
-                        <p className="text-xs text-gray-700">{comment.content}</p>
+                        <p className="text-xs text-gray-700">
+                          {comment.content}
+                        </p>
                       </div>
                     </div>
                   ))}
@@ -272,8 +314,13 @@ export function SocialFeed() {
               {/* Agregar comentario */}
               <div className="flex gap-2 pt-2 border-t border-gray-200">
                 <Avatar className="w-6 h-6">
-                  <AvatarImage src="/placeholder.svg?height=24&width=24" alt="Juan Carlos Pérez" />
-                  <AvatarFallback className="bg-primary text-white text-xs">JC</AvatarFallback>
+                  <AvatarImage
+                    src="/placeholder.svg?height=24&width=24"
+                    alt="Juan Carlos Pérez"
+                  />
+                  <AvatarFallback className="bg-primary text-white text-xs">
+                    JC
+                  </AvatarFallback>
                 </Avatar>
                 <div className="flex-1 flex gap-1">
                   <Input
@@ -312,5 +359,5 @@ export function SocialFeed() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

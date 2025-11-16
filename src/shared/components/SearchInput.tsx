@@ -11,7 +11,7 @@ export default function SearchInput({
   placeholder?: string;
 }) {
   const [inputValue, setInputValue] = useState(value);
-  const debounceRef = useRef<NodeJS.Timeout | null>(null);
+  const debounceRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);

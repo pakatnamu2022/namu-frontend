@@ -194,7 +194,7 @@ export const ImageUploadField = ({
                     {value && (
                       <div className="text-sm text-gray-600 text-center space-y-1">
                         <p className="font-medium flex items-center justify-center gap-2">
-                          <imgIcon className="h-4 w-4" />
+                          <ImageIcon className="h-4 w-4" />
                           {value.name}
                         </p>
                         <p className="text-xs text-gray-500">

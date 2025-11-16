@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { ProfileCard } from "@/features/users/components/profile-card";
 import { ChevronLeft } from "lucide-react";
-import { Link } from 'react-router-dom'
+import { Link } from "react-router-dom";
 
 const ProfileSidebar = ({
   route = "",
@@ -11,10 +11,7 @@ const ProfileSidebar = ({
   name: string;
 }) => (
   <div className="lg:col-span-1 space-y-6 border-primary/10 md:border-r">
-    <Link
-      href={route}
-      className="w-full flex justify-center items-center gap-2"
-    >
+    <Link to={route} className="w-full flex justify-center items-center gap-2">
       <Button variant="ghost" size="sm" className="text-primary">
         <ChevronLeft className="w-4 h-4" />
         Regresar a {name}

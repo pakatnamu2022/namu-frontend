@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/chart";
 import { PieChart, Pie, ResponsiveContainer } from "recharts";
 import { useEquipmentsEstadoUso } from "../lib/tics.hook";
+import { UseStateGraphResource } from "../lib/tics.interface";
 
 const chartConfig = {
   NUEVO: {

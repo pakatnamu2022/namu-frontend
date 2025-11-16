@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { getSedeGraph, getUseStateGraph } from "./tics.actions";
+import { UseStateGraphResource } from "./tics.interface";
 
 export const useEquipmentsEstadoUso = () => {
   return useQuery<UseStateGraphResource[]>({

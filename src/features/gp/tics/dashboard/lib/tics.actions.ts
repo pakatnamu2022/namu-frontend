@@ -1,6 +1,7 @@
 // import type { AxiosRequestConfig } from "axios";
 
 import { api } from "@/core/api";
+import { SedeGraphResource, UseStateGraphResource } from "./tics.interface";
 
 export async function getUseStateGraph(): Promise<UseStateGraphResource[]> {
   //   const config: AxiosRequestConfig = {

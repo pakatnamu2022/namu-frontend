@@ -9,7 +9,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
-import React, { ReactNode, useRef } from "react";
+import { ReactNode, useRef } from "react";
 
 type ChildrenRender = (args: {
   portalContainer: HTMLElement | null;
