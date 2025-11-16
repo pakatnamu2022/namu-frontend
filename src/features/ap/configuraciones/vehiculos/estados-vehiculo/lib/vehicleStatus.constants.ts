@@ -1,4 +1,4 @@
-import { ModelComplete } from "@/core/core.interface";
+import { type ModelComplete } from "@/core/core.interface";
 import { VehicleStatusResource } from "./vehicleStatus.interface";
 
 const ROUTE = "estados-vehiculo";

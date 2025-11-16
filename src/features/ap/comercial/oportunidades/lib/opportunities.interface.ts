@@ -1,4 +1,4 @@
-import { Links, Meta } from "@/shared/lib/pagination.interface";
+import { type Links, type Meta } from "@/shared/lib/pagination.interface";
 import { CustomersResource } from "../../clientes/lib/customers.interface";
 import { FamiliesResource } from "@/features/ap/configuraciones/vehiculos/familias/lib/families.interface";
 import { OpportunityActionResource } from "./opportunityAction.interface";

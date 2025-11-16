@@ -1,8 +1,8 @@
-import { Links, Meta } from "@/shared/lib/pagination.interface";
-import { CyclePersonDetailResource } from "../../ciclos/lib/cyclePersonDetail";
-import { EvaluationResource } from "../../evaluaciones/lib/evaluation.interface";
-import { WorkerResource } from "../../../personal/trabajadores/lib/worker.interface";
-import { ParameterResource } from "../../parametros/lib/parameter.interface";
+import { type Links, type Meta } from "@/shared/lib/pagination.interface";
+import { type CyclePersonDetailResource } from "../../ciclos/lib/cyclePersonDetail";
+import { type EvaluationResource } from "../../evaluaciones/lib/evaluation.interface";
+import { type WorkerResource } from "../../../personal/trabajadores/lib/worker.interface";
+import { type ParameterResource } from "../../parametros/lib/parameter.interface";
 
 export interface EvaluationPersonResponse {
   data: EvaluationPersonResultResource[];

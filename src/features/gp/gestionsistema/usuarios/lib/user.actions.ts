@@ -1,6 +1,6 @@
 import { api } from "@/core/api";
 import { GeneralResponse } from "@/shared/lib/response.interface";
-import { AxiosRequestConfig } from "axios";
+import type { AxiosRequestConfig } from "axios";
 import {
   getUsersProps,
   UserCompleteResource,

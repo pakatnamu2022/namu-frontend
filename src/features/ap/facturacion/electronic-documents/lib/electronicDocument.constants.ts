@@ -1,4 +1,4 @@
-import { ModelComplete } from "@/core/core.interface";
+import { type ModelComplete } from "@/core/core.interface";
 import { ElectronicDocumentResource } from "./electronicDocument.interface";
 
 const ROUTE = "electronic-documents";

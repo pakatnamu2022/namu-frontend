@@ -196,7 +196,7 @@ export function SheetShipmentDetailsDialog({
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Origen */}
-              <div className="p-5 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg border-2 border-blue-300 shadow-sm">
+              <div className="p-5 bg-linear-to-br from-blue-50 to-blue-100 rounded-lg border-2 border-blue-300 shadow-sm">
                 <div className="flex items-center gap-2 mb-3">
                   <div className="p-2 bg-primary rounded-lg">
                     <Building2 className="size-4 text-white" />
@@ -222,7 +222,7 @@ export function SheetShipmentDetailsDialog({
               </div>
 
               {/* Destino */}
-              <div className="p-5 bg-gradient-to-br from-red-50 to-red-100 rounded-lg border-2 border-red-300 shadow-sm">
+              <div className="p-5 bg-linear-to-br from-red-50 to-red-100 rounded-lg border-2 border-red-300 shadow-sm">
                 <div className="flex items-center gap-2 mb-3">
                   <div className="p-2 bg-secondary rounded-lg">
                     <Building2 className="size-4 text-white" />
@@ -324,7 +324,7 @@ export function SheetShipmentDetailsDialog({
                 <ListChecks className="size-5" />
                 Checklist de Recepción
               </h3>
-              <div className="p-4 bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg border border-blue-200">
+              <div className="p-4 bg-linear-to-br from-blue-50 to-purple-50 rounded-lg border border-blue-200">
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                   {receptionData.data.map((item) => (
                     <div
@@ -434,7 +434,7 @@ export function SheetShipmentDetailsDialog({
                       <FileText className="size-6 text-primary" />
                       <span className="text-xs">Ver PDF</span>
                     </Button>
-                  </a>
+                  </Link>
                 )}
 
                 {shipment.enlace_del_xml && (
@@ -451,7 +451,7 @@ export function SheetShipmentDetailsDialog({
                       <FileCode className="size-6 text-primary" />
                       <span className="text-xs">Descargar XML</span>
                     </Button>
-                  </a>
+                  </Link>
                 )}
 
                 {shipment.enlace_del_cdr && (
@@ -468,7 +468,7 @@ export function SheetShipmentDetailsDialog({
                       <Download className="size-6 text-primary" />
                       <span className="text-xs">Descargar CDR</span>
                     </Button>
-                  </a>
+                  </Link>
                 )}
 
                 {shipment.cadena_para_codigo_qr && (
@@ -485,7 +485,7 @@ export function SheetShipmentDetailsDialog({
                       <QrCode className="size-6 text-primary" />
                       <span className="text-xs">Ver QR</span>
                     </Button>
-                  </a>
+                  </Link>
                 )}
               </div>
             </div>

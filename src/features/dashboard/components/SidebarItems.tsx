@@ -3,124 +3,123 @@
 import * as LucideReact from "lucide-react";
 
 import {
-    Collapsible,
-    CollapsibleContent,
-    CollapsibleTrigger,
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import {
-    SidebarMenu,
-    SidebarMenuButton,
-    SidebarMenuItem,
-    SidebarMenuSub,
-    SidebarMenuSubButton,
-    SidebarMenuSubItem,
-    useSidebar,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
-import { Link } from 'react-router-dom'
-import {ViewsResponseMenuChild} from "../../views/lib/views.interface";
+import { Link } from "react-router-dom";
+import { ViewsResponseMenuChild } from "../../views/lib/views.interface";
 
 export default function renderSidebarItems(
-    items: ViewsResponseMenuChild[],
-    company: string | number,
-    moduleSlug: string,
-    subModuleSlug: string = "",
-    currentView?: ViewsResponseMenuChild | null,
+  items: ViewsResponseMenuChild[],
+  company: string | number,
+  moduleSlug: string,
+  subModuleSlug: string = "",
+  currentView?: ViewsResponseMenuChild | null
 ) {
-    return items.map((item) => (
-        <SidebarItem
-            key={item.id}
-            item={item}
-            company={company}
-            moduleSlug={moduleSlug}
-            subModuleSlug={subModuleSlug}
-            currentView={currentView}
-        />
-    ));
+  return items.map((item) => (
+    <SidebarItem
+      key={item.id}
+      item={item}
+      company={company}
+      moduleSlug={moduleSlug}
+      subModuleSlug={subModuleSlug}
+      currentView={currentView}
+    />
+  ));
 }
 
 function SidebarItem({
-    item,
-    company,
-    moduleSlug,
-    subModuleSlug,
-    currentView,
+  item,
+  company,
+  moduleSlug,
+  subModuleSlug,
+  currentView,
 }: {
-    item: ViewsResponseMenuChild;
-    company: string | number;
-    moduleSlug: string;
-    subModuleSlug: string;
-    currentView?: ViewsResponseMenuChild | null;
+  item: ViewsResponseMenuChild;
+  company: string | number;
+  moduleSlug: string;
+  subModuleSlug: string;
+  currentView?: ViewsResponseMenuChild | null;
 }) {
-    const { setOpenMobile, isMobile } = useSidebar();
-    const hasChildren = item.children && item.children.length > 0;
+  const { setOpenMobile, isMobile } = useSidebar();
+  const hasChildren = item.children && item.children.length > 0;
 
-    const IconComponent = LucideReact[
-        item.icon ?? "CircleDot"
-    ] as React.ComponentType<any>;
+  const IconComponent = LucideReact[
+    item.icon ?? "CircleDot"
+  ] as React.ComponentType<any>;
 
-    const handleLinkClick = () => {
-        if (isMobile) {
-            setOpenMobile(false);
-        }
-    };
-
-    if (hasChildren) {
-        return (
-            <Collapsible defaultOpen className="group/collapsible">
-                <SidebarMenuItem className="p-0">
-                    <CollapsibleTrigger asChild>
-                        <SidebarMenuButton
-                            tooltip={item.descripcion}
-                            className="group/label text-sm"
-                        >
-                            {IconComponent ? (
-                                <IconComponent className="size-4 shrink-0"/>
-                            ) : (
-                                <LucideReact.User className="size-4 shrink-0"/>
-                            )}
-                            <span className="truncate text-sm">{item.descripcion}</span>
-                            <LucideReact.ChevronRight
-                                className="ml-auto size-4 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90"/>
-                        </SidebarMenuButton>
-                    </CollapsibleTrigger>
-
-                    <CollapsibleContent>
-                        <SidebarMenuSub className="pr-0 mr-0">
-                            <SidebarMenu>
-                                {renderSidebarItems(
-                                    item.children,
-                                    company,
-                                    moduleSlug,
-                                    subModuleSlug,
-                                    currentView,
-                                )}
-                            </SidebarMenu>
-                        </SidebarMenuSub>
-                    </CollapsibleContent>
-                </SidebarMenuItem>
-            </Collapsible>
-        );
+  const handleLinkClick = () => {
+    if (isMobile) {
+      setOpenMobile(false);
     }
+  };
 
+  if (hasChildren) {
     return (
-        <SidebarMenuSubItem>
-            <SidebarMenuSubButton asChild isActive={item.id === currentView?.id}>
-                <Link
-                    href={
-                        subModuleSlug
-                            ? `/${company}/${moduleSlug}/${subModuleSlug}/${item.route}`
-                            : `/${company}/${moduleSlug}/${item.route}`
-                    }
-                    onClick={handleLinkClick}
-                >
-                    {IconComponent ? (
-                        <IconComponent className="size-4 shrink-0"/>
-                    ) : (
-                        <LucideReact.User className="size-4 shrink-0"/>
-                    )}
-                    <span className="truncate">{item.descripcion}</span>
-                </Link>
-            </SidebarMenuSubButton>
-        </SidebarMenuSubItem>
+      <Collapsible defaultOpen className="group/collapsible">
+        <SidebarMenuItem className="p-0">
+          <CollapsibleTrigger asChild>
+            <SidebarMenuButton
+              tooltip={item.descripcion}
+              className="group/label text-sm"
+            >
+              {IconComponent ? (
+                <IconComponent className="size-4 shrink-0" />
+              ) : (
+                <LucideReact.User className="size-4 shrink-0" />
+              )}
+              <span className="truncate text-sm">{item.descripcion}</span>
+              <LucideReact.ChevronRight className="ml-auto size-4 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+            </SidebarMenuButton>
+          </CollapsibleTrigger>
+
+          <CollapsibleContent>
+            <SidebarMenuSub className="pr-0 mr-0">
+              <SidebarMenu>
+                {renderSidebarItems(
+                  item.children,
+                  company,
+                  moduleSlug,
+                  subModuleSlug,
+                  currentView
+                )}
+              </SidebarMenu>
+            </SidebarMenuSub>
+          </CollapsibleContent>
+        </SidebarMenuItem>
+      </Collapsible>
     );
+  }
+
+  return (
+    <SidebarMenuSubItem>
+      <SidebarMenuSubButton asChild isActive={item.id === currentView?.id}>
+        <Link
+          to={
+            subModuleSlug
+              ? `/${company}/${moduleSlug}/${subModuleSlug}/${item.route}`
+              : `/${company}/${moduleSlug}/${item.route}`
+          }
+          onClick={handleLinkClick}
+        >
+          {IconComponent ? (
+            <IconComponent className="size-4 shrink-0" />
+          ) : (
+            <LucideReact.User className="size-4 shrink-0" />
+          )}
+          <span className="truncate">{item.descripcion}</span>
+        </Link>
+      </SidebarMenuSubButton>
+    </SidebarMenuSubItem>
+  );
 }

@@ -43,7 +43,7 @@ export const AddCompetenceSelect = ({
               }))}
               value={selectedId ? String(selectedId) : ""}
               placeholder="Selecciona una competencia"
-              className="!w-full truncate text-xs"
+              className="w-full! truncate text-xs"
             />
 
             <Button

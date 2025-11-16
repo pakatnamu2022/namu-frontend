@@ -1,4 +1,4 @@
-import { ModelComplete } from "@/core/core.interface";
+import { type ModelComplete } from "@/core/core.interface";
 import { ProductCategoryResource } from "./productCategory.interface";
 
 const ROUTE = "categorias-producto";

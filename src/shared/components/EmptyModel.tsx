@@ -26,7 +26,7 @@ export default function EmptyModel({ route }: Props) {
     : null;
 
   return (
-    <Empty className="from-muted/50 to-background h-full bg-gradient-to-b from-30%">
+    <Empty className="from-muted/50 to-background h-full bg-linear-to-b from-30%">
       <EmptyHeader>
         <EmptyMedia variant="icon">
           {Icon && <Icon className="size-16 text-muted-foreground" />}

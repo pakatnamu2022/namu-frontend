@@ -1,4 +1,4 @@
-// import { AxiosRequestConfig } from "axios";
+// import type { AxiosRequestConfig } from "axios";
 // import { api } from "@/core/api";
 // import { SunatConcept } from "./electronicDocument.types";
 

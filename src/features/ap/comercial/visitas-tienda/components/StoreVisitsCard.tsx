@@ -13,7 +13,7 @@ import {
 import { StoreVisitsResource } from "../lib/storeVisits.interface";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { Pencil } from "lucide-react";
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from "react-router-dom";
 import { STORE_VISITS } from "../lib/storeVisits.constants";
 
 interface Props {
@@ -42,7 +42,7 @@ export default function StoreVisitsCard({
     <Card className="overflow-hidden border shadow-sm hover:shadow-md transition-all duration-200">
       <CardContent className="p-0">
         {/* Header con fecha destacada */}
-        <div className="bg-gradient-to-r bg-primary px-6 py-4">
+        <div className="bg-linear-to-r bg-primary px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3 text-white">
               <div className="bg-white/20 p-2 rounded-lg backdrop-blur-sm">
@@ -132,7 +132,7 @@ export default function StoreVisitsCard({
           </div>
 
           {/* Información de contacto */}
-          <div className="space-y-4 p-4 rounded-lg border border-gray-200 bg-gradient-to-br from-gray-50 to-white">
+          <div className="space-y-4 p-4 rounded-lg border border-gray-200 bg-linear-to-br from-gray-50 to-white">
             <p className="text-sm font-bold text-gray-900 mb-3">
               Información de Contacto
             </p>
@@ -157,10 +157,10 @@ export default function StoreVisitsCard({
                     className="h-9 gap-2 text-xs font-medium bgprimary text-white"
                     asChild
                   >
-                    <Link href={`tel:+51${formatPhoneForLinks(data.phone)}`}>
+                    <Link to={`tel:+51${formatPhoneForLinks(data.phone)}`}>
                       <Phone className="size-3.5" />
                       Llamar
-                    </a>
+                    </Link>
                   </Button>
                   <Button
                     size="sm"
@@ -168,15 +168,13 @@ export default function StoreVisitsCard({
                     asChild
                   >
                     <Link
-                      href={`https://wa.me/51${formatPhoneForLinks(
-                        data.phone
-                      )}`}
+                      to={`https://wa.me/51${formatPhoneForLinks(data.phone)}`}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
                       <MessageSquare className="size-3.5" />
                       WhatsApp
-                    </a>
+                    </Link>
                   </Button>
                 </div>
               )}
@@ -204,10 +202,10 @@ export default function StoreVisitsCard({
                     className="h-9 gap-2 text-xs font-medium bg-secondary hover:bg-secondary text-white"
                     asChild
                   >
-                    <Link href={`mailto:${data.email}`}>
+                    <Link to={`mailto:${data.email}`}>
                       <Mail className="size-3.5" />
                       Enviar correo
-                    </a>
+                    </Link>
                   </Button>
                 </div>
               )}

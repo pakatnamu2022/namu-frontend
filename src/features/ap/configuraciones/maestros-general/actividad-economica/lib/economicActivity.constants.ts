@@ -1,4 +1,4 @@
-import { ModelComplete } from "@/core/core.interface";
+import { type ModelComplete } from "@/core/core.interface";
 import { EconomicActivityResource } from "./economicActivity.interface";
 import { COMMERCIAL_MASTERS_ENDPOINT } from "../../../../lib/ap.constants";
 

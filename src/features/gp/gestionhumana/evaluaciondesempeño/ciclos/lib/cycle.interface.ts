@@ -1,4 +1,4 @@
-import { Links, Meta } from "@/shared/lib/pagination.interface";
+import { type Links, type Meta } from "@/shared/lib/pagination.interface";
 import { TYPE_EVALUATION_VALUES } from "../../evaluaciones/lib/evaluation.constans";
 
 export interface getCyclesProps {

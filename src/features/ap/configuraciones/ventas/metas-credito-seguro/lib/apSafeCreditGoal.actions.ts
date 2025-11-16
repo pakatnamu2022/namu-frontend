@@ -1,4 +1,4 @@
-import { AxiosRequestConfig } from "axios";
+import type { AxiosRequestConfig } from "axios";
 import { api } from "@/core/api";
 import { GeneralResponse } from "@/shared/lib/response.interface";
 import { AP_SAFE_CREDIT_GOAL } from "./apSafeCreditGoal.constants";

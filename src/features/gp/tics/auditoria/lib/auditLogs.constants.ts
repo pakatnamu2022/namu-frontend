@@ -1,4 +1,4 @@
-import { ModelComplete } from "@/core/core.interface";
+import { type ModelComplete } from "@/core/core.interface";
 import { AuditLogsResource } from "./auditLogs.interface";
 
 const ROUTE = "auditoria";

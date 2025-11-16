@@ -1,5 +1,5 @@
 import { api } from "@/core/api";
-import { AxiosRequestConfig } from "axios";
+import type { AxiosRequestConfig } from "axios";
 import { SUNAT_CONCEPTS } from "./sunatConcepts.constants";
 import { SunatConceptsResource } from "./sunatConcepts.interface";
 import { STATUS_ACTIVE } from "@/core/core.constants";

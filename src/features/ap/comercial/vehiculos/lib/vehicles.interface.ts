@@ -1,4 +1,4 @@
-import { Links, Meta } from "@/shared/lib/pagination.interface";
+import { type Links, type Meta } from "@/shared/lib/pagination.interface";
 import { ModelsVnResource } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.interface";
 
 export interface VehicleResponse {

@@ -1,4 +1,4 @@
-import { ModelComplete } from "@/core/core.interface";
+import { type ModelComplete } from "@/core/core.interface";
 import { AssignSalesSeriesResource } from "./assignSalesSeries.interface";
 
 const ROUTE = "asignar-serie-venta";

@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { Slot as SlotPrimitive } from "radix-ui";
-import { VariantProps, cva } from "class-variance-authority";
+import { type VariantProps, cva } from "class-variance-authority";
 import { PanelLeft } from "lucide-react";
 
 import { useIsMobile } from "@/hooks/use-mobile";

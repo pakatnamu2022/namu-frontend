@@ -1,4 +1,4 @@
-import { AxiosRequestConfig } from "axios";
+import type { AxiosRequestConfig } from "axios";
 import { api } from "@/core/api";
 import { USER_SERIES_ASSIGNMENT } from "./userSeriesAssignment.constants";
 import {

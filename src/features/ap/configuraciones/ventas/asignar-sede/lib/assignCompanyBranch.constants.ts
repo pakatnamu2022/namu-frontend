@@ -1,4 +1,4 @@
-import { ModelComplete } from "@/core/core.interface";
+import { type ModelComplete } from "@/core/core.interface";
 import { AssignCompanyBranchResource } from "./assignCompanyBranch.interface";
 
 const ROUTE = "asignar-sede";

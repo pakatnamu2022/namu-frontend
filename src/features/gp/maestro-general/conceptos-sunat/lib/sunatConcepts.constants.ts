@@ -1,4 +1,4 @@
-import { ModelComplete } from "@/core/core.interface";
+import { type ModelComplete } from "@/core/core.interface";
 import { SunatConceptsResource } from "./sunatConcepts.interface";
 
 const ROUTE = "conceptos-sunat";

@@ -1,4 +1,4 @@
-import { Links, Meta } from "@/shared/lib/pagination.interface";
+import { type Links, type Meta } from "@/shared/lib/pagination.interface";
 
 export interface ProductResponse {
   data: ProductResource[];

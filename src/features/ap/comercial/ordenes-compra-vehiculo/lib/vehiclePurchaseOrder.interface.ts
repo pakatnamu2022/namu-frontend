@@ -1,4 +1,4 @@
-import { Links, Meta } from "@/shared/lib/pagination.interface";
+import { type Links, type Meta } from "@/shared/lib/pagination.interface";
 import { VehicleResource } from "../../vehiculos/lib/vehicles.interface";
 import { ClassArticleResource } from "../../../configuraciones/maestros-general/clase-articulo/lib/classArticle.interface";
 

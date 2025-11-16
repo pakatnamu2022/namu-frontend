@@ -5,7 +5,7 @@ import {
   getEquipmentsProps,
 } from "@/features/gp/tics/equipment/lib/equipment.interface";
 import { GeneralResponse } from "@/shared/lib/response.interface";
-import { AxiosRequestConfig } from "axios";
+import type { AxiosRequestConfig } from "axios";
 
 export async function getEquipment({
   params,

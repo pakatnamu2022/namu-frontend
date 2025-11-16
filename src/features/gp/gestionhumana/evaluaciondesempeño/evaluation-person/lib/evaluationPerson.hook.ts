@@ -5,7 +5,7 @@ import {
   getEvaluationPersonResultByPersonAndEvaluation,
   getTeamByChief,
 } from "./evaluationPerson.actions";
-import { EvaluationPersonResultResource } from "./evaluationPerson.interface";
+import type { EvaluationPersonResultResource } from "./evaluationPerson.interface";
 
 const { QUERY_KEY } = EVALUATION_PERSON;
 

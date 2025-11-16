@@ -1,4 +1,4 @@
-import { ModelComplete } from "@/core/core.interface";
+import { type ModelComplete } from "@/core/core.interface";
 import { BodyTypeResource } from "./bodyType.interface";
 import { COMMERCIAL_MASTERS_ENDPOINT } from "@/features/ap/lib/ap.constants";
 

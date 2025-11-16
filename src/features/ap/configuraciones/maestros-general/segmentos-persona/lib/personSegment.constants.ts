@@ -1,4 +1,4 @@
-import { ModelComplete } from "@/core/core.interface";
+import { type ModelComplete } from "@/core/core.interface";
 import { PersonSegmentResource } from "./personSegment.interface";
 import { COMMERCIAL_MASTERS_ENDPOINT } from "../../../../lib/ap.constants";
 

@@ -11,7 +11,7 @@ const FormCarSkeleton: React.FC = () => (
 
         {/* Animated dashed road line */}
         <div className="absolute bottom-4 left-0 right-0 h-0.5 overflow-hidden">
-          <div className="h-full bg-gradient-to-r from-transparent via-muted-foreground to-transparent animate-pulse"></div>
+          <div className="h-full bg-linear-to-r from-transparent via-muted-foreground to-transparent animate-pulse"></div>
         </div>
 
         {/* Car with combined animations */}

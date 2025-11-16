@@ -1,4 +1,4 @@
-import { ModelComplete } from "@/core/core.interface";
+import { type ModelComplete } from "@/core/core.interface";
 import { SedeResource } from "@/features/gp/maestro-general/sede/lib/sede.interface";
 
 const ROUTE = "sede";

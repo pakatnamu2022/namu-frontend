@@ -1,4 +1,4 @@
-import { ModelComplete } from "@/core/core.interface";
+import { type ModelComplete } from "@/core/core.interface";
 import { StoreVisitsResource } from "./storeVisits.interface";
 
 const ROUTE = "visitas-tienda";

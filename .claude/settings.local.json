@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node scripts/replace-notfound.mjs:*)",
+      "Bash(node scripts/clean-duplicates.mjs:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

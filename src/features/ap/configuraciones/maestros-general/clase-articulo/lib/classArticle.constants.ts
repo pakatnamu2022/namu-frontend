@@ -1,4 +1,4 @@
-import { ModelComplete } from "@/core/core.interface";
+import { type ModelComplete } from "@/core/core.interface";
 import { ClassArticleResource } from "./classArticle.interface";
 
 const ROUTE = "clase-articulo";

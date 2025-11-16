@@ -1,6 +1,6 @@
 import { api } from "@/core/api";
-import { PersonBirthdayResponse } from "./birthday.interface";
-import { AxiosRequestConfig } from "axios";
+import type { PersonBirthdayResponse } from "./birthday.interface";
+import type { AxiosRequestConfig } from "axios";
 
 export async function getBirthdays(): Promise<PersonBirthdayResponse> {
   const config: AxiosRequestConfig = {

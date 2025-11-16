@@ -1,4 +1,4 @@
-import { Links, Meta } from "@/shared/lib/pagination.interface";
+import { type Links, type Meta } from "@/shared/lib/pagination.interface";
 import { ShipmentsReceptionsResource } from "../../envios-recepciones/lib/shipmentsReceptions.interface";
 
 export interface VehiclesDeliveryResponse {

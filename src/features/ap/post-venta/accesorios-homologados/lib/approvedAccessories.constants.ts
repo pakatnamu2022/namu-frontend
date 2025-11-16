@@ -1,4 +1,4 @@
-import { ModelComplete } from "@/core/core.interface";
+import { type ModelComplete } from "@/core/core.interface";
 import { ApprovedAccesoriesResource } from "./approvedAccessories.interface";
 
 const ROUTE = "accesorios-homologados";

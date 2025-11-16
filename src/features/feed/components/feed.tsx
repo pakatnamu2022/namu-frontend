@@ -1,6 +1,6 @@
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams } from 'react-router-dom';
 import { useState } from "react";
 import { feedData } from "../lib/feed.data";
 import Posts from "./posts";
@@ -10,7 +10,7 @@ import CreatePost from "./createPost";
 import PostNotFound from "./postNotFound";
 
 export default function Feed() {
-  const searchParams = useSearchParams();
+  const [searchParams] = useSearchParams();
   const [newPost, setNewPost] = useState("");
   const [activeFilter, setActiveFilter] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");

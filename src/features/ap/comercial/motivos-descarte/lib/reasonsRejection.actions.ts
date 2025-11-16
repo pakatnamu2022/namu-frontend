@@ -1,5 +1,5 @@
 import { api } from "@/core/api";
-import { AxiosRequestConfig } from "axios";
+import type { AxiosRequestConfig } from "axios";
 import { GeneralResponse } from "@/shared/lib/response.interface";
 import { STATUS_ACTIVE } from "@/core/core.constants";
 import { REASONS_REJECTION } from "./reasonsRejection.constants";

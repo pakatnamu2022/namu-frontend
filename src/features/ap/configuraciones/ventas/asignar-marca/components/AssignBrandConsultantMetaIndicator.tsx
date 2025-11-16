@@ -26,7 +26,7 @@ export default function MetaIndicators(props: Props) {
   return (
     <div className="flex flex-col lg:flex-row gap-4">
       {/* Meta Sell In - Solo referencia */}
-      <div className="flex-1 bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200 rounded-lg p-4">
+      <div className="flex-1 bg-linear-to-r from-blue-50 to-blue-100 border border-blue-200 rounded-lg p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
@@ -53,7 +53,7 @@ export default function MetaIndicators(props: Props) {
 
       {/* Meta Sell Out - Objetivo principal */}
       <div
-        className={`flex-1 bg-gradient-to-r rounded-lg p-4 border ${
+        className={`flex-1 bg-linear-to-r rounded-lg p-4 border ${
           isComplete
             ? "from-green-50 to-emerald-50 border-green-200"
             : isNearComplete
@@ -163,10 +163,10 @@ export default function MetaIndicators(props: Props) {
               <div
                 className={`h-3 rounded-full transition-all duration-300 ease-in-out ${
                   isComplete
-                    ? "bg-gradient-to-r from-green-500 to-emerald-500"
+                    ? "bg-linear-to-r from-green-500 to-emerald-500"
                     : isNearComplete
-                    ? "bg-gradient-to-r from-orange-500 to-yellow-500"
-                    : "bg-gradient-to-r from-blue-500 to-blue-600"
+                    ? "bg-linear-to-r from-orange-500 to-yellow-500"
+                    : "bg-linear-to-r from-blue-500 to-blue-600"
                 }`}
                 style={{
                   width: `${Math.min(progressPercentage, 100)}%`,

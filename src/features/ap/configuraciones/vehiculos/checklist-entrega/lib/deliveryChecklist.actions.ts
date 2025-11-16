@@ -5,7 +5,7 @@ import {
   DeliveryChecklistResponse,
   getDeliveryChecklistProps,
 } from "./deliveryChecklist.interface";
-import { AxiosRequestConfig } from "axios";
+import type { AxiosRequestConfig } from "axios";
 import { GeneralResponse } from "@/shared/lib/response.interface";
 import { AP_CHECKLIST } from "@/core/core.constants";
 

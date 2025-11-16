@@ -345,7 +345,7 @@ export function CreditNoteForm({
 
           {/* Summary Sidebar */}
           <div className="lg:col-span-1">
-            <Card className="h-full sticky top-6 bg-gradient-to-br from-blue-600/5 via-background to-muted/20 border-blue-600/20">
+            <Card className="h-full sticky top-6 bg-linear-to-br from-blue-600/5 via-background to-muted/20 border-blue-600/20">
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-lg flex items-center gap-2">

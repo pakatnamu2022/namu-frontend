@@ -1,4 +1,4 @@
-import { AxiosRequestConfig } from "axios";
+import type { AxiosRequestConfig } from "axios";
 import { api } from "@/core/api";
 import { AP_GOAL_SELL_OUT_IN } from "./apGoalSellOutIn.constants";
 import {

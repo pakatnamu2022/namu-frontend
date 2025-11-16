@@ -1,5 +1,5 @@
 import { api } from "@/core/api";
-import { AxiosRequestConfig } from "axios";
+import type { AxiosRequestConfig } from "axios";
 import { getSedesProps, SedeResource, SedeResponse } from "./sede.interface";
 import { SEDE } from "@/features/gp/maestro-general/sede/lib/sede.constants";
 import { GeneralResponse } from "@/shared/lib/response.interface";

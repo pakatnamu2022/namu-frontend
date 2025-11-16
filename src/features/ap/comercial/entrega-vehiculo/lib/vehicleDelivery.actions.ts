@@ -1,5 +1,5 @@
 import { api } from "@/core/api";
-import { AxiosRequestConfig } from "axios";
+import type { AxiosRequestConfig } from "axios";
 import {
   getVehiclesDeliveryProps,
   VehiclesDeliveryResource,

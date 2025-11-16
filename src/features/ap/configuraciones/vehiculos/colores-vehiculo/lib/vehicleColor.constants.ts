@@ -1,4 +1,4 @@
-import { ModelComplete } from "@/core/core.interface";
+import { type ModelComplete } from "@/core/core.interface";
 import { VehicleColorResource } from "./vehicleColor.interface";
 import { COMMERCIAL_MASTERS_ENDPOINT } from "@/features/ap/lib/ap.constants";
 

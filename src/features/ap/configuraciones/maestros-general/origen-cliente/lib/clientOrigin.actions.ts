@@ -1,4 +1,4 @@
-import { AxiosRequestConfig } from "axios";
+import type { AxiosRequestConfig } from "axios";
 import { CLIENT_ORIGIN } from "./clientOrigin.constants";
 import {
   ClientOriginResource,

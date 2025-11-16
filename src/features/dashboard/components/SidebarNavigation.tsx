@@ -9,7 +9,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Home, ArrowLeft } from "lucide-react";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import { Skeleton } from "@/components/ui/skeleton";
 

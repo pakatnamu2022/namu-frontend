@@ -395,7 +395,7 @@ export const CalendarBody = ({
     }
   }
   return (
-    <div className={cn("grid flex-grow grid-cols-7", className)}>
+    <div className={cn("grid grow grid-cols-7", className)}>
       {days.map((day, index) => (
         <div
           className={cn(
@@ -530,7 +530,7 @@ export const CalendarHeader = ({ className }: CalendarHeaderProps) => {
     return daysForLocale(locale, startDay);
   }, [locale, startDay]);
   return (
-    <div className={cn("grid flex-grow grid-cols-7", className)}>
+    <div className={cn("grid grow grid-cols-7", className)}>
       {daysData.map((day) => (
         <div className="p-3 text-right text-muted-foreground text-xs" key={day}>
           {day}

@@ -1,4 +1,4 @@
-import { ModelComplete } from "@/core/core.interface";
+import { type ModelComplete } from "@/core/core.interface";
 import { UserSeriesAssignmentResource } from "./userSeriesAssignment.interface";
 
 const ROUTE = "asignar-serie-usuario";

@@ -1,4 +1,4 @@
-import { ViewsResponseOpcionesMenu } from "../../views/lib/views.interface";
+import type { ViewsResponseOpcionesMenu } from "@/features/views/lib/views.interface";
 
 export interface AuthRequest {
   username: string;

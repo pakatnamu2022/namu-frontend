@@ -1,5 +1,5 @@
-import { ModelComplete } from "@/core/core.interface";
-import { VehiclesDeliveryResource } from "./vehicleDelivery.interface";
+import { type ModelComplete } from "@/core/core.interface";
+import { type VehiclesDeliveryResource } from "./vehicleDelivery.interface";
 
 const ROUTE = "entrega-vehiculo";
 export const CARD_WASH_ROUTE = "lavado-vehiculo";

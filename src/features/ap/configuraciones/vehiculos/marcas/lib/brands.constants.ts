@@ -1,4 +1,4 @@
-import { ModelComplete } from "@/core/core.interface";
+import { type ModelComplete } from "@/core/core.interface";
 import { BrandsResource } from "./brands.interface";
 
 const ROUTE = "marcas";

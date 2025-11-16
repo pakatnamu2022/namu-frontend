@@ -28,6 +28,7 @@ import {
   Package,
 } from "lucide-react";
 import { SUNAT_CONCEPTS_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
+import { Link } from "react-router-dom";
 
 interface VehicleDeliveryDetailsSheetProps {
   open: boolean;
@@ -315,7 +316,7 @@ export function VehicleDeliveryDetailsSheet({
                       {vehicleDelivery.shipping_guide.plate || "-"}
                     </p>
                   </div>
-                  
+
                   {isPrivateTransport ? (
                     // Mostrar datos del conductor para transporte privado
                     <>
@@ -360,7 +361,8 @@ export function VehicleDeliveryDetailsSheet({
                           Razón Social Transportista
                         </p>
                         <p className="text-base text-gray-900">
-                          {vehicleDelivery.shipping_guide.company_name_transport || "-"}
+                          {vehicleDelivery.shipping_guide
+                            .company_name_transport || "-"}
                         </p>
                       </div>
                     </>
@@ -376,7 +378,7 @@ export function VehicleDeliveryDetailsSheet({
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* Origen */}
-                  <div className="p-5 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg border-2 border-blue-300 shadow-sm">
+                  <div className="p-5 bg-linear-to-br from-blue-50 to-blue-100 rounded-lg border-2 border-blue-300 shadow-sm">
                     <div className="flex items-center gap-2 mb-3">
                       <div className="p-2 bg-primary rounded-lg">
                         <Building2 className="size-4 text-white" />
@@ -409,7 +411,7 @@ export function VehicleDeliveryDetailsSheet({
                   </div>
 
                   {/* Destino */}
-                  <div className="p-5 bg-gradient-to-br from-red-50 to-red-100 rounded-lg border-2 border-red-300 shadow-sm">
+                  <div className="p-5 bg-linear-to-br from-red-50 to-red-100 rounded-lg border-2 border-red-300 shadow-sm">
                     <div className="flex items-center gap-2 mb-3">
                       <div className="p-2 bg-secondary rounded-lg">
                         <Building2 className="size-4 text-white" />
@@ -570,7 +572,7 @@ export function VehicleDeliveryDetailsSheet({
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                       {vehicleDelivery.shipping_guide.enlace_del_pdf && (
                         <Link
-                          href={vehicleDelivery.shipping_guide.enlace_del_pdf}
+                          to={vehicleDelivery.shipping_guide.enlace_del_pdf}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="w-full"
@@ -582,12 +584,12 @@ export function VehicleDeliveryDetailsSheet({
                             <FileText className="size-6 text-secondary" />
                             <span className="text-xs">Ver PDF</span>
                           </Button>
-                        </a>
+                        </Link>
                       )}
 
                       {vehicleDelivery.shipping_guide.enlace_del_xml && (
                         <Link
-                          href={vehicleDelivery.shipping_guide.enlace_del_xml}
+                          to={vehicleDelivery.shipping_guide.enlace_del_xml}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="w-full"
@@ -599,12 +601,12 @@ export function VehicleDeliveryDetailsSheet({
                             <FileCode className="size-6 text-primary" />
                             <span className="text-xs">Descargar XML</span>
                           </Button>
-                        </a>
+                        </Link>
                       )}
 
                       {vehicleDelivery.shipping_guide.enlace_del_cdr && (
                         <Link
-                          href={vehicleDelivery.shipping_guide.enlace_del_cdr}
+                          to={vehicleDelivery.shipping_guide.enlace_del_cdr}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="w-full"
@@ -616,12 +618,12 @@ export function VehicleDeliveryDetailsSheet({
                             <Download className="size-6 text-primary" />
                             <span className="text-xs">Descargar CDR</span>
                           </Button>
-                        </a>
+                        </Link>
                       )}
 
                       {vehicleDelivery.shipping_guide.cadena_para_codigo_qr && (
                         <Link
-                          href={
+                          to={
                             vehicleDelivery.shipping_guide.cadena_para_codigo_qr
                           }
                           target="_blank"
@@ -635,7 +637,7 @@ export function VehicleDeliveryDetailsSheet({
                             <QrCode className="size-6 text-primary" />
                             <span className="text-xs">Ver QR</span>
                           </Button>
-                        </a>
+                        </Link>
                       )}
                     </div>
                   </div>

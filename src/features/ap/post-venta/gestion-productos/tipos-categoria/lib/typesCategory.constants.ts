@@ -1,4 +1,4 @@
-import { ModelComplete } from "@/core/core.interface";
+import { type ModelComplete } from "@/core/core.interface";
 import { POSTVENTA_MASTERS_ENDPOINT } from "@/features/ap/lib/ap.constants";
 import { TypesCategoryResource } from "./typesCategory.interface";
 

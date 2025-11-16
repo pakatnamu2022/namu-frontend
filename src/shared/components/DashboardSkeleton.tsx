@@ -47,7 +47,7 @@ export default function DashboardSkeleton() {
         ))}
       </div>
 
-      <style jsx>{`
+      <style>{`
         @keyframes puzzleBuild {
           0% {
             opacity: 0;
@@ -84,17 +84,6 @@ export default function DashboardSkeleton() {
           100% {
             background-position: calc(200px + 100%) 0;
           }
-        }
-
-        .animate-pulse {
-          background: linear-gradient(
-            90deg,
-            #f0f0f0 25%,
-            #e0e0e0 50%,
-            #f0f0f0 75%
-          );
-          background-size: 200px 100%;
-          animation: shimmer 1.5s infinite linear;
         }
       `}</style>
     </>

@@ -1,4 +1,4 @@
-import { Links, Meta } from "@/shared/lib/pagination.interface";
+import { type Links, type Meta } from "@/shared/lib/pagination.interface";
 import { WorkerResource } from "../../../personal/trabajadores/lib/worker.interface";
 
 export interface HierarchicalCategoryObjectiveResponse {

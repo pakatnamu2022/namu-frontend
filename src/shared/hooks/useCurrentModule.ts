@@ -1,6 +1,5 @@
 "use client";
 
-import { usePathname } from "next/navigation";
 import { useAuthStore } from "@/features/auth/lib/auth.store";
 import { ViewsResponseMenuChild } from "@/features/views/lib/views.interface";
 
@@ -31,7 +30,7 @@ export function parseDashboardPath(pathname: string) {
 }
 
 export function useCurrentModule() {
-  const pathname = usePathname();
+  const pathname = window.location.pathname;
   const {
     company,
     module: moduleSlug,

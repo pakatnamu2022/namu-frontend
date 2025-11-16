@@ -1,4 +1,4 @@
-import { ModelComplete } from "@/core/core.interface";
+import { type ModelComplete } from "@/core/core.interface";
 import { ApSafeCreditGoalResource } from "./apSafeCreditGoal.interface";
 import { currentMonth, currentYear } from "@/core/core.function";
 

@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { PersonBirthdayResponse } from "./birthday.interface";
+import type { PersonBirthdayResponse } from "./birthday.interface";
 import { getBirthdays } from "./birthday.actions";
 
 export const useBirthday = (params?: Record<string, any>) => {

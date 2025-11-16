@@ -1,5 +1,5 @@
 import { api } from "@/core/api";
-import {
+import type {
   AuthRequest,
   AuthResponse,
   AuthResponseWithoutToken,

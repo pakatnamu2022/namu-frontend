@@ -1,4 +1,4 @@
-import { AxiosRequestConfig } from "axios";
+import type { AxiosRequestConfig } from "axios";
 import { COMMERCIAL_MANAGER_BRAND_GROUP } from "./commercialManagerBrandGroup.constants";
 import {
   CommercialManagerBrandGroupResource,

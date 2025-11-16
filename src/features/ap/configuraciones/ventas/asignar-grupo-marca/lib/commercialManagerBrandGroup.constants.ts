@@ -1,4 +1,4 @@
-import { ModelComplete } from "@/core/core.interface";
+import { type ModelComplete } from "@/core/core.interface";
 import { CommercialManagerBrandGroupResource } from "./commercialManagerBrandGroup.interface";
 
 const ROUTE = "asignar-grupo-marca";

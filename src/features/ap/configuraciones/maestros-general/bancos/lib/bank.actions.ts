@@ -1,4 +1,4 @@
-import { AxiosRequestConfig } from "axios";
+import type { AxiosRequestConfig } from "axios";
 import { BankResource, BankResponse, getBankProps } from "./bank.interface";
 import { STATUS_ACTIVE } from "@/core/core.constants";
 import { api } from "@/core/api";

@@ -1,4 +1,4 @@
-import { Links, Meta } from "@/shared/lib/pagination.interface";
+import { type Links, type Meta } from "@/shared/lib/pagination.interface";
 import { Permission } from "../../permissions/lib/permissions.interface";
 
 export interface ViewResponse {

@@ -1,12 +1,12 @@
 import { api } from "@/core/api";
 import { EVALUATION_PERSON } from "./evaluationPerson.constans";
-import {
+import type {
   EvaluationPersonResponse,
   EvaluationPersonResultByPersonAndEvaluationResponse,
   EvaluationPersonResultResource,
 } from "./evaluationPerson.interface";
-import { AxiosRequestConfig } from "axios";
-import { MessageResponse } from "@/core/core.interface";
+import type { AxiosRequestConfig } from "axios";
+import type { MessageResponse } from "@/core/core.interface";
 
 const { ENDPOINT } = EVALUATION_PERSON;
 

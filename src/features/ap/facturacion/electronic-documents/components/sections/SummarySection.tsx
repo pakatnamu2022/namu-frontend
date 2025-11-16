@@ -60,7 +60,7 @@ export function SummarySection({
 
   return (
     <div className="lg:col-span-1 lg:row-start-1 lg:col-start-3 h-full">
-      <Card className="h-full sticky top-6 bg-gradient-to-br from-primary/5 via-background to-muted/20 border-primary/20">
+      <Card className="h-full sticky top-6 bg-linear-to-br from-primary/5 via-background to-muted/20 border-primary/20">
         <CardHeader className="space-y-1">
           <div className="flex items-center justify-between">
             <CardTitle className="text-lg flex items-center gap-2">

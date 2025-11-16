@@ -1,4 +1,4 @@
-import { ModelComplete } from "@/core/core.interface";
+import { type ModelComplete } from "@/core/core.interface";
 import { UnitMeasurementResource } from "./unitMeasurement.interface";
 
 const ROUTE = "unidad-medida";
