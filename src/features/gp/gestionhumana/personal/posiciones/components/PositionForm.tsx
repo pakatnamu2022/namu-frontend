@@ -23,12 +23,8 @@ import { Link } from "react-router-dom";
 import { POSITION } from "@/features/gp/gestionhumana/personal/posiciones/lib/position.constant";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { FileForm } from "@/shared/components/FileForm";
-import { useAllAreas, useAreas } from "../lib/position.hook";
-import { useAllPositions } from "../lib/position.hook";
-import {
-  useAllHierarchicalCategories,
-  useHierarchicalCategorys,
-} from "@/features/gp/gestionhumana/evaluaciondesempeño/categorias-jerarquicas/lib/hierarchicalCategory.hook";
+import { useAllAreas, useAllPositions } from "../lib/position.hook";
+import { useAllHierarchicalCategories } from "@/features/gp/gestionhumana/evaluaciondesempeño/categorias-jerarquicas/lib/hierarchicalCategory.hook";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 
 interface PositionFormProps {
@@ -296,11 +292,10 @@ export const PositionForm = ({
                       type="number"
                       min="0"
                       placeholder="ID del tipo"
-                      {...field}
-                      value={field.value || ""}
+                      value={field.value ?? ""}
                       onChange={(e) =>
                         field.onChange(
-                          e.target.value ? parseInt(e.target.value) : undefined
+                          e.target.value ? Number(e.target.value) : undefined
                         )
                       }
                     />
@@ -321,11 +316,10 @@ export const PositionForm = ({
                       type="number"
                       min="0"
                       placeholder="0"
-                      {...field}
-                      value={field.value || ""}
+                      value={field.value ?? ""}
                       onChange={(e) =>
                         field.onChange(
-                          e.target.value ? parseInt(e.target.value) : undefined
+                          e.target.value ? Number(e.target.value) : undefined
                         )
                       }
                     />
@@ -347,13 +341,10 @@ export const PositionForm = ({
                       min="0"
                       step="0.01"
                       placeholder="0.00"
-                      {...field}
-                      value={field.value || ""}
+                      value={field.value ?? ""}
                       onChange={(e) =>
                         field.onChange(
-                          e.target.value
-                            ? parseFloat(e.target.value)
-                            : undefined
+                          e.target.value ? Number(e.target.value) : undefined
                         )
                       }
                     />

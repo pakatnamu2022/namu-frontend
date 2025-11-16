@@ -10,19 +10,22 @@ const ACCEPTED_FILE_TYPES = [
 export const positionSchemaCreate = z.object({
   name: z.string().min(1, "El nombre es obligatorio").max(255),
   descripcion: z.string().optional(),
-  area_id: z.coerce.number().optional(),
-  hierarchical_category_id: z.coerce.number().optional(),
-  cargo_id: z.coerce.number().optional(),
-  ntrabajadores: z.coerce.number().min(0).optional(),
-  banda_salarial_min: z.coerce.number().min(0).optional(),
-  banda_salarial_media: z.coerce.number().min(0).optional(),
-  banda_salarial_max: z.coerce.number().min(0).optional(),
-  tipo_onboarding_id: z.coerce.number().optional(),
-  plazo_proceso_seleccion: z.coerce.number().min(0).optional(),
-  presupuesto: z.coerce.number().min(0).optional(),
+  area_id: z.string().optional(),
+  hierarchical_category_id: z.string().optional(),
+  cargo_id: z.string().optional(),
+  ntrabajadores: z.string().min(0).optional(),
+  banda_salarial_min: z.string().min(0).optional(),
+  banda_salarial_media: z.string().min(0).optional(),
+  banda_salarial_max: z.string().min(0).optional(),
+  tipo_onboarding_id: z.string().optional(),
+  plazo_proceso_seleccion: z.string().min(0).optional(),
+  presupuesto: z.string().min(0).optional(),
   mof_adjunto: z
     .instanceof(File, { message: "El archivo MOF es obligatorio" })
-    .refine((file) => file.size <= MAX_FILE_SIZE, "El archivo debe ser menor a 5MB")
+    .refine(
+      (file) => file.size <= MAX_FILE_SIZE,
+      "El archivo debe ser menor a 5MB"
+    )
     .refine(
       (file) => ACCEPTED_FILE_TYPES.includes(file.type),
       "Solo se permiten archivos PDF, DOC o DOCX"
@@ -31,7 +34,10 @@ export const positionSchemaCreate = z.object({
     .array(
       z
         .instanceof(File)
-        .refine((file) => file.size <= MAX_FILE_SIZE, "Cada archivo debe ser menor a 5MB")
+        .refine(
+          (file) => file.size <= MAX_FILE_SIZE,
+          "Cada archivo debe ser menor a 5MB"
+        )
         .refine(
           (file) => ACCEPTED_FILE_TYPES.includes(file.type),
           "Solo se permiten archivos PDF, DOC o DOCX"
@@ -44,19 +50,22 @@ export const positionSchemaCreate = z.object({
 export const positionSchemaUpdate = z.object({
   name: z.string().min(1, "El nombre es obligatorio").max(255),
   descripcion: z.string().optional(),
-  area_id: z.coerce.number().optional(),
-  hierarchical_category_id: z.coerce.number().optional(),
-  cargo_id: z.coerce.number().optional(),
-  ntrabajadores: z.coerce.number().min(0).optional(),
-  banda_salarial_min: z.coerce.number().min(0).optional(),
-  banda_salarial_media: z.coerce.number().min(0).optional(),
-  banda_salarial_max: z.coerce.number().min(0).optional(),
-  tipo_onboarding_id: z.coerce.number().optional(),
-  plazo_proceso_seleccion: z.coerce.number().min(0).optional(),
-  presupuesto: z.coerce.number().min(0).optional(),
+  area_id: z.string().optional(),
+  hierarchical_category_id: z.string().optional(),
+  cargo_id: z.string().optional(),
+  ntrabajadores: z.string().min(0).optional(),
+  banda_salarial_min: z.string().min(0).optional(),
+  banda_salarial_media: z.string().min(0).optional(),
+  banda_salarial_max: z.string().min(0).optional(),
+  tipo_onboarding_id: z.string().optional(),
+  plazo_proceso_seleccion: z.string().min(0).optional(),
+  presupuesto: z.string().min(0).optional(),
   mof_adjunto: z
     .instanceof(File)
-    .refine((file) => file.size <= MAX_FILE_SIZE, "El archivo debe ser menor a 5MB")
+    .refine(
+      (file) => file.size <= MAX_FILE_SIZE,
+      "El archivo debe ser menor a 5MB"
+    )
     .refine(
       (file) => ACCEPTED_FILE_TYPES.includes(file.type),
       "Solo se permiten archivos PDF, DOC o DOCX"
@@ -66,7 +75,10 @@ export const positionSchemaUpdate = z.object({
     .array(
       z
         .instanceof(File)
-        .refine((file) => file.size <= MAX_FILE_SIZE, "Cada archivo debe ser menor a 5MB")
+        .refine(
+          (file) => file.size <= MAX_FILE_SIZE,
+          "Cada archivo debe ser menor a 5MB"
+        )
         .refine(
           (file) => ACCEPTED_FILE_TYPES.includes(file.type),
           "Solo se permiten archivos PDF, DOC o DOCX"
