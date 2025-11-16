@@ -10,7 +10,7 @@ import {
   sendVehicleDeliveryToDynamic,
 } from "./vehicleDelivery.actions";
 import { VEHICLE_DELIVERY } from "./vehicleDelivery.constants";
-import { successToast, errorToast } from "@/src/core/core.function";
+import { successToast, errorToast } from "@/core/core.function";
 
 const { QUERY_KEY } = VEHICLE_DELIVERY;
 

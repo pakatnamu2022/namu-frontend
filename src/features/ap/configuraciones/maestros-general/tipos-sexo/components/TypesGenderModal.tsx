@@ -4,9 +4,9 @@ import {
   errorToast,
   SUCCESS_MESSAGE,
   successToast,
-} from "@/src/core/core.function";
-import { GeneralModal } from "@/src/shared/components/GeneralModal";
-import FormSkeleton from "@/src/shared/components/FormSkeleton";
+} from "@/core/core.function";
+import { GeneralModal } from "@/shared/components/GeneralModal";
+import FormSkeleton from "@/shared/components/FormSkeleton";
 import { TYPE_GENDER } from "../lib/typesGender.constants";
 import { useTypeGenderById } from "../lib/typesGender.hook";
 import { TypeGenderResource } from "../lib/typesGender.interface";

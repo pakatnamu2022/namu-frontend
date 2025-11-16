@@ -1,7 +1,7 @@
 "use client";
 
-import RadioButton from "@/src/shared/components/RadioButton";
-import SearchInput from "@/src/shared/components/SearchInput";
+import RadioButton from "@/shared/components/RadioButton";
+import SearchInput from "@/shared/components/SearchInput";
 import { PARAMETER_TYPES } from "../lib/parameter.constans";
 
 export default function ParameterOptions({

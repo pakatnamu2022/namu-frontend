@@ -6,17 +6,17 @@ import {
   storeCategoryChecklist,
   updateCategoryChecklist,
 } from "../lib/categoryChecklist.actions";
-import FormSkeleton from "@/src/shared/components/FormSkeleton";
-import { GeneralModal } from "@/src/shared/components/GeneralModal";
+import FormSkeleton from "@/shared/components/FormSkeleton";
+import { GeneralModal } from "@/shared/components/GeneralModal";
 import {
   ERROR_MESSAGE,
   errorToast,
   SUCCESS_MESSAGE,
   successToast,
-} from "@/src/core/core.function";
+} from "@/core/core.function";
 import { CategoryChecklistForm } from "./CategoryChecklistForm";
 import { CATEGORY_CHECKLIST } from "../lib/categoryChecklist.constants";
-import { AP_MASTER_COMERCIAL } from "@/src/features/ap/lib/ap.constants";
+import { AP_MASTER_COMERCIAL } from "@/features/ap/lib/ap.constants";
 
 interface Props {
   id?: number;

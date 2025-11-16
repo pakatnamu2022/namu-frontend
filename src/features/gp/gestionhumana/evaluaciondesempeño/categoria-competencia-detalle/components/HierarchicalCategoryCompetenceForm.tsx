@@ -8,10 +8,10 @@ import {
   hierarchicalCategoryCompetenceSchemaCreate,
 } from "../lib/hierarchicalCategoryCompetence.schema";
 import { Loader } from "lucide-react";
-import { FormSelect } from "@/src/shared/components/FormSelect";
+import { FormSelect } from "@/shared/components/FormSelect";
 import { Form } from "@/components/ui/form";
-import { CATEGORY_COMPETENCE } from "@/src/features/gp/gestionhumana/evaluaciondesempeño/categoria-competencia-detalle/lib/hierarchicalCategoryCompetence.constants";
-import { CompetenceResource } from "@/src/features/gp/gestionhumana/evaluaciondesempeño/competencias/lib/competence.interface";
+import { CATEGORY_COMPETENCE } from "@/features/gp/gestionhumana/evaluaciondesempeño/categoria-competencia-detalle/lib/hierarchicalCategoryCompetence.constants";
+import { CompetenceResource } from "@/features/gp/gestionhumana/evaluaciondesempeño/competencias/lib/competence.interface";
 
 interface Props {
   defaultValues: Partial<HierarchicalCategoryCompetenceSchema>;

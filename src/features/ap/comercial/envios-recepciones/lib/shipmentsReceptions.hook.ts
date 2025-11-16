@@ -22,7 +22,7 @@ import {
   markAsReceived,
   cancelShippingGuide,
 } from "./shipmentsReceptions.actions";
-import { successToast, errorToast } from "@/src/core/core.function";
+import { successToast, errorToast } from "@/core/core.function";
 import { toast } from "sonner";
 
 const { QUERY_KEY } = SHIPMENTS_RECEPTIONS;

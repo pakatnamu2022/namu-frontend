@@ -1,8 +1,8 @@
-import { TypesOperationResource } from "@/src/features/ap/configuraciones/maestros-general/tipos-operacion/lib/typesOperation.interface";
-import { SedeResource } from "@/src/features/gp/maestro-general/sede/lib/sede.interface";
-import { ClassArticleResource } from "@/src/features/ap/configuraciones/maestros-general/clase-articulo/lib/classArticle.interface";
-import SearchInput from "@/src/shared/components/SearchInput";
-import { SearchableSelect } from "@/src/shared/components/SearchableSelect";
+import { TypesOperationResource } from "@/features/ap/configuraciones/maestros-general/tipos-operacion/lib/typesOperation.interface";
+import { SedeResource } from "@/features/gp/maestro-general/sede/lib/sede.interface";
+import { ClassArticleResource } from "@/features/ap/configuraciones/maestros-general/clase-articulo/lib/classArticle.interface";
+import SearchInput from "@/shared/components/SearchInput";
+import { SearchableSelect } from "@/shared/components/SearchableSelect";
 
 interface Props {
   search: string;

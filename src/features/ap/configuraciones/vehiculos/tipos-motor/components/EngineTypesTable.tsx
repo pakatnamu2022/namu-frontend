@@ -1,4 +1,4 @@
-import { DataTable } from "@/src/shared/components/DataTable";
+import { DataTable } from "@/shared/components/DataTable";
 import { EngineTypesResource } from "../lib/engineTypes.interface";
 import { EngineTypesColumns } from "./EngineTypesColumns";
 

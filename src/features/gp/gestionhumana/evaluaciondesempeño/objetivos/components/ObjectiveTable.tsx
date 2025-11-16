@@ -1,4 +1,4 @@
-import { DataTable } from "@/src/shared/components/DataTable";
+import { DataTable } from "@/shared/components/DataTable";
 import { ObjectiveColumns } from "./ObjectiveColumns";
 import { ObjectiveResource } from "../lib/objective.interface";
 

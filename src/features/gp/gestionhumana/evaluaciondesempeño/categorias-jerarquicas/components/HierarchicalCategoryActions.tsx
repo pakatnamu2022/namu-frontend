@@ -2,13 +2,13 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import ActionsWrapper from "@/src/shared/components/ActionsWrapper";
+import ActionsWrapper from "@/shared/components/ActionsWrapper";
 import { Plus, Users } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useNavigate } from 'react-router-dom';
 import WorkersModal from "./WorkersModal";
 
 export default function HierarchicalCategoryActions() {
-  const { push } = useRouter();
+  const push = useNavigate();
   const [workersModalOpen, setWorkersModalOpen] = useState(false);
 
   const handleAddHierarchicalCategory = () => {

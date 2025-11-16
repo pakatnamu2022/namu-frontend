@@ -1,6 +1,6 @@
-import { SedeResource } from "@/src/features/gp/maestro-general/sede/lib/sede.interface";
-import SearchInput from "@/src/shared/components/SearchInput";
-import { SearchableSelect } from "@/src/shared/components/SearchableSelect";
+import { SedeResource } from "@/features/gp/maestro-general/sede/lib/sede.interface";
+import SearchInput from "@/shared/components/SearchInput";
+import { SearchableSelect } from "@/shared/components/SearchableSelect";
 
 interface Props {
   search: string;

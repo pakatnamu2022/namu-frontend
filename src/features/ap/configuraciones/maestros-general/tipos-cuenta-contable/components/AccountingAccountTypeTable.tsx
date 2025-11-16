@@ -1,4 +1,4 @@
-import { DataTable } from "@/src/shared/components/DataTable";
+import { DataTable } from "@/shared/components/DataTable";
 import { AccountingAccountTypeResource } from "../lib/accountingAccountType.interface";
 import { AccountingAccountTypeColumns } from "./AccountingAccountTypeColumns";
 

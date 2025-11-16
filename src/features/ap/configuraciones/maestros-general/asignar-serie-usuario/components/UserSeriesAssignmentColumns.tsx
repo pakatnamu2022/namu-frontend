@@ -1,5 +1,5 @@
-import { useRouter } from "next/navigation";
-import { ColumnDef } from "@tanstack/react-table";
+import { useNavigate } from 'react-router-dom';
+import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
 import { USER_SERIES_ASSIGNMENT } from "../lib/userSeriesAssignment.constants";
@@ -59,7 +59,7 @@ export const userSeriesAssignmentColumns = ({
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
-      const router = useRouter();
+      const router = useNavigate();
       const { worker_id } = row.original;
       const { ROUTE_UPDATE } = USER_SERIES_ASSIGNMENT;
 
@@ -70,7 +70,7 @@ export const userSeriesAssignmentColumns = ({
               variant="outline"
               size="icon"
               className="size-7"
-              onClick={() => router.push(`${ROUTE_UPDATE}/${worker_id}`)}
+              onClick={() => router(`${ROUTE_UPDATE}/${worker_id}`)}
             >
               <Pencil className="size-5" />
             </Button>

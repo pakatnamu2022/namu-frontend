@@ -1,7 +1,7 @@
 import {
   optionalStringId,
   requiredStringId,
-} from "@/src/shared/lib/global.schema";
+} from "@/shared/lib/global.schema";
 import { z } from "zod";
 import * as LucideIcons from "lucide-react";
 

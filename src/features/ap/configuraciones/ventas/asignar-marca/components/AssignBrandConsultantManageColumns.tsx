@@ -1,7 +1,7 @@
-import { ColumnDef } from "@tanstack/react-table";
+import type { ColumnDef } from "@tanstack/react-table";
 import { AssignBrandConsultantResource } from "../lib/assignBrandConsultant.interface";
-import { DeleteButton } from "@/src/shared/components/SimpleDeleteDialog";
-import { EditableCell } from "@/src/shared/components/EditableCell";
+import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
+import { EditableCell } from "@/shared/components/EditableCell";
 
 export type AssignBrandConsultantColumns =
   ColumnDef<AssignBrandConsultantResource>;

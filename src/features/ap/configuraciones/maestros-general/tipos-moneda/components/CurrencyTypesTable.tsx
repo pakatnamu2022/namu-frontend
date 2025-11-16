@@ -1,4 +1,4 @@
-import { DataTable } from "@/src/shared/components/DataTable";
+import { DataTable } from "@/shared/components/DataTable";
 import { CurrencyTypesResource } from "../lib/CurrencyTypes.interface";
 import { CurrencyTypesColumns } from "./CurrencyTypesColumns";
 

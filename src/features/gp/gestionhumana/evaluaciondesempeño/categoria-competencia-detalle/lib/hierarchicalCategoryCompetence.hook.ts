@@ -6,11 +6,11 @@ import {
 } from "./hierarchicalCategoryCompetence.interface";
 import {
     CATEGORY_COMPETENCE
-} from "@/src/features/gp/gestionhumana/evaluaciondesempeño/categoria-competencia-detalle/lib/hierarchicalCategoryCompetence.constants";
+} from "@/features/gp/gestionhumana/evaluaciondesempeño/categoria-competencia-detalle/lib/hierarchicalCategoryCompetence.constants";
 import {
     findHierarchicalCategoryCompetenceById, getCategoryCompetencePersonById,
     getHierarchicalCategoryCompetence
-} from "@/src/features/gp/gestionhumana/evaluaciondesempeño/categoria-competencia-detalle/lib/hierarchicalCategoryCompetence.actions";
+} from "@/features/gp/gestionhumana/evaluaciondesempeño/categoria-competencia-detalle/lib/hierarchicalCategoryCompetence.actions";
 
 const {QUERY_KEY} = CATEGORY_COMPETENCE;
 

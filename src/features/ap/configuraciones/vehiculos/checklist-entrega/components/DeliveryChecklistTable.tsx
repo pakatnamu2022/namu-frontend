@@ -1,4 +1,4 @@
-import { DataTable } from "@/src/shared/components/DataTable";
+import { DataTable } from "@/shared/components/DataTable";
 import { DeliveryChecklistColumns } from "./DeliveryChecklistColumns";
 import { DeliveryChecklistResource } from "../lib/deliveryChecklist.interface";
 

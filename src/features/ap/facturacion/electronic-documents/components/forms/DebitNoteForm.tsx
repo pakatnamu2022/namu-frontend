@@ -26,25 +26,25 @@ import {
   DebitNoteSchema,
   DebitNoteItemSchema,
 } from "../../lib/electronicDocument.schema";
-import { FormSelect } from "@/src/shared/components/FormSelect";
-import { FormSwitch } from "@/src/shared/components/FormSwitch";
-import { SearchableSelect } from "@/src/shared/components/SearchableSelect";
+import { FormSelect } from "@/shared/components/FormSelect";
+import { FormSwitch } from "@/shared/components/FormSwitch";
+import { SearchableSelect } from "@/shared/components/SearchableSelect";
 import { Textarea } from "@/components/ui/textarea";
-import { useAllSunatConcepts } from "@/src/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.hook";
-import { SUNAT_CONCEPTS_TYPE } from "@/src/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
-import { useAuthorizedSeries } from "@/src/features/ap/configuraciones/maestros-general/asignar-serie-usuario/lib/userSeriesAssignment.hook";
-import { TYPE_RECEIPT_SERIES } from "@/src/features/ap/configuraciones/maestros-general/asignar-serie-venta/lib/assignSalesSeries.constants";
+import { useAllSunatConcepts } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.hook";
+import { SUNAT_CONCEPTS_TYPE } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
+import { useAuthorizedSeries } from "@/features/ap/configuraciones/maestros-general/asignar-serie-usuario/lib/userSeriesAssignment.hook";
+import { TYPE_RECEIPT_SERIES } from "@/features/ap/configuraciones/maestros-general/asignar-serie-venta/lib/assignSalesSeries.constants";
 import { UNIT_MEASURES } from "../../lib/electronicDocument.constants";
-import { useAllAccountingAccountPlan } from "@/src/features/ap/configuraciones/maestros-general/plan-cuenta-contable/lib/accountingAccountPlan.hook";
+import { useAllAccountingAccountPlan } from "@/features/ap/configuraciones/maestros-general/plan-cuenta-contable/lib/accountingAccountPlan.hook";
 import { ElectronicDocumentResource } from "../../lib/electronicDocument.interface";
-import { DataTable } from "@/src/shared/components/DataTable";
-import { ColumnDef } from "@tanstack/react-table";
-import GeneralSheet from "@/src/shared/components/GeneralSheet";
+import { DataTable } from "@/shared/components/DataTable";
+import type { ColumnDef } from "@tanstack/react-table";
+import GeneralSheet from "@/shared/components/GeneralSheet";
 import { DEFAULT_IGV_PERCENTAGE } from "../../lib/electronicDocument.constants";
-import { useAllCustomers } from "@/src/features/ap/comercial/clientes/lib/customers.hook";
+import { useAllCustomers } from "@/features/ap/comercial/clientes/lib/customers.hook";
 import { getNextDebitNoteNumber } from "../../lib/electronicDocument.actions";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { GroupFormSection } from "@/src/shared/components/GroupFormSection";
+import { GroupFormSection } from "@/shared/components/GroupFormSection";
 
 interface DebitNoteFormProps {
   originalDocument: ElectronicDocumentResource;

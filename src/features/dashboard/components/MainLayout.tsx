@@ -8,7 +8,7 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar";
 import { ProfileCard } from "../../users/components/profile-card";
-import Header from "@/src/shared/components/header";
+import Header from "@/shared/components/header";
 import { FeedWidget } from "../../social/components/feed-widget";
 // import { Progress } from "@/components/ui/progress";
 

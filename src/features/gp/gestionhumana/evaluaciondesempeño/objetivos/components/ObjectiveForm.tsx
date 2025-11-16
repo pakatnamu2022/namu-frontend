@@ -18,10 +18,10 @@ import {
   objectiveSchemaUpdate,
 } from "../lib/objective.schema";
 import { Loader } from "lucide-react";
-import Link from "next/link";
-import { FormSelect } from "@/src/shared/components/FormSelect";
+import { Link } from 'react-router-dom'
+import { FormSelect } from "@/shared/components/FormSelect";
 import { useAllMetrics } from "../../metricas/lib/metric.hook";
-import FormSkeleton from "@/src/shared/components/FormSkeleton";
+import FormSkeleton from "@/shared/components/FormSkeleton";
 
 interface ObjectiveFormProps {
   defaultValues: Partial<ObjectiveSchema>;
@@ -99,7 +99,7 @@ export const ObjectiveForm = ({
         </pre> */}
 
         <div className="flex gap-4 w-full justify-end">
-          <Link href={mode === "create" ? "./" : "../"}>
+          <Link to={mode === "create" ? "./" : "../"}>
             <Button type="button" variant="outline">
               Cancelar
             </Button>

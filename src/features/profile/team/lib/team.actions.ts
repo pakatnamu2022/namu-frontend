@@ -1,11 +1,11 @@
-import { GeneralResponse } from "@/src/shared/lib/response.interface";
+import { GeneralResponse } from "@/shared/lib/response.interface";
 import { AxiosRequestConfig } from "axios";
 import {
   getMetricsProps,
   MetricResource,
   MetricResponse,
 } from "./team.interface";
-import { api } from "@/src/core/api";
+import { api } from "@/core/api";
 import { METRIC } from "./team.constant";
 import { TeamDashboardResponse } from "./team-dashboard.interface";
 

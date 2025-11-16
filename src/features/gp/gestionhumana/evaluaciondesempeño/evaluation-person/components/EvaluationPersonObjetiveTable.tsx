@@ -14,7 +14,7 @@ import {
   EvaluationPersonResultResource,
 } from "../lib/evaluationPerson.interface";
 import { evaluationPersonObjectiveColumns } from "./EvaluationPersonObjectiveColumns";
-import TableSkeleton from "@/src/shared/components/TableSkeleton";
+import TableSkeleton from "@/shared/components/TableSkeleton";
 import EmptyState from "./EmptyState";
 import ExpandableTableRow from "./ExpandableTableRow";
 import EvaluationHeader from "./EvaluationHeader";

@@ -1,6 +1,6 @@
-import { DataTable } from "@/src/shared/components/DataTable";
+import { DataTable } from "@/shared/components/DataTable";
 import { EquipmentColumns } from "./EquipmentColumns";
-import { EquipmentResource } from "@/src/features/gp/tics/equipment/lib/equipment.interface";
+import { EquipmentResource } from "@/features/gp/tics/equipment/lib/equipment.interface";
 
 interface Props {
   columns: EquipmentColumns[];

@@ -1,9 +1,9 @@
 import { UseFormReturn } from "react-hook-form";
 import { FileCheck } from "lucide-react";
-import { GroupFormSection } from "@/src/shared/components/GroupFormSection";
-import { FormSelect } from "@/src/shared/components/FormSelect";
+import { GroupFormSection } from "@/shared/components/GroupFormSection";
+import { FormSelect } from "@/shared/components/FormSelect";
 import { ElectronicDocumentSchema } from "../../lib/electronicDocument.schema";
-import { PurchaseRequestQuoteResource } from "@/src/features/ap/comercial/solicitudes-cotizaciones/lib/purchaseRequestQuote.interface";
+import { PurchaseRequestQuoteResource } from "@/features/ap/comercial/solicitudes-cotizaciones/lib/purchaseRequestQuote.interface";
 
 interface QuotationSectionProps {
   form: UseFormReturn<ElectronicDocumentSchema>;

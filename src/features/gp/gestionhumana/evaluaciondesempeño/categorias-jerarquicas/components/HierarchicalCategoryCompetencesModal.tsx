@@ -15,10 +15,10 @@ import {
   errorToast,
   SUCCESS_MESSAGE,
   successToast,
-} from "@/src/core/core.function";
-import { SimpleDeleteDialog } from "@/src/shared/components/SimpleDeleteDialog";
+} from "@/core/core.function";
+import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
 
-import FormSkeleton from "@/src/shared/components/FormSkeleton";
+import FormSkeleton from "@/shared/components/FormSkeleton";
 import { useMutation } from "@tanstack/react-query";
 import {
   Tabs,
@@ -26,13 +26,13 @@ import {
   TabsContents,
   TabsList,
   TabsTrigger,
-} from "@/src/shared/components/animateTabs";
+} from "@/shared/components/animateTabs";
 import { HierarchicalCategoryResource } from "../lib/hierarchicalCategory.interface";
 import { HIERARCHICAL_CATEGORY } from "../lib/hierarchicalCategory.constants";
-import { ModelInterface } from "@/src/core/core.interface";
+import { ModelInterface } from "@/core/core.interface";
 import { useHierarchicalCategoryById } from "../lib/hierarchicalCategory.hook";
 import { CompetenceResource } from "../../competencias/lib/competence.interface";
-import { useCategoryCompetenceWorkerById } from "@/src/features/gp/gestionhumana/evaluaciondesempeño/categoria-competencia-detalle/lib/hierarchicalCategoryCompetence.hook";
+import { useCategoryCompetenceWorkerById } from "@/features/gp/gestionhumana/evaluaciondesempeño/categoria-competencia-detalle/lib/hierarchicalCategoryCompetence.hook";
 import {
   deleteHierarchicalCategoryCompetence,
   storeHierarchicalCategoryCompetence,

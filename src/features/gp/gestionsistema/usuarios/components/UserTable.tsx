@@ -1,4 +1,4 @@
-import { DataTable } from "@/src/shared/components/DataTable";
+import { DataTable } from "@/shared/components/DataTable";
 import { UserColumns } from "./UserColumns";
 import { UserResource } from "../lib/user.interface";
 

@@ -1,4 +1,4 @@
-import { DataTable } from "@/src/shared/components/DataTable";
+import { DataTable } from "@/shared/components/DataTable";
 import { MaritalStatusColumns } from "./MaritalStatusColumns";
 import { MaritalStatusResource } from "../lib/maritalStatus.interface";
 

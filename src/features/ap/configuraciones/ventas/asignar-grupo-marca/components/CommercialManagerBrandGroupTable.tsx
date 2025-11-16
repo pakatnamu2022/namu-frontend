@@ -1,4 +1,4 @@
-import { DataTable } from "@/src/shared/components/DataTable";
+import { DataTable } from "@/shared/components/DataTable";
 import { CommercialManagerBrandGroupResource } from "../lib/commercialManagerBrandGroup.interface";
 import { CommercialManagerBrandGroupColumns } from "./CommercialManagerBrandGroupColumns";
 

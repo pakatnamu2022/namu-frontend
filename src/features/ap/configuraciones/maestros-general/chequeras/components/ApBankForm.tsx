@@ -3,7 +3,7 @@ import {
   ApBankSchema,
   apBankSchemaCreate,
   apBankSchemaUpdate,
-} from "@/src/features/ap/configuraciones/maestros-general/chequeras/lib/apBank.schema";
+} from "@/features/ap/configuraciones/maestros-general/chequeras/lib/apBank.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Form,
@@ -16,13 +16,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
-import { FormSelect } from "@/src/shared/components/FormSelect";
-import { useAllBank } from "@/src/features/ap/configuraciones/maestros-general/bancos/lib/bank.hook";
-import FormSkeleton from "@/src/shared/components/FormSkeleton";
-import { useAllCurrencyTypes } from "@/src/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.hook";
-import Link from "next/link";
-import { EMPRESA_AP } from "@/src/core/core.constants";
-import { useAllSedes } from "@/src/features/gp/maestro-general/sede/lib/sede.hook";
+import { FormSelect } from "@/shared/components/FormSelect";
+import { useAllBank } from "@/features/ap/configuraciones/maestros-general/bancos/lib/bank.hook";
+import FormSkeleton from "@/shared/components/FormSkeleton";
+import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.hook";
+import { Link } from 'react-router-dom'
+import { EMPRESA_AP } from "@/core/core.constants";
+import { useAllSedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 
 interface ApBankFormProps {
   defaultValues: Partial<ApBankSchema>;
@@ -137,7 +137,7 @@ export const ApBankForm = ({
         </div>
 
         <div className="flex gap-4 w-full justify-end">
-          <Link href={mode === "create" ? "" : "../"}>
+          <Link to={mode === "create" ? "" : "../"}>
             <Button type="button" variant="outline">
               Cancelar
             </Button>

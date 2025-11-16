@@ -16,7 +16,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import Link from "next/link";
+import { Link } from 'react-router-dom'
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -36,24 +36,24 @@ import {
   Package,
   FileEdit,
 } from "lucide-react";
-import { FormSelect } from "@/src/shared/components/FormSelect";
+import { FormSelect } from "@/shared/components/FormSelect";
 import { useMemo, useRef, useState, useEffect } from "react";
-import FormSkeleton from "@/src/shared/components/FormSkeleton";
-import { useAllModelsVn } from "@/src/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.hook";
-import { useAllVehicleColor } from "@/src/features/ap/configuraciones/vehiculos/colores-vehiculo/lib/vehicleColor.hook";
-import { useAllEngineTypes } from "@/src/features/ap/configuraciones/vehiculos/tipos-motor/lib/engineTypes.hook";
-import { useAllSupplierOrderType } from "@/src/features/ap/configuraciones/vehiculos/tipos-pedido-proveedor/lib/supplierOrderType.hook";
-import { useMySedes } from "@/src/features/gp/maestro-general/sede/lib/sede.hook";
-import { useWarehouseByModelSede } from "@/src/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
-import { useAllCurrencyTypes } from "@/src/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.hook";
+import FormSkeleton from "@/shared/components/FormSkeleton";
+import { useAllModelsVn } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.hook";
+import { useAllVehicleColor } from "@/features/ap/configuraciones/vehiculos/colores-vehiculo/lib/vehicleColor.hook";
+import { useAllEngineTypes } from "@/features/ap/configuraciones/vehiculos/tipos-motor/lib/engineTypes.hook";
+import { useAllSupplierOrderType } from "@/features/ap/configuraciones/vehiculos/tipos-pedido-proveedor/lib/supplierOrderType.hook";
+import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
+import { useWarehouseByModelSede } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
+import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.hook";
 import { useAllSuppliers } from "../../proveedores/lib/suppliers.hook";
-import { useAllUnitMeasurement } from "@/src/features/ap/configuraciones/maestros-general/unidad-medida/lib/unitMeasurement.hook";
-import { EMPRESA_AP, TYPE_BUSINESS_PARTNERS } from "@/src/core/core.constants";
-import { DatePickerFormField } from "@/src/shared/components/DatePickerFormField";
-import { GroupFormSection } from "@/src/shared/components/GroupFormSection";
-import VehicleColorModal from "@/src/features/ap/configuraciones/vehiculos/colores-vehiculo/components/VehicleColorModal";
+import { useAllUnitMeasurement } from "@/features/ap/configuraciones/maestros-general/unidad-medida/lib/unitMeasurement.hook";
+import { EMPRESA_AP, TYPE_BUSINESS_PARTNERS } from "@/core/core.constants";
+import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
+import { GroupFormSection } from "@/shared/components/GroupFormSection";
+import VehicleColorModal from "@/features/ap/configuraciones/vehiculos/colores-vehiculo/components/VehicleColorModal";
 import { useQueryClient } from "@tanstack/react-query";
-import { VEHICLE_COLOR } from "@/src/features/ap/configuraciones/vehiculos/colores-vehiculo/lib/vehicleColor.constants";
+import { VEHICLE_COLOR } from "@/features/ap/configuraciones/vehiculos/colores-vehiculo/lib/vehicleColor.constants";
 import { useAllBrandsBySede } from "../../../configuraciones/ventas/asignar-marca/lib/assignBrandConsultant.hook";
 import { UNIT_MEASUREMENT_ID } from "../../../configuraciones/maestros-general/unidad-medida/lib/unitMeasurement.constants";
 
@@ -1164,7 +1164,7 @@ export const VehiclePurchaseOrderForm = ({
           )}
 
           <div className="flex gap-4">
-            <Link href={mode === "create" ? "./" : "../"}>
+            <Link to={mode === "create" ? "./" : "../"}>
               <Button type="button" variant="outline">
                 Cancelar
               </Button>

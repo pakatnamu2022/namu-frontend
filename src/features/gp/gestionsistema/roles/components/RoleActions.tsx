@@ -2,9 +2,9 @@
 
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import RoleModal from "@/src/features/gp/gestionsistema/roles/components/RoleModal";
+import RoleModal from "@/features/gp/gestionsistema/roles/components/RoleModal";
 import { useState } from "react";
-import ActionsWrapper from "@/src/shared/components/ActionsWrapper";
+import ActionsWrapper from "@/shared/components/ActionsWrapper";
 
 export default function RoleActions() {
   const [open, setOpen] = useState(false);

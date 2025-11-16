@@ -18,11 +18,11 @@ import {
   evaluationSchemaUpdate,
 } from "../lib/evaluation.schema";
 import { Loader } from "lucide-react";
-import Link from "next/link";
-import { FormSelect } from "@/src/shared/components/FormSelect";
-import RequiredField from "@/src/shared/components/RequiredField";
+import { Link } from 'react-router-dom'
+import { FormSelect } from "@/shared/components/FormSelect";
+import RequiredField from "@/shared/components/RequiredField";
 import { CycleResource } from "../../ciclos/lib/cycle.interface";
-import { DateRangePickerFormField } from "@/src/shared/components/DateRangePickerFormField";
+import { DateRangePickerFormField } from "@/shared/components/DateRangePickerFormField";
 import { EVALUATION, TYPE_EVALUATION } from "../lib/evaluation.constans";
 import { ParameterResource } from "../../parametros/lib/parameter.interface";
 import { useEffect } from "react";
@@ -250,7 +250,7 @@ export const EvaluationForm = ({
         </pre> */}
 
         <div className="flex gap-4 w-full justify-end">
-          <Link href={mode === "create" ? "./" : "../"}>
+          <Link to={mode === "create" ? "./" : "../"}>
             <Button type="button" variant="outline">
               Cancelar
             </Button>

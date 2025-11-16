@@ -1,10 +1,10 @@
-import { api } from "@/src/core/api";
+import { api } from "@/core/api";
 import {
   EquipmentResource,
   EquipmentResponse,
   getEquipmentsProps,
-} from "@/src/features/gp/tics/equipment/lib/equipment.interface";
-import { GeneralResponse } from "@/src/shared/lib/response.interface";
+} from "@/features/gp/tics/equipment/lib/equipment.interface";
+import { GeneralResponse } from "@/shared/lib/response.interface";
 import { AxiosRequestConfig } from "axios";
 
 export async function getEquipment({

@@ -12,9 +12,9 @@ import {
   useWorkersWithoutObjectives,
   useWorkersWithoutCategories,
   useWorkersWithoutCompetences,
-} from "@/src/features/gp/gestionhumana/personal/trabajadores/lib/worker.hook";
+} from "@/features/gp/gestionhumana/personal/trabajadores/lib/worker.hook";
 import WorkerTable from "./WorkerTable";
-import FormSkeleton from "@/src/shared/components/FormSkeleton";
+import FormSkeleton from "@/shared/components/FormSkeleton";
 
 interface WorkersModalProps {
   open: boolean;

@@ -36,7 +36,7 @@ import {
   errorToast,
   SUCCESS_MESSAGE,
   successToast,
-} from "@/src/core/core.function";
+} from "@/core/core.function";
 import { OpportunityActionResource } from "./opportunityAction.interface";
 import {
   OpportunityActionSchema,

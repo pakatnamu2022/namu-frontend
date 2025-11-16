@@ -1,5 +1,5 @@
-import { ColumnDef } from "@tanstack/react-table";
-import { useRouter } from "next/navigation";
+import type { ColumnDef } from "@tanstack/react-table";
+import { useNavigate } from 'react-router-dom';
 import {
   AsesorResource,
   AssignCompanyBranchResource,
@@ -63,7 +63,7 @@ export const assignCompanyBranchColumns = ({
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
-      const router = useRouter();
+      const router = useNavigate();
       const { sede_id } = row.original;
       const { ROUTE_UPDATE } = ASSIGN_COMPANY_BRANCH;
 
@@ -75,7 +75,7 @@ export const assignCompanyBranchColumns = ({
               variant="outline"
               size="icon"
               className="size-7"
-              onClick={() => router.push(`${ROUTE_UPDATE}/${sede_id}`)}
+              onClick={() => router(`${ROUTE_UPDATE}/${sede_id}`)}
             >
               <Pencil className="size-5" />
             </Button>

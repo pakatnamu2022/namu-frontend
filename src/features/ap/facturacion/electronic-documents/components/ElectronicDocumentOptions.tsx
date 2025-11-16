@@ -1,10 +1,10 @@
-import SearchInput from "@/src/shared/components/SearchInput";
+import SearchInput from "@/shared/components/SearchInput";
 import {
   DOCUMENT_STATUS,
   ORIGIN_MODULES,
 } from "../lib/electronicDocument.constants";
-import { SunatConceptsResource } from "@/src/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.interface";
-import { SearchableSelect } from "@/src/shared/components/SearchableSelect";
+import { SunatConceptsResource } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.interface";
+import { SearchableSelect } from "@/shared/components/SearchableSelect";
 
 interface Props {
   search: string;

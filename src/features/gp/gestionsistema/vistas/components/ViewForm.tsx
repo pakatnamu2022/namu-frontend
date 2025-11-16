@@ -18,12 +18,12 @@ import {
   viewSchemaUpdate,
 } from "../lib/view.schema";
 import { Loader } from "lucide-react";
-import Link from "next/link";
+import { Link } from 'react-router-dom'
 import { Switch } from "@/components/ui/switch";
-import { FormSelect } from "@/src/shared/components/FormSelect";
+import { FormSelect } from "@/shared/components/FormSelect";
 import { ViewResource } from "../lib/view.interface";
 import { CompanyResource } from "../../empresa/lib/company.interface";
-import RequiredField from "@/src/shared/components/RequiredField";
+import RequiredField from "@/shared/components/RequiredField";
 import { IconPicker } from "@/components/ui/icon-picker";
 
 interface ViewFormProps {
@@ -239,7 +239,7 @@ export const ViewForm = ({
         </pre> */}
 
         <div className="flex gap-4 w-full justify-end">
-          <Link href={mode === "create" ? "./" : "../"}>
+          <Link to={mode === "create" ? "./" : "../"}>
             <Button type="button" variant="outline">
               Cancelar
             </Button>

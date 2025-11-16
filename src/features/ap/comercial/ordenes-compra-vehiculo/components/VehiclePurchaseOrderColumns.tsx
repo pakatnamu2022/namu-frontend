@@ -1,9 +1,9 @@
-import { useRouter } from "next/navigation";
-import { ColumnDef } from "@tanstack/react-table";
+import { useNavigate } from 'react-router-dom';
+import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Check, RefreshCw, X } from "lucide-react";
-import { DeleteButton } from "@/src/shared/components/SimpleDeleteDialog";
+import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { VehiclePurchaseOrderResource } from "../lib/vehiclePurchaseOrder.interface";
 import VehiclePurchaseOrderMigrationHistory from "./VehiclePurchaseOrderMigrationHistory";
 import VehiclePurchaseOrderDetailButton from "./VehiclePurchaseOrderDetailButton";
@@ -152,7 +152,7 @@ export const vehiclePurchaseOrderColumns = ({
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
-      const router = useRouter();
+      const router = useNavigate();
       const purchaseOrder = row.original;
       const { id } = purchaseOrder;
 
@@ -179,7 +179,7 @@ export const vehiclePurchaseOrderColumns = ({
               className="size-7"
               tooltip="Reenviar Orden de Compra"
               onClick={() =>
-                router.push(`compra-vehiculo-nuevo/reenviar/${id}`)
+                router(`compra-vehiculo-nuevo/reenviar/${id}`)
               }
             >
               <RefreshCw className="size-4" />

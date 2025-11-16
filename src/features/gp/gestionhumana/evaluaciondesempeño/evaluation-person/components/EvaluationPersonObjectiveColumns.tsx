@@ -1,12 +1,12 @@
 "use client";
-import { ColumnDef } from "@tanstack/react-table";
+import type { ColumnDef } from "@tanstack/react-table";
 import {
   EvaluationPersonResource,
   EvaluationPersonResultResource,
 } from "../lib/evaluationPerson.interface";
 import { Badge } from "@/components/ui/badge";
 import { parse } from "date-fns";
-import { EditableCell } from "@/src/shared/components/EditableCell";
+import { EditableCell } from "@/shared/components/EditableCell";
 import { Flag, Clock, ChevronUp, ChevronDown } from "lucide-react";
 import { getScales } from "../../parametros/lib/parameter.hook";
 import { cn } from "@/lib/utils";

@@ -1,13 +1,13 @@
 import { AxiosRequestConfig } from "axios";
-import { api } from "@/src/core/api";
-import { GeneralResponse } from "@/src/shared/lib/response.interface";
+import { api } from "@/core/api";
+import { GeneralResponse } from "@/shared/lib/response.interface";
 import { ASSIGN_SALES_SERIES } from "./assignSalesSeries.constants";
 import {
   AssignSalesSeriesResource,
   AssignSalesSeriesResponse,
   getAssignSalesSeriesProps,
 } from "./assignSalesSeries.interface";
-import { STATUS_ACTIVE } from "@/src/core/core.constants";
+import { STATUS_ACTIVE } from "@/core/core.constants";
 
 const { ENDPOINT } = ASSIGN_SALES_SERIES;
 

@@ -1,11 +1,11 @@
-import { useRouter } from "next/navigation";
+import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { ClipboardMinus, Goal, FileText } from "lucide-react";
 import { AP_GOAL_SELL_OUT_IN } from "../lib/apGoalSellOutIn.constants";
 import { Tooltip, TooltipTrigger } from "@radix-ui/react-tooltip";
 import { downloadApGoalSellOutInReportPdf } from "../lib/apGoalSellOutIn.actions";
-import ActionsWrapper from "@/src/shared/components/ActionsWrapper";
-import { errorToast, successToast } from "@/src/core/core.function";
+import ActionsWrapper from "@/shared/components/ActionsWrapper";
+import { errorToast, successToast } from "@/core/core.function";
 
 interface Props {
   year?: string;
@@ -21,7 +21,7 @@ export default function ApGoalSellOutInActions({
   month,
   permissions,
 }: Props) {
-  const router = useRouter();
+  const router = useNavigate();
   const { ROUTE } = AP_GOAL_SELL_OUT_IN;
   const currentYear = year || new Date().getFullYear().toString();
   const currentMonth = month || (new Date().getMonth() + 1).toString();
@@ -67,7 +67,7 @@ export default function ApGoalSellOutInActions({
               size="sm"
               className="ml-auto"
               onClick={() =>
-                router.push(
+                router(
                   `${ROUTE}/resumen?year=${currentYear}&month=${currentMonth}`
                 )
               }
@@ -81,7 +81,7 @@ export default function ApGoalSellOutInActions({
           <Button
             size="sm"
             className="ml-auto"
-            onClick={() => router.push(`${ROUTE}/gestionar`)}
+            onClick={() => router(`${ROUTE}/gestionar`)}
           >
             <Goal className="size-4 mr-2" /> Gestionar Meta
           </Button>

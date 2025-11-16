@@ -12,8 +12,8 @@ import {
   SidebarInset,
   SidebarRail,
 } from "@/components/ui/sidebar";
-import { useCurrentModule } from "@/src/shared/hooks/useCurrentModule";
-import DashboardSkeleton from "@/src/shared/components/DashboardSkeleton";
+import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
+import DashboardSkeleton from "@/shared/components/DashboardSkeleton";
 import { motion } from "framer-motion";
 import { useEffect } from "react";
 

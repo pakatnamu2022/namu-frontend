@@ -5,7 +5,7 @@ import {
   AssignmentLeadershipResponse,
   getAssignmentLeadershipProps,
 } from "./assignmentLeadership.interface";
-import { api } from "@/src/core/api";
+import { api } from "@/core/api";
 
 const { ENDPOINT } = ASSIGNMENT_LEADERSHIP;
 

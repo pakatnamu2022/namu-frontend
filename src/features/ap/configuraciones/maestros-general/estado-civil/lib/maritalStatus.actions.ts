@@ -1,7 +1,7 @@
 import { AxiosRequestConfig } from "axios";
-import { STATUS_ACTIVE } from "@/src/core/core.constants";
-import { api } from "@/src/core/api";
-import { GeneralResponse } from "@/src/shared/lib/response.interface";
+import { STATUS_ACTIVE } from "@/core/core.constants";
+import { api } from "@/core/api";
+import { GeneralResponse } from "@/shared/lib/response.interface";
 import { MARITAL_STATUS } from "./maritalStatus.constants";
 import {
   getMaritalStatusProps,

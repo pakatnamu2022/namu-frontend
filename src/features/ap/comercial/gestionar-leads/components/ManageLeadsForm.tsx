@@ -15,8 +15,8 @@ import {
   CardDescription,
   CardHeader,
 } from "@/components/ui/card";
-import { FileForm } from "@/src/shared/components/FileForm";
-import { errorToast, successToast } from "@/src/core/core.function";
+import { FileForm } from "@/shared/components/FileForm";
+import { errorToast, successToast } from "@/core/core.function";
 import {
   Select,
   SelectContent,

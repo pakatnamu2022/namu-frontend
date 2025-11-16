@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
-import { ProfileCard } from "@/src/features/users/components/profile-card";
+import { ProfileCard } from "@/features/users/components/profile-card";
 import { ChevronLeft } from "lucide-react";
-import Link from "next/link";
+import { Link } from 'react-router-dom'
 
 const ProfileSidebar = ({
   route = "",

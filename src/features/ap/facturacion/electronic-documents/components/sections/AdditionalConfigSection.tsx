@@ -1,6 +1,6 @@
 import { UseFormReturn } from "react-hook-form";
 import { Settings } from "lucide-react";
-import { GroupFormSection } from "@/src/shared/components/GroupFormSection";
+import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import {
   FormControl,
   FormDescription,
@@ -12,8 +12,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { ElectronicDocumentSchema } from "../../lib/electronicDocument.schema";
-import { FormSelect } from "@/src/shared/components/FormSelect";
-import { ApBankResource } from "@/src/features/ap/configuraciones/maestros-general/chequeras/lib/apBank.interface";
+import { FormSelect } from "@/shared/components/FormSelect";
+import { ApBankResource } from "@/features/ap/configuraciones/maestros-general/chequeras/lib/apBank.interface";
 
 interface AdditionalConfigSectionProps {
   form: UseFormReturn<ElectronicDocumentSchema>;

@@ -13,7 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Loader, Plus } from "lucide-react";
-import Link from "next/link";
+import { Link } from 'react-router-dom'
 import { useState } from "react";
 import {
   CompetenceSchema,
@@ -22,7 +22,7 @@ import {
 } from "../lib/competence.schema";
 import SubCompetenceList from "./SubCompetenceList";
 import SubCompetenceForm, { SubCompetenceFormType } from "./SubCompetenceForm";
-import { GeneralModal } from "@/src/shared/components/GeneralModal";
+import { GeneralModal } from "@/shared/components/GeneralModal";
 import { SUBCOMPETENCE } from "../lib/subcompetence.constans";
 
 const { MODEL } = SUBCOMPETENCE;
@@ -137,7 +137,7 @@ export const CompetenceForm = ({
         </div>
 
         <div className="flex gap-4 w-full justify-end">
-          <Link href={mode === "create" ? "./" : "../"}>
+          <Link to={mode === "create" ? "./" : "../"}>
             <Button type="button" variant="outline">
               Cancelar
             </Button>

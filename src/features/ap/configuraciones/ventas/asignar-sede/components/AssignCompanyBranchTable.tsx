@@ -1,4 +1,4 @@
-import { DataTable } from "@/src/shared/components/DataTable";
+import { DataTable } from "@/shared/components/DataTable";
 import { AssignCompanyBranchResource } from "../lib/assignCompanyBranch.interface";
 import { AssignCompanyBranchColumns } from "./AssignCompanyBranchColumns";
 

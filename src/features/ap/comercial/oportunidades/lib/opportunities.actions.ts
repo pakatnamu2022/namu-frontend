@@ -8,14 +8,14 @@ import {
   CommercialMastersResponse,
 } from "./opportunities.interface";
 import { OPPORTUNITIES, OPPORTUNITY_ACTIONS } from "./opportunities.constants";
-import { api } from "@/src/core/api";
+import { api } from "@/core/api";
 import { COMMERCIAL_MASTERS_ENDPOINT } from "../../../lib/ap.constants";
 import { OpportunityActionResource } from "./opportunityAction.interface";
 import {
   OpportunityActionSchema,
   OpportunitySchema,
 } from "./opportunities.schema";
-import { ParamsProps } from "@/src/core/core.interface";
+import { ParamsProps } from "@/core/core.interface";
 
 const { ENDPOINT } = OPPORTUNITIES;
 const { ENDPOINT: ACTIONS_ENDPOINT } = OPPORTUNITY_ACTIONS;

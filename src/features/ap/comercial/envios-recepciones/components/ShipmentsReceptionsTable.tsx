@@ -1,4 +1,4 @@
-import { DataTable } from "@/src/shared/components/DataTable";
+import { DataTable } from "@/shared/components/DataTable";
 import { ShipmentsReceptionsColumns } from "./ShipmentsReceptionsColumns";
 import { ShipmentsReceptionsResource } from "../lib/shipmentsReceptions.interface";
 

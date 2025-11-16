@@ -1,7 +1,7 @@
 "use client";
 
 import { CheckCircle2, Circle } from "lucide-react";
-import type { CalendarDayData } from "@/src/shared/components/CalendarGrid";
+import type { CalendarDayData } from "@/shared/components/CalendarGrid";
 
 interface CalendarDayProps {
   dayData: CalendarDayData;

@@ -1,11 +1,11 @@
 import React from "react";
-import { useRouter } from "next/navigation";
+import { useNavigate } from 'react-router-dom';
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { ExternalLink } from "lucide-react";
-import GeneralSheet from "@/src/shared/components/GeneralSheet";
+import GeneralSheet from "@/shared/components/GeneralSheet";
 import { EvaluationPersonResultResource } from "../../evaluation-person/lib/evaluationPerson.interface";
-import FormSkeleton from "@/src/shared/components/FormSkeleton";
+import FormSkeleton from "@/shared/components/FormSkeleton";
 
 export interface PersonResultsSheetProps {
   open: boolean;
@@ -24,10 +24,10 @@ const PersonResultsSheet: React.FC<PersonResultsSheetProps> = ({
   isLoading,
   error,
 }) => {
-  const router = useRouter();
+  const router = useNavigate();
 
   const handlePersonClick = (personResult: EvaluationPersonResultResource) => {
-    router.push(
+    router(
       `/gp/gestion-humana/evaluaciones-de-desempeno/evaluaciones/detalles/${personResult.evaluation_id}/${personResult.person_id}`
     );
   };

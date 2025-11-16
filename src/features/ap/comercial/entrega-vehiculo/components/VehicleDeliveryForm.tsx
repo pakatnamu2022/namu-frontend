@@ -19,13 +19,13 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
-import { DatePickerFormField } from "@/src/shared/components/DatePickerFormField";
-import { FormSelect } from "@/src/shared/components/FormSelect";
-import FormSkeleton from "@/src/shared/components/FormSkeleton";
-import { CM_COMERCIAL_ID, EMPRESA_AP } from "@/src/core/core.constants";
+import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
+import { FormSelect } from "@/shared/components/FormSelect";
+import FormSkeleton from "@/shared/components/FormSkeleton";
+import { CM_COMERCIAL_ID, EMPRESA_AP } from "@/core/core.constants";
 import { Card } from "@/components/ui/card";
-import { useWarehousesByCompany } from "@/src/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
-import { useAllClassArticle } from "@/src/features/ap/configuraciones/maestros-general/clase-articulo/lib/classArticle.hook";
+import { useWarehousesByCompany } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
+import { useAllClassArticle } from "@/features/ap/configuraciones/maestros-general/clase-articulo/lib/classArticle.hook";
 import {
   useAllVehicles,
   useVehicleClientDebtInfo,

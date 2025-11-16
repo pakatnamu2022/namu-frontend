@@ -1,4 +1,4 @@
-import { requiredStringId } from "@/src/shared/lib/global.schema";
+import { requiredStringId } from "@/shared/lib/global.schema";
 import { z } from "zod";
 
 export const productCategorySchemaCreate = z.object({

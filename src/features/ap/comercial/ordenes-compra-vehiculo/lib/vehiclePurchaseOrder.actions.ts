@@ -1,6 +1,6 @@
 import { AxiosRequestConfig } from "axios";
-import { api } from "@/src/core/api";
-import { GeneralResponse } from "@/src/shared/lib/response.interface";
+import { api } from "@/core/api";
+import { GeneralResponse } from "@/shared/lib/response.interface";
 import { VEHICLE_PURCHASE_ORDER } from "./vehiclePurchaseOrder.constants";
 import {
   GetVehiclePurchaseOrderProps,

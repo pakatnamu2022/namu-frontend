@@ -1,6 +1,6 @@
 "use client";
 
-import { ColumnDef } from "@tanstack/react-table";
+import type { ColumnDef } from "@tanstack/react-table";
 import { HierarchicalCategoryResource } from "../lib/hierarchicalCategory.interface";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,8 +12,8 @@ import {
   Users2,
   X,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { DeleteButton } from "@/src/shared/components/SimpleDeleteDialog";
+import { useNavigate } from 'react-router-dom';
+import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
@@ -111,7 +111,7 @@ export const hierarchicalCategoryColumns = ({
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
-      const router = useRouter();
+      const router = useNavigate();
       const id = row.original.id;
 
       return (
@@ -174,7 +174,7 @@ export const hierarchicalCategoryColumns = ({
             size="icon"
             className="size-7"
             onClick={() =>
-              router.push(`./categorias-jerarquicas/actualizar/${id}`)
+              router(`./categorias-jerarquicas/actualizar/${id}`)
             }
           >
             <Pencil className="size-5" />

@@ -1,5 +1,5 @@
 import { AxiosRequestConfig } from "axios";
-import { api } from "@/src/core/api";
+import { api } from "@/core/api";
 import { AP_GOAL_SELL_OUT_IN } from "./apGoalSellOutIn.constants";
 import {
   ApGoalSellOutInReportResponse,
@@ -7,7 +7,7 @@ import {
   ApGoalSellOutInResponse,
   getApGoalSellOutInProps,
 } from "./apGoalSellOutIn.interface";
-import { GeneralResponse } from "@/src/shared/lib/response.interface";
+import { GeneralResponse } from "@/shared/lib/response.interface";
 
 const { ENDPOINT } = AP_GOAL_SELL_OUT_IN;
 

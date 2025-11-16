@@ -1,4 +1,4 @@
-import { useRouter } from "next/navigation";
+import { useNavigate } from 'react-router-dom';
 import { COMMERCIAL_MANAGER_BRAND_GROUP } from "../lib/commercialManagerBrandGroup.constants";
 import { Button } from "@/components/ui/button";
 import { ClipboardMinus } from "lucide-react";
@@ -12,7 +12,7 @@ interface CommercialManagerBrandGroupActionsProps {
 export default function CommercialManagerBrandGroupActions({
   permissions,
 }: CommercialManagerBrandGroupActionsProps) {
-  const router = useRouter();
+  const router = useNavigate();
   const { ROUTE_ADD } = COMMERCIAL_MANAGER_BRAND_GROUP;
 
   if (!permissions.canCreate) {
@@ -24,7 +24,7 @@ export default function CommercialManagerBrandGroupActions({
       <Button
         size="sm"
         className="ml-auto"
-        onClick={() => router.push(ROUTE_ADD!)}
+        onClick={() => router(ROUTE_ADD!)}
       >
         <ClipboardMinus className="size-4 mr-2" /> Agregar Grupo Marca
       </Button>

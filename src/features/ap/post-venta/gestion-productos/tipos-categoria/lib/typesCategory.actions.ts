@@ -1,14 +1,14 @@
 import { AxiosRequestConfig } from "axios";
-import { api } from "@/src/core/api";
-import { GeneralResponse } from "@/src/shared/lib/response.interface";
-import { STATUS_ACTIVE } from "@/src/core/core.constants";
+import { api } from "@/core/api";
+import { GeneralResponse } from "@/shared/lib/response.interface";
+import { STATUS_ACTIVE } from "@/core/core.constants";
 import { TYPES_CATEGORY } from "./typesCategory.constants";
 import {
   getTypesCategoryProps,
   TypesCategoryResource,
   TypesCategoryResponse,
 } from "./typesCategory.interface";
-import { AP_MASTER_POST_VENTA } from "@/src/features/ap/lib/ap.constants";
+import { AP_MASTER_POST_VENTA } from "@/features/ap/lib/ap.constants";
 
 const { ENDPOINT } = TYPES_CATEGORY;
 

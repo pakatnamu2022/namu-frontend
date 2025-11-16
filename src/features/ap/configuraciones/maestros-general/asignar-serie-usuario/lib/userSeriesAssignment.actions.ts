@@ -1,5 +1,5 @@
 import { AxiosRequestConfig } from "axios";
-import { api } from "@/src/core/api";
+import { api } from "@/core/api";
 import { USER_SERIES_ASSIGNMENT } from "./userSeriesAssignment.constants";
 import {
   getUserSeriesAssignmentProps,

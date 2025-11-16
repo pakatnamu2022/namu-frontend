@@ -1,6 +1,6 @@
 import { AxiosRequestConfig } from "axios";
-import { api } from "@/src/core/api";
-import { GeneralResponse } from "@/src/shared/lib/response.interface";
+import { api } from "@/core/api";
+import { GeneralResponse } from "@/shared/lib/response.interface";
 import {
   getCustomersProps,
   CustomersResource,
@@ -8,7 +8,7 @@ import {
   CustomersRequest,
 } from "./customers.interface";
 import { CUSTOMERS } from "./customers.constants";
-import { TYPE_BUSINESS_PARTNERS } from "@/src/core/core.constants";
+import { TYPE_BUSINESS_PARTNERS } from "@/core/core.constants";
 import { OpportunityResource } from "../../oportunidades/lib/opportunities.interface";
 
 const { ENDPOINT } = CUSTOMERS;

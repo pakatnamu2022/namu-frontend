@@ -2,13 +2,13 @@
 
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useNavigate } from 'react-router-dom';
 import { COMPETENCE } from "../lib/competence.constans";
 
 const { MODEL } = COMPETENCE;
 
 export default function CompetenceActions() {
-  const { push } = useRouter();
+  const push = useNavigate();
 
   const handleAddCompetence = () => {
     push("./competencias/agregar");

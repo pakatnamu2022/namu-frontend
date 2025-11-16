@@ -1,7 +1,7 @@
 "use client";
 
-import SearchInput from "@/src/shared/components/SearchInput";
-import { WORKER } from "@/src/features/gp/gestionhumana/personal/trabajadores/lib/worker.constant";
+import SearchInput from "@/shared/components/SearchInput";
+import { WORKER } from "@/features/gp/gestionhumana/personal/trabajadores/lib/worker.constant";
 
 const { MODEL } = WORKER;
 

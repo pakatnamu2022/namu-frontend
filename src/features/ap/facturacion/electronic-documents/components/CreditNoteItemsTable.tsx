@@ -2,7 +2,7 @@
 
 import { Badge } from "@/components/ui/badge";
 import { AlertCircle } from "lucide-react";
-import { DataTable } from "@/src/shared/components/DataTable";
+import { DataTable } from "@/shared/components/DataTable";
 import { ElectronicDocumentItem } from "../lib/electronicDocument.interface";
 import { creditNoteItemsColumns } from "./CreditNoteItemsColumns";
 

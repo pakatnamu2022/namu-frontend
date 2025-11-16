@@ -1,4 +1,4 @@
-import { DataTable } from "@/src/shared/components/DataTable";
+import { DataTable } from "@/shared/components/DataTable";
 import { AssignBrandConsultantColumns } from "./assignBrandConsultantColumns";
 import { AssignBrandConsultantResource } from "../lib/assignBrandConsultant.interface";
 

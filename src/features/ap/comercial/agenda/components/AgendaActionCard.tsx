@@ -3,11 +3,11 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Clock, CheckCircle2, Circle } from "lucide-react";
-import Link from "next/link";
+import { Link } from 'react-router-dom'
 import {
   getContactIcon,
   OPPORTUNITIES,
-} from "@/src/features/ap/comercial/oportunidades/lib/opportunities.constants";
+} from "@/features/ap/comercial/oportunidades/lib/opportunities.constants";
 
 const { ABSOLUTE_ROUTE } = OPPORTUNITIES;
 
@@ -23,7 +23,7 @@ export default function AgendaActionCard({ action }: AgendaActionCardProps) {
   const IconComponent = getContactIcon(action.action_contact_type);
 
   return (
-    <Link href={`${ABSOLUTE_ROUTE}/${action.opportunity_id}`}>
+    <Link to={`${ABSOLUTE_ROUTE}/${action.opportunity_id}`}>
       <div className="relative pl-12">
         {/* Timeline icon - positioned on the line */}
         <div
@@ -79,7 +79,7 @@ export default function AgendaActionCard({ action }: AgendaActionCardProps) {
                 {action.description}
               </p>
 
-              {/* <Link href={`${ABSOLUTE_ROUTE}/${action.opportunity_id}`}>
+              {/* <Link to={`${ABSOLUTE_ROUTE}/${action.opportunity_id}`}>
               <Button variant="link" size="sm" className="h-7 px-0">
                 Ver Oportunidad
                 <ExternalLink className="size-3 ml-1" />

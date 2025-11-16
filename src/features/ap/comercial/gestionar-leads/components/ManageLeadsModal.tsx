@@ -1,4 +1,4 @@
-import { GeneralModal } from "@/src/shared/components/GeneralModal";
+import { GeneralModal } from "@/shared/components/GeneralModal";
 import { ManageLeadsForm } from "./ManageLeadsForm";
 import { ImportedLeadResource } from "../lib/manageLeads.interface";
 

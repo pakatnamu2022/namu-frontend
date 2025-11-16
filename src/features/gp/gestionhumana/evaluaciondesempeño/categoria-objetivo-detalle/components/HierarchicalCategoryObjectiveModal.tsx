@@ -4,14 +4,14 @@ import {
   errorToast,
   SUCCESS_MESSAGE,
   successToast,
-} from "@/src/core/core.function";
-import { GeneralModal } from "@/src/shared/components/GeneralModal";
-import FormSkeleton from "@/src/shared/components/FormSkeleton";
-import { CATEGORY_OBJECTIVE } from "@/src/features/gp/gestionhumana/evaluaciondesempeño/categoria-objetivo-detalle/lib/hierarchicalCategoryObjective.constants";
-import { HierarchicalCategoryObjectiveSchema } from "@/src/features/gp/gestionhumana/evaluaciondesempeño/categoria-objetivo-detalle/lib/hierarchicalCategoryObjective.schema";
-import { storeHierarchicalCategoryObjective } from "@/src/features/gp/gestionhumana/evaluaciondesempeño/categoria-objetivo-detalle/lib/hierarchicalCategoryObjective.actions";
-import { HierarchicalCategoryObjectiveForm } from "@/src/features/gp/gestionhumana/evaluaciondesempeño/categoria-objetivo-detalle/components/HierarchicalCategoryObjectiveForm";
-import { useAllObjectives } from "@/src/features/gp/gestionhumana/evaluaciondesempeño/objetivos/lib/objective.hook";
+} from "@/core/core.function";
+import { GeneralModal } from "@/shared/components/GeneralModal";
+import FormSkeleton from "@/shared/components/FormSkeleton";
+import { CATEGORY_OBJECTIVE } from "@/features/gp/gestionhumana/evaluaciondesempeño/categoria-objetivo-detalle/lib/hierarchicalCategoryObjective.constants";
+import { HierarchicalCategoryObjectiveSchema } from "@/features/gp/gestionhumana/evaluaciondesempeño/categoria-objetivo-detalle/lib/hierarchicalCategoryObjective.schema";
+import { storeHierarchicalCategoryObjective } from "@/features/gp/gestionhumana/evaluaciondesempeño/categoria-objetivo-detalle/lib/hierarchicalCategoryObjective.actions";
+import { HierarchicalCategoryObjectiveForm } from "@/features/gp/gestionhumana/evaluaciondesempeño/categoria-objetivo-detalle/components/HierarchicalCategoryObjectiveForm";
+import { useAllObjectives } from "@/features/gp/gestionhumana/evaluaciondesempeño/objetivos/lib/objective.hook";
 
 interface Props {
   id?: number;

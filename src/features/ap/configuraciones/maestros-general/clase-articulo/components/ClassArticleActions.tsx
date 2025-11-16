@@ -2,8 +2,8 @@
 
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { useRouter } from "next/navigation";
-import ActionsWrapper from "@/src/shared/components/ActionsWrapper";
+import { useNavigate } from 'react-router-dom';
+import ActionsWrapper from "@/shared/components/ActionsWrapper";
 import { CLASS_ARTICLE } from "../lib/classArticle.constants";
 
 interface ClassArticleActionsProps {
@@ -15,7 +15,7 @@ interface ClassArticleActionsProps {
 export default function ClassArticleActions({
   permissions,
 }: ClassArticleActionsProps) {
-  const router = useRouter();
+  const router = useNavigate();
   const { ROUTE_ADD } = CLASS_ARTICLE;
 
   if (!permissions.canCreate) {
@@ -28,7 +28,7 @@ export default function ClassArticleActions({
         size="sm"
         variant="outline"
         className="ml-auto"
-        onClick={() => router.push(ROUTE_ADD!)}
+        onClick={() => router(ROUTE_ADD!)}
       >
         <Plus className="size-4 mr-2" /> Agregar Clase de Artículo
       </Button>

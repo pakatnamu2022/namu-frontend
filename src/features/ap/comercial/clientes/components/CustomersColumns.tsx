@@ -1,8 +1,8 @@
-import { useRouter } from "next/navigation";
-import { ColumnDef } from "@tanstack/react-table";
+import { useNavigate } from 'react-router-dom';
+import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { Building2, Pencil } from "lucide-react";
-import { DeleteButton } from "@/src/shared/components/SimpleDeleteDialog";
+import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { Badge } from "@/components/ui/badge";
 import { CustomersResource } from "../lib/customers.interface";
 import { CUSTOMERS } from "../lib/customers.constants";
@@ -119,7 +119,7 @@ export const customersColumns = ({
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
-      const router = useRouter();
+      const router = useNavigate();
       const { id } = row.original;
       const { ROUTE_UPDATE, ROUTE } = CUSTOMERS;
 
@@ -135,7 +135,7 @@ export const customersColumns = ({
               size="icon"
               className="size-7"
               tooltip="Establecimientos"
-              onClick={() => router.push(`${ROUTE}/establecimientos/${id}`)}
+              onClick={() => router(`${ROUTE}/establecimientos/${id}`)}
             >
               <Building2 className="size-5" />
             </Button>
@@ -148,7 +148,7 @@ export const customersColumns = ({
               size="icon"
               className="size-7"
               tooltip="Editar"
-              onClick={() => router.push(`${ROUTE_UPDATE}/${id}`)}
+              onClick={() => router(`${ROUTE_UPDATE}/${id}`)}
             >
               <Pencil className="size-5" />
             </Button>

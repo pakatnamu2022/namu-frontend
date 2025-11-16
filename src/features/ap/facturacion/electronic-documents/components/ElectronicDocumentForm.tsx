@@ -12,8 +12,8 @@ import {
   NUBEFACT_CODES,
   QUOTATION_ACCOUNT_PLAN_IDS,
 } from "../lib/electronicDocument.constants";
-import { useAuthorizedSeries } from "@/src/features/ap/configuraciones/maestros-general/asignar-serie-usuario/lib/userSeriesAssignment.hook";
-import { SunatConceptsResource } from "@/src/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.interface";
+import { useAuthorizedSeries } from "@/features/ap/configuraciones/maestros-general/asignar-serie-usuario/lib/userSeriesAssignment.hook";
+import { SunatConceptsResource } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.interface";
 import {
   useNextCorrelativeElectronicDocument,
   useAdvancePaymentsByQuotation,
@@ -21,17 +21,17 @@ import {
 import {
   useAllPurchaseRequestQuote,
   usePurchaseRequestQuoteById,
-} from "@/src/features/ap/comercial/solicitudes-cotizaciones/lib/purchaseRequestQuote.hook";
+} from "@/features/ap/comercial/solicitudes-cotizaciones/lib/purchaseRequestQuote.hook";
 import { DocumentInfoSection } from "./sections/DocumentInfoSection";
 import { QuotationSection } from "./sections/QuotationSection";
 import { QuotationFinancialInfo } from "./sections/QuotationFinancialInfo";
 import { ItemsSection } from "./sections/ItemsSection";
 import { AdditionalConfigSection } from "./sections/AdditionalConfigSection";
 import { SummarySection } from "./sections/SummarySection";
-import { useAllCustomers } from "@/src/features/ap/comercial/clientes/lib/customers.hook";
-import { useAllApBank } from "@/src/features/ap/configuraciones/maestros-general/chequeras/lib/apBank.hook";
-import FormSkeleton from "@/src/shared/components/FormSkeleton";
-import { SUNAT_TYPE_INVOICES_ID } from "@/src/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
+import { useAllCustomers } from "@/features/ap/comercial/clientes/lib/customers.hook";
+import { useAllApBank } from "@/features/ap/configuraciones/maestros-general/chequeras/lib/apBank.hook";
+import FormSkeleton from "@/shared/components/FormSkeleton";
+import { SUNAT_TYPE_INVOICES_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
 
 interface ElectronicDocumentFormProps {
   form: UseFormReturn<ElectronicDocumentSchema>;

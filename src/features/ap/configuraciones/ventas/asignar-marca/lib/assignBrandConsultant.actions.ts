@@ -6,8 +6,8 @@ import {
   BrandResource,
   getAssignBrandConsultantProps,
 } from "./assignBrandConsultant.interface";
-import { api } from "@/src/core/api";
-import { GeneralResponse } from "@/src/shared/lib/response.interface";
+import { api } from "@/core/api";
+import { GeneralResponse } from "@/shared/lib/response.interface";
 import { ASSIGN_BRAND_CONSULTANT } from "./assignBrandConsultant.constants";
 
 const { ENDPOINT } = ASSIGN_BRAND_CONSULTANT;

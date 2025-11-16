@@ -17,13 +17,13 @@ import {
   ReceptionChecklistSchema,
   receptionChecklistSchemaUpdate,
 } from "../lib/shipmentsReceptions.schema";
-import { useAllDeliveryChecklist } from "@/src/features/ap/configuraciones/vehiculos/checklist-entrega/lib/deliveryChecklist.hook";
-import FormSkeleton from "@/src/shared/components/FormSkeleton";
-import { ChecklistField } from "@/src/shared/components/ChecklistField";
+import { useAllDeliveryChecklist } from "@/features/ap/configuraciones/vehiculos/checklist-entrega/lib/deliveryChecklist.hook";
+import FormSkeleton from "@/shared/components/FormSkeleton";
+import { ChecklistField } from "@/shared/components/ChecklistField";
 import { useReceptionChecklistById } from "../lib/shipmentsReceptions.hook";
-import { ConfirmationDialog } from "@/src/shared/components/ConfirmationDialog";
-import { FormSubmitConfirmation } from "@/src/shared/components/FormSubmitConfirmation";
-import { useRouter } from "next/navigation";
+import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
+import { FormSubmitConfirmation } from "@/shared/components/FormSubmitConfirmation";
+import { useNavigate } from 'react-router-dom';
 import {
   Card,
   CardContent,
@@ -46,7 +46,7 @@ export const ReceptionChecklistForm = ({
   isSubmitting = false,
   onCancel,
 }: ReceptionChecklistFormProps) => {
-  const router = useRouter();
+  const router = useNavigate();
   const form = useForm<ReceptionChecklistSchema>({
     resolver: zodResolver(receptionChecklistSchemaUpdate),
     defaultValues: {
@@ -183,7 +183,7 @@ export const ReceptionChecklistForm = ({
               variant="destructive"
               icon="warning"
               onConfirm={() => {
-                router.push("../");
+                router("../");
               }}
             />
           )}

@@ -18,15 +18,15 @@ import {
   cycleSchemaUpdate,
 } from "../lib/cycle.schema";
 import { Loader } from "lucide-react";
-import Link from "next/link";
-import { FormSelect } from "@/src/shared/components/FormSelect";
-import { DateRangePickerFormField } from "@/src/shared/components/DateRangePickerFormField";
+import { Link } from 'react-router-dom'
+import { FormSelect } from "@/shared/components/FormSelect";
+import { DateRangePickerFormField } from "@/shared/components/DateRangePickerFormField";
 import { useEffect } from "react";
 import CycleParameterInfo from "./CycleParameterInfo";
 import { PeriodResource } from "../../periodos/lib/period.interface";
 import { ParameterResource } from "../../parametros/lib/parameter.interface";
 import { TYPE_EVALUATION } from "../../evaluaciones/lib/evaluation.constans";
-import { DatePickerFormField } from "@/src/shared/components/DatePickerFormField";
+import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 import { Matcher } from "react-day-picker";
 
 interface CycleFormProps {
@@ -167,7 +167,7 @@ export const CycleForm = ({
         </pre> */}
 
         <div className="flex gap-4 w-full justify-end">
-          <Link href={mode === "create" ? "./" : "../"}>
+          <Link to={mode === "create" ? "./" : "../"}>
             <Button type="button" variant="outline">
               Cancelar
             </Button>

@@ -23,13 +23,13 @@ import {
   TagsList,
   TagsTrigger,
   TagsValue,
-} from "@/src/shared/components/Tags";
+} from "@/shared/components/Tags";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Loader, CheckIcon } from "lucide-react";
-import { useAllAvailableLocationsShop } from "@/src/features/gp/maestro-general/sede/lib/sede.hook";
-import FormSkeleton from "@/src/shared/components/FormSkeleton";
-import { EMPRESA_AP } from "@/src/core/core.constants";
+import { useAllAvailableLocationsShop } from "@/features/gp/maestro-general/sede/lib/sede.hook";
+import FormSkeleton from "@/shared/components/FormSkeleton";
+import { EMPRESA_AP } from "@/core/core.constants";
 import { ShopSedeResource } from "../lib/shop.interface";
 
 interface ShopFormProps {

@@ -11,10 +11,10 @@ import {
   errorToast,
   SUCCESS_MESSAGE,
   successToast,
-} from "@/src/core/core.function";
-import { GeneralModal } from "@/src/shared/components/GeneralModal";
+} from "@/core/core.function";
+import { GeneralModal } from "@/shared/components/GeneralModal";
 import { AccountingAccountTypeForm } from "./AccountingAccountTypeForm";
-import FormSkeleton from "@/src/shared/components/FormSkeleton";
+import FormSkeleton from "@/shared/components/FormSkeleton";
 import { ACCOUNTING_ACCOUNT_TYPE } from "../lib/accountingAccountType.constants";
 import { AP_MASTER_COMERCIAL } from "../../../../lib/ap.constants";
 

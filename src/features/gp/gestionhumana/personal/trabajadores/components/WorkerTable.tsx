@@ -1,4 +1,4 @@
-import { DataTable } from "@/src/shared/components/DataTable";
+import { DataTable } from "@/shared/components/DataTable";
 import { WorkerColumns } from "./WorkerColumns";
 import { WorkerResource } from "../lib/worker.interface";
 

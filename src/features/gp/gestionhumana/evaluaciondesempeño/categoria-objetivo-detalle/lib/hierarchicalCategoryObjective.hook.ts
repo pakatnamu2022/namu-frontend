@@ -9,7 +9,7 @@ import {
   getCategoryObjectivePersonById,
   getHierarchicalCategoryObjective,
 } from "./hierarchicalCategoryObjective.actions";
-import { CATEGORY_OBJECTIVE } from "@/src/features/gp/gestionhumana/evaluaciondesempeño/categoria-objetivo-detalle/lib/hierarchicalCategoryObjective.constants";
+import { CATEGORY_OBJECTIVE } from "@/features/gp/gestionhumana/evaluaciondesempeño/categoria-objetivo-detalle/lib/hierarchicalCategoryObjective.constants";
 
 const { QUERY_KEY } = CATEGORY_OBJECTIVE;
 

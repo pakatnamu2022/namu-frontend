@@ -26,22 +26,22 @@ import {
   customersSchemaCreate,
   customersSchemaUpdate,
 } from "../lib/customers.schema";
-import { useAllClientOrigin } from "@/src/features/ap/configuraciones/maestros-general/origen-cliente/lib/clientOrigin.hook";
-import FormSkeleton from "@/src/shared/components/FormSkeleton";
-import { FormSelect } from "@/src/shared/components/FormSelect";
-import { DatePickerFormField } from "@/src/shared/components/DatePickerFormField";
-import { useAllDocumentType } from "@/src/features/ap/configuraciones/maestros-general/tipos-documento/lib/documentTypes.hook";
-import { useAllTypeGender } from "@/src/features/ap/configuraciones/maestros-general/tipos-sexo/lib/typesGender.hook";
-import { useAllMaritalStatus } from "@/src/features/ap/configuraciones/maestros-general/estado-civil/lib/maritalStatus.hook";
-import { useAllDistrict } from "@/src/features/ap/configuraciones/maestros-general/ubigeos/lib/district.hook";
-import { useAllTypeClient } from "@/src/features/ap/configuraciones/maestros-general/tipos-persona/lib/typeClient.hook";
-import { useAllPersonSegment } from "@/src/features/ap/configuraciones/maestros-general/segmentos-persona/lib/personSegment.hook";
-import { useAllTaxClassTypes } from "@/src/features/ap/configuraciones/maestros-general/tipos-clase-impuesto/lib/taxClassTypes.hook";
+import { useAllClientOrigin } from "@/features/ap/configuraciones/maestros-general/origen-cliente/lib/clientOrigin.hook";
+import FormSkeleton from "@/shared/components/FormSkeleton";
+import { FormSelect } from "@/shared/components/FormSelect";
+import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
+import { useAllDocumentType } from "@/features/ap/configuraciones/maestros-general/tipos-documento/lib/documentTypes.hook";
+import { useAllTypeGender } from "@/features/ap/configuraciones/maestros-general/tipos-sexo/lib/typesGender.hook";
+import { useAllMaritalStatus } from "@/features/ap/configuraciones/maestros-general/estado-civil/lib/maritalStatus.hook";
+import { useAllDistrict } from "@/features/ap/configuraciones/maestros-general/ubigeos/lib/district.hook";
+import { useAllTypeClient } from "@/features/ap/configuraciones/maestros-general/tipos-persona/lib/typeClient.hook";
+import { useAllPersonSegment } from "@/features/ap/configuraciones/maestros-general/segmentos-persona/lib/personSegment.hook";
+import { useAllTaxClassTypes } from "@/features/ap/configuraciones/maestros-general/tipos-clase-impuesto/lib/taxClassTypes.hook";
 import {
   useDniValidation,
   useLicenseValidation,
   useRucValidation,
-} from "@/src/shared/hooks/useDocumentValidation";
+} from "@/shared/hooks/useDocumentValidation";
 import { useEffect, useState } from "react";
 import {
   BUSINESS_PARTNERS,
@@ -49,13 +49,13 @@ import {
   LEGAL_AGE,
   TYPE_BUSINESS_PARTNERS,
   VALIDATABLE_DOCUMENT,
-} from "@/src/core/core.constants";
-import { useAllEconomicActivity } from "@/src/features/ap/configuraciones/maestros-general/actividad-economica/lib/economicActivity.hook";
+} from "@/core/core.constants";
+import { useAllEconomicActivity } from "@/features/ap/configuraciones/maestros-general/actividad-economica/lib/economicActivity.hook";
 import { DocumentValidationStatus } from "../../../../../shared/components/DocumentValidationStatus";
 import { ValidationIndicator } from "../../../../../shared/components/ValidationIndicator";
-import { ConfirmationDialog } from "@/src/shared/components/ConfirmationDialog";
-import { useRouter } from "next/navigation";
-import { GroupFormSection } from "@/src/shared/components/GroupFormSection";
+import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
+import { useNavigate } from 'react-router-dom';
+import { GroupFormSection } from "@/shared/components/GroupFormSection";
 
 interface CustomersFormProps {
   defaultValues: Partial<CustomersSchema>;
@@ -83,7 +83,7 @@ export const CustomersForm = ({
   leadData,
   fromOpportunities = false,
 }: CustomersFormProps) => {
-  const router = useRouter();
+  const router = useNavigate();
 
   // Determine type_person_id based on document_type_id from leadData
   const getTypePersonFromDocument = (documentTypeId?: string) => {
@@ -1454,7 +1454,7 @@ export const CustomersForm = ({
             variant="destructive"
             icon="warning"
             onConfirm={() => {
-              router.push(mode === "create" ? "./" : "../");
+              router(mode === "create" ? "./" : "../");
             }}
           />
 

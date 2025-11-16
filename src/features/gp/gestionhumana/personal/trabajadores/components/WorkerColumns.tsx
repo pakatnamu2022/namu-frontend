@@ -1,11 +1,11 @@
 "use client";
 
-import { ColumnDef } from "@tanstack/react-table";
+import type { ColumnDef } from "@tanstack/react-table";
 import { WorkerResource } from "../lib/worker.interface";
 import { Button } from "@/components/ui/button";
 import { Hourglass, Pencil, Signature } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { DeleteButton } from "@/src/shared/components/SimpleDeleteDialog";
+import { useNavigate } from 'react-router-dom';
+import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { Badge } from "@/components/ui/badge";
 import { WORKER } from "../lib/worker.constant";
 
@@ -83,7 +83,7 @@ export const workerColumns = ({
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
-      const router = useRouter();
+      const router = useNavigate();
       const id = row.original.id;
 
       return (
@@ -93,7 +93,7 @@ export const workerColumns = ({
             variant="outline"
             size="icon"
             className="size-7"
-            onClick={() => router.push(`./${ROUTE_UPDATE}/${id}`)}
+            onClick={() => router(`./${ROUTE_UPDATE}/${id}`)}
           >
             <Pencil className="size-5" />
           </Button>

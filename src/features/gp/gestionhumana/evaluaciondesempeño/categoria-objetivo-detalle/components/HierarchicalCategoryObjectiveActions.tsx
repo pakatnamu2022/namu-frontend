@@ -3,9 +3,9 @@
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useState } from "react";
-import { CATEGORY_OBJECTIVE } from "@/src/features/gp/gestionhumana/evaluaciondesempeño/categoria-objetivo-detalle/lib/hierarchicalCategoryObjective.constants";
-import HierarchicalCategoryObjectiveModal from "@/src/features/gp/gestionhumana/evaluaciondesempeño/categoria-objetivo-detalle/components/HierarchicalCategoryObjectiveModal";
-import ActionsWrapper from "@/src/shared/components/ActionsWrapper";
+import { CATEGORY_OBJECTIVE } from "@/features/gp/gestionhumana/evaluaciondesempeño/categoria-objetivo-detalle/lib/hierarchicalCategoryObjective.constants";
+import HierarchicalCategoryObjectiveModal from "@/features/gp/gestionhumana/evaluaciondesempeño/categoria-objetivo-detalle/components/HierarchicalCategoryObjectiveModal";
+import ActionsWrapper from "@/shared/components/ActionsWrapper";
 
 export default function HierarchicalCategoryObjectiveActions({
   id,

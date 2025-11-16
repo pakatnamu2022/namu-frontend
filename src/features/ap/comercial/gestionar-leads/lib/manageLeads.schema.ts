@@ -1,4 +1,4 @@
-import { optionalStringId } from "@/src/shared/lib/global.schema";
+import { optionalStringId } from "@/shared/lib/global.schema";
 import { z } from "zod";
 
 export const manageLeadsSchemaCreate = z.object({

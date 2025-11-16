@@ -1,7 +1,7 @@
 "use client";
 
-import { SearchableSelect } from "@/src/shared/components/SearchableSelect";
-import SearchInput from "@/src/shared/components/SearchInput";
+import { SearchableSelect } from "@/shared/components/SearchableSelect";
+import SearchInput from "@/shared/components/SearchInput";
 import { WorkerResource } from "../../../personal/trabajadores/lib/worker.interface";
 import { PositionResource } from "../../../personal/posiciones/lib/position.interface";
 import { RootObject } from "../lib/cycle.actions";

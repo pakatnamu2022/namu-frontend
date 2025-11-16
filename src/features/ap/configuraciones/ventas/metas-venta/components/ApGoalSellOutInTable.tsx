@@ -1,4 +1,4 @@
-import { DataTable } from "@/src/shared/components/DataTable";
+import { DataTable } from "@/shared/components/DataTable";
 import { ApGoalSellOutInColumns } from "./ApGoalSellOutInColumns";
 import { ApGoalSellOutInResource } from "../lib/apGoalSellOutIn.interface";
 

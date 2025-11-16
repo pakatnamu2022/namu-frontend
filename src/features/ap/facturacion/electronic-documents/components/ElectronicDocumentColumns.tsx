@@ -1,5 +1,5 @@
-import { useRouter } from "next/navigation";
-import { ColumnDef } from "@tanstack/react-table";
+import { useNavigate } from 'react-router-dom';
+import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -16,10 +16,10 @@ import {
 } from "lucide-react";
 import { ElectronicDocumentResource } from "../lib/electronicDocument.interface";
 import { ELECTRONIC_DOCUMENT } from "../lib/electronicDocument.constants";
-import { ConfirmationDialog } from "@/src/shared/components/ConfirmationDialog";
+import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { AnnulDocumentDialog } from "./CancelDocumentDialog";
 import ElectronicDocumentMigrationHistory from "./ElectronicDocumentMigrationHistory";
-import { SUNAT_TYPE_INVOICES_ID } from "@/src/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
+import { SUNAT_TYPE_INVOICES_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
 
 export type ElectronicDocumentColumn = ColumnDef<ElectronicDocumentResource>;
 
@@ -271,7 +271,7 @@ export const electronicDocumentColumns = ({
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
-      const router = useRouter();
+      const router = useNavigate();
       const document = row.original;
 
       const canSendToSunat =
@@ -340,7 +340,7 @@ export const electronicDocumentColumns = ({
               variant="outline"
               size="icon"
               className="size-7"
-              onClick={() => router.push(routeToEdit)}
+              onClick={() => router(routeToEdit)}
               tooltip="Editar"
             >
               <Pencil className="h-4 w-4" />
@@ -375,7 +375,7 @@ export const electronicDocumentColumns = ({
               variant="outline"
               size="icon"
               className="size-7"
-              onClick={() => router.push(`${ROUTE}/${document.id}/credit-note`)}
+              onClick={() => router(`${ROUTE}/${document.id}/credit-note`)}
               tooltip="Generar Nota de Crédito"
             >
               <FileMinus className="h-4 w-4 text-blue-600" />
@@ -388,7 +388,7 @@ export const electronicDocumentColumns = ({
               variant="outline"
               size="icon"
               className="size-7"
-              onClick={() => router.push(`${ROUTE}/${document.id}/debit-note`)}
+              onClick={() => router(`${ROUTE}/${document.id}/debit-note`)}
               tooltip="Generar Nota de Débito"
             >
               <FilePlus className="h-4 w-4 text-purple-600" />

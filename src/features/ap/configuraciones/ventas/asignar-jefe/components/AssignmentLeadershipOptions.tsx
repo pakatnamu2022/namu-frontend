@@ -1,6 +1,6 @@
-import { MonthOption } from "@/src/core/core.interface";
-import SearchInput from "@/src/shared/components/SearchInput";
-import { SearchableSelect } from "@/src/shared/components/SearchableSelect";
+import { MonthOption } from "@/core/core.interface";
+import SearchInput from "@/shared/components/SearchInput";
+import { SearchableSelect } from "@/shared/components/SearchableSelect";
 
 interface Props {
   search: string;

@@ -1,8 +1,8 @@
-import { useRouter } from "next/navigation";
-import { ColumnDef } from "@tanstack/react-table";
+import { useNavigate } from 'react-router-dom';
+import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { FileText, Pencil, Check, Car, Link2Off } from "lucide-react";
-import { NumberFormat } from "@/src/shared/components/NumberFormat";
+import { NumberFormat } from "@/shared/components/NumberFormat";
 import { PurchaseRequestQuoteResource } from "../lib/purchaseRequestQuote.interface";
 import { PURCHASE_REQUEST_QUOTE } from "../lib/purchaseRequestQuote.constants";
 import { Badge } from "@/components/ui/badge";
@@ -117,7 +117,7 @@ export const purchaseRequestQuoteColumns = ({
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
-      const router = useRouter();
+      const router = useNavigate();
       const { id, is_approved } = row.original;
       const { ROUTE_UPDATE } = PURCHASE_REQUEST_QUOTE;
       const isApproved = Boolean(is_approved);
@@ -171,7 +171,7 @@ export const purchaseRequestQuoteColumns = ({
               size="icon"
               className="size-7"
               tooltip="Editar"
-              onClick={() => router.push(`${ROUTE_UPDATE}/${id}`)}
+              onClick={() => router(`${ROUTE_UPDATE}/${id}`)}
             >
               <Pencil className="size-5" />
             </Button>

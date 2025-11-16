@@ -1,12 +1,12 @@
 "use client";
 
-import { ColumnDef } from "@tanstack/react-table";
+import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { DeleteButton } from "@/src/shared/components/SimpleDeleteDialog";
+import { useNavigate } from 'react-router-dom';
+import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { CyclePersonDetailResource } from "../lib/cyclePersonDetail";
-import { EditableCell } from "@/src/shared/components/EditableCell";
+import { EditableCell } from "@/shared/components/EditableCell";
 
 export type CyclePersonDetailColumn = ColumnDef<CyclePersonDetailResource>;
 
@@ -74,7 +74,7 @@ export const CyclePersonDetailColumns = ({
     header: "Acciones",
     size: 60,
     cell: ({ row }) => {
-      const router = useRouter();
+      const router = useNavigate();
       const id = row.original.id;
 
       return (
@@ -84,7 +84,7 @@ export const CyclePersonDetailColumns = ({
             variant="outline"
             size="icon"
             className="size-7"
-            onClick={() => router.push(`./ciclos/actualizar/${id}`)}
+            onClick={() => router(`./ciclos/actualizar/${id}`)}
           >
             <Pencil className="size-5" />
           </Button>

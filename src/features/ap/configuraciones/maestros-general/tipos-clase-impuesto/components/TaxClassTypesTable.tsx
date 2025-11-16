@@ -1,4 +1,4 @@
-import { DataTable } from "@/src/shared/components/DataTable";
+import { DataTable } from "@/shared/components/DataTable";
 import { TaxClassTypesColumns } from "./TaxClassTypesColumns";
 import { TaxClassTypesResource } from "../lib/taxClassTypes.interface";
 

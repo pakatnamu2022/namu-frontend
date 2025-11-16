@@ -1,6 +1,6 @@
 // import { AxiosRequestConfig } from "axios";
 
-import { api } from "@/src/core/api";
+import { api } from "@/core/api";
 
 export async function getUseStateGraph(): Promise<UseStateGraphResource[]> {
   //   const config: AxiosRequestConfig = {

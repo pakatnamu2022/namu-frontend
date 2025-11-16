@@ -10,11 +10,11 @@ import {
   FormControl,
   FormMessage,
 } from "@/components/ui/form";
-import FormSkeleton from "@/src/shared/components/FormSkeleton";
-import Link from "next/link";
+import FormSkeleton from "@/shared/components/FormSkeleton";
+import { Link } from 'react-router-dom'
 import { Loader } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { FormSelect } from "@/src/shared/components/FormSelect";
+import { FormSelect } from "@/shared/components/FormSelect";
 import { CheckIcon } from "lucide-react";
 import {
   Tags,
@@ -26,8 +26,8 @@ import {
   TagsList,
   TagsTrigger,
   TagsValue,
-} from "@/src/shared/components/Tags";
-import { EMPRESA_AP } from "@/src/core/core.constants";
+} from "@/shared/components/Tags";
+import { EMPRESA_AP } from "@/core/core.constants";
 import {
   UserSeriesAssignmentSchema,
   userSeriesAssignmentSchemaCreate,
@@ -36,10 +36,10 @@ import {
 import {
   POSITION_TYPE,
   STATUS_WORKER,
-} from "@/src/features/gp/gestionhumana/personal/posiciones/lib/position.constant";
+} from "@/features/gp/gestionhumana/personal/posiciones/lib/position.constant";
 import { useAllAssignSalesSeries } from "../../asignar-serie-venta/lib/assignSalesSeries.hook";
 import { VouchersResource } from "../lib/userSeriesAssignment.interface";
-import { useAllUsers } from "@/src/features/gp/gestionsistema/usuarios/lib/user.hook";
+import { useAllUsers } from "@/features/gp/gestionsistema/usuarios/lib/user.hook";
 
 interface UserSeriesAssignmentFormProps {
   defaultValues: Partial<UserSeriesAssignmentSchema>;
@@ -189,7 +189,7 @@ export const UserSeriesAssignmentForm = ({
           />
         </div>
         <div className="flex gap-4 w-full justify-end">
-          <Link href={mode === "create" ? "" : "../"}>
+          <Link to={mode === "create" ? "" : "../"}>
             <Button type="button" variant="outline">
               Cancelar
             </Button>

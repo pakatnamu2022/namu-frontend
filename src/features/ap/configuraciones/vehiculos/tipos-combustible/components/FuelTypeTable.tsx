@@ -1,4 +1,4 @@
-import { DataTable } from "@/src/shared/components/DataTable";
+import { DataTable } from "@/shared/components/DataTable";
 import { FuelTypeResource } from "../lib/fuelType.interface";
 import { FuelTypeColumns } from "./FuelTypeColumns";
 

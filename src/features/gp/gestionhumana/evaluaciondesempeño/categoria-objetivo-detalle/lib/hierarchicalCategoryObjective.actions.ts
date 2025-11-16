@@ -1,5 +1,5 @@
-import { api } from "@/src/core/api";
-import { GeneralResponse } from "@/src/shared/lib/response.interface";
+import { api } from "@/core/api";
+import { GeneralResponse } from "@/shared/lib/response.interface";
 import { AxiosRequestConfig } from "axios";
 import {
   CategoryObjectivePersonResponse,
@@ -7,7 +7,7 @@ import {
   HierarchicalCategoryObjectiveResource,
   HierarchicalCategoryObjectiveResponse,
 } from "./hierarchicalCategoryObjective.interface";
-import { CATEGORY_OBJECTIVE } from "@/src/features/gp/gestionhumana/evaluaciondesempeño/categoria-objetivo-detalle/lib/hierarchicalCategoryObjective.constants";
+import { CATEGORY_OBJECTIVE } from "@/features/gp/gestionhumana/evaluaciondesempeño/categoria-objetivo-detalle/lib/hierarchicalCategoryObjective.constants";
 
 const { ENDPOINT } = CATEGORY_OBJECTIVE;
 

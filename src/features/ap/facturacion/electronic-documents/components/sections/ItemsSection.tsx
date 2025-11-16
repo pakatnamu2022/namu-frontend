@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { Info, Package, Pencil, Plus } from "lucide-react";
-import { GroupFormSection } from "@/src/shared/components/GroupFormSection";
+import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -10,14 +10,14 @@ import {
   ElectronicDocumentSchema,
   ElectronicDocumentItemSchema,
 } from "../../lib/electronicDocument.schema";
-import { SunatConceptsResource } from "@/src/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.interface";
+import { SunatConceptsResource } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.interface";
 import { UNIT_MEASURES } from "../../lib/electronicDocument.constants";
 import { ElectronicDocumentItemsTable } from "../ElectronicDocumentItemsTable";
-import { SearchableSelect } from "@/src/shared/components/SearchableSelect";
-import { useAllAccountingAccountPlan } from "@/src/features/ap/configuraciones/maestros-general/plan-cuenta-contable/lib/accountingAccountPlan.hook";
-import GeneralSheet from "@/src/shared/components/GeneralSheet";
+import { SearchableSelect } from "@/shared/components/SearchableSelect";
+import { useAllAccountingAccountPlan } from "@/features/ap/configuraciones/maestros-general/plan-cuenta-contable/lib/accountingAccountPlan.hook";
+import GeneralSheet from "@/shared/components/GeneralSheet";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { errorToast } from "@/src/core/core.function";
+import { errorToast } from "@/core/core.function";
 
 interface ItemsSectionProps {
   form: UseFormReturn<ElectronicDocumentSchema>;

@@ -8,9 +8,9 @@ import {
   errorToast,
   SUCCESS_MESSAGE,
   successToast,
-} from "@/src/core/core.function";
-import { GeneralModal } from "@/src/shared/components/GeneralModal";
-import FormSkeleton from "@/src/shared/components/FormSkeleton";
+} from "@/core/core.function";
+import { GeneralModal } from "@/shared/components/GeneralModal";
+import FormSkeleton from "@/shared/components/FormSkeleton";
 import { FuelTypeForm } from "./FuelTypeForm";
 import { FUEL_TYPE } from "../lib/fuelType.constants";
 

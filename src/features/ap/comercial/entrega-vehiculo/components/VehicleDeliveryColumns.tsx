@@ -1,8 +1,8 @@
 "use client";
 
-import { ColumnDef } from "@tanstack/react-table";
+import type { ColumnDef } from "@tanstack/react-table";
 import { VehiclesDeliveryResource } from "../lib/vehicleDelivery.interface";
-import { DeleteButton } from "@/src/shared/components/SimpleDeleteDialog";
+import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge";
@@ -17,7 +17,7 @@ import {
   Database,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
+import { useNavigate } from 'react-router-dom';
 import { VEHICLE_DELIVERY } from "../lib/vehicleDelivery.constants";
 import {
   Popover,
@@ -263,7 +263,7 @@ export const vehicleDeliveryColumns = ({
         aceptada_por_sunat,
         status_dynamic,
       } = row.original;
-      const router = useRouter();
+      const router = useNavigate();
       const { ROUTE } = VEHICLE_DELIVERY;
 
       // Verificar si fue enviado y aceptado por SUNAT
@@ -294,7 +294,7 @@ export const vehicleDeliveryColumns = ({
               size="icon"
               className="size-7"
               tooltip="Guía de Remisión"
-              onClick={() => router.push(`${ROUTE}/guia-remision/${id}`)}
+              onClick={() => router(`${ROUTE}/guia-remision/${id}`)}
             >
               <FileText className="size-4" />
             </Button>

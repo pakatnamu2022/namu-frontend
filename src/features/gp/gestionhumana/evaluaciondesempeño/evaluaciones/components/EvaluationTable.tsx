@@ -1,4 +1,4 @@
-import { DataTable } from "@/src/shared/components/DataTable";
+import { DataTable } from "@/shared/components/DataTable";
 import { EvaluationColumns } from "./EvaluationColumns";
 import { EvaluationResource } from "../lib/evaluation.interface";
 

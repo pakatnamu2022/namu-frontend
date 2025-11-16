@@ -1,8 +1,8 @@
-import { ColumnDef } from "@tanstack/react-table";
+import type { ColumnDef } from "@tanstack/react-table";
 import { FuelTypeResource } from "../lib/fuelType.interface";
 import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
-import { DeleteButton } from "@/src/shared/components/SimpleDeleteDialog";
+import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";

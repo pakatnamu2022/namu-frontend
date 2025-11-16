@@ -13,33 +13,33 @@ import {
 import { Button } from "@/components/ui/button";
 import { User, Building2, Loader, Info } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import FormSkeleton from "@/src/shared/components/FormSkeleton";
-import { FormSelect } from "@/src/shared/components/FormSelect";
-import { useAllDocumentType } from "@/src/features/ap/configuraciones/maestros-general/tipos-documento/lib/documentTypes.hook";
-import { useAllDistrict } from "@/src/features/ap/configuraciones/maestros-general/ubigeos/lib/district.hook";
-import { useAllTypeClient } from "@/src/features/ap/configuraciones/maestros-general/tipos-persona/lib/typeClient.hook";
-import { useAllPersonSegment } from "@/src/features/ap/configuraciones/maestros-general/segmentos-persona/lib/personSegment.hook";
-import { useAllTaxClassTypes } from "@/src/features/ap/configuraciones/maestros-general/tipos-clase-impuesto/lib/taxClassTypes.hook";
+import FormSkeleton from "@/shared/components/FormSkeleton";
+import { FormSelect } from "@/shared/components/FormSelect";
+import { useAllDocumentType } from "@/features/ap/configuraciones/maestros-general/tipos-documento/lib/documentTypes.hook";
+import { useAllDistrict } from "@/features/ap/configuraciones/maestros-general/ubigeos/lib/district.hook";
+import { useAllTypeClient } from "@/features/ap/configuraciones/maestros-general/tipos-persona/lib/typeClient.hook";
+import { useAllPersonSegment } from "@/features/ap/configuraciones/maestros-general/segmentos-persona/lib/personSegment.hook";
+import { useAllTaxClassTypes } from "@/features/ap/configuraciones/maestros-general/tipos-clase-impuesto/lib/taxClassTypes.hook";
 import {
   useDniValidation,
   useRucValidation,
-} from "@/src/shared/hooks/useDocumentValidation";
+} from "@/shared/hooks/useDocumentValidation";
 import { useEffect, useState } from "react";
 import {
   BUSINESS_PARTNERS,
   EMPRESA_AP,
   TYPE_BUSINESS_PARTNERS,
   VALIDATABLE_DOCUMENT,
-} from "@/src/core/core.constants";
+} from "@/core/core.constants";
 import { DocumentValidationStatus } from "../../../../../shared/components/DocumentValidationStatus";
-import { ConfirmationDialog } from "@/src/shared/components/ConfirmationDialog";
-import { useRouter } from "next/navigation";
+import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
+import { useNavigate } from 'react-router-dom';
 import {
   SuppliersSchema,
   suppliersSchemaCreate,
   suppliersSchemaUpdate,
 } from "../lib/suppliers.schema";
-import { GroupFormSection } from "@/src/shared/components/GroupFormSection";
+import { GroupFormSection } from "@/shared/components/GroupFormSection";
 
 interface SuppliersFormProps {
   defaultValues: Partial<SuppliersSchema>;
@@ -55,7 +55,7 @@ export const SuppliersForm = ({
   isSubmitting = false,
   mode = "create",
 }: SuppliersFormProps) => {
-  const router = useRouter();
+  const router = useNavigate();
   const form = useForm({
     resolver: zodResolver(
       mode === "create" ? suppliersSchemaCreate : suppliersSchemaUpdate
@@ -785,7 +785,7 @@ export const SuppliersForm = ({
             variant="destructive"
             icon="warning"
             onConfirm={() => {
-              router.push(mode === "create" ? "./" : "../");
+              router(mode === "create" ? "./" : "../");
             }}
           />
 

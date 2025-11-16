@@ -24,7 +24,7 @@ import {
   Calendar,
 } from "lucide-react";
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useNavigate } from 'react-router-dom';
 import { OpportunityResource } from "../../oportunidades/lib/opportunities.interface";
 import { getAllOpportunitiesByCustomer } from "../lib/customers.actions";
 import {
@@ -44,7 +44,7 @@ export default function OpportunitiesSheet({
   customerId,
   loading = false,
 }: Props) {
-  const router = useRouter();
+  const router = useNavigate();
   const [open, setOpen] = useState(false);
   const [opportunities, setOpportunities] = useState<OpportunityResource[]>([]);
   const [loadingOpportunities, setLoadingOpportunities] = useState(false);
@@ -163,7 +163,7 @@ export default function OpportunitiesSheet({
 
                   const handleCardClick = () => {
                     if (canClick) {
-                      router.push(`${ABSOLUTE_ROUTE}/${opportunity.id}`);
+                      router(`${ABSOLUTE_ROUTE}/${opportunity.id}`);
                     }
                   };
 

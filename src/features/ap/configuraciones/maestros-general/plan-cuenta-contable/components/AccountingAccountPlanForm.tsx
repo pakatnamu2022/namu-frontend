@@ -16,9 +16,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
-import { FormSelect } from "@/src/shared/components/FormSelect";
-import FormSkeleton from "@/src/shared/components/FormSkeleton";
-import { useAllAccountingAccountType } from "@/src/features/ap/configuraciones/maestros-general/tipos-cuenta-contable/lib/accountingAccountType.hook";
+import { FormSelect } from "@/shared/components/FormSelect";
+import FormSkeleton from "@/shared/components/FormSkeleton";
+import { useAllAccountingAccountType } from "@/features/ap/configuraciones/maestros-general/tipos-cuenta-contable/lib/accountingAccountType.hook";
 
 interface AccountingAccountPlanFormProps {
   defaultValues: Partial<AccountingAccountPlanSchema>;

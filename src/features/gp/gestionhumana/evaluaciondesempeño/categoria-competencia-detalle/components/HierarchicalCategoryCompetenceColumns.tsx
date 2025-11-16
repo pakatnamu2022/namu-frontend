@@ -1,10 +1,10 @@
 "use client";
 
 import {ColumnDef} from "@tanstack/react-table";
-import {DeleteButton} from "@/src/shared/components/SimpleDeleteDialog";
+import {DeleteButton} from "@/shared/components/SimpleDeleteDialog";
 import {
     HierarchicalCategoryCompetenceResource
-} from "@/src/features/gp/gestionhumana/evaluaciondesempeño/categoria-competencia-detalle/lib/hierarchicalCategoryCompetence.interface";
+} from "@/features/gp/gestionhumana/evaluaciondesempeño/categoria-competencia-detalle/lib/hierarchicalCategoryCompetence.interface";
 
 export type HierarchicalCategoryCompetenceColumns =
     ColumnDef<HierarchicalCategoryCompetenceResource>;

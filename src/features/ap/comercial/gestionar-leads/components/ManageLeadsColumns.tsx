@@ -1,5 +1,5 @@
-import { ColumnDef } from "@tanstack/react-table";
-import { DeleteButton } from "@/src/shared/components/SimpleDeleteDialog";
+import type { ColumnDef } from "@tanstack/react-table";
+import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { ManageLeadsResource } from "../lib/manageLeads.interface";
 import { Badge } from "@/components/ui/badge";
 

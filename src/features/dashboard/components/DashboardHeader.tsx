@@ -1,7 +1,7 @@
 "use client";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
-import ProfileHeader from "@/src/shared/components/ProfileHeader";
+import ProfileHeader from "@/shared/components/ProfileHeader";
 import BreadCrumbHeader from "./BreadcrumbHeader";
 
 export default function DashboardHeader() {

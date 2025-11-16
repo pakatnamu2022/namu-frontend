@@ -4,9 +4,9 @@ import {
   FuelTypeResponse,
   getFuelTypeProps,
 } from "./fuelType.interface";
-import { api } from "@/src/core/api";
-import { GeneralResponse } from "@/src/shared/lib/response.interface";
-import { STATUS_ACTIVE } from "@/src/core/core.constants";
+import { api } from "@/core/api";
+import { GeneralResponse } from "@/shared/lib/response.interface";
+import { STATUS_ACTIVE } from "@/core/core.constants";
 import { FUEL_TYPE } from "./fuelType.constants";
 
 const { ENDPOINT } = FUEL_TYPE;

@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { EquipmentResponse } from "@/src/features/gp/tics/equipment/lib/equipment.interface";
-import { getEquipment } from "@/src/features/gp/tics/equipment/lib/equipment.actions";
+import { EquipmentResponse } from "@/features/gp/tics/equipment/lib/equipment.interface";
+import { getEquipment } from "@/features/gp/tics/equipment/lib/equipment.actions";
 
 export const useEquipments = (params?: Record<string, any>) => {
   return useQuery<EquipmentResponse>({

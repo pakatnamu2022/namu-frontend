@@ -1,6 +1,6 @@
 "use client";
 
-import { ColumnDef } from "@tanstack/react-table";
+import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { Trash2, Pencil } from "lucide-react";
 import { ElectronicDocumentItemSchema } from "../lib/electronicDocument.schema";

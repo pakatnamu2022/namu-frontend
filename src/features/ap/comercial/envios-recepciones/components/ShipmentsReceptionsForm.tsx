@@ -20,42 +20,42 @@ import {
   shipmentsReceptionsSchemaCreate,
   shipmentsReceptionsSchemaUpdate,
 } from "../lib/shipmentsReceptions.schema";
-import { FormSelect } from "@/src/shared/components/FormSelect";
-import { DatePickerFormField } from "@/src/shared/components/DatePickerFormField";
-import { GroupFormSection } from "@/src/shared/components/GroupFormSection";
-import FormSkeleton from "@/src/shared/components/FormSkeleton";
+import { FormSelect } from "@/shared/components/FormSelect";
+import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
+import { GroupFormSection } from "@/shared/components/GroupFormSection";
+import FormSkeleton from "@/shared/components/FormSkeleton";
 import {
   DOCUMENT_TYPES,
   ISSUER_TYPES,
 } from "../lib/shipmentsReceptions.constants";
-import { ConfirmationDialog } from "@/src/shared/components/ConfirmationDialog";
-import { useRouter } from "next/navigation";
+import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
+import { useNavigate } from 'react-router-dom';
 import {
   BUSINESS_PARTNERS,
   CM_COMERCIAL_ID,
   EMPRESA_AP,
-} from "@/src/core/core.constants";
+} from "@/core/core.constants";
 import { useAllCustomers } from "../../clientes/lib/customers.hook";
 import { useAllSuppliers } from "../../proveedores/lib/suppliers.hook";
 import { EstablishmentSelectorModal } from "./EstablishmentSelectorModal";
 import { EstablishmentsResource } from "../../establecimientos/lib/establishments.interface";
-import { DocumentValidationStatus } from "@/src/shared/components/DocumentValidationStatus";
-import { ValidationIndicator } from "@/src/shared/components/ValidationIndicator";
-import { useLicenseValidation } from "@/src/shared/hooks/useDocumentValidation";
+import { DocumentValidationStatus } from "@/shared/components/DocumentValidationStatus";
+import { ValidationIndicator } from "@/shared/components/ValidationIndicator";
+import { useLicenseValidation } from "@/shared/hooks/useDocumentValidation";
 import { useAllEstablishments } from "../../establecimientos/lib/establishments.hook";
-import { useAllSunatConcepts } from "@/src/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.hook";
+import { useAllSunatConcepts } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.hook";
 import {
   SUNAT_CONCEPTS_TYPE,
   SUNAT_CONCEPTS_ID,
-} from "@/src/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
-import { useAuthorizedSeries } from "@/src/features/ap/configuraciones/maestros-general/asignar-serie-usuario/lib/userSeriesAssignment.hook";
+} from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
+import { useAuthorizedSeries } from "@/features/ap/configuraciones/maestros-general/asignar-serie-usuario/lib/userSeriesAssignment.hook";
 import {
   TYPE_OPERATION,
   TYPE_RECEIPT_SERIES,
-} from "@/src/features/ap/configuraciones/maestros-general/asignar-serie-venta/lib/assignSalesSeries.constants";
-import { ImageUploadField } from "@/src/shared/components/ImageUploadField";
-import { useWarehousesByCompany } from "@/src/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
-import { useAllClassArticle } from "@/src/features/ap/configuraciones/maestros-general/clase-articulo/lib/classArticle.hook";
+} from "@/features/ap/configuraciones/maestros-general/asignar-serie-venta/lib/assignSalesSeries.constants";
+import { ImageUploadField } from "@/shared/components/ImageUploadField";
+import { useWarehousesByCompany } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
+import { useAllClassArticle } from "@/features/ap/configuraciones/maestros-general/clase-articulo/lib/classArticle.hook";
 import { useAllVehicles } from "../../vehiculos/lib/vehicles.hook";
 
 interface ShipmentsReceptionsFormProps {
@@ -76,7 +76,7 @@ export const ShipmentsReceptionsForm = ({
   isSubmitting = false,
   mode = "create",
 }: ShipmentsReceptionsFormProps) => {
-  const router = useRouter();
+  const router = useNavigate();
   const form = useForm({
     resolver: zodResolver(
       mode === "create"
@@ -1037,7 +1037,7 @@ export const ShipmentsReceptionsForm = ({
 
         {/* Sección: Imagen de la Guía */}
         <div className="space-y-4">
-          <ImageUploadField
+          <imgUploadField
             form={form}
             name="file"
             label="Foto de la Guía de Remisión"
@@ -1058,7 +1058,7 @@ export const ShipmentsReceptionsForm = ({
             variant="destructive"
             icon="warning"
             onConfirm={() => {
-              router.push(mode === "create" ? "./" : "../");
+              router(mode === "create" ? "./" : "../");
             }}
           />
 

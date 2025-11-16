@@ -1,4 +1,4 @@
-import { DataTable } from "@/src/shared/components/DataTable";
+import { DataTable } from "@/shared/components/DataTable";
 import { ApSafeCreditGoalColumns } from "./ApSafeCreditGoalColumns";
 import { ApSafeCreditGoalResource } from "../lib/apSafeCreditGoal.interface";
 

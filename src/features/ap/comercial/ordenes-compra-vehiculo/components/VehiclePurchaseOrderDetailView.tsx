@@ -1,7 +1,7 @@
 "use client";
 
 import { VehiclePurchaseOrderResource } from "../lib/vehiclePurchaseOrder.interface";
-import { GroupFormSection } from "@/src/shared/components/GroupFormSection";
+import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import {
   Car,
   FileText,

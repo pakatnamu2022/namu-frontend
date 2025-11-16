@@ -15,12 +15,12 @@ import {
   errorToast,
   SUCCESS_MESSAGE,
   successToast,
-} from "@/src/core/core.function";
-import { SimpleDeleteDialog } from "@/src/shared/components/SimpleDeleteDialog";
+} from "@/core/core.function";
+import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
 import { useCategoryObjectiveWorkerById } from "../../categoria-objetivo-detalle/lib/hierarchicalCategoryObjective.hook";
 import { ObjectiveResource } from "../../objetivos/lib/objective.interface";
 
-import FormSkeleton from "@/src/shared/components/FormSkeleton";
+import FormSkeleton from "@/shared/components/FormSkeleton";
 import { useMutation } from "@tanstack/react-query";
 import {
   deleteHierarchicalCategoryObjective,
@@ -34,10 +34,10 @@ import {
   TabsContents,
   TabsList,
   TabsTrigger,
-} from "@/src/shared/components/animateTabs";
+} from "@/shared/components/animateTabs";
 import { HierarchicalCategoryResource } from "../lib/hierarchicalCategory.interface";
 import { HIERARCHICAL_CATEGORY } from "../lib/hierarchicalCategory.constants";
-import { ModelInterface } from "@/src/core/core.interface";
+import { ModelInterface } from "@/core/core.interface";
 import { CategoryObjectivesList } from "./CategoryObjectivesList";
 import { CategoryObjectivePersonList } from "./CategoryObjectivePersonList";
 import { AddObjectiveSelect } from "./AddObjectiveSelect";

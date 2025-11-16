@@ -1,5 +1,5 @@
-import { SunatConceptsResource } from "@/src/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.interface";
-import { Links, Meta } from "@/src/shared/lib/pagination.interface";
+import { SunatConceptsResource } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.interface";
+import { Links, Meta } from "@/shared/lib/pagination.interface";
 import {
   VehicleMovement,
   VehicleResource,

@@ -4,9 +4,9 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { X, UserPlus, User, Car, Phone, BriefcaseBusiness } from "lucide-react";
-import { SearchableSelect } from "@/src/shared/components/SearchableSelect";
+import { SearchableSelect } from "@/shared/components/SearchableSelect";
 import { ManageLeadsResource } from "../../gestionar-leads/lib/manageLeads.interface";
-import { useRouter } from "next/navigation";
+import { useNavigate } from 'react-router-dom';
 import { useState } from "react";
 import {
   AlertDialog,
@@ -19,9 +19,9 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useAllReasonsRejection } from "../../motivos-descarte/lib/reasonsRejection.hook";
-import FormSkeleton from "@/src/shared/components/FormSkeleton";
+import FormSkeleton from "@/shared/components/FormSkeleton";
 import { OPPORTUNITIES } from "../lib/opportunities.constants";
-import { cleanText } from "@/src/core/core.function";
+import { cleanText } from "@/core/core.function";
 
 interface LeadCardProps {
   lead: ManageLeadsResource;
@@ -33,7 +33,7 @@ interface LeadCardProps {
 }
 
 export const LeadCard = ({ lead, onDiscard }: LeadCardProps) => {
-  const router = useRouter();
+  const router = useNavigate();
   const [showDiscardDialog, setShowDiscardDialog] = useState(false);
   const [comment, setComment] = useState("");
   const [reasonDiscardingId, setReasonDiscardingId] = useState<number | null>(
@@ -55,9 +55,9 @@ export const LeadCard = ({ lead, onDiscard }: LeadCardProps) => {
         document_type_id: lead.document_type_id?.toString() || "",
       });
 
-      router.push(`/ap/comercial/clientes/agregar?${queryParams.toString()}`);
+      router(`/ap/comercial/clientes/agregar?${queryParams.toString()}`);
     } else {
-      router.push(
+      router(
         `${OPPORTUNITIES_ROUTE}/agregar?client_id=${lead.client_id}&lead_id=${lead.id}`
       );
     }

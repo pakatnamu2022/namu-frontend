@@ -1,4 +1,4 @@
-import { DataTable } from "@/src/shared/components/DataTable";
+import { DataTable } from "@/shared/components/DataTable";
 import { WarehouseColumns } from "./WarehouseColumns";
 import { WarehouseResource } from "../lib/warehouse.interface";
 

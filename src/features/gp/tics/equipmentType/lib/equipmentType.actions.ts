@@ -1,9 +1,9 @@
-import { api } from "@/src/core/api";
+import { api } from "@/core/api";
 import {
   EquipmentTypeResource,
   EquipmentTypeResponse,
   getEquipmentTypesProps,
-} from "@/src/features/gp/tics/equipmentType/lib/equipmentType.interface";
+} from "@/features/gp/tics/equipmentType/lib/equipmentType.interface";
 import { AxiosRequestConfig } from "axios";
 
 export async function getEquipmentType({

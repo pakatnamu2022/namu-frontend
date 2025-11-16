@@ -14,7 +14,7 @@ import {
 import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Option } from "@/src/core/core.interface";
+import { Option } from "@/core/core.interface";
 
 interface SearchableSelectProps {
   options: Option[];

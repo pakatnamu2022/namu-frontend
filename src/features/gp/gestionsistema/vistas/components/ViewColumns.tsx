@@ -1,14 +1,14 @@
 "use client";
 
-import { ColumnDef } from "@tanstack/react-table";
+import type { ColumnDef } from "@tanstack/react-table";
 import { ViewResource } from "../lib/view.interface";
 import { Button } from "@/components/ui/button";
 import { Pencil, ShieldCheck } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { DeleteButton } from "@/src/shared/components/SimpleDeleteDialog";
+import { useNavigate } from 'react-router-dom';
+import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { Badge } from "@/components/ui/badge";
-import { EditableSelectCell } from "@/src/shared/components/EditableSelectCell";
-import { EditableCell } from "@/src/shared/components/EditableCell";
+import { EditableSelectCell } from "@/shared/components/EditableSelectCell";
+import { EditableCell } from "@/shared/components/EditableCell";
 
 export type ViewColumns = ColumnDef<ViewResource>;
 
@@ -180,7 +180,7 @@ export const viewColumns = ({
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
-      const router = useRouter();
+      const router = useNavigate();
       const id = row.original.id;
 
       return (
@@ -191,7 +191,7 @@ export const viewColumns = ({
             variant="outline"
             size="icon"
             className="size-7"
-            onClick={() => router.push(`./vistas/permisos/${id}`)}
+            onClick={() => router(`./vistas/permisos/${id}`)}
           >
             <ShieldCheck className="size-5" />
           </Button>
@@ -201,7 +201,7 @@ export const viewColumns = ({
             variant="outline"
             size="icon"
             className="size-7"
-            onClick={() => router.push(`./vistas/actualizar/${id}`)}
+            onClick={() => router(`./vistas/actualizar/${id}`)}
           >
             <Pencil className="size-5" />
           </Button>

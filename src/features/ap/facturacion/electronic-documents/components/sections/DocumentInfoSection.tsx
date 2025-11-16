@@ -1,9 +1,9 @@
 import { UseFormReturn } from "react-hook-form";
 import { FileText } from "lucide-react";
-import { GroupFormSection } from "@/src/shared/components/GroupFormSection";
-import { FormSelect } from "@/src/shared/components/FormSelect";
-import { FormSwitch } from "@/src/shared/components/FormSwitch";
-import { DatePickerFormField } from "@/src/shared/components/DatePickerFormField";
+import { GroupFormSection } from "@/shared/components/GroupFormSection";
+import { FormSelect } from "@/shared/components/FormSelect";
+import { FormSwitch } from "@/shared/components/FormSwitch";
+import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 import {
   FormControl,
   FormDescription,
@@ -14,9 +14,9 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { ElectronicDocumentSchema } from "../../lib/electronicDocument.schema";
-import { SunatConceptsResource } from "@/src/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.interface";
-import { AssignSalesSeriesResource } from "@/src/features/ap/configuraciones/maestros-general/asignar-serie-venta/lib/assignSalesSeries.interface";
-import { useAllCustomers } from "@/src/features/ap/comercial/clientes/lib/customers.hook";
+import { SunatConceptsResource } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.interface";
+import { AssignSalesSeriesResource } from "@/features/ap/configuraciones/maestros-general/asignar-serie-venta/lib/assignSalesSeries.interface";
+import { useAllCustomers } from "@/features/ap/comercial/clientes/lib/customers.hook";
 
 interface DocumentInfoSectionProps {
   form: UseFormReturn<ElectronicDocumentSchema>;

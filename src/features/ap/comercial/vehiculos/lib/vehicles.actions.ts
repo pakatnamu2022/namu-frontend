@@ -1,6 +1,6 @@
-import { api } from "@/src/core/api";
+import { api } from "@/core/api";
 import { AxiosRequestConfig } from "axios";
-import { GeneralResponse } from "@/src/shared/lib/response.interface";
+import { GeneralResponse } from "@/shared/lib/response.interface";
 import { VEHICLES } from "./vehicles.constants";
 import {
   GetVehiclesProps,

@@ -1,11 +1,11 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import FormSkeleton from "@/src/shared/components/FormSkeleton";
+import FormSkeleton from "@/shared/components/FormSkeleton";
 import {
   ERROR_MESSAGE,
   errorToast,
   SUCCESS_MESSAGE,
   successToast,
-} from "@/src/core/core.function";
+} from "@/core/core.function";
 import { useVehicleColorById } from "../lib/vehicleColor.hook";
 import { VehicleColorResource } from "../lib/vehicleColor.interface";
 import { VehicleColorSchema } from "../lib/vehicleColor.schema";
@@ -13,10 +13,10 @@ import {
   storeVehicleColor,
   updateVehicleColor,
 } from "../lib/vehicleColor.actions";
-import { GeneralModal } from "@/src/shared/components/GeneralModal";
+import { GeneralModal } from "@/shared/components/GeneralModal";
 import { VehicleColorForm } from "./VehicleColorForm";
 import { VEHICLE_COLOR } from "../lib/vehicleColor.constants";
-import { AP_MASTER_COMERCIAL } from "@/src/features/ap/lib/ap.constants";
+import { AP_MASTER_COMERCIAL } from "@/features/ap/lib/ap.constants";
 
 interface Props {
   id?: number;

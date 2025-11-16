@@ -22,17 +22,17 @@ import { useEffect, useState, useRef } from "react";
 import {
   useLicenseValidation,
   useRucValidation,
-} from "@/src/shared/hooks/useDocumentValidation";
-import { DocumentValidationStatus } from "@/src/shared/components/DocumentValidationStatus";
-import { ValidationIndicator } from "@/src/shared/components/ValidationIndicator";
-import { FormSelect } from "@/src/shared/components/FormSelect";
+} from "@/shared/hooks/useDocumentValidation";
+import { DocumentValidationStatus } from "@/shared/components/DocumentValidationStatus";
+import { ValidationIndicator } from "@/shared/components/ValidationIndicator";
+import { FormSelect } from "@/shared/components/FormSelect";
 import {
   SUNAT_CONCEPTS_TYPE,
   SUNAT_CONCEPTS_ID,
-} from "@/src/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
-import { useAllSunatConcepts } from "@/src/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.hook";
-import FormSkeleton from "@/src/shared/components/FormSkeleton";
-import { GroupFormSection } from "@/src/shared/components/GroupFormSection";
+} from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
+import { useAllSunatConcepts } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.hook";
+import FormSkeleton from "@/shared/components/FormSkeleton";
+import { GroupFormSection } from "@/shared/components/GroupFormSection";
 
 interface ShippingGuideFormProps {
   defaultValues?: Partial<ShippingGuideSchema>;

@@ -1,4 +1,4 @@
-import { requiredStringId } from "@/src/shared/lib/global.schema";
+import { requiredStringId } from "@/shared/lib/global.schema";
 import { z } from "zod";
 import { checkEvaluationDates } from "../lib/evaluation.actions";
 import { TYPE_EVALUATION_VALUES } from "./evaluation.constans";

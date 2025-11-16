@@ -1,4 +1,4 @@
-import { DataTable } from "@/src/shared/components/DataTable";
+import { DataTable } from "@/shared/components/DataTable";
 import { CompetenceColumns } from "./CompetenceColumns";
 import { CompetenceResource } from "../lib/competence.interface";
 

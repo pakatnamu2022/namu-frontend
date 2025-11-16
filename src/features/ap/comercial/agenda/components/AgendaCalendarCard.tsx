@@ -10,7 +10,7 @@ import {
   CalendarHeader,
   CalendarBody,
   type CalendarDayData,
-} from "@/src/shared/components/CalendarGrid";
+} from "@/shared/components/CalendarGrid";
 import CalendarDay from "./CalendarDay";
 
 interface AgendaCalendarCardProps {

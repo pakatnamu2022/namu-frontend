@@ -14,16 +14,16 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
-import GeneralSheet from "@/src/shared/components/GeneralSheet";
-import { FormSelect } from "@/src/shared/components/FormSelect";
-import { FormSwitch } from "@/src/shared/components/FormSwitch";
-import { SUNAT_CONCEPTS_TYPE } from "@/src/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
-import { useAllSunatConcepts } from "@/src/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.hook";
+import GeneralSheet from "@/shared/components/GeneralSheet";
+import { FormSelect } from "@/shared/components/FormSelect";
+import { FormSwitch } from "@/shared/components/FormSwitch";
+import { SUNAT_CONCEPTS_TYPE } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
+import { useAllSunatConcepts } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.hook";
 import { ElectronicDocumentItem } from "../lib/electronicDocument.interface";
-import { useAuthorizedSeries } from "@/src/features/ap/configuraciones/maestros-general/asignar-serie-usuario/lib/userSeriesAssignment.hook";
+import { useAuthorizedSeries } from "@/features/ap/configuraciones/maestros-general/asignar-serie-usuario/lib/userSeriesAssignment.hook";
 import { CreditNoteSchema } from "../lib/electronicDocument.schema";
 import { getNextCreditNoteNumber } from "../lib/electronicDocument.actions";
-import { TYPE_RECEIPT_SERIES } from "@/src/features/ap/configuraciones/maestros-general/asignar-serie-venta/lib/assignSalesSeries.constants";
+import { TYPE_RECEIPT_SERIES } from "@/features/ap/configuraciones/maestros-general/asignar-serie-venta/lib/assignSalesSeries.constants";
 import { CreditNoteItemsTable } from "./CreditNoteItemsTable";
 
 // Export the type for backward compatibility

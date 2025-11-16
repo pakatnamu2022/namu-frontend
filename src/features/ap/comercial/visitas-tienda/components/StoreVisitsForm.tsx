@@ -16,31 +16,31 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import Link from "next/link";
+import { Link } from 'react-router-dom'
 import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
-import { FormSelect } from "@/src/shared/components/FormSelect";
-import { useAllSedes } from "@/src/features/gp/maestro-general/sede/lib/sede.hook";
+import { FormSelect } from "@/shared/components/FormSelect";
+import { useAllSedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import {
   AREA_ID,
   EMPRESA_AP,
   TIPO_LEADS,
   VALIDATABLE_DOCUMENT,
-} from "@/src/core/core.constants";
-import FormSkeleton from "@/src/shared/components/FormSkeleton";
-import { useAllDocumentType } from "@/src/features/ap/configuraciones/maestros-general/tipos-documento/lib/documentTypes.hook";
+} from "@/core/core.constants";
+import FormSkeleton from "@/shared/components/FormSkeleton";
+import { useAllDocumentType } from "@/features/ap/configuraciones/maestros-general/tipos-documento/lib/documentTypes.hook";
 import {
   useDniValidation,
   useRucValidation,
-} from "@/src/shared/hooks/useDocumentValidation";
+} from "@/shared/hooks/useDocumentValidation";
 import { useEffect, useState, useRef } from "react";
 import { DocumentValidationStatus } from "../../../../../shared/components/DocumentValidationStatus";
-import { ValidationIndicator } from "@/src/shared/components/ValidationIndicator";
+import { ValidationIndicator } from "@/shared/components/ValidationIndicator";
 import { useAllIncomeSector } from "../../sectores-ingreso/lib/incomeSector.hook";
 import {
   useAllBrandsBySede,
   useAllWorkersBySedeAndBrand,
-} from "@/src/features/ap/configuraciones/ventas/asignar-marca/lib/assignBrandConsultant.hook";
+} from "@/features/ap/configuraciones/ventas/asignar-marca/lib/assignBrandConsultant.hook";
 
 interface StoreVisitsFormProps {
   defaultValues: Partial<StoreVisitsSchema>;
@@ -389,7 +389,7 @@ export const StoreVisitsForm = ({
           />
         </div>
         <div className="flex gap-4 w-full justify-end">
-          <Link href={mode === "create" ? "./" : "../"}>
+          <Link to={mode === "create" ? "./" : "../"}>
             <Button type="button" variant="outline">
               Cancelar
             </Button>

@@ -18,9 +18,9 @@ import {
   periodSchemaUpdate,
 } from "../lib/worker.schema";
 import { Loader } from "lucide-react";
-import Link from "next/link";
-import { DatePickerFormField } from "@/src/shared/components/DatePickerFormField";
-import { WORKER } from "@/src/features/gp/gestionhumana/personal/trabajadores/lib/worker.constant";
+import { Link } from 'react-router-dom'
+import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
+import { WORKER } from "@/features/gp/gestionhumana/personal/trabajadores/lib/worker.constant";
 
 interface PeriodFormProps {
   defaultValues: Partial<WorkerSchema>;
@@ -86,7 +86,7 @@ export const WorkerForm = ({
         </pre> */}
 
         <div className="flex gap-4 w-full justify-end">
-          <Link href={mode === "create" ? "./" : "../"}>
+          <Link to={mode === "create" ? "./" : "../"}>
             <Button type="button" variant="outline">
               Cancelar
             </Button>

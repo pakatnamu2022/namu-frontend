@@ -1,4 +1,4 @@
-import { DataTable } from "@/src/shared/components/DataTable";
+import { DataTable } from "@/shared/components/DataTable";
 import { DistrictColumns } from "./DistrictColumns";
 import { DistrictResource } from "../lib/district.interface";
 

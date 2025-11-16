@@ -1,12 +1,12 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import FormSkeleton from "@/src/shared/components/FormSkeleton";
+import FormSkeleton from "@/shared/components/FormSkeleton";
 import {
   ERROR_MESSAGE,
   errorToast,
   SUCCESS_MESSAGE,
   successToast,
-} from "@/src/core/core.function";
-import { GeneralModal } from "@/src/shared/components/GeneralModal";
+} from "@/core/core.function";
+import { GeneralModal } from "@/shared/components/GeneralModal";
 import { useDeliveryChecklistById } from "../lib/deliveryChecklist.hook";
 import { DeliveryChecklistResource } from "../lib/deliveryChecklist.interface";
 import { DeliveryChecklistSchema } from "../lib/deliveryChecklist.schema";
@@ -15,7 +15,7 @@ import {
   updateDeliveryChecklist,
 } from "../lib/deliveryChecklist.actions";
 import { DeliveryChecklistForm } from "./DeliveryChecklistForm";
-import { AP_CHECKLIST } from "@/src/core/core.constants";
+import { AP_CHECKLIST } from "@/core/core.constants";
 import { ITEM_DELIVERY } from "../lib/deliveryChecklist.constants";
 
 interface Props {

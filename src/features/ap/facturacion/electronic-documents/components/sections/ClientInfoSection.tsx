@@ -1,9 +1,9 @@
 import { UseFormReturn } from "react-hook-form";
 import { User, InfoIcon } from "lucide-react";
-import { GroupFormSection } from "@/src/shared/components/GroupFormSection";
-import { FormSelect } from "@/src/shared/components/FormSelect";
+import { GroupFormSection } from "@/shared/components/GroupFormSection";
+import { FormSelect } from "@/shared/components/FormSelect";
 import { ElectronicDocumentSchema } from "../../lib/electronicDocument.schema";
-import { useAllCustomers } from "@/src/features/ap/comercial/clientes/lib/customers.hook";
+import { useAllCustomers } from "@/features/ap/comercial/clientes/lib/customers.hook";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface ClientInfoSectionProps {

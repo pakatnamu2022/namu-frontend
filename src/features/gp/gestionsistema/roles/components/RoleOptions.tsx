@@ -1,6 +1,6 @@
 "use client";
 
-import SearchInput from "@/src/shared/components/SearchInput";
+import SearchInput from "@/shared/components/SearchInput";
 
 export default function RoleOptions({
   search,

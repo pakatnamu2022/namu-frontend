@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { BookText } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useNavigate } from 'react-router-dom';
 import { ASSIGN_BRAND_CONSULTANT } from "../lib/assignBrandConsultant.constants";
 
 interface AssignSedeActionsProps {
@@ -14,7 +14,7 @@ interface AssignSedeActionsProps {
 export default function AssignSedeActions({
   permissions,
 }: AssignSedeActionsProps) {
-  const router = useRouter();
+  const router = useNavigate();
   const { ROUTE } = ASSIGN_BRAND_CONSULTANT;
 
   if (!permissions.canCreate) {
@@ -27,7 +27,7 @@ export default function AssignSedeActions({
         size="sm"
         variant="outline"
         className="ml-auto"
-        onClick={() => router.push(`${ROUTE}/gestionar`)}
+        onClick={() => router(`${ROUTE}/gestionar`)}
       >
         <BookText className="size-4 mr-2" /> Gestionar Asignación
       </Button>

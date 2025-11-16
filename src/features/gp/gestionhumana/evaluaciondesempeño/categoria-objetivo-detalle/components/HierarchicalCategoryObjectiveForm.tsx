@@ -8,10 +8,10 @@ import {
   hierarchicalCategoryObjectiveSchemaCreate,
 } from "../lib/hierarchicalCategoryObjective.schema";
 import { Loader } from "lucide-react";
-import { FormSelect } from "@/src/shared/components/FormSelect";
+import { FormSelect } from "@/shared/components/FormSelect";
 import { Form } from "@/components/ui/form";
 import { CATEGORY_OBJECTIVE } from "../lib/hierarchicalCategoryObjective.constants";
-import { ObjectiveResource } from "@/src/features/gp/gestionhumana/evaluaciondesempeño/objetivos/lib/objective.interface";
+import { ObjectiveResource } from "@/features/gp/gestionhumana/evaluaciondesempeño/objetivos/lib/objective.interface";
 
 interface Props {
   defaultValues: Partial<HierarchicalCategoryObjectiveSchema>;

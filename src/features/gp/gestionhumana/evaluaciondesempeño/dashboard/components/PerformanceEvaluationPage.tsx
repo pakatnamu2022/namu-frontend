@@ -5,12 +5,12 @@ import { ParticipationChart } from "./ParticipationChart";
 // import { ConfigurationCard } from "./ConfigurationCard";
 import { useActivePerformanceEvaluation } from "../lib/performance-evaluation.hook";
 import { exportEvaluationReport } from "../../evaluation-person/lib/evaluationPerson.actions";
-import FormSkeleton from "@/src/shared/components/FormSkeleton";
+import FormSkeleton from "@/shared/components/FormSkeleton";
 import { useEvaluation } from "../../evaluaciones/lib/evaluation.hook";
 import { EvaluationResultsChart } from "../../evaluation-person/components/EvaluationResultsChart";
 import { FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
+import { Link } from 'react-router-dom'
 import { EVALUATION_ABSOLUTE_ROUTE } from "../../evaluaciones/lib/evaluation.constans";
 
 // Tipos de datos
@@ -49,7 +49,7 @@ export default function PerformanceEvaluationPage({ id }: { id?: number }) {
             No se encontró ninguna evaluación de desempeño activa en este
             momento. Puedes crear una nueva evaluación o revisar las existentes.
           </p>
-          <Link href={EVALUATION_ABSOLUTE_ROUTE}>
+          <Link to={EVALUATION_ABSOLUTE_ROUTE}>
             <Button>Ir a Evaluaciones</Button>
           </Link>
         </div>
@@ -64,7 +64,7 @@ export default function PerformanceEvaluationPage({ id }: { id?: number }) {
       // Crear URL del blob
       const url = window.URL.createObjectURL(blob);
 
-      // Crear elemento <a> temporal para la descarga
+      // Crear elemento <Link> temporal para la descarga
       const link = document.createElement("a");
       link.href = url;
       link.download = `reporte-evaluacion-${evaluationData.id}.xlsx`; // o .xlsx, .csv según el tipo

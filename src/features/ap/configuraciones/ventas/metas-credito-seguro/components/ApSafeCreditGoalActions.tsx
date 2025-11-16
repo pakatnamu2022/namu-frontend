@@ -3,7 +3,7 @@ import { Plus } from "lucide-react";
 import { useState } from "react";
 import { FileText, Sheet } from "lucide-react";
 import { Tooltip, TooltipTrigger } from "@radix-ui/react-tooltip";
-import ActionsWrapper from "@/src/shared/components/ActionsWrapper";
+import ActionsWrapper from "@/shared/components/ActionsWrapper";
 import ApSafeCreditGoalModal from "./ApSafeCreditGoalModal";
 
 interface ApSafeCreditGoalActionsProps {

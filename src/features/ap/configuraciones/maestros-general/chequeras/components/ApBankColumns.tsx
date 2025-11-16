@@ -1,13 +1,13 @@
-import { useRouter } from "next/navigation";
+import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
-import { DeleteButton } from "@/src/shared/components/SimpleDeleteDialog";
+import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
-import { ColumnDef } from "@tanstack/react-table";
-import { ApBankResource } from "@/src/features/ap/configuraciones/maestros-general/chequeras/lib/apBank.interface";
-import { BANK_AP } from "@/src/features/ap/configuraciones/maestros-general/chequeras/lib/apBank.constants";
+import type { ColumnDef } from "@tanstack/react-table";
+import { ApBankResource } from "@/features/ap/configuraciones/maestros-general/chequeras/lib/apBank.interface";
+import { BANK_AP } from "@/features/ap/configuraciones/maestros-general/chequeras/lib/apBank.constants";
 
 export type ApBankColumns = ColumnDef<ApBankResource>;
 
@@ -74,7 +74,7 @@ export const apBankColumns = ({
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
-      const router = useRouter();
+      const router = useNavigate();
       const { id, status } = row.original;
 
       return (
@@ -95,7 +95,7 @@ export const apBankColumns = ({
               variant="outline"
               size="icon"
               className="size-7"
-              onClick={() => router.push(`${ROUTE_UPDATE}/${id}`)}
+              onClick={() => router(`${ROUTE_UPDATE}/${id}`)}
             >
               <Pencil className="size-5" />
             </Button>

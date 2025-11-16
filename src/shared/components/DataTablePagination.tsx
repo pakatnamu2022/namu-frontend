@@ -16,7 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { DEFAULT_PER_PAGE } from "@/src/core/core.constants";
+import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 
 interface Props {
   page: number;

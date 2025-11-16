@@ -1,7 +1,7 @@
 import {
   requiredNumber,
   requiredStringId,
-} from "@/src/shared/lib/global.schema";
+} from "@/shared/lib/global.schema";
 import { z } from "zod";
 
 export const modelsVnSchemaCreate = z.object({

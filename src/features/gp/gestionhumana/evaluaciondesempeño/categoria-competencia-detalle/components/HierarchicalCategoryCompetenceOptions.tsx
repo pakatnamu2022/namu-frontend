@@ -1,9 +1,9 @@
 "use client";
 
-import SearchInput from "@/src/shared/components/SearchInput";
+import SearchInput from "@/shared/components/SearchInput";
 import {
     CATEGORY_OBJECTIVE
-} from "@/src/features/gp/gestionhumana/evaluaciondesempeño/categoria-objetivo-detalle/lib/hierarchicalCategoryObjective.constants";
+} from "@/features/gp/gestionhumana/evaluaciondesempeño/categoria-objetivo-detalle/lib/hierarchicalCategoryObjective.constants";
 
 export default function HierarchicalCategoryCompetenceOptions({
                                                                   search,

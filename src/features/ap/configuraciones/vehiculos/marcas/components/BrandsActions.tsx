@@ -2,8 +2,8 @@
 
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { useRouter } from "next/navigation";
-import ActionsWrapper from "@/src/shared/components/ActionsWrapper";
+import { useNavigate } from 'react-router-dom';
+import ActionsWrapper from "@/shared/components/ActionsWrapper";
 import { BRAND, BRAND_POSTVENTA } from "../lib/brands.constants";
 
 interface BrandActionsProps {
@@ -18,7 +18,7 @@ export default function BrandActions({
   isCommercial = true,
 }: BrandActionsProps) {
   const { ROUTE_ADD } = isCommercial ? BRAND : BRAND_POSTVENTA;
-  const router = useRouter();
+  const router = useNavigate();
 
   if (!permissions.canCreate) {
     return null;
@@ -30,7 +30,7 @@ export default function BrandActions({
         size="sm"
         variant="outline"
         className="ml-auto"
-        onClick={() => router.push(ROUTE_ADD!)}
+        onClick={() => router(ROUTE_ADD!)}
       >
         <Plus className="size-4 mr-2" /> Agregar Marca
       </Button>

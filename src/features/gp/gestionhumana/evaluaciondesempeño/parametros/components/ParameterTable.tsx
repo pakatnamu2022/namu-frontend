@@ -1,4 +1,4 @@
-import { DataTable } from "@/src/shared/components/DataTable";
+import { DataTable } from "@/shared/components/DataTable";
 import { ParameterColumns } from "./ParameterColumns";
 import { ParameterResource } from "../lib/parameter.interface";
 

@@ -1,4 +1,4 @@
-import { DataTable } from "@/src/shared/components/DataTable";
+import { DataTable } from "@/shared/components/DataTable";
 import { VehicleStatusResource } from "../lib/vehicleStatus.interface";
 import { VehicleStatusColumns } from "./VehicleStatusColumns";
 

@@ -4,9 +4,9 @@ import {
   ReceptionChecklistResource,
   ReceptionChecklistResponse,
 } from "./receptionChecklist.interface";
-import { api } from "@/src/core/api";
-import { GeneralResponse } from "@/src/shared/lib/response.interface";
-import { AP_CHECKLIST } from "@/src/core/core.constants";
+import { api } from "@/core/api";
+import { GeneralResponse } from "@/shared/lib/response.interface";
+import { AP_CHECKLIST } from "@/core/core.constants";
 import { ITEM_RECEPTION } from "./receptionChecklist.constants";
 
 const { ENDPOINT } = ITEM_RECEPTION;

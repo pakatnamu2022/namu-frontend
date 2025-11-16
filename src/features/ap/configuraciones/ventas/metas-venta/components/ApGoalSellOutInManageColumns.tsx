@@ -1,6 +1,6 @@
-import { ColumnDef } from "@tanstack/react-table";
-import { DeleteButton } from "@/src/shared/components/SimpleDeleteDialog";
-import { EditableCell } from "@/src/shared/components/EditableCell";
+import type { ColumnDef } from "@tanstack/react-table";
+import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
+import { EditableCell } from "@/shared/components/EditableCell";
 import { ApGoalSellOutInResource } from "../lib/apGoalSellOutIn.interface";
 
 export type ApGoalSellOutInColumns = ColumnDef<ApGoalSellOutInResource>;

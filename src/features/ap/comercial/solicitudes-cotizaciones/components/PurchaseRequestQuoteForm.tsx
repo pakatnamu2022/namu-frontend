@@ -13,16 +13,16 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { useRouter } from "next/navigation";
+import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Building2, Gift, Loader, PackagePlus, Calculator } from "lucide-react";
-import { FormSelect } from "@/src/shared/components/FormSelect";
-import { GroupFormSection } from "@/src/shared/components/GroupFormSection";
+import { FormSelect } from "@/shared/components/FormSelect";
+import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { useMyOpportunities } from "../../oportunidades/lib/opportunities.hook";
-import FormSkeleton from "@/src/shared/components/FormSkeleton";
+import FormSkeleton from "@/shared/components/FormSkeleton";
 import { useAllCustomers } from "../../clientes/lib/customers.hook";
-import { useAllModelsVn } from "@/src/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.hook";
-import { useAllVehicleColor } from "@/src/features/ap/configuraciones/vehiculos/colores-vehiculo/lib/vehicleColor.hook";
+import { useAllModelsVn } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.hook";
+import { useAllVehicleColor } from "@/features/ap/configuraciones/vehiculos/colores-vehiculo/lib/vehicleColor.hook";
 import { useEffect, useState, useRef } from "react";
 import { BonusDiscountTable } from "./BonusDiscountTable";
 import { ApprovedAccessoriesTable } from "./ApprovedAccessoriesTable";
@@ -31,10 +31,10 @@ import { useAllApprovedAccesories } from "../../../post-venta/accesorios-homolog
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useAllCurrencyTypes } from "@/src/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.hook";
-import { ConfirmationDialog } from "@/src/shared/components/ConfirmationDialog";
-import { useMySedes } from "@/src/features/gp/maestro-general/sede/lib/sede.hook";
-import { EMPRESA_AP } from "@/src/core/core.constants";
+import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.hook";
+import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
+import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
+import { EMPRESA_AP } from "@/core/core.constants";
 import { useAllVehiclesWithCosts } from "../../vehiculos/lib/vehicles.hook";
 
 interface PurchaseRequestQuoteFormProps {
@@ -61,7 +61,7 @@ export const PurchaseRequestQuoteForm = ({
   isSubmitting = false,
   mode = "create",
 }: PurchaseRequestQuoteFormProps) => {
-  const router = useRouter();
+  const router = useNavigate();
   const form = useForm({
     resolver: zodResolver(
       mode === "create"
@@ -855,7 +855,7 @@ export const PurchaseRequestQuoteForm = ({
             variant="destructive"
             icon="warning"
             onConfirm={() => {
-              router.push(mode === "create" ? "./" : "../");
+              router(mode === "create" ? "./" : "../");
             }}
           />
 

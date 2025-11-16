@@ -1,16 +1,16 @@
 "use client";
 
-import { ColumnDef } from "@tanstack/react-table";
+import type { ColumnDef } from "@tanstack/react-table";
 import { EvaluationResource } from "../lib/evaluation.interface";
 import { Button } from "@/components/ui/button";
 import { PanelRightClose, Pencil } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { DeleteButton } from "@/src/shared/components/SimpleDeleteDialog";
+import { useNavigate } from 'react-router-dom';
+import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { EVALUATION, STATUS_EVALUATION } from "../lib/evaluation.constans";
 import { Badge } from "@/components/ui/badge";
 import { format, parse } from "date-fns";
-import Link from "next/link";
-import { EditableSelectCell } from "@/src/shared/components/EditableSelectCell";
+import { Link } from 'react-router-dom'
+import { EditableSelectCell } from "@/shared/components/EditableSelectCell";
 
 const { ROUTE_UPDATE } = EVALUATION;
 
@@ -133,7 +133,7 @@ export const evaluationColumns = ({
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
-      const router = useRouter();
+      const router = useNavigate();
       const id = row.original.id;
 
       return (
@@ -144,7 +144,7 @@ export const evaluationColumns = ({
             size="icon"
             className="size-7"
             tooltip="Ver evaluación"
-            onClick={() => router.push(`./evaluaciones/${id}`)}
+            onClick={() => router(`./evaluaciones/${id}`)}
           >
             <PanelRightClose className="size-5" />
           </Button>
@@ -154,7 +154,7 @@ export const evaluationColumns = ({
             variant="outline"
             size="icon"
             className="size-7"
-            onClick={() => router.push(`./${ROUTE_UPDATE}/${id}`)}
+            onClick={() => router(`./${ROUTE_UPDATE}/${id}`)}
           >
             <Pencil className="size-5" />
           </Button>

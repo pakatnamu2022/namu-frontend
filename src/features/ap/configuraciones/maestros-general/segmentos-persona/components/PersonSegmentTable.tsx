@@ -1,4 +1,4 @@
-import { DataTable } from "@/src/shared/components/DataTable";
+import { DataTable } from "@/shared/components/DataTable";
 import { PersonSegmentColumns } from "./PersonSegmentColumns";
 import { PersonSegmentResource } from "../lib/personSegment.interface";
 

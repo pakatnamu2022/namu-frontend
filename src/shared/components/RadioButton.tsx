@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Option } from "@/src/core/core.interface";
+import { Option } from "@/core/core.interface";
 import { motion } from "framer-motion";
 
 interface Props {

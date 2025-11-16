@@ -1,6 +1,6 @@
 "use client";
 
-import { DataTable } from "@/src/shared/components/DataTable";
+import { DataTable } from "@/shared/components/DataTable";
 import { ElectronicDocumentItemSchema } from "../lib/electronicDocument.schema";
 import { getElectronicDocumentItemColumns } from "./ElectronicDocumentItemColumns";
 

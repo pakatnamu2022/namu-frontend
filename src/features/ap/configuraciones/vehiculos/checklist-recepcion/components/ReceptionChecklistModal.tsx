@@ -1,12 +1,12 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import FormSkeleton from "@/src/shared/components/FormSkeleton";
+import FormSkeleton from "@/shared/components/FormSkeleton";
 import {
   ERROR_MESSAGE,
   errorToast,
   SUCCESS_MESSAGE,
   successToast,
-} from "@/src/core/core.function";
-import { GeneralModal } from "@/src/shared/components/GeneralModal";
+} from "@/core/core.function";
+import { GeneralModal } from "@/shared/components/GeneralModal";
 import { useReceptionChecklistById } from "../lib/receptionChecklist.hook";
 import { ReceptionChecklistResource } from "../lib/receptionChecklist.interface";
 import { ReceptionChecklistSchema } from "../lib/receptionChecklist.schema";
@@ -15,7 +15,7 @@ import {
   updateReceptionChecklist,
 } from "../lib/receptionChecklist.actions";
 import { ReceptionChecklistForm } from "./ReceptionChecklistForm";
-import { AP_CHECKLIST } from "@/src/core/core.constants";
+import { AP_CHECKLIST } from "@/core/core.constants";
 import { ITEM_RECEPTION } from "../lib/receptionChecklist.constants";
 
 interface Props {

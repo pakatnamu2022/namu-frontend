@@ -1,4 +1,4 @@
-import { ColumnDef } from "@tanstack/react-table";
+import type { ColumnDef } from "@tanstack/react-table";
 import { AuditLogsResource } from "../lib/auditLogs.interface";
 
 export type AuditLogsColumns = ColumnDef<AuditLogsResource>;

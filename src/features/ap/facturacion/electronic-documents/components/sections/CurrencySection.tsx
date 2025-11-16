@@ -1,9 +1,9 @@
 import { UseFormReturn } from "react-hook-form";
 import { DollarSign } from "lucide-react";
-import { GroupFormSection } from "@/src/shared/components/GroupFormSection";
-import { FormSelect } from "@/src/shared/components/FormSelect";
+import { GroupFormSection } from "@/shared/components/GroupFormSection";
+import { FormSelect } from "@/shared/components/FormSelect";
 import { ElectronicDocumentSchema } from "../../lib/electronicDocument.schema";
-import { SunatConceptsResource } from "@/src/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.interface";
+import { SunatConceptsResource } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.interface";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { InfoIcon } from "lucide-react";
 

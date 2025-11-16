@@ -1,12 +1,12 @@
 "use client";
 
-import { ColumnDef } from "@tanstack/react-table";
+import type { ColumnDef } from "@tanstack/react-table";
 import { ObjectiveResource } from "../lib/objective.interface";
 import { Button } from "@/components/ui/button";
 import { ArrowDown, ArrowUp, Pencil } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { DeleteButton } from "@/src/shared/components/SimpleDeleteDialog";
-import { EditableCell } from "@/src/shared/components/EditableCell";
+import { useNavigate } from 'react-router-dom';
+import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
+import { EditableCell } from "@/shared/components/EditableCell";
 import { Badge } from "@/components/ui/badge";
 
 export type ObjectiveColumns = ColumnDef<ObjectiveResource>;
@@ -80,7 +80,7 @@ export const objectiveColumns = ({
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
-      const router = useRouter();
+      const router = useNavigate();
       const id = row.original.id;
 
       return (
@@ -90,7 +90,7 @@ export const objectiveColumns = ({
             variant="outline"
             size="icon"
             className="size-7"
-            onClick={() => router.push(`./objetivos/actualizar/${id}`)}
+            onClick={() => router(`./objetivos/actualizar/${id}`)}
           >
             <Pencil className="size-5" />
           </Button>

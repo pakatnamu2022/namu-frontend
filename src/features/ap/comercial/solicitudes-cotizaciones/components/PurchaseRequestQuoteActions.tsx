@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { useRouter } from "next/navigation";
-import ActionsWrapper from "@/src/shared/components/ActionsWrapper";
+import { useNavigate } from 'react-router-dom';
+import ActionsWrapper from "@/shared/components/ActionsWrapper";
 import { PURCHASE_REQUEST_QUOTE } from "../lib/purchaseRequestQuote.constants";
 
 interface PurchaseRequestQuoteActionsProps {
@@ -13,7 +13,7 @@ interface PurchaseRequestQuoteActionsProps {
 export default function PurchaseRequestQuoteActions({
   permissions,
 }: PurchaseRequestQuoteActionsProps) {
-  const router = useRouter();
+  const router = useNavigate();
   const { ROUTE_ADD } = PURCHASE_REQUEST_QUOTE;
 
   if (!permissions.canCreate) {
@@ -26,7 +26,7 @@ export default function PurchaseRequestQuoteActions({
         size="sm"
         variant="outline"
         className="ml-auto"
-        onClick={() => router.push(ROUTE_ADD!)}
+        onClick={() => router(ROUTE_ADD!)}
       >
         <Plus className="size-4 mr-2" /> Agregar Solicitud / Cotización
       </Button>

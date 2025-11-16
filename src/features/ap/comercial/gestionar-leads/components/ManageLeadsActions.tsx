@@ -1,11 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { FileUp, RefreshCw, Download, Sheet, FileText } from "lucide-react";
-import ActionsWrapper from "@/src/shared/components/ActionsWrapper";
+import ActionsWrapper from "@/shared/components/ActionsWrapper";
 import { useState } from "react";
 import ManageLeadsModal from "./ManageLeadsModal";
 import { ImportedLeadResource } from "../lib/manageLeads.interface";
 import { Tooltip, TooltipTrigger } from "@radix-ui/react-tooltip";
-import { errorToast, successToast } from "@/src/core/core.function";
+import { errorToast, successToast } from "@/core/core.function";
 import { downloadManageLeadsFile } from "../lib/manageLeads.actions";
 
 interface Props {

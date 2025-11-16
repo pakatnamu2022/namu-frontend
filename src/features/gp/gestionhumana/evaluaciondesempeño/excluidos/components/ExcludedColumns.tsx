@@ -1,8 +1,8 @@
 "use client";
 
-import { ColumnDef } from "@tanstack/react-table";
+import type { ColumnDef } from "@tanstack/react-table";
 import { EvaluationPersonDetailResource } from "../lib/excluded.interface";
-import { DeleteButton } from "@/src/shared/components/SimpleDeleteDialog";
+import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 
 export type ExcludedColumns = ColumnDef<EvaluationPersonDetailResource>;
 

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { requiredStringId } from "@/src/shared/lib/global.schema";
+import { requiredStringId } from "@/shared/lib/global.schema";
 import { TYPE_EVALUATION_VALUES } from "../../evaluaciones/lib/evaluation.constans";
 
 const baseCycleSchema = z.object({

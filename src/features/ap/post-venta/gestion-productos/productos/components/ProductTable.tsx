@@ -1,4 +1,4 @@
-import { DataTable } from "@/src/shared/components/DataTable";
+import { DataTable } from "@/shared/components/DataTable";
 import { ProductResource } from "../lib/product.interface";
 import { ProductColumns } from "./ProductColumns";
 

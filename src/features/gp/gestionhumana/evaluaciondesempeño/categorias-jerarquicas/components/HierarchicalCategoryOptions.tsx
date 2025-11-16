@@ -1,7 +1,7 @@
 "use client";
 
-import { SearchableSelect } from "@/src/shared/components/SearchableSelect";
-import SearchInput from "@/src/shared/components/SearchInput";
+import { SearchableSelect } from "@/shared/components/SearchableSelect";
+import SearchInput from "@/shared/components/SearchInput";
 
 export default function HierarchicalCategoryOptions({
   search,

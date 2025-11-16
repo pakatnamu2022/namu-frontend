@@ -1,5 +1,5 @@
-import { useRouter } from "next/navigation";
-import { ColumnDef } from "@tanstack/react-table";
+import { useNavigate } from "react-router-dom";
+import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -17,8 +17,8 @@ import {
   Eye,
   Ban,
 } from "lucide-react";
-import { DeleteButton } from "@/src/shared/components/SimpleDeleteDialog";
-import { ShipmentsReceptionsResource } from "../lib/shipmentsReceptions.interface";
+import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
+import type { ShipmentsReceptionsResource } from "../lib/shipmentsReceptions.interface";
 import { SHIPMENTS_RECEPTIONS } from "../lib/shipmentsReceptions.constants";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
@@ -29,7 +29,6 @@ import {
   DialogTrigger,
   DialogTitle,
 } from "@/components/ui/dialog";
-import Image from "next/image";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { useState } from "react";
 import {
@@ -37,7 +36,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { SUNAT_CONCEPTS_ID } from "@/src/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
+import { SUNAT_CONCEPTS_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
 
 export type ShipmentsReceptionsColumns = ColumnDef<ShipmentsReceptionsResource>;
 
@@ -99,13 +98,11 @@ const ImagePreview = ({ fileUrl }: { fileUrl: string }) => {
             </div>
           </div>
         )}
-        <Image
+        <img
           src={fileUrl}
           alt="Guía de remisión"
-          fill
-          className="object-contain"
-          priority
-          onLoadingComplete={() => setIsLoading(false)}
+          className="w-full h-full object-contain"
+          onLoad={() => setIsLoading(false)}
         />
       </div>
     </>
@@ -453,7 +450,7 @@ export const shipmentsReceptionsColumns = ({
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
-      const router = useRouter();
+      const router = useNavigate();
       const {
         id,
         sent_at,
@@ -555,9 +552,7 @@ export const shipmentsReceptionsColumns = ({
               size="icon"
               className="size-7"
               tooltip={receiveTooltip}
-              onClick={() =>
-                canReceive && router.push(`${ROUTE}/checklist/${id}`)
-              }
+              onClick={() => canReceive && router(`${ROUTE}/checklist/${id}`)}
               disabled={!canReceive}
             >
               <CarFront className="size-4" />
@@ -572,7 +567,7 @@ export const shipmentsReceptionsColumns = ({
                 size="icon"
                 className="size-7"
                 tooltip="Editar"
-                onClick={() => router.push(`${ROUTE_UPDATE}/${id}`)}
+                onClick={() => router(`${ROUTE_UPDATE}/${id}`)}
               >
                 <Pencil className="size-4" />
               </Button>

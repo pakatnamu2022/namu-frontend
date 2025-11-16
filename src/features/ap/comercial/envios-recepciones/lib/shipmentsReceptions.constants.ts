@@ -1,4 +1,4 @@
-import { ModelComplete } from "@/src/core/core.interface";
+import { ModelComplete } from "@/core/core.interface";
 import { ShipmentsReceptionsResource } from "./shipmentsReceptions.interface";
 
 const ROUTE = "envios-recepciones";

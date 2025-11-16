@@ -3,17 +3,17 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ArrowRight, Cake } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useNavigate } from 'react-router-dom';
 import { useBirthday } from "../lib/birthday.hook";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export function FeedWidget() {
-  const router = useRouter();
+  const router = useNavigate();
 
   const { data, isLoading } = useBirthday();
 
   const handleViewFeed = () => {
-    router.push("/feed");
+    router("/feed");
   };
 
   return (

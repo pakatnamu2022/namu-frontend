@@ -10,11 +10,11 @@ import {
   FormControl,
   FormMessage,
 } from "@/components/ui/form";
-import FormSkeleton from "@/src/shared/components/FormSkeleton";
-import Link from "next/link";
+import FormSkeleton from "@/shared/components/FormSkeleton";
+import { Link } from 'react-router-dom'
 import { Loader } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { FormSelect } from "@/src/shared/components/FormSelect";
+import { FormSelect } from "@/shared/components/FormSelect";
 import { CheckIcon } from "lucide-react";
 import {
   Tags,
@@ -26,21 +26,21 @@ import {
   TagsList,
   TagsTrigger,
   TagsValue,
-} from "@/src/shared/components/Tags";
+} from "@/shared/components/Tags";
 import { Info } from "lucide-react";
 import {
   AssignmentLeadershipSchema,
   assignmentLeadershipSchemaCreate,
   assignmentLeadershipSchemaUpdate,
 } from "../lib/assignmentLeadership.schema";
-import { currentYear, currentMonth } from "@/src/core/core.function";
-import { EMPRESA_AP, MONTHS } from "@/src/core/core.constants";
+import { currentYear, currentMonth } from "@/core/core.function";
+import { EMPRESA_AP, MONTHS } from "@/core/core.constants";
 import { AsesorResource } from "../lib/assignmentLeadership.interface";
-import { useAllWorkers } from "@/src/features/gp/gestionhumana/personal/trabajadores/lib/worker.hook";
+import { useAllWorkers } from "@/features/gp/gestionhumana/personal/trabajadores/lib/worker.hook";
 import {
   POSITION_TYPE,
   STATUS_WORKER,
-} from "@/src/features/gp/gestionhumana/personal/posiciones/lib/position.constant";
+} from "@/features/gp/gestionhumana/personal/posiciones/lib/position.constant";
 
 interface AssignmentLeadershipFormProps {
   defaultValues: Partial<AssignmentLeadershipSchema>;
@@ -203,7 +203,7 @@ export const AssignmentLeadershipForm = ({
           />
         </div>
         <div className="flex gap-4 w-full justify-end">
-          <Link href={mode === "create" ? "./" : "../"}>
+          <Link to={mode === "create" ? "./" : "../"}>
             <Button type="button" variant="outline">
               Cancelar
             </Button>

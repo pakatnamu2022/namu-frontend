@@ -1,14 +1,14 @@
-import { api } from "@/src/core/api";
+import { api } from "@/core/api";
 import { AxiosRequestConfig } from "axios";
 import {
   BrandGroupResource,
   BrandGroupResponse,
   getBrandGroupProps,
 } from "./brandGroup.interface";
-import { GeneralResponse } from "@/src/shared/lib/response.interface";
-import { STATUS_ACTIVE } from "@/src/core/core.constants";
+import { GeneralResponse } from "@/shared/lib/response.interface";
+import { STATUS_ACTIVE } from "@/core/core.constants";
 import { BRAND_GROUP } from "./brandGroup.constants";
-import { AP_MASTER_COMERCIAL } from "@/src/features/ap/lib/ap.constants";
+import { AP_MASTER_COMERCIAL } from "@/features/ap/lib/ap.constants";
 
 const { ENDPOINT } = BRAND_GROUP;
 

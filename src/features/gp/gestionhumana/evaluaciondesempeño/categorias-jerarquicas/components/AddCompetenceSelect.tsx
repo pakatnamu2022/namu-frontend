@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { SearchableSelect } from "@/src/shared/components/SearchableSelect";
+import { SearchableSelect } from "@/shared/components/SearchableSelect";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { CompetenceResource } from "../../competencias/lib/competence.interface";

@@ -18,13 +18,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Car, Loader, MapPin } from "lucide-react";
-import { FormSelect } from "@/src/shared/components/FormSelect";
-import FormSkeleton from "@/src/shared/components/FormSkeleton";
-import { useAllModelsVn } from "@/src/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.hook";
-import { useAllVehicleColor } from "@/src/features/ap/configuraciones/vehiculos/colores-vehiculo/lib/vehicleColor.hook";
-import { useAllEngineTypes } from "@/src/features/ap/configuraciones/vehiculos/tipos-motor/lib/engineTypes.hook";
-import { useWarehouseByModelSede } from "@/src/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
-import { GroupFormSection } from "@/src/shared/components/GroupFormSection";
+import { FormSelect } from "@/shared/components/FormSelect";
+import FormSkeleton from "@/shared/components/FormSkeleton";
+import { useAllModelsVn } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.hook";
+import { useAllVehicleColor } from "@/features/ap/configuraciones/vehiculos/colores-vehiculo/lib/vehicleColor.hook";
+import { useAllEngineTypes } from "@/features/ap/configuraciones/vehiculos/tipos-motor/lib/engineTypes.hook";
+import { useWarehouseByModelSede } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
+import { GroupFormSection } from "@/shared/components/GroupFormSection";
 
 interface VehicleFormProps {
   defaultValues: Partial<VehicleSchema>;

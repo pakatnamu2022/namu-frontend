@@ -1,4 +1,4 @@
-import { ColumnDef } from "@tanstack/react-table";
+import type { ColumnDef } from "@tanstack/react-table";
 import { ElectronicDocumentItem } from "../lib/electronicDocument.interface";
 
 export const creditNoteItemsColumns: ColumnDef<ElectronicDocumentItem>[] = [

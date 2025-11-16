@@ -10,11 +10,11 @@ import {
   FormControl,
   FormMessage,
 } from "@/components/ui/form";
-import FormSkeleton from "@/src/shared/components/FormSkeleton";
-import Link from "next/link";
+import FormSkeleton from "@/shared/components/FormSkeleton";
+import { Link } from 'react-router-dom'
 import { Loader, CheckIcon, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { FormSelect } from "@/src/shared/components/FormSelect";
+import { FormSelect } from "@/shared/components/FormSelect";
 import {
   Tags,
   TagsContent,
@@ -25,21 +25,21 @@ import {
   TagsList,
   TagsTrigger,
   TagsValue,
-} from "@/src/shared/components/Tags";
-import { useAllWorkers } from "@/src/features/gp/gestionhumana/personal/trabajadores/lib/worker.hook";
+} from "@/shared/components/Tags";
+import { useAllWorkers } from "@/features/gp/gestionhumana/personal/trabajadores/lib/worker.hook";
 import {
   POSITION_TYPE,
   STATUS_WORKER,
-} from "@/src/features/gp/gestionhumana/personal/posiciones/lib/position.constant";
+} from "@/features/gp/gestionhumana/personal/posiciones/lib/position.constant";
 import { AsesorResource } from "../lib/assignCompanyBranch.interface";
-import { EMPRESA_AP, MONTHS } from "@/src/core/core.constants";
-import { currentMonth, currentYear } from "@/src/core/core.function";
+import { EMPRESA_AP, MONTHS } from "@/core/core.constants";
+import { currentMonth, currentYear } from "@/core/core.function";
 import {
   AssignCompanyBranchSchema,
   assignCompanyBranchSchemaCreate,
   assignCompanyBranchSchemaUpdate,
 } from "../lib/assignCompanyBranch.schema";
-import { useAllSedes } from "@/src/features/gp/maestro-general/sede/lib/sede.hook";
+import { useAllSedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 
 interface AssignCompanyBranchFormProps {
   defaultValues: Partial<AssignCompanyBranchSchema>;
@@ -200,7 +200,7 @@ export const AssignCompanyBranchForm = ({
           />
         </div>
         <div className="flex gap-4 w-full justify-end">
-          <Link href={mode === "create" ? "./" : "../"}>
+          <Link to={mode === "create" ? "./" : "../"}>
             <Button type="button" variant="outline">
               Cancelar
             </Button>

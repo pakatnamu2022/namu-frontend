@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { SUNAT_CONCEPTS_ID } from "@/src/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
+import { SUNAT_CONCEPTS_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
 
 export const shippingGuideSchema = z
   .object({

@@ -1,6 +1,6 @@
-import { ModelComplete } from "@/src/core/core.interface";
+import { ModelComplete } from "@/core/core.interface";
 import { GearShiftTypeResource } from "./gearShiftType.interface";
-import { COMMERCIAL_MASTERS_ENDPOINT } from "@/src/features/ap/lib/ap.constants";
+import { COMMERCIAL_MASTERS_ENDPOINT } from "@/features/ap/lib/ap.constants";
 
 const ROUTE = "transmision-vehiculo";
 

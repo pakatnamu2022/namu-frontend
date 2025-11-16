@@ -1,8 +1,8 @@
-import {DataTable} from "@/src/shared/components/DataTable";
+import {DataTable} from "@/shared/components/DataTable";
 import {HierarchicalCategoryCompetenceColumns} from "./HierarchicalCategoryCompetenceColumns";
 import {
     HierarchicalCategoryCompetenceResource
-} from "@/src/features/gp/gestionhumana/evaluaciondesempeño/categoria-competencia-detalle/lib/hierarchicalCategoryCompetence.interface";
+} from "@/features/gp/gestionhumana/evaluaciondesempeño/categoria-competencia-detalle/lib/hierarchicalCategoryCompetence.interface";
 
 interface Props {
     columns: HierarchicalCategoryCompetenceColumns[];

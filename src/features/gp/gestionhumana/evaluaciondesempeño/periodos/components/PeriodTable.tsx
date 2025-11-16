@@ -1,4 +1,4 @@
-import {DataTable} from "@/src/shared/components/DataTable";
+import {DataTable} from "@/shared/components/DataTable";
 import {PeriodColumns} from "./PeriodColumns";
 import {PeriodResource} from "../lib/period.interface";
 

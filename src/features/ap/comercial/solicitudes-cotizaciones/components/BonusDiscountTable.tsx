@@ -31,7 +31,7 @@ import {
 } from "@/components/ui/popover";
 import { Plus, Trash2, Check, ChevronsUpDown } from "lucide-react";
 import { ConceptDiscountBondResource } from "../lib/purchaseRequestQuote.interface";
-import { NumberFormat } from "@/src/shared/components/NumberFormat";
+import { NumberFormat } from "@/shared/components/NumberFormat";
 import { cn } from "@/lib/utils";
 
 export interface BonusDiscountRow {

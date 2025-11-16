@@ -1,4 +1,4 @@
-import { DataTable } from "@/src/shared/components/DataTable";
+import { DataTable } from "@/shared/components/DataTable";
 import { VehiclePurchaseOrderResource } from "../lib/vehiclePurchaseOrder.interface";
 import { VehiclePurchaseOrderColumns } from "./VehiclePurchaseOrderColumns";
 

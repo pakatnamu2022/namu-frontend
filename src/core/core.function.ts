@@ -1,6 +1,6 @@
 import { toast } from "sonner";
-import { Action, ModelInterface } from "./core.interface";
 import { ACTIONS, ACTIONS_NAMES, IGV } from "./core.constants";
+import type { Action, ModelInterface } from "./core.interface";
 
 export const successToast = (
   body: string,

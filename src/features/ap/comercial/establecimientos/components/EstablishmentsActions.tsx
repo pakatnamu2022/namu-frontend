@@ -2,8 +2,8 @@
 
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import ActionsWrapper from "@/src/shared/components/ActionsWrapper";
-import { useRouter } from "next/navigation";
+import ActionsWrapper from "@/shared/components/ActionsWrapper";
+import { useNavigate } from 'react-router-dom';
 
 interface Props {
   baseRoute: string;
@@ -16,7 +16,7 @@ export default function EstablishmentsActions({
   baseRoute,
   permissions,
 }: Props) {
-  const router = useRouter();
+  const router = useNavigate();
 
   if (!permissions.canCreate) {
     return null;
@@ -28,7 +28,7 @@ export default function EstablishmentsActions({
         size="sm"
         variant="outline"
         className="ml-auto"
-        onClick={() => router.push(`${baseRoute}/agregar`)}
+        onClick={() => router(`${baseRoute}/agregar`)}
       >
         <Plus className="size-4 mr-2" /> Agregar Establecimiento
       </Button>

@@ -10,14 +10,14 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Loader } from "lucide-react";
-import Link from "next/link";
+import { Link } from 'react-router-dom'
 import { Button } from "@/components/ui/button";
 import {
   ClassArticleSchema,
   classArticleSchemaCreate,
   classArticleSchemaUpdate,
 } from "../lib/classArticle.schema";
-import { FormSelect } from "@/src/shared/components/FormSelect";
+import { FormSelect } from "@/shared/components/FormSelect";
 
 interface ClassArticleFormProps {
   defaultValues: Partial<ClassArticleSchema>;
@@ -108,7 +108,7 @@ export const ClassArticleForm = ({
           />
         </div>
         <div className="flex gap-4 w-full justify-end">
-          <Link href={mode === "create" ? "" : "../"}>
+          <Link to={mode === "create" ? "" : "../"}>
             <Button type="button" variant="outline">
               Cancelar
             </Button>

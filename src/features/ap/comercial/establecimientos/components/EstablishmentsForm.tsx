@@ -17,18 +17,18 @@ import {
   EstablishmentsSchema,
   establishmentsSchema,
 } from "../lib/establishments.schema";
-import FormSkeleton from "@/src/shared/components/FormSkeleton";
-import { FormSelect } from "@/src/shared/components/FormSelect";
-import { GroupFormSection } from "@/src/shared/components/GroupFormSection";
-import Link from "next/link";
+import FormSkeleton from "@/shared/components/FormSkeleton";
+import { FormSelect } from "@/shared/components/FormSelect";
+import { GroupFormSection } from "@/shared/components/GroupFormSection";
+import { Link } from 'react-router-dom'
 import { useEffect } from "react";
 import {
   useAllDepartment,
   useAllProvince,
   useAllDistrict,
-} from "@/src/features/gp/gestionsistema/ubicaciones/lib/location.hook";
-import { useAllSedes } from "@/src/features/gp/maestro-general/sede/lib/sede.hook";
-import { EMPRESA_AP } from "@/src/core/core.constants";
+} from "@/features/gp/gestionsistema/ubicaciones/lib/location.hook";
+import { useAllSedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
+import { EMPRESA_AP } from "@/core/core.constants";
 import { Checkbox } from "@/components/ui/checkbox";
 
 const AUTOMOTORES_PAKATNAMU_ID = 17;
@@ -299,7 +299,7 @@ export const EstablishmentsForm = ({
 
         {/* Buttons */}
         <div className="flex gap-4 w-full justify-end">
-          <Link href={mode === "create" ? "./" : "../"}>
+          <Link to={mode === "create" ? "./" : "../"}>
             <Button type="button" variant="outline">
               Cancelar
             </Button>

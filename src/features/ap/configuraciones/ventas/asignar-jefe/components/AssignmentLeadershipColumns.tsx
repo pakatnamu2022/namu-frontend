@@ -1,9 +1,9 @@
-import { ColumnDef } from "@tanstack/react-table";
+import type { ColumnDef } from "@tanstack/react-table";
 import {
   AsesorResource,
   AssignmentLeadershipResource,
 } from "../lib/assignmentLeadership.interface";
-import { useRouter } from "next/navigation";
+import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -106,7 +106,7 @@ export const assignmentLeadershipColumns = ({
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
-      const router = useRouter();
+      const router = useNavigate();
       const { boss_id, year, month, status } = row.original;
       const { ROUTE_UPDATE } = ASSIGNMENT_LEADERSHIP;
 
@@ -130,7 +130,7 @@ export const assignmentLeadershipColumns = ({
               variant="outline"
               size="icon"
               className="size-7"
-              onClick={() => router.push(`${ROUTE_UPDATE}/${boss_id}`)}
+              onClick={() => router(`${ROUTE_UPDATE}/${boss_id}`)}
               disabled={!status}
             >
               <Pencil className="size-5" />

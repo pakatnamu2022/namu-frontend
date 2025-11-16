@@ -1,4 +1,4 @@
-import { DataTable } from "@/src/shared/components/DataTable";
+import { DataTable } from "@/shared/components/DataTable";
 import { EstablishmentsColumns } from "./EstablishmentsColumns";
 import { EstablishmentsResource } from "../lib/establishments.interface";
 

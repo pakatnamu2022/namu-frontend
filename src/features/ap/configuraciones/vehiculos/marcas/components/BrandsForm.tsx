@@ -11,9 +11,9 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { ImageIcon, Loader } from "lucide-react";
-import Link from "next/link";
+import { Link } from 'react-router-dom'
 import { Button } from "@/components/ui/button";
-import { FormSelect } from "@/src/shared/components/FormSelect";
+import { FormSelect } from "@/shared/components/FormSelect";
 import { useAllBrandGroup } from "../../grupos-marcas/lib/brandGroup.hook";
 import {
   brandSchemaCreate,
@@ -21,7 +21,7 @@ import {
   BrandsSchema,
 } from "../lib/brands.schema";
 import { BrandsRequest } from "../lib/brands.interface";
-import FormSkeleton from "@/src/shared/components/FormSkeleton";
+import FormSkeleton from "@/shared/components/FormSkeleton";
 
 interface BrandsFormProps {
   defaultValues: Partial<BrandsSchema>;
@@ -162,7 +162,7 @@ export const BrandsForm = ({
                       className="pl-10"
                       {...field}
                     />
-                    <ImageIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <imgIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                   </div>
                 </FormControl>
                 <FormMessage />
@@ -187,7 +187,7 @@ export const BrandsForm = ({
                       className="pl-10"
                       {...field}
                     />
-                    <ImageIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <imgIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                   </div>
                 </FormControl>
                 <FormMessage />
@@ -196,7 +196,7 @@ export const BrandsForm = ({
           />
         </div>
         <div className="flex gap-4 w-full justify-end">
-          <Link href={mode === "create" ? "./" : "../"}>
+          <Link to={mode === "create" ? "./" : "../"}>
             <Button type="button" variant="outline">
               Cancelar
             </Button>

@@ -27,7 +27,7 @@ import {
   MapPin,
   Package,
 } from "lucide-react";
-import { SUNAT_CONCEPTS_ID } from "@/src/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
+import { SUNAT_CONCEPTS_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
 
 interface VehicleDeliveryDetailsSheetProps {
   open: boolean;
@@ -569,7 +569,7 @@ export function VehicleDeliveryDetailsSheet({
                     </h3>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                       {vehicleDelivery.shipping_guide.enlace_del_pdf && (
-                        <a
+                        <Link
                           href={vehicleDelivery.shipping_guide.enlace_del_pdf}
                           target="_blank"
                           rel="noopener noreferrer"
@@ -586,7 +586,7 @@ export function VehicleDeliveryDetailsSheet({
                       )}
 
                       {vehicleDelivery.shipping_guide.enlace_del_xml && (
-                        <a
+                        <Link
                           href={vehicleDelivery.shipping_guide.enlace_del_xml}
                           target="_blank"
                           rel="noopener noreferrer"
@@ -603,7 +603,7 @@ export function VehicleDeliveryDetailsSheet({
                       )}
 
                       {vehicleDelivery.shipping_guide.enlace_del_cdr && (
-                        <a
+                        <Link
                           href={vehicleDelivery.shipping_guide.enlace_del_cdr}
                           target="_blank"
                           rel="noopener noreferrer"
@@ -620,7 +620,7 @@ export function VehicleDeliveryDetailsSheet({
                       )}
 
                       {vehicleDelivery.shipping_guide.cadena_para_codigo_qr && (
-                        <a
+                        <Link
                           href={
                             vehicleDelivery.shipping_guide.cadena_para_codigo_qr
                           }

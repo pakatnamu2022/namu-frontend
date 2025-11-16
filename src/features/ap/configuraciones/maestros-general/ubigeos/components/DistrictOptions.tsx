@@ -1,9 +1,9 @@
 import {
   DepartmentResource,
   ProvinceResource,
-} from "@/src/features/gp/gestionsistema/ubicaciones/lib/location.interface";
-import SearchInput from "@/src/shared/components/SearchInput";
-import { SearchableSelect } from "@/src/shared/components/SearchableSelect";
+} from "@/features/gp/gestionsistema/ubicaciones/lib/location.interface";
+import SearchInput from "@/shared/components/SearchInput";
+import { SearchableSelect } from "@/shared/components/SearchableSelect";
 
 interface Props {
   search: string;

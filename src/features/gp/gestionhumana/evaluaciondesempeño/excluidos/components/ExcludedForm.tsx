@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { ExcludedSchema, excludedSchemaCreate } from "../lib/excluded.schema";
 import { Loader } from "lucide-react";
-import { FormSelect } from "@/src/shared/components/FormSelect";
+import { FormSelect } from "@/shared/components/FormSelect";
 import { WorkerResource } from "../../../personal/trabajadores/lib/worker.interface";
 import { Form } from "@/components/ui/form";
 import { EXCLUDED } from "../lib/excluded.constants";

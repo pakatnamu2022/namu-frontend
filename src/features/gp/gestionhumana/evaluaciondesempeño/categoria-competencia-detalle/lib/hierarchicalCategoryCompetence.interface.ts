@@ -1,4 +1,4 @@
-import { Links, Meta } from "@/src/shared/lib/pagination.interface";
+import { Links, Meta } from "@/shared/lib/pagination.interface";
 import { WorkerResource } from "../../../personal/trabajadores/lib/worker.interface";
 import { CompetenceResource } from "../../competencias/lib/competence.interface";
 

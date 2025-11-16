@@ -1,4 +1,4 @@
-import { DataTable } from "@/src/shared/components/DataTable";
+import { DataTable } from "@/shared/components/DataTable";
 import { TypeClientColumns } from "./TypeClientColumns";
 import { TypeClientResource } from "../lib/typeClient.interface";
 

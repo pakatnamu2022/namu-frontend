@@ -1,8 +1,8 @@
 "use client";
 
-import { DataTable } from "@/src/shared/components/DataTable";
+import { DataTable } from "@/shared/components/DataTable";
 import { VehiclesDeliveryResource } from "../lib/vehicleDelivery.interface";
-import { ColumnDef } from "@tanstack/react-table";
+import type { ColumnDef } from "@tanstack/react-table";
 import { ReactNode } from "react";
 
 interface VehicleDeliveryTableProps {

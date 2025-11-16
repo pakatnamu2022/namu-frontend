@@ -1,4 +1,4 @@
-import { DataTable } from "@/src/shared/components/DataTable";
+import { DataTable } from "@/shared/components/DataTable";
 import { TypeVehicleOriginResource } from "../lib/typeVehicleOrigin.interface";
 import { TypeVehicleOriginColumns } from "./typeVehicleOriginColumns";
 

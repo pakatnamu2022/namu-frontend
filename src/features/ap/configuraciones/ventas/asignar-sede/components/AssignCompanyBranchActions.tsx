@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { ClipboardMinus } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useNavigate } from 'react-router-dom';
 import { ASSIGN_COMPANY_BRANCH } from "../lib/assignCompanyBranch.constants";
 
 interface AssignSedeActionsProps {
@@ -12,7 +12,7 @@ interface AssignSedeActionsProps {
 export default function AssignSedeActions({
   permissions,
 }: AssignSedeActionsProps) {
-  const router = useRouter();
+  const router = useNavigate();
   const { ROUTE_ADD } = ASSIGN_COMPANY_BRANCH;
 
   if (!permissions.canCreate) {
@@ -24,7 +24,7 @@ export default function AssignSedeActions({
       <Button
         size="sm"
         className="ml-auto"
-        onClick={() => router.push(ROUTE_ADD!)}
+        onClick={() => router(ROUTE_ADD!)}
       >
         <ClipboardMinus className="size-4 mr-2" /> Agregar Asignación
       </Button>

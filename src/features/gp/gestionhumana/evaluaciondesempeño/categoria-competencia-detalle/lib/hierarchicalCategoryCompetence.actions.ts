@@ -1,5 +1,5 @@
-import { api } from "@/src/core/api";
-import { GeneralResponse } from "@/src/shared/lib/response.interface";
+import { api } from "@/core/api";
+import { GeneralResponse } from "@/shared/lib/response.interface";
 import { AxiosRequestConfig } from "axios";
 import {
   CategoryCompetencePersonResponse,
@@ -7,7 +7,7 @@ import {
   HierarchicalCategoryCompetenceResource,
   HierarchicalCategoryCompetenceResponse,
 } from "./hierarchicalCategoryCompetence.interface";
-import { CATEGORY_COMPETENCE } from "@/src/features/gp/gestionhumana/evaluaciondesempeño/categoria-competencia-detalle/lib/hierarchicalCategoryCompetence.constants";
+import { CATEGORY_COMPETENCE } from "@/features/gp/gestionhumana/evaluaciondesempeño/categoria-competencia-detalle/lib/hierarchicalCategoryCompetence.constants";
 
 const { ENDPOINT } = CATEGORY_COMPETENCE;
 

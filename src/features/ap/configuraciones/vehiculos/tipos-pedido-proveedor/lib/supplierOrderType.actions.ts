@@ -4,11 +4,11 @@ import {
   SupplierOrderTypeResource,
   SupplierOrderTypeResponse,
 } from "./supplierOrderType.interface";
-import { api } from "@/src/core/api";
-import { GeneralResponse } from "@/src/shared/lib/response.interface";
-import { STATUS_ACTIVE } from "@/src/core/core.constants";
+import { api } from "@/core/api";
+import { GeneralResponse } from "@/shared/lib/response.interface";
+import { STATUS_ACTIVE } from "@/core/core.constants";
 import { SUPPLIER_ORDER_TYPE } from "./supplierOrderType.constants";
-import { AP_MASTER_COMERCIAL } from "@/src/features/ap/lib/ap.constants";
+import { AP_MASTER_COMERCIAL } from "@/features/ap/lib/ap.constants";
 
 const { ENDPOINT } = SUPPLIER_ORDER_TYPE;
 

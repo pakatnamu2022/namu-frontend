@@ -1,9 +1,9 @@
 "use client";
 
-import { ColumnDef } from "@tanstack/react-table";
-import { DeleteButton } from "@/src/shared/components/SimpleDeleteDialog";
-import { HierarchicalCategoryObjectiveResource } from "@/src/features/gp/gestionhumana/evaluaciondesempeño/categoria-objetivo-detalle/lib/hierarchicalCategoryObjective.interface";
-import { EditableCell } from "@/src/shared/components/EditableCell";
+import type { ColumnDef } from "@tanstack/react-table";
+import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
+import { HierarchicalCategoryObjectiveResource } from "@/features/gp/gestionhumana/evaluaciondesempeño/categoria-objetivo-detalle/lib/hierarchicalCategoryObjective.interface";
+import { EditableCell } from "@/shared/components/EditableCell";
 
 export type HierarchicalCategoryObjectiveColumns =
   ColumnDef<HierarchicalCategoryObjectiveResource>;

@@ -12,7 +12,7 @@ import {
   Users,
   ClipboardList,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from "../../auth/lib/auth.store";
 import { format, parse } from "date-fns";
 import { es } from "date-fns/locale";
@@ -26,7 +26,7 @@ interface ProfileCardProps {
 }
 
 export function ProfileCard({ variant = "sidebar" }: ProfileCardProps) {
-  const router = useRouter();
+  const router = useNavigate();
 
   const { user } = useAuthStore();
 
@@ -123,7 +123,7 @@ export function ProfileCard({ variant = "sidebar" }: ProfileCardProps) {
   ];
 
   const handleProfileClick = (value: string) => {
-    router.push(`/perfil/${value}`);
+    router(`/perfil/${value}`);
   };
 
   if (variant === "header") {

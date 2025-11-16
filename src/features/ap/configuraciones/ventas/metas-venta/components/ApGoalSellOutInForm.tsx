@@ -11,10 +11,10 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import FormSkeleton from "@/src/shared/components/FormSkeleton";
+import FormSkeleton from "@/shared/components/FormSkeleton";
 import { Loader, Plus, Info, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { FormSelect } from "@/src/shared/components/FormSelect";
+import { FormSelect } from "@/shared/components/FormSelect";
 import {
   ERROR_MESSAGE,
   errorToast,
@@ -22,8 +22,8 @@ import {
   SUCCESS_MESSAGE,
   successToast,
   currentYear,
-} from "@/src/core/core.function";
-import { DEFAULT_PER_PAGE, MONTHS } from "@/src/core/core.constants";
+} from "@/core/core.function";
+import { DEFAULT_PER_PAGE, MONTHS } from "@/core/core.constants";
 import {
   ApGoalSellOutInSchema,
   apGoalSellOutInSchemaCreate,
@@ -33,8 +33,8 @@ import { useAllShop } from "../../tiendas/lib/shop.hook";
 import { useAllBrands } from "../../../vehiculos/marcas/lib/brands.hook";
 import { useEffect, useState } from "react";
 import { Switch } from "@/components/ui/switch";
-import DataTablePagination from "@/src/shared/components/DataTablePagination";
-import { SimpleDeleteDialog } from "@/src/shared/components/SimpleDeleteDialog";
+import DataTablePagination from "@/shared/components/DataTablePagination";
+import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
 import {
   deleteApGoalSellOutIn,
   updateApGoalSellOutIn,

@@ -1,9 +1,9 @@
-import { ColumnDef } from "@tanstack/react-table";
+import type { ColumnDef } from "@tanstack/react-table";
 import {
   AsesorResource,
   CommercialManagerBrandGroupResource,
 } from "../lib/commercialManagerBrandGroup.interface";
-import { useRouter } from "next/navigation";
+import { useNavigate } from 'react-router-dom';
 import { COMMERCIAL_MANAGER_BRAND_GROUP } from "../lib/commercialManagerBrandGroup.constants";
 import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
@@ -61,7 +61,7 @@ export const commercialManagerBrandGroupColumns =
       id: "actions",
       header: "Acciones",
       cell: ({ row }) => {
-        const router = useRouter();
+        const router = useNavigate();
         const { brand_group_id } = row.original;
         const { ROUTE_UPDATE } = COMMERCIAL_MANAGER_BRAND_GROUP;
 
@@ -72,7 +72,7 @@ export const commercialManagerBrandGroupColumns =
               variant="outline"
               size="icon"
               className="size-7"
-              onClick={() => router.push(`${ROUTE_UPDATE}/${brand_group_id}`)}
+              onClick={() => router(`${ROUTE_UPDATE}/${brand_group_id}`)}
             >
               <Pencil className="size-5" />
             </Button>

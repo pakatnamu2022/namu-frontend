@@ -1,4 +1,4 @@
-import { ModelComplete } from "@/src/core/core.interface";
+import { ModelComplete } from "@/core/core.interface";
 import { CurrencyTypesResource } from "./CurrencyTypes.interface";
 
 const ROUTE = "tipos-moneda";

@@ -2,9 +2,9 @@
 
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { useRouter } from "next/navigation";
-import ActionsWrapper from "@/src/shared/components/ActionsWrapper";
-import { BANK_AP } from "@/src/features/ap/configuraciones/maestros-general/chequeras/lib/apBank.constants";
+import { useNavigate } from 'react-router-dom';
+import ActionsWrapper from "@/shared/components/ActionsWrapper";
+import { BANK_AP } from "@/features/ap/configuraciones/maestros-general/chequeras/lib/apBank.constants";
 
 interface ApBankActionsProps {
   permissions: {
@@ -13,7 +13,7 @@ interface ApBankActionsProps {
 }
 
 export default function ApBankActions({ permissions }: ApBankActionsProps) {
-  const router = useRouter();
+  const router = useNavigate();
   const { ROUTE_ADD } = BANK_AP;
 
   if (!permissions.canCreate) {
@@ -26,7 +26,7 @@ export default function ApBankActions({ permissions }: ApBankActionsProps) {
         size="sm"
         variant="outline"
         className="ml-auto"
-        onClick={() => router.push(ROUTE_ADD!)}
+        onClick={() => router(ROUTE_ADD!)}
       >
         <Plus className="size-4 mr-2" /> Agregar Chequera
       </Button>

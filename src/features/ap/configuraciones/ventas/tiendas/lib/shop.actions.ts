@@ -1,13 +1,13 @@
 import { AxiosRequestConfig } from "axios";
-import { api } from "@/src/core/api";
-import { GeneralResponse } from "@/src/shared/lib/response.interface";
-import { STATUS_ACTIVE } from "@/src/core/core.constants";
+import { api } from "@/core/api";
+import { GeneralResponse } from "@/shared/lib/response.interface";
+import { STATUS_ACTIVE } from "@/core/core.constants";
 import { SHOP } from "./shop.constants";
 import { getShopProps, ShopResource, ShopResponse } from "./shop.interface";
 import {
   AP_MASTER_COMERCIAL,
   COMMERCIAL_MASTERS_ENDPOINT,
-} from "@/src/features/ap/lib/ap.constants";
+} from "@/features/ap/lib/ap.constants";
 
 const { ENDPOINT } = SHOP;
 

@@ -12,16 +12,15 @@ import {
 } from "@/components/ui/form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import Image from "next/image";
-import Link from "next/link";
+import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { useAuthStore } from "../lib/auth.store";
-import { errorToast, successToast } from "@/src/core/core.function";
-import { useRouter } from "next/navigation";
-import { LOGIN } from "@/src/constants/login";
+import { errorToast, successToast } from "@/core/core.function";
+import { useNavigate } from "react-router-dom";
+import { LOGIN } from "@/constants/login";
 import { useState } from "react";
 import { LoaderCircle } from "lucide-react";
-import { CONSTANTS } from "@/src/core/core.constants";
+import { CONSTANTS } from "@/core/core.constants";
 
 const formSchema = z.object({
   username: z.string().min(1, "Usuario requerido"),
@@ -41,7 +40,7 @@ export function Login({ className, ...props }: React.ComponentProps<"div">) {
   });
 
   const { login } = useAuthStore();
-  const { push } = useRouter();
+  const push = useNavigate();
 
   const onLogin = async () => {
     setIsLogging(true);
@@ -74,10 +73,9 @@ export function Login({ className, ...props }: React.ComponentProps<"div">) {
               <div className="flex flex-col gap-6">
                 <div className="flex flex-col items-center text-center gap-2">
                   <div className="bg-background relative h-16 aspect-[3]">
-                    <Image
+                    <img
                       src={CONSTANTS.LOGO}
                       alt="Image"
-                      fill
                       className="absolute inset-0 h-full w-full object-contain dark:brightness-[0.2] dark:grayscale"
                     />
                   </div>
@@ -144,18 +142,17 @@ export function Login({ className, ...props }: React.ComponentProps<"div">) {
                 </div>
                 <div className="grid grid-cols-4 justify-center items-center gap-4">
                   {links.map((link: any) => (
-                    <Link key={link.href} href={link.href} target="_blank">
+                    <Link key={link.href} to={link.href} target="_blank">
                       <Button
                         variant="ghost"
                         size="icon"
                         type="button"
                         className="size-14 aspect-square relative rounded-full"
                       >
-                        <Image
+                        <img
                           className="h-4 w-4 p-2"
                           src={link.src}
                           alt={link.label}
-                          fill
                           loading="lazy"
                         />
                         <span className="sr-only">{link.label}</span>
@@ -167,10 +164,9 @@ export function Login({ className, ...props }: React.ComponentProps<"div">) {
             </form>
           </Form>
           <div className="bg-background relative hidden md:block">
-            <Image
+            <img
               src={LOGIN.FONDO}
               alt="Image"
-              fill
               className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
             />
           </div>

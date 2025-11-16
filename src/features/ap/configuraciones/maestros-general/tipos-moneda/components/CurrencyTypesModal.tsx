@@ -4,8 +4,8 @@ import {
   errorToast,
   SUCCESS_MESSAGE,
   successToast,
-} from "@/src/core/core.function";
-import FormSkeleton from "@/src/shared/components/FormSkeleton";
+} from "@/core/core.function";
+import FormSkeleton from "@/shared/components/FormSkeleton";
 import { CURRENCY_TYPES } from "../lib/CurrencyTypes.constants";
 import { useCurrencyTypesById } from "../lib/CurrencyTypes.hook";
 import { CurrencyTypesResource } from "../lib/CurrencyTypes.interface";
@@ -14,7 +14,7 @@ import {
   storeCurrencyTypes,
   updateCurrencyTypes,
 } from "../lib/CurrencyTypes.actions";
-import { GeneralModal } from "@/src/shared/components/GeneralModal";
+import { GeneralModal } from "@/shared/components/GeneralModal";
 import { CurrencyTypesForm } from "./CurrencyTypesForm";
 
 interface Props {

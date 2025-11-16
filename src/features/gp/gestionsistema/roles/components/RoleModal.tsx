@@ -1,11 +1,11 @@
-import { GeneralModal } from "@/src/shared/components/GeneralModal";
+import { GeneralModal } from "@/shared/components/GeneralModal";
 import { RoleForm } from "./RoleForm";
 import { RoleResource } from "../lib/role.interface";
 import { RoleSchema } from "../lib/role.schema";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRoleById } from "../lib/role.hook";
 import { storeRole, updateRole } from "../lib/role.actions";
-import { errorToast, successToast } from "@/src/core/core.function";
+import { errorToast, successToast } from "@/core/core.function";
 import {
   CREATE_ERROR,
   CREATE_SUCCESS,
@@ -13,7 +13,7 @@ import {
   UPDATE_ERROR,
   UPDATE_SUCCESS,
 } from "../lib/role.constants";
-import FormSkeleton from "@/src/shared/components/FormSkeleton";
+import FormSkeleton from "@/shared/components/FormSkeleton";
 
 interface Props {
   id?: number;

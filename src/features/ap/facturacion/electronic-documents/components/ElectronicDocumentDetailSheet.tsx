@@ -24,7 +24,7 @@ import {
   SearchCheck,
   Loader2,
 } from "lucide-react";
-import { ElectronicDocumentResource } from "../lib/electronicDocument.interface";
+import type { ElectronicDocumentResource } from "../lib/electronicDocument.interface";
 import {
   Table,
   TableBody,
@@ -34,7 +34,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { queryElectronicDocumentStatus } from "../lib/electronicDocument.actions";
-import { successToast, errorToast } from "@/src/core/core.function";
+import { successToast, errorToast } from "@/core/core.function";
+import { Link } from "react-router-dom";
 
 interface ElectronicDocumentDetailSheetProps {
   document: ElectronicDocumentResource | null;
@@ -156,38 +157,38 @@ export function ElectronicDocumentDetailSheet({
                 <div className="flex flex-wrap gap-2">
                   {document.enlace_del_pdf && (
                     <Button variant="outline" size="sm" asChild>
-                      <a
-                        href={document.enlace_del_pdf}
+                      <Link
+                        to={document.enlace_del_pdf}
                         target="_blank"
                         rel="noopener noreferrer"
                       >
                         <Download className="h-4 w-4 mr-2" />
                         Descargar PDF
-                      </a>
+                      </Link>
                     </Button>
                   )}
                   {document.enlace_del_xml && (
                     <Button variant="outline" size="sm" asChild>
-                      <a
-                        href={document.enlace_del_xml}
+                      <Link
+                        to={document.enlace_del_xml}
                         target="_blank"
                         rel="noopener noreferrer"
                       >
                         <Download className="h-4 w-4 mr-2" />
                         Descargar XML
-                      </a>
+                      </Link>
                     </Button>
                   )}
                   {document.enlace_del_cdr && (
                     <Button variant="outline" size="sm" asChild>
-                      <a
-                        href={document.enlace_del_cdr}
+                      <Link
+                        to={document.enlace_del_cdr}
                         target="_blank"
                         rel="noopener noreferrer"
                       >
                         <Download className="h-4 w-4 mr-2" />
                         Descargar CDR
-                      </a>
+                      </Link>
                     </Button>
                   )}
 
@@ -420,7 +421,7 @@ export function ElectronicDocumentDetailSheet({
                       {document.items.map((item, index) => (
                         <TableRow key={index}>
                           <TableCell>
-                            <div className="text-sm font-medium !text-nowrap whitespace-pre-line">
+                            <div className="text-sm font-medium text-nowrap! whitespace-pre-line">
                               {item.descripcion}
                             </div>
                             <div className="text-xs text-muted-foreground">

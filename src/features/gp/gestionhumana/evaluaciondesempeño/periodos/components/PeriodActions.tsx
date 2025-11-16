@@ -1,12 +1,12 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import ActionsWrapper from "@/src/shared/components/ActionsWrapper";
+import ActionsWrapper from "@/shared/components/ActionsWrapper";
 import { Plus } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useNavigate } from 'react-router-dom';
 
 export default function PeriodActions() {
-  const { push } = useRouter();
+  const push = useNavigate();
 
   const handleAddPeriod = () => {
     push("./periodos/agregar");

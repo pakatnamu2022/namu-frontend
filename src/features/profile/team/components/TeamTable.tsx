@@ -1,6 +1,6 @@
-import { DataTable } from "@/src/shared/components/DataTable";
+import { DataTable } from "@/shared/components/DataTable";
 import { TeamColumns } from "./TeamColumns";
-import { EvaluationPersonResultResource } from "@/src/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/lib/evaluationPerson.interface";
+import { EvaluationPersonResultResource } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/lib/evaluationPerson.interface";
 
 interface Props {
   columns: TeamColumns[];

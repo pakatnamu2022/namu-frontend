@@ -5,7 +5,7 @@ import {
   CommercialManagerBrandGroupResponse,
   getCommercialManagerBrandGroupProps,
 } from "./commercialManagerBrandGroup.interface";
-import { api } from "@/src/core/api";
+import { api } from "@/core/api";
 
 const { ENDPOINT } = COMMERCIAL_MANAGER_BRAND_GROUP;
 

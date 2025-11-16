@@ -4,10 +4,10 @@ import {
   ProductTypeResource,
   ProductTypeResponse,
 } from "./productType.interface";
-import { api } from "@/src/core/api";
-import { GeneralResponse } from "@/src/shared/lib/response.interface";
+import { api } from "@/core/api";
+import { GeneralResponse } from "@/shared/lib/response.interface";
 import { PRODUCT_TYPE } from "./productType.constants";
-import { AP_MASTER_COMERCIAL } from "@/src/features/ap/lib/ap.constants";
+import { AP_MASTER_COMERCIAL } from "@/features/ap/lib/ap.constants";
 
 const { ENDPOINT } = PRODUCT_TYPE;
 

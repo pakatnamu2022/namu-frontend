@@ -3,15 +3,15 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { User, Car, IdCard, Phone, PanelRightClose } from "lucide-react";
-import { OpportunityResource } from "../lib/opportunities.interface";
+import type { OpportunityResource } from "../lib/opportunities.interface";
 import {
   HOVER_TEXT_OPPORTUNITY_STATUS_COLORS,
   OPPORTUNITIES,
   OPPORTUNITY_STATUS_COLORS,
   TEXT_OPPORTUNITY_STATUS_COLORS,
 } from "../lib/opportunities.constants";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
+import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
 interface OpportunityCardProps {
@@ -31,7 +31,7 @@ export const OpportunityCard = ({
   showOpenButton = false,
   noWrapper = false,
 }: OpportunityCardProps) => {
-  const router = useRouter();
+  const router = useNavigate();
   const statusColor =
     OPPORTUNITY_STATUS_COLORS[opportunity.opportunity_status] ||
     "bg-gray-500 text-white";
@@ -55,7 +55,7 @@ export const OpportunityCard = ({
     if (onClick) {
       onClick();
     } else {
-      router.push(`/ap/comercial/oportunidades/${opportunity.id}`);
+      router(`/ap/comercial/oportunidades/${opportunity.id}`);
     }
   };
 
@@ -110,7 +110,7 @@ export const OpportunityCard = ({
 
         {showOpenButton && (
           <Link
-            href={`${ABSOLUTE_ROUTE}/${opportunity.id}`}
+            to={`${ABSOLUTE_ROUTE}/${opportunity.id}`}
             onClick={(e) => e.stopPropagation()}
             onMouseDown={(e) => e.stopPropagation()}
             onPointerDown={(e) => e.stopPropagation()}

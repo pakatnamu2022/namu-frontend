@@ -17,8 +17,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
 import { useAllTypesCategory } from "../../tipos-categoria/lib/typesCategory.hook";
-import FormSkeleton from "@/src/shared/components/FormSkeleton";
-import { FormSelect } from "@/src/shared/components/FormSelect";
+import FormSkeleton from "@/shared/components/FormSkeleton";
+import { FormSelect } from "@/shared/components/FormSelect";
 
 interface ProductCategoryFormProps {
   defaultValues: Partial<ProductCategorySchema>;

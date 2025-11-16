@@ -1,8 +1,8 @@
-import { ColumnDef } from "@tanstack/react-table";
-import { DeleteButton } from "@/src/shared/components/SimpleDeleteDialog";
+import type { ColumnDef } from "@tanstack/react-table";
+import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { StoreVisitsResource } from "../lib/storeVisits.interface";
 import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
+import { useNavigate } from 'react-router-dom';
 import { Pencil } from "lucide-react";
 import { STORE_VISITS } from "../lib/storeVisits.constants";
 
@@ -64,7 +64,7 @@ export const storeVisitsColumns = ({
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
-      const router = useRouter();
+      const router = useNavigate();
       const { id } = row.original;
       const { ROUTE_UPDATE } = STORE_VISITS;
 
@@ -77,7 +77,7 @@ export const storeVisitsColumns = ({
               size="icon"
               className="size-7"
               tooltip="Editar"
-              onClick={() => router.push(`${ROUTE_UPDATE}/${id}`)}
+              onClick={() => router(`${ROUTE_UPDATE}/${id}`)}
             >
               <Pencil className="size-5" />
             </Button>

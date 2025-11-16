@@ -1,5 +1,5 @@
-import { api } from "@/src/core/api";
-import { GeneralResponse } from "@/src/shared/lib/response.interface";
+import { api } from "@/core/api";
+import { GeneralResponse } from "@/shared/lib/response.interface";
 import { AxiosRequestConfig } from "axios";
 import { getRolesProps, RoleResource, RoleResponse } from "./role.interface";
 import { UserResource } from "../../usuarios/lib/user.interface";

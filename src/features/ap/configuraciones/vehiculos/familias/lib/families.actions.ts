@@ -4,9 +4,9 @@ import {
   FamiliesResponse,
   getFamiliesProps,
 } from "./families.interface";
-import { api } from "@/src/core/api";
-import { STATUS_ACTIVE } from "@/src/core/core.constants";
-import { GeneralResponse } from "@/src/shared/lib/response.interface";
+import { api } from "@/core/api";
+import { STATUS_ACTIVE } from "@/core/core.constants";
+import { GeneralResponse } from "@/shared/lib/response.interface";
 import { FAMILIES } from "./families.constants";
 
 const { ENDPOINT } = FAMILIES;

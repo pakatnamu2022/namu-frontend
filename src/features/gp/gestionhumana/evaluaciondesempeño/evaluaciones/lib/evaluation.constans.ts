@@ -1,4 +1,4 @@
-import { ModelComplete, Option } from "@/src/core/core.interface";
+import { ModelComplete, Option } from "@/core/core.interface";
 
 const ROUTE = "evaluaciones";
 export const EVALUATION_ABSOLUTE_ROUTE = `/gp/gestion-humana/evaluaciones-de-desempeno/${ROUTE}`;

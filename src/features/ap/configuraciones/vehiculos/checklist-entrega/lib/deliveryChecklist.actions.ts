@@ -1,4 +1,4 @@
-import { api } from "@/src/core/api";
+import { api } from "@/core/api";
 import { ITEM_DELIVERY } from "./deliveryChecklist.constants";
 import {
   DeliveryChecklistResource,
@@ -6,8 +6,8 @@ import {
   getDeliveryChecklistProps,
 } from "./deliveryChecklist.interface";
 import { AxiosRequestConfig } from "axios";
-import { GeneralResponse } from "@/src/shared/lib/response.interface";
-import { AP_CHECKLIST } from "@/src/core/core.constants";
+import { GeneralResponse } from "@/shared/lib/response.interface";
+import { AP_CHECKLIST } from "@/core/core.constants";
 
 const { ENDPOINT } = ITEM_DELIVERY;
 

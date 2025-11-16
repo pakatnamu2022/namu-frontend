@@ -4,9 +4,9 @@ import {
   AssignCompanyBranchResponse,
   getAssignCompanyBranchProps,
 } from "./assignCompanyBranch.interface";
-import { api } from "@/src/core/api";
+import { api } from "@/core/api";
 import { ASSIGN_COMPANY_BRANCH } from "./assignCompanyBranch.constants";
-import { WorkerResource } from "@/src/features/gp/gestionhumana/personal/trabajadores/lib/worker.interface";
+import { WorkerResource } from "@/features/gp/gestionhumana/personal/trabajadores/lib/worker.interface";
 
 const { ENDPOINT } = ASSIGN_COMPANY_BRANCH;
 

@@ -24,24 +24,24 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import GeneralSheet from "@/src/shared/components/GeneralSheet";
-import { FormSelect } from "@/src/shared/components/FormSelect";
-import { FormSwitch } from "@/src/shared/components/FormSwitch";
-import { SearchableSelect } from "@/src/shared/components/SearchableSelect";
-import { SUNAT_CONCEPTS_TYPE } from "@/src/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
-import { useAllSunatConcepts } from "@/src/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.hook";
+import GeneralSheet from "@/shared/components/GeneralSheet";
+import { FormSelect } from "@/shared/components/FormSelect";
+import { FormSwitch } from "@/shared/components/FormSwitch";
+import { SearchableSelect } from "@/shared/components/SearchableSelect";
+import { SUNAT_CONCEPTS_TYPE } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
+import { useAllSunatConcepts } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.hook";
 import { ElectronicDocumentItem } from "../lib/electronicDocument.interface";
-import { useAuthorizedSeries } from "@/src/features/ap/configuraciones/maestros-general/asignar-serie-usuario/lib/userSeriesAssignment.hook";
+import { useAuthorizedSeries } from "@/features/ap/configuraciones/maestros-general/asignar-serie-usuario/lib/userSeriesAssignment.hook";
 import {
   DebitNoteSchema,
   DebitNoteItemSchema,
 } from "../lib/electronicDocument.schema";
 import { getNextDebitNoteNumber } from "../lib/electronicDocument.actions";
-import { TYPE_RECEIPT_SERIES } from "@/src/features/ap/configuraciones/maestros-general/asignar-serie-venta/lib/assignSalesSeries.constants";
+import { TYPE_RECEIPT_SERIES } from "@/features/ap/configuraciones/maestros-general/asignar-serie-venta/lib/assignSalesSeries.constants";
 import { UNIT_MEASURES } from "../lib/electronicDocument.constants";
-import { useAllAccountingAccountPlan } from "@/src/features/ap/configuraciones/maestros-general/plan-cuenta-contable/lib/accountingAccountPlan.hook";
-import { DataTable } from "@/src/shared/components/DataTable";
-import { ColumnDef } from "@tanstack/react-table";
+import { useAllAccountingAccountPlan } from "@/features/ap/configuraciones/maestros-general/plan-cuenta-contable/lib/accountingAccountPlan.hook";
+import { DataTable } from "@/shared/components/DataTable";
+import type { ColumnDef } from "@tanstack/react-table";
 
 // Export the type for backward compatibility
 export type DebitNoteData = DebitNoteSchema;

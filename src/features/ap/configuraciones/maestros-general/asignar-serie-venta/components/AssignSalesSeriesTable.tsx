@@ -1,4 +1,4 @@
-import { DataTable } from "@/src/shared/components/DataTable";
+import { DataTable } from "@/shared/components/DataTable";
 import { AssignSalesSeriesColumns } from "./AssignSalesSeriesColumns";
 import { AssignSalesSeriesResource } from "../lib/assignSalesSeries.interface";
 

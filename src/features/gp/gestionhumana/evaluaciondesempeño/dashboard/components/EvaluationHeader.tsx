@@ -14,7 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { EvaluationResource } from "../../evaluaciones/lib/evaluation.interface";
 import { parse } from "date-fns";
-import Link from "next/link";
+import { Link } from 'react-router-dom'
 
 interface EvaluationHeaderProps {
   evaluationData: EvaluationResource;

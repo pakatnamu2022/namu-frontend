@@ -1,4 +1,4 @@
-import { DataTable } from "@/src/shared/components/DataTable";
+import { DataTable } from "@/shared/components/DataTable";
 import { FamiliesResource } from "../lib/families.interface";
 import { FamiliesColumns } from "./FamiliesColumns";
 

@@ -1,4 +1,4 @@
-import { DataTable } from "@/src/shared/components/DataTable";
+import { DataTable } from "@/shared/components/DataTable";
 import { UnitMeasurementColumns } from "./UnitMeasurementColumns";
 import { UnitMeasurementResource } from "../lib/unitMeasurement.interface";
 

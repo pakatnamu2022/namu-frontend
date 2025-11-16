@@ -4,9 +4,9 @@ import {
   errorToast,
   SUCCESS_MESSAGE,
   successToast,
-} from "@/src/core/core.function";
-import { GeneralModal } from "@/src/shared/components/GeneralModal";
-import FormSkeleton from "@/src/shared/components/FormSkeleton";
+} from "@/core/core.function";
+import { GeneralModal } from "@/shared/components/GeneralModal";
+import FormSkeleton from "@/shared/components/FormSkeleton";
 import { ApSafeCreditGoalForm } from "./ApSafeCreditGoalForm";
 import { AP_SAFE_CREDIT_GOAL } from "../lib/apSafeCreditGoal.constants";
 import { useApSafeCreditGoalById } from "../lib/apSafeCreditGoal.hook";

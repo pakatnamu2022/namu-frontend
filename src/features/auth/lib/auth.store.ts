@@ -1,11 +1,11 @@
 import { create } from "zustand";
-import {
+import type {
   AuthRequest,
   AuthResponseUser,
   ModulePermissions,
 } from "./auth.interface";
 import { authenticate, login } from "./auth.actions";
-import { ViewsResponseOpcionesMenu } from "../../views/lib/views.interface";
+import type { ViewsResponseOpcionesMenu } from "../../views/lib/views.interface";
 
 const getInitialToken = () => {
   if (typeof window !== "undefined") {

@@ -15,7 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
-import Link from "next/link";
+import { Link } from 'react-router-dom'
 import {
   parameterSchemaCreate,
   parameterSchemaUpdate,
@@ -34,7 +34,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { PARAMETER_SCALES, PARAMETER_TYPES } from "../lib/parameter.constans";
-import { FormSelect } from "@/src/shared/components/FormSelect";
+import { FormSelect } from "@/shared/components/FormSelect";
 import { useFormContext } from "react-hook-form";
 import { getScales } from "../lib/parameter.hook";
 
@@ -284,7 +284,7 @@ export default function ParameterForm({
         </div>
 
         <div className="flex gap-4 w-full justify-end">
-          <Link href={mode === "create" ? "./" : "../"}>
+          <Link to={mode === "create" ? "./" : "../"}>
             <Button type="button" variant="outline">
               Cancelar
             </Button>

@@ -4,10 +4,10 @@ import {
   SidebarGroupLabel,
   SidebarMenu,
 } from "@/components/ui/sidebar";
-import { useAuthStore } from "@/src/features/auth/lib/auth.store";
+import { useAuthStore } from "@/features/auth/lib/auth.store";
 import renderSidebarItems from "./SidebarItems";
-import { useCurrentModule } from "@/src/shared/hooks/useCurrentModule";
-import MenuSkeleton from "@/src/shared/components/MenuSkeleton";
+import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
+import MenuSkeleton from "@/shared/components/MenuSkeleton";
 
 export default function SidebarDynamicMenu() {
   const { permissions } = useAuthStore();

@@ -1,4 +1,4 @@
-import { MonthOption } from "./core.interface";
+import type { MonthOption } from "./core.interface";
 
 export const ACTIONS_NAMES: Record<string, string> = {
   create: "cread",

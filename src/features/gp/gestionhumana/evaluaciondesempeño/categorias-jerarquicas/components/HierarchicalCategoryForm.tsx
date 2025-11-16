@@ -19,7 +19,7 @@ import {
   hierarchicalCategorySchemaUpdate,
 } from "../lib/hierarchicalCategory.schema";
 import { Loader } from "lucide-react";
-import Link from "next/link";
+import { Link } from 'react-router-dom'
 import { Switch } from "@/components/ui/switch";
 
 interface HierarchicalCategoryFormProps {
@@ -135,7 +135,7 @@ export const HierarchicalCategoryForm = ({
         </pre> */}
 
         <div className="flex gap-4 w-full justify-end">
-          <Link href={mode === "create" ? "./" : "../"}>
+          <Link to={mode === "create" ? "./" : "../"}>
             <Button type="button" variant="outline">
               Cancelar
             </Button>

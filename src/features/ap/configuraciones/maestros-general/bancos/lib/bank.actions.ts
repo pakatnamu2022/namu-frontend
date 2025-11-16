@@ -1,8 +1,8 @@
 import { AxiosRequestConfig } from "axios";
 import { BankResource, BankResponse, getBankProps } from "./bank.interface";
-import { STATUS_ACTIVE } from "@/src/core/core.constants";
-import { api } from "@/src/core/api";
-import { GeneralResponse } from "@/src/shared/lib/response.interface";
+import { STATUS_ACTIVE } from "@/core/core.constants";
+import { api } from "@/core/api";
+import { GeneralResponse } from "@/shared/lib/response.interface";
 import { BANK } from "./bank.constants";
 import { AP_MASTER_COMERCIAL } from "../../../../lib/ap.constants";
 

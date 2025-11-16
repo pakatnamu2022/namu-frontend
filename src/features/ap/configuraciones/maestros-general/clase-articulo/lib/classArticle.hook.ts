@@ -4,7 +4,7 @@ import {
   ClassArticleResponse,
 } from "./classArticle.interface";
 import { getAllClassArticle, getClassArticle } from "./classArticle.actions";
-import { findBrandsById } from "@/src/features/ap/configuraciones/vehiculos/marcas/lib/brands.actions";
+import { findBrandsById } from "@/features/ap/configuraciones/vehiculos/marcas/lib/brands.actions";
 import { CLASS_ARTICLE } from "./classArticle.constants";
 
 const { QUERY_KEY } = CLASS_ARTICLE;

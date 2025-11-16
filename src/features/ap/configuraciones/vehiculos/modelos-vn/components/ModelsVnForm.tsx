@@ -22,21 +22,21 @@ import { ClipboardMinus } from "lucide-react";
 import { Settings } from "lucide-react";
 import { CircleDollarSign } from "lucide-react";
 import { useAllBrands } from "../../marcas/lib/brands.hook";
-import { FormSelect } from "@/src/shared/components/FormSelect";
+import { FormSelect } from "@/shared/components/FormSelect";
 import { useAllFamilies } from "../../familias/lib/families.hook";
-import { useAllClassArticle } from "@/src/features/ap/configuraciones/maestros-general/clase-articulo/lib/classArticle.hook";
+import { useAllClassArticle } from "@/features/ap/configuraciones/maestros-general/clase-articulo/lib/classArticle.hook";
 import { useAllFuelType } from "../../tipos-combustible/lib/fuelType.hook";
 import { useAllVehicleType } from "../../tipos-vehiculo/lib/vehicleType.hook";
 import { useAllBodyType } from "../../tipos-carroceria/lib/bodyType.hook";
 import { useAllTractionType } from "../../tipos-traccion/lib/tractionType.hook";
 import { useAllGearShiftType } from "../../transmision-vehiculo/lib/gearShiftType.hook";
 import { useEffect, useRef } from "react";
-import { calculateIGV } from "@/src/core/core.function";
-import FormSkeleton from "@/src/shared/components/FormSkeleton";
-import { useAllCurrencyTypes } from "@/src/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.hook";
-import { ConfirmationDialog } from "@/src/shared/components/ConfirmationDialog";
-import { useRouter } from "next/navigation";
-import { GroupFormSection } from "@/src/shared/components/GroupFormSection";
+import { calculateIGV } from "@/core/core.function";
+import FormSkeleton from "@/shared/components/FormSkeleton";
+import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.hook";
+import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
+import { useNavigate } from 'react-router-dom';
+import { GroupFormSection } from "@/shared/components/GroupFormSection";
 
 interface ModelsVnFormProps {
   defaultValues: Partial<ModelsVnSchema>;
@@ -51,7 +51,7 @@ export const ModelsVnForm = ({
   isSubmitting = false,
   mode = "create",
 }: ModelsVnFormProps) => {
-  const router = useRouter();
+  const router = useNavigate();
   const form = useForm({
     resolver: zodResolver(
       mode === "create" ? modelsVnSchemaCreate : modelsVnSchemaUpdate
@@ -786,7 +786,7 @@ export const ModelsVnForm = ({
             variant="destructive"
             icon="warning"
             onConfirm={() => {
-              router.push(mode === "create" ? "./" : "../");
+              router(mode === "create" ? "./" : "../");
             }}
           />
 

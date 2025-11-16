@@ -1,11 +1,11 @@
-import { api } from "@/src/core/api";
+import { api } from "@/core/api";
 import { AxiosRequestConfig } from "axios";
 import {
   getVehiclesDeliveryProps,
   VehiclesDeliveryResource,
   VehiclesDeliveryResponse,
 } from "./vehicleDelivery.interface";
-import { GeneralResponse } from "@/src/shared/lib/response.interface";
+import { GeneralResponse } from "@/shared/lib/response.interface";
 import { VEHICLE_DELIVERY } from "./vehicleDelivery.constants";
 import {
   QueryFromNubefactResponse,

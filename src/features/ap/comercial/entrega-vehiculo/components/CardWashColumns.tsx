@@ -1,13 +1,13 @@
 "use client";
 
-import { ColumnDef } from "@tanstack/react-table";
+import type { ColumnDef } from "@tanstack/react-table";
 import { VehiclesDeliveryResource } from "../lib/vehicleDelivery.interface";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2 } from "lucide-react";
-import { ConfirmationDialog } from "@/src/shared/components/ConfirmationDialog";
+import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 
 export type VehicleDeliveryColumns = ColumnDef<VehiclesDeliveryResource>;
 

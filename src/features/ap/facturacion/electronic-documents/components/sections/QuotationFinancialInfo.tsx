@@ -1,9 +1,9 @@
 import { TrendingUp } from "lucide-react";
-import { GroupFormSection } from "@/src/shared/components/GroupFormSection";
+import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { Progress } from "@/components/ui/progress";
-import { PurchaseRequestQuoteResource } from "@/src/features/ap/comercial/solicitudes-cotizaciones/lib/purchaseRequestQuote.interface";
+import { PurchaseRequestQuoteResource } from "@/features/ap/comercial/solicitudes-cotizaciones/lib/purchaseRequestQuote.interface";
 import { ElectronicDocumentResource } from "../../lib/electronicDocument.interface";
-import { SUNAT_TYPE_INVOICES_ID } from "@/src/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
+import { SUNAT_TYPE_INVOICES_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
 
 interface QuotationFinancialInfoProps {
   quotation: PurchaseRequestQuoteResource;

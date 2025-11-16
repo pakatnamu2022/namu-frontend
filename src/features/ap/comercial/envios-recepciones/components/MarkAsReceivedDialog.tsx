@@ -14,7 +14,7 @@ import { CheckCircle2 } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
-import RequiredField from "@/src/shared/components/RequiredField";
+import RequiredField from "@/shared/components/RequiredField";
 
 interface MarkAsReceivedDialogProps {
   open: boolean;

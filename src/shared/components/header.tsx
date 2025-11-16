@@ -1,22 +1,18 @@
 "use client";
 
-import Image from "next/image";
-import Link from "next/link";
+import { Link } from "react-router-dom";
 import ProfileHeader from "./ProfileHeader";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { CONSTANTS } from "@/src/core/core.constants";
-import { useTheme } from "next-themes";
+// import { CONSTANTS } from "@/core/core.constants";
+import { useTheme } from "@/components/theme-provider";
 import { useEffect, useState } from "react";
+import { CONSTANTS } from "@/core/core.constants";
 
 export const LogoLink = ({ theme = "light" }: { theme?: string }) => (
-  <Link
-    href={"/companies"}
-    className="relative h-12 aspect-[3] w-full lg:w-fit"
-  >
-    <Image
+  <Link to={"/companies"} className="relative h-12 aspect-[3] w-full lg:w-fit">
+    <img
       src={theme === "dark" ? CONSTANTS.LOGO_WHITE : CONSTANTS.LOGO}
       alt="Logo"
-      fill
     />
   </Link>
 );

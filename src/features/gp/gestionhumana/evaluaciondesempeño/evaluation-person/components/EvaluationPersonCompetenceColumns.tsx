@@ -1,8 +1,8 @@
 "use client";
-import { ColumnDef } from "@tanstack/react-table";
+import type { ColumnDef } from "@tanstack/react-table";
 import { Subcompetence } from "../lib/evaluationPerson.interface";
 import { Badge } from "@/components/ui/badge";
-import { EditableCell } from "@/src/shared/components/EditableCell";
+import { EditableCell } from "@/shared/components/EditableCell";
 import {
   Target,
   User,

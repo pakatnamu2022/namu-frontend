@@ -1,5 +1,5 @@
-import { Links, Meta } from "@/src/shared/lib/pagination.interface";
-import { ModelsVnResource } from "@/src/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.interface";
+import { Links, Meta } from "@/shared/lib/pagination.interface";
+import { ModelsVnResource } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.interface";
 
 export interface VehicleResponse {
   data: VehicleResource[];

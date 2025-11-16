@@ -6,8 +6,8 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { useCurrentModule } from "@/src/shared/hooks/useCurrentModule";
-import Link from "next/link";
+import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
+import { Link } from 'react-router-dom'
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function BreadCrumbHeader() {

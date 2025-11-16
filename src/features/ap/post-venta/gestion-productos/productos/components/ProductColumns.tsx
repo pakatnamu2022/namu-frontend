@@ -1,10 +1,10 @@
-import { ColumnDef } from "@tanstack/react-table";
+import type { ColumnDef } from "@tanstack/react-table";
 import { ProductResource } from "../lib/product.interface";
 import { Button } from "@/components/ui/button";
 import { Pencil, RefreshCw } from "lucide-react";
-import { DeleteButton } from "@/src/shared/components/SimpleDeleteDialog";
+import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { Badge } from "@/components/ui/badge";
-import Link from "next/link";
+import { Link } from 'react-router-dom'
 import {
   Select,
   SelectContent,
@@ -177,7 +177,7 @@ export const productColumns = ({
 
           {/* Edit */}
           {permissions.canUpdate && (
-            <Link href={`./productos/actualizar/${id}`}>
+            <Link to={`./productos/actualizar/${id}`}>
               <Button variant="outline" size="icon" className="size-7">
                 <Pencil className="size-5" />
               </Button>

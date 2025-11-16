@@ -2,13 +2,13 @@
 
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useNavigate } from 'react-router-dom';
 import { EVALUATION } from "../lib/evaluation.constans";
 
 const { MODEL, ROUTE_ADD } = EVALUATION;
 
 export default function EvaluationActions() {
-  const { push } = useRouter();
+  const push = useNavigate();
 
   const handleAddCompetence = () => {
     push(`./${ROUTE_ADD}`);

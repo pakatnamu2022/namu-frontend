@@ -2,9 +2,9 @@
 
 import { useState, useMemo, useEffect } from "react";
 import { PermissionsActions } from "./PermissionsActions";
-import { useRouter } from "next/navigation";
-import { successToast, errorToast } from "@/src/core/core.function";
-import { api } from "@/src/core/api";
+import { useNavigate } from 'react-router-dom';
+import { successToast, errorToast } from "@/core/core.function";
+import { api } from "@/core/api";
 import { CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -22,12 +22,12 @@ import {
   Trash2,
   CheckCheck,
 } from "lucide-react";
-import { useAllViewPermission } from "@/src/features/gp/gestionsistema/vistas/lib/view.hook";
+import { useAllViewPermission } from "@/features/gp/gestionsistema/vistas/lib/view.hook";
 import * as LucideIcons from "lucide-react";
-import DataTablePagination from "@/src/shared/components/DataTablePagination";
+import DataTablePagination from "@/shared/components/DataTablePagination";
 
 export default function PermissionsForm({ id }: { id: number }) {
-  const router = useRouter();
+  const router = useNavigate();
 
   // State for search and pagination
   const [searchInput, setSearchInput] = useState(""); // Input value (immediate)
@@ -69,7 +69,7 @@ export default function PermissionsForm({ id }: { id: number }) {
   });
 
   const handleCancel = () => {
-    router.push("../");
+    router("../");
   };
 
   // Get all views from the response

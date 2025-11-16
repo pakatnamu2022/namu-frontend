@@ -1,5 +1,5 @@
-import SearchInput from "@/src/shared/components/SearchInput";
-import { SearchableSelect } from "@/src/shared/components/SearchableSelect";
+import SearchInput from "@/shared/components/SearchInput";
+import { SearchableSelect } from "@/shared/components/SearchableSelect";
 import { BrandsResource } from "../../marcas/lib/brands.interface";
 
 interface Props {

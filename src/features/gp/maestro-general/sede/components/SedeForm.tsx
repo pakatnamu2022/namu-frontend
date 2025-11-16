@@ -9,11 +9,11 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import Link from "next/link";
+import { Link } from 'react-router-dom'
 import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
-import { FormSelect } from "@/src/shared/components/FormSelect";
-import FormSkeleton from "@/src/shared/components/FormSkeleton";
+import { FormSelect } from "@/shared/components/FormSelect";
+import FormSkeleton from "@/shared/components/FormSkeleton";
 import {
   SedeSchema,
   sedeSchemaCreate,
@@ -240,7 +240,7 @@ export const SedeForm = ({
           />
         </div>
         <div className="flex gap-4 w-full justify-end">
-          <Link href={mode === "create" ? "./" : "../"}>
+          <Link to={mode === "create" ? "./" : "../"}>
             <Button type="button" variant="outline">
               Cancelar
             </Button>

@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/chart";
 import { Bar, BarChart, CartesianGrid, Cell, Rectangle, XAxis } from "recharts";
 
-import { ResultsStats } from "@/src/features/gp/gestionhumana/evaluaciondesempeño/evaluaciones/lib/evaluation.interface";
+import { ResultsStats } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluaciones/lib/evaluation.interface";
 import { SCALE_TO_COLOR_MAP } from "../../parametros/lib/parameter.constans";
 import { getScales } from "../../parametros/lib/parameter.hook";
 

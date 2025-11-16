@@ -24,7 +24,7 @@ import { cn } from "@/lib/utils";
 import { Control } from "react-hook-form";
 import { useState } from "react";
 import React from "react";
-import { Option } from "@/src/core/core.interface";
+import { Option } from "@/core/core.interface";
 import {
   Tooltip,
   TooltipContent,

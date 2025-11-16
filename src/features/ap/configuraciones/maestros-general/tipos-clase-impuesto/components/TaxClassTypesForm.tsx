@@ -18,7 +18,7 @@ import {
   taxClassTypesSchemaCreate,
   taxClassTypesSchemaUpdate,
 } from "../lib/taxClassTypes.schema";
-import { FormSelect } from "@/src/shared/components/FormSelect";
+import { FormSelect } from "@/shared/components/FormSelect";
 
 interface TaxClassTypesFormProps {
   defaultValues: Partial<TaxClassTypesSchema>;

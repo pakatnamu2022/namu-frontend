@@ -4,8 +4,8 @@ import {
   ClassArticleResponse,
   getClassArticleProps,
 } from "./classArticle.interface";
-import { api } from "@/src/core/api";
-import { STATUS_ACTIVE } from "@/src/core/core.constants";
+import { api } from "@/core/api";
+import { STATUS_ACTIVE } from "@/core/core.constants";
 import { CLASS_ARTICLE } from "./classArticle.constants";
 
 const { ENDPOINT } = CLASS_ARTICLE;

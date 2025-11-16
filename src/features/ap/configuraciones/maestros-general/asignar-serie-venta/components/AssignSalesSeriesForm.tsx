@@ -14,13 +14,13 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import Link from "next/link";
+import { Link } from 'react-router-dom'
 import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
-import { FormSelect } from "@/src/shared/components/FormSelect";
-import { useAllSedes } from "@/src/features/gp/maestro-general/sede/lib/sede.hook";
-import { EMPRESA_AP } from "@/src/core/core.constants";
-import FormSkeleton from "@/src/shared/components/FormSkeleton";
+import { FormSelect } from "@/shared/components/FormSelect";
+import { useAllSedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
+import { EMPRESA_AP } from "@/core/core.constants";
+import FormSkeleton from "@/shared/components/FormSkeleton";
 import { useAllVoucherTypes } from "../../tipos-comprobante/lib/voucherTypes.hook";
 import { useAllTypesOperation } from "../../tipos-operacion/lib/typesOperation.hook";
 
@@ -126,7 +126,7 @@ export const AssignSalesSeriesForm = ({
           />
         </div>
         <div className="flex gap-4 w-full justify-end">
-          <Link href={mode === "create" ? "" : "../"}>
+          <Link to={mode === "create" ? "" : "../"}>
             <Button type="button" variant="outline">
               Cancelar
             </Button>

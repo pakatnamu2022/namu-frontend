@@ -18,7 +18,7 @@ import {
   metricSchemaUpdate,
 } from "../lib/metric.schema";
 import { Loader } from "lucide-react";
-import Link from "next/link";
+import { Link } from 'react-router-dom'
 
 interface MetricFormProps {
   defaultValues: Partial<MetricSchema>;
@@ -85,7 +85,7 @@ export const MetricForm = ({
         </pre> */}
 
         <div className="flex gap-4 w-full justify-end">
-          <Link href={mode === "create" ? "./" : "../"}>
+          <Link to={mode === "create" ? "./" : "../"}>
             <Button type="button" variant="outline">
               Cancelar
             </Button>

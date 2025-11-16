@@ -13,8 +13,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader } from "lucide-react";
-import FormSkeleton from "@/src/shared/components/FormSkeleton";
-import { FormSelect } from "@/src/shared/components/FormSelect";
+import FormSkeleton from "@/shared/components/FormSkeleton";
+import { FormSelect } from "@/shared/components/FormSelect";
 import {
   OpportunityActionSchema,
   opportunityActionSchemaCreate,

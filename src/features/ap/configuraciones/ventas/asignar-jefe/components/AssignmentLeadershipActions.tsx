@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
+import { useNavigate } from 'react-router-dom';
 import { ASSIGNMENT_LEADERSHIP } from "../lib/assignmentLeadership.constants";
 import { Plus } from "lucide-react";
 
@@ -12,7 +12,7 @@ interface AssignmentLeadershipProps {
 export default function AssignmentLeadershipActions({
   permissions,
 }: AssignmentLeadershipProps) {
-  const router = useRouter();
+  const router = useNavigate();
   const { ROUTE_ADD } = ASSIGNMENT_LEADERSHIP;
 
   if (!permissions.canCreate) {
@@ -25,7 +25,7 @@ export default function AssignmentLeadershipActions({
         size="sm"
         variant="outline"
         className="ml-auto"
-        onClick={() => router.push(ROUTE_ADD!)}
+        onClick={() => router(ROUTE_ADD!)}
       >
         <Plus className="size-4 mr-2" /> Agregar Asignación
       </Button>

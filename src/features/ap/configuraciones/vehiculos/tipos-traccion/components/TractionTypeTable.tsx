@@ -1,4 +1,4 @@
-import { DataTable } from "@/src/shared/components/DataTable";
+import { DataTable } from "@/shared/components/DataTable";
 import { TractionTypeResource } from "../lib/tractionType.interface";
 import { TractionTypeColumns } from "./TractionTypeColumns";
 

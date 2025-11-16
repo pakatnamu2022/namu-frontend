@@ -6,8 +6,8 @@ import * as LucideReact from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useEffect } from "react";
-import { useCurrentModule } from "@/src/shared/hooks/useCurrentModule";
-import BackButton from "@/src/shared/components/BackButton";
+import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
+import BackButton from "@/shared/components/BackButton";
 import { useAuthStore } from "../../auth/lib/auth.store";
 
 export default function ModulesGrid({

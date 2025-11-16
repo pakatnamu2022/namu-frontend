@@ -6,9 +6,9 @@ import {
   errorToast,
   SUCCESS_MESSAGE,
   successToast,
-} from "@/src/core/core.function";
-import FormSkeleton from "@/src/shared/components/FormSkeleton";
-import { GeneralModal } from "@/src/shared/components/GeneralModal";
+} from "@/core/core.function";
+import FormSkeleton from "@/shared/components/FormSkeleton";
+import { GeneralModal } from "@/shared/components/GeneralModal";
 import {
   storeReasonsRejection,
   updateReasonsRejection,

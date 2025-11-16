@@ -1,6 +1,6 @@
 "use client";
 
-import { useAuthStore } from "@/src/features/auth/lib/auth.store";
+import { useAuthStore } from "@/features/auth/lib/auth.store";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 

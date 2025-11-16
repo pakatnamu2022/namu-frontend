@@ -1,4 +1,4 @@
-import { ModelComplete } from "@/src/core/core.interface";
+import { ModelComplete } from "@/core/core.interface";
 import { AgendaResource } from "./agenda.interface";
 
 const ROUTE = "agenda";

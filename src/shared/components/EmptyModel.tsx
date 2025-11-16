@@ -9,14 +9,14 @@ import {
 } from "@/components/ui/empty";
 import * as LucideReact from "lucide-react";
 import { useCurrentModule } from "../hooks/useCurrentModule";
-import { useRouter } from "next/navigation";
+import { useNavigate } from 'react-router-dom';
 
 interface Props {
   route: string;
 }
 
 export default function EmptyModel({ route }: Props) {
-  const { push } = useRouter();
+  const push = useNavigate();
   const { currentView } = useCurrentModule();
 
   const title = currentView?.descripcion || "Sin datos";

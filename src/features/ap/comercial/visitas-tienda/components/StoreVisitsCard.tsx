@@ -11,9 +11,9 @@ import {
   UserCog,
 } from "lucide-react";
 import { StoreVisitsResource } from "../lib/storeVisits.interface";
-import { DeleteButton } from "@/src/shared/components/SimpleDeleteDialog";
+import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { Pencil } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useNavigate } from 'react-router-dom';
 import { STORE_VISITS } from "../lib/storeVisits.constants";
 
 interface Props {
@@ -28,7 +28,7 @@ export default function StoreVisitsCard({
   onDelete,
   enableContactIcons = false,
 }: Props) {
-  const router = useRouter();
+  const router = useNavigate();
   const { ROUTE_UPDATE } = STORE_VISITS;
 
   const hasPhone = data.phone && data.phone.trim() !== "";
@@ -157,7 +157,7 @@ export default function StoreVisitsCard({
                     className="h-9 gap-2 text-xs font-medium bgprimary text-white"
                     asChild
                   >
-                    <a href={`tel:+51${formatPhoneForLinks(data.phone)}`}>
+                    <Link href={`tel:+51${formatPhoneForLinks(data.phone)}`}>
                       <Phone className="size-3.5" />
                       Llamar
                     </a>
@@ -167,7 +167,7 @@ export default function StoreVisitsCard({
                     className="h-9 gap-2 text-xs font-medium bg-green-700 hover:bg-green-700 text-white"
                     asChild
                   >
-                    <a
+                    <Link
                       href={`https://wa.me/51${formatPhoneForLinks(
                         data.phone
                       )}`}
@@ -204,7 +204,7 @@ export default function StoreVisitsCard({
                     className="h-9 gap-2 text-xs font-medium bg-secondary hover:bg-secondary text-white"
                     asChild
                   >
-                    <a href={`mailto:${data.email}`}>
+                    <Link href={`mailto:${data.email}`}>
                       <Mail className="size-3.5" />
                       Enviar correo
                     </a>
@@ -221,7 +221,7 @@ export default function StoreVisitsCard({
             variant="outline"
             size="sm"
             className="h-9 gap-2 font-medium hover:bg-white"
-            onClick={() => router.push(`${ROUTE_UPDATE}/${data.id}`)}
+            onClick={() => router(`${ROUTE_UPDATE}/${data.id}`)}
           >
             <Pencil className="size-4" />
           </Button>

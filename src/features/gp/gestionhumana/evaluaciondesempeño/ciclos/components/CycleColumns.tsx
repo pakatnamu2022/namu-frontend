@@ -1,11 +1,11 @@
 "use client";
 
-import { ColumnDef } from "@tanstack/react-table";
+import type { ColumnDef } from "@tanstack/react-table";
 import { CycleResource } from "../lib/cycle.interface";
 import { Button } from "@/components/ui/button";
 import { PanelRightClose, Pencil, Plus } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { DeleteButton } from "@/src/shared/components/SimpleDeleteDialog";
+import { useNavigate } from 'react-router-dom';
+import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { format, parse } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -13,7 +13,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import Link from "next/link";
+import { Link } from 'react-router-dom'
 
 export type CycleColumns = ColumnDef<CycleResource>;
 
@@ -196,7 +196,7 @@ export const cycleColumns = ({
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
-      const router = useRouter();
+      const router = useNavigate();
       const id = row.original.id;
 
       return (
@@ -207,7 +207,7 @@ export const cycleColumns = ({
             size="icon"
             className="size-7"
             tooltip="Ver detalles del ciclo"
-            onClick={() => router.push(`./ciclos/${id}`)}
+            onClick={() => router(`./ciclos/${id}`)}
           >
             <PanelRightClose className="size-5" />
           </Button>
@@ -218,7 +218,7 @@ export const cycleColumns = ({
             size="icon"
             className="size-7"
             tooltip="Editar ciclo"
-            onClick={() => router.push(`./ciclos/actualizar/${id}`)}
+            onClick={() => router(`./ciclos/actualizar/${id}`)}
           >
             <Pencil className="size-5" />
           </Button>

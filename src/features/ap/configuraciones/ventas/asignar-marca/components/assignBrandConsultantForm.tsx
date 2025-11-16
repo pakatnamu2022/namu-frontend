@@ -10,10 +10,10 @@ import {
   FormControl,
   FormMessage,
 } from "@/components/ui/form";
-import FormSkeleton from "@/src/shared/components/FormSkeleton";
+import FormSkeleton from "@/shared/components/FormSkeleton";
 import { Loader, Plus, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { FormSelect } from "@/src/shared/components/FormSelect";
+import { FormSelect } from "@/shared/components/FormSelect";
 import {
   AssignBrandConsultantSchema,
   assignBrandConsultantSchemaCreate,
@@ -30,21 +30,21 @@ import {
   SUCCESS_MESSAGE,
   successToast,
   currentYear,
-} from "@/src/core/core.function";
+} from "@/core/core.function";
 import { useEffect, useState, useMemo } from "react";
 import {
   deleteAssignBrandConsultant,
   updateAssignBrandConsultant,
 } from "../lib/assignBrandConsultant.actions";
-import { SimpleDeleteDialog } from "@/src/shared/components/SimpleDeleteDialog";
+import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
 import {
   DEFAULT_PER_PAGE,
   EMPRESA_AP,
   MONTHS,
-} from "@/src/core/core.constants";
-import DataTablePagination from "@/src/shared/components/DataTablePagination";
+} from "@/core/core.constants";
+import DataTablePagination from "@/shared/components/DataTablePagination";
 import { ASSIGN_BRAND_CONSULTANT } from "../lib/assignBrandConsultant.constants";
-import { useAllSedes } from "@/src/features/gp/maestro-general/sede/lib/sede.hook";
+import { useAllSedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import MetaIndicators from "./AssignBrandConsultantMetaIndicator";
 import { useAllWorkersBySede } from "../../asignar-sede/lib/assignCompanyBranch.hook";
 

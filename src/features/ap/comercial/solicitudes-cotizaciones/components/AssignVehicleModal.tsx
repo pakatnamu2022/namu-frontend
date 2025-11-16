@@ -13,7 +13,7 @@ import { useAllVehicles } from "../../vehiculos/lib/vehicles.hook";
 import { useAssignVehicleToPurchaseRequestQuote } from "../lib/purchaseRequestQuote.hook";
 import { VehicleResource } from "../../vehiculos/lib/vehicles.interface";
 import { Loader2 } from "lucide-react";
-import { errorToast, successToast } from "@/src/core/core.function";
+import { errorToast, successToast } from "@/core/core.function";
 import { PurchaseRequestQuoteResource } from "../lib/purchaseRequestQuote.interface";
 
 interface AssignVehicleModalProps {

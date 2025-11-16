@@ -4,14 +4,14 @@ import {
   errorToast,
   SUCCESS_MESSAGE,
   successToast,
-} from "@/src/core/core.function";
-import { GeneralModal } from "@/src/shared/components/GeneralModal";
-import FormSkeleton from "@/src/shared/components/FormSkeleton";
-import { HierarchicalCategoryCompetenceSchema } from "@/src/features/gp/gestionhumana/evaluaciondesempeño/categoria-competencia-detalle/lib/hierarchicalCategoryCompetence.schema";
-import { storeHierarchicalCategoryCompetence } from "@/src/features/gp/gestionhumana/evaluaciondesempeño/categoria-competencia-detalle/lib/hierarchicalCategoryCompetence.actions";
-import { HierarchicalCategoryCompetenceForm } from "@/src/features/gp/gestionhumana/evaluaciondesempeño/categoria-competencia-detalle/components/HierarchicalCategoryCompetenceForm";
-import { useAllCompetences } from "@/src/features/gp/gestionhumana/evaluaciondesempeño/competencias/lib/competence.hook";
-import { CATEGORY_COMPETENCE } from "@/src/features/gp/gestionhumana/evaluaciondesempeño/categoria-competencia-detalle/lib/hierarchicalCategoryCompetence.constants";
+} from "@/core/core.function";
+import { GeneralModal } from "@/shared/components/GeneralModal";
+import FormSkeleton from "@/shared/components/FormSkeleton";
+import { HierarchicalCategoryCompetenceSchema } from "@/features/gp/gestionhumana/evaluaciondesempeño/categoria-competencia-detalle/lib/hierarchicalCategoryCompetence.schema";
+import { storeHierarchicalCategoryCompetence } from "@/features/gp/gestionhumana/evaluaciondesempeño/categoria-competencia-detalle/lib/hierarchicalCategoryCompetence.actions";
+import { HierarchicalCategoryCompetenceForm } from "@/features/gp/gestionhumana/evaluaciondesempeño/categoria-competencia-detalle/components/HierarchicalCategoryCompetenceForm";
+import { useAllCompetences } from "@/features/gp/gestionhumana/evaluaciondesempeño/competencias/lib/competence.hook";
+import { CATEGORY_COMPETENCE } from "@/features/gp/gestionhumana/evaluaciondesempeño/categoria-competencia-detalle/lib/hierarchicalCategoryCompetence.constants";
 
 interface Props {
   id?: number;

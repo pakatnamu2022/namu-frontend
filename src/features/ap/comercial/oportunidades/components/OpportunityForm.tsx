@@ -5,11 +5,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Loader, Plus } from "lucide-react";
-import FormSkeleton from "@/src/shared/components/FormSkeleton";
-import Link from "next/link";
-import { FormSelect } from "@/src/shared/components/FormSelect";
-import { ConfirmationDialog } from "@/src/shared/components/ConfirmationDialog";
-import { useRouter } from "next/navigation";
+import FormSkeleton from "@/shared/components/FormSkeleton";
+import { Link } from 'react-router-dom'
+import { FormSelect } from "@/shared/components/FormSelect";
+import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
+import { useNavigate } from 'react-router-dom';
 import {
   OpportunitySchema,
   opportunitySchemaCreate,
@@ -21,9 +21,9 @@ import {
   useOpportunityTypes,
 } from "../lib/opportunities.hook";
 import { useAllCustomers } from "../../clientes/lib/customers.hook";
-import { TYPE_BUSINESS_PARTNERS } from "@/src/core/core.constants";
-import { useAllFamilies } from "@/src/features/ap/configuraciones/vehiculos/familias/lib/families.hook";
-import { FamiliesResource } from "@/src/features/ap/configuraciones/vehiculos/familias/lib/families.interface";
+import { TYPE_BUSINESS_PARTNERS } from "@/core/core.constants";
+import { useAllFamilies } from "@/features/ap/configuraciones/vehiculos/familias/lib/families.hook";
+import { FamiliesResource } from "@/features/ap/configuraciones/vehiculos/familias/lib/families.interface";
 
 interface OpportunityFormProps {
   defaultValues: Partial<OpportunitySchema>;
@@ -43,7 +43,7 @@ export const OpportunityForm = ({
   clientId,
   showClientSelector = false,
 }: OpportunityFormProps) => {
-  const router = useRouter();
+  const router = useNavigate();
   const form = useForm({
     resolver: zodResolver(
       mode === "create" ? opportunitySchemaCreate : opportunitySchemaUpdate
@@ -98,7 +98,7 @@ export const OpportunityForm = ({
                     strictFilter={true}
                   />
                 </div>
-                <Link href="/ap/comercial/clientes/agregar?redirect_to=opportunities">
+                <Link to="/ap/comercial/clientes/agregar?redirect_to=opportunities">
                   <Button type="button" variant="outline" className="h-10">
                     <Plus className="size-4 mr-2" />
                     Agregar Cliente
@@ -176,7 +176,7 @@ export const OpportunityForm = ({
             variant="destructive"
             icon="warning"
             onConfirm={() => {
-              router.push(mode === "create" ? "./" : "../");
+              router(mode === "create" ? "./" : "../");
             }}
           />
 

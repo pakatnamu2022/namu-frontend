@@ -19,9 +19,9 @@
 //   userSchemaUpdate,
 // } from "../lib/user.schema";
 // import { Loader } from "lucide-react";
-// import Link from "next/link";
+// import { Link } from 'react-router-dom'
 // import { Switch } from "@/components/ui/switch";
-// import { FormSelect } from "@/src/shared/components/FormSelect";
+// import { FormSelect } from "@/shared/components/FormSelect";
 // import { UserResource } from "../lib/user.interface";
 // import { CompanyResource } from "../../empresa/lib/company.interface";
 
@@ -211,7 +211,7 @@
 //         </pre> */}
 
 //         <div className="flex gap-4 w-full justify-end">
-//           <Link href={mode === "create" ? "./" : "../"}>
+//           <Link to={mode === "create" ? "./" : "../"}>
 //             <Button type="button" variant="outline">
 //               Cancelar
 //             </Button>

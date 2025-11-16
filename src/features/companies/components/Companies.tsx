@@ -6,18 +6,17 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useRouter } from "next/navigation";
-import Image from "next/image";
-import { useAuthStore } from "@/src/features/auth/lib/auth.store";
-import CardSkeletonGrid from "@/src/shared/components/CardSkeletonGrid";
-import { CONSTANTS } from "@/src/core/core.constants";
+import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "@/features/auth/lib/auth.store";
+import CardSkeletonGrid from "@/shared/components/CardSkeletonGrid";
+import { CONSTANTS } from "@/core/core.constants";
 
 export default function AvailableCompanies() {
-  const router = useRouter();
+  const router = useNavigate();
   const { permissions } = useAuthStore();
 
   const handleCompanySelect = (company: string) => {
-    router.push(`/modules/${company}`);
+    router(`/modules/${company}`);
   };
 
   // useEffect(() => {
@@ -47,10 +46,9 @@ export default function AvailableCompanies() {
                   <div className="relative">
                     <div className="size-14 md:size-20 rounded-2xl flex items-center justify-center group-hover:scale-105 transition-all duration-500 shadow-lg text-white bg-primary">
                       <div className="size-10 md:size-16 relative">
-                        <Image
+                        <img
                           src={logo}
                           alt={company.empresa_nombre}
-                          fill
                           className="object-contain"
                         />
                       </div>

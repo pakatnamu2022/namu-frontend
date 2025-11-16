@@ -1,5 +1,5 @@
-import { DataTable } from "@/src/shared/components/DataTable";
-import { ApBankResource } from "@/src/features/ap/configuraciones/maestros-general/chequeras/lib/apBank.interface";
+import { DataTable } from "@/shared/components/DataTable";
+import { ApBankResource } from "@/features/ap/configuraciones/maestros-general/chequeras/lib/apBank.interface";
 import { ApBankColumns } from "./ApBankColumns";
 
 interface Props {

@@ -1,4 +1,4 @@
-import { DataTable } from "@/src/shared/components/DataTable";
+import { DataTable } from "@/shared/components/DataTable";
 import { PositionColumns } from "./PositionColumns";
 import { PositionResource } from "../lib/position.interface";
 

@@ -10,11 +10,11 @@ import {
   SheetTrigger,
   SheetFooter,
 } from "@/components/ui/sheet";
-import { SearchableSelect } from "@/src/shared/components/SearchableSelect";
+import { SearchableSelect } from "@/shared/components/SearchableSelect";
 import { cn } from "@/lib/utils";
 import { RefreshCcw } from "lucide-react";
 import { useState } from "react";
-import { Option } from "@/src/core/core.interface";
+import { Option } from "@/core/core.interface";
 
 interface RegenerateEvaluationParams {
   mode: "full_reset" | "sync_with_cycle" | "add_missing_only";

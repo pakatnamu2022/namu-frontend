@@ -11,12 +11,12 @@ import {
   errorToast,
   SUCCESS_MESSAGE,
   successToast,
-} from "@/src/core/core.function";
-import { GeneralModal } from "@/src/shared/components/GeneralModal";
-import FormSkeleton from "@/src/shared/components/FormSkeleton";
+} from "@/core/core.function";
+import { GeneralModal } from "@/shared/components/GeneralModal";
+import FormSkeleton from "@/shared/components/FormSkeleton";
 import { TypesCategoryForm } from "./TypesCategoryForm";
 import { TYPES_CATEGORY } from "../lib/typesCategory.constants";
-import { AP_MASTER_POST_VENTA } from "@/src/features/ap/lib/ap.constants";
+import { AP_MASTER_POST_VENTA } from "@/features/ap/lib/ap.constants";
 
 interface Props {
   id?: number;

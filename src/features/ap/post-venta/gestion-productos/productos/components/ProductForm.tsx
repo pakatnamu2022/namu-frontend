@@ -22,17 +22,17 @@ import {
   Loader,
   Shapes,
 } from "lucide-react";
-import FormSkeleton from "@/src/shared/components/FormSkeleton";
-import { FormSelect } from "@/src/shared/components/FormSelect";
-import { useAllBrands } from "@/src/features/ap/configuraciones/vehiculos/marcas/lib/brands.hook";
+import FormSkeleton from "@/shared/components/FormSkeleton";
+import { FormSelect } from "@/shared/components/FormSelect";
+import { useAllBrands } from "@/features/ap/configuraciones/vehiculos/marcas/lib/brands.hook";
 import { useAllProductCategory } from "../../categorias-producto/lib/productCategory.hook";
-import { useAllUnitMeasurement } from "@/src/features/ap/configuraciones/maestros-general/unidad-medida/lib/unitMeasurement.hook";
-import { useAllWarehouse } from "@/src/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
-import { useAllClassArticle } from "@/src/features/ap/configuraciones/maestros-general/clase-articulo/lib/classArticle.hook";
+import { useAllUnitMeasurement } from "@/features/ap/configuraciones/maestros-general/unidad-medida/lib/unitMeasurement.hook";
+import { useAllWarehouse } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
+import { useAllClassArticle } from "@/features/ap/configuraciones/maestros-general/clase-articulo/lib/classArticle.hook";
 import { Textarea } from "@/components/ui/textarea";
-import { FormSwitch } from "@/src/shared/components/FormSwitch";
-import { GroupFormSection } from "@/src/shared/components/GroupFormSection";
-import { STATUS_ACTIVE } from "@/src/core/core.constants";
+import { FormSwitch } from "@/shared/components/FormSwitch";
+import { GroupFormSection } from "@/shared/components/GroupFormSection";
+import { STATUS_ACTIVE } from "@/core/core.constants";
 
 interface ProductFormProps {
   defaultValues: Partial<ProductSchema>;

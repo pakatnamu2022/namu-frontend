@@ -1,11 +1,11 @@
-import { api } from "@/src/core/api";
+import { api } from "@/core/api";
 import { AxiosRequestConfig } from "axios";
 import {
   getIncomeSectorProps,
   IncomeSectorResource,
   IncomeSectorResponse,
 } from "./incomeSector.interface";
-import { STATUS_ACTIVE } from "@/src/core/core.constants";
+import { STATUS_ACTIVE } from "@/core/core.constants";
 import { INCOME_SECTOR } from "./incomeSector.constants";
 import { AP_MASTER_COMERCIAL } from "../../../lib/ap.constants";
 

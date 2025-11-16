@@ -1,4 +1,4 @@
-import { api } from "@/src/core/api";
+import { api } from "@/core/api";
 import {
   DocumentValidationDniResponse,
   DocumentValidationLicenseResponse,

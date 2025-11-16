@@ -9,7 +9,7 @@ import {
 import { EvaluationPersonResultResource } from "../lib/evaluationPerson.interface";
 import { cn } from "@/lib/utils";
 import { getScales } from "../../parametros/lib/parameter.hook";
-import { GeneralModal } from "@/src/shared/components/GeneralModal";
+import { GeneralModal } from "@/shared/components/GeneralModal";
 import { useState } from "react";
 import { ParameterResource } from "../../parametros/lib/parameter.interface";
 import ParameterInfo from "../../parametros/components/ParameterInfo";

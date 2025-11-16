@@ -19,17 +19,17 @@ import {
   positionSchemaUpdate,
 } from "../lib/position.schema";
 import { Loader } from "lucide-react";
-import Link from "next/link";
-import { POSITION } from "@/src/features/gp/gestionhumana/personal/posiciones/lib/position.constant";
-import { FormSelect } from "@/src/shared/components/FormSelect";
-import { FileForm } from "@/src/shared/components/FileForm";
+import { Link } from 'react-router-dom'
+import { POSITION } from "@/features/gp/gestionhumana/personal/posiciones/lib/position.constant";
+import { FormSelect } from "@/shared/components/FormSelect";
+import { FileForm } from "@/shared/components/FileForm";
 import { useAllAreas, useAreas } from "../lib/position.hook";
 import { useAllPositions } from "../lib/position.hook";
 import {
   useAllHierarchicalCategories,
   useHierarchicalCategorys,
-} from "@/src/features/gp/gestionhumana/evaluaciondesempeño/categorias-jerarquicas/lib/hierarchicalCategory.hook";
-import TitleFormComponent from "@/src/shared/components/TitleFormComponent";
+} from "@/features/gp/gestionhumana/evaluaciondesempeño/categorias-jerarquicas/lib/hierarchicalCategory.hook";
+import TitleFormComponent from "@/shared/components/TitleFormComponent";
 
 interface PositionFormProps {
   defaultValues?: Partial<PositionSchema>;
@@ -412,7 +412,7 @@ export const PositionForm = ({
         </div>
 
         <div className="flex gap-4 w-full justify-end pt-4">
-          <Link href={mode === "create" ? "./" : "../"}>
+          <Link to={mode === "create" ? "./" : "../"}>
             <Button type="button" variant="outline" disabled={isSubmitting}>
               Cancelar
             </Button>

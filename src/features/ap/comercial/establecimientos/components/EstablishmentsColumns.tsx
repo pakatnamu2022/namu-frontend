@@ -1,8 +1,8 @@
-import { useRouter } from "next/navigation";
-import { ColumnDef } from "@tanstack/react-table";
+import { useNavigate } from 'react-router-dom';
+import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
-import { DeleteButton } from "@/src/shared/components/SimpleDeleteDialog";
+import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { Badge } from "@/components/ui/badge";
 import { EstablishmentsResource } from "../lib/establishments.interface";
 import { Switch } from "@/components/ui/switch";
@@ -111,7 +111,7 @@ export const establishmentsColumns = ({
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
-      const router = useRouter();
+      const router = useNavigate();
       const { id, status } = row.original;
 
       return (
@@ -133,7 +133,7 @@ export const establishmentsColumns = ({
               size="icon"
               className="size-7"
               tooltip="Editar"
-              onClick={() => router.push(`${baseRoute}/${id}`)}
+              onClick={() => router(`${baseRoute}/${id}`)}
             >
               <Pencil className="size-5" />
             </Button>

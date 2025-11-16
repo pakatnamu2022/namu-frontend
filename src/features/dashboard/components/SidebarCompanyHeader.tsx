@@ -1,5 +1,5 @@
 "use client";
-import { useCurrentModule } from "@/src/shared/hooks/useCurrentModule";
+import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import * as LucideReact from "lucide-react";
 import {
   SidebarHeader,
@@ -7,7 +7,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import Link from "next/link";
+import { Link } from 'react-router-dom'
 import { SidebarCompanyHeaderLoading } from "./SidebarCompanyHeaderLoading";
 
 export default function SidebarCompanyHeader() {

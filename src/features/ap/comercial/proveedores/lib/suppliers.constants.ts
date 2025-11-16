@@ -1,4 +1,4 @@
-import { ModelComplete } from "@/src/core/core.interface";
+import { ModelComplete } from "@/core/core.interface";
 import { SuppliersResource } from "./suppliers.interface";
 
 const ROUTE = "proveedores";

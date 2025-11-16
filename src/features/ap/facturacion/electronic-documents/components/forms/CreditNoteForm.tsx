@@ -18,18 +18,18 @@ import {
   NotepadText,
 } from "lucide-react";
 import { CreditNoteSchema } from "../../lib/electronicDocument.schema";
-import { FormSelect } from "@/src/shared/components/FormSelect";
+import { FormSelect } from "@/shared/components/FormSelect";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { useAllSunatConcepts } from "@/src/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.hook";
-import { SUNAT_CONCEPTS_TYPE } from "@/src/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
-import { useAuthorizedSeries } from "@/src/features/ap/configuraciones/maestros-general/asignar-serie-usuario/lib/userSeriesAssignment.hook";
-import { TYPE_RECEIPT_SERIES } from "@/src/features/ap/configuraciones/maestros-general/asignar-serie-venta/lib/assignSalesSeries.constants";
+import { useAllSunatConcepts } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.hook";
+import { SUNAT_CONCEPTS_TYPE } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
+import { useAuthorizedSeries } from "@/features/ap/configuraciones/maestros-general/asignar-serie-usuario/lib/userSeriesAssignment.hook";
+import { TYPE_RECEIPT_SERIES } from "@/features/ap/configuraciones/maestros-general/asignar-serie-venta/lib/assignSalesSeries.constants";
 import { ElectronicDocumentResource } from "../../lib/electronicDocument.interface";
 import { CreditNoteItemsTable } from "../CreditNoteItemsTable";
 import { getNextCreditNoteNumber } from "../../lib/electronicDocument.actions";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { GroupFormSection } from "@/src/shared/components/GroupFormSection";
+import { GroupFormSection } from "@/shared/components/GroupFormSection";
 
 interface CreditNoteFormProps {
   creditNote?: ElectronicDocumentResource;

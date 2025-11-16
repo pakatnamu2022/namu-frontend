@@ -1,6 +1,6 @@
 import { AxiosRequestConfig } from "axios";
-import { api } from "@/src/core/api";
-import { GeneralResponse } from "@/src/shared/lib/response.interface";
+import { api } from "@/core/api";
+import { GeneralResponse } from "@/shared/lib/response.interface";
 import { SHIPMENTS_RECEPTIONS } from "./shipmentsReceptions.constants";
 import {
   getShipmentsReceptionsProps,

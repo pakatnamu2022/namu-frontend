@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { FileText, Sheet } from "lucide-react";
 import { Tooltip, TooltipTrigger } from "@radix-ui/react-tooltip";
-import { errorToast, successToast } from "@/src/core/core.function";
+import { errorToast, successToast } from "@/core/core.function";
 import { downloadDashboardFile } from "../lib/dashboard.actions";
 
 interface DashboardActionsProps {

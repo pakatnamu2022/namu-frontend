@@ -1,4 +1,4 @@
-import { DataTable } from "@/src/shared/components/DataTable";
+import { DataTable } from "@/shared/components/DataTable";
 import { CategoryChecklistResource } from "../lib/categoryChecklist.interface";
 import { CategoryChecklistColumns } from "./CategoryChecklistColumns";
 

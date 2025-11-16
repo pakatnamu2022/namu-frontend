@@ -5,12 +5,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { ElectronicDocumentSchema } from "../../lib/electronicDocument.schema";
-import { SunatConceptsResource } from "@/src/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.interface";
-import { PurchaseRequestQuoteResource } from "@/src/features/ap/comercial/solicitudes-cotizaciones/lib/purchaseRequestQuote.interface";
-import { AssignSalesSeriesResource } from "@/src/features/ap/configuraciones/maestros-general/asignar-serie-venta/lib/assignSalesSeries.interface";
-import { useAllCustomers } from "@/src/features/ap/comercial/clientes/lib/customers.hook";
+import { SunatConceptsResource } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.interface";
+import { PurchaseRequestQuoteResource } from "@/features/ap/comercial/solicitudes-cotizaciones/lib/purchaseRequestQuote.interface";
+import { AssignSalesSeriesResource } from "@/features/ap/configuraciones/maestros-general/asignar-serie-venta/lib/assignSalesSeries.interface";
+import { useAllCustomers } from "@/features/ap/comercial/clientes/lib/customers.hook";
 import { ElectronicDocumentResource } from "../../lib/electronicDocument.interface";
-import { SUNAT_TYPE_INVOICES_ID } from "@/src/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
+import { SUNAT_TYPE_INVOICES_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
 
 interface SummarySectionProps {
   form: UseFormReturn<ElectronicDocumentSchema>;

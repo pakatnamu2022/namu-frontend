@@ -9,23 +9,23 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Home, ArrowLeft } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useCurrentModule } from "@/src/shared/hooks/useCurrentModule";
+import { useNavigate } from 'react-router-dom';
+import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function SidebarNavigation() {
-  const router = useRouter();
+  const router = useNavigate();
   const { setOpenMobile, isMobile } = useSidebar();
   const { currentCompany, currentModule, subModuleSlug, isLoadingModule } =
     useCurrentModule();
 
   const handleBack = () => {
     if (subModuleSlug) {
-      router.push(
+      router(
         `/modules/${currentCompany?.empresa_abreviatura}/${currentModule?.slug}`
       );
     } else {
-      router.push(`/modules/${currentCompany?.empresa_abreviatura}`);
+      router(`/modules/${currentCompany?.empresa_abreviatura}`);
     }
 
     if (isMobile) {
@@ -34,7 +34,7 @@ export default function SidebarNavigation() {
   };
 
   const handleHome = () => {
-    router.push("/companies");
+    router("/companies");
 
     if (isMobile) {
       setOpenMobile(false);

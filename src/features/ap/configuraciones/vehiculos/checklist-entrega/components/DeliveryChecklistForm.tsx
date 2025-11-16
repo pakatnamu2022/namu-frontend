@@ -16,9 +16,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
-import { FormSelect } from "@/src/shared/components/FormSelect";
+import { FormSelect } from "@/shared/components/FormSelect";
 import { useAllCategoryChecklist } from "../../categorias-checklist/lib/categoryChecklist.hook";
-import FormSkeleton from "@/src/shared/components/FormSkeleton";
+import FormSkeleton from "@/shared/components/FormSkeleton";
 import { Checkbox } from "@/components/ui/checkbox";
 
 interface DeliveryChecklistFormProps {

@@ -1,4 +1,4 @@
-import { DataTable } from "@/src/shared/components/DataTable";
+import { DataTable } from "@/shared/components/DataTable";
 import { BrandGroupResource } from "../lib/brandGroup.interface";
 import { BrandGroupColumns } from "./BrandGroupColumns";
 

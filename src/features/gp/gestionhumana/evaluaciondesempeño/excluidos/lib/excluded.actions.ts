@@ -1,11 +1,11 @@
-import { GeneralResponse } from "@/src/shared/lib/response.interface";
+import { GeneralResponse } from "@/shared/lib/response.interface";
 import { AxiosRequestConfig } from "axios";
 import {
   getEvaluationPersonDetailsProps,
   EvaluationPersonDetailResource,
   EvaluationPersonDetailResponse,
 } from "./excluded.interface";
-import { api } from "@/src/core/api";
+import { api } from "@/core/api";
 import { EXCLUDED } from "./excluded.constants";
 
 const { ENDPOINT } = EXCLUDED;

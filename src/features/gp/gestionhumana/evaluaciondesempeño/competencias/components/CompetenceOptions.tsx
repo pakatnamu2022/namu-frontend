@@ -1,6 +1,6 @@
 "use client";
 
-import SearchInput from "@/src/shared/components/SearchInput";
+import SearchInput from "@/shared/components/SearchInput";
 import { COMPETENCE } from "../lib/competence.constans";
 
 const { MODEL } = COMPETENCE;

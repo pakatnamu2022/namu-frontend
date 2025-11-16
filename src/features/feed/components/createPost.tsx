@@ -47,7 +47,7 @@ export default function CreatePost({
         </div>
         <div className="flex justify-between items-center">
           <Button variant="outline" className="flex items-center gap-2">
-            <ImageIcon className="w-4 h-4" />
+            <imgIcon className="w-4 h-4" />
             Agregar Imagen
           </Button>
           <div className="flex gap-2">

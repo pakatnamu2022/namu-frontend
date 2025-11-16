@@ -1,9 +1,9 @@
 "use client";
 
-import { ColumnDef } from "@tanstack/react-table";
+import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { Check, ShieldQuestion, History, Edit } from "lucide-react";
-import { EvaluationPersonResultResource } from "@/src/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/lib/evaluationPerson.interface";
+import { EvaluationPersonResultResource } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/lib/evaluationPerson.interface";
 import { Badge } from "@/components/ui/badge";
 
 export type TeamColumns = ColumnDef<EvaluationPersonResultResource>;

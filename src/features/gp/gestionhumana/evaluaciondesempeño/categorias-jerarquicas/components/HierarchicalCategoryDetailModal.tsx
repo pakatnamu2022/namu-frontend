@@ -14,9 +14,9 @@ import { Plus, X, Loader2, Trash2 } from "lucide-react";
 import { HierarchicalCategoryDetail } from "../lib/hierarchicalCategory.interface";
 import { PositionResource } from "../../../personal/posiciones/lib/position.interface";
 import { AnimatePresence, motion } from "framer-motion";
-import { SearchableSelect } from "@/src/shared/components/SearchableSelect";
-import { errorToast, successToast } from "@/src/core/core.function";
-import { SimpleDeleteDialog } from "@/src/shared/components/SimpleDeleteDialog";
+import { SearchableSelect } from "@/shared/components/SearchableSelect";
+import { errorToast, successToast } from "@/core/core.function";
+import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
 import { deleteHierarchicalCategoryDetail } from "../lib/hierarchicalCategory.actions";
 
 interface Props {

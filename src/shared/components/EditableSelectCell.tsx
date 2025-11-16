@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { SearchableSelect } from "./SearchableSelect";
-import { Option } from "@/src/core/core.interface";
+import { Option } from "@/core/core.interface";
 
 type Props = {
   id: number;

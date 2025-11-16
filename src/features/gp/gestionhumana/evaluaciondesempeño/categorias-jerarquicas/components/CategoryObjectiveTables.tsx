@@ -7,7 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { EditableCell } from "@/src/shared/components/EditableCell";
+import { EditableCell } from "@/shared/components/EditableCell";
 import { Switch } from "@/components/ui/switch";
 
 interface Props {

@@ -1,4 +1,4 @@
-import { DataTable } from "@/src/shared/components/DataTable";
+import { DataTable } from "@/shared/components/DataTable";
 import { VehicleCategoryResource } from "../lib/vehicleCategory.interface";
 import { VehicleCategoryColumns } from "./VehicleCategoryColumns";
 

@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import ProductTypeModal from "./ProductTypeModal";
-import ActionsWrapper from "@/src/shared/components/ActionsWrapper";
+import ActionsWrapper from "@/shared/components/ActionsWrapper";
 
 interface ProductTypeActionsProps {
   permissions: {

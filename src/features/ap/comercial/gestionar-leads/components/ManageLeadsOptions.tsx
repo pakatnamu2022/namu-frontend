@@ -1,5 +1,5 @@
-import DatePicker from "@/src/shared/components/DatePicker";
-import SearchInput from "@/src/shared/components/SearchInput";
+import DatePicker from "@/shared/components/DatePicker";
+import SearchInput from "@/shared/components/SearchInput";
 import {
   Select,
   SelectContent,

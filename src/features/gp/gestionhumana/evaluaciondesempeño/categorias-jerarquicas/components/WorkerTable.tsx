@@ -9,7 +9,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { WorkerResource } from "@/src/features/gp/gestionhumana/personal/trabajadores/lib/worker.interface";
+import { WorkerResource } from "@/features/gp/gestionhumana/personal/trabajadores/lib/worker.interface";
 
 interface WorkerTableProps {
   workers: WorkerResource[];

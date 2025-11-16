@@ -1,11 +1,11 @@
 "use client";
 
-import { ColumnDef } from "@tanstack/react-table";
+import type { ColumnDef } from "@tanstack/react-table";
 import { CompetenceResource } from "../lib/competence.interface";
 import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { DeleteButton } from "@/src/shared/components/SimpleDeleteDialog";
+import { useNavigate } from 'react-router-dom';
+import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 
 export type CompetenceColumns = ColumnDef<CompetenceResource>;
 
@@ -25,7 +25,7 @@ export const competenceColumns = ({
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
-      const router = useRouter();
+      const router = useNavigate();
       const id = row.original.id;
 
       return (
@@ -35,7 +35,7 @@ export const competenceColumns = ({
             variant="outline"
             size="icon"
             className="size-7"
-            onClick={() => router.push(`./competencias/actualizar/${id}`)}
+            onClick={() => router(`./competencias/actualizar/${id}`)}
           >
             <Pencil className="size-5" />
           </Button>

@@ -1,4 +1,4 @@
-import { Links, Meta } from "@/src/shared/lib/pagination.interface";
+import { Links, Meta } from "@/shared/lib/pagination.interface";
 
 export interface ApprovedAccesoriesResponse {
   data: ApprovedAccesoriesResource[];

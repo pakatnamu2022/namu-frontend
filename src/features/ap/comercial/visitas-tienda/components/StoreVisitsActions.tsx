@@ -1,10 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { FileText, Plus, Sheet } from "lucide-react";
-import { useRouter } from "next/navigation";
-import ActionsWrapper from "@/src/shared/components/ActionsWrapper";
+import { useNavigate } from 'react-router-dom';
+import ActionsWrapper from "@/shared/components/ActionsWrapper";
 import { STORE_VISITS } from "../lib/storeVisits.constants";
 import { Tooltip, TooltipTrigger } from "@radix-ui/react-tooltip";
-import { errorToast, successToast } from "@/src/core/core.function";
+import { errorToast, successToast } from "@/core/core.function";
 import { downloadStoreVisitsFile } from "../lib/storeVisits.actions";
 
 interface StoreVisitsActionsProps {
@@ -21,7 +21,7 @@ export default function StoreVisitsActions({
   dateTo,
   permissions,
 }: StoreVisitsActionsProps) {
-  const router = useRouter();
+  const router = useNavigate();
   const { ROUTE_ADD } = STORE_VISITS;
 
   const formatDate = (date: Date | undefined) => {
@@ -99,7 +99,7 @@ export default function StoreVisitsActions({
           <Button
             size="sm"
             variant="outline"
-            onClick={() => router.push(ROUTE_ADD!)}
+            onClick={() => router(ROUTE_ADD!)}
           >
             <Plus className="size-4 mr-2" /> Agregar Visita
           </Button>

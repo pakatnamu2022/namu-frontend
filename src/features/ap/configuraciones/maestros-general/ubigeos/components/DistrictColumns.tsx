@@ -1,8 +1,8 @@
-import { useRouter } from "next/navigation";
-import { ColumnDef } from "@tanstack/react-table";
+import { useNavigate } from 'react-router-dom';
+import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
-import { DeleteButton } from "@/src/shared/components/SimpleDeleteDialog";
+import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { DISTRICT } from "../lib/district.constants";
 import { DistrictResource } from "../lib/district.interface";
 
@@ -44,7 +44,7 @@ export const districtColumns = ({
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
-      const router = useRouter();
+      const router = useNavigate();
       const { id } = row.original;
       const { ROUTE_UPDATE } = DISTRICT;
 
@@ -56,7 +56,7 @@ export const districtColumns = ({
               variant="outline"
               size="icon"
               className="size-7"
-              onClick={() => router.push(`${ROUTE_UPDATE}/${id}`)}
+              onClick={() => router(`${ROUTE_UPDATE}/${id}`)}
             >
               <Pencil className="size-5" />
             </Button>

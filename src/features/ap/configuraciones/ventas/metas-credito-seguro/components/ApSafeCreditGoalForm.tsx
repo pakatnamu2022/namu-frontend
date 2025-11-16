@@ -16,10 +16,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
-import { FormSelect } from "@/src/shared/components/FormSelect";
-import { EMPRESA_AP } from "@/src/core/core.constants";
-import { useAllSedes } from "@/src/features/gp/maestro-general/sede/lib/sede.hook";
-import FormSkeleton from "@/src/shared/components/FormSkeleton";
+import { FormSelect } from "@/shared/components/FormSelect";
+import { EMPRESA_AP } from "@/core/core.constants";
+import { useAllSedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
+import FormSkeleton from "@/shared/components/FormSkeleton";
 
 interface ApSafeCreditGoalFormProps {
   defaultValues: Partial<ApSafeCreditGoalSchema>;

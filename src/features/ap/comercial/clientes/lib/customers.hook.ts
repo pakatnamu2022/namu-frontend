@@ -7,7 +7,7 @@ import {
   getAllCustomers,
   getCustomers,
 } from "./customers.actions";
-import { MessageResponse } from "@/src/core/core.interface";
+import { MessageResponse } from "@/core/core.interface";
 import { AxiosError } from "axios";
 
 const { QUERY_KEY } = CUSTOMERS;

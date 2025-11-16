@@ -1,4 +1,4 @@
-import { ColumnDef } from "@tanstack/react-table";
+import type { ColumnDef } from "@tanstack/react-table";
 import { AssignBrandConsultantResource } from "../lib/assignBrandConsultant.interface";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";

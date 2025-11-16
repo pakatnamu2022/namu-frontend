@@ -6,7 +6,7 @@ import {
   getMySede,
   getSede,
 } from "./sede.actions";
-import { ShopSedeResource } from "@/src/features/ap/configuraciones/ventas/tiendas/lib/shop.interface";
+import { ShopSedeResource } from "@/features/ap/configuraciones/ventas/tiendas/lib/shop.interface";
 
 export const useSedes = (params?: Record<string, any>) => {
   return useQuery<SedeResponse>({

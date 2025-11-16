@@ -1,11 +1,11 @@
 "use client";
 
-import { ColumnDef } from "@tanstack/react-table";
+import type { ColumnDef } from "@tanstack/react-table";
 import { RoleResource } from "../lib/role.interface";
 import { Button } from "@/components/ui/button";
 import { KeyRound, Pencil, UsersRound } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { DeleteButton } from "@/src/shared/components/SimpleDeleteDialog";
+import { useNavigate } from 'react-router-dom';
+import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { Badge } from "@/components/ui/badge";
 import { RoleUsersModal } from "./RoleUsersModal";
 
@@ -45,7 +45,7 @@ export const roleColumns = ({ onUpdate, onDelete }: Props): RoleColumns[] => [
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
-      const router = useRouter();
+      const router = useNavigate();
       const id = row.original.id;
 
       return (
@@ -73,7 +73,7 @@ export const roleColumns = ({ onUpdate, onDelete }: Props): RoleColumns[] => [
             size="sm"
             className="h-7 text-xs"
             onClick={() =>
-              router.push(
+              router(
                 `./roles/permisos/${id}?nombre=${encodeURIComponent(
                   row.original.nombre
                 )}`

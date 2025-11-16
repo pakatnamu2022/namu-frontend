@@ -14,7 +14,7 @@ import {
   EvaluationPersonResultResource,
 } from "../lib/evaluationPerson.interface";
 import { evaluationPersonCompetenceColumns } from "./EvaluationPersonCompetenceColumns";
-import { DataTable } from "@/src/shared/components/DataTable";
+import { DataTable } from "@/shared/components/DataTable";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 

@@ -1,13 +1,13 @@
-import { api } from "@/src/core/api";
+import { api } from "@/core/api";
 import { AxiosRequestConfig } from "axios";
 import {
   getVehicleCategoryProps,
   VehicleCategoryResource,
   VehicleCategoryResponse,
 } from "./vehicleCategory.interface";
-import { GeneralResponse } from "@/src/shared/lib/response.interface";
+import { GeneralResponse } from "@/shared/lib/response.interface";
 import { VEHICLE_CATEGORY } from "./vehicleCategory.constants";
-import { AP_MASTER_COMERCIAL } from "@/src/features/ap/lib/ap.constants";
+import { AP_MASTER_COMERCIAL } from "@/features/ap/lib/ap.constants";
 
 const { ENDPOINT } = VEHICLE_CATEGORY;
 

@@ -1,4 +1,4 @@
-import { DataTable } from "@/src/shared/components/DataTable";
+import { DataTable } from "@/shared/components/DataTable";
 import { SuppliersColumns } from "./SuppliersColumns";
 import { SuppliersResource } from "../lib/suppliers.interface";
 

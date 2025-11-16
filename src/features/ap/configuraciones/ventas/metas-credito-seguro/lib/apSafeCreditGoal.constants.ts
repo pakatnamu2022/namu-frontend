@@ -1,6 +1,6 @@
-import { ModelComplete } from "@/src/core/core.interface";
+import { ModelComplete } from "@/core/core.interface";
 import { ApSafeCreditGoalResource } from "./apSafeCreditGoal.interface";
-import { currentMonth, currentYear } from "@/src/core/core.function";
+import { currentMonth, currentYear } from "@/core/core.function";
 
 const ROUTE = "metas-credito-seguro";
 

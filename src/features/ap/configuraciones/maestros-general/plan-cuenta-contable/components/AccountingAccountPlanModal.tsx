@@ -6,15 +6,15 @@ import {
   storeAccountingAccountPlan,
   updateAccountingAccountPlan,
 } from "../lib/accountingAccountPlan.actions";
-import { GeneralModal } from "@/src/shared/components/GeneralModal";
+import { GeneralModal } from "@/shared/components/GeneralModal";
 import { AccountingAccountPlanForm } from "./AccountingAccountPlanForm";
-import FormSkeleton from "@/src/shared/components/FormSkeleton";
+import FormSkeleton from "@/shared/components/FormSkeleton";
 import {
   ERROR_MESSAGE,
   errorToast,
   SUCCESS_MESSAGE,
   successToast,
-} from "@/src/core/core.function";
+} from "@/core/core.function";
 import { ACCOUNTING_ACCOUNT_PLAN } from "../lib/accountingAccountPlan.constants";
 
 interface Props {

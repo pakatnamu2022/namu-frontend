@@ -1,9 +1,9 @@
-import { ColumnDef } from "@tanstack/react-table";
+import type { ColumnDef } from "@tanstack/react-table";
 import { ApSafeCreditGoalResource } from "../lib/apSafeCreditGoal.interface";
 import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { DeleteButton } from "@/src/shared/components/SimpleDeleteDialog";
+import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 
 export type ApSafeCreditGoalColumns = ColumnDef<ApSafeCreditGoalResource>;
 

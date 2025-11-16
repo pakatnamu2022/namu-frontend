@@ -1,5 +1,5 @@
-import { BUSINESS_PARTNERS } from "@/src/core/core.constants";
-import { requiredStringId } from "@/src/shared/lib/global.schema";
+import { BUSINESS_PARTNERS } from "@/core/core.constants";
+import { requiredStringId } from "@/shared/lib/global.schema";
 import { z } from "zod";
 
 const suppliersBaseObject = z.object({

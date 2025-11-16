@@ -13,7 +13,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Building2, MapPin, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { EstablishmentsResource } from "../../establecimientos/lib/establishments.interface";
-import { STATUS_ACTIVE } from "@/src/core/core.constants";
+import { STATUS_ACTIVE } from "@/core/core.constants";
 import { useAllEstablishments } from "../../establecimientos/lib/establishments.hook";
 
 interface EstablishmentSelectorModalProps {

@@ -16,7 +16,7 @@ import {
     SidebarMenuSubItem,
     useSidebar,
 } from "@/components/ui/sidebar";
-import Link from "next/link";
+import { Link } from 'react-router-dom'
 import {ViewsResponseMenuChild} from "../../views/lib/views.interface";
 
 export default function renderSidebarItems(

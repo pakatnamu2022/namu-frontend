@@ -1,10 +1,10 @@
 "use client";
 
-import { ColumnDef } from "@tanstack/react-table";
+import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { PanelLeft, RefreshCw } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { DeleteButton } from "@/src/shared/components/SimpleDeleteDialog";
+import { useNavigate } from 'react-router-dom';
+import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { EvaluationPersonResultResource } from "../lib/evaluationPerson.interface";
 import { WorkerResource } from "../../../personal/trabajadores/lib/worker.interface";
 import { Badge } from "@/components/ui/badge";
@@ -102,7 +102,7 @@ export const EvaluationPersonColumns = ({
     header: "Acciones",
     size: 60,
     cell: ({ row }) => {
-      const router = useRouter();
+      const router = useNavigate();
       const id = row.original.person_id;
       const evaluationId = row.original.evaluation_id;
       const [showRegenerateDialog, setShowRegenerateDialog] = useState(false);
@@ -119,7 +119,7 @@ export const EvaluationPersonColumns = ({
             variant="outline"
             size="sm"
             className="h-7 text-xs"
-            onClick={() => router.push(`./${evaluationId}/${id}`)}
+            onClick={() => router(`./${evaluationId}/${id}`)}
           >
             Evaluación
             <PanelLeft className="size-5" />

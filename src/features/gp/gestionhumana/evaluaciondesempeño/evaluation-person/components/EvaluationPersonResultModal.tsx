@@ -14,10 +14,10 @@ import {
   TabsContents,
   TabsList,
   TabsTrigger,
-} from "@/src/shared/components/animateTabs";
-import { SearchableSelect } from "@/src/shared/components/SearchableSelect";
+} from "@/shared/components/animateTabs";
+import { SearchableSelect } from "@/shared/components/SearchableSelect";
 import { useEvaluationPersonByPersonAndEvaluation } from "../lib/evaluationPerson.hook";
-import FormSkeleton from "@/src/shared/components/FormSkeleton";
+import FormSkeleton from "@/shared/components/FormSkeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAllEvaluations } from "../../evaluaciones/lib/evaluation.hook";
 import { useState } from "react";
@@ -32,7 +32,7 @@ import {
   errorToast,
   SUCCESS_MESSAGE,
   successToast,
-} from "@/src/core/core.function";
+} from "@/core/core.function";
 import { EVALUATION_PERSON } from "../lib/evaluationPerson.constans";
 import EvaluationPersonObjetiveTable from "./EvaluationPersonObjetiveTable";
 import EvaluationPersonCompetenceTable from "./EvaluationPersonCompetenceTable";

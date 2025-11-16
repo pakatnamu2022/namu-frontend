@@ -9,18 +9,18 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import Link from "next/link";
+import { Link } from 'react-router-dom'
 import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
-import { FormSelect } from "@/src/shared/components/FormSelect";
+import { FormSelect } from "@/shared/components/FormSelect";
 import {
   ApprovedAccesoriesSchema,
   approvedAccesoriesSchemaCreate,
   approvedAccesoriesSchemaUpdate,
 } from "../lib/approvedAccessories.schema";
-import FormSkeleton from "@/src/shared/components/FormSkeleton";
-import { useAllCurrencyTypes } from "@/src/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.hook";
-import { useAllBodyType } from "@/src/features/ap/configuraciones/vehiculos/tipos-carroceria/lib/bodyType.hook";
+import FormSkeleton from "@/shared/components/FormSkeleton";
+import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.hook";
+import { useAllBodyType } from "@/features/ap/configuraciones/vehiculos/tipos-carroceria/lib/bodyType.hook";
 
 interface ApprovedAccesoriesFormProps {
   defaultValues: Partial<ApprovedAccesoriesSchema>;
@@ -147,7 +147,7 @@ export const ApprovedAccesoriesForm = ({
           />
         </div>
         <div className="flex gap-4 w-full justify-end">
-          <Link href={mode === "create" ? "./" : "../"}>
+          <Link to={mode === "create" ? "./" : "../"}>
             <Button type="button" variant="outline">
               Cancelar
             </Button>

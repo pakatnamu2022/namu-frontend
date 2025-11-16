@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/select";
 import { Plus, Trash2 } from "lucide-react";
 import { ApprovedAccesoriesResource } from "../../../post-venta/accesorios-homologados/lib/approvedAccessories.interface";
-import { NumberFormat } from "@/src/shared/components/NumberFormat";
+import { NumberFormat } from "@/shared/components/NumberFormat";
 
 export interface ApprovedAccessoryRow {
   id: string;

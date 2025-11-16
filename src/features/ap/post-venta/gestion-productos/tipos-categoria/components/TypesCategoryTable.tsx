@@ -1,4 +1,4 @@
-import { DataTable } from "@/src/shared/components/DataTable";
+import { DataTable } from "@/shared/components/DataTable";
 import { TypesCategoryResource } from "../lib/typesCategory.interface";
 import { TypesCategoryColumns } from "./TypesCategoryColumns";
 

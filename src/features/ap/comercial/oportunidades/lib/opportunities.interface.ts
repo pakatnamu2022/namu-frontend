@@ -1,8 +1,8 @@
-import { Links, Meta } from "@/src/shared/lib/pagination.interface";
+import { Links, Meta } from "@/shared/lib/pagination.interface";
 import { CustomersResource } from "../../clientes/lib/customers.interface";
-import { FamiliesResource } from "@/src/features/ap/configuraciones/vehiculos/familias/lib/families.interface";
+import { FamiliesResource } from "@/features/ap/configuraciones/vehiculos/familias/lib/families.interface";
 import { OpportunityActionResource } from "./opportunityAction.interface";
-import { WorkerResource } from "@/src/features/gp/gestionhumana/personal/trabajadores/lib/worker.interface";
+import { WorkerResource } from "@/features/gp/gestionhumana/personal/trabajadores/lib/worker.interface";
 
 export interface OpportunitiesResponse {
   data: OpportunityResource[];

@@ -1,4 +1,4 @@
-import { api } from "@/src/core/api";
+import { api } from "@/core/api";
 import { AxiosRequestConfig } from "axios";
 import {
   BrandsResource,
@@ -6,7 +6,7 @@ import {
   getBrandsProps,
 } from "./brands.interface";
 import { BrandsSchema } from "./brands.schema";
-import { STATUS_ACTIVE } from "@/src/core/core.constants";
+import { STATUS_ACTIVE } from "@/core/core.constants";
 import { BRAND } from "./brands.constants";
 
 const { ENDPOINT } = BRAND;

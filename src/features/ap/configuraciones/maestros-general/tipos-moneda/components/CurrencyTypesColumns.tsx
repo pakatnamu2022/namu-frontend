@@ -1,7 +1,7 @@
-import { ColumnDef } from "@tanstack/react-table";
+import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
-import { DeleteButton } from "@/src/shared/components/SimpleDeleteDialog";
+import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { CurrencyTypesResource } from "../lib/CurrencyTypes.interface";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";

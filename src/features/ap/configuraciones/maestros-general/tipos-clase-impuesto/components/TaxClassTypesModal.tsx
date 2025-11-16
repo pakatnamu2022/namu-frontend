@@ -4,10 +4,10 @@ import {
   errorToast,
   SUCCESS_MESSAGE,
   successToast,
-} from "@/src/core/core.function";
-import { GeneralModal } from "@/src/shared/components/GeneralModal";
+} from "@/core/core.function";
+import { GeneralModal } from "@/shared/components/GeneralModal";
 import { TaxClassTypesForm } from "./TaxClassTypesForm";
-import FormSkeleton from "@/src/shared/components/FormSkeleton";
+import FormSkeleton from "@/shared/components/FormSkeleton";
 import { TAX_CLASS_TYPES } from "../lib/taxClassTypes.constants";
 import { useTaxClassTypesById } from "../lib/taxClassTypes.hook";
 import { TaxClassTypesResource } from "../lib/taxClassTypes.interface";

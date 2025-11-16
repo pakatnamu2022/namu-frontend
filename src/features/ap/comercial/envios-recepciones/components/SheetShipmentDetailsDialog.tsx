@@ -421,7 +421,7 @@ export function SheetShipmentDetailsDialog({
               <h3 className="text-lg font-semibold">Documentos SUNAT</h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 {shipment.enlace_del_pdf && (
-                  <a
+                  <Link
                     href={shipment.enlace_del_pdf}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -438,7 +438,7 @@ export function SheetShipmentDetailsDialog({
                 )}
 
                 {shipment.enlace_del_xml && (
-                  <a
+                  <Link
                     href={shipment.enlace_del_xml}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -455,7 +455,7 @@ export function SheetShipmentDetailsDialog({
                 )}
 
                 {shipment.enlace_del_cdr && (
-                  <a
+                  <Link
                     href={shipment.enlace_del_cdr}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -472,7 +472,7 @@ export function SheetShipmentDetailsDialog({
                 )}
 
                 {shipment.cadena_para_codigo_qr && (
-                  <a
+                  <Link
                     href={shipment.cadena_para_codigo_qr}
                     target="_blank"
                     rel="noopener noreferrer"

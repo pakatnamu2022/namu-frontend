@@ -1,5 +1,5 @@
 import { AxiosRequestConfig } from "axios";
-import { api } from "@/src/core/api";
+import { api } from "@/core/api";
 
 import {
   ElectronicDocumentSchema,
@@ -14,7 +14,7 @@ import {
   ElectronicDocumentMigrationLogsResponse,
   ElectronicDocumentMigrationHistoryResponse,
 } from "./electronicDocument.interface";
-import { ParamsProps } from "@/src/core/core.interface";
+import { ParamsProps } from "@/core/core.interface";
 
 const { ENDPOINT } = ELECTRONIC_DOCUMENT;
 

@@ -1,5 +1,5 @@
-import { ModelComplete } from "@/src/core/core.interface";
-import { COMMERCIAL_MASTERS_ENDPOINT } from "@/src/features/ap/lib/ap.constants";
+import { ModelComplete } from "@/core/core.interface";
+import { COMMERCIAL_MASTERS_ENDPOINT } from "@/features/ap/lib/ap.constants";
 import { DocumentTypeResource } from "./documentTypes.interface";
 
 const ROUTE = "tipos-documento";

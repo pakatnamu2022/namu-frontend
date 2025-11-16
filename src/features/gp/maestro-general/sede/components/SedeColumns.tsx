@@ -1,8 +1,8 @@
-import { useRouter } from "next/navigation";
-import { ColumnDef } from "@tanstack/react-table";
+import { useNavigate } from 'react-router-dom';
+import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
-import { DeleteButton } from "@/src/shared/components/SimpleDeleteDialog";
+import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
@@ -77,7 +77,7 @@ export const sedeColumns = ({
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
-      const router = useRouter();
+      const router = useNavigate();
       const { id, status } = row.original;
 
       return (
@@ -94,7 +94,7 @@ export const sedeColumns = ({
             variant="outline"
             size="icon"
             className="size-7"
-            onClick={() => router.push(`${ROUTE_UPDATE}/${id}`)}
+            onClick={() => router(`${ROUTE_UPDATE}/${id}`)}
           >
             <Pencil className="size-5" />
           </Button>

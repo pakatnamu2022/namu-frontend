@@ -1,11 +1,11 @@
-import SearchInput from "@/src/shared/components/SearchInput";
-import { SearchableSelect } from "@/src/shared/components/SearchableSelect";
-import ResponsiveFilters from "@/src/shared/components/ResponsiveFilters";
-import { useAllSedes } from "@/src/features/gp/maestro-general/sede/lib/sede.hook";
-import { useAllModelsVn } from "@/src/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.hook";
-import { useAllVehicleStatus } from "@/src/features/ap/configuraciones/vehiculos/estados-vehiculo/lib/vehicleStatus.hook";
-import { EMPRESA_AP } from "@/src/core/core.constants";
-import { Option } from "@/src/core/core.interface";
+import SearchInput from "@/shared/components/SearchInput";
+import { SearchableSelect } from "@/shared/components/SearchableSelect";
+import ResponsiveFilters from "@/shared/components/ResponsiveFilters";
+import { useAllSedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
+import { useAllModelsVn } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.hook";
+import { useAllVehicleStatus } from "@/features/ap/configuraciones/vehiculos/estados-vehiculo/lib/vehicleStatus.hook";
+import { EMPRESA_AP } from "@/core/core.constants";
+import { Option } from "@/core/core.interface";
 import { useMemo } from "react";
 
 interface Props {

@@ -6,9 +6,9 @@ import {
   errorToast,
   SUCCESS_MESSAGE,
   successToast,
-} from "@/src/core/core.function";
-import FormSkeleton from "@/src/shared/components/FormSkeleton";
-import { GeneralModal } from "@/src/shared/components/GeneralModal";
+} from "@/core/core.function";
+import FormSkeleton from "@/shared/components/FormSkeleton";
+import { GeneralModal } from "@/shared/components/GeneralModal";
 import {
   storeVehicleCategory,
   updateVehicleCategory,
@@ -16,7 +16,7 @@ import {
 import { useVehicleCategoryById } from "../lib/vehicleCategory.hook";
 import { VehicleCategoryForm } from "./VehicleCategoryForm";
 import { VEHICLE_CATEGORY } from "../lib/vehicleCategory.constants";
-import { AP_MASTER_COMERCIAL } from "@/src/features/ap/lib/ap.constants";
+import { AP_MASTER_COMERCIAL } from "@/features/ap/lib/ap.constants";
 
 interface Props {
   id?: number;

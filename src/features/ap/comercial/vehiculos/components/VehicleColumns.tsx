@@ -1,11 +1,11 @@
 "use client";
 
-import { ColumnDef } from "@tanstack/react-table";
+import type { ColumnDef } from "@tanstack/react-table";
 import { VehicleResource } from "../lib/vehicles.interface";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Pencil } from "lucide-react";
-import { DeleteButton } from "@/src/shared/components/SimpleDeleteDialog";
+import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import VehicleMovements from "./VehicleMovements";
 
 export type VehicleColumns = ColumnDef<VehicleResource>;

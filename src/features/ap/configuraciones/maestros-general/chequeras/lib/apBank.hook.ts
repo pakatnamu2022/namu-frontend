@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { ApBankResource, ApBankResponse } from "./apBank.interface";
 import { getAllApBank, getApBank } from "./apBank.actions";
-import { findBrandsById } from "@/src/features/ap/configuraciones/vehiculos/marcas/lib/brands.actions";
+import { findBrandsById } from "@/features/ap/configuraciones/vehiculos/marcas/lib/brands.actions";
 import { BANK_AP } from "./apBank.constants";
 
 const { QUERY_KEY } = BANK_AP;

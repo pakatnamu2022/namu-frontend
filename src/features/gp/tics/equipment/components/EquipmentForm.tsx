@@ -20,10 +20,10 @@ import {
   equipmentSchemaUpdate,
 } from "../lib/equipment.schema";
 import { EquipmentTypeResource } from "../../equipmentType/lib/equipmentType.interface";
-import { FormSelect } from "@/src/shared/components/FormSelect";
-import { SedeResource } from "@/src/features/gp/maestro-general/sede/lib/sede.interface";
-import { DatePickerFormField } from "@/src/shared/components/DatePickerFormField";
-import Link from "next/link";
+import { FormSelect } from "@/shared/components/FormSelect";
+import { SedeResource } from "@/features/gp/maestro-general/sede/lib/sede.interface";
+import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
+import { Link } from 'react-router-dom'
 
 interface EquipmentFormProps {
   defaultValues: Partial<EquipmentSchema>;
@@ -323,7 +323,7 @@ export const EquipmentForm = ({
           </code>
         </pre> */}
         <div className="flex gap-4 w-full justify-end">
-          <Link href={mode === "create" ? "./" : "../"}>
+          <Link to={mode === "create" ? "./" : "../"}>
             <Button type="button" variant="outline">
               Cancelar
             </Button>

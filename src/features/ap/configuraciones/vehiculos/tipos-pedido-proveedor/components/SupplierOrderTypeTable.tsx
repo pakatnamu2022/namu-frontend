@@ -1,4 +1,4 @@
-import { DataTable } from "@/src/shared/components/DataTable";
+import { DataTable } from "@/shared/components/DataTable";
 import { SupplierOrderTypeResource } from "../lib/supplierOrderType.interface";
 import { SupplierOrderTypeColumns } from "./SupplierOrderTypeColumns";
 

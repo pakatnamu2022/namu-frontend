@@ -1,8 +1,8 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { useAuthStore } from "@/src/features/auth/lib/auth.store";
-import { ViewsResponseMenuChild } from "@/src/features/views/lib/views.interface";
+import { useAuthStore } from "@/features/auth/lib/auth.store";
+import { ViewsResponseMenuChild } from "@/features/views/lib/views.interface";
 
 function findRouteInChildren(
   children: ViewsResponseMenuChild[],

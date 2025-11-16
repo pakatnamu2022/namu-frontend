@@ -1,14 +1,14 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import GeneralSheet from "@/src/shared/components/GeneralSheet";
-import { useAllSedes } from "@/src/features/gp/maestro-general/sede/lib/sede.hook";
+import GeneralSheet from "@/shared/components/GeneralSheet";
+import { useAllSedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import { useUserSedes, useStoreUserSedes } from "../lib/user.hook";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Loader, Building2, MapPin, Search } from "lucide-react";
-import { errorToast, successToast } from "@/src/core/core.function";
+import { errorToast, successToast } from "@/core/core.function";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 

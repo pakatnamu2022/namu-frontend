@@ -1,4 +1,4 @@
-import { DataTable } from "@/src/shared/components/DataTable";
+import { DataTable } from "@/shared/components/DataTable";
 import { GearShiftTypeResource } from "../lib/gearShiftType.interface";
 import { GearShiftTypeColumns } from "./GearShiftTypeColumns";
 

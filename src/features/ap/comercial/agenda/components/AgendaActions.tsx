@@ -2,11 +2,11 @@
 
 import { Button } from "@/components/ui/button";
 import { BriefcaseBusiness } from "lucide-react";
-import ActionsWrapper from "@/src/shared/components/ActionsWrapper";
-import { useRouter } from "next/navigation";
+import ActionsWrapper from "@/shared/components/ActionsWrapper";
+import { useNavigate } from 'react-router-dom';
 import { OPPORTUNITIES } from "../../oportunidades/lib/opportunities.constants";
-import { SearchableSelect } from "@/src/shared/components/SearchableSelect";
-import { WorkerResource } from "@/src/features/gp/gestionhumana/personal/trabajadores/lib/worker.interface";
+import { SearchableSelect } from "@/shared/components/SearchableSelect";
+import { WorkerResource } from "@/features/gp/gestionhumana/personal/trabajadores/lib/worker.interface";
 
 interface Props {
   permissions: {
@@ -23,7 +23,7 @@ export default function AgendaActions({
   selectedAdvisorId,
   setSelectedAdvisorId,
 }: Props) {
-  const { push } = useRouter();
+  const push = useNavigate();
   const { ABSOLUTE_ROUTE } = OPPORTUNITIES;
 
   const handleOpportunities = () => {

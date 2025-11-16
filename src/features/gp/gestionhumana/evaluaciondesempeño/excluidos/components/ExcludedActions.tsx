@@ -5,7 +5,7 @@ import { Plus } from "lucide-react";
 import { useState } from "react";
 import ExcludedModal from "./ExcludedModal";
 import { EXCLUDED } from "../lib/excluded.constants";
-import ActionsWrapper from "@/src/shared/components/ActionsWrapper";
+import ActionsWrapper from "@/shared/components/ActionsWrapper";
 
 const { MODEL } = EXCLUDED;
 

@@ -5,15 +5,15 @@ import {
   errorToast,
   SUCCESS_MESSAGE,
   successToast,
-} from "@/src/core/core.function";
+} from "@/core/core.function";
 import { BrandGroupResource } from "../lib/brandGroup.interface";
 import { BrandGroupSchema } from "../lib/brandGroup.schema";
 import { storeBrandGroup, updateBrandGroup } from "../lib/brandGroup.actions";
-import { GeneralModal } from "@/src/shared/components/GeneralModal";
+import { GeneralModal } from "@/shared/components/GeneralModal";
 import { useBrandGroupById } from "../lib/brandGroup.hook";
 import { BrandGroupForm } from "./BrandGroupForm";
-import FormSkeleton from "@/src/shared/components/FormSkeleton";
-import { AP_MASTER_COMERCIAL } from "@/src/features/ap/lib/ap.constants";
+import FormSkeleton from "@/shared/components/FormSkeleton";
+import { AP_MASTER_COMERCIAL } from "@/features/ap/lib/ap.constants";
 
 interface Props {
   id?: number;

@@ -1,5 +1,5 @@
 // import { AxiosRequestConfig } from "axios";
-// import { api } from "@/src/core/api";
+// import { api } from "@/core/api";
 // import { SunatConcept } from "./electronicDocument.types";
 
 // const ENDPOINT = "/api/gp/mg/sunatConcepts";
