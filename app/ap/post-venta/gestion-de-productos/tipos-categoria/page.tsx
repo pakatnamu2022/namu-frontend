@@ -22,8 +22,8 @@ import { typesCategoryColumns } from "@/features/ap/post-venta/gestion-productos
 import TypesCategoryOptions from "@/features/ap/post-venta/gestion-productos/tipos-categoria/components/TypesCategoryOptions";
 import TypesCategoryModal from "@/features/ap/post-venta/gestion-productos/tipos-categoria/components/TypesCategoryModal";
 import { useTypesCategory } from "@/features/ap/post-venta/gestion-productos/tipos-categoria/lib/typesCategory.hook";
+import NotFound from '@/app/not-found';
 import {
-import NotFound from "@/app/not-found";
 
   deleteTypesCategory,
   updateTypesCategory,

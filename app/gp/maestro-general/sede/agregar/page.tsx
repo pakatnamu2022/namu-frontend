@@ -15,7 +15,7 @@ import { SEDE } from "@/features/gp/maestro-general/sede/lib/sede.constants";
 import { storeSede } from "@/features/gp/maestro-general/sede/lib/sede.actions";
 import { SedeSchema } from "@/features/gp/maestro-general/sede/lib/sede.schema";
 import { SedeForm } from "@/features/gp/maestro-general/sede/components/SedeForm";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function CreateSedePage() {

@@ -26,7 +26,7 @@ import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { ENGINE_TYPES } from "@/features/ap/configuraciones/vehiculos/tipos-motor/lib/engineTypes.constants";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function EngineTypesPage() {

@@ -20,7 +20,7 @@ import {
   updateReceptionChecklist,
 } from "@/features/ap/comercial/envios-recepciones/lib/shipmentsReceptions.actions";
 import { ReceptionChecklistForm } from "@/features/ap/comercial/envios-recepciones/components/ReceptionChecklistForm";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function ReceptionChecklistPage() {

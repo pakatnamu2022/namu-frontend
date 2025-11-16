@@ -10,7 +10,7 @@ import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { ApGoalSellOutInReportTable } from "@/features/ap/configuraciones/ventas/metas-venta/components/ApGoalSellOutInReportTable";
 import { ApGoalSellOutInReportData } from "@/features/ap/configuraciones/ventas/metas-venta/lib/apGoalSellOutIn.interface";
 import BackButton from "@/shared/components/BackButton";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function ApGoalSellOutInSummaryPage() {

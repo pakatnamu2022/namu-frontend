@@ -26,7 +26,7 @@ import { taxClassTypesColumns } from "@/features/ap/configuraciones/maestros-gen
 import TaxClassTypesOptions from "@/features/ap/configuraciones/maestros-general/tipos-clase-impuesto/components/TaxClassTypesOptions";
 import TaxClassTypesModal from "@/features/ap/configuraciones/maestros-general/tipos-clase-impuesto/components/TaxClassTypesModal";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function TaxClassTypesPage() {

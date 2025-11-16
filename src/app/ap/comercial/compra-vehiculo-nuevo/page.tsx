@@ -21,7 +21,7 @@ import VehiclePurchaseOrderActions from "@/features/ap/comercial/ordenes-compra-
 import { vehiclePurchaseOrderColumns } from "@/features/ap/comercial/ordenes-compra-vehiculo/components/VehiclePurchaseOrderColumns";
 import VehiclePurchaseOrderTable from "@/features/ap/comercial/ordenes-compra-vehiculo/components/VehiclePurchaseOrderTable";
 import VehiclePurchaseOrderOptions from "@/features/ap/comercial/ordenes-compra-vehiculo/components/VehiclePurchaseOrderOptions";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function VehiclePurchaseOrderPage() {

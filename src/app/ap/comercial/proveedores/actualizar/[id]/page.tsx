@@ -21,7 +21,7 @@ import {
 import { SuppliersSchema } from "@/features/ap/comercial/proveedores/lib/suppliers.schema";
 import { SuppliersResource } from "@/features/ap/comercial/proveedores/lib/suppliers.interface";
 import { SuppliersForm } from "@/features/ap/comercial/proveedores/components/SuppliersForm";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function EditSuppliersPage() {

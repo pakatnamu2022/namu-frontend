@@ -21,7 +21,7 @@ import { POSITION } from "@/features/gp/gestionhumana/personal/posiciones/lib/po
 import { positionColumns } from "@/features/gp/gestionhumana/personal/posiciones/components/PositionColumns";
 import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function PositionsPage() {

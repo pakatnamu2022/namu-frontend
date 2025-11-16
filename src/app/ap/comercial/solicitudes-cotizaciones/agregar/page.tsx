@@ -15,7 +15,7 @@ import { PURCHASE_REQUEST_QUOTE } from "@/features/ap/comercial/solicitudes-coti
 import { storePurchaseRequestQuote } from "@/features/ap/comercial/solicitudes-cotizaciones/lib/purchaseRequestQuote.actions";
 import { PurchaseRequestQuoteSchema } from "@/features/ap/comercial/solicitudes-cotizaciones/lib/purchaseRequestQuote.schema";
 import { PurchaseRequestQuoteForm } from "@/features/ap/comercial/solicitudes-cotizaciones/components/PurchaseRequestQuoteForm";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function CreatePurchaseRequestQuotePage() {

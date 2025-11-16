@@ -16,7 +16,7 @@ import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import FormWrapper from "@/shared/components/FormWrapper";
 import { POSITION } from "@/features/gp/gestionhumana/personal/posiciones/lib/position.constant";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function EditPositionPage() {

@@ -24,7 +24,7 @@ import { apSafeCreditGoalColumns } from "@/features/ap/configuraciones/ventas/me
 import ApSafeCreditGoalModal from "@/features/ap/configuraciones/ventas/metas-credito-seguro/components/ApSafeCreditGoalModal";
 import { AP_SAFE_CREDIT_GOAL } from "@/features/ap/configuraciones/ventas/metas-credito-seguro/lib/apSafeCreditGoal.constants";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function ApSafeCreditGoalPage() {

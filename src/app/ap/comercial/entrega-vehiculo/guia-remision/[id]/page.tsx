@@ -23,7 +23,7 @@ import { ArrowLeft, ExternalLink } from "lucide-react";
 import { errorToast, successToast } from "@/core/core.function";
 import { Separator } from "@/components/ui/separator";
 import { JSX } from "react";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 export default function ShippingGuidePage(): JSX.Element {
   const params = useParams();

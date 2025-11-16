@@ -26,7 +26,7 @@ import { useAllObjectives } from "@/features/gp/gestionhumana/evaluaciondesempe�
 import { HierarchicalCategoryCompetenceModal } from "@/features/gp/gestionhumana/evaluaciondesempeño/categorias-jerarquicas/components/HierarchicalCategoryCompetencesModal";
 import { useAllCompetences } from "@/features/gp/gestionhumana/evaluaciondesempeño/competencias/lib/competence.hook";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function HierarchicalCategoryosPage() {

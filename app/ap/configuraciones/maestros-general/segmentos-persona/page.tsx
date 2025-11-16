@@ -26,7 +26,7 @@ import { personSegmentColumns } from "@/features/ap/configuraciones/maestros-gen
 import PersonSegmentOptions from "@/features/ap/configuraciones/maestros-general/segmentos-persona/components/PersonSegmentOptions";
 import PersonSegmentModal from "@/features/ap/configuraciones/maestros-general/segmentos-persona/components/PersonSegmentModal";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function PersonSegmentPage() {

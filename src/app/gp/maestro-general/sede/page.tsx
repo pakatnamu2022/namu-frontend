@@ -24,7 +24,7 @@ import SedeActions from "@/features/gp/maestro-general/sede/components/SedeActio
 import SedeTable from "@/features/gp/maestro-general/sede/components/SedeTable";
 import SedeOptions from "@/features/gp/maestro-general/sede/components/SedeOptions";
 import { sedeColumns } from "@/features/gp/maestro-general/sede/components/SedeColumns";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function SedePage() {

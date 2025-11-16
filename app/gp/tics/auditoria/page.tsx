@@ -13,7 +13,7 @@ import AuditLogsActions from "@/features/gp/tics/auditoria/components/AuditLogsA
 import AuditLogsTable from "@/features/gp/tics/auditoria/components/AuditLogsTable";
 import { auditLogsColumns } from "@/features/gp/tics/auditoria/components/AuditLogsColumns";
 import AuditLogsOptions from "@/features/gp/tics/auditoria/components/AuditLogsOptions";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function AuditLogsPage() {

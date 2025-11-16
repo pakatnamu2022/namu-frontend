@@ -26,7 +26,7 @@ import { unitMeasurementColumns } from "@/features/ap/configuraciones/maestros-g
 import UnitMeasurementOptions from "@/features/ap/configuraciones/maestros-general/unidad-medida/components/UnitMeasurementOptions";
 import UnitMeasurementModal from "@/features/ap/configuraciones/maestros-general/unidad-medida/components/UnitMeasurementModal";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function UnitMeasurementPage() {

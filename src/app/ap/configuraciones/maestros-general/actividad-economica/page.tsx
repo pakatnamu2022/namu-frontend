@@ -26,7 +26,7 @@ import { economicActivityColumns } from "@/features/ap/configuraciones/maestros-
 import EconomicActivityOptions from "@/features/ap/configuraciones/maestros-general/actividad-economica/components/EconomicActivityOptions";
 import EconomicActivityModal from "@/features/ap/configuraciones/maestros-general/actividad-economica/components/EconomicActivityModal";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function EconomicActivityPage() {

@@ -21,7 +21,7 @@ import {
   updateShipmentsReceptions,
 } from "@/features/ap/comercial/envios-recepciones/lib/shipmentsReceptions.actions";
 import { ShipmentsReceptionsResource } from "@/features/ap/comercial/envios-recepciones/lib/shipmentsReceptions.interface";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function UpdateShipmentsReceptionsPage() {

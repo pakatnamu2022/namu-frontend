@@ -16,7 +16,7 @@ import { SUPPLIERS } from "@/features/ap/comercial/proveedores/lib/suppliers.con
 import { storeSuppliers } from "@/features/ap/comercial/proveedores/lib/suppliers.actions";
 import { SuppliersSchema } from "@/features/ap/comercial/proveedores/lib/suppliers.schema";
 import { SuppliersForm } from "@/features/ap/comercial/proveedores/components/SuppliersForm";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function CreateSuppliersPage() {

@@ -27,7 +27,7 @@ import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { FAMILIES } from "@/features/ap/configuraciones/vehiculos/familias/lib/families.constants";
 import { useAllBrands } from "@/features/ap/configuraciones/vehiculos/marcas/lib/brands.hook";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function FamiliesPage() {

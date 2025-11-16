@@ -13,7 +13,7 @@ import { useElectronicDocument } from "@/features/ap/facturacion/electronic-docu
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { CreditNoteSchema } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.schema";
 import { CreditNoteForm } from "@/features/ap/facturacion/electronic-documents/components/forms/CreditNoteForm";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function CreateCreditNotePage() {

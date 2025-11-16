@@ -17,7 +17,7 @@ import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { UserSedesSheet } from "@/features/gp/gestionsistema/usuarios/components/UserSedesSheet";
 import { UserResource } from "@/features/gp/gestionsistema/usuarios/lib/user.interface";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function UserPage() {

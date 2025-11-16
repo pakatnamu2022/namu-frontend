@@ -17,7 +17,7 @@ import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import { CustomersForm } from "@/features/ap/comercial/clientes/components/CustomersForm";
 import { EMPRESA_AP } from "@/core/core.constants";
 import { OPPORTUNITIES } from "@/features/ap/comercial/oportunidades/lib/opportunities.constants";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function CreateCustomersPage() {

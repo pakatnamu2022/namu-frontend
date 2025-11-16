@@ -24,7 +24,7 @@ import { useAllCycles } from "@/features/gp/gestionhumana/evaluaciondesempeño/c
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { useAllParameters } from "@/features/gp/gestionhumana/evaluaciondesempeño/parametros/lib/parameter.hook";
 import FormWrapper from "@/shared/components/FormWrapper";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 const { MODEL } = EVALUATION;

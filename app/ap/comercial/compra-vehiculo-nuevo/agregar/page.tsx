@@ -17,7 +17,7 @@ import { storeVehiclePurchaseOrder } from "@/features/ap/comercial/ordenes-compr
 import { VehiclePurchaseOrderSchema } from "@/features/ap/comercial/ordenes-compra-vehiculo/lib/vehiclePurchaseOrder.schema";
 import { VehiclePurchaseOrderForm } from "@/features/ap/comercial/ordenes-compra-vehiculo/components/VehiclePurchaseOrderForm";
 import { format } from "date-fns";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 export default function CreateVehiclePurchaseOrderPage() {
   const router = useNavigate();

@@ -26,7 +26,7 @@ import BankModal from "@/features/ap/configuraciones/maestros-general/bancos/com
 import { useBank } from "@/features/ap/configuraciones/maestros-general/bancos/lib/bank.hook";
 import { BANK } from "@/features/ap/configuraciones/maestros-general/bancos/lib/bank.constants";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function BankPage() {

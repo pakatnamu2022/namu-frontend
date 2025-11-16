@@ -15,7 +15,7 @@ import { APPROVED_ACCESSORIES } from "@/features/ap/post-venta/accesorios-homolo
 import { storeApprovedAccesories } from "@/features/ap/post-venta/accesorios-homologados/lib/approvedAccessories.actions";
 import { ApprovedAccesoriesSchema } from "@/features/ap/post-venta/accesorios-homologados/lib/approvedAccessories.schema";
 import { ApprovedAccesoriesForm } from "@/features/ap/post-venta/accesorios-homologados/components/ApprovedAccessoriesForm";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function CreateApprovedAccesoriesPage() {

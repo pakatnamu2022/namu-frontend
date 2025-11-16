@@ -25,7 +25,7 @@ import SuppliersTable from "@/features/ap/comercial/proveedores/components/Suppl
 import { suppliersColumns } from "@/features/ap/comercial/proveedores/components/SuppliersColumns";
 import SuppliersOptions from "@/features/ap/comercial/proveedores/components/SuppliersOptions";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function SuppliersPage() {

@@ -16,7 +16,7 @@ import { storeStoreVisits } from "@/features/ap/comercial/visitas-tienda/lib/sto
 import { StoreVisitsSchema } from "@/features/ap/comercial/visitas-tienda/lib/storeVisits.schema";
 import { StoreVisitsForm } from "@/features/ap/comercial/visitas-tienda/components/StoreVisitsForm";
 import { BUSINESS_PARTNERS, INCOME_SECTOR } from "@/core/core.constants";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function CreateStoreVisitsPage() {

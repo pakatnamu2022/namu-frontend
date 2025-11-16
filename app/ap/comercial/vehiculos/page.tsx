@@ -24,7 +24,7 @@ import { vehicleColumns } from "@/features/ap/comercial/vehiculos/components/Veh
 import VehicleTable from "@/features/ap/comercial/vehiculos/components/VehicleTable";
 import VehicleOptions from "@/features/ap/comercial/vehiculos/components/VehicleOptions";
 import VehicleModal from "@/features/ap/comercial/vehiculos/components/VehicleModal";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function VehiclesPage() {

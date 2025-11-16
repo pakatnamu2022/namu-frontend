@@ -21,7 +21,7 @@ import {
 import { WarehouseSchema } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.schema";
 import { WarehouseResource } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.interface";
 import { WarehouseForm } from "@/features/ap/configuraciones/maestros-general/almacenes/components/WarehouseForm";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function EditWarehousePage() {

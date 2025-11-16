@@ -9,7 +9,7 @@ import { HierarchicalCategorySchema } from "@/features/gp/gestionhumana/evaluaci
 import { HierarchicalCategoryForm } from "@/features/gp/gestionhumana/evaluaciondesempeño/categorias-jerarquicas/components/HierarchicalCategoryForm";
 import { storeHierarchicalCategory } from "@/features/gp/gestionhumana/evaluaciondesempeño/categorias-jerarquicas/lib/hierarchicalCategory.actions";
 import FormWrapper from "@/shared/components/FormWrapper";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function CreateHierarchicalCategoryPage() {

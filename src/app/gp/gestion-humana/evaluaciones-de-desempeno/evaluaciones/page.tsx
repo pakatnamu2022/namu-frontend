@@ -24,7 +24,7 @@ import { evaluationColumns } from "@/features/gp/gestionhumana/evaluaciondesempe
 import EvaluationOptions from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluaciones/components/EvaluationOptions";
 import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
 import { EVALUATION } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluaciones/lib/evaluation.constans";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 const { MODEL } = EVALUATION;

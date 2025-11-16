@@ -25,7 +25,7 @@ import { DEFAULT_PER_PAGE, STATUS_ACTIVE } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { BRAND } from "@/features/ap/configuraciones/vehiculos/marcas/lib/brands.constants";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function BrandsPage() {

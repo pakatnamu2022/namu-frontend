@@ -25,7 +25,7 @@ import ManageLeadsTable from "@/features/ap/comercial/gestionar-leads/components
 import { manageLeadsColumns } from "@/features/ap/comercial/gestionar-leads/components/ManageLeadsColumns";
 import ManageLeadsOptions from "@/features/ap/comercial/gestionar-leads/components/ManageLeadsOptions";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function ManageLeadsPage() {

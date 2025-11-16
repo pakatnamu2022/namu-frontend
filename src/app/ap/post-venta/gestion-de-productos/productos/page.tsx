@@ -21,8 +21,8 @@ import ProductTable from "@/features/ap/post-venta/gestion-productos/productos/c
 import { productColumns } from "@/features/ap/post-venta/gestion-productos/productos/components/ProductColumns";
 import ProductOptions from "@/features/ap/post-venta/gestion-productos/productos/components/ProductOptions";
 import { useProduct } from "@/features/ap/post-venta/gestion-productos/productos/lib/product.hook";
+import NotFound from '@/app/not-found';
 import {
-import NotFound from "@/app/not-found";
 
   deleteProduct,
   updateProduct,

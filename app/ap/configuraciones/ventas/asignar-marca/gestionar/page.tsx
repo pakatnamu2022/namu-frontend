@@ -17,7 +17,7 @@ import BackButton from "@/shared/components/BackButton";
 import FormWrapper from "@/shared/components/FormWrapper";
 import { ASSIGN_BRAND_CONSULTANT } from "@/features/ap/configuraciones/ventas/asignar-marca/lib/assignBrandConsultant.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function CreateAssignBrandConsultantPage() {

@@ -20,7 +20,7 @@ import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import { PARAMETER } from "@/features/gp/gestionhumana/evaluaciondesempeño/parametros/lib/parameter.constans";
 import ParameterForm from "@/features/gp/gestionhumana/evaluaciondesempeño/parametros/components/ParameterForm";
 import FormWrapper from "@/shared/components/FormWrapper";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 const { MODEL } = PARAMETER;

@@ -21,7 +21,7 @@ import {
 import { StoreVisitsSchema } from "@/features/ap/comercial/visitas-tienda/lib/storeVisits.schema";
 import { StoreVisitsResource } from "@/features/ap/comercial/visitas-tienda/lib/storeVisits.interface";
 import { StoreVisitsForm } from "@/features/ap/comercial/visitas-tienda/components/StoreVisitsForm";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function EditStoreVisitsPage() {

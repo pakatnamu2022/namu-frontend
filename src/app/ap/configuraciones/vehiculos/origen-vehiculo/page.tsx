@@ -26,7 +26,7 @@ import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { VEHICLE_ORIGIN } from "@/features/ap/configuraciones/vehiculos/origen-vehiculo/lib/typeVehicleOrigin.constants";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function TypeVehicleOriginPage() {

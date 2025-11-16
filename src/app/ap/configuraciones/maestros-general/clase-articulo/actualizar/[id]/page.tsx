@@ -21,7 +21,7 @@ import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import { ClassArticleForm } from "@/features/ap/configuraciones/maestros-general/clase-articulo/components/ClassArticleForm";
 import FormWrapper from "@/shared/components/FormWrapper";
 import { CLASS_ARTICLE } from "@/features/ap/configuraciones/maestros-general/clase-articulo/lib/classArticle.constants";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 const { MODEL, QUERY_KEY, ROUTE } = CLASS_ARTICLE;

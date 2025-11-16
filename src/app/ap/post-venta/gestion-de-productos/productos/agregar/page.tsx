@@ -15,7 +15,7 @@ import { PRODUCT } from "@/features/ap/post-venta/gestion-productos/productos/li
 import { storeProduct } from "@/features/ap/post-venta/gestion-productos/productos/lib/product.actions";
 import { ProductSchema } from "@/features/ap/post-venta/gestion-productos/productos/lib/product.schema";
 import { ProductForm } from "@/features/ap/post-venta/gestion-productos/productos/components/ProductForm";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function CreateProductPage() {

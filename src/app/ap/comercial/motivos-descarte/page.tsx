@@ -26,7 +26,7 @@ import ReasonsRejectionTable from "@/features/ap/comercial/motivos-descarte/comp
 import ReasonsRejectionOptions from "@/features/ap/comercial/motivos-descarte/components/ReasonsRejectionOptions";
 import ReasonsRejectionModal from "@/features/ap/comercial/motivos-descarte/components/ReasonsRejectionModal";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function ReasonsRejectionPage() {

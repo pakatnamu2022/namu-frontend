@@ -22,7 +22,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, ExternalLink } from "lucide-react";
 import { errorToast, successToast } from "@/core/core.function";
 import { Separator } from "@/components/ui/separator";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function ShippingGuidePage() {

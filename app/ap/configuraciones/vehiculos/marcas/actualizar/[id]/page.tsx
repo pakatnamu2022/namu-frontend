@@ -19,7 +19,7 @@ import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import { BrandsForm } from "@/features/ap/configuraciones/vehiculos/marcas/components/BrandsForm";
 import { BRAND } from "@/features/ap/configuraciones/vehiculos/marcas/lib/brands.constants";
 import FormWrapper from "@/shared/components/FormWrapper";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function EditBrandPage() {

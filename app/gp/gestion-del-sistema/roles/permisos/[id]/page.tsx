@@ -3,7 +3,7 @@
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import PermissionsForm from "@/features/gp/gestionsistema/permissions/components/PermissionsForm";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 import { useParams, useSearchParams } from "react-router-dom";
 
 export default function PermissionPage() {

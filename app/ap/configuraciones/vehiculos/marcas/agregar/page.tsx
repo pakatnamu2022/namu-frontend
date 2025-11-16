@@ -15,7 +15,7 @@ import { BrandsForm } from "@/features/ap/configuraciones/vehiculos/marcas/compo
 import { storeBrands } from "@/features/ap/configuraciones/vehiculos/marcas/lib/brands.actions";
 import FormWrapper from "@/shared/components/FormWrapper";
 import { BRAND } from "@/features/ap/configuraciones/vehiculos/marcas/lib/brands.constants";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function CreateBrandsPage() {

@@ -22,7 +22,7 @@ import { VehiclePurchaseOrderResource } from "@/features/ap/comercial/ordenes-co
 import { VehiclePurchaseOrderForm } from "@/features/ap/comercial/ordenes-compra-vehiculo/components/VehiclePurchaseOrderForm";
 import { format, parse } from "date-fns";
 import { useEffect } from "react";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function ResendVehiclePurchaseOrderPage() {

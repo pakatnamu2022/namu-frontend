@@ -4,7 +4,7 @@ import { useParams } from 'react-router-dom';
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import { EVALUATION } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluaciones/lib/evaluation.constans";
 import PerformanceEvaluationPage from "@/features/gp/gestionhumana/evaluaciondesempeño/dashboard/components/PerformanceEvaluationPage";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 const { ROUTE } = EVALUATION;

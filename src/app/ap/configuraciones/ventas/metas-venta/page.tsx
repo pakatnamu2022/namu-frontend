@@ -15,7 +15,7 @@ import ApGoalSellOutInTable from "@/features/ap/configuraciones/ventas/metas-ven
 import { apGoalSellOutInColumns } from "@/features/ap/configuraciones/ventas/metas-venta/components/ApGoalSellOutInColumns";
 import ApGoalSellOutInOptions from "@/features/ap/configuraciones/ventas/metas-venta/components/ApGoalSellOutInOptions";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function ApGoalSellOutInPage() {

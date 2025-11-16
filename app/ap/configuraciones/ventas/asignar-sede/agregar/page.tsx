@@ -17,7 +17,7 @@ import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import { AssignCompanyBranchSchema } from "@/features/ap/configuraciones/ventas/asignar-sede/lib/assignCompanyBranch.schema";
 import { AssignCompanyBranchForm } from "@/features/ap/configuraciones/ventas/asignar-sede/components/AssignCompanyBranchForm";
 import { storeAssignCompanyBranch } from "@/features/ap/configuraciones/ventas/asignar-sede/lib/assignCompanyBranch.actions";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function CreateAssignCompanyBranchPage() {

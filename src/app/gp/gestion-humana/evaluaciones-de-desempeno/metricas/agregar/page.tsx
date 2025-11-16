@@ -9,7 +9,7 @@ import { MetricForm } from "@/features/gp/gestionhumana/evaluaciondesempeño/met
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import FormWrapper from "@/shared/components/FormWrapper";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function CreateMetricPage() {

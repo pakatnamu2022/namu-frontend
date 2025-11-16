@@ -13,7 +13,7 @@ import { useElectronicDocument } from "@/features/ap/facturacion/electronic-docu
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { DebitNoteSchema } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.schema";
 import { DebitNoteForm } from "@/features/ap/facturacion/electronic-documents/components/forms/DebitNoteForm";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function CreateDebitNotePage() {

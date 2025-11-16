@@ -26,7 +26,7 @@ import AccountingAccountTypeOptions from "@/features/ap/configuraciones/maestros
 import AccountingAccountTypeModal from "@/features/ap/configuraciones/maestros-general/tipos-cuenta-contable/components/AccountingAccountTypeModal";
 import { ACCOUNTING_ACCOUNT_TYPE } from "@/features/ap/configuraciones/maestros-general/tipos-cuenta-contable/lib/accountingAccountType.constants";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function AccountingAccountTypePage() {

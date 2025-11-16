@@ -15,7 +15,7 @@ import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import { ApBankForm } from "@/features/ap/configuraciones/maestros-general/chequeras/components/ApBankForm";
 import FormWrapper from "@/shared/components/FormWrapper";
 import { BANK_AP } from "@/features/ap/configuraciones/maestros-general/chequeras/lib/apBank.constants";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function CreateApBankPage() {

@@ -21,7 +21,7 @@ import { useWorkers } from "@/features/gp/gestionhumana/personal/trabajadores/li
 import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import { WORKER } from "@/features/gp/gestionhumana/personal/trabajadores/lib/worker.constant";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 const { MODEL, ROUTE } = WORKER;

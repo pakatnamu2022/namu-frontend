@@ -21,7 +21,7 @@ import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
 import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import { METRIC } from "@/features/gp/gestionhumana/evaluaciondesempeño/metricas/lib/metric.constant";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 const { MODEL } = METRIC;

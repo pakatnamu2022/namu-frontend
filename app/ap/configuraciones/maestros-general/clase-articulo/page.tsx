@@ -25,7 +25,7 @@ import ClassArticleOptions from "@/features/ap/configuraciones/maestros-general/
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { CLASS_ARTICLE } from "@/features/ap/configuraciones/maestros-general/clase-articulo/lib/classArticle.constants";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function ClassArticlePage() {

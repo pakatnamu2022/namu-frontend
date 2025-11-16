@@ -31,7 +31,7 @@ import CyclePersonDetailOptions from "@/features/gp/gestionhumana/evaluaciondese
 import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import { Badge } from "@/components/ui/badge";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function CyclePersonDetailPage() {

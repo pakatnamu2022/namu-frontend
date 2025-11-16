@@ -9,13 +9,11 @@ import { useEffect } from "react";
 import MetricasPage from "../../../gp/gestion-humana/evaluaciones-de-desempeno/metricas/page";
 import NotFound from "@/app/not-found";
 
-
 export default function ModulePage() {
-    const { company, moduleSlug, subModuleSlug, currentSubmodule } =
+  const { company, moduleSlug, subModuleSlug, currentSubmodule } =
     useCurrentModule();
   const { permissions } = useAuthStore();
   const router = useNavigate();
-  
 
   useEffect(() => {
     // Si no hay empresa, no redirigir
@@ -59,7 +57,7 @@ export default function ModulePage() {
     return <MetricasPage />;
   }
 
-  if (subModuleSlug === "null") notFound();
+  if (subModuleSlug === "null") return <NotFound />;
 
   // Mientras se procesa la redirección, mostrar null o un loader
   return null;

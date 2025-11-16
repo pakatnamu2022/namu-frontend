@@ -22,7 +22,7 @@ import StoreVisitsTable from "@/features/ap/comercial/visitas-tienda/components/
 import { storeVisitsColumns } from "@/features/ap/comercial/visitas-tienda/components/StoreVisitsColumns";
 import StoreVisitsOptions from "@/features/ap/comercial/visitas-tienda/components/StoreVisitsOptions";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function StoreVisitsPage() {

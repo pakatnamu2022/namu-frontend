@@ -32,7 +32,7 @@ import EstablishmentsActions from "@/features/ap/comercial/establecimientos/comp
 import EstablishmentsTable from "@/features/ap/comercial/establecimientos/components/EstablishmentsTable";
 import EstablishmentsOptions from "@/features/ap/comercial/establecimientos/components/EstablishmentsOptions";
 import { useEstablishments } from "@/features/ap/comercial/establecimientos/lib/establishments.hook";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function EstablishmentsListPage() {

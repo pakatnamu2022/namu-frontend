@@ -22,7 +22,7 @@ import { CustomersSchema } from "@/features/ap/comercial/clientes/lib/customers.
 import { CustomersResource } from "@/features/ap/comercial/clientes/lib/customers.interface";
 import { CustomersForm } from "@/features/ap/comercial/clientes/components/CustomersForm";
 import { parse } from "date-fns";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function EditCustomersPage() {

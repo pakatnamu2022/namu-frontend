@@ -1,15 +1,14 @@
 "use client";
 
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import PageSkeleton from "@/shared/components/PageSkeleton";
 import { PositionForm } from "@/features/gp/gestionhumana/personal/posiciones/components/PositionForm";
 import { useState } from "react";
 import { storePosition } from "@/features/gp/gestionhumana/personal/posiciones/lib/position.actions";
 import { POSITION } from "@/features/gp/gestionhumana/personal/posiciones/lib/position.constant";
-import {
 import NotFound from "@/app/not-found";
-
+import {
   ERROR_MESSAGE,
   errorToast,
   SUCCESS_MESSAGE,
@@ -17,7 +16,7 @@ import NotFound from "@/app/not-found";
 } from "@/core/core.function";
 
 export default function AddPositionPage() {
-    const { checkRouteExists, isLoadingModule } = useCurrentModule();
+  const { checkRouteExists, isLoadingModule } = useCurrentModule();
   const router = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
 

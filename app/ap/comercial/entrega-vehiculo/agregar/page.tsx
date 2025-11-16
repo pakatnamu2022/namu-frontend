@@ -16,7 +16,7 @@ import { storeVehicleDelivery } from "@/features/ap/comercial/entrega-vehiculo/l
 import { VehicleDeliverySchema } from "@/features/ap/comercial/entrega-vehiculo/lib/vehicleDelivery.schema";
 import { VehicleDeliveryForm } from "@/features/ap/comercial/entrega-vehiculo/components/VehicleDeliveryForm";
 import { format } from "date-fns";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function CreateVehicleDeliveryPage() {

@@ -30,7 +30,7 @@ import {
   getAllPermissions,
 } from "@/features/gp/gestionsistema/permissions/lib/permissions.actions";
 import { PERMISSION_ACTIONS } from "@/shared/hooks/useModulePermissions";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function ViewPermissionsPage() {

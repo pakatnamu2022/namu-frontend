@@ -36,7 +36,7 @@ import { purchaseRequestQuoteColumns } from "@/features/ap/comercial/solicitudes
 import PurchaseRequestQuoteOptions from "@/features/ap/comercial/solicitudes-cotizaciones/components/PurchaseRequestQuoteOptions";
 import AssignVehicleModal from "@/features/ap/comercial/solicitudes-cotizaciones/components/AssignVehicleModal";
 import { PurchaseRequestQuoteResource } from "@/features/ap/comercial/solicitudes-cotizaciones/lib/purchaseRequestQuote.interface";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function PurchaseRequestQuotePage() {

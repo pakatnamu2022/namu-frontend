@@ -26,7 +26,7 @@ import { clientOriginColumns } from "@/features/ap/configuraciones/maestros-gene
 import ClientOriginOptions from "@/features/ap/configuraciones/maestros-general/origen-cliente/components/ClientOriginOptions";
 import ClientOriginModal from "@/features/ap/configuraciones/maestros-general/origen-cliente/components/ClientOriginModal";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function ClientOriginPage() {

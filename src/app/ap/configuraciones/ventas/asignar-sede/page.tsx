@@ -15,7 +15,7 @@ import AssignCompanyBranchActions from "@/features/ap/configuraciones/ventas/asi
 import { ASSIGN_COMPANY_BRANCH } from "@/features/ap/configuraciones/ventas/asignar-sede/lib/assignCompanyBranch.constants";
 import { generateYear } from "@/core/core.function";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function AssignCompanyBranchPage() {

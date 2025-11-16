@@ -16,7 +16,7 @@ import CommercialManagerBrandGroupOptions from "@/features/ap/configuraciones/ve
 import DataTablePagination from "@/shared/components/DataTablePagination";
 import { generateYear } from "@/core/core.function";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function CommercialManagerBrandGroupPage() {

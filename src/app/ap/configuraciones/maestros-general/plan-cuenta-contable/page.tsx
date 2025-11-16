@@ -26,7 +26,7 @@ import AccountingAccountPlanOptions from "@/features/ap/configuraciones/maestros
 import AccountingAccountPlanModal from "@/features/ap/configuraciones/maestros-general/plan-cuenta-contable/components/AccountingAccountPlanModal";
 import { ACCOUNTING_ACCOUNT_PLAN } from "@/features/ap/configuraciones/maestros-general/plan-cuenta-contable/lib/accountingAccountPlan.constants";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function AccountingAccountPlanPage() {

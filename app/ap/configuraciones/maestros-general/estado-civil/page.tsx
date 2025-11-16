@@ -26,7 +26,7 @@ import { maritalStatusColumns } from "@/features/ap/configuraciones/maestros-gen
 import MaritalStatusOptions from "@/features/ap/configuraciones/maestros-general/estado-civil/components/MaritalStatusOptions";
 import MaritalStatusModal from "@/features/ap/configuraciones/maestros-general/estado-civil/components/MaritalStatusModal";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function MaritalStatusPage() {

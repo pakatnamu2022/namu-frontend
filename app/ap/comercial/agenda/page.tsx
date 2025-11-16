@@ -19,7 +19,7 @@ import {
 import { EMPRESA_AP } from "@/core/core.constants";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { AGENDA } from "@/features/ap/comercial/agenda/lib/agenda.constants";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 export default function AgendaPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();

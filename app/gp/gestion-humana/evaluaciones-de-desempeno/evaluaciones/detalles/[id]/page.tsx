@@ -28,7 +28,7 @@ import { useEvaluationPersonResult } from "@/features/gp/gestionhumana/evaluacio
 import { WorkerResource } from "@/features/gp/gestionhumana/personal/trabajadores/lib/worker.interface";
 import { regenerateEvaluation } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluaciones/lib/evaluation.actions";
 import { regenerateEvaluationPerson } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/lib/evaluationPerson.actions";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 const { ROUTE } = EVALUATION;

@@ -26,7 +26,7 @@ import CurrencyTypesModal from "@/features/ap/configuraciones/maestros-general/t
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { CURRENCY_TYPES } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.constants";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function CurrencyTypesPage() {

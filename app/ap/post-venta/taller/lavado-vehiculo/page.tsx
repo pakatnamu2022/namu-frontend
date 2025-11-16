@@ -18,7 +18,7 @@ import { CARD_WASH_ROUTE } from "@/features/ap/comercial/entrega-vehiculo/lib/ve
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { cardWashColumns } from "@/features/ap/comercial/entrega-vehiculo/components/CardWashColumns";
 import { toast } from "sonner";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function CardWashPage() {

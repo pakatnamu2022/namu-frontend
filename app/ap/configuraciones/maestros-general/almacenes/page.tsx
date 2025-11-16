@@ -28,7 +28,7 @@ import WarehouseTable from "@/features/ap/configuraciones/maestros-general/almac
 import { warehouseColumns } from "@/features/ap/configuraciones/maestros-general/almacenes/components/WarehouseColumns";
 import WarehouseOptions from "@/features/ap/configuraciones/maestros-general/almacenes/components/WarehouseOptions";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function WarehousePage() {

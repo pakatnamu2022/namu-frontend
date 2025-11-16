@@ -26,7 +26,7 @@ import { useElectronicDocument } from "@/features/ap/facturacion/electronic-docu
 import { SUNAT_CONCEPTS_TYPE } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { useAuthorizedSeries } from "@/features/ap/configuraciones/maestros-general/asignar-serie-usuario/lib/userSeriesAssignment.hook";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function UpdateElectronicDocumentPage() {

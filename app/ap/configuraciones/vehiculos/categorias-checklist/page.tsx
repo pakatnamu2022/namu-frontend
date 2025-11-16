@@ -26,7 +26,7 @@ import { categoryChecklistColumns } from "@/features/ap/configuraciones/vehiculo
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { CATEGORY_CHECKLIST } from "@/features/ap/configuraciones/vehiculos/categorias-checklist/lib/categoryChecklist.constants";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function CategoryChecklistPage() {

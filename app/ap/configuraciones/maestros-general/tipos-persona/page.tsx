@@ -26,7 +26,7 @@ import { typeClientColumns } from "@/features/ap/configuraciones/maestros-genera
 import TypeClientOptions from "@/features/ap/configuraciones/maestros-general/tipos-persona/components/TypeClientOptions";
 import TypeClientModal from "@/features/ap/configuraciones/maestros-general/tipos-persona/components/TypeClientModal";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function TypeClientPage() {

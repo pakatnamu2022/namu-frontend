@@ -52,7 +52,7 @@ import { EMPRESA_AP } from "@/core/core.constants";
 import { useEffect, useState } from "react";
 import type { CarouselApi } from "@/components/ui/carousel";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 export default function OpportunitiesKanbanPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();

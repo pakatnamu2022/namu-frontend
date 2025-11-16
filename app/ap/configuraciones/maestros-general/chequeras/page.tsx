@@ -26,7 +26,7 @@ import { apBankColumns } from "@/features/ap/configuraciones/maestros-general/ch
 import { BANK_AP } from "@/features/ap/configuraciones/maestros-general/chequeras/lib/apBank.constants";
 import { useAllSedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function ApBankPage() {

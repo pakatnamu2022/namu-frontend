@@ -26,7 +26,7 @@ import { voucherTypesColumns } from "@/features/ap/configuraciones/maestros-gene
 import VoucherTypesOptions from "@/features/ap/configuraciones/maestros-general/tipos-comprobante/components/VoucherTypesOptions";
 import VoucherTypesModal from "@/features/ap/configuraciones/maestros-general/tipos-comprobante/components/VoucherTypesModal";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function VoucherTypesPage() {

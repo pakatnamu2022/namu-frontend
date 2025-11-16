@@ -21,7 +21,7 @@ import { useExcluded } from "@/features/gp/gestionhumana/evaluaciondesempeño/ex
 import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import { EXCLUDED } from "@/features/gp/gestionhumana/evaluaciondesempeño/excluidos/lib/excluded.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 const { MODEL } = EXCLUDED;

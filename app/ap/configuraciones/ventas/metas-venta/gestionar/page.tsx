@@ -17,7 +17,7 @@ import { AP_GOAL_SELL_OUT_IN } from "@/features/ap/configuraciones/ventas/metas-
 import { storeApGoalSellOutIn } from "@/features/ap/configuraciones/ventas/metas-venta/lib/apGoalSellOutIn.actions";
 import { ApGoalSellOutInSchema } from "@/features/ap/configuraciones/ventas/metas-venta/lib/apGoalSellOutIn.schema";
 import { ApGoalSellOutInForm } from "@/features/ap/configuraciones/ventas/metas-venta/components/ApGoalSellOutInForm";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function CreateApGoalSellOutInPage() {

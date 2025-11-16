@@ -26,7 +26,7 @@ import {
   useAllProvince,
 } from "@/features/gp/gestionsistema/ubicaciones/lib/location.hook";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function DistrictPage() {

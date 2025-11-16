@@ -25,7 +25,7 @@ import ApprovedAccesoriesOptions from "@/features/ap/post-venta/accesorios-homol
 import ApprovedAccesoriesTable from "@/features/ap/post-venta/accesorios-homologados/components/ApprovedAccessoriesTable";
 import ApprovedAccesoriesActions from "@/features/ap/post-venta/accesorios-homologados/components/ApprovedAccessoriesActions";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function ApprovedAccesoriesPage() {

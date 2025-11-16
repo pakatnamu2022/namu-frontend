@@ -19,7 +19,7 @@ import { EstablishmentsSchema } from "@/features/ap/comercial/establecimientos/l
 import { EstablishmentsForm } from "@/features/ap/comercial/establecimientos/components/EstablishmentsForm";
 import { CUSTOMERS } from "@/features/ap/comercial/clientes/lib/customers.constants";
 import { findCustomersById } from "@/features/ap/comercial/clientes/lib/customers.actions";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function NewEstablishmentPage() {

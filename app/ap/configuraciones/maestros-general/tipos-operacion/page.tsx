@@ -26,7 +26,7 @@ import { typesOperationColumns } from "@/features/ap/configuraciones/maestros-ge
 import TypesOperationOptions from "@/features/ap/configuraciones/maestros-general/tipos-operacion/components/TypesOperationOptions";
 import TypesOperationModal from "@/features/ap/configuraciones/maestros-general/tipos-operacion/components/TypesOperationModal";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function TypesOperationPage() {

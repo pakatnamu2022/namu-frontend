@@ -20,7 +20,7 @@ import AssignBrandConsultantTable from "@/features/ap/configuraciones/ventas/asi
 import AssignBrandConsultantActions from "@/features/ap/configuraciones/ventas/asignar-marca/components/assignBrandConsultantActions";
 import { ASSIGN_BRAND_CONSULTANT } from "@/features/ap/configuraciones/ventas/asignar-marca/lib/assignBrandConsultant.constants";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function AssignBrandConsultantPage() {

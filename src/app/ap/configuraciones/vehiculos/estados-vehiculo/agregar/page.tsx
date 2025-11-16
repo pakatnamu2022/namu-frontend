@@ -15,7 +15,7 @@ import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import { VehicleStatusForm } from "@/features/ap/configuraciones/vehiculos/estados-vehiculo/components/VehicleStatusForm";
 import FormWrapper from "@/shared/components/FormWrapper";
 import { VEHICLE_STATUS } from "@/features/ap/configuraciones/vehiculos/estados-vehiculo/lib/vehicleStatus.constants";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function CreateVehicleStatusPage() {

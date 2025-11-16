@@ -17,8 +17,8 @@ import { DISTRICT } from "@/features/ap/configuraciones/maestros-general/ubigeos
 import { DistrictResource } from "@/features/ap/configuraciones/maestros-general/ubigeos/lib/district.interface";
 import { DistrictForm } from "@/features/ap/configuraciones/maestros-general/ubigeos/components/DistrictForm";
 import { DistrictSchema } from "@/features/ap/configuraciones/maestros-general/ubigeos/lib/district.schema";
+import NotFound from '@/app/not-found';
 import {
-import NotFound from "@/app/not-found";
 
   findDistrictById,
   updateDistrict,

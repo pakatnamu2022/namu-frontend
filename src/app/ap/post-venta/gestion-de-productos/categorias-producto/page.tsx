@@ -22,8 +22,8 @@ import { productCategoryColumns } from "@/features/ap/post-venta/gestion-product
 import ProductCategoryOptions from "@/features/ap/post-venta/gestion-productos/categorias-producto/components/ProductCategoryOptions";
 import ProductCategoryModal from "@/features/ap/post-venta/gestion-productos/categorias-producto/components/ProductCategoryModal";
 import { useProductCategory } from "@/features/ap/post-venta/gestion-productos/categorias-producto/lib/productCategory.hook";
+import NotFound from '@/app/not-found';
 import {
-import NotFound from "@/app/not-found";
 
   deleteProductCategory,
   updateProductCategory,

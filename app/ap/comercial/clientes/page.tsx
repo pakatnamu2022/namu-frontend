@@ -25,7 +25,7 @@ import CustomersTable from "@/features/ap/comercial/clientes/components/Customer
 import { customersColumns } from "@/features/ap/comercial/clientes/components/CustomersColumns";
 import CustomersOptions from "@/features/ap/comercial/clientes/components/CustomersOptions";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function CustomersPage() {

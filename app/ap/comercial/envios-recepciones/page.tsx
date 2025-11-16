@@ -34,7 +34,7 @@ import { ReasonDialog } from "@/shared/components/ReasonDialog";
 import { Ban } from "lucide-react";
 import { ShipmentsReceptionsResource } from "@/features/ap/comercial/envios-recepciones/lib/shipmentsReceptions.interface";
 import { SheetShipmentDetailsDialog } from "@/features/ap/comercial/envios-recepciones/components/SheetShipmentDetailsDialog";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function ShipmentsReceptionsPage() {

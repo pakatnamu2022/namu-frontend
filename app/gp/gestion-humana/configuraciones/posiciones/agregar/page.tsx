@@ -7,8 +7,8 @@ import { PositionForm } from "@/features/gp/gestionhumana/personal/posiciones/co
 import { useState } from "react";
 import { storePosition } from "@/features/gp/gestionhumana/personal/posiciones/lib/position.actions";
 import { POSITION } from "@/features/gp/gestionhumana/personal/posiciones/lib/position.constant";
+import NotFound from '@/app/not-found';
 import {
-import NotFound from "@/app/not-found";
 
   ERROR_MESSAGE,
   errorToast,

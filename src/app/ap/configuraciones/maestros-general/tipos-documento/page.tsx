@@ -26,7 +26,7 @@ import { documentTypeColumns } from "@/features/ap/configuraciones/maestros-gene
 import DocumentTypeOptions from "@/features/ap/configuraciones/maestros-general/tipos-documento/components/DocumentTypesOptions";
 import DocumentTypeModal from "@/features/ap/configuraciones/maestros-general/tipos-documento/components/DocumentTypesModal";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function DocumentTypePage() {

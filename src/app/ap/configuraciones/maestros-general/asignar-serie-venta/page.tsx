@@ -27,7 +27,7 @@ import AssignSalesSeriesOptions from "@/features/ap/configuraciones/maestros-gen
 import { useAllSedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import { useAllTypesOperation } from "@/features/ap/configuraciones/maestros-general/tipos-operacion/lib/typesOperation.hook";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function AssignSalesSeriesPage() {

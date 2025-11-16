@@ -30,7 +30,7 @@ import { VEHICLE_DELIVERY } from "@/features/ap/comercial/entrega-vehiculo/lib/v
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { VehicleDeliveryDetailsSheet } from "@/features/ap/comercial/entrega-vehiculo/components/VehicleDeliveryDetailsSheet";
 import { VehiclesDeliveryResource } from "@/features/ap/comercial/entrega-vehiculo/lib/vehicleDelivery.interface";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function VehicleDeliveryPage() {

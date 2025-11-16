@@ -14,7 +14,7 @@ import { userSeriesAssignmentColumns } from "@/features/ap/configuraciones/maest
 import UserSeriesAssignmentOptions from "@/features/ap/configuraciones/maestros-general/asignar-serie-usuario/components/UserSeriesAssignmentOptions";
 import { USER_SERIES_ASSIGNMENT } from "@/features/ap/configuraciones/maestros-general/asignar-serie-usuario/lib/userSeriesAssignment.constants";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function UserSeriesAssignmentPage() {

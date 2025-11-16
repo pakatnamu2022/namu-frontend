@@ -26,7 +26,7 @@ import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
 import ShopModal from "@/features/ap/configuraciones/ventas/tiendas/components/ShopModal";
 import DataTablePagination from "@/shared/components/DataTablePagination";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function ShopPage() {

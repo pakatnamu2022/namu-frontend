@@ -26,7 +26,7 @@ import { typeGenderColumns } from "@/features/ap/configuraciones/maestros-genera
 import TypeGenderOptions from "@/features/ap/configuraciones/maestros-general/tipos-sexo/components/TypesGenderOptions";
 import TypeGenderModal from "@/features/ap/configuraciones/maestros-general/tipos-sexo/components/TypesGenderModal";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import NotFound from "@/app/not-found";
+import NotFound from '@/app/not-found';
 
 
 export default function TypeGenderPage() {
