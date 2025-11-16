@@ -229,7 +229,7 @@ export default function NamuPerformancePage() {
                   }}
                   value={selectedEvaluationId?.toString() ?? ""}
                   placeholder="Selecciona la Evaluación..."
-                  className="!w-80"
+                  className="w-80!"
                 />
               )}
 

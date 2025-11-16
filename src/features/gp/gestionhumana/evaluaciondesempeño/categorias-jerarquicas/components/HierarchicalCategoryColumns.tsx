@@ -127,7 +127,7 @@ export const hierarchicalCategoryColumns = ({
             <Users2 className="size-5" />
             <Badge
               variant="tertiary"
-              className="size-5 aspect-square !p-0 flex justify-center items-center rounded-full text-xs"
+              className="size-5 aspect-square p-0! flex justify-center items-center rounded-full text-xs"
             >
               {row.original.children?.length || 0}
             </Badge>
@@ -144,7 +144,7 @@ export const hierarchicalCategoryColumns = ({
             <Dumbbell className="size-5" />
             <Badge
               variant="default"
-              className="size-5 aspect-square !p-0 flex justify-center items-center rounded-full text-xs"
+              className="size-5 aspect-square p-0! flex justify-center items-center rounded-full text-xs"
             >
               {row.original.objectives.length || 0}
             </Badge>
@@ -161,7 +161,7 @@ export const hierarchicalCategoryColumns = ({
             <BookmarkCheck className="size-5" />
             <Badge
               variant="default"
-              className="size-5 aspect-square !p-0 flex justify-center items-center rounded-full text-xs"
+              className="size-5 aspect-square p-0! flex justify-center items-center rounded-full text-xs"
             >
               {row.original.competences.length || 0}
             </Badge>

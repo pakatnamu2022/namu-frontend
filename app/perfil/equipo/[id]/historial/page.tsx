@@ -245,7 +245,7 @@ export default function HistorialPage() {
                       }}
                       value={selectedEvaluationId?.toString() ?? ""}
                       placeholder="Selecciona la Evaluación..."
-                      className="!w-80"
+                      className="w-80!"
                     />
                   )}
                   <Button
@@ -335,7 +335,7 @@ export default function HistorialPage() {
                   }}
                   value={selectedEvaluationId?.toString() ?? ""}
                   placeholder="Selecciona la Evaluación..."
-                  className="!w-80"
+                  className="w-80!"
                 />
               )}
 

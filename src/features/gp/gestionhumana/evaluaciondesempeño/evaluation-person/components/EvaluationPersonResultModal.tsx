@@ -228,7 +228,7 @@ export function EvaluationPersonResultModal({
                 }}
                 value={selectedEvaluationId.toString()}
                 placeholder="Selecciona la Evaluación..."
-                className="!w-80"
+                className="w-80!"
               />
             )}
 

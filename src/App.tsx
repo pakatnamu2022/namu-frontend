@@ -612,7 +612,8 @@ const EquiposPage = React.lazy(() => import("./app/gp/tics/equipos/page"));
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const { isAuthenticated, isHydrated } = useAuthStore();
+  // const { isAuthenticated, isHydrated } = useAuthStore();
+  const { isAuthenticated } = useAuthStore();
 
   // if (!isHydrated) {
   //   return <DashboardSkeleton />;
@@ -628,11 +629,7 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
 // ============================================================================
 // LOADING COMPONENT
 // ============================================================================
-const LoadingFallback = () => (
-  <div className="flex items-center justify-center min-h-screen">
-    <div className="text-lg">Cargando...</div>
-  </div>
-);
+const LoadingFallback = () => <DashboardSkeleton />;
 
 // ============================================================================
 // APP COMPONENT
