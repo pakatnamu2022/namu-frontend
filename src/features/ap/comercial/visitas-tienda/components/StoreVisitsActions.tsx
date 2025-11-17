@@ -99,7 +99,7 @@ export default function StoreVisitsActions({
           <Button
             size="sm"
             variant="outline"
-            onClick={() => router(`/ap/comercial/${ROUTE_ADD}`)}
+            onClick={() => router(ROUTE_ADD!)}
           >
             <Plus className="size-4 mr-2" /> Agregar Visita
           </Button>

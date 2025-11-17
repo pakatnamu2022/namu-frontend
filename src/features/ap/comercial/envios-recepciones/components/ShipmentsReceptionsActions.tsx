@@ -22,7 +22,7 @@ export default function ShipmentsReceptionsActions({ permissions }: Props) {
 
   return (
     <ActionsWrapper>
-      <Button onClick={() => router(`/ap/comercial/${ROUTE_ADD}`)}>
+      <Button onClick={() => router(ROUTE_ADD!)}>
         <Plus className="mr-2 h-4 w-4" />
         Nueva Guía de Remisión
       </Button>
