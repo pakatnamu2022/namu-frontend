@@ -102,7 +102,7 @@ export default function EditModelsVnPage() {
   if (isLoadingAny) {
     return <FormSkeleton />;
   }
-  if (!checkRouteExists("modelos-vn")) notFound();
+  if (!checkRouteExists("modelos-vn")) return <NotFound />;
   if (!currentView) return <NotFound />;
 
   return (

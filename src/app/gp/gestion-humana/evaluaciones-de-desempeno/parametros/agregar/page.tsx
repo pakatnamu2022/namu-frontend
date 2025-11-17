@@ -39,7 +39,7 @@ export default function CreateParameterPage() {
     mutate(data);
   };
 
-  if (!checkRouteExists("parametros")) notFound();
+  if (!checkRouteExists("parametros")) return <NotFound />;
   if (!currentView) return <NotFound />;
 
   return (

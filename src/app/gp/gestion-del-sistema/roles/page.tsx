@@ -51,7 +51,7 @@ export default function RolePage() {
   };
 
   if (isLoadingModule) return <PageSkeleton />;
-  if (!checkRouteExists("roles")) notFound();
+  if (!checkRouteExists("roles")) return <NotFound />;
   if (!currentView) return <NotFound />;
 
   return (

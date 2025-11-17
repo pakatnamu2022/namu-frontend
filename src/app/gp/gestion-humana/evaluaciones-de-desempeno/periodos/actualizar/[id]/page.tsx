@@ -70,7 +70,7 @@ export default function EditPeriodPage() {
   if (isLoadingAny) {
     return <FormSkeleton />;
   }
-  if (!checkRouteExists("periodos")) notFound();
+  if (!checkRouteExists("periodos")) return <NotFound />;
   if (!currentView) return <NotFound />;
 
   return (

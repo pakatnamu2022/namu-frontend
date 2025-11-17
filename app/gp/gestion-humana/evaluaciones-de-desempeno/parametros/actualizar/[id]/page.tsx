@@ -76,7 +76,7 @@ export default function EditParameterPage() {
   if (isLoadingAny) {
     return <div className="p-4 text-muted">Cargando competencia...</div>;
   }
-  if (!checkRouteExists("parametros")) notFound();
+  if (!checkRouteExists("parametros")) return <NotFound />;
   if (!currentView) return <NotFound />;
 
   return (

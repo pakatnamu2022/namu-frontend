@@ -30,7 +30,7 @@ export default function CreateMetricPage() {
   const handleSubmit = (data: MetricSchema) => {
     mutate(data);
   };
-  if (!checkRouteExists("metricas")) notFound();
+  if (!checkRouteExists("metricas")) return <NotFound />;
   if (!currentView) return <NotFound />;
 
   return (

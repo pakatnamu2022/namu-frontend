@@ -138,9 +138,9 @@ export default function CyclePersonDetailPage() {
     isLoadingCategoriesCycle
   )
     return <PageSkeleton />;
-  if (!checkRouteExists("ciclos")) notFound();
+  if (!checkRouteExists("ciclos")) return <NotFound />;
   if (!currentView) return <NotFound />;
-  if (!idCycle) notFound();
+  if (!idCycle) return <NotFound />;
 
   return (
     <div className="space-y-4">

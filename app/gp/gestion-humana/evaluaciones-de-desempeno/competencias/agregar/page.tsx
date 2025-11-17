@@ -31,7 +31,7 @@ export default function CreateCompetencePage() {
     mutate(data);
   };
 
-  if (!checkRouteExists("competencias")) notFound();
+  if (!checkRouteExists("competencias")) return <NotFound />;
   if (!currentView) return <NotFound />;
 
   return (

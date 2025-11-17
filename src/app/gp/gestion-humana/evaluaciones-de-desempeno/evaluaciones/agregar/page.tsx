@@ -76,7 +76,7 @@ export default function CreateEvaluationPage() {
 
   if (isLoadingAny) return <FormSkeleton />;
 
-  if (!checkRouteExists("parametros")) notFound();
+  if (!checkRouteExists("parametros")) return <NotFound />;
   if (!currentView) return <NotFound />;
 
   return (

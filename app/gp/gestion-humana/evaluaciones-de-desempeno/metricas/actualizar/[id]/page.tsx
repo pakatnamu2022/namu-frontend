@@ -60,7 +60,7 @@ export default function EditMetricPage() {
   if (isLoadingAny) {
     return <FormSkeleton />;
   }
-  if (!checkRouteExists("metricas")) notFound();
+  if (!checkRouteExists("metricas")) return <NotFound />;
   if (!currentView) return <NotFound />;
 
   return (

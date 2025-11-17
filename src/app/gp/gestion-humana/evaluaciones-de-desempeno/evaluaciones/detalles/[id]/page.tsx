@@ -130,7 +130,7 @@ export default function EvaluationPersonPage() {
     return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) return <NotFound />;
   if (!currentView) return <NotFound />;
-  if (!idEvaluation) notFound();
+  if (!idEvaluation) return <NotFound />;
 
   return (
     <div className="space-y-4">

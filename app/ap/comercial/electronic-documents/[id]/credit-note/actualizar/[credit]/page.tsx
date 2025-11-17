@@ -63,10 +63,10 @@ export default function CreateCreditNotePage() {
   if (isLoadingModule) return <FormSkeleton />;
   if (!checkRouteExists(ROUTE)) return <NotFound />;
   if (!currentView) return <NotFound />;
-  if (isNaN(documentId)) notFound();
-  if (documentError) notFound();
-  if (isNaN(creditNoteId)) notFound();
-  if (creditNoteError) notFound();
+  if (isNaN(documentId)) return <NotFound />;
+  if (documentError) return <NotFound />;
+  if (isNaN(creditNoteId)) return <NotFound />;
+  if (creditNoteError) return <NotFound />;
 
   if (
     isLoadingCreditNote ||

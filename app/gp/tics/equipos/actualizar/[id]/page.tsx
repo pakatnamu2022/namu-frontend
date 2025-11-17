@@ -104,7 +104,7 @@ export default function EditEquipmentPage() {
   if (isLoadingAny) {
     return <div className="p-4 text-muted">Cargando equipo...</div>;
   }
-  if (!checkRouteExists("equipos")) notFound();
+  if (!checkRouteExists("equipos")) return <NotFound />;
   if (!currentView) return <NotFound />;
 
   return (

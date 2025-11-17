@@ -79,7 +79,7 @@ export default function ViewPage() {
   };
 
   if (isLoadingModule) return <PageSkeleton />;
-  if (!checkRouteExists("vistas")) notFound();
+  if (!checkRouteExists("vistas")) return <NotFound />;
   if (!currentView) return <NotFound />;
 
   return (

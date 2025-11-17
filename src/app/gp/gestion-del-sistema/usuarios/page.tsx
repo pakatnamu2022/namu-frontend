@@ -54,7 +54,7 @@ export default function UserPage() {
   };
 
   if (isLoadingModule) return <PageSkeleton />;
-  if (!checkRouteExists("usuarios")) notFound();
+  if (!checkRouteExists("usuarios")) return <NotFound />;
   if (!currentView) return <NotFound />;
 
   return (

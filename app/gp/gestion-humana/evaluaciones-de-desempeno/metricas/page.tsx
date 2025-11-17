@@ -57,7 +57,7 @@ export default function MetricasPage() {
   };
 
   if (isLoadingModule) return <PageSkeleton />;
-  if (!checkRouteExists("metricas")) notFound();
+  if (!checkRouteExists("metricas")) return <NotFound />;
   if (!currentView) return <NotFound />;
 
   return (

@@ -144,10 +144,10 @@ export default function ViewPermissionsPage() {
     router("../");
   };
 
-  if (!checkRouteExists("vistas")) notFound();
+  if (!checkRouteExists("vistas")) return <NotFound />;
   if (!currentView) return <NotFound />;
   if (isLoading) return <FormSkeleton />;
-  if (!view) notFound();
+  if (!view) return <NotFound />;
 
   // Map policy_method to action value for comparison
   const getActionFromPolicyMethod = (policyMethod: string): string => {

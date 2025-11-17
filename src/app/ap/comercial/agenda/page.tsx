@@ -69,7 +69,7 @@ export default function AgendaPage() {
   };
 
   if (isLoadingModule || isLoading || isLoadingWorkers) return <FormSkeleton />;
-  if (!checkRouteExists("agenda")) notFound();
+  if (!checkRouteExists("agenda")) return <NotFound />;
   if (!currentView) return <NotFound />;
 
   return (

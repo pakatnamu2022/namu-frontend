@@ -66,7 +66,7 @@ export default function EditObjectivePage() {
   if (isLoadingAny) {
     return <div className="p-4 text-muted">Cargando métrica...</div>;
   }
-  if (!checkRouteExists("objetivos")) notFound();
+  if (!checkRouteExists("objetivos")) return <NotFound />;
   if (!currentView) return <NotFound />;
 
   return (

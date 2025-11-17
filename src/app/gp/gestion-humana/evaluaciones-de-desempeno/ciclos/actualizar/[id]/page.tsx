@@ -93,7 +93,7 @@ export default function EditCyclePage() {
   if (isLoadingAny) {
     return <FormSkeleton />;
   }
-  if (!checkRouteExists("ciclos")) notFound();
+  if (!checkRouteExists("ciclos")) return <NotFound />;
   if (!currentView) return <NotFound />;
 
   return (

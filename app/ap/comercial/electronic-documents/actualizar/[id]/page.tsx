@@ -217,8 +217,8 @@ export default function UpdateElectronicDocumentPage() {
   if (isLoadingModule) return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) return <NotFound />;
   if (!currentView) return <NotFound />;
-  if (isNaN(id)) notFound();
-  if (documentError) notFound();
+  if (isNaN(id)) return <NotFound />;
+  if (documentError) return <NotFound />;
 
   const isLoadingData =
     !document ||

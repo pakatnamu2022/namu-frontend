@@ -84,7 +84,7 @@ export default function EditViewPage() {
   if (isLoadingAny) {
     return <div className="p-4 text-muted">Cargando equipo...</div>;
   }
-  if (!checkRouteExists("roles")) notFound();
+  if (!checkRouteExists("roles")) return <NotFound />;
   if (!currentView) return <NotFound />;
 
   return (

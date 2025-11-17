@@ -32,7 +32,7 @@ export default function CreateObjectivePage() {
   const handleSubmit = (data: ObjectiveSchema) => {
     mutate(data);
   };
-  if (!checkRouteExists("objetivos")) notFound();
+  if (!checkRouteExists("objetivos")) return <NotFound />;
   if (!currentView) return <NotFound />;
 
   return (

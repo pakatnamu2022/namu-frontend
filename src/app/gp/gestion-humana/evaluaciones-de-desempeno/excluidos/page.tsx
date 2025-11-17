@@ -57,7 +57,7 @@ export default function ExcludedasPage() {
   };
 
   if (isLoadingModule) return <PageSkeleton />;
-  if (!checkRouteExists("excluidos")) notFound();
+  if (!checkRouteExists("excluidos")) return <NotFound />;
   if (!currentView) return <NotFound />;
 
   return (

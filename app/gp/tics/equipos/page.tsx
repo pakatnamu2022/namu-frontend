@@ -53,7 +53,7 @@ export default function EquipmentPage() {
   };
 
   if (isLoadingModule) return <PageSkeleton />;
-  if (!checkRouteExists("equipos")) notFound();
+  if (!checkRouteExists("equipos")) return <NotFound />;
   if (!currentView) return <NotFound />;
 
   return (

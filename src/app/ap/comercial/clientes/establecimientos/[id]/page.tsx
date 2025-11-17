@@ -92,8 +92,8 @@ export default function EstablishmentsListPage() {
   };
 
   if (isLoadingModule || loadingCustomer) return <PageSkeleton />;
-  if (!checkRouteExists(CUSTOMERS.ROUTE)) notFound();
-  if (!currentView || !customer) notFound();
+  if (!checkRouteExists(CUSTOMERS.ROUTE)) return <NotFound />;
+  if (!currentView || !customer) return <NotFound />;
 
   const baseRoute = `/ap/comercial/clientes/establecimientos/${id}`;
 

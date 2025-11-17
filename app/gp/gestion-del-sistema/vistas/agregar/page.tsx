@@ -41,7 +41,7 @@ export default function CreateViewPage() {
   if (loadingViews || loadingCompanies) {
     return <div className="p-4 text-muted">Cargando Vistas</div>;
   }
-  if (!checkRouteExists("vistas")) notFound();
+  if (!checkRouteExists("vistas")) return <NotFound />;
   if (!currentView) return <NotFound />;
 
   return (

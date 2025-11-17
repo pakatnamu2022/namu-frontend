@@ -74,7 +74,7 @@ export default function ObjetivosPage() {
   };
 
   if (isLoadingModule) return <PageSkeleton />;
-  if (!checkRouteExists("objetivos")) notFound();
+  if (!checkRouteExists("objetivos")) return <NotFound />;
   if (!currentView) return <NotFound />;
 
   return (

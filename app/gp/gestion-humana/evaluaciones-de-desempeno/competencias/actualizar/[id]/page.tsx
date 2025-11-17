@@ -71,7 +71,7 @@ export default function EditCompetencePage() {
   if (isLoadingAny) {
     return <div className="p-4 text-muted">Cargando competencia...</div>;
   }
-  if (!checkRouteExists("competencias")) notFound();
+  if (!checkRouteExists("competencias")) return <NotFound />;
   if (!currentView) return <NotFound />;
 
   return (

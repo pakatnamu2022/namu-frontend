@@ -33,7 +33,7 @@ export default function CreateHierarchicalCategoryPage() {
   const handleSubmit = (data: HierarchicalCategorySchema) => {
     mutate(data);
   };
-  if (!checkRouteExists("categorias-jerarquicas")) notFound();
+  if (!checkRouteExists("categorias-jerarquicas")) return <NotFound />;
   if (!currentView) return <NotFound />;
 
   return (

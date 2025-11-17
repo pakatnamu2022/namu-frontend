@@ -11,8 +11,8 @@ export default function PermissionPage() {
   const [searchParams] = useSearchParams();
   const { currentView, checkRouteExists } = useCurrentModule();
 
-  if (!id || isNaN(Number(id))) NotFound();
-  if (!checkRouteExists("roles")) NotFound();
+  if (!id || isNaN(Number(id))) return <NotFound />;
+  if (!checkRouteExists("roles")) return <NotFound />;
   if (!currentView) return <NotFound />;
 
   const roleName = searchParams.get("nombre") || "Sin nombre";

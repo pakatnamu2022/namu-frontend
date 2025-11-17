@@ -54,7 +54,7 @@ export default function CreateEquipmentPage() {
       <div className="p-4 text-muted">Cargando tipos de equipo y sedes...</div>
     );
   }
-  if (!checkRouteExists("equipos")) notFound();
+  if (!checkRouteExists("equipos")) return <NotFound />;
   if (!currentView) return <NotFound />;
 
   return (

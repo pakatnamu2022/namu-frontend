@@ -72,7 +72,7 @@ export default function ParametrosPage() {
   };
 
   if (isLoadingModule) return <PageSkeleton />;
-  if (!checkRouteExists("parametros")) notFound();
+  if (!checkRouteExists("parametros")) return <NotFound />;
   if (!currentView) return <div>No hay</div>;
 
   return (

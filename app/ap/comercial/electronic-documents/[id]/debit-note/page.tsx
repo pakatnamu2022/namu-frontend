@@ -56,8 +56,8 @@ export default function CreateDebitNotePage() {
   if (isLoadingModule) return <FormSkeleton />;
   if (!checkRouteExists(ROUTE)) return <NotFound />;
   if (!currentView) return <NotFound />;
-  if (isNaN(documentId)) notFound();
-  if (documentError) notFound();
+  if (isNaN(documentId)) return <NotFound />;
+  if (documentError) return <NotFound />;
 
   if (isLoadingDocument || !originalDocument) {
     return <FormSkeleton />;

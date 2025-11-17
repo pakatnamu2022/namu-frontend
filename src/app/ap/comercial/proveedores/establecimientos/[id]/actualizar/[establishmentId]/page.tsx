@@ -81,7 +81,7 @@ export default function EditEstablishmentPage() {
   if (isLoadingAny) {
     return <FormSkeleton />;
   }
-  if (!checkRouteExists(CUSTOMERS.ROUTE)) notFound();
+  if (!checkRouteExists(CUSTOMERS.ROUTE)) return <NotFound />;
   if (!currentView) return <NotFound />;
 
   return (

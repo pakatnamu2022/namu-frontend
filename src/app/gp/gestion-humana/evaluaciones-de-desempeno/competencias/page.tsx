@@ -49,7 +49,7 @@ export default function CompetenciasPage() {
   };
 
   if (isLoadingModule) return <PageSkeleton />;
-  if (!checkRouteExists("competencias")) notFound();
+  if (!checkRouteExists("competencias")) return <NotFound />;
   if (!currentView) return <div>No hay</div>;
 
   return (

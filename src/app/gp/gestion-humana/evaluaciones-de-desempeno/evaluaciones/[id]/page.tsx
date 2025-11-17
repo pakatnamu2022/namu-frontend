@@ -18,7 +18,7 @@ export default function EvaluationPersonPage() {
 
   if (!checkRouteExists(ROUTE)) return <NotFound />;
   if (!currentView) return <NotFound />;
-  if (!idEvaluation) notFound();
+  if (!idEvaluation) return <NotFound />;
 
   return <PerformanceEvaluationPage id={idEvaluation} />;
 }

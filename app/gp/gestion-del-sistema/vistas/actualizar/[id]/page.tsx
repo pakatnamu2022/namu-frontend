@@ -90,7 +90,7 @@ export default function EditViewPage() {
   if (isLoadingAny) {
     return <FormSkeleton />;
   }
-  if (!checkRouteExists("vistas")) notFound();
+  if (!checkRouteExists("vistas")) return <NotFound />;
   if (!currentView) return <NotFound />;
 
   return (

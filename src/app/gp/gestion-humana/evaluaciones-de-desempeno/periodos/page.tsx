@@ -57,7 +57,7 @@ export default function PeriodosPage() {
   };
 
   if (isLoadingModule) return <PageSkeleton />;
-  if (!checkRouteExists("periodos")) notFound();
+  if (!checkRouteExists("periodos")) return <NotFound />;
   if (!currentView) return <NotFound />;
 
   return (

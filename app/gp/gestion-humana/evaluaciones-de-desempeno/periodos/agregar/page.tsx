@@ -32,7 +32,7 @@ export default function CreatePeriodPage() {
   const handleSubmit = (data: PeriodSchema) => {
     mutate(data);
   };
-  if (!checkRouteExists("periodos")) notFound();
+  if (!checkRouteExists("periodos")) return <NotFound />;
   if (!currentView) return <NotFound />;
 
   return (

@@ -132,7 +132,7 @@ export default function HierarchicalCategoryosPage() {
   };
 
   if (isLoadingModule) return <PageSkeleton />;
-  if (!checkRouteExists("categorias-jerarquicas")) notFound();
+  if (!checkRouteExists("categorias-jerarquicas")) return <NotFound />;
   if (!currentView) return <NotFound />;
 
   return (

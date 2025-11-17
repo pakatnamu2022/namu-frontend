@@ -50,7 +50,7 @@ export default function CiclosPage() {
   };
 
   if (isLoadingModule) return <PageSkeleton />;
-  if (!checkRouteExists("ciclos")) notFound();
+  if (!checkRouteExists("ciclos")) return <NotFound />;
   if (!currentView) return <NotFound />;
 
   return (
