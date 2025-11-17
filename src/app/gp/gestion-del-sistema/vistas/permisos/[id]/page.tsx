@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams } from 'react-router-dom';
+import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
@@ -30,11 +30,11 @@ import {
   getAllPermissions,
 } from "@/features/gp/gestionsistema/permissions/lib/permissions.actions";
 import { PERMISSION_ACTIONS } from "@/shared/hooks/useModulePermissions";
-import NotFound from '@/app/not-found';
-
+import NotFound from "@/app/not-found";
+import { useNotFound } from "@/shared/hooks/useNotFound";
 
 export default function ViewPermissionsPage() {
-    const { id } = useParams();
+  const { id } = useParams();
   const router = useNavigate();
   const { currentView, checkRouteExists } = useCurrentModule();
 
@@ -52,7 +52,7 @@ export default function ViewPermissionsPage() {
   useEffect(() => {
     const fetchData = async () => {
       if (!id || isNaN(Number(id))) {
-        notFound();
+        useNotFound();
         return;
       }
 
@@ -115,7 +115,10 @@ export default function ViewPermissionsPage() {
     }
 
     console.log("Selected Actions antes de enviar:", selectedActions);
-    console.log("PERMISSION_ACTIONS values:", PERMISSION_ACTIONS.map(a => a.value));
+    console.log(
+      "PERMISSION_ACTIONS values:",
+      PERMISSION_ACTIONS.map((a) => a.value)
+    );
 
     setIsSaving(true);
     try {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams } from 'react-router-dom';
+import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
@@ -20,13 +20,12 @@ import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import { PARAMETER } from "@/features/gp/gestionhumana/evaluaciondesempeño/parametros/lib/parameter.constans";
 import ParameterForm from "@/features/gp/gestionhumana/evaluaciondesempeño/parametros/components/ParameterForm";
 import FormWrapper from "@/shared/components/FormWrapper";
-import NotFound from '@/app/not-found';
-
+import NotFound from "@/app/not-found";
 
 const { MODEL } = PARAMETER;
 
 export default function EditParameterPage() {
-    const { id } = useParams();
+  const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();
   const { currentView, checkRouteExists } = useCurrentModule();
@@ -51,7 +50,7 @@ export default function EditParameterPage() {
     },
   });
 
-  const handleSubmit = (data: ParameterSchema) => {
+  const handleSubmit = (data: any) => {
     mutate(data);
   };
 

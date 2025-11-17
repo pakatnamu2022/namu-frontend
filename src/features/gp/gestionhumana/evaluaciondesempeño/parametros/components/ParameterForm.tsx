@@ -62,7 +62,7 @@ export default function ParameterForm({
 
   const form = useForm({
     resolver: zodResolver(
-      mode === "create" ? parameterSchemaCreate : parameterSchemaUpdate
+      mode === "create" ? parameterSchemaCreate : (parameterSchemaUpdate as any)
     ),
     mode: "onChange",
     defaultValues: {

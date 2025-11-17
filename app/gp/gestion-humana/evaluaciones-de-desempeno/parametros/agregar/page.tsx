@@ -1,6 +1,6 @@
 "use client";
 
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import {
   ERROR_MESSAGE,
@@ -11,18 +11,16 @@ import {
 import { storeParameter } from "@/features/gp/gestionhumana/evaluaciondesempeño/parametros/lib/parameter.actions";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
-import { ParameterSchema } from "@/features/gp/gestionhumana/evaluaciondesempeño/parametros/lib/parameter.schema";
 import { PARAMETER } from "@/features/gp/gestionhumana/evaluaciondesempeño/parametros/lib/parameter.constans";
 import ParameterForm from "@/features/gp/gestionhumana/evaluaciondesempeño/parametros/components/ParameterForm";
 import FormWrapper from "@/shared/components/FormWrapper";
-import NotFound from '@/app/not-found';
-
+import NotFound from "@/app/not-found";
 
 const { MODEL } = PARAMETER;
 
 export default function CreateParameterPage() {
   const router = useNavigate();
-    const { currentView, checkRouteExists } = useCurrentModule();
+  const { currentView, checkRouteExists } = useCurrentModule();
 
   const { mutate, isPending } = useMutation({
     mutationFn: storeParameter,
@@ -35,7 +33,7 @@ export default function CreateParameterPage() {
     },
   });
 
-  const handleSubmit = (data: ParameterSchema) => {
+  const handleSubmit = (data: any) => {
     mutate(data);
   };
 

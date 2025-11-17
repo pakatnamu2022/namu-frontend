@@ -89,3 +89,4 @@ export const positionSchemaUpdate = z.object({
 });
 
 export type PositionSchema = z.infer<typeof positionSchemaCreate>;
+export type PositionUpdateSchema = z.infer<typeof positionSchemaUpdate>;

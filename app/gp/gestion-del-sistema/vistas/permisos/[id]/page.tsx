@@ -31,6 +31,7 @@ import {
 } from "@/features/gp/gestionsistema/permissions/lib/permissions.actions";
 import { PERMISSION_ACTIONS } from "@/shared/hooks/useModulePermissions";
 import NotFound from '@/app/not-found';
+import { useNotFound } from '@/shared/hooks/useNotFound';
 
 
 export default function ViewPermissionsPage() {
@@ -52,7 +53,7 @@ export default function ViewPermissionsPage() {
   useEffect(() => {
     const fetchData = async () => {
       if (!id || isNaN(Number(id))) {
-        notFound();
+        useNotFound();
         return;
       }
 

@@ -22,7 +22,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, ExternalLink } from "lucide-react";
 import { errorToast, successToast } from "@/core/core.function";
 import { Separator } from "@/components/ui/separator";
-import NotFound from '@/app/not-found';
+import { useNotFound } from '@/shared/hooks/useNotFound';
 
 
 export default function ShippingGuidePage() {
@@ -39,7 +39,7 @@ export default function ShippingGuidePage() {
   const generateMutation = useGenerateOrUpdateShippingGuide();
 
   if (isLoading) return <PageSkeleton />;
-  if (!vehicleDelivery) return notFound();
+  if (!vehicleDelivery) return useNotFound();
 
   const shippingGuide = vehicleDelivery.shipping_guide;
   const canEdit = !shippingGuide?.aceptada_por_sunat;

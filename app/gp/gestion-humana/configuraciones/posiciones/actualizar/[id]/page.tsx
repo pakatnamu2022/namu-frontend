@@ -1,14 +1,22 @@
 "use client";
 
-import { useParams } from 'react-router-dom';
+import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { errorToast, successToast, ERROR_MESSAGE, SUCCESS_MESSAGE } from "@/core/core.function";
+import {
+  errorToast,
+  successToast,
+  ERROR_MESSAGE,
+  SUCCESS_MESSAGE,
+} from "@/core/core.function";
 import {
   findPositionById,
   updatePosition,
 } from "@/features/gp/gestionhumana/personal/posiciones/lib/position.actions";
-import { PositionSchema } from "@/features/gp/gestionhumana/personal/posiciones/lib/position.schema";
+import {
+  PositionSchema,
+  PositionUpdateSchema,
+} from "@/features/gp/gestionhumana/personal/posiciones/lib/position.schema";
 import { PositionResource } from "@/features/gp/gestionhumana/personal/posiciones/lib/position.interface";
 import { PositionForm } from "@/features/gp/gestionhumana/personal/posiciones/components/PositionForm";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
@@ -16,11 +24,10 @@ import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import FormWrapper from "@/shared/components/FormWrapper";
 import { POSITION } from "@/features/gp/gestionhumana/personal/posiciones/lib/position.constant";
-import NotFound from '@/app/not-found';
-
+import NotFound from "@/app/not-found";
 
 export default function EditPositionPage() {
-    const { id } = useParams();
+  const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();
   const { currentView, checkRouteExists } = useCurrentModule();
@@ -66,10 +73,7 @@ export default function EditPositionPage() {
 
     // Agregar banda salarial
     if (data.banda_salarial_min !== undefined)
-      formData.append(
-        "banda_salarial_min",
-        data.banda_salarial_min.toString()
-      );
+      formData.append("banda_salarial_min", data.banda_salarial_min.toString());
     if (data.banda_salarial_media !== undefined)
       formData.append(
         "banda_salarial_media",
@@ -104,26 +108,36 @@ export default function EditPositionPage() {
     mutate(formData);
   };
 
-  function mapPositionToForm(data: PositionResource): Partial<PositionSchema> {
+  function mapPositionToForm(
+    data: PositionResource
+  ): Partial<PositionUpdateSchema> {
     return {
       name: data.name,
       descripcion: data.descripcion,
-      area_id: data.area_id,
-      hierarchical_category_id: data.hierarchical_category_id,
-      cargo_id: data.cargo_id,
-      ntrabajadores: data.ntrabajadores,
+      area_id: data.area_id ? data.area_id.toString() : undefined,
+      hierarchical_category_id: data.hierarchical_category_id
+        ? data.hierarchical_category_id.toString()
+        : undefined,
+      cargo_id: data.cargo_id ? data.cargo_id.toString() : undefined,
+      ntrabajadores: data.ntrabajadores
+        ? data.ntrabajadores.toString()
+        : undefined,
       banda_salarial_min: data.banda_salarial_min
-        ? parseFloat(data.banda_salarial_min)
+        ? data.banda_salarial_min.toString()
         : undefined,
       banda_salarial_media: data.banda_salarial_media
-        ? parseFloat(data.banda_salarial_media)
+        ? data.banda_salarial_media.toString()
         : undefined,
       banda_salarial_max: data.banda_salarial_max
-        ? parseFloat(data.banda_salarial_max)
+        ? data.banda_salarial_max.toString()
         : undefined,
-      tipo_onboarding_id: data.tipo_onboarding_id,
-      plazo_proceso_seleccion: data.plazo_proceso_seleccion,
-      presupuesto: data.presupuesto ? parseFloat(data.presupuesto) : undefined,
+      tipo_onboarding_id: data.tipo_onboarding_id
+        ? data.tipo_onboarding_id.toString()
+        : undefined,
+      plazo_proceso_seleccion: data.plazo_proceso_seleccion
+        ? data.plazo_proceso_seleccion.toString()
+        : undefined,
+      presupuesto: data.presupuesto ? data.presupuesto.toString() : undefined,
     };
   }
 

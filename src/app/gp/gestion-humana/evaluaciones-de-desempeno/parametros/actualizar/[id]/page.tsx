@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams } from 'react-router-dom';
+import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
@@ -13,20 +13,23 @@ import {
   findParameterById,
   updateParameter,
 } from "@/features/gp/gestionhumana/evaluaciondesempeño/parametros/lib/parameter.actions";
-import { ParameterSchema } from "@/features/gp/gestionhumana/evaluaciondesempeño/parametros/lib/parameter.schema";
+import {
+  ParameterCreateSchema,
+  ParameterSchema,
+  ParameterUpdateSchema,
+} from "@/features/gp/gestionhumana/evaluaciondesempeño/parametros/lib/parameter.schema";
 import { ParameterResource } from "@/features/gp/gestionhumana/evaluaciondesempeño/parametros/lib/parameter.interface";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import { PARAMETER } from "@/features/gp/gestionhumana/evaluaciondesempeño/parametros/lib/parameter.constans";
 import ParameterForm from "@/features/gp/gestionhumana/evaluaciondesempeño/parametros/components/ParameterForm";
 import FormWrapper from "@/shared/components/FormWrapper";
-import NotFound from '@/app/not-found';
-
+import NotFound from "@/app/not-found";
 
 const { MODEL } = PARAMETER;
 
 export default function EditParameterPage() {
-    const { id } = useParams();
+  const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();
   const { currentView, checkRouteExists } = useCurrentModule();
@@ -38,7 +41,8 @@ export default function EditParameterPage() {
   });
 
   const { mutate, isPending } = useMutation({
-    mutationFn: (data: ParameterSchema) => updateParameter(id as string, data),
+    mutationFn: (data: ParameterCreateSchema | ParameterUpdateSchema) =>
+      updateParameter(id as string, data),
     onSuccess: async () => {
       successToast(SUCCESS_MESSAGE(MODEL, "update"));
       await queryClient.invalidateQueries({
@@ -51,7 +55,9 @@ export default function EditParameterPage() {
     },
   });
 
-  const handleSubmit = (data: ParameterSchema) => {
+  const handleSubmit = (
+    data: ParameterCreateSchema | ParameterUpdateSchema
+  ) => {
     mutate(data);
   };
 

@@ -51,7 +51,7 @@ export const VehicleDeliveryForm = ({
     resolver: zodResolver(
       mode === "create"
         ? vehicleDeliverySchemaCreate
-        : vehicleDeliverySchemaUpdate
+        : (vehicleDeliverySchemaUpdate as any)
     ),
     defaultValues: {
       ...defaultValues,

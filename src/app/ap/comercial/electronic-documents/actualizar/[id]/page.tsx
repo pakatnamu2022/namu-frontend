@@ -78,7 +78,7 @@ export default function UpdateElectronicDocumentPage() {
   const { data: authorizedSeries = [] } = useAuthorizedSeries({});
 
   const form = useForm<ElectronicDocumentSchema>({
-    resolver: zodResolver(ElectronicDocumentSchema),
+    resolver: zodResolver(ElectronicDocumentSchema as any),
   });
 
   // Load document data into form

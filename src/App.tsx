@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import {
   BrowserRouter,
   Routes,
@@ -9,133 +8,120 @@ import {
 import { useAuthStore } from "./features/auth/lib/auth.store";
 import DashboardSkeleton from "./shared/components/DashboardSkeleton";
 import { AuthInitializer } from "./shared/components/AuthInitializer";
+import { FC, lazy, Suspense } from "react";
 
 // ============================================================================
 // LAYOUTS
 // ============================================================================
-const DashboardLayout = React.lazy(
+const DashboardLayout = lazy(
   () => import("./features/dashboard/components/DashboardLayout")
 );
-const MainLayout = React.lazy(
+const MainLayout = lazy(
   () => import("./features/dashboard/components/MainLayout")
 );
-const ProfileLayout = React.lazy(() => import("./app/perfil/layout"));
-const APComercialLayout = React.lazy(() => import("./app/ap/comercial/layout"));
-const APConfiguracionesLayout = React.lazy(
+const ProfileLayout = lazy(() => import("./app/perfil/layout"));
+const APComercialLayout = lazy(() => import("./app/ap/comercial/layout"));
+const APConfiguracionesLayout = lazy(
   () => import("./app/ap/configuraciones/layout")
 );
-const APPostVentaLayout = React.lazy(
-  () => import("./app/ap/post-venta/layout")
-);
-const GPGestionSistemaLayout = React.lazy(
+const APPostVentaLayout = lazy(() => import("./app/ap/post-venta/layout"));
+const GPGestionSistemaLayout = lazy(
   () => import("./app/gp/gestion-del-sistema/layout")
 );
-const GPGestionHumanaLayout = React.lazy(
+const GPGestionHumanaLayout = lazy(
   () => import("./app/gp/gestion-humana/layout")
 );
-const GPMaestroGeneralLayout = React.lazy(
+const GPMaestroGeneralLayout = lazy(
   () => import("./app/gp/maestro-general/layout")
 );
-const GPTicsLayout = React.lazy(() => import("./app/gp/tics/layout"));
+const GPTicsLayout = lazy(() => import("./app/gp/tics/layout"));
 
 // ============================================================================
 // ROOT & PUBLIC PAGES
 // ============================================================================
-const LoginPage = React.lazy(() => import("./app/page"));
-const NotFoundPage = React.lazy(() => import("./app/not-found"));
+const LoginPage = lazy(() => import("./app/page"));
+const NotFoundPage = lazy(() => import("./app/not-found"));
 
 // ============================================================================
 // MAIN PAGES
 // ============================================================================
-const CompaniesPage = React.lazy(() => import("./app/companies/page"));
-const FeedPage = React.lazy(() => import("./app/feed/page"));
-const TestPage = React.lazy(() => import("./app/test/page"));
+const CompaniesPage = lazy(() => import("./app/companies/page"));
+const FeedPage = lazy(() => import("./app/feed/page"));
+const TestPage = lazy(() => import("./app/test/page"));
 
 // Module Selection Pages
-const ModulesCompanyPage = React.lazy(
-  () => import("./app/modules/[company]/page")
-);
-const ModulesCompanyModulePage = React.lazy(
+const ModulesCompanyPage = lazy(() => import("./app/modules/[company]/page"));
+const ModulesCompanyModulePage = lazy(
   () => import("./app/modules/[company]/[module]/page")
 );
 
 // Dynamic Routes
-const CompanyModulePage = React.lazy(
-  () => import("./app/[company]/[module]/page")
-);
-const CompanyModuleSubmodulePage = React.lazy(
+const CompanyModulePage = lazy(() => import("./app/[company]/[module]/page"));
+const CompanyModuleSubmodulePage = lazy(
   () => import("./app/[company]/[module]/[submodule]/page")
 );
 
 // ============================================================================
 // PERFIL (PROFILE) PAGES
 // ============================================================================
-const PerfilPage = React.lazy(() => import("./app/perfil/page"));
-const PerfilCapacitacionesPage = React.lazy(
+const PerfilPage = lazy(() => import("./app/perfil/page"));
+const PerfilCapacitacionesPage = lazy(
   () => import("./app/perfil/capacitaciones/page")
 );
-const PerfilDesempenoPage = React.lazy(
-  () => import("./app/perfil/desempeño/page")
-);
-const PerfilDocumentosPage = React.lazy(
-  () => import("./app/perfil/documentos/page")
-);
-const PerfilEquipoPage = React.lazy(() => import("./app/perfil/equipo/page"));
-const PerfilEquipoIndicadoresPage = React.lazy(
+const PerfilDesempenoPage = lazy(() => import("./app/perfil/desempeño/page"));
+const PerfilDocumentosPage = lazy(() => import("./app/perfil/documentos/page"));
+const PerfilEquipoPage = lazy(() => import("./app/perfil/equipo/page"));
+const PerfilEquipoIndicadoresPage = lazy(
   () => import("./app/perfil/equipo/indicadores/page")
 );
-const PerfilEquipoDetailPage = React.lazy(
+const PerfilEquipoDetailPage = lazy(
   () => import("./app/perfil/equipo/[id]/page")
 );
-const PerfilEquipoEvaluarPage = React.lazy(
+const PerfilEquipoEvaluarPage = lazy(
   () => import("./app/perfil/equipo/[id]/evaluar/page")
 );
-const PerfilEquipoHistorialPage = React.lazy(
+const PerfilEquipoHistorialPage = lazy(
   () => import("./app/perfil/equipo/[id]/historial/page")
 );
-const PerfilNamuPerformancePage = React.lazy(
+const PerfilNamuPerformancePage = lazy(
   () => import("./app/perfil/namu-performance/page")
 );
-const PerfilVacacionesPage = React.lazy(
-  () => import("./app/perfil/vacaciones/page")
-);
+const PerfilVacacionesPage = lazy(() => import("./app/perfil/vacaciones/page"));
 
 // ============================================================================
 // AP - COMERCIAL
 // ============================================================================
 
 // Agenda
-const AgendaPage = React.lazy(() => import("./app/ap/comercial/agenda/page"));
-const AgendaOportunidadesPage = React.lazy(
+const AgendaPage = lazy(() => import("./app/ap/comercial/agenda/page"));
+const AgendaOportunidadesPage = lazy(
   () => import("./app/ap/comercial/agenda/oportunidades/page")
 );
-const AgendaOportunidadesAgregarPage = React.lazy(
+const AgendaOportunidadesAgregarPage = lazy(
   () => import("./app/ap/comercial/agenda/oportunidades/agregar/page")
 );
-const AgendaOportunidadesActualizarPage = React.lazy(
+const AgendaOportunidadesActualizarPage = lazy(
   () => import("./app/ap/comercial/agenda/oportunidades/actualizar/[id]/page")
 );
-const AgendaOportunidadesDetailPage = React.lazy(
+const AgendaOportunidadesDetailPage = lazy(
   () => import("./app/ap/comercial/agenda/oportunidades/[id]/page")
 );
 
 // Clientes
-const ClientesPage = React.lazy(
-  () => import("./app/ap/comercial/clientes/page")
-);
-const ClientesAgregarPage = React.lazy(
+const ClientesPage = lazy(() => import("./app/ap/comercial/clientes/page"));
+const ClientesAgregarPage = lazy(
   () => import("./app/ap/comercial/clientes/agregar/page")
 );
-const ClientesActualizarPage = React.lazy(
+const ClientesActualizarPage = lazy(
   () => import("./app/ap/comercial/clientes/actualizar/[id]/page")
 );
-const ClientesEstablecimientosPage = React.lazy(
+const ClientesEstablecimientosPage = lazy(
   () => import("./app/ap/comercial/clientes/establecimientos/[id]/page")
 );
-const ClientesEstablecimientosAgregarPage = React.lazy(
+const ClientesEstablecimientosAgregarPage = lazy(
   () => import("./app/ap/comercial/clientes/establecimientos/[id]/agregar/page")
 );
-const ClientesEstablecimientosActualizarPage = React.lazy(
+const ClientesEstablecimientosActualizarPage = lazy(
   () =>
     import(
       "./app/ap/comercial/clientes/establecimientos/[id]/actualizar/[establishmentId]/page"
@@ -143,23 +129,23 @@ const ClientesEstablecimientosActualizarPage = React.lazy(
 );
 
 // Proveedores
-const ProveedoresPage = React.lazy(
+const ProveedoresPage = lazy(
   () => import("./app/ap/comercial/proveedores/page")
 );
-const ProveedoresAgregarPage = React.lazy(
+const ProveedoresAgregarPage = lazy(
   () => import("./app/ap/comercial/proveedores/agregar/page")
 );
-const ProveedoresActualizarPage = React.lazy(
+const ProveedoresActualizarPage = lazy(
   () => import("./app/ap/comercial/proveedores/actualizar/[id]/page")
 );
-const ProveedoresEstablecimientosPage = React.lazy(
+const ProveedoresEstablecimientosPage = lazy(
   () => import("./app/ap/comercial/proveedores/establecimientos/[id]/page")
 );
-const ProveedoresEstablecimientosAgregarPage = React.lazy(
+const ProveedoresEstablecimientosAgregarPage = lazy(
   () =>
     import("./app/ap/comercial/proveedores/establecimientos/[id]/agregar/page")
 );
-const ProveedoresEstablecimientosActualizarPage = React.lazy(
+const ProveedoresEstablecimientosActualizarPage = lazy(
   () =>
     import(
       "./app/ap/comercial/proveedores/establecimientos/[id]/actualizar/[establishmentId]/page"
@@ -167,28 +153,28 @@ const ProveedoresEstablecimientosActualizarPage = React.lazy(
 );
 
 // Electronic Documents
-const ElectronicDocumentsPage = React.lazy(
+const ElectronicDocumentsPage = lazy(
   () => import("./app/ap/comercial/electronic-documents/page")
 );
-const ElectronicDocumentsAgregarPage = React.lazy(
+const ElectronicDocumentsAgregarPage = lazy(
   () => import("./app/ap/comercial/electronic-documents/agregar/page")
 );
-const ElectronicDocumentsActualizarPage = React.lazy(
+const ElectronicDocumentsActualizarPage = lazy(
   () => import("./app/ap/comercial/electronic-documents/actualizar/[id]/page")
 );
-const ElectronicDocumentsCreditNotePage = React.lazy(
+const ElectronicDocumentsCreditNotePage = lazy(
   () => import("./app/ap/comercial/electronic-documents/[id]/credit-note/page")
 );
-const ElectronicDocumentsCreditNoteActualizarPage = React.lazy(
+const ElectronicDocumentsCreditNoteActualizarPage = lazy(
   () =>
     import(
       "./app/ap/comercial/electronic-documents/[id]/credit-note/actualizar/[credit]/page"
     )
 );
-const ElectronicDocumentsDebitNotePage = React.lazy(
+const ElectronicDocumentsDebitNotePage = lazy(
   () => import("./app/ap/comercial/electronic-documents/[id]/debit-note/page")
 );
-const ElectronicDocumentsDebitNoteActualizarPage = React.lazy(
+const ElectronicDocumentsDebitNoteActualizarPage = lazy(
   () =>
     import(
       "./app/ap/comercial/electronic-documents/[id]/debit-note/actualizar/[debit]/page"
@@ -196,67 +182,65 @@ const ElectronicDocumentsDebitNoteActualizarPage = React.lazy(
 );
 
 // Vehículos
-const VehiculosPage = React.lazy(
-  () => import("./app/ap/comercial/vehiculos/page")
-);
-const CompraVehiculoNuevoPage = React.lazy(
+const VehiculosPage = lazy(() => import("./app/ap/comercial/vehiculos/page"));
+const CompraVehiculoNuevoPage = lazy(
   () => import("./app/ap/comercial/compra-vehiculo-nuevo/page")
 );
-const CompraVehiculoNuevoAgregarPage = React.lazy(
+const CompraVehiculoNuevoAgregarPage = lazy(
   () => import("./app/ap/comercial/compra-vehiculo-nuevo/agregar/page")
 );
-const CompraVehiculoNuevoReenviarPage = React.lazy(
+const CompraVehiculoNuevoReenviarPage = lazy(
   () => import("./app/ap/comercial/compra-vehiculo-nuevo/reenviar/[id]/page")
 );
-const EntregaVehiculoPage = React.lazy(
+const EntregaVehiculoPage = lazy(
   () => import("./app/ap/comercial/entrega-vehiculo/page")
 );
-const EntregaVehiculoAgregarPage = React.lazy(
+const EntregaVehiculoAgregarPage = lazy(
   () => import("./app/ap/comercial/entrega-vehiculo/agregar/page")
 );
-const EntregaVehiculoGuiaRemisionPage = React.lazy(
+const EntregaVehiculoGuiaRemisionPage = lazy(
   () => import("./app/ap/comercial/entrega-vehiculo/guia-remision/[id]/page")
 );
-const EnviosRecepcionesPage = React.lazy(
+const EnviosRecepcionesPage = lazy(
   () => import("./app/ap/comercial/envios-recepciones/page")
 );
-const EnviosRecepcionesAgregarPage = React.lazy(
+const EnviosRecepcionesAgregarPage = lazy(
   () => import("./app/ap/comercial/envios-recepciones/agregar/page")
 );
-const EnviosRecepcionesActualizarPage = React.lazy(
+const EnviosRecepcionesActualizarPage = lazy(
   () => import("./app/ap/comercial/envios-recepciones/actualizar/[id]/page")
 );
-const EnviosRecepcionesChecklistPage = React.lazy(
+const EnviosRecepcionesChecklistPage = lazy(
   () => import("./app/ap/comercial/envios-recepciones/checklist/[id]/page")
 );
 
 // Ventas & Leads
-const VisitasTiendaPage = React.lazy(
+const VisitasTiendaPage = lazy(
   () => import("./app/ap/comercial/visitas-tienda/page")
 );
-const VisitasTiendaAgregarPage = React.lazy(
+const VisitasTiendaAgregarPage = lazy(
   () => import("./app/ap/comercial/visitas-tienda/agregar/page")
 );
-const VisitasTiendaActualizarPage = React.lazy(
+const VisitasTiendaActualizarPage = lazy(
   () => import("./app/ap/comercial/visitas-tienda/actualizar/[id]/page")
 );
-const GestionarLeadsPage = React.lazy(
+const GestionarLeadsPage = lazy(
   () => import("./app/ap/comercial/gestionar-leads/page")
 );
-const SolicitudesCotizacionesPage = React.lazy(
+const SolicitudesCotizacionesPage = lazy(
   () => import("./app/ap/comercial/solicitudes-cotizaciones/page")
 );
-const SolicitudesCotizacionesAgregarPage = React.lazy(
+const SolicitudesCotizacionesAgregarPage = lazy(
   () => import("./app/ap/comercial/solicitudes-cotizaciones/agregar/page")
 );
-const SolicitudesCotizacionesActualizarPage = React.lazy(
+const SolicitudesCotizacionesActualizarPage = lazy(
   () =>
     import("./app/ap/comercial/solicitudes-cotizaciones/actualizar/[id]/page")
 );
-const DashboardVisitasLeadsPage = React.lazy(
+const DashboardVisitasLeadsPage = lazy(
   () => import("./app/ap/comercial/dashboard-visitas-leads/page")
 );
-const MotivosDescartePage = React.lazy(
+const MotivosDescartePage = lazy(
   () => import("./app/ap/comercial/motivos-descarte/page")
 );
 
@@ -265,184 +249,184 @@ const MotivosDescartePage = React.lazy(
 // ============================================================================
 
 // Maestros General
-const ActividadEconomicaPage = React.lazy(
+const ActividadEconomicaPage = lazy(
   () =>
     import("./app/ap/configuraciones/maestros-general/actividad-economica/page")
 );
-const AlmacenesPage = React.lazy(
+const AlmacenesPage = lazy(
   () => import("./app/ap/configuraciones/maestros-general/almacenes/page")
 );
-const AlmacenesAgregarPage = React.lazy(
+const AlmacenesAgregarPage = lazy(
   () =>
     import("./app/ap/configuraciones/maestros-general/almacenes/agregar/page")
 );
-const AlmacenesActualizarPage = React.lazy(
+const AlmacenesActualizarPage = lazy(
   () =>
     import(
       "./app/ap/configuraciones/maestros-general/almacenes/actualizar/[id]/page"
     )
 );
-const AsignarSerieUsuarioPage = React.lazy(
+const AsignarSerieUsuarioPage = lazy(
   () =>
     import(
       "./app/ap/configuraciones/maestros-general/asignar-serie-usuario/page"
     )
 );
-const AsignarSerieVentaPage = React.lazy(
+const AsignarSerieVentaPage = lazy(
   () =>
     import("./app/ap/configuraciones/maestros-general/asignar-serie-venta/page")
 );
-const BancosPage = React.lazy(
+const BancosPage = lazy(
   () => import("./app/ap/configuraciones/maestros-general/bancos/page")
 );
-const ChequerasPage = React.lazy(
+const ChequerasPage = lazy(
   () => import("./app/ap/configuraciones/maestros-general/chequeras/page")
 );
-const ClaseArticuloPage = React.lazy(
+const ClaseArticuloPage = lazy(
   () => import("./app/ap/configuraciones/maestros-general/clase-articulo/page")
 );
-const EstadoCivilPage = React.lazy(
+const EstadoCivilPage = lazy(
   () => import("./app/ap/configuraciones/maestros-general/estado-civil/page")
 );
-const OrigenClientePage = React.lazy(
+const OrigenClientePage = lazy(
   () => import("./app/ap/configuraciones/maestros-general/origen-cliente/page")
 );
-const PlanCuentaContablePage = React.lazy(
+const PlanCuentaContablePage = lazy(
   () =>
     import(
       "./app/ap/configuraciones/maestros-general/plan-cuenta-contable/page"
     )
 );
-const SegmentosPersonaPage = React.lazy(
+const SegmentosPersonaPage = lazy(
   () =>
     import("./app/ap/configuraciones/maestros-general/segmentos-persona/page")
 );
-const TiposClaseImpuestoPage = React.lazy(
+const TiposClaseImpuestoPage = lazy(
   () =>
     import(
       "./app/ap/configuraciones/maestros-general/tipos-clase-impuesto/page"
     )
 );
-const TiposComprobantePage = React.lazy(
+const TiposComprobantePage = lazy(
   () =>
     import("./app/ap/configuraciones/maestros-general/tipos-comprobante/page")
 );
-const TiposCuentaContablePage = React.lazy(
+const TiposCuentaContablePage = lazy(
   () =>
     import(
       "./app/ap/configuraciones/maestros-general/tipos-cuenta-contable/page"
     )
 );
-const TiposDocumentoPage = React.lazy(
+const TiposDocumentoPage = lazy(
   () => import("./app/ap/configuraciones/maestros-general/tipos-documento/page")
 );
-const TiposMonedaPage = React.lazy(
+const TiposMonedaPage = lazy(
   () => import("./app/ap/configuraciones/maestros-general/tipos-moneda/page")
 );
-const TiposOperacionPage = React.lazy(
+const TiposOperacionPage = lazy(
   () => import("./app/ap/configuraciones/maestros-general/tipos-operacion/page")
 );
-const TiposPersonaPage = React.lazy(
+const TiposPersonaPage = lazy(
   () => import("./app/ap/configuraciones/maestros-general/tipos-persona/page")
 );
-const TiposSexoPage = React.lazy(
+const TiposSexoPage = lazy(
   () => import("./app/ap/configuraciones/maestros-general/tipos-sexo/page")
 );
-const UbigeosPage = React.lazy(
+const UbigeosPage = lazy(
   () => import("./app/ap/configuraciones/maestros-general/ubigeos/page")
 );
-const UnidadMedidaPage = React.lazy(
+const UnidadMedidaPage = lazy(
   () => import("./app/ap/configuraciones/maestros-general/unidad-medida/page")
 );
 
 // Vehículos Configuration
-const CategoriasVehiculoPage = React.lazy(
+const CategoriasVehiculoPage = lazy(
   () => import("./app/ap/configuraciones/vehiculos/categorias/page")
 );
-const CategoriasChecklistPage = React.lazy(
+const CategoriasChecklistPage = lazy(
   () => import("./app/ap/configuraciones/vehiculos/categorias-checklist/page")
 );
-const ChecklistEntregaPage = React.lazy(
+const ChecklistEntregaPage = lazy(
   () => import("./app/ap/configuraciones/vehiculos/checklist-entrega/page")
 );
-const ChecklistRecepcionPage = React.lazy(
+const ChecklistRecepcionPage = lazy(
   () => import("./app/ap/configuraciones/vehiculos/checklist-recepcion/page")
 );
-const ColoresVehiculoPage = React.lazy(
+const ColoresVehiculoPage = lazy(
   () => import("./app/ap/configuraciones/vehiculos/colores-vehiculo/page")
 );
-const EstadosVehiculoPage = React.lazy(
+const EstadosVehiculoPage = lazy(
   () => import("./app/ap/configuraciones/vehiculos/estados-vehiculo/page")
 );
-const FamiliasVehiculoPage = React.lazy(
+const FamiliasVehiculoPage = lazy(
   () => import("./app/ap/configuraciones/vehiculos/familias/page")
 );
-const GrupoMarcasPage = React.lazy(
+const GrupoMarcasPage = lazy(
   () => import("./app/ap/configuraciones/vehiculos/grupo-marcas/page")
 );
-const MarcasVehiculoPage = React.lazy(
+const MarcasVehiculoPage = lazy(
   () => import("./app/ap/configuraciones/vehiculos/marcas/page")
 );
-const ModelosVNPage = React.lazy(
+const ModelosVNPage = lazy(
   () => import("./app/ap/configuraciones/vehiculos/modelos-vn/page")
 );
-const OrigenVehiculoPage = React.lazy(
+const OrigenVehiculoPage = lazy(
   () => import("./app/ap/configuraciones/vehiculos/origen-vehiculo/page")
 );
-const TiposCarroceriaPage = React.lazy(
+const TiposCarroceriaPage = lazy(
   () => import("./app/ap/configuraciones/vehiculos/tipos-carroceria/page")
 );
-const TiposCombustiblePage = React.lazy(
+const TiposCombustiblePage = lazy(
   () => import("./app/ap/configuraciones/vehiculos/tipos-combustible/page")
 );
-const TiposMotorPage = React.lazy(
+const TiposMotorPage = lazy(
   () => import("./app/ap/configuraciones/vehiculos/tipos-motor/page")
 );
-const TiposPedidoProveedorPage = React.lazy(
+const TiposPedidoProveedorPage = lazy(
   () => import("./app/ap/configuraciones/vehiculos/tipos-pedido-proveedor/page")
 );
-const TiposProductoPage = React.lazy(
+const TiposProductoPage = lazy(
   () => import("./app/ap/configuraciones/vehiculos/tipos-producto/page")
 );
-const TiposTraccionPage = React.lazy(
+const TiposTraccionPage = lazy(
   () => import("./app/ap/configuraciones/vehiculos/tipos-traccion/page")
 );
-const TiposVehiculoPage = React.lazy(
+const TiposVehiculoPage = lazy(
   () => import("./app/ap/configuraciones/vehiculos/tipos-vehiculo/page")
 );
-const TransmisionVehiculoPage = React.lazy(
+const TransmisionVehiculoPage = lazy(
   () => import("./app/ap/configuraciones/vehiculos/transmision-vehiculo/page")
 );
 
 // Ventas Configuration
-const AsignarGrupoMarcaPage = React.lazy(
+const AsignarGrupoMarcaPage = lazy(
   () => import("./app/ap/configuraciones/ventas/asignar-grupo-marca/page")
 );
-const AsignarJefePage = React.lazy(
+const AsignarJefePage = lazy(
   () => import("./app/ap/configuraciones/ventas/asignar-jefe/page")
 );
-const AsignarMarcaPage = React.lazy(
+const AsignarMarcaPage = lazy(
   () => import("./app/ap/configuraciones/ventas/asignar-marca/page")
 );
-const AsignarMarcaGestionarPage = React.lazy(
+const AsignarMarcaGestionarPage = lazy(
   () => import("./app/ap/configuraciones/ventas/asignar-marca/gestionar/page")
 );
-const AsignarSedePage = React.lazy(
+const AsignarSedePage = lazy(
   () => import("./app/ap/configuraciones/ventas/asignar-sede/page")
 );
-const MetasCreditoSeguroPage = React.lazy(
+const MetasCreditoSeguroPage = lazy(
   () => import("./app/ap/configuraciones/ventas/metas-credito-seguro/page")
 );
-const MetasVentaPage = React.lazy(
+const MetasVentaPage = lazy(
   () => import("./app/ap/configuraciones/ventas/metas-venta/page")
 );
-const MetasVentaGestionarPage = React.lazy(
+const MetasVentaGestionarPage = lazy(
   () => import("./app/ap/configuraciones/ventas/metas-venta/gestionar/page")
 );
-const MetasVentaResumenPage = React.lazy(
+const MetasVentaResumenPage = lazy(
   () => import("./app/ap/configuraciones/ventas/metas-venta/resumen/page")
 );
-const TiendasPage = React.lazy(
+const TiendasPage = lazy(
   () => import("./app/ap/configuraciones/ventas/tiendas/page")
 );
 
@@ -451,61 +435,59 @@ const TiendasPage = React.lazy(
 // ============================================================================
 
 // Accesorios
-const AccesoriosHomologadosPage = React.lazy(
+const AccesoriosHomologadosPage = lazy(
   () => import("./app/ap/post-venta/accesorios-homologados/page")
 );
 
 // Gestión de Productos
-const CategoriasProductoPage = React.lazy(
+const CategoriasProductoPage = lazy(
   () =>
     import("./app/ap/post-venta/gestion-de-productos/categorias-producto/page")
 );
-const MarcasProductoPage = React.lazy(
+const MarcasProductoPage = lazy(
   () => import("./app/ap/post-venta/gestion-de-productos/marcas-producto/page")
 );
-const ProductosPage = React.lazy(
+const ProductosPage = lazy(
   () => import("./app/ap/post-venta/gestion-de-productos/productos/page")
 );
-const TiposCategoriaPage = React.lazy(
+const TiposCategoriaPage = lazy(
   () => import("./app/ap/post-venta/gestion-de-productos/tipos-categoria/page")
 );
 
 // Taller
-const LavadoVehiculoPage = React.lazy(
+const LavadoVehiculoPage = lazy(
   () => import("./app/ap/post-venta/taller/lavado-vehiculo/page")
 );
 
 // ============================================================================
 // GP - GESTION DEL SISTEMA
 // ============================================================================
-const GPGestionSistemaPage = React.lazy(
+const GPGestionSistemaPage = lazy(
   () => import("./app/gp/gestion-del-sistema/page")
 );
-const RolesPage = React.lazy(
-  () => import("./app/gp/gestion-del-sistema/roles/page")
-);
-const RolesPermisosPage = React.lazy(
+const RolesPage = lazy(() => import("./app/gp/gestion-del-sistema/roles/page"));
+const RolesPermisosPage = lazy(
   () => import("./app/gp/gestion-del-sistema/roles/permisos/[id]/page")
 );
-const UsuariosPage = React.lazy(
+const UsuariosPage = lazy(
   () => import("./app/gp/gestion-del-sistema/usuarios/page")
 );
-const UsuariosAgregarPage = React.lazy(
+const UsuariosAgregarPage = lazy(
   () => import("./app/gp/gestion-del-sistema/usuarios/agregar/page")
 );
-const UsuariosActualizarPage = React.lazy(
+const UsuariosActualizarPage = lazy(
   () => import("./app/gp/gestion-del-sistema/usuarios/actualizar/[id]/page")
 );
-const VistasPage = React.lazy(
+const VistasPage = lazy(
   () => import("./app/gp/gestion-del-sistema/vistas/page")
 );
-const VistasAgregarPage = React.lazy(
+const VistasAgregarPage = lazy(
   () => import("./app/gp/gestion-del-sistema/vistas/agregar/page")
 );
-const VistasActualizarPage = React.lazy(
+const VistasActualizarPage = lazy(
   () => import("./app/gp/gestion-del-sistema/vistas/actualizar/[id]/page")
 );
-const VistasPermisosPage = React.lazy(
+const VistasPermisosPage = lazy(
   () => import("./app/gp/gestion-del-sistema/vistas/permisos/[id]/page")
 );
 
@@ -514,7 +496,7 @@ const VistasPermisosPage = React.lazy(
 // ============================================================================
 
 // Administración de Personal
-const TrabajadoresPage = React.lazy(
+const TrabajadoresPage = lazy(
   () =>
     import(
       "./app/gp/gestion-humana/administracion-de-personal/trabajadores/page"
@@ -522,74 +504,74 @@ const TrabajadoresPage = React.lazy(
 );
 
 // Configuraciones
-const PosicionesPage = React.lazy(
+const PosicionesPage = lazy(
   () => import("./app/gp/gestion-humana/configuraciones/posiciones/page")
 );
 
 // Evaluaciones de Desempeño
-const EvaluacionesDesempenoPage = React.lazy(
+const EvaluacionesDesempenoPage = lazy(
   () => import("./app/gp/gestion-humana/evaluaciones-de-desempeno/page")
 );
-const CategoriasJerarquicasPage = React.lazy(
+const CategoriasJerarquicasPage = lazy(
   () =>
     import(
       "./app/gp/gestion-humana/evaluaciones-de-desempeno/categorias-jerarquicas/page"
     )
 );
-const CiclosPage = React.lazy(
+const CiclosPage = lazy(
   () => import("./app/gp/gestion-humana/evaluaciones-de-desempeno/ciclos/page")
 );
-const CiclosDetailPage = React.lazy(
+const CiclosDetailPage = lazy(
   () =>
     import("./app/gp/gestion-humana/evaluaciones-de-desempeno/ciclos/[id]/page")
 );
-const CompetenciasPage = React.lazy(
+const CompetenciasPage = lazy(
   () =>
     import(
       "./app/gp/gestion-humana/evaluaciones-de-desempeno/competencias/page"
     )
 );
-const EvaluacionesPage = React.lazy(
+const EvaluacionesPage = lazy(
   () =>
     import(
       "./app/gp/gestion-humana/evaluaciones-de-desempeno/evaluaciones/page"
     )
 );
-const EvaluacionesDetailPage = React.lazy(
+const EvaluacionesDetailPage = lazy(
   () =>
     import(
       "./app/gp/gestion-humana/evaluaciones-de-desempeno/evaluaciones/[id]/page"
     )
 );
-const EvaluacionesDetallesPage = React.lazy(
+const EvaluacionesDetallesPage = lazy(
   () =>
     import(
       "./app/gp/gestion-humana/evaluaciones-de-desempeno/evaluaciones/detalles/[id]/page"
     )
 );
-const EvaluacionesDetallesPersonPage = React.lazy(
+const EvaluacionesDetallesPersonPage = lazy(
   () =>
     import(
       "./app/gp/gestion-humana/evaluaciones-de-desempeno/evaluaciones/detalles/[id]/[person]/page"
     )
 );
-const ExcluidosPage = React.lazy(
+const ExcluidosPage = lazy(
   () =>
     import("./app/gp/gestion-humana/evaluaciones-de-desempeno/excluidos/page")
 );
-const MetricasPage = React.lazy(
+const MetricasPage = lazy(
   () =>
     import("./app/gp/gestion-humana/evaluaciones-de-desempeno/metricas/page")
 );
-const ObjetivosPage = React.lazy(
+const ObjetivosPage = lazy(
   () =>
     import("./app/gp/gestion-humana/evaluaciones-de-desempeno/objetivos/page")
 );
-const ParametrosPage = React.lazy(
+const ParametrosPage = lazy(
   () =>
     import("./app/gp/gestion-humana/evaluaciones-de-desempeno/parametros/page")
 );
-const PeriodosPage = React.lazy(
+const PeriodosPage = lazy(
   () =>
     import("./app/gp/gestion-humana/evaluaciones-de-desempeno/periodos/page")
 );
@@ -597,21 +579,19 @@ const PeriodosPage = React.lazy(
 // ============================================================================
 // GP - MAESTRO GENERAL
 // ============================================================================
-const SedePage = React.lazy(() => import("./app/gp/maestro-general/sede/page"));
+const SedePage = lazy(() => import("./app/gp/maestro-general/sede/page"));
 
 // ============================================================================
 // GP - TICS
 // ============================================================================
-const GPTicsPage = React.lazy(() => import("./app/gp/tics/page"));
-const AuditoriaPage = React.lazy(() => import("./app/gp/tics/auditoria/page"));
-const EquiposPage = React.lazy(() => import("./app/gp/tics/equipos/page"));
+const GPTicsPage = lazy(() => import("./app/gp/tics/page"));
+const AuditoriaPage = lazy(() => import("./app/gp/tics/auditoria/page"));
+const EquiposPage = lazy(() => import("./app/gp/tics/equipos/page"));
 
 // ============================================================================
 // PROTECTED ROUTE COMPONENT
 // ============================================================================
-const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
+const ProtectedRoute: FC<{ children: React.ReactNode }> = ({ children }) => {
   // const { isAuthenticated, isHydrated } = useAuthStore();
   const { isAuthenticated } = useAuthStore();
 

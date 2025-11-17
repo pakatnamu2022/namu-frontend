@@ -61,7 +61,7 @@ export default function CreateElectronicDocumentPage() {
   });
 
   const form = useForm<ElectronicDocumentSchema>({
-    resolver: zodResolver(ElectronicDocumentSchema),
+    resolver: zodResolver(ElectronicDocumentSchema as any),
     defaultValues: {
       serie: "",
       numero: "",

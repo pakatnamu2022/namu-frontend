@@ -45,7 +45,7 @@ import EvaluationSummaryCard from "@/features/gp/gestionhumana/evaluaciondesempe
 import EvaluationPersonObjectiveTable from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/components/EvaluationPersonObjetiveTable";
 import EvaluationPersonCompetenceTableWithColumns from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/components/EvaluationPersonCompetenceTable";
 import { useQueryClient } from "@tanstack/react-query";
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from "react-router-dom";
 import {
   EVALUATION_ABSOLUTE_ROUTE,
   EVALUATION_OBJECTIVE,
@@ -212,7 +212,7 @@ export default function NamuPerformancePage() {
                   }}
                   value={selectedEvaluationId?.toString() ?? ""}
                   placeholder="Selecciona la Evaluación..."
-                  className="!w-auto min-w-80"
+                  className="w-auto! min-w-80"
                 />
               )}
 
@@ -236,7 +236,10 @@ export default function NamuPerformancePage() {
                   Actualizar
                 </Button>
                 <Link
-                  href={EVALUATION_ABSOLUTE_ROUTE + `/detalles/${selectedEvaluationId}`}
+                  to={
+                    EVALUATION_ABSOLUTE_ROUTE +
+                    `/detalles/${selectedEvaluationId}`
+                  }
                 >
                   <Button size={"sm"} variant={"tertiary"}>
                     <ChevronLeft className="w-4 h-4" />

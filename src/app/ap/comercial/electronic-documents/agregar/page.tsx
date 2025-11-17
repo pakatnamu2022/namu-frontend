@@ -1,6 +1,6 @@
 "use client";
 
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
@@ -20,11 +20,10 @@ import { ELECTRONIC_DOCUMENT } from "@/features/ap/facturacion/electronic-docume
 import { SUNAT_CONCEPTS_TYPE } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
 import { useAllSunatConcepts } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.hook";
 import FormSkeleton from "@/shared/components/FormSkeleton";
-import NotFound from '@/app/not-found';
-
+import NotFound from "@/app/not-found";
 
 export default function CreateElectronicDocumentPage() {
-    const { ROUTE, MODEL } = ELECTRONIC_DOCUMENT;
+  const { ROUTE, MODEL } = ELECTRONIC_DOCUMENT;
   const router = useNavigate();
   const { currentView, checkRouteExists, isLoadingModule } = useCurrentModule();
 
@@ -60,7 +59,7 @@ export default function CreateElectronicDocumentPage() {
   });
 
   const form = useForm<ElectronicDocumentSchema>({
-    resolver: zodResolver(ElectronicDocumentSchema),
+    resolver: zodResolver(ElectronicDocumentSchema as any),
     defaultValues: {
       serie: "",
       numero: "",
