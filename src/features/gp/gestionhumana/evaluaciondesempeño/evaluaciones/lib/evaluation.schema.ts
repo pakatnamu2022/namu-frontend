@@ -9,7 +9,16 @@ const baseEvaluationSchema = z.object({
   start_date: z.coerce.date(),
   end_date: z.coerce.date(),
   typeEvaluation: z.enum(TYPE_EVALUATION_VALUES, {
-    error: "Tipo de evaluación inválido",
+    errorMap: (issue, ctx) => {
+      switch (issue.code) {
+        case z.ZodIssueCode.invalid_enum_value:
+          return { message: "Selecciona un tipo de evaluación válido" };
+        case z.ZodIssueCode.invalid_type:
+          return { message: "El tipo de evaluación es requerido" };
+        default:
+          return { message: ctx.defaultError };
+      }
+    },
   }),
   objectivesPercentage: z.coerce.number().int().min(0).max(100),
   competencesPercentage: z.coerce.number().int().min(0).max(100),

@@ -1,4 +1,7 @@
-import { optionalStringId, requiredStringId } from "@/shared/lib/global.schema";
+import {
+  optionalStringId,
+  requiredStringId,
+} from "@/shared/lib/global.schema";
 import { z } from "zod";
 
 // Schema para Item del Documento
@@ -142,8 +145,8 @@ export const ElectronicDocumentSchema = z
     codigo_unico: z.string().max(20, "Máximo 20 caracteres").optional(),
 
     // ===== CONFIGURACIÓN =====
-    enviar_automaticamente_a_la_sunat: z.boolean().optional().default(false),
-    enviar_automaticamente_al_cliente: z.boolean().optional().default(false),
+    enviar_automaticamente_a_la_sunat: z.boolean().optional(),
+    enviar_automaticamente_al_cliente: z.boolean().optional(),
     generado_por_contingencia: z.boolean().optional(),
 
     // ===== ITEMS (OBLIGATORIOS) =====
@@ -265,8 +268,8 @@ export const CreditNoteSchema = z.object({
   observaciones: z
     .string()
     .min(10, "Las observaciones deben tener al menos 10 caracteres"),
-  enviar_automaticamente_a_la_sunat: z.boolean().optional().default(false),
-  enviar_automaticamente_al_cliente: z.boolean().optional().default(false),
+  enviar_automaticamente_a_la_sunat: z.boolean().default(true),
+  enviar_automaticamente_al_cliente: z.boolean().default(false),
   items: z.array(CreditNoteItemSchema).min(1, "Debe agregar al menos un item"),
 });
 
@@ -310,8 +313,8 @@ export const DebitNoteSchema = z.object({
   observaciones: z
     .string()
     .min(10, "Las observaciones deben tener al menos 10 caracteres"),
-  enviar_automaticamente_a_la_sunat: z.boolean().optional().default(false),
-  enviar_automaticamente_al_cliente: z.boolean().optional().default(false),
+  enviar_automaticamente_a_la_sunat: z.boolean().default(true),
+  enviar_automaticamente_al_cliente: z.boolean().default(false),
   items: z.array(DebitNoteItemSchema).min(1, "Debe agregar al menos un item"),
 });
 
