@@ -26,7 +26,7 @@ export default function PurchaseRequestQuoteActions({
         size="sm"
         variant="outline"
         className="ml-auto"
-        onClick={() => router(ROUTE_ADD!)}
+        onClick={() => router(`/ap/comercial/${ROUTE_ADD}`)}
       >
         <Plus className="size-4 mr-2" /> Agregar Solicitud / Cotización
       </Button>
