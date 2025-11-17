@@ -122,10 +122,10 @@ const AgendaOportunidadesDetailPage = lazy(
 
 // Clientes
 const ClientesPage = lazy(() => import("./app/ap/comercial/clientes/page"));
-const ClientesAgregarPage = lazy(
+const AddClientesPage = lazy(
   () => import("./app/ap/comercial/clientes/agregar/page")
 );
-const ClientesActualizarPage = lazy(
+const EditClientesPage = lazy(
   () => import("./app/ap/comercial/clientes/actualizar/[id]/page")
 );
 const ClientesEstablecimientosPage = lazy(
@@ -804,13 +804,10 @@ function App() {
 
               {/* Clientes */}
               <Route path="clientes" element={<ClientesPage />} />
-              <Route
-                path="clientes/agregar"
-                element={<ClientesAgregarPage />}
-              />
+              <Route path="clientes/agregar" element={<AddClientesPage />} />
               <Route
                 path="clientes/actualizar/:id"
-                element={<ClientesActualizarPage />}
+                element={<EditClientesPage />}
               />
               <Route
                 path="clientes/establecimientos/:id"

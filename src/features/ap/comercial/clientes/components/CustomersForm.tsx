@@ -54,8 +54,9 @@ import { useAllEconomicActivity } from "@/features/ap/configuraciones/maestros-g
 import { DocumentValidationStatus } from "../../../../../shared/components/DocumentValidationStatus";
 import { ValidationIndicator } from "../../../../../shared/components/ValidationIndicator";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
+import { CUSTOMERS } from "../lib/customers.constants";
 
 interface CustomersFormProps {
   defaultValues: Partial<CustomersSchema>;
@@ -116,6 +117,7 @@ export const CustomersForm = ({
     },
     mode: "onChange",
   });
+  const { ABSOLUTE_ROUTE } = CUSTOMERS;
 
   const [isFirstLoad, setIsFirstLoad] = useState(mode === "update");
   const [hasLoadedLeadData, setHasLoadedLeadData] = useState(!!leadData);
@@ -1454,7 +1456,7 @@ export const CustomersForm = ({
             variant="destructive"
             icon="warning"
             onConfirm={() => {
-              router(mode === "create" ? "./" : "../");
+              router(ABSOLUTE_ROUTE);
             }}
           />
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import { useMutation } from "@tanstack/react-query";
 import {
@@ -16,19 +16,18 @@ import { SUPPLIERS } from "@/features/ap/comercial/proveedores/lib/suppliers.con
 import { storeSuppliers } from "@/features/ap/comercial/proveedores/lib/suppliers.actions";
 import { SuppliersSchema } from "@/features/ap/comercial/proveedores/lib/suppliers.schema";
 import { SuppliersForm } from "@/features/ap/comercial/proveedores/components/SuppliersForm";
-import NotFound from '@/app/not-found';
-
+import NotFound from "@/app/not-found";
 
 export default function CreateSuppliersPage() {
   const router = useNavigate();
-    const { currentView, checkRouteExists } = useCurrentModule();
-  const { ROUTE, MODEL } = SUPPLIERS;
+  const { currentView, checkRouteExists } = useCurrentModule();
+  const { ROUTE, MODEL, ABSOLUTE_ROUTE } = SUPPLIERS;
 
   const { mutate, isPending } = useMutation({
     mutationFn: storeSuppliers,
     onSuccess: () => {
       successToast(SUCCESS_MESSAGE(MODEL, "create"));
-      router("./");
+      router(ABSOLUTE_ROUTE);
     },
     onError: (error: any) => {
       const msg = error?.response?.data?.message || "";

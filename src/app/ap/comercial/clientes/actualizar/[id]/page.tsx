@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams } from 'react-router-dom';
+import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
@@ -22,15 +22,14 @@ import { CustomersSchema } from "@/features/ap/comercial/clientes/lib/customers.
 import { CustomersResource } from "@/features/ap/comercial/clientes/lib/customers.interface";
 import { CustomersForm } from "@/features/ap/comercial/clientes/components/CustomersForm";
 import { parse } from "date-fns";
-import NotFound from '@/app/not-found';
-
+import NotFound from "@/app/not-found";
 
 export default function EditCustomersPage() {
-    const { id } = useParams();
+  const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();
   const { currentView, checkRouteExists } = useCurrentModule();
-  const { ROUTE, QUERY_KEY, MODEL } = CUSTOMERS;
+  const { ROUTE, QUERY_KEY, MODEL, ABSOLUTE_ROUTE } = CUSTOMERS;
 
   const { data: Customers, isLoading: loadingCustomers } = useQuery({
     queryKey: [QUERY_KEY, id],
@@ -45,7 +44,7 @@ export default function EditCustomersPage() {
       await queryClient.invalidateQueries({
         queryKey: [QUERY_KEY, id],
       });
-      router("../");
+      router(ABSOLUTE_ROUTE);
     },
     onError: (error: any) => {
       const msg = error?.response?.data?.message || "";

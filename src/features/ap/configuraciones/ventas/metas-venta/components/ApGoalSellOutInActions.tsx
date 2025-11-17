@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ClipboardMinus, Goal, FileText } from "lucide-react";
 import { AP_GOAL_SELL_OUT_IN } from "../lib/apGoalSellOutIn.constants";
@@ -22,7 +22,7 @@ export default function ApGoalSellOutInActions({
   permissions,
 }: Props) {
   const router = useNavigate();
-  const { ROUTE } = AP_GOAL_SELL_OUT_IN;
+  const { ABSOLUTE_ROUTE } = AP_GOAL_SELL_OUT_IN;
   const currentYear = year || new Date().getFullYear().toString();
   const currentMonth = month || (new Date().getMonth() + 1).toString();
 
@@ -35,8 +35,11 @@ export default function ApGoalSellOutInActions({
         },
       });
       successToast("No hay datos para generar el reporte PDF");
-    } catch (error) {
-      errorToast("Error al descargar el PDF. Por favor, intente nuevamente.");
+    } catch (error: any) {
+      errorToast(
+        "Error al descargar el PDF. Por favor, intente nuevamente.",
+        error.message.toString()
+      );
     }
   };
 
@@ -61,14 +64,12 @@ export default function ApGoalSellOutInActions({
               </Tooltip>
             </div>
 
-            
-
             <Button
               size="sm"
               className="ml-auto"
               onClick={() =>
                 router(
-                  `${ROUTE}/resumen?year=${currentYear}&month=${currentMonth}`
+                  `${ABSOLUTE_ROUTE}/resumen?year=${currentYear}&month=${currentMonth}`
                 )
               }
             >
@@ -81,7 +82,7 @@ export default function ApGoalSellOutInActions({
           <Button
             size="sm"
             className="ml-auto"
-            onClick={() => router(`${ROUTE}/gestionar`)}
+            onClick={() => router(`${ABSOLUTE_ROUTE}/gestionar`)}
           >
             <Goal className="size-4 mr-2" /> Gestionar Meta
           </Button>

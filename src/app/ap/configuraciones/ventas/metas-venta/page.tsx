@@ -15,11 +15,10 @@ import ApGoalSellOutInTable from "@/features/ap/configuraciones/ventas/metas-ven
 import { apGoalSellOutInColumns } from "@/features/ap/configuraciones/ventas/metas-venta/components/ApGoalSellOutInColumns";
 import ApGoalSellOutInOptions from "@/features/ap/configuraciones/ventas/metas-venta/components/ApGoalSellOutInOptions";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import NotFound from '@/app/not-found';
-
+import NotFound from "@/app/not-found";
 
 export default function ApGoalSellOutInPage() {
-    const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
+  const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const currentYear = new Date().getFullYear().toString();
   const currentMonth = (new Date().getMonth() + 1).toString().padStart(2, "0");
   const [page, setPage] = useState(1);
@@ -31,6 +30,7 @@ export default function ApGoalSellOutInPage() {
   const permissions = useModulePermissions(ROUTE);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setPage(1);
   }, [search]);
 

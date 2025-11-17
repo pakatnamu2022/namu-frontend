@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { Building2, Pencil } from "lucide-react";
@@ -119,9 +119,10 @@ export const customersColumns = ({
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
       const router = useNavigate();
       const { id } = row.original;
-      const { ROUTE_UPDATE, ROUTE } = CUSTOMERS;
+      const { ROUTE_UPDATE, ABSOLUTE_ROUTE } = CUSTOMERS;
 
       return (
         <div className="flex items-center gap-2">
@@ -135,7 +136,7 @@ export const customersColumns = ({
               size="icon"
               className="size-7"
               tooltip="Establecimientos"
-              onClick={() => router(`${ROUTE}/establecimientos/${id}`)}
+              onClick={() => router(`${ABSOLUTE_ROUTE}/establecimientos/${id}`)}
             >
               <Building2 className="size-5" />
             </Button>

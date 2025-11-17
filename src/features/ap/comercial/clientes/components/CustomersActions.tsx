@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import ActionsWrapper from "@/shared/components/ActionsWrapper";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { CUSTOMERS } from "../lib/customers.constants";
 
 interface Props {

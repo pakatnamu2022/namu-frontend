@@ -2,6 +2,7 @@ import { type ModelComplete } from "@/core/core.interface";
 import { SuppliersResource } from "./suppliers.interface";
 
 const ROUTE = "proveedores";
+const ABSOLUTE_ROUTE = `/ap/comercial/${ROUTE}`;
 
 export const SUPPLIERS: ModelComplete<SuppliersResource> = {
   MODEL: {
@@ -13,8 +14,9 @@ export const SUPPLIERS: ModelComplete<SuppliersResource> = {
   ENDPOINT: "/ap/commercial/businessPartners",
   QUERY_KEY: "suppliers",
   ROUTE,
-  ROUTE_ADD: `./agregar`,
-  ROUTE_UPDATE: `./actualizar`,
+  ABSOLUTE_ROUTE,
+  ROUTE_ADD: `${ABSOLUTE_ROUTE}/agregar`,
+  ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/actualizar`,
   EMPTY: {
     id: 0,
     first_name: "",

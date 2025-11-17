@@ -17,15 +17,14 @@ import { AP_GOAL_SELL_OUT_IN } from "@/features/ap/configuraciones/ventas/metas-
 import { storeApGoalSellOutIn } from "@/features/ap/configuraciones/ventas/metas-venta/lib/apGoalSellOutIn.actions";
 import { ApGoalSellOutInSchema } from "@/features/ap/configuraciones/ventas/metas-venta/lib/apGoalSellOutIn.schema";
 import { ApGoalSellOutInForm } from "@/features/ap/configuraciones/ventas/metas-venta/components/ApGoalSellOutInForm";
-import NotFound from '@/app/not-found';
-
+import NotFound from "@/app/not-found";
 
 export default function CreateApGoalSellOutInPage() {
-    const year = new Date().getFullYear();
+  const year = new Date().getFullYear();
   const month = new Date().getMonth() + 1;
   const { currentView, checkRouteExists } = useCurrentModule();
   const invalidateQueryKey = useInvalidateQuery();
-  const { QUERY_KEY, ROUTE, MODEL } = AP_GOAL_SELL_OUT_IN;
+  const { QUERY_KEY, ROUTE, MODEL, ABSOLUTE_ROUTE } = AP_GOAL_SELL_OUT_IN;
 
   const { mutate, isPending } = useMutation({
     mutationFn: storeApGoalSellOutIn,
@@ -54,7 +53,11 @@ export default function CreateApGoalSellOutInPage() {
           mode="create"
           icon={currentView.icon}
         ></TitleFormComponent>
-        <BackButton route={"./"} name={"Asignar Meta"} fullname={false} />
+        <BackButton
+          route={ABSOLUTE_ROUTE}
+          name={"Asignar Meta"}
+          fullname={false}
+        />
       </HeaderTableWrapper>
       <ApGoalSellOutInForm
         defaultValues={{

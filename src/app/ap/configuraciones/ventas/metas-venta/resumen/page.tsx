@@ -1,6 +1,6 @@
 "use client";
 
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams } from "react-router-dom";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import PageSkeleton from "@/shared/components/PageSkeleton";
 import TitleComponent from "@/shared/components/TitleComponent";
@@ -10,12 +10,41 @@ import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { ApGoalSellOutInReportTable } from "@/features/ap/configuraciones/ventas/metas-venta/components/ApGoalSellOutInReportTable";
 import { ApGoalSellOutInReportData } from "@/features/ap/configuraciones/ventas/metas-venta/lib/apGoalSellOutIn.interface";
 import BackButton from "@/shared/components/BackButton";
-import NotFound from '@/app/not-found';
+import NotFound from "@/app/not-found";
 
+const SummaryCard = ({
+  reportData,
+}: {
+  reportData: ApGoalSellOutInReportData;
+}) => {
+  const sellInTotal = reportData?.sell_in?.totals?.total || 0;
+  const sellOutTotal = reportData?.sell_out?.totals?.total || 0;
+
+  return (
+    <div className="bg-white border border-gray-300 rounded-sm overflow-hidden w-fit">
+      <div className="flex">
+        <div className="bg-primary text-white px-6 py-1.5 text-xs font-semibold border-r border-white w-26 text-center">
+          SELL IN
+        </div>
+        <div className="bg-secondary text-white px-6 py-1.5 text-xs font-semibold w-26 text-center">
+          SELL OUT
+        </div>
+      </div>
+      <div className="flex">
+        <div className="text-center py-2 border-r border-gray-300 font-semibold text-sm w-26">
+          {sellInTotal}
+        </div>
+        <div className="text-center py-2 font-semibold text-sm w-26">
+          {sellOutTotal}
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export default function ApGoalSellOutInSummaryPage() {
-    const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
-  const { ROUTE } = AP_GOAL_SELL_OUT_IN;
+  const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
+  const { ROUTE, ABSOLUTE_ROUTE } = AP_GOAL_SELL_OUT_IN;
   const [searchParams] = useSearchParams();
 
   const year = parseInt(
@@ -37,36 +66,6 @@ export default function ApGoalSellOutInSummaryPage() {
   const reportData = data?.data;
   const period = data?.period;
 
-  const SummaryCard = ({
-    reportData,
-  }: {
-    reportData: ApGoalSellOutInReportData;
-  }) => {
-    const sellInTotal = reportData?.sell_in?.totals?.total || 0;
-    const sellOutTotal = reportData?.sell_out?.totals?.total || 0;
-
-    return (
-      <div className="bg-white border border-gray-300 rounded-sm overflow-hidden w-fit">
-        <div className="flex">
-          <div className="bg-primary text-white px-6 py-1.5 text-xs font-semibold border-r border-white w-26 text-center">
-            SELL IN
-          </div>
-          <div className="bg-secondary text-white px-6 py-1.5 text-xs font-semibold w-26 text-center">
-            SELL OUT
-          </div>
-        </div>
-        <div className="flex">
-          <div className="text-center py-2 border-r border-gray-300 font-semibold text-sm w-26">
-            {sellInTotal}
-          </div>
-          <div className="text-center py-2 font-semibold text-sm w-26">
-            {sellOutTotal}
-          </div>
-        </div>
-      </div>
-    );
-  };
-
   return (
     <div className="space-y-6">
       <HeaderTableWrapper>
@@ -77,7 +76,7 @@ export default function ApGoalSellOutInSummaryPage() {
           }`}
           icon={currentView.icon}
         />
-        <BackButton route={"./"} name={"Resumen"} fullname={false} />
+        <BackButton route={ABSOLUTE_ROUTE} name={"Resumen"} fullname={false} />
       </HeaderTableWrapper>
 
       {/* Información del período con resumen en la izquierda */}

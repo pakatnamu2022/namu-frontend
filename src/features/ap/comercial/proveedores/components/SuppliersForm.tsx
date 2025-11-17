@@ -33,13 +33,14 @@ import {
 } from "@/core/core.constants";
 import { DocumentValidationStatus } from "../../../../../shared/components/DocumentValidationStatus";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import {
   SuppliersSchema,
   suppliersSchemaCreate,
   suppliersSchemaUpdate,
 } from "../lib/suppliers.schema";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
+import { SUPPLIERS } from "../lib/suppliers.constants";
 
 interface SuppliersFormProps {
   defaultValues: Partial<SuppliersSchema>;
@@ -67,6 +68,7 @@ export const SuppliersForm = ({
     },
     mode: "onChange",
   });
+  const { ABSOLUTE_ROUTE } = SUPPLIERS;
   const [isFirstLoad, setIsFirstLoad] = useState(true);
   const [companyStatus, setCompanyStatus] = useState("-");
   const [companyCondition, setCompanyCondition] = useState("-");
@@ -785,7 +787,7 @@ export const SuppliersForm = ({
             variant="destructive"
             icon="warning"
             onConfirm={() => {
-              router(mode === "create" ? "./" : "../");
+              router(ABSOLUTE_ROUTE);
             }}
           />
 

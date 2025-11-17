@@ -2,6 +2,7 @@ import { type ModelComplete } from "@/core/core.interface";
 import { AgendaResource } from "./agenda.interface";
 
 const ROUTE = "agenda";
+const ABSOLUTE_ROUTE = `/ap/comercial/${ROUTE}`;
 
 export const AGENDA: ModelComplete<AgendaResource> = {
   MODEL: {
@@ -13,7 +14,7 @@ export const AGENDA: ModelComplete<AgendaResource> = {
   ENDPOINT: "/ap/commercial/agenda",
   QUERY_KEY: "agenda",
   ROUTE,
-  ABSOLUTE_ROUTE: `/ap/comercial/${ROUTE}`,
+  ABSOLUTE_ROUTE,
   ROUTE_ADD: `./agregar`,
   ROUTE_UPDATE: `./actualizar`,
   EMPTY: {
