@@ -10,9 +10,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { LogOut, User, Moon, Sun, Monitor } from "lucide-react";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/features/auth/lib/auth.store";
-import { useTheme } from "next-themes";
+import { useTheme } from "@/components/theme-provider";
 
 export default function ProfileHeader() {
   const { user } = useAuthStore();
