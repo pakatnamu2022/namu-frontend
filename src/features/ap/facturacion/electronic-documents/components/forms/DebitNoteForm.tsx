@@ -103,7 +103,7 @@ export function DebitNoteForm({
 
   // Initialize form
   const form = useForm<DebitNoteSchema>({
-    resolver: zodResolver(DebitNoteSchema),
+    resolver: zodResolver(DebitNoteSchema as any),
     defaultValues: {
       sunat_concept_debit_note_type_id: "",
       series: "",
@@ -777,7 +777,7 @@ export function DebitNoteForm({
         onClose={closeItemSheet}
         title={editingIndex !== null ? "Editar Item" : "Agregar Item"}
         side="right"
-        className="!max-w-lg"
+        className="max-w-lg!"
         modal={false}
         icon={
           editingIndex !== null ? (
@@ -815,7 +815,7 @@ export function DebitNoteForm({
                   value: unit.value,
                   label: unit.label,
                 }))}
-                className="!w-full"
+                className="w-full!"
                 buttonSize="default"
               />
             </div>
@@ -833,7 +833,7 @@ export function DebitNoteForm({
                     label: `${plan.account} - ${plan.description}`,
                   })) || []
                 }
-                className="!w-full"
+                className="w-full!"
                 buttonSize="default"
               />
             </div>

@@ -20,7 +20,7 @@ export const approvedAccesoriesSchemaCreate = z.object({
     .refine((value) => value.trim() !== "", {
       message: "Descripción es requerida",
     }),
-  price: z.coerce.number().min(0, { message: "El precio debe ser mayor o igual a 0" }),
+  price: z.number().min(0, { message: "El precio debe ser mayor o igual a 0" }),
   type_currency_id: requiredStringId("Tipo de moneda es requerida"),
   body_type_id: requiredStringId("Tipo de carrocería es requerida"),
 });

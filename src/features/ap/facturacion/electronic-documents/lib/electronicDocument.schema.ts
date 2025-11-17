@@ -59,7 +59,7 @@ export const ElectronicDocumentSchema = z
     origin_entity_type: z.string().optional(),
     origin_entity_id: optionalStringId("Entidad de origen inválida"),
     purchase_request_quote_id: z.string().optional(), // ID de cotización vinculada
-    is_advance_payment: z.boolean().optional().default(false), // Es un pago de anticipo
+    is_advance_payment: z.boolean().default(false), // Es un pago de anticipo
     ap_vehicle_id: optionalStringId("Vehículo es inválido"), // ID del vehículo vinculado desde la cotización
 
     // ===== DATOS DEL CLIENTE =====
@@ -142,8 +142,8 @@ export const ElectronicDocumentSchema = z
     codigo_unico: z.string().max(20, "Máximo 20 caracteres").optional(),
 
     // ===== CONFIGURACIÓN =====
-    enviar_automaticamente_a_la_sunat: z.boolean().optional().default(false),
-    enviar_automaticamente_al_cliente: z.boolean().optional().default(false),
+    enviar_automaticamente_a_la_sunat: z.boolean().default(false),
+    enviar_automaticamente_al_cliente: z.boolean().default(false),
     generado_por_contingencia: z.boolean().optional(),
 
     // ===== ITEMS (OBLIGATORIOS) =====
@@ -265,8 +265,8 @@ export const CreditNoteSchema = z.object({
   observaciones: z
     .string()
     .min(10, "Las observaciones deben tener al menos 10 caracteres"),
-  enviar_automaticamente_a_la_sunat: z.boolean().optional().default(false),
-  enviar_automaticamente_al_cliente: z.boolean().optional().default(false),
+  enviar_automaticamente_a_la_sunat: z.boolean().default(false),
+  enviar_automaticamente_al_cliente: z.boolean().default(false),
   items: z.array(CreditNoteItemSchema).min(1, "Debe agregar al menos un item"),
 });
 
@@ -310,8 +310,8 @@ export const DebitNoteSchema = z.object({
   observaciones: z
     .string()
     .min(10, "Las observaciones deben tener al menos 10 caracteres"),
-  enviar_automaticamente_a_la_sunat: z.boolean().optional().default(false),
-  enviar_automaticamente_al_cliente: z.boolean().optional().default(false),
+  enviar_automaticamente_a_la_sunat: z.boolean().default(false),
+  enviar_automaticamente_al_cliente: z.boolean().default(false),
   items: z.array(DebitNoteItemSchema).min(1, "Debe agregar al menos un item"),
 });
 

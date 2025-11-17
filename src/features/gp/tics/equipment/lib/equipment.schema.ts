@@ -9,7 +9,7 @@ export const equipmentSchemaCreate = z.object({
   ram: z.string().max(50).optional().or(z.literal("")),
   almacenamiento: z.string().max(50).optional().or(z.literal("")),
   procesador: z.string().max(100).optional().or(z.literal("")),
-  stock_actual: z.coerce.number().int().min(0),
+  stock_actual: z.number().int().min(0),
   estado_uso: z.enum(["NUEVO", "USADO"]),
   sede_id: z.string().min(1, "Selecciona una sede"),
   pertenece_sede: z.boolean().default(false),
