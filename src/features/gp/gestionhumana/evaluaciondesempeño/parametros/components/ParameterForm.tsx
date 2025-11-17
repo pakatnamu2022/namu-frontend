@@ -21,6 +21,8 @@ import {
   parameterSchemaUpdate,
   type ParameterSchema,
   type ParameterDetailSchema,
+  ParameterCreateSchema,
+  ParameterUpdateSchema,
 } from "../lib/parameter.schema";
 import {
   Table,
@@ -43,7 +45,7 @@ const DEFAULT_MAX = 100 as const;
 
 interface Props {
   defaultValues?: Partial<ParameterSchema>;
-  onSubmit: (data: ParameterSchema) => void;
+  onSubmit: (data: ParameterCreateSchema | ParameterUpdateSchema) => void;
   isSubmitting?: boolean;
   mode?: Mode;
 }
@@ -58,7 +60,7 @@ export default function ParameterForm({
     ? String(defaultValues.details.length)
     : "4";
 
-  const form = useForm<ParameterSchema>({
+  const form = useForm({
     resolver: zodResolver(
       mode === "create" ? parameterSchemaCreate : parameterSchemaUpdate
     ),
@@ -123,7 +125,8 @@ export default function ParameterForm({
     trigger([`details.${idx}.to`, `details.${idx}.from`, "details"]);
   };
 
-  const onSave = (data: ParameterSchema) => onSubmit(data);
+  const onSave = (data: ParameterCreateSchema | ParameterUpdateSchema) =>
+    onSubmit(data);
 
   return (
     <Form {...form}>

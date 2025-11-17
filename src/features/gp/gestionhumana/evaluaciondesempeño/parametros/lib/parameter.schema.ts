@@ -86,3 +86,6 @@ export const parameterSchemaUpdate = baseParameterSchema
 
 export type ParameterDetailSchema = z.infer<typeof parameterDetailSchema>;
 export type ParameterSchema = z.infer<typeof parameterSchemaCreate>;
+
+export type ParameterCreateSchema = z.infer<typeof parameterSchemaCreate>;
+export type ParameterUpdateSchema = z.infer<typeof parameterSchemaUpdate>;

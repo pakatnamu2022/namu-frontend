@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Bash(node scripts/replace-notfound.mjs:*)",
-      "Bash(node scripts/clean-duplicates.mjs:*)"
+      "Bash(node scripts/clean-duplicates.mjs:*)",
+      "Bash(npx tsc:*)",
+      "Bash(node -e:*)"
     ],
     "deny": [],
     "ask": []
