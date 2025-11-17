@@ -20,11 +20,7 @@ const MainLayout = lazy(
   () => import("./features/dashboard/components/MainLayout")
 );
 const ProfileLayout = lazy(() => import("./app/perfil/layout"));
-const APComercialLayout = lazy(() => import("./app/ap/comercial/layout"));
-const APConfiguracionesLayout = lazy(() => import("./app/ap/configuraciones/layout"));
-const GPGestionSistemaLayout = lazy(() => import("./app/gp/gestion-del-sistema/layout"));
-const GPGestionHumanaLayout = lazy(() => import("./app/gp/gestion-humana/layout"));
-const GPTicsLayout = lazy(() => import("./app/gp/tics/layout"));
+// Nota: Los layouts de AP y GP se cargan automáticamente a través de los componentes dinámicos
 
 // ============================================================================
 // ROOT & PUBLIC PAGES
@@ -201,89 +197,14 @@ function App() {
             {/* a través del diccionario en src/config/routeComponents.ts */}
             {/* ======================================================== */}
 
-            {/* AP - Comercial */}
-            <Route
-              path="/ap/comercial"
-              element={
-                <Suspense fallback={<LoadingFallback />}>
-                  <APComercialLayout>
-                    <Outlet />
-                  </APComercialLayout>
-                </Suspense>
-              }
-            >
-              <Route index element={<CompanyModulePage />} />
-              <Route path=":submodule" element={<CompanyModuleSubmodulePage />} />
-            </Route>
-
-            {/* AP - Configuraciones */}
-            <Route
-              path="/ap/configuraciones"
-              element={
-                <Suspense fallback={<LoadingFallback />}>
-                  <APConfiguracionesLayout>
-                    <Outlet />
-                  </APConfiguracionesLayout>
-                </Suspense>
-              }
-            >
-              <Route index element={<CompanyModulePage />} />
-              <Route path=":submodule" element={<CompanyModuleSubmodulePage />} />
-            </Route>
-
             {/* ======================================================== */}
             {/* DYNAMIC ROUTES - GP (Grupo Pakatnamú) */}
             {/* Todas las rutas de GP se manejan dinámicamente */}
             {/* a través del diccionario en src/config/routeComponents.ts */}
             {/* ======================================================== */}
 
-            {/* GP - Gestión del Sistema */}
-            <Route
-              path="/gp/gestion-del-sistema"
-              element={
-                <Suspense fallback={<LoadingFallback />}>
-                  <GPGestionSistemaLayout>
-                    <Outlet />
-                  </GPGestionSistemaLayout>
-                </Suspense>
-              }
-            >
-              <Route index element={<CompanyModulePage />} />
-              <Route path=":submodule" element={<CompanyModuleSubmodulePage />} />
-            </Route>
-
-            {/* GP - Gestión Humana */}
-            <Route
-              path="/gp/gestion-humana"
-              element={
-                <Suspense fallback={<LoadingFallback />}>
-                  <GPGestionHumanaLayout>
-                    <Outlet />
-                  </GPGestionHumanaLayout>
-                </Suspense>
-              }
-            >
-              <Route index element={<CompanyModulePage />} />
-              <Route path=":submodule" element={<CompanyModuleSubmodulePage />} />
-            </Route>
-
-            {/* GP - TICS */}
-            <Route
-              path="/gp/tics"
-              element={
-                <Suspense fallback={<LoadingFallback />}>
-                  <GPTicsLayout>
-                    <Outlet />
-                  </GPTicsLayout>
-                </Suspense>
-              }
-            >
-              <Route index element={<CompanyModulePage />} />
-              <Route path=":submodule" element={<CompanyModuleSubmodulePage />} />
-            </Route>
-
             {/* ======================================================== */}
-            {/* DYNAMIC ROUTES - Fallback para otras rutas */}
+            {/* DYNAMIC ROUTES (Company/Module/Submodule) */}
             {/* ======================================================== */}
             <Route
               path="/:company/:module"

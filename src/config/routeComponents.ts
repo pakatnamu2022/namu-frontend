@@ -14,26 +14,6 @@ import { lazy, ComponentType } from 'react';
 
 type RouteComponent = ComponentType<any>;
 
-/**
- * Mapeo de módulos a sus layouts correspondientes
- * Esto permite que las rutas dinámicas sepan qué layout usar sin hardcodear rutas
- */
-export const moduleLayouts: Record<string, RouteComponent> = {
-  'ap/comercial': lazy(() => import('@/app/ap/comercial/layout')),
-  'ap/configuraciones': lazy(() => import('@/app/ap/configuraciones/layout')),
-  'gp/gestion-del-sistema': lazy(() => import('@/app/gp/gestion-del-sistema/layout')),
-  'gp/gestion-humana': lazy(() => import('@/app/gp/gestion-humana/layout')),
-  'gp/tics': lazy(() => import('@/app/gp/tics/layout')),
-};
-
-/**
- * Busca el layout apropiado para una ruta
- */
-export function findLayoutForRoute(company: string, module: string): RouteComponent | null {
-  const layoutKey = `${company}/${module}`;
-  return moduleLayouts[layoutKey] || null;
-}
-
 export const routeComponents: Record<string, RouteComponent> = {
   // ======================================================
   // GP (Grupo Pakatnamú) - Gestión del Sistema
