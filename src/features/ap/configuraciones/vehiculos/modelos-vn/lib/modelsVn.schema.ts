@@ -1,7 +1,4 @@
-import {
-  requiredNumber,
-  requiredStringId,
-} from "@/shared/lib/global.schema";
+import { requiredNumber, requiredStringId } from "@/shared/lib/global.schema";
 import { z } from "zod";
 
 export const modelsVnSchemaCreate = z.object({
@@ -26,7 +23,6 @@ export const modelsVnSchemaCreate = z.object({
   model_year: z.coerce
     .number({
       error: "El año del modelo es requerido",
-      invalid_type_error: "El año del modelo debe ser un número válido",
     })
     .int("El año debe ser un número entero")
     .min(1900, "El año no puede ser menor a 1900")

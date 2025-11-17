@@ -51,7 +51,7 @@ export const ApSafeCreditGoalForm = ({
     resolver: zodResolver(
       mode === "create"
         ? apSafeCreditGoalSchemaCreate
-        : apSafeCreditGoalSchemaUpdate
+        : (apSafeCreditGoalSchemaUpdate as any)
     ),
     defaultValues: {
       ...defaultValues,

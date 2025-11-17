@@ -63,7 +63,7 @@ export function CreditNoteForm({
 
   // Initialize form with document items
   const form = useForm<CreditNoteSchema>({
-    resolver: zodResolver(CreditNoteSchema),
+    resolver: zodResolver(CreditNoteSchema as any),
     defaultValues: {
       sunat_concept_credit_note_type_id:
         creditNote?.sunat_concept_credit_note_type_id?.toString() || "",

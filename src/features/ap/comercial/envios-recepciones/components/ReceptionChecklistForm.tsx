@@ -23,7 +23,7 @@ import { ChecklistField } from "@/shared/components/ChecklistField";
 import { useReceptionChecklistById } from "../lib/shipmentsReceptions.hook";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { FormSubmitConfirmation } from "@/shared/components/FormSubmitConfirmation";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import {
   Card,
   CardContent,
@@ -48,7 +48,7 @@ export const ReceptionChecklistForm = ({
 }: ReceptionChecklistFormProps) => {
   const router = useNavigate();
   const form = useForm<ReceptionChecklistSchema>({
-    resolver: zodResolver(receptionChecklistSchemaUpdate),
+    resolver: zodResolver(receptionChecklistSchemaUpdate as any),
     defaultValues: {
       shipping_guide_id: shippingGuideId,
       items_receiving: {},

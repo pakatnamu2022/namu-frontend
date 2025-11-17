@@ -29,7 +29,7 @@ import {
   ISSUER_TYPES,
 } from "../lib/shipmentsReceptions.constants";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import {
   BUSINESS_PARTNERS,
   CM_COMERCIAL_ID,
@@ -1037,7 +1037,7 @@ export const ShipmentsReceptionsForm = ({
 
         {/* Sección: Imagen de la Guía */}
         <div className="space-y-4">
-          <imgUploadField
+          <ImageUploadField
             form={form}
             name="file"
             label="Foto de la Guía de Remisión"

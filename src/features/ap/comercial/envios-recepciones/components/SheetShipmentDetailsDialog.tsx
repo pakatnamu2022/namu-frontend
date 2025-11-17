@@ -30,6 +30,7 @@ import {
   ListChecks,
   Wrench,
 } from "lucide-react";
+import { Link } from "react-router-dom";
 
 interface ShipmentDetailsDialogProps {
   open: boolean;
@@ -337,7 +338,7 @@ export function SheetShipmentDetailsDialog({
                     >
                       <div className="flex items-start gap-2">
                         <div className="flex-1 min-w-0">
-                          <p className="text-xs font-medium text-gray-700 break-words leading-tight">
+                          <p className="text-xs font-medium text-gray-700 wrap-break-word leading-tight">
                             {item.receiving_description}
                           </p>
                           <p
@@ -422,7 +423,7 @@ export function SheetShipmentDetailsDialog({
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 {shipment.enlace_del_pdf && (
                   <Link
-                    href={shipment.enlace_del_pdf}
+                    to={shipment.enlace_del_pdf}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-full"
@@ -439,7 +440,7 @@ export function SheetShipmentDetailsDialog({
 
                 {shipment.enlace_del_xml && (
                   <Link
-                    href={shipment.enlace_del_xml}
+                    to={shipment.enlace_del_xml}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-full"
@@ -456,7 +457,7 @@ export function SheetShipmentDetailsDialog({
 
                 {shipment.enlace_del_cdr && (
                   <Link
-                    href={shipment.enlace_del_cdr}
+                    to={shipment.enlace_del_cdr}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-full"
@@ -473,7 +474,7 @@ export function SheetShipmentDetailsDialog({
 
                 {shipment.cadena_para_codigo_qr && (
                   <Link
-                    href={shipment.cadena_para_codigo_qr}
+                    to={shipment.cadena_para_codigo_qr}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-full"

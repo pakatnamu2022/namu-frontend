@@ -67,7 +67,7 @@ export const AssignBrandConsultantForm = ({
   const currentMonthName = MONTHS[currentMonthIndex].label;
 
   const form = useForm({
-    resolver: zodResolver(assignBrandConsultantSchemaCreate),
+    resolver: zodResolver(assignBrandConsultantSchemaCreate as any),
     defaultValues: {
       ...defaultValues,
     },

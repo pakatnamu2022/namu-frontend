@@ -67,7 +67,7 @@ export const ApGoalSellOutInForm = ({
     resolver: zodResolver(
       mode === "create"
         ? apGoalSellOutInSchemaCreate
-        : apGoalSellOutInSchemaUpdate
+        : (apGoalSellOutInSchemaUpdate as any)
     ),
     defaultValues: {
       ...defaultValues,

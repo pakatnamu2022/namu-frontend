@@ -16,7 +16,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Link } from 'react-router-dom'
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -628,13 +628,11 @@ export const VehiclePurchaseOrderForm = ({
                       <TableHead className="w-[140px]">
                         Precio Unitario
                       </TableHead>
-                      <TableHead className="w-[80px]">Cantidad</TableHead>
+                      <TableHead className="w-20">Cantidad</TableHead>
                       <TableHead className="w-[140px] text-end">
                         Subtotal
                       </TableHead>
-                      <TableHead className="w-[80px] text-center">
-                        Acción
-                      </TableHead>
+                      <TableHead className="w-20 text-center">Acción</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>

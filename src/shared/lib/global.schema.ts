@@ -27,17 +27,9 @@ export const requiredStringId = (message: string) =>
     .refine((val) => val !== undefined, { message });
 
 export function requiredNumber(object: string, minValue: number = 0) {
-  return z.preprocess(
-    (val) => (val !== null && val !== undefined ? String(val) : ""),
-    z
-      .string()
-      .min(1, `${object} es requerido`)
-      .transform((val) => Number(val))
-      .refine((val) => !isNaN(val), {
-        message: `${object} debe ser un número válido`,
-      })
-      .refine((val) => val >= minValue, {
-        message: `${object} debe ser mayor o igual a ${minValue}`,
-      })
-  );
+  return z
+    .number({
+      error: `${object} es requerido`,
+    })
+    .min(minValue, `${object} debe ser al menos ${minValue}`);
 }

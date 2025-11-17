@@ -1,7 +1,4 @@
-import {
-  requiredNumber,
-  requiredStringId,
-} from "@/shared/lib/global.schema";
+import { requiredNumber, requiredStringId } from "@/shared/lib/global.schema";
 import { z } from "zod";
 
 // Schema para los items de la orden de compra
@@ -14,10 +11,9 @@ export const purchaseOrderItemSchema = z.object({
       message: "La descripción es requerida",
     }),
   unit_price: requiredNumber("Precio unitario", 0),
-  quantity: z.coerce
+  quantity: z
     .number({
       error: "La cantidad es requerida",
-      invalid_type_error: "La cantidad debe ser un número válido",
     })
     .int("La cantidad debe ser un número entero")
     .min(1, "La cantidad debe ser al menos 1"),
@@ -39,13 +35,12 @@ const basePurchaseOrderSchema = z.object({
     .refine((value) => value.trim() !== "", {
       message: "Número de factura es requerido",
     }),
-  emission_date: z.coerce.date({
+  emission_date: z.date({
     error: "La fecha de emisión es requerida",
-    invalid_type_error: "La fecha de emisión debe ser una fecha válida",
   }),
-  due_date: z.coerce
+  due_date: z
     .date({
-      invalid_type_error: "La fecha de vencimiento debe ser una fecha válida",
+      error: "La fecha de vencimiento debe ser una fecha válida",
     })
     .optional(),
 
@@ -53,15 +48,15 @@ const basePurchaseOrderSchema = z.object({
   subtotal: requiredNumber("Subtotal", 0),
   igv: requiredNumber("IGV", 0),
   total: requiredNumber("Total", 0),
-  discount: z.coerce
+  discount: z
     .number({
-      invalid_type_error: "El descuento debe ser un número válido",
+      error: "El descuento debe ser un número válido",
     })
     .min(0, "El descuento no puede ser negativo")
     .optional(),
-  isc: z.coerce
+  isc: z
     .number({
-      invalid_type_error: "El ISC debe ser un número válido",
+      error: "El ISC debe ser un número válido",
     })
     .min(0, "El ISC no puede ser negativo")
     .optional(),
@@ -86,10 +81,9 @@ const vehiclePurchaseOrderSchemaBase = basePurchaseOrderSchema.extend({
     .refine((value) => value.trim() !== "", {
       message: "VIN es requerido",
     }),
-  year: z.coerce
+  year: z
     .number({
       error: "El año del vehículo es requerido",
-      invalid_type_error: "El año del vehículo debe ser un número válido",
     })
     .int("El año debe ser un número entero")
     .min(1900, "El año no puede ser menor a 1900")
@@ -134,9 +128,9 @@ const genericPurchaseOrderSchemaBase = basePurchaseOrderSchema.extend({
     .max(17, "El VIN no puede tener más de 17 caracteres")
     .optional()
     .or(z.literal("")),
-  year: z.coerce
+  year: z
     .number({
-      invalid_type_error: "El año del vehículo debe ser un número válido",
+      error: "El año del vehículo debe ser un número válido",
     })
     .int("El año debe ser un número entero")
     .min(1900, "El año no puede ser menor a 1900")
@@ -147,9 +141,9 @@ const genericPurchaseOrderSchemaBase = basePurchaseOrderSchema.extend({
     .max(30, "El número de motor no puede tener más de 30 caracteres")
     .optional()
     .or(z.literal("")),
-  vehicle_unit_price: z.coerce
+  vehicle_unit_price: z
     .number({
-      invalid_type_error: "El precio unitario debe ser un número válido",
+      error: "El precio unitario debe ser un número válido",
     })
     .min(0, "El precio unitario no puede ser negativo")
     .optional(),

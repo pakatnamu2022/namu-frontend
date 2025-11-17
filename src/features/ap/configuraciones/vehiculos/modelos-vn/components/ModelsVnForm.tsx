@@ -54,7 +54,7 @@ export const ModelsVnForm = ({
   const router = useNavigate();
   const form = useForm({
     resolver: zodResolver(
-      mode === "create" ? modelsVnSchemaCreate : modelsVnSchemaUpdate
+      mode === "create" ? modelsVnSchemaCreate : (modelsVnSchemaUpdate as any)
     ),
     defaultValues: {
       ...defaultValues,

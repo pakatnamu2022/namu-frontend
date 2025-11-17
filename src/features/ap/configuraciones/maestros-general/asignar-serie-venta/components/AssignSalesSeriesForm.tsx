@@ -41,7 +41,7 @@ export const AssignSalesSeriesForm = ({
     resolver: zodResolver(
       mode === "create"
         ? assignSalesSeriesSchemaCreate
-        : assignSalesSeriesSchemaUpdate
+        : assignSalesSeriesSchemaUpdate as any
     ),
     defaultValues: {
       ...defaultValues,
