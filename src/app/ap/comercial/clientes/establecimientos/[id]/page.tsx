@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams } from 'react-router-dom';
+import { useParams } from "react-router-dom";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import { useEffect, useState } from "react";
 import PageSkeleton from "@/shared/components/PageSkeleton";
@@ -25,18 +25,17 @@ import { establishmentsColumns } from "@/features/ap/comercial/establecimientos/
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft } from "lucide-react";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { CUSTOMERS } from "@/features/ap/comercial/clientes/lib/customers.constants";
 import { findCustomersById } from "@/features/ap/comercial/clientes/lib/customers.actions";
 import EstablishmentsActions from "@/features/ap/comercial/establecimientos/components/EstablishmentsActions";
 import EstablishmentsTable from "@/features/ap/comercial/establecimientos/components/EstablishmentsTable";
 import EstablishmentsOptions from "@/features/ap/comercial/establecimientos/components/EstablishmentsOptions";
 import { useEstablishments } from "@/features/ap/comercial/establecimientos/lib/establishments.hook";
-import NotFound from '@/app/not-found';
-
+import NotFound from "@/app/not-found";
 
 export default function EstablishmentsListPage() {
-    const { id } = useParams();
+  const { id } = useParams();
   const router = useNavigate();
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
