@@ -3,6 +3,7 @@ import { GearShiftTypeResource } from "./gearShiftType.interface";
 import { COMMERCIAL_MASTERS_ENDPOINT } from "@/features/ap/lib/ap.constants";
 
 const ROUTE = "transmision-vehiculo";
+const ABSOLUTE_ROUTE = `/ap/configuraciones/vehiculos/${ROUTE}`;
 
 export const TYPE_TRANSMISSION: ModelComplete<GearShiftTypeResource> = {
   MODEL: {
@@ -14,6 +15,7 @@ export const TYPE_TRANSMISSION: ModelComplete<GearShiftTypeResource> = {
   ENDPOINT: COMMERCIAL_MASTERS_ENDPOINT,
   QUERY_KEY: "typeTransmission",
   ROUTE,
+  ABSOLUTE_ROUTE,
   EMPTY: {
     id: 0,
     code: "",

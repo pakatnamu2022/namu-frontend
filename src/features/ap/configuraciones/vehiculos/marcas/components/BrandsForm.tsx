@@ -22,6 +22,7 @@ import {
 } from "../lib/brands.schema";
 import { BrandsRequest } from "../lib/brands.interface";
 import FormSkeleton from "@/shared/components/FormSkeleton";
+import { BRAND } from "../lib/brands.constants";
 
 interface BrandsFormProps {
   defaultValues: Partial<BrandsSchema>;
@@ -46,6 +47,7 @@ export const BrandsForm = ({
     },
     mode: "onChange",
   });
+  const { ABSOLUTE_ROUTE } = BRAND;
 
   const { data: brandGroups = [], isLoading: isLoadingbrandGroups } =
     useAllBrandGroup();
@@ -147,7 +149,7 @@ export const BrandsForm = ({
           <FormField
             control={form.control}
             name="logo"
-            render={({ field: { onChange, value, ...field } }) => (
+            render={({ field: { onChange, ...field } }) => (
               <FormItem>
                 <FormLabel>Logo</FormLabel>
                 <FormControl>
@@ -172,7 +174,7 @@ export const BrandsForm = ({
           <FormField
             control={form.control}
             name="logo_min"
-            render={({ field: { onChange, value, ...field } }) => (
+            render={({ field: { onChange, ...field } }) => (
               <FormItem>
                 <FormLabel>Logo Min</FormLabel>
                 <FormControl>
@@ -196,7 +198,7 @@ export const BrandsForm = ({
           />
         </div>
         <div className="flex gap-4 w-full justify-end">
-          <Link to={mode === "create" ? "./" : "../"}>
+          <Link to={ABSOLUTE_ROUTE}>
             <Button type="button" variant="outline">
               Cancelar
             </Button>

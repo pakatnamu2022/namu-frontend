@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Loader } from "lucide-react";
-import { Link } from 'react-router-dom'
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   ClassArticleSchema,
@@ -18,6 +18,9 @@ import {
   classArticleSchemaUpdate,
 } from "../lib/classArticle.schema";
 import { FormSelect } from "@/shared/components/FormSelect";
+import { useAllTypesOperation } from "../../tipos-operacion/lib/typesOperation.hook";
+import FormSkeleton from "@/shared/components/FormSkeleton";
+import { CLASS_ARTICLE } from "../lib/classArticle.constants";
 
 interface ClassArticleFormProps {
   defaultValues: Partial<ClassArticleSchema>;
@@ -25,17 +28,6 @@ interface ClassArticleFormProps {
   isSubmitting?: boolean;
   mode?: "create" | "update";
 }
-
-const usoOptions = [
-  {
-    label: "Vehículo",
-    value: "VEHICULO",
-  },
-  {
-    label: "Post Venta",
-    value: "POSTVENTA",
-  },
-];
 
 export const ClassArticleForm = ({
   defaultValues,
@@ -52,6 +44,13 @@ export const ClassArticleForm = ({
     },
     mode: "onChange",
   });
+
+  const { ABSOLUTE_ROUTE } = CLASS_ARTICLE;
+
+  const { data: typesOperation = [], isLoading: isLoadingTypesOperation } =
+    useAllTypesOperation();
+
+  if (isLoadingTypesOperation) return <FormSkeleton />;
 
   return (
     <Form {...form}>
@@ -100,15 +99,18 @@ export const ClassArticleForm = ({
             )}
           />
           <FormSelect
-            name="type"
-            label="Tipo"
-            placeholder="Selecciona su tipo"
-            options={usoOptions}
+            name="type_operation_id"
+            label="Tipo de Operación"
+            placeholder="Selecciona una Tipo de Operación"
+            options={typesOperation.map((typeOperation) => ({
+              label: typeOperation.description,
+              value: typeOperation.id.toString(),
+            }))}
             control={form.control}
           />
         </div>
         <div className="flex gap-4 w-full justify-end">
-          <Link to={mode === "create" ? "" : "../"}>
+          <Link to={ABSOLUTE_ROUTE}>
             <Button type="button" variant="outline">
               Cancelar
             </Button>

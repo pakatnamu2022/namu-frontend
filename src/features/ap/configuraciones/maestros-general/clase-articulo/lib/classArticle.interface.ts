@@ -11,7 +11,7 @@ export interface ClassArticleResource {
   dyn_code: string;
   description: string;
   account: string;
-  type: string;
+  type_operation_id: string;
   status: boolean;
 }
 
@@ -19,7 +19,7 @@ export interface ClassArticleRequest {
   dyn_code: string;
   description: string;
   account: string;
-  type: string;
+  type_operation_id: string;
   status: boolean;
 }
 

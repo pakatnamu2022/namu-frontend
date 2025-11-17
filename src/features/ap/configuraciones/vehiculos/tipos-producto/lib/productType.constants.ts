@@ -3,6 +3,7 @@ import { ProductTypeResource } from "./productType.interface";
 import { COMMERCIAL_MASTERS_ENDPOINT } from "@/features/ap/lib/ap.constants";
 
 const ROUTE = "tipos-producto";
+const ABSOLUTE_ROUTE = `/ap/configuraciones/vehiculos/${ROUTE}`;
 
 export const PRODUCT_TYPE: ModelComplete<ProductTypeResource> = {
   MODEL: {
@@ -14,6 +15,7 @@ export const PRODUCT_TYPE: ModelComplete<ProductTypeResource> = {
   ENDPOINT: COMMERCIAL_MASTERS_ENDPOINT,
   QUERY_KEY: "productType",
   ROUTE,
+  ABSOLUTE_ROUTE,
   EMPTY: {
     id: 0,
     code: "",

@@ -2,6 +2,7 @@ import { type ModelComplete } from "@/core/core.interface";
 import { ApGoalSellOutInResource } from "./apGoalSellOutIn.interface";
 
 const ROUTE = "metas-venta";
+const ABSOLUTE_ROUTE = `/ap/configuraciones/ventas/${ROUTE}`;
 
 export const AP_GOAL_SELL_OUT_IN: ModelComplete<ApGoalSellOutInResource> = {
   MODEL: {
@@ -13,6 +14,7 @@ export const AP_GOAL_SELL_OUT_IN: ModelComplete<ApGoalSellOutInResource> = {
   ENDPOINT: "/ap/configuration/apGoalSellOutIn",
   QUERY_KEY: "apGoalSellOutIn",
   ROUTE,
+  ABSOLUTE_ROUTE,
   EMPTY: {
     id: 0,
     year: 0,

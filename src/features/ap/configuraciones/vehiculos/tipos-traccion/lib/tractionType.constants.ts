@@ -3,6 +3,7 @@ import { TractionTypeResource } from "./tractionType.interface";
 import { COMMERCIAL_MASTERS_ENDPOINT } from "@/features/ap/lib/ap.constants";
 
 const ROUTE = "tipos-traccion";
+const ABSOLUTE_ROUTE = `/ap/configuraciones/vehiculos/${ROUTE}`;
 
 export const TRACTION_TYPE: ModelComplete<TractionTypeResource> = {
   MODEL: {
@@ -14,6 +15,7 @@ export const TRACTION_TYPE: ModelComplete<TractionTypeResource> = {
   ENDPOINT: COMMERCIAL_MASTERS_ENDPOINT,
   QUERY_KEY: "tractionType",
   ROUTE,
+  ABSOLUTE_ROUTE,
   EMPTY: {
     id: 0,
     code: "",

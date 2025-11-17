@@ -3,6 +3,7 @@ import { TypeVehicleOriginResource } from "./typeVehicleOrigin.interface";
 import { COMMERCIAL_MASTERS_ENDPOINT } from "@/features/ap/lib/ap.constants";
 
 const ROUTE = "origen-vehiculo";
+const ABSOLUTE_ROUTE = `/ap/configuration/vehiculos/${ROUTE}`;
 
 export const VEHICLE_ORIGIN: ModelComplete<TypeVehicleOriginResource> = {
   MODEL: {
@@ -14,5 +15,6 @@ export const VEHICLE_ORIGIN: ModelComplete<TypeVehicleOriginResource> = {
   ENDPOINT: COMMERCIAL_MASTERS_ENDPOINT,
   QUERY_KEY: "typeVehicleOrigin",
   ROUTE,
+  ABSOLUTE_ROUTE,
   EMPTY: { id: 0, code: "", description: "", type: "", status: true },
 };

@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams } from 'react-router-dom';
+import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
@@ -21,15 +21,14 @@ import FormSkeleton from "@/shared/components/FormSkeleton";
 import { VehicleStatusForm } from "@/features/ap/configuraciones/vehiculos/estados-vehiculo/components/VehicleStatusForm";
 import FormWrapper from "@/shared/components/FormWrapper";
 import { VEHICLE_STATUS } from "@/features/ap/configuraciones/vehiculos/estados-vehiculo/lib/vehicleStatus.constants";
-import NotFound from '@/app/not-found';
-
+import NotFound from "@/app/not-found";
 
 export default function EditVehicleStatusPage() {
-    const { id } = useParams();
+  const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();
   const { currentView, checkRouteExists } = useCurrentModule();
-  const { ROUTE, QUERY_KEY, MODEL } = VEHICLE_STATUS;
+  const { ROUTE, QUERY_KEY, MODEL, ABSOLUTE_ROUTE } = VEHICLE_STATUS;
 
   const { data: VehicleStatus, isLoading: loadingVehicleStatus } = useQuery({
     queryKey: [QUERY_KEY, id],
@@ -45,7 +44,7 @@ export default function EditVehicleStatusPage() {
       await queryClient.invalidateQueries({
         queryKey: [QUERY_KEY, id],
       });
-      router("../");
+      router(ABSOLUTE_ROUTE);
     },
     onError: (error: any) => {
       const msg = error?.response?.data?.message || "";

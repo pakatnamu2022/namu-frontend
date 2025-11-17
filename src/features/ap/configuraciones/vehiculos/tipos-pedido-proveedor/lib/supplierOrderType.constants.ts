@@ -3,6 +3,7 @@ import { SupplierOrderTypeResource } from "./supplierOrderType.interface";
 import { COMMERCIAL_MASTERS_ENDPOINT } from "@/features/ap/lib/ap.constants";
 
 const ROUTE = "tipos-pedido-proveedor";
+const ABSOLUTE_ROUTE = `/ap/configuraciones/vehiculos/${ROUTE}`;
 
 export const SUPPLIER_ORDER_TYPE: ModelComplete<SupplierOrderTypeResource> = {
   MODEL: {
@@ -14,6 +15,7 @@ export const SUPPLIER_ORDER_TYPE: ModelComplete<SupplierOrderTypeResource> = {
   ENDPOINT: COMMERCIAL_MASTERS_ENDPOINT,
   QUERY_KEY: "supplierOrderType",
   ROUTE,
+  ABSOLUTE_ROUTE,
   EMPTY: {
     id: 0,
     code: "",

@@ -2,6 +2,7 @@ import { type ModelComplete } from "@/core/core.interface";
 import { FamiliesSchema } from "./families.schema";
 
 const ROUTE = "familias";
+const ABSOLUTE_ROUTE = `/ap/configuration/${ROUTE}`;
 
 export const FAMILIES: ModelComplete<FamiliesSchema> = {
   MODEL: {
@@ -13,6 +14,7 @@ export const FAMILIES: ModelComplete<FamiliesSchema> = {
   ENDPOINT: "/ap/configuration/families",
   QUERY_KEY: "families",
   ROUTE,
+  ABSOLUTE_ROUTE,
   ROUTE_ADD: `./agregar`,
   ROUTE_UPDATE: `./actualizar`,
   EMPTY: {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import { ASSIGNMENT_LEADERSHIP } from "@/features/ap/configuraciones/ventas/asignar-jefe/lib/assignmentLeadership.constants";
 import { useMutation } from "@tanstack/react-query";
@@ -17,19 +17,18 @@ import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import { AssignCompanyBranchSchema } from "@/features/ap/configuraciones/ventas/asignar-sede/lib/assignCompanyBranch.schema";
 import { AssignCompanyBranchForm } from "@/features/ap/configuraciones/ventas/asignar-sede/components/AssignCompanyBranchForm";
 import { storeAssignCompanyBranch } from "@/features/ap/configuraciones/ventas/asignar-sede/lib/assignCompanyBranch.actions";
-import NotFound from '@/app/not-found';
-
+import NotFound from "@/app/not-found";
 
 export default function CreateAssignCompanyBranchPage() {
   const router = useNavigate();
-    const { currentView, checkRouteExists } = useCurrentModule();
-  const { ROUTE, MODEL } = ASSIGNMENT_LEADERSHIP;
+  const { currentView, checkRouteExists } = useCurrentModule();
+  const { ROUTE, MODEL, ABSOLUTE_ROUTE } = ASSIGNMENT_LEADERSHIP;
 
   const { mutate, isPending } = useMutation({
     mutationFn: storeAssignCompanyBranch,
     onSuccess: () => {
       successToast(SUCCESS_MESSAGE(MODEL, "create"));
-      router("./");
+      router(ABSOLUTE_ROUTE);
     },
     onError: (error: any) => {
       const msg = error?.response?.data?.message || "";

@@ -17,15 +17,14 @@ import BackButton from "@/shared/components/BackButton";
 import FormWrapper from "@/shared/components/FormWrapper";
 import { ASSIGN_BRAND_CONSULTANT } from "@/features/ap/configuraciones/ventas/asignar-marca/lib/assignBrandConsultant.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
-import NotFound from '@/app/not-found';
-
+import NotFound from "@/app/not-found";
 
 export default function CreateAssignBrandConsultantPage() {
-    const year = new Date().getFullYear();
+  const year = new Date().getFullYear();
   const month = new Date().getMonth() + 1;
   const { currentView, checkRouteExists } = useCurrentModule();
   const invalidateQueryKey = useInvalidateQuery();
-  const { QUERY_KEY, ROUTE, MODEL } = ASSIGN_BRAND_CONSULTANT;
+  const { QUERY_KEY, ROUTE, MODEL, ABSOLUTE_ROUTE } = ASSIGN_BRAND_CONSULTANT;
 
   const { mutate, isPending } = useMutation({
     mutationFn: storeAssignBrandConsultant,
@@ -54,7 +53,11 @@ export default function CreateAssignBrandConsultantPage() {
           mode="create"
           icon={currentView.icon}
         ></TitleFormComponent>
-        <BackButton route={"./"} name={"Asignar Marca"} fullname={false} />
+        <BackButton
+          route={ABSOLUTE_ROUTE}
+          name={"Asignar Marca"}
+          fullname={false}
+        />
       </HeaderTableWrapper>
       <AssignBrandConsultantForm
         defaultValues={{

@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams } from 'react-router-dom';
+import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
@@ -16,15 +16,14 @@ import FormWrapper from "@/shared/components/FormWrapper";
 import { ASSIGN_COMPANY_BRANCH } from "@/features/ap/configuraciones/ventas/asignar-sede/lib/assignCompanyBranch.constants";
 import { AssignCompanyBranchForm } from "@/features/ap/configuraciones/ventas/asignar-sede/components/AssignCompanyBranchForm";
 import { AssignCompanyBranchSchema } from "@/features/ap/configuraciones/ventas/asignar-sede/lib/assignCompanyBranch.schema";
-import NotFound from '@/app/not-found';
-
+import NotFound from "@/app/not-found";
 
 export default function EditAssignCompanyBranchPage() {
-    const { id } = useParams();
+  const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();
   const { currentView, checkRouteExists } = useCurrentModule();
-  const { QUERY_KEY, ROUTE } = ASSIGN_COMPANY_BRANCH;
+  const { QUERY_KEY, ROUTE, ABSOLUTE_ROUTE } = ASSIGN_COMPANY_BRANCH;
 
   const { data: AssignCompanyBranch, isLoading: loadingAssignCompanyBranch } =
     useQuery({
@@ -41,7 +40,7 @@ export default function EditAssignCompanyBranchPage() {
       await queryClient.invalidateQueries({
         queryKey: [QUERY_KEY, id],
       });
-      router("../");
+      router(ABSOLUTE_ROUTE);
     },
     onError: () => {
       errorToast("No se pudo actualizar la asignación de asesores");
