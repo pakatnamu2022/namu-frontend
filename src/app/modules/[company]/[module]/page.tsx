@@ -10,7 +10,6 @@ import {
   ViewsResponseMenu,
   ViewsResponseMenuChild,
 } from "@/features/views/lib/views.interface";
-import MainLayout from "@/features/dashboard/components/MainLayout";
 
 export default function ModulesPage() {
   const router = useNavigate();
