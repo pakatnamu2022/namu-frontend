@@ -4,8 +4,8 @@ import { z } from "zod";
 export const parameterDetailSchema = z.object({
   id: z.number().optional(),
   label: z.string().min(1, "Etiqueta requerida"),
-  from: z.coerce.number({ error: "Debe ser número" }),
-  to: z.coerce.number({ error: "Debe ser número" }),
+  from: z.coerce.number({ invalid_type_error: "Debe ser número" }),
+  to: z.coerce.number({ invalid_type_error: "Debe ser número" }),
 });
 
 const baseParameterSchema = z.object({
