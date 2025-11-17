@@ -14,8 +14,8 @@ export const USER_SERIES_ASSIGNMENT: ModelComplete<UserSeriesAssignmentResource>
     ENDPOINT: "/ap/configuration/userSeriesAssignment",
     QUERY_KEY: "userSeriesAssignment",
     ROUTE,
-    ROUTE_ADD: `${ROUTE}/agregar`,
-    ROUTE_UPDATE: `${ROUTE}/actualizar`,
+    ROUTE_ADD: `./agregar`,
+    ROUTE_UPDATE: `./actualizar`,
     EMPTY: {
       worker_id: "",
       vouchers: [],

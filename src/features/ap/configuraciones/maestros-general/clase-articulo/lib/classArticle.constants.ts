@@ -13,8 +13,8 @@ export const CLASS_ARTICLE: ModelComplete<ClassArticleResource> = {
   ENDPOINT: "/ap/configuration/classArticle",
   QUERY_KEY: "classArticle",
   ROUTE,
-  ROUTE_ADD: `${ROUTE}/agregar`,
-  ROUTE_UPDATE: `${ROUTE}/actualizar`,
+  ROUTE_ADD: `./agregar`,
+  ROUTE_UPDATE: `./actualizar`,
   EMPTY: {
     id: 0,
     dyn_code: "",

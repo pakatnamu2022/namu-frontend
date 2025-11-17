@@ -13,8 +13,8 @@ export const FAMILIES: ModelComplete<FamiliesSchema> = {
   ENDPOINT: "/ap/configuration/families",
   QUERY_KEY: "families",
   ROUTE,
-  ROUTE_ADD: `${ROUTE}/agregar`,
-  ROUTE_UPDATE: `${ROUTE}/actualizar`,
+  ROUTE_ADD: `./agregar`,
+  ROUTE_UPDATE: `./actualizar`,
   EMPTY: {
     brand_id: "",
     description: "",

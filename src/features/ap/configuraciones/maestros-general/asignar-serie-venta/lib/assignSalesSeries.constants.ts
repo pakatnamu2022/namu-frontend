@@ -13,8 +13,8 @@ export const ASSIGN_SALES_SERIES: ModelComplete<AssignSalesSeriesResource> = {
   ENDPOINT: "/ap/configuration/assignSalesSeries",
   QUERY_KEY: "assignSalesSeries",
   ROUTE,
-  ROUTE_ADD: `${ROUTE}/agregar`,
-  ROUTE_UPDATE: `${ROUTE}/actualizar`,
+  ROUTE_ADD: `./agregar`,
+  ROUTE_UPDATE: `./actualizar`,
   EMPTY: {
     id: 0,
     series: "",

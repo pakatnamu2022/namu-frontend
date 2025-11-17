@@ -14,8 +14,8 @@ export const COMMERCIAL_MANAGER_BRAND_GROUP: ModelComplete<CommercialManagerBran
     ENDPOINT: "/ap/configuration/commercialManagerBrandGroup",
     QUERY_KEY: "commercialManagerBrandGroup",
     ROUTE,
-    ROUTE_ADD: `${ROUTE}/agregar`,
-    ROUTE_UPDATE: `${ROUTE}/actualizar`,
+    ROUTE_ADD: `./agregar`,
+    ROUTE_UPDATE: `./actualizar`,
     EMPTY: {
       year: 0,
       month: 0,

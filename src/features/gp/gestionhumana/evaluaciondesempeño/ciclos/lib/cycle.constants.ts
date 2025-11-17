@@ -14,6 +14,6 @@ export const CYCLE: ModelComplete = {
   ENDPOINT: "/gp/gh/performanceEvaluation/cycle",
   QUERY_KEY: "cycle",
   ROUTE,
-  ROUTE_ADD: `${ROUTE}/agregar`,
-  ROUTE_UPDATE: `${ROUTE}/actualizar`,
+  ROUTE_ADD: `./agregar`,
+  ROUTE_UPDATE: `./actualizar`,
 };

@@ -13,7 +13,7 @@ export const WAREHOUSE: ModelComplete<WarehouseResource> = {
   ENDPOINT: "/ap/configuration/warehouse",
   QUERY_KEY: "warehouse",
   ROUTE,
-  ROUTE_ADD: `${ROUTE}/agregar`,
-  ROUTE_UPDATE: `${ROUTE}/actualizar`,
+  ROUTE_ADD: `./agregar`,
+  ROUTE_UPDATE: `./actualizar`,
 };
 

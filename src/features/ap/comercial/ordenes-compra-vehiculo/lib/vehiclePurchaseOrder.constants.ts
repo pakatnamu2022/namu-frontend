@@ -12,6 +12,6 @@ export const VEHICLE_PURCHASE_ORDER: ModelComplete = {
   ENDPOINT: "/ap/commercial/vehiclePurchaseOrder",
   QUERY_KEY: "vehiclePurchaseOrder",
   ROUTE,
-  ROUTE_ADD: `${ROUTE}/agregar`,
-  ROUTE_UPDATE: `${ROUTE}/actualizar`,
+  ROUTE_ADD: `./agregar`,
+  ROUTE_UPDATE: `./actualizar`,
 };

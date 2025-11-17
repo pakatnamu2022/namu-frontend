@@ -13,6 +13,6 @@ export const BANK_AP: ModelComplete<ApBankResource> = {
   ENDPOINT: "/ap/configuration/bankAp",
   QUERY_KEY: "bankAp",
   ROUTE,
-  ROUTE_ADD: `${ROUTE}/agregar`,
-  ROUTE_UPDATE: `${ROUTE}/actualizar`,
+  ROUTE_ADD: `./agregar`,
+  ROUTE_UPDATE: `./actualizar`,
 };

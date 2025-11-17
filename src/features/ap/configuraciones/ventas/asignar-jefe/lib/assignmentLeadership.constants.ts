@@ -14,8 +14,8 @@ export const ASSIGNMENT_LEADERSHIP: ModelComplete<AssignmentLeadershipResource> 
     ENDPOINT: "/ap/configuration/assignmentLeadership",
     QUERY_KEY: "assignmentLeadership",
     ROUTE,
-    ROUTE_UPDATE: `${ROUTE}/actualizar`,
-    ROUTE_ADD: `${ROUTE}/agregar`,
+    ROUTE_UPDATE: `./actualizar`,
+    ROUTE_ADD: `./agregar`,
     EMPTY: {
       year: 0,
       month: 0,

@@ -13,8 +13,8 @@ export const DISTRICT: ModelComplete<DistrictResource> = {
   ENDPOINT: "/gp/gs/district",
   QUERY_KEY: "district",
   ROUTE,
-  ROUTE_ADD: `${ROUTE}/agregar`,
-  ROUTE_UPDATE: `${ROUTE}/actualizar`,
+  ROUTE_ADD: `./agregar`,
+  ROUTE_UPDATE: `./actualizar`,
   EMPTY: {
     id: 0,
     name: "",

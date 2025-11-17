@@ -13,8 +13,8 @@ export const BRAND: ModelComplete<BrandsResource> = {
   ENDPOINT: "/ap/configuration/vehicleBrand",
   QUERY_KEY: "vehicleBrand",
   ROUTE,
-  ROUTE_ADD: `${ROUTE}/agregar`,
-  ROUTE_UPDATE: `${ROUTE}/actualizar`,
+  ROUTE_ADD: `./agregar`,
+  ROUTE_UPDATE: `./actualizar`,
   EMPTY: {
     id: 0,
     code: "",

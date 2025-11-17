@@ -20,8 +20,8 @@ export const OPPORTUNITIES: ModelComplete<OpportunitySchema> = {
   QUERY_KEY: "opportunities",
   ROUTE,
   ABSOLUTE_ROUTE: `/ap/comercial/${ROUTE_AGENDA}/${ROUTE}`,
-  ROUTE_ADD: `${ROUTE}/agregar`,
-  ROUTE_UPDATE: `${ROUTE}/actualizar`,
+  ROUTE_ADD: `./agregar`,
+  ROUTE_UPDATE: `./actualizar`,
   EMPTY: {
     client_id: "",
     family_id: "",

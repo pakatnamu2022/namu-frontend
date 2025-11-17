@@ -13,8 +13,8 @@ export const SEDE: ModelComplete<SedeResource> = {
   ENDPOINT: "/gp/mg/sede",
   QUERY_KEY: "sede",
   ROUTE,
-  ROUTE_ADD: `${ROUTE}/agregar`,
-  ROUTE_UPDATE: `${ROUTE}/actualizar`,
+  ROUTE_ADD: `./agregar`,
+  ROUTE_UPDATE: `./actualizar`,
   EMPTY: {
     description: "",
     id: 0,

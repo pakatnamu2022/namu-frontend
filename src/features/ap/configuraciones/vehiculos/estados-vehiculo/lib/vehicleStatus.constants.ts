@@ -13,8 +13,8 @@ export const VEHICLE_STATUS: ModelComplete<VehicleStatusResource> = {
   ENDPOINT: "/ap/configuration/vehicleStatus",
   QUERY_KEY: "vehicleStatus",
   ROUTE,
-  ROUTE_ADD: `${ROUTE}/agregar`,
-  ROUTE_UPDATE: `${ROUTE}/actualizar`,
+  ROUTE_ADD: `./agregar`,
+  ROUTE_UPDATE: `./actualizar`,
   EMPTY: {
     id: 0,
     code: "",

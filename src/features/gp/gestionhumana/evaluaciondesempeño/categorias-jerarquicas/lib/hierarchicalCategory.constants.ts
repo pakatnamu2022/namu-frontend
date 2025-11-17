@@ -12,6 +12,6 @@ export const HIERARCHICAL_CATEGORY: ModelComplete = {
   ENDPOINT: "/gp/gh/performanceEvaluation/hierarchicalCategory",
   QUERY_KEY: "hierarchicalCategory",
   ROUTE,
-  ROUTE_ADD: `${ROUTE}/agregar`,
-  ROUTE_UPDATE: `${ROUTE}/actualizar`,
+  ROUTE_ADD: `./agregar`,
+  ROUTE_UPDATE: `./actualizar`,
 };

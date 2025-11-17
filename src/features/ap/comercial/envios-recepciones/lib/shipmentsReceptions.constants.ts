@@ -14,8 +14,8 @@ export const SHIPMENTS_RECEPTIONS: ModelComplete<ShipmentsReceptionsResource> =
     ENDPOINT: "/ap/commercial/shippingGuides",
     QUERY_KEY: "shipments-receptions",
     ROUTE,
-    ROUTE_ADD: `${ROUTE}/agregar`,
-    ROUTE_UPDATE: `${ROUTE}/actualizar`,
+    ROUTE_ADD: `./agregar`,
+    ROUTE_UPDATE: `./actualizar`,
   };
 
 // Tipos de documento

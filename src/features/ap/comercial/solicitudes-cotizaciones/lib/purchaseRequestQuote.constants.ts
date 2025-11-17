@@ -14,6 +14,6 @@ export const PURCHASE_REQUEST_QUOTE: ModelComplete<PurchaseRequestQuoteResource>
     ENDPOINT: "/ap/commercial/purchaseRequestQuote",
     QUERY_KEY: "purchaseRequestQuote",
     ROUTE,
-    ROUTE_ADD: `${ROUTE}/agregar`,
-    ROUTE_UPDATE: `${ROUTE}/actualizar`,
+    ROUTE_ADD: `./agregar`,
+    ROUTE_UPDATE: `./actualizar`,
   };

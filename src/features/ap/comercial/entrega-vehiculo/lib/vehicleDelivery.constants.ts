@@ -14,5 +14,5 @@ export const VEHICLE_DELIVERY: ModelComplete<VehiclesDeliveryResource> = {
   ENDPOINT: "/ap/commercial/vehiclesDelivery",
   QUERY_KEY: "vehicleDelivery",
   ROUTE,
-  ROUTE_ADD: `${ROUTE}/agregar`,
+  ROUTE_ADD: `./agregar`,
 };

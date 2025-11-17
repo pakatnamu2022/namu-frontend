@@ -14,8 +14,8 @@ export const BRAND_GROUP: ModelComplete<BrandGroupResource> = {
   ENDPOINT: COMMERCIAL_MASTERS_ENDPOINT,
   QUERY_KEY: "brandGroup",
   ROUTE,
-  ROUTE_ADD: `${ROUTE}/agregar`,
-  ROUTE_UPDATE: `${ROUTE}/actualizar`,
+  ROUTE_ADD: `./agregar`,
+  ROUTE_UPDATE: `./actualizar`,
   EMPTY: {
     id: 0,
     code: "",

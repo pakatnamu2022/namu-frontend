@@ -13,8 +13,8 @@ export const CUSTOMERS: ModelComplete<CustomersResource> = {
   ENDPOINT: "/ap/commercial/businessPartners",
   QUERY_KEY: "customers",
   ROUTE,
-  ROUTE_ADD: `${ROUTE}/agregar`,
-  ROUTE_UPDATE: `${ROUTE}/actualizar`,
+  ROUTE_ADD: `./agregar`,
+  ROUTE_UPDATE: `./actualizar`,
   EMPTY: {
     id: 0,
     first_name: "",

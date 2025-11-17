@@ -12,6 +12,6 @@ export const CATEGORY_OBJECTIVE: ModelComplete = {
   ENDPOINT: "/gp/gh/performanceEvaluation/categoryObjectiveDetail",
   QUERY_KEY: "categoryObjectiveDetail",
   ROUTE,
-  ROUTE_ADD: `${ROUTE}/agregar`,
-  ROUTE_UPDATE: `${ROUTE}/actualizar`,
+  ROUTE_ADD: `./agregar`,
+  ROUTE_UPDATE: `./actualizar`,
 };

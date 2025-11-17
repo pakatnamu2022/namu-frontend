@@ -14,8 +14,8 @@ export const ASSIGN_COMPANY_BRANCH: ModelComplete<AssignCompanyBranchResource> =
     ENDPOINT: "/ap/configuration/assignCompanyBranch",
     QUERY_KEY: "assignCompanyBranch",
     ROUTE,
-    ROUTE_ADD: `${ROUTE}/agregar`,
-    ROUTE_UPDATE: `${ROUTE}/actualizar`,
+    ROUTE_ADD: `./agregar`,
+    ROUTE_UPDATE: `./actualizar`,
     EMPTY: {
       sede_id: 0,
       year: 0,
