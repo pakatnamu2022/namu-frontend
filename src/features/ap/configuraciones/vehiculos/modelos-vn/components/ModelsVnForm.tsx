@@ -1,4 +1,4 @@
-// "use client";
+"use client";
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -37,6 +37,7 @@ import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-gene
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { useNavigate } from "react-router-dom";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
+import { MODELS_VN } from "../lib/modelsVn.constanst";
 
 interface ModelsVnFormProps {
   defaultValues: Partial<ModelsVnSchema>;
@@ -61,6 +62,7 @@ export const ModelsVnForm = ({
     },
     mode: "onChange",
   });
+  const { ABSOLUTE_ROUTE } = MODELS_VN;
   const codigoOriginalRef = useRef(defaultValues.code);
   const marcaSeleccionada = form.watch("brand_id");
   const precioDistribuidor = form.watch("distributor_price");
@@ -363,7 +365,7 @@ export const ModelsVnForm = ({
                     Distancia Ejes
                   </FormLabel>
                   <FormControl>
-                    <Input placeholder="Ej: 0.00" {...field} />
+                    <Input type="number" placeholder="Ej: 0.00" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -378,7 +380,7 @@ export const ModelsVnForm = ({
                     Núm. Ejes
                   </FormLabel>
                   <FormControl>
-                    <Input placeholder="Ej: 0.00" {...field} />
+                    <Input type="number" placeholder="Ej: 0.00" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -478,7 +480,7 @@ export const ModelsVnForm = ({
                     Núm. Asientos
                   </FormLabel>
                   <FormControl>
-                    <Input placeholder="Ej: 0.00" {...field} />
+                    <Input type="number" placeholder="Ej: 0.00" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -493,7 +495,7 @@ export const ModelsVnForm = ({
                     Núm. Puertas
                   </FormLabel>
                   <FormControl>
-                    <Input placeholder="Ej: 0.00" {...field} />
+                    <Input type="number" placeholder="Ej: 0.00" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -568,7 +570,7 @@ export const ModelsVnForm = ({
                     Núm. Cilindros
                   </FormLabel>
                   <FormControl>
-                    <Input placeholder="Ej: 0.00" {...field} />
+                    <Input type="number" placeholder="Ej: 0.00" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -583,7 +585,7 @@ export const ModelsVnForm = ({
                     Núm. Pasajeros
                   </FormLabel>
                   <FormControl>
-                    <Input placeholder="Ej: 0.00" {...field} />
+                    <Input type="number" placeholder="Ej: 0.00" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -598,7 +600,7 @@ export const ModelsVnForm = ({
                     Núm. Ruedas
                   </FormLabel>
                   <FormControl>
-                    <Input placeholder="Ej: 0.00" {...field} />
+                    <Input type="number" placeholder="Ej: 0.00" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -632,7 +634,7 @@ export const ModelsVnForm = ({
                     Precio Distribuidor
                   </FormLabel>
                   <FormControl>
-                    <Input placeholder="Ej: 0.00" {...field} />
+                    <Input type="number" placeholder="Ej: 0.00" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -647,7 +649,7 @@ export const ModelsVnForm = ({
                     Costo Transporte
                   </FormLabel>
                   <FormControl>
-                    <Input placeholder="Ej: 0.00" {...field} />
+                    <Input type="number" placeholder="Ej: 0.00" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -662,7 +664,7 @@ export const ModelsVnForm = ({
                     Otros Importes
                   </FormLabel>
                   <FormControl>
-                    <Input placeholder="Ej: 0.00" {...field} />
+                    <Input type="number" placeholder="Ej: 0.00" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -677,7 +679,7 @@ export const ModelsVnForm = ({
                     % Dsc. de Compra
                   </FormLabel>
                   <FormControl>
-                    <Input placeholder="Ej: 0.00" {...field} />
+                    <Input type="number" placeholder="Ej: 0.00" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -752,7 +754,7 @@ export const ModelsVnForm = ({
                     Precio Venta
                   </FormLabel>
                   <FormControl>
-                    <Input placeholder="Ej: 0.00" {...field} />
+                    <Input type="number" placeholder="Ej: 0.00" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -767,7 +769,7 @@ export const ModelsVnForm = ({
                     % Margen
                   </FormLabel>
                   <FormControl>
-                    <Input placeholder="Ej: 0.00" {...field} />
+                    <Input type="number" placeholder="Ej: 0.00" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -786,7 +788,7 @@ export const ModelsVnForm = ({
             variant="destructive"
             icon="warning"
             onConfirm={() => {
-              router(mode === "create" ? "./" : "../");
+              router(ABSOLUTE_ROUTE);
             }}
           />
 

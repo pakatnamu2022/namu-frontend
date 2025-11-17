@@ -3,7 +3,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { PositionResource } from "../lib/position.interface";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { POSITION } from "../lib/position.constant";
 import { Pencil } from "lucide-react";
@@ -39,6 +39,7 @@ export const positionColumns = ({
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
       const router = useNavigate();
       const id = row.original.id;
 
@@ -49,7 +50,7 @@ export const positionColumns = ({
             variant="outline"
             size="icon"
             className="size-7"
-            onClick={() => router(`./${ROUTE_UPDATE}/${id}`)}
+            onClick={() => router(`${ROUTE_UPDATE}/${id}`)}
           >
             <Pencil className="size-5" />
           </Button>

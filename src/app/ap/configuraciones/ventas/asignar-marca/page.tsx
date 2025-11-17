@@ -6,11 +6,7 @@ import PageSkeleton from "@/shared/components/PageSkeleton";
 import TitleComponent from "@/shared/components/TitleComponent";
 import DataTablePagination from "@/shared/components/DataTablePagination";
 import { DEFAULT_PER_PAGE, MONTHS } from "@/core/core.constants";
-import {
-  errorToast,
-  generateYear,
-  successToast,
-} from "@/core/core.function";
+import { errorToast, generateYear, successToast } from "@/core/core.function";
 import { useAssignBrandConsultant } from "@/features/ap/configuraciones/ventas/asignar-marca/lib/assignBrandConsultant.hook";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import AssignBrandConsultantOptions from "@/features/ap/configuraciones/ventas/asignar-marca/components/assignBrandConsultantOptions";
@@ -20,11 +16,10 @@ import AssignBrandConsultantTable from "@/features/ap/configuraciones/ventas/asi
 import AssignBrandConsultantActions from "@/features/ap/configuraciones/ventas/asignar-marca/components/assignBrandConsultantActions";
 import { ASSIGN_BRAND_CONSULTANT } from "@/features/ap/configuraciones/ventas/asignar-marca/lib/assignBrandConsultant.constants";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import NotFound from '@/app/not-found';
-
+import NotFound from "@/app/not-found";
 
 export default function AssignBrandConsultantPage() {
-    const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
+  const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const currentYear = new Date().getFullYear().toString();
   const currentMonth = (new Date().getMonth() + 1).toString().padStart(2, "0");
   const [page, setPage] = useState(1);
@@ -36,6 +31,7 @@ export default function AssignBrandConsultantPage() {
   const permissions = useModulePermissions(ROUTE);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setPage(1);
   }, [search]);
 

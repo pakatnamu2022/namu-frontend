@@ -1,4 +1,4 @@
-import { requiredNumber, requiredStringId } from "@/shared/lib/global.schema";
+import { requiredStringId } from "@/shared/lib/global.schema";
 import { z } from "zod";
 
 export const modelsVnSchemaCreate = z.object({
@@ -114,15 +114,25 @@ export const modelsVnSchemaCreate = z.object({
     .refine((value) => value.trim() !== "", {
       message: "Número de ruedas es requerido",
     }),
-  distributor_price: requiredNumber("Precio distribuidor"),
-  transport_cost: requiredNumber("Costo de transporte"),
-  other_amounts: requiredNumber("Otros importes"),
-  purchase_discount: requiredNumber("Descuento de compra"),
-  igv_amount: requiredNumber("Importe IGV"),
-  total_purchase_excl_igv: requiredNumber("Total compra sin IGV"),
-  total_purchase_incl_igv: requiredNumber("Total compra con IGV"),
-  sale_price: requiredNumber("Precio de venta"),
-  margin: requiredNumber("Margen"),
+  distributor_price: z.coerce
+    .number()
+    .min(0, "Precio distribuidor debe ser al menos 0"),
+  transport_cost: z.coerce
+    .number()
+    .min(0, "Costo de transporte debe ser al menos 0"),
+  other_amounts: z.coerce.number().min(0, "Otros importes debe ser al menos 0"),
+  purchase_discount: z.coerce
+    .number()
+    .min(0, "Descuento de compra debe ser al menos 0"),
+  igv_amount: z.coerce.number().min(0, "Importe IGV debe ser al menos 0"),
+  total_purchase_excl_igv: z.coerce
+    .number()
+    .min(0, "Total compra sin IGV debe ser al menos 0"),
+  total_purchase_incl_igv: z.coerce
+    .number()
+    .min(0, "Total compra con IGV debe ser al menos 0"),
+  sale_price: z.coerce.number().min(0, "Precio de venta debe ser al menos 0"),
+  margin: z.coerce.number().min(0, "Margen debe ser al menos 0"),
   brand_id: requiredStringId("Marca es requerida"),
   family_id: requiredStringId("Familia es requerida"),
   class_id: requiredStringId("Clase de artículo es requerida"),

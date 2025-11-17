@@ -11,7 +11,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import FormSkeleton from "@/shared/components/FormSkeleton";
-import { Link } from 'react-router-dom'
+import { Link } from "react-router-dom";
 import { Loader } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { FormSelect } from "@/shared/components/FormSelect";
@@ -41,6 +41,7 @@ import {
   POSITION_TYPE,
   STATUS_WORKER,
 } from "@/features/gp/gestionhumana/personal/posiciones/lib/position.constant";
+import { ASSIGNMENT_LEADERSHIP } from "../lib/assignmentLeadership.constants";
 
 interface AssignmentLeadershipFormProps {
   defaultValues: Partial<AssignmentLeadershipSchema>;
@@ -68,6 +69,7 @@ export const AssignmentLeadershipForm = ({
     },
     mode: "onChange",
   });
+  const { ABSOLUTE_ROUTE } = ASSIGNMENT_LEADERSHIP;
 
   const { data: bosses = [], isLoading: isLoadingAssignmentLeadership } =
     useAllWorkers({
@@ -203,7 +205,7 @@ export const AssignmentLeadershipForm = ({
           />
         </div>
         <div className="flex gap-4 w-full justify-end">
-          <Link to={mode === "create" ? "./" : "../"}>
+          <Link to={ABSOLUTE_ROUTE}>
             <Button type="button" variant="outline">
               Cancelar
             </Button>

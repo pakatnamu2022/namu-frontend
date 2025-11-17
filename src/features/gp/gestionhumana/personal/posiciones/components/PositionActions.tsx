@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import ActionsWrapper from "@/shared/components/ActionsWrapper";
 import { POSITION } from "../lib/position.constant";
 
@@ -12,7 +12,7 @@ export default function PositionActions() {
   const push = useNavigate();
 
   const handleAddWorker = () => {
-    push(`./${ROUTE_ADD}`);
+    push(`${ROUTE_ADD}`);
   };
 
   return (

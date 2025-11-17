@@ -2,6 +2,7 @@ import { type ModelComplete } from "@/core/core.interface";
 import { ClassArticleResource } from "./classArticle.interface";
 
 const ROUTE = "clase-articulo";
+const ABSOLUTE_ROUTE = `/ap/configuraciones/maestros-general/${ROUTE}`;
 
 export const CLASS_ARTICLE: ModelComplete<ClassArticleResource> = {
   MODEL: {
@@ -13,14 +14,15 @@ export const CLASS_ARTICLE: ModelComplete<ClassArticleResource> = {
   ENDPOINT: "/ap/configuration/classArticle",
   QUERY_KEY: "classArticle",
   ROUTE,
-  ROUTE_ADD: `./agregar`,
-  ROUTE_UPDATE: `./actualizar`,
+  ABSOLUTE_ROUTE,
+  ROUTE_ADD: `${ABSOLUTE_ROUTE}/agregar`,
+  ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/actualizar`,
   EMPTY: {
     id: 0,
     dyn_code: "",
     description: "",
     account: "",
-    type: "",
+    type_operation_id: "",
     status: true,
   },
 };

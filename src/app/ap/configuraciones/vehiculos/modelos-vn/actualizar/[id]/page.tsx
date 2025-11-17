@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams } from 'react-router-dom';
+import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
@@ -21,15 +21,14 @@ import { ModelsVnResource } from "@/features/ap/configuraciones/vehiculos/modelo
 import { ModelsVnForm } from "@/features/ap/configuraciones/vehiculos/modelos-vn/components/ModelsVnForm";
 import FormWrapper from "@/shared/components/FormWrapper";
 import { MODELS_VN } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.constanst";
-import NotFound from '@/app/not-found';
-
+import NotFound from "@/app/not-found";
 
 export default function EditModelsVnPage() {
-    const { id } = useParams();
+  const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();
   const { currentView, checkRouteExists } = useCurrentModule();
-  const { QUERY_KEY, MODEL } = MODELS_VN;
+  const { QUERY_KEY, MODEL, ABSOLUTE_ROUTE } = MODELS_VN;
 
   const { data: ModelsVn, isLoading: loadingModelsVn } = useQuery({
     queryKey: [QUERY_KEY, id],
@@ -44,7 +43,7 @@ export default function EditModelsVnPage() {
       await queryClient.invalidateQueries({
         queryKey: [QUERY_KEY, id],
       });
-      router("../");
+      router(ABSOLUTE_ROUTE);
     },
     onError: () => {
       errorToast(ERROR_MESSAGE(MODEL, "update"));
@@ -83,16 +82,16 @@ export default function EditModelsVnPage() {
       cylinders_number: data.cylinders_number,
       passengers_number: data.passengers_number,
       wheels_number: data.wheels_number,
-      distributor_price: data.distributor_price,
-      transport_cost: data.transport_cost,
-      other_amounts: data.other_amounts,
-      purchase_discount: data.purchase_discount,
-      igv_amount: data.igv_amount,
-      total_purchase_excl_igv: data.total_purchase_excl_igv,
-      total_purchase_incl_igv: data.total_purchase_incl_igv,
-      sale_price: data.sale_price,
+      distributor_price: Number(data.distributor_price),
+      transport_cost: Number(data.transport_cost),
+      other_amounts: Number(data.other_amounts),
+      purchase_discount: Number(data.purchase_discount),
+      igv_amount: Number(data.igv_amount),
+      total_purchase_excl_igv: Number(data.total_purchase_excl_igv),
+      total_purchase_incl_igv: Number(data.total_purchase_incl_igv),
+      sale_price: Number(data.sale_price),
       currency_type_id: String(data.currency_type_id),
-      margin: data.margin,
+      margin: Number(data.margin),
     };
   }
 

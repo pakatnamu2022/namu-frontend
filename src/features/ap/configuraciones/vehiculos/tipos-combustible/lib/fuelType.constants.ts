@@ -2,6 +2,7 @@ import { type ModelComplete } from "@/core/core.interface";
 import { FuelTypeResource } from "./fuelType.interface";
 
 const ROUTE = "tipos-combustible";
+const ABSOLUTE_ROUTE = `/ap/configuraciones/vehiculos/${ROUTE}`;
 
 export const FUEL_TYPE: ModelComplete<FuelTypeResource> = {
   MODEL: {
@@ -13,6 +14,7 @@ export const FUEL_TYPE: ModelComplete<FuelTypeResource> = {
   ENDPOINT: "/ap/configuration/fuelType",
   QUERY_KEY: "fuelType",
   ROUTE,
+  ABSOLUTE_ROUTE,
   EMPTY: {
     id: 0,
     code: "",

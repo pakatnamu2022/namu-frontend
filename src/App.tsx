@@ -9,6 +9,19 @@ import { useAuthStore } from "./features/auth/lib/auth.store";
 import DashboardSkeleton from "./shared/components/DashboardSkeleton";
 import { AuthInitializer } from "./shared/components/AuthInitializer";
 import { FC, lazy, Suspense } from "react";
+const PositionsPage = lazy(
+  () => import("./app/gp/gestion-humana/configuraciones/posiciones/page")
+);
+const AddPositionPage = lazy(
+  () =>
+    import("./app/gp/gestion-humana/configuraciones/posiciones/agregar/page")
+);
+const EditPositionPage = lazy(
+  () =>
+    import(
+      "./app/gp/gestion-humana/configuraciones/posiciones/actualizar/[id]/page"
+    )
+);
 
 // ============================================================================
 // LAYOUTS
@@ -123,7 +136,6 @@ const ClientesEstablecimientosAgregarPage = lazy(
 );
 const ClientesEstablecimientosActualizarPage = lazy(
   () =>
-    
     import(
       "./app/ap/comercial/clientes/establecimientos/[id]/actualizar/[establishmentId]/page"
     )
@@ -283,14 +295,26 @@ const BancosPage = lazy(
 const ChequerasPage = lazy(
   () => import("./app/ap/configuraciones/maestros-general/chequeras/page")
 );
-const ClaseArticuloPage = lazy(
-  () => import("./app/ap/configuraciones/maestros-general/clase-articulo/page")
-);
 const EstadoCivilPage = lazy(
   () => import("./app/ap/configuraciones/maestros-general/estado-civil/page")
 );
 const OrigenClientePage = lazy(
   () => import("./app/ap/configuraciones/maestros-general/origen-cliente/page")
+);
+const ClassArticlePage = lazy(
+  () => import("./app/ap/configuraciones/maestros-general/clase-articulo/page")
+);
+const AddClassArticlePage = lazy(
+  () =>
+    import(
+      "./app/ap/configuraciones/maestros-general/clase-articulo/agregar/page"
+    )
+);
+const EditClassArticlePage = lazy(
+  () =>
+    import(
+      "./app/ap/configuraciones/maestros-general/clase-articulo/actualizar/[id]/page"
+    )
 );
 const PlanCuentaContablePage = lazy(
   () =>
@@ -359,6 +383,16 @@ const ColoresVehiculoPage = lazy(
 const EstadosVehiculoPage = lazy(
   () => import("./app/ap/configuraciones/vehiculos/estados-vehiculo/page")
 );
+const AddEstadosVehiculoPage = lazy(
+  () =>
+    import("./app/ap/configuraciones/vehiculos/estados-vehiculo/agregar/page")
+);
+const EditEstadosVehiculoPage = lazy(
+  () =>
+    import(
+      "./app/ap/configuraciones/vehiculos/estados-vehiculo/actualizar/[id]/page"
+    )
+);
 const FamiliasVehiculoPage = lazy(
   () => import("./app/ap/configuraciones/vehiculos/familias/page")
 );
@@ -368,8 +402,21 @@ const GrupoMarcasPage = lazy(
 const MarcasVehiculoPage = lazy(
   () => import("./app/ap/configuraciones/vehiculos/marcas/page")
 );
+const AddMarcasVehiculoPage = lazy(
+  () => import("./app/ap/configuraciones/vehiculos/marcas/agregar/page")
+);
+const EditMarcasVehiculoPage = lazy(
+  () => import("./app/ap/configuraciones/vehiculos/marcas/actualizar/[id]/page")
+);
 const ModelosVNPage = lazy(
   () => import("./app/ap/configuraciones/vehiculos/modelos-vn/page")
+);
+const AddModelosVNPage = lazy(
+  () => import("./app/ap/configuraciones/vehiculos/modelos-vn/agregar/page")
+);
+const EditModelosVNPage = lazy(
+  () =>
+    import("./app/ap/configuraciones/vehiculos/modelos-vn/actualizar/[id]/page")
 );
 const OrigenVehiculoPage = lazy(
   () => import("./app/ap/configuraciones/vehiculos/origen-vehiculo/page")
@@ -403,8 +450,25 @@ const TransmisionVehiculoPage = lazy(
 const AsignarGrupoMarcaPage = lazy(
   () => import("./app/ap/configuraciones/ventas/asignar-grupo-marca/page")
 );
+const AddAsignarGrupoMarcaPage = lazy(
+  () =>
+    import("./app/ap/configuraciones/ventas/asignar-grupo-marca/agregar/page")
+);
+const EditAsignarGrupoMarcaPage = lazy(
+  () =>
+    import(
+      "./app/ap/configuraciones/ventas/asignar-grupo-marca/actualizar/[id]/page"
+    )
+);
 const AsignarJefePage = lazy(
   () => import("./app/ap/configuraciones/ventas/asignar-jefe/page")
+);
+const AddAsignarJefePage = lazy(
+  () => import("./app/ap/configuraciones/ventas/asignar-jefe/agregar/page")
+);
+const EditAsignarJefePage = lazy(
+  () =>
+    import("./app/ap/configuraciones/ventas/asignar-jefe/actualizar/[id]/page")
 );
 const AsignarMarcaPage = lazy(
   () => import("./app/ap/configuraciones/ventas/asignar-marca/page")
@@ -414,6 +478,13 @@ const AsignarMarcaGestionarPage = lazy(
 );
 const AsignarSedePage = lazy(
   () => import("./app/ap/configuraciones/ventas/asignar-sede/page")
+);
+const AddAsignarSedePage = lazy(
+  () => import("./app/ap/configuraciones/ventas/asignar-sede/agregar/page")
+);
+const EditAsignarSedePage = lazy(
+  () =>
+    import("./app/ap/configuraciones/ventas/asignar-sede/actualizar/[id]/page")
 );
 const MetasCreditoSeguroPage = lazy(
   () => import("./app/ap/configuraciones/ventas/metas-credito-seguro/page")
@@ -502,11 +573,6 @@ const TrabajadoresPage = lazy(
     import(
       "./app/gp/gestion-humana/administracion-de-personal/trabajadores/page"
     )
-);
-
-// Configuraciones
-const PosicionesPage = lazy(
-  () => import("./app/gp/gestion-humana/configuraciones/posiciones/page")
 );
 
 // Evaluaciones de Desempeño
@@ -931,10 +997,22 @@ function App() {
                 path="maestros-general/chequeras"
                 element={<ChequerasPage />}
               />
+
+              {/* Clase Artículo */}
               <Route
                 path="maestros-general/clase-articulo"
-                element={<ClaseArticuloPage />}
+                element={<ClassArticlePage />}
               />
+
+              <Route
+                path="maestros-general/clase-articulo/agregar"
+                element={<AddClassArticlePage />}
+              />
+              <Route
+                path="maestros-general/clase-articulo/actualizar/:id"
+                element={<EditClassArticlePage />}
+              />
+
               <Route
                 path="maestros-general/estado-civil"
                 element={<EstadoCivilPage />}
@@ -993,6 +1071,7 @@ function App() {
               />
 
               {/* Vehículos Configuration */}
+
               <Route
                 path="vehiculos/categorias"
                 element={<CategoriasVehiculoPage />}
@@ -1018,6 +1097,14 @@ function App() {
                 element={<EstadosVehiculoPage />}
               />
               <Route
+                path="vehiculos/estados-vehiculo/agregar"
+                element={<AddEstadosVehiculoPage />}
+              />
+              <Route
+                path="vehiculos/estados-vehiculo/actualizar/:id"
+                element={<EditEstadosVehiculoPage />}
+              />
+              <Route
                 path="vehiculos/familias"
                 element={<FamiliasVehiculoPage />}
               />
@@ -1026,7 +1113,23 @@ function App() {
                 element={<GrupoMarcasPage />}
               />
               <Route path="vehiculos/marcas" element={<MarcasVehiculoPage />} />
+              <Route
+                path="vehiculos/marcas/agregar"
+                element={<AddMarcasVehiculoPage />}
+              />
+              <Route
+                path="vehiculos/marcas/actualizar/:id"
+                element={<EditMarcasVehiculoPage />}
+              />
               <Route path="vehiculos/modelos-vn" element={<ModelosVNPage />} />
+              <Route
+                path="vehiculos/modelos-vn/agregar"
+                element={<AddModelosVNPage />}
+              />
+              <Route
+                path="vehiculos/modelos-vn/actualizar/:id"
+                element={<EditModelosVNPage />}
+              />
               <Route
                 path="vehiculos/origen-vehiculo"
                 element={<OrigenVehiculoPage />}
@@ -1069,7 +1172,23 @@ function App() {
                 path="ventas/asignar-grupo-marca"
                 element={<AsignarGrupoMarcaPage />}
               />
+              <Route
+                path="ventas/asignar-grupo-marca/agregar"
+                element={<AddAsignarGrupoMarcaPage />}
+              />
+              <Route
+                path="ventas/asignar-grupo-marca/actualizar/:id"
+                element={<EditAsignarGrupoMarcaPage />}
+              />
               <Route path="ventas/asignar-jefe" element={<AsignarJefePage />} />
+              <Route
+                path="ventas/asignar-jefe/agregar"
+                element={<AddAsignarJefePage />}
+              />
+              <Route
+                path="ventas/asignar-jefe/actualizar/:id"
+                element={<EditAsignarJefePage />}
+              />
               <Route
                 path="ventas/asignar-marca"
                 element={<AsignarMarcaPage />}
@@ -1079,6 +1198,14 @@ function App() {
                 element={<AsignarMarcaGestionarPage />}
               />
               <Route path="ventas/asignar-sede" element={<AsignarSedePage />} />
+              <Route
+                path="ventas/asignar-sede/agregar"
+                element={<AddAsignarSedePage />}
+              />
+              <Route
+                path="ventas/asignar-sede/actualizar/:id"
+                element={<EditAsignarSedePage />}
+              />
               <Route
                 path="ventas/metas-credito-seguro"
                 element={<MetasCreditoSeguroPage />}
@@ -1201,7 +1328,19 @@ function App() {
               {/* Configuraciones */}
               <Route
                 path="configuraciones/posiciones"
-                element={<PosicionesPage />}
+                element={<PositionsPage />}
+              />
+
+              {/* Configuraciones */}
+              <Route
+                path="configuraciones/posiciones/agregar"
+                element={<AddPositionPage />}
+              />
+
+              {/* Configuraciones */}
+              <Route
+                path="configuraciones/posiciones/actualizar/:id"
+                element={<EditPositionPage />}
               />
 
               {/* Evaluaciones de Desempeño */}

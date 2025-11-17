@@ -14,10 +14,11 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Link } from 'react-router-dom'
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
 import { FormSelect } from "@/shared/components/FormSelect";
+import { VEHICLE_STATUS } from "../lib/vehicleStatus.constants";
 
 interface VehicleStatusFormProps {
   defaultValues: Partial<VehicleStatusSchema>;
@@ -52,6 +53,7 @@ export const VehicleStatusForm = ({
     },
     mode: "onChange",
   });
+  const { ABSOLUTE_ROUTE } = VEHICLE_STATUS;
 
   return (
     <Form {...form}>
@@ -135,7 +137,7 @@ export const VehicleStatusForm = ({
           />
         </div>
         <div className="flex gap-4 w-full justify-end">
-          <Link to={mode === "create" ? "./" : "../"}>
+          <Link to={ABSOLUTE_ROUTE}>
             <Button type="button" variant="outline">
               Cancelar
             </Button>

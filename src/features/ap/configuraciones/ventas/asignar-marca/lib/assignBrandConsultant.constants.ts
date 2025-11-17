@@ -2,6 +2,7 @@ import { type ModelComplete } from "@/core/core.interface";
 import { AssignBrandConsultantResource } from "./assignBrandConsultant.interface";
 
 const ROUTE = "asignar-marca";
+const ABSOLUTE_ROUTE = `/ap/configuraciones/ventas/${ROUTE}`;
 
 export const ASSIGN_BRAND_CONSULTANT: ModelComplete<AssignBrandConsultantResource> =
   {
@@ -14,6 +15,7 @@ export const ASSIGN_BRAND_CONSULTANT: ModelComplete<AssignBrandConsultantResourc
     ENDPOINT: "/ap/configuration/assignBrandConsultant",
     QUERY_KEY: "assignBrandConsultant",
     ROUTE,
+    ABSOLUTE_ROUTE,
     EMPTY: {
       id: 0,
       year: 0,

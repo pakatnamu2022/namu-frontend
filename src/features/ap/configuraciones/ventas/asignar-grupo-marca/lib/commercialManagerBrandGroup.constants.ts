@@ -2,6 +2,7 @@ import { type ModelComplete } from "@/core/core.interface";
 import { CommercialManagerBrandGroupResource } from "./commercialManagerBrandGroup.interface";
 
 const ROUTE = "asignar-grupo-marca";
+const ABSOLUTE_ROUTE = `/ap/configuraciones/ventas/${ROUTE}`;
 
 export const COMMERCIAL_MANAGER_BRAND_GROUP: ModelComplete<CommercialManagerBrandGroupResource> =
   {
@@ -14,6 +15,7 @@ export const COMMERCIAL_MANAGER_BRAND_GROUP: ModelComplete<CommercialManagerBran
     ENDPOINT: "/ap/configuration/commercialManagerBrandGroup",
     QUERY_KEY: "commercialManagerBrandGroup",
     ROUTE,
+    ABSOLUTE_ROUTE,
     ROUTE_ADD: `./agregar`,
     ROUTE_UPDATE: `./actualizar`,
     EMPTY: {

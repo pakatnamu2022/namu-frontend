@@ -1,6 +1,6 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { ClassArticleResource } from "../lib/classArticle.interface";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
@@ -43,15 +43,8 @@ export const classArticleColumns = ({
     header: "Cuenta",
   },
   {
-    accessorKey: "type",
+    accessorKey: "type_operation_description",
     header: "Tipo",
-    cell: ({ getValue }) => {
-      const value = getValue() as string;
-      if (value === "POSTVENTA") {
-        return "POST VENTA";
-      }
-      return value;
-    },
   },
   {
     accessorKey: "status",
@@ -72,6 +65,7 @@ export const classArticleColumns = ({
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
       const router = useNavigate();
       const { id, status } = row.original;
 

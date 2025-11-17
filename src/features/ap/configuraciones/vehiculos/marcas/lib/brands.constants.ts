@@ -2,6 +2,7 @@ import { type ModelComplete } from "@/core/core.interface";
 import { BrandsResource } from "./brands.interface";
 
 const ROUTE = "marcas";
+const ABSOLUTE_ROUTE = `/ap/configuraciones/vehiculos/${ROUTE}`;
 
 export const BRAND: ModelComplete<BrandsResource> = {
   MODEL: {
@@ -13,6 +14,7 @@ export const BRAND: ModelComplete<BrandsResource> = {
   ENDPOINT: "/ap/configuration/vehicleBrand",
   QUERY_KEY: "vehicleBrand",
   ROUTE,
+  ABSOLUTE_ROUTE,
   ROUTE_ADD: `./agregar`,
   ROUTE_UPDATE: `./actualizar`,
   EMPTY: {
@@ -30,6 +32,7 @@ export const BRAND: ModelComplete<BrandsResource> = {
 };
 
 const ROUTE_POSTVENTA = "marcas-producto";
+const ABSOLUTE_ROUTE_POSTVENTA = `/ap/configuration/vehiculos/${ROUTE_POSTVENTA}`;
 
 export const BRAND_POSTVENTA: ModelComplete<BrandsResource> = {
   MODEL: {
@@ -41,6 +44,7 @@ export const BRAND_POSTVENTA: ModelComplete<BrandsResource> = {
   ENDPOINT: "/ap/configuration/vehicleBrand",
   QUERY_KEY: "vehicleBrand",
   ROUTE: ROUTE_POSTVENTA,
+  ABSOLUTE_ROUTE: ABSOLUTE_ROUTE_POSTVENTA,
   ROUTE_ADD: `${ROUTE_POSTVENTA}/agregar`,
   ROUTE_UPDATE: `${ROUTE_POSTVENTA}/actualizar`,
   EMPTY: {

@@ -40,7 +40,7 @@ export const PositionForm = ({
   isSubmitting = false,
   mode = "create",
 }: PositionFormProps) => {
-  const { MODEL } = POSITION;
+  const { MODEL, ABSOLUTE_ROUTE } = POSITION;
 
   const form = useForm({
     resolver: zodResolver(
@@ -50,14 +50,16 @@ export const PositionForm = ({
       name: defaultValues?.name || "",
       descripcion: defaultValues?.descripcion || "",
       area_id: defaultValues?.area_id || undefined,
-      hierarchical_category_id: defaultValues?.hierarchical_category_id || undefined,
+      hierarchical_category_id:
+        defaultValues?.hierarchical_category_id || undefined,
       cargo_id: defaultValues?.cargo_id || undefined,
       ntrabajadores: defaultValues?.ntrabajadores || undefined,
       banda_salarial_min: defaultValues?.banda_salarial_min || undefined,
       banda_salarial_media: defaultValues?.banda_salarial_media || undefined,
       banda_salarial_max: defaultValues?.banda_salarial_max || undefined,
       tipo_onboarding_id: defaultValues?.tipo_onboarding_id || undefined,
-      plazo_proceso_seleccion: defaultValues?.plazo_proceso_seleccion || undefined,
+      plazo_proceso_seleccion:
+        defaultValues?.plazo_proceso_seleccion || undefined,
       presupuesto: defaultValues?.presupuesto || undefined,
       mof_adjunto: defaultValues?.mof_adjunto || undefined,
       files: defaultValues?.files || undefined,
@@ -392,7 +394,7 @@ export const PositionForm = ({
         </div>
 
         <div className="flex gap-4 w-full justify-end pt-4">
-          <Link to={mode === "create" ? "./" : "../"}>
+          <Link to={ABSOLUTE_ROUTE!}>
             <Button type="button" variant="outline" disabled={isSubmitting}>
               Cancelar
             </Button>

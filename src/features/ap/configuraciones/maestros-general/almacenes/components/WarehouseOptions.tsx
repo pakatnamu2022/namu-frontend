@@ -77,17 +77,6 @@ export default function WarehouseOptions({
         className="min-w-52"
         classNameOption="text-xs"
       />
-      {/* <SearchableSelect
-        options={[
-          { value: "1", label: "Activo" },
-          { value: "0", label: "Inactivo" },
-        ]}
-        value={status}
-        onChange={setStatus}
-        placeholder="Seleccionar Estado"
-        className="min-w-40"
-        classNameOption="text-xs"
-      /> */}
       <SearchableSelect
         options={[
           { value: "1", label: "ALMACEN" },

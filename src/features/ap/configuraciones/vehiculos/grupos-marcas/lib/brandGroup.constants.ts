@@ -3,6 +3,7 @@ import { BrandGroupResource } from "./brandGroup.interface";
 import { COMMERCIAL_MASTERS_ENDPOINT } from "@/features/ap/lib/ap.constants";
 
 const ROUTE = "grupo-marcas";
+const ABSOLUTE_ROUTE = `/ap/configuration/${ROUTE}`;
 
 export const BRAND_GROUP: ModelComplete<BrandGroupResource> = {
   MODEL: {
@@ -14,6 +15,7 @@ export const BRAND_GROUP: ModelComplete<BrandGroupResource> = {
   ENDPOINT: COMMERCIAL_MASTERS_ENDPOINT,
   QUERY_KEY: "brandGroup",
   ROUTE,
+  ABSOLUTE_ROUTE,
   ROUTE_ADD: `./agregar`,
   ROUTE_UPDATE: `./actualizar`,
   EMPTY: {

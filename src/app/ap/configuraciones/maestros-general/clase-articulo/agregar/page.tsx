@@ -1,6 +1,6 @@
 "use client";
 
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import { useMutation } from "@tanstack/react-query";
 import {
@@ -15,14 +15,13 @@ import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import { ClassArticleForm } from "@/features/ap/configuraciones/maestros-general/clase-articulo/components/ClassArticleForm";
 import FormWrapper from "@/shared/components/FormWrapper";
 import { CLASS_ARTICLE } from "@/features/ap/configuraciones/maestros-general/clase-articulo/lib/classArticle.constants";
-import NotFound from '@/app/not-found';
-
+import NotFound from "@/app/not-found";
 
 const { MODEL, ROUTE } = CLASS_ARTICLE;
 
 export default function CreateClassArticlePage() {
   const router = useNavigate();
-    const { currentView, checkRouteExists } = useCurrentModule();
+  const { currentView, checkRouteExists } = useCurrentModule();
 
   const { mutate, isPending } = useMutation({
     mutationFn: storeClassArticle,
@@ -54,7 +53,7 @@ export default function CreateClassArticlePage() {
           dyn_code: "",
           description: "",
           account: "",
-          type: "VEHICULO",
+          type_operation_id: "",
         }}
         onSubmit={handleSubmit}
         isSubmitting={isPending}

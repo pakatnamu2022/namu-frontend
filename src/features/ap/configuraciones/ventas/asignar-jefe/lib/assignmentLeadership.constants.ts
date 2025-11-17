@@ -2,6 +2,7 @@ import { type ModelComplete } from "@/core/core.interface";
 import { AssignmentLeadershipResource } from "./assignmentLeadership.interface";
 
 const ROUTE = "asignar-jefe";
+const ABSOLUTE_ROUTE = `/ap/configuraciones/ventas/${ROUTE}`;
 
 export const ASSIGNMENT_LEADERSHIP: ModelComplete<AssignmentLeadershipResource> =
   {
@@ -14,6 +15,7 @@ export const ASSIGNMENT_LEADERSHIP: ModelComplete<AssignmentLeadershipResource> 
     ENDPOINT: "/ap/configuration/assignmentLeadership",
     QUERY_KEY: "assignmentLeadership",
     ROUTE,
+    ABSOLUTE_ROUTE,
     ROUTE_UPDATE: `./actualizar`,
     ROUTE_ADD: `./agregar`,
     EMPTY: {

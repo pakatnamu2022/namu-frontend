@@ -2,6 +2,7 @@ import { type ModelComplete } from "@/core/core.interface";
 import { AssignCompanyBranchResource } from "./assignCompanyBranch.interface";
 
 const ROUTE = "asignar-sede";
+const ABSOLUTE_ROUTE = `/ap/configuraciones/ventas/${ROUTE}`;
 
 export const ASSIGN_COMPANY_BRANCH: ModelComplete<AssignCompanyBranchResource> =
   {
@@ -14,6 +15,7 @@ export const ASSIGN_COMPANY_BRANCH: ModelComplete<AssignCompanyBranchResource> =
     ENDPOINT: "/ap/configuration/assignCompanyBranch",
     QUERY_KEY: "assignCompanyBranch",
     ROUTE,
+    ABSOLUTE_ROUTE,
     ROUTE_ADD: `./agregar`,
     ROUTE_UPDATE: `./actualizar`,
     EMPTY: {

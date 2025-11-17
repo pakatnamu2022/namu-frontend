@@ -2,6 +2,7 @@ import { type ModelComplete } from "@/core/core.interface";
 import { DeliveryChecklistResource } from "./deliveryChecklist.interface";
 
 const ROUTE = "checklist-entrega";
+const ABSOLUTE_ROUTE = `/ap/configuraciones/vehiculos/${ROUTE}`;
 
 export const ITEM_DELIVERY: ModelComplete<DeliveryChecklistResource> = {
   MODEL: {
@@ -13,6 +14,7 @@ export const ITEM_DELIVERY: ModelComplete<DeliveryChecklistResource> = {
   ENDPOINT: "/ap/configuration/deliveryReceivingChecklist",
   QUERY_KEY: "deliveryChecklist",
   ROUTE,
+  ABSOLUTE_ROUTE,
   EMPTY: {
     id: 0,
     description: "",

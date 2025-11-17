@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams } from 'react-router-dom';
+import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
@@ -21,16 +21,14 @@ import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import { ClassArticleForm } from "@/features/ap/configuraciones/maestros-general/clase-articulo/components/ClassArticleForm";
 import FormWrapper from "@/shared/components/FormWrapper";
 import { CLASS_ARTICLE } from "@/features/ap/configuraciones/maestros-general/clase-articulo/lib/classArticle.constants";
-import NotFound from '@/app/not-found';
-
-
-const { MODEL, QUERY_KEY, ROUTE } = CLASS_ARTICLE;
+import NotFound from "@/app/not-found";
 
 export default function EditClassArticlePage() {
-    const { id } = useParams();
+  const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();
   const { currentView, checkRouteExists } = useCurrentModule();
+  const { MODEL, QUERY_KEY, ROUTE, ABSOLUTE_ROUTE } = CLASS_ARTICLE;
 
   const { data: ClassArticle, isLoading: loadingClassArticle } = useQuery({
     queryKey: [QUERY_KEY, id],
@@ -46,7 +44,7 @@ export default function EditClassArticlePage() {
       await queryClient.invalidateQueries({
         queryKey: [QUERY_KEY, id],
       });
-      router("../");
+      router(ABSOLUTE_ROUTE);
     },
     onError: (error: any) => {
       const msg = error?.response?.data?.message || "";
@@ -65,7 +63,7 @@ export default function EditClassArticlePage() {
       dyn_code: data.dyn_code,
       description: data.description,
       account: data.account,
-      type: data.type,
+      type_operation_id: String(data.type_operation_id),
     };
   }
 

@@ -1,3 +1,4 @@
+import { requiredStringId } from "@/shared/lib/global.schema";
 import { z } from "zod";
 
 export const classArticleSchemaCreate = z.object({
@@ -19,12 +20,7 @@ export const classArticleSchemaCreate = z.object({
     .refine((value) => value.trim() !== "", {
       message: "Cuenta es requerida",
     }),
-  type: z
-    .string()
-    .max(20)
-    .refine((value) => value.trim() !== "", {
-      message: "Tipo es requerido",
-    }),
+  type_operation_id: requiredStringId("Tipo de Operación es requerido"),
   status: z.boolean().optional().default(true),
 });
 

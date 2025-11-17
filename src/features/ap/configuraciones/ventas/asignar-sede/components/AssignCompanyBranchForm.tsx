@@ -11,7 +11,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import FormSkeleton from "@/shared/components/FormSkeleton";
-import { Link } from 'react-router-dom'
+import { Link } from "react-router-dom";
 import { Loader, CheckIcon, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { FormSelect } from "@/shared/components/FormSelect";
@@ -40,6 +40,7 @@ import {
   assignCompanyBranchSchemaUpdate,
 } from "../lib/assignCompanyBranch.schema";
 import { useAllSedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
+import { ASSIGN_COMPANY_BRANCH } from "../lib/assignCompanyBranch.constants";
 
 interface AssignCompanyBranchFormProps {
   defaultValues: Partial<AssignCompanyBranchSchema>;
@@ -67,6 +68,7 @@ export const AssignCompanyBranchForm = ({
     },
     mode: "onChange",
   });
+  const { ABSOLUTE_ROUTE } = ASSIGN_COMPANY_BRANCH;
 
   const { data: sedes = [], isLoading: isLoadingSedes } = useAllSedes({
     empresa_id: EMPRESA_AP.id,
@@ -200,7 +202,7 @@ export const AssignCompanyBranchForm = ({
           />
         </div>
         <div className="flex gap-4 w-full justify-end">
-          <Link to={mode === "create" ? "./" : "../"}>
+          <Link to={ABSOLUTE_ROUTE}>
             <Button type="button" variant="outline">
               Cancelar
             </Button>

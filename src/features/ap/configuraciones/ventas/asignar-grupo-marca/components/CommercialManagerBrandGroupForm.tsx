@@ -11,7 +11,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import FormSkeleton from "@/shared/components/FormSkeleton";
-import { Link } from 'react-router-dom'
+import { Link } from "react-router-dom";
 import { Loader } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { FormSelect } from "@/shared/components/FormSelect";
@@ -42,6 +42,7 @@ import {
   POSITION_TYPE,
   STATUS_WORKER,
 } from "@/features/gp/gestionhumana/personal/posiciones/lib/position.constant";
+import { COMMERCIAL_MANAGER_BRAND_GROUP } from "../lib/commercialManagerBrandGroup.constants";
 
 interface CommercialManagerBrandGroupFormProps {
   defaultValues: Partial<CommercialManagerBrandGroupSchema>;
@@ -69,6 +70,7 @@ export const CommercialManagerBrandGroupForm = ({
     },
     mode: "onChange",
   });
+  const { ABSOLUTE_ROUTE } = COMMERCIAL_MANAGER_BRAND_GROUP;
 
   const { data: brandGroups = [], isLoading: isLoadingBrandGroups } =
     useAllBrandGroup();
@@ -199,7 +201,7 @@ export const CommercialManagerBrandGroupForm = ({
           />
         </div>
         <div className="flex gap-4 w-full justify-end">
-          <Link to={mode === "create" ? "./" : "../"}>
+          <Link to={ABSOLUTE_ROUTE}>
             <Button type="button" variant="outline">
               Cancelar
             </Button>

@@ -3,6 +3,7 @@ import { EngineTypesResource } from "./engineTypes.interface";
 import { COMMERCIAL_MASTERS_ENDPOINT } from "@/features/ap/lib/ap.constants";
 
 const ROUTE = "tipos-motor";
+const ABSOLUTE_ROUTE = `/ap/configuraciones/vehiculos/${ROUTE}`;
 
 export const ENGINE_TYPES: ModelComplete<EngineTypesResource> = {
   MODEL: {
@@ -14,6 +15,7 @@ export const ENGINE_TYPES: ModelComplete<EngineTypesResource> = {
   ENDPOINT: COMMERCIAL_MASTERS_ENDPOINT,
   QUERY_KEY: "engineTypes",
   ROUTE,
+  ABSOLUTE_ROUTE,
   EMPTY: {
     id: 0,
     code: "",

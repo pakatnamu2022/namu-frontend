@@ -3,6 +3,7 @@ import { VehicleCategoryResource } from "./vehicleCategory.interface";
 import { COMMERCIAL_MASTERS_ENDPOINT } from "@/features/ap/lib/ap.constants";
 
 const ROUTE = "categorias";
+const ABSOLUTE_ROUTE = `/ap/configuraciones/vehiculos/${ROUTE}`;
 
 export const VEHICLE_CATEGORY: ModelComplete<VehicleCategoryResource> = {
   MODEL: {
@@ -14,5 +15,6 @@ export const VEHICLE_CATEGORY: ModelComplete<VehicleCategoryResource> = {
   ENDPOINT: COMMERCIAL_MASTERS_ENDPOINT,
   QUERY_KEY: "commercialMasters",
   ROUTE,
+  ABSOLUTE_ROUTE,
   EMPTY: { id: 0, description: "", type: "", status: true },
 };
