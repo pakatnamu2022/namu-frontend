@@ -7,7 +7,8 @@ import { useAuthStore } from "@/features/auth/lib/auth.store";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState, Suspense } from "react";
 import DashboardSkeleton from "@/shared/components/DashboardSkeleton";
-import { findComponentByRoute } from "@/config/routeComponents";
+import { findComponentByRoute, findLayoutForRoute } from "@/config/routeComponents";
+import { Outlet } from "react-router-dom";
 
 export default function ModulePage() {
   const { company, moduleSlug, currentModule } = useCurrentModule();
