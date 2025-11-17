@@ -27,7 +27,13 @@ import {
   successToast,
 } from "@/core/core.function";
 import { Badge } from "@/components/ui/badge";
-import { TrendingUp, Target, Calendar, RefreshCw } from "lucide-react";
+import {
+  TrendingUp,
+  Target,
+  Calendar,
+  RefreshCw,
+  FileText,
+} from "lucide-react";
 import { EVALUATION_PERSON } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/lib/evaluationPerson.constans";
 import { useEvaluationPersonByPersonAndEvaluation } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/lib/evaluationPerson.hook";
 import { useAllEvaluations } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluaciones/lib/evaluation.hook";
@@ -40,6 +46,7 @@ import EvaluationPersonObjectiveTable from "@/features/gp/gestionhumana/evaluaci
 import EvaluationPersonCompetenceTableWithColumns from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/components/EvaluationPersonCompetenceTable";
 import { useAuthStore } from "@/features/auth/lib/auth.store";
 import { useQueryClient } from "@tanstack/react-query";
+import DevelopmentPlanSheet from "@/app/gp/gestion-humana/evaluaciones-de-desempeno/detalle-plan-desarrollo/components/DevelopmentPlanSheet";
 
 const { QUERY_KEY, MODEL } = EVALUATION_PERSON;
 
@@ -51,6 +58,7 @@ export default function NamuPerformancePage() {
     number | undefined
   >();
   const [saving, setSaving] = useState(false);
+  const [showDevelopmentPlan, setShowDevelopmentPlan] = useState(false);
 
   const {
     data: evaluationPersonResult,
@@ -166,10 +174,10 @@ export default function NamuPerformancePage() {
         <CardContent className="mx-auto max-w-(--breakpoint-2xl)">
           <CardHeader className="space-y-4">
             {/* Header principal */}
-            <div className="flex items-center gap-4">
-              <Avatar className="h-16 w-16">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+              <Avatar className="h-12 w-12 sm:h-16 sm:w-16">
                 <AvatarImage src={user.foto_adjunto} alt={user.name} />
-                <AvatarFallback className="bg-primary text-white text-lg">
+                <AvatarFallback className="bg-primary text-white text-sm sm:text-lg">
                   {user.name
                     .split(" ")
                     .map((n) => n[0])
@@ -177,11 +185,11 @@ export default function NamuPerformancePage() {
                     .substring(0, 2)}
                 </AvatarFallback>
               </Avatar>
-              <div className="flex-1">
-                <CardTitle className="text-2xl capitalize">
+              <div className="flex-1 w-full sm:w-auto">
+                <CardTitle className="text-xl sm:text-2xl capitalize">
                   {user.name.toLowerCase()}
                 </CardTitle>
-                <CardDescription className="capitalize text-base">
+                <CardDescription className="capitalize text-sm sm:text-base">
                   {user.position.toLowerCase()}
                 </CardDescription>
                 {/* {evaluationPersonResult?.evaluation && (
@@ -196,8 +204,8 @@ export default function NamuPerformancePage() {
               )} */}
               </div>
               {quickStats && (
-                <div className="text-right">
-                  <div className="text-2xl font-bold text-primary">
+                <div className="w-full sm:w-auto text-left sm:text-right">
+                  <div className="text-xl sm:text-2xl font-bold text-primary">
                     {quickStats.overallProgress}%
                   </div>
                   <div className="text-xs text-muted-foreground">
@@ -208,9 +216,9 @@ export default function NamuPerformancePage() {
             </div>
 
             {/* Selector de evaluación y controles */}
-            <div className="flex items-center justify-between gap-4">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
               {isLoadingEvaluations ? (
-                <Skeleton className="h-8 w-80" />
+                <Skeleton className="h-10 w-full sm:w-80" />
               ) : (
                 <SearchableSelect
                   options={evaluations.map((evaluation) => ({
@@ -229,29 +237,42 @@ export default function NamuPerformancePage() {
                   }}
                   value={selectedEvaluationId?.toString() ?? ""}
                   placeholder="Selecciona la Evaluación..."
-                  className="w-80!"
+                  className="w-full sm:w-80!"
                 />
               )}
 
-              <div className="flex items-center gap-2">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:ml-auto">
                 {saving && (
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground justify-center sm:justify-start">
                     <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
                     Guardando...
                   </div>
                 )}
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleRefresh}
-                  disabled={saving}
-                  className="gap-2"
-                >
-                  <RefreshCw
-                    className={`size-4 ${saving ? "animate-spin" : ""}`}
-                  />
-                  Actualizar
-                </Button>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowDevelopmentPlan(true)}
+                    disabled={!evaluationPersonResult}
+                    className="gap-2 w-full sm:w-auto"
+                  >
+                    <FileText className="size-4" />
+                    <span className="hidden sm:inline">Plan de Desarrollo</span>
+                    <span className="sm:hidden">Plan</span>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleRefresh}
+                    disabled={saving}
+                    className="gap-2 w-full sm:w-auto"
+                  >
+                    <RefreshCw
+                      className={`size-4 ${saving ? "animate-spin" : ""}`}
+                    />
+                    Actualizar
+                  </Button>
+                </div>
               </div>
             </div>
           </CardHeader>
@@ -270,21 +291,35 @@ export default function NamuPerformancePage() {
               className="p-2 w-full bg-muted rounded-lg"
             >
               <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="objectives" className="gap-2">
-                  <Target className="size-4" />
-                  Objetivos
+                <TabsTrigger
+                  value="objectives"
+                  className="gap-1 sm:gap-2 text-xs sm:text-sm"
+                >
+                  <Target className="size-3 sm:size-4" />
+                  <span className="hidden sm:inline">Objetivos</span>
+                  <span className="sm:hidden">Obj.</span>
                   {quickStats && (
-                    <Badge variant="outline" className="ml-2 text-xs">
+                    <Badge
+                      variant="outline"
+                      className="ml-1 sm:ml-2 text-[10px] sm:text-xs"
+                    >
                       {quickStats.objectives.completed}/
                       {quickStats.objectives.total}
                     </Badge>
                   )}
                 </TabsTrigger>
-                <TabsTrigger value="competences" className="gap-2">
-                  <TrendingUp className="size-4" />
-                  Competencias
+                <TabsTrigger
+                  value="competences"
+                  className="gap-1 sm:gap-2 text-xs sm:text-sm"
+                >
+                  <TrendingUp className="size-3 sm:size-4" />
+                  <span className="hidden sm:inline">Competencias</span>
+                  <span className="sm:hidden">Comp.</span>
                   {quickStats && (
-                    <Badge variant="outline" className="ml-2 text-xs">
+                    <Badge
+                      variant="outline"
+                      className="ml-1 sm:ml-2 text-[10px] sm:text-xs"
+                    >
                       {quickStats.competences.completed}/
                       {quickStats.competences.total}
                     </Badge>
@@ -292,17 +327,20 @@ export default function NamuPerformancePage() {
                 </TabsTrigger>
               </TabsList>
               <TabsContents className="rounded-sm bg-background w-full">
-                <TabsContent value="objectives" className="space-y-6 p-6">
+                <TabsContent
+                  value="objectives"
+                  className="space-y-4 sm:space-y-6 p-3 sm:p-6"
+                >
                   {isLoadingEvaluationPerson ? (
                     <FormSkeleton />
                   ) : (
                     <>
-                      <div className="flex items-center justify-between">
-                        <h3 className="text-lg font-semibold">
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+                        <h3 className="text-base sm:text-lg font-semibold">
                           Evaluación de Objetivos
                         </h3>
                         {evaluationPersonResult?.objectivesPercentage && (
-                          <Badge variant="outline">
+                          <Badge variant="outline" className="text-xs">
                             Peso: {evaluationPersonResult.objectivesPercentage}%
                             del total
                           </Badge>
@@ -317,18 +355,21 @@ export default function NamuPerformancePage() {
                     </>
                   )}
                 </TabsContent>
-                <TabsContent value="competences" className="space-y-6 p-6">
+                <TabsContent
+                  value="competences"
+                  className="space-y-4 sm:space-y-6 p-3 sm:p-6"
+                >
                   {isLoadingEvaluationPerson ? (
                     <FormSkeleton />
                   ) : (
                     <>
-                      <div className="flex items-center justify-between">
-                        <h3 className="text-lg font-semibold">
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+                        <h3 className="text-base sm:text-lg font-semibold">
                           Evaluación de Competencias
                         </h3>
-                        <div className="flex items-center gap-2">
+                        <div className="flex flex-wrap items-center gap-2">
                           {evaluationPersonResult?.competencesPercentage && (
-                            <Badge variant="outline">
+                            <Badge variant="outline" className="text-xs">
                               Peso:{" "}
                               {evaluationPersonResult.competencesPercentage}%
                               del total
@@ -336,7 +377,7 @@ export default function NamuPerformancePage() {
                           )}
                           {evaluationPersonResult?.evaluation
                             ?.typeEvaluationName && (
-                            <Badge variant="secondary">
+                            <Badge variant="secondary" className="text-xs">
                               {
                                 evaluationPersonResult.evaluation
                                   .typeEvaluationName
@@ -361,23 +402,30 @@ export default function NamuPerformancePage() {
             </Tabs>
 
             {/* Footer con acciones */}
-            <div className="flex items-center justify-between pt-4 border-t">
-              <div className="flex items-center gap-4 text-sm text-muted-foreground">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 pt-4 border-t">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 text-xs sm:text-sm text-muted-foreground">
                 {evaluationPersonResult?.evaluation && (
                   <>
                     <div className="flex items-center gap-2">
-                      <Calendar className="size-4" />
-                      <span>
+                      <Calendar className="size-3 sm:size-4" />
+                      <span className="text-xs sm:text-sm">
                         {new Date(
                           evaluationPersonResult.evaluation.start_date
-                        ).toLocaleDateString("es-ES")}{" "}
-                        -
+                        ).toLocaleDateString("es-ES", {
+                          month: "short",
+                          day: "numeric",
+                        })}{" "}
+                        -{" "}
                         {new Date(
                           evaluationPersonResult.evaluation.end_date
-                        ).toLocaleDateString("es-ES")}
+                        ).toLocaleDateString("es-ES", {
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                        })}
                       </span>
                     </div>
-                    <Badge variant="outline" className="text-xs">
+                    <Badge variant="outline" className="text-[10px] sm:text-xs">
                       {evaluationPersonResult.evaluation.period}
                     </Badge>
                   </>
@@ -387,6 +435,17 @@ export default function NamuPerformancePage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Sheet para ver/editar plan de desarrollo */}
+      {evaluationPersonResult && (
+        <DevelopmentPlanSheet
+          open={showDevelopmentPlan}
+          onClose={() => setShowDevelopmentPlan(false)}
+          evaluationId={evaluationPersonResult.evaluation.id}
+          workerId={user.partner_id}
+          bossId={0}
+        />
+      )}
     </div>
   );
 }

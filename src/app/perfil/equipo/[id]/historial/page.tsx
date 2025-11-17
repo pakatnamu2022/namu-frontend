@@ -33,6 +33,7 @@ import {
   Calendar,
   RefreshCw,
   ChevronLeft,
+  FileText,
 } from "lucide-react";
 import { EVALUATION_PERSON } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/lib/evaluationPerson.constans";
 import { useAllEvaluations } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluaciones/lib/evaluation.hook";
@@ -47,6 +48,7 @@ import EvaluationPersonCompetenceTableWithColumns from "@/features/gp/gestionhum
 import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { EVALUATION_OBJECTIVE } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluaciones/lib/evaluation.constans";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import DevelopmentPlanSheet from "@/app/gp/gestion-humana/evaluaciones-de-desempeno/detalle-plan-desarrollo/components/DevelopmentPlanSheet";
 
 const { QUERY_KEY, MODEL } = EVALUATION_PERSON;
 
@@ -62,6 +64,7 @@ export default function HistorialPage() {
     number | undefined
   >(undefined);
   const [saving, setSaving] = useState(false);
+  const [developmentPlanOpen, setDevelopmentPlanOpen] = useState(false);
 
   const {
     data: evaluationPersonResult,
@@ -351,27 +354,40 @@ export default function HistorialPage() {
                     Actualizando...
                   </div>
                 )}
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleRefresh}
-                  disabled={saving}
-                  className="gap-2"
-                >
-                  <RefreshCw
-                    className={`size-4 ${saving ? "animate-spin" : ""}`}
-                  />
-                  Actualizar
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleBack}
-                  className="gap-2"
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                  Volver al Equipo
-                </Button>
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setDevelopmentPlanOpen(true)}
+                    className="gap-2 flex-1 sm:flex-none"
+                  >
+                    <FileText className="size-4" />
+                    <span className="hidden sm:inline">Plan Desarrollo</span>
+                    <span className="sm:hidden">Plan</span>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleRefresh}
+                    disabled={saving}
+                    className="gap-2 flex-1 sm:flex-none"
+                  >
+                    <RefreshCw
+                      className={`size-4 ${saving ? "animate-spin" : ""}`}
+                    />
+                    <span className="hidden sm:inline">Actualizar</span>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleBack}
+                    className="gap-2 flex-1 sm:flex-none"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                    <span className="hidden sm:inline">Volver al Equipo</span>
+                    <span className="sm:hidden">Volver</span>
+                  </Button>
+                </div>
               </div>
             </div>
           </CardHeader>
@@ -513,6 +529,17 @@ export default function HistorialPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Sheet de Plan de Desarrollo */}
+      {evaluationPersonResult && selectedEvaluationId && (
+        <DevelopmentPlanSheet
+          open={developmentPlanOpen}
+          onClose={() => setDevelopmentPlanOpen(false)}
+          evaluationId={selectedEvaluationId}
+          workerId={personId}
+          bossId={evaluationPersonResult.person.id}
+        />
+      )}
     </div>
   );
 }
