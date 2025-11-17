@@ -123,7 +123,6 @@ const ClientesEstablecimientosAgregarPage = lazy(
 );
 const ClientesEstablecimientosActualizarPage = lazy(
   () =>
-    
     import(
       "./app/ap/comercial/clientes/establecimientos/[id]/actualizar/[establishmentId]/page"
     )

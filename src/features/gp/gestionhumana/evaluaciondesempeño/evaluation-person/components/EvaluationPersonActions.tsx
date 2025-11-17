@@ -1,8 +1,8 @@
 "use client";
 
-import { Link } from 'react-router-dom'
+import { Link } from "react-router-dom";
 import RegenerateEvaluationSheet from "./RegenerateEvaluationSheet";
-import { EVALUATION_ABSOLUTE_ROUTE } from "../../evaluaciones/lib/evaluation.constans";
+import { ABSOLUTE_ROUTE } from "../../evaluaciones/lib/evaluation.constans";
 import { LayoutDashboard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -25,7 +25,7 @@ export default function EvaluationPersonActions({
 }: Props) {
   return (
     <div className="flex items-center gap-2 w-full md:justify-end">
-      <Link to={EVALUATION_ABSOLUTE_ROUTE + `/${idEvaluation}`}>
+      <Link to={ABSOLUTE_ROUTE + `/${idEvaluation}`}>
         <Button size={"sm"} variant={"tertiary"}>
           <LayoutDashboard className="w-4 h-4" />
           Dashboard
