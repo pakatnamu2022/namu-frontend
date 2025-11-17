@@ -173,7 +173,7 @@ export function Login({ className, ...props }: React.ComponentProps<"div">) {
         </CardContent>
       </Card>
       <div className="text-muted-foreground hover:[a]:*:text-primary text-center text-xs text-balance [a]:*:underline [a]:*:underline-offset-4 pb-4">
-        © {new Date().getFullYear()} Milla GP. Todos los derechos reservados.
+        © {new Date().getFullYear()} Namú. Todos los derechos reservados.
       </div>
     </div>
   );
