@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Plus, RefreshCw } from "lucide-react";
 import ActionsWrapper from "@/shared/components/ActionsWrapper";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { ELECTRONIC_DOCUMENT } from "../lib/electronicDocument.constants";
 import { cn } from "@/lib/utils";
 
@@ -21,7 +21,7 @@ export default function ElectronicDocumentActions({
   permissions,
 }: ElectronicDocumentActionsProps) {
   const router = useNavigate();
-  const { ROUTE } = ELECTRONIC_DOCUMENT;
+  const { ROUTE_ADD } = ELECTRONIC_DOCUMENT;
 
   return (
     <ActionsWrapper>
@@ -33,11 +33,7 @@ export default function ElectronicDocumentActions({
       </Button>
 
       {permissions.canCreate && (
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={() => router(`${ROUTE}/agregar`)}
-        >
+        <Button size="sm" variant="outline" onClick={() => router(ROUTE_ADD!)}>
           <Plus className="size-4 mr-2" />
           Nuevo Documento
         </Button>

@@ -9,6 +9,8 @@ export const ELECTRONIC_DOCUMENT: ModelComplete<ElectronicDocumentResource> = {
     plural: "Documentos Electrónicos",
     gender: false,
   },
+  ROUTE_ADD: `./agregar`,
+  ROUTE_UPDATE: `./actualizar`,
   ICON: "FileText",
   ENDPOINT: "/ap/facturacion/electronic-documents",
   QUERY_KEY: "electronic-documents",
