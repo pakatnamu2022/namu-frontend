@@ -5,27 +5,66 @@ import TicsPage from "@/features/gp/tics/dashboard/components/TicsPage";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/features/auth/lib/auth.store";
-import { useEffect } from "react";
+import { useEffect, useState, Suspense } from "react";
 import MetricasPage from "../../../gp/gestion-humana/evaluaciones-de-desempeno/metricas/page";
-import NotFound from '@/app/not-found';
-
+import NotFound from "@/app/not-found";
+import DashboardSkeleton from "@/shared/components/DashboardSkeleton";
+import { findComponentByRoute } from "@/config/routeComponents";
 
 export default function ModulePage() {
-    const { company, moduleSlug, subModuleSlug, currentSubmodule } =
+  const { company, moduleSlug, subModuleSlug, currentSubmodule } =
     useCurrentModule();
   const { permissions } = useAuthStore();
   const router = useNavigate();
-  
+  const [PageComponent, setPageComponent] = useState<React.ComponentType | null>(
+    null
+  );
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    const loadPageComponent = () => {
+      if (!company || !moduleSlug || !subModuleSlug) {
+        setIsLoading(false);
+        return;
+      }
+
+      setIsLoading(true);
+
+      // Log para debugging
+      console.log('Intentando cargar página:', { company, moduleSlug, subModuleSlug });
+
+      // Buscar componente en el diccionario
+      const Component = findComponentByRoute(company, moduleSlug, subModuleSlug);
+
+      if (Component) {
+        console.log('Componente encontrado en diccionario');
+        setPageComponent(() => Component);
+        setIsLoading(false);
+        return;
+      }
+
+      console.log('No se encontró página para cargar');
+      // Si no se encontró ninguna página, dejar loading en false
+      setIsLoading(false);
+    };
+
     // Si no hay empresa, no redirigir
-    if (!company || company === "") return;
+    if (!company || company === "") {
+      setIsLoading(false);
+      return;
+    }
 
     // Si no hay permisos o submódulo actual, esperar
-    if (!permissions || !currentSubmodule) return;
+    if (!permissions || !currentSubmodule) {
+      setIsLoading(true);
+      return;
+    }
 
-    // Casos especiales que tienen su propia página
-    if (subModuleSlug === "tics" || subModuleSlug === "metricas") return;
+    // Casos especiales que tienen su propia página hardcoded
+    if (subModuleSlug === "tics" || subModuleSlug === "metricas") {
+      setIsLoading(false);
+      return;
+    }
 
     // Obtener las opciones del submódulo actual
     const subModuleOptions = currentSubmodule.children || [];
@@ -36,8 +75,14 @@ export default function ModulePage() {
       const firstRoute = `/${company}/${moduleSlug}/${subModuleSlug}/${
         firstOption.route || firstOption.slug || firstOption.id
       }`;
+      console.log('Redirigiendo a primera opción:', firstRoute);
       router(firstRoute, { replace: true });
+      return;
     }
+
+    // Si no tiene hijos, intentar cargar la página del submódulo
+    console.log('No tiene hijos, cargando página del submódulo');
+    loadPageComponent();
   }, [
     company,
     moduleSlug,
@@ -61,6 +106,20 @@ export default function ModulePage() {
 
   if (subModuleSlug === "null") return <NotFound />;
 
-  // Mientras se procesa la redirección, mostrar null o un loader
+  // Si está cargando, mostrar skeleton
+  if (isLoading) {
+    return <DashboardSkeleton />;
+  }
+
+  // Si se cargó un componente dinámico, renderizarlo
+  if (PageComponent) {
+    return (
+      <Suspense fallback={<DashboardSkeleton />}>
+        <PageComponent />
+      </Suspense>
+    );
+  }
+
+  // Si no hay componente y no está redirigiendo, mostrar null (continuará la redirección)
   return null;
 }
