@@ -55,38 +55,6 @@ const FormCarSkeleton: React.FC = () => (
         </div>
       </div>
     </div>
-
-    <style jsx>{`
-      @keyframes carStart {
-        0% {
-          transform: translateX(0) scale(1);
-        }
-        25% {
-          transform: translateX(0) scale(1.1);
-        }
-        50% {
-          transform: translateX(50px) scale(1);
-        }
-        75% {
-          transform: translateX(150px) scale(0.9);
-        }
-        100% {
-          transform: translateX(220px) scale(0.8);
-        }
-      }
-
-      @keyframes smoke {
-        0%,
-        100% {
-          opacity: 0;
-          transform: translateX(0) translateY(0);
-        }
-        50% {
-          opacity: 1;
-          transform: translateX(-10px) translateY(-5px);
-        }
-      }
-    `}</style>
   </div>
 );
 

@@ -13,7 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Loader, Plus } from "lucide-react";
-import { Link } from 'react-router-dom'
+import { Link } from "react-router-dom";
 import { useState } from "react";
 import {
   CompetenceSchema,
@@ -40,7 +40,7 @@ export const CompetenceForm = ({
   isSubmitting = false,
   mode = "create",
 }: CompetenceFormProps) => {
-  const form = useForm<CompetenceSchema>({
+  const form = useForm({
     resolver: zodResolver(
       mode === "create" ? competenceSchemaCreate : competenceSchemaUpdate
     ),

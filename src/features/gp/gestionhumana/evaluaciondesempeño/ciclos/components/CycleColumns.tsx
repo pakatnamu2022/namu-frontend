@@ -4,7 +4,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { CycleResource } from "../lib/cycle.interface";
 import { Button } from "@/components/ui/button";
 import { PanelRightClose, Pencil, Plus } from "lucide-react";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { format, parse } from "date-fns";
 import { Badge } from "@/components/ui/badge";
@@ -13,7 +13,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Link } from 'react-router-dom'
+import { Link } from "react-router-dom";
 
 export type CycleColumns = ColumnDef<CycleResource>;
 
@@ -29,7 +29,7 @@ export const cycleColumns = ({
       const id = row.original.id;
       return (
         <Link
-          href={`./ciclos/${id}`}
+          to={`./ciclos/${id}`}
           className="font-semibold underline text-primary"
         >
           {row.original.name}

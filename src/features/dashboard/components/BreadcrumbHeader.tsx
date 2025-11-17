@@ -7,7 +7,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
-import { Link } from 'react-router-dom'
+import { Link } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function BreadCrumbHeader() {
@@ -37,11 +37,11 @@ export default function BreadCrumbHeader() {
 
   return (
     <Breadcrumb>
-      <BreadcrumbList className="!flex-nowrap">
+      <BreadcrumbList className="flex-nowrap!">
         <BreadcrumbItem className="hidden md:block">
           <BreadcrumbLink asChild>
             <Link
-              href="/companies"
+              to="/companies"
               className="text-primary hover:text-secondary text-xs md:text-sm"
             >
               Empresas
@@ -53,7 +53,7 @@ export default function BreadCrumbHeader() {
         <BreadcrumbItem className="hidden md:block truncate">
           <BreadcrumbLink asChild>
             <Link
-              href={`/modules/${currentCompany?.empresa_abreviatura}`}
+              to={`/modules/${currentCompany?.empresa_abreviatura}`}
               className="text-primary hover:text-secondary text-xs md:text-sm"
             >
               {currentCompany?.empresa_nombre || "Empresa"}
@@ -68,7 +68,7 @@ export default function BreadCrumbHeader() {
           {currentSubmodule || currentView ? (
             <BreadcrumbLink asChild>
               <Link
-                href={`/modules/${currentCompany?.empresa_abreviatura}/${currentModule?.slug}`}
+                to={`/modules/${currentCompany?.empresa_abreviatura}/${currentModule?.slug}`}
                 className="text-primary hover:text-secondary text-xs md:text-sm"
               >
                 {currentModule?.descripcion || "Módulo"}
@@ -89,7 +89,7 @@ export default function BreadCrumbHeader() {
               {currentView ? (
                 <BreadcrumbLink asChild>
                   <Link
-                    href={`/${currentCompany?.empresa_abreviatura}/${currentModule?.slug}/${currentSubmodule?.slug}`}
+                    to={`/${currentCompany?.empresa_abreviatura}/${currentModule?.slug}/${currentSubmodule?.slug}`}
                     className="text-primary hover:text-secondary text-xs md:text-sm"
                   >
                     {currentSubmodule?.descripcion || "Submódulo"}

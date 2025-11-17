@@ -30,7 +30,7 @@ export const evaluationColumns = ({
       const id = row.original.id;
       return (
         <Link
-          href={`./evaluaciones/${id}`}
+          to={`./evaluaciones/${id}`}
           className="font-semibold underline text-primary"
         >
           {row.original.name}

@@ -14,7 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { EvaluationResource } from "../../evaluaciones/lib/evaluation.interface";
 import { parse } from "date-fns";
-import { Link } from 'react-router-dom'
+import { Link } from "react-router-dom";
 
 interface EvaluationHeaderProps {
   evaluationData: EvaluationResource;
@@ -131,7 +131,7 @@ export const EvaluationHeader: React.FC<EvaluationHeaderProps> = ({
             Actualizar
           </Button>
           <Link
-            href={`/gp/gestion-humana/evaluaciones-de-desempeno/evaluaciones/detalles/${evaluationData.id}`}
+            to={`/gp/gestion-humana/evaluaciones-de-desempeno/evaluaciones/detalles/${evaluationData.id}`}
           >
             <Button variant="outline" size="sm" className="order-2 sm:order-1">
               <Activity className="h-4 w-4 mr-2" />
@@ -166,7 +166,7 @@ export const EvaluationHeader: React.FC<EvaluationHeaderProps> = ({
               {/* Fecha de Inicio */}
               <div className="relative">
                 <div className="flex items-center gap-3 p-4 rounded-lg bg-primary/5 hover:bg-primary/10 transition-colors">
-                  <div className="flex-shrink-0 w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center">
+                  <div className="shrink-0 w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center">
                     <Calendar className="h-5 w-5 text-primary" />
                   </div>
                   <div>
@@ -186,7 +186,7 @@ export const EvaluationHeader: React.FC<EvaluationHeaderProps> = ({
               {/* Duración */}
               <div className="relative">
                 <div className="flex items-center gap-3 p-4 rounded-lg bg-muted/20 hover:bg-muted/30 transition-colors">
-                  <div className="flex-shrink-0 w-10 h-10 bg-muted/40 rounded-full flex items-center justify-center">
+                  <div className="shrink-0 w-10 h-10 bg-muted/40 rounded-full flex items-center justify-center">
                     <Clock className="h-5 w-5 text-muted-foreground" />
                   </div>
                   <div>
@@ -210,7 +210,7 @@ export const EvaluationHeader: React.FC<EvaluationHeaderProps> = ({
               {/* Fecha de Fin */}
               <div className="relative">
                 <div className="flex items-center gap-3 p-4 rounded-lg bg-secondary/5 hover:bg-secondary/10 transition-colors">
-                  <div className="flex-shrink-0 w-10 h-10 bg-secondary/20 rounded-full flex items-center justify-center">
+                  <div className="shrink-0 w-10 h-10 bg-secondary/20 rounded-full flex items-center justify-center">
                     <Calendar className="h-5 w-5 text-secondary" />
                   </div>
                   <div>

@@ -2,7 +2,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
-import { ImageIcon, Send, Users } from "lucide-react";
+import { Send, Users, Image } from "lucide-react";
 
 interface Props {
   setShowCreatePost: (show: boolean) => void;
@@ -47,7 +47,7 @@ export default function CreatePost({
         </div>
         <div className="flex justify-between items-center">
           <Button variant="outline" className="flex items-center gap-2">
-            <imgIcon className="w-4 h-4" />
+            <Image className="w-4 h-4" />
             Agregar Imagen
           </Button>
           <div className="flex gap-2">

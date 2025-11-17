@@ -7,7 +7,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { Link } from 'react-router-dom'
+import { Link } from "react-router-dom";
 import { SidebarCompanyHeaderLoading } from "./SidebarCompanyHeaderLoading";
 
 export default function SidebarCompanyHeader() {
@@ -30,7 +30,7 @@ export default function SidebarCompanyHeader() {
       <SidebarMenu>
         <SidebarMenuItem>
           <SidebarMenuButton size="lg" asChild>
-            <Link className="group-data-[collapsible=icon]:!px-0" href={route}>
+            <Link to={route} className="group-data-[collapsible=icon]:px-0!">
               <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-sm">
                 <IconComponent className="size-4" />
               </div>

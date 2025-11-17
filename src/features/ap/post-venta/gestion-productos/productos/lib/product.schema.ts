@@ -28,26 +28,26 @@ const productSchemaBase = z.object({
   product_type: z.enum(["GOOD", "SERVICE", "KIT"], {
     error: "Tipo de producto es requerido",
   }),
-  minimum_stock: z.coerce
+  minimum_stock: z
     .number()
     .min(0, { message: "El stock mínimo debe ser mayor o igual a 0" })
     .optional(),
-  maximum_stock: z.coerce
+  maximum_stock: z
     .number()
     .min(0, { message: "El stock máximo debe ser mayor o igual a 0" })
     .optional(),
-  current_stock: z.coerce
+  current_stock: z
     .number()
     .min(0, { message: "El stock actual debe ser mayor o igual a 0" })
     .optional(),
-  cost_price: z.coerce
+  cost_price: z
     .number()
     .min(0, { message: "El precio de costo debe ser mayor o igual a 0" })
     .optional(),
-  sale_price: z.coerce
+  sale_price: z
     .number()
     .min(0, { message: "El precio de venta debe ser mayor o igual a 0" }),
-  tax_rate: z.coerce
+  tax_rate: z
     .number()
     .min(0, { message: "La tasa de impuesto debe ser mayor o igual a 0" })
     .max(100, { message: "La tasa de impuesto no puede ser mayor a 100" })
@@ -57,7 +57,7 @@ const productSchemaBase = z.object({
     .string()
     .max(20, { message: "Máximo 20 caracteres" })
     .optional(),
-  warranty_months: z.coerce
+  warranty_months: z
     .number()
     .int({ message: "Debe ser un número entero" })
     .min(0, { message: "Los meses de garantía deben ser mayor o igual a 0" })
