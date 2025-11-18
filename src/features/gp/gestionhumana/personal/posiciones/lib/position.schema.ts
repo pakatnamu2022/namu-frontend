@@ -1,3 +1,4 @@
+import { requiredStringId } from "@/shared/lib/global.schema";
 import { z } from "zod";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
@@ -10,16 +11,19 @@ const ACCEPTED_FILE_TYPES = [
 export const positionSchemaCreate = z.object({
   name: z.string().min(1, "El nombre es obligatorio").max(255),
   descripcion: z.string().optional(),
-  area_id: z.string().optional(),
-  hierarchical_category_id: z.string().optional(),
+  area_id: requiredStringId("El área es obligatoria"),
+  hierarchical_category_id: requiredStringId(
+    "La categoría jerárquica es obligatoria"
+  ),
+  tiene_jefatura: z.boolean().optional().default(false),
   cargo_id: z.string().optional(),
-  ntrabajadores: z.string().min(0).optional(),
-  banda_salarial_min: z.string().min(0).optional(),
-  banda_salarial_media: z.string().min(0).optional(),
-  banda_salarial_max: z.string().min(0).optional(),
-  tipo_onboarding_id: z.string().optional(),
-  plazo_proceso_seleccion: z.string().min(0).optional(),
-  presupuesto: z.string().min(0).optional(),
+  ntrabajadores: z.coerce.number().min(0).optional(),
+  banda_salarial_min: z.coerce.number().min(0).optional(),
+  banda_salarial_media: z.coerce.number().min(0).optional(),
+  banda_salarial_max: z.coerce.number().min(0).optional(),
+  tipo_onboarding_id: requiredStringId("El tipo de onboarding es obligatorio"),
+  plazo_proceso_seleccion: z.coerce.number().min(0).optional(),
+  presupuesto: z.coerce.number().min(0).optional(),
   mof_adjunto: z
     .instanceof(File, { message: "El archivo MOF es obligatorio" })
     .refine(
@@ -50,16 +54,19 @@ export const positionSchemaCreate = z.object({
 export const positionSchemaUpdate = z.object({
   name: z.string().min(1, "El nombre es obligatorio").max(255),
   descripcion: z.string().optional(),
-  area_id: z.string().optional(),
-  hierarchical_category_id: z.string().optional(),
+  area_id: requiredStringId("El área es obligatoria"),
+  hierarchical_category_id: requiredStringId(
+    "La categoría jerárquica es obligatoria"
+  ),
+  tiene_jefatura: z.boolean().optional().default(false),
   cargo_id: z.string().optional(),
-  ntrabajadores: z.string().min(0).optional(),
-  banda_salarial_min: z.string().min(0).optional(),
-  banda_salarial_media: z.string().min(0).optional(),
-  banda_salarial_max: z.string().min(0).optional(),
-  tipo_onboarding_id: z.string().optional(),
-  plazo_proceso_seleccion: z.string().min(0).optional(),
-  presupuesto: z.string().min(0).optional(),
+  ntrabajadores: z.coerce.number().min(0).optional(),
+  banda_salarial_min: z.coerce.number().min(0).optional(),
+  banda_salarial_media: z.coerce.number().min(0).optional(),
+  banda_salarial_max: z.coerce.number().min(0).optional(),
+  tipo_onboarding_id: requiredStringId("El tipo de onboarding es obligatorio"),
+  plazo_proceso_seleccion: z.coerce.number().min(0).optional(),
+  presupuesto: z.coerce.number().min(0).optional(),
   mof_adjunto: z
     .instanceof(File)
     .refine(
@@ -89,4 +96,3 @@ export const positionSchemaUpdate = z.object({
 });
 
 export type PositionSchema = z.infer<typeof positionSchemaCreate>;
-export type PositionUpdateSchema = z.infer<typeof positionSchemaUpdate>;

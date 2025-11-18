@@ -13,10 +13,7 @@ import {
   findPositionById,
   updatePosition,
 } from "@/features/gp/gestionhumana/personal/posiciones/lib/position.actions";
-import {
-  PositionSchema,
-  PositionUpdateSchema,
-} from "@/features/gp/gestionhumana/personal/posiciones/lib/position.schema";
+import { PositionSchema } from "@/features/gp/gestionhumana/personal/posiciones/lib/position.schema";
 import { PositionResource } from "@/features/gp/gestionhumana/personal/posiciones/lib/position.interface";
 import { PositionForm } from "@/features/gp/gestionhumana/personal/posiciones/components/PositionForm";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
@@ -31,7 +28,7 @@ export default function EditPositionPage() {
   const router = useNavigate();
   const queryClient = useQueryClient();
   const { currentView, checkRouteExists } = useCurrentModule();
-  const { MODEL, ROUTE, QUERY_KEY } = POSITION;
+  const { MODEL, ROUTE, QUERY_KEY, ABSOLUTE_ROUTE } = POSITION;
 
   const { data: position, isLoading: loadingPosition } = useQuery({
     queryKey: [QUERY_KEY, id],
@@ -46,7 +43,7 @@ export default function EditPositionPage() {
       await queryClient.invalidateQueries({
         queryKey: [QUERY_KEY, id],
       });
-      router("../../");
+      router(ABSOLUTE_ROUTE);
     },
     onError: (error: any) => {
       errorToast(
@@ -108,36 +105,26 @@ export default function EditPositionPage() {
     mutate(formData);
   };
 
-  function mapPositionToForm(
-    data: PositionResource
-  ): Partial<PositionUpdateSchema> {
+  function mapPositionToForm(data: PositionResource): Partial<PositionSchema> {
     return {
       name: data.name,
       descripcion: data.descripcion,
-      area_id: data.area_id ? data.area_id.toString() : undefined,
-      hierarchical_category_id: data.hierarchical_category_id
-        ? data.hierarchical_category_id.toString()
-        : undefined,
-      cargo_id: data.cargo_id ? data.cargo_id.toString() : undefined,
-      ntrabajadores: data.ntrabajadores
-        ? data.ntrabajadores.toString()
-        : undefined,
+      area_id: String(data.area_id),
+      hierarchical_category_id: String(data.hierarchical_category_id),
+      cargo_id: String(data.cargo_id),
+      ntrabajadores: data.ntrabajadores,
       banda_salarial_min: data.banda_salarial_min
-        ? data.banda_salarial_min.toString()
+        ? parseFloat(data.banda_salarial_min)
         : undefined,
       banda_salarial_media: data.banda_salarial_media
-        ? data.banda_salarial_media.toString()
+        ? parseFloat(data.banda_salarial_media)
         : undefined,
       banda_salarial_max: data.banda_salarial_max
-        ? data.banda_salarial_max.toString()
+        ? parseFloat(data.banda_salarial_max)
         : undefined,
-      tipo_onboarding_id: data.tipo_onboarding_id
-        ? data.tipo_onboarding_id.toString()
-        : undefined,
-      plazo_proceso_seleccion: data.plazo_proceso_seleccion
-        ? data.plazo_proceso_seleccion.toString()
-        : undefined,
-      presupuesto: data.presupuesto ? data.presupuesto.toString() : undefined,
+      tipo_onboarding_id: String(data.tipo_onboarding_id),
+      plazo_proceso_seleccion: data.plazo_proceso_seleccion,
+      presupuesto: data.presupuesto ? parseFloat(data.presupuesto) : undefined,
     };
   }
 
