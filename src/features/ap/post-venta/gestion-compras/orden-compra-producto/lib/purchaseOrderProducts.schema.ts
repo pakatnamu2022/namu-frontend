@@ -3,9 +3,7 @@ import { z } from "zod";
 
 const purchaseOrderProductItemSchema = z.object({
   product_id: requiredStringId("Producto es requerido"),
-  quantity: z
-    .number()
-    .min(1, { message: "La cantidad debe ser mayor a 0" }),
+  quantity: z.number().min(1, { message: "La cantidad debe ser mayor a 0" }),
   unit_price: z
     .number()
     .min(0, { message: "El precio unitario debe ser mayor o igual a 0" }),
@@ -25,18 +23,19 @@ const purchaseOrderProductItemSchema = z.object({
 const purchaseOrderProductsSchemaBase = z.object({
   order_number: z
     .string()
-    .max(50, { message: "Máximo 50 caracteres" })
+    .max(50, { message: "Mï¿½ximo 50 caracteres" })
     .refine((value) => value.trim() !== "", {
-      message: "Número de orden es requerido",
+      message: "Nmero de orden es requerido",
     }),
   supplier_id: requiredStringId("Proveedor es requerido"),
   order_date: z.string().refine((value) => value.trim() !== "", {
     message: "Fecha de orden es requerida",
   }),
-  expected_delivery_date: z.string().optional(),
+  expected_delivery_date: z.union([z.literal(""), z.date()]).optional(),
   payment_terms: z.string().optional(),
   shipping_method: z.string().optional(),
   warehouse_id: z.string().optional(),
+  currency_type_id: z.string().optional(),
   subtotal: z
     .number()
     .min(0, { message: "El subtotal debe ser mayor o igual a 0" }),
@@ -52,7 +51,7 @@ const purchaseOrderProductsSchemaBase = z.object({
     .number()
     .min(0, { message: "El monto total debe ser mayor o igual a 0" }),
   status: z.enum(["PENDING", "APPROVED", "RECEIVED", "CANCELLED"], {
-    message: "Estado inválido",
+    message: "Estado invï¿½lido",
   }),
   notes: z.string().optional(),
   items: z

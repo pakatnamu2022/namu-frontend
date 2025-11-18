@@ -1,7 +1,7 @@
 "use client";
 
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   ERROR_MESSAGE,
   errorToast,
@@ -29,20 +29,14 @@ export default function PurchaseOrderProductsPage() {
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
   const [deleteId, setDeleteId] = useState<number | null>(null);
-  const { MODEL, ROUTE } = PURCHASE_ORDER_PRODUCT;
+  const { MODEL, ROUTE, ROUTE_ADD, ROUTE_UPDATE } = PURCHASE_ORDER_PRODUCT;
   const permissions = useModulePermissions(ROUTE);
-
-  useEffect(() => {
-    setPage(1);
-  }, [search, per_page, statusFilter]);
 
   const { data, isLoading, refetch } = usePurchaseOrderProducts({
     page,
     search,
     per_page,
-    ...(statusFilter !== "all" && { status: statusFilter }),
   });
 
   const handleDelete = async () => {
@@ -78,7 +72,7 @@ export default function PurchaseOrderProductsPage() {
         />
         <PurchaseOrderProductsActions
           permissions={permissions}
-          routeAdd={`${ROUTE}/agregar`}
+          routeAdd={ROUTE_ADD}
         />
       </HeaderTableWrapper>
       <PurchaseOrderProductsTable
@@ -87,16 +81,11 @@ export default function PurchaseOrderProductsPage() {
           onDelete: setDeleteId,
           onView: handleView,
           permissions,
-          routeUpdate: `${ROUTE}/actualizar`,
+          routeUpdate: ROUTE_UPDATE,
         })}
         data={data?.data || []}
       >
-        <PurchaseOrderProductsOptions
-          search={search}
-          setSearch={setSearch}
-          statusFilter={statusFilter}
-          setStatusFilter={setStatusFilter}
-        />
+        <PurchaseOrderProductsOptions search={search} setSearch={setSearch} />
       </PurchaseOrderProductsTable>
 
       {deleteId !== null && (

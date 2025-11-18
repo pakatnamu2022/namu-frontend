@@ -27,13 +27,6 @@ export const PURCHASE_ORDER_STATUS = [
   { value: "CANCELLED", label: "Cancelado" },
 ] as const;
 
-export const PURCHASE_ORDER_STATUS_COLORS = {
-  PENDING: "bg-yellow-100 text-yellow-800",
-  APPROVED: "bg-blue-100 text-blue-800",
-  RECEIVED: "bg-green-100 text-green-800",
-  CANCELLED: "bg-red-100 text-red-800",
-} as const;
-
 export const PAYMENT_TERMS_OPTIONS = [
   { value: "CASH", label: "Contado" },
   { value: "15_DAYS", label: "15 días" },
@@ -41,11 +34,4 @@ export const PAYMENT_TERMS_OPTIONS = [
   { value: "45_DAYS", label: "45 días" },
   { value: "60_DAYS", label: "60 días" },
   { value: "90_DAYS", label: "90 días" },
-] as const;
-
-export const SHIPPING_METHOD_OPTIONS = [
-  { value: "PICKUP", label: "Recojo en tienda" },
-  { value: "DELIVERY", label: "Delivery" },
-  { value: "COURIER", label: "Courier" },
-  { value: "FREIGHT", label: "Transporte de carga" },
 ] as const;

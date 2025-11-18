@@ -3,9 +3,7 @@ import { PurchaseOrderProductsResource } from "../lib/purchaseOrderProducts.inte
 import { Button } from "@/components/ui/button";
 import { Eye, Pencil } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
-import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
-import { PURCHASE_ORDER_STATUS_COLORS } from "../lib/purchaseOrderProducts.constants";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 
@@ -89,32 +87,6 @@ export const purchaseOrderProductsColumns = ({
         "S/ 0.00"
       ) : (
         <p className="font-semibold">S/ {numValue.toFixed(2)}</p>
-      );
-    },
-  },
-  {
-    accessorKey: "status",
-    header: "Estado",
-    cell: ({ getValue }) => {
-      const value = getValue() as
-        | "PENDING"
-        | "APPROVED"
-        | "RECEIVED"
-        | "CANCELLED";
-
-      const statusConfig = {
-        PENDING: "Pendiente",
-        APPROVED: "Aprobado",
-        RECEIVED: "Recibido",
-        CANCELLED: "Cancelado",
-      };
-
-      return (
-        <Badge
-          className={`capitalize w-28 flex items-center justify-center ${PURCHASE_ORDER_STATUS_COLORS[value]}`}
-        >
-          {statusConfig[value] || value}
-        </Badge>
       );
     },
   },

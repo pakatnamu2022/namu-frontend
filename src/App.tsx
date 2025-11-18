@@ -608,6 +608,24 @@ const TiposCategoriaPage = lazy(
   () => import("./app/ap/post-venta/gestion-de-productos/tipos-categoria/page")
 );
 
+// Gestión de Compras
+const PurchaseOrderProductsPage = lazy(
+  () =>
+    import("./app/ap/post-venta/gestion-de-compras/orden-compra-producto/page")
+);
+const AddPurchaseOrderProductsPage = lazy(
+  () =>
+    import(
+      "./app/ap/post-venta/gestion-de-compras/orden-compra-producto/agregar/page"
+    )
+);
+const EditPurchaseOrderProductsPage = lazy(
+  () =>
+    import(
+      "./app/ap/post-venta/gestion-de-compras/orden-compra-producto/actualizar/[id]/page"
+    )
+);
+
 // Taller
 const LavadoVehiculoPage = lazy(
   () => import("./app/ap/post-venta/taller/lavado-vehiculo/page")
@@ -1331,6 +1349,20 @@ function App() {
               <Route
                 path="gestion-de-productos/tipos-categoria"
                 element={<TiposCategoriaPage />}
+              />
+
+              {/* Gestion Compra */}
+              <Route
+                path="gestion-de-compras/orden-compra-producto"
+                element={<PurchaseOrderProductsPage />}
+              />
+              <Route
+                path="gestion-de-compras/orden-compra-producto/agregar"
+                element={<AddPurchaseOrderProductsPage />}
+              />
+              <Route
+                path="gestion-de-compras/orden-compra-producto/actualizar/:id"
+                element={<EditPurchaseOrderProductsPage />}
               />
 
               {/* Taller */}

@@ -12,7 +12,7 @@ interface PurchaseOrderProductsActionsProps {
 
 export default function PurchaseOrderProductsActions({
   permissions,
-  routeAdd = "/ap/post-venta/gestion-de-compras/orden-compra-producto/agregar",
+  routeAdd = "",
 }: PurchaseOrderProductsActionsProps) {
   if (!permissions.canCreate) {
     return null;
