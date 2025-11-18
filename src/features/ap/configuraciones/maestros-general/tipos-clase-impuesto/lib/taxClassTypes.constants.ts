@@ -15,6 +15,8 @@ export const TAX_CLASS_TYPES: ModelComplete<TaxClassTypesResource> = {
   QUERY_KEY: "taxClassTypes",
   ROUTE,
   ABSOLUTE_ROUTE,
+  ROUTE_ADD: `${ABSOLUTE_ROUTE}/agregar`,
+  ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/editar`,
   EMPTY: {
     id: 0,
     dyn_code: "",

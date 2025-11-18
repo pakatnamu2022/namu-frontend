@@ -16,7 +16,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Link } from 'react-router-dom'
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
 import { FormSelect } from "@/shared/components/FormSelect";
@@ -41,6 +41,7 @@ import {
   useAllBrandsBySede,
   useAllWorkersBySedeAndBrand,
 } from "@/features/ap/configuraciones/ventas/asignar-marca/lib/assignBrandConsultant.hook";
+import { STORE_VISITS } from "../lib/storeVisits.constants";
 
 interface StoreVisitsFormProps {
   defaultValues: Partial<StoreVisitsSchema>;
@@ -55,6 +56,7 @@ export const StoreVisitsForm = ({
   isSubmitting = false,
   mode = "create",
 }: StoreVisitsFormProps) => {
+  const { ABSOLUTE_ROUTE } = STORE_VISITS;
   const form = useForm({
     resolver: zodResolver(
       mode === "create" ? storeVisitsSchemaCreate : storeVisitsSchemaUpdate

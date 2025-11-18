@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { UseFormReturn } from "react-hook-form";
-import { Info, Package, Pencil, Plus } from "lucide-react";
+import { Info, Package, Plus } from "lucide-react";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -317,7 +317,7 @@ export function ItemsSection({
                   value: unit.value,
                   label: unit.label,
                 }))}
-                className="!w-full"
+                className="w-full!"
                 buttonSize="default"
               />
             </div>
@@ -335,7 +335,7 @@ export function ItemsSection({
                     label: `${plan.account} - ${plan.description}`,
                   })) || []
                 }
-                className="!w-full"
+                className="w-full!"
                 buttonSize="default"
                 disabled={isFromQuotation}
               />

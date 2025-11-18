@@ -16,6 +16,8 @@ export const TYPE_PERSON: ModelComplete<TypeClientResource> = {
   QUERY_KEY: "typePerson",
   ROUTE,
   ABSOLUTE_ROUTE,
+  ROUTE_ADD: `${ABSOLUTE_ROUTE}/agregar`,
+  ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/editar`,
   EMPTY: {
     id: 0,
     code: "",
