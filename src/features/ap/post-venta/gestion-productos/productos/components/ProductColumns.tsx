@@ -4,13 +4,14 @@ import { Button } from "@/components/ui/button";
 import { Pencil, RefreshCw } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { Badge } from "@/components/ui/badge";
-import { Link } from 'react-router-dom'
+import { Link } from "react-router-dom";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
 } from "@/components/ui/select";
+import { PRODUCT } from "../lib/product.constants";
 
 export type ProductColumns = ColumnDef<ProductResource>;
 
@@ -129,6 +130,7 @@ export const productColumns = ({
     header: "Acciones",
     cell: ({ row }) => {
       const { id, status } = row.original;
+      const { ROUTE_UPDATE } = PRODUCT;
 
       return (
         <div className="flex items-center gap-2">
@@ -177,7 +179,7 @@ export const productColumns = ({
 
           {/* Edit */}
           {permissions.canUpdate && (
-            <Link to={`./productos/actualizar/${id}`}>
+            <Link to={`${ROUTE_UPDATE}/${id}`}>
               <Button variant="outline" size="icon" className="size-7">
                 <Pencil className="size-5" />
               </Button>

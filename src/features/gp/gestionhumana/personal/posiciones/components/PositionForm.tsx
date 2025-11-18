@@ -26,7 +26,6 @@ import {
   LassoSelect,
   Loader,
 } from "lucide-react";
-import { Link as RouterLink } from "react-router-dom";
 
 import { useAllAreas } from "../lib/position.hook";
 import { useAllPositions } from "../lib/position.hook";
@@ -39,6 +38,7 @@ import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { useAllTypeOnboarding } from "@/features/gp/gestionsistema/tipo-onbording/lib/typeOnboarding.hook";
 import { useAllHierarchicalCategories } from "../../../evaluaciondesempeño/categorias-jerarquicas/lib/hierarchicalCategory.hook";
+import { Link } from "react-router-dom";
 
 interface PositionFormProps {
   defaultValues?: Partial<PositionSchema>;
@@ -349,13 +349,14 @@ export const PositionForm = ({
                     step="0.01"
                     placeholder="0.00"
                     value={typeof field.value === "number" ? field.value : ""}
-                    onChange={(e) =>
-                      field.onChange(
-                        e.target.value === ""
-                          ? ""
-                          : parseFloat(e.target.value) || ""
-                      )
-                    }
+                    onChange={(e) => {
+                      if (e.target.value === "") {
+                        field.onChange("");
+                      } else {
+                        const num = parseFloat(e.target.value);
+                        field.onChange(isNaN(num) ? "" : num);
+                      }
+                    }}
                   />
                 </FormControl>
                 <FormMessage />
@@ -395,15 +396,17 @@ export const PositionForm = ({
                   <Input
                     type="number"
                     min="0"
-                    placeholder="0"
+                    step="0.01"
+                    placeholder="0.00"
                     value={typeof field.value === "number" ? field.value : ""}
-                    onChange={(e) =>
-                      field.onChange(
-                        e.target.value === ""
-                          ? ""
-                          : parseInt(e.target.value) || ""
-                      )
-                    }
+                    onChange={(e) => {
+                      if (e.target.value === "") {
+                        field.onChange("");
+                      } else {
+                        const num = parseFloat(e.target.value);
+                        field.onChange(isNaN(num) ? "" : num);
+                      }
+                    }}
                   />
                 </FormControl>
                 <FormMessage />
@@ -424,13 +427,14 @@ export const PositionForm = ({
                     step="0.01"
                     placeholder="0.00"
                     value={typeof field.value === "number" ? field.value : ""}
-                    onChange={(e) =>
-                      field.onChange(
-                        e.target.value === ""
-                          ? ""
-                          : parseFloat(e.target.value) || ""
-                      )
-                    }
+                    onChange={(e) => {
+                      if (e.target.value === "") {
+                        field.onChange("");
+                      } else {
+                        const num = parseFloat(e.target.value);
+                        field.onChange(isNaN(num) ? "" : num);
+                      }
+                    }}
                   />
                 </FormControl>
                 <FormMessage />
@@ -479,11 +483,11 @@ export const PositionForm = ({
         </GroupFormSection>
 
         <div className="flex gap-4 w-full justify-end pt-4">
-          <RouterLink to={ABSOLUTE_ROUTE}>
+          <Link to={ABSOLUTE_ROUTE!}>
             <Button type="button" variant="outline" disabled={isSubmitting}>
               Cancelar
             </Button>
-          </RouterLink>
+          </Link>
 
           <Button
             type="submit"

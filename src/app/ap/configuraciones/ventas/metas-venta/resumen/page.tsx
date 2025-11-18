@@ -76,7 +76,7 @@ export default function ApGoalSellOutInSummaryPage() {
           }`}
           icon={currentView.icon}
         />
-        <BackButton route={ABSOLUTE_ROUTE} name={"Resumen"} fullname={false} />
+        <BackButton route={ABSOLUTE_ROUTE!} name={"Resumen"} fullname={false} />
       </HeaderTableWrapper>
 
       {/* Información del período con resumen en la izquierda */}

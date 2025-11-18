@@ -46,12 +46,13 @@ export default function ViewPermissionsPage() {
   const [selectedActions, setSelectedActions] = useState<string[]>([]);
   const [isActive, setIsActive] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const { ENDPOINT } = VIEW;
+  const { ENDPOINT, ABSOLUTE_ROUTE } = VIEW;
 
   // Fetch view data and existing permissions
   useEffect(() => {
     const fetchData = async () => {
       if (!id || isNaN(Number(id))) {
+        // eslint-disable-next-line react-hooks/rules-of-hooks
         useNotFound();
         return;
       }
@@ -80,8 +81,8 @@ export default function ViewPermissionsPage() {
           // Set isActive based on first permission (assuming all have same status)
           setIsActive(permissions[0].is_active);
         }
-      } catch (error) {
-        errorToast("Error al cargar los datos");
+      } catch (error: any) {
+        errorToast("Error al cargar los datos", error.message.toString());
       } finally {
         setIsLoading(false);
       }
@@ -114,12 +115,6 @@ export default function ViewPermissionsPage() {
       return;
     }
 
-    console.log("Selected Actions antes de enviar:", selectedActions);
-    console.log(
-      "PERMISSION_ACTIONS values:",
-      PERMISSION_ACTIONS.map((a) => a.value)
-    );
-
     setIsSaving(true);
     try {
       const payload = {
@@ -136,15 +131,15 @@ export default function ViewPermissionsPage() {
       successToast(
         `Permisos sincronizados correctamente para "${view.descripcion}"`
       );
-    } catch (error) {
-      errorToast("Error al sincronizar permisos");
+    } catch (error: any) {
+      errorToast("Error al sincronizar permisos", error.message.toString());
     } finally {
       setIsSaving(false);
     }
   };
 
   const handleCancel = () => {
-    router("../");
+    router(ABSOLUTE_ROUTE!);
   };
 
   if (!checkRouteExists("vistas")) return <NotFound />;

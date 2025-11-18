@@ -1,6 +1,6 @@
 "use client";
 
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import { errorToast, successToast } from "@/core/core.function";
 import { storeView } from "@/features/gp/gestionsistema/vistas/lib/view.actions";
@@ -11,21 +11,22 @@ import { useAllCompanies } from "@/features/gp/gestionsistema/empresa/lib/compan
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import FormWrapper from "@/shared/components/FormWrapper";
-import NotFound from '@/app/not-found';
-
+import NotFound from "@/app/not-found";
+import { VIEW } from "@/features/gp/gestionsistema/vistas/lib/view.constants";
 
 export default function CreateViewPage() {
   const router = useNavigate();
-  
+
   const { data: views, isLoading: loadingViews } = useAllViews();
   const { data: companies, isLoading: loadingCompanies } = useAllCompanies();
   const { currentView, checkRouteExists } = useCurrentModule();
+  const { ABSOLUTE_ROUTE, ROUTE } = VIEW;
 
   const { mutate, isPending } = useMutation({
     mutationFn: storeView,
     onSuccess: () => {
       successToast("Vista creado exitosamente");
-      router("./");
+      router(ABSOLUTE_ROUTE!);
     },
     onError: () => {
       errorToast("Hubo un error al crear el equipo");
@@ -41,7 +42,7 @@ export default function CreateViewPage() {
   if (loadingViews || loadingCompanies) {
     return <div className="p-4 text-muted">Cargando Vistas</div>;
   }
-  if (!checkRouteExists("vistas")) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) return <NotFound />;
   if (!currentView) return <NotFound />;
 
   return (

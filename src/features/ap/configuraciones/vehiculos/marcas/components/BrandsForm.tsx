@@ -201,7 +201,7 @@ export const BrandsForm = ({
           <Link
             to={
               isCommercial
-                ? ABSOLUTE_ROUTE
+                ? ABSOLUTE_ROUTE!
                 : "/ap/post-venta/gestion-de-productos/marcas-producto"
             }
           >

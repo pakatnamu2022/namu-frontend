@@ -23,7 +23,6 @@ export interface ProductResource {
   warehouse_name?: string;
   ap_class_article_id: number;
   ap_class_article_name?: string;
-  product_type: "GOOD" | "SERVICE" | "KIT";
   minimum_stock: number;
   maximum_stock: number;
   current_stock?: number;
@@ -48,7 +47,6 @@ export interface ProductRequest {
   unit_measurement_id: string;
   warehouse_id?: string;
   ap_class_article_id: string;
-  product_type: "GOOD" | "SERVICE" | "KIT";
   minimum_stock?: number;
   maximum_stock?: number;
   current_stock?: number;

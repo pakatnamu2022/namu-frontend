@@ -2,6 +2,7 @@ import { type ModelComplete } from "@/core/core.interface";
 import { ProductResource } from "./product.interface";
 
 const ROUTE = "productos";
+const ABSOLUTE_ROUTE = "/ap/post-venta/gestion-de-productos/productos";
 
 export const PRODUCT: ModelComplete<ProductResource> = {
   MODEL: {
@@ -13,6 +14,9 @@ export const PRODUCT: ModelComplete<ProductResource> = {
   ENDPOINT: "/ap/postVenta/products",
   QUERY_KEY: "products",
   ROUTE,
+  ABSOLUTE_ROUTE,
+  ROUTE_ADD: `${ABSOLUTE_ROUTE}/agregar`,
+  ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/actualizar`,
   EMPTY: {
     id: 0,
     code: "",
@@ -25,7 +29,6 @@ export const PRODUCT: ModelComplete<ProductResource> = {
     unit_measurement_id: 0,
     warehouse_id: 0,
     ap_class_article_id: 0,
-    product_type: "GOOD",
     minimum_stock: 0,
     maximum_stock: 0,
     current_stock: 0,

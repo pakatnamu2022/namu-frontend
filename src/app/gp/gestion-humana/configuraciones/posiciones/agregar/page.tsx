@@ -85,7 +85,7 @@ export default function AddPositionPage() {
 
       await storePosition(formData);
       successToast(SUCCESS_MESSAGE(MODEL, "create"));
-      router(ABSOLUTE_ROUTE);
+      router(ABSOLUTE_ROUTE!);
     } catch (error: any) {
       console.error("Error al crear posición:", error);
       errorToast(

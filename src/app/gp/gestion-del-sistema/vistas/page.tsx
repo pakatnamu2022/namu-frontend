@@ -28,14 +28,13 @@ import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
 import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { VIEW } from "@/features/gp/gestionsistema/vistas/lib/view.constants";
-import NotFound from '@/app/not-found';
-
+import NotFound from "@/app/not-found";
 
 const { MODEL } = VIEW;
 
 export default function ViewPage() {
   // const router = useNavigate();
-    const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
+  const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
@@ -61,8 +60,8 @@ export default function ViewPage() {
       await deleteView(deleteId);
       await refetch();
       successToast("Vista eliminada correctamente.");
-    } catch (error) {
-      errorToast("Error al eliminar la vista.");
+    } catch (error: any) {
+      errorToast("Error al eliminar la vista.", error.message.toString());
     } finally {
       setDeleteId(null);
     }
@@ -73,8 +72,8 @@ export default function ViewPage() {
       await updateView(id, { [key]: value });
       await refetch();
       successToast(SUCCESS_MESSAGE(MODEL, "update"));
-    } catch (error) {
-      errorToast(ERROR_MESSAGE(MODEL, "update"));
+    } catch (error: any) {
+      errorToast(ERROR_MESSAGE(MODEL, "update"), error.message.toString());
     }
   };
 

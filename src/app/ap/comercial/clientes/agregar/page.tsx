@@ -55,7 +55,7 @@ export default function CreateCustomersPage() {
           `${OPPORTUNITIES_ROUTE}/agregar?client_id=${response.id}&lead_id=${lead_id}`
         );
       } else {
-        router(ABSOLUTE_ROUTE);
+        router(ABSOLUTE_ROUTE!);
       }
     },
     onError: (error: any) => {

@@ -25,9 +25,6 @@ const productSchemaBase = z.object({
   unit_measurement_id: requiredStringId("Unidad de medida es requerida"),
   warehouse_id: z.string().optional(),
   ap_class_article_id: requiredStringId("Clase de artículo es requerida"),
-  product_type: z.enum(["GOOD", "SERVICE", "KIT"], {
-    error: "Tipo de producto es requerido",
-  }),
   minimum_stock: z
     .number()
     .min(0, { message: "El stock mínimo debe ser mayor o igual a 0" })

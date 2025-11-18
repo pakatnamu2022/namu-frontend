@@ -43,7 +43,7 @@ export default function EditPositionPage() {
       await queryClient.invalidateQueries({
         queryKey: [QUERY_KEY, id],
       });
-      router(ABSOLUTE_ROUTE);
+      router(ABSOLUTE_ROUTE!);
     },
     onError: (error: any) => {
       errorToast(

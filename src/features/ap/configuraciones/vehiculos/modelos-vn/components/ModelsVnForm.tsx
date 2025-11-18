@@ -788,7 +788,7 @@ export const ModelsVnForm = ({
             variant="destructive"
             icon="warning"
             onConfirm={() => {
-              router(ABSOLUTE_ROUTE);
+              router(ABSOLUTE_ROUTE!);
             }}
           />
 

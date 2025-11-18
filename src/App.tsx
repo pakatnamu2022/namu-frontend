@@ -577,6 +577,16 @@ const EditMarcasProductoPage = lazy(
 const ProductosPage = lazy(
   () => import("./app/ap/post-venta/gestion-de-productos/productos/page")
 );
+const AddProductosPage = lazy(
+  () =>
+    import("./app/ap/post-venta/gestion-de-productos/productos/agregar/page")
+);
+const EditProductosPage = lazy(
+  () =>
+    import(
+      "./app/ap/post-venta/gestion-de-productos/productos/actualizar/[id]/page"
+    )
+);
 const TiposCategoriaPage = lazy(
   () => import("./app/ap/post-venta/gestion-de-productos/tipos-categoria/page")
 );
@@ -608,10 +618,10 @@ const UsuariosActualizarPage = lazy(
 const VistasPage = lazy(
   () => import("./app/gp/gestion-del-sistema/vistas/page")
 );
-const VistasAgregarPage = lazy(
+const AddVistasPage = lazy(
   () => import("./app/gp/gestion-del-sistema/vistas/agregar/page")
 );
-const VistasActualizarPage = lazy(
+const EditVistasPage = lazy(
   () => import("./app/gp/gestion-del-sistema/vistas/actualizar/[id]/page")
 );
 const VistasPermisosPage = lazy(
@@ -1345,6 +1355,14 @@ function App() {
                 element={<ProductosPage />}
               />
               <Route
+                path="gestion-de-productos/productos/agregar"
+                element={<AddProductosPage />}
+              />
+              <Route
+                path="gestion-de-productos/productos/actualizar/:id"
+                element={<EditProductosPage />}
+              />
+              <Route
                 path="gestion-de-productos/tipos-categoria"
                 element={<TiposCategoriaPage />}
               />
@@ -1385,10 +1403,10 @@ function App() {
                 element={<UsuariosActualizarPage />}
               />
               <Route path="vistas" element={<VistasPage />} />
-              <Route path="vistas/agregar" element={<VistasAgregarPage />} />
+              <Route path="vistas/agregar" element={<AddVistasPage />} />
               <Route
                 path="vistas/actualizar/:id"
-                element={<VistasActualizarPage />}
+                element={<EditVistasPage />}
               />
               <Route
                 path="vistas/permisos/:id"

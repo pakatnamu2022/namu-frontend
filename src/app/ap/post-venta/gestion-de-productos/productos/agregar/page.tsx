@@ -1,6 +1,6 @@
 "use client";
 
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import { useMutation } from "@tanstack/react-query";
 import {
@@ -15,19 +15,18 @@ import { PRODUCT } from "@/features/ap/post-venta/gestion-productos/productos/li
 import { storeProduct } from "@/features/ap/post-venta/gestion-productos/productos/lib/product.actions";
 import { ProductSchema } from "@/features/ap/post-venta/gestion-productos/productos/lib/product.schema";
 import { ProductForm } from "@/features/ap/post-venta/gestion-productos/productos/components/ProductForm";
-import NotFound from '@/app/not-found';
-
+import NotFound from "@/app/not-found";
 
 export default function CreateProductPage() {
   const router = useNavigate();
-    const { currentView, checkRouteExists } = useCurrentModule();
-  const { ROUTE, MODEL } = PRODUCT;
+  const { currentView, checkRouteExists } = useCurrentModule();
+  const { ROUTE, MODEL, ABSOLUTE_ROUTE } = PRODUCT;
 
   const { mutate, isPending } = useMutation({
     mutationFn: storeProduct,
     onSuccess: () => {
       successToast(SUCCESS_MESSAGE(MODEL, "create"));
-      router("./");
+      router(ABSOLUTE_ROUTE!);
     },
     onError: (error: any) => {
       const msg = error?.response?.data?.message || "";
@@ -66,7 +65,7 @@ export default function CreateProductPage() {
         onSubmit={handleSubmit}
         isSubmitting={isPending}
         mode="create"
-        onCancel={() => router("./")}
+        onCancel={() => router(ABSOLUTE_ROUTE!)}
       />
     </FormWrapper>
   );
