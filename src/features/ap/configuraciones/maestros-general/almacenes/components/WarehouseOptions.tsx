@@ -37,6 +37,14 @@ export default function WarehouseOptions({
   isReceived,
   setIsReceived,
 }: Props) {
+  // Filtrar clases de artículo según la operación seleccionada
+  const filteredClassArticles = typeOperationId
+    ? classArticles.filter(
+        (classArticle) =>
+          classArticle.type_operation_id?.toString() === typeOperationId
+      )
+    : classArticles;
+
   return (
     <div className="flex items-center gap-2 flex-wrap">
       <SearchInput
@@ -61,13 +69,26 @@ export default function WarehouseOptions({
           label: typeOperation.description,
         }))}
         value={typeOperationId}
-        onChange={setTypeOperationId}
+        onChange={(value) => {
+          setTypeOperationId(value);
+          // Limpiar la clase de artículo si ya no está en las opciones filtradas
+          if (value && articleClassId) {
+            const isValid = classArticles.some(
+              (ca) =>
+                ca.id.toString() === articleClassId &&
+                ca.type_operation_id?.toString() === value
+            );
+            if (!isValid) {
+              setArticleClassId("");
+            }
+          }
+        }}
         placeholder="Seleccionar Operación"
         className="min-w-40"
         classNameOption="text-xs"
       />
       <SearchableSelect
-        options={classArticles.map((classArticle) => ({
+        options={filteredClassArticles.map((classArticle) => ({
           value: classArticle.id.toString(),
           label: classArticle.description,
         }))}
