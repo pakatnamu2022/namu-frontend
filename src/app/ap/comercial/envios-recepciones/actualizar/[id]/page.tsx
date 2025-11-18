@@ -21,7 +21,7 @@ import {
   updateShipmentsReceptions,
 } from "@/features/ap/comercial/envios-recepciones/lib/shipmentsReceptions.actions";
 import { ShipmentsReceptionsResource } from "@/features/ap/comercial/envios-recepciones/lib/shipmentsReceptions.interface";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
 export default function UpdateShipmentsReceptionsPage() {
@@ -105,8 +105,8 @@ export default function UpdateShipmentsReceptionsPage() {
   if (isLoadingAny) {
     return <FormSkeleton />;
   }
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <FormWrapper>

@@ -14,7 +14,7 @@ import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import { CompetenceSchema } from "@/features/gp/gestionhumana/evaluaciondesempeño/competencias/lib/competence.schema";
 import FormWrapper from "@/shared/components/FormWrapper";
-import NotFound from "@/app/not-found";
+import { notFound } from "@/shared/hooks/useNotFound";
 import { COMPETENCE } from "@/features/gp/gestionhumana/evaluaciondesempeño/competencias/lib/competence.constans";
 
 export default function AddCompetencePage() {
@@ -39,8 +39,8 @@ export default function AddCompetencePage() {
     mutate(data);
   };
 
-  if (!checkRouteExists("competencias")) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists("competencias")) notFound();
+  if (!currentView) notFound();
 
   return (
     <FormWrapper>

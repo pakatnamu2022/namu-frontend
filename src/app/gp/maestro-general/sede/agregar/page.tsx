@@ -15,7 +15,7 @@ import { SEDE } from "@/features/gp/maestro-general/sede/lib/sede.constants";
 import { storeSede } from "@/features/gp/maestro-general/sede/lib/sede.actions";
 import { SedeSchema } from "@/features/gp/maestro-general/sede/lib/sede.schema";
 import { SedeForm } from "@/features/gp/maestro-general/sede/components/SedeForm";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
 export default function AddSedePage() {
@@ -38,8 +38,8 @@ export default function AddSedePage() {
   const handleSubmit = (data: SedeSchema) => {
     mutate(data);
   };
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <FormWrapper>

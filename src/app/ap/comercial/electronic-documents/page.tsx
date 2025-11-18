@@ -24,7 +24,7 @@ import { useAllSunatConcepts } from "@/features/gp/maestro-general/conceptos-sun
 import { SUNAT_CONCEPTS_TYPE } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
 import ElectronicDocumentActions from "@/features/ap/facturacion/electronic-documents/components/ElectronicDocumentActions";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
 export default function ElectronicDocumentsPage() {
@@ -111,8 +111,8 @@ export default function ElectronicDocumentsPage() {
   };
 
   if (isLoadingModule) return <PageSkeleton />;
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <div className="space-y-4">

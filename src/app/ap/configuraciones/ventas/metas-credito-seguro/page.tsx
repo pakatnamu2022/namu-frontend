@@ -24,7 +24,7 @@ import { apSafeCreditGoalColumns } from "@/features/ap/configuraciones/ventas/me
 import ApSafeCreditGoalModal from "@/features/ap/configuraciones/ventas/metas-credito-seguro/components/ApSafeCreditGoalModal";
 import { AP_SAFE_CREDIT_GOAL } from "@/features/ap/configuraciones/ventas/metas-credito-seguro/lib/apSafeCreditGoal.constants";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
 export default function ApSafeCreditGoalPage() {
@@ -67,8 +67,8 @@ export default function ApSafeCreditGoalPage() {
   };
 
   if (isLoadingModule) return <PageSkeleton />;
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <div className="space-y-4">

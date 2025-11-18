@@ -12,7 +12,7 @@ export const PARAMETER: ModelComplete = {
   ENDPOINT: "/gp/gh/performanceEvaluation/parameter",
   QUERY_KEY: "parameters",
   ROUTE,
-  ROUTE_ADD: `${ROUTE}/agregar`,
+  ROUTE_ADD: `${ABSOLUTE_ROUTE}/agregar`,
   ROUTE_UPDATE: `${ROUTE}/actualizar`,
 };
 

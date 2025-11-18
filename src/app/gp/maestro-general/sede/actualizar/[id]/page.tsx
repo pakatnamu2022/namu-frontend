@@ -21,7 +21,7 @@ import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams } from 'react-router-dom';
 import { useNavigate } from "react-router-dom";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
 export default function UpdateSedePage() {
@@ -75,8 +75,8 @@ export default function UpdateSedePage() {
   if (isLoadingAny) {
     return <FormSkeleton />;
   }
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <FormWrapper>

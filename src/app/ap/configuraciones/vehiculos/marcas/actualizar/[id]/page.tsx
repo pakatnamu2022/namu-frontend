@@ -19,7 +19,7 @@ import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import { BrandsForm } from "@/features/ap/configuraciones/vehiculos/marcas/components/BrandsForm";
 import { BRAND } from "@/features/ap/configuraciones/vehiculos/marcas/lib/brands.constants";
 import FormWrapper from "@/shared/components/FormWrapper";
-import NotFound from "@/app/not-found";
+import { notFound } from "@/shared/hooks/useNotFound";
 
 export default function UpdateBrandPage() {
   const { id } = useParams();
@@ -69,8 +69,8 @@ export default function UpdateBrandPage() {
   if (isLoadingAny) {
     return <FormSkeleton />;
   }
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <FormWrapper>

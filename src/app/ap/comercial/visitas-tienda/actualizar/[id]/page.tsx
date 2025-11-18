@@ -21,7 +21,7 @@ import {
 import { StoreVisitsSchema } from "@/features/ap/comercial/visitas-tienda/lib/storeVisits.schema";
 import { StoreVisitsResource } from "@/features/ap/comercial/visitas-tienda/lib/storeVisits.interface";
 import { StoreVisitsForm } from "@/features/ap/comercial/visitas-tienda/components/StoreVisitsForm";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
 export default function UpdateStoreVisitsPage() {
@@ -81,8 +81,8 @@ export default function UpdateStoreVisitsPage() {
   if (isLoadingAny) {
     return <FormSkeleton />;
   }
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <FormWrapper>

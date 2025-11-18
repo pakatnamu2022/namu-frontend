@@ -10,7 +10,7 @@ import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { ApGoalSellOutInReportTable } from "@/features/ap/configuraciones/ventas/metas-venta/components/ApGoalSellOutInReportTable";
 import { ApGoalSellOutInReportData } from "@/features/ap/configuraciones/ventas/metas-venta/lib/apGoalSellOutIn.interface";
 import BackButton from "@/shared/components/BackButton";
-import NotFound from "@/app/not-found";
+import { notFound } from "@/shared/hooks/useNotFound";
 
 const SummaryCard = ({
   reportData,
@@ -60,8 +60,8 @@ export default function ApGoalSellOutInSummaryPage() {
   });
 
   if (isLoadingModule) return <PageSkeleton />;
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   const reportData = data?.data;
   const period = data?.period;

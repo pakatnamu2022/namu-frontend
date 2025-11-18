@@ -70,6 +70,7 @@ import AddPurchaseRequestQuotePage from "./app/ap/comercial/solicitudes-cotizaci
 import UpdatePurchaseRequestQuotePage from "./app/ap/comercial/solicitudes-cotizaciones/actualizar/[id]/page";
 import DashboardStoreVisitsPage from "./app/ap/comercial/dashboard-visitas-leads/page";
 import ReasonsRejectionPage from "./app/ap/comercial/motivos-descarte/page";
+import { NotFoundBoundary } from "./shared/components/NotFoundBoundary";
 const PositionsPage = lazy(
   () => import("./app/gp/gestion-humana/configuraciones/posiciones/page")
 );
@@ -617,7 +618,9 @@ function App() {
           <Route
             element={
               <ProtectedRoute>
-                <Outlet />
+                <NotFoundBoundary>
+                  <Outlet />
+                </NotFoundBoundary>
               </ProtectedRoute>
             }
           >

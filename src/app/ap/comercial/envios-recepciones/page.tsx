@@ -34,7 +34,7 @@ import { ReasonDialog } from "@/shared/components/ReasonDialog";
 import { Ban } from "lucide-react";
 import { ShipmentsReceptionsResource } from "@/features/ap/comercial/envios-recepciones/lib/shipmentsReceptions.interface";
 import { SheetShipmentDetailsDialog } from "@/features/ap/comercial/envios-recepciones/components/SheetShipmentDetailsDialog";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
 export default function ShipmentsReceptionsPage() {
@@ -127,8 +127,8 @@ export default function ShipmentsReceptionsPage() {
   };
 
   if (isLoadingModule) return <PageSkeleton />;
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <div className="space-y-4">

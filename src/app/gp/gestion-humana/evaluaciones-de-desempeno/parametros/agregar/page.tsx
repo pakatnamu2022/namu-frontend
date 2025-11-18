@@ -18,7 +18,7 @@ import {
 import { PARAMETER } from "@/features/gp/gestionhumana/evaluaciondesempeño/parametros/lib/parameter.constans";
 import ParameterForm from "@/features/gp/gestionhumana/evaluaciondesempeño/parametros/components/ParameterForm";
 import FormWrapper from "@/shared/components/FormWrapper";
-import NotFound from "@/app/not-found";
+import { notFound } from "@/shared/hooks/useNotFound";
 
 const { MODEL } = PARAMETER;
 
@@ -43,8 +43,8 @@ export default function AddParameterPage() {
     mutate(data);
   };
 
-  if (!checkRouteExists("parametros")) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists("parametros")) notFound();
+  if (!currentView) notFound();
 
   return (
     <FormWrapper>

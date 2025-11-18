@@ -23,7 +23,8 @@ import { EquipmentTypeResource } from "../../equipmentType/lib/equipmentType.int
 import { FormSelect } from "@/shared/components/FormSelect";
 import { SedeResource } from "@/features/gp/maestro-general/sede/lib/sede.interface";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
-import { Link } from 'react-router-dom'
+import { Link } from "react-router-dom";
+import { EQUIPMENT } from "../lib/equipment.constants";
 
 interface EquipmentFormProps {
   defaultValues: Partial<EquipmentSchema>;
@@ -42,6 +43,7 @@ export const EquipmentForm = ({
   equipmentTypes = [],
   sedes = [],
 }: EquipmentFormProps) => {
+  const { ABSOLUTE_ROUTE } = EQUIPMENT;
   const form = useForm({
     resolver: zodResolver(
       mode === "create" ? equipmentSchemaCreate : equipmentSchemaUpdate

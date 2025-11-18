@@ -25,7 +25,7 @@ import ApprovedAccesoriesOptions from "@/features/ap/post-venta/accesorios-homol
 import ApprovedAccesoriesTable from "@/features/ap/post-venta/accesorios-homologados/components/ApprovedAccessoriesTable";
 import ApprovedAccesoriesActions from "@/features/ap/post-venta/accesorios-homologados/components/ApprovedAccessoriesActions";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
 export default function ApprovedAccesoriesPage() {
@@ -72,8 +72,8 @@ export default function ApprovedAccesoriesPage() {
   };
 
   if (isLoadingModule) return <PageSkeleton />;
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <div className="space-y-4">

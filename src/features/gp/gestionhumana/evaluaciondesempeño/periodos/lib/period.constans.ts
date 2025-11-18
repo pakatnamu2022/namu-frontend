@@ -12,6 +12,6 @@ export const PERIOD: ModelComplete = {
   ENDPOINT: "/gp/gh/performanceEvaluation/period",
   QUERY_KEY: "periodos",
   ROUTE,
-  ROUTE_ADD: `${ROUTE}/agregar`,
+  ROUTE_ADD: `${ABSOLUTE_ROUTE}/agregar`,
   ROUTE_UPDATE: `${ROUTE}/actualizar`,
 };

@@ -13,7 +13,7 @@ import { useElectronicDocument } from "@/features/ap/facturacion/electronic-docu
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { DebitNoteSchema } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.schema";
 import { DebitNoteForm } from "@/features/ap/facturacion/electronic-documents/components/forms/DebitNoteForm";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
 export default function AddDebitNotePage() {
@@ -53,10 +53,10 @@ export default function AddDebitNotePage() {
   };
 
   if (isLoadingModule) return <FormSkeleton />;
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
-  if (isNaN(documentId)) return <NotFound />;
-  if (documentError) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
+  if (isNaN(documentId)) notFound();
+  if (documentError) notFound();
 
   if (isLoadingDocument || !originalDocument) {
     return <FormSkeleton />;

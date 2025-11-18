@@ -18,7 +18,7 @@ import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import FormWrapper from "@/shared/components/FormWrapper";
-import NotFound from "@/app/not-found";
+import { notFound } from "@/shared/hooks/useNotFound";
 import { VIEW } from "@/features/gp/gestionsistema/vistas/lib/view.constants";
 
 export default function UpdateViewPage() {
@@ -91,8 +91,8 @@ export default function UpdateViewPage() {
   if (isLoadingAny) {
     return <FormSkeleton />;
   }
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <FormWrapper>

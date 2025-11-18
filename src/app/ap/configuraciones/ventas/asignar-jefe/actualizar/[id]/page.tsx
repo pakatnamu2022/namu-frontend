@@ -16,7 +16,7 @@ import FormSkeleton from "@/shared/components/FormSkeleton";
 import FormWrapper from "@/shared/components/FormWrapper";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import { AssignmentLeadershipForm } from "@/features/ap/configuraciones/ventas/asignar-jefe/components/AssignmentLeadershipForm";
-import NotFound from "@/app/not-found";
+import { notFound } from "@/shared/hooks/useNotFound";
 
 export default function UpdateAssignmentLeadershipPage() {
   const { id } = useParams();
@@ -69,8 +69,8 @@ export default function UpdateAssignmentLeadershipPage() {
   if (isLoadingAny) {
     return <FormSkeleton />;
   }
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <FormWrapper>

@@ -19,7 +19,7 @@ import { errorToast, successToast } from "@/core/core.function";
 import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
 import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
 export default function ObjetivosPage() {
@@ -74,8 +74,8 @@ export default function ObjetivosPage() {
   };
 
   if (isLoadingModule) return <PageSkeleton />;
-  if (!checkRouteExists("objetivos")) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists("objetivos")) notFound();
+  if (!currentView) notFound();
 
   return (
     <div className="space-y-4">

@@ -15,7 +15,7 @@ import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
-import NotFound from "@/app/not-found";
+import { notFound } from "@/shared/hooks/useNotFound";
 
 export default function AddDistrictPage() {
   const router = useNavigate();
@@ -37,8 +37,8 @@ export default function AddDistrictPage() {
   const handleSubmit = (data: DistrictSchema) => {
     mutate(data);
   };
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <FormWrapper>

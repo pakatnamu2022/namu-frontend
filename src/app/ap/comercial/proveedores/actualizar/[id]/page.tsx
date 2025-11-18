@@ -21,7 +21,7 @@ import {
 import { SuppliersSchema } from "@/features/ap/comercial/proveedores/lib/suppliers.schema";
 import { SuppliersResource } from "@/features/ap/comercial/proveedores/lib/suppliers.interface";
 import { SuppliersForm } from "@/features/ap/comercial/proveedores/components/SuppliersForm";
-import NotFound from "@/app/not-found";
+import { notFound } from "@/shared/hooks/useNotFound";
 
 export default function UpdateSuppliersPage() {
   const { id } = useParams();
@@ -94,8 +94,8 @@ export default function UpdateSuppliersPage() {
   if (isLoadingAny) {
     return <FormSkeleton />;
   }
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <FormWrapper>

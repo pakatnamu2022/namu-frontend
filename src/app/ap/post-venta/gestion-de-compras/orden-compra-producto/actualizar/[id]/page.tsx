@@ -13,7 +13,7 @@ import {
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import FormWrapper from "@/shared/components/FormWrapper";
-import NotFound from "@/app/not-found";
+import { notFound } from "@/shared/hooks/useNotFound";
 import {
   findPurchaseOrderProductsById,
   updatePurchaseOrderProducts,
@@ -90,8 +90,8 @@ export default function UpdatePurchaseOrderProductsPage() {
   if (isLoadingAny) {
     return <FormSkeleton />;
   }
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <FormWrapper>

@@ -25,7 +25,7 @@ import ManageLeadsTable from "@/features/ap/comercial/gestionar-leads/components
 import { manageLeadsColumns } from "@/features/ap/comercial/gestionar-leads/components/ManageLeadsColumns";
 import ManageLeadsOptions from "@/features/ap/comercial/gestionar-leads/components/ManageLeadsOptions";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
 export default function ManageLeadsPage() {
@@ -97,8 +97,8 @@ export default function ManageLeadsPage() {
   };
 
   if (isLoadingModule) return <PageSkeleton />;
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <div className="space-y-4">

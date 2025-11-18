@@ -25,7 +25,7 @@ import CustomersTable from "@/features/ap/comercial/clientes/components/Customer
 import { customersColumns } from "@/features/ap/comercial/clientes/components/CustomersColumns";
 import CustomersOptions from "@/features/ap/comercial/clientes/components/CustomersOptions";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
 export default function CustomersPage() {
@@ -64,8 +64,8 @@ export default function CustomersPage() {
   };
 
   if (isLoadingModule) return <PageSkeleton />;
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <div className="space-y-4">

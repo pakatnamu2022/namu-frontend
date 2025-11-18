@@ -9,7 +9,7 @@ import { PeriodForm } from "@/features/gp/gestionhumana/evaluaciondesempeño/per
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import FormWrapper from "@/shared/components/FormWrapper";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
 export default function AddPeriodPage() {
@@ -32,8 +32,8 @@ export default function AddPeriodPage() {
   const handleSubmit = (data: PeriodSchema) => {
     mutate(data);
   };
-  if (!checkRouteExists("periodos")) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists("periodos")) notFound();
+  if (!currentView) notFound();
 
   return (
     <FormWrapper>

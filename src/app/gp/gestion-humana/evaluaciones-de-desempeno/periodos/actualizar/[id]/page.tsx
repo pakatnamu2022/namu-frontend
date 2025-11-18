@@ -16,7 +16,7 @@ import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import { format, parse } from "date-fns";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import FormWrapper from "@/shared/components/FormWrapper";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
 export default function UpdatePeriodPage() {
@@ -70,8 +70,8 @@ export default function UpdatePeriodPage() {
   if (isLoadingAny) {
     return <FormSkeleton />;
   }
-  if (!checkRouteExists("periodos")) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists("periodos")) notFound();
+  if (!currentView) notFound();
 
   return (
     <FormWrapper>

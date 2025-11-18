@@ -9,7 +9,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Link } from 'react-router-dom'
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
 import { FormSelect } from "@/shared/components/FormSelect";
@@ -27,6 +27,7 @@ import {
   useAllDistrict,
   useAllProvince,
 } from "../../../gestionsistema/ubicaciones/lib/location.hook";
+import { SEDE } from "../lib/sede.constants";
 
 interface SedeFormProps {
   defaultValues: Partial<SedeSchema>;
@@ -41,6 +42,7 @@ export const SedeForm = ({
   isSubmitting = false,
   mode = "create",
 }: SedeFormProps) => {
+  const { ABSOLUTE_ROUTE } = SEDE;
   const form = useForm({
     resolver: zodResolver(
       mode === "create" ? sedeSchemaCreate : sedeSchemaUpdate

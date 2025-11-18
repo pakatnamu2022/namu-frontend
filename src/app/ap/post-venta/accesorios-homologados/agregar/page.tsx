@@ -15,7 +15,7 @@ import { APPROVED_ACCESSORIES } from "@/features/ap/post-venta/accesorios-homolo
 import { storeApprovedAccesories } from "@/features/ap/post-venta/accesorios-homologados/lib/approvedAccessories.actions";
 import { ApprovedAccesoriesSchema } from "@/features/ap/post-venta/accesorios-homologados/lib/approvedAccessories.schema";
 import { ApprovedAccesoriesForm } from "@/features/ap/post-venta/accesorios-homologados/components/ApprovedAccessoriesForm";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
 export default function AddApprovedAccesoriesPage() {
@@ -38,8 +38,8 @@ export default function AddApprovedAccesoriesPage() {
   const handleSubmit = (data: ApprovedAccesoriesSchema) => {
     mutate(data);
   };
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <FormWrapper>

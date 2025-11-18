@@ -15,7 +15,7 @@ import AssignCompanyBranchActions from "@/features/ap/configuraciones/ventas/asi
 import { ASSIGN_COMPANY_BRANCH } from "@/features/ap/configuraciones/ventas/asignar-sede/lib/assignCompanyBranch.constants";
 import { generateYear } from "@/core/core.function";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
 export default function AssignCompanyBranchPage() {
@@ -43,8 +43,8 @@ export default function AssignCompanyBranchPage() {
   });
 
   if (isLoadingModule) return <PageSkeleton />;
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <div className="space-y-4">

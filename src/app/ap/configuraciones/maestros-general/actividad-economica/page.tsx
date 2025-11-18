@@ -26,7 +26,7 @@ import { economicActivityColumns } from "@/features/ap/configuraciones/maestros-
 import EconomicActivityOptions from "@/features/ap/configuraciones/maestros-general/actividad-economica/components/EconomicActivityOptions";
 import EconomicActivityModal from "@/features/ap/configuraciones/maestros-general/actividad-economica/components/EconomicActivityModal";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
 export default function EconomicActivityPage() {
@@ -73,8 +73,8 @@ export default function EconomicActivityPage() {
   };
 
   if (isLoadingModule) return <PageSkeleton />;
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <div className="space-y-4">

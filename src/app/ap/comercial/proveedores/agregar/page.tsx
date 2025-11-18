@@ -16,7 +16,7 @@ import { SUPPLIERS } from "@/features/ap/comercial/proveedores/lib/suppliers.con
 import { storeSuppliers } from "@/features/ap/comercial/proveedores/lib/suppliers.actions";
 import { SuppliersSchema } from "@/features/ap/comercial/proveedores/lib/suppliers.schema";
 import { SuppliersForm } from "@/features/ap/comercial/proveedores/components/SuppliersForm";
-import NotFound from "@/app/not-found";
+import { notFound } from "@/shared/hooks/useNotFound";
 
 export default function AddSupplierPage() {
   const router = useNavigate();
@@ -38,8 +38,8 @@ export default function AddSupplierPage() {
   const handleSubmit = (data: SuppliersSchema) => {
     mutate(data);
   };
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <FormWrapper>

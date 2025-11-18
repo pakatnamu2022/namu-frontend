@@ -20,7 +20,7 @@ import { ELECTRONIC_DOCUMENT } from "@/features/ap/facturacion/electronic-docume
 import { SUNAT_CONCEPTS_TYPE } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
 import { useAllSunatConcepts } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.hook";
 import FormSkeleton from "@/shared/components/FormSkeleton";
-import NotFound from "@/app/not-found";
+import { notFound } from "@/shared/hooks/useNotFound";
 
 export default function AddElectronicDocumentPage() {
   const { ROUTE, MODEL } = ELECTRONIC_DOCUMENT;
@@ -101,8 +101,8 @@ export default function AddElectronicDocumentPage() {
   };
 
   if (isLoadingModule) return <FormSkeleton />;
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   const isLoadingData =
     isLoadingDocTypes ||

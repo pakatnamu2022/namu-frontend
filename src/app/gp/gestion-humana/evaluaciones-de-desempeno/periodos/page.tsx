@@ -21,7 +21,7 @@ import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
 import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import { PERIOD } from "@/features/gp/gestionhumana/evaluaciondesempeño/periodos/lib/period.constans";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
 const { MODEL } = PERIOD;
@@ -57,8 +57,8 @@ export default function PeriodosPage() {
   };
 
   if (isLoadingModule) return <PageSkeleton />;
-  if (!checkRouteExists("periodos")) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists("periodos")) notFound();
+  if (!currentView) notFound();
 
   return (
     <div className="space-y-4">

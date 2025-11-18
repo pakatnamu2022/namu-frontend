@@ -9,7 +9,7 @@ import { ObjectiveForm } from "@/features/gp/gestionhumana/evaluaciondesempeño/
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import FormWrapper from "@/shared/components/FormWrapper";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
 export default function AddObjectivePage() {
@@ -32,8 +32,8 @@ export default function AddObjectivePage() {
   const handleSubmit = (data: ObjectiveSchema) => {
     mutate(data);
   };
-  if (!checkRouteExists("objetivos")) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists("objetivos")) notFound();
+  if (!currentView) notFound();
 
   return (
     <FormWrapper>

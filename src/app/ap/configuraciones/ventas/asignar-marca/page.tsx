@@ -16,7 +16,7 @@ import AssignBrandConsultantTable from "@/features/ap/configuraciones/ventas/asi
 import AssignBrandConsultantActions from "@/features/ap/configuraciones/ventas/asignar-marca/components/assignBrandConsultantActions";
 import { ASSIGN_BRAND_CONSULTANT } from "@/features/ap/configuraciones/ventas/asignar-marca/lib/assignBrandConsultant.constants";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import NotFound from "@/app/not-found";
+import { notFound } from "@/shared/hooks/useNotFound";
 
 export default function AssignBrandConsultantPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -54,8 +54,8 @@ export default function AssignBrandConsultantPage() {
   };
 
   if (isLoadingModule) return <PageSkeleton />;
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <div className="space-y-4">

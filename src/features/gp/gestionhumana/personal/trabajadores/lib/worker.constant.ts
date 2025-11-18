@@ -12,6 +12,6 @@ export const WORKER: ModelComplete = {
   ENDPOINT: "/gp/gh/personal/worker",
   QUERY_KEY: "worker",
   ROUTE,
-  ROUTE_ADD: `${ROUTE}/agregar`,
+  ROUTE_ADD: `${ABSOLUTE_ROUTE}/agregar`,
   ROUTE_UPDATE: `${ROUTE}/actualizar`,
 };

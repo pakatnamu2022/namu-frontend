@@ -28,11 +28,10 @@ import WarehouseTable from "@/features/ap/configuraciones/maestros-general/almac
 import { warehouseColumns } from "@/features/ap/configuraciones/maestros-general/almacenes/components/WarehouseColumns";
 import WarehouseOptions from "@/features/ap/configuraciones/maestros-general/almacenes/components/WarehouseOptions";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import NotFound from '@/app/not-found';
-
+import { notFound } from "@/shared/hooks/useNotFound";
 
 export default function WarehousePage() {
-    const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
+  const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
@@ -99,8 +98,8 @@ export default function WarehousePage() {
   };
 
   if (isLoadingModule) return <PageSkeleton />;
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <div className="space-y-4">

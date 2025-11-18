@@ -1,10 +1,10 @@
 import { type ModelComplete } from "@/core/core.interface";
-import { AuditLogsResource } from "./auditLogs.interface";
+import { AuditLogsResource } from "../../auditoria/lib/auditLogs.interface";
 
-const ROUTE = "auditoria";
-const ABSOLUTE_ROUTE = "/gp/tics/auditoria";
+const ROUTE = "equipos";
+const ABSOLUTE_ROUTE = `/gp/tics/${ROUTE}`;
 
-export const AUDIT_LOGS: ModelComplete<AuditLogsResource> = {
+export const EQUIPMENT: ModelComplete<AuditLogsResource> = {
   MODEL: {
     name: "Auditoría",
     plural: "Auditorías",

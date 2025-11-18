@@ -26,7 +26,7 @@ import { documentTypeColumns } from "@/features/ap/configuraciones/maestros-gene
 import DocumentTypeOptions from "@/features/ap/configuraciones/maestros-general/tipos-documento/components/DocumentTypesOptions";
 import DocumentTypeModal from "@/features/ap/configuraciones/maestros-general/tipos-documento/components/DocumentTypesModal";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
 export default function DocumentTypePage() {
@@ -73,8 +73,8 @@ export default function DocumentTypePage() {
   };
 
   if (isLoadingModule) return <PageSkeleton />;
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <div className="space-y-4">

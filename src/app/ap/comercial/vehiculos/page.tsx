@@ -24,7 +24,7 @@ import { vehicleColumns } from "@/features/ap/comercial/vehiculos/components/Veh
 import VehicleTable from "@/features/ap/comercial/vehiculos/components/VehicleTable";
 import VehicleOptions from "@/features/ap/comercial/vehiculos/components/VehicleOptions";
 import VehicleModal from "@/features/ap/comercial/vehiculos/components/VehicleModal";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
 export default function VehiclesPage() {
@@ -60,8 +60,8 @@ export default function VehiclesPage() {
   };
 
   if (isLoadingModule) return <PageSkeleton />;
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <div className="space-y-4">

@@ -15,7 +15,7 @@ import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import FormWrapper from "@/shared/components/FormWrapper";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
 export default function UpdateMetricPage() {
@@ -60,8 +60,8 @@ export default function UpdateMetricPage() {
   if (isLoadingAny) {
     return <FormSkeleton />;
   }
-  if (!checkRouteExists("metricas")) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists("metricas")) notFound();
+  if (!currentView) notFound();
 
   return (
     <FormWrapper>

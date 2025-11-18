@@ -21,7 +21,7 @@ import {
 import { AssignSalesSeriesSchema } from "@/features/ap/configuraciones/maestros-general/asignar-serie-venta/lib/assignSalesSeries.schema";
 import { AssignSalesSeriesResource } from "@/features/ap/configuraciones/maestros-general/asignar-serie-venta/lib/assignSalesSeries.interface";
 import { AssignSalesSeriesForm } from "@/features/ap/configuraciones/maestros-general/asignar-serie-venta/components/AssignSalesSeriesForm";
-import NotFound from "@/app/not-found";
+import { notFound } from "@/shared/hooks/useNotFound";
 
 export default function UpdateAssignSalesSeriesPage() {
   const { id } = useParams();
@@ -74,8 +74,8 @@ export default function UpdateAssignSalesSeriesPage() {
   if (isLoadingAny) {
     return <FormSkeleton />;
   }
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <FormWrapper>

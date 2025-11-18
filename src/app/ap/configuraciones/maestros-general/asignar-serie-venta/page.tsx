@@ -27,7 +27,7 @@ import AssignSalesSeriesOptions from "@/features/ap/configuraciones/maestros-gen
 import { useAllSedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import { useAllTypesOperation } from "@/features/ap/configuraciones/maestros-general/tipos-operacion/lib/typesOperation.hook";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
 export default function AssignSalesSeriesPage() {
@@ -83,8 +83,8 @@ export default function AssignSalesSeriesPage() {
   };
 
   if (isLoadingModule) return <PageSkeleton />;
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <div className="space-y-4">

@@ -11,7 +11,7 @@ import { useAllCompanies } from "@/features/gp/gestionsistema/empresa/lib/compan
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import FormWrapper from "@/shared/components/FormWrapper";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
 export default function AddViewPage() {
@@ -41,8 +41,8 @@ export default function AddViewPage() {
   if (loadingViews || loadingCompanies) {
     return <div className="p-4 text-muted">Cargando Vistas</div>;
   }
-  if (!checkRouteExists("vistas")) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists("vistas")) notFound();
+  if (!currentView) notFound();
 
   return (
     <FormWrapper>

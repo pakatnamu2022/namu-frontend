@@ -30,7 +30,7 @@ import { VEHICLE_DELIVERY } from "@/features/ap/comercial/entrega-vehiculo/lib/v
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { VehicleDeliveryDetailsSheet } from "@/features/ap/comercial/entrega-vehiculo/components/VehicleDeliveryDetailsSheet";
 import { VehiclesDeliveryResource } from "@/features/ap/comercial/entrega-vehiculo/lib/vehicleDelivery.interface";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
 export default function VehicleDeliveryPage() {
@@ -114,8 +114,8 @@ export default function VehicleDeliveryPage() {
   };
 
   if (isLoadingModule) return <PageSkeleton />;
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <div className="space-y-4">

@@ -20,7 +20,7 @@ import {
   updateReceptionChecklist,
 } from "@/features/ap/comercial/envios-recepciones/lib/shipmentsReceptions.actions";
 import { ReceptionChecklistForm } from "@/features/ap/comercial/envios-recepciones/components/ReceptionChecklistForm";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
 export default function ReceptionCheckListPage() {
@@ -62,8 +62,8 @@ export default function ReceptionCheckListPage() {
   if (isLoadingAny) {
     return <FormSkeleton />;
   }
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <FormWrapper>

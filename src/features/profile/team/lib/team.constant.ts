@@ -1,6 +1,7 @@
 import { type ModelComplete } from "@/core/core.interface";
 
 const ROUTE = "metricas";
+const ABSOLUTE_ROUTE = `/gp/gestion-humana/configuraciones/${ROUTE}`;
 
 export const METRIC: ModelComplete = {
   MODEL: {
@@ -12,6 +13,7 @@ export const METRIC: ModelComplete = {
   ENDPOINT: "/gp/gh/performanceEvaluation/metric",
   QUERY_KEY: "metrics",
   ROUTE,
-  ROUTE_ADD: `${ROUTE}/agregar`,
+  ABSOLUTE_ROUTE,
+  ROUTE_ADD: `${ABSOLUTE_ROUTE}/agregar`,
   ROUTE_UPDATE: `${ROUTE}/actualizar`,
 };

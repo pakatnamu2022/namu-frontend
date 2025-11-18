@@ -21,7 +21,7 @@ import FormWrapper from "@/shared/components/FormWrapper";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import { CommercialManagerBrandGroupForm } from "@/features/ap/configuraciones/ventas/asignar-grupo-marca/components/CommercialManagerBrandGroupForm";
 import { CommercialManagerBrandGroupSchema } from "@/features/ap/configuraciones/ventas/asignar-grupo-marca/lib/commercialManagerBrandGroup.schema";
-import NotFound from "@/app/not-found";
+import { notFound } from "@/shared/hooks/useNotFound";
 
 export default function UpdateCommercialManagerBrandGroupPage() {
   const { id } = useParams();
@@ -79,8 +79,8 @@ export default function UpdateCommercialManagerBrandGroupPage() {
   if (isLoadingAny) {
     return <FormSkeleton />;
   }
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <FormWrapper>

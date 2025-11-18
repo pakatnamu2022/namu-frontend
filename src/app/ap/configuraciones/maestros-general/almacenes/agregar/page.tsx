@@ -15,7 +15,7 @@ import { WAREHOUSE } from "@/features/ap/configuraciones/maestros-general/almace
 import { storeWarehouse } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.actions";
 import { WarehouseSchema } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.schema";
 import { WarehouseForm } from "@/features/ap/configuraciones/maestros-general/almacenes/components/WarehouseForm";
-import NotFound from "@/app/not-found";
+import { notFound } from "@/shared/hooks/useNotFound";
 
 export default function AddWarehousePage() {
   const router = useNavigate();
@@ -37,8 +37,8 @@ export default function AddWarehousePage() {
   const handleSubmit = (data: WarehouseSchema) => {
     mutate(data);
   };
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <FormWrapper>

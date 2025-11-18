@@ -17,7 +17,7 @@ import { storeVehiclePurchaseOrder } from "@/features/ap/comercial/ordenes-compr
 import { VehiclePurchaseOrderSchema } from "@/features/ap/comercial/ordenes-compra-vehiculo/lib/vehiclePurchaseOrder.schema";
 import { VehiclePurchaseOrderForm } from "@/features/ap/comercial/ordenes-compra-vehiculo/components/VehiclePurchaseOrderForm";
 import { format } from "date-fns";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
 export default function AddVehiclePurchaseOrderPage() {
@@ -60,8 +60,8 @@ export default function AddVehiclePurchaseOrderPage() {
     });
   };
 
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <FormWrapper>

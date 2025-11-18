@@ -25,7 +25,7 @@ import ClassArticleOptions from "@/features/ap/configuraciones/maestros-general/
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { CLASS_ARTICLE } from "@/features/ap/configuraciones/maestros-general/clase-articulo/lib/classArticle.constants";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
 export default function ClassArticlePage() {
@@ -72,8 +72,8 @@ export default function ClassArticlePage() {
   };
 
   if (isLoadingModule) return <PageSkeleton />;
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <div className="space-y-4">

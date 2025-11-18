@@ -21,7 +21,7 @@ import {
 import { PurchaseRequestQuoteSchema } from "@/features/ap/comercial/solicitudes-cotizaciones/lib/purchaseRequestQuote.schema";
 import { PurchaseRequestQuoteResource } from "@/features/ap/comercial/solicitudes-cotizaciones/lib/purchaseRequestQuote.interface";
 import { PurchaseRequestQuoteForm } from "@/features/ap/comercial/solicitudes-cotizaciones/components/PurchaseRequestQuoteForm";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
 export default function UpdatePurchaseRequestQuotePage() {
@@ -85,8 +85,8 @@ export default function UpdatePurchaseRequestQuotePage() {
   if (isLoadingAny) {
     return <FormSkeleton />;
   }
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <FormWrapper>

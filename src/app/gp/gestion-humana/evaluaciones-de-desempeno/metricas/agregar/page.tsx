@@ -14,7 +14,7 @@ import { MetricForm } from "@/features/gp/gestionhumana/evaluaciondesempeño/met
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import FormWrapper from "@/shared/components/FormWrapper";
-import NotFound from "@/app/not-found";
+import { notFound } from "@/shared/hooks/useNotFound";
 import { METRIC } from "@/features/profile/team/lib/team.constant";
 
 export default function AddMetricPage() {
@@ -38,8 +38,8 @@ export default function AddMetricPage() {
   const handleSubmit = (data: MetricSchema) => {
     mutate(data);
   };
-  if (!checkRouteExists("metricas")) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists("metricas")) notFound();
+  if (!currentView) notFound();
 
   return (
     <FormWrapper>

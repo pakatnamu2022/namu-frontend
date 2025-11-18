@@ -15,7 +15,7 @@ import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import { ClassArticleForm } from "@/features/ap/configuraciones/maestros-general/clase-articulo/components/ClassArticleForm";
 import FormWrapper from "@/shared/components/FormWrapper";
 import { CLASS_ARTICLE } from "@/features/ap/configuraciones/maestros-general/clase-articulo/lib/classArticle.constants";
-import NotFound from "@/app/not-found";
+import { notFound } from "@/shared/hooks/useNotFound";
 
 const { MODEL, ROUTE } = CLASS_ARTICLE;
 
@@ -38,8 +38,8 @@ export default function AddClassArticlePage() {
   const handleSubmit = (data: ClassArticleSchema) => {
     mutate(data);
   };
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <FormWrapper>

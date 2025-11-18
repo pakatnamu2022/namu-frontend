@@ -26,7 +26,7 @@ import { maritalStatusColumns } from "@/features/ap/configuraciones/maestros-gen
 import MaritalStatusOptions from "@/features/ap/configuraciones/maestros-general/estado-civil/components/MaritalStatusOptions";
 import MaritalStatusModal from "@/features/ap/configuraciones/maestros-general/estado-civil/components/MaritalStatusModal";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
 export default function MaritalStatusPage() {
@@ -73,8 +73,8 @@ export default function MaritalStatusPage() {
   };
 
   if (isLoadingModule) return <PageSkeleton />;
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <div className="space-y-4">

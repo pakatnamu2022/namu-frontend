@@ -32,7 +32,7 @@ import EstablishmentsActions from "@/features/ap/comercial/establecimientos/comp
 import EstablishmentsTable from "@/features/ap/comercial/establecimientos/components/EstablishmentsTable";
 import EstablishmentsOptions from "@/features/ap/comercial/establecimientos/components/EstablishmentsOptions";
 import { useEstablishments } from "@/features/ap/comercial/establecimientos/lib/establishments.hook";
-import NotFound from "@/app/not-found";
+import { notFound } from "@/shared/hooks/useNotFound";
 
 export default function CustomerEstablishmentsListPage() {
   const { id } = useParams();
@@ -91,8 +91,8 @@ export default function CustomerEstablishmentsListPage() {
   };
 
   if (isLoadingModule || loadingCustomer) return <PageSkeleton />;
-  if (!checkRouteExists(CUSTOMERS.ROUTE)) return <NotFound />;
-  if (!currentView || !customer) return <NotFound />;
+  if (!checkRouteExists(CUSTOMERS.ROUTE)) notFound();
+  if (!currentView || !customer) notFound();
 
   const baseRoute = `/ap/comercial/clientes/establecimientos/${id}`;
 

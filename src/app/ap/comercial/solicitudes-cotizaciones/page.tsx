@@ -36,7 +36,7 @@ import { purchaseRequestQuoteColumns } from "@/features/ap/comercial/solicitudes
 import PurchaseRequestQuoteOptions from "@/features/ap/comercial/solicitudes-cotizaciones/components/PurchaseRequestQuoteOptions";
 import AssignVehicleModal from "@/features/ap/comercial/solicitudes-cotizaciones/components/AssignVehicleModal";
 import { PurchaseRequestQuoteResource } from "@/features/ap/comercial/solicitudes-cotizaciones/lib/purchaseRequestQuote.interface";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
 export default function PurchaseRequestQuotePage() {
@@ -103,8 +103,8 @@ export default function PurchaseRequestQuotePage() {
   };
 
   if (isLoadingModule) return <PageSkeleton />;
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <div className="space-y-4">

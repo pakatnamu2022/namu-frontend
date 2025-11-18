@@ -19,7 +19,7 @@ import {
 import { EMPRESA_AP } from "@/core/core.constants";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { AGENDA } from "@/features/ap/comercial/agenda/lib/agenda.constants";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
 export default function AgendaPage() {
@@ -69,8 +69,8 @@ export default function AgendaPage() {
   };
 
   if (isLoadingModule || isLoading || isLoadingWorkers) return <FormSkeleton />;
-  if (!checkRouteExists("agenda")) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists("agenda")) notFound();
+  if (!currentView) notFound();
 
   return (
     <div className="space-y-4">

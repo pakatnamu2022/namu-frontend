@@ -15,7 +15,7 @@ import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import FormWrapper from "@/shared/components/FormWrapper";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
 export default function UpdateHierarchicalCategoryPage() {
@@ -70,8 +70,8 @@ export default function UpdateHierarchicalCategoryPage() {
   if (isLoadingAny) {
     return <FormSkeleton />;
   }
-  if (!checkRouteExists("categorias-jerarquicas")) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists("categorias-jerarquicas")) notFound();
+  if (!currentView) notFound();
 
   return (
     <FormWrapper>

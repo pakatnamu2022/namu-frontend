@@ -26,7 +26,7 @@ import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { MODELS_VN } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.constanst";
 import { useAllBrands } from "@/features/ap/configuraciones/vehiculos/marcas/lib/brands.hook";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
 export default function ModelsVnPage() {
@@ -77,8 +77,8 @@ export default function ModelsVnPage() {
   };
 
   if (isLoadingModule) return <PageSkeleton />;
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <div className="space-y-4">

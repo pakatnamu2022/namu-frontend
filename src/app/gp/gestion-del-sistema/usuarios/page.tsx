@@ -17,7 +17,7 @@ import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { UserSedesSheet } from "@/features/gp/gestionsistema/usuarios/components/UserSedesSheet";
 import { UserResource } from "@/features/gp/gestionsistema/usuarios/lib/user.interface";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
 export default function UserPage() {
@@ -54,8 +54,8 @@ export default function UserPage() {
   };
 
   if (isLoadingModule) return <PageSkeleton />;
-  if (!checkRouteExists("usuarios")) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists("usuarios")) notFound();
+  if (!currentView) notFound();
 
   return (
     <div className="space-y-4">

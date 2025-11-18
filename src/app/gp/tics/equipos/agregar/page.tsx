@@ -12,7 +12,7 @@ import { format } from "date-fns";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import FormWrapper from "@/shared/components/FormWrapper";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
 export default function AddEquipmentPage() {
@@ -54,8 +54,8 @@ export default function AddEquipmentPage() {
       <div className="p-4 text-muted">Cargando tipos de equipo y sedes...</div>
     );
   }
-  if (!checkRouteExists("equipos")) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists("equipos")) notFound();
+  if (!currentView) notFound();
 
   return (
     <FormWrapper>

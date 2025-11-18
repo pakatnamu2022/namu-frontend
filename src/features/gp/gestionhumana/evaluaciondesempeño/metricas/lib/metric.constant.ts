@@ -12,6 +12,6 @@ export const METRIC: ModelComplete = {
   ENDPOINT: "/gp/gh/performanceEvaluation/metric",
   QUERY_KEY: "metrics",
   ROUTE,
-  ROUTE_ADD: `${ROUTE}/agregar`,
+  ROUTE_ADD: `${ABSOLUTE_ROUTE}/agregar`,
   ROUTE_UPDATE: `${ROUTE}/actualizar`,
 };

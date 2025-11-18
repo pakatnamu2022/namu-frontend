@@ -3,7 +3,7 @@
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import PermissionsForm from "@/features/gp/gestionsistema/permissions/components/PermissionsForm";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 import { useParams, useSearchParams } from "react-router-dom";
 
 export default function PermissionPage() {
@@ -11,9 +11,9 @@ export default function PermissionPage() {
   const [searchParams] = useSearchParams();
   const { currentView, checkRouteExists } = useCurrentModule();
 
-  if (!id || isNaN(Number(id))) return <NotFound />;
-  if (!checkRouteExists("roles")) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!id || isNaN(Number(id))) notFound();
+  if (!checkRouteExists("roles")) notFound();
+  if (!currentView) notFound();
 
   const roleName = searchParams.get("nombre") || "Sin nombre";
 

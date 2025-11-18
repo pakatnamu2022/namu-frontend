@@ -28,7 +28,7 @@ import { useEvaluationPersonResult } from "@/features/gp/gestionhumana/evaluacio
 import { WorkerResource } from "@/features/gp/gestionhumana/personal/trabajadores/lib/worker.interface";
 import { regenerateEvaluation } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluaciones/lib/evaluation.actions";
 import { regenerateEvaluationPerson } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/lib/evaluationPerson.actions";
-import NotFound from "@/app/not-found";
+import { notFound } from "@/shared/hooks/useNotFound";
 
 const { ROUTE } = EVALUATION;
 
@@ -127,9 +127,9 @@ export default function EvaluationDetailPage() {
 
   if (isLoadingModule || isLoadingPersons || isLoadingPositions)
     return <PageSkeleton />;
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
-  if (!idEvaluation) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
+  if (!idEvaluation) notFound();
 
   return (
     <div className="space-y-4">

@@ -16,7 +16,7 @@ import { storeVehicleDelivery } from "@/features/ap/comercial/entrega-vehiculo/l
 import { VehicleDeliverySchema } from "@/features/ap/comercial/entrega-vehiculo/lib/vehicleDelivery.schema";
 import { VehicleDeliveryForm } from "@/features/ap/comercial/entrega-vehiculo/components/VehicleDeliveryForm";
 import { format } from "date-fns";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
 export default function AddVehicleDeliveryPage() {
@@ -49,8 +49,8 @@ export default function AddVehicleDeliveryPage() {
     mutate(formattedData);
   };
 
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <FormWrapper>

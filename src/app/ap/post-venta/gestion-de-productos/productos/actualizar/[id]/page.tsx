@@ -21,7 +21,7 @@ import {
 import { ProductSchema } from "@/features/ap/post-venta/gestion-productos/productos/lib/product.schema";
 import { ProductResource } from "@/features/ap/post-venta/gestion-productos/productos/lib/product.interface";
 import { ProductForm } from "@/features/ap/post-venta/gestion-productos/productos/components/ProductForm";
-import NotFound from "@/app/not-found";
+import { notFound } from "@/shared/hooks/useNotFound";
 
 export default function UpdateProductPage() {
   const { id } = useParams();
@@ -84,8 +84,8 @@ export default function UpdateProductPage() {
   if (isLoadingAny) {
     return <FormSkeleton />;
   }
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <FormWrapper>

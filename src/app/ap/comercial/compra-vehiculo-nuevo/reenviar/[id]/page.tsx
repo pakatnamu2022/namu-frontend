@@ -18,7 +18,7 @@ import { VehiclePurchaseOrderResource } from "@/features/ap/comercial/ordenes-co
 import { VehiclePurchaseOrderForm } from "@/features/ap/comercial/ordenes-compra-vehiculo/components/VehiclePurchaseOrderForm";
 import { format, parse } from "date-fns";
 import { useEffect } from "react";
-import NotFound from "@/app/not-found";
+import { notFound } from "@/shared/hooks/useNotFound";
 
 export default function ResendVehiclePurchaseOrderPage() {
   const { id } = useParams();
@@ -153,8 +153,8 @@ export default function ResendVehiclePurchaseOrderPage() {
     return <FormSkeleton />;
   }
 
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   // If cannot resend, show skeleton while redirect happens
   if (!canResend) {

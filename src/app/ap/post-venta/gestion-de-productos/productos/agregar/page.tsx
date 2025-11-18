@@ -15,7 +15,7 @@ import { PRODUCT } from "@/features/ap/post-venta/gestion-productos/productos/li
 import { storeProduct } from "@/features/ap/post-venta/gestion-productos/productos/lib/product.actions";
 import { ProductSchema } from "@/features/ap/post-venta/gestion-productos/productos/lib/product.schema";
 import { ProductForm } from "@/features/ap/post-venta/gestion-productos/productos/components/ProductForm";
-import NotFound from "@/app/not-found";
+import { notFound } from "@/shared/hooks/useNotFound";
 
 export default function AddProductPage() {
   const router = useNavigate();
@@ -38,8 +38,8 @@ export default function AddProductPage() {
     mutate(data);
   };
 
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <FormWrapper>

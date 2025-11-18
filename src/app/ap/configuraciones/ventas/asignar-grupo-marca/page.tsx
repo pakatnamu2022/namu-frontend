@@ -16,7 +16,7 @@ import CommercialManagerBrandGroupOptions from "@/features/ap/configuraciones/ve
 import DataTablePagination from "@/shared/components/DataTablePagination";
 import { generateYear } from "@/core/core.function";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
 export default function CommercialManagerBrandGroupPage() {
@@ -45,8 +45,8 @@ export default function CommercialManagerBrandGroupPage() {
   });
 
   if (isLoadingModule) return <PageSkeleton />;
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <div className="space-y-4">

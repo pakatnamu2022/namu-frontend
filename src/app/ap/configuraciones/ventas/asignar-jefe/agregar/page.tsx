@@ -17,7 +17,7 @@ import FormWrapper from "@/shared/components/FormWrapper";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import { AssignmentLeadershipForm } from "@/features/ap/configuraciones/ventas/asignar-jefe/components/AssignmentLeadershipForm";
 import { storeAssignmentLeadership } from "@/features/ap/configuraciones/ventas/asignar-jefe/lib/assignmentLeadership.actions";
-import NotFound from "@/app/not-found";
+import { notFound } from "@/shared/hooks/useNotFound";
 
 export default function AddAssignmentLeadershipPage() {
   const router = useNavigate();
@@ -39,8 +39,8 @@ export default function AddAssignmentLeadershipPage() {
   const handleSubmit = (data: AssignmentLeadershipSchema) => {
     mutate(data);
   };
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <FormWrapper>

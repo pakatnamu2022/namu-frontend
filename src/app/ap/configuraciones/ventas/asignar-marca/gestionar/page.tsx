@@ -17,7 +17,7 @@ import BackButton from "@/shared/components/BackButton";
 import FormWrapper from "@/shared/components/FormWrapper";
 import { ASSIGN_BRAND_CONSULTANT } from "@/features/ap/configuraciones/ventas/asignar-marca/lib/assignBrandConsultant.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
-import NotFound from "@/app/not-found";
+import { notFound } from "@/shared/hooks/useNotFound";
 
 export default function AddAssignBrandConsultantPage() {
   const year = new Date().getFullYear();
@@ -42,8 +42,8 @@ export default function AddAssignBrandConsultantPage() {
     mutate(data);
   };
 
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <FormWrapper>

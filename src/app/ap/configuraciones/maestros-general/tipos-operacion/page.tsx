@@ -26,7 +26,7 @@ import { typesOperationColumns } from "@/features/ap/configuraciones/maestros-ge
 import TypesOperationOptions from "@/features/ap/configuraciones/maestros-general/tipos-operacion/components/TypesOperationOptions";
 import TypesOperationModal from "@/features/ap/configuraciones/maestros-general/tipos-operacion/components/TypesOperationModal";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
 export default function TypesOperationPage() {
@@ -73,8 +73,8 @@ export default function TypesOperationPage() {
   };
 
   if (isLoadingModule) return <PageSkeleton />;
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <div className="space-y-4">

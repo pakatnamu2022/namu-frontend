@@ -31,7 +31,7 @@ import CyclePersonDetailOptions from "@/features/gp/gestionhumana/evaluaciondese
 import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import { Badge } from "@/components/ui/badge";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
 export default function CyclePersonDetailPage() {
@@ -138,9 +138,9 @@ export default function CyclePersonDetailPage() {
     isLoadingCategoriesCycle
   )
     return <PageSkeleton />;
-  if (!checkRouteExists("ciclos")) return <NotFound />;
-  if (!currentView) return <NotFound />;
-  if (!idCycle) return <NotFound />;
+  if (!checkRouteExists("ciclos")) notFound();
+  if (!currentView) notFound();
+  if (!idCycle) notFound();
 
   return (
     <div className="space-y-4">

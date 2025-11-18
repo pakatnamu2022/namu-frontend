@@ -26,7 +26,7 @@ import { typeGenderColumns } from "@/features/ap/configuraciones/maestros-genera
 import TypeGenderOptions from "@/features/ap/configuraciones/maestros-general/tipos-sexo/components/TypesGenderOptions";
 import TypeGenderModal from "@/features/ap/configuraciones/maestros-general/tipos-sexo/components/TypesGenderModal";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
 export default function TypeGenderPage() {
@@ -73,8 +73,8 @@ export default function TypeGenderPage() {
   };
 
   if (isLoadingModule) return <PageSkeleton />;
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <div className="space-y-4">

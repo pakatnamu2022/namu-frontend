@@ -24,7 +24,7 @@ import SedeActions from "@/features/gp/maestro-general/sede/components/SedeActio
 import SedeTable from "@/features/gp/maestro-general/sede/components/SedeTable";
 import SedeOptions from "@/features/gp/maestro-general/sede/components/SedeOptions";
 import { sedeColumns } from "@/features/gp/maestro-general/sede/components/SedeColumns";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
 export default function SedePage() {
@@ -70,8 +70,8 @@ export default function SedePage() {
   };
 
   if (isLoadingModule) return <PageSkeleton />;
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <div className="space-y-4">

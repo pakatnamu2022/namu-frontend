@@ -17,7 +17,7 @@ import { COMMERCIAL_MANAGER_BRAND_GROUP } from "@/features/ap/configuraciones/ve
 import { CommercialManagerBrandGroupSchema } from "@/features/ap/configuraciones/ventas/asignar-grupo-marca/lib/commercialManagerBrandGroup.schema";
 import { CommercialManagerBrandGroupForm } from "@/features/ap/configuraciones/ventas/asignar-grupo-marca/components/CommercialManagerBrandGroupForm";
 import { storeCommercialManagerBrandGroup } from "@/features/ap/configuraciones/ventas/asignar-grupo-marca/lib/commercialManagerBrandGroup.actions";
-import NotFound from "@/app/not-found";
+import { notFound } from "@/shared/hooks/useNotFound";
 
 export default function AddCommercialManagerBrandGroupPage() {
   const router = useNavigate();
@@ -39,8 +39,8 @@ export default function AddCommercialManagerBrandGroupPage() {
   const handleSubmit = (data: CommercialManagerBrandGroupSchema) => {
     mutate(data);
   };
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <FormWrapper>

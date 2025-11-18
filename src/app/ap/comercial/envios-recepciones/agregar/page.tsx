@@ -14,7 +14,7 @@ import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import { ShipmentsReceptionsForm } from "@/features/ap/comercial/envios-recepciones/components/ShipmentsReceptionsForm";
 import { useCreateShipmentsReceptions } from "@/features/ap/comercial/envios-recepciones/lib/shipmentsReceptions.hook";
 import { ShipmentsReceptionsSchema } from "@/features/ap/comercial/envios-recepciones/lib/shipmentsReceptions.schema";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
 export default function AddShipmentsReceptionsPage() {
@@ -41,7 +41,7 @@ export default function AddShipmentsReceptionsPage() {
     router(`/ap/comercial/${ROUTE}`);
   };
 
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
 
   return (
     <FormWrapper>

@@ -21,7 +21,7 @@ import { useWorkers } from "@/features/gp/gestionhumana/personal/trabajadores/li
 import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import { WORKER } from "@/features/gp/gestionhumana/personal/trabajadores/lib/worker.constant";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
 const { MODEL, ROUTE } = WORKER;
@@ -57,8 +57,8 @@ export default function WorkersPage() {
   };
 
   if (isLoadingModule) return <PageSkeleton />;
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <div className="space-y-4">

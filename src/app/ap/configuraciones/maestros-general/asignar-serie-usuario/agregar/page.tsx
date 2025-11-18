@@ -15,7 +15,7 @@ import { USER_SERIES_ASSIGNMENT } from "@/features/ap/configuraciones/maestros-g
 import { storeUserSeriesAssignment } from "@/features/ap/configuraciones/maestros-general/asignar-serie-usuario/lib/userSeriesAssignment.actions";
 import { UserSeriesAssignmentSchema } from "@/features/ap/configuraciones/maestros-general/asignar-serie-usuario/lib/userSeriesAssignment.schema";
 import { UserSeriesAssignmentForm } from "@/features/ap/configuraciones/maestros-general/asignar-serie-usuario/components/UserSeriesAssignmentForm";
-import NotFound from "@/app/not-found";
+import { notFound } from "@/shared/hooks/useNotFound";
 
 export default function AddUserSeriesAssignmentPage() {
   const router = useNavigate();
@@ -37,8 +37,8 @@ export default function AddUserSeriesAssignmentPage() {
   const handleSubmit = (data: UserSeriesAssignmentSchema) => {
     mutate(data);
   };
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <FormWrapper>

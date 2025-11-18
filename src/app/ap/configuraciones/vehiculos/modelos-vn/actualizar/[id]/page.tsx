@@ -21,7 +21,7 @@ import { ModelsVnResource } from "@/features/ap/configuraciones/vehiculos/modelo
 import { ModelsVnForm } from "@/features/ap/configuraciones/vehiculos/modelos-vn/components/ModelsVnForm";
 import FormWrapper from "@/shared/components/FormWrapper";
 import { MODELS_VN } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.constanst";
-import NotFound from "@/app/not-found";
+import { notFound } from "@/shared/hooks/useNotFound";
 
 export default function UpdateModelsVnPage() {
   const { id } = useParams();
@@ -100,8 +100,8 @@ export default function UpdateModelsVnPage() {
   if (isLoadingAny) {
     return <FormSkeleton />;
   }
-  if (!checkRouteExists("modelos-vn")) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists("modelos-vn")) notFound();
+  if (!currentView) notFound();
 
   return (
     <FormWrapper>
