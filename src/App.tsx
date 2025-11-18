@@ -8,7 +8,11 @@ import {
 import { useAuthStore } from "./features/auth/lib/auth.store";
 import DashboardSkeleton from "./shared/components/DashboardSkeleton";
 import { AuthInitializer } from "./shared/components/AuthInitializer";
-import { FC, lazy, Suspense } from "react";
+import { FC, JSX, lazy, Suspense } from "react";
+import ModulePerformanceEvaluationPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/page";
+import HierarchicalCategoryPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/categorias-jerarquicas/page";
+import AddHierarchicalCategoryPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/categorias-jerarquicas/agregar/page";
+import EditHierarchicalCategoryPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/categorias-jerarquicas/actualizar/[id]/page";
 const PositionsPage = lazy(
   () => import("./app/gp/gestion-humana/configuraciones/posiciones/page")
 );
@@ -618,74 +622,6 @@ const TrabajadoresPage = lazy(
     )
 );
 
-// Evaluaciones de Desempeño
-const EvaluacionesDesempenoPage = lazy(
-  () => import("./app/gp/gestion-humana/evaluaciones-de-desempeno/page")
-);
-const CategoriasJerarquicasPage = lazy(
-  () =>
-    import(
-      "./app/gp/gestion-humana/evaluaciones-de-desempeno/categorias-jerarquicas/page"
-    )
-);
-const CiclosPage = lazy(
-  () => import("./app/gp/gestion-humana/evaluaciones-de-desempeno/ciclos/page")
-);
-const CiclosDetailPage = lazy(
-  () =>
-    import("./app/gp/gestion-humana/evaluaciones-de-desempeno/ciclos/[id]/page")
-);
-const CompetenciasPage = lazy(
-  () =>
-    import(
-      "./app/gp/gestion-humana/evaluaciones-de-desempeno/competencias/page"
-    )
-);
-const EvaluacionesPage = lazy(
-  () =>
-    import(
-      "./app/gp/gestion-humana/evaluaciones-de-desempeno/evaluaciones/page"
-    )
-);
-const EvaluacionesDetailPage = lazy(
-  () =>
-    import(
-      "./app/gp/gestion-humana/evaluaciones-de-desempeno/evaluaciones/[id]/page"
-    )
-);
-const EvaluacionesDetallesPage = lazy(
-  () =>
-    import(
-      "./app/gp/gestion-humana/evaluaciones-de-desempeno/evaluaciones/detalles/[id]/page"
-    )
-);
-const EvaluacionesDetallesPersonPage = lazy(
-  () =>
-    import(
-      "./app/gp/gestion-humana/evaluaciones-de-desempeno/evaluaciones/detalles/[id]/[person]/page"
-    )
-);
-const ExcluidosPage = lazy(
-  () =>
-    import("./app/gp/gestion-humana/evaluaciones-de-desempeno/excluidos/page")
-);
-const MetricasPage = lazy(
-  () =>
-    import("./app/gp/gestion-humana/evaluaciones-de-desempeno/metricas/page")
-);
-const ObjetivosPage = lazy(
-  () =>
-    import("./app/gp/gestion-humana/evaluaciones-de-desempeno/objetivos/page")
-);
-const ParametrosPage = lazy(
-  () =>
-    import("./app/gp/gestion-humana/evaluaciones-de-desempeno/parametros/page")
-);
-const PeriodosPage = lazy(
-  () =>
-    import("./app/gp/gestion-humana/evaluaciones-de-desempeno/periodos/page")
-);
-
 // ============================================================================
 // GP - MAESTRO GENERAL
 // ============================================================================
@@ -720,6 +656,21 @@ const ProtectedRoute: FC<{ children: React.ReactNode }> = ({ children }) => {
 // LOADING COMPONENT
 // ============================================================================
 const LoadingFallback = () => <DashboardSkeleton />;
+
+const RouterCrud = (
+  path: string,
+  page: JSX.Element,
+  addPage: JSX.Element,
+  editPage: JSX.Element
+) => {
+  return (
+    <>
+      <Route path={path} element={page} />
+      <Route path={`${path}/agregar`} element={addPage} />
+      <Route path={`${path}/actualizar/:id`} element={editPage} />
+    </>
+  );
+};
 
 // ============================================================================
 // APP COMPONENT
@@ -1416,13 +1367,24 @@ function App() {
               {/* Evaluaciones de Desempeño */}
               <Route
                 path="evaluaciones-de-desempeno"
-                element={<EvaluacionesDesempenoPage />}
+                element={<ModulePerformanceEvaluationPage />}
+              />
+
+              {RouterCrud(
+                "evaluaciones-de-desempeno/categorias-jerarquicas",
+                <HierarchicalCategoryPage />,
+                <AddHierarchicalCategoryPage />,
+                <EditHierarchicalCategoryPage />
+              )}
+              <Route
+                path="evaluaciones-de-desempeno/categorias-jerarquicas"
+                element={<HierarchicalCategoryPage />}
               />
               <Route
                 path="evaluaciones-de-desempeno/categorias-jerarquicas"
-                element={<CategoriasJerarquicasPage />}
+                element={<HierarchicalCategoryPage />}
               />
-              <Route
+              {/* <Route
                 path="evaluaciones-de-desempeno/ciclos"
                 element={<CiclosPage />}
               />
@@ -1469,7 +1431,7 @@ function App() {
               <Route
                 path="evaluaciones-de-desempeno/periodos"
                 element={<PeriodosPage />}
-              />
+              /> */}
             </Route>
 
             {/* ======================================================== */}
