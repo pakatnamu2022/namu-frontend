@@ -3,13 +3,15 @@
 import { Button } from "@/components/ui/button";
 import ActionsWrapper from "@/shared/components/ActionsWrapper";
 import { Plus } from "lucide-react";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
+import { VIEW } from "../lib/view.constants";
 
 export default function ViewActions() {
   const push = useNavigate();
+  const { ROUTE_ADD } = VIEW;
 
   const handleAddView = () => {
-    push("./vistas/agregar");
+    push(ROUTE_ADD!);
   };
 
   return (

@@ -2,7 +2,7 @@
 
 import type { ColumnDef } from "@tanstack/react-table";
 import { BrandsResource } from "../lib/brands.interface";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
@@ -105,8 +105,9 @@ export const brandsColumns = ({
     header: "Acciones",
     cell: ({ row }) => {
       const { ROUTE_UPDATE } = isCommercial ? BRAND : BRAND_POSTVENTA;
+      // eslint-disable-next-line react-hooks/rules-of-hooks
       const router = useNavigate();
-      const { id, status } = row.original;
+      const { id, status, is_commercial } = row.original;
 
       return (
         <div className="flex items-center gap-2">
@@ -117,6 +118,7 @@ export const brandsColumns = ({
               thumbClassName="size-4"
               onCheckedChange={(checked) => onToggleStatus(id, checked)}
               className={cn("h-5 w-9", status ? "bg-primary" : "bg-secondary")}
+              disabled={isCommercial != is_commercial}
             />
           )}
 
@@ -127,6 +129,7 @@ export const brandsColumns = ({
               size="icon"
               className="size-7"
               onClick={() => router(`${ROUTE_UPDATE}/${id}`)}
+              disabled={isCommercial != is_commercial}
             >
               <Pencil className="size-5" />
             </Button>

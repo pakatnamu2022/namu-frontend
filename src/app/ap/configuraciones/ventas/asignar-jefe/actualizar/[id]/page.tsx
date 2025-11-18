@@ -40,7 +40,7 @@ export default function EditAssignmentLeadershipPage() {
       await queryClient.invalidateQueries({
         queryKey: [QUERY_KEY, id],
       });
-      router(ABSOLUTE_ROUTE);
+      router(ABSOLUTE_ROUTE!);
     },
     onError: (error: any) => {
       const msg = error?.response?.data?.message || "";

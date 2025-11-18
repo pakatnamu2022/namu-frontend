@@ -22,7 +22,11 @@ export default function PositionTable({
         data={data}
         isLoading={isLoading}
         initialColumnVisibility={{
+          name: true,
           descripcion: false,
+          area: true,
+          position_head_name: true,
+          hierarchical_category_name: true,
         }}
       >
         {children}

@@ -54,7 +54,7 @@ export default function CreateApGoalSellOutInPage() {
           icon={currentView.icon}
         ></TitleFormComponent>
         <BackButton
-          route={ABSOLUTE_ROUTE}
+          route={ABSOLUTE_ROUTE!}
           name={"Asignar Meta"}
           fullname={false}
         />

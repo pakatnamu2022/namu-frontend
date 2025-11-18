@@ -1,6 +1,7 @@
 import { type ModelComplete } from "@/core/core.interface";
 
 const ROUTE = "vistas";
+const ABSOLUTE_ROUTE = "/gp/gestion-del-sistema/" + ROUTE;
 
 export const VIEW: ModelComplete = {
   MODEL: {
@@ -12,6 +13,7 @@ export const VIEW: ModelComplete = {
   ENDPOINT: "/configuration/view",
   QUERY_KEY: "views",
   ROUTE,
-  ROUTE_ADD: `./agregar`,
-  ROUTE_UPDATE: `./actualizar`,
+  ABSOLUTE_ROUTE,
+  ROUTE_ADD: `${ABSOLUTE_ROUTE}/agregar`,
+  ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/actualizar`,
 };

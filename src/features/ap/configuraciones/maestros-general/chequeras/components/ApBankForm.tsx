@@ -139,7 +139,7 @@ export const ApBankForm = ({
         </div>
 
         <div className="flex gap-4 w-full justify-end">
-          <Link to={ABSOLUTE_ROUTE}>
+          <Link to={ABSOLUTE_ROUTE!}>
             <Button type="button" variant="outline">
               Cancelar
             </Button>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams } from 'react-router-dom';
+import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
@@ -21,15 +21,14 @@ import {
 import { ProductSchema } from "@/features/ap/post-venta/gestion-productos/productos/lib/product.schema";
 import { ProductResource } from "@/features/ap/post-venta/gestion-productos/productos/lib/product.interface";
 import { ProductForm } from "@/features/ap/post-venta/gestion-productos/productos/components/ProductForm";
-import NotFound from '@/app/not-found';
-
+import NotFound from "@/app/not-found";
 
 export default function EditProductPage() {
-    const { id } = useParams();
+  const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();
   const { currentView, checkRouteExists } = useCurrentModule();
-  const { ROUTE, QUERY_KEY, MODEL } = PRODUCT;
+  const { ROUTE, QUERY_KEY, MODEL, ABSOLUTE_ROUTE } = PRODUCT;
 
   const { data: product, isLoading: loadingProduct } = useQuery({
     queryKey: [QUERY_KEY, id],
@@ -44,7 +43,7 @@ export default function EditProductPage() {
       await queryClient.invalidateQueries({
         queryKey: [QUERY_KEY, id],
       });
-      router("../");
+      router(ABSOLUTE_ROUTE!);
     },
     onError: (error: any) => {
       const msg = error?.response?.data?.message || "";
@@ -64,16 +63,15 @@ export default function EditProductPage() {
       name: data.name,
       description: data.description,
       sunat_code: data.sunat_code,
-      product_type: data.product_type,
       product_category_id: String(data.product_category_id),
       brand_id: String(data.brand_id),
       ap_class_article_id: String(data.ap_class_article_id),
       unit_measurement_id: String(data.unit_measurement_id),
       warehouse_id: String(data.warehouse_id),
-      current_stock: data.current_stock,
-      minimum_stock: data.minimum_stock,
-      maximum_stock: data.maximum_stock,
-      warranty_months: data.warranty_months,
+      current_stock: Number(data.current_stock),
+      minimum_stock: Number(data.minimum_stock),
+      maximum_stock: Number(data.maximum_stock),
+      warranty_months: Number(data.warranty_months),
       cost_price: data.cost_price,
       sale_price: data.sale_price,
       tax_rate: data.tax_rate,
@@ -101,7 +99,7 @@ export default function EditProductPage() {
         onSubmit={handleSubmit}
         isSubmitting={isPending}
         mode="update"
-        onCancel={() => router("../")}
+        onCancel={() => router(ABSOLUTE_ROUTE!)}
       />
     </FormWrapper>
   );

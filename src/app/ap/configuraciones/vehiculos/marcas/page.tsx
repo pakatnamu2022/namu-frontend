@@ -25,11 +25,10 @@ import { DEFAULT_PER_PAGE, STATUS_ACTIVE } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { BRAND } from "@/features/ap/configuraciones/vehiculos/marcas/lib/brands.constants";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import NotFound from '@/app/not-found';
-
+import NotFound from "@/app/not-found";
 
 export default function BrandsPage() {
-    const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
+  const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
@@ -50,7 +49,7 @@ export default function BrandsPage() {
 
   const handleToggleStatus = async (id: number, newStatus: boolean) => {
     try {
-      await updateBrands(id, { status: newStatus });
+      await updateBrands(id, { status: newStatus, is_commercial: true });
       await refetch();
       successToast("Estado actualizado correctamente.");
     } catch {

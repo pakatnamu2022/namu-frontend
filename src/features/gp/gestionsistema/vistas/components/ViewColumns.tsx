@@ -4,11 +4,12 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { ViewResource } from "../lib/view.interface";
 import { Button } from "@/components/ui/button";
 import { Pencil, ShieldCheck } from "lucide-react";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { Badge } from "@/components/ui/badge";
 import { EditableSelectCell } from "@/shared/components/EditableSelectCell";
 import { EditableCell } from "@/shared/components/EditableCell";
+import { VIEW } from "../lib/view.constants";
 
 export type ViewColumns = ColumnDef<ViewResource>;
 
@@ -180,8 +181,10 @@ export const viewColumns = ({
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
       const router = useNavigate();
       const id = row.original.id;
+      const { ROUTE_UPDATE } = VIEW;
 
       return (
         <div className="flex items-center gap-2">
@@ -191,7 +194,7 @@ export const viewColumns = ({
             variant="outline"
             size="icon"
             className="size-7"
-            onClick={() => router(`./vistas/permisos/${id}`)}
+            onClick={() => router(`${ROUTE_UPDATE}/${id}`)}
           >
             <ShieldCheck className="size-5" />
           </Button>

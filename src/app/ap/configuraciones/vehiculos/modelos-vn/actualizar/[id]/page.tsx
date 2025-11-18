@@ -43,7 +43,7 @@ export default function EditModelsVnPage() {
       await queryClient.invalidateQueries({
         queryKey: [QUERY_KEY, id],
       });
-      router(ABSOLUTE_ROUTE);
+      router(ABSOLUTE_ROUTE!);
     },
     onError: () => {
       errorToast(ERROR_MESSAGE(MODEL, "update"));

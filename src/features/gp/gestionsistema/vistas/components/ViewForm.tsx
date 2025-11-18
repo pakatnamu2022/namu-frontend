@@ -18,13 +18,14 @@ import {
   viewSchemaUpdate,
 } from "../lib/view.schema";
 import { Loader } from "lucide-react";
-import { Link } from 'react-router-dom'
+import { Link } from "react-router-dom";
 import { Switch } from "@/components/ui/switch";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { ViewResource } from "../lib/view.interface";
 import { CompanyResource } from "../../empresa/lib/company.interface";
 import RequiredField from "@/shared/components/RequiredField";
 import { IconPicker } from "@/components/ui/icon-picker";
+import { VIEW } from "../lib/view.constants";
 
 interface ViewFormProps {
   defaultValues: Partial<ViewSchema>;
@@ -52,6 +53,7 @@ export const ViewForm = ({
     },
     mode: "onChange",
   });
+  const { ABSOLUTE_ROUTE } = VIEW;
 
   return (
     <Form {...form}>

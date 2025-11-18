@@ -167,17 +167,6 @@ export const ProductForm = ({
           cols={{ sm: 2, md: 3 }}
         >
           <FormSelect
-            name="product_type"
-            label="Tipo de Producto"
-            placeholder="Selecciona un tipo"
-            options={[
-              { label: "Bien", value: "GOOD" },
-              { label: "Servicio", value: "SERVICE" },
-              { label: "Kit", value: "KIT" },
-            ]}
-            control={form.control}
-          />
-          <FormSelect
             name="product_category_id"
             label="Categoría"
             placeholder="Selecciona una categoría"
@@ -247,9 +236,17 @@ export const ProductForm = ({
                 <FormControl>
                   <Input
                     type="number"
-                    placeholder="0"
-                    {...field}
-                    onChange={(e) => field.onChange(Number(e.target.value))}
+                    min="0"
+                    placeholder="0.00"
+                    value={typeof field.value === "number" ? field.value : ""}
+                    onChange={(e) => {
+                      if (e.target.value === "") {
+                        field.onChange("");
+                      } else {
+                        const num = parseFloat(e.target.value);
+                        field.onChange(isNaN(num) ? "" : num);
+                      }
+                    }}
                   />
                 </FormControl>
                 <FormMessage />
@@ -265,9 +262,17 @@ export const ProductForm = ({
                 <FormControl>
                   <Input
                     type="number"
-                    placeholder="0"
-                    {...field}
-                    onChange={(e) => field.onChange(Number(e.target.value))}
+                    min="0"
+                    placeholder="0.00"
+                    value={typeof field.value === "number" ? field.value : ""}
+                    onChange={(e) => {
+                      if (e.target.value === "") {
+                        field.onChange("");
+                      } else {
+                        const num = parseFloat(e.target.value);
+                        field.onChange(isNaN(num) ? "" : num);
+                      }
+                    }}
                   />
                 </FormControl>
                 <FormMessage />
@@ -283,9 +288,17 @@ export const ProductForm = ({
                 <FormControl>
                   <Input
                     type="number"
-                    placeholder="0"
-                    {...field}
-                    onChange={(e) => field.onChange(Number(e.target.value))}
+                    min="0"
+                    placeholder="0.00"
+                    value={typeof field.value === "number" ? field.value : ""}
+                    onChange={(e) => {
+                      if (e.target.value === "") {
+                        field.onChange("");
+                      } else {
+                        const num = parseFloat(e.target.value);
+                        field.onChange(isNaN(num) ? "" : num);
+                      }
+                    }}
                   />
                 </FormControl>
                 <FormMessage />
@@ -301,9 +314,17 @@ export const ProductForm = ({
                 <FormControl>
                   <Input
                     type="number"
-                    placeholder="0"
-                    {...field}
-                    onChange={(e) => field.onChange(Number(e.target.value))}
+                    min="0"
+                    placeholder="0.00"
+                    value={typeof field.value === "number" ? field.value : ""}
+                    onChange={(e) => {
+                      if (e.target.value === "") {
+                        field.onChange("");
+                      } else {
+                        const num = parseFloat(e.target.value);
+                        field.onChange(isNaN(num) ? "" : num);
+                      }
+                    }}
                   />
                 </FormControl>
                 <FormMessage />
@@ -329,10 +350,18 @@ export const ProductForm = ({
                 <FormControl>
                   <Input
                     type="number"
+                    min="0"
                     step="0.01"
                     placeholder="0.00"
-                    {...field}
-                    onChange={(e) => field.onChange(Number(e.target.value))}
+                    value={typeof field.value === "number" ? field.value : ""}
+                    onChange={(e) => {
+                      if (e.target.value === "") {
+                        field.onChange("");
+                      } else {
+                        const num = parseFloat(e.target.value);
+                        field.onChange(isNaN(num) ? "" : num);
+                      }
+                    }}
                   />
                 </FormControl>
                 <FormMessage />
@@ -348,10 +377,18 @@ export const ProductForm = ({
                 <FormControl>
                   <Input
                     type="number"
+                    min="0"
                     step="0.01"
                     placeholder="0.00"
-                    {...field}
-                    onChange={(e) => field.onChange(Number(e.target.value))}
+                    value={typeof field.value === "number" ? field.value : ""}
+                    onChange={(e) => {
+                      if (e.target.value === "") {
+                        field.onChange("");
+                      } else {
+                        const num = parseFloat(e.target.value);
+                        field.onChange(isNaN(num) ? "" : num);
+                      }
+                    }}
                   />
                 </FormControl>
                 <FormMessage />
@@ -367,10 +404,18 @@ export const ProductForm = ({
                 <FormControl>
                   <Input
                     type="number"
+                    min="0"
                     step="0.01"
                     placeholder="0.00"
-                    {...field}
-                    onChange={(e) => field.onChange(Number(e.target.value))}
+                    value={typeof field.value === "number" ? field.value : ""}
+                    onChange={(e) => {
+                      if (e.target.value === "") {
+                        field.onChange("");
+                      } else {
+                        const num = parseFloat(e.target.value);
+                        field.onChange(isNaN(num) ? "" : num);
+                      }
+                    }}
                   />
                 </FormControl>
                 <FormMessage />

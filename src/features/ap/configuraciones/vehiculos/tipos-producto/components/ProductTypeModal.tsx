@@ -36,12 +36,12 @@ export default function ProductTypeModal({
   const queryClient = useQueryClient();
   const { EMPTY, QUERY_KEY, MODEL } = PRODUCT_TYPE;
   const {
-    data: ProductType,
+    data: productTypeData,
     isLoading: loadingProductType,
     refetch,
-  } = mode === "create"
-    ? { data: EMPTY, isLoading: false, refetch: () => {} }
-    : useProductTypeById(id!);
+  } = useProductTypeById(id!);
+
+  const ProductType = mode === "create" ? EMPTY : productTypeData;
 
   function mapRoleToForm(
     data: ProductTypeResource

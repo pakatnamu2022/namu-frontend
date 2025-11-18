@@ -13,19 +13,32 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   PositionSchema,
   positionSchemaCreate,
   positionSchemaUpdate,
 } from "../lib/position.schema";
-import { Loader } from "lucide-react";
-import { Link } from "react-router-dom";
-import { POSITION } from "@/features/gp/gestionhumana/personal/posiciones/lib/position.constant";
+import {
+  CircleDollarSign,
+  ClipboardMinus,
+  FileStack,
+  LassoSelect,
+  Loader,
+} from "lucide-react";
+
+import { useAllAreas } from "../lib/position.hook";
+import { useAllPositions } from "../lib/position.hook";
+import { useEffect, useRef } from "react";
+import { POSITION } from "../lib/position.constant";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { FileForm } from "@/shared/components/FileForm";
-import { useAllAreas, useAllPositions } from "../lib/position.hook";
-import { useAllHierarchicalCategories } from "@/features/gp/gestionhumana/evaluaciondesempeño/categorias-jerarquicas/lib/hierarchicalCategory.hook";
+import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
+import FormSkeleton from "@/shared/components/FormSkeleton";
+import { useAllTypeOnboarding } from "@/features/gp/gestionsistema/tipo-onbording/lib/typeOnboarding.hook";
+import { useAllHierarchicalCategories } from "../../../evaluaciondesempeño/categorias-jerarquicas/lib/hierarchicalCategory.hook";
+import { Link } from "react-router-dom";
 
 interface PositionFormProps {
   defaultValues?: Partial<PositionSchema>;
@@ -47,32 +60,57 @@ export const PositionForm = ({
       mode === "create" ? positionSchemaCreate : positionSchemaUpdate
     ),
     defaultValues: {
-      name: defaultValues?.name || "",
-      descripcion: defaultValues?.descripcion || "",
-      area_id: defaultValues?.area_id || undefined,
-      hierarchical_category_id:
-        defaultValues?.hierarchical_category_id || undefined,
-      cargo_id: defaultValues?.cargo_id || undefined,
-      ntrabajadores: defaultValues?.ntrabajadores || undefined,
-      banda_salarial_min: defaultValues?.banda_salarial_min || undefined,
-      banda_salarial_media: defaultValues?.banda_salarial_media || undefined,
-      banda_salarial_max: defaultValues?.banda_salarial_max || undefined,
-      tipo_onboarding_id: defaultValues?.tipo_onboarding_id || undefined,
-      plazo_proceso_seleccion:
-        defaultValues?.plazo_proceso_seleccion || undefined,
-      presupuesto: defaultValues?.presupuesto || undefined,
-      mof_adjunto: defaultValues?.mof_adjunto || undefined,
-      files: defaultValues?.files || undefined,
+      name: "",
+      descripcion: "",
+      area_id: "",
+      hierarchical_category_id: "",
+      tiene_jefatura: false,
+      cargo_id: "",
+      ntrabajadores: 0,
+      banda_salarial_min: 0,
+      banda_salarial_media: 0,
+      banda_salarial_max: 0,
+      tipo_onboarding_id: "",
+      plazo_proceso_seleccion: 0,
+      presupuesto: 0,
+      mof_adjunto: undefined,
+      files: undefined,
+      ...defaultValues,
     },
     mode: "onChange",
   });
 
   // Hooks para obtener datos
   const { data: areas = [], isLoading: isLoadingAreas } = useAllAreas();
+  const { data: typeOnboarding = [], isLoading: isLoadingTypeOnboarding } =
+    useAllTypeOnboarding();
   const { data: positions = [], isLoading: isLoadingPositions } =
     useAllPositions();
   const { data: hierarchicalCategories = [], isLoading: isLoadingCategories } =
     useAllHierarchicalCategories();
+
+  const tieneJefatura = form.watch("tiene_jefatura");
+
+  const isInitialized = useRef(false);
+
+  useEffect(() => {
+    if (mode === "update" && defaultValues) {
+      const cargoId = defaultValues.cargo_id;
+      if (cargoId && cargoId !== "") {
+        form.setValue("tiene_jefatura", true);
+        form.setValue("cargo_id", cargoId);
+      }
+    }
+    setTimeout(() => {
+      isInitialized.current = true;
+    }, 0);
+  }, []);
+
+  useEffect(() => {
+    if (isInitialized.current && !tieneJefatura) {
+      form.setValue("cargo_id", "");
+    }
+  }, [tieneJefatura, form]);
 
   const areaOptions =
     areas?.map((area) => ({
@@ -93,6 +131,14 @@ export const PositionForm = ({
       label: category.name,
     })) || [];
 
+  if (
+    isLoadingAreas ||
+    isLoadingPositions ||
+    isLoadingCategories ||
+    isLoadingTypeOnboarding
+  )
+    return <FormSkeleton />;
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 w-full">
@@ -102,10 +148,13 @@ export const PositionForm = ({
           }
         />
 
-        {/* Información Básica */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold">Información Básica</h3>
-
+        <GroupFormSection
+          title="Información Básica"
+          icon={ClipboardMinus}
+          iconColor="text-primary"
+          bgColor="bg-blue-50"
+          cols={{ sm: 2, md: 3 }}
+        >
           <FormField
             control={form.control}
             name="name"
@@ -120,17 +169,43 @@ export const PositionForm = ({
             )}
           />
 
+          <FormSelect
+            control={form.control}
+            name="area_id"
+            label="Área"
+            placeholder="Selecciona un área"
+            options={areaOptions}
+            isLoadingOptions={isLoadingAreas}
+          />
+
+          <FormSelect
+            control={form.control}
+            name="hierarchical_category_id"
+            label="Categoría Jerárquica"
+            placeholder="Selecciona una categoría"
+            options={categoryOptions}
+            isLoadingOptions={isLoadingCategories}
+          />
+
           <FormField
             control={form.control}
-            name="descripcion"
+            name="ntrabajadores"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Descripción</FormLabel>
+                <FormLabel>Número de Trabajadores</FormLabel>
                 <FormControl>
-                  <Textarea
-                    placeholder="Descripción de la posición"
-                    {...field}
-                    value={field.value?.toString() ?? ""}
+                  <Input
+                    type="number"
+                    min="0"
+                    placeholder="0"
+                    value={typeof field.value === "number" ? field.value : ""}
+                    onChange={(e) =>
+                      field.onChange(
+                        e.target.value === ""
+                          ? ""
+                          : parseInt(e.target.value) || ""
+                      )
+                    }
                   />
                 </FormControl>
                 <FormMessage />
@@ -138,53 +213,19 @@ export const PositionForm = ({
             )}
           />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FormSelect
-              control={form.control}
-              name="area_id"
-              label="Área"
-              placeholder="Selecciona un área"
-              options={areaOptions}
-              isLoadingOptions={isLoadingAreas}
-            />
-
-            <FormSelect
-              control={form.control}
-              name="hierarchical_category_id"
-              label="Categoría Jerárquica"
-              placeholder="Selecciona una categoría"
-              options={categoryOptions}
-              isLoadingOptions={isLoadingCategories}
-            />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FormSelect
-              control={form.control}
-              name="cargo_id"
-              label="Jefatura del Cargo"
-              placeholder="Selecciona una jefatura"
-              options={cargoOptions}
-              isLoadingOptions={isLoadingPositions}
-            />
-
+          {/* Descripción ocupa las 3 columnas y se posiciona al final */}
+          <div className="col-span-full">
             <FormField
               control={form.control}
-              name="ntrabajadores"
+              name="descripcion"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Número de Trabajadores</FormLabel>
+                  <FormLabel>Descripción</FormLabel>
                   <FormControl>
-                    <Input
-                      type="number"
-                      min="0"
-                      placeholder="0"
-                      value={field.value ?? ""}
-                      onChange={(e) =>
-                        field.onChange(
-                          e.target.value ? Number(e.target.value) : undefined
-                        )
-                      }
+                    <Textarea
+                      placeholder="Descripción de la posición"
+                      {...field}
+                      value={field.value || ""}
                     />
                   </FormControl>
                   <FormMessage />
@@ -192,176 +233,224 @@ export const PositionForm = ({
               )}
             />
           </div>
-        </div>
+
+          {/* Checkbox para indicar si tiene jefatura */}
+          <div className="col-span-full">
+            <FormField
+              control={form.control}
+              name="tiene_jefatura"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel className="cursor-pointer">
+                      Este cargo tiene una jefatura
+                    </FormLabel>
+                    <p className="text-sm text-muted-foreground">
+                      Indica si este cargo reporta a un cargo superior
+                    </p>
+                  </div>
+                </FormItem>
+              )}
+            />
+          </div>
+
+          {/* Select de Jefatura - Solo si está marcado el checkbox */}
+          {tieneJefatura && (
+            <div className="col-span-full">
+              <FormSelect
+                control={form.control}
+                name="cargo_id"
+                label="Jefatura del Cargo"
+                placeholder="Selecciona una jefatura"
+                options={cargoOptions}
+                isLoadingOptions={isLoadingPositions}
+                strictFilter={true}
+              />
+            </div>
+          )}
+        </GroupFormSection>
 
         {/* Banda Salarial */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold">Banda Salarial</h3>
+        <GroupFormSection
+          title="Banda Salarial"
+          icon={CircleDollarSign}
+          iconColor="text-secondary"
+          bgColor="bg-red-50"
+          cols={{ sm: 2, md: 3 }}
+        >
+          <FormField
+            control={form.control}
+            name="banda_salarial_min"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Banda Salarial Mínima</FormLabel>
+                <FormControl>
+                  <Input
+                    type="number"
+                    placeholder="0.00"
+                    value={typeof field.value === "number" ? field.value : ""}
+                    onChange={(e) =>
+                      field.onChange(
+                        e.target.value === ""
+                          ? ""
+                          : parseFloat(e.target.value) || ""
+                      )
+                    }
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <FormField
-              control={form.control}
-              name="banda_salarial_min"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Banda Salarial Mínima</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      placeholder="0.00"
-                      value={field.value ?? ""}
-                      onChange={(e) =>
-                        field.onChange(
-                          e.target.value ? Number(e.target.value) : undefined
-                        )
-                      }
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+          <FormField
+            control={form.control}
+            name="banda_salarial_media"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Banda Salarial Media</FormLabel>
+                <FormControl>
+                  <Input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    placeholder="0.00"
+                    value={typeof field.value === "number" ? field.value : ""}
+                    onChange={(e) =>
+                      field.onChange(
+                        e.target.value === ""
+                          ? ""
+                          : parseFloat(e.target.value) || ""
+                      )
+                    }
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-            <FormField
-              control={form.control}
-              name="banda_salarial_media"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Banda Salarial Media</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      placeholder="0.00"
-                      value={field.value ?? ""}
-                      onChange={(e) =>
-                        field.onChange(
-                          e.target.value ? Number(e.target.value) : undefined
-                        )
+          <FormField
+            control={form.control}
+            name="banda_salarial_max"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Banda Salarial Máxima</FormLabel>
+                <FormControl>
+                  <Input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    placeholder="0.00"
+                    value={typeof field.value === "number" ? field.value : ""}
+                    onChange={(e) => {
+                      if (e.target.value === "") {
+                        field.onChange("");
+                      } else {
+                        const num = parseFloat(e.target.value);
+                        field.onChange(isNaN(num) ? "" : num);
                       }
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="banda_salarial_max"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Banda Salarial Máxima</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      placeholder="0.00"
-                      value={field.value ?? ""}
-                      onChange={(e) =>
-                        field.onChange(
-                          e.target.value ? Number(e.target.value) : undefined
-                        )
-                      }
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-        </div>
+                    }}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </GroupFormSection>
 
         {/* Proceso de Selección */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold">
-            Proceso de Selección y Presupuesto
-          </h3>
+        <GroupFormSection
+          title="Proceso de Selección y Presupuesto"
+          icon={LassoSelect}
+          iconColor="text-primary"
+          bgColor="bg-blue-50"
+          cols={{ sm: 2, md: 3 }}
+        >
+          <FormSelect
+            control={form.control}
+            name="tipo_onboarding_id"
+            label="Tipo de Onboarding"
+            placeholder="Selecciona un tipo"
+            options={typeOnboarding.map((type) => ({
+              value: type.id.toString(),
+              label: type.name,
+            }))}
+            isLoadingOptions={isLoadingTypeOnboarding}
+            strictFilter={true}
+          />
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <FormField
-              control={form.control}
-              name="tipo_onboarding_id"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Tipo de Onboarding</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      min="0"
-                      placeholder="ID del tipo"
-                      value={field.value ?? ""}
-                      onChange={(e) =>
-                        field.onChange(
-                          e.target.value ? Number(e.target.value) : undefined
-                        )
+          <FormField
+            control={form.control}
+            name="plazo_proceso_seleccion"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Plazo Proceso Selección (días)</FormLabel>
+                <FormControl>
+                  <Input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    placeholder="0.00"
+                    value={typeof field.value === "number" ? field.value : ""}
+                    onChange={(e) => {
+                      if (e.target.value === "") {
+                        field.onChange("");
+                      } else {
+                        const num = parseFloat(e.target.value);
+                        field.onChange(isNaN(num) ? "" : num);
                       }
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                    }}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-            <FormField
-              control={form.control}
-              name="plazo_proceso_seleccion"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Plazo Proceso Selección (días)</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      min="0"
-                      placeholder="0"
-                      value={field.value ?? ""}
-                      onChange={(e) =>
-                        field.onChange(
-                          e.target.value ? Number(e.target.value) : undefined
-                        )
+          <FormField
+            control={form.control}
+            name="presupuesto"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Presupuesto</FormLabel>
+                <FormControl>
+                  <Input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    placeholder="0.00"
+                    value={typeof field.value === "number" ? field.value : ""}
+                    onChange={(e) => {
+                      if (e.target.value === "") {
+                        field.onChange("");
+                      } else {
+                        const num = parseFloat(e.target.value);
+                        field.onChange(isNaN(num) ? "" : num);
                       }
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="presupuesto"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Presupuesto</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      placeholder="0.00"
-                      value={field.value ?? ""}
-                      onChange={(e) =>
-                        field.onChange(
-                          e.target.value ? Number(e.target.value) : undefined
-                        )
-                      }
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-        </div>
+                    }}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </GroupFormSection>
 
         {/* Archivos */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold">Archivos</h3>
-
+        <GroupFormSection
+          title="Archivos"
+          icon={FileStack}
+          iconColor="text-secondary"
+          bgColor="bg-red-50"
+          cols={{ sm: 2, md: 3 }}
+        >
           <FormField
             control={form.control}
             name="mof_adjunto"
@@ -391,7 +480,7 @@ export const PositionForm = ({
               />
             )}
           />
-        </div>
+        </GroupFormSection>
 
         <div className="flex gap-4 w-full justify-end pt-4">
           <Link to={ABSOLUTE_ROUTE!}>

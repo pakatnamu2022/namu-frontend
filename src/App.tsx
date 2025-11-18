@@ -579,8 +579,30 @@ const CategoriasProductoPage = lazy(
 const MarcasProductoPage = lazy(
   () => import("./app/ap/post-venta/gestion-de-productos/marcas-producto/page")
 );
+const AddMarcasProductoPage = lazy(
+  () =>
+    import(
+      "./app/ap/post-venta/gestion-de-productos/marcas-producto/agregar/page"
+    )
+);
+const EditMarcasProductoPage = lazy(
+  () =>
+    import(
+      "./app/ap/post-venta/gestion-de-productos/marcas-producto/actualizar/[id]/page"
+    )
+);
 const ProductosPage = lazy(
   () => import("./app/ap/post-venta/gestion-de-productos/productos/page")
+);
+const AddProductosPage = lazy(
+  () =>
+    import("./app/ap/post-venta/gestion-de-productos/productos/agregar/page")
+);
+const EditProductosPage = lazy(
+  () =>
+    import(
+      "./app/ap/post-venta/gestion-de-productos/productos/actualizar/[id]/page"
+    )
 );
 const TiposCategoriaPage = lazy(
   () => import("./app/ap/post-venta/gestion-de-productos/tipos-categoria/page")
@@ -613,10 +635,10 @@ const UsuariosActualizarPage = lazy(
 const VistasPage = lazy(
   () => import("./app/gp/gestion-del-sistema/vistas/page")
 );
-const VistasAgregarPage = lazy(
+const AddVistasPage = lazy(
   () => import("./app/gp/gestion-del-sistema/vistas/agregar/page")
 );
-const VistasActualizarPage = lazy(
+const EditVistasPage = lazy(
   () => import("./app/gp/gestion-del-sistema/vistas/actualizar/[id]/page")
 );
 const VistasPermisosPage = lazy(
@@ -1287,8 +1309,24 @@ function App() {
                 element={<MarcasProductoPage />}
               />
               <Route
+                path="gestion-de-productos/marcas-producto/agregar"
+                element={<AddMarcasProductoPage />}
+              />
+              <Route
+                path="gestion-de-productos/marcas-producto/actualizar/:id"
+                element={<EditMarcasProductoPage />}
+              />
+              <Route
                 path="gestion-de-productos/productos"
                 element={<ProductosPage />}
+              />
+              <Route
+                path="gestion-de-productos/productos/agregar"
+                element={<AddProductosPage />}
+              />
+              <Route
+                path="gestion-de-productos/productos/actualizar/:id"
+                element={<EditProductosPage />}
               />
               <Route
                 path="gestion-de-productos/tipos-categoria"
@@ -1331,10 +1369,10 @@ function App() {
                 element={<UsuariosActualizarPage />}
               />
               <Route path="vistas" element={<VistasPage />} />
-              <Route path="vistas/agregar" element={<VistasAgregarPage />} />
+              <Route path="vistas/agregar" element={<AddVistasPage />} />
               <Route
                 path="vistas/actualizar/:id"
-                element={<VistasActualizarPage />}
+                element={<EditVistasPage />}
               />
               <Route
                 path="vistas/permisos/:id"

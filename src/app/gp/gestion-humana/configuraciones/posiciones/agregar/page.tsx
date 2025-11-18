@@ -20,7 +20,7 @@ export default function AddPositionPage() {
   const router = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { MODEL, ROUTE } = POSITION;
+  const { MODEL, ROUTE, ABSOLUTE_ROUTE } = POSITION;
 
   const handleSubmit = async (data: any) => {
     setIsSubmitting(true);
@@ -85,7 +85,7 @@ export default function AddPositionPage() {
 
       await storePosition(formData);
       successToast(SUCCESS_MESSAGE(MODEL, "create"));
-      router(`/gp/gestion-humana/configuraciones/${ROUTE}`);
+      router(ABSOLUTE_ROUTE!);
     } catch (error: any) {
       console.error("Error al crear posición:", error);
       errorToast(
