@@ -2,6 +2,7 @@ import { type ModelComplete } from "@/core/core.interface";
 import { ApprovedAccesoriesResource } from "./approvedAccessories.interface";
 
 const ROUTE = "accesorios-homologados";
+const ABSOLUTE_ROUTE = `/ap/post-venta/${ROUTE}`;
 
 export const APPROVED_ACCESSORIES: ModelComplete<ApprovedAccesoriesResource> = {
   MODEL: {
@@ -13,8 +14,9 @@ export const APPROVED_ACCESSORIES: ModelComplete<ApprovedAccesoriesResource> = {
   ENDPOINT: "/ap/postVenta/approvedAccessories",
   QUERY_KEY: "approvedAccessories",
   ROUTE,
-  ROUTE_ADD: `./agregar`,
-  ROUTE_UPDATE: `./actualizar`,
+  ABSOLUTE_ROUTE,
+  ROUTE_ADD: `${ABSOLUTE_ROUTE}/agregar`,
+  ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/editar`,
   EMPTY: {
     id: 0,
     code: "",

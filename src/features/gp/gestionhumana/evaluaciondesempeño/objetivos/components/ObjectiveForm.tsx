@@ -18,10 +18,11 @@ import {
   objectiveSchemaUpdate,
 } from "../lib/objective.schema";
 import { Loader } from "lucide-react";
-import { Link } from 'react-router-dom'
+import { Link } from "react-router-dom";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { useAllMetrics } from "../../metricas/lib/metric.hook";
 import FormSkeleton from "@/shared/components/FormSkeleton";
+import { OBJECTIVE } from "../lib/objective.constants";
 
 interface ObjectiveFormProps {
   defaultValues: Partial<ObjectiveSchema>;
@@ -36,6 +37,7 @@ export const ObjectiveForm = ({
   isSubmitting = false,
   mode = "create",
 }: ObjectiveFormProps) => {
+  const { ABSOLUTE_ROUTE } = OBJECTIVE;
   const form = useForm({
     resolver: zodResolver(
       mode === "create" ? objectiveSchemaCreate : objectiveSchemaUpdate
@@ -54,7 +56,10 @@ export const ObjectiveForm = ({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-full formlayout">
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="space-y-4 w-full formlayout"
+      >
         <FormField
           control={form.control}
           name="name"

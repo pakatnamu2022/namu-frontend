@@ -18,7 +18,8 @@ import {
   metricSchemaUpdate,
 } from "../lib/metric.schema";
 import { Loader } from "lucide-react";
-import { Link } from 'react-router-dom'
+import { Link } from "react-router-dom";
+import { METRIC } from "../lib/metric.constant";
 
 interface MetricFormProps {
   defaultValues: Partial<MetricSchema>;
@@ -33,6 +34,7 @@ export const MetricForm = ({
   isSubmitting = false,
   mode = "create",
 }: MetricFormProps) => {
+  const { ABSOLUTE_ROUTE } = METRIC;
   const form = useForm({
     resolver: zodResolver(
       mode === "create" ? metricSchemaCreate : metricSchemaUpdate
@@ -45,7 +47,10 @@ export const MetricForm = ({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-full formlayout">
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="space-y-4 w-full formlayout"
+      >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={form.control}

@@ -15,5 +15,7 @@ export const TYPE_ONBOARDING: ModelComplete<TypeOnboardingResource> = {
   QUERY_KEY: "commercialMasters",
   ROUTE,
   ABSOLUTE_ROUTE,
+  ROUTE_ADD: `${ABSOLUTE_ROUTE}/agregar`,
+  ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/editar`,
   EMPTY: { id: 0, name: "", status_deleted: true },
 };

@@ -2,6 +2,7 @@ import { type ModelComplete } from "@/core/core.interface";
 import { ProductCategoryResource } from "./productCategory.interface";
 
 const ROUTE = "categorias-producto";
+const ABSOLUTE_ROUTE = `/ap/post-venta/gestion-productos/${ROUTE}`;
 
 export const PRODUCT_CATEGORY: ModelComplete<ProductCategoryResource> = {
   MODEL: {
@@ -13,6 +14,9 @@ export const PRODUCT_CATEGORY: ModelComplete<ProductCategoryResource> = {
   ENDPOINT: "/ap/postVenta/productCategory",
   QUERY_KEY: "productCategory",
   ROUTE,
+  ABSOLUTE_ROUTE,
+  ROUTE_ADD: `${ABSOLUTE_ROUTE}/agregar`,
+  ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/editar`,
   EMPTY: {
     id: 0,
     name: "",

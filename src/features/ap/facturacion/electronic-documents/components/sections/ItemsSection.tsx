@@ -285,15 +285,9 @@ export function ItemsSection({
         onClose={closeSheet}
         title={editingIndex !== null ? "Editar Item" : "Agregar Item"}
         side="right"
-        className="!max-w-lg"
+        className="max-w-lg!"
         modal={false}
-        icon={
-          editingIndex !== null ? (
-            <Pencil className="size-5 text-primary" />
-          ) : (
-            <Plus className="size-5 text-primary" />
-          )
-        }
+        icon={editingIndex !== null ? "Pencil" : "Plus"}
       >
         <div className="flex flex-col gap-4">
           <div className="flex-1 space-y-4">

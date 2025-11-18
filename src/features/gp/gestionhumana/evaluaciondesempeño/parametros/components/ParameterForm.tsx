@@ -35,7 +35,11 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { PARAMETER_SCALES, PARAMETER_TYPES } from "../lib/parameter.constans";
+import {
+  PARAMETER,
+  PARAMETER_SCALES,
+  PARAMETER_TYPES,
+} from "../lib/parameter.constans";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { useFormContext } from "react-hook-form";
 import { getScales } from "../lib/parameter.hook";
@@ -56,6 +60,7 @@ export default function ParameterForm({
   isSubmitting = false,
   mode = "create",
 }: Props) {
+  const { ABSOLUTE_ROUTE } = PARAMETER;
   const initialCount = defaultValues?.details?.length
     ? String(defaultValues.details.length)
     : "4";
