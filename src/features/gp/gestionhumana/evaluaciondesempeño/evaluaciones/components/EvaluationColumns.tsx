@@ -30,7 +30,7 @@ export const evaluationColumns = ({
       const id = row.original.id;
       return (
         <Link
-          to={`./evaluaciones/${id}`}
+          to={`${ABSOLUTE_ROUTE}/${id}`}
           className="font-semibold underline text-primary"
         >
           {row.original.name}
