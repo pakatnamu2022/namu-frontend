@@ -4,10 +4,13 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { CompetenceResource } from "../lib/competence.interface";
 import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
+import { COMPETENCE } from "../lib/competence.constans";
 
 export type CompetenceColumns = ColumnDef<CompetenceResource>;
+
+const { ROUTE_UPDATE } = COMPETENCE;
 
 export const competenceColumns = ({
   onDelete,
@@ -18,7 +21,9 @@ export const competenceColumns = ({
     accessorKey: "nombre",
     header: "Nombre",
     cell: ({ getValue }) => (
-      <span className="font-semibold !text-wrap line-clamp-1">{getValue() as string}</span>
+      <span className="font-semibold text-wrap! line-clamp-1">
+        {getValue() as string}
+      </span>
     ),
   },
   {
@@ -35,7 +40,7 @@ export const competenceColumns = ({
             variant="outline"
             size="icon"
             className="size-7"
-            onClick={() => router(`./competencias/actualizar/${id}`)}
+            onClick={() => router(`${ROUTE_UPDATE}/${id}`)}
           >
             <Pencil className="size-5" />
           </Button>

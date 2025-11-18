@@ -1,9 +1,14 @@
 "use client";
 
-import { useParams } from 'react-router-dom';
+import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { errorToast, successToast } from "@/core/core.function";
+import {
+  ERROR_MESSAGE,
+  errorToast,
+  SUCCESS_MESSAGE,
+  successToast,
+} from "@/core/core.function";
 import {
   findCompetenceById,
   updateCompetence,
@@ -14,11 +19,12 @@ import { CompetenceForm } from "@/features/gp/gestionhumana/evaluaciondesempeño
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import FormWrapper from "@/shared/components/FormWrapper";
-import NotFound from '@/app/not-found';
+import NotFound from "@/app/not-found";
+import { COMPETENCE } from "@/features/gp/gestionhumana/evaluaciondesempeño/competencias/lib/competence.constans";
 
-
-export default function EditCompetencePage() {
-    const { id } = useParams();
+export default function UpdateCompetencePage() {
+  const { MODEL, ABSOLUTE_ROUTE } = COMPETENCE;
+  const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();
   const { currentView, checkRouteExists } = useCurrentModule();
@@ -33,14 +39,16 @@ export default function EditCompetencePage() {
     mutationFn: (data: CompetenceSchema) =>
       updateCompetence(id as string, data),
     onSuccess: async () => {
-      successToast("Competencia actualizada correctamente");
+      successToast(SUCCESS_MESSAGE(MODEL, "update"));
       await queryClient.invalidateQueries({
         queryKey: ["competence", id],
       });
-      router("../");
+      router(ABSOLUTE_ROUTE);
     },
-    onError: () => {
-      errorToast("No se pudo actualizar la competencia");
+    onError: (error: any) => {
+      errorToast(
+        error?.response?.data?.message ?? ERROR_MESSAGE(MODEL, "update")
+      );
     },
   });
 
@@ -80,7 +88,6 @@ export default function EditCompetencePage() {
         title={currentView.descripcion}
         mode="edit"
         icon={currentView.icon}
-       
       />
       <CompetenceForm
         defaultValues={mapCompetenceToForm(competence)}

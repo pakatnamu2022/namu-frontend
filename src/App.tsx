@@ -17,6 +17,9 @@ import CyclePage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/ciclos/
 import AddCyclePage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/ciclos/agregar/page";
 import UpdateCyclePage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/ciclos/actualizar/[id]/page";
 import CyclePersonDetailPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/ciclos/[id]/page";
+import CompetencesPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/competencias/page";
+import AddCompetencePage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/competencias/agregar/page";
+import UpdateCompetencePage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/competencias/actualizar/[id]/page";
 const PositionsPage = lazy(
   () => import("./app/gp/gestion-humana/configuraciones/posiciones/page")
 );
@@ -1391,14 +1394,16 @@ function App() {
                 <CyclePersonDetailPage />
               )}
 
-              {/* <Route
-                path="evaluaciones-de-desempeno/ciclos"
-                element={<CiclosPage />}
-              />
-              <Route
-                path="evaluaciones-de-desempeno/ciclos/:id"
-                element={<CiclosDetailPage />}
-              />
+              {RouterCrud(
+                "evaluaciones-de-desempeno/competencias",
+                <CompetencesPage />,
+                <AddCompetencePage />,
+                <UpdateCompetencePage />
+              )}
+
+              {/*
+              
+             
               <Route
                 path="evaluaciones-de-desempeno/competencias"
                 element={<CompetenciasPage />}

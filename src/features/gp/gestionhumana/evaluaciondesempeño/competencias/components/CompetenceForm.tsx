@@ -24,8 +24,10 @@ import SubCompetenceList from "./SubCompetenceList";
 import SubCompetenceForm, { SubCompetenceFormType } from "./SubCompetenceForm";
 import { GeneralModal } from "@/shared/components/GeneralModal";
 import { SUBCOMPETENCE } from "../lib/subcompetence.constans";
+import { COMPETENCE } from "../lib/competence.constans";
 
 const { MODEL } = SUBCOMPETENCE;
+const { ABSOLUTE_ROUTE } = COMPETENCE;
 
 interface CompetenceFormProps {
   defaultValues: Partial<CompetenceSchema>;
