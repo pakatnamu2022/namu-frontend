@@ -29,7 +29,7 @@ import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import NotFound from '@/app/not-found';
 
 
-export default function HierarchicalCategoryosPage() {
+export default function HierarchicalCategoryPage() {
     const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);

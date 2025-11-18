@@ -18,7 +18,7 @@ import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import NotFound from '@/app/not-found';
 
 
-export default function CiclosPage() {
+export default function CyclePage() {
   // const router = useNavigate();
     const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);

@@ -18,7 +18,7 @@ import {
   evaluationSchemaUpdate,
 } from "../lib/evaluation.schema";
 import { Loader } from "lucide-react";
-import { Link } from 'react-router-dom'
+import { Link } from "react-router-dom";
 import { FormSelect } from "@/shared/components/FormSelect";
 import RequiredField from "@/shared/components/RequiredField";
 import { CycleResource } from "../../ciclos/lib/cycle.interface";
@@ -28,7 +28,7 @@ import { ParameterResource } from "../../parametros/lib/parameter.interface";
 import { useEffect } from "react";
 import ParameterInfo from "../../parametros/components/ParameterInfo";
 
-const { MODEL } = EVALUATION;
+const { MODEL, ABSOLUTE_ROUTE } = EVALUATION;
 
 interface EvaluationFormProps {
   defaultValues: Partial<EvaluationSchema>;
@@ -250,7 +250,7 @@ export const EvaluationForm = ({
         </pre> */}
 
         <div className="flex gap-4 w-full justify-end">
-          <Link to={mode === "create" ? "./" : "../"}>
+          <Link to={ABSOLUTE_ROUTE}>
             <Button type="button" variant="outline">
               Cancelar
             </Button>

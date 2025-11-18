@@ -1162,7 +1162,7 @@ export const VehiclePurchaseOrderForm = ({
           )}
 
           <div className="flex gap-4">
-            <Link to={mode === "create" ? "./" : "../"}>
+            <Link to={ABSOLUTE_ROUTE}>
               <Button type="button" variant="outline">
                 Cancelar
               </Button>

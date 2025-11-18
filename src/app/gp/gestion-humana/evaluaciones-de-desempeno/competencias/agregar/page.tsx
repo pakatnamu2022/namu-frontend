@@ -1,29 +1,37 @@
 "use client";
 
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
-import { errorToast, successToast } from "@/core/core.function";
+import {
+  ERROR_MESSAGE,
+  errorToast,
+  SUCCESS_MESSAGE,
+  successToast,
+} from "@/core/core.function";
 import { storeCompetence } from "@/features/gp/gestionhumana/evaluaciondesempeño/competencias/lib/competence.actions";
 import { CompetenceForm } from "@/features/gp/gestionhumana/evaluaciondesempeño/competencias/components/CompetenceForm";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import { CompetenceSchema } from "@/features/gp/gestionhumana/evaluaciondesempeño/competencias/lib/competence.schema";
 import FormWrapper from "@/shared/components/FormWrapper";
-import NotFound from '@/app/not-found';
+import NotFound from "@/app/not-found";
+import { COMPETENCE } from "@/features/gp/gestionhumana/evaluaciondesempeño/competencias/lib/competence.constans";
 
-
-export default function CreateCompetencePage() {
+export default function AddCompetencePage() {
+  const { MODEL, ABSOLUTE_ROUTE } = COMPETENCE;
   const router = useNavigate();
-    const { currentView, checkRouteExists } = useCurrentModule();
+  const { currentView, checkRouteExists } = useCurrentModule();
 
   const { mutate, isPending } = useMutation({
     mutationFn: storeCompetence,
     onSuccess: () => {
-      successToast("Métrica creada exitosamente");
-      router("./");
+      successToast(SUCCESS_MESSAGE(MODEL, "create"));
+      router(ABSOLUTE_ROUTE);
     },
-    onError: () => {
-      errorToast("Hubo un error al crear la métrica");
+    onError: (error: any) => {
+      errorToast(
+        error?.response?.data?.message ?? ERROR_MESSAGE(MODEL, "create")
+      );
     },
   });
 

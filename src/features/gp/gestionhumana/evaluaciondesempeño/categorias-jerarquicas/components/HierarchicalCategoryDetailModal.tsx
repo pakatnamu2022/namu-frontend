@@ -1,13 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Plus, X, Loader2, Trash2 } from "lucide-react";
@@ -18,6 +11,7 @@ import { SearchableSelect } from "@/shared/components/SearchableSelect";
 import { errorToast, successToast } from "@/core/core.function";
 import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
 import { deleteHierarchicalCategoryDetail } from "../lib/hierarchicalCategory.actions";
+import GeneralSheet from "@/shared/components/GeneralSheet";
 
 interface Props {
   queryClient: any;
@@ -135,169 +129,163 @@ export function HierarchicalCategoryDetailModal({
   };
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
-      <SheetContent className="sm:max-w-xl overflow-auto">
-        <SheetHeader>
-          <SheetTitle>Detalles de la categoría jerárquica</SheetTitle>
-          <SheetDescription>
-            <span className="font-semibold">{name}</span>
-          </SheetDescription>
-        </SheetHeader>
-
-        <div className="mt-4 space-y-4 overflow-auto max-h-[80vh] h-full">
-          <div className="w-full flex justify-end mb-2 gap-2">
-            {!adding ? (
-              <Button variant="outline" size="sm" onClick={startAdd}>
-                Agregar Posición
-                <Plus className="size-5 ml-2" />
-              </Button>
-            ) : (
-              <Button variant="ghost" size="sm" onClick={cancelAdd}>
-                <X className="size-4 mr-2" />
-                Cancelar agregado
-              </Button>
-            )}
-          </div>
-
-          <AnimatePresence initial={false}>
-            {adding && (
-              <motion.div
-                key="adder"
-                initial={{ opacity: 0, y: -8, scale: 0.98 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -8, scale: 0.98 }}
-                transition={{ duration: 0.18, ease: "easeOut" }}
-                className="border rounded-md p-3 bg-tertiary"
-              >
-                <div className="flex items-center gap-2 w-full">
-                  <SearchableSelect
-                    onChange={(val) => setSelectedId(Number(val))}
-                    options={positions.map((p) => ({
-                      value: p.id.toString(),
-                      label: p.name,
-                      description: p.area || "",
-                    }))}
-                    value={selectedId ? String(selectedId) : ""}
-                    placeholder="Selecciona una posición"
-                    className="!w-full truncate text-xs"
-                  />
-
-                  <Button
-                    className="w-fit aspect-square"
-                    variant="outline"
-                    size="icon"
-                    onClick={addOneToPending}
-                    disabled={!selectedId || isDuplicate(selectedId)}
-                  >
-                    <Plus className="size-4" />
-                  </Button>
-                </div>
-
-                {/* vista previa de lo seleccionado actualmente (opcional) */}
-                {selectedId && (
-                  <div className="mt-2 text-xs text-muted-foreground">
-                    {positionsMap.get(selectedId)?.area
-                      ? `Área: ${positionsMap.get(selectedId)?.area}`
-                      : null}
-                  </div>
-                )}
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          {/* Lista de pendientes (arriba, con borde diferenciado) */}
-          <AnimatePresence initial={false}>
-            {pending.map((p) => {
-              const pos = positionsMap.get(p.position_id);
-              const letter = pos?.name?.[0] ?? "-";
-              return (
-                <motion.div
-                  key={`pending-${p.position_id}`}
-                  initial={{ opacity: 0, y: -6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -6 }}
-                  transition={{ duration: 0.15 }}
-                  className="flex items-center gap-3 border-2 border-dashed rounded-md p-2"
-                >
-                  <Avatar>
-                    <AvatarFallback>{letter}</AvatarFallback>
-                  </Avatar>
-                  <div className="flex flex-col">
-                    <p className="font-semibold text-sm">
-                      {pos?.name ?? `#${p.position_id}`}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {pos?.area || "—"}
-                    </p>
-                  </div>
-                  <div className="ml-auto">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      title="Quitar"
-                      onClick={() => removePending(p.position_id)}
-                    >
-                      <Trash2 className="size-4" />
-                    </Button>
-                  </div>
-                </motion.div>
-              );
-            })}
-          </AnimatePresence>
-
-          {/* Lista existente */}
-          {items && items.length > 0 ? (
-            items.map((child: HierarchicalCategoryDetail) => (
-              <div
-                key={String(child.id)}
-                className="flex justify-between gap-3"
-              >
-                <div className="flex items-center gap-3">
-                  <Avatar>
-                    <AvatarFallback>
-                      {String(child.position)?.[0] ?? "-"}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex flex-col">
-                    <p className="font-semibold text-sm">{child.position}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {child.area || "—"}
-                    </p>
-                  </div>
-                </div>
-
-                <Button
-                  variant={"outline"}
-                  size={"icon"}
-                  onClick={() => setDeleteDetailId(child.id)}
-                >
-                  <Trash2 className="size-4" />
-                </Button>
-              </div>
-            ))
+    <GeneralSheet
+      title={`Posiciones de ${name}`}
+      subtitle={`Gestiona las posiciones asignadas a la categoría jerárquica`}
+      icon="Users2"
+      open={open}
+      onClose={() => setOpen(false)}
+      size="2xl"
+    >
+      <div className="mt-4 space-y-4 overflow-auto max-h-[80vh] h-full">
+        <div className="w-full flex justify-end mb-2 gap-2">
+          {!adding ? (
+            <Button variant="outline" size="sm" onClick={startAdd}>
+              Agregar Posición
+              <Plus className="size-5 ml-2" />
+            </Button>
           ) : (
-            <p className="text-sm text-muted-foreground">No hay datos.</p>
+            <Button variant="ghost" size="sm" onClick={cancelAdd}>
+              <X className="size-4 mr-2" />
+              Cancelar agregado
+            </Button>
           )}
         </div>
 
-        {/* Footer homogéneo: Guardar / Cerrar */}
-        <div className="w-full flex justify-end gap-2 mt-4">
-          <Button variant="outline" onClick={() => setOpen(false)}>
-            Cerrar
-          </Button>
-          <Button onClick={saveAll} disabled={pending.length === 0 || saving}>
-            {saving ? (
-              <>
-                <Loader2 className="size-4 mr-2 animate-spin" />
-                Guardando
-              </>
-            ) : (
-              "Guardar"
-            )}
-          </Button>
-        </div>
-      </SheetContent>
+        <AnimatePresence initial={false}>
+          {adding && (
+            <motion.div
+              key="adder"
+              initial={{ opacity: 0, y: -8, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -8, scale: 0.98 }}
+              transition={{ duration: 0.18, ease: "easeOut" }}
+              className="border rounded-md p-3 bg-muted"
+            >
+              <div className="flex items-center gap-2 w-full">
+                <SearchableSelect
+                  onChange={(val) => setSelectedId(Number(val))}
+                  options={positions.map((p) => ({
+                    value: p.id.toString(),
+                    label: p.name,
+                    description: p.area || "",
+                  }))}
+                  value={selectedId ? String(selectedId) : ""}
+                  placeholder="Selecciona una posición"
+                  className="w-full! truncate text-xs"
+                  classNameDiv="flex-1"
+                />
 
+                <Button
+                  className="w-fit aspect-square"
+                  variant="outline"
+                  size="icon"
+                  onClick={addOneToPending}
+                  disabled={!selectedId || isDuplicate(selectedId)}
+                >
+                  <Plus className="size-4" />
+                </Button>
+              </div>
+
+              {/* vista previa de lo seleccionado actualmente (opcional) */}
+              {selectedId && (
+                <div className="mt-2 text-xs text-muted-foreground">
+                  {positionsMap.get(selectedId)?.area
+                    ? `Área: ${positionsMap.get(selectedId)?.area}`
+                    : null}
+                </div>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Lista de pendientes (arriba, con borde diferenciado) */}
+        <AnimatePresence initial={false}>
+          {pending.map((p) => {
+            const pos = positionsMap.get(p.position_id);
+            const letter = pos?.name?.[0] ?? "-";
+            return (
+              <motion.div
+                key={`pending-${p.position_id}`}
+                initial={{ opacity: 0, y: -6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.15 }}
+                className="flex items-center gap-3 border-2 border-dashed rounded-md p-2"
+              >
+                <Avatar>
+                  <AvatarFallback>{letter}</AvatarFallback>
+                </Avatar>
+                <div className="flex flex-col">
+                  <p className="font-semibold text-sm">
+                    {pos?.name ?? `#${p.position_id}`}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {pos?.area || "—"}
+                  </p>
+                </div>
+                <div className="ml-auto">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    title="Quitar"
+                    onClick={() => removePending(p.position_id)}
+                  >
+                    <Trash2 className="size-4" />
+                  </Button>
+                </div>
+              </motion.div>
+            );
+          })}
+        </AnimatePresence>
+
+        {/* Lista existente */}
+        {items && items.length > 0 ? (
+          items.map((child: HierarchicalCategoryDetail) => (
+            <div key={String(child.id)} className="flex justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <Avatar>
+                  <AvatarFallback>
+                    {String(child.position)?.[0] ?? "-"}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex flex-col">
+                  <p className="font-semibold text-sm">{child.position}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {child.area || "—"}
+                  </p>
+                </div>
+              </div>
+
+              <Button
+                variant={"outline"}
+                size={"icon"}
+                onClick={() => setDeleteDetailId(child.id)}
+              >
+                <Trash2 className="size-4" />
+              </Button>
+            </div>
+          ))
+        ) : (
+          <p className="text-sm text-muted-foreground">No hay datos.</p>
+        )}
+      </div>
+      {/* Footer homogéneo: Guardar / Cerrar */}
+      <div className="w-full flex justify-end gap-2 mt-4">
+        <Button variant="outline" onClick={() => setOpen(false)}>
+          Cerrar
+        </Button>
+        <Button onClick={saveAll} disabled={pending.length === 0 || saving}>
+          {saving ? (
+            <>
+              <Loader2 className="size-4 mr-2 animate-spin" />
+              Guardando
+            </>
+          ) : (
+            "Guardar"
+          )}
+        </Button>
+      </div>
       {deleteDetailId !== null && (
         <SimpleDeleteDialog
           open={true}
@@ -305,6 +293,6 @@ export function HierarchicalCategoryDetailModal({
           onConfirm={handleDeleteDetail}
         />
       )}
-    </Sheet>
+    </GeneralSheet>
   );
 }

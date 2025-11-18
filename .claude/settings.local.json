@@ -3,7 +3,8 @@
     "allow": [
       "Bash(Select-Object -First 20 FullName)",
       "Bash(git checkout:*)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(npm uninstall:*)"
     ],
     "deny": [],
     "ask": []

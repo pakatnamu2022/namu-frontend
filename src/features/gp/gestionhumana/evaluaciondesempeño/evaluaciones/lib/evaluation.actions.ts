@@ -41,9 +41,18 @@ export async function getAllEvaluations(): Promise<EvaluationResource[]> {
 }
 
 export async function findEvaluationById(
-  id: string
+  id: string,
+  params?: Record<string, any>
 ): Promise<EvaluationResource> {
-  const response = await api.get<EvaluationResource>(`${ENDPOINT}/${id}`);
+  const config: AxiosRequestConfig = {
+    params: {
+      ...params,
+    },
+  };
+  const response = await api.get<EvaluationResource>(
+    `${ENDPOINT}/${id}`,
+    config
+  );
   return response.data;
 }
 
@@ -116,7 +125,7 @@ export async function checkEvaluationDates(
 }
 
 interface RegenerateEvaluationParams {
-  mode: 'full_reset' | 'sync_with_cycle' | 'add_missing_only';
+  mode: "full_reset" | "sync_with_cycle" | "add_missing_only";
   reset_progress?: boolean;
   force?: boolean;
 }

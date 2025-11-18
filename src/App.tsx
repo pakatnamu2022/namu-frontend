@@ -8,7 +8,24 @@ import {
 import { useAuthStore } from "./features/auth/lib/auth.store";
 import DashboardSkeleton from "./shared/components/DashboardSkeleton";
 import { AuthInitializer } from "./shared/components/AuthInitializer";
-import { FC, lazy, Suspense } from "react";
+import { FC, JSX, lazy, Suspense } from "react";
+import ModulePerformanceEvaluationPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/page";
+import HierarchicalCategoryPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/categorias-jerarquicas/page";
+import AddHierarchicalCategoryPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/categorias-jerarquicas/agregar/page";
+import EditHierarchicalCategoryPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/categorias-jerarquicas/actualizar/[id]/page";
+import CyclePage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/ciclos/page";
+import AddCyclePage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/ciclos/agregar/page";
+import UpdateCyclePage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/ciclos/actualizar/[id]/page";
+import CyclePersonDetailPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/ciclos/[id]/page";
+import CompetencesPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/competencias/page";
+import AddCompetencePage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/competencias/agregar/page";
+import UpdateCompetencePage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/competencias/actualizar/[id]/page";
+import EvaluationPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/evaluaciones/page";
+import AddEvaluationPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/evaluaciones/agregar/page";
+import UpdateEvaluationPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/evaluaciones/actualizar/[id]/page";
+import EvaluationPersonPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/evaluaciones/[id]/page";
+import EvaluationDetailPersonPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/evaluaciones/detalles/[id]/page";
+import EvaluationDetailPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/evaluaciones/detalles/[id]/page";
 const PositionsPage = lazy(
   () => import("./app/gp/gestion-humana/configuraciones/posiciones/page")
 );
@@ -640,74 +657,6 @@ const TrabajadoresPage = lazy(
     )
 );
 
-// Evaluaciones de Desempeño
-const EvaluacionesDesempenoPage = lazy(
-  () => import("./app/gp/gestion-humana/evaluaciones-de-desempeno/page")
-);
-const CategoriasJerarquicasPage = lazy(
-  () =>
-    import(
-      "./app/gp/gestion-humana/evaluaciones-de-desempeno/categorias-jerarquicas/page"
-    )
-);
-const CiclosPage = lazy(
-  () => import("./app/gp/gestion-humana/evaluaciones-de-desempeno/ciclos/page")
-);
-const CiclosDetailPage = lazy(
-  () =>
-    import("./app/gp/gestion-humana/evaluaciones-de-desempeno/ciclos/[id]/page")
-);
-const CompetenciasPage = lazy(
-  () =>
-    import(
-      "./app/gp/gestion-humana/evaluaciones-de-desempeno/competencias/page"
-    )
-);
-const EvaluacionesPage = lazy(
-  () =>
-    import(
-      "./app/gp/gestion-humana/evaluaciones-de-desempeno/evaluaciones/page"
-    )
-);
-const EvaluacionesDetailPage = lazy(
-  () =>
-    import(
-      "./app/gp/gestion-humana/evaluaciones-de-desempeno/evaluaciones/[id]/page"
-    )
-);
-const EvaluacionesDetallesPage = lazy(
-  () =>
-    import(
-      "./app/gp/gestion-humana/evaluaciones-de-desempeno/evaluaciones/detalles/[id]/page"
-    )
-);
-const EvaluacionesDetallesPersonPage = lazy(
-  () =>
-    import(
-      "./app/gp/gestion-humana/evaluaciones-de-desempeno/evaluaciones/detalles/[id]/[person]/page"
-    )
-);
-const ExcluidosPage = lazy(
-  () =>
-    import("./app/gp/gestion-humana/evaluaciones-de-desempeno/excluidos/page")
-);
-const MetricasPage = lazy(
-  () =>
-    import("./app/gp/gestion-humana/evaluaciones-de-desempeno/metricas/page")
-);
-const ObjetivosPage = lazy(
-  () =>
-    import("./app/gp/gestion-humana/evaluaciones-de-desempeno/objetivos/page")
-);
-const ParametrosPage = lazy(
-  () =>
-    import("./app/gp/gestion-humana/evaluaciones-de-desempeno/parametros/page")
-);
-const PeriodosPage = lazy(
-  () =>
-    import("./app/gp/gestion-humana/evaluaciones-de-desempeno/periodos/page")
-);
-
 // ============================================================================
 // GP - MAESTRO GENERAL
 // ============================================================================
@@ -742,6 +691,23 @@ const ProtectedRoute: FC<{ children: React.ReactNode }> = ({ children }) => {
 // LOADING COMPONENT
 // ============================================================================
 const LoadingFallback = () => <DashboardSkeleton />;
+
+const RouterCrud = (
+  path: string,
+  page: JSX.Element,
+  addPage: JSX.Element,
+  editPage: JSX.Element,
+  detailPage?: JSX.Element
+) => {
+  return (
+    <>
+      <Route path={path} element={page} />
+      <Route path={`${path}/agregar`} element={addPage} />
+      <Route path={`${path}/actualizar/:id`} element={editPage} />
+      {detailPage && <Route path={`${path}/:id`} element={detailPage} />}
+    </>
+  );
+};
 
 // ============================================================================
 // APP COMPONENT
@@ -1454,24 +1420,51 @@ function App() {
               {/* Evaluaciones de Desempeño */}
               <Route
                 path="evaluaciones-de-desempeno"
-                element={<EvaluacionesDesempenoPage />}
+                element={<ModulePerformanceEvaluationPage />}
               />
+
+              {RouterCrud(
+                "evaluaciones-de-desempeno/categorias-jerarquicas",
+                <HierarchicalCategoryPage />,
+                <AddHierarchicalCategoryPage />,
+                <EditHierarchicalCategoryPage />
+              )}
+
+              {RouterCrud(
+                "evaluaciones-de-desempeno/ciclos",
+                <CyclePage />,
+                <AddCyclePage />,
+                <UpdateCyclePage />,
+                <CyclePersonDetailPage />
+              )}
+
+              {RouterCrud(
+                "evaluaciones-de-desempeno/competencias",
+                <CompetencesPage />,
+                <AddCompetencePage />,
+                <UpdateCompetencePage />
+              )}
+
+              {RouterCrud(
+                "evaluaciones-de-desempeno/evaluaciones",
+                <EvaluationPage />,
+                <AddEvaluationPage />,
+                <UpdateEvaluationPage />,
+                <EvaluationPersonPage />
+              )}
+
               <Route
-                path="evaluaciones-de-desempeno/categorias-jerarquicas"
-                element={<CategoriasJerarquicasPage />}
+                path="evaluaciones-de-desempeno/evaluaciones/detalles/:id"
+                element={<EvaluationDetailPage />}
               />
+
               <Route
-                path="evaluaciones-de-desempeno/ciclos"
-                element={<CiclosPage />}
+                path="evaluaciones-de-desempeno/evaluaciones/detalles/:id/:person"
+                element={<EvaluationDetailPersonPage />}
               />
-              <Route
-                path="evaluaciones-de-desempeno/ciclos/:id"
-                element={<CiclosDetailPage />}
-              />
-              <Route
-                path="evaluaciones-de-desempeno/competencias"
-                element={<CompetenciasPage />}
-              />
+
+              {/*
+              
               <Route
                 path="evaluaciones-de-desempeno/evaluaciones"
                 element={<EvaluacionesPage />}
@@ -1507,7 +1500,7 @@ function App() {
               <Route
                 path="evaluaciones-de-desempeno/periodos"
                 element={<PeriodosPage />}
-              />
+              /> */}
             </Route>
 
             {/* ======================================================== */}

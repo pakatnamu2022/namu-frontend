@@ -24,8 +24,10 @@ import SubCompetenceList from "./SubCompetenceList";
 import SubCompetenceForm, { SubCompetenceFormType } from "./SubCompetenceForm";
 import { GeneralModal } from "@/shared/components/GeneralModal";
 import { SUBCOMPETENCE } from "../lib/subcompetence.constans";
+import { COMPETENCE } from "../lib/competence.constans";
 
 const { MODEL } = SUBCOMPETENCE;
+const { ABSOLUTE_ROUTE } = COMPETENCE;
 
 interface CompetenceFormProps {
   defaultValues: Partial<CompetenceSchema>;
@@ -137,7 +139,7 @@ export const CompetenceForm = ({
         </div>
 
         <div className="flex gap-4 w-full justify-end">
-          <Link to={mode === "create" ? "./" : "../"}>
+          <Link to={ABSOLUTE_ROUTE}>
             <Button type="button" variant="outline">
               Cancelar
             </Button>

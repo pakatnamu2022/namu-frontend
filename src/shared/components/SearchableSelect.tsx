@@ -24,6 +24,7 @@ interface SearchableSelectProps {
   placeholder?: string;
   className?: string;
   classNameOption?: string;
+  classNameDiv?: string;
   portalContainer?: HTMLElement | null;
   withValue?: boolean;
   label?: string;
@@ -39,6 +40,7 @@ export function SearchableSelect({
   placeholder = "Selecciona...",
   className,
   classNameOption,
+  classNameDiv,
   portalContainer,
   withValue = true,
   label,
@@ -87,7 +89,7 @@ export function SearchableSelect({
   }, [open]);
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className={cn("flex flex-col gap-2", classNameDiv)}>
       {label && <label className="text-sm font-medium">{label}</label>}
       <Popover
         open={open}
@@ -110,7 +112,7 @@ export function SearchableSelect({
               className
             )}
           >
-            <span className="!text-nowrap line-clamp-1">
+            <span className="text-nowrap! line-clamp-1">
               {selected
                 ? typeof selected.label === "function"
                   ? selected.label()
@@ -122,7 +124,7 @@ export function SearchableSelect({
         </PopoverTrigger>
         <PopoverContent
           container={portalContainer}
-          className="p-0 !w-(--radix-popover-trigger-width)"
+          className="p-0 w-(--radix-popover-trigger-width)!"
           onWheel={(e) => e.stopPropagation()}
           onWheelCapture={(e) => e.stopPropagation()}
           onTouchMove={(e) => e.stopPropagation()}

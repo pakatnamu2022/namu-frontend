@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams } from 'react-router-dom';
+import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
@@ -24,20 +24,22 @@ import { useAllCycles } from "@/features/gp/gestionhumana/evaluaciondesempeño/c
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { useAllParameters } from "@/features/gp/gestionhumana/evaluaciondesempeño/parametros/lib/parameter.hook";
 import FormWrapper from "@/shared/components/FormWrapper";
-import NotFound from '@/app/not-found';
-
+import NotFound from "@/app/not-found";
 
 const { MODEL } = EVALUATION;
 
-export default function EditEvaluationPage() {
-    const { id } = useParams();
+export default function UpdateEvaluationPage() {
+  const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();
   const { currentView, checkRouteExists } = useCurrentModule();
 
   const { data: evaluation, isLoading: loadingEvaluation } = useQuery({
     queryKey: [MODEL.name, id],
-    queryFn: () => findEvaluationById(id as string),
+    queryFn: () =>
+      findEvaluationById(id as string, {
+        show_extra: 0,
+      }),
     refetchOnWindowFocus: false,
   });
 

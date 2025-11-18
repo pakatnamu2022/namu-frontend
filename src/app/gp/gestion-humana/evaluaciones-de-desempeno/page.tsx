@@ -8,7 +8,7 @@ import PerformanceEvaluationPage from "@/features/gp/gestionhumana/evaluaciondes
 import NotFound from '@/app/not-found';
 
 
-export default function ModulePage() {
+export default function ModulePerformanceEvaluationPage() {
     const { company, subModuleSlug } = useCurrentModule();
 
   if (company === "") {

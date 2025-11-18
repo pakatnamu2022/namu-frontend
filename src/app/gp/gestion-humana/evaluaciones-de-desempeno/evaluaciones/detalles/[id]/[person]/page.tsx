@@ -53,7 +53,7 @@ import {
 
 const { QUERY_KEY, MODEL } = EVALUATION_PERSON;
 
-export default function NamuPerformancePage() {
+export default function EvaluationDetailPersonPage() {
   const { id, person } = useParams();
 
   const idEvaluation = Number(id);

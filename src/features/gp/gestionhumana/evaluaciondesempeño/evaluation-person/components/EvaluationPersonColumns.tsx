@@ -1,10 +1,8 @@
 "use client";
 
-import type { ColumnDef } from "@tanstack/react-table";
+import { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { PanelLeft, RefreshCw } from "lucide-react";
-import { useNavigate } from 'react-router-dom';
-import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { EvaluationPersonResultResource } from "../lib/evaluationPerson.interface";
 import { WorkerResource } from "../../../personal/trabajadores/lib/worker.interface";
 import { Badge } from "@/components/ui/badge";
@@ -19,8 +17,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { useNavigate } from "react-router-dom";
+import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
+import { EVALUATION_PERSON } from "../lib/evaluationPerson.constans";
 
 export type EvaluationPersonColumn = ColumnDef<EvaluationPersonResultResource>;
+const { ABSOLUTE_ROUTE } = EVALUATION_PERSON;
 
 export const EvaluationPersonColumns = ({
   onRegenerate,
@@ -98,6 +100,20 @@ export const EvaluationPersonColumns = ({
     },
   },
   {
+    accessorKey: "progress",
+    header: "Progreso",
+    cell: ({ row }) => {
+      const total_progress = row.original.total_progress.completion_rate;
+      return (
+        <div className="flex justify-center items-center gap-2 w-full ">
+          <Badge className="min-w-16 justify-end" variant={"default"}>
+            {total_progress.toFixed(2) ?? 0} %
+          </Badge>
+        </div>
+      );
+    },
+  },
+  {
     id: "actions",
     header: "Acciones",
     size: 60,
@@ -118,8 +134,9 @@ export const EvaluationPersonColumns = ({
           <Button
             variant="outline"
             size="sm"
-            className="h-7 text-xs"
-            onClick={() => router(`./${evaluationId}/${id}`)}
+            className="h-7 text-xs!"
+            tooltip="Ver Evaluación"
+            onClick={() => router(`${ABSOLUTE_ROUTE}/${evaluationId}/${id}`)}
           >
             Evaluación
             <PanelLeft className="size-5" />
@@ -129,7 +146,7 @@ export const EvaluationPersonColumns = ({
           <Button
             variant="outline"
             size="icon"
-            className="h-7 text-xs"
+            className="h-7"
             onClick={() => setShowRegenerateDialog(true)}
             tooltip="Restablecer Evaluación"
           >
@@ -140,12 +157,16 @@ export const EvaluationPersonColumns = ({
           <DeleteButton onClick={() => onDelete(id)} />
 
           {/* Confirmation Dialog */}
-          <AlertDialog open={showRegenerateDialog} onOpenChange={setShowRegenerateDialog}>
+          <AlertDialog
+            open={showRegenerateDialog}
+            onOpenChange={setShowRegenerateDialog}
+          >
             <AlertDialogContent>
               <AlertDialogHeader>
                 <AlertDialogTitle>Restablecer Evaluación</AlertDialogTitle>
                 <AlertDialogDescription>
-                  ¿Estás seguro de que deseas regenerar la evaluación? Esta acción sobrescribirá los datos actuales de la evaluación.
+                  ¿Estás seguro de que deseas regenerar la evaluación? Esta
+                  acción sobrescribirá los datos actuales de la evaluación.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>

@@ -12,14 +12,20 @@ import { competenceColumns } from "@/features/gp/gestionhumana/evaluaciondesempe
 import CompetenceOptions from "@/features/gp/gestionhumana/evaluaciondesempeño/competencias/components/CompetenceOptions";
 import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
 import { deleteCompetence } from "@/features/gp/gestionhumana/evaluaciondesempeño/competencias/lib/competence.actions";
-import { errorToast, successToast } from "@/core/core.function";
+import {
+  ERROR_MESSAGE,
+  errorToast,
+  SUCCESS_MESSAGE,
+  successToast,
+} from "@/core/core.function";
 import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
-import NotFound from '@/app/not-found';
+import NotFound from "@/app/not-found";
+import { COMPETENCE } from "@/features/gp/gestionhumana/evaluaciondesempeño/competencias/lib/competence.constans";
 
-
-export default function CompetenciasPage() {
-    const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
+export default function CompetencesPage() {
+  const { MODEL } = COMPETENCE;
+  const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
@@ -40,9 +46,11 @@ export default function CompetenciasPage() {
     try {
       await deleteCompetence(deleteId);
       await refetch();
-      successToast("Competencia eliminada correctamente.");
-    } catch (error) {
-      errorToast("Error al eliminar la competencia.");
+      successToast(SUCCESS_MESSAGE(MODEL, "delete"));
+    } catch (error: any) {
+      errorToast(
+        error?.response?.data?.message ?? ERROR_MESSAGE(MODEL, "delete")
+      );
     } finally {
       setDeleteId(null);
     }

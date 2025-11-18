@@ -1,13 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Plus, X } from "lucide-react";
 import {
@@ -42,6 +35,7 @@ import { AddCompetenceSelect } from "./AddCompetenceSelect";
 import { CategoryCompetencesList } from "./CategoryCompetenceList";
 import { CategoryCompetencePersonList } from "./CategoryCompetencePersonList";
 import { CATEGORY_COMPETENCE } from "../../categoria-competencia-detalle/lib/hierarchicalCategoryCompetence.constants";
+import GeneralSheet from "@/shared/components/GeneralSheet";
 
 interface Props {
   queryClient: any;
@@ -197,84 +191,76 @@ export function HierarchicalCategoryCompetenceModal({
   };
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
-      <SheetContent className="sm:max-w-4xl overflow-auto">
-        <SheetHeader>
-          <SheetTitle>Detalles de la categoría jerárquica</SheetTitle>
-          <SheetDescription>
-            <span className="font-semibold">{name}</span>
-          </SheetDescription>
-        </SheetHeader>
-        {isLoadingWorkers ? (
-          <FormSkeleton />
-        ) : (
-          <div className="mt-4 space-y-4 overflow-auto max-h-[80vh] h-full">
-            <Tabs
-              defaultValue="competences"
-              className="p-2 w-full h-full bg-muted rounded-lg"
-            >
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="competences">Competencias</TabsTrigger>
-                <TabsTrigger value="asignations">Asignaciones</TabsTrigger>
-              </TabsList>
-              <TabsContents className="rounded-sm h-full bg-background w-full overflow-y-auto">
-                <TabsContent value="competences" className="space-y-6 p-6">
-                  <div className="w-full flex justify-end mb-2 gap-2">
-                    {!adding ? (
-                      <Button variant="outline" size="sm" onClick={startAdd}>
-                        Agregar Competencia
-                        <Plus className="size-5 ml-2" />
-                      </Button>
-                    ) : (
-                      <Button variant="ghost" size="sm" onClick={cancelAdd}>
-                        <X className="size-4 mr-2" />
-                        Cancelar agregado
-                      </Button>
-                    )}
-                  </div>
+    <GeneralSheet
+      title={`Competencias de ${name}`}
+      subtitle={`Gestiona las competencias asignadas a la categoría jerárquica`}
+      icon="BookmarkCheck"
+      open={open}
+      onClose={() => setOpen(false)}
+      size="4xl"
+    >
+      {isLoadingWorkers ? (
+        <FormSkeleton />
+      ) : (
+        <div className="mt-4 space-y-4 overflow-auto max-h-[80vh] h-full">
+          <Tabs
+            defaultValue="competences"
+            className="p-2 w-full h-full bg-muted rounded-lg"
+          >
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="competences">Competencias</TabsTrigger>
+              <TabsTrigger value="asignations">Asignaciones</TabsTrigger>
+            </TabsList>
+            <TabsContents className="rounded-sm h-full bg-background w-full overflow-y-auto">
+              <TabsContent value="competences" className="space-y-6 p-6">
+                <div className="w-full flex justify-end mb-2 gap-2">
+                  {!adding ? (
+                    <Button variant="outline" size="sm" onClick={startAdd}>
+                      Agregar Competencia
+                      <Plus className="size-5 ml-2" />
+                    </Button>
+                  ) : (
+                    <Button variant="ghost" size="sm" onClick={cancelAdd}>
+                      <X className="size-4 mr-2" />
+                      Cancelar agregado
+                    </Button>
+                  )}
+                </div>
 
-                  {/* Selector de competencia */}
-                  <AddCompetenceSelect
-                    adding={adding}
-                    setSelectedId={setSelectedId}
-                    competences={competences}
-                    selectedId={selectedId}
-                    isDuplicate={isDuplicate}
-                    isUpdating={isUpdating}
-                    addCompetence={addCompetence}
-                  />
+                {/* Selector de competencia */}
+                <AddCompetenceSelect
+                  adding={adding}
+                  setSelectedId={setSelectedId}
+                  competences={competences}
+                  selectedId={selectedId}
+                  isDuplicate={isDuplicate}
+                  isUpdating={isUpdating}
+                  addCompetence={addCompetence}
+                />
 
-                  {/* Lista de competencias */}
-                  <CategoryCompetencesList
-                    categoryCompetences={categoryCompetences}
-                    setDeleteDetailId={setDeleteDetailId}
-                  />
-                </TabsContent>
-                <TabsContent
-                  value="asignations"
-                  className="space-y-6 p-6 overflow-auto max-h-[70vh]"
-                >
-                  {/* Lista de competencias por Trabajador */}
-                  <CategoryCompetencePersonList
-                    data={data}
-                    handleSwitchChange={handleSwitchChange}
-                    isPending={isPending}
-                    handleUpdateGoalCell={handleUpdateGoalCell}
-                    handleUpdateWeightCell={handleUpdateWeightCell}
-                  />
-                </TabsContent>
-              </TabsContents>
-            </Tabs>
-          </div>
-        )}
-
-        {/* Footer */}
-        <div className="w-full flex justify-end gap-2 mt-4">
-          <Button variant="outline" onClick={() => setOpen(false)}>
-            Cerrar
-          </Button>
+                {/* Lista de competencias */}
+                <CategoryCompetencesList
+                  categoryCompetences={categoryCompetences}
+                  setDeleteDetailId={setDeleteDetailId}
+                />
+              </TabsContent>
+              <TabsContent
+                value="asignations"
+                className="space-y-6 p-6 overflow-auto max-h-[70vh]"
+              >
+                {/* Lista de competencias por Trabajador */}
+                <CategoryCompetencePersonList
+                  data={data}
+                  handleSwitchChange={handleSwitchChange}
+                  isPending={isPending}
+                  handleUpdateGoalCell={handleUpdateGoalCell}
+                  handleUpdateWeightCell={handleUpdateWeightCell}
+                />
+              </TabsContent>
+            </TabsContents>
+          </Tabs>
         </div>
-      </SheetContent>
+      )}
 
       {/* Delete Dialog */}
       {deleteDetailId !== null && (
@@ -284,6 +270,6 @@ export function HierarchicalCategoryCompetenceModal({
           onConfirm={handleDeleteCompetence}
         />
       )}
-    </Sheet>
+    </GeneralSheet>
   );
 }
