@@ -14,27 +14,29 @@ jobs:
       with:
         host: ${{ secrets.HOST }}
         username: ${{ secrets.USERNAME }}
-        password: ${{ secrets.PASSWORD }}  # ← Cambiado de 'key' a 'password'
+        password: ${{ secrets.PASSWORD }}
         port: 22
         timeout: 30s
         command_timeout: 15m
         script: |
           cd /var/www/html/namu-frontend
           
-          # Como git no funciona, descarga el repo como ZIP
-          echo "📥 Downloading latest code..."
-          curl -L -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-               https://github.com/pakatnamu2022/namu-frontend/archive/refs/heads/main.zip \
-               -o /tmp/repo.zip
+          echo "📥 Pulling latest changes..."
+          git pull origin main
           
-          # Descomprime y actualiza
-          apt install unzip -y 2>/dev/null || true
-          unzip -o /tmp/repo.zip -d /tmp/
+          echo "🔧 Configuring Node environment..."
+          export PATH="/root/.nvm/versions/node/v20.19.4/bin:$PATH"
           
-          # Backup del dist actual
-          if [ -d "dist" ]; then
-            mv dist dist_backup_$(date +%Y%m%d_%H%M%S)
+          echo "📦 Installing dependencies..."
+          npm install
+          
+          echo "🏗️ Building application..."
+          if ! npm run build; then
+            echo "❌ BUILD FAILED - Deploy stopped"
+            exit 1
           fi
           
-          # Copia archivos nuevos (excepto node_modules y dist)
-          rsync -av --exclude='node_modules' --exclude='d
+          echo "🔄 Restarting PM2..."
+          pm2 restart namu-frontend
+          
+          echo "✅ Deploy completed successfully!"
