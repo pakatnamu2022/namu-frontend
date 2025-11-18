@@ -54,7 +54,7 @@ export const HierarchicalCategoryForm = ({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-4 w-full bg-background p-4 rounded-lg shadow"
+        className="space-y-4 w-full bg-background p-4"
       >
         <FormField
           control={form.control}
