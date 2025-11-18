@@ -32,7 +32,7 @@ export const BRAND: ModelComplete<BrandsResource> = {
 };
 
 const ROUTE_POSTVENTA = "marcas-producto";
-const ABSOLUTE_ROUTE_POSTVENTA = `/ap/configuration/vehiculos/${ROUTE_POSTVENTA}`;
+const ABSOLUTE_ROUTE_POSTVENTA = `/ap/post-venta/gestion-de-productos/${ROUTE_POSTVENTA}`;
 
 export const BRAND_POSTVENTA: ModelComplete<BrandsResource> = {
   MODEL: {
@@ -45,8 +45,8 @@ export const BRAND_POSTVENTA: ModelComplete<BrandsResource> = {
   QUERY_KEY: "vehicleBrand",
   ROUTE: ROUTE_POSTVENTA,
   ABSOLUTE_ROUTE: ABSOLUTE_ROUTE_POSTVENTA,
-  ROUTE_ADD: `${ROUTE_POSTVENTA}/agregar`,
-  ROUTE_UPDATE: `${ROUTE_POSTVENTA}/actualizar`,
+  ROUTE_ADD: `${ABSOLUTE_ROUTE_POSTVENTA}/agregar`,
+  ROUTE_UPDATE: `${ABSOLUTE_ROUTE_POSTVENTA}/actualizar`,
   EMPTY: {
     id: 0,
     code: "",

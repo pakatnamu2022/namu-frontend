@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams } from 'react-router-dom';
+import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
@@ -19,14 +19,13 @@ import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import { BrandsForm } from "@/features/ap/configuraciones/vehiculos/marcas/components/BrandsForm";
 import FormWrapper from "@/shared/components/FormWrapper";
 import { BRAND_POSTVENTA } from "@/features/ap/configuraciones/vehiculos/marcas/lib/brands.constants";
-import NotFound from '@/app/not-found';
-
+import NotFound from "@/app/not-found";
 
 export default function EditBrandPage() {
-    const { id } = useParams();
+  const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();
-  const { ROUTE, MODEL, QUERY_KEY } = BRAND_POSTVENTA;
+  const { ROUTE, MODEL, QUERY_KEY, ABSOLUTE_ROUTE } = BRAND_POSTVENTA;
   const { currentView, checkRouteExists } = useCurrentModule();
 
   const { data: Brand, isLoading: loadingBrand } = useQuery({
@@ -42,7 +41,7 @@ export default function EditBrandPage() {
       await queryClient.invalidateQueries({
         queryKey: [QUERY_KEY, id],
       });
-      router("../");
+      router(ABSOLUTE_ROUTE);
     },
     onError: (error: any) => {
       const msg = error?.response?.data?.message || "";

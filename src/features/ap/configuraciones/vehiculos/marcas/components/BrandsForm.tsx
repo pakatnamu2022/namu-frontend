@@ -198,7 +198,13 @@ export const BrandsForm = ({
           />
         </div>
         <div className="flex gap-4 w-full justify-end">
-          <Link to={ABSOLUTE_ROUTE}>
+          <Link
+            to={
+              isCommercial
+                ? ABSOLUTE_ROUTE
+                : "/ap/post-venta/gestion-de-productos/marcas-producto"
+            }
+          >
             <Button type="button" variant="outline">
               Cancelar
             </Button>

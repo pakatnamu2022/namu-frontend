@@ -562,6 +562,18 @@ const CategoriasProductoPage = lazy(
 const MarcasProductoPage = lazy(
   () => import("./app/ap/post-venta/gestion-de-productos/marcas-producto/page")
 );
+const AddMarcasProductoPage = lazy(
+  () =>
+    import(
+      "./app/ap/post-venta/gestion-de-productos/marcas-producto/agregar/page"
+    )
+);
+const EditMarcasProductoPage = lazy(
+  () =>
+    import(
+      "./app/ap/post-venta/gestion-de-productos/marcas-producto/actualizar/[id]/page"
+    )
+);
 const ProductosPage = lazy(
   () => import("./app/ap/post-venta/gestion-de-productos/productos/page")
 );
@@ -1319,6 +1331,14 @@ function App() {
               <Route
                 path="gestion-de-productos/marcas-producto"
                 element={<MarcasProductoPage />}
+              />
+              <Route
+                path="gestion-de-productos/marcas-producto/agregar"
+                element={<AddMarcasProductoPage />}
+              />
+              <Route
+                path="gestion-de-productos/marcas-producto/actualizar/:id"
+                element={<EditMarcasProductoPage />}
               />
               <Route
                 path="gestion-de-productos/productos"
