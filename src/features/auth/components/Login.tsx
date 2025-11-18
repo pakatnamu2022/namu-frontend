@@ -147,13 +147,12 @@ export function Login({ className, ...props }: React.ComponentProps<"div">) {
                         variant="ghost"
                         size="icon"
                         type="button"
-                        className="size-14 aspect-square relative rounded-full"
+                        className="size-14 aspect-square relative rounded-lg"
                       >
                         <img
-                          className="h-4 w-4 p-2"
+                          className="size-32 p-2"
                           src={link.src}
                           alt={link.label}
-                          loading="lazy"
                         />
                         <span className="sr-only">{link.label}</span>
                       </Button>
