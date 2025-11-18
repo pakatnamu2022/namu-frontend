@@ -1377,6 +1377,13 @@ function App() {
                 <EditHierarchicalCategoryPage />
               )}
 
+              {RouterCrud(
+                "evaluaciones-de-desempeno/ciclos",
+                <HierarchicalCategoryPage />,
+                <AddHierarchicalCategoryPage />,
+                <EditHierarchicalCategoryPage />
+              )}
+
               {/* <Route
                 path="evaluaciones-de-desempeno/ciclos"
                 element={<CiclosPage />}

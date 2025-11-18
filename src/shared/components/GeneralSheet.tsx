@@ -59,8 +59,8 @@ const GeneralSheet: React.FC<GeneralSheetProps> = ({
         <SheetHeader>
           <div className="flex items-center gap-2">
             {icon && IconComponent && (
-              <div className="mr-2">
-                <IconComponent />
+              <div className="mr-2 bg-primary text-primary-foreground rounded-md p-2">
+                <IconComponent className="size-5" />
               </div>
             )}
             <div>

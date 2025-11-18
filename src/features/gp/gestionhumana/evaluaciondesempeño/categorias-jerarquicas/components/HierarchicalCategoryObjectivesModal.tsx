@@ -1,13 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Plus, X } from "lucide-react";
 import {
@@ -42,6 +35,7 @@ import { CategoryObjectivesList } from "./CategoryObjectivesList";
 import { CategoryObjectivePersonList } from "./CategoryObjectivePersonList";
 import { AddObjectiveSelect } from "./AddObjectiveSelect";
 import { useHierarchicalCategoryById } from "../lib/hierarchicalCategory.hook";
+import GeneralSheet from "@/shared/components/GeneralSheet";
 
 interface Props {
   queryClient: any;
@@ -195,81 +189,80 @@ export function HierarchicalCategoryObjectivesModal({
   };
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
-      <SheetContent className="sm:max-w-4xl overflow-auto">
-        <SheetHeader>
-          <SheetTitle>Detalles de la categoría jerárquica</SheetTitle>
-          <SheetDescription>
-            <span className="font-semibold">{name}</span>
-          </SheetDescription>
-        </SheetHeader>
-        {isLoadingWorkers ? (
-          <FormSkeleton />
-        ) : (
-          <div className="mt-4 space-y-4 overflow-auto max-h-[80vh] h-full">
-            <Tabs
-              defaultValue="objectives"
-              className="p-2 w-full h-full bg-muted rounded-lg"
-            >
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="objectives">Objetivos</TabsTrigger>
-                <TabsTrigger value="asignations">Asignaciones</TabsTrigger>
-              </TabsList>
-              <TabsContents className="rounded-sm h-full bg-background w-full overflow-y-auto">
-                <TabsContent value="objectives" className="space-y-6 p-6">
-                  <div className="w-full flex justify-end mb-2 gap-2">
-                    {!adding ? (
-                      <Button variant="outline" size="sm" onClick={startAdd}>
-                        Agregar Objetivo
-                        <Plus className="size-5 ml-2" />
-                      </Button>
-                    ) : (
-                      <Button variant="ghost" size="sm" onClick={cancelAdd}>
-                        <X className="size-4 mr-2" />
-                        Cancelar agregado
-                      </Button>
-                    )}
-                  </div>
+    <GeneralSheet
+      title={`Objetivos de ${name}`}
+      subtitle={`Gestiona los objetivos asignados a la categoría jerárquica`}
+      icon="Dumbbell"
+      open={open}
+      onClose={() => setOpen(false)}
+      size="4xl"
+    >
+      {isLoadingWorkers ? (
+        <FormSkeleton />
+      ) : (
+        <div className="mt-4 space-y-4 overflow-auto max-h-[80vh] h-full">
+          <Tabs
+            defaultValue="objectives"
+            className="p-2 w-full h-full bg-muted rounded-lg"
+          >
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="objectives">Objetivos</TabsTrigger>
+              <TabsTrigger value="asignations">Asignaciones</TabsTrigger>
+            </TabsList>
+            <TabsContents className="rounded-sm h-full bg-background w-full overflow-y-auto">
+              <TabsContent value="objectives" className="space-y-6 p-6">
+                <div className="w-full flex justify-end mb-2 gap-2">
+                  {!adding ? (
+                    <Button variant="outline" size="sm" onClick={startAdd}>
+                      Agregar Objetivo
+                      <Plus className="size-5 ml-2" />
+                    </Button>
+                  ) : (
+                    <Button variant="ghost" size="sm" onClick={cancelAdd}>
+                      <X className="size-4 mr-2" />
+                      Cancelar agregado
+                    </Button>
+                  )}
+                </div>
 
-                  {/* Selector de objetivo */}
-                  <AddObjectiveSelect
-                    adding={adding}
-                    setSelectedId={setSelectedId}
-                    objectives={objectives}
-                    selectedId={selectedId}
-                    isDuplicate={isDuplicate}
-                    isUpdating={isUpdating}
-                    addObjective={addObjective}
-                  />
+                {/* Selector de objetivo */}
+                <AddObjectiveSelect
+                  adding={adding}
+                  setSelectedId={setSelectedId}
+                  objectives={objectives}
+                  selectedId={selectedId}
+                  isDuplicate={isDuplicate}
+                  isUpdating={isUpdating}
+                  addObjective={addObjective}
+                />
 
-                  {/* Lista de objetivos */}
-                  <CategoryObjectivesList
-                    categoryObjectives={categoryObjectives}
-                    setDeleteDetailId={setDeleteDetailId}
-                  />
-                </TabsContent>
-                <TabsContent value="asignations" className="space-y-6 p-6">
-                  {/* Lista de objetivos por Trabajador */}
-                  <CategoryObjectivePersonList
-                    data={data}
-                    handleSwitchChange={handleSwitchChange}
-                    isPending={isPending}
-                    handleUpdateGoalCell={handleUpdateGoalCell}
-                    handleUpdateWeightCell={handleUpdateWeightCell}
-                  />
-                </TabsContent>
-              </TabsContents>
-            </Tabs>
-          </div>
-        )}
-
-        {/* Footer */}
-        <div className="w-full flex justify-end gap-2 mt-4">
-          <Button variant="outline" onClick={() => setOpen(false)}>
-            Cerrar
-          </Button>
+                {/* Lista de objetivos */}
+                <CategoryObjectivesList
+                  categoryObjectives={categoryObjectives}
+                  setDeleteDetailId={setDeleteDetailId}
+                />
+              </TabsContent>
+              <TabsContent value="asignations" className="space-y-6 p-6">
+                {/* Lista de objetivos por Trabajador */}
+                <CategoryObjectivePersonList
+                  data={data}
+                  handleSwitchChange={handleSwitchChange}
+                  isPending={isPending}
+                  handleUpdateGoalCell={handleUpdateGoalCell}
+                  handleUpdateWeightCell={handleUpdateWeightCell}
+                />
+              </TabsContent>
+            </TabsContents>
+          </Tabs>
         </div>
-      </SheetContent>
+      )}
+
+      {/* Footer */}
+      <div className="w-full flex justify-end gap-2 mt-4">
+        <Button variant="outline" onClick={() => setOpen(false)}>
+          Cerrar
+        </Button>
+      </div>
 
       {/* Delete Dialog */}
       {deleteDetailId !== null && (
@@ -279,6 +272,6 @@ export function HierarchicalCategoryObjectivesModal({
           onConfirm={handleDeleteObjective}
         />
       )}
-    </Sheet>
+    </GeneralSheet>
   );
 }

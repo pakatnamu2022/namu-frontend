@@ -192,9 +192,9 @@ export function HierarchicalCategoryCompetenceModal({
 
   return (
     <GeneralSheet
-      title={`Competencias de Categoría Jerárquica`}
-      subtitle="Administra las competencias asociadas a esta categoría jerárquica"
-      icon="Layers"
+      title={`Competencias de ${name}`}
+      subtitle={`Gestiona las competencias asignadas a la categoría jerárquica`}
+      icon="BookmarkCheck"
       open={open}
       onClose={() => setOpen(false)}
       size="4xl"
