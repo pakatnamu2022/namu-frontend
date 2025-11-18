@@ -1,6 +1,6 @@
 "use client";
 
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import { useMutation } from "@tanstack/react-query";
 import {
@@ -19,10 +19,9 @@ import { VehiclePurchaseOrderForm } from "@/features/ap/comercial/ordenes-compra
 import { format } from "date-fns";
 import { notFound } from "@/shared/hooks/useNotFound";
 
-
 export default function AddVehiclePurchaseOrderPage() {
   const router = useNavigate();
-    const { currentView, checkRouteExists } = useCurrentModule();
+  const { currentView, checkRouteExists } = useCurrentModule();
   const { ROUTE, MODEL } = VEHICLE_PURCHASE_ORDER;
 
   const { mutate, isPending } = useMutation({
@@ -98,7 +97,6 @@ export default function AddVehiclePurchaseOrderPage() {
         onSubmit={handleSubmit}
         isSubmitting={isPending}
         mode="create"
-        isVehiclePurchase={true}
       />
     </FormWrapper>
   );
