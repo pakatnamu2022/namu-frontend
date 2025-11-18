@@ -24,7 +24,7 @@ import { useNavigate } from "react-router-dom";
 import NotFound from '@/app/not-found';
 
 
-export default function EditSedePage() {
+export default function UpdateSedePage() {
     const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();

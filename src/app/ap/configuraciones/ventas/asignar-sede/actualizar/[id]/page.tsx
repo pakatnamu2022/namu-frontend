@@ -18,7 +18,7 @@ import { AssignCompanyBranchForm } from "@/features/ap/configuraciones/ventas/as
 import { AssignCompanyBranchSchema } from "@/features/ap/configuraciones/ventas/asignar-sede/lib/assignCompanyBranch.schema";
 import NotFound from "@/app/not-found";
 
-export default function EditAssignCompanyBranchPage() {
+export default function UpdateAssignCompanyBranchPage() {
   const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();

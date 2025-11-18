@@ -24,7 +24,7 @@ import { StoreVisitsForm } from "@/features/ap/comercial/visitas-tienda/componen
 import NotFound from '@/app/not-found';
 
 
-export default function EditStoreVisitsPage() {
+export default function UpdateStoreVisitsPage() {
     const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();

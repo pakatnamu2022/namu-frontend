@@ -12,7 +12,7 @@ import FormWrapper from "@/shared/components/FormWrapper";
 import NotFound from '@/app/not-found';
 
 
-export default function CreateObjectivePage() {
+export default function AddObjectivePage() {
   const router = useNavigate();
     const { currentView, checkRouteExists } = useCurrentModule();
 

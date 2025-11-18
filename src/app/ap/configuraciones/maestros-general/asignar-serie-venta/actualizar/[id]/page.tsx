@@ -23,7 +23,7 @@ import { AssignSalesSeriesResource } from "@/features/ap/configuraciones/maestro
 import { AssignSalesSeriesForm } from "@/features/ap/configuraciones/maestros-general/asignar-serie-venta/components/AssignSalesSeriesForm";
 import NotFound from "@/app/not-found";
 
-export default function EditAssignSalesSeriesPage() {
+export default function UpdateAssignSalesSeriesPage() {
   const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();

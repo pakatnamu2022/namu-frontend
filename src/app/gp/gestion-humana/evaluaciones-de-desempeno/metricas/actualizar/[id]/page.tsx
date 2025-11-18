@@ -18,7 +18,7 @@ import FormWrapper from "@/shared/components/FormWrapper";
 import NotFound from '@/app/not-found';
 
 
-export default function EditMetricPage() {
+export default function UpdateMetricPage() {
     const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();

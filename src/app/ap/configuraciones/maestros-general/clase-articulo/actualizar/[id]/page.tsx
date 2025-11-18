@@ -23,7 +23,7 @@ import FormWrapper from "@/shared/components/FormWrapper";
 import { CLASS_ARTICLE } from "@/features/ap/configuraciones/maestros-general/clase-articulo/lib/classArticle.constants";
 import NotFound from "@/app/not-found";
 
-export default function EditClassArticlePage() {
+export default function UpdateClassArticlePage() {
   const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();

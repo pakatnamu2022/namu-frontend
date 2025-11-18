@@ -23,7 +23,7 @@ import { SuppliersResource } from "@/features/ap/comercial/proveedores/lib/suppl
 import { SuppliersForm } from "@/features/ap/comercial/proveedores/components/SuppliersForm";
 import NotFound from "@/app/not-found";
 
-export default function EditSuppliersPage() {
+export default function UpdateSuppliersPage() {
   const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();

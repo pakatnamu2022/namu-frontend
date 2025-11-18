@@ -23,7 +23,7 @@ import FormWrapper from "@/shared/components/FormWrapper";
 import { BANK_AP } from "@/features/ap/configuraciones/maestros-general/chequeras/lib/apBank.constants";
 import NotFound from "@/app/not-found";
 
-export default function EditApBankPage() {
+export default function UpdateApBankPage() {
   const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();

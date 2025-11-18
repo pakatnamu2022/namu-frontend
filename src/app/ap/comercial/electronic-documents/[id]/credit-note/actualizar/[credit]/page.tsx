@@ -16,7 +16,7 @@ import { CreditNoteForm } from "@/features/ap/facturacion/electronic-documents/c
 import NotFound from '@/app/not-found';
 
 
-export default function CreateCreditNotePage() {
+export default function UpdateCreditNotePage() {
     const { ROUTE } = ELECTRONIC_DOCUMENT;
   const params = useParams();
   const router = useNavigate();

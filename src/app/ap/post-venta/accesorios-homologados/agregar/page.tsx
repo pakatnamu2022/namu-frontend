@@ -18,7 +18,7 @@ import { ApprovedAccesoriesForm } from "@/features/ap/post-venta/accesorios-homo
 import NotFound from '@/app/not-found';
 
 
-export default function CreateApprovedAccesoriesPage() {
+export default function AddApprovedAccesoriesPage() {
   const router = useNavigate();
     const { currentView, checkRouteExists } = useCurrentModule();
   const { ROUTE, MODEL } = APPROVED_ACCESSORIES;

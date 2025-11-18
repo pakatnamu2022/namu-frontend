@@ -21,7 +21,7 @@ import FormWrapper from "@/shared/components/FormWrapper";
 import NotFound from "@/app/not-found";
 import { VIEW } from "@/features/gp/gestionsistema/vistas/lib/view.constants";
 
-export default function EditViewPage() {
+export default function UpdateViewPage() {
   const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();

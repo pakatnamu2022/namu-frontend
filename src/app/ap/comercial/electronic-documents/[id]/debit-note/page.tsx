@@ -16,7 +16,7 @@ import { DebitNoteForm } from "@/features/ap/facturacion/electronic-documents/co
 import NotFound from '@/app/not-found';
 
 
-export default function CreateDebitNotePage() {
+export default function AddDebitNotePage() {
     const { ROUTE } = ELECTRONIC_DOCUMENT;
   const params = useParams();
   const router = useNavigate();

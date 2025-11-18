@@ -19,7 +19,7 @@ import { BUSINESS_PARTNERS, INCOME_SECTOR } from "@/core/core.constants";
 import NotFound from '@/app/not-found';
 
 
-export default function CreateStoreVisitsPage() {
+export default function AddStoreVisitsPage() {
   const router = useNavigate();
     const { currentView, checkRouteExists } = useCurrentModule();
   const { ROUTE, MODEL } = STORE_VISITS;

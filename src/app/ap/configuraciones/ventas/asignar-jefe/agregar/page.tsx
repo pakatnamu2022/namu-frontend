@@ -19,7 +19,7 @@ import { AssignmentLeadershipForm } from "@/features/ap/configuraciones/ventas/a
 import { storeAssignmentLeadership } from "@/features/ap/configuraciones/ventas/asignar-jefe/lib/assignmentLeadership.actions";
 import NotFound from "@/app/not-found";
 
-export default function CreateAssignmentLeadershipPage() {
+export default function AddAssignmentLeadershipPage() {
   const router = useNavigate();
   const { currentView, checkRouteExists } = useCurrentModule();
   const { ROUTE, MODEL, ABSOLUTE_ROUTE } = ASSIGNMENT_LEADERSHIP;

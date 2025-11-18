@@ -21,7 +21,7 @@ import { BRAND } from "@/features/ap/configuraciones/vehiculos/marcas/lib/brands
 import FormWrapper from "@/shared/components/FormWrapper";
 import NotFound from "@/app/not-found";
 
-export default function EditBrandPage() {
+export default function UpdateBrandPage() {
   const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();

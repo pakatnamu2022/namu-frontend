@@ -22,7 +22,7 @@ import { findCustomersById } from "@/features/ap/comercial/clientes/lib/customer
 import NotFound from '@/app/not-found';
 
 
-export default function NewEstablishmentPage() {
+export default function AddSupplierEstablishmentPage() {
     const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();

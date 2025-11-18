@@ -25,7 +25,7 @@ import { CUSTOMERS } from "@/features/ap/comercial/clientes/lib/customers.consta
 import NotFound from '@/app/not-found';
 
 
-export default function EditEstablishmentPage() {
+export default function UpdateCustomerEstablishmentPage() {
     const { id, establishmentId } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();

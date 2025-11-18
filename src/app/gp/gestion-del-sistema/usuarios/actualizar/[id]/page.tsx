@@ -20,7 +20,7 @@ import FormWrapper from "@/shared/components/FormWrapper";
 import NotFound from '@/app/not-found';
 
 
-export default function EditViewPage() {
+export default function UpdateViewPage() {
     const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();

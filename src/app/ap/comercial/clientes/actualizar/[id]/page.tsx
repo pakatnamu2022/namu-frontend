@@ -24,7 +24,7 @@ import { CustomersForm } from "@/features/ap/comercial/clientes/components/Custo
 import { parse } from "date-fns";
 import NotFound from "@/app/not-found";
 
-export default function EditCustomersPage() {
+export default function UpdateCustomersPage() {
   const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();

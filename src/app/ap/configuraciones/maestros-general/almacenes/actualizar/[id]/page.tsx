@@ -23,7 +23,7 @@ import { WarehouseResource } from "@/features/ap/configuraciones/maestros-genera
 import { WarehouseForm } from "@/features/ap/configuraciones/maestros-general/almacenes/components/WarehouseForm";
 import NotFound from "@/app/not-found";
 
-export default function EditWarehousePage() {
+export default function UpdateWarehousePage() {
   const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();

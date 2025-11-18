@@ -24,7 +24,7 @@ import { PurchaseRequestQuoteForm } from "@/features/ap/comercial/solicitudes-co
 import NotFound from '@/app/not-found';
 
 
-export default function EditPurchaseRequestQuotePage() {
+export default function UpdatePurchaseRequestQuotePage() {
     const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();

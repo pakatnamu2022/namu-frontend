@@ -23,7 +23,7 @@ import {
   updateDistrict,
 } from "@/features/ap/configuraciones/maestros-general/ubigeos/lib/district.actions";
 
-export default function EditDistrictPage() {
+export default function UpdateDistrictPage() {
   const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();

@@ -41,7 +41,7 @@ import {
 } from "@/features/ap/comercial/dashboard-visitas-leads/lib/dashboard.interface";
 import { errorToast, successToast } from "@/core/core.function";
 
-export default function DashboardPage() {
+export default function DashboardStoreVisitsPage() {
   const router = useNavigate();
 
   const [dateFrom, setDateFrom] = useState<Date | undefined>(undefined);

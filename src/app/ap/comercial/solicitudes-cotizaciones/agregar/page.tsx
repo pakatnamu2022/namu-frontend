@@ -18,7 +18,7 @@ import { PurchaseRequestQuoteForm } from "@/features/ap/comercial/solicitudes-co
 import NotFound from '@/app/not-found';
 
 
-export default function CreatePurchaseRequestQuotePage() {
+export default function AddPurchaseRequestQuotePage() {
   const router = useNavigate();
     const { currentView, checkRouteExists } = useCurrentModule();
   const { ROUTE, MODEL } = PURCHASE_REQUEST_QUOTE;

@@ -20,7 +20,7 @@ import { format } from "date-fns";
 import NotFound from '@/app/not-found';
 
 
-export default function CreateVehiclePurchaseOrderPage() {
+export default function AddVehiclePurchaseOrderPage() {
   const router = useNavigate();
     const { currentView, checkRouteExists } = useCurrentModule();
   const { ROUTE, MODEL } = VEHICLE_PURCHASE_ORDER;

@@ -19,7 +19,7 @@ import NotFound from "@/app/not-found";
 
 const { MODEL, ROUTE } = CLASS_ARTICLE;
 
-export default function CreateClassArticlePage() {
+export default function AddClassArticlePage() {
   const router = useNavigate();
   const { currentView, checkRouteExists } = useCurrentModule();
 

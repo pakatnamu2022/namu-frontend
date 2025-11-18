@@ -22,7 +22,7 @@ import { useAllSunatConcepts } from "@/features/gp/maestro-general/conceptos-sun
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import NotFound from "@/app/not-found";
 
-export default function CreateElectronicDocumentPage() {
+export default function AddElectronicDocumentPage() {
   const { ROUTE, MODEL } = ELECTRONIC_DOCUMENT;
   const router = useNavigate();
   const { currentView, checkRouteExists, isLoadingModule } = useCurrentModule();

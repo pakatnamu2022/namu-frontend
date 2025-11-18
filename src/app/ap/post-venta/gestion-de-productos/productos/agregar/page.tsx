@@ -17,7 +17,7 @@ import { ProductSchema } from "@/features/ap/post-venta/gestion-productos/produc
 import { ProductForm } from "@/features/ap/post-venta/gestion-productos/productos/components/ProductForm";
 import NotFound from "@/app/not-found";
 
-export default function CreateProductPage() {
+export default function AddProductPage() {
   const router = useNavigate();
   const { currentView, checkRouteExists } = useCurrentModule();
   const { ROUTE, MODEL, ABSOLUTE_ROUTE } = PRODUCT;

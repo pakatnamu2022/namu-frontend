@@ -17,7 +17,7 @@ import { AssignSalesSeriesSchema } from "@/features/ap/configuraciones/maestros-
 import { AssignSalesSeriesForm } from "@/features/ap/configuraciones/maestros-general/asignar-serie-venta/components/AssignSalesSeriesForm";
 import NotFound from "@/app/not-found";
 
-export default function CreateAssignSalesSeriesPage() {
+export default function AddAssignSalesSeriesPage() {
   const router = useNavigate();
   const { currentView, checkRouteExists } = useCurrentModule();
   const { ROUTE, MODEL, ABSOLUTE_ROUTE } = ASSIGN_SALES_SERIES;

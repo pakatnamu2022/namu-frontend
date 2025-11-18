@@ -19,7 +19,7 @@ import { EMPRESA_AP } from "@/core/core.constants";
 import { OPPORTUNITIES } from "@/features/ap/comercial/oportunidades/lib/opportunities.constants";
 import NotFound from "@/app/not-found";
 
-export default function CreateCustomersPage() {
+export default function AddCustomersPage() {
   const router = useNavigate();
   const [searchParams] = useSearchParams();
   const { currentView, checkRouteExists } = useCurrentModule();

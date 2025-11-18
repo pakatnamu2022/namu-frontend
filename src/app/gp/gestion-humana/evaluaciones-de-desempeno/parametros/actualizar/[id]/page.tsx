@@ -28,7 +28,7 @@ import NotFound from "@/app/not-found";
 
 const { MODEL } = PARAMETER;
 
-export default function EditParameterPage() {
+export default function UpdateParameterPage() {
   const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();

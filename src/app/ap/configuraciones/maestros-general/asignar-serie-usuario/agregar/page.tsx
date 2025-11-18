@@ -17,7 +17,7 @@ import { UserSeriesAssignmentSchema } from "@/features/ap/configuraciones/maestr
 import { UserSeriesAssignmentForm } from "@/features/ap/configuraciones/maestros-general/asignar-serie-usuario/components/UserSeriesAssignmentForm";
 import NotFound from "@/app/not-found";
 
-export default function CreateUserSeriesAssignmentPage() {
+export default function AddUserSeriesAssignmentPage() {
   const router = useNavigate();
   const { currentView, checkRouteExists } = useCurrentModule();
   const { ROUTE, MODEL, ABSOLUTE_ROUTE } = USER_SERIES_ASSIGNMENT;

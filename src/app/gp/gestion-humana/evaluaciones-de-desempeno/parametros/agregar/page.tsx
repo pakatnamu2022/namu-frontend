@@ -22,7 +22,7 @@ import NotFound from "@/app/not-found";
 
 const { MODEL } = PARAMETER;
 
-export default function CreateParameterPage() {
+export default function AddParameterPage() {
   const router = useNavigate();
   const { currentView, checkRouteExists } = useCurrentModule();
 

@@ -17,7 +17,7 @@ import FormWrapper from "@/shared/components/FormWrapper";
 import NotFound from "@/app/not-found";
 import { METRIC } from "@/features/profile/team/lib/team.constant";
 
-export default function CreateMetricPage() {
+export default function AddMetricPage() {
   const { MODEL } = METRIC;
   const router = useNavigate();
   const { currentView, checkRouteExists } = useCurrentModule();

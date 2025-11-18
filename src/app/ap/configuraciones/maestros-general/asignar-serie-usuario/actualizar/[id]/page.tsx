@@ -23,7 +23,7 @@ import { UserSeriesAssignmentForm } from "@/features/ap/configuraciones/maestros
 import { USER_SERIES_ASSIGNMENT } from "@/features/ap/configuraciones/maestros-general/asignar-serie-usuario/lib/userSeriesAssignment.constants";
 import NotFound from "@/app/not-found";
 
-export default function EditUserSeriesAssignmentPage() {
+export default function UpdateUserSeriesAssignmentPage() {
   const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();

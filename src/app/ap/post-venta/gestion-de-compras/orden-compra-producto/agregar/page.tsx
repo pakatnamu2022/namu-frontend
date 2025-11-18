@@ -17,7 +17,7 @@ import { PurchaseOrderProductsSchema } from "@/features/ap/post-venta/gestion-co
 import { PurchaseOrderProductsForm } from "@/features/ap/post-venta/gestion-compras/orden-compra-producto/components/PurchaseOrderProductsForm";
 import { PURCHASE_ORDER_PRODUCT } from "@/features/ap/post-venta/gestion-compras/orden-compra-producto/lib/purchaseOrderProducts.constants";
 
-export default function CreatePurchaseOrderProductsPage() {
+export default function AddPurchaseOrderProductsPage() {
   const router = useNavigate();
   const { currentView, checkRouteExists } = useCurrentModule();
   const { ROUTE, MODEL, ABSOLUTE_ROUTE } = PURCHASE_ORDER_PRODUCT;

@@ -24,7 +24,7 @@ import { ApprovedAccesoriesForm } from "@/features/ap/post-venta/accesorios-homo
 import NotFound from '@/app/not-found';
 
 
-export default function EditApprovedAccesoriesPage() {
+export default function UpdateApprovedAccesoriesPage() {
     const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();

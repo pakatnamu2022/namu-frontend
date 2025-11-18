@@ -17,7 +17,7 @@ import FormWrapper from "@/shared/components/FormWrapper";
 import { MODELS_VN } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.constanst";
 import NotFound from "@/app/not-found";
 
-export default function CreateModelsVnPage() {
+export default function AddModelsVnPage() {
   const router = useNavigate();
   const { currentView, checkRouteExists } = useCurrentModule();
   const { ROUTE, MODEL, ABSOLUTE_ROUTE } = MODELS_VN;

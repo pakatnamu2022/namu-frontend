@@ -18,7 +18,7 @@ import { SuppliersSchema } from "@/features/ap/comercial/proveedores/lib/supplie
 import { SuppliersForm } from "@/features/ap/comercial/proveedores/components/SuppliersForm";
 import NotFound from "@/app/not-found";
 
-export default function CreateSuppliersPage() {
+export default function AddSupplierPage() {
   const router = useNavigate();
   const { currentView, checkRouteExists } = useCurrentModule();
   const { ROUTE, MODEL, ABSOLUTE_ROUTE } = SUPPLIERS;

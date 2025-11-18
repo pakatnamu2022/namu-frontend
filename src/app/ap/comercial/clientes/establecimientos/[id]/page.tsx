@@ -34,7 +34,7 @@ import EstablishmentsOptions from "@/features/ap/comercial/establecimientos/comp
 import { useEstablishments } from "@/features/ap/comercial/establecimientos/lib/establishments.hook";
 import NotFound from "@/app/not-found";
 
-export default function EstablishmentsListPage() {
+export default function CustomerEstablishmentsListPage() {
   const { id } = useParams();
   const router = useNavigate();
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();

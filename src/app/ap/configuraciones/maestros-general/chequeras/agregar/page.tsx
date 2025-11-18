@@ -17,7 +17,7 @@ import FormWrapper from "@/shared/components/FormWrapper";
 import { BANK_AP } from "@/features/ap/configuraciones/maestros-general/chequeras/lib/apBank.constants";
 import NotFound from "@/app/not-found";
 
-export default function CreateApBankPage() {
+export default function AddApBankPage() {
   const router = useNavigate();
   const { currentView, checkRouteExists } = useCurrentModule();
   const { MODEL, ROUTE, ABSOLUTE_ROUTE } = BANK_AP;

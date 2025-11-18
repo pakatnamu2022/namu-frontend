@@ -23,7 +23,7 @@ import FormWrapper from "@/shared/components/FormWrapper";
 import { VEHICLE_STATUS } from "@/features/ap/configuraciones/vehiculos/estados-vehiculo/lib/vehicleStatus.constants";
 import NotFound from "@/app/not-found";
 
-export default function EditVehicleStatusPage() {
+export default function UpdateVehicleStatusPage() {
   const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();

@@ -23,7 +23,7 @@ import { CommercialManagerBrandGroupForm } from "@/features/ap/configuraciones/v
 import { CommercialManagerBrandGroupSchema } from "@/features/ap/configuraciones/ventas/asignar-grupo-marca/lib/commercialManagerBrandGroup.schema";
 import NotFound from "@/app/not-found";
 
-export default function EditCommercialManagerBrandGroupPage() {
+export default function UpdateCommercialManagerBrandGroupPage() {
   const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();

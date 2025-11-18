@@ -23,7 +23,7 @@ import { PurchaseOrderProductsResource } from "@/features/ap/post-venta/gestion-
 import { PurchaseOrderProductsForm } from "@/features/ap/post-venta/gestion-compras/orden-compra-producto/components/PurchaseOrderProductsForm";
 import { PURCHASE_ORDER_PRODUCT } from "@/features/ap/post-venta/gestion-compras/orden-compra-producto/lib/purchaseOrderProducts.constants";
 
-export default function EditPurchaseOrderProductsPage() {
+export default function UpdatePurchaseOrderProductsPage() {
   const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();

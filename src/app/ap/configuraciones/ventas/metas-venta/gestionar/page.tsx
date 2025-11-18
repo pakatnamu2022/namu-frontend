@@ -19,7 +19,7 @@ import { ApGoalSellOutInSchema } from "@/features/ap/configuraciones/ventas/meta
 import { ApGoalSellOutInForm } from "@/features/ap/configuraciones/ventas/metas-venta/components/ApGoalSellOutInForm";
 import NotFound from "@/app/not-found";
 
-export default function CreateApGoalSellOutInPage() {
+export default function AddApGoalSellOutInPage() {
   const year = new Date().getFullYear();
   const month = new Date().getMonth() + 1;
   const { currentView, checkRouteExists } = useCurrentModule();

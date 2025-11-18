@@ -17,7 +17,7 @@ import { ShipmentsReceptionsSchema } from "@/features/ap/comercial/envios-recepc
 import NotFound from '@/app/not-found';
 
 
-export default function CreateShipmentsReceptionsPage() {
+export default function AddShipmentsReceptionsPage() {
   const router = useNavigate();
     const { currentView, checkRouteExists } = useCurrentModule();
   const { ROUTE, MODEL } = SHIPMENTS_RECEPTIONS;

@@ -23,7 +23,7 @@ import FormWrapper from "@/shared/components/FormWrapper";
 import { POSITION } from "@/features/gp/gestionhumana/personal/posiciones/lib/position.constant";
 import NotFound from "@/app/not-found";
 
-export default function EditPositionPage() {
+export default function UpdatePositionPage() {
   const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();

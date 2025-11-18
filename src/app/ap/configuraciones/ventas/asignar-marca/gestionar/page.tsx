@@ -19,7 +19,7 @@ import { ASSIGN_BRAND_CONSULTANT } from "@/features/ap/configuraciones/ventas/as
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import NotFound from "@/app/not-found";
 
-export default function CreateAssignBrandConsultantPage() {
+export default function AddAssignBrandConsultantPage() {
   const year = new Date().getFullYear();
   const month = new Date().getMonth() + 1;
   const { currentView, checkRouteExists } = useCurrentModule();

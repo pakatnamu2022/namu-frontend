@@ -17,7 +17,7 @@ import { WarehouseSchema } from "@/features/ap/configuraciones/maestros-general/
 import { WarehouseForm } from "@/features/ap/configuraciones/maestros-general/almacenes/components/WarehouseForm";
 import NotFound from "@/app/not-found";
 
-export default function CreateWarehousePage() {
+export default function AddWarehousePage() {
   const router = useNavigate();
   const { currentView, checkRouteExists } = useCurrentModule();
   const { ROUTE, MODEL, ABSOLUTE_ROUTE } = WAREHOUSE;

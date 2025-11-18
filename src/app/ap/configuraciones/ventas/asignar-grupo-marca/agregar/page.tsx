@@ -19,7 +19,7 @@ import { CommercialManagerBrandGroupForm } from "@/features/ap/configuraciones/v
 import { storeCommercialManagerBrandGroup } from "@/features/ap/configuraciones/ventas/asignar-grupo-marca/lib/commercialManagerBrandGroup.actions";
 import NotFound from "@/app/not-found";
 
-export default function CreateCommercialManagerBrandGroupPage() {
+export default function AddCommercialManagerBrandGroupPage() {
   const router = useNavigate();
   const { currentView, checkRouteExists } = useCurrentModule();
   const { ROUTE, MODEL, ABSOLUTE_ROUTE } = COMMERCIAL_MANAGER_BRAND_GROUP;

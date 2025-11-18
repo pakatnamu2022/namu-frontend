@@ -23,7 +23,7 @@ import { ProductResource } from "@/features/ap/post-venta/gestion-productos/prod
 import { ProductForm } from "@/features/ap/post-venta/gestion-productos/productos/components/ProductForm";
 import NotFound from "@/app/not-found";
 
-export default function EditProductPage() {
+export default function UpdateProductPage() {
   const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();

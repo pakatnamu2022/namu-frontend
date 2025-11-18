@@ -14,7 +14,7 @@ type Props = {
   options?: Option[];
 };
 
-export function EditableSelectCell({
+export function UpdateableSelectCell({
   id,
   value,
   onUpdate,

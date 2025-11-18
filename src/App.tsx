@@ -26,6 +26,50 @@ import UpdateEvaluationPage from "./app/gp/gestion-humana/evaluaciones-de-desemp
 import EvaluationPersonPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/evaluaciones/[id]/page";
 import EvaluationDetailPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/evaluaciones/detalles/[id]/page";
 import EvaluationDetailPersonPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/evaluaciones/detalles/[id]/[person]/page";
+import AgendaPage from "./app/ap/comercial/agenda/page";
+import OpportunitiesKanbanPage from "./app/ap/comercial/agenda/oportunidades/page";
+import AddOpportunityPage from "./app/ap/comercial/agenda/oportunidades/agregar/page";
+import UpdateOpportunityPage from "./app/ap/comercial/agenda/oportunidades/actualizar/[id]/page";
+import OpportunityDetailPage from "./app/ap/comercial/agenda/oportunidades/[id]/page";
+import CustomersPage from "./app/ap/comercial/clientes/page";
+import AddCustomersPage from "./app/ap/comercial/clientes/agregar/page";
+import UpdateCustomersPage from "./app/ap/comercial/clientes/actualizar/[id]/page";
+import CustomerEstablishmentsListPage from "./app/ap/comercial/clientes/establecimientos/[id]/page";
+import AddCustomerEstablishmentPage from "./app/ap/comercial/clientes/establecimientos/[id]/agregar/page";
+import UpdateCustomerEstablishmentPage from "./app/ap/comercial/clientes/establecimientos/[id]/actualizar/[establishmentId]/page";
+import SuppliersPage from "./app/ap/comercial/proveedores/page";
+import AddSupplierPage from "./app/ap/comercial/proveedores/agregar/page";
+import UpdateSuppliersPage from "./app/ap/comercial/proveedores/actualizar/[id]/page";
+import SupplierEstablishmentsListPage from "./app/ap/comercial/proveedores/establecimientos/[id]/page";
+import AddSupplierEstablishmentPage from "./app/ap/comercial/proveedores/establecimientos/[id]/agregar/page";
+import UpdateSupplierEstablishmentPage from "./app/ap/comercial/proveedores/establecimientos/[id]/actualizar/[establishmentId]/page";
+import ElectronicDocumentsPage from "./app/ap/comercial/electronic-documents/page";
+import AddElectronicDocumentPage from "./app/ap/comercial/electronic-documents/agregar/page";
+import UpdateElectronicDocumentPage from "./app/ap/comercial/electronic-documents/actualizar/[id]/page";
+import AddCreditNotePage from "./app/ap/comercial/electronic-documents/[id]/credit-note/page";
+import UpdateCreditNotePage from "./app/ap/comercial/electronic-documents/[id]/credit-note/actualizar/[credit]/page";
+import AddDebitNotePage from "./app/ap/comercial/electronic-documents/[id]/debit-note/page";
+import UpdateDebitNotePage from "./app/ap/comercial/electronic-documents/[id]/debit-note/actualizar/[debit]/page";
+import VehiclesPage from "./app/ap/comercial/vehiculos/page";
+import VehiclePurchaseOrderPage from "./app/ap/comercial/compra-vehiculo-nuevo/page";
+import AddVehiclePurchaseOrderPage from "./app/ap/comercial/compra-vehiculo-nuevo/agregar/page";
+import ResendVehiclePurchaseOrderPage from "./app/ap/comercial/compra-vehiculo-nuevo/reenviar/[id]/page";
+import VehicleDeliveryPage from "./app/ap/comercial/entrega-vehiculo/page";
+import AddVehicleDeliveryPage from "./app/ap/comercial/entrega-vehiculo/agregar/page";
+import ShippingGuidePage from "./app/ap/comercial/entrega-vehiculo/guia-remision/[id]/page";
+import ShipmentsReceptionsPage from "./app/ap/comercial/envios-recepciones/page";
+import AddShipmentsReceptionsPage from "./app/ap/comercial/envios-recepciones/agregar/page";
+import UpdateShipmentsReceptionsPage from "./app/ap/comercial/envios-recepciones/actualizar/[id]/page";
+import ReceptionCheckListPage from "./app/ap/comercial/envios-recepciones/checklist/[id]/page";
+import StoreVisitsPage from "./app/ap/comercial/visitas-tienda/page";
+import AddStoreVisitsPage from "./app/ap/comercial/visitas-tienda/agregar/page";
+import UpdateStoreVisitsPage from "./app/ap/comercial/visitas-tienda/actualizar/[id]/page";
+import ManageLeadsPage from "./app/ap/comercial/gestionar-leads/page";
+import PurchaseRequestQuotePage from "./app/ap/comercial/solicitudes-cotizaciones/page";
+import AddPurchaseRequestQuotePage from "./app/ap/comercial/solicitudes-cotizaciones/agregar/page";
+import UpdatePurchaseRequestQuotePage from "./app/ap/comercial/solicitudes-cotizaciones/actualizar/[id]/page";
+import DashboardStoreVisitsPage from "./app/ap/comercial/dashboard-visitas-leads/page";
+import ReasonsRejectionPage from "./app/ap/comercial/motivos-descarte/page";
 const PositionsPage = lazy(
   () => import("./app/gp/gestion-humana/configuraciones/posiciones/page")
 );
@@ -117,162 +161,6 @@ const PerfilNamuPerformancePage = lazy(
   () => import("./app/perfil/namu-performance/page")
 );
 const PerfilVacacionesPage = lazy(() => import("./app/perfil/vacaciones/page"));
-
-// ============================================================================
-// AP - COMERCIAL
-// ============================================================================
-
-// Agenda
-const AgendaPage = lazy(() => import("./app/ap/comercial/agenda/page"));
-const AgendaOportunidadesPage = lazy(
-  () => import("./app/ap/comercial/agenda/oportunidades/page")
-);
-const AgendaOportunidadesAgregarPage = lazy(
-  () => import("./app/ap/comercial/agenda/oportunidades/agregar/page")
-);
-const AgendaOportunidadesActualizarPage = lazy(
-  () => import("./app/ap/comercial/agenda/oportunidades/actualizar/[id]/page")
-);
-const AgendaOportunidadesDetailPage = lazy(
-  () => import("./app/ap/comercial/agenda/oportunidades/[id]/page")
-);
-
-// Clientes
-const ClientesPage = lazy(() => import("./app/ap/comercial/clientes/page"));
-const AddClientesPage = lazy(
-  () => import("./app/ap/comercial/clientes/agregar/page")
-);
-const EditClientesPage = lazy(
-  () => import("./app/ap/comercial/clientes/actualizar/[id]/page")
-);
-const ClientesEstablecimientosPage = lazy(
-  () => import("./app/ap/comercial/clientes/establecimientos/[id]/page")
-);
-const ClientesEstablecimientosAgregarPage = lazy(
-  () => import("./app/ap/comercial/clientes/establecimientos/[id]/agregar/page")
-);
-const ClientesEstablecimientosActualizarPage = lazy(
-  () =>
-    import(
-      "./app/ap/comercial/clientes/establecimientos/[id]/actualizar/[establishmentId]/page"
-    )
-);
-
-// Proveedores
-const ProveedoresPage = lazy(
-  () => import("./app/ap/comercial/proveedores/page")
-);
-const ProveedoresAgregarPage = lazy(
-  () => import("./app/ap/comercial/proveedores/agregar/page")
-);
-const ProveedoresActualizarPage = lazy(
-  () => import("./app/ap/comercial/proveedores/actualizar/[id]/page")
-);
-const ProveedoresEstablecimientosPage = lazy(
-  () => import("./app/ap/comercial/proveedores/establecimientos/[id]/page")
-);
-const ProveedoresEstablecimientosAgregarPage = lazy(
-  () =>
-    import("./app/ap/comercial/proveedores/establecimientos/[id]/agregar/page")
-);
-const ProveedoresEstablecimientosActualizarPage = lazy(
-  () =>
-    import(
-      "./app/ap/comercial/proveedores/establecimientos/[id]/actualizar/[establishmentId]/page"
-    )
-);
-
-// Electronic Documents
-const ElectronicDocumentsPage = lazy(
-  () => import("./app/ap/comercial/electronic-documents/page")
-);
-const ElectronicDocumentsAgregarPage = lazy(
-  () => import("./app/ap/comercial/electronic-documents/agregar/page")
-);
-const ElectronicDocumentsActualizarPage = lazy(
-  () => import("./app/ap/comercial/electronic-documents/actualizar/[id]/page")
-);
-const ElectronicDocumentsCreditNotePage = lazy(
-  () => import("./app/ap/comercial/electronic-documents/[id]/credit-note/page")
-);
-const ElectronicDocumentsCreditNoteActualizarPage = lazy(
-  () =>
-    import(
-      "./app/ap/comercial/electronic-documents/[id]/credit-note/actualizar/[credit]/page"
-    )
-);
-const ElectronicDocumentsDebitNotePage = lazy(
-  () => import("./app/ap/comercial/electronic-documents/[id]/debit-note/page")
-);
-const ElectronicDocumentsDebitNoteActualizarPage = lazy(
-  () =>
-    import(
-      "./app/ap/comercial/electronic-documents/[id]/debit-note/actualizar/[debit]/page"
-    )
-);
-
-// Vehículos
-const VehiculosPage = lazy(() => import("./app/ap/comercial/vehiculos/page"));
-const CompraVehiculoNuevoPage = lazy(
-  () => import("./app/ap/comercial/compra-vehiculo-nuevo/page")
-);
-const CompraVehiculoNuevoAgregarPage = lazy(
-  () => import("./app/ap/comercial/compra-vehiculo-nuevo/agregar/page")
-);
-const CompraVehiculoNuevoReenviarPage = lazy(
-  () => import("./app/ap/comercial/compra-vehiculo-nuevo/reenviar/[id]/page")
-);
-const EntregaVehiculoPage = lazy(
-  () => import("./app/ap/comercial/entrega-vehiculo/page")
-);
-const EntregaVehiculoAgregarPage = lazy(
-  () => import("./app/ap/comercial/entrega-vehiculo/agregar/page")
-);
-const EntregaVehiculoGuiaRemisionPage = lazy(
-  () => import("./app/ap/comercial/entrega-vehiculo/guia-remision/[id]/page")
-);
-const EnviosRecepcionesPage = lazy(
-  () => import("./app/ap/comercial/envios-recepciones/page")
-);
-const EnviosRecepcionesAgregarPage = lazy(
-  () => import("./app/ap/comercial/envios-recepciones/agregar/page")
-);
-const EnviosRecepcionesActualizarPage = lazy(
-  () => import("./app/ap/comercial/envios-recepciones/actualizar/[id]/page")
-);
-const EnviosRecepcionesChecklistPage = lazy(
-  () => import("./app/ap/comercial/envios-recepciones/checklist/[id]/page")
-);
-
-// Ventas & Leads
-const VisitasTiendaPage = lazy(
-  () => import("./app/ap/comercial/visitas-tienda/page")
-);
-const VisitasTiendaAgregarPage = lazy(
-  () => import("./app/ap/comercial/visitas-tienda/agregar/page")
-);
-const VisitasTiendaActualizarPage = lazy(
-  () => import("./app/ap/comercial/visitas-tienda/actualizar/[id]/page")
-);
-const GestionarLeadsPage = lazy(
-  () => import("./app/ap/comercial/gestionar-leads/page")
-);
-const SolicitudesCotizacionesPage = lazy(
-  () => import("./app/ap/comercial/solicitudes-cotizaciones/page")
-);
-const SolicitudesCotizacionesAgregarPage = lazy(
-  () => import("./app/ap/comercial/solicitudes-cotizaciones/agregar/page")
-);
-const SolicitudesCotizacionesActualizarPage = lazy(
-  () =>
-    import("./app/ap/comercial/solicitudes-cotizaciones/actualizar/[id]/page")
-);
-const DashboardVisitasLeadsPage = lazy(
-  () => import("./app/ap/comercial/dashboard-visitas-leads/page")
-);
-const MotivosDescartePage = lazy(
-  () => import("./app/ap/comercial/motivos-descarte/page")
-);
 
 // ============================================================================
 // AP - CONFIGURACIONES
@@ -816,169 +704,160 @@ function App() {
             >
               {/* Agenda */}
               <Route path="agenda" element={<AgendaPage />} />
-              <Route
-                path="agenda/oportunidades"
-                element={<AgendaOportunidadesPage />}
-              />
-              <Route
-                path="agenda/oportunidades/agregar"
-                element={<AgendaOportunidadesAgregarPage />}
-              />
-              <Route
-                path="agenda/oportunidades/actualizar/:id"
-                element={<AgendaOportunidadesActualizarPage />}
-              />
-              <Route
-                path="agenda/oportunidades/:id"
-                element={<AgendaOportunidadesDetailPage />}
-              />
+
+              {/* Oportunidades */}
+              {RouterCrud(
+                "agenda/oportunidades",
+                <OpportunitiesKanbanPage />,
+                <AddOpportunityPage />,
+                <UpdateOpportunityPage />,
+                <OpportunityDetailPage />
+              )}
 
               {/* Clientes */}
-              <Route path="clientes" element={<ClientesPage />} />
-              <Route path="clientes/agregar" element={<AddClientesPage />} />
-              <Route
-                path="clientes/actualizar/:id"
-                element={<EditClientesPage />}
-              />
+              {RouterCrud(
+                "clientes",
+                <CustomersPage />,
+                <AddCustomersPage />,
+                <UpdateCustomersPage />
+              )}
+
+              {/* Establecimientos */}
               <Route
                 path="clientes/establecimientos/:id"
-                element={<ClientesEstablecimientosPage />}
+                element={<CustomerEstablishmentsListPage />}
               />
               <Route
                 path="clientes/establecimientos/:id/agregar"
-                element={<ClientesEstablecimientosAgregarPage />}
+                element={<AddCustomerEstablishmentPage />}
               />
               <Route
                 path="clientes/establecimientos/:id/actualizar/:establishmentId"
-                element={<ClientesEstablecimientosActualizarPage />}
+                element={<UpdateCustomerEstablishmentPage />}
               />
 
               {/* Proveedores */}
-              <Route path="proveedores" element={<ProveedoresPage />} />
-              <Route
-                path="proveedores/agregar"
-                element={<ProveedoresAgregarPage />}
-              />
-              <Route
-                path="proveedores/actualizar/:id"
-                element={<ProveedoresActualizarPage />}
-              />
+              {RouterCrud(
+                "proveedores",
+                <SuppliersPage />,
+                <AddSupplierPage />,
+                <UpdateSuppliersPage />
+              )}
+
+              {/* Establecimientos Proveedores */}
               <Route
                 path="proveedores/establecimientos/:id"
-                element={<ProveedoresEstablecimientosPage />}
+                element={<SupplierEstablishmentsListPage />}
               />
               <Route
                 path="proveedores/establecimientos/:id/agregar"
-                element={<ProveedoresEstablecimientosAgregarPage />}
+                element={<AddSupplierEstablishmentPage />}
               />
               <Route
                 path="proveedores/establecimientos/:id/actualizar/:establishmentId"
-                element={<ProveedoresEstablecimientosActualizarPage />}
+                element={<UpdateSupplierEstablishmentPage />}
               />
 
               {/* Electronic Documents */}
-              <Route
-                path="electronic-documents"
-                element={<ElectronicDocumentsPage />}
-              />
-              <Route
-                path="electronic-documents/agregar"
-                element={<ElectronicDocumentsAgregarPage />}
-              />
-              <Route
-                path="electronic-documents/actualizar/:id"
-                element={<ElectronicDocumentsActualizarPage />}
-              />
+              {RouterCrud(
+                "electronic-documents",
+                <ElectronicDocumentsPage />,
+                <AddElectronicDocumentPage />,
+                <UpdateElectronicDocumentPage />
+              )}
+
+              {/* Credit Note */}
               <Route
                 path="electronic-documents/:id/credit-note"
-                element={<ElectronicDocumentsCreditNotePage />}
+                element={<AddCreditNotePage />}
               />
               <Route
                 path="electronic-documents/:id/credit-note/actualizar/:credit"
-                element={<ElectronicDocumentsCreditNoteActualizarPage />}
+                element={<UpdateCreditNotePage />}
               />
+
+              {/* Debit Note */}
               <Route
                 path="electronic-documents/:id/debit-note"
-                element={<ElectronicDocumentsDebitNotePage />}
+                element={<AddDebitNotePage />}
               />
               <Route
                 path="electronic-documents/:id/debit-note/actualizar/:debit"
-                element={<ElectronicDocumentsDebitNoteActualizarPage />}
+                element={<UpdateDebitNotePage />}
               />
 
               {/* Vehículos */}
-              <Route path="vehiculos" element={<VehiculosPage />} />
+              <Route path="vehiculos" element={<VehiclesPage />} />
+
+              {/* Compra Vehículo Nuevo */}
               <Route
                 path="compra-vehiculo-nuevo"
-                element={<CompraVehiculoNuevoPage />}
+                element={<VehiclePurchaseOrderPage />}
               />
               <Route
                 path="compra-vehiculo-nuevo/agregar"
-                element={<CompraVehiculoNuevoAgregarPage />}
+                element={<AddVehiclePurchaseOrderPage />}
               />
               <Route
                 path="compra-vehiculo-nuevo/reenviar/:id"
-                element={<CompraVehiculoNuevoReenviarPage />}
+                element={<ResendVehiclePurchaseOrderPage />}
               />
+
+              {/* Entrega Vehículo */}
               <Route
                 path="entrega-vehiculo"
-                element={<EntregaVehiculoPage />}
+                element={<VehicleDeliveryPage />}
               />
               <Route
                 path="entrega-vehiculo/agregar"
-                element={<EntregaVehiculoAgregarPage />}
+                element={<AddVehicleDeliveryPage />}
               />
               <Route
                 path="entrega-vehiculo/guia-remision/:id"
-                element={<EntregaVehiculoGuiaRemisionPage />}
+                element={<ShippingGuidePage />}
               />
-              <Route
-                path="envios-recepciones"
-                element={<EnviosRecepcionesPage />}
-              />
-              <Route
-                path="envios-recepciones/agregar"
-                element={<EnviosRecepcionesAgregarPage />}
-              />
-              <Route
-                path="envios-recepciones/actualizar/:id"
-                element={<EnviosRecepcionesActualizarPage />}
-              />
+
+              {/* Envios & Recepciones */}
+              {RouterCrud(
+                "envios-recepciones",
+                <ShipmentsReceptionsPage />,
+                <AddShipmentsReceptionsPage />,
+                <UpdateShipmentsReceptionsPage />
+              )}
               <Route
                 path="envios-recepciones/checklist/:id"
-                element={<EnviosRecepcionesChecklistPage />}
+                element={<ReceptionCheckListPage />}
               />
 
               {/* Ventas & Leads */}
-              <Route path="visitas-tienda" element={<VisitasTiendaPage />} />
-              <Route
-                path="visitas-tienda/agregar"
-                element={<VisitasTiendaAgregarPage />}
-              />
-              <Route
-                path="visitas-tienda/actualizar/:id"
-                element={<VisitasTiendaActualizarPage />}
-              />
-              <Route path="gestionar-leads" element={<GestionarLeadsPage />} />
-              <Route
-                path="solicitudes-cotizaciones"
-                element={<SolicitudesCotizacionesPage />}
-              />
-              <Route
-                path="solicitudes-cotizaciones/agregar"
-                element={<SolicitudesCotizacionesAgregarPage />}
-              />
-              <Route
-                path="solicitudes-cotizaciones/actualizar/:id"
-                element={<SolicitudesCotizacionesActualizarPage />}
-              />
+              {RouterCrud(
+                "visitas-tienda",
+                <StoreVisitsPage />,
+                <AddStoreVisitsPage />,
+                <UpdateStoreVisitsPage />
+              )}
+
+              {/* Gestionar Leads */}
+              <Route path="gestionar-leads" element={<ManageLeadsPage />} />
+
+              {/* Solicitudes Cotizaciones */}
+              {RouterCrud(
+                "solicitudes-cotizaciones",
+                <PurchaseRequestQuotePage />,
+                <AddPurchaseRequestQuotePage />,
+                <UpdatePurchaseRequestQuotePage />
+              )}
+
+              {/* Dashboard Visitas Leads */}
               <Route
                 path="dashboard-visitas-leads"
-                element={<DashboardVisitasLeadsPage />}
+                element={<DashboardStoreVisitsPage />}
               />
+
+              {/* Motivos Descarte */}
               <Route
                 path="motivos-descarte"
-                element={<MotivosDescartePage />}
+                element={<ReasonsRejectionPage />}
               />
             </Route>
 

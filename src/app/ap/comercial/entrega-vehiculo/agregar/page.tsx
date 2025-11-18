@@ -19,7 +19,7 @@ import { format } from "date-fns";
 import NotFound from '@/app/not-found';
 
 
-export default function CreateVehicleDeliveryPage() {
+export default function AddVehicleDeliveryPage() {
   const router = useNavigate();
     const { currentView, checkRouteExists } = useCurrentModule();
   const { ROUTE, MODEL } = VEHICLE_DELIVERY;

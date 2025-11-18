@@ -26,7 +26,7 @@ type Props = {
   allowUpdateWithoutChange?: boolean; // si true, llama onUpdate aunque no haya cambios
 };
 
-export function EditableCell({
+export function UpdateableCell({
   id,
   value,
   onUpdate,

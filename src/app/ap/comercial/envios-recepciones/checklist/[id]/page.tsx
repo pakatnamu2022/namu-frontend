@@ -23,7 +23,7 @@ import { ReceptionChecklistForm } from "@/features/ap/comercial/envios-recepcion
 import NotFound from '@/app/not-found';
 
 
-export default function ReceptionChecklistPage() {
+export default function ReceptionCheckListPage() {
     const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();

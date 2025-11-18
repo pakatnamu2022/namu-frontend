@@ -15,7 +15,7 @@ import FormWrapper from "@/shared/components/FormWrapper";
 import NotFound from '@/app/not-found';
 
 
-export default function CreateEquipmentPage() {
+export default function AddEquipmentPage() {
   const router = useNavigate();
   
   const { data: equipmentTypes, isLoading: loadingEquipmentTypes } =

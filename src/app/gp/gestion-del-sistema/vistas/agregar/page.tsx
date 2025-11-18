@@ -14,7 +14,7 @@ import FormWrapper from "@/shared/components/FormWrapper";
 import NotFound from "@/app/not-found";
 import { VIEW } from "@/features/gp/gestionsistema/vistas/lib/view.constants";
 
-export default function CreateViewPage() {
+export default function AddViewPage() {
   const router = useNavigate();
 
   const { data: views, isLoading: loadingViews } = useAllViews();

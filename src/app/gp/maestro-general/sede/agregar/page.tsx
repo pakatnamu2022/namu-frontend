@@ -18,7 +18,7 @@ import { SedeForm } from "@/features/gp/maestro-general/sede/components/SedeForm
 import NotFound from '@/app/not-found';
 
 
-export default function CreateSedePage() {
+export default function AddSedePage() {
   const router = useNavigate();
     const { currentView, checkRouteExists } = useCurrentModule();
   const { ROUTE, MODEL } = SEDE;

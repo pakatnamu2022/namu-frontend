@@ -18,7 +18,7 @@ import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import { AssignmentLeadershipForm } from "@/features/ap/configuraciones/ventas/asignar-jefe/components/AssignmentLeadershipForm";
 import NotFound from "@/app/not-found";
 
-export default function EditAssignmentLeadershipPage() {
+export default function UpdateAssignmentLeadershipPage() {
   const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();

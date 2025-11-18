@@ -17,7 +17,7 @@ import FormWrapper from "@/shared/components/FormWrapper";
 import { VEHICLE_STATUS } from "@/features/ap/configuraciones/vehiculos/estados-vehiculo/lib/vehicleStatus.constants";
 import NotFound from "@/app/not-found";
 
-export default function CreateVehicleStatusPage() {
+export default function AddVehicleStatusPage() {
   const router = useNavigate();
   const { currentView, checkRouteExists } = useCurrentModule();
   const { ROUTE, MODEL, ABSOLUTE_ROUTE } = VEHICLE_STATUS;

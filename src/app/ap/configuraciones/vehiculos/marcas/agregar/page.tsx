@@ -17,7 +17,7 @@ import FormWrapper from "@/shared/components/FormWrapper";
 import { BRAND } from "@/features/ap/configuraciones/vehiculos/marcas/lib/brands.constants";
 import NotFound from "@/app/not-found";
 
-export default function CreateBrandsPage() {
+export default function AddBrandsPage() {
   const router = useNavigate();
   const { currentView, checkRouteExists } = useCurrentModule();
   const { ROUTE, MODEL, ABSOLUTE_ROUTE } = BRAND;

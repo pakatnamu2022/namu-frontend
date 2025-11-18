@@ -23,7 +23,7 @@ import FormWrapper from "@/shared/components/FormWrapper";
 import { MODELS_VN } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.constanst";
 import NotFound from "@/app/not-found";
 
-export default function EditModelsVnPage() {
+export default function UpdateModelsVnPage() {
   const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();
