@@ -37,6 +37,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { SUNAT_CONCEPTS_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
+import { ABSOLUTE_ROUTE } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluaciones/lib/evaluation.constans";
 
 export type ShipmentsReceptionsColumns = ColumnDef<ShipmentsReceptionsResource>;
 
@@ -552,7 +553,9 @@ export const shipmentsReceptionsColumns = ({
               size="icon"
               className="size-7"
               tooltip={receiveTooltip}
-              onClick={() => canReceive && router(`${ROUTE}/checklist/${id}`)}
+              onClick={() =>
+                canReceive && router(`${ABSOLUTE_ROUTE}/checklist/${id}`)
+              }
               disabled={!canReceive}
             >
               <CarFront className="size-4" />
