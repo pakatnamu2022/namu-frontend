@@ -50,7 +50,7 @@ export const ReceptionChecklistForm = ({
   const form = useForm<ReceptionChecklistSchema>({
     resolver: zodResolver(receptionChecklistSchemaUpdate as any),
     defaultValues: {
-      shipping_guide_id: shippingGuideId,
+      shipping_guide_id: shippingGuideId.toString(),
       items_receiving: {},
     },
     mode: "onChange",
@@ -70,10 +70,10 @@ export const ReceptionChecklistForm = ({
   useEffect(() => {
     if (receptionChecklist?.data && receptionChecklist.data.length > 0) {
       // Construir el objeto items_receiving con receiving_id como clave y quantity como valor
-      const itemsReceiving: Record<number, number> = {};
+      const itemsReceiving: Record<string, string> = {};
       receptionChecklist.data.forEach((item) => {
         // Si tiene cantidad, usar esa cantidad, sino usar 0
-        itemsReceiving[item.receiving_id] = (item as any).quantity || 0;
+        itemsReceiving[item.receiving_id] = (item as any).quantity || "0";
       });
       form.setValue("items_receiving", itemsReceiving);
 

@@ -88,8 +88,8 @@ export interface ShipmentsReceptionsRequest {
   receiver_destination_id?: string;
   transmitter_id?: string;
   receiver_id?: string;
-  total_packages: number;
-  total_weight: number;
+  total_packages: string;
+  total_weight: string;
   file?: File | null;
   transport_company_id: string;
   driver_doc: string;
@@ -139,8 +139,8 @@ export interface AccessoryResource {
 }
 
 export interface ReceptionChecklistRequest {
-  items_receiving: Record<number, number>;
-  shipping_guide_id: number;
+  items_receiving: Record<string, string>;
+  shipping_guide_id: string;
   note?: string;
 }
 
