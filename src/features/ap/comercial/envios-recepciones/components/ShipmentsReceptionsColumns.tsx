@@ -37,7 +37,6 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { SUNAT_CONCEPTS_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
-import { ABSOLUTE_ROUTE } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluaciones/lib/evaluation.constans";
 
 export type ShipmentsReceptionsColumns = ColumnDef<ShipmentsReceptionsResource>;
 
@@ -461,7 +460,7 @@ export const shipmentsReceptionsColumns = ({
         transfer_reason_id,
         status,
       } = row.original;
-      const { ROUTE_UPDATE, ROUTE } = SHIPMENTS_RECEPTIONS;
+      const { ROUTE_UPDATE, ABSOLUTE_ROUTE} = SHIPMENTS_RECEPTIONS;
       const isSent = !!sent_at;
       const isGuiaRemision = document_type === "GUIA_REMISION";
       const isPurchase =
