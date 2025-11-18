@@ -50,7 +50,7 @@ export const ReceptionChecklistForm = ({
   const form = useForm<ReceptionChecklistSchema>({
     resolver: zodResolver(receptionChecklistSchemaUpdate as any),
     defaultValues: {
-      shipping_guide_id: shippingGuideId.toString(),
+      shipping_guide_id: shippingGuideId,
       items_receiving: {},
     },
     mode: "onChange",
@@ -203,6 +203,14 @@ export const ReceptionChecklistForm = ({
           />
         </div>
       </form>
+
+      <pre>
+        <code>{JSON.stringify(form.getValues(), null, 2)}</code>
+      </pre>
+
+      <pre>
+        <code>{JSON.stringify(form.formState.errors, null, 2)}</code>
+      </pre>
     </Form>
   );
 };
