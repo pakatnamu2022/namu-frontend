@@ -19,8 +19,9 @@ import {
   hierarchicalCategorySchemaUpdate,
 } from "../lib/hierarchicalCategory.schema";
 import { Loader } from "lucide-react";
-import { Link } from 'react-router-dom'
+import { Link } from "react-router-dom";
 import { Switch } from "@/components/ui/switch";
+import { HIERARCHICAL_CATEGORY } from "../lib/hierarchicalCategory.constants";
 
 interface HierarchicalCategoryFormProps {
   defaultValues: Partial<HierarchicalCategorySchema>;
@@ -35,6 +36,8 @@ export const HierarchicalCategoryForm = ({
   isSubmitting = false,
   mode = "create",
 }: HierarchicalCategoryFormProps) => {
+  const { ABSOLUTE_ROUTE } = HIERARCHICAL_CATEGORY;
+
   const form = useForm({
     resolver: zodResolver(
       mode === "create"
@@ -135,7 +138,7 @@ export const HierarchicalCategoryForm = ({
         </pre> */}
 
         <div className="flex gap-4 w-full justify-end">
-          <Link to={mode === "create" ? "./" : "../"}>
+          <Link to={ABSOLUTE_ROUTE}>
             <Button type="button" variant="outline">
               Cancelar
             </Button>

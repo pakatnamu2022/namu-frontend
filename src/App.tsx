@@ -1376,14 +1376,7 @@ function App() {
                 <AddHierarchicalCategoryPage />,
                 <EditHierarchicalCategoryPage />
               )}
-              <Route
-                path="evaluaciones-de-desempeno/categorias-jerarquicas"
-                element={<HierarchicalCategoryPage />}
-              />
-              <Route
-                path="evaluaciones-de-desempeno/categorias-jerarquicas"
-                element={<HierarchicalCategoryPage />}
-              />
+
               {/* <Route
                 path="evaluaciones-de-desempeno/ciclos"
                 element={<CiclosPage />}

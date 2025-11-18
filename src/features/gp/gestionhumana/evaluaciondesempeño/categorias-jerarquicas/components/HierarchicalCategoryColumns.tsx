@@ -12,13 +12,16 @@ import {
   Users2,
   X,
 } from "lucide-react";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { HIERARCHICAL_CATEGORY } from "../lib/hierarchicalCategory.constants";
 
 export type HierarchicalCategoryColumns =
   ColumnDef<HierarchicalCategoryResource>;
+
+const { ROUTE_UPDATE } = HIERARCHICAL_CATEGORY;
 
 export const hierarchicalCategoryColumns = ({
   onDelete,
@@ -173,9 +176,7 @@ export const hierarchicalCategoryColumns = ({
             tooltip="Editar"
             size="icon"
             className="size-7"
-            onClick={() =>
-              router(`./categorias-jerarquicas/actualizar/${id}`)
-            }
+            onClick={() => router(`${ROUTE_UPDATE}/${id}`)}
           >
             <Pencil className="size-5" />
           </Button>
