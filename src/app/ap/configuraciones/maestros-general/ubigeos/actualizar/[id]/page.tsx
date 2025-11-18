@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams } from 'react-router-dom';
+import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
@@ -17,19 +17,18 @@ import { DISTRICT } from "@/features/ap/configuraciones/maestros-general/ubigeos
 import { DistrictResource } from "@/features/ap/configuraciones/maestros-general/ubigeos/lib/district.interface";
 import { DistrictForm } from "@/features/ap/configuraciones/maestros-general/ubigeos/components/DistrictForm";
 import { DistrictSchema } from "@/features/ap/configuraciones/maestros-general/ubigeos/lib/district.schema";
-import NotFound from '@/app/not-found';
+import NotFound from "@/app/not-found";
 import {
-
   findDistrictById,
   updateDistrict,
 } from "@/features/ap/configuraciones/maestros-general/ubigeos/lib/district.actions";
 
 export default function EditDistrictPage() {
-    const { id } = useParams();
+  const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();
   const { currentView, checkRouteExists } = useCurrentModule();
-  const { ROUTE, QUERY_KEY, MODEL } = DISTRICT;
+  const { ROUTE, QUERY_KEY, MODEL, ABSOLUTE_ROUTE } = DISTRICT;
 
   const { data: District, isLoading: loadingDistrict } = useQuery({
     queryKey: [QUERY_KEY, id],
@@ -44,7 +43,7 @@ export default function EditDistrictPage() {
       await queryClient.invalidateQueries({
         queryKey: [QUERY_KEY, id],
       });
-      router("../");
+      router(ABSOLUTE_ROUTE);
     },
     onError: (error: any) => {
       const msg = error?.response?.data?.message || "";

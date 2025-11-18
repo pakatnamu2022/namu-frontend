@@ -17,6 +17,9 @@ import { useEvaluations } from "@/features/gp/gestionhumana/evaluaciondesempeño
 import {
   deleteEvaluation,
   updateEvaluation,
+  sendEvaluationOpened,
+  sendEvaluationReminder,
+  sendEvaluationClosed,
 } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluaciones/lib/evaluation.actions";
 import EvaluationActions from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluaciones/components/EvaluationActions";
 import EvaluationTable from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluaciones/components/EvaluationTable";
@@ -24,13 +27,12 @@ import { evaluationColumns } from "@/features/gp/gestionhumana/evaluaciondesempe
 import EvaluationOptions from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluaciones/components/EvaluationOptions";
 import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
 import { EVALUATION } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluaciones/lib/evaluation.constans";
-import NotFound from '@/app/not-found';
-
+import NotFound from "@/app/not-found";
 
 const { MODEL } = EVALUATION;
 
-export default function ParametrosPage() {
-    const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
+export default function EvaluationPage() {
+  const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
@@ -54,8 +56,8 @@ export default function ParametrosPage() {
       await deleteEvaluation(deleteId);
       await refetch();
       successToast(SUCCESS_MESSAGE(MODEL, "delete"));
-    } catch (error) {
-      errorToast(ERROR_MESSAGE(MODEL, "delete"));
+    } catch (error: any) {
+      errorToast(ERROR_MESSAGE(MODEL, "delete"), error.message.toString());
     } finally {
       setDeleteId(null);
     }
@@ -66,8 +68,58 @@ export default function ParametrosPage() {
       await updateEvaluation(id, { status });
       await refetch();
       successToast(SUCCESS_MESSAGE(MODEL, "update"));
-    } catch (error) {
-      errorToast(ERROR_MESSAGE(MODEL, "update"));
+    } catch (error: any) {
+      errorToast(ERROR_MESSAGE(MODEL, "update"), error.message.toString());
+    }
+  };
+
+  const handleSendOpenedNotification = async (id: number) => {
+    try {
+      const response = await sendEvaluationOpened(id);
+      if (response.success) {
+        await refetch();
+        successToast("Notificación enviada", response.message);
+      } else {
+        errorToast("Error al enviar notificación", response.message);
+      }
+    } catch (error: any) {
+      errorToast(
+        "Error al enviar notificación",
+        error.message?.toString() || "Ocurrió un error inesperado"
+      );
+    }
+  };
+
+  const handleSendReminderNotification = async (id: number) => {
+    try {
+      const response = await sendEvaluationReminder(id);
+      if (response.success) {
+        successToast("Recordatorio enviado", response.message);
+      } else {
+        errorToast("Error al enviar recordatorio", response.message);
+      }
+    } catch (error: any) {
+      errorToast(
+        "Error al enviar recordatorio",
+        error.message?.toString() || "Ocurrió un error inesperado"
+      );
+    }
+  };
+
+  const handleSendClosedNotification = async (id: number) => {
+    try {
+      const response = await sendEvaluationClosed(id);
+      if (response.success) {
+        await refetch();
+        successToast("Notificación enviada", response.message);
+      } else {
+        errorToast("Error al enviar notificación", response.message);
+      }
+    } catch (error: any) {
+      errorToast(
+        "Error al enviar notificación",
+        error.message?.toString() || "Ocurrió un error inesperado"
+      );
     }
   };
 
@@ -90,6 +142,9 @@ export default function ParametrosPage() {
         columns={evaluationColumns({
           onDelete: setDeleteId,
           onStatusUpdate: handleStatusUpdate,
+          onSendOpenedNotification: handleSendOpenedNotification,
+          onSendReminderNotification: handleSendReminderNotification,
+          onSendClosedNotification: handleSendClosedNotification,
         })}
         data={data?.data || []}
       >

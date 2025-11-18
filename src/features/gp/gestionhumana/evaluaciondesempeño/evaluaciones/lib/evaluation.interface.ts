@@ -29,6 +29,8 @@ export interface EvaluationResource {
   finalParameter: string;
   progress_stats?: ProgressStats;
   results_stats?: ResultsStats;
+  send_open_notifications: boolean;
+  send_close_notifications: boolean;
 }
 
 export interface ProgressStats {
@@ -58,4 +60,3 @@ export interface ResultsStatsRange {
 export interface getEvaluationsProps {
   params?: Record<string, any>;
 }
-

@@ -3,6 +3,7 @@ import { ClientOriginResource } from "./clientOrigin.interface";
 import { COMMERCIAL_MASTERS_ENDPOINT } from "../../../../lib/ap.constants";
 
 const ROUTE = "origen-cliente";
+const ABSOLUTE_ROUTE = `/ap/configuraciones/maestros-general/${ROUTE}`;
 
 export const CLIENT_ORIGIN: ModelComplete<ClientOriginResource> = {
   MODEL: {
@@ -14,6 +15,7 @@ export const CLIENT_ORIGIN: ModelComplete<ClientOriginResource> = {
   ENDPOINT: COMMERCIAL_MASTERS_ENDPOINT,
   QUERY_KEY: "clientOrigin",
   ROUTE,
+  ABSOLUTE_ROUTE,
   EMPTY: {
     id: 0,
     description: "",

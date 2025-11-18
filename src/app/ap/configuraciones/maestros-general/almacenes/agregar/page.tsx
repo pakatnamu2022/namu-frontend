@@ -1,6 +1,6 @@
 "use client";
 
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import { useMutation } from "@tanstack/react-query";
 import {
@@ -15,19 +15,18 @@ import { WAREHOUSE } from "@/features/ap/configuraciones/maestros-general/almace
 import { storeWarehouse } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.actions";
 import { WarehouseSchema } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.schema";
 import { WarehouseForm } from "@/features/ap/configuraciones/maestros-general/almacenes/components/WarehouseForm";
-import NotFound from '@/app/not-found';
-
+import NotFound from "@/app/not-found";
 
 export default function CreateWarehousePage() {
   const router = useNavigate();
-    const { currentView, checkRouteExists } = useCurrentModule();
-  const { ROUTE, MODEL } = WAREHOUSE;
+  const { currentView, checkRouteExists } = useCurrentModule();
+  const { ROUTE, MODEL, ABSOLUTE_ROUTE } = WAREHOUSE;
 
   const { mutate, isPending } = useMutation({
     mutationFn: storeWarehouse,
     onSuccess: () => {
       successToast(SUCCESS_MESSAGE(MODEL, "create"));
-      router("./");
+      router(ABSOLUTE_ROUTE);
     },
     onError: (error: any) => {
       const msg = error?.response?.data?.message || "";

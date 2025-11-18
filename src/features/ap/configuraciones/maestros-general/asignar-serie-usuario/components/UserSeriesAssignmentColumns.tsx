@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import type { NavigateFunction } from "react-router-dom";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
@@ -15,10 +15,12 @@ interface Props {
   permissions: {
     canUpdate: boolean;
   };
+  navigate: NavigateFunction;
 }
 
 export const userSeriesAssignmentColumns = ({
   permissions,
+  navigate,
 }: Props): UserSeriesAssignmentColumns[] => [
   {
     accessorKey: "worker_name",
@@ -59,7 +61,6 @@ export const userSeriesAssignmentColumns = ({
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
-      const router = useNavigate();
       const { worker_id } = row.original;
       const { ROUTE_UPDATE } = USER_SERIES_ASSIGNMENT;
 
@@ -70,7 +71,7 @@ export const userSeriesAssignmentColumns = ({
               variant="outline"
               size="icon"
               className="size-7"
-              onClick={() => router(`${ROUTE_UPDATE}/${worker_id}`)}
+              onClick={() => navigate(`${ROUTE_UPDATE}/${worker_id}`)}
             >
               <Pencil className="size-5" />
             </Button>

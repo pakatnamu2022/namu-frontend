@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams } from 'react-router-dom';
+import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
@@ -21,15 +21,14 @@ import { UserSeriesAssignmentResource } from "@/features/ap/configuraciones/maes
 import { UserSeriesAssignmentSchema } from "@/features/ap/configuraciones/maestros-general/asignar-serie-usuario/lib/userSeriesAssignment.schema";
 import { UserSeriesAssignmentForm } from "@/features/ap/configuraciones/maestros-general/asignar-serie-usuario/components/UserSeriesAssignmentForm";
 import { USER_SERIES_ASSIGNMENT } from "@/features/ap/configuraciones/maestros-general/asignar-serie-usuario/lib/userSeriesAssignment.constants";
-import NotFound from '@/app/not-found';
-
+import NotFound from "@/app/not-found";
 
 export default function EditUserSeriesAssignmentPage() {
-    const { id } = useParams();
+  const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();
   const { currentView, checkRouteExists } = useCurrentModule();
-  const { QUERY_KEY, ROUTE, MODEL } = USER_SERIES_ASSIGNMENT;
+  const { QUERY_KEY, ROUTE, MODEL, ABSOLUTE_ROUTE } = USER_SERIES_ASSIGNMENT;
 
   const { data: UserSeriesAssignment, isLoading: loadingUserSeriesAssignment } =
     useQuery({
@@ -46,7 +45,7 @@ export default function EditUserSeriesAssignmentPage() {
       await queryClient.invalidateQueries({
         queryKey: [QUERY_KEY, id],
       });
-      router("../");
+      router(ABSOLUTE_ROUTE);
     },
     onError: (error: any) => {
       const msg = error?.response?.data?.message || "";

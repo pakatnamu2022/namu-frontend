@@ -3,6 +3,7 @@ import { TypeClientResource } from "./typeClient.interface";
 import { COMMERCIAL_MASTERS_ENDPOINT } from "../../../../lib/ap.constants";
 
 const ROUTE = "tipos-persona";
+const ABSOLUTE_ROUTE = `/ap/configuraciones/maestros-general/${ROUTE}`;
 
 export const TYPE_PERSON: ModelComplete<TypeClientResource> = {
   MODEL: {
@@ -14,6 +15,7 @@ export const TYPE_PERSON: ModelComplete<TypeClientResource> = {
   ENDPOINT: COMMERCIAL_MASTERS_ENDPOINT,
   QUERY_KEY: "typePerson",
   ROUTE,
+  ABSOLUTE_ROUTE,
   EMPTY: {
     id: 0,
     code: "",

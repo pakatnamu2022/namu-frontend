@@ -14,20 +14,19 @@ import FormWrapper from "@/shared/components/FormWrapper";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import { useMutation } from "@tanstack/react-query";
-import { useNavigate } from 'react-router-dom';
-import NotFound from '@/app/not-found';
-
+import { useNavigate } from "react-router-dom";
+import NotFound from "@/app/not-found";
 
 export default function CreateDistrictPage() {
   const router = useNavigate();
-    const { currentView, checkRouteExists } = useCurrentModule();
-  const { ROUTE, MODEL } = DISTRICT;
+  const { currentView, checkRouteExists } = useCurrentModule();
+  const { ROUTE, MODEL, ABSOLUTE_ROUTE } = DISTRICT;
 
   const { mutate, isPending } = useMutation({
     mutationFn: storeDistrict,
     onSuccess: () => {
       successToast(SUCCESS_MESSAGE(MODEL, "create"));
-      router("./");
+      router(ABSOLUTE_ROUTE);
     },
     onError: (error: any) => {
       const msg = error?.response?.data?.message || "";

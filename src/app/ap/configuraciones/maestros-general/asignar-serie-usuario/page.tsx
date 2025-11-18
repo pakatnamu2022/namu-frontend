@@ -4,6 +4,7 @@ import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import PageSkeleton from "@/shared/components/PageSkeleton";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import TitleComponent from "@/shared/components/TitleComponent";
 import DataTablePagination from "@/shared/components/DataTablePagination";
@@ -14,11 +15,11 @@ import { userSeriesAssignmentColumns } from "@/features/ap/configuraciones/maest
 import UserSeriesAssignmentOptions from "@/features/ap/configuraciones/maestros-general/asignar-serie-usuario/components/UserSeriesAssignmentOptions";
 import { USER_SERIES_ASSIGNMENT } from "@/features/ap/configuraciones/maestros-general/asignar-serie-usuario/lib/userSeriesAssignment.constants";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import NotFound from '@/app/not-found';
-
+import NotFound from "@/app/not-found";
 
 export default function UserSeriesAssignmentPage() {
-    const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
+  const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
+  const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
@@ -26,6 +27,7 @@ export default function UserSeriesAssignmentPage() {
   const permissions = useModulePermissions(ROUTE);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setPage(1);
   }, [search]);
 
@@ -51,7 +53,7 @@ export default function UserSeriesAssignmentPage() {
       </HeaderTableWrapper>
       <UserSeriesAssignmentTable
         isLoading={isLoading}
-        columns={userSeriesAssignmentColumns({ permissions })}
+        columns={userSeriesAssignmentColumns({ permissions, navigate })}
         data={data?.data || []}
       >
         <UserSeriesAssignmentOptions search={search} setSearch={setSearch} />

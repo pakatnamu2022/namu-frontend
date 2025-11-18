@@ -131,3 +131,35 @@ export async function regenerateEvaluation(
   );
   return data;
 }
+
+interface NotificationResponse {
+  success: boolean;
+  message: string;
+}
+
+export async function sendEvaluationOpened(
+  id: number
+): Promise<NotificationResponse> {
+  const { data } = await api.post<NotificationResponse>(
+    `${ENDPOINT}/${id}/notifications/send-opened`
+  );
+  return data;
+}
+
+export async function sendEvaluationReminder(
+  id: number
+): Promise<NotificationResponse> {
+  const { data } = await api.post<NotificationResponse>(
+    `${ENDPOINT}/${id}/notifications/send-reminder`
+  );
+  return data;
+}
+
+export async function sendEvaluationClosed(
+  id: number
+): Promise<NotificationResponse> {
+  const { data } = await api.post<NotificationResponse>(
+    `${ENDPOINT}/${id}/notifications/send-closed`
+  );
+  return data;
+}

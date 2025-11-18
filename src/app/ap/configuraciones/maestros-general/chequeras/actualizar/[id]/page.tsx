@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams } from 'react-router-dom';
+import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
@@ -21,15 +21,14 @@ import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import { ApBankForm } from "@/features/ap/configuraciones/maestros-general/chequeras/components/ApBankForm";
 import FormWrapper from "@/shared/components/FormWrapper";
 import { BANK_AP } from "@/features/ap/configuraciones/maestros-general/chequeras/lib/apBank.constants";
-import NotFound from '@/app/not-found';
-
+import NotFound from "@/app/not-found";
 
 export default function EditApBankPage() {
-    const { id } = useParams();
+  const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();
   const { currentView, checkRouteExists } = useCurrentModule();
-  const { MODEL, QUERY_KEY, ROUTE } = BANK_AP;
+  const { MODEL, QUERY_KEY, ROUTE, ABSOLUTE_ROUTE } = BANK_AP;
 
   const { data: ApBank, isLoading: loadingApBank } = useQuery({
     queryKey: [QUERY_KEY, id],
@@ -44,7 +43,7 @@ export default function EditApBankPage() {
       await queryClient.invalidateQueries({
         queryKey: [QUERY_KEY, id],
       });
-      router("../");
+      router(ABSOLUTE_ROUTE);
     },
     onError: (error: any) => {
       const msg = error?.response?.data?.message || "";

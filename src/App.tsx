@@ -269,11 +269,11 @@ const ActividadEconomicaPage = lazy(
 const AlmacenesPage = lazy(
   () => import("./app/ap/configuraciones/maestros-general/almacenes/page")
 );
-const AlmacenesAgregarPage = lazy(
+const AddAlmacenesPage = lazy(
   () =>
     import("./app/ap/configuraciones/maestros-general/almacenes/agregar/page")
 );
-const AlmacenesActualizarPage = lazy(
+const EditAlmacenesPage = lazy(
   () =>
     import(
       "./app/ap/configuraciones/maestros-general/almacenes/actualizar/[id]/page"
@@ -285,15 +285,49 @@ const AsignarSerieUsuarioPage = lazy(
       "./app/ap/configuraciones/maestros-general/asignar-serie-usuario/page"
     )
 );
+const AddAsignarSerieUsuarioPage = lazy(
+  () =>
+    import(
+      "./app/ap/configuraciones/maestros-general/asignar-serie-usuario/agregar/page"
+    )
+);
+const EditAsignarSerieUsuarioPage = lazy(
+  () =>
+    import(
+      "./app/ap/configuraciones/maestros-general/asignar-serie-usuario/actualizar/[id]/page"
+    )
+);
 const AsignarSerieVentaPage = lazy(
   () =>
     import("./app/ap/configuraciones/maestros-general/asignar-serie-venta/page")
+);
+const AddAsignarSerieVentaPage = lazy(
+  () =>
+    import(
+      "./app/ap/configuraciones/maestros-general/asignar-serie-venta/agregar/page"
+    )
+);
+const EditAsignarSerieVentaPage = lazy(
+  () =>
+    import(
+      "./app/ap/configuraciones/maestros-general/asignar-serie-venta/actualizar/[id]/page"
+    )
 );
 const BancosPage = lazy(
   () => import("./app/ap/configuraciones/maestros-general/bancos/page")
 );
 const ChequerasPage = lazy(
   () => import("./app/ap/configuraciones/maestros-general/chequeras/page")
+);
+const AddChequerasPage = lazy(
+  () =>
+    import("./app/ap/configuraciones/maestros-general/chequeras/agregar/page")
+);
+const EditChequerasPage = lazy(
+  () =>
+    import(
+      "./app/ap/configuraciones/maestros-general/chequeras/actualizar/[id]/page"
+    )
 );
 const EstadoCivilPage = lazy(
   () => import("./app/ap/configuraciones/maestros-general/estado-civil/page")
@@ -359,6 +393,15 @@ const TiposSexoPage = lazy(
 );
 const UbigeosPage = lazy(
   () => import("./app/ap/configuraciones/maestros-general/ubigeos/page")
+);
+const AddUbigeosPage = lazy(
+  () => import("./app/ap/configuraciones/maestros-general/ubigeos/agregar/page")
+);
+const EditUbigeosPage = lazy(
+  () =>
+    import(
+      "./app/ap/configuraciones/maestros-general/ubigeos/actualizar/[id]/page"
+    )
 );
 const UnidadMedidaPage = lazy(
   () => import("./app/ap/configuraciones/maestros-general/unidad-medida/page")
@@ -975,27 +1018,49 @@ function App() {
               />
               <Route
                 path="maestros-general/almacenes/agregar"
-                element={<AlmacenesAgregarPage />}
+                element={<AddAlmacenesPage />}
               />
               <Route
                 path="maestros-general/almacenes/actualizar/:id"
-                element={<AlmacenesActualizarPage />}
+                element={<EditAlmacenesPage />}
               />
               <Route
                 path="maestros-general/asignar-serie-usuario"
                 element={<AsignarSerieUsuarioPage />}
               />
               <Route
+                path="maestros-general/asignar-serie-usuario/agregar"
+                element={<AddAsignarSerieUsuarioPage />}
+              />
+              <Route
+                path="maestros-general/asignar-serie-usuario/actualizar/:id"
+                element={<EditAsignarSerieUsuarioPage />}
+              />
+              <Route
                 path="maestros-general/asignar-serie-venta"
                 element={<AsignarSerieVentaPage />}
+              />
+              <Route
+                path="maestros-general/asignar-serie-venta/agregar"
+                element={<AddAsignarSerieVentaPage />}
+              />
+              <Route
+                path="maestros-general/asignar-serie-venta/actualizar/:id"
+                element={<EditAsignarSerieVentaPage />}
               />
               <Route path="maestros-general/bancos" element={<BancosPage />} />
               <Route
                 path="maestros-general/chequeras"
                 element={<ChequerasPage />}
               />
-
-              {/* Clase Artículo */}
+              <Route
+                path="maestros-general/chequeras/agregar"
+                element={<AddChequerasPage />}
+              />
+              <Route
+                path="maestros-general/chequeras/actualizar/:id"
+                element={<EditChequerasPage />}
+              />
               <Route
                 path="maestros-general/clase-articulo"
                 element={<ClassArticlePage />}
@@ -1061,6 +1126,14 @@ function App() {
               <Route
                 path="maestros-general/ubigeos"
                 element={<UbigeosPage />}
+              />
+              <Route
+                path="maestros-general/ubigeos/agregar"
+                element={<AddUbigeosPage />}
+              />
+              <Route
+                path="maestros-general/ubigeos/actualizar/:id"
+                element={<EditUbigeosPage />}
               />
               <Route
                 path="maestros-general/unidad-medida"

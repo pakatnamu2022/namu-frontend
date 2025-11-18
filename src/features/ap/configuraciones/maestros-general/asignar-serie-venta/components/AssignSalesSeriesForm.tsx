@@ -14,7 +14,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Link } from 'react-router-dom'
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
 import { FormSelect } from "@/shared/components/FormSelect";
@@ -23,6 +23,7 @@ import { EMPRESA_AP } from "@/core/core.constants";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { useAllVoucherTypes } from "../../tipos-comprobante/lib/voucherTypes.hook";
 import { useAllTypesOperation } from "../../tipos-operacion/lib/typesOperation.hook";
+import { ASSIGN_SALES_SERIES } from "../lib/assignSalesSeries.constants";
 
 interface AssignSalesSeriesFormProps {
   defaultValues: Partial<AssignSalesSeriesSchema>;
@@ -41,13 +42,14 @@ export const AssignSalesSeriesForm = ({
     resolver: zodResolver(
       mode === "create"
         ? assignSalesSeriesSchemaCreate
-        : assignSalesSeriesSchemaUpdate as any
+        : (assignSalesSeriesSchemaUpdate as any)
     ),
     defaultValues: {
       ...defaultValues,
     },
     mode: "onChange",
   });
+  const { ABSOLUTE_ROUTE } = ASSIGN_SALES_SERIES;
   const { data: sedes = [], isLoading: isLoadingSedes } = useAllSedes({
     empresa_id: EMPRESA_AP.id,
   });
@@ -126,7 +128,7 @@ export const AssignSalesSeriesForm = ({
           />
         </div>
         <div className="flex gap-4 w-full justify-end">
-          <Link to={mode === "create" ? "" : "../"}>
+          <Link to={ABSOLUTE_ROUTE}>
             <Button type="button" variant="outline">
               Cancelar
             </Button>

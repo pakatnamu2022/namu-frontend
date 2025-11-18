@@ -3,6 +3,7 @@ import { TypeGenderResource } from "./typesGender.interface";
 import { COMMERCIAL_MASTERS_ENDPOINT } from "../../../../lib/ap.constants";
 
 const ROUTE = "tipos-sexo";
+const ABSOLUTE_ROUTE = `/ap/configuraciones/maestros-general/${ROUTE}`;
 
 export const TYPE_GENDER: ModelComplete<TypeGenderResource> = {
   MODEL: {
@@ -14,6 +15,7 @@ export const TYPE_GENDER: ModelComplete<TypeGenderResource> = {
   ENDPOINT: COMMERCIAL_MASTERS_ENDPOINT,
   QUERY_KEY: "typeGender",
   ROUTE,
+  ABSOLUTE_ROUTE,
   EMPTY: {
     id: 0,
     description: "",

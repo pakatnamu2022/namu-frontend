@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams } from 'react-router-dom';
+import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
@@ -21,15 +21,14 @@ import {
 import { AssignSalesSeriesSchema } from "@/features/ap/configuraciones/maestros-general/asignar-serie-venta/lib/assignSalesSeries.schema";
 import { AssignSalesSeriesResource } from "@/features/ap/configuraciones/maestros-general/asignar-serie-venta/lib/assignSalesSeries.interface";
 import { AssignSalesSeriesForm } from "@/features/ap/configuraciones/maestros-general/asignar-serie-venta/components/AssignSalesSeriesForm";
-import NotFound from '@/app/not-found';
-
+import NotFound from "@/app/not-found";
 
 export default function EditAssignSalesSeriesPage() {
-    const { id } = useParams();
+  const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();
   const { currentView, checkRouteExists } = useCurrentModule();
-  const { ROUTE, QUERY_KEY, MODEL } = ASSIGN_SALES_SERIES;
+  const { ROUTE, QUERY_KEY, MODEL, ABSOLUTE_ROUTE } = ASSIGN_SALES_SERIES;
 
   const { data: AssignSalesSeries, isLoading: loadingAssignSalesSeries } =
     useQuery({
@@ -46,7 +45,7 @@ export default function EditAssignSalesSeriesPage() {
       await queryClient.invalidateQueries({
         queryKey: [QUERY_KEY, id],
       });
-      router("../");
+      router(ABSOLUTE_ROUTE);
     },
     onError: (error: any) => {
       const msg = error?.response?.data?.message || "";
