@@ -24,8 +24,8 @@ import EvaluationPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/ev
 import AddEvaluationPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/evaluaciones/agregar/page";
 import UpdateEvaluationPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/evaluaciones/actualizar/[id]/page";
 import EvaluationPersonPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/evaluaciones/[id]/page";
-import EvaluationDetailPersonPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/evaluaciones/detalles/[id]/page";
 import EvaluationDetailPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/evaluaciones/detalles/[id]/page";
+import EvaluationDetailPersonPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/evaluaciones/detalles/[id]/[person]/page";
 const PositionsPage = lazy(
   () => import("./app/gp/gestion-humana/configuraciones/posiciones/page")
 );
