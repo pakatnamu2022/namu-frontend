@@ -27,7 +27,7 @@ import { evaluationColumns } from "@/features/gp/gestionhumana/evaluaciondesempe
 import EvaluationOptions from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluaciones/components/EvaluationOptions";
 import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
 import { EVALUATION } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluaciones/lib/evaluation.constans";
-import NotFound from "@/app/not-found";
+import { notFound } from "@/shared/hooks/useNotFound";
 
 const { MODEL } = EVALUATION;
 
@@ -124,7 +124,7 @@ export default function EvaluationPage() {
   };
 
   if (isLoadingModule) return <PageSkeleton />;
-  if (!checkRouteExists("parametros")) return <NotFound />;
+  if (!checkRouteExists("parametros")) notFound();
   if (!currentView) return <div>No hay</div>;
 
   return (

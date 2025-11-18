@@ -562,6 +562,14 @@ export const ShipmentsReceptionsForm = ({
     isLoadingVehicles,
   ]);
 
+  const selectedVIN = vehiclesVn.find(
+    (v) => v.id.toString() === form.getValues("ap_vehicle_id")
+  );
+
+  useEffect(() => {
+    form.setValue("total_weight", selectedVIN?.model.net_weight);
+  }, [selectedVIN]);
+
   // Limpiar sede destino cuando cambia el motivo de traslado
   useEffect(() => {
     if (watchTransferReasonId) {

@@ -56,6 +56,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { VEHICLE_COLOR } from "@/features/ap/configuraciones/vehiculos/colores-vehiculo/lib/vehicleColor.constants";
 import { useAllBrandsBySede } from "../../../configuraciones/ventas/asignar-marca/lib/assignBrandConsultant.hook";
 import { UNIT_MEASUREMENT_ID } from "../../../configuraciones/maestros-general/unidad-medida/lib/unitMeasurement.constants";
+import { VEHICLE_PURCHASE_ORDER } from "../lib/vehiclePurchaseOrder.constants";
 
 interface VehiclePurchaseOrderFormProps {
   defaultValues: Partial<VehiclePurchaseOrderSchema>;
@@ -72,6 +73,7 @@ export const VehiclePurchaseOrderForm = ({
   mode = "create",
   isVehiclePurchase = true, // Por defecto es compra de vehículo
 }: VehiclePurchaseOrderFormProps) => {
+  const { ABSOLUTE_ROUTE } = VEHICLE_PURCHASE_ORDER;
   const queryClient = useQueryClient();
   const [isColorModalOpen, setIsColorModalOpen] = useState(false);
   const [hasIsc, setHasIsc] = useState(false);

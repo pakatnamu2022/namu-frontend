@@ -25,7 +25,7 @@ import SuppliersTable from "@/features/ap/comercial/proveedores/components/Suppl
 import { suppliersColumns } from "@/features/ap/comercial/proveedores/components/SuppliersColumns";
 import SuppliersOptions from "@/features/ap/comercial/proveedores/components/SuppliersOptions";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
 export default function SuppliersPage() {
@@ -63,8 +63,8 @@ export default function SuppliersPage() {
   };
 
   if (isLoadingModule) return <PageSkeleton />;
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <div className="space-y-4">

@@ -16,6 +16,8 @@ export const VEHICLE_TYPE: ModelComplete<VehicleTypeResource> = {
   QUERY_KEY: "vehicleType",
   ROUTE,
   ABSOLUTE_ROUTE,
+  ROUTE_ADD: `${ABSOLUTE_ROUTE}/agregar`,
+  ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/editar`,
   EMPTY: {
     id: 0,
     code: "",

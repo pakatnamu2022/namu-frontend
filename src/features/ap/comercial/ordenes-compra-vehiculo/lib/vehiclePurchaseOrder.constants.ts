@@ -1,6 +1,7 @@
 import { type ModelComplete } from "@/core/core.interface";
 
 const ROUTE = "compra-vehiculo-nuevo";
+const ABSOLUTE_ROUTE = `/ap/comercial/${ROUTE}`;
 
 export const VEHICLE_PURCHASE_ORDER: ModelComplete = {
   MODEL: {
@@ -12,6 +13,7 @@ export const VEHICLE_PURCHASE_ORDER: ModelComplete = {
   ENDPOINT: "/ap/commercial/vehiclePurchaseOrder",
   QUERY_KEY: "vehiclePurchaseOrder",
   ROUTE,
-  ROUTE_ADD: `./agregar`,
-  ROUTE_UPDATE: `./actualizar`,
+  ABSOLUTE_ROUTE,
+  ROUTE_ADD: `${ABSOLUTE_ROUTE}/agregar`,
+  ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/editar`,
 };

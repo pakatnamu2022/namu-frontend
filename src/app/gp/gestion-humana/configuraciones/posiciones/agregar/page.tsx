@@ -7,7 +7,7 @@ import { PositionForm } from "@/features/gp/gestionhumana/personal/posiciones/co
 import { useState } from "react";
 import { storePosition } from "@/features/gp/gestionhumana/personal/posiciones/lib/position.actions";
 import { POSITION } from "@/features/gp/gestionhumana/personal/posiciones/lib/position.constant";
-import NotFound from "@/app/not-found";
+import { notFound } from "@/shared/hooks/useNotFound";
 import {
   ERROR_MESSAGE,
   errorToast,
@@ -97,7 +97,7 @@ export default function AddPositionPage() {
   };
 
   if (isLoadingModule) return <PageSkeleton />;
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
 
   return (
     <div className="container mx-auto py-6">

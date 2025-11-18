@@ -26,7 +26,7 @@ import ReasonsRejectionTable from "@/features/ap/comercial/motivos-descarte/comp
 import ReasonsRejectionOptions from "@/features/ap/comercial/motivos-descarte/components/ReasonsRejectionOptions";
 import ReasonsRejectionModal from "@/features/ap/comercial/motivos-descarte/components/ReasonsRejectionModal";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
 export default function ReasonsRejectionPage() {
@@ -73,8 +73,8 @@ export default function ReasonsRejectionPage() {
   };
 
   if (isLoadingModule) return <PageSkeleton />;
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <div className="space-y-4">

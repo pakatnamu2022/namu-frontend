@@ -15,9 +15,9 @@ import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import { VehicleStatusForm } from "@/features/ap/configuraciones/vehiculos/estados-vehiculo/components/VehicleStatusForm";
 import FormWrapper from "@/shared/components/FormWrapper";
 import { VEHICLE_STATUS } from "@/features/ap/configuraciones/vehiculos/estados-vehiculo/lib/vehicleStatus.constants";
-import NotFound from "@/app/not-found";
+import { notFound } from "@/shared/hooks/useNotFound";
 
-export default function CreateVehicleStatusPage() {
+export default function AddVehicleStatusPage() {
   const router = useNavigate();
   const { currentView, checkRouteExists } = useCurrentModule();
   const { ROUTE, MODEL, ABSOLUTE_ROUTE } = VEHICLE_STATUS;
@@ -37,8 +37,8 @@ export default function CreateVehicleStatusPage() {
   const handleSubmit = (data: VehicleStatusSchema) => {
     mutate(data);
   };
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <FormWrapper>

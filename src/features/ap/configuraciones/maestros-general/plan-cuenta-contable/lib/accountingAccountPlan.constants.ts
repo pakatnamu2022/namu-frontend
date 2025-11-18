@@ -16,6 +16,8 @@ export const ACCOUNTING_ACCOUNT_PLAN: ModelComplete<AccountingAccountPlanResourc
     QUERY_KEY: "accountingAccountPlan",
     ROUTE,
     ABSOLUTE_ROUTE,
+    ROUTE_ADD: `${ABSOLUTE_ROUTE}/agregar`,
+    ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/editar`,
     EMPTY: {
       id: 0,
       account: "",

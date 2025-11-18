@@ -13,7 +13,7 @@ import AuditLogsActions from "@/features/gp/tics/auditoria/components/AuditLogsA
 import AuditLogsTable from "@/features/gp/tics/auditoria/components/AuditLogsTable";
 import { auditLogsColumns } from "@/features/gp/tics/auditoria/components/AuditLogsColumns";
 import AuditLogsOptions from "@/features/gp/tics/auditoria/components/AuditLogsOptions";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
 export default function AuditLogsPage() {
@@ -33,8 +33,8 @@ export default function AuditLogsPage() {
   });
 
   if (isLoadingModule) return <PageSkeleton />;
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <div className="space-y-4">

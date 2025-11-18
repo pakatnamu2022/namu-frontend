@@ -18,8 +18,9 @@ import {
   periodSchemaUpdate,
 } from "../lib/period.schema";
 import { Loader } from "lucide-react";
-import { Link } from 'react-router-dom'
+import { Link } from "react-router-dom";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
+import { PERIOD } from "../lib/period.constans";
 
 interface PeriodFormProps {
   defaultValues: Partial<PeriodSchema>;
@@ -34,6 +35,7 @@ export const PeriodForm = ({
   isSubmitting = false,
   mode = "create",
 }: PeriodFormProps) => {
+  const { ABSOLUTE_ROUTE } = PERIOD;
   const form = useForm({
     resolver: zodResolver(
       mode === "create" ? periodSchemaCreate : periodSchemaUpdate
@@ -46,7 +48,10 @@ export const PeriodForm = ({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-full formlayout">
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="space-y-4 w-full formlayout"
+      >
         <FormField
           control={form.control}
           name="name"

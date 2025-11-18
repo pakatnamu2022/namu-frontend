@@ -17,9 +17,9 @@ import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import { CustomersForm } from "@/features/ap/comercial/clientes/components/CustomersForm";
 import { EMPRESA_AP } from "@/core/core.constants";
 import { OPPORTUNITIES } from "@/features/ap/comercial/oportunidades/lib/opportunities.constants";
-import NotFound from "@/app/not-found";
+import { notFound } from "@/shared/hooks/useNotFound";
 
-export default function CreateCustomersPage() {
+export default function AddCustomersPage() {
   const router = useNavigate();
   const [searchParams] = useSearchParams();
   const { currentView, checkRouteExists } = useCurrentModule();
@@ -68,8 +68,8 @@ export default function CreateCustomersPage() {
     mutate(data);
   };
 
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <FormWrapper>

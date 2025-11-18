@@ -26,7 +26,7 @@ import AccountingAccountTypeOptions from "@/features/ap/configuraciones/maestros
 import AccountingAccountTypeModal from "@/features/ap/configuraciones/maestros-general/tipos-cuenta-contable/components/AccountingAccountTypeModal";
 import { ACCOUNTING_ACCOUNT_TYPE } from "@/features/ap/configuraciones/maestros-general/tipos-cuenta-contable/lib/accountingAccountType.constants";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
 export default function AccountingAccountTypePage() {
@@ -73,8 +73,8 @@ export default function AccountingAccountTypePage() {
   };
 
   if (isLoadingModule) return <PageSkeleton />;
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <div className="space-y-4">

@@ -24,11 +24,11 @@ import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import { PARAMETER } from "@/features/gp/gestionhumana/evaluaciondesempeño/parametros/lib/parameter.constans";
 import ParameterForm from "@/features/gp/gestionhumana/evaluaciondesempeño/parametros/components/ParameterForm";
 import FormWrapper from "@/shared/components/FormWrapper";
-import NotFound from "@/app/not-found";
+import { notFound } from "@/shared/hooks/useNotFound";
 
 const { MODEL } = PARAMETER;
 
-export default function EditParameterPage() {
+export default function UpdateParameterPage() {
   const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();
@@ -82,8 +82,8 @@ export default function EditParameterPage() {
   if (isLoadingAny) {
     return <div className="p-4 text-muted">Cargando competencia...</div>;
   }
-  if (!checkRouteExists("parametros")) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists("parametros")) notFound();
+  if (!currentView) notFound();
 
   return (
     <FormWrapper>

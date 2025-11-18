@@ -15,10 +15,10 @@ import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import FormWrapper from "@/shared/components/FormWrapper";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
-export default function EditMetricPage() {
+export default function UpdateMetricPage() {
     const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();
@@ -60,8 +60,8 @@ export default function EditMetricPage() {
   if (isLoadingAny) {
     return <FormSkeleton />;
   }
-  if (!checkRouteExists("metricas")) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists("metricas")) notFound();
+  if (!currentView) notFound();
 
   return (
     <FormWrapper>

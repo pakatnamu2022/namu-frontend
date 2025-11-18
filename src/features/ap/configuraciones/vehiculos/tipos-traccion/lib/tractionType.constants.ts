@@ -16,6 +16,8 @@ export const TRACTION_TYPE: ModelComplete<TractionTypeResource> = {
   QUERY_KEY: "tractionType",
   ROUTE,
   ABSOLUTE_ROUTE,
+  ROUTE_ADD: `${ABSOLUTE_ROUTE}/agregar`,
+  ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/editar`,
   EMPTY: {
     id: 0,
     code: "",

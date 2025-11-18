@@ -30,8 +30,7 @@ import {
   getAllPermissions,
 } from "@/features/gp/gestionsistema/permissions/lib/permissions.actions";
 import { PERMISSION_ACTIONS } from "@/shared/hooks/useModulePermissions";
-import NotFound from "@/app/not-found";
-import { useNotFound } from "@/shared/hooks/useNotFound";
+import { notFound } from "@/shared/hooks/useNotFound";
 
 export default function ViewPermissionsPage() {
   const { id } = useParams();
@@ -53,8 +52,7 @@ export default function ViewPermissionsPage() {
     const fetchData = async () => {
       if (!id || isNaN(Number(id))) {
         // eslint-disable-next-line react-hooks/rules-of-hooks
-        useNotFound();
-        return;
+        notFound();
       }
 
       try {
@@ -142,10 +140,10 @@ export default function ViewPermissionsPage() {
     router(ABSOLUTE_ROUTE!);
   };
 
-  if (!checkRouteExists("vistas")) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists("vistas")) notFound();
+  if (!currentView) notFound();
   if (isLoading) return <FormSkeleton />;
-  if (!view) return <NotFound />;
+  if (!view) notFound();
 
   // Map policy_method to action value for comparison
   const getActionFromPolicyMethod = (policyMethod: string): string => {

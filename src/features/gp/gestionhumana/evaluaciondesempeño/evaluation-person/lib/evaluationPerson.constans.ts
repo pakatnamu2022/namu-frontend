@@ -17,6 +17,6 @@ export const EVALUATION_PERSON: ModelComplete = {
   QUERY_KEY: "evaluationPersons",
   ROUTE,
   ABSOLUTE_ROUTE,
-  ROUTE_ADD: `${ROUTE}/agregar`,
+  ROUTE_ADD: `${ABSOLUTE_ROUTE}/agregar`,
   ROUTE_UPDATE: `${ROUTE}/actualizar`,
 };

@@ -26,7 +26,7 @@ import { unitMeasurementColumns } from "@/features/ap/configuraciones/maestros-g
 import UnitMeasurementOptions from "@/features/ap/configuraciones/maestros-general/unidad-medida/components/UnitMeasurementOptions";
 import UnitMeasurementModal from "@/features/ap/configuraciones/maestros-general/unidad-medida/components/UnitMeasurementModal";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
 export default function UnitMeasurementPage() {
@@ -73,8 +73,8 @@ export default function UnitMeasurementPage() {
   };
 
   if (isLoadingModule) return <PageSkeleton />;
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <div className="space-y-4">

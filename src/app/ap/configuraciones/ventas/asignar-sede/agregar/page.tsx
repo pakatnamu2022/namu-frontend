@@ -17,9 +17,9 @@ import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import { AssignCompanyBranchSchema } from "@/features/ap/configuraciones/ventas/asignar-sede/lib/assignCompanyBranch.schema";
 import { AssignCompanyBranchForm } from "@/features/ap/configuraciones/ventas/asignar-sede/components/AssignCompanyBranchForm";
 import { storeAssignCompanyBranch } from "@/features/ap/configuraciones/ventas/asignar-sede/lib/assignCompanyBranch.actions";
-import NotFound from "@/app/not-found";
+import { notFound } from "@/shared/hooks/useNotFound";
 
-export default function CreateAssignCompanyBranchPage() {
+export default function AddAssignCompanyBranchPage() {
   const router = useNavigate();
   const { currentView, checkRouteExists } = useCurrentModule();
   const { ROUTE, MODEL, ABSOLUTE_ROUTE } = ASSIGNMENT_LEADERSHIP;
@@ -39,8 +39,8 @@ export default function CreateAssignCompanyBranchPage() {
   const handleSubmit = (data: AssignCompanyBranchSchema) => {
     mutate(data);
   };
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <FormWrapper>

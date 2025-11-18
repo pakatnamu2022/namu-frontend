@@ -16,6 +16,8 @@ export const ENGINE_TYPES: ModelComplete<EngineTypesResource> = {
   QUERY_KEY: "engineTypes",
   ROUTE,
   ABSOLUTE_ROUTE,
+  ROUTE_ADD: `${ABSOLUTE_ROUTE}/agregar`,
+  ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/editar`,
   EMPTY: {
     id: 0,
     code: "",

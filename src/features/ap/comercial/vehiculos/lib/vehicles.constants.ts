@@ -3,6 +3,7 @@ import { VehicleResource } from "./vehicles.interface";
 import { ModelsVnResource } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.interface";
 
 const ROUTE = "vehiculos";
+const ABSOLUTE_ROUTE = `/ap/comercial/${ROUTE}`;
 
 export const VEHICLES: ModelComplete<VehicleResource> = {
   MODEL: {
@@ -14,6 +15,9 @@ export const VEHICLES: ModelComplete<VehicleResource> = {
   ENDPOINT: "/ap/commercial/vehicles",
   QUERY_KEY: "vehicles",
   ROUTE,
+  ABSOLUTE_ROUTE,
+  ROUTE_ADD: `${ABSOLUTE_ROUTE}/agregar`,
+  ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/editar`,
   EMPTY: {
     id: 0,
     vin: "",

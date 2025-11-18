@@ -5,7 +5,7 @@ import ProfileInfo from "@/features/dashboard/components/ProfileInfo";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import MetricasPage from "./metricas/page";
 import PerformanceEvaluationPage from "@/features/gp/gestionhumana/evaluaciondesempeño/dashboard/components/PerformanceEvaluationPage";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
 export default function ModulePerformanceEvaluationPage() {
@@ -23,7 +23,7 @@ export default function ModulePerformanceEvaluationPage() {
     return <MetricasPage />;
   }
 
-  if (subModuleSlug === "null") return <NotFound />;
+  if (subModuleSlug === "null") notFound();
 
   return <DashboardWidgets />;
 }

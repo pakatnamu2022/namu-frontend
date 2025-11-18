@@ -26,7 +26,7 @@ import BankModal from "@/features/ap/configuraciones/maestros-general/bancos/com
 import { useBank } from "@/features/ap/configuraciones/maestros-general/bancos/lib/bank.hook";
 import { BANK } from "@/features/ap/configuraciones/maestros-general/bancos/lib/bank.constants";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
 export default function BankPage() {
@@ -73,8 +73,8 @@ export default function BankPage() {
   };
 
   if (isLoadingModule) return <PageSkeleton />;
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <div className="space-y-4">

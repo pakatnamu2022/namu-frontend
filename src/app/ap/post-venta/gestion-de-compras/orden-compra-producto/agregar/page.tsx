@@ -11,13 +11,13 @@ import {
 } from "@/core/core.function";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import FormWrapper from "@/shared/components/FormWrapper";
-import NotFound from "@/app/not-found";
+import { notFound } from "@/shared/hooks/useNotFound";
 import { storePurchaseOrderProducts } from "@/features/ap/post-venta/gestion-compras/orden-compra-producto/lib/purchaseOrderProducts.actions";
 import { PurchaseOrderProductsSchema } from "@/features/ap/post-venta/gestion-compras/orden-compra-producto/lib/purchaseOrderProducts.schema";
 import { PurchaseOrderProductsForm } from "@/features/ap/post-venta/gestion-compras/orden-compra-producto/components/PurchaseOrderProductsForm";
 import { PURCHASE_ORDER_PRODUCT } from "@/features/ap/post-venta/gestion-compras/orden-compra-producto/lib/purchaseOrderProducts.constants";
 
-export default function CreatePurchaseOrderProductsPage() {
+export default function AddPurchaseOrderProductsPage() {
   const router = useNavigate();
   const { currentView, checkRouteExists } = useCurrentModule();
   const { ROUTE, MODEL, ABSOLUTE_ROUTE } = PURCHASE_ORDER_PRODUCT;
@@ -38,8 +38,8 @@ export default function CreatePurchaseOrderProductsPage() {
     mutate(data);
   };
 
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   const today = new Date().toISOString().split("T")[0];
 

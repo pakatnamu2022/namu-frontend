@@ -21,7 +21,7 @@ import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
 import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import { METRIC } from "@/features/gp/gestionhumana/evaluaciondesempeño/metricas/lib/metric.constant";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
 const { MODEL } = METRIC;
@@ -57,8 +57,8 @@ export default function MetricasPage() {
   };
 
   if (isLoadingModule) return <PageSkeleton />;
-  if (!checkRouteExists("metricas")) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists("metricas")) notFound();
+  if (!currentView) notFound();
 
   return (
     <div className="space-y-4">

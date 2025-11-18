@@ -9,7 +9,7 @@ import { HierarchicalCategorySchema } from "@/features/gp/gestionhumana/evaluaci
 import { HierarchicalCategoryForm } from "@/features/gp/gestionhumana/evaluaciondesempeño/categorias-jerarquicas/components/HierarchicalCategoryForm";
 import { storeHierarchicalCategory } from "@/features/gp/gestionhumana/evaluaciondesempeño/categorias-jerarquicas/lib/hierarchicalCategory.actions";
 import FormWrapper from "@/shared/components/FormWrapper";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
 export default function AddHierarchicalCategoryPage() {
@@ -33,8 +33,8 @@ export default function AddHierarchicalCategoryPage() {
   const handleSubmit = (data: HierarchicalCategorySchema) => {
     mutate(data);
   };
-  if (!checkRouteExists("categorias-jerarquicas")) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists("categorias-jerarquicas")) notFound();
+  if (!currentView) notFound();
 
   return (
     <FormWrapper>

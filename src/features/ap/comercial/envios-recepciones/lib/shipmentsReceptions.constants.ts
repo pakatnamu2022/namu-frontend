@@ -2,6 +2,7 @@ import { type ModelComplete } from "@/core/core.interface";
 import { ShipmentsReceptionsResource } from "./shipmentsReceptions.interface";
 
 const ROUTE = "envios-recepciones";
+const ABSOLUTE_ROUTE = `/ap/comercial/${ROUTE}`;
 
 export const SHIPMENTS_RECEPTIONS: ModelComplete<ShipmentsReceptionsResource> =
   {
@@ -14,8 +15,9 @@ export const SHIPMENTS_RECEPTIONS: ModelComplete<ShipmentsReceptionsResource> =
     ENDPOINT: "/ap/commercial/shippingGuides",
     QUERY_KEY: "shipments-receptions",
     ROUTE,
-    ROUTE_ADD: `./agregar`,
-    ROUTE_UPDATE: `./actualizar`,
+    ABSOLUTE_ROUTE,
+    ROUTE_ADD: `${ABSOLUTE_ROUTE}/agregar`,
+    ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/editar`,
   };
 
 // Tipos de documento

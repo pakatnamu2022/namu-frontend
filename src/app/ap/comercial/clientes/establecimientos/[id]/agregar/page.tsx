@@ -19,10 +19,10 @@ import { EstablishmentsSchema } from "@/features/ap/comercial/establecimientos/l
 import { EstablishmentsForm } from "@/features/ap/comercial/establecimientos/components/EstablishmentsForm";
 import { CUSTOMERS } from "@/features/ap/comercial/clientes/lib/customers.constants";
 import { findCustomersById } from "@/features/ap/comercial/clientes/lib/customers.actions";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
-export default function NewEstablishmentPage() {
+export default function AddCustomerEstablishmentPage() {
     const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();
@@ -60,8 +60,8 @@ export default function NewEstablishmentPage() {
   if (isLoadingAny) {
     return <FormSkeleton />;
   }
-  if (!checkRouteExists(CUSTOMERS.ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(CUSTOMERS.ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <FormWrapper>

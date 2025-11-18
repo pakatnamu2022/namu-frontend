@@ -26,7 +26,7 @@ import { useAllObjectives } from "@/features/gp/gestionhumana/evaluaciondesempe�
 import { HierarchicalCategoryCompetenceModal } from "@/features/gp/gestionhumana/evaluaciondesempeño/categorias-jerarquicas/components/HierarchicalCategoryCompetencesModal";
 import { useAllCompetences } from "@/features/gp/gestionhumana/evaluaciondesempeño/competencias/lib/competence.hook";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
 export default function HierarchicalCategoryPage() {
@@ -132,8 +132,8 @@ export default function HierarchicalCategoryPage() {
   };
 
   if (isLoadingModule) return <PageSkeleton />;
-  if (!checkRouteExists("categorias-jerarquicas")) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists("categorias-jerarquicas")) notFound();
+  if (!currentView) notFound();
 
   return (
     <div className="space-y-4">

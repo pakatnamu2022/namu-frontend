@@ -11,7 +11,7 @@ interface Props {
   handleCreatePost: () => void;
 }
 
-export default function CreatePost({
+export default function AddPost({
   setShowCreatePost,
   newPost,
   setNewPost,

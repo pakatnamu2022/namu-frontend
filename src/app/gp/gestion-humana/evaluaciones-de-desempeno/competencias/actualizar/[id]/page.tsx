@@ -19,7 +19,7 @@ import { CompetenceForm } from "@/features/gp/gestionhumana/evaluaciondesempeño
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import FormWrapper from "@/shared/components/FormWrapper";
-import NotFound from "@/app/not-found";
+import { notFound } from "@/shared/hooks/useNotFound";
 import { COMPETENCE } from "@/features/gp/gestionhumana/evaluaciondesempeño/competencias/lib/competence.constans";
 
 export default function UpdateCompetencePage() {
@@ -79,8 +79,8 @@ export default function UpdateCompetencePage() {
   if (isLoadingAny) {
     return <div className="p-4 text-muted">Cargando competencia...</div>;
   }
-  if (!checkRouteExists("competencias")) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists("competencias")) notFound();
+  if (!currentView) notFound();
 
   return (
     <FormWrapper>

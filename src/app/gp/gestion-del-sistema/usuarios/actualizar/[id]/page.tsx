@@ -17,10 +17,10 @@ import { useAllCompanies } from "@/features/gp/gestionsistema/empresa/lib/compan
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import FormWrapper from "@/shared/components/FormWrapper";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
-export default function EditViewPage() {
+export default function UpdateViewPage() {
     const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();
@@ -84,8 +84,8 @@ export default function EditViewPage() {
   if (isLoadingAny) {
     return <div className="p-4 text-muted">Cargando equipo...</div>;
   }
-  if (!checkRouteExists("roles")) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists("roles")) notFound();
+  if (!currentView) notFound();
 
   return (
     <FormWrapper>

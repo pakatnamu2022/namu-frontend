@@ -26,7 +26,7 @@ import { taxClassTypesColumns } from "@/features/ap/configuraciones/maestros-gen
 import TaxClassTypesOptions from "@/features/ap/configuraciones/maestros-general/tipos-clase-impuesto/components/TaxClassTypesOptions";
 import TaxClassTypesModal from "@/features/ap/configuraciones/maestros-general/tipos-clase-impuesto/components/TaxClassTypesModal";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
 export default function TaxClassTypesPage() {
@@ -73,8 +73,8 @@ export default function TaxClassTypesPage() {
   };
 
   if (isLoadingModule) return <PageSkeleton />;
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <div className="space-y-4">

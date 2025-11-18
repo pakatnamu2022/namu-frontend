@@ -31,12 +31,12 @@ const shipmentsReceptionsSchemaBase = z.object({
   transmitter_id: requiredStringId("El emisor es requerido"),
   receiver_id: requiredStringId("El receptor es requerido"),
   total_packages: z
-    .number({
+    .string({
       error: "El total de bultos es requerido",
     })
     .min(1, "El total de bultos debe ser al menos 1"),
   total_weight: z
-    .number({
+    .string({
       error: "El peso total es requerido",
     })
     .min(0.1, "El peso total debe ser al menos 0.1"),
@@ -144,9 +144,9 @@ export type ShipmentsReceptionsSchema = z.infer<
 
 // Schema para checklist de recepción (update)
 export const receptionChecklistSchemaUpdate = z.object({
-  shipping_guide_id: z.number(),
+  shipping_guide_id: z.string(),
   note: z.string().optional(),
-  items_receiving: z.record(z.string(), z.number()).default({}),
+  items_receiving: z.record(z.string(), z.string()).default({}),
 });
 
 export type ReceptionChecklistSchema = z.infer<

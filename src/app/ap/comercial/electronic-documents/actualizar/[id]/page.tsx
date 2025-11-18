@@ -26,7 +26,7 @@ import { useElectronicDocument } from "@/features/ap/facturacion/electronic-docu
 import { SUNAT_CONCEPTS_TYPE } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { useAuthorizedSeries } from "@/features/ap/configuraciones/maestros-general/asignar-serie-usuario/lib/userSeriesAssignment.hook";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
 export default function UpdateElectronicDocumentPage() {
@@ -214,10 +214,10 @@ export default function UpdateElectronicDocumentPage() {
   };
 
   if (isLoadingModule) return <PageSkeleton />;
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
-  if (isNaN(id)) return <NotFound />;
-  if (documentError) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
+  if (isNaN(id)) notFound();
+  if (documentError) notFound();
 
   const isLoadingData =
     !document ||

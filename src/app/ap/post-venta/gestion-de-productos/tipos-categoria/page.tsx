@@ -22,7 +22,7 @@ import { typesCategoryColumns } from "@/features/ap/post-venta/gestion-productos
 import TypesCategoryOptions from "@/features/ap/post-venta/gestion-productos/tipos-categoria/components/TypesCategoryOptions";
 import TypesCategoryModal from "@/features/ap/post-venta/gestion-productos/tipos-categoria/components/TypesCategoryModal";
 import { useTypesCategory } from "@/features/ap/post-venta/gestion-productos/tipos-categoria/lib/typesCategory.hook";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 import {
 
   deleteTypesCategory,
@@ -73,8 +73,8 @@ export default function TypesCategoryPage() {
   };
 
   if (isLoadingModule) return <PageSkeleton />;
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <div className="space-y-4">

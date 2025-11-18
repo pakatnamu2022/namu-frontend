@@ -26,7 +26,7 @@ import AccountingAccountPlanOptions from "@/features/ap/configuraciones/maestros
 import AccountingAccountPlanModal from "@/features/ap/configuraciones/maestros-general/plan-cuenta-contable/components/AccountingAccountPlanModal";
 import { ACCOUNTING_ACCOUNT_PLAN } from "@/features/ap/configuraciones/maestros-general/plan-cuenta-contable/lib/accountingAccountPlan.constants";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
 export default function AccountingAccountPlanPage() {
@@ -73,8 +73,8 @@ export default function AccountingAccountPlanPage() {
   };
 
   if (isLoadingModule) return <PageSkeleton />;
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <div className="space-y-4">

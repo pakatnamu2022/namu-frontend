@@ -19,7 +19,7 @@ import { format } from "date-fns";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { useAllParameters } from "@/features/gp/gestionhumana/evaluaciondesempeño/parametros/lib/parameter.hook";
 import FormWrapper from "@/shared/components/FormWrapper";
-import NotFound from "@/app/not-found";
+import { notFound } from "@/shared/hooks/useNotFound";
 
 const { MODEL } = EVALUATION;
 
@@ -75,8 +75,8 @@ export default function AddEvaluationPage() {
 
   if (isLoadingAny) return <FormSkeleton />;
 
-  if (!checkRouteExists("parametros")) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists("parametros")) notFound();
+  if (!currentView) notFound();
 
   return (
     <FormWrapper>

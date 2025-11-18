@@ -28,7 +28,7 @@ import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
 import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { VIEW } from "@/features/gp/gestionsistema/vistas/lib/view.constants";
-import NotFound from "@/app/not-found";
+import { notFound } from "@/shared/hooks/useNotFound";
 
 const { MODEL } = VIEW;
 
@@ -78,8 +78,8 @@ export default function ViewPage() {
   };
 
   if (isLoadingModule) return <PageSkeleton />;
-  if (!checkRouteExists("vistas")) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists("vistas")) notFound();
+  if (!currentView) notFound();
 
   return (
     <div className="space-y-4">

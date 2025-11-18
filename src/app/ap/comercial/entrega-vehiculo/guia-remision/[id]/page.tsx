@@ -23,7 +23,7 @@ import { ArrowLeft, ExternalLink } from "lucide-react";
 import { errorToast, successToast } from "@/core/core.function";
 import { Separator } from "@/components/ui/separator";
 import { JSX } from "react";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 export default function ShippingGuidePage(): JSX.Element {
   const params = useParams();
@@ -38,7 +38,7 @@ export default function ShippingGuidePage(): JSX.Element {
   const generateMutation = useGenerateOrUpdateShippingGuide();
 
   if (isLoading) return <PageSkeleton />;
-  if (!vehicleDelivery) return <NotFound />;
+  if (!vehicleDelivery) notFound();
 
   const shippingGuide = vehicleDelivery.shipping_guide;
   const canEdit = !shippingGuide?.aceptada_por_sunat;

@@ -18,7 +18,7 @@ import { CARD_WASH_ROUTE } from "@/features/ap/comercial/entrega-vehiculo/lib/ve
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { cardWashColumns } from "@/features/ap/comercial/entrega-vehiculo/components/CardWashColumns";
 import { toast } from "sonner";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
 export default function CardWashPage() {
@@ -55,8 +55,8 @@ export default function CardWashPage() {
   };
 
   if (isLoadingModule) return <PageSkeleton />;
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <div className="space-y-4">

@@ -17,9 +17,9 @@ import { AP_GOAL_SELL_OUT_IN } from "@/features/ap/configuraciones/ventas/metas-
 import { storeApGoalSellOutIn } from "@/features/ap/configuraciones/ventas/metas-venta/lib/apGoalSellOutIn.actions";
 import { ApGoalSellOutInSchema } from "@/features/ap/configuraciones/ventas/metas-venta/lib/apGoalSellOutIn.schema";
 import { ApGoalSellOutInForm } from "@/features/ap/configuraciones/ventas/metas-venta/components/ApGoalSellOutInForm";
-import NotFound from "@/app/not-found";
+import { notFound } from "@/shared/hooks/useNotFound";
 
-export default function CreateApGoalSellOutInPage() {
+export default function AddApGoalSellOutInPage() {
   const year = new Date().getFullYear();
   const month = new Date().getMonth() + 1;
   const { currentView, checkRouteExists } = useCurrentModule();
@@ -42,8 +42,8 @@ export default function CreateApGoalSellOutInPage() {
     mutate(data);
   };
 
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <FormWrapper>

@@ -11,10 +11,10 @@ import { useAllCompanies } from "@/features/gp/gestionsistema/empresa/lib/compan
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import FormWrapper from "@/shared/components/FormWrapper";
-import NotFound from "@/app/not-found";
+import { notFound } from "@/shared/hooks/useNotFound";
 import { VIEW } from "@/features/gp/gestionsistema/vistas/lib/view.constants";
 
-export default function CreateViewPage() {
+export default function AddViewPage() {
   const router = useNavigate();
 
   const { data: views, isLoading: loadingViews } = useAllViews();
@@ -42,8 +42,8 @@ export default function CreateViewPage() {
   if (loadingViews || loadingCompanies) {
     return <div className="p-4 text-muted">Cargando Vistas</div>;
   }
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <FormWrapper>

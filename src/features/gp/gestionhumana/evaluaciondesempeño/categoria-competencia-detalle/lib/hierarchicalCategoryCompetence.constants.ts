@@ -1,6 +1,7 @@
 import { type ModelComplete } from "@/core/core.interface";
 
 const ROUTE = "competencias";
+const ABSOLUTE_ROUTE = `/gp/gestion-humana/evaluaciones-de-desempeno/${ROUTE}`;
 
 export const CATEGORY_COMPETENCE: ModelComplete = {
   MODEL: {
@@ -12,6 +13,7 @@ export const CATEGORY_COMPETENCE: ModelComplete = {
   ENDPOINT: "/gp/gh/performanceEvaluation/categoryCompetenceDetail",
   QUERY_KEY: "categoryCompetenceDetail",
   ROUTE,
-  ROUTE_ADD: `./agregar`,
-  ROUTE_UPDATE: `./actualizar`,
+  ABSOLUTE_ROUTE,
+  ROUTE_ADD: `${ABSOLUTE_ROUTE}/agregar`,
+  ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/editar`,
 };

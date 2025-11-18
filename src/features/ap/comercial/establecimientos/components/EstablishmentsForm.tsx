@@ -20,7 +20,7 @@ import {
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
-import { Link } from 'react-router-dom'
+import { Link } from "react-router-dom";
 import { useEffect } from "react";
 import {
   useAllDepartment,
@@ -30,6 +30,7 @@ import {
 import { useAllSedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import { EMPRESA_AP } from "@/core/core.constants";
 import { Checkbox } from "@/components/ui/checkbox";
+import { ESTABLISHMENTS } from "../lib/establishments.constants";
 
 const AUTOMOTORES_PAKATNAMU_ID = 17;
 
@@ -48,6 +49,7 @@ export const EstablishmentsForm = ({
   mode = "create",
   businessPartnerId,
 }: EstablishmentsFormProps) => {
+  const { ABSOLUTE_ROUTE } = ESTABLISHMENTS;
   const form = useForm<EstablishmentsSchema>({
     resolver: zodResolver(establishmentsSchema),
     defaultValues: {

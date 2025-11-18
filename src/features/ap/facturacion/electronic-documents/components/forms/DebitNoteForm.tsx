@@ -779,13 +779,7 @@ export function DebitNoteForm({
         side="right"
         className="max-w-lg!"
         modal={false}
-        icon={
-          editingIndex !== null ? (
-            <Pencil className="size-5 text-purple-600" />
-          ) : (
-            <Plus className="size-5 text-purple-600" />
-          )
-        }
+        icon={editingIndex !== null ? "Pencil" : "Plus"}
       >
         <div className="flex flex-col gap-4">
           <div className="flex-1 space-y-4">

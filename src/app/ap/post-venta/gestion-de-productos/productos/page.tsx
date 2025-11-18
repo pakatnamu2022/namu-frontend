@@ -21,7 +21,7 @@ import ProductTable from "@/features/ap/post-venta/gestion-productos/productos/c
 import { productColumns } from "@/features/ap/post-venta/gestion-productos/productos/components/ProductColumns";
 import ProductOptions from "@/features/ap/post-venta/gestion-productos/productos/components/ProductOptions";
 import { useProduct } from "@/features/ap/post-venta/gestion-productos/productos/lib/product.hook";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 import {
 
   deleteProduct,
@@ -72,8 +72,8 @@ export default function ProductPage() {
   };
 
   if (isLoadingModule) return <PageSkeleton />;
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <div className="space-y-4">

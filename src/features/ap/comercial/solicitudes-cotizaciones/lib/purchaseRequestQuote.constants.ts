@@ -2,6 +2,7 @@ import { type ModelComplete } from "@/core/core.interface";
 import { PurchaseRequestQuoteResource } from "./purchaseRequestQuote.interface";
 
 const ROUTE = "solicitudes-cotizaciones";
+const ABSOLUTE_ROUTE = `/ap/comercial/${ROUTE}`;
 
 export const PURCHASE_REQUEST_QUOTE: ModelComplete<PurchaseRequestQuoteResource> =
   {
@@ -14,6 +15,7 @@ export const PURCHASE_REQUEST_QUOTE: ModelComplete<PurchaseRequestQuoteResource>
     ENDPOINT: "/ap/commercial/purchaseRequestQuote",
     QUERY_KEY: "purchaseRequestQuote",
     ROUTE,
-    ROUTE_ADD: `./agregar`,
-    ROUTE_UPDATE: `./actualizar`,
+    ABSOLUTE_ROUTE,
+    ROUTE_ADD: `${ABSOLUTE_ROUTE}/agregar`,
+    ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/editar`,
   };

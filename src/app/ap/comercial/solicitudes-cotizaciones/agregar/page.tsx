@@ -15,10 +15,10 @@ import { PURCHASE_REQUEST_QUOTE } from "@/features/ap/comercial/solicitudes-coti
 import { storePurchaseRequestQuote } from "@/features/ap/comercial/solicitudes-cotizaciones/lib/purchaseRequestQuote.actions";
 import { PurchaseRequestQuoteSchema } from "@/features/ap/comercial/solicitudes-cotizaciones/lib/purchaseRequestQuote.schema";
 import { PurchaseRequestQuoteForm } from "@/features/ap/comercial/solicitudes-cotizaciones/components/PurchaseRequestQuoteForm";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
-export default function CreatePurchaseRequestQuotePage() {
+export default function AddPurchaseRequestQuotePage() {
   const router = useNavigate();
     const { currentView, checkRouteExists } = useCurrentModule();
   const { ROUTE, MODEL } = PURCHASE_REQUEST_QUOTE;
@@ -38,8 +38,8 @@ export default function CreatePurchaseRequestQuotePage() {
   const handleSubmit = (data: PurchaseRequestQuoteSchema) => {
     mutate(data);
   };
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <FormWrapper>

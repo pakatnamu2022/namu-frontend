@@ -21,7 +21,7 @@ import { useExcluded } from "@/features/gp/gestionhumana/evaluaciondesempeño/ex
 import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import { EXCLUDED } from "@/features/gp/gestionhumana/evaluaciondesempeño/excluidos/lib/excluded.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
 const { MODEL } = EXCLUDED;
@@ -57,8 +57,8 @@ export default function ExcludedasPage() {
   };
 
   if (isLoadingModule) return <PageSkeleton />;
-  if (!checkRouteExists("excluidos")) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists("excluidos")) notFound();
+  if (!currentView) notFound();
 
   return (
     <div className="space-y-4">

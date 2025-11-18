@@ -17,10 +17,10 @@ import { format, parse } from "date-fns";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import FormWrapper from "@/shared/components/FormWrapper";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
-export default function EditEquipmentPage() {
+export default function UpdateEquipmentPage() {
     const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();
@@ -104,8 +104,8 @@ export default function EditEquipmentPage() {
   if (isLoadingAny) {
     return <div className="p-4 text-muted">Cargando equipo...</div>;
   }
-  if (!checkRouteExists("equipos")) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists("equipos")) notFound();
+  if (!currentView) notFound();
 
   return (
     <FormWrapper>

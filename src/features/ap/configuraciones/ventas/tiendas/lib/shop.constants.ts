@@ -15,6 +15,8 @@ export const SHOP: ModelComplete<ShopResource> = {
   QUERY_KEY: "shop",
   ROUTE,
   ABSOLUTE_ROUTE,
+  ROUTE_ADD: `${ABSOLUTE_ROUTE}/agregar`,
+  ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/editar`,
   EMPTY: {
     id: 0,
     description: "",

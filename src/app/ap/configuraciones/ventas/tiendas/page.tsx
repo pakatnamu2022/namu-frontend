@@ -26,7 +26,7 @@ import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
 import ShopModal from "@/features/ap/configuraciones/ventas/tiendas/components/ShopModal";
 import DataTablePagination from "@/shared/components/DataTablePagination";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
 export default function ShopPage() {
@@ -73,8 +73,8 @@ export default function ShopPage() {
   };
 
   if (isLoadingModule) return <PageSkeleton />;
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <div className="space-y-4">

@@ -15,9 +15,9 @@ import { ASSIGN_SALES_SERIES } from "@/features/ap/configuraciones/maestros-gene
 import { storeAssignSalesSeries } from "@/features/ap/configuraciones/maestros-general/asignar-serie-venta/lib/assignSalesSeries.actions";
 import { AssignSalesSeriesSchema } from "@/features/ap/configuraciones/maestros-general/asignar-serie-venta/lib/assignSalesSeries.schema";
 import { AssignSalesSeriesForm } from "@/features/ap/configuraciones/maestros-general/asignar-serie-venta/components/AssignSalesSeriesForm";
-import NotFound from "@/app/not-found";
+import { notFound } from "@/shared/hooks/useNotFound";
 
-export default function CreateAssignSalesSeriesPage() {
+export default function AddAssignSalesSeriesPage() {
   const router = useNavigate();
   const { currentView, checkRouteExists } = useCurrentModule();
   const { ROUTE, MODEL, ABSOLUTE_ROUTE } = ASSIGN_SALES_SERIES;
@@ -37,8 +37,8 @@ export default function CreateAssignSalesSeriesPage() {
   const handleSubmit = (data: AssignSalesSeriesSchema) => {
     mutate(data);
   };
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <FormWrapper>

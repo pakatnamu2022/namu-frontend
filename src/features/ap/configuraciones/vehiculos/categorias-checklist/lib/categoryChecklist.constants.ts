@@ -16,5 +16,7 @@ export const CATEGORY_CHECKLIST: ModelComplete<CategoryChecklistResource> = {
   QUERY_KEY: "categoryChecklist",
   ROUTE,
   ABSOLUTE_ROUTE,
+  ROUTE_ADD: `${ABSOLUTE_ROUTE}/agregar`,
+  ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/editar`,
   EMPTY: { id: 0, description: "", type: "", status: true },
 };

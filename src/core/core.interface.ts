@@ -13,9 +13,9 @@ export interface ModelComplete<T = undefined> {
   ENDPOINT: string;
   QUERY_KEY: string;
   ROUTE: string;
-  ABSOLUTE_ROUTE?: string;
-  ROUTE_ADD?: string;
-  ROUTE_UPDATE?: string;
+  ABSOLUTE_ROUTE: string;
+  ROUTE_ADD: string;
+  ROUTE_UPDATE: string;
   ROUTE_DASHBOARD?: string;
   EMPTY?: T;
 }

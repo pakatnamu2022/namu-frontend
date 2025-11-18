@@ -1,6 +1,6 @@
 "use client";
 
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import { useMutation } from "@tanstack/react-query";
 import {
@@ -17,12 +17,11 @@ import { storeVehiclePurchaseOrder } from "@/features/ap/comercial/ordenes-compr
 import { VehiclePurchaseOrderSchema } from "@/features/ap/comercial/ordenes-compra-vehiculo/lib/vehiclePurchaseOrder.schema";
 import { VehiclePurchaseOrderForm } from "@/features/ap/comercial/ordenes-compra-vehiculo/components/VehiclePurchaseOrderForm";
 import { format } from "date-fns";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
-
-export default function CreateVehiclePurchaseOrderPage() {
+export default function AddVehiclePurchaseOrderPage() {
   const router = useNavigate();
-    const { currentView, checkRouteExists } = useCurrentModule();
+  const { currentView, checkRouteExists } = useCurrentModule();
   const { ROUTE, MODEL } = VEHICLE_PURCHASE_ORDER;
 
   const { mutate, isPending } = useMutation({
@@ -60,8 +59,8 @@ export default function CreateVehiclePurchaseOrderPage() {
     });
   };
 
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <FormWrapper>

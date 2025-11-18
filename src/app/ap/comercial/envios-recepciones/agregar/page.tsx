@@ -1,6 +1,6 @@
 "use client";
 
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import {
   ERROR_MESSAGE,
@@ -14,12 +14,11 @@ import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import { ShipmentsReceptionsForm } from "@/features/ap/comercial/envios-recepciones/components/ShipmentsReceptionsForm";
 import { useCreateShipmentsReceptions } from "@/features/ap/comercial/envios-recepciones/lib/shipmentsReceptions.hook";
 import { ShipmentsReceptionsSchema } from "@/features/ap/comercial/envios-recepciones/lib/shipmentsReceptions.schema";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
-
-export default function CreateShipmentsReceptionsPage() {
+export default function AddShipmentsReceptionsPage() {
   const router = useNavigate();
-    const { currentView, checkRouteExists } = useCurrentModule();
+  const { currentView, checkRouteExists } = useCurrentModule();
   const { ROUTE, MODEL } = SHIPMENTS_RECEPTIONS;
 
   const createMutation = useCreateShipmentsReceptions();
@@ -41,7 +40,7 @@ export default function CreateShipmentsReceptionsPage() {
     router(`/ap/comercial/${ROUTE}`);
   };
 
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
 
   return (
     <FormWrapper>
@@ -65,8 +64,8 @@ export default function CreateShipmentsReceptionsPage() {
             driver_doc: "",
             license: "",
             plate: "",
-            total_packages: 1,
-            total_weight: 0,
+            total_packages: "1",
+            total_weight: "0",
             transport_company_id: "",
             driver_name: "",
             notes: "",

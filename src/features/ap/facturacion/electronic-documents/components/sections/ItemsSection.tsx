@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { UseFormReturn } from "react-hook-form";
-import { Info, Package, Pencil, Plus } from "lucide-react";
+import { Info, Package, Plus } from "lucide-react";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -285,15 +285,9 @@ export function ItemsSection({
         onClose={closeSheet}
         title={editingIndex !== null ? "Editar Item" : "Agregar Item"}
         side="right"
-        className="!max-w-lg"
+        className="max-w-lg!"
         modal={false}
-        icon={
-          editingIndex !== null ? (
-            <Pencil className="size-5 text-primary" />
-          ) : (
-            <Plus className="size-5 text-primary" />
-          )
-        }
+        icon={editingIndex !== null ? "Pencil" : "Plus"}
       >
         <div className="flex flex-col gap-4">
           <div className="flex-1 space-y-4">
@@ -323,7 +317,7 @@ export function ItemsSection({
                   value: unit.value,
                   label: unit.label,
                 }))}
-                className="!w-full"
+                className="w-full!"
                 buttonSize="default"
               />
             </div>
@@ -341,7 +335,7 @@ export function ItemsSection({
                     label: `${plan.account} - ${plan.description}`,
                   })) || []
                 }
-                className="!w-full"
+                className="w-full!"
                 buttonSize="default"
                 disabled={isFromQuotation}
               />

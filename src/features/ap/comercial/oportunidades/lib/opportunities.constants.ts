@@ -7,7 +7,7 @@ import { Mail, MessageCircle, Phone, Users, Video } from "lucide-react";
 import { AGENDA } from "../../agenda/lib/agenda.constants";
 
 const ROUTE = "oportunidades";
-const { ROUTE: ROUTE_AGENDA } = AGENDA;
+const { ROUTE: ROUTE_AGENDA, ABSOLUTE_ROUTE: ABSOLUTE_ROUTE_AGENDA } = AGENDA;
 
 export const OPPORTUNITIES: ModelComplete<OpportunitySchema> = {
   MODEL: {
@@ -31,6 +31,8 @@ export const OPPORTUNITIES: ModelComplete<OpportunitySchema> = {
   },
 };
 
+const ABSOLUTE_ROUTE = `/${ABSOLUTE_ROUTE_AGENDA}/${ROUTE}/acciones`;
+
 export const OPPORTUNITY_ACTIONS: ModelComplete<OpportunityActionSchema> = {
   MODEL: {
     name: "Acción",
@@ -41,7 +43,9 @@ export const OPPORTUNITY_ACTIONS: ModelComplete<OpportunityActionSchema> = {
   ENDPOINT: "/ap/commercial/opportunityActions",
   QUERY_KEY: "opportunityActions",
   ROUTE: "acciones",
-  ROUTE_ADD: `acciones/agregar`,
+  ABSOLUTE_ROUTE,
+  ROUTE_ADD: `${ABSOLUTE_ROUTE}/agregar`,
+  ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/editar`,
   EMPTY: {
     opportunity_id: "",
     action_type_id: "",

@@ -18,9 +18,9 @@ import {
   periodSchemaUpdate,
 } from "../lib/worker.schema";
 import { Loader } from "lucide-react";
-import { Link } from 'react-router-dom'
+import { Link } from "react-router-dom";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
-import { WORKER } from "@/features/gp/gestionhumana/personal/trabajadores/lib/worker.constant";
+import { WORKER } from "../lib/worker.constant";
 
 interface PeriodFormProps {
   defaultValues: Partial<WorkerSchema>;
@@ -35,6 +35,7 @@ export const WorkerForm = ({
   isSubmitting = false,
   mode = "create",
 }: PeriodFormProps) => {
+  const { ABSOLUTE_ROUTE, MODEL } = WORKER;
   const form = useForm({
     resolver: zodResolver(
       mode === "create" ? periodSchemaCreate : periodSchemaUpdate
@@ -47,7 +48,10 @@ export const WorkerForm = ({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-full formlayout">
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="space-y-4 w-full formlayout"
+      >
         <FormField
           control={form.control}
           name="name"
@@ -99,7 +103,7 @@ export const WorkerForm = ({
             <Loader
               className={`mr-2 h-4 w-4 ${!isSubmitting ? "hidden" : ""}`}
             />
-            {isSubmitting ? "Guardando" : `Guardar ${WORKER}`}
+            {isSubmitting ? "Guardando" : `Guardar ${MODEL}`}
           </Button>
         </div>
       </form>

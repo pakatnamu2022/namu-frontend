@@ -22,7 +22,7 @@ import { productCategoryColumns } from "@/features/ap/post-venta/gestion-product
 import ProductCategoryOptions from "@/features/ap/post-venta/gestion-productos/categorias-producto/components/ProductCategoryOptions";
 import ProductCategoryModal from "@/features/ap/post-venta/gestion-productos/categorias-producto/components/ProductCategoryModal";
 import { useProductCategory } from "@/features/ap/post-venta/gestion-productos/categorias-producto/lib/productCategory.hook";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 import {
 
   deleteProductCategory,
@@ -73,8 +73,8 @@ export default function ProductCategoryPage() {
   };
 
   if (isLoadingModule) return <PageSkeleton />;
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <div className="space-y-4">

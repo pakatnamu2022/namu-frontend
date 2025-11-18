@@ -2,6 +2,7 @@ import { type ModelComplete } from "@/core/core.interface";
 import { StoreVisitsResource } from "./storeVisits.interface";
 
 const ROUTE = "visitas-tienda";
+const ABSOLUTE_ROUTE = `/ap/comercial/${ROUTE}`;
 
 export const STORE_VISITS: ModelComplete<StoreVisitsResource> = {
   MODEL: {
@@ -13,8 +14,9 @@ export const STORE_VISITS: ModelComplete<StoreVisitsResource> = {
   ENDPOINT: "/ap/commercial/potentialBuyers",
   QUERY_KEY: "storeVisits",
   ROUTE,
-  ROUTE_ADD: `./agregar`,
-  ROUTE_UPDATE: `./actualizar`,
+  ABSOLUTE_ROUTE,
+  ROUTE_ADD: `${ABSOLUTE_ROUTE}/agregar`,
+  ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/editar`,
   EMPTY: {
     id: 0,
     registration_date: "",

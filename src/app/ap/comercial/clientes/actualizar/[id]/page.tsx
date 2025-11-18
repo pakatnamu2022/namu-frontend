@@ -22,9 +22,9 @@ import { CustomersSchema } from "@/features/ap/comercial/clientes/lib/customers.
 import { CustomersResource } from "@/features/ap/comercial/clientes/lib/customers.interface";
 import { CustomersForm } from "@/features/ap/comercial/clientes/components/CustomersForm";
 import { parse } from "date-fns";
-import NotFound from "@/app/not-found";
+import { notFound } from "@/shared/hooks/useNotFound";
 
-export default function EditCustomersPage() {
+export default function UpdateCustomersPage() {
   const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();
@@ -123,8 +123,8 @@ export default function EditCustomersPage() {
   if (isLoadingAny) {
     return <FormSkeleton />;
   }
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <FormWrapper>

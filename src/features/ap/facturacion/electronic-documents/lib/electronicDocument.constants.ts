@@ -2,6 +2,7 @@ import { type ModelComplete } from "@/core/core.interface";
 import { ElectronicDocumentResource } from "./electronicDocument.interface";
 
 const ROUTE = "electronic-documents";
+const ABSOLUTE_ROUTE = `/ap/facturacion/${ROUTE}`;
 
 export const ELECTRONIC_DOCUMENT: ModelComplete<ElectronicDocumentResource> = {
   MODEL: {
@@ -9,12 +10,13 @@ export const ELECTRONIC_DOCUMENT: ModelComplete<ElectronicDocumentResource> = {
     plural: "Documentos Electrónicos",
     gender: false,
   },
-  ROUTE_ADD: `./agregar`,
-  ROUTE_UPDATE: `./actualizar`,
   ICON: "FileText",
   ENDPOINT: "/ap/facturacion/electronic-documents",
   QUERY_KEY: "electronic-documents",
   ROUTE,
+  ABSOLUTE_ROUTE,
+  ROUTE_ADD: `${ABSOLUTE_ROUTE}/agregar`,
+  ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/editar`,
 };
 
 export const ORIGIN_MODULES = [

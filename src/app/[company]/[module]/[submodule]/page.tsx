@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/features/auth/lib/auth.store";
 import { useEffect, useState, Suspense } from "react";
 import MetricasPage from "../../../gp/gestion-humana/evaluaciones-de-desempeno/metricas/page";
-import NotFound from "@/app/not-found";
+import { notFound } from "@/shared/hooks/useNotFound";
 import DashboardSkeleton from "@/shared/components/DashboardSkeleton";
 import { findComponentByRoute } from "@/config/routeComponents";
 
@@ -104,7 +104,7 @@ export default function ModulePage() {
     return <MetricasPage />;
   }
 
-  if (subModuleSlug === "null") return <NotFound />;
+  if (subModuleSlug === "null") notFound();
 
   // Si está cargando, mostrar skeleton
   if (isLoading) {

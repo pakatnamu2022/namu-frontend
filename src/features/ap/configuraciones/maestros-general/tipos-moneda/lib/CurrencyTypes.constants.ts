@@ -15,5 +15,7 @@ export const CURRENCY_TYPES: ModelComplete<CurrencyTypesResource> = {
   QUERY_KEY: "typeCurrency",
   ROUTE,
   ABSOLUTE_ROUTE,
+  ROUTE_ADD: `${ABSOLUTE_ROUTE}/agregar`,
+  ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/editar`,
   EMPTY: { id: 0, code: "", name: "", symbol: "", status: true },
 };

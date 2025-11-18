@@ -13,7 +13,7 @@ import {
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import FormWrapper from "@/shared/components/FormWrapper";
-import NotFound from "@/app/not-found";
+import { notFound } from "@/shared/hooks/useNotFound";
 import {
   findPurchaseOrderProductsById,
   updatePurchaseOrderProducts,
@@ -23,7 +23,7 @@ import { PurchaseOrderProductsResource } from "@/features/ap/post-venta/gestion-
 import { PurchaseOrderProductsForm } from "@/features/ap/post-venta/gestion-compras/orden-compra-producto/components/PurchaseOrderProductsForm";
 import { PURCHASE_ORDER_PRODUCT } from "@/features/ap/post-venta/gestion-compras/orden-compra-producto/lib/purchaseOrderProducts.constants";
 
-export default function EditPurchaseOrderProductsPage() {
+export default function UpdatePurchaseOrderProductsPage() {
   const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();
@@ -90,8 +90,8 @@ export default function EditPurchaseOrderProductsPage() {
   if (isLoadingAny) {
     return <FormSkeleton />;
   }
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <FormWrapper>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams } from 'react-router-dom';
+import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import {
@@ -21,11 +21,10 @@ import {
   updateShipmentsReceptions,
 } from "@/features/ap/comercial/envios-recepciones/lib/shipmentsReceptions.actions";
 import { ShipmentsReceptionsResource } from "@/features/ap/comercial/envios-recepciones/lib/shipmentsReceptions.interface";
-import NotFound from '@/app/not-found';
-
+import { notFound } from "@/shared/hooks/useNotFound";
 
 export default function UpdateShipmentsReceptionsPage() {
-    const { id } = useParams();
+  const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();
   const { currentView, checkRouteExists } = useCurrentModule();
@@ -82,8 +81,8 @@ export default function UpdateShipmentsReceptionsPage() {
         : undefined,
       transmitter_id: data.transmitter_id ? String(data.transmitter_id) : "",
       receiver_id: data.receiver_id ? String(data.receiver_id) : "",
-      total_packages: data.total_packages || 0,
-      total_weight: data.total_weight || 0,
+      total_packages: data.total_packages?.toString() || "0",
+      total_weight: data.total_weight?.toString() || "0",
       transport_company_id: String(data.transport_company_id) || "",
       driver_doc: data.driver_doc || "",
       license: data.license || "",
@@ -105,8 +104,8 @@ export default function UpdateShipmentsReceptionsPage() {
   if (isLoadingAny) {
     return <FormSkeleton />;
   }
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <FormWrapper>

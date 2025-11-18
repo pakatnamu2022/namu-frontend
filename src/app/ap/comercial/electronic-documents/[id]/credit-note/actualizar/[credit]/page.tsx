@@ -13,10 +13,10 @@ import { useElectronicDocument } from "@/features/ap/facturacion/electronic-docu
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { CreditNoteSchema } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.schema";
 import { CreditNoteForm } from "@/features/ap/facturacion/electronic-documents/components/forms/CreditNoteForm";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
-export default function CreateCreditNotePage() {
+export default function UpdateCreditNotePage() {
     const { ROUTE } = ELECTRONIC_DOCUMENT;
   const params = useParams();
   const router = useNavigate();
@@ -60,12 +60,12 @@ export default function CreateCreditNotePage() {
   };
 
   if (isLoadingModule) return <FormSkeleton />;
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
-  if (isNaN(documentId)) return <NotFound />;
-  if (documentError) return <NotFound />;
-  if (isNaN(creditNoteId)) return <NotFound />;
-  if (creditNoteError) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
+  if (isNaN(documentId)) notFound();
+  if (documentError) notFound();
+  if (isNaN(creditNoteId)) notFound();
+  if (creditNoteError) notFound();
 
   if (
     isLoadingCreditNote ||

@@ -26,7 +26,7 @@ import { typeClientColumns } from "@/features/ap/configuraciones/maestros-genera
 import TypeClientOptions from "@/features/ap/configuraciones/maestros-general/tipos-persona/components/TypeClientOptions";
 import TypeClientModal from "@/features/ap/configuraciones/maestros-general/tipos-persona/components/TypeClientModal";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
 export default function TypeClientPage() {
@@ -73,8 +73,8 @@ export default function TypeClientPage() {
   };
 
   if (isLoadingModule) return <PageSkeleton />;
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <div className="space-y-4">

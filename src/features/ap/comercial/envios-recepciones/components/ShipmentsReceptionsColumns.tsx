@@ -460,7 +460,7 @@ export const shipmentsReceptionsColumns = ({
         transfer_reason_id,
         status,
       } = row.original;
-      const { ROUTE_UPDATE, ROUTE } = SHIPMENTS_RECEPTIONS;
+      const { ROUTE_UPDATE, ABSOLUTE_ROUTE} = SHIPMENTS_RECEPTIONS;
       const isSent = !!sent_at;
       const isGuiaRemision = document_type === "GUIA_REMISION";
       const isPurchase =
@@ -552,7 +552,9 @@ export const shipmentsReceptionsColumns = ({
               size="icon"
               className="size-7"
               tooltip={receiveTooltip}
-              onClick={() => canReceive && router(`${ROUTE}/checklist/${id}`)}
+              onClick={() =>
+                canReceive && router(`${ABSOLUTE_ROUTE}/checklist/${id}`)
+              }
               disabled={!canReceive}
             >
               <CarFront className="size-4" />

@@ -16,6 +16,8 @@ export const PRODUCT_TYPE: ModelComplete<ProductTypeResource> = {
   QUERY_KEY: "productType",
   ROUTE,
   ABSOLUTE_ROUTE,
+  ROUTE_ADD: `${ABSOLUTE_ROUTE}/agregar`,
+  ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/editar`,
   EMPTY: {
     id: 0,
     code: "",

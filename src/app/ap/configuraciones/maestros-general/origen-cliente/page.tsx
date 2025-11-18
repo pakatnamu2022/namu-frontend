@@ -26,7 +26,7 @@ import { clientOriginColumns } from "@/features/ap/configuraciones/maestros-gene
 import ClientOriginOptions from "@/features/ap/configuraciones/maestros-general/origen-cliente/components/ClientOriginOptions";
 import ClientOriginModal from "@/features/ap/configuraciones/maestros-general/origen-cliente/components/ClientOriginModal";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
 export default function ClientOriginPage() {
@@ -73,8 +73,8 @@ export default function ClientOriginPage() {
   };
 
   if (isLoadingModule) return <PageSkeleton />;
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <div className="space-y-4">

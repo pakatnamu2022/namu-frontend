@@ -2,6 +2,7 @@ import { type ModelComplete } from "@/core/core.interface";
 import { SunatConceptsResource } from "./sunatConcepts.interface";
 
 const ROUTE = "conceptos-sunat";
+const ABSOLUTE_ROUTE = `/gp/maestro-general/${ROUTE}`;
 
 export const SUNAT_CONCEPTS: ModelComplete<SunatConceptsResource> = {
   MODEL: {
@@ -13,6 +14,9 @@ export const SUNAT_CONCEPTS: ModelComplete<SunatConceptsResource> = {
   ENDPOINT: "/gp/mg/sunatConcepts",
   QUERY_KEY: "commercialMasters",
   ROUTE,
+  ABSOLUTE_ROUTE,
+  ROUTE_ADD: `${ABSOLUTE_ROUTE}/agregar`,
+  ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/editar`,
 };
 
 export const SUNAT_CONCEPTS_TYPE = {
@@ -47,5 +51,5 @@ export const SUNAT_TYPE_INVOICES_ID = {
 
 export const SUNAT_TRANSACTIONS_ID = {
   VENTA_INTERNA: 33,
-  ANTICIPOS: 36
-}
+  ANTICIPOS: 36,
+};

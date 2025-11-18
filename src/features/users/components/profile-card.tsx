@@ -12,7 +12,7 @@ import {
   Users,
   ClipboardList,
 } from "lucide-react";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../auth/lib/auth.store";
 import { format, parse } from "date-fns";
 import { es } from "date-fns/locale";
@@ -53,7 +53,7 @@ export function ProfileCard({ variant = "sidebar" }: ProfileCardProps) {
       allow: true,
     },
     {
-      label: "Namu Performance",
+      label: "Evaluación de Guerreros",
       route: "namu-performance",
       icon: ClipboardList,
       stats: () => (

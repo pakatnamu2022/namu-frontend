@@ -16,6 +16,8 @@ export const VOUCHER_TYPE: ModelComplete<VoucherTypesResource> = {
   QUERY_KEY: "voucherType",
   ROUTE,
   ABSOLUTE_ROUTE,
+  ROUTE_ADD: `${ABSOLUTE_ROUTE}/agregar`,
+  ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/editar`,
   EMPTY: {
     id: 0,
     code: "",

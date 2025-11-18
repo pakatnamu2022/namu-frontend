@@ -17,13 +17,13 @@ import { DISTRICT } from "@/features/ap/configuraciones/maestros-general/ubigeos
 import { DistrictResource } from "@/features/ap/configuraciones/maestros-general/ubigeos/lib/district.interface";
 import { DistrictForm } from "@/features/ap/configuraciones/maestros-general/ubigeos/components/DistrictForm";
 import { DistrictSchema } from "@/features/ap/configuraciones/maestros-general/ubigeos/lib/district.schema";
-import NotFound from "@/app/not-found";
+import { notFound } from "@/shared/hooks/useNotFound";
 import {
   findDistrictById,
   updateDistrict,
 } from "@/features/ap/configuraciones/maestros-general/ubigeos/lib/district.actions";
 
-export default function EditDistrictPage() {
+export default function UpdateDistrictPage() {
   const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();
@@ -69,8 +69,8 @@ export default function EditDistrictPage() {
   if (isLoadingAny) {
     return <FormSkeleton />;
   }
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <FormWrapper>

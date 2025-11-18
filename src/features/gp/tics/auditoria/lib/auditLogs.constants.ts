@@ -2,6 +2,7 @@ import { type ModelComplete } from "@/core/core.interface";
 import { AuditLogsResource } from "./auditLogs.interface";
 
 const ROUTE = "auditoria";
+const ABSOLUTE_ROUTE = "/gp/tics/auditoria";
 
 export const AUDIT_LOGS: ModelComplete<AuditLogsResource> = {
   MODEL: {
@@ -13,6 +14,9 @@ export const AUDIT_LOGS: ModelComplete<AuditLogsResource> = {
   ENDPOINT: "/audit-logs",
   QUERY_KEY: "auditLogs",
   ROUTE,
+  ABSOLUTE_ROUTE,
+  ROUTE_ADD: `${ABSOLUTE_ROUTE}/agregar`,
+  ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/editar`,
   EMPTY: {
     id: 0,
     user_id: null,

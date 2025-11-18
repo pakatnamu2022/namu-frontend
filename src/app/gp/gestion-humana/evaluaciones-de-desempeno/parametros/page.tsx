@@ -21,7 +21,7 @@ import {
 import { PARAMETER } from "@/features/gp/gestionhumana/evaluaciondesempeño/parametros/lib/parameter.constans";
 import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
 const { MODEL } = PARAMETER;
@@ -59,7 +59,7 @@ export default function ParametrosPage() {
   };
 
   if (isLoadingModule) return <PageSkeleton />;
-  if (!checkRouteExists("parametros")) return <NotFound />;
+  if (!checkRouteExists("parametros")) notFound();
   if (!currentView) return <div>No hay</div>;
 
   return (

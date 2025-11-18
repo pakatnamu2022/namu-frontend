@@ -26,7 +26,7 @@ import { personSegmentColumns } from "@/features/ap/configuraciones/maestros-gen
 import PersonSegmentOptions from "@/features/ap/configuraciones/maestros-general/segmentos-persona/components/PersonSegmentOptions";
 import PersonSegmentModal from "@/features/ap/configuraciones/maestros-general/segmentos-persona/components/PersonSegmentModal";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
 export default function PersonSegmentPage() {
@@ -73,8 +73,8 @@ export default function PersonSegmentPage() {
   };
 
   if (isLoadingModule) return <PageSkeleton />;
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <div className="space-y-4">

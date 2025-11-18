@@ -16,10 +16,10 @@ import { storeStoreVisits } from "@/features/ap/comercial/visitas-tienda/lib/sto
 import { StoreVisitsSchema } from "@/features/ap/comercial/visitas-tienda/lib/storeVisits.schema";
 import { StoreVisitsForm } from "@/features/ap/comercial/visitas-tienda/components/StoreVisitsForm";
 import { BUSINESS_PARTNERS, INCOME_SECTOR } from "@/core/core.constants";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
-export default function CreateStoreVisitsPage() {
+export default function AddStoreVisitsPage() {
   const router = useNavigate();
     const { currentView, checkRouteExists } = useCurrentModule();
   const { ROUTE, MODEL } = STORE_VISITS;
@@ -39,8 +39,8 @@ export default function CreateStoreVisitsPage() {
   const handleSubmit = (data: StoreVisitsSchema) => {
     mutate(data);
   };
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <FormWrapper>

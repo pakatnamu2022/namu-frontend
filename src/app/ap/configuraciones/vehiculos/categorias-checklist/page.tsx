@@ -26,7 +26,7 @@ import { categoryChecklistColumns } from "@/features/ap/configuraciones/vehiculo
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { CATEGORY_CHECKLIST } from "@/features/ap/configuraciones/vehiculos/categorias-checklist/lib/categoryChecklist.constants";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
 export default function CategoryChecklistPage() {
@@ -73,8 +73,8 @@ export default function CategoryChecklistPage() {
   };
 
   if (isLoadingModule) return <PageSkeleton />;
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <div className="space-y-4">

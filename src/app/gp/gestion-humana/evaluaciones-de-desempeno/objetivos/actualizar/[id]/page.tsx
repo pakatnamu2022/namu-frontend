@@ -14,10 +14,10 @@ import { ObjectiveForm } from "@/features/gp/gestionhumana/evaluaciondesempeño/
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import FormWrapper from "@/shared/components/FormWrapper";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
-export default function EditObjectivePage() {
+export default function UpdateObjectivePage() {
     const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();
@@ -66,8 +66,8 @@ export default function EditObjectivePage() {
   if (isLoadingAny) {
     return <div className="p-4 text-muted">Cargando métrica...</div>;
   }
-  if (!checkRouteExists("objetivos")) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists("objetivos")) notFound();
+  if (!currentView) notFound();
 
   return (
     <FormWrapper>

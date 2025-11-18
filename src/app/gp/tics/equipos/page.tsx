@@ -16,7 +16,7 @@ import { deleteEquipment } from "@/features/gp/tics/equipment/lib/equipment.acti
 import { errorToast, successToast } from "@/core/core.function";
 import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
 export default function EquipmentPage() {
@@ -53,8 +53,8 @@ export default function EquipmentPage() {
   };
 
   if (isLoadingModule) return <PageSkeleton />;
-  if (!checkRouteExists("equipos")) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists("equipos")) notFound();
+  if (!currentView) notFound();
 
   return (
     <div className="space-y-4">

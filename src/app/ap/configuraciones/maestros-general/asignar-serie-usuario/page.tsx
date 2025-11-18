@@ -15,7 +15,7 @@ import { userSeriesAssignmentColumns } from "@/features/ap/configuraciones/maest
 import UserSeriesAssignmentOptions from "@/features/ap/configuraciones/maestros-general/asignar-serie-usuario/components/UserSeriesAssignmentOptions";
 import { USER_SERIES_ASSIGNMENT } from "@/features/ap/configuraciones/maestros-general/asignar-serie-usuario/lib/userSeriesAssignment.constants";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import NotFound from "@/app/not-found";
+import { notFound } from "@/shared/hooks/useNotFound";
 
 export default function UserSeriesAssignmentPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -38,8 +38,8 @@ export default function UserSeriesAssignmentPage() {
   });
 
   if (isLoadingModule) return <PageSkeleton />;
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <div className="space-y-4">

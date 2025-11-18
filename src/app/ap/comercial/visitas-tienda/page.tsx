@@ -22,7 +22,7 @@ import StoreVisitsTable from "@/features/ap/comercial/visitas-tienda/components/
 import { storeVisitsColumns } from "@/features/ap/comercial/visitas-tienda/components/StoreVisitsColumns";
 import StoreVisitsOptions from "@/features/ap/comercial/visitas-tienda/components/StoreVisitsOptions";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
 export default function StoreVisitsPage() {
@@ -73,8 +73,8 @@ export default function StoreVisitsPage() {
   };
 
   if (isLoadingModule) return <PageSkeleton />;
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <div className="space-y-4">

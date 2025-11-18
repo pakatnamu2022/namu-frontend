@@ -16,7 +16,7 @@ import { errorToast, successToast } from "@/core/core.function";
 import RoleModal from "@/features/gp/gestionsistema/roles/components/RoleModal";
 import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
 export default function RolePage() {
@@ -51,8 +51,8 @@ export default function RolePage() {
   };
 
   if (isLoadingModule) return <PageSkeleton />;
-  if (!checkRouteExists("roles")) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists("roles")) notFound();
+  if (!currentView) notFound();
 
   return (
     <div className="space-y-4">

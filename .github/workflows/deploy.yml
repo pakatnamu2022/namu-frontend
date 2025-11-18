@@ -1,0 +1,42 @@
+name: Deploy Frontend to Server
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Deploy to server
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        password: ${{ secrets.PASSWORD }}
+        port: 22
+        timeout: 30s
+        command_timeout: 15m
+        script: |
+          cd /var/www/html/namu-frontend
+          
+          echo "📥 Pulling latest changes..."
+          git pull origin main
+          
+          echo "🔧 Configuring Node environment..."
+          export PATH="/root/.nvm/versions/node/v20.19.4/bin:$PATH"
+          
+          echo "📦 Installing dependencies..."
+          npm install
+          
+          echo "🏗️ Building application..."
+          if ! npm run build; then
+            echo "❌ BUILD FAILED - Deploy stopped"
+            exit 1
+          fi
+          
+          echo "🔄 Restarting PM2..."
+          pm2 restart namu-frontend
+          
+          echo "✅ Deploy completed successfully!"

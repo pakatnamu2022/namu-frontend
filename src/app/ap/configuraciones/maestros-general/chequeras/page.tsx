@@ -26,7 +26,7 @@ import { apBankColumns } from "@/features/ap/configuraciones/maestros-general/ch
 import { BANK_AP } from "@/features/ap/configuraciones/maestros-general/chequeras/lib/apBank.constants";
 import { useAllSedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import NotFound from '@/app/not-found';
+import { notFound } from "@/shared/hooks/useNotFound";
 
 
 export default function ApBankPage() {
@@ -79,8 +79,8 @@ export default function ApBankPage() {
   };
 
   if (isLoadingModule) return <PageSkeleton />;
-  if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!currentView) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
   return (
     <div className="space-y-4">

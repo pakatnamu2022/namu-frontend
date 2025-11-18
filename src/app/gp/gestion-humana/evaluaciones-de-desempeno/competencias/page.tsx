@@ -20,7 +20,7 @@ import {
 } from "@/core/core.function";
 import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
-import NotFound from "@/app/not-found";
+import { notFound } from "@/shared/hooks/useNotFound";
 import { COMPETENCE } from "@/features/gp/gestionhumana/evaluaciondesempeño/competencias/lib/competence.constans";
 
 export default function CompetencesPage() {
@@ -57,7 +57,7 @@ export default function CompetencesPage() {
   };
 
   if (isLoadingModule) return <PageSkeleton />;
-  if (!checkRouteExists("competencias")) return <NotFound />;
+  if (!checkRouteExists("competencias")) notFound();
   if (!currentView) return <div>No hay</div>;
 
   return (
