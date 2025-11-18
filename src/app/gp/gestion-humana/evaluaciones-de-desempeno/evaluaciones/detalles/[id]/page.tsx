@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams } from 'react-router-dom';
+import { useParams } from "react-router-dom";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import TitleComponent from "@/shared/components/TitleComponent";
 import DataTablePagination from "@/shared/components/DataTablePagination";
@@ -28,13 +28,12 @@ import { useEvaluationPersonResult } from "@/features/gp/gestionhumana/evaluacio
 import { WorkerResource } from "@/features/gp/gestionhumana/personal/trabajadores/lib/worker.interface";
 import { regenerateEvaluation } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluaciones/lib/evaluation.actions";
 import { regenerateEvaluationPerson } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/lib/evaluationPerson.actions";
-import NotFound from '@/app/not-found';
-
+import NotFound from "@/app/not-found";
 
 const { ROUTE } = EVALUATION;
 
-export default function EvaluationPersonPage() {
-    const { id } = useParams();
+export default function EvaluationDetailPage() {
+  const { id } = useParams();
   const queryClient = useQueryClient();
   // const router = useNavigate();
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();

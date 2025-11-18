@@ -20,6 +20,12 @@ import CyclePersonDetailPage from "./app/gp/gestion-humana/evaluaciones-de-desem
 import CompetencesPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/competencias/page";
 import AddCompetencePage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/competencias/agregar/page";
 import UpdateCompetencePage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/competencias/actualizar/[id]/page";
+import EvaluationPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/evaluaciones/page";
+import AddEvaluationPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/evaluaciones/agregar/page";
+import UpdateEvaluationPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/evaluaciones/actualizar/[id]/page";
+import EvaluationPersonPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/evaluaciones/[id]/page";
+import EvaluationDetailPersonPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/evaluaciones/detalles/[id]/page";
+import EvaluationDetailPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/evaluaciones/detalles/[id]/page";
 const PositionsPage = lazy(
   () => import("./app/gp/gestion-humana/configuraciones/posiciones/page")
 );
@@ -1401,13 +1407,26 @@ function App() {
                 <UpdateCompetencePage />
               )}
 
+              {RouterCrud(
+                "evaluaciones-de-desempeno/evaluaciones",
+                <EvaluationPage />,
+                <AddEvaluationPage />,
+                <UpdateEvaluationPage />,
+                <EvaluationPersonPage />
+              )}
+
+              <Route
+                path="evaluaciones-de-desempeno/evaluaciones/detalles/:id"
+                element={<EvaluationDetailPage />}
+              />
+
+              <Route
+                path="evaluaciones-de-desempeno/evaluaciones/detalles/:id/:person"
+                element={<EvaluationDetailPersonPage />}
+              />
+
               {/*
               
-             
-              <Route
-                path="evaluaciones-de-desempeno/competencias"
-                element={<CompetenciasPage />}
-              />
               <Route
                 path="evaluaciones-de-desempeno/evaluaciones"
                 element={<EvaluacionesPage />}

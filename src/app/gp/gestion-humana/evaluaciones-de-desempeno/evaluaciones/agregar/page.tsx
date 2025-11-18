@@ -1,6 +1,6 @@
 "use client";
 
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import {
   ERROR_MESSAGE,
@@ -19,14 +19,13 @@ import { format } from "date-fns";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { useAllParameters } from "@/features/gp/gestionhumana/evaluaciondesempeño/parametros/lib/parameter.hook";
 import FormWrapper from "@/shared/components/FormWrapper";
-import NotFound from '@/app/not-found';
-
+import NotFound from "@/app/not-found";
 
 const { MODEL } = EVALUATION;
 
-export default function CreateEvaluationPage() {
+export default function AddEvaluationPage() {
   const router = useNavigate();
-    const { currentView, checkRouteExists } = useCurrentModule();
+  const { currentView, checkRouteExists } = useCurrentModule();
 
   const { mutate, isPending } = useMutation({
     mutationFn: storeEvaluation,

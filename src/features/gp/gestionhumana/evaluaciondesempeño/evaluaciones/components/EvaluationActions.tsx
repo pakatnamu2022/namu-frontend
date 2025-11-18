@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { EVALUATION } from "../lib/evaluation.constans";
 
 const { MODEL, ROUTE_ADD } = EVALUATION;
@@ -11,7 +11,7 @@ export default function EvaluationActions() {
   const push = useNavigate();
 
   const handleAddCompetence = () => {
-    push(`./${ROUTE_ADD}`);
+    push(ROUTE_ADD);
   };
 
   return (

@@ -61,7 +61,7 @@ export function EditableSelectCell({
       <Button
         variant="outline"
         size="sm"
-        className={cn("font-semibold h-7 text-xs", widthClass)}
+        className={cn("font-semibold h-7 text-xs!", widthClass)}
         onClick={startEdit}
         title="Editar meta"
       >
@@ -90,7 +90,7 @@ export function EditableSelectCell({
   return (
     <SearchableSelect
       classNameOption="text-xs"
-      className="h-7 text-xs md:w-full"
+      className="h-7 text-xs! md:w-full"
       options={options}
       onChange={(val) => {
         commit(val);
