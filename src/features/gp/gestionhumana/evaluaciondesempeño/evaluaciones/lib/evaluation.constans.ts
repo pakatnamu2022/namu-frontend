@@ -1,7 +1,7 @@
 import { ModelComplete, Option } from "@/core/core.interface";
 
 const ROUTE = "evaluaciones";
-export const EVALUATION_ABSOLUTE_ROUTE = `/gp/gestion-humana/evaluaciones-de-desempeno/${ROUTE}`;
+export const ABSOLUTE_ROUTE = `/gp/gestion-humana/evaluaciones-de-desempeno/${ROUTE}`;
 
 export const EVALUATION: ModelComplete = {
   MODEL: {
@@ -13,8 +13,9 @@ export const EVALUATION: ModelComplete = {
   ENDPOINT: "/gp/gh/performanceEvaluation/evaluation",
   QUERY_KEY: "evaluations",
   ROUTE,
-  ROUTE_ADD: `${ROUTE}/agregar`,
-  ROUTE_UPDATE: `${ROUTE}/actualizar`,
+  ABSOLUTE_ROUTE,
+  ROUTE_ADD: `${ABSOLUTE_ROUTE}/agregar`,
+  ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/actualizar`,
 };
 
 export const EVALUATION_OBJECTIVE = {

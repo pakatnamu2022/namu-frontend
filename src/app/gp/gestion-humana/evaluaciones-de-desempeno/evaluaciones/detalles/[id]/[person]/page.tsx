@@ -47,7 +47,7 @@ import EvaluationPersonCompetenceTableWithColumns from "@/features/gp/gestionhum
 import { useQueryClient } from "@tanstack/react-query";
 import { Link, useParams } from "react-router-dom";
 import {
-  EVALUATION_ABSOLUTE_ROUTE,
+  ABSOLUTE_ROUTE,
   EVALUATION_OBJECTIVE,
 } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluaciones/lib/evaluation.constans";
 
@@ -235,12 +235,7 @@ export default function NamuPerformancePage() {
                   />
                   Actualizar
                 </Button>
-                <Link
-                  to={
-                    EVALUATION_ABSOLUTE_ROUTE +
-                    `/detalles/${selectedEvaluationId}`
-                  }
-                >
+                <Link to={ABSOLUTE_ROUTE + `/detalles/${selectedEvaluationId}`}>
                   <Button size={"sm"} variant={"tertiary"}>
                     <ChevronLeft className="w-4 h-4" />
                     Ver Evaluaciones

@@ -11,7 +11,7 @@ import { EvaluationResultsChart } from "../../evaluation-person/components/Evalu
 import { FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from 'react-router-dom'
-import { EVALUATION_ABSOLUTE_ROUTE } from "../../evaluaciones/lib/evaluation.constans";
+import { ABSOLUTE_ROUTE } from "../../evaluaciones/lib/evaluation.constans";
 
 // Tipos de datos
 interface ProgressStats {
@@ -49,7 +49,7 @@ export default function PerformanceEvaluationPage({ id }: { id?: number }) {
             No se encontró ninguna evaluación de desempeño activa en este
             momento. Puedes crear una nueva evaluación o revisar las existentes.
           </p>
-          <Link to={EVALUATION_ABSOLUTE_ROUTE}>
+          <Link to={ABSOLUTE_ROUTE}>
             <Button>Ir a Evaluaciones</Button>
           </Link>
         </div>
