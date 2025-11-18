@@ -1,5 +1,4 @@
 name: Deploy Frontend to Server
-
 on:
   push:
     branches: [ main ]
@@ -10,30 +9,32 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
     - name: Deploy to server
       uses: appleboy/ssh-action@v1.0.3
       with:
         host: ${{ secrets.HOST }}
         username: ${{ secrets.USERNAME }}
-        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        password: ${{ secrets.PASSWORD }}  # ← Cambiado de 'key' a 'password'
         port: 22
+        timeout: 30s
+        command_timeout: 15m
         script: |
           cd /var/www/html/namu-frontend
-          git pull origin main
           
-          # Configurar PATH para encontrar node, npm y pm2
-          export PATH="/root/.nvm/versions/node/v20.19.4/bin:$PATH"
+          # Como git no funciona, descarga el repo como ZIP
+          echo "📥 Downloading latest code..."
+          curl -L -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+               https://github.com/pakatnamu2022/namu-frontend/archive/refs/heads/main.zip \
+               -o /tmp/repo.zip
           
-          npm install
+          # Descomprime y actualiza
+          apt install unzip -y 2>/dev/null || true
+          unzip -o /tmp/repo.zip -d /tmp/
           
-          # Hacer build - si falla aquí, el deploy se detiene
-          if ! npm run build; then
-            echo "❌ BUILD FAILED - Deploy stopped"
-            exit 1
+          # Backup del dist actual
+          if [ -d "dist" ]; then
+            mv dist dist_backup_$(date +%Y%m%d_%H%M%S)
           fi
           
-          echo "✅ Build successful - Restarting PM2"
-          pm2 restart namu-frontend
+          # Copia archivos nuevos (excepto node_modules y dist)
+          rsync -av --exclude='node_modules' --exclude='d
