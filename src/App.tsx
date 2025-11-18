@@ -13,6 +13,10 @@ import ModulePerformanceEvaluationPage from "./app/gp/gestion-humana/evaluacione
 import HierarchicalCategoryPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/categorias-jerarquicas/page";
 import AddHierarchicalCategoryPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/categorias-jerarquicas/agregar/page";
 import EditHierarchicalCategoryPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/categorias-jerarquicas/actualizar/[id]/page";
+import CyclePage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/ciclos/page";
+import AddCyclePage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/ciclos/agregar/page";
+import UpdateCyclePage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/ciclos/actualizar/[id]/page";
+import CyclePersonDetailPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/ciclos/[id]/page";
 const PositionsPage = lazy(
   () => import("./app/gp/gestion-humana/configuraciones/posiciones/page")
 );
@@ -661,13 +665,15 @@ const RouterCrud = (
   path: string,
   page: JSX.Element,
   addPage: JSX.Element,
-  editPage: JSX.Element
+  editPage: JSX.Element,
+  detailPage?: JSX.Element
 ) => {
   return (
     <>
       <Route path={path} element={page} />
       <Route path={`${path}/agregar`} element={addPage} />
       <Route path={`${path}/actualizar/:id`} element={editPage} />
+      {detailPage && <Route path={`${path}/:id`} element={detailPage} />}
     </>
   );
 };
@@ -1379,9 +1385,10 @@ function App() {
 
               {RouterCrud(
                 "evaluaciones-de-desempeno/ciclos",
-                <HierarchicalCategoryPage />,
-                <AddHierarchicalCategoryPage />,
-                <EditHierarchicalCategoryPage />
+                <CyclePage />,
+                <AddCyclePage />,
+                <UpdateCyclePage />,
+                <CyclePersonDetailPage />
               )}
 
               {/* <Route

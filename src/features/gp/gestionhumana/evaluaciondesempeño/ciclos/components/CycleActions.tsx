@@ -3,13 +3,15 @@
 import { Button } from "@/components/ui/button";
 import ActionsWrapper from "@/shared/components/ActionsWrapper";
 import { Plus } from "lucide-react";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
+import { CYCLE } from "../lib/cycle.constants";
 
 export default function CycleActions() {
+  const { ROUTE_ADD } = CYCLE;
   const push = useNavigate();
 
   const handleAddCycle = () => {
-    push("./ciclos/agregar");
+    push(ROUTE_ADD);
   };
 
   return (

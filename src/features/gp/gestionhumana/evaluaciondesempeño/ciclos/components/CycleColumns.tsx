@@ -14,8 +14,10 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Link } from "react-router-dom";
+import { CYCLE } from "../lib/cycle.constants";
 
 export type CycleColumns = ColumnDef<CycleResource>;
+const { ABSOLUTE_ROUTE, ROUTE_UPDATE } = CYCLE;
 
 export const cycleColumns = ({
   onDelete,
@@ -29,7 +31,7 @@ export const cycleColumns = ({
       const id = row.original.id;
       return (
         <Link
-          to={`./ciclos/${id}`}
+          to={`${ABSOLUTE_ROUTE}/${id}`}
           className="font-semibold underline text-primary"
         >
           {row.original.name}
@@ -37,38 +39,6 @@ export const cycleColumns = ({
       );
     },
   },
-  // {
-  //   header: "Definición de objetivos",
-  //   accessorFn: (row) => row,
-  //   cell: ({ getValue }) => {
-  //     const cycle = getValue() as CycleResource;
-  //     return (
-  //       <div className="font-semibold">
-  //         <Badge variant="outline">
-  //           {format(
-  //             parse(
-  //               cycle.start_date_objectives as string,
-  //               "yyyy-MM-dd",
-  //               new Date()
-  //             ),
-  //             "dd/MM/yyyy"
-  //           )}
-  //         </Badge>
-  //         <span className="mx-1">-</span>
-  //         <Badge variant="outline">
-  //           {format(
-  //             parse(
-  //               cycle.end_date_objectives as string,
-  //               "yyyy-MM-dd",
-  //               new Date()
-  //             ),
-  //             "dd/MM/yyyy"
-  //           )}
-  //         </Badge>
-  //       </div>
-  //     );
-  //   },
-  // },
   {
     header: "Intérvalo del Ciclo",
     accessorFn: (row) => row,
@@ -157,28 +127,6 @@ export const cycleColumns = ({
       );
     },
   },
-  // {
-  //   accessorKey: "status",
-  //   header: "Estado",
-  //   cell: ({ getValue }) => {
-  //     const status = getValue() as string;
-  //     return (
-  //       <div className="font-semibold">
-  //         <Badge
-  //           variant={
-  //             status === "pendiente"
-  //               ? "outline"
-  //               : status === "en proceso"
-  //               ? "default"
-  //               : "tertiary"
-  //           }
-  //         >
-  //           Ciclo {status}
-  //         </Badge>
-  //       </div>
-  //     );
-  //   },
-  // },
   {
     accessorKey: "parameter",
     header: "Parámetro de Objetivos",
@@ -207,7 +155,7 @@ export const cycleColumns = ({
             size="icon"
             className="size-7"
             tooltip="Ver detalles del ciclo"
-            onClick={() => router(`./ciclos/${id}`)}
+            onClick={() => router(`${ABSOLUTE_ROUTE}/${id}`)}
           >
             <PanelRightClose className="size-5" />
           </Button>
@@ -218,7 +166,7 @@ export const cycleColumns = ({
             size="icon"
             className="size-7"
             tooltip="Editar ciclo"
-            onClick={() => router(`./ciclos/actualizar/${id}`)}
+            onClick={() => router(`${ROUTE_UPDATE}/${id}`)}
           >
             <Pencil className="size-5" />
           </Button>

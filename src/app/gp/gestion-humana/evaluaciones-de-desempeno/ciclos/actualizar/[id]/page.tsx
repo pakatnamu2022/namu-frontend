@@ -21,7 +21,7 @@ import { useAllParameters } from "@/features/gp/gestionhumana/evaluaciondesempe√
 import NotFound from '@/app/not-found';
 
 
-export default function EditCyclePage() {
+export default function UpdateCyclePage() {
     const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();

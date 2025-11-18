@@ -18,7 +18,7 @@ import {
   cycleSchemaUpdate,
 } from "../lib/cycle.schema";
 import { Loader } from "lucide-react";
-import { Link } from 'react-router-dom'
+import { Link } from "react-router-dom";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { DateRangePickerFormField } from "@/shared/components/DateRangePickerFormField";
 import { useEffect } from "react";
@@ -28,6 +28,7 @@ import { ParameterResource } from "../../parametros/lib/parameter.interface";
 import { TYPE_EVALUATION } from "../../evaluaciones/lib/evaluation.constans";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 import { Matcher } from "react-day-picker";
+import { CYCLE } from "../lib/cycle.constants";
 
 interface CycleFormProps {
   defaultValues: Partial<CycleSchema>;
@@ -46,6 +47,7 @@ export const CycleForm = ({
   periods,
   parameters,
 }: CycleFormProps) => {
+  const { ABSOLUTE_ROUTE } = CYCLE;
   const form = useForm({
     resolver: zodResolver(
       mode === "create" ? cycleSchemaCreate : cycleSchemaUpdate

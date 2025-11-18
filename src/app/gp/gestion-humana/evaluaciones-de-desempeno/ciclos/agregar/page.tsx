@@ -16,7 +16,7 @@ import { useAllPeriods } from "@/features/gp/gestionhumana/evaluaciondesempeño/
 import NotFound from '@/app/not-found';
 
 
-export default function CreateCyclePage() {
+export default function AddCyclePage() {
   const router = useNavigate();
     const { currentView, checkRouteExists } = useCurrentModule();
 
