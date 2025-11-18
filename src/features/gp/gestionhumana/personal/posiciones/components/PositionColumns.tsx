@@ -36,6 +36,14 @@ export const positionColumns = ({
     header: "Área",
   },
   {
+    accessorKey: "position_head_name",
+    header: "Jefatura",
+  },
+  {
+    accessorKey: "hierarchical_category_name",
+    header: "Categoría Jerárquica",
+  },
+  {
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
