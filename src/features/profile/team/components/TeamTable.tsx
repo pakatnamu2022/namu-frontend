@@ -22,7 +22,7 @@ export default function TeamTable({
         data={data}
         isLoading={isLoading}
         initialColumnVisibility={{
-          sede: true,
+          sede: false,
           objectivesResult: false,
           competencesResult: false,
         }}

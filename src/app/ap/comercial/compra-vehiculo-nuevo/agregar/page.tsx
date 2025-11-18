@@ -97,6 +97,7 @@ export default function AddVehiclePurchaseOrderPage() {
         onSubmit={handleSubmit}
         isSubmitting={isPending}
         mode="create"
+        isVehiclePurchase={true}
       />
     </FormWrapper>
   );
