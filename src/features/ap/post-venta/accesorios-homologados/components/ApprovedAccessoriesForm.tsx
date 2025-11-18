@@ -9,7 +9,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Link } from 'react-router-dom'
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
 import { FormSelect } from "@/shared/components/FormSelect";
@@ -21,6 +21,7 @@ import {
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.hook";
 import { useAllBodyType } from "@/features/ap/configuraciones/vehiculos/tipos-carroceria/lib/bodyType.hook";
+import { APPROVED_ACCESSORIES } from "../lib/approvedAccessories.constants";
 
 interface ApprovedAccesoriesFormProps {
   defaultValues: Partial<ApprovedAccesoriesSchema>;
@@ -57,6 +58,7 @@ export const ApprovedAccesoriesForm = ({
     },
     mode: "onChange",
   });
+  const { ABSOLUTE_ROUTE } = APPROVED_ACCESSORIES;
 
   const { data: typesCurrency = [], isLoading: isLoadingTypesCurrency } =
     useAllCurrencyTypes();
@@ -147,7 +149,7 @@ export const ApprovedAccesoriesForm = ({
           />
         </div>
         <div className="flex gap-4 w-full justify-end">
-          <Link to={ABSOLUTE_ROUTE}>
+          <Link to={ABSOLUTE_ROUTE!}>
             <Button type="button" variant="outline">
               Cancelar
             </Button>
