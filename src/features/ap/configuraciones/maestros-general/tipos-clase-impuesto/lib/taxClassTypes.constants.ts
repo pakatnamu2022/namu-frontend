@@ -2,6 +2,7 @@ import { type ModelComplete } from "@/core/core.interface";
 import { TaxClassTypesResource } from "./taxClassTypes.interface";
 
 const ROUTE = "tipos-clase-impuesto";
+const ABSOLUTE_ROUTE = `/ap/configuraciones/maestros-general/${ROUTE}`;
 
 export const TAX_CLASS_TYPES: ModelComplete<TaxClassTypesResource> = {
   MODEL: {
@@ -13,6 +14,7 @@ export const TAX_CLASS_TYPES: ModelComplete<TaxClassTypesResource> = {
   ENDPOINT: "/ap/configuration/taxClassTypes",
   QUERY_KEY: "taxClassTypes",
   ROUTE,
+  ABSOLUTE_ROUTE,
   EMPTY: {
     id: 0,
     dyn_code: "",

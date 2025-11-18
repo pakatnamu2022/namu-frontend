@@ -2,6 +2,7 @@ import { type ModelComplete } from "@/core/core.interface";
 import { DistrictResource } from "./district.interface";
 
 const ROUTE = "ubigeos";
+const ABSOLUTE_ROUTE = `/ap/configuraciones/maestros-general/${ROUTE}`;
 
 export const DISTRICT: ModelComplete<DistrictResource> = {
   MODEL: {
@@ -13,8 +14,9 @@ export const DISTRICT: ModelComplete<DistrictResource> = {
   ENDPOINT: "/gp/gs/district",
   QUERY_KEY: "district",
   ROUTE,
-  ROUTE_ADD: `./agregar`,
-  ROUTE_UPDATE: `./actualizar`,
+  ABSOLUTE_ROUTE,
+  ROUTE_ADD: `${ABSOLUTE_ROUTE}/agregar`,
+  ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/actualizar`,
   EMPTY: {
     id: 0,
     name: "",

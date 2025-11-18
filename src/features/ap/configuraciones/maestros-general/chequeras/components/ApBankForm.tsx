@@ -20,9 +20,10 @@ import { FormSelect } from "@/shared/components/FormSelect";
 import { useAllBank } from "@/features/ap/configuraciones/maestros-general/bancos/lib/bank.hook";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.hook";
-import { Link } from 'react-router-dom'
+import { Link } from "react-router-dom";
 import { EMPRESA_AP } from "@/core/core.constants";
 import { useAllSedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
+import { BANK_AP } from "../lib/apBank.constants";
 
 interface ApBankFormProps {
   defaultValues: Partial<ApBankSchema>;
@@ -47,6 +48,7 @@ export const ApBankForm = ({
     },
     mode: "onChange",
   });
+  const { ABSOLUTE_ROUTE } = BANK_AP;
   const { data: banks = [], isLoading: isLoadingBanks } = useAllBank();
   const { data: currencyTypes = [], isLoading: isLoadingCurrencyTypes } =
     useAllCurrencyTypes();
@@ -137,7 +139,7 @@ export const ApBankForm = ({
         </div>
 
         <div className="flex gap-4 w-full justify-end">
-          <Link to={mode === "create" ? "" : "../"}>
+          <Link to={ABSOLUTE_ROUTE}>
             <Button type="button" variant="outline">
               Cancelar
             </Button>

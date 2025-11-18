@@ -3,6 +3,7 @@ import { PersonSegmentResource } from "./personSegment.interface";
 import { COMMERCIAL_MASTERS_ENDPOINT } from "../../../../lib/ap.constants";
 
 const ROUTE = "segmentos-persona";
+const ABSOLUTE_ROUTE = `/ap/configuraciones/maestros-general/${ROUTE}`;
 
 export const PERSON_SEGMENT: ModelComplete<PersonSegmentResource> = {
   MODEL: {
@@ -14,6 +15,7 @@ export const PERSON_SEGMENT: ModelComplete<PersonSegmentResource> = {
   ENDPOINT: COMMERCIAL_MASTERS_ENDPOINT,
   QUERY_KEY: "personSegment",
   ROUTE,
+  ABSOLUTE_ROUTE,
   EMPTY: {
     id: 0,
     description: "",

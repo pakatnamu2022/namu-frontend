@@ -2,6 +2,7 @@ import { type ModelComplete } from "@/core/core.interface";
 import { WarehouseResource } from "./warehouse.interface";
 
 const ROUTE = "almacenes";
+const ABSOLUTE_ROUTE = `/ap/configuraciones/maestros-general/${ROUTE}`;
 
 export const WAREHOUSE: ModelComplete<WarehouseResource> = {
   MODEL: {
@@ -13,7 +14,7 @@ export const WAREHOUSE: ModelComplete<WarehouseResource> = {
   ENDPOINT: "/ap/configuration/warehouse",
   QUERY_KEY: "warehouse",
   ROUTE,
-  ROUTE_ADD: `./agregar`,
-  ROUTE_UPDATE: `./actualizar`,
+  ABSOLUTE_ROUTE,
+  ROUTE_ADD: `${ABSOLUTE_ROUTE}/agregar`,
+  ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/actualizar`,
 };
-

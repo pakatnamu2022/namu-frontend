@@ -9,7 +9,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Link } from 'react-router-dom'
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
 import {
@@ -23,6 +23,7 @@ import {
 } from "@/features/gp/gestionsistema/ubicaciones/lib/location.hook";
 import { FormSelect } from "@/shared/components/FormSelect";
 import FormSkeleton from "@/shared/components/FormSkeleton";
+import { DISTRICT } from "../lib/district.constants";
 
 interface DistrictFormProps {
   defaultValues: Partial<DistrictSchema>;
@@ -46,6 +47,7 @@ export const DistrictForm = ({
     },
     mode: "onChange",
   });
+  const { ABSOLUTE_ROUTE } = DISTRICT;
   const { data: departments = [], isLoading: isLoadingDepartments } =
     useAllDepartment();
 
@@ -120,7 +122,7 @@ export const DistrictForm = ({
           />
         </div>
         <div className="flex gap-4 w-full justify-end">
-          <Link to={mode === "create" ? "" : "../"}>
+          <Link to={ABSOLUTE_ROUTE}>
             <Button type="button" variant="outline">
               Cancelar
             </Button>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import { useMutation } from "@tanstack/react-query";
 import {
@@ -15,19 +15,18 @@ import { ASSIGN_SALES_SERIES } from "@/features/ap/configuraciones/maestros-gene
 import { storeAssignSalesSeries } from "@/features/ap/configuraciones/maestros-general/asignar-serie-venta/lib/assignSalesSeries.actions";
 import { AssignSalesSeriesSchema } from "@/features/ap/configuraciones/maestros-general/asignar-serie-venta/lib/assignSalesSeries.schema";
 import { AssignSalesSeriesForm } from "@/features/ap/configuraciones/maestros-general/asignar-serie-venta/components/AssignSalesSeriesForm";
-import NotFound from '@/app/not-found';
-
+import NotFound from "@/app/not-found";
 
 export default function CreateAssignSalesSeriesPage() {
   const router = useNavigate();
-    const { currentView, checkRouteExists } = useCurrentModule();
-  const { ROUTE, MODEL } = ASSIGN_SALES_SERIES;
+  const { currentView, checkRouteExists } = useCurrentModule();
+  const { ROUTE, MODEL, ABSOLUTE_ROUTE } = ASSIGN_SALES_SERIES;
 
   const { mutate, isPending } = useMutation({
     mutationFn: storeAssignSalesSeries,
     onSuccess: () => {
       successToast(SUCCESS_MESSAGE(MODEL, "create"));
-      router("./");
+      router(ABSOLUTE_ROUTE);
     },
     onError: (error: any) => {
       const msg = error?.response?.data?.message || "";

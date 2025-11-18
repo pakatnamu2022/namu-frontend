@@ -3,6 +3,7 @@ import { MaritalStatusResource } from "./maritalStatus.interface";
 import { COMMERCIAL_MASTERS_ENDPOINT } from "../../../../lib/ap.constants";
 
 const ROUTE = "origen-cliente";
+const ABSOLUTE_ROUTE = `/ap/configuraciones/maestros-general/${ROUTE}`;
 
 export const MARITAL_STATUS: ModelComplete<MaritalStatusResource> = {
   MODEL: {
@@ -14,6 +15,7 @@ export const MARITAL_STATUS: ModelComplete<MaritalStatusResource> = {
   ENDPOINT: COMMERCIAL_MASTERS_ENDPOINT,
   QUERY_KEY: "maritalStatus",
   ROUTE,
+  ABSOLUTE_ROUTE,
   EMPTY: {
     id: 0,
     description: "",

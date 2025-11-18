@@ -2,6 +2,7 @@ import { type ModelComplete } from "@/core/core.interface";
 import { AssignSalesSeriesResource } from "./assignSalesSeries.interface";
 
 const ROUTE = "asignar-serie-venta";
+const ABSOLUTE_ROUTE = `/ap/configuraciones/maestros-general/${ROUTE}`;
 
 export const ASSIGN_SALES_SERIES: ModelComplete<AssignSalesSeriesResource> = {
   MODEL: {
@@ -13,8 +14,9 @@ export const ASSIGN_SALES_SERIES: ModelComplete<AssignSalesSeriesResource> = {
   ENDPOINT: "/ap/configuration/assignSalesSeries",
   QUERY_KEY: "assignSalesSeries",
   ROUTE,
-  ROUTE_ADD: `./agregar`,
-  ROUTE_UPDATE: `./actualizar`,
+  ABSOLUTE_ROUTE,
+  ROUTE_ADD: `${ABSOLUTE_ROUTE}/agregar`,
+  ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/actualizar`,
   EMPTY: {
     id: 0,
     series: "",

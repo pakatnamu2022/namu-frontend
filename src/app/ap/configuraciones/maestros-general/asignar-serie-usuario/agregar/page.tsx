@@ -1,6 +1,6 @@
 "use client";
 
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import { useMutation } from "@tanstack/react-query";
 import {
@@ -15,19 +15,18 @@ import { USER_SERIES_ASSIGNMENT } from "@/features/ap/configuraciones/maestros-g
 import { storeUserSeriesAssignment } from "@/features/ap/configuraciones/maestros-general/asignar-serie-usuario/lib/userSeriesAssignment.actions";
 import { UserSeriesAssignmentSchema } from "@/features/ap/configuraciones/maestros-general/asignar-serie-usuario/lib/userSeriesAssignment.schema";
 import { UserSeriesAssignmentForm } from "@/features/ap/configuraciones/maestros-general/asignar-serie-usuario/components/UserSeriesAssignmentForm";
-import NotFound from '@/app/not-found';
-
+import NotFound from "@/app/not-found";
 
 export default function CreateUserSeriesAssignmentPage() {
   const router = useNavigate();
-    const { currentView, checkRouteExists } = useCurrentModule();
-  const { ROUTE, MODEL } = USER_SERIES_ASSIGNMENT;
+  const { currentView, checkRouteExists } = useCurrentModule();
+  const { ROUTE, MODEL, ABSOLUTE_ROUTE } = USER_SERIES_ASSIGNMENT;
 
   const { mutate, isPending } = useMutation({
     mutationFn: storeUserSeriesAssignment,
     onSuccess: () => {
       successToast(SUCCESS_MESSAGE(MODEL, "create"));
-      router("./");
+      router(ABSOLUTE_ROUTE);
     },
     onError: (error: any) => {
       const msg = error?.response?.data?.message || "";

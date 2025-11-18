@@ -101,7 +101,7 @@ export const ClassArticleForm = ({
           <FormSelect
             name="type_operation_id"
             label="Tipo de Operación"
-            placeholder="Selecciona una Tipo de Operación"
+            placeholder="Selecciona una Tipo"
             options={typesOperation.map((typeOperation) => ({
               label: typeOperation.description,
               value: typeOperation.id.toString(),

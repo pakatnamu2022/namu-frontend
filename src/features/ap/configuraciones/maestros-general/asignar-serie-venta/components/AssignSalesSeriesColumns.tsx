@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
@@ -68,6 +68,7 @@ export const assignSalesSeriesColumns = ({
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
       const router = useNavigate();
       const { id, status } = row.original;
       const { ROUTE_UPDATE } = ASSIGN_SALES_SERIES;

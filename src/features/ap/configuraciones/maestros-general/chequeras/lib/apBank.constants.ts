@@ -2,6 +2,7 @@ import { type ModelComplete } from "@/core/core.interface";
 import { ApBankResource } from "./apBank.interface";
 
 const ROUTE = "chequeras";
+const ABSOLUTE_ROUTE = `/ap/configuraciones/maestros-general/${ROUTE}`;
 
 export const BANK_AP: ModelComplete<ApBankResource> = {
   MODEL: {
@@ -13,6 +14,7 @@ export const BANK_AP: ModelComplete<ApBankResource> = {
   ENDPOINT: "/ap/configuration/bankAp",
   QUERY_KEY: "bankAp",
   ROUTE,
-  ROUTE_ADD: `./agregar`,
-  ROUTE_UPDATE: `./actualizar`,
+  ABSOLUTE_ROUTE,
+  ROUTE_ADD: `${ABSOLUTE_ROUTE}/agregar`,
+  ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/actualizar`,
 };

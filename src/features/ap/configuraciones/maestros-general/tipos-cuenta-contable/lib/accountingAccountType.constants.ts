@@ -3,6 +3,7 @@ import { AccountingAccountTypeResource } from "./accountingAccountType.interface
 import { COMMERCIAL_MASTERS_ENDPOINT } from "../../../../lib/ap.constants";
 
 const ROUTE = "tipos-cuenta-contable";
+const ABSOLUTE_ROUTE = `/ap/configuraciones/maestros-general/${ROUTE}`;
 
 export const ACCOUNTING_ACCOUNT_TYPE: ModelComplete<AccountingAccountTypeResource> =
   {
@@ -15,6 +16,7 @@ export const ACCOUNTING_ACCOUNT_TYPE: ModelComplete<AccountingAccountTypeResourc
     ENDPOINT: COMMERCIAL_MASTERS_ENDPOINT,
     QUERY_KEY: "accountingAccountType",
     ROUTE,
+    ABSOLUTE_ROUTE,
     EMPTY: {
       id: 0,
       description: "",

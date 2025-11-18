@@ -1,6 +1,6 @@
 "use client";
 
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import { useMutation } from "@tanstack/react-query";
 import {
@@ -15,19 +15,18 @@ import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import { ApBankForm } from "@/features/ap/configuraciones/maestros-general/chequeras/components/ApBankForm";
 import FormWrapper from "@/shared/components/FormWrapper";
 import { BANK_AP } from "@/features/ap/configuraciones/maestros-general/chequeras/lib/apBank.constants";
-import NotFound from '@/app/not-found';
-
+import NotFound from "@/app/not-found";
 
 export default function CreateApBankPage() {
   const router = useNavigate();
-    const { currentView, checkRouteExists } = useCurrentModule();
-  const { MODEL, ROUTE } = BANK_AP;
+  const { currentView, checkRouteExists } = useCurrentModule();
+  const { MODEL, ROUTE, ABSOLUTE_ROUTE } = BANK_AP;
 
   const { mutate, isPending } = useMutation({
     mutationFn: storeApBank,
     onSuccess: () => {
       successToast(SUCCESS_MESSAGE(MODEL, "create"));
-      router("./");
+      router(ABSOLUTE_ROUTE);
     },
     onError: (error: any) => {
       const msg = error?.response?.data?.message || "";

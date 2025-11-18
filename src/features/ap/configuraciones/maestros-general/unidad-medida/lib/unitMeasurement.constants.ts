@@ -2,6 +2,7 @@ import { type ModelComplete } from "@/core/core.interface";
 import { UnitMeasurementResource } from "./unitMeasurement.interface";
 
 const ROUTE = "unidad-medida";
+const ABSOLUTE_ROUTE = `/ap/configuraciones/maestros-general/${ROUTE}`;
 
 export const UNIT_MEASUREMENT: ModelComplete<UnitMeasurementResource> = {
   MODEL: {
@@ -13,6 +14,7 @@ export const UNIT_MEASUREMENT: ModelComplete<UnitMeasurementResource> = {
   ENDPOINT: "/ap/configuration/unitMeasurement",
   QUERY_KEY: "unitMeasurement",
   ROUTE,
+  ABSOLUTE_ROUTE,
   ROUTE_ADD: `./agregar`,
   ROUTE_UPDATE: `./actualizar`,
   EMPTY: {

@@ -3,6 +3,7 @@ import { BankResource } from "./bank.interface";
 import { COMMERCIAL_MASTERS_ENDPOINT } from "../../../../lib/ap.constants";
 
 const ROUTE = "bancos";
+const ABSOLUTE_ROUTE = `/ap/configuraciones/maestros-general/${ROUTE}`;
 
 export const BANK: ModelComplete<BankResource> = {
   MODEL: {
@@ -14,6 +15,7 @@ export const BANK: ModelComplete<BankResource> = {
   ENDPOINT: COMMERCIAL_MASTERS_ENDPOINT,
   QUERY_KEY: "bank",
   ROUTE,
+  ABSOLUTE_ROUTE,
   EMPTY: {
     id: 0,
     code: "",

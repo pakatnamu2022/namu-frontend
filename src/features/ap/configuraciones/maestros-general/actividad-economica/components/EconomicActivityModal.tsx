@@ -36,12 +36,13 @@ export default function EconomicActivityModal({
   const queryClient = useQueryClient();
   const { EMPTY, QUERY_KEY, MODEL } = ECONOMIC_ACTIVITY;
   const {
-    data: bank,
+    data: economicActivityData,
     isLoading: loadingEconomicActivity,
     refetch,
-  } = mode === "create"
-    ? { data: EMPTY, isLoading: false, refetch: () => {} }
-    : useEconomicActivityById(id!);
+  } = useEconomicActivityById(id!);
+
+  const bank = mode === "create" ? EMPTY : economicActivityData;
+  const isLoadingData = mode === "create" ? false : loadingEconomicActivity;
 
   function mapEconomicActivityToForm(
     data: EconomicActivityResource
@@ -76,8 +77,7 @@ export default function EconomicActivityModal({
 
     onClose();
   };
-
-  const isLoadingAny = loadingEconomicActivity || !bank;
+  const isLoadingAny = isLoadingData || !bank;
 
   return (
     <GeneralModal open={open} onClose={onClose} title={title}>

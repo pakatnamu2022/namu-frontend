@@ -1,6 +1,6 @@
 "use client";
 
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import { useMutation } from "@tanstack/react-query";
 import {
@@ -17,14 +17,13 @@ import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import { CustomersForm } from "@/features/ap/comercial/clientes/components/CustomersForm";
 import { EMPRESA_AP } from "@/core/core.constants";
 import { OPPORTUNITIES } from "@/features/ap/comercial/oportunidades/lib/opportunities.constants";
-import NotFound from '@/app/not-found';
-
+import NotFound from "@/app/not-found";
 
 export default function CreateCustomersPage() {
   const router = useNavigate();
   const [searchParams] = useSearchParams();
-    const { currentView, checkRouteExists } = useCurrentModule();
-  const { ROUTE, MODEL } = CUSTOMERS;
+  const { currentView, checkRouteExists } = useCurrentModule();
+  const { ROUTE, MODEL, ABSOLUTE_ROUTE } = CUSTOMERS;
   const { ABSOLUTE_ROUTE: OPPORTUNITIES_ROUTE } = OPPORTUNITIES;
 
   // Get query params
@@ -56,7 +55,7 @@ export default function CreateCustomersPage() {
           `${OPPORTUNITIES_ROUTE}/agregar?client_id=${response.id}&lead_id=${lead_id}`
         );
       } else {
-        router("./");
+        router(ABSOLUTE_ROUTE);
       }
     },
     onError: (error: any) => {

@@ -3,6 +3,7 @@ import { ApSafeCreditGoalResource } from "./apSafeCreditGoal.interface";
 import { currentMonth, currentYear } from "@/core/core.function";
 
 const ROUTE = "metas-credito-seguro";
+const ABSOLUTE_ROUTE = `/ap/configuraciones/ventas/${ROUTE}`;
 
 export const AP_SAFE_CREDIT_GOAL: ModelComplete<ApSafeCreditGoalResource> = {
   MODEL: {
@@ -14,6 +15,7 @@ export const AP_SAFE_CREDIT_GOAL: ModelComplete<ApSafeCreditGoalResource> = {
   ENDPOINT: "/ap/configuration/apSafeCreditGoal",
   QUERY_KEY: "apSafeCreditGoal",
   ROUTE,
+  ABSOLUTE_ROUTE,
   EMPTY: {
     id: 0,
     year: currentYear(),

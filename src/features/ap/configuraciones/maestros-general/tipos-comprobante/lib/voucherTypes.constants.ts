@@ -3,6 +3,7 @@ import { VoucherTypesResource } from "./voucherTypes.interface";
 import { COMMERCIAL_MASTERS_ENDPOINT } from "../../../../lib/ap.constants";
 
 const ROUTE = "tipos-comprobante";
+const ABSOLUTE_ROUTE = `/ap/configuraciones/maestros-general/${ROUTE}`;
 
 export const VOUCHER_TYPE: ModelComplete<VoucherTypesResource> = {
   MODEL: {
@@ -14,6 +15,7 @@ export const VOUCHER_TYPE: ModelComplete<VoucherTypesResource> = {
   ENDPOINT: COMMERCIAL_MASTERS_ENDPOINT,
   QUERY_KEY: "voucherType",
   ROUTE,
+  ABSOLUTE_ROUTE,
   EMPTY: {
     id: 0,
     code: "",

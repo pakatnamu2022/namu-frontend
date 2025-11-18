@@ -14,7 +14,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Link } from 'react-router-dom'
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
 import { FormSelect } from "@/shared/components/FormSelect";
@@ -24,6 +24,7 @@ import FormSkeleton from "@/shared/components/FormSkeleton";
 import { useAllTypesOperation } from "../../tipos-operacion/lib/typesOperation.hook";
 import { useAllClassArticle } from "../../clase-articulo/lib/classArticle.hook";
 import { FormSwitch } from "@/shared/components/FormSwitch";
+import { WAREHOUSE } from "../lib/warehouse.constants";
 
 interface WarehouseFormProps {
   defaultValues: Partial<WarehouseSchema>;
@@ -47,6 +48,7 @@ export const WarehouseForm = ({
     },
     mode: "onChange",
   });
+  const { ABSOLUTE_ROUTE } = WAREHOUSE;
   const { data: sedes = [], isLoading: isLoadingSedes } = useAllSedes({
     empresa_id: EMPRESA_AP.id,
   });
@@ -160,7 +162,7 @@ export const WarehouseForm = ({
           />
         </div>
         <div className="flex gap-4 w-full justify-end">
-          <Link to={mode === "create" ? "" : "../"}>
+          <Link to={ABSOLUTE_ROUTE}>
             <Button type="button" variant="outline">
               Cancelar
             </Button>

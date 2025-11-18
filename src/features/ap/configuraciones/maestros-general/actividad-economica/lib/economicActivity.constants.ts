@@ -3,6 +3,7 @@ import { EconomicActivityResource } from "./economicActivity.interface";
 import { COMMERCIAL_MASTERS_ENDPOINT } from "../../../../lib/ap.constants";
 
 const ROUTE = "actividad-economica";
+const ABSOLUTE_ROUTE = `/ap/configuraciones/maestros-general/${ROUTE}`;
 
 export const ECONOMIC_ACTIVITY: ModelComplete<EconomicActivityResource> = {
   MODEL: {
@@ -14,6 +15,7 @@ export const ECONOMIC_ACTIVITY: ModelComplete<EconomicActivityResource> = {
   ENDPOINT: COMMERCIAL_MASTERS_ENDPOINT,
   QUERY_KEY: "economicActivity",
   ROUTE,
+  ABSOLUTE_ROUTE,
   EMPTY: {
     id: 0,
     description: "",

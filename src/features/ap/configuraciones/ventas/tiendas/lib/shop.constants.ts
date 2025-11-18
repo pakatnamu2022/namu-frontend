@@ -2,6 +2,7 @@ import { type ModelComplete } from "@/core/core.interface";
 import { ShopResource } from "./shop.interface";
 
 const ROUTE = "tiendas";
+const ABSOLUTE_ROUTE = `/ap/configuraciones/ventas/${ROUTE}`;
 
 export const SHOP: ModelComplete<ShopResource> = {
   MODEL: {
@@ -13,6 +14,7 @@ export const SHOP: ModelComplete<ShopResource> = {
   ENDPOINT: "/ap/configuration/shop",
   QUERY_KEY: "shop",
   ROUTE,
+  ABSOLUTE_ROUTE,
   EMPTY: {
     id: 0,
     description: "",

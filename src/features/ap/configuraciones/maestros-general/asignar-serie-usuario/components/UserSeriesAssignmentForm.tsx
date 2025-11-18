@@ -11,7 +11,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import FormSkeleton from "@/shared/components/FormSkeleton";
-import { Link } from 'react-router-dom'
+import { Link } from "react-router-dom";
 import { Loader } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { FormSelect } from "@/shared/components/FormSelect";
@@ -40,6 +40,7 @@ import {
 import { useAllAssignSalesSeries } from "../../asignar-serie-venta/lib/assignSalesSeries.hook";
 import { VouchersResource } from "../lib/userSeriesAssignment.interface";
 import { useAllUsers } from "@/features/gp/gestionsistema/usuarios/lib/user.hook";
+import { USER_SERIES_ASSIGNMENT } from "../lib/userSeriesAssignment.constants";
 
 interface UserSeriesAssignmentFormProps {
   defaultValues: Partial<UserSeriesAssignmentSchema>;
@@ -65,6 +66,7 @@ export const UserSeriesAssignmentForm = ({
     },
     mode: "onChange",
   });
+  const { ABSOLUTE_ROUTE } = USER_SERIES_ASSIGNMENT;
 
   const { data: users = [], isLoading: isLoadingUsers } = useAllUsers({
     person$cargo_id: [
@@ -189,7 +191,7 @@ export const UserSeriesAssignmentForm = ({
           />
         </div>
         <div className="flex gap-4 w-full justify-end">
-          <Link to={mode === "create" ? "" : "../"}>
+          <Link to={ABSOLUTE_ROUTE}>
             <Button type="button" variant="outline">
               Cancelar
             </Button>

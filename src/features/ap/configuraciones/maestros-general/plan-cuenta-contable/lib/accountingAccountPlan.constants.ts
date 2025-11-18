@@ -2,6 +2,7 @@ import { type ModelComplete } from "@/core/core.interface";
 import { AccountingAccountPlanResource } from "./accountingAccountPlan.interface";
 
 const ROUTE = "plan-cuenta-contable";
+const ABSOLUTE_ROUTE = `/ap/configuraciones/maestros-general/${ROUTE}`;
 
 export const ACCOUNTING_ACCOUNT_PLAN: ModelComplete<AccountingAccountPlanResource> =
   {
@@ -14,6 +15,7 @@ export const ACCOUNTING_ACCOUNT_PLAN: ModelComplete<AccountingAccountPlanResourc
     ENDPOINT: "/ap/configuration/accountingAccountPlan",
     QUERY_KEY: "accountingAccountPlan",
     ROUTE,
+    ABSOLUTE_ROUTE,
     EMPTY: {
       id: 0,
       account: "",
