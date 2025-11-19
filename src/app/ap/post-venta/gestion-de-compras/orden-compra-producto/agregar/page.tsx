@@ -41,8 +41,6 @@ export default function AddPurchaseOrderProductsPage() {
   if (!checkRouteExists(ROUTE)) notFound();
   if (!currentView) notFound();
 
-  const today = new Date().toISOString().split("T")[0];
-
   return (
     <FormWrapper>
       <TitleFormComponent
@@ -52,17 +50,18 @@ export default function AddPurchaseOrderProductsPage() {
       />
       <PurchaseOrderProductsForm
         defaultValues={{
-          order_number: "",
           supplier_id: "",
-          order_date: today,
-          expected_delivery_date: "",
-          payment_terms: "",
-          shipping_method: "",
+          invoice_series: "",
+          invoice_number: "",
+          emission_date: "",
+          due_date: "",
+          sede_id: "",
           warehouse_id: "",
-          subtotal: 0,
+          currency_id: "",
+          supplier_order_type_id: "",
+          payment_terms: "",
           total_discount: 0,
           total_tax: 0,
-          total_amount: 0,
           status: "PENDING",
           notes: "",
           items: [],
@@ -70,7 +69,7 @@ export default function AddPurchaseOrderProductsPage() {
         onSubmit={handleSubmit}
         isSubmitting={isPending}
         mode="create"
-        onCancel={() => router(ROUTE)}
+        onCancel={() => router(ABSOLUTE_ROUTE)}
       />
     </FormWrapper>
   );

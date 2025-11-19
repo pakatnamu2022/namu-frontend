@@ -28,66 +28,104 @@ export const purchaseOrderProductsColumns = ({
   routeUpdate,
 }: Props): PurchaseOrderProductsColumns[] => [
   {
-    accessorKey: "order_number",
+    accessorKey: "number",
     header: "Nº Orden",
     cell: ({ getValue }) => {
       const value = getValue() as string;
-      return value && <p className="font-semibold">{value}</p>;
+      return value && <p className="font-semibold text-xs">{value}</p>;
     },
   },
   {
-    accessorKey: "supplier_name",
+    accessorKey: "invoice_series",
+    header: "Factura",
+    cell: ({ row }) => {
+      const series = row.original.invoice_series;
+      const number = row.original.invoice_number;
+      return (
+        <div className="flex flex-col">
+          <p className="font-medium text-xs">
+            {series}-{number}
+          </p>
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "supplier",
     header: "Proveedor",
     cell: ({ getValue, row }) => {
       const value = getValue() as string;
       const numDoc = row.original.supplier_num_doc;
       return (
         <div className="flex flex-col">
-          <p className="font-medium">{value}</p>
-          {numDoc && <p className="text-xs text-muted-foreground">{numDoc}</p>}
+          <p className="font-medium text-xs">{value}</p>
+          {numDoc && (
+            <p className="text-[10px] text-muted-foreground">RUC: {numDoc}</p>
+          )}
         </div>
       );
     },
   },
   {
-    accessorKey: "order_date",
-    header: "F. Orden",
+    accessorKey: "emission_date",
+    header: "F. Emisión",
     cell: ({ getValue }) => {
       const value = getValue() as string;
       if (!value) return "-";
       try {
-        return format(new Date(value), "dd/MM/yyyy", { locale: es });
+        return (
+          <span className="text-xs">
+            {format(new Date(value), "dd/MM/yyyy", { locale: es })}
+          </span>
+        );
       } catch {
         return value;
       }
     },
   },
   {
-    accessorKey: "expected_delivery_date",
-    header: "F. Entrega Esperada",
+    accessorKey: "due_date",
+    header: "F. Vencimiento",
     cell: ({ getValue }) => {
       const value = getValue() as string;
       if (!value) return "-";
       try {
-        return format(new Date(value), "dd/MM/yyyy", { locale: es });
+        return (
+          <span className="text-xs">
+            {format(new Date(value), "dd/MM/yyyy", { locale: es })}
+          </span>
+        );
       } catch {
         return value;
       }
     },
   },
   {
-    accessorKey: "total_amount",
+    accessorKey: "total",
     header: "Total",
-    cell: ({ getValue }) => {
+    cell: ({ getValue, row }) => {
       const value = getValue();
-      if (value == null || value === "") return "S/ 0.00";
+      const currencyCode = row.original.currency_code || "PEN";
+      const symbol = currencyCode === "USD" ? "$" : "S/.";
+
+      if (value == null || value === "") return `${symbol} 0.00`;
       const numValue =
         typeof value === "string" ? parseFloat(value) : Number(value);
       return isNaN(numValue) ? (
-        "S/ 0.00"
+        `${symbol} 0.00`
       ) : (
-        <p className="font-semibold">S/ {numValue.toFixed(2)}</p>
+        <p className="font-semibold text-xs">
+          {symbol} {numValue.toFixed(2)}
+        </p>
       );
+    },
+  },
+  {
+    accessorKey: "sede",
+    header: "Sede",
+    cell: ({ getValue }) => {
+      const value = getValue() as string;
+      return value && <p className="text-xs">{value}</p>;
     },
   },
   {
@@ -95,7 +133,7 @@ export const purchaseOrderProductsColumns = ({
     header: "Acciones",
     cell: ({ row }) => {
       const { id, status } = row.original;
-      const canEdit = status === "PENDING";
+      const canEdit = status === true;
 
       return (
         <div className="flex items-center gap-2">
@@ -106,14 +144,14 @@ export const purchaseOrderProductsColumns = ({
               className="size-7"
               onClick={() => onView(id)}
             >
-              <Eye className="size-5" />
+              <Eye className="size-4" />
             </Button>
           )}
 
           {permissions.canUpdate && canEdit && routeUpdate && (
             <Link to={`${routeUpdate}/${id}`}>
               <Button variant="outline" size="icon" className="size-7">
-                <Pencil className="size-5" />
+                <Pencil className="size-4" />
               </Button>
             </Link>
           )}

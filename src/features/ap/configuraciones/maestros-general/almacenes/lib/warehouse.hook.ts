@@ -21,7 +21,7 @@ export const useWarehouse = (params?: Record<string, any>) => {
 
 export const useAllWarehouse = (params?: Record<string, any>) => {
   return useQuery<WarehouseResource[]>({
-    queryKey: [QUERY_KEY],
+    queryKey: [QUERY_KEY, "all", params],
     queryFn: () => getAllWarehouse({ params }),
     refetchOnWindowFocus: false,
   });

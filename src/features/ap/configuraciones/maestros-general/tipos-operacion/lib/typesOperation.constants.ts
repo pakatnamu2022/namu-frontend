@@ -25,3 +25,8 @@ export const TYPES_OPERATION: ModelComplete<TypesOperationResource> = {
     status: true,
   },
 };
+
+export const TYPES_OPERATION_ID = {
+  COMERCIAL: "794",
+  POSTVENTA: "804",
+};

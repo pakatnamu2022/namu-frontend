@@ -19,3 +19,9 @@ export const CURRENCY_TYPES: ModelComplete<CurrencyTypesResource> = {
   ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/editar`,
   EMPTY: { id: 0, code: "", name: "", symbol: "", status: true },
 };
+
+export const CURRENCY_TYPE_IDS = {
+  DOLLARS: "1",
+  EURO: "2",
+  SOLES: "3",
+};

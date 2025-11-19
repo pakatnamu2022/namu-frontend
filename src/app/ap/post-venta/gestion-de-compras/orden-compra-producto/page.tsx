@@ -23,6 +23,8 @@ import PurchaseOrderProductsTable from "@/features/ap/post-venta/gestion-compras
 import { purchaseOrderProductsColumns } from "@/features/ap/post-venta/gestion-compras/orden-compra-producto/components/PurchaseOrderProductsColumns";
 import PurchaseOrderProductsOptions from "@/features/ap/post-venta/gestion-compras/orden-compra-producto/components/PurchaseOrderProductsOptions";
 import { PURCHASE_ORDER_PRODUCT } from "@/features/ap/post-venta/gestion-compras/orden-compra-producto/lib/purchaseOrderProducts.constants";
+import { PurchaseOrderProductsViewSheet } from "@/features/ap/post-venta/gestion-compras/orden-compra-producto/components/PurchaseOrderProductsSheet";
+import { PurchaseOrderProductsResource } from "@/features/ap/post-venta/gestion-compras/orden-compra-producto/lib/purchaseOrderProducts.interface";
 
 export default function PurchaseOrderProductsPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -30,7 +32,9 @@ export default function PurchaseOrderProductsPage() {
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
-  const { MODEL, ROUTE, ROUTE_ADD, ROUTE_UPDATE } = PURCHASE_ORDER_PRODUCT;
+  const [viewData, setViewData] =
+    useState<PurchaseOrderProductsResource | null>(null);
+  const { MODEL, ROUTE, ROUTE_ADD, ROUTE_UPDATE} = PURCHASE_ORDER_PRODUCT;
   const permissions = useModulePermissions(ROUTE);
 
   const { data, isLoading, refetch } = usePurchaseOrderProducts({
@@ -54,8 +58,10 @@ export default function PurchaseOrderProductsPage() {
   };
 
   const handleView = (id: number) => {
-    console.log("Ver orden:", id);
-    // Aquí puedes implementar un modal o navegar a una vista de detalle
+    const orderData = data?.data.find((item) => item.id === id);
+    if (orderData) {
+      setViewData(orderData);
+    }
   };
 
   if (isLoadingModule) return <PageSkeleton />;
@@ -95,6 +101,12 @@ export default function PurchaseOrderProductsPage() {
           onConfirm={handleDelete}
         />
       )}
+
+      <PurchaseOrderProductsViewSheet
+        open={viewData !== null}
+        onOpenChange={(open) => !open && setViewData(null)}
+        data={viewData}
+      />
 
       <DataTablePagination
         page={page}
