@@ -31,23 +31,25 @@ const shipmentsReceptionsSchemaBase = z.object({
   transmitter_id: requiredStringId("El emisor es requerido"),
   receiver_id: requiredStringId("El receptor es requerido"),
   total_packages: z
-    .string({
-      error: "El total de bultos es requerido",
-    })
-    .min(1, "El total de bultos debe ser al menos 1")
-    .refine((val) => {
-      const num = Number(val);
-      return !isNaN(num) && num > 0;
-    }, "El total de bultos debe ser un número mayor a 0"),
+    .string()
+    .min(1, "El total de bultos es requerido")
+    .refine(
+      (val) => {
+        const num = Number(val);
+        return !isNaN(num) && num >= 1;
+      },
+      { message: "El total de bultos debe ser un número mayor o igual a 1" }
+    ),
   total_weight: z
-    .string({
-      error: "El peso total es requerido",
-    })
-    .min(0.1, "El peso total debe ser al menos 0.1")
-    .refine((val) => {
-      const num = Number(val);
-      return !isNaN(num) && num > 0;
-    }, "El peso total debe ser un número mayor a 0"),
+    .string()
+    .min(1, "El peso total es requerido")
+    .refine(
+      (val) => {
+        const num = Number(val);
+        return !isNaN(num) && num >= 0.1;
+      },
+      { message: "El peso total debe ser un número mayor o igual a 0.1" }
+    ),
   file: z.instanceof(File).nullable().optional(),
   transport_company_id: requiredStringId(
     "La empresa de transporte es requerida"
@@ -152,9 +154,9 @@ export type ShipmentsReceptionsSchema = z.infer<
 
 // Schema para checklist de recepción (update)
 export const receptionChecklistSchemaUpdate = z.object({
-  shipping_guide_id: z.number(),
+  shipping_guide_id: z.string(),
   note: z.string().optional(),
-  items_receiving: z.record(z.string(), z.number()).default({}),
+  items_receiving: z.record(z.string(), z.string()),
 });
 
 export type ReceptionChecklistSchema = z.infer<

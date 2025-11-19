@@ -27,6 +27,7 @@ import FormSkeleton from "@/shared/components/FormSkeleton";
 import {
   DOCUMENT_TYPES,
   ISSUER_TYPES,
+  SHIPMENTS_RECEPTIONS,
 } from "../lib/shipmentsReceptions.constants";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { useNavigate } from "react-router-dom";
@@ -76,13 +77,14 @@ export const ShipmentsReceptionsForm = ({
   isSubmitting = false,
   mode = "create",
 }: ShipmentsReceptionsFormProps) => {
+  const { ABSOLUTE_ROUTE } = SHIPMENTS_RECEPTIONS;
   const router = useNavigate();
   const form = useForm({
     resolver: zodResolver(
       mode === "create"
         ? shipmentsReceptionsSchemaCreate
         : shipmentsReceptionsSchemaUpdate
-    ),
+    ) as any,
     defaultValues: {
       ...defaultValues,
     },
@@ -567,7 +569,9 @@ export const ShipmentsReceptionsForm = ({
   );
 
   useEffect(() => {
-    form.setValue("total_weight", selectedVIN?.model.net_weight);
+    if (selectedVIN?.model.net_weight !== undefined) {
+      form.setValue("total_weight", String(selectedVIN.model.net_weight));
+    }
   }, [selectedVIN]);
 
   // Limpiar sede destino cuando cambia el motivo de traslado
@@ -1066,7 +1070,7 @@ export const ShipmentsReceptionsForm = ({
             variant="destructive"
             icon="warning"
             onConfirm={() => {
-              router(mode === "create" ? "./" : "../");
+              router(ABSOLUTE_ROUTE);
             }}
           />
 

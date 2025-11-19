@@ -64,17 +64,18 @@ export const ChecklistField = ({
 
   const handleToggleItem = (itemId: number) => {
     const currentItems = form.getValues(name) || {};
+    const itemKey = String(itemId);
 
-    if (currentItems[itemId] !== undefined) {
+    if (currentItems[itemKey] !== undefined) {
       // Si existe, lo eliminamos
-      const { [itemId]: _, ...rest } = currentItems;
+      const { [itemKey]: _, ...rest } = currentItems;
       form.setValue(name, rest, {
         shouldValidate: true,
         shouldDirty: true,
       });
     } else {
       // Si no existe, lo agregamos con cantidad 0
-      form.setValue(name, { ...currentItems, [itemId]: 0 }, {
+      form.setValue(name, { ...currentItems, [itemKey]: "0" }, {
         shouldValidate: true,
         shouldDirty: true,
       });
@@ -85,9 +86,9 @@ export const ChecklistField = ({
     if (checked) {
       // Seleccionar todos con cantidad 0
       const allItems = items.reduce((acc, item) => {
-        acc[item.id] = 0;
+        acc[String(item.id)] = "0";
         return acc;
-      }, {} as Record<number, number>);
+      }, {} as Record<string, string>);
       form.setValue(name, allItems, {
         shouldValidate: true,
         shouldDirty: true,
@@ -103,9 +104,10 @@ export const ChecklistField = ({
 
   const handleQuantityChange = (itemId: number, value: string) => {
     const currentItems = form.getValues(name) || {};
-    const numValue = value === "" ? 0 : Number(value);
+    const itemKey = String(itemId);
+    const stringValue = value === "" ? "0" : value;
 
-    form.setValue(name, { ...currentItems, [itemId]: numValue }, {
+    form.setValue(name, { ...currentItems, [itemKey]: stringValue }, {
       shouldValidate: true,
       shouldDirty: true,
     });
@@ -148,8 +150,9 @@ export const ChecklistField = ({
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                     {categoryItems.map((item) => {
                       const itemsReceiving = field.value || {};
-                      const isChecked = itemsReceiving[item.id] !== undefined;
-                      const quantity = itemsReceiving[item.id] || "";
+                      const itemKey = String(item.id);
+                      const isChecked = itemsReceiving[itemKey] !== undefined;
+                      const quantity = itemsReceiving[itemKey] || "";
 
                       return (
                         <FormControl key={item.id}>

@@ -6,10 +6,10 @@ import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Loader, Plus } from "lucide-react";
 import FormSkeleton from "@/shared/components/FormSkeleton";
-import { Link } from 'react-router-dom'
+import { Link } from "react-router-dom";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import {
   OpportunitySchema,
   opportunitySchemaCreate,
@@ -24,6 +24,7 @@ import { useAllCustomers } from "../../clientes/lib/customers.hook";
 import { TYPE_BUSINESS_PARTNERS } from "@/core/core.constants";
 import { useAllFamilies } from "@/features/ap/configuraciones/vehiculos/familias/lib/families.hook";
 import { FamiliesResource } from "@/features/ap/configuraciones/vehiculos/familias/lib/families.interface";
+import { OPPORTUNITIES } from "../lib/opportunities.constants";
 
 interface OpportunityFormProps {
   defaultValues: Partial<OpportunitySchema>;
@@ -43,6 +44,7 @@ export const OpportunityForm = ({
   clientId,
   showClientSelector = false,
 }: OpportunityFormProps) => {
+  const { ABSOLUTE_ROUTE } = OPPORTUNITIES;
   const router = useNavigate();
   const form = useForm({
     resolver: zodResolver(
@@ -176,7 +178,7 @@ export const OpportunityForm = ({
             variant="destructive"
             icon="warning"
             onConfirm={() => {
-              router(mode === "create" ? "./" : "../");
+              router(ABSOLUTE_ROUTE);
             }}
           />
 

@@ -13,7 +13,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Building2, Gift, Loader, PackagePlus, Calculator } from "lucide-react";
 import { FormSelect } from "@/shared/components/FormSelect";
@@ -36,6 +36,7 @@ import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import { EMPRESA_AP } from "@/core/core.constants";
 import { useAllVehiclesWithCosts } from "../../vehiculos/lib/vehicles.hook";
+import { PURCHASE_REQUEST_QUOTE } from "../lib/purchaseRequestQuote.constants";
 
 interface PurchaseRequestQuoteFormProps {
   defaultValues: Partial<PurchaseRequestQuoteSchema>;
@@ -61,6 +62,7 @@ export const PurchaseRequestQuoteForm = ({
   isSubmitting = false,
   mode = "create",
 }: PurchaseRequestQuoteFormProps) => {
+  const { ABSOLUTE_ROUTE } = PURCHASE_REQUEST_QUOTE;
   const router = useNavigate();
   const form = useForm({
     resolver: zodResolver(
@@ -833,7 +835,7 @@ export const PurchaseRequestQuoteForm = ({
                   <FormControl>
                     <textarea
                       placeholder="Agregue cualquier comentario o nota adicional sobre esta cotización/solicitud..."
-                      className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
+                      className="flex min-h-20 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
                       {...field}
                     />
                   </FormControl>
@@ -855,7 +857,7 @@ export const PurchaseRequestQuoteForm = ({
             variant="destructive"
             icon="warning"
             onConfirm={() => {
-              router(mode === "create" ? "./" : "../");
+              router(ABSOLUTE_ROUTE);
             }}
           />
 
