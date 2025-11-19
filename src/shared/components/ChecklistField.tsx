@@ -173,7 +173,7 @@ export const ChecklistField = ({
                         <FormControl key={item.id}>
                           <label
                             className={`
-                              flex items-center gap-3 p-3 rounded-lg border transition-all cursor-pointer
+                              flex items-center gap-3 p-3 rounded-lg border transition-all cursor-pointer select-none
                               ${
                                 isChecked
                                   ? "border-primary bg-muted"
