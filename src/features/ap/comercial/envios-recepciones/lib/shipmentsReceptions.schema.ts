@@ -32,6 +32,8 @@ const shipmentsReceptionsSchemaBase = z.object({
   receiver_id: requiredStringId("El receptor es requerido"),
   total_packages: z.coerce
     .number({
+  total_packages: z.coerce
+    .number({
       error: "El total de bultos es requerido",
     })
     .min(1, "El total de bultos debe ser al menos 1")
