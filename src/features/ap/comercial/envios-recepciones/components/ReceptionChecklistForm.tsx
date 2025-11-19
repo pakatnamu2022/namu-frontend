@@ -48,9 +48,9 @@ export const ReceptionChecklistForm = ({
 }: ReceptionChecklistFormProps) => {
   const router = useNavigate();
   const form = useForm<ReceptionChecklistSchema>({
-    resolver: zodResolver(receptionChecklistSchemaUpdate as any),
+    resolver: zodResolver<ReceptionChecklistSchema, any, ReceptionChecklistSchema>(receptionChecklistSchemaUpdate),
     defaultValues: {
-      shipping_guide_id: shippingGuideId,
+      shipping_guide_id: String(shippingGuideId),
       items_receiving: {},
     },
     mode: "onChange",
