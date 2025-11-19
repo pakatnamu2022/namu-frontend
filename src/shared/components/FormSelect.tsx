@@ -128,7 +128,7 @@ export function FormSelect({
                         className
                       )}
                     >
-                      <span className="!text-nowrap line-clamp-1">
+                      <span className="text-nowrap! line-clamp-1">
                         {selected
                           ? typeof selected.label === "function"
                             ? selected.label()
@@ -142,7 +142,7 @@ export function FormSelect({
 
                 <PopoverContent
                   container={portalContainer}
-                  className="p-0 !w-(--radix-popover-trigger-width)"
+                  className="p-0 w-(--radix-popover-trigger-width)!"
                   onWheel={(e) => e.stopPropagation()}
                   onWheelCapture={(e) => e.stopPropagation()}
                   onTouchMove={(e) => e.stopPropagation()}
@@ -259,7 +259,7 @@ export function FormSelect({
               {children}
             </div>
             {description && (
-              <FormDescription className="text-xs text-muted-foreground !mb-0">
+              <FormDescription className="text-xs text-muted-foreground mb-0!">
                 {description}
               </FormDescription>
             )}

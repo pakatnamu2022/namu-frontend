@@ -26,7 +26,7 @@ import { notFound } from "@/shared/hooks/useNotFound";
 
 const { MODEL } = PARAMETER;
 
-export default function ParametrosPage() {
+export default function ParameterPage() {
     const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState(DEFAULT_PER_PAGE);

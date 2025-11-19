@@ -1,9 +1,6 @@
 "use client";
 
 import type { ColumnDef } from "@tanstack/react-table";
-import { Button } from "@/components/ui/button";
-import { Pencil } from "lucide-react";
-import { useNavigate } from 'react-router-dom';
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { CyclePersonDetailResource } from "../lib/cyclePersonDetail";
 import { EditableCell } from "@/shared/components/EditableCell";
@@ -74,20 +71,10 @@ export const CyclePersonDetailColumns = ({
     header: "Acciones",
     size: 60,
     cell: ({ row }) => {
-      const router = useNavigate();
       const id = row.original.id;
 
       return (
         <div className="flex items-center gap-2">
-          {/* Edit */}
-          <Button
-            variant="outline"
-            size="icon"
-            className="size-7"
-            onClick={() => router(`./ciclos/actualizar/${id}`)}
-          >
-            <Pencil className="size-5" />
-          </Button>
           {/* Delete */}
           <DeleteButton onClick={() => onDelete(id)} />
         </div>

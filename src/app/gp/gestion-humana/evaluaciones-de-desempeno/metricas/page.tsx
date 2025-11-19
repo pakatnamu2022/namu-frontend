@@ -23,11 +23,9 @@ import { METRIC } from "@/features/gp/gestionhumana/evaluaciondesempeño/metrica
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { notFound } from "@/shared/hooks/useNotFound";
 
-
-const { MODEL } = METRIC;
-
-export default function MetricasPage() {
-    const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
+export default function MetricPage() {
+  const { MODEL } = METRIC;
+  const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");

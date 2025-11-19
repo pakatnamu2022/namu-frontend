@@ -3,13 +3,15 @@
 import { Button } from "@/components/ui/button";
 import ActionsWrapper from "@/shared/components/ActionsWrapper";
 import { Plus } from "lucide-react";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
+import { OBJECTIVE } from "../lib/objective.constants";
 
 export default function ObjectiveActions() {
   const push = useNavigate();
+  const { ROUTE_ADD } = OBJECTIVE;
 
   const handleAddObjective = () => {
-    push("./objetivos/agregar");
+    push(ROUTE_ADD);
   };
 
   return (

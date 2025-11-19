@@ -4,7 +4,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { ParameterResource } from "../lib/parameter.interface";
 import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -64,7 +64,7 @@ export const parameterColumns = ({
             variant="outline"
             size="icon"
             className="size-7"
-            onClick={() => router(`./${ROUTE_UPDATE}/${id}`)}
+            onClick={() => router(`/${ROUTE_UPDATE}/${id}`)}
           >
             <Pencil className="size-5" />
           </Button>
