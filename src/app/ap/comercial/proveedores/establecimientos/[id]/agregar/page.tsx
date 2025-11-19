@@ -20,7 +20,6 @@ import { EstablishmentsForm } from "@/features/ap/comercial/establecimientos/com
 import { CUSTOMERS } from "@/features/ap/comercial/clientes/lib/customers.constants";
 import { findCustomersById } from "@/features/ap/comercial/clientes/lib/customers.actions";
 import { notFound } from "@/shared/hooks/useNotFound";
-import { TYPE_BUSINESS_PARTNERS } from "@/core/core.constants";
 
 export default function AddSupplierEstablishmentPage() {
   const { id } = useParams();
