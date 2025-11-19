@@ -4,12 +4,15 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import DevelopmentPlanForm from "../components/DevelopmentPlanForm";
+import DevelopmentPlanForm from "../../../../../../features/gp/gestionhumana/plan-desarrollo/components/DevelopmentPlanForm";
+import { useAuthStore } from "@/features/auth/lib/auth.store";
 
 export default function CrearPlanDesarrolloPage() {
   const { id } = useParams();
   const router = useNavigate();
   const personId = Number(id);
+  const currentUser = useAuthStore((state) => state.user);
+  const bossId = currentUser?.partner_id;
 
   const handleBack = () => {
     router(`/perfil/equipo/${personId}/plan-desarrollo`);
@@ -26,7 +29,9 @@ export default function CrearPlanDesarrolloPage() {
         <CardContent className="mx-auto max-w-7xl">
           <CardHeader className="space-y-4 p-0 mb-6">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-2xl">Crear Plan de Desarrollo</CardTitle>
+              <CardTitle className="text-2xl">
+                Crear Plan de Desarrollo
+              </CardTitle>
               <Button
                 variant="outline"
                 size="sm"
@@ -39,7 +44,11 @@ export default function CrearPlanDesarrolloPage() {
             </div>
           </CardHeader>
 
-          <DevelopmentPlanForm personId={personId} onSuccess={handleSuccess} />
+          <DevelopmentPlanForm
+            personId={personId}
+            bossId={bossId}
+            onSuccess={handleSuccess}
+          />
         </CardContent>
       </Card>
     </div>

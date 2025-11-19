@@ -4,7 +4,6 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent } from "@/components/ui/card";
 import { FileText, Plus, Trash2, Loader2 } from "lucide-react";
 import {
@@ -74,10 +73,6 @@ export default function DevelopmentPlanSheet({
     try {
       const payload: StoreDetailedDevelopmentPlanRequest = {
         description: description.trim(),
-        boss_confirms: false,
-        worker_confirms: false,
-        boss_confirms_completion: false,
-        worker_confirms_completion: false,
         worker_id: workerId,
         boss_id: bossId,
         gh_evaluation_id: evaluationId,
@@ -90,25 +85,6 @@ export default function DevelopmentPlanSheet({
       errorToast(
         error?.response?.data?.message ||
           "Error al guardar el plan de desarrollo"
-      );
-    }
-  };
-
-  const handleCheckboxChange = async (
-    planId: number,
-    field: "boss_confirms" | "worker_confirms",
-    currentValue: boolean
-  ) => {
-    try {
-      await updateMutation.mutateAsync({
-        id: planId,
-        data: { [field]: !currentValue },
-      });
-      successToast("Plan de desarrollo actualizado exitosamente");
-    } catch (error: any) {
-      errorToast(
-        error?.response?.data?.message ||
-          "Error al actualizar el plan de desarrollo"
       );
     }
   };
@@ -214,89 +190,39 @@ export default function DevelopmentPlanSheet({
               </CardContent>
             </Card>
           ) : (
-            <div className="border rounded-lg overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className="bg-muted">
-                    <tr>
-                      <th className="text-left p-3 text-sm font-medium">
-                        Descripción
-                      </th>
+            <div className="space-y-3">
+              {plans.map((plan) => (
+                <Card key={plan.id}>
+                  <CardContent className="p-4">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1 space-y-2">
+                        <p className="text-sm">{plan.description}</p>
+                        {plan.comment && (
+                          <div className="mt-3 p-3 rounded-lg border bg-muted/20">
+                            <p className="text-xs font-medium text-muted-foreground mb-1">
+                              Comentario:
+                            </p>
+                            <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                              {plan.comment}
+                            </p>
+                          </div>
+                        )}
+                      </div>
                       {isJefe && (
-                        <th className="text-center p-3 text-sm font-medium w-32">
-                          Jefe
-                        </th>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => handleDelete(plan.id)}
+                          disabled={isSaving}
+                          className="h-8 w-8 p-0 shrink-0"
+                        >
+                          <Trash2 className="w-4 h-4 text-destructive" />
+                        </Button>
                       )}
-                      {!isJefe && (
-                        <th className="text-center p-3 text-sm font-medium w-32">
-                          Colaborador
-                        </th>
-                      )}
-                      {isJefe && (
-                        <th className="text-center p-3 text-sm font-medium w-24">
-                          Acción
-                        </th>
-                      )}
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y">
-                    {plans.map((plan) => (
-                      <tr key={plan.id} className="hover:bg-muted/50">
-                        <td className="p-3">
-                          <p className="text-sm">{plan.description}</p>
-                        </td>
-                        {isJefe && (
-                          <td className="p-3 text-center">
-                            <div className="flex justify-center">
-                              <Checkbox
-                                checked={plan.boss_confirms}
-                                onCheckedChange={() =>
-                                  handleCheckboxChange(
-                                    plan.id,
-                                    "boss_confirms",
-                                    plan.boss_confirms
-                                  )
-                                }
-                                disabled={isSaving}
-                              />
-                            </div>
-                          </td>
-                        )}
-                        {!isJefe && (
-                          <td className="p-3 text-center">
-                            <div className="flex justify-center">
-                              <Checkbox
-                                checked={plan.worker_confirms}
-                                onCheckedChange={() =>
-                                  handleCheckboxChange(
-                                    plan.id,
-                                    "worker_confirms",
-                                    plan.worker_confirms
-                                  )
-                                }
-                                disabled={isSaving}
-                              />
-                            </div>
-                          </td>
-                        )}
-                        {isJefe && (
-                          <td className="p-3 text-center">
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => handleDelete(plan.id)}
-                              disabled={isSaving}
-                              className="h-8 w-8 p-0"
-                            >
-                              <Trash2 className="w-4 h-4 text-destructive" />
-                            </Button>
-                          </td>
-                        )}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
             </div>
           )}
         </div>

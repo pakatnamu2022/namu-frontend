@@ -59,7 +59,7 @@ export default function CreateReceptionProductPage() {
   return (
     <FormWrapper>
       <TitleFormComponent
-        title={`Nueva Recepción - ${purchaseOrder.order_number}`}
+        title={`Nueva Recepción - ${purchaseOrder.number}`}
         mode="create"
         icon="PackageCheck"
       />
@@ -83,7 +83,7 @@ export default function CreateReceptionProductPage() {
             `/ap/post-venta/gestion-de-compras/orden-compra-producto/recepcion/${purchaseOrderId}`
           )
         }
-        purchaseOrderNumber={purchaseOrder.order_number}
+        purchaseOrderNumber={purchaseOrder.number}
       />
     </FormWrapper>
   );

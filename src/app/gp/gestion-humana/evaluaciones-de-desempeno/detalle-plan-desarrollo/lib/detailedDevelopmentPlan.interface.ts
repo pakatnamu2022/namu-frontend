@@ -9,10 +9,7 @@ export interface DetailedDevelopmentPlanResponse {
 export interface DetailedDevelopmentPlanResource {
   id: number;
   description: string;
-  boss_confirms: boolean;
-  worker_confirms: boolean;
-  boss_confirms_completion: boolean;
-  worker_confirms_completion: boolean;
+  comment: string | null;
   worker_id: number;
   worker_name: string | null;
   boss_id: number;
@@ -23,10 +20,7 @@ export interface DetailedDevelopmentPlanResource {
 
 export interface StoreDetailedDevelopmentPlanRequest {
   description: string;
-  boss_confirms?: boolean;
-  worker_confirms?: boolean;
-  boss_confirms_completion?: boolean;
-  worker_confirms_completion?: boolean;
+  comment?: string | null;
   worker_id: number;
   boss_id: number;
   gh_evaluation_id: number;
@@ -34,10 +28,7 @@ export interface StoreDetailedDevelopmentPlanRequest {
 
 export interface UpdateDetailedDevelopmentPlanRequest {
   description?: string;
-  boss_confirms?: boolean;
-  worker_confirms?: boolean;
-  boss_confirms_completion?: boolean;
-  worker_confirms_completion?: boolean;
+  comment?: string | null;
   worker_id?: number;
   boss_id?: number;
   gh_evaluation_id?: number;

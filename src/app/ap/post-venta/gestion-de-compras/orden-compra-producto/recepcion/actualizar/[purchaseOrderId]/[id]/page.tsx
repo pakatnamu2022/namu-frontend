@@ -114,7 +114,7 @@ export default function EditReceptionProductPage() {
   return (
     <FormWrapper>
       <TitleFormComponent
-        title={`Editar Recepción - ${purchaseOrder.order_number}`}
+        title={`Editar Recepción - ${purchaseOrder.number}`}
         mode="edit"
         icon="PackageCheck"
       />
@@ -128,7 +128,7 @@ export default function EditReceptionProductPage() {
             `/ap/post-venta/gestion-de-compras/orden-compra-producto/recepcion/${purchaseOrderId}`
           )
         }
-        purchaseOrderNumber={purchaseOrder.order_number}
+        purchaseOrderNumber={purchaseOrder.number}
       />
     </FormWrapper>
   );

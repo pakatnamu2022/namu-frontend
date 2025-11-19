@@ -103,7 +103,7 @@ export default function ReceptionsProductsPage() {
           </Button>
           <div className="flex-1">
             <TitleComponent
-              title={`Recepciones - ${purchaseOrder.order_number}`}
+              title={`Recepciones - ${purchaseOrder.number}`}
               subtitle="Gestión de recepciones de productos"
               icon="PackageCheck"
             />
@@ -120,19 +120,15 @@ export default function ReceptionsProductsPage() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div>
             <p className="text-sm text-muted-foreground">Proveedor</p>
-            <p className="font-semibold">{purchaseOrder.supplier_name}</p>
+            <p className="font-semibold">{purchaseOrder.supplier}</p>
           </div>
           <div>
             <p className="text-sm text-muted-foreground">Almacén</p>
-            <p className="font-semibold">
-              {purchaseOrder.warehouse_name || "N/A"}
-            </p>
+            <p className="font-semibold">{purchaseOrder.warehouse || "N/A"}</p>
           </div>
           <div>
             <p className="text-sm text-muted-foreground">Total Orden</p>
-            <p className="font-semibold">
-              S/ {purchaseOrder.total_amount.toFixed(2)}
-            </p>
+            <p className="font-semibold">S/ {purchaseOrder.total.toFixed(2)}</p>
           </div>
           <div>
             <p className="text-sm text-muted-foreground">Estado</p>

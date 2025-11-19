@@ -200,16 +200,16 @@ export default function HistorialPage() {
       (evaluation) => evaluation.id === selectedEvaluationId
     );
     return (
-      <div className="w-full py-4">
+      <div className="w-full py-4 px-2 sm:px-4">
         <Card className="border-none shadow-none">
-          <CardContent className="mx-auto max-w-7xl">
+          <CardContent className="mx-auto max-w-7xl p-2 sm:p-6">
             <CardHeader className="space-y-4 p-0">
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle className="text-2xl">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div className="w-full sm:w-auto">
+                  <CardTitle className="text-xl sm:text-2xl">
                     Sin evaluación en este periodo
                   </CardTitle>
-                  <CardDescription>
+                  <CardDescription className="text-sm">
                     Esta persona no tuvo evaluación en el periodo{" "}
                     {selectedEvaluation
                       ? `"${selectedEvaluation.name}"`
@@ -217,9 +217,9 @@ export default function HistorialPage() {
                     .
                   </CardDescription>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
                   {isLoadingEvaluations ? (
-                    <Skeleton className="h-8 w-80" />
+                    <Skeleton className="h-8 w-full sm:w-80" />
                   ) : (
                     <SearchableSelect
                       options={evaluations.map((evaluation) => ({
@@ -246,16 +246,17 @@ export default function HistorialPage() {
                       }}
                       value={selectedEvaluationId?.toString() ?? ""}
                       placeholder="Selecciona la Evaluación..."
-                      className="w-80!"
+                      className="w-full sm:w-80!"
                     />
                   )}
                   <Button
                     variant="outline"
                     onClick={handleBack}
-                    className="gap-2"
+                    className="gap-2 w-full sm:w-auto"
                   >
                     <ChevronLeft className="w-4 h-4" />
-                    Volver al Equipo
+                    <span className="hidden sm:inline">Volver al Equipo</span>
+                    <span className="sm:hidden">Volver</span>
                   </Button>
                 </div>
               </div>
@@ -272,18 +273,18 @@ export default function HistorialPage() {
   const isReadOnly = activeEvaluation?.id !== selectedEvaluationId;
 
   return (
-    <div className="w-full py-4">
+    <div className="w-full py-4 px-2 sm:px-4">
       <Card className="border-none shadow-none">
-        <CardContent className="mx-auto max-w-7xl">
+        <CardContent className="mx-auto max-w-7xl p-2 sm:p-6">
           <CardHeader className="space-y-4 p-0">
             {/* Header principal */}
-            <div className="flex items-center gap-4">
-              <Avatar className="h-16 w-16">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+              <Avatar className="h-12 w-12 sm:h-16 sm:w-16">
                 <AvatarImage
                   src={evaluationPersonResult.person.photo}
                   alt={evaluationPersonResult.person.name}
                 />
-                <AvatarFallback className="bg-primary text-white text-lg">
+                <AvatarFallback className="bg-primary text-white text-sm sm:text-lg">
                   {evaluationPersonResult.person.name
                     .split(" ")
                     .map((n) => n[0])
@@ -291,16 +292,16 @@ export default function HistorialPage() {
                     .substring(0, 2)}
                 </AvatarFallback>
               </Avatar>
-              <div className="flex-1">
-                <CardTitle className="text-2xl capitalize">
+              <div className="flex-1 w-full sm:w-auto">
+                <CardTitle className="text-xl sm:text-2xl capitalize">
                   {evaluationPersonResult.person.name.toLowerCase()}
                 </CardTitle>
-                <CardDescription className="capitalize text-base">
+                <CardDescription className="capitalize text-sm sm:text-base">
                   {evaluationPersonResult.person.position.toLowerCase()}
                 </CardDescription>
               </div>
-              <div className="text-right">
-                <div className="text-2xl font-bold text-primary">
+              <div className="text-left sm:text-right w-full sm:w-auto">
+                <div className="text-xl sm:text-2xl font-bold text-primary">
                   {evaluationPersonResult.statistics.overall_completion_rate}%
                 </div>
                 <div className="text-xs text-muted-foreground">
@@ -310,9 +311,9 @@ export default function HistorialPage() {
             </div>
 
             {/* Selector de evaluación y controles */}
-            <div className="flex items-center justify-between gap-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               {isLoadingEvaluations ? (
-                <Skeleton className="h-8 w-80" />
+                <Skeleton className="h-8 w-full sm:w-80" />
               ) : (
                 <SearchableSelect
                   options={evaluations.map((evaluation) => ({
@@ -336,11 +337,11 @@ export default function HistorialPage() {
                   }}
                   value={selectedEvaluationId?.toString() ?? ""}
                   placeholder="Selecciona la Evaluación..."
-                  className="w-80!"
+                  className="w-80 lg:w-96"
                 />
               )}
 
-              <div className="flex items-center gap-2">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
                 {isReadOnly && (
                   <Badge variant="outline" className="text-xs">
                     Solo lectura
@@ -356,7 +357,9 @@ export default function HistorialPage() {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => router(`/perfil/equipo/${personId}/plan-desarrollo`)}
+                    onClick={() =>
+                      router(`/perfil/equipo/${personId}/plan-desarrollo`)
+                    }
                     className="gap-2 flex-1 sm:flex-none"
                   >
                     <FileText className="size-4" />
@@ -501,13 +504,13 @@ export default function HistorialPage() {
             </Tabs>
 
             {/* Footer con información de la evaluación */}
-            <div className="flex items-center justify-between pt-4 border-t">
-              <div className="flex items-center gap-4 text-sm text-muted-foreground">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pt-4 border-t gap-2">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 text-sm text-muted-foreground">
                 {evaluationPersonResult?.evaluation && (
                   <>
                     <div className="flex items-center gap-2">
                       <Calendar className="size-4" />
-                      <span>
+                      <span className="text-xs sm:text-sm">
                         {new Date(
                           evaluationPersonResult.evaluation.start_date
                         ).toLocaleDateString("es-ES")}{" "}

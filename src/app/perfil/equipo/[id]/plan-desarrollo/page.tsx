@@ -4,7 +4,7 @@ import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, Plus } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import DevelopmentPlanList from "./components/DevelopmentPlanList";
+import DevelopmentPlanList from "../../../../../features/gp/gestionhumana/plan-desarrollo/components/DevelopmentPlanList";
 
 export default function PlanDesarrolloPage() {
   const { id } = useParams();

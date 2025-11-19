@@ -162,7 +162,7 @@ const PerfilEquipoPlanDesarrolloPage = lazy(
   () => import("./app/perfil/equipo/[id]/plan-desarrollo/page")
 );
 const PerfilEquipoPlanDesarrolloCrearPage = lazy(
-  () => import("./app/perfil/equipo/[id]/plan-desarrollo/crear/page")
+  () => import("./app/perfil/equipo/[id]/plan-desarrollo/agregar/page")
 );
 const PerfilNamuPerformancePage = lazy(
   () => import("./app/perfil/namu-performance/page")
@@ -518,6 +518,24 @@ const EditPurchaseOrderProductsPage = lazy(
   () =>
     import(
       "./app/ap/post-venta/gestion-de-compras/orden-compra-producto/actualizar/[id]/page"
+    )
+);
+const ReceptionPurchaseOrderProductsPage = lazy(
+  () =>
+    import(
+      "./app/ap/post-venta/gestion-de-compras/orden-compra-producto/recepcion/[purchaseOrderId]/page"
+    )
+);
+const AddReceptionPurchaseOrderProductsPage = lazy(
+  () =>
+    import(
+      "./app/ap/post-venta/gestion-de-compras/orden-compra-producto/recepcion/agregar/[purchaseOrderId]/page"
+    )
+);
+const EditReceptionPurchaseOrderProductsPage = lazy(
+  () =>
+    import(
+      "./app/ap/post-venta/gestion-de-compras/orden-compra-producto/recepcion/actualizar/[purchaseOrderId]/[id]/page"
     )
 );
 
@@ -1259,6 +1277,18 @@ function App() {
               <Route
                 path="gestion-de-compras/orden-compra-producto/actualizar/:id"
                 element={<EditPurchaseOrderProductsPage />}
+              />
+              <Route
+                path="gestion-de-compras/orden-compra-producto/recepcion/:purchaseOrderId"
+                element={<ReceptionPurchaseOrderProductsPage />}
+              />
+              <Route
+                path="gestion-de-compras/orden-compra-producto/recepcion/agregar/:purchaseOrderId"
+                element={<AddReceptionPurchaseOrderProductsPage />}
+              />
+              <Route
+                path="gestion-de-compras/orden-compra-producto/recepcion/actualizar/:purchaseOrderId/:id"
+                element={<EditReceptionPurchaseOrderProductsPage />}
               />
 
               {/* Taller */}

@@ -25,6 +25,7 @@ import PurchaseOrderProductsOptions from "@/features/ap/post-venta/gestion-compr
 import { PURCHASE_ORDER_PRODUCT } from "@/features/ap/post-venta/gestion-compras/orden-compra-producto/lib/purchaseOrderProducts.constants";
 import { PurchaseOrderProductsViewSheet } from "@/features/ap/post-venta/gestion-compras/orden-compra-producto/components/PurchaseOrderProductsSheet";
 import { PurchaseOrderProductsResource } from "@/features/ap/post-venta/gestion-compras/orden-compra-producto/lib/purchaseOrderProducts.interface";
+import { TYPES_OPERATION_ID } from "@/features/ap/configuraciones/maestros-general/tipos-operacion/lib/typesOperation.constants";
 
 export default function PurchaseOrderProductsPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -34,13 +35,15 @@ export default function PurchaseOrderProductsPage() {
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [viewData, setViewData] =
     useState<PurchaseOrderProductsResource | null>(null);
-  const { MODEL, ROUTE, ROUTE_ADD, ROUTE_UPDATE} = PURCHASE_ORDER_PRODUCT;
+  const { MODEL, ROUTE, ROUTE_ADD, ROUTE_UPDATE, ABSOLUTE_ROUTE } =
+    PURCHASE_ORDER_PRODUCT;
   const permissions = useModulePermissions(ROUTE);
 
   const { data, isLoading, refetch } = usePurchaseOrderProducts({
     page,
     search,
     per_page,
+    type_operation_id: TYPES_OPERATION_ID.POSTVENTA,
   });
 
   const handleDelete = async () => {
@@ -86,8 +89,12 @@ export default function PurchaseOrderProductsPage() {
         columns={purchaseOrderProductsColumns({
           onDelete: setDeleteId,
           onView: handleView,
-          permissions,
+          permissions: {
+            ...permissions,
+            canReceive: true,
+          },
           routeUpdate: ROUTE_UPDATE,
+          routeReception: `${ABSOLUTE_ROUTE}/recepcion`,
         })}
         data={data?.data || []}
       >
