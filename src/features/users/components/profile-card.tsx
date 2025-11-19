@@ -77,7 +77,7 @@ export function ProfileCard({ variant = "sidebar" }: ProfileCardProps) {
           <>
             {pendingEvaluations && pendingEvaluations > 0 && (
               <Badge className="animate-pulse" variant={"secondary"}>
-                Evaluar({pendingEvaluations})
+                {pendingEvaluations}
               </Badge>
             )}
           </>
