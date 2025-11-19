@@ -49,9 +49,7 @@ export const ReceptionChecklistForm = ({
   const router = useNavigate();
   const form = useForm<ReceptionChecklistSchema>({
     resolver: zodResolver<ReceptionChecklistSchema, any, ReceptionChecklistSchema>(receptionChecklistSchemaUpdate),
-    resolver: zodResolver<ReceptionChecklistSchema, any, ReceptionChecklistSchema>(receptionChecklistSchemaUpdate),
     defaultValues: {
-      shipping_guide_id: String(shippingGuideId),
       shipping_guide_id: String(shippingGuideId),
       items_receiving: {},
     },
@@ -71,11 +69,11 @@ export const ReceptionChecklistForm = ({
   // Inicializar los items seleccionados desde el backend
   useEffect(() => {
     if (receptionChecklist?.data && receptionChecklist.data.length > 0) {
-      // Construir el objeto items_receiving con receiving_id como clave y quantity como valor
+      // Construir el objeto items_receiving con receiving_id como clave y quantity como valor (ambos como strings)
       const itemsReceiving: Record<string, string> = {};
       receptionChecklist.data.forEach((item) => {
-        // Si tiene cantidad, usar esa cantidad, sino usar 0
-        itemsReceiving[item.receiving_id] = (item as any).quantity || "0";
+        // Si tiene cantidad, usar esa cantidad, sino usar 0 (convertido a string)
+        itemsReceiving[String(item.receiving_id)] = String((item as any).quantity || 0);
       });
       form.setValue("items_receiving", itemsReceiving);
 
@@ -205,14 +203,6 @@ export const ReceptionChecklistForm = ({
           />
         </div>
       </form>
-
-      <pre>
-        <code>{JSON.stringify(form.getValues(), null, 2)}</code>
-      </pre>
-
-      <pre>
-        <code>{JSON.stringify(form.formState.errors, null, 2)}</code>
-      </pre>
     </Form>
   );
 };
