@@ -4,7 +4,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { WorkerResource } from "../lib/worker.interface";
 import { Button } from "@/components/ui/button";
 import { Hourglass, Pencil, Signature } from "lucide-react";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { Badge } from "@/components/ui/badge";
 import { WORKER } from "../lib/worker.constant";
@@ -93,7 +93,7 @@ export const workerColumns = ({
             variant="outline"
             size="icon"
             className="size-7"
-            onClick={() => router(`./${ROUTE_UPDATE}/${id}`)}
+            onClick={() => router(`${ROUTE_UPDATE}/${id}`)}
           >
             <Pencil className="size-5" />
           </Button>

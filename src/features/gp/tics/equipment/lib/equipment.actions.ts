@@ -6,6 +6,9 @@ import {
 } from "@/features/gp/tics/equipment/lib/equipment.interface";
 import { GeneralResponse } from "@/shared/lib/response.interface";
 import type { AxiosRequestConfig } from "axios";
+import { EQUIPMENT } from "./equipment.constants";
+
+const { ENDPOINT } = EQUIPMENT;
 
 export async function getEquipment({
   params,
@@ -15,19 +18,19 @@ export async function getEquipment({
       ...params,
     },
   };
-  const { data } = await api.get<EquipmentResponse>("/equipment", config);
+  const { data } = await api.get<EquipmentResponse>(ENDPOINT, config);
   return data;
 }
 
 export async function findEquipmentById(
   id: string
 ): Promise<EquipmentResource> {
-  const response = await api.get<EquipmentResource>(`/equipment/${id}`);
+  const response = await api.get<EquipmentResource>(`${ENDPOINT}/${id}`);
   return response.data;
 }
 
 export async function storeEquipment(data: any): Promise<EquipmentResponse> {
-  const response = await api.post<EquipmentResponse>("/equipment", data);
+  const response = await api.post<EquipmentResponse>(ENDPOINT, data);
   return response.data;
 }
 
@@ -35,11 +38,11 @@ export async function updateEquipment(
   id: string,
   data: any
 ): Promise<EquipmentResponse> {
-  const response = await api.put<EquipmentResponse>(`/equipment/${id}`, data);
+  const response = await api.put<EquipmentResponse>(`${ENDPOINT}/${id}`, data);
   return response.data;
 }
 
 export async function deleteEquipment(id: number): Promise<GeneralResponse> {
-  const { data } = await api.delete<GeneralResponse>(`/equipment/${id}`);
+  const { data } = await api.delete<GeneralResponse>(`${ENDPOINT}/${id}`);
   return data;
 }

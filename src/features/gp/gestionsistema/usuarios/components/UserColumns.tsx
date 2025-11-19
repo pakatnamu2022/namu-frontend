@@ -3,8 +3,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { UserResource } from "../lib/user.interface";
 import { Button } from "@/components/ui/button";
-import { Pencil, UserRoundCog, Building2 } from "lucide-react";
-import { useNavigate } from 'react-router-dom';
+import { Building2 } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -114,9 +113,10 @@ export const userColumns = ({
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
-      const router = useNavigate();
+      // const router = useNavigate();
       const id = row.original.id;
       const user = row.original;
+      // const { ROUTE_UPDATE } = USER;
 
       return (
         <div className="flex items-center gap-2">
@@ -132,26 +132,28 @@ export const userColumns = ({
               <Building2 className="size-5" />
             </Button>
           )}
+
           {/* Rol */}
-          <Button
+          {/* <Button
             variant="outline"
             size="icon"
             className="size-7"
-            onClick={() => router(`./vistas/actualizar/${id}`)}
+            onClick={() => router(`${ROUTE_UPDATE}/${id}`)}
             tooltip="Gestionar Rol"
           >
             <UserRoundCog className="size-5" />
-          </Button>
+          </Button> */}
+
           {/* Edit */}
-          <Button
+          {/* <Button
             variant="outline"
             size="icon"
             className="size-7"
-            onClick={() => router(`./vistas/actualizar/${id}`)}
+            onClick={() => router(`${ROUTE_UPDATE}/${id}`)}
             tooltip="Editar Usuario"
           >
             <Pencil className="size-5" />
-          </Button>
+          </Button> */}
           {/* Delete */}
           <DeleteButton onClick={() => onDelete(id)} />
         </div>

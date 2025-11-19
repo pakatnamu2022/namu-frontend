@@ -4,9 +4,10 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { PeriodResource } from "../lib/period.interface";
 import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { Badge } from "@/components/ui/badge";
+import { PERIOD } from "../lib/period.constans";
 
 export type PeriodColumns = ColumnDef<PeriodResource>;
 
@@ -45,6 +46,7 @@ export const periodColumns = ({
     cell: ({ row }) => {
       const router = useNavigate();
       const id = row.original.id;
+      const { ROUTE_UPDATE } = PERIOD;
 
       return (
         <div className="flex items-center gap-2">
@@ -53,7 +55,7 @@ export const periodColumns = ({
             variant="outline"
             size="icon"
             className="size-7"
-            onClick={() => router(`./periodos/actualizar/${id}`)}
+            onClick={() => router(`${ROUTE_UPDATE}/${id}`)}
           >
             <Pencil className="size-5" />
           </Button>

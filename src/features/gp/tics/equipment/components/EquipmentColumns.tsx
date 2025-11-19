@@ -5,8 +5,9 @@ import { EquipmentResource } from "../lib/equipment.interface";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, History, Pencil, Sparkles, XCircle } from "lucide-react";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
+import { EQUIPMENT } from "../lib/equipment.constants";
 
 export type EquipmentColumns = ColumnDef<EquipmentResource>;
 
@@ -78,6 +79,7 @@ export const equipmentColumns = ({
     cell: ({ row }) => {
       const router = useNavigate();
       const id = row.original.id;
+      const { ROUTE_UPDATE } = EQUIPMENT;
 
       return (
         <div className="flex items-center gap-2">
@@ -86,7 +88,7 @@ export const equipmentColumns = ({
             variant="outline"
             size="icon"
             className="size-7"
-            onClick={() => router(`./equipos/actualizar/${id}`)}
+            onClick={() => router(`${ROUTE_UPDATE}/${id}`)}
           >
             <Pencil className="size-5" />
           </Button>
