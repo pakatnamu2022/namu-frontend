@@ -88,6 +88,7 @@ export default function AddCustomerEstablishmentPage() {
         isSubmitting={isPending}
         mode="create"
         businessPartnerId={Number(id)}
+        isCustomer={true}
       />
     </FormWrapper>
   );

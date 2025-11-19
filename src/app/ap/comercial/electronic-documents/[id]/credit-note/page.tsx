@@ -16,7 +16,7 @@ import { CreditNoteForm } from "@/features/ap/facturacion/electronic-documents/c
 import { notFound } from "@/shared/hooks/useNotFound";
 
 export default function AddCreditNotePage() {
-  const { ROUTE } = ELECTRONIC_DOCUMENT;
+  const { ROUTE, ABSOLUTE_ROUTE } = ELECTRONIC_DOCUMENT;
   const params = useParams();
   const router = useNavigate();
   const { currentView, checkRouteExists, isLoadingModule } = useCurrentModule();
@@ -38,7 +38,7 @@ export default function AddCreditNotePage() {
       ),
     onSuccess: () => {
       successToast("Nota de crédito generada correctamente");
-      router("/ap/comercial/electronic-documents");
+      router(ABSOLUTE_ROUTE);
     },
     onError: (error: any) => {
       const msg =

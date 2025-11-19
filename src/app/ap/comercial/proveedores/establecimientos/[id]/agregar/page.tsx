@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams } from 'react-router-dom';
+import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
@@ -20,10 +20,10 @@ import { EstablishmentsForm } from "@/features/ap/comercial/establecimientos/com
 import { CUSTOMERS } from "@/features/ap/comercial/clientes/lib/customers.constants";
 import { findCustomersById } from "@/features/ap/comercial/clientes/lib/customers.actions";
 import { notFound } from "@/shared/hooks/useNotFound";
-
+import { TYPE_BUSINESS_PARTNERS } from "@/core/core.constants";
 
 export default function AddSupplierEstablishmentPage() {
-    const { id } = useParams();
+  const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();
   const { currentView, checkRouteExists } = useCurrentModule();
@@ -89,6 +89,7 @@ export default function AddSupplierEstablishmentPage() {
         isSubmitting={isPending}
         mode="create"
         businessPartnerId={Number(id)}
+        isCustomer={false}
       />
     </FormWrapper>
   );

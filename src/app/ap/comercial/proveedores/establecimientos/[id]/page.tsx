@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams } from 'react-router-dom';
+import { useParams } from "react-router-dom";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import { useEffect, useState } from "react";
 import PageSkeleton from "@/shared/components/PageSkeleton";
@@ -15,7 +15,6 @@ import {
 } from "@/core/core.function";
 import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
-import { ESTABLISHMENTS } from "@/features/ap/comercial/establecimientos/lib/establishments.constants";
 import { useQuery } from "@tanstack/react-query";
 import {
   deleteEstablishments,
@@ -23,28 +22,30 @@ import {
 } from "@/features/ap/comercial/establecimientos/lib/establishments.actions";
 import { establishmentsColumns } from "@/features/ap/comercial/establecimientos/components/EstablishmentsColumns";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import { Button } from "@/components/ui/button";
-import { ChevronLeft } from "lucide-react";
-import { useNavigate } from 'react-router-dom';
-import { CUSTOMERS } from "@/features/ap/comercial/clientes/lib/customers.constants";
 import { findCustomersById } from "@/features/ap/comercial/clientes/lib/customers.actions";
 import EstablishmentsActions from "@/features/ap/comercial/establecimientos/components/EstablishmentsActions";
 import EstablishmentsTable from "@/features/ap/comercial/establecimientos/components/EstablishmentsTable";
 import EstablishmentsOptions from "@/features/ap/comercial/establecimientos/components/EstablishmentsOptions";
 import { useEstablishments } from "@/features/ap/comercial/establecimientos/lib/establishments.hook";
 import { notFound } from "@/shared/hooks/useNotFound";
-
+import BackButton from "@/shared/components/BackButton";
+import { SUPPLIERS } from "@/features/ap/comercial/proveedores/lib/suppliers.constants";
+import { SUPPLIER_ESTABLISHMENTS } from "@/features/ap/comercial/establecimientos/lib/establishments.constants";
 
 export default function SupplierEstablishmentsListPage() {
-    const { id } = useParams();
-  const router = useNavigate();
+  const { id } = useParams();
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [deleteId, setDeleteId] = useState<number | null>(null);
-  const { MODEL } = ESTABLISHMENTS;
-  const permissions = useModulePermissions(CUSTOMERS.ROUTE);
+  const { MODEL, ABSOLUTE_ROUTE } = SUPPLIER_ESTABLISHMENTS;
+  const {
+    ABSOLUTE_ROUTE: SUPPLIERS_ABSOLUTE_ROUTE,
+    ROUTE,
+    QUERY_KEY,
+  } = SUPPLIERS;
+  const permissions = useModulePermissions(ROUTE);
 
   useEffect(() => {
     setPage(1);
@@ -52,7 +53,7 @@ export default function SupplierEstablishmentsListPage() {
 
   // Get customer data
   const { data: customer, isLoading: loadingCustomer } = useQuery({
-    queryKey: [CUSTOMERS.QUERY_KEY, id],
+    queryKey: [QUERY_KEY, id],
     queryFn: () => findCustomersById(Number(id)),
     refetchOnWindowFocus: false,
   });
@@ -92,27 +93,20 @@ export default function SupplierEstablishmentsListPage() {
   };
 
   if (isLoadingModule || loadingCustomer) return <PageSkeleton />;
-  if (!checkRouteExists(CUSTOMERS.ROUTE)) notFound();
+  if (!checkRouteExists(ROUTE)) notFound();
   if (!currentView || !customer) notFound();
-
-  const baseRoute = `/ap/comercial/clientes/establecimientos/${id}`;
 
   return (
     <div className="space-y-4">
       <HeaderTableWrapper>
-        <Button
-          variant="outline"
-          onClick={() => router("/ap/comercial/clientes")}
-        >
-          <ChevronLeft className="size-4" />
-        </Button>
+        <BackButton name="" size="icon" route={SUPPLIERS_ABSOLUTE_ROUTE} />
         <TitleComponent
           title={`Establecimientos - ${customer.full_name}`}
           subtitle={`Gestiona los establecimientos del cliente ${customer.full_name}`}
           icon={currentView.icon}
         />
         <EstablishmentsActions
-          baseRoute={baseRoute}
+          baseRoute={`${ABSOLUTE_ROUTE}/${id}`}
           permissions={permissions}
         />
       </HeaderTableWrapper>
@@ -123,7 +117,7 @@ export default function SupplierEstablishmentsListPage() {
           onToggleStatus: handleToggleStatus,
           onDelete: setDeleteId,
           permissions,
-          baseRoute: `${baseRoute}/actualizar`,
+          baseRoute: `${ABSOLUTE_ROUTE}/${id}`,
         })}
         data={data?.data || []}
       >

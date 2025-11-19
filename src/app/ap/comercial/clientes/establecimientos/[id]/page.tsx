@@ -23,7 +23,6 @@ import {
 } from "@/features/ap/comercial/establecimientos/lib/establishments.actions";
 import { establishmentsColumns } from "@/features/ap/comercial/establecimientos/components/EstablishmentsColumns";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import { useNavigate } from "react-router-dom";
 import { CUSTOMERS } from "@/features/ap/comercial/clientes/lib/customers.constants";
 import { findCustomersById } from "@/features/ap/comercial/clientes/lib/customers.actions";
 import EstablishmentsActions from "@/features/ap/comercial/establecimientos/components/EstablishmentsActions";
@@ -34,16 +33,19 @@ import { notFound } from "@/shared/hooks/useNotFound";
 import BackButton from "@/shared/components/BackButton";
 
 export default function CustomerEstablishmentsListPage() {
-  const { MODEL } = ESTABLISHMENTS;
-  const { ABSOLUTE_ROUTE, QUERY_KEY } = CUSTOMERS;
+  const { MODEL, ABSOLUTE_ROUTE } = ESTABLISHMENTS;
+  const {
+    ABSOLUTE_ROUTE: CUSTOMERS_ABSOLUTE_ROUTE,
+    ROUTE,
+    QUERY_KEY,
+  } = CUSTOMERS;
   const { id } = useParams();
-  const router = useNavigate();
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [deleteId, setDeleteId] = useState<number | null>(null);
-  const permissions = useModulePermissions(CUSTOMERS.ROUTE);
+  const permissions = useModulePermissions(ROUTE);
 
   useEffect(() => {
     setPage(1);
@@ -91,22 +93,24 @@ export default function CustomerEstablishmentsListPage() {
   };
 
   if (isLoadingModule || loadingCustomer) return <PageSkeleton />;
-  if (!checkRouteExists(CUSTOMERS.ROUTE)) notFound();
+  if (!checkRouteExists(ROUTE)) notFound();
   if (!currentView || !customer) notFound();
-
-  const baseRoute = `/ap/comercial/clientes/establecimientos/${id}`;
 
   return (
     <div className="space-y-4">
       <HeaderTableWrapper>
-        <BackButton size="icon" name="Clientes" route={ABSOLUTE_ROUTE} />
+        <BackButton
+          size="icon"
+          name="Clientes"
+          route={CUSTOMERS_ABSOLUTE_ROUTE}
+        />
         <TitleComponent
           title={`Establecimientos - ${customer.full_name}`}
           subtitle={`Gestiona los establecimientos del cliente ${customer.full_name}`}
           icon={currentView.icon}
         />
         <EstablishmentsActions
-          baseRoute={baseRoute}
+          baseRoute={`${ABSOLUTE_ROUTE}/${id}`}
           permissions={permissions}
         />
       </HeaderTableWrapper>
@@ -117,7 +121,7 @@ export default function CustomerEstablishmentsListPage() {
           onToggleStatus: handleToggleStatus,
           onDelete: setDeleteId,
           permissions,
-          baseRoute: `${baseRoute}/actualizar`,
+          baseRoute: `${ABSOLUTE_ROUTE}/${id}`,
         })}
         data={data?.data || []}
       >

@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams } from 'react-router-dom';
+import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
@@ -24,9 +24,8 @@ import { EstablishmentsForm } from "@/features/ap/comercial/establecimientos/com
 import { CUSTOMERS } from "@/features/ap/comercial/clientes/lib/customers.constants";
 import { notFound } from "@/shared/hooks/useNotFound";
 
-
 export default function UpdateSupplierEstablishmentPage() {
-    const { id, establishmentId } = useParams();
+  const { id, establishmentId } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();
   const { currentView, checkRouteExists } = useCurrentModule();
@@ -97,6 +96,7 @@ export default function UpdateSupplierEstablishmentPage() {
         isSubmitting={isPending}
         mode="update"
         businessPartnerId={establishment.business_partner_id}
+        isCustomer={false}
       />
     </FormWrapper>
   );
