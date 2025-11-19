@@ -48,7 +48,6 @@ import EvaluationPersonCompetenceTableWithColumns from "@/features/gp/gestionhum
 import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { EVALUATION_OBJECTIVE } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluaciones/lib/evaluation.constans";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import DevelopmentPlanSheet from "@/app/gp/gestion-humana/evaluaciones-de-desempeno/detalle-plan-desarrollo/components/DevelopmentPlanSheet";
 
 const { QUERY_KEY, MODEL } = EVALUATION_PERSON;
 
@@ -64,7 +63,6 @@ export default function HistorialPage() {
     number | undefined
   >(undefined);
   const [saving, setSaving] = useState(false);
-  const [developmentPlanOpen, setDevelopmentPlanOpen] = useState(false);
 
   const {
     data: evaluationPersonResult,
@@ -358,7 +356,7 @@ export default function HistorialPage() {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => setDevelopmentPlanOpen(true)}
+                    onClick={() => router(`/perfil/equipo/${personId}/plan-desarrollo`)}
                     className="gap-2 flex-1 sm:flex-none"
                   >
                     <FileText className="size-4" />
@@ -529,17 +527,6 @@ export default function HistorialPage() {
           </div>
         </CardContent>
       </Card>
-
-      {/* Sheet de Plan de Desarrollo */}
-      {evaluationPersonResult && selectedEvaluationId && (
-        <DevelopmentPlanSheet
-          open={developmentPlanOpen}
-          onClose={() => setDevelopmentPlanOpen(false)}
-          evaluationId={selectedEvaluationId}
-          workerId={personId}
-          bossId={evaluationPersonResult.person.id}
-        />
-      )}
     </div>
   );
 }

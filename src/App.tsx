@@ -158,6 +158,12 @@ const PerfilEquipoEvaluarPage = lazy(
 const PerfilEquipoHistorialPage = lazy(
   () => import("./app/perfil/equipo/[id]/historial/page")
 );
+const PerfilEquipoPlanDesarrolloPage = lazy(
+  () => import("./app/perfil/equipo/[id]/plan-desarrollo/page")
+);
+const PerfilEquipoPlanDesarrolloCrearPage = lazy(
+  () => import("./app/perfil/equipo/[id]/plan-desarrollo/crear/page")
+);
 const PerfilNamuPerformancePage = lazy(
   () => import("./app/perfil/namu-performance/page")
 );
@@ -702,6 +708,14 @@ function App() {
               <Route
                 path="equipo/:id/historial"
                 element={<PerfilEquipoHistorialPage />}
+              />
+              <Route
+                path="equipo/:id/plan-desarrollo"
+                element={<PerfilEquipoPlanDesarrolloPage />}
+              />
+              <Route
+                path="equipo/:id/plan-desarrollo/crear"
+                element={<PerfilEquipoPlanDesarrolloCrearPage />}
               />
               <Route
                 path="namu-performance"
