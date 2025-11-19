@@ -17,7 +17,7 @@ import {
   Database,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { VEHICLE_DELIVERY } from "../lib/vehicleDelivery.constants";
 import {
   Popover,
@@ -264,7 +264,7 @@ export const vehicleDeliveryColumns = ({
         status_dynamic,
       } = row.original;
       const router = useNavigate();
-      const { ROUTE } = VEHICLE_DELIVERY;
+      const { ROUTE_UPDATE } = VEHICLE_DELIVERY;
 
       // Verificar si fue enviado y aceptado por SUNAT
       const isAcceptedBySunat = sent_at && aceptada_por_sunat === true;
@@ -294,7 +294,7 @@ export const vehicleDeliveryColumns = ({
               size="icon"
               className="size-7"
               tooltip="Guía de Remisión"
-              onClick={() => router(`${ROUTE}/guia-remision/${id}`)}
+              onClick={() => router(`${ROUTE_UPDATE}/${id}`)}
             >
               <FileText className="size-4" />
             </Button>

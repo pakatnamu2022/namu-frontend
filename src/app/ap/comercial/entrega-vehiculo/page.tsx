@@ -32,9 +32,9 @@ import { VehicleDeliveryDetailsSheet } from "@/features/ap/comercial/entrega-veh
 import { VehiclesDeliveryResource } from "@/features/ap/comercial/entrega-vehiculo/lib/vehicleDelivery.interface";
 import { notFound } from "@/shared/hooks/useNotFound";
 
-
 export default function VehicleDeliveryPage() {
-    const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
+  const { MODEL, ROUTE } = VEHICLE_DELIVERY;
+  const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
@@ -43,7 +43,6 @@ export default function VehicleDeliveryPage() {
   const [sendToDynamicId, setSendToDynamicId] = useState<number | null>(null);
   const [selectedVehicle, setSelectedVehicle] =
     useState<VehiclesDeliveryResource | null>(null);
-  const { MODEL, ROUTE } = VEHICLE_DELIVERY;
   const permissions = useModulePermissions(ROUTE);
   const sendToNubefactMutation = useSendVehicleDeliveryToNubefact();
   const queryFromNubefactMutation = useQueryVehicleDeliveryFromNubefact();

@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { Link } from 'react-router-dom'
+import { Link } from "react-router-dom";
 import ActionsWrapper from "@/shared/components/ActionsWrapper";
 import { VEHICLE_DELIVERY } from "../lib/vehicleDelivery.constants";
 
@@ -21,7 +21,7 @@ export default function VehicleDeliveryActions({ permissions }: Props) {
 
   return (
     <ActionsWrapper>
-      <Link to={`/ap/comercial/${ROUTE_ADD}`}>
+      <Link to={ROUTE_ADD}>
         <Button size="sm" variant="outline" className="ml-auto">
           <Plus className="size-4 mr-2" /> Programar Entrega
         </Button>

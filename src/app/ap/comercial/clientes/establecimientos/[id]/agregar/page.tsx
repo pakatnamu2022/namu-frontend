@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams } from 'react-router-dom';
+import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
@@ -21,9 +21,8 @@ import { CUSTOMERS } from "@/features/ap/comercial/clientes/lib/customers.consta
 import { findCustomersById } from "@/features/ap/comercial/clientes/lib/customers.actions";
 import { notFound } from "@/shared/hooks/useNotFound";
 
-
 export default function AddCustomerEstablishmentPage() {
-    const { id } = useParams();
+  const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();
   const { currentView, checkRouteExists } = useCurrentModule();

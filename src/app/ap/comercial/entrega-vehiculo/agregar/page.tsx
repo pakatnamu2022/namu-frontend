@@ -1,6 +1,6 @@
 "use client";
 
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import { useMutation } from "@tanstack/react-query";
 import {
@@ -18,17 +18,16 @@ import { VehicleDeliveryForm } from "@/features/ap/comercial/entrega-vehiculo/co
 import { format } from "date-fns";
 import { notFound } from "@/shared/hooks/useNotFound";
 
-
 export default function AddVehicleDeliveryPage() {
   const router = useNavigate();
-    const { currentView, checkRouteExists } = useCurrentModule();
-  const { ROUTE, MODEL } = VEHICLE_DELIVERY;
+  const { currentView, checkRouteExists } = useCurrentModule();
+  const { ROUTE, MODEL, ABSOLUTE_ROUTE } = VEHICLE_DELIVERY;
 
   const { mutate, isPending } = useMutation({
     mutationFn: storeVehicleDelivery,
     onSuccess: () => {
       successToast(SUCCESS_MESSAGE(MODEL, "create"));
-      router(`/ap/comercial/${ROUTE}`);
+      router(ABSOLUTE_ROUTE);
     },
     onError: (error: any) => {
       const msg = error?.response?.data?.message || "";
@@ -69,7 +68,7 @@ export default function AddVehicleDeliveryPage() {
         onSubmit={handleSubmit}
         isSubmitting={isPending}
         mode="create"
-        onCancel={() => router(`/ap/comercial/${ROUTE}`)}
+        onCancel={() => router(ABSOLUTE_ROUTE)}
       />
     </FormWrapper>
   );

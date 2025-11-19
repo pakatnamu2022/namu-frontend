@@ -301,7 +301,7 @@ export const EstablishmentsForm = ({
 
         {/* Buttons */}
         <div className="flex gap-4 w-full justify-end">
-          <Link to={ABSOLUTE_ROUTE}>
+          <Link to={`${ABSOLUTE_ROUTE}/${businessPartnerId}`}>
             <Button type="button" variant="outline">
               Cancelar
             </Button>

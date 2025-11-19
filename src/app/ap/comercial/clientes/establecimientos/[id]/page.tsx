@@ -23,8 +23,6 @@ import {
 } from "@/features/ap/comercial/establecimientos/lib/establishments.actions";
 import { establishmentsColumns } from "@/features/ap/comercial/establecimientos/components/EstablishmentsColumns";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import { Button } from "@/components/ui/button";
-import { ChevronLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { CUSTOMERS } from "@/features/ap/comercial/clientes/lib/customers.constants";
 import { findCustomersById } from "@/features/ap/comercial/clientes/lib/customers.actions";
@@ -33,8 +31,11 @@ import EstablishmentsTable from "@/features/ap/comercial/establecimientos/compon
 import EstablishmentsOptions from "@/features/ap/comercial/establecimientos/components/EstablishmentsOptions";
 import { useEstablishments } from "@/features/ap/comercial/establecimientos/lib/establishments.hook";
 import { notFound } from "@/shared/hooks/useNotFound";
+import BackButton from "@/shared/components/BackButton";
 
 export default function CustomerEstablishmentsListPage() {
+  const { MODEL } = ESTABLISHMENTS;
+  const { ABSOLUTE_ROUTE, QUERY_KEY } = CUSTOMERS;
   const { id } = useParams();
   const router = useNavigate();
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -42,7 +43,6 @@ export default function CustomerEstablishmentsListPage() {
   const [search, setSearch] = useState("");
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [deleteId, setDeleteId] = useState<number | null>(null);
-  const { MODEL } = ESTABLISHMENTS;
   const permissions = useModulePermissions(CUSTOMERS.ROUTE);
 
   useEffect(() => {
@@ -51,7 +51,7 @@ export default function CustomerEstablishmentsListPage() {
 
   // Get customer data
   const { data: customer, isLoading: loadingCustomer } = useQuery({
-    queryKey: [CUSTOMERS.QUERY_KEY, id],
+    queryKey: [QUERY_KEY, id],
     queryFn: () => findCustomersById(Number(id)),
     refetchOnWindowFocus: false,
   });
@@ -99,12 +99,7 @@ export default function CustomerEstablishmentsListPage() {
   return (
     <div className="space-y-4">
       <HeaderTableWrapper>
-        <Button
-          variant="outline"
-          onClick={() => router("/ap/comercial/clientes")}
-        >
-          <ChevronLeft className="size-4" />
-        </Button>
+        <BackButton size="icon" name="Clientes" route={ABSOLUTE_ROUTE} />
         <TitleComponent
           title={`Establecimientos - ${customer.full_name}`}
           subtitle={`Gestiona los establecimientos del cliente ${customer.full_name}`}

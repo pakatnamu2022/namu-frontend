@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams } from 'react-router-dom';
+import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import { useMutation } from "@tanstack/react-query";
@@ -15,9 +15,8 @@ import { CreditNoteSchema } from "@/features/ap/facturacion/electronic-documents
 import { CreditNoteForm } from "@/features/ap/facturacion/electronic-documents/components/forms/CreditNoteForm";
 import { notFound } from "@/shared/hooks/useNotFound";
 
-
 export default function AddCreditNotePage() {
-    const { ROUTE } = ELECTRONIC_DOCUMENT;
+  const { ROUTE } = ELECTRONIC_DOCUMENT;
   const params = useParams();
   const router = useNavigate();
   const { currentView, checkRouteExists, isLoadingModule } = useCurrentModule();
