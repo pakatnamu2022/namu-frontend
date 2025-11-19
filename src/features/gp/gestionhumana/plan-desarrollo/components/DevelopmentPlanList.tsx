@@ -317,7 +317,7 @@ export default function DevelopmentPlanList({
                           onChange={(e) =>
                             handleCommentChange(plan.id, e.target.value)
                           }
-                          className="min-h-[80px] resize-none"
+                          className="min-h-20 resize-none"
                         />
                         <div className="flex justify-end">
                           <Button
