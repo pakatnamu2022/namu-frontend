@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams } from 'react-router-dom';
+import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAllSedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
@@ -18,10 +18,11 @@ import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import FormWrapper from "@/shared/components/FormWrapper";
 import { notFound } from "@/shared/hooks/useNotFound";
-
+import { VIEW } from "@/features/gp/gestionsistema/vistas/lib/view.constants";
 
 export default function UpdateViewPage() {
-    const { id } = useParams();
+  const { ABSOLUTE_ROUTE } = VIEW;
+  const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();
 
@@ -44,7 +45,7 @@ export default function UpdateViewPage() {
       await queryClient.invalidateQueries({
         queryKey: ["view", id],
       });
-      router("../");
+      router(ABSOLUTE_ROUTE);
     },
     onError: () => {
       errorToast("No se pudo actualizar el equipo");

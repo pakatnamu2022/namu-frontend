@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams } from 'react-router-dom';
+import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { errorToast, successToast } from "@/core/core.function";
@@ -17,10 +17,11 @@ import { format, parse } from "date-fns";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import FormWrapper from "@/shared/components/FormWrapper";
 import { notFound } from "@/shared/hooks/useNotFound";
-
+import { PERIOD } from "@/features/gp/gestionhumana/evaluaciondesempeño/periodos/lib/period.constans";
 
 export default function UpdatePeriodPage() {
-    const { id } = useParams();
+  const { ABSOLUTE_ROUTE } = PERIOD;
+  const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();
   const { currentView, checkRouteExists } = useCurrentModule();
@@ -38,7 +39,7 @@ export default function UpdatePeriodPage() {
       await queryClient.invalidateQueries({
         queryKey: ["period", id],
       });
-      router("../");
+      router(ABSOLUTE_ROUTE);
     },
     onError: (error: any) => {
       errorToast(

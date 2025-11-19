@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams } from 'react-router-dom';
+import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { EquipmentForm } from "@/features/gp/tics/equipment/components/EquipmentForm";
@@ -18,10 +18,11 @@ import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import FormWrapper from "@/shared/components/FormWrapper";
 import { notFound } from "@/shared/hooks/useNotFound";
-
+import { EQUIPMENT } from "@/features/gp/tics/equipment/lib/equipment.constants";
 
 export default function UpdateEquipmentPage() {
-    const { id } = useParams();
+  const { ABSOLUTE_ROUTE } = EQUIPMENT;
+  const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();
   const { currentView, checkRouteExists } = useCurrentModule();
@@ -43,7 +44,7 @@ export default function UpdateEquipmentPage() {
       await queryClient.invalidateQueries({
         queryKey: ["equipment", id],
       });
-      router("../");
+      router(ABSOLUTE_ROUTE);
     },
     onError: () => {
       errorToast("No se pudo actualizar el equipo");
@@ -113,7 +114,6 @@ export default function UpdateEquipmentPage() {
         title={currentView.descripcion}
         mode="edit"
         icon={currentView.icon}
-       
       />
       <EquipmentForm
         defaultValues={mapEquipmentToForm(equipment)}

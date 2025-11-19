@@ -46,7 +46,7 @@ export default function AddShipmentsReceptionsPage() {
     <FormWrapper>
       <div className="space-y-4">
         <TitleFormComponent
-          title={`Crear ${MODEL.name}`}
+          title={MODEL.name}
           icon={currentView?.icon || "FileText"}
         />
         <ShipmentsReceptionsForm

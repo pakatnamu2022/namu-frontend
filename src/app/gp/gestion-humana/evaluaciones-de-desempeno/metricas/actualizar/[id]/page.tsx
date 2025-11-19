@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams } from 'react-router-dom';
+import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { errorToast, successToast } from "@/core/core.function";
@@ -16,10 +16,11 @@ import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import FormWrapper from "@/shared/components/FormWrapper";
 import { notFound } from "@/shared/hooks/useNotFound";
-
+import { METRIC } from "@/features/profile/team/lib/team.constant";
 
 export default function UpdateMetricPage() {
-    const { id } = useParams();
+  const { ABSOLUTE_ROUTE } = METRIC;
+  const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();
   const { currentView, checkRouteExists } = useCurrentModule();
@@ -37,7 +38,7 @@ export default function UpdateMetricPage() {
       await queryClient.invalidateQueries({
         queryKey: ["metric", id],
       });
-      router("../");
+      router(ABSOLUTE_ROUTE);
     },
     onError: () => {
       errorToast("No se pudo actualizar la métrica");

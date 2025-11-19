@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams } from 'react-router-dom';
+import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
@@ -23,13 +23,12 @@ import { StoreVisitsResource } from "@/features/ap/comercial/visitas-tienda/lib/
 import { StoreVisitsForm } from "@/features/ap/comercial/visitas-tienda/components/StoreVisitsForm";
 import { notFound } from "@/shared/hooks/useNotFound";
 
-
 export default function UpdateStoreVisitsPage() {
-    const { id } = useParams();
+  const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();
   const { currentView, checkRouteExists } = useCurrentModule();
-  const { ROUTE, QUERY_KEY, MODEL } = STORE_VISITS;
+  const { ROUTE, QUERY_KEY, MODEL, ABSOLUTE_ROUTE } = STORE_VISITS;
 
   const { data: StoreVisits, isLoading: loadingStoreVisits } = useQuery({
     queryKey: [QUERY_KEY, id],
@@ -45,7 +44,7 @@ export default function UpdateStoreVisitsPage() {
       await queryClient.invalidateQueries({
         queryKey: [QUERY_KEY, id],
       });
-      router("../");
+      router(ABSOLUTE_ROUTE);
     },
     onError: (error: any) => {
       const msg = error?.response?.data?.message || "";

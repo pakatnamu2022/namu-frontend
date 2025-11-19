@@ -1,12 +1,26 @@
+import { ModelComplete } from "@/core/core.interface";
 import { RoleResource } from "./role.interface";
 
-export const CREATE_SUCCESS = "Rol creado correctamente";
-export const CREATE_ERROR = "Hubo un error al crear rol";
-export const UPDATE_SUCCESS = "Rol actualizado correctamente";
-export const UPDATE_ERROR = "Hubo un error al actualizar rol";
-export const EMPTY_ROLE: RoleResource = {
-  id: 0,
-  nombre: "",
-  descripcion: "",
-  users: 0,
+const ROUTE = "roles";
+const ABSOLUTE_ROUTE = `/gp/gestionsistema/${ROUTE}`;
+
+export const ROLE: ModelComplete<RoleResource> = {
+  MODEL: {
+    name: "roles",
+    plural: "roles",
+    gender: false,
+  },
+  ROUTE,
+  ABSOLUTE_ROUTE,
+  ENDPOINT: "/gp/gestionsistema/roles",
+  ICON: "ShieldCheck",
+  QUERY_KEY: "roles",
+  ROUTE_ADD: `${ABSOLUTE_ROUTE}/agregar`,
+  ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/actualizar`,
+  EMPTY: {
+    id: 0,
+    nombre: "",
+    descripcion: "",
+    users: 0,
+  },
 };

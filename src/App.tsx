@@ -763,7 +763,7 @@ function App() {
 
               {/* Electronic Documents */}
               {RouterCrud(
-                "electronic-documents",
+                "documentos-electronicos",
                 <ElectronicDocumentsPage />,
                 <AddElectronicDocumentPage />,
                 <UpdateElectronicDocumentPage />
@@ -771,21 +771,21 @@ function App() {
 
               {/* Credit Note */}
               <Route
-                path="electronic-documents/:id/credit-note"
+                path="documentos-electronicos/:id/credit-note"
                 element={<AddCreditNotePage />}
               />
               <Route
-                path="electronic-documents/:id/credit-note/actualizar/:credit"
+                path="documentos-electronicos/:id/credit-note/actualizar/:credit"
                 element={<UpdateCreditNotePage />}
               />
 
               {/* Debit Note */}
               <Route
-                path="electronic-documents/:id/debit-note"
+                path="documentos-electronicos/:id/debit-note"
                 element={<AddDebitNotePage />}
               />
               <Route
-                path="electronic-documents/:id/debit-note/actualizar/:debit"
+                path="documentos-electronicos/:id/debit-note/actualizar/:debit"
                 element={<UpdateDebitNotePage />}
               />
 

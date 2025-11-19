@@ -184,7 +184,7 @@ export const viewColumns = ({
       // eslint-disable-next-line react-hooks/rules-of-hooks
       const router = useNavigate();
       const id = row.original.id;
-      const { ROUTE_UPDATE } = VIEW;
+      const { ROUTE_UPDATE, ABSOLUTE_ROUTE } = VIEW;
 
       return (
         <div className="flex items-center gap-2">
@@ -194,7 +194,7 @@ export const viewColumns = ({
             variant="outline"
             size="icon"
             className="size-7"
-            onClick={() => router(`${ROUTE_UPDATE}/${id}`)}
+            onClick={() => router(`${ABSOLUTE_ROUTE}/permisos/${id}`)}
           >
             <ShieldCheck className="size-5" />
           </Button>
@@ -204,7 +204,7 @@ export const viewColumns = ({
             variant="outline"
             size="icon"
             className="size-7"
-            onClick={() => router(`./vistas/actualizar/${id}`)}
+            onClick={() => router(`${ROUTE_UPDATE}/${id}`)}
           >
             <Pencil className="size-5" />
           </Button>

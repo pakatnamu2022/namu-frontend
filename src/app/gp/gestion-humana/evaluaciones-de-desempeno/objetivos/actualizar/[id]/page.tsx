@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams } from 'react-router-dom';
+import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { errorToast, successToast } from "@/core/core.function";
@@ -15,10 +15,11 @@ import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import FormWrapper from "@/shared/components/FormWrapper";
 import { notFound } from "@/shared/hooks/useNotFound";
-
+import { OBJECTIVE } from "@/features/gp/gestionhumana/evaluaciondesempeño/objetivos/lib/objective.constants";
 
 export default function UpdateObjectivePage() {
-    const { id } = useParams();
+  const { ABSOLUTE_ROUTE } = OBJECTIVE;
+  const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();
   const { currentView, checkRouteExists } = useCurrentModule();
@@ -36,7 +37,7 @@ export default function UpdateObjectivePage() {
       await queryClient.invalidateQueries({
         queryKey: ["objective", id],
       });
-      router("../");
+      router(ABSOLUTE_ROUTE);
     },
     onError: (error: any) => {
       errorToast(

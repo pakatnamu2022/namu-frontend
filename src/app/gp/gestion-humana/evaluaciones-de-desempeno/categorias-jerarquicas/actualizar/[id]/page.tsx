@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams } from 'react-router-dom';
+import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { errorToast, successToast } from "@/core/core.function";
@@ -16,10 +16,11 @@ import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import FormWrapper from "@/shared/components/FormWrapper";
 import { notFound } from "@/shared/hooks/useNotFound";
-
+import { HIERARCHICAL_CATEGORY } from "@/features/gp/gestionhumana/evaluaciondesempeño/categorias-jerarquicas/lib/hierarchicalCategory.constants";
 
 export default function UpdateHierarchicalCategoryPage() {
-    const { id } = useParams();
+  const { ABSOLUTE_ROUTE } = HIERARCHICAL_CATEGORY;
+  const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();
   const { currentView, checkRouteExists } = useCurrentModule();
@@ -38,7 +39,7 @@ export default function UpdateHierarchicalCategoryPage() {
       await queryClient.invalidateQueries({
         queryKey: ["hierarchicalCategory", id],
       });
-      router("../");
+      router(ABSOLUTE_ROUTE);
     },
     onError: (error: any) => {
       errorToast(

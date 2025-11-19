@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams } from 'react-router-dom';
+import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { errorToast, successToast } from "@/core/core.function";
@@ -19,10 +19,11 @@ import FormWrapper from "@/shared/components/FormWrapper";
 import { useAllPeriods } from "@/features/gp/gestionhumana/evaluaciondesempeño/periodos/lib/period.hook";
 import { useAllParameters } from "@/features/gp/gestionhumana/evaluaciondesempeño/parametros/lib/parameter.hook";
 import { notFound } from "@/shared/hooks/useNotFound";
-
+import { CYCLE } from "@/features/gp/gestionhumana/evaluaciondesempeño/ciclos/lib/cycle.constants";
 
 export default function UpdateCyclePage() {
-    const { id } = useParams();
+  const { ABSOLUTE_ROUTE } = CYCLE;
+  const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();
   const { currentView, checkRouteExists } = useCurrentModule();
@@ -40,7 +41,7 @@ export default function UpdateCyclePage() {
       await queryClient.invalidateQueries({
         queryKey: ["cycle", id],
       });
-      router("../");
+      router(ABSOLUTE_ROUTE);
     },
     onError: (error: any) => {
       errorToast(
