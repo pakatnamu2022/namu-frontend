@@ -5,12 +5,17 @@ import { Button } from "@/components/ui/button";
 import { ChevronLeft, Plus } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import DevelopmentPlanList from "../../../../../features/gp/gestionhumana/plan-desarrollo/components/DevelopmentPlanList";
+import { useAuthStore } from "@/features/auth/lib/auth.store";
 
 export default function PlanDesarrolloPage() {
   const { id } = useParams();
   const router = useNavigate();
   const [searchParams] = useSearchParams();
   const personId = Number(id);
+
+  // Obtener usuario autenticado para verificar si es líder
+  const user = useAuthStore((state) => state.user);
+  const isLeader = user?.subordinates > 0;
 
   const handleBack = () => {
     const page = searchParams.get("page") || "1";
@@ -38,15 +43,17 @@ export default function PlanDesarrolloPage() {
             <div className="flex items-center justify-between">
               <CardTitle className="text-2xl">Planes de Desarrollo</CardTitle>
               <div className="flex gap-2">
-                <Button
-                  onClick={() =>
-                    router(`/perfil/equipo/${personId}/plan-desarrollo/crear`)
-                  }
-                  className="gap-2"
-                >
-                  <Plus className="w-4 h-4" />
-                  Crear Plan
-                </Button>
+                {isLeader && (
+                  <Button
+                    onClick={() =>
+                      router(`/perfil/equipo/${personId}/plan-desarrollo/crear`)
+                    }
+                    className="gap-2"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Crear Plan
+                  </Button>
+                )}
                 <Button
                   variant="outline"
                   size="sm"

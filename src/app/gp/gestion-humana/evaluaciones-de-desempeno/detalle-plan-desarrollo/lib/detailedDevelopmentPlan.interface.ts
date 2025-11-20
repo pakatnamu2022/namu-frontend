@@ -6,6 +6,13 @@ export interface DetailedDevelopmentPlanResponse {
   meta: Meta;
 }
 
+export interface DetailedDevelopmentPlanTaskResource {
+  id: number;
+  description: string;
+  end_date: string;
+  fulfilled: boolean;
+}
+
 export interface DetailedDevelopmentPlanResource {
   id: number;
   description: string;
@@ -16,6 +23,10 @@ export interface DetailedDevelopmentPlanResource {
   boss_name: string | null;
   gh_evaluation_id: number;
   evaluation_name: string | null;
+  title: string | null;
+  start_date: string | null;
+  end_date: string | null;
+  tasks: DetailedDevelopmentPlanTaskResource[];
 }
 
 export interface StoreDetailedDevelopmentPlanRequest {

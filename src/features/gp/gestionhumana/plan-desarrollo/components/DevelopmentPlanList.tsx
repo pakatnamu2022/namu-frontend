@@ -41,6 +41,7 @@ import { DEVELOPMENT_PLAN } from "../lib/developmentPlan.constants";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
 import type { DevelopmentPlanResource } from "../lib/developmentPlan.interface";
+import { useAuthStore } from "@/features/auth/lib/auth.store";
 
 interface DevelopmentPlanListProps {
   personId: number;
@@ -52,6 +53,10 @@ export default function DevelopmentPlanList({
   const [expandedPlans, setExpandedPlans] = useState<Set<number>>(new Set());
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [comments, setComments] = useState<Record<number, string>>({});
+
+  // Obtener usuario autenticado para verificar si es líder
+  const user = useAuthStore((state) => state.user);
+  const isLeader = user?.subordinates > 0;
 
   const { data, isLoading, refetch } = useDevelopmentPlans({
     worker_id: personId,
@@ -205,17 +210,19 @@ export default function DevelopmentPlanList({
                       {plan.description}
                     </CardDescription>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setDeleteId(plan.id);
-                    }}
-                    title="Eliminar plan"
-                  >
-                    <Trash2 className="w-4 h-4 text-destructive" />
-                  </Button>
+                  {isLeader && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setDeleteId(plan.id);
+                      }}
+                      title="Eliminar plan"
+                    >
+                      <Trash2 className="w-4 h-4 text-destructive" />
+                    </Button>
+                  )}
                 </div>
               </CardHeader>
 
@@ -274,6 +281,7 @@ export default function DevelopmentPlanList({
                             onCheckedChange={() =>
                               toggleTaskCompletion(plan.id, task.id)
                             }
+                            disabled={!isLeader}
                             className="mt-0.5"
                           />
                           <div className="flex-1 space-y-1">
@@ -310,27 +318,29 @@ export default function DevelopmentPlanList({
                         </div>
                       )}
 
-                      <div className="space-y-2">
-                        <Textarea
-                          placeholder="Escribe un comentario sobre este plan..."
-                          value={comments[plan.id] || ""}
-                          onChange={(e) =>
-                            handleCommentChange(plan.id, e.target.value)
-                          }
-                          className="min-h-20 resize-none"
-                        />
-                        <div className="flex justify-end">
-                          <Button
-                            size="sm"
-                            onClick={() => handleSubmitComment(plan.id)}
-                            disabled={!comments[plan.id]?.trim()}
-                            className="gap-2"
-                          >
-                            <Send className="w-4 h-4" />
-                            Enviar
-                          </Button>
+                      {isLeader && (
+                        <div className="space-y-2">
+                          <Textarea
+                            placeholder="Escribe un comentario sobre este plan..."
+                            value={comments[plan.id] || ""}
+                            onChange={(e) =>
+                              handleCommentChange(plan.id, e.target.value)
+                            }
+                            className="min-h-20 resize-none"
+                          />
+                          <div className="flex justify-end">
+                            <Button
+                              size="sm"
+                              onClick={() => handleSubmitComment(plan.id)}
+                              disabled={!comments[plan.id]?.trim()}
+                              className="gap-2"
+                            >
+                              <Send className="w-4 h-4" />
+                              Enviar
+                            </Button>
+                          </div>
                         </div>
-                      </div>
+                      )}
                     </div>
                   </div>
                 </CollapsibleContent>

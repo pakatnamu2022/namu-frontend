@@ -2,7 +2,8 @@ import { ModelComplete } from "@/core/core.interface";
 import { ReceptionResource } from "./receptions-products.interface";
 
 const ROUTE = "recepcion";
-const ABSOLUTE_ROUTE = "/ap/post-venta/gestion-de-compras/orden-compra-producto";
+const ABSOLUTE_ROUTE =
+  "/ap/post-venta/gestion-de-compras/orden-compra-producto";
 
 export const RECEPTION: ModelComplete<ReceptionResource> = {
   MODEL: {
@@ -11,8 +12,8 @@ export const RECEPTION: ModelComplete<ReceptionResource> = {
     gender: false,
   },
   ICON: "PackageCheck",
-  ENDPOINT: "/ap/commercial/productReception",
-  QUERY_KEY: "product-receptions",
+  ENDPOINT: "/ap/postVenta/purchaseReceptions",
+  QUERY_KEY: "purchase-receptions",
   ROUTE,
   ABSOLUTE_ROUTE,
   ROUTE_ADD: `${ABSOLUTE_ROUTE}/${ROUTE}/agregar`,

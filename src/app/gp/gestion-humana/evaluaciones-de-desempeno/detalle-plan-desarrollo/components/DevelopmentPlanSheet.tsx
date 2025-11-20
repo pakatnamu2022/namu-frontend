@@ -4,8 +4,24 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent } from "@/components/ui/card";
-import { FileText, Plus, Trash2, Loader2 } from "lucide-react";
+import { Card, CardContent, CardTitle } from "@/components/ui/card";
+import {
+  FileText,
+  Plus,
+  Trash2,
+  Loader2,
+  ChevronDown,
+  ChevronUp,
+  Calendar,
+  CheckCircle2,
+} from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import {
   useAllDetailedDevelopmentPlans,
   useStoreDetailedDevelopmentPlan,
@@ -35,6 +51,7 @@ export default function DevelopmentPlanSheet({
 }: DevelopmentPlanSheetProps) {
   const [showForm, setShowForm] = useState(false);
   const [description, setDescription] = useState("");
+  const [expandedPlans, setExpandedPlans] = useState<Set<number>>(new Set());
 
   // Obtener usuario autenticado para verificar si es jefe
   const user = useAuthStore((state) => state.user);
@@ -99,6 +116,22 @@ export default function DevelopmentPlanSheet({
           "Error al eliminar el plan de desarrollo"
       );
     }
+  };
+
+  const togglePlan = (planId: number) => {
+    const newExpanded = new Set(expandedPlans);
+    if (newExpanded.has(planId)) {
+      newExpanded.delete(planId);
+    } else {
+      newExpanded.add(planId);
+    }
+    setExpandedPlans(newExpanded);
+  };
+
+  const calculateProgress = (tasks: any[]) => {
+    if (!tasks || tasks.length === 0) return 0;
+    const completedTasks = tasks.filter((task) => task.fulfilled).length;
+    return (completedTasks / tasks.length) * 100;
   };
 
   const isSaving =
@@ -191,14 +224,108 @@ export default function DevelopmentPlanSheet({
             </Card>
           ) : (
             <div className="space-y-3">
-              {plans.map((plan) => (
-                <Card key={plan.id}>
-                  <CardContent className="p-4">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1 space-y-2">
-                        <p className="text-sm">{plan.description}</p>
+              {plans.map((plan) => {
+                const progress = calculateProgress(plan.tasks || []);
+                const isExpanded = expandedPlans.has(plan.id);
+                const completedTasks = (plan.tasks || []).filter(
+                  (t) => t.fulfilled
+                ).length;
+
+                return (
+                  <Collapsible
+                    key={plan.id}
+                    open={isExpanded}
+                    onOpenChange={() => togglePlan(plan.id)}
+                  >
+                    <Card>
+                      <CardContent className="p-4 space-y-3">
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="flex-1 space-y-2">
+                            {plan.title && (
+                              <CardTitle className="text-base">
+                                {plan.title}
+                              </CardTitle>
+                            )}
+                            <p className="text-sm">{plan.description}</p>
+                          </div>
+                          {isJefe && (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => handleDelete(plan.id)}
+                              disabled={isSaving}
+                              className="h-8 w-8 p-0 shrink-0"
+                            >
+                              <Trash2 className="w-4 h-4 text-destructive" />
+                            </Button>
+                          )}
+                        </div>
+
+                        {/* Barra de progreso */}
+                        {plan.tasks && plan.tasks.length > 0 && (
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between text-sm">
+                              <div className="flex items-center gap-2 text-muted-foreground">
+                                <CheckCircle2 className="w-4 h-4" />
+                                <span>
+                                  {completedTasks} de {plan.tasks.length} tareas
+                                  completadas
+                                </span>
+                              </div>
+                              <span className="text-muted-foreground">
+                                {progress.toFixed(0)}%
+                              </span>
+                            </div>
+                            <Progress value={progress} className="h-2" />
+                          </div>
+                        )}
+
+                        {/* Tareas expandibles */}
+                        {plan.tasks && plan.tasks.length > 0 && (
+                          <CollapsibleContent>
+                            <div className="pt-3 mt-3 border-t space-y-2">
+                              <h4 className="text-sm font-semibold">
+                                Tareas ({plan.tasks.length})
+                              </h4>
+                              <div className="space-y-2">
+                                {plan.tasks.map((task) => (
+                                  <div
+                                    key={task.id}
+                                    className="flex items-start gap-3 p-3 rounded-lg border bg-muted/30"
+                                  >
+                                    <Checkbox
+                                      checked={task.fulfilled}
+                                      disabled={true}
+                                      className="mt-0.5"
+                                    />
+                                    <div className="flex-1 space-y-1">
+                                      <p
+                                        className={`text-sm ${
+                                          task.fulfilled
+                                            ? "line-through text-muted-foreground"
+                                            : ""
+                                        }`}
+                                      >
+                                        {task.description}
+                                      </p>
+                                      <p className="text-xs text-muted-foreground flex items-center gap-1">
+                                        <Calendar className="w-3 h-3" />
+                                        Fecha fin:{" "}
+                                        {new Date(
+                                          task.end_date
+                                        ).toLocaleDateString("es-ES")}
+                                      </p>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          </CollapsibleContent>
+                        )}
+
+                        {/* Comentario del jefe */}
                         {plan.comment && (
-                          <div className="mt-3 p-3 rounded-lg border bg-muted/20">
+                          <div className="p-3 rounded-lg border bg-muted/20">
                             <p className="text-xs font-medium text-muted-foreground mb-1">
                               Comentario:
                             </p>
@@ -207,22 +334,34 @@ export default function DevelopmentPlanSheet({
                             </p>
                           </div>
                         )}
-                      </div>
-                      {isJefe && (
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => handleDelete(plan.id)}
-                          disabled={isSaving}
-                          className="h-8 w-8 p-0 shrink-0"
-                        >
-                          <Trash2 className="w-4 h-4 text-destructive" />
-                        </Button>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+
+                        {/* Botón para expandir/contraer */}
+                        {plan.tasks && plan.tasks.length > 0 && (
+                          <CollapsibleTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="w-full gap-2"
+                            >
+                              {isExpanded ? (
+                                <>
+                                  <ChevronUp className="w-4 h-4" />
+                                  Ver menos
+                                </>
+                              ) : (
+                                <>
+                                  <ChevronDown className="w-4 h-4" />
+                                  Ver tareas
+                                </>
+                              )}
+                            </Button>
+                          </CollapsibleTrigger>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </Collapsible>
+                );
+              })}
             </div>
           )}
         </div>
