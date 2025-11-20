@@ -26,9 +26,8 @@ import ElectronicDocumentActions from "@/features/ap/facturacion/electronic-docu
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { notFound } from "@/shared/hooks/useNotFound";
 
-
 export default function ElectronicDocumentsPage() {
-    const { ROUTE } = ELECTRONIC_DOCUMENT;
+  const { ROUTE } = ELECTRONIC_DOCUMENT;
   const permissions = useModulePermissions(ROUTE);
   const queryClient = useQueryClient();
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -126,10 +125,14 @@ export default function ElectronicDocumentsPage() {
           onRefresh={handleRefresh}
           isLoading={isFetching && !isLoading}
           permissions={{
-            canCreate: true, // TODO: Implementar verificación de permisos
+            canCreate: permissions.canCreate || false, // TODO: Implementar verificación de permisos
           }}
         />
       </HeaderTableWrapper>
+
+      <pre>
+        <code>{JSON.stringify(permissions, null, 2)}</code>
+      </pre>
 
       <ElectronicDocumentTable
         isLoading={isLoading}

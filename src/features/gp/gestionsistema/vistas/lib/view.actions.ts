@@ -3,7 +3,7 @@ import { GeneralResponse } from "@/shared/lib/response.interface";
 import type { AxiosRequestConfig } from "axios";
 import {
   getViewsProps,
-  ViewPermissionResponse,
+  View,
   ViewResource,
   ViewResponse,
 } from "./view.interface";
@@ -25,13 +25,14 @@ export async function getView({
 
 export async function getViewPermission({
   params,
-}: getViewsProps): Promise<ViewPermissionResponse> {
+}: getViewsProps): Promise<View[]> {
   const config: AxiosRequestConfig = {
     params: {
       ...params,
+      all: true,
     },
   };
-  const { data } = await api.get<ViewPermissionResponse>(
+  const { data } = await api.get<View[]>(
     `${ENDPOINT}/with-permissions`,
     config
   );

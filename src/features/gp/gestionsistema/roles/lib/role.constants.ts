@@ -2,7 +2,7 @@ import { ModelComplete } from "@/core/core.interface";
 import { RoleResource } from "./role.interface";
 
 const ROUTE = "roles";
-const ABSOLUTE_ROUTE = `/gp/gestionsistema/${ROUTE}`;
+const ABSOLUTE_ROUTE = `/gp/gestion-del-sistema/${ROUTE}`;
 
 export const ROLE: ModelComplete<RoleResource> = {
   MODEL: {

@@ -21,9 +21,15 @@ const badgeVariants = cva(
         ghost:
           "border-transparent bg-ghost text-ghost-foreground hover:bg-ghost/80",
       },
+      size: {
+        default: "px-2.5 py-0.5 text-xs",
+        sm: "h-fit py-0.25 px-2 text-xs",
+        lg: "px-3 py-1 text-sm",
+      },
     },
     defaultVariants: {
       variant: "default",
+      size: "default",
     },
   }
 );
@@ -51,6 +57,7 @@ function getTooltipVariant(variant: BadgeCustomProps["tooltipVariant"]) {
 function Badge({
   className,
   variant,
+  size,
   tooltipVariant,
   tooltip,
   ...props
@@ -58,14 +65,20 @@ function Badge({
   return tooltip ? (
     <Tooltip>
       <TooltipTrigger asChild>
-        <div className={cn(badgeVariants({ variant }), className)} {...props} />
+        <div
+          className={cn(badgeVariants({ variant, size }), className)}
+          {...props}
+        />
       </TooltipTrigger>
       <TooltipContent className={cn(getTooltipVariant(tooltipVariant))}>
         {tooltip}
       </TooltipContent>
     </Tooltip>
   ) : (
-    <div className={cn(badgeVariants({ variant }), className)} {...props} />
+    <div
+      className={cn(badgeVariants({ variant, size }), className)}
+      {...props}
+    />
   );
 }
 

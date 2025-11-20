@@ -61,7 +61,7 @@ export default function ProfileHeader() {
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"
-        className="w-(--radix-dropdown-menu-trigger-width) "
+        className="w-(--radix-dropdown-menu-trigger-width) min-w-56"
       >
         <DropdownMenuLabel>Mi Cuenta</DropdownMenuLabel>
         <DropdownMenuSeparator />

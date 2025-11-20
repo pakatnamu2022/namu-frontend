@@ -309,6 +309,17 @@ export function ElectronicDocumentDetailSheet({
                     : "Posventa"}
                 </Badge>
               </div>
+              {document.documento_que_se_modifica_serie &&
+                document.documento_que_se_modifica_numero && (
+                  <div>
+                    <p className="text-xs text-muted-foreground">
+                      Documento que modifica
+                    </p>
+                    <Badge variant="outline">
+                      {`${document.documento_que_se_modifica_serie}-${document.documento_que_se_modifica_numero}`}
+                    </Badge>
+                  </div>
+                )}
             </div>
           </div>
 

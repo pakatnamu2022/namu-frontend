@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import {
+  View,
   ViewPermissionResponse,
   ViewResource,
   ViewResponse,
@@ -23,7 +24,7 @@ export const useAllViews = () => {
 };
 
 export const useAllViewPermission = (params?: Record<string, any>) => {
-  return useQuery<ViewPermissionResponse>({
+  return useQuery<View[]>({
     queryKey: ["viewPermission", params],
     queryFn: () => getViewPermission({ params }),
     refetchOnWindowFocus: false,

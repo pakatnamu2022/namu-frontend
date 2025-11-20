@@ -4,10 +4,11 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { RoleResource } from "../lib/role.interface";
 import { Button } from "@/components/ui/button";
 import { KeyRound, Pencil, UsersRound } from "lucide-react";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { Badge } from "@/components/ui/badge";
 import { RoleUsersModal } from "./RoleUsersModal";
+import { ROLE } from "../lib/role.constants";
 
 export type RoleColumns = ColumnDef<RoleResource>;
 
@@ -47,6 +48,7 @@ export const roleColumns = ({ onUpdate, onDelete }: Props): RoleColumns[] => [
     cell: ({ row }) => {
       const router = useNavigate();
       const id = row.original.id;
+      const { ABSOLUTE_ROUTE } = ROLE;
 
       return (
         <div className="flex items-center gap-2">
@@ -59,7 +61,7 @@ export const roleColumns = ({ onUpdate, onDelete }: Props): RoleColumns[] => [
                 tooltip="Usuarios"
                 variant="outline"
                 size="sm"
-                className="h-7 text-xs"
+                className="h-7 text-xs!"
               >
                 <UsersRound className="size-5" />
                 Asignados
@@ -71,10 +73,10 @@ export const roleColumns = ({ onUpdate, onDelete }: Props): RoleColumns[] => [
             tooltip="Permisos"
             variant="outline"
             size="sm"
-            className="h-7 text-xs"
+            className="h-7 text-xs!"
             onClick={() =>
               router(
-                `./roles/permisos/${id}?nombre=${encodeURIComponent(
+                `${ABSOLUTE_ROUTE}/permisos/${id}?nombre=${encodeURIComponent(
                   row.original.nombre
                 )}`
               )

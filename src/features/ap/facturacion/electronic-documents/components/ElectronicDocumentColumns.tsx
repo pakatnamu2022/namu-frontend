@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -323,6 +323,11 @@ export const electronicDocumentColumns = ({
 
       return (
         <div className="flex items-center gap-1">
+          <p>
+            {permissions.canCreateCreditNote
+              ? "permissions.canCreateCreditNote"
+              : ""}
+          </p>
           {/* Ver detalles */}
           <Button
             variant="outline"

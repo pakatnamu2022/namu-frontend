@@ -14,6 +14,7 @@ import {
   ChevronDown,
   ChevronUp,
   CheckSquare,
+  SquareX,
   Search,
   ShieldCheck,
   Layers,
@@ -24,7 +25,7 @@ import {
 } from "lucide-react";
 import { useAllViewPermission } from "@/features/gp/gestionsistema/vistas/lib/view.hook";
 import * as LucideIcons from "lucide-react";
-import DataTablePagination from "@/shared/components/DataTablePagination";
+// import DataTablePagination from "@/shared/components/DataTablePagination";
 import { ROLE } from "../../roles/lib/role.constants";
 
 export default function PermissionsForm({ id }: { id: number }) {
@@ -35,7 +36,7 @@ export default function PermissionsForm({ id }: { id: number }) {
   const [searchInput, setSearchInput] = useState(""); // Input value (immediate)
   const [searchTerm, setSearchTerm] = useState(""); // Debounced value (delayed)
   const [currentPage, setCurrentPage] = useState(1);
-  const [perPage, setPerPage] = useState(10);
+  // const [perPage, setPerPage] = useState(10);
 
   // State for expanded views (to show/hide permissions)
   const [expandedViews, setExpandedViews] = useState<Set<number>>(new Set());
@@ -65,9 +66,10 @@ export default function PermissionsForm({ id }: { id: number }) {
     refetch,
   } = useAllViewPermission({
     search: searchTerm,
-    per_page: perPage,
+    // per_page: perPage,
     page: currentPage,
     rol_id: id,
+    all: 1,
   });
 
   const handleCancel = () => {
@@ -76,17 +78,17 @@ export default function PermissionsForm({ id }: { id: number }) {
 
   // Get all views from the response
   const allViews = useMemo(() => {
-    if (!viewsData?.data) return [];
-    return viewsData.data;
+    if (!viewsData) return [];
+    return viewsData;
   }, [viewsData]);
 
   // Initialize selected permissions from is_assigned
   useEffect(() => {
-    if (!viewsData?.data) return;
+    if (!viewsData) return;
 
     const initialSelected: Record<number, Set<number>> = {};
 
-    viewsData.data.forEach((view) => {
+    viewsData.forEach((view) => {
       const assignedPermissions =
         view.permissions
           ?.filter((p) => p.is_assigned === true)
@@ -101,17 +103,17 @@ export default function PermissionsForm({ id }: { id: number }) {
   }, [viewsData]);
 
   // Pagination data
-  const pagination = useMemo(() => {
-    if (!viewsData) return null;
-    return {
-      currentPage: viewsData.current_page,
-      lastPage: viewsData.last_page,
-      from: viewsData.from,
-      to: viewsData.to,
-      total: viewsData.total,
-      perPage: viewsData.per_page,
-    };
-  }, [viewsData]);
+  // const pagination = useMemo(() => {
+  //   if (!viewsData) return null;
+  //   return {
+  //     currentPage: viewsData.current_page,
+  //     lastPage: viewsData.last_page,
+  //     from: viewsData.from,
+  //     to: viewsData.to,
+  //     total: viewsData.total,
+  //     perPage: viewsData.per_page,
+  //   };
+  // }, [viewsData]);
 
   // Toggle view expansion
   const handleToggleExpand = (viewId: number) => {
@@ -272,12 +274,12 @@ export default function PermissionsForm({ id }: { id: number }) {
   };
 
   // Handle pagination
-  const handlePageChange = (newPage: number) => {
-    setCurrentPage(newPage);
-  };
+  // const handlePageChange = (newPage: number) => {
+  //   setCurrentPage(newPage);
+  // };
 
   return (
-    <div className="w-full max-w-7xl mx-auto py-4 md:py-6 space-y-6">
+    <div className="w-full max-w-7xl mx-auto space-y-6">
       <CardContent className="space-y-4 pt-6">
         {/* Search bar */}
         <div className="flex flex-col sm:flex-row gap-3">
@@ -287,19 +289,35 @@ export default function PermissionsForm({ id }: { id: number }) {
               placeholder="Buscar por vista..."
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              className="pl-10 h-12 text-base"
+              className="pl-10 text-base"
             />
           </div>
-          <Button
+            <Button
             variant="default"
             size="lg"
             onClick={handleSelectAllPermissions}
-            className="gap-2 h-12"
             disabled={isLoading || allViews.length === 0}
-          >
-            <CheckCheck className="size-5" />
+            >
+            {Object.keys(selectedPermissions).length === allViews.length &&
+            allViews.every((view) => {
+              const viewPermissions = view.permissions || [];
+              const selectedPerms = selectedPermissions[view.id] || new Set();
+              return (
+              viewPermissions.length > 0 &&
+              viewPermissions.every((p) => selectedPerms.has(p.id))
+              );
+            }) ? (
+              <CheckCheck className="size-4 mr-2" />
+            ) : (
+              <CheckSquare className="size-4 mr-2" />
+            )}
             Seleccionar Todo
-          </Button>
+            </Button>
+          <PermissionsActions
+            onCancel={handleCancel}
+            onSave={handleSavePermissions}
+            isSaving={isSaving}
+          />
         </div>
 
         {/* Views list */}
@@ -348,9 +366,28 @@ export default function PermissionsForm({ id }: { id: number }) {
                           <ViewIcon className="size-5" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <h3 className="font-semibold text-base truncate">
-                            {view.descripcion}
-                          </h3>
+                          <div className="flex gap-2">
+                            <h3 className="font-semibold text-base truncate">
+                              {view.descripcion}
+                            </h3>
+                            <Badge
+                              size="sm"
+                              variant={
+                                viewPermissions.length > 0
+                                  ? "outline"
+                                  : "default"
+                              }
+                            >
+                              {viewPermissions.length} permiso
+                              {viewPermissions.length !== 1 ? "s" : ""}
+                            </Badge>
+                            {selectedPerms.size > 0 && (
+                              <Badge size="sm">
+                                {selectedPerms.size} seleccionado
+                                {selectedPerms.size !== 1 ? "s" : ""}
+                              </Badge>
+                            )}
+                          </div>
 
                           {/* Jerarquía de módulos */}
                           {(view.company ||
@@ -382,77 +419,64 @@ export default function PermissionsForm({ id }: { id: number }) {
                                   <span>{view.hijo}</span>
                                 </div>
                               )}
+
+                              {view.route && (
+                                <div className="flex items-center gap-1 text-xs text-muted-foreground bg-indigo-50 dark:bg-indigo-950/30 px-2 py-0.5 rounded">
+                                  <span className="font-mono">
+                                    {view.route}
+                                  </span>
+                                </div>
+                              )}
                             </div>
                           )}
-
-                          <div className="flex flex-wrap items-center gap-2 mt-1">
-                            {view.route && (
-                              <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                                <span className="font-mono">{view.route}</span>
-                              </div>
-                            )}
-                          </div>
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-2 shrink-0">
-                        <Badge
-                          variant={
-                            viewPermissions.length > 0 ? "default" : "secondary"
-                          }
-                        >
-                          {viewPermissions.length} permiso(s)
-                        </Badge>
-                        {selectedPerms.size > 0 && (
-                          <Badge variant="secondary">
-                            {selectedPerms.size} seleccionado(s)
-                          </Badge>
+                      <div className="flex gap-4 justify-between h-full">
+                        {/* Action Buttons */}
+                        {viewPermissions.length > 0 && (
+                          <>
+                            <Button
+                              variant="outline"
+                              size="xs"
+                              onClick={() => handleToggleExpand(view.id)}
+                              className="gap-2"
+                            >
+                              {isExpanded ? (
+                                <>
+                                  <ChevronUp className="size-4" />
+                                  Ocultar Permisos
+                                </>
+                              ) : (
+                                <>
+                                  <ChevronDown className="size-4" />
+                                  Ver Permisos
+                                </>
+                              )}
+                            </Button>
+                            <Button
+                              variant={allSelected ? "secondary" : "default"}
+                              size="xs"
+                              onClick={() =>
+                                handleSelectAllViewPermissions(view.id)
+                              }
+                              className="gap-2"
+                            >
+                              {allSelected ? (
+                                <SquareX className="size-4" />
+                              ) : (
+                                <CheckSquare className="size-4" />
+                              )}
+                              Todos
+                            </Button>
+                          </>
+                        )}
+                        {viewPermissions.length === 0 && (
+                          <p className="text-sm text-muted-foreground italic">
+                            Esta vista no tiene permisos disponibles
+                          </p>
                         )}
                       </div>
-                    </div>
-
-                    {/* Action Buttons */}
-                    <div className="flex flex-wrap gap-2">
-                      {viewPermissions.length > 0 && (
-                        <>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleToggleExpand(view.id)}
-                            className="gap-2"
-                          >
-                            {isExpanded ? (
-                              <>
-                                <ChevronUp className="size-4" />
-                                Ocultar Permisos
-                              </>
-                            ) : (
-                              <>
-                                <ChevronDown className="size-4" />
-                                Desplegar Permisos
-                              </>
-                            )}
-                          </Button>
-                          <Button
-                            variant={allSelected ? "default" : "outline"}
-                            size="sm"
-                            onClick={() =>
-                              handleSelectAllViewPermissions(view.id)
-                            }
-                            className="gap-2"
-                          >
-                            <CheckSquare className="size-4" />
-                            {allSelected
-                              ? "Deseleccionar Todos"
-                              : "Seleccionar Todos"}
-                          </Button>
-                        </>
-                      )}
-                      {viewPermissions.length === 0 && (
-                        <p className="text-sm text-muted-foreground italic">
-                          Esta vista no tiene permisos disponibles
-                        </p>
-                      )}
                     </div>
                   </div>
 
@@ -542,7 +566,7 @@ export default function PermissionsForm({ id }: { id: number }) {
         </div>
 
         {/* Pagination Controls */}
-        {pagination && pagination.lastPage > 1 && (
+        {/* {pagination && pagination.lastPage > 1 && (
           <DataTablePagination
             page={currentPage}
             totalPages={pagination.lastPage}
@@ -551,14 +575,8 @@ export default function PermissionsForm({ id }: { id: number }) {
             setPerPage={setPerPage}
             totalData={pagination.total}
           />
-        )}
+        )} */}
       </CardContent>
-
-      <PermissionsActions
-        onCancel={handleCancel}
-        onSave={handleSavePermissions}
-        isSaving={isSaving}
-      />
     </div>
   );
 }

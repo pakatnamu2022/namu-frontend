@@ -2,7 +2,7 @@ import { ModelComplete } from "@/core/core.interface";
 import { TypeOnboardingResource } from "./typeOnboarding.interface";
 
 const ROUTE = "tipos-onboarding";
-const ABSOLUTE_ROUTE = `/gp/gestionsistema/${ROUTE}`;
+const ABSOLUTE_ROUTE = `/gp/gestion-del-sistema/${ROUTE}`;
 
 export const TYPE_ONBOARDING: ModelComplete<TypeOnboardingResource> = {
   MODEL: {
