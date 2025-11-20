@@ -26,9 +26,8 @@ import ParameterForm from "@/features/gp/gestionhumana/evaluaciondesempeño/para
 import FormWrapper from "@/shared/components/FormWrapper";
 import { notFound } from "@/shared/hooks/useNotFound";
 
-const { MODEL } = PARAMETER;
-
 export default function UpdateParameterPage() {
+  const { MODEL, ABSOLUTE_ROUTE } = PARAMETER;
   const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();
@@ -48,7 +47,7 @@ export default function UpdateParameterPage() {
       await queryClient.invalidateQueries({
         queryKey: [MODEL.name, id],
       });
-      router("../");
+      router(ABSOLUTE_ROUTE);
     },
     onError: () => {
       errorToast(ERROR_MESSAGE(MODEL, "update"));

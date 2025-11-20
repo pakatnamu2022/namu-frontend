@@ -25,7 +25,7 @@ export default function ResendVehiclePurchaseOrderPage() {
   const router = useNavigate();
   const queryClient = useQueryClient();
   const { currentView, checkRouteExists } = useCurrentModule();
-  const { ROUTE, QUERY_KEY, MODEL } = VEHICLE_PURCHASE_ORDER;
+  const { ROUTE, QUERY_KEY, MODEL, ABSOLUTE_ROUTE } = VEHICLE_PURCHASE_ORDER;
 
   const { data: vehiclePurchaseOrder, isLoading: loadingVehiclePurchaseOrder } =
     useQuery({
@@ -48,7 +48,7 @@ export default function ResendVehiclePurchaseOrderPage() {
       errorToast(
         "Esta orden de compra no cumple con los requisitos para ser reenviada"
       );
-      router("../");
+      router(ABSOLUTE_ROUTE);
     }
   }, [loadingVehiclePurchaseOrder, vehiclePurchaseOrder, canResend, router]);
 
@@ -56,7 +56,7 @@ export default function ResendVehiclePurchaseOrderPage() {
     mutationFn: (data: any) => resendVehiclePurchaseOrder(Number(id), data),
     onSuccess: async () => {
       successToast("Orden de Compra reenviada exitosamente");
-      router("../");
+      router(ABSOLUTE_ROUTE);
       await queryClient.invalidateQueries({
         queryKey: [QUERY_KEY],
       });

@@ -99,7 +99,7 @@ export const EvaluationForm = ({
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>
+                <FormLabel className="flex">
                   Nombre de Evaluación <RequiredField />
                 </FormLabel>
                 <FormControl>

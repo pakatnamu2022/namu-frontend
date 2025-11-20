@@ -30,7 +30,10 @@ import {
 import { useAllSedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import { EMPRESA_AP } from "@/core/core.constants";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ESTABLISHMENTS } from "../lib/establishments.constants";
+import {
+  ESTABLISHMENTS,
+  SUPPLIER_ESTABLISHMENTS,
+} from "../lib/establishments.constants";
 
 const AUTOMOTORES_PAKATNAMU_ID = 17;
 
@@ -40,6 +43,7 @@ interface EstablishmentsFormProps {
   isSubmitting?: boolean;
   mode?: "create" | "update";
   businessPartnerId: number;
+  isCustomer: boolean;
 }
 
 export const EstablishmentsForm = ({
@@ -48,8 +52,10 @@ export const EstablishmentsForm = ({
   isSubmitting = false,
   mode = "create",
   businessPartnerId,
+  isCustomer,
 }: EstablishmentsFormProps) => {
   const { ABSOLUTE_ROUTE } = ESTABLISHMENTS;
+  const { ABSOLUTE_ROUTE: SUPPLIER_ABSOLUTE_ROUTE } = SUPPLIER_ESTABLISHMENTS;
   const form = useForm<EstablishmentsSchema>({
     resolver: zodResolver(establishmentsSchema),
     defaultValues: {
@@ -301,7 +307,11 @@ export const EstablishmentsForm = ({
 
         {/* Buttons */}
         <div className="flex gap-4 w-full justify-end">
-          <Link to={ABSOLUTE_ROUTE}>
+          <Link
+            to={`${
+              isCustomer ? ABSOLUTE_ROUTE : SUPPLIER_ABSOLUTE_ROUTE
+            }/${businessPartnerId}`}
+          >
             <Button type="button" variant="outline">
               Cancelar
             </Button>

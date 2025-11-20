@@ -53,7 +53,7 @@ export function ProfileCard({ variant = "sidebar" }: ProfileCardProps) {
       allow: true,
     },
     {
-      label: "Evaluación de Guerreros",
+      label: "Mi desempeño",
       route: "namu-performance",
       icon: ClipboardList,
       stats: () => (
@@ -62,7 +62,7 @@ export function ProfileCard({ variant = "sidebar" }: ProfileCardProps) {
       allow: true,
     },
     {
-      label: "Mi equipo",
+      label: "Evaluación de Guerreros",
       route: "equipo",
       icon: Users,
       stats: () => {
@@ -77,7 +77,7 @@ export function ProfileCard({ variant = "sidebar" }: ProfileCardProps) {
           <>
             {pendingEvaluations && pendingEvaluations > 0 && (
               <Badge className="animate-pulse" variant={"secondary"}>
-                Evaluar({pendingEvaluations})
+                {pendingEvaluations}
               </Badge>
             )}
           </>

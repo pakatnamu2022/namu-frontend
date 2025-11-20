@@ -26,7 +26,7 @@ import { notFound } from "@/shared/hooks/useNotFound";
 
 const { MODEL } = EXCLUDED;
 
-export default function ExcludedasPage() {
+export default function ExcludedPage() {
     const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);

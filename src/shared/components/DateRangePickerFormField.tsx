@@ -104,6 +104,7 @@ export function DateRangePickerFormField<T extends FieldValues>({
                   <PopoverTrigger asChild>
                     <FormControl>
                       <Button
+                        size="lg"
                         variant="outline"
                         className={cn(
                           "w-full justify-start text-left font-normal",

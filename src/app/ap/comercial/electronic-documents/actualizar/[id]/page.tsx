@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams } from 'react-router-dom';
+import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import { useMutation } from "@tanstack/react-query";
@@ -28,9 +28,8 @@ import FormSkeleton from "@/shared/components/FormSkeleton";
 import { useAuthorizedSeries } from "@/features/ap/configuraciones/maestros-general/asignar-serie-usuario/lib/userSeriesAssignment.hook";
 import { notFound } from "@/shared/hooks/useNotFound";
 
-
 export default function UpdateElectronicDocumentPage() {
-    const { ROUTE, MODEL } = ELECTRONIC_DOCUMENT;
+  const { ROUTE, MODEL, ABSOLUTE_ROUTE } = ELECTRONIC_DOCUMENT;
   const params = useParams();
   const router = useNavigate();
   const { currentView, checkRouteExists, isLoadingModule } = useCurrentModule();
@@ -201,7 +200,7 @@ export default function UpdateElectronicDocumentPage() {
       updateElectronicDocument(id, data),
     onSuccess: () => {
       successToast(SUCCESS_MESSAGE(MODEL, "update"));
-      router("../");
+      router(ABSOLUTE_ROUTE);
     },
     onError: (error: any) => {
       const msg = error?.response?.data?.message || "";

@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect } from "react";
 import { PermissionsActions } from "./PermissionsActions";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { successToast, errorToast } from "@/core/core.function";
 import { api } from "@/core/api";
 import { CardContent } from "@/components/ui/card";
@@ -25,8 +25,10 @@ import {
 import { useAllViewPermission } from "@/features/gp/gestionsistema/vistas/lib/view.hook";
 import * as LucideIcons from "lucide-react";
 import DataTablePagination from "@/shared/components/DataTablePagination";
+import { ROLE } from "../../roles/lib/role.constants";
 
 export default function PermissionsForm({ id }: { id: number }) {
+  const { ABSOLUTE_ROUTE } = ROLE;
   const router = useNavigate();
 
   // State for search and pagination
@@ -69,7 +71,7 @@ export default function PermissionsForm({ id }: { id: number }) {
   });
 
   const handleCancel = () => {
-    router("../");
+    router(ABSOLUTE_ROUTE);
   };
 
   // Get all views from the response

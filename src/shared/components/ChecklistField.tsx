@@ -75,10 +75,14 @@ export const ChecklistField = ({
       });
     } else {
       // Si no existe, lo agregamos con cantidad 0
-      form.setValue(name, { ...currentItems, [itemKey]: "0" }, {
-        shouldValidate: true,
-        shouldDirty: true,
-      });
+      form.setValue(
+        name,
+        { ...currentItems, [itemKey]: "0" },
+        {
+          shouldValidate: true,
+          shouldDirty: true,
+        }
+      );
     }
   };
 
@@ -95,10 +99,14 @@ export const ChecklistField = ({
       });
     } else {
       // Deseleccionar todos
-      form.setValue(name, {}, {
-        shouldValidate: true,
-        shouldDirty: true,
-      });
+      form.setValue(
+        name,
+        {},
+        {
+          shouldValidate: true,
+          shouldDirty: true,
+        }
+      );
     }
   };
 
@@ -107,10 +115,14 @@ export const ChecklistField = ({
     const itemKey = String(itemId);
     const stringValue = value === "" ? "0" : value;
 
-    form.setValue(name, { ...currentItems, [itemKey]: stringValue }, {
-      shouldValidate: true,
-      shouldDirty: true,
-    });
+    form.setValue(
+      name,
+      { ...currentItems, [itemKey]: stringValue },
+      {
+        shouldValidate: true,
+        shouldDirty: true,
+      }
+    );
   };
 
   return (
@@ -125,11 +137,14 @@ export const ChecklistField = ({
               <FormLabel className="text-base font-semibold">{label}</FormLabel>
               <div className="flex items-center gap-2">
                 <Badge variant="secondary">
-                  {Object.keys(field.value || {}).length} / {items.length} seleccionados
+                  {Object.keys(field.value || {}).length} / {items.length}{" "}
+                  seleccionados
                 </Badge>
                 <label className="flex items-center gap-2 text-sm cursor-pointer">
                   <Checkbox
-                    checked={Object.keys(field.value || {}).length === items.length}
+                    checked={
+                      Object.keys(field.value || {}).length === items.length
+                    }
                     onCheckedChange={handleToggleAll}
                   />
                   <span className="text-gray-600">Seleccionar todos</span>
@@ -147,7 +162,7 @@ export const ChecklistField = ({
                   </h4>
 
                   {/* Items de la categoría */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
                     {categoryItems.map((item) => {
                       const itemsReceiving = field.value || {};
                       const itemKey = String(item.id);
@@ -156,40 +171,47 @@ export const ChecklistField = ({
 
                       return (
                         <FormControl key={item.id}>
-                          <div
+                          <label
                             className={`
-                              flex items-center gap-3 p-3 rounded-lg border-2 transition-all
+                              flex items-center gap-3 p-3 rounded-lg border transition-all cursor-pointer select-none
                               ${
                                 isChecked
-                                  ? "border-primary bg-primary/5"
-                                  : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+                                  ? "border-primary bg-muted"
+                                  : "hover:border-muted hover:bg-muted"
                               }
                             `}
                           >
-                            <label className="flex items-center gap-3 cursor-pointer flex-1">
+                            <div className="flex items-center gap-3 flex-1">
                               <Checkbox
+                                className="rounded"
                                 checked={isChecked}
-                                onCheckedChange={() => handleToggleItem(item.id)}
+                                onCheckedChange={() =>
+                                  handleToggleItem(item.id)
+                                }
                               />
                               <span
                                 className={`text-sm ${
-                                  isChecked ? "font-medium text-primary" : "text-gray-700"
+                                  isChecked
+                                    ? "font-medium text-primary"
+                                    : "text-foreground"
                                 }`}
                               >
                                 {item.description}
                               </span>
-                            </label>
+                            </div>
                             {item.has_quantity && isChecked && (
                               <Input
                                 type="number"
                                 min="0"
                                 value={quantity}
-                                onChange={(e) => handleQuantityChange(item.id, e.target.value)}
+                                onChange={(e) =>
+                                  handleQuantityChange(item.id, e.target.value)
+                                }
                                 className="w-20 h-8"
                                 placeholder="Cant."
                               />
                             )}
-                          </div>
+                          </label>
                         </FormControl>
                       );
                     })}

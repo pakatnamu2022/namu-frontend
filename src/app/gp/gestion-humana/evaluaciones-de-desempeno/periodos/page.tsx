@@ -23,11 +23,10 @@ import { PERIOD } from "@/features/gp/gestionhumana/evaluaciondesempeño/periodo
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { notFound } from "@/shared/hooks/useNotFound";
 
-
 const { MODEL } = PERIOD;
 
-export default function PeriodosPage() {
-    const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
+export default function PeriodPage() {
+  const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");

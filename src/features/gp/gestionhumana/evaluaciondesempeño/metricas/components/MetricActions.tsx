@@ -3,13 +3,15 @@
 import { Button } from "@/components/ui/button";
 import ActionsWrapper from "@/shared/components/ActionsWrapper";
 import { Plus } from "lucide-react";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
+import { METRIC } from "../lib/metric.constant";
 
 export default function MetricActions() {
+  const { ROUTE_ADD } = METRIC;
   const push = useNavigate();
 
   const handleAddMetric = () => {
-    push("./metricas/agregar");
+    push(ROUTE_ADD);
   };
 
   return (

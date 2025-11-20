@@ -28,7 +28,7 @@ export default function UpdateShipmentsReceptionsPage() {
   const router = useNavigate();
   const queryClient = useQueryClient();
   const { currentView, checkRouteExists } = useCurrentModule();
-  const { ROUTE, QUERY_KEY, MODEL } = SHIPMENTS_RECEPTIONS;
+  const { ROUTE, QUERY_KEY, MODEL, ABSOLUTE_ROUTE } = SHIPMENTS_RECEPTIONS;
 
   const { data: ShipmentsReceptions, isLoading: loadingShipmentsReceptions } =
     useQuery({
@@ -45,7 +45,7 @@ export default function UpdateShipmentsReceptionsPage() {
       await queryClient.invalidateQueries({
         queryKey: [QUERY_KEY, id],
       });
-      router("../");
+      router(ABSOLUTE_ROUTE);
     },
     onError: (error: any) => {
       const msg = error?.response?.data?.message || "";
@@ -111,7 +111,7 @@ export default function UpdateShipmentsReceptionsPage() {
     <FormWrapper>
       <div className="space-y-4">
         <TitleFormComponent
-          title={`Actualizar ${MODEL.name}`}
+          title={MODEL.name}
           icon={currentView?.icon || "FileText"}
         />
         <ShipmentsReceptionsForm

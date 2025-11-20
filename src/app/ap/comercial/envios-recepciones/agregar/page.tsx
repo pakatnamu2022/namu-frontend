@@ -19,7 +19,7 @@ import { notFound } from "@/shared/hooks/useNotFound";
 export default function AddShipmentsReceptionsPage() {
   const router = useNavigate();
   const { currentView, checkRouteExists } = useCurrentModule();
-  const { ROUTE, MODEL } = SHIPMENTS_RECEPTIONS;
+  const { ROUTE, MODEL, ABSOLUTE_ROUTE } = SHIPMENTS_RECEPTIONS;
 
   const createMutation = useCreateShipmentsReceptions();
 
@@ -27,7 +27,7 @@ export default function AddShipmentsReceptionsPage() {
     createMutation.mutate(data as any, {
       onSuccess: () => {
         successToast(SUCCESS_MESSAGE(MODEL, "create"));
-        router(`/ap/comercial/${ROUTE}`);
+        router(ABSOLUTE_ROUTE);
       },
       onError: (error: any) => {
         const msg = error?.response?.data?.message || "";
@@ -37,7 +37,7 @@ export default function AddShipmentsReceptionsPage() {
   };
 
   const handleCancel = () => {
-    router(`/ap/comercial/${ROUTE}`);
+    router(ABSOLUTE_ROUTE);
   };
 
   if (!checkRouteExists(ROUTE)) notFound();
@@ -46,7 +46,7 @@ export default function AddShipmentsReceptionsPage() {
     <FormWrapper>
       <div className="space-y-4">
         <TitleFormComponent
-          title={`Crear ${MODEL.name}`}
+          title={MODEL.name}
           icon={currentView?.icon || "FileText"}
         />
         <ShipmentsReceptionsForm

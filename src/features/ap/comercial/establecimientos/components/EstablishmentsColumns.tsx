@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
@@ -133,7 +133,7 @@ export const establishmentsColumns = ({
               size="icon"
               className="size-7"
               tooltip="Editar"
-              onClick={() => router(`${baseRoute}/${id}`)}
+              onClick={() => router(`${baseRoute}/actualizar/${id}`)}
             >
               <Pencil className="size-5" />
             </Button>

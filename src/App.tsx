@@ -71,6 +71,19 @@ import UpdatePurchaseRequestQuotePage from "./app/ap/comercial/solicitudes-cotiz
 import DashboardStoreVisitsPage from "./app/ap/comercial/dashboard-visitas-leads/page";
 import ReasonsRejectionPage from "./app/ap/comercial/motivos-descarte/page";
 import { NotFoundBoundary } from "./shared/components/NotFoundBoundary";
+import ExcludedPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/excluidos/page";
+import MetricPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/metricas/page";
+import AddMetricPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/metricas/agregar/page";
+import UpdateMetricPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/metricas/actualizar/[id]/page";
+import ObjectivePage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/objetivos/page";
+import AddObjectivePage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/objetivos/agregar/page";
+import UpdateObjectivePage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/objetivos/actualizar/[id]/page";
+import ParameterPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/parametros/page";
+import AddParameterPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/parametros/agregar/page";
+import UpdateParameterPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/parametros/actualizar/[id]/page";
+import PeriodPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/periodos/page";
+import AddPeriodPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/periodos/agregar/page";
+import UpdatePeriodPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/periodos/actualizar/[id]/page";
 const PositionsPage = lazy(
   () => import("./app/gp/gestion-humana/configuraciones/posiciones/page")
 );
@@ -813,7 +826,7 @@ function App() {
 
               {/* Electronic Documents */}
               {RouterCrud(
-                "electronic-documents",
+                "documentos-electronicos",
                 <ElectronicDocumentsPage />,
                 <AddElectronicDocumentPage />,
                 <UpdateElectronicDocumentPage />
@@ -821,21 +834,21 @@ function App() {
 
               {/* Credit Note */}
               <Route
-                path="electronic-documents/:id/credit-note"
+                path="documentos-electronicos/:id/credit-note"
                 element={<AddCreditNotePage />}
               />
               <Route
-                path="electronic-documents/:id/credit-note/actualizar/:credit"
+                path="documentos-electronicos/:id/credit-note/actualizar/:credit"
                 element={<UpdateCreditNotePage />}
               />
 
               {/* Debit Note */}
               <Route
-                path="electronic-documents/:id/debit-note"
+                path="documentos-electronicos/:id/debit-note"
                 element={<AddDebitNotePage />}
               />
               <Route
-                path="electronic-documents/:id/debit-note/actualizar/:debit"
+                path="documentos-electronicos/:id/debit-note/actualizar/:debit"
                 element={<UpdateDebitNotePage />}
               />
 
@@ -1421,44 +1434,38 @@ function App() {
                 element={<EvaluationDetailPersonPage />}
               />
 
-              {/*
-              
-              <Route
-                path="evaluaciones-de-desempeno/evaluaciones"
-                element={<EvaluacionesPage />}
-              />
-              <Route
-                path="evaluaciones-de-desempeno/evaluaciones/:id"
-                element={<EvaluacionesDetailPage />}
-              />
-              <Route
-                path="evaluaciones-de-desempeno/evaluaciones/detalles/:id"
-                element={<EvaluacionesDetallesPage />}
-              />
-              <Route
-                path="evaluaciones-de-desempeno/evaluaciones/detalles/:id/:person"
-                element={<EvaluacionesDetallesPersonPage />}
-              />
               <Route
                 path="evaluaciones-de-desempeno/excluidos"
-                element={<ExcluidosPage />}
+                element={<ExcludedPage />}
               />
-              <Route
-                path="evaluaciones-de-desempeno/metricas"
-                element={<MetricasPage />}
-              />
-              <Route
-                path="evaluaciones-de-desempeno/objetivos"
-                element={<ObjetivosPage />}
-              />
-              <Route
-                path="evaluaciones-de-desempeno/parametros"
-                element={<ParametrosPage />}
-              />
-              <Route
-                path="evaluaciones-de-desempeno/periodos"
-                element={<PeriodosPage />}
-              /> */}
+
+              {RouterCrud(
+                "evaluaciones-de-desempeno/metricas",
+                <MetricPage />,
+                <AddMetricPage />,
+                <UpdateMetricPage />
+              )}
+
+              {RouterCrud(
+                "evaluaciones-de-desempeno/objetivos",
+                <ObjectivePage />,
+                <AddObjectivePage />,
+                <UpdateObjectivePage />
+              )}
+
+              {RouterCrud(
+                "evaluaciones-de-desempeno/parametros",
+                <ParameterPage />,
+                <AddParameterPage />,
+                <UpdateParameterPage />
+              )}
+
+              {RouterCrud(
+                "evaluaciones-de-desempeno/periodos",
+                <PeriodPage />,
+                <AddPeriodPage />,
+                <UpdatePeriodPage />
+              )}
             </Route>
 
             {/* ======================================================== */}

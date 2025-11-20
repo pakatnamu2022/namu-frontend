@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams } from 'react-router-dom';
+import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import { useMutation } from "@tanstack/react-query";
@@ -15,9 +15,8 @@ import { DebitNoteSchema } from "@/features/ap/facturacion/electronic-documents/
 import { DebitNoteForm } from "@/features/ap/facturacion/electronic-documents/components/forms/DebitNoteForm";
 import { notFound } from "@/shared/hooks/useNotFound";
 
-
 export default function AddDebitNotePage() {
-    const { ROUTE } = ELECTRONIC_DOCUMENT;
+  const { ROUTE, ABSOLUTE_ROUTE } = ELECTRONIC_DOCUMENT;
   const params = useParams();
   const router = useNavigate();
   const { currentView, checkRouteExists, isLoadingModule } = useCurrentModule();
@@ -39,7 +38,7 @@ export default function AddDebitNotePage() {
       ),
     onSuccess: () => {
       successToast("Nota de débito generada correctamente");
-      router("/ap/comercial/electronic-documents");
+      router(ABSOLUTE_ROUTE);
     },
     onError: (error: any) => {
       const msg =

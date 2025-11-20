@@ -4,8 +4,9 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { MetricResource } from "../lib/metric.interface";
 import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
+import { METRIC } from "../lib/metric.constant";
 
 export type MetricColumns = ColumnDef<MetricResource>;
 
@@ -31,6 +32,7 @@ export const metricColumns = ({
     cell: ({ row }) => {
       const router = useNavigate();
       const id = row.original.id;
+      const { ROUTE_UPDATE } = METRIC;
 
       return (
         <div className="flex items-center gap-2">
@@ -39,7 +41,7 @@ export const metricColumns = ({
             variant="outline"
             size="icon"
             className="size-7"
-            onClick={() => router(`./metricas/actualizar/${id}`)}
+            onClick={() => router(`${ROUTE_UPDATE}/${id}`)}
           >
             <Pencil className="size-5" />
           </Button>

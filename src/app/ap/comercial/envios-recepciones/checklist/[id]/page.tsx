@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams } from 'react-router-dom';
+import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import {
@@ -22,13 +22,12 @@ import {
 import { ReceptionChecklistForm } from "@/features/ap/comercial/envios-recepciones/components/ReceptionChecklistForm";
 import { notFound } from "@/shared/hooks/useNotFound";
 
-
 export default function ReceptionCheckListPage() {
-    const { id } = useParams();
+  const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();
   const { currentView, checkRouteExists } = useCurrentModule();
-  const { ROUTE, QUERY_KEY, MODEL } = SHIPMENTS_RECEPTIONS;
+  const { ROUTE, QUERY_KEY, MODEL, ABSOLUTE_ROUTE } = SHIPMENTS_RECEPTIONS;
 
   const { data: ShipmentsReceptions, isLoading: loadingShipmentsReceptions } =
     useQuery({
@@ -45,7 +44,7 @@ export default function ReceptionCheckListPage() {
       await queryClient.invalidateQueries({
         queryKey: [QUERY_KEY, id],
       });
-      router("../");
+      router(ABSOLUTE_ROUTE);
     },
     onError: (error: any) => {
       const msg = error?.response?.data?.message || "";
@@ -69,14 +68,14 @@ export default function ReceptionCheckListPage() {
     <FormWrapper>
       <div className="space-y-4">
         <TitleFormComponent
-          title={`Actualizar ${MODEL.name}`}
+          title={MODEL.name}
           icon={currentView?.icon || "FileText"}
         />
         <ReceptionChecklistForm
           shippingGuideId={Number(id)}
           onSubmit={handleSubmit}
           isSubmitting={isPending}
-          onCancel={() => router("../")}
+          onCancel={() => router(ABSOLUTE_ROUTE)}
         />
       </div>
     </FormWrapper>
