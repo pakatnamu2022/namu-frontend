@@ -31,6 +31,8 @@ import { getNextCreditNoteNumber } from "../../lib/electronicDocument.actions";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
+import { notFound } from "@/shared/hooks/useNotFound";
+import { format } from "date-fns";
 
 interface CreditNoteFormProps {
   creditNote?: ElectronicDocumentResource;
@@ -66,6 +68,9 @@ export function CreditNoteForm({
   const form = useForm<CreditNoteSchema>({
     resolver: zodResolver(CreditNoteSchema) as any,
     defaultValues: {
+      fecha_de_emision: creditNote
+        ? creditNote.fecha_de_emision
+        : format,
       sunat_concept_credit_note_type_id:
         creditNote?.sunat_concept_credit_note_type_id?.toString() || "",
       series: creditNote?.series_id?.toString() || "",
@@ -114,6 +119,11 @@ export function CreditNoteForm({
     }) || [];
   const observaciones = form.watch("observaciones") || "";
   const selectedSeries = form.watch("series");
+
+  useEffect(() => {
+    if (!originalDocument.aceptada_por_sunat || originalDocument.anulado)
+      notFound();
+  }, [originalDocument]);
 
   // Verify next credit note number when series changes
   useEffect(() => {
@@ -263,11 +273,7 @@ export function CreditNoteForm({
                 placeholder="Seleccione fecha"
                 description="Seleccione la fecha de emisión de la nota de crédito"
                 disabledRange={{
-                  before: new Date(
-                    new Date().getFullYear(),
-                    new Date().getMonth(),
-                    1
-                  ),
+                  before: new Date(),
                   after: new Date(),
                 }}
               />
@@ -328,20 +334,6 @@ export function CreditNoteForm({
                   </p>
                 )}
               </div>
-
-              {/* <div className="space-y-4 pt-2 border-t col-span-2">
-                <h4 className="text-sm font-medium">Opciones de envío</h4>
-                <FormSwitch
-                  name="enviar_automaticamente_a_la_sunat"
-                  control={form.control}
-                  text="Enviar automáticamente a SUNAT"
-                />
-                <FormSwitch
-                  name="enviar_automaticamente_al_cliente"
-                  control={form.control}
-                  text="Enviar automáticamente al cliente"
-                />
-              </div> */}
             </GroupFormSection>
 
             {/* Items Section */}
@@ -528,9 +520,7 @@ export function CreditNoteForm({
         </div>
         <pre>
           <code>{JSON.stringify(form.getValues(), null, 2)}</code>
-          <code>{JSON.stringify(form.formState.errors, null, 2)}</code>
         </pre>
-        <Button onClick={() => form.trigger()}>Trigger Form</Button>
       </form>
     </Form>
   );

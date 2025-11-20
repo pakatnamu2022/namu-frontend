@@ -157,7 +157,7 @@ export async function createCreditNote(
   id: number,
   data: CreditNoteSchema
 ): Promise<ElectronicDocumentResource> {
-  const response = await api.patch<ElectronicDocumentResource>(
+  const response = await api.post<ElectronicDocumentResource>(
     `${ENDPOINT}/${id}/credit-note`,
     data
   );
