@@ -249,9 +249,6 @@ export default function ObjectivesCompetencesSheet({
                         <h4 className="font-medium text-sm">
                           {objective.objective}
                         </h4>
-                        <p className="text-xs text-muted-foreground">
-                          ID: {objective.id}
-                        </p>
                       </div>
                     </div>
                   ))}
@@ -320,9 +317,6 @@ export default function ObjectivesCompetencesSheet({
                         <h4 className="font-medium text-sm">
                           {competence.competence}
                         </h4>
-                        <p className="text-xs text-muted-foreground">
-                          ID: {competence.id}
-                        </p>
                       </div>
                     </div>
                   ))}

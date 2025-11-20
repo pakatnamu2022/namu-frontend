@@ -244,8 +244,8 @@ export default function DevelopmentPlanList({
                                 )}
                                 {item.competence_detail && (
                                   <div className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800">
-                                    <Award className="w-3 h-3 text-purple-600 dark:text-purple-400" />
-                                    <span className="text-xs text-purple-700 dark:text-purple-300 font-medium">
+                                    <Award className="w-3 h-3 text-red-600 dark:text-red-400" />
+                                    <span className="text-xs text-red-700 dark:text-red-300 font-medium">
                                       {item.competence_detail.competence}
                                     </span>
                                   </div>
@@ -264,7 +264,9 @@ export default function DevelopmentPlanList({
                                 <span className="text-xs font-medium text-muted-foreground">
                                   {expandedObjectivesCompetences.has(plan.id)
                                     ? "Ver menos"
-                                    : `+${plan.objectives_competences.length - 2} más`}
+                                    : `+${
+                                        plan.objectives_competences.length - 2
+                                      } más`}
                                 </span>
                               </button>
                             )}
