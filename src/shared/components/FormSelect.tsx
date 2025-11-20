@@ -31,6 +31,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";
+import RequiredField from "./RequiredField";
 
 interface FormSelectProps {
   name: string;
@@ -52,6 +53,7 @@ interface FormSelectProps {
   setSearchQuery?: (value: string) => void;
   isLoadingOptions?: boolean;
   className?: string;
+  required?: boolean;
 }
 
 export function FormSelect({
@@ -74,6 +76,7 @@ export function FormSelect({
   setSearchQuery,
   isLoadingOptions = false,
   className,
+  required = false,
 }: FormSelectProps) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -92,6 +95,7 @@ export function FormSelect({
               : label && (
                   <FormLabel className="flex justify-start items-center">
                     {label}
+                    {required && <RequiredField />}
                     {tooltip && (
                       <Tooltip>
                         <TooltipTrigger asChild>

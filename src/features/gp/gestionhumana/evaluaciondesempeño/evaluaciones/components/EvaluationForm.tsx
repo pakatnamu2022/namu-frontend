@@ -18,15 +18,16 @@ import {
   evaluationSchemaUpdate,
 } from "../lib/evaluation.schema";
 import { Loader } from "lucide-react";
-import { Link } from "react-router-dom";
-import { FormSelect } from "@/shared/components/FormSelect";
-import RequiredField from "@/shared/components/RequiredField";
 import { CycleResource } from "../../ciclos/lib/cycle.interface";
-import { DateRangePickerFormField } from "@/shared/components/DateRangePickerFormField";
 import { EVALUATION, TYPE_EVALUATION } from "../lib/evaluation.constans";
 import { ParameterResource } from "../../parametros/lib/parameter.interface";
 import { useEffect } from "react";
 import ParameterInfo from "../../parametros/components/ParameterInfo";
+import RequiredField from "@/shared/components/RequiredField";
+import { DateRangePickerFormField } from "@/shared/components/DateRangePickerFormField";
+import { FormSelect } from "@/shared/components/FormSelect";
+import { Link } from "react-router-dom";
+import { FormInput } from "@/shared/components/FormInput";
 
 const { MODEL, ABSOLUTE_ROUTE } = EVALUATION;
 
@@ -94,20 +95,12 @@ export const EvaluationForm = ({
         className="space-y-4 w-full formlayout"
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
+          <FormInput
             name="name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="flex">
-                  Nombre de Evaluación <RequiredField />
-                </FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: Agosto 2025" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Nombre de Evaluación"
+            required={true}
+            placeholder="Ej: Agosto 2025"
+            control={form.control}
           />
 
           <DateRangePickerFormField
@@ -115,6 +108,7 @@ export const EvaluationForm = ({
             nameFrom="start_date"
             nameTo="end_date"
             label="Rango de la evaluación"
+            required={true}
           />
 
           <FormSelect
@@ -145,25 +139,12 @@ export const EvaluationForm = ({
             options={TYPE_EVALUATION}
           />
 
-          <FormField
-            control={form.control}
+          <FormInput
             name="objectivesPercentage"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>
-                  Objetivos (%) <RequiredField />
-                </FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    max={100}
-                    placeholder="Ej: 20"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Porcentaje de Objetivos (%)"
+            required={true}
+            placeholder="Ej: 20"
+            control={form.control}
           />
 
           <FormField

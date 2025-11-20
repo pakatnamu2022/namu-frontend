@@ -1,7 +1,7 @@
 import { ModelComplete, Option } from "@/core/core.interface";
 
 const ROUTE = "evaluaciones";
-export const ABSOLUTE_ROUTE = `/gp/gestion-humana/evaluaciones-de-desempeno/${ROUTE}`;
+const ABSOLUTE_ROUTE = `/gp/gestion-humana/evaluaciones-de-desempeno/${ROUTE}`;
 
 export const EVALUATION: ModelComplete = {
   MODEL: {

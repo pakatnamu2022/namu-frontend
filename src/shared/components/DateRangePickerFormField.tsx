@@ -29,6 +29,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";
+import RequiredField from "./RequiredField";
 
 interface DateRangePickerFormFieldProps<T extends FieldValues> {
   control: Control<T>;
@@ -40,6 +41,7 @@ interface DateRangePickerFormFieldProps<T extends FieldValues> {
   tooltip?: string | React.ReactNode;
   dateFormat?: string;
   disabled?: { before?: Date; after?: Date };
+  required?: boolean;
 }
 
 export function DateRangePickerFormField<T extends FieldValues>({
@@ -51,6 +53,7 @@ export function DateRangePickerFormField<T extends FieldValues>({
   description,
   tooltip,
   dateFormat = "dd/MM/yyyy",
+  required = false,
 }: DateRangePickerFormFieldProps<T>) {
   const [open, setOpen] = React.useState(false);
 
@@ -81,6 +84,7 @@ export function DateRangePickerFormField<T extends FieldValues>({
                 {label && (
                   <FormLabel className="flex justify-start items-center">
                     {label}
+                    {required && <RequiredField />}
                     {tooltip && (
                       <Tooltip>
                         <TooltipTrigger asChild>
