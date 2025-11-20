@@ -171,6 +171,12 @@ const PerfilEquipoEvaluarPage = lazy(
 const PerfilEquipoHistorialPage = lazy(
   () => import("./app/perfil/equipo/[id]/historial/page")
 );
+const PerfilEquipoPlanDesarrolloPage = lazy(
+  () => import("./app/perfil/equipo/[id]/plan-desarrollo/page")
+);
+const PerfilEquipoPlanDesarrolloCrearPage = lazy(
+  () => import("./app/perfil/equipo/[id]/plan-desarrollo/agregar/page")
+);
 const PerfilNamuPerformancePage = lazy(
   () => import("./app/perfil/namu-performance/page")
 );
@@ -510,6 +516,42 @@ const TiposCategoriaPage = lazy(
   () => import("./app/ap/post-venta/gestion-de-productos/tipos-categoria/page")
 );
 
+// Gestión de Compras
+const PurchaseOrderProductsPage = lazy(
+  () =>
+    import("./app/ap/post-venta/gestion-de-compras/orden-compra-producto/page")
+);
+const AddPurchaseOrderProductsPage = lazy(
+  () =>
+    import(
+      "./app/ap/post-venta/gestion-de-compras/orden-compra-producto/agregar/page"
+    )
+);
+const EditPurchaseOrderProductsPage = lazy(
+  () =>
+    import(
+      "./app/ap/post-venta/gestion-de-compras/orden-compra-producto/actualizar/[id]/page"
+    )
+);
+const ReceptionPurchaseOrderProductsPage = lazy(
+  () =>
+    import(
+      "./app/ap/post-venta/gestion-de-compras/orden-compra-producto/recepcion/[purchaseOrderId]/page"
+    )
+);
+const AddReceptionPurchaseOrderProductsPage = lazy(
+  () =>
+    import(
+      "./app/ap/post-venta/gestion-de-compras/orden-compra-producto/recepcion/agregar/[purchaseOrderId]/page"
+    )
+);
+const EditReceptionPurchaseOrderProductsPage = lazy(
+  () =>
+    import(
+      "./app/ap/post-venta/gestion-de-compras/orden-compra-producto/recepcion/actualizar/[purchaseOrderId]/[id]/page"
+    )
+);
+
 // Taller
 const LavadoVehiculoPage = lazy(
   () => import("./app/ap/post-venta/taller/lavado-vehiculo/page")
@@ -697,6 +739,14 @@ function App() {
               <Route
                 path="equipo/:id/historial"
                 element={<PerfilEquipoHistorialPage />}
+              />
+              <Route
+                path="equipo/:id/plan-desarrollo"
+                element={<PerfilEquipoPlanDesarrolloPage />}
+              />
+              <Route
+                path="equipo/:id/plan-desarrollo/crear"
+                element={<PerfilEquipoPlanDesarrolloCrearPage />}
               />
               <Route
                 path="namu-performance"
@@ -1226,6 +1276,32 @@ function App() {
               <Route
                 path="gestion-de-productos/tipos-categoria"
                 element={<TiposCategoriaPage />}
+              />
+
+              {/* Gestion Compra */}
+              <Route
+                path="gestion-de-compras/orden-compra-producto"
+                element={<PurchaseOrderProductsPage />}
+              />
+              <Route
+                path="gestion-de-compras/orden-compra-producto/agregar"
+                element={<AddPurchaseOrderProductsPage />}
+              />
+              <Route
+                path="gestion-de-compras/orden-compra-producto/actualizar/:id"
+                element={<EditPurchaseOrderProductsPage />}
+              />
+              <Route
+                path="gestion-de-compras/orden-compra-producto/recepcion/:purchaseOrderId"
+                element={<ReceptionPurchaseOrderProductsPage />}
+              />
+              <Route
+                path="gestion-de-compras/orden-compra-producto/recepcion/agregar/:purchaseOrderId"
+                element={<AddReceptionPurchaseOrderProductsPage />}
+              />
+              <Route
+                path="gestion-de-compras/orden-compra-producto/recepcion/actualizar/:purchaseOrderId/:id"
+                element={<EditReceptionPurchaseOrderProductsPage />}
               />
 
               {/* Taller */}

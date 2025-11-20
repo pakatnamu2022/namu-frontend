@@ -8,49 +8,54 @@ export interface PurchaseOrderProductsResponse {
 
 export interface PurchaseOrderProductItemResource {
   id: number;
-  purchase_order_id: number;
-  product_id: number;
-  product_code?: string;
-  product_name?: string;
-  quantity: number;
+  description?: string;
   unit_price: number;
-  discount?: number;
-  tax_rate?: number;
-  subtotal: number;
+  quantity: number;
   total: number;
-  notes?: string;
+  is_vehicle: boolean;
+  unit_measurement?: string | null;
+  product_id: number;
+  product_name?: string;
 }
 
 export interface PurchaseOrderProductsResource {
   id: number;
-  order_number: string;
-  supplier_id: number;
-  supplier_name?: string;
-  supplier_num_doc?: string;
-  order_date: string;
-  expected_delivery_date?: string;
-  actual_delivery_date?: string;
-  payment_terms?: string;
-  shipping_method?: string;
-  warehouse_id?: number;
-  warehouse_name?: string;
+  number: string;
+  number_guide?: string;
+  invoice_series: string;
+  invoice_number: string;
+  emission_date: string;
+  due_date: string;
   subtotal: number;
-  total_discount?: number;
-  total_tax?: number;
-  total_amount: number;
-  status: "PENDING" | "APPROVED" | "RECEIVED" | "CANCELLED";
-  notes?: string;
-  created_by?: number;
-  created_by_name?: string;
-  approved_by?: number;
-  approved_by_name?: string;
-  approved_at?: string;
-  received_by?: number;
-  received_by_name?: string;
-  received_at?: string;
-  items?: PurchaseOrderProductItemResource[];
-  created_at?: string;
-  updated_at?: string;
+  igv: number;
+  total: number;
+  discount: number;
+  isc: number;
+  sede_id: number;
+  sede?: string;
+  supplier: string;
+  supplier_num_doc?: string;
+  supplier_order_type?: string;
+  currency?: string;
+  currency_code?: string;
+  warehouse?: string;
+  vehicle?: any;
+  payment_terms?: string;
+  items: PurchaseOrderProductItemResource[];
+  supplier_id: number;
+  supplier_order_type_id: number;
+  currency_id: number;
+  warehouse_id?: number;
+  resent: boolean;
+  status: boolean;
+  migration_status: string;
+  invoice_dynamics?: string | null;
+  receipt_dynamics?: string | null;
+  credit_note_dynamics?: string | null;
+  vehicleMovement?: any;
+  migrated_at?: string | null;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface PurchaseOrderProductItemRequest {
@@ -63,17 +68,14 @@ export interface PurchaseOrderProductItemRequest {
 }
 
 export interface PurchaseOrderProductsRequest {
-  order_number: string;
   supplier_id: string;
-  order_date: string;
-  expected_delivery_date?: string;
   payment_terms?: string;
   shipping_method?: string;
   warehouse_id?: string;
   subtotal: number;
   total_discount?: number;
   total_tax?: number;
-  total_amount: number;
+  total: number;
   status: "PENDING" | "APPROVED" | "RECEIVED" | "CANCELLED";
   notes?: string;
   items: PurchaseOrderProductItemRequest[];

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   ERROR_MESSAGE,
   errorToast,
@@ -23,26 +23,27 @@ import PurchaseOrderProductsTable from "@/features/ap/post-venta/gestion-compras
 import { purchaseOrderProductsColumns } from "@/features/ap/post-venta/gestion-compras/orden-compra-producto/components/PurchaseOrderProductsColumns";
 import PurchaseOrderProductsOptions from "@/features/ap/post-venta/gestion-compras/orden-compra-producto/components/PurchaseOrderProductsOptions";
 import { PURCHASE_ORDER_PRODUCT } from "@/features/ap/post-venta/gestion-compras/orden-compra-producto/lib/purchaseOrderProducts.constants";
+import { PurchaseOrderProductsViewSheet } from "@/features/ap/post-venta/gestion-compras/orden-compra-producto/components/PurchaseOrderProductsSheet";
+import { PurchaseOrderProductsResource } from "@/features/ap/post-venta/gestion-compras/orden-compra-producto/lib/purchaseOrderProducts.interface";
+import { TYPES_OPERATION_ID } from "@/features/ap/configuraciones/maestros-general/tipos-operacion/lib/typesOperation.constants";
 
 export default function PurchaseOrderProductsPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
   const [deleteId, setDeleteId] = useState<number | null>(null);
-  const { MODEL, ROUTE } = PURCHASE_ORDER_PRODUCT;
+  const [viewData, setViewData] =
+    useState<PurchaseOrderProductsResource | null>(null);
+  const { MODEL, ROUTE, ROUTE_ADD, ROUTE_UPDATE, ABSOLUTE_ROUTE } =
+    PURCHASE_ORDER_PRODUCT;
   const permissions = useModulePermissions(ROUTE);
-
-  useEffect(() => {
-    setPage(1);
-  }, [search, per_page, statusFilter]);
 
   const { data, isLoading, refetch } = usePurchaseOrderProducts({
     page,
     search,
     per_page,
-    ...(statusFilter !== "all" && { status: statusFilter }),
+    type_operation_id: TYPES_OPERATION_ID.POSTVENTA,
   });
 
   const handleDelete = async () => {
@@ -60,8 +61,10 @@ export default function PurchaseOrderProductsPage() {
   };
 
   const handleView = (id: number) => {
-    console.log("Ver orden:", id);
-    // Aquí puedes implementar un modal o navegar a una vista de detalle
+    const orderData = data?.data.find((item) => item.id === id);
+    if (orderData) {
+      setViewData(orderData);
+    }
   };
 
   if (isLoadingModule) return <PageSkeleton />;
@@ -78,7 +81,7 @@ export default function PurchaseOrderProductsPage() {
         />
         <PurchaseOrderProductsActions
           permissions={permissions}
-          routeAdd={`${ROUTE}/agregar`}
+          routeAdd={ROUTE_ADD}
         />
       </HeaderTableWrapper>
       <PurchaseOrderProductsTable
@@ -86,17 +89,16 @@ export default function PurchaseOrderProductsPage() {
         columns={purchaseOrderProductsColumns({
           onDelete: setDeleteId,
           onView: handleView,
-          permissions,
-          routeUpdate: `${ROUTE}/actualizar`,
+          permissions: {
+            ...permissions,
+            canReceive: true,
+          },
+          routeUpdate: ROUTE_UPDATE,
+          routeReception: `${ABSOLUTE_ROUTE}/recepcion`,
         })}
         data={data?.data || []}
       >
-        <PurchaseOrderProductsOptions
-          search={search}
-          setSearch={setSearch}
-          statusFilter={statusFilter}
-          setStatusFilter={setStatusFilter}
-        />
+        <PurchaseOrderProductsOptions search={search} setSearch={setSearch} />
       </PurchaseOrderProductsTable>
 
       {deleteId !== null && (
@@ -106,6 +108,12 @@ export default function PurchaseOrderProductsPage() {
           onConfirm={handleDelete}
         />
       )}
+
+      <PurchaseOrderProductsViewSheet
+        open={viewData !== null}
+        onOpenChange={(open) => !open && setViewData(null)}
+        data={viewData}
+      />
 
       <DataTablePagination
         page={page}

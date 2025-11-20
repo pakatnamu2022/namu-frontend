@@ -59,6 +59,7 @@ export const ApprovedAccesoriesForm = ({
     },
     mode: "onChange",
   });
+  const { ABSOLUTE_ROUTE } = APPROVED_ACCESSORIES;
 
   const { data: typesCurrency = [], isLoading: isLoadingTypesCurrency } =
     useAllCurrencyTypes();
@@ -149,7 +150,7 @@ export const ApprovedAccesoriesForm = ({
           />
         </div>
         <div className="flex gap-4 w-full justify-end">
-          <Link to={ABSOLUTE_ROUTE}>
+          <Link to={ABSOLUTE_ROUTE!}>
             <Button type="button" variant="outline">
               Cancelar
             </Button>

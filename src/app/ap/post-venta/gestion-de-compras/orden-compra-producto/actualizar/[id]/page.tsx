@@ -60,27 +60,23 @@ export default function UpdatePurchaseOrderProductsPage() {
     data: PurchaseOrderProductsResource
   ): Partial<PurchaseOrderProductsSchema> {
     return {
-      order_number: data.order_number,
       supplier_id: String(data.supplier_id),
-      order_date: data.order_date,
-      expected_delivery_date: data.expected_delivery_date,
+      invoice_series: data.invoice_series,
+      invoice_number: data.invoice_number,
+      emission_date: data.emission_date ? new Date(data.emission_date) : "",
+      due_date: data.due_date ? new Date(data.due_date) : "",
+      sede_id: String(data.sede_id),
+      warehouse_id: String(data.warehouse_id),
+      supplier_order_type_id: String(data.supplier_order_type_id),
+      currency_id: String(data.currency_id),
       payment_terms: data.payment_terms,
-      shipping_method: data.shipping_method,
-      warehouse_id: data.warehouse_id ? String(data.warehouse_id) : "",
-      subtotal: data.subtotal,
-      total_discount: data.total_discount,
-      total_tax: data.total_tax,
-      total_amount: data.total_amount,
-      status: data.status,
-      notes: data.notes,
       items:
         data.items?.map((item) => ({
           product_id: String(item.product_id),
           quantity: item.quantity,
           unit_price: item.unit_price,
-          discount: item.discount,
-          tax_rate: item.tax_rate,
-          notes: item.notes,
+          item_total: item.total,
+          notes: item.description,
         })) || [],
     };
   }
@@ -105,7 +101,7 @@ export default function UpdatePurchaseOrderProductsPage() {
         onSubmit={handleSubmit}
         isSubmitting={isPending}
         mode="update"
-        onCancel={() => router(ROUTE)}
+        onCancel={() => router(ABSOLUTE_ROUTE)}
       />
     </FormWrapper>
   );

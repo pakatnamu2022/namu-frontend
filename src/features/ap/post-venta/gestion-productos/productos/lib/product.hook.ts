@@ -1,13 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import {
-  ProductResource,
-  ProductResponse,
-} from "./product.interface";
-import {
-  findProductById,
-  getAllProduct,
-  getProduct,
-} from "./product.actions";
+import { ProductResource, ProductResponse } from "./product.interface";
+import { findProductById, getAllProduct, getProduct } from "./product.actions";
 import { PRODUCT } from "./product.constants";
 
 const { QUERY_KEY } = PRODUCT;

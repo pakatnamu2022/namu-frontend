@@ -1,7 +1,6 @@
 import type { AxiosRequestConfig } from "axios";
 import { api } from "@/core/api";
 import { GeneralResponse } from "@/shared/lib/response.interface";
-import { STATUS_ACTIVE } from "@/core/core.constants";
 import { PRODUCT } from "./product.constants";
 import {
   getProductProps,
@@ -30,7 +29,7 @@ export async function getAllProduct({
     params: {
       all: true,
       ...params,
-      status: STATUS_ACTIVE,
+      status: "ACTIVE",
     },
   };
   const { data } = await api.get<ProductResource[]>(ENDPOINT, config);
