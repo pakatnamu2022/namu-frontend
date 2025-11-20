@@ -45,6 +45,7 @@ export function ItemsSection({
     descripcion: "",
     cantidad: 1,
     precio_unitario: 0,
+    descuento: 0,
     account_plan_id: "",
   });
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
@@ -73,6 +74,7 @@ export function ItemsSection({
       descripcion: "",
       cantidad: 1,
       precio_unitario: 0,
+      descuento: 0,
       account_plan_id: "",
     });
     setEditingIndex(null);
@@ -92,10 +94,19 @@ export function ItemsSection({
       return;
     }
 
-    // Calcular valores basados en el precio unitario y el IGV global
-    const precio_sin_igv =
-      newItem.precio_unitario / (1 + porcentaje_de_igv / 100);
-    const subtotal = precio_sin_igv * newItem.cantidad;
+    // Calcular valores según SUNAT:
+    // Ejemplo: precio_unitario (con IGV) = 590, descuento = 200
+    // 1. valor_unitario = precio sin IGV = 590 / 1.18 = 500
+    // 2. precio_unitario = precio con IGV = 590
+    // 3. descuento = 200 (se aplica sobre el valor_unitario)
+    // 4. subtotal = (valor_unitario * cantidad) - descuento = 500 - 200 = 300
+    // 5. igv = subtotal * 0.18 = 300 * 0.18 = 54
+    // 6. total = subtotal + igv = 300 + 54 = 354
+    const precio_con_igv_input = newItem.precio_unitario; // Lo que ingresa el usuario (CON IGV)
+    const descuento = newItem.descuento || 0;
+    const valor_unitario = precio_con_igv_input / (1 + porcentaje_de_igv / 100);
+    const precio_unitario = precio_con_igv_input; // Precio CON IGV (sin descuento aplicado)
+    const subtotal = (valor_unitario * newItem.cantidad) - descuento;
     const igv = subtotal * (porcentaje_de_igv / 100);
     const total = subtotal + igv;
 
@@ -113,8 +124,9 @@ export function ItemsSection({
       unidad_de_medida: newItem.unidad_de_medida,
       descripcion: newItem.descripcion,
       cantidad: newItem.cantidad,
-      valor_unitario: precio_sin_igv,
-      precio_unitario: newItem.precio_unitario,
+      valor_unitario: valor_unitario,
+      precio_unitario: precio_unitario,
+      descuento: descuento > 0 ? descuento : undefined,
       subtotal: subtotal,
       sunat_concept_igv_type_id:
         igvTypes.find((t) => t.code_nubefact === "1")?.id || 0,
@@ -131,6 +143,7 @@ export function ItemsSection({
       descripcion: "",
       cantidad: 1,
       precio_unitario: 0,
+      descuento: 0,
       account_plan_id: "",
     });
   };
@@ -147,7 +160,8 @@ export function ItemsSection({
       unidad_de_medida: item.unidad_de_medida,
       descripcion: item.descripcion,
       cantidad: item.cantidad,
-      precio_unitario: item.total,
+      precio_unitario: item.precio_unitario,
+      descuento: item.descuento || 0,
       account_plan_id: item.account_plan_id.toString(),
     });
     setEditingIndex(index);
@@ -163,10 +177,19 @@ export function ItemsSection({
     )
       return;
 
-    // Calcular valores basados en el precio unitario y el IGV global
-    const precio_sin_igv =
-      newItem.precio_unitario / (1 + porcentaje_de_igv / 100);
-    const subtotal = precio_sin_igv * newItem.cantidad;
+    // Calcular valores según SUNAT:
+    // Ejemplo: precio_unitario (con IGV) = 590, descuento = 200
+    // 1. valor_unitario = precio sin IGV = 590 / 1.18 = 500
+    // 2. precio_unitario = precio con IGV = 590
+    // 3. descuento = 200 (se aplica sobre el valor_unitario)
+    // 4. subtotal = (valor_unitario * cantidad) - descuento = 500 - 200 = 300
+    // 5. igv = subtotal * 0.18 = 300 * 0.18 = 54
+    // 6. total = subtotal + igv = 300 + 54 = 354
+    const precio_con_igv_input = newItem.precio_unitario; // Lo que ingresa el usuario (CON IGV)
+    const descuento = newItem.descuento || 0;
+    const valor_unitario = precio_con_igv_input / (1 + porcentaje_de_igv / 100);
+    const precio_unitario = precio_con_igv_input; // Precio CON IGV (sin descuento aplicado)
+    const subtotal = (valor_unitario * newItem.cantidad) - descuento;
     const igv = subtotal * (porcentaje_de_igv / 100);
     const total = subtotal + igv;
 
@@ -185,8 +208,9 @@ export function ItemsSection({
       unidad_de_medida: newItem.unidad_de_medida,
       descripcion: newItem.descripcion,
       cantidad: newItem.cantidad,
-      valor_unitario: precio_sin_igv,
-      precio_unitario: newItem.precio_unitario,
+      valor_unitario: valor_unitario,
+      precio_unitario: precio_unitario,
+      descuento: descuento > 0 ? descuento : undefined,
       subtotal: subtotal,
       igv: igv,
       total: total,
@@ -203,6 +227,7 @@ export function ItemsSection({
       descripcion: "",
       cantidad: 1,
       precio_unitario: 0,
+      descuento: 0,
       account_plan_id: "",
     });
     setEditingIndex(null);
@@ -215,6 +240,7 @@ export function ItemsSection({
       descripcion: "",
       cantidad: 1,
       precio_unitario: 0,
+      descuento: 0,
       account_plan_id: "",
     });
     setEditingIndex(null);
@@ -372,7 +398,32 @@ export function ItemsSection({
                     precio_unitario: parseFloat(e.target.value) || 0,
                   })
                 }
+                disabled={isFromQuotation}
               />
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="item-discount">Descuento (Sobre Precio Unitario)</Label>
+              <Input
+                id="item-discount"
+                type="number"
+                min="0"
+                step="0.01"
+                max={newItem.precio_unitario}
+                value={newItem.descuento}
+                onChange={(e) =>
+                  setNewItem({
+                    ...newItem,
+                    descuento: parseFloat(e.target.value) || 0,
+                  })
+                }
+              />
+              {newItem.descuento > 0 && newItem.precio_unitario > 0 && (
+                <p className="text-xs text-muted-foreground">
+                  Precio con descuento: {currencySymbol}{" "}
+                  {(newItem.precio_unitario - newItem.descuento).toFixed(2)}
+                </p>
+              )}
             </div>
           </div>
 

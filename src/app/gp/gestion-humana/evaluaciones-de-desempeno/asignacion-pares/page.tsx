@@ -54,7 +54,7 @@ export default function EvaluatorParPage() {
     per_page,
   });
 
-  const handleEdit = async (id: number, workerId: number) => {
+  const handleAssign = async (id: number, workerId: number) => {
     setEditingId(id);
     setEditingWorkerId(workerId);
     try {
@@ -117,7 +117,7 @@ export default function EvaluatorParPage() {
         isLoading={isLoading}
         columns={parEvaluatorColumns({
           onDelete: setDeleteId,
-          onEdit: handleEdit,
+          onAssign: handleAssign,
         })}
         data={data?.data || []}
       >

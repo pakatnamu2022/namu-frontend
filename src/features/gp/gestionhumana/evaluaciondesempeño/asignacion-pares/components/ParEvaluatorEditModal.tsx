@@ -41,7 +41,7 @@ export function ParEvaluatorEditModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[90vh] w-full overflow-auto max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Editar Evaluador Par</DialogTitle>
+          <DialogTitle>Asignar Evaluador Par</DialogTitle>
         </DialogHeader>
 
         {loadingWorkers ? (

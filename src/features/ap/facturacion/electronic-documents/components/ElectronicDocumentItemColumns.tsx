@@ -67,6 +67,40 @@ export const getElectronicDocumentItemColumns = ({
     size: 100,
   },
   {
+    accessorKey: "descuento",
+    header: () => <div className="text-right">Descuento</div>,
+    cell: ({ row }) => (
+      <div className="text-right">
+        {row.original.descuento ? (
+          <>
+            {currencySymbol}{" "}
+            {row.original.descuento.toLocaleString("es-PE", {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}
+          </>
+        ) : (
+          <span className="text-muted-foreground">-</span>
+        )}
+      </div>
+    ),
+    size: 100,
+  },
+  {
+    accessorKey: "valor_unitario",
+    header: () => <div className="text-right">V. Unit.</div>,
+    cell: ({ row }) => (
+      <div className="text-right text-xs text-muted-foreground">
+        {currencySymbol}{" "}
+        {row.original.valor_unitario.toLocaleString("es-PE", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        })}
+      </div>
+    ),
+    size: 100,
+  },
+  {
     accessorKey: "subtotal",
     header: () => <div className="text-right">Subtotal</div>,
     cell: ({ row }) => (
@@ -113,17 +147,17 @@ export const getElectronicDocumentItemColumns = ({
     header: () => <div className="text-center">Acciones</div>,
     cell: ({ row }) => {
       const isAdvanceRegularization = row.original.anticipo_regularizacion;
-      // Si es venta total (no anticipo) y no es regularización, tampoco se puede editar
-      // porque el item del vehículo ya tiene el precio fijo
-      const isNotEditable = isAdvanceRegularization || !isAdvancePayment;
+      // Los items de regularización de anticipos no se pueden editar ni eliminar
+      const cannotEdit = isAdvanceRegularization;
+      const cannotDelete = isAdvanceRegularization;
 
       return (
         <div className="text-center flex gap-1 justify-center">
-          {isNotEditable ? (
+          {cannotEdit && cannotDelete ? (
             <span className="text-xs text-gray-500 px-2">No editable</span>
           ) : (
             <>
-              {onEdit && (
+              {onEdit && !cannotEdit && (
                 <Button
                   type="button"
                   variant="outline"
@@ -135,16 +169,18 @@ export const getElectronicDocumentItemColumns = ({
                   <Pencil className="size-4" />
                 </Button>
               )}
-              <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                onClick={() => onRemove(row.original.index)}
-                className="size-8 text-destructive hover:text-destructive"
-                title="Eliminar"
-              >
-                <Trash2 className="size-4" />
-              </Button>
+              {!cannotDelete && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  onClick={() => onRemove(row.original.index)}
+                  className="size-8 text-destructive hover:text-destructive"
+                  title="Eliminar"
+                >
+                  <Trash2 className="size-4" />
+                </Button>
+              )}
             </>
           )}
         </div>

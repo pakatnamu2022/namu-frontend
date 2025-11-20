@@ -2,7 +2,7 @@
 
 import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-import { Pencil } from "lucide-react";
+import { UserPlus } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { ParEvaluatorResource } from "../lib/par-evaluator.interface";
 
@@ -10,10 +10,10 @@ export type ParEvaluatorColumns = ColumnDef<ParEvaluatorResource>;
 
 export const parEvaluatorColumns = ({
   onDelete,
-  onEdit,
+  onAssign,
 }: {
   onDelete: (id: number) => void;
-  onEdit: (id: number, workerId: number) => void;
+  onAssign: (id: number, workerId: number) => void;
 }): ParEvaluatorColumns[] => [
   {
     accessorKey: "name",
@@ -43,14 +43,15 @@ export const parEvaluatorColumns = ({
 
       return (
         <div className="flex items-center gap-2">
-          {/* Edit */}
+          {/* Assign */}
           <Button
             variant="outline"
-            size="icon"
-            className="size-7"
-            onClick={() => onEdit(id, workerId)}
+            size="sm"
+            className="h-7"
+            onClick={() => onAssign(id, workerId)}
           >
-            <Pencil className="size-5" />
+            <UserPlus className="size-4 mr-1" />
+            Asignar
           </Button>
           {/* Delete */}
           <DeleteButton onClick={() => onDelete(id)} />

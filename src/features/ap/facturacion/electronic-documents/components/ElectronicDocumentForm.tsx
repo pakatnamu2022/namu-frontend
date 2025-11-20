@@ -293,10 +293,13 @@ export function ElectronicDocumentForm({
           ? Math.max(pendingBalance - 1, 0) // Máximo disponible para anticipo
           : quotationPrice; // Para venta total, siempre usar precio completo
         const cantidad = 1;
-        const unitPrice = effectivePrice / cantidad;
-        const unitValue = unitPrice / 1.18;
-        const subtotal = unitValue * cantidad;
-        const igvAmount = effectivePrice - subtotal;
+        // Según SUNAT:
+        // precio_unitario = precio CON IGV (sin descuento)
+        // valor_unitario = precio SIN IGV (sin descuento)
+        const precio_unitario = effectivePrice / cantidad; // Precio CON IGV
+        const valor_unitario = precio_unitario / (1 + porcentaje_de_igv / 100); // Precio SIN IGV
+        const subtotal = valor_unitario * cantidad; // Base imponible
+        const igvAmount = subtotal * (porcentaje_de_igv / 100);
 
         // Construir descripción base del vehículo
         let descripcion = "";
@@ -337,15 +340,15 @@ MODELO: ${vehicle?.model?.version || ``}
           codigo: quotation.ap_vehicle_id?.toString() || undefined,
           descripcion,
           cantidad: 1,
-          valor_unitario: unitValue,
-          precio_unitario: unitPrice,
-          subtotal: effectivePrice - igvAmount,
+          valor_unitario: valor_unitario,
+          precio_unitario: precio_unitario,
+          subtotal: subtotal,
           sunat_concept_igv_type_id:
             igvTypes.find(
               (t) => t.code_nubefact === NUBEFACT_CODES.GRAVADA_ONEROSA
             )?.id || 0,
           igv: igvAmount,
-          total: effectivePrice,
+          total: subtotal + igvAmount,
         };
 
         // Si es anticipo, agregar información adicional
@@ -387,10 +390,13 @@ MODELO: ${vehicle?.model?.version || ``}
       (advance) => {
         const advanceTotal = Number(advance.total) || 0;
         const cantidad = 1;
-        const unitPrice = advanceTotal / cantidad;
-        const unitValue = unitPrice / 1.18;
-        const subtotal = unitValue * cantidad;
-        const igvAmount = advanceTotal - subtotal;
+        // Según SUNAT para anticipos (regularización):
+        // precio_unitario = precio CON IGV (negativo para restar)
+        // valor_unitario = precio SIN IGV (negativo para restar)
+        const precio_unitario = advanceTotal / cantidad; // Precio CON IGV
+        const valor_unitario = precio_unitario / (1 + porcentaje_de_igv / 100); // Precio SIN IGV
+        const subtotal = valor_unitario * cantidad; // Base imponible
+        const igvAmount = subtotal * (porcentaje_de_igv / 100);
 
         return {
           reference_document_id: advance.id.toString(),
@@ -398,15 +404,15 @@ MODELO: ${vehicle?.model?.version || ``}
           unidad_de_medida: "NIU",
           descripcion: `ANTICIPO: ${advance.serie}-${advance.numero}`,
           cantidad: cantidad,
-          valor_unitario: unitValue,
-          precio_unitario: unitPrice,
+          valor_unitario: valor_unitario,
+          precio_unitario: precio_unitario,
           subtotal: subtotal,
           sunat_concept_igv_type_id:
             igvTypes.find(
               (t) => t.code_nubefact === NUBEFACT_CODES.GRAVADA_ONEROSA
             )?.id || 0,
           igv: igvAmount,
-          total: advanceTotal,
+          total: subtotal + igvAmount,
           anticipo_regularizacion: true,
           anticipo_documento_serie: advance.serie,
           anticipo_documento_numero: Number(advance.numero),
