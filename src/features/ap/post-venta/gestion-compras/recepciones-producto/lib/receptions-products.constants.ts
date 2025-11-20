@@ -27,7 +27,7 @@ export const RECEPTION_TYPES = [
   { value: "SAMPLE", label: "Muestra" },
 ] as const;
 
-export const REJECTION_REASONS = [
+export const OBSERVATION_REASONS = [
   { value: "DAMAGED", label: "Dañado" },
   { value: "DEFECTIVE", label: "Defectuoso" },
   { value: "EXPIRED", label: "Vencido" },
@@ -44,7 +44,7 @@ export const RECEPTION_TYPE_COLORS = {
   SAMPLE: "bg-orange-100 text-orange-800",
 } as const;
 
-export const REJECTION_REASON_COLORS = {
+export const OBSERVATION_REASON_COLORS = {
   DAMAGED: "bg-red-100 text-red-800",
   DEFECTIVE: "bg-orange-100 text-orange-800",
   EXPIRED: "bg-red-100 text-red-800",

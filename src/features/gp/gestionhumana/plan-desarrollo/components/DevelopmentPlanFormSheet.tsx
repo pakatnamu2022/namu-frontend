@@ -1,7 +1,7 @@
 "use client";
 
 import GeneralSheet from "@/shared/components/GeneralSheet";
-import DevelopmentPlanForm from "../../../../../../features/gp/gestionhumana/plan-desarrollo/components/DevelopmentPlanForm";
+import DevelopmentPlanForm from "./DevelopmentPlanForm";
 
 interface DevelopmentPlanFormSheetProps {
   open: boolean;

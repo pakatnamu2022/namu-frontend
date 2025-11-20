@@ -2,18 +2,13 @@ import { type Links, type Meta } from "@/shared/lib/pagination.interface";
 
 export interface ReceptionDetailResource {
   id: number;
-  reception_id: number;
+  purchase_reception_id?: number;
   purchase_order_item_id?: number;
   product_id: number;
-  product_code?: string;
-  product_name?: string;
-  quantity_received: number;
-  quantity_accepted: number;
-  quantity_rejected?: number;
+  quantity_received: string | number;
+  observed_quantity?: string | number;
   reception_type: "ORDERED" | "BONUS" | "GIFT" | "SAMPLE";
-  unit_cost?: number;
-  is_charged?: boolean;
-  rejection_reason?:
+  reason_observation?:
     | "DAMAGED"
     | "DEFECTIVE"
     | "EXPIRED"
@@ -21,33 +16,76 @@ export interface ReceptionDetailResource {
     | "WRONG_QUANTITY"
     | "POOR_QUALITY"
     | "OTHER";
-  rejection_notes?: string;
+  observation_notes?: string;
   bonus_reason?: string;
-  batch_number?: string;
-  expiration_date?: string;
   notes?: string;
+  product?: {
+    id: number;
+    code: string;
+    name: string;
+  };
+  purchase_order_item?: {
+    id: number;
+    product_id: number;
+    product_name?: string;
+    quantity: number;
+  };
 }
 
 export interface ReceptionResource {
   id: number;
+  reception_number?: string;
   purchase_order_id: number;
-  purchase_order_number?: string;
   reception_date: string;
   warehouse_id: number;
-  warehouse_name?: string;
-  supplier_invoice_number?: string;
-  supplier_invoice_date?: string;
   shipping_guide_number?: string;
+  reception_type?: string;
   notes?: string;
   received_by?: number;
-  received_by_name?: string;
+  received_by_user_name?: string;
+  total_items?: number;
+  total_quantity?: string;
+  status?: string;
+  purchase_order?: {
+    id: number;
+    number: string;
+    supplier?: string;
+    items?: Array<{
+      id: number;
+      product_id: number;
+      product_name?: string;
+      quantity: number;
+      unit_price: number;
+    }>;
+  };
+  warehouse?: {
+    id: number;
+    description: string;
+  };
   details?: ReceptionDetailResource[];
   created_at?: string;
   updated_at?: string;
 }
 
+// Interface para el listado (datos resumidos)
+export interface ReceptionListItem {
+  id: number;
+  reception_number?: string;
+  purchase_order_id: number;
+  reception_date: string;
+  warehouse_id: number;
+  shipping_guide_number?: string;
+  reception_type?: string;
+  notes?: string;
+  received_by?: number;
+  received_by_user_name?: string;
+  total_items?: number;
+  total_quantity?: string;
+  status?: string;
+}
+
 export interface ReceptionResponse {
-  data: ReceptionResource[];
+  data: ReceptionListItem[];
   links: Links;
   meta: Meta;
 }
@@ -56,12 +94,9 @@ export interface ReceptionDetailRequest {
   purchase_order_item_id?: string;
   product_id: string;
   quantity_received: number;
-  quantity_accepted: number;
-  quantity_rejected?: number;
+  observed_quantity?: number;
   reception_type: "ORDERED" | "BONUS" | "GIFT" | "SAMPLE";
-  unit_cost?: number;
-  is_charged?: boolean;
-  rejection_reason?:
+  reason_observation?:
     | "DAMAGED"
     | "DEFECTIVE"
     | "EXPIRED"
@@ -69,22 +104,17 @@ export interface ReceptionDetailRequest {
     | "WRONG_QUANTITY"
     | "POOR_QUALITY"
     | "OTHER";
-  rejection_notes?: string;
+  observation_notes?: string;
   bonus_reason?: string;
-  batch_number?: string;
-  expiration_date?: string;
   notes?: string;
 }
 
 export interface ReceptionRequest {
   purchase_order_id: string;
-  reception_date: string;
+  reception_date: string | Date;
   warehouse_id: string;
-  supplier_invoice_number?: string;
-  supplier_invoice_date?: string;
   shipping_guide_number?: string;
   notes?: string;
-  received_by?: string;
   details: ReceptionDetailRequest[];
 }
 

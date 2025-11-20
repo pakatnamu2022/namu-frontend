@@ -73,31 +73,34 @@ export default function EditReceptionProductPage() {
   ): Partial<ReceptionSchema> {
     return {
       purchase_order_id: String(data.purchase_order_id),
-      reception_date: data.reception_date,
+      reception_date: data.reception_date
+        ? new Date(data.reception_date)
+        : undefined,
       warehouse_id: String(data.warehouse_id),
-      supplier_invoice_number: data.supplier_invoice_number,
-      supplier_invoice_date: data.supplier_invoice_date,
-      shipping_guide_number: data.shipping_guide_number,
-      notes: data.notes,
-      received_by: data.received_by ? String(data.received_by) : "",
+      shipping_guide_number: data.shipping_guide_number || "",
+      notes: data.notes || "",
       details:
         data.details?.map((detail) => ({
           purchase_order_item_id: detail.purchase_order_item_id
             ? String(detail.purchase_order_item_id)
-            : "",
+            : undefined,
           product_id: String(detail.product_id),
-          quantity_received: detail.quantity_received,
-          quantity_accepted: detail.quantity_accepted,
-          quantity_rejected: detail.quantity_rejected,
+          quantity_received:
+            typeof detail.quantity_received === "string"
+              ? parseFloat(detail.quantity_received)
+              : detail.quantity_received,
+          observed_quantity:
+            detail.observed_quantity !== undefined &&
+            detail.observed_quantity !== null
+              ? typeof detail.observed_quantity === "string"
+                ? parseFloat(detail.observed_quantity)
+                : detail.observed_quantity
+              : 0,
           reception_type: detail.reception_type,
-          unit_cost: detail.unit_cost,
-          is_charged: detail.is_charged,
-          rejection_reason: detail.rejection_reason,
-          rejection_notes: detail.rejection_notes,
-          bonus_reason: detail.bonus_reason,
-          batch_number: detail.batch_number,
-          expiration_date: detail.expiration_date,
-          notes: detail.notes,
+          reason_observation: detail.reason_observation || undefined,
+          observation_notes: detail.observation_notes || "",
+          bonus_reason: detail.bonus_reason || "",
+          notes: detail.notes || "",
         })) || [],
     };
   }
@@ -129,6 +132,7 @@ export default function EditReceptionProductPage() {
           )
         }
         purchaseOrderNumber={purchaseOrder.number}
+        purchaseOrderItems={purchaseOrder.items || []}
       />
     </FormWrapper>
   );

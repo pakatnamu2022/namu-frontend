@@ -7,9 +7,11 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, Trash2, Calendar } from "lucide-react";
+import { Plus, Trash2, Calendar, Target, Award, X } from "lucide-react";
 import DatePicker from "@/shared/components/DatePicker";
-import ObjectivesCompetencesSheet from "./ObjectivesCompetencesSheet";
+import ObjectivesCompetencesSheet, {
+  type SelectedItem,
+} from "./ObjectivesCompetencesSheet";
 import { storeDevelopmentPlan } from "@/features/gp/gestionhumana/plan-desarrollo/lib/developmentPlan.actions";
 import {
   ERROR_MESSAGE,
@@ -18,6 +20,7 @@ import {
   successToast,
 } from "@/core/core.function";
 import { DEVELOPMENT_PLAN } from "@/features/gp/gestionhumana/plan-desarrollo/lib/developmentPlan.constants";
+import { Badge } from "@/components/ui/badge";
 
 interface Task {
   id: string;
@@ -45,6 +48,8 @@ export default function DevelopmentPlanForm({
   const [noAssociate, setNoAssociate] = useState(false);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [selectedObjectivesCompetences, setSelectedObjectivesCompetences] =
+    useState<SelectedItem[]>([]);
   const { MODEL } = DEVELOPMENT_PLAN;
 
   // Estados para agregar nueva tarea
@@ -74,6 +79,16 @@ export default function DevelopmentPlanForm({
     setTasks(tasks.filter((task) => task.id !== taskId));
   };
 
+  const handleSaveSelection = (items: SelectedItem[]) => {
+    setSelectedObjectivesCompetences(items);
+  };
+
+  const handleRemoveItem = (id: number, type: "objective" | "competence") => {
+    setSelectedObjectivesCompetences((prev) =>
+      prev.filter((item) => !(item.id === id && item.type === type))
+    );
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -84,6 +99,12 @@ export default function DevelopmentPlanForm({
         ? new Date(task.end_date).toISOString().split("T")[0]
         : "",
       fulfilled: task.fulfilled || false,
+    }));
+
+    // Formatear objetivos y competencias para el backend
+    const objectivesCompetences = selectedObjectivesCompetences.map((item) => ({
+      objective_detail_id: item.type === "objective" ? item.id : null,
+      competence_detail_id: item.type === "competence" ? item.id : null,
     }));
 
     // Preparar datos para enviar al backend
@@ -97,6 +118,7 @@ export default function DevelopmentPlanForm({
       worker_id: personId,
       boss_id: bossId || null,
       tasks: formattedTasks,
+      objectives_competences: objectivesCompetences,
     };
 
     try {
@@ -196,7 +218,7 @@ export default function DevelopmentPlanForm({
           </div>
 
           {!noAssociate && (
-            <div className="pt-2">
+            <div className="space-y-4 pt-2">
               <Button
                 type="button"
                 variant="outline"
@@ -206,6 +228,83 @@ export default function DevelopmentPlanForm({
                 <Plus className="w-4 h-4 mr-2" />
                 Agregar Mis Objetivos y/o Competencias
               </Button>
+
+              {/* Lista de items seleccionados */}
+              {selectedObjectivesCompetences.length > 0 && (
+                <div className="space-y-3">
+                  <h4 className="text-sm font-medium">
+                    Seleccionados ({selectedObjectivesCompetences.length})
+                  </h4>
+
+                  {/* Objetivos */}
+                  {selectedObjectivesCompetences.some(
+                    (item) => item.type === "objective"
+                  ) && (
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                        <Target className="w-4 h-4" />
+                        Objetivos
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {selectedObjectivesCompetences
+                          .filter((item) => item.type === "objective")
+                          .map((item) => (
+                            <Badge
+                              key={`${item.type}-${item.id}`}
+                              variant="default"
+                              className="pr-1"
+                            >
+                              <span className="mr-1">{item.title}</span>
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  handleRemoveItem(item.id, item.type)
+                                }
+                                className="ml-1 hover:bg-muted rounded-full p-0.5"
+                              >
+                                <X className="w-3 h-3" />
+                              </button>
+                            </Badge>
+                          ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Competencias */}
+                  {selectedObjectivesCompetences.some(
+                    (item) => item.type === "competence"
+                  ) && (
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                        <Award className="w-4 h-4" />
+                        Competencias
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {selectedObjectivesCompetences
+                          .filter((item) => item.type === "competence")
+                          .map((item) => (
+                            <Badge
+                              key={`${item.type}-${item.id}`}
+                              variant="default"
+                              className="pr-1"
+                            >
+                              <span className="mr-1">{item.title}</span>
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  handleRemoveItem(item.id, item.type)
+                                }
+                                className="ml-1 hover:bg-muted rounded-full p-0.5"
+                              >
+                                <X className="w-3 h-3" />
+                              </button>
+                            </Badge>
+                          ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           )}
         </CardContent>
@@ -320,6 +419,7 @@ export default function DevelopmentPlanForm({
         open={sheetOpen}
         onClose={() => setSheetOpen(false)}
         personId={personId}
+        onSave={handleSaveSelection}
       />
     </form>
   );

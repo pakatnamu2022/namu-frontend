@@ -13,6 +13,17 @@ export interface DevelopmentPlanTaskResource {
   fulfilled: boolean;
 }
 
+export interface ObjectiveCompetenceDetail {
+  objective_detail: {
+    id: number;
+    objective: string;
+  } | null;
+  competence_detail: {
+    id: number;
+    competence: string;
+  } | null;
+}
+
 export interface DevelopmentPlanResource {
   id: number;
   title: string | null;
@@ -28,6 +39,7 @@ export interface DevelopmentPlanResource {
   created_at: string;
   updated_at: string;
   tasks: DevelopmentPlanTaskResource[];
+  objectives_competences: ObjectiveCompetenceDetail[];
   worker?: {
     id: number;
     name: string;

@@ -3,10 +3,11 @@ import { ReceptionResource } from "../lib/receptions-products.interface";
 import { ReceptionsProductsColumns } from "./ReceptionsProductsColumns";
 
 interface Props {
-  columns: ReceptionsProductsColumns[];
+  columns?: ReceptionsProductsColumns[];
   data: ReceptionResource[];
   children?: React.ReactNode;
   isLoading?: boolean;
+  customContent?: React.ReactNode;
 }
 
 export default function ReceptionsProductsTable({
@@ -14,18 +15,35 @@ export default function ReceptionsProductsTable({
   data,
   children,
   isLoading,
+  customContent,
 }: Props) {
+  // Si hay contenido personalizado (cards), mostrar eso en lugar de la tabla
+  if (customContent) {
+    return (
+      <div className="space-y-4">
+        {children}
+        {isLoading ? (
+          <div className="text-center py-12 text-muted-foreground">
+            Cargando...
+          </div>
+        ) : (
+          customContent
+        )}
+      </div>
+    );
+  }
+
+  // Comportamiento por defecto: tabla
   return (
     <div className="border-none text-muted-foreground max-w-full">
       <DataTable
-        columns={columns}
+        columns={columns || []}
         data={data}
         isLoading={isLoading}
         initialColumnVisibility={{
           purchase_order_number: true,
           reception_date: true,
           warehouse_name: true,
-          supplier_invoice_number: true,
           shipping_guide_number: true,
           received_by_name: true,
         }}
