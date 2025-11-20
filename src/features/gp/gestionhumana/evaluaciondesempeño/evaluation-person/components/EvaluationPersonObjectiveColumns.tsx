@@ -46,7 +46,7 @@ export const evaluationPersonObjectiveColumns = ({
       const overdue = isOverdue(endDate || "");
 
       return (
-        <div className="space-y-2 min-w-[300px] !text-wrap">
+        <div className="space-y-2 min-w-[300px] text-wrap!">
           <div className="flex flex-col">
             <p className="text-sm font-medium leading-relaxed">
               {detail.personCycleDetail?.objective || "Sin objetivo definido"}

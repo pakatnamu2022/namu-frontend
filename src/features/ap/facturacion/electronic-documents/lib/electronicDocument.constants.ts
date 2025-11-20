@@ -1,7 +1,7 @@
 import { type ModelComplete } from "@/core/core.interface";
 import { ElectronicDocumentResource } from "./electronicDocument.interface";
 
-const ROUTE = "documentos-electronicos";
+const ROUTE = "comprobantes-venta";
 const ABSOLUTE_ROUTE = `/ap/comercial/${ROUTE}`;
 
 export const ELECTRONIC_DOCUMENT: ModelComplete<ElectronicDocumentResource> = {

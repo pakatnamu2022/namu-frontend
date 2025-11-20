@@ -3,14 +3,27 @@
 import { Badge } from "@/components/ui/badge";
 import { AlertCircle } from "lucide-react";
 import { DataTable } from "@/shared/components/DataTable";
-import { ElectronicDocumentItem } from "../lib/electronicDocument.interface";
+import {
+  ElectronicDocumentItem,
+  ElectronicDocumentResource,
+} from "../lib/electronicDocument.interface";
 import { debitNoteItemsColumns } from "./DebitNoteItemsColumns";
 
 interface DebitNoteItemsTableProps {
   items: ElectronicDocumentItem[];
+  originalDocument: ElectronicDocumentResource;
 }
 
-export function DebitNoteItemsTable({ items }: DebitNoteItemsTableProps) {
+export function DebitNoteItemsTable({
+  items,
+  originalDocument,
+}: DebitNoteItemsTableProps) {
+  const currency =
+    originalDocument.currency?.iso_code === "PEN"
+      ? "S/ "
+      : originalDocument.currency?.iso_code === "USD"
+      ? "$ "
+      : `${originalDocument.currency?.iso_code} `;
   // Identify advance payment regularization items
   const advanceItems = items.filter((item) => item.anticipo_regularizacion);
 
@@ -31,7 +44,7 @@ export function DebitNoteItemsTable({ items }: DebitNoteItemsTableProps) {
       {/* Info message if advance items are present */}
       {advanceItems.length > 0 && (
         <div className="flex items-start gap-2 p-3 bg-purple-50 border border-purple-200 rounded-lg">
-          <AlertCircle className="h-5 w-5 text-purple-600 flex-shrink-0 mt-0.5" />
+          <AlertCircle className="h-5 w-5 text-purple-600 shrink-0 mt-0.5" />
           <div className="flex-1">
             <p className="text-sm font-medium text-purple-800">
               Regularización de anticipo incluida
@@ -48,7 +61,7 @@ export function DebitNoteItemsTable({ items }: DebitNoteItemsTableProps) {
       {/* Table with max height to prevent overflow */}
       <div className="max-h-[400px] overflow-auto rounded-lg">
         <DataTable
-          columns={debitNoteItemsColumns}
+          columns={debitNoteItemsColumns({ currency })}
           data={items}
           isVisibleColumnFilter={false}
         />
@@ -59,7 +72,7 @@ export function DebitNoteItemsTable({ items }: DebitNoteItemsTableProps) {
         <div className="space-y-1">
           <p className="text-xs text-muted-foreground">Subtotal</p>
           <p className="text-lg font-semibold">
-            S/{" "}
+            {currency}
             {totalSubtotal.toLocaleString("es-PE", {
               minimumFractionDigits: 2,
             })}
@@ -68,7 +81,7 @@ export function DebitNoteItemsTable({ items }: DebitNoteItemsTableProps) {
         <div className="space-y-1">
           <p className="text-xs text-muted-foreground">IGV (18%)</p>
           <p className="text-lg font-semibold">
-            S/{" "}
+            {currency}
             {totalIgv.toLocaleString("es-PE", {
               minimumFractionDigits: 2,
             })}
@@ -77,7 +90,7 @@ export function DebitNoteItemsTable({ items }: DebitNoteItemsTableProps) {
         <div className="space-y-1">
           <p className="text-xs text-muted-foreground">Total</p>
           <p className="text-xl font-bold text-primary">
-            S/{" "}
+            {currency}
             {totalAmount.toLocaleString("es-PE", {
               minimumFractionDigits: 2,
             })}

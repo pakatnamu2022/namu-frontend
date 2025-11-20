@@ -36,7 +36,7 @@ interface Props {
   };
 }
 
-const { ROUTE } = ELECTRONIC_DOCUMENT;
+const { ABSOLUTE_ROUTE } = ELECTRONIC_DOCUMENT;
 
 export const electronicDocumentColumns = ({
   onView,
@@ -294,8 +294,8 @@ export const electronicDocumentColumns = ({
         isInvoiceOrBoleta &&
         document.status === "accepted" &&
         document.aceptada_por_sunat &&
-        document.migrated_at &&
-        document.migration_status === "completed" &&
+        // document.migrated_at &&
+        // document.migration_status === "completed" &&
         !document.anulado &&
         !document.credit_note_id &&
         permissions.canCreateCreditNote;
@@ -315,19 +315,14 @@ export const electronicDocumentColumns = ({
       const routeToEdit =
         document.sunat_concept_document_type_id ===
         SUNAT_TYPE_INVOICES_ID.NOTA_DEBITO
-          ? `${ROUTE}/${document.original_document_id}/debit-note/actualizar/${document.id}`
+          ? `${ABSOLUTE_ROUTE}/${document.original_document_id}/debit-note/actualizar/${document.id}`
           : document.sunat_concept_document_type_id ===
             SUNAT_TYPE_INVOICES_ID.NOTA_CREDITO
-          ? `${ROUTE}/${document.original_document_id}/credit-note/actualizar/${document.id}`
-          : `${ROUTE}/actualizar/${document.id}`;
+          ? `${ABSOLUTE_ROUTE}/${document.original_document_id}/credit-note/actualizar/${document.id}`
+          : `${ABSOLUTE_ROUTE}/actualizar/${document.id}`;
 
       return (
         <div className="flex items-center gap-1">
-          <p>
-            {permissions.canCreateCreditNote
-              ? "permissions.canCreateCreditNote"
-              : ""}
-          </p>
           {/* Ver detalles */}
           <Button
             variant="outline"
@@ -380,7 +375,9 @@ export const electronicDocumentColumns = ({
               variant="outline"
               size="icon"
               className="size-7"
-              onClick={() => router(`${ROUTE}/${document.id}/credit-note`)}
+              onClick={() =>
+                router(`${ABSOLUTE_ROUTE}/${document.id}/credit-note`)
+              }
               tooltip="Generar Nota de Crédito"
             >
               <FileMinus className="h-4 w-4 text-blue-600" />
@@ -393,7 +390,9 @@ export const electronicDocumentColumns = ({
               variant="outline"
               size="icon"
               className="size-7"
-              onClick={() => router(`${ROUTE}/${document.id}/debit-note`)}
+              onClick={() =>
+                router(`${ABSOLUTE_ROUTE}/${document.id}/debit-note`)
+              }
               tooltip="Generar Nota de Débito"
             >
               <FilePlus className="h-4 w-4 text-purple-600" />

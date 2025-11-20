@@ -30,6 +30,7 @@ import { CreditNoteItemsTable } from "../CreditNoteItemsTable";
 import { getNextCreditNoteNumber } from "../../lib/electronicDocument.actions";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
+import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 
 interface CreditNoteFormProps {
   creditNote?: ElectronicDocumentResource;
@@ -63,14 +64,14 @@ export function CreditNoteForm({
 
   // Initialize form with document items
   const form = useForm<CreditNoteSchema>({
-    resolver: zodResolver(CreditNoteSchema as any),
+    resolver: zodResolver(CreditNoteSchema) as any,
     defaultValues: {
       sunat_concept_credit_note_type_id:
         creditNote?.sunat_concept_credit_note_type_id?.toString() || "",
       series: creditNote?.series_id?.toString() || "",
       observaciones: creditNote?.observaciones || "",
       enviar_automaticamente_a_la_sunat:
-        creditNote?.enviar_automaticamente_a_la_sunat || true,
+        creditNote?.enviar_automaticamente_a_la_sunat || false,
       enviar_automaticamente_al_cliente:
         creditNote?.enviar_automaticamente_al_cliente || false,
       items:
@@ -96,6 +97,7 @@ export function CreditNoteForm({
           anticipo_documento_numero: item.anticipo_documento_numero,
         })) || [],
     },
+    mode: "onChange",
   });
 
   useEffect(() => {
@@ -161,6 +163,7 @@ export function CreditNoteForm({
       ? 1
       : -1;
   });
+  console.log(form.formState.errors);
 
   return (
     <Form {...form}>
@@ -253,6 +256,22 @@ export function CreditNoteForm({
                 description="Seleccione la serie autorizada para notas de crédito"
               />
 
+              <DatePickerFormField
+                control={form.control}
+                name="fecha_de_emision"
+                label="Fecha de Emisión *"
+                placeholder="Seleccione fecha"
+                description="Seleccione la fecha de emisión de la nota de crédito"
+                disabledRange={{
+                  before: new Date(
+                    new Date().getFullYear(),
+                    new Date().getMonth(),
+                    1
+                  ),
+                  after: new Date(),
+                }}
+              />
+
               {/* Series Verification */}
               {selectedSeries && (
                 <div className="space-y-2 col-span-2">
@@ -334,7 +353,10 @@ export function CreditNoteForm({
               bgColor="bg-primary/5"
               cols={{ sm: 1, md: 1 }}
             >
-              <CreditNoteItemsTable items={orderedItems || []} />
+              <CreditNoteItemsTable
+                originalDocument={originalDocument}
+                items={orderedItems || []}
+              />
               {form.formState.errors.items && (
                 <p className="text-sm text-destructive mt-2">
                   {form.formState.errors.items.message}
@@ -449,11 +471,10 @@ export function CreditNoteForm({
                 <Separator />
 
                 {/* Action Buttons */}
-                <div className="space-y-2 pt-4">
+                <div className="pt-4 flex justify-end flex-wrap gap-4">
                   <Button
                     type="submit"
-                    className="w-full"
-                    size="lg"
+                    className="truncate flex-1"
                     disabled={
                       isPending ||
                       !form.formState.isValid ||
@@ -474,14 +495,13 @@ export function CreditNoteForm({
                     ) : (
                       <>
                         <FileCheck className="size-4 mr-2" />
-                        Generar Nota de Crédito
+                        {creditNote ? "Actualizar" : "Generar"} Nota de Crédito
                       </>
                     )}
                   </Button>
                   <Button
                     type="button"
                     variant="outline"
-                    className="w-full"
                     onClick={() => window.history.back()}
                     disabled={isPending}
                   >
@@ -494,7 +514,7 @@ export function CreditNoteForm({
                   <p className="text-xs text-center text-muted-foreground">
                     Fecha de emisión:{" "}
                     {new Date(
-                      originalDocument.fecha_de_emision + "T00:00:00"
+                      form.watch("fecha_de_emision")
                     ).toLocaleDateString("es-PE", {
                       day: "2-digit",
                       month: "long",
@@ -508,12 +528,8 @@ export function CreditNoteForm({
         </div>
         <pre>
           <code>{JSON.stringify(form.getValues(), null, 2)}</code>
-        </pre>
-
-        <pre>
           <code>{JSON.stringify(form.formState.errors, null, 2)}</code>
         </pre>
-
         <Button onClick={() => form.trigger()}>Trigger Form</Button>
       </form>
     </Form>

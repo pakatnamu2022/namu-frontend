@@ -24,9 +24,9 @@ export const getElectronicDocumentItemColumns = ({
     accessorKey: "descripcion",
     header: "Descripción",
     cell: ({ row }) => (
-      <div className="!text-wrap">
+      <div className="text-wrap!">
         <div
-          className={`text-sm !text-wrap font-medium whitespace-pre-line ${
+          className={`text-sm text-wrap! font-medium whitespace-pre-line ${
             row.original.anticipo_regularizacion ? "text-orange-600 italic" : ""
           }`}
         >

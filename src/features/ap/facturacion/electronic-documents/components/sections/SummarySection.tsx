@@ -186,7 +186,7 @@ export function SummarySection({
                           : "bg-background/50 border border-muted-foreground/10"
                       }`}
                     >
-                      <div className="flex-1 min-w-0 !text-wrap ">
+                      <div className="flex-1 min-w-0 text-wrap! ">
                         <p
                           className={`font-medium text-xs whitespace-pre-line ${
                             isNegative ? "text-orange-700" : ""

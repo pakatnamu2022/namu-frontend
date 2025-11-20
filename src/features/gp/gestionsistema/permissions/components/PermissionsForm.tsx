@@ -292,27 +292,15 @@ export default function PermissionsForm({ id }: { id: number }) {
               className="pl-10 text-base"
             />
           </div>
-            <Button
-            variant="default"
+          <Button
+            variant="tertiary"
             size="lg"
             onClick={handleSelectAllPermissions}
             disabled={isLoading || allViews.length === 0}
-            >
-            {Object.keys(selectedPermissions).length === allViews.length &&
-            allViews.every((view) => {
-              const viewPermissions = view.permissions || [];
-              const selectedPerms = selectedPermissions[view.id] || new Set();
-              return (
-              viewPermissions.length > 0 &&
-              viewPermissions.every((p) => selectedPerms.has(p.id))
-              );
-            }) ? (
-              <CheckCheck className="size-4 mr-2" />
-            ) : (
-              <CheckSquare className="size-4 mr-2" />
-            )}
+          >
+            <CheckCheck className="size-4 mr-2" />
             Seleccionar Todo
-            </Button>
+          </Button>
           <PermissionsActions
             onCancel={handleCancel}
             onSave={handleSavePermissions}

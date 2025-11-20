@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import { useMutation } from "@tanstack/react-query";
 import { errorToast, successToast } from "@/core/core.function";
-import { createCreditNote } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.actions";
+import { updateCreditNote } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.actions";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import FormWrapper from "@/shared/components/FormWrapper";
 import { ELECTRONIC_DOCUMENT } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.constants";
@@ -38,11 +38,7 @@ export default function UpdateCreditNotePage() {
 
   const { mutate, isPending } = useMutation({
     mutationFn: (data: CreditNoteSchema) =>
-      createCreditNote(
-        documentId,
-        data,
-        originalDocument?.fecha_de_emision || ""
-      ),
+      updateCreditNote(creditNoteId, data),
     onSuccess: () => {
       successToast("Nota de crédito generada correctamente");
       router(ABSOLUTE_ROUTE);

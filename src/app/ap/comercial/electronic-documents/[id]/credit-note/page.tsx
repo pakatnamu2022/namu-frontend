@@ -29,13 +29,25 @@ export default function AddCreditNotePage() {
     error: documentError,
   } = useElectronicDocument(documentId);
 
+  /**
+   * Transforms CreditNoteSchema data to match backend API requirements
+   */
+  function enrichCreditNotePayload(data: CreditNoteSchema) {
+    return {
+      original_document_id: documentId,
+      sunat_concept_credit_note_type_id: data.sunat_concept_credit_note_type_id,
+      series: data.series,
+      fecha_de_emision: originalDocument!.fecha_de_emision,
+      observaciones: data.observaciones,
+      enviar_automaticamente_a_la_sunat: data.enviar_automaticamente_a_la_sunat,
+      enviar_automaticamente_al_cliente: data.enviar_automaticamente_al_cliente,
+      items: data.items,
+    };
+  }
+
   const { mutate, isPending } = useMutation({
     mutationFn: (data: CreditNoteSchema) =>
-      createCreditNote(
-        documentId,
-        data,
-        originalDocument?.fecha_de_emision || ""
-      ),
+      createCreditNote(documentId, enrichCreditNotePayload(data)),
     onSuccess: () => {
       successToast("Nota de crédito generada correctamente");
       router(ABSOLUTE_ROUTE);
@@ -56,6 +68,7 @@ export default function AddCreditNotePage() {
   if (!currentView) notFound();
   if (isNaN(documentId)) notFound();
   if (documentError) notFound();
+  if (!isLoadingDocument && !originalDocument) notFound();
 
   if (isLoadingDocument || !originalDocument) {
     return <FormSkeleton />;

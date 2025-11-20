@@ -66,7 +66,7 @@ export const ElectronicDocumentSchema = z
     client_id: requiredStringId("Cliente requerido"),
 
     // ===== FECHAS =====
-    fecha_de_emision: z.string(),
+    fecha_de_emision: z.coerce.string(),
     fecha_de_vencimiento: z.string().optional(),
 
     // ===== MONEDA Y CAMBIO =====
@@ -258,6 +258,7 @@ export const CreditNoteItemSchema = z.object({
 
 // Schema para Nota de Crédito
 export const CreditNoteSchema = z.object({
+  fecha_de_emision: z.coerce.string(),
   sunat_concept_credit_note_type_id: requiredStringId(
     "Tipo de nota de crédito requerido"
   ),

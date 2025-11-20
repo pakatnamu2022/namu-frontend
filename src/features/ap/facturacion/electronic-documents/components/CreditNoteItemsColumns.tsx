@@ -1,7 +1,13 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { ElectronicDocumentItem } from "../lib/electronicDocument.interface";
 
-export const creditNoteItemsColumns: ColumnDef<ElectronicDocumentItem>[] = [
+export type CreditNoteItemsColumns = ColumnDef<ElectronicDocumentItem>;
+
+export const creditNoteItemsColumns = ({
+  currency,
+}: {
+  currency: string;
+}): CreditNoteItemsColumns[] => [
   {
     accessorKey: "index",
     header: "#",
@@ -14,9 +20,9 @@ export const creditNoteItemsColumns: ColumnDef<ElectronicDocumentItem>[] = [
     accessorKey: "descripcion",
     header: "Descripción",
     cell: ({ row }) => (
-      <div className="!text-wrap">
+      <div className="text-wrap!">
         <div
-          className={`text-sm !text-wrap font-medium whitespace-pre-line ${
+          className={`text-sm text-wrap! font-medium whitespace-pre-line ${
             row.original.anticipo_regularizacion ? "text-orange-600 italic" : ""
           }`}
         >
@@ -57,7 +63,7 @@ export const creditNoteItemsColumns: ColumnDef<ElectronicDocumentItem>[] = [
       const precio = getValue() as number;
       return (
         <div className="text-right">
-          S/{" "}
+          {currency}
           {precio.toLocaleString("es-PE", {
             minimumFractionDigits: 2,
           })}
@@ -73,7 +79,7 @@ export const creditNoteItemsColumns: ColumnDef<ElectronicDocumentItem>[] = [
       const subtotal = getValue() as number;
       return (
         <div className="text-right">
-          S/{" "}
+          {currency}
           {subtotal.toLocaleString("es-PE", {
             minimumFractionDigits: 2,
           })}
@@ -89,7 +95,7 @@ export const creditNoteItemsColumns: ColumnDef<ElectronicDocumentItem>[] = [
       const igv = getValue() as number;
       return (
         <div className="text-right">
-          S/{" "}
+          {currency}
           {igv.toLocaleString("es-PE", {
             minimumFractionDigits: 2,
           })}
@@ -105,7 +111,7 @@ export const creditNoteItemsColumns: ColumnDef<ElectronicDocumentItem>[] = [
       const total = getValue() as number;
       return (
         <div className="text-right font-semibold">
-          S/{" "}
+          {currency}
           {total.toLocaleString("es-PE", {
             minimumFractionDigits: 2,
           })}

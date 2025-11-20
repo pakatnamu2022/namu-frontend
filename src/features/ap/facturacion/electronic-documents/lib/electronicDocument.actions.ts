@@ -153,50 +153,24 @@ export async function getNextCreditNoteNumber(
   return response.data;
 }
 
-/**
- * Transforms CreditNoteSchema data to match backend API requirements
- */
-function enrichCreditNotePayload(
-  documentId: number,
-  data: CreditNoteSchema,
-  fecha_de_emision: string
-) {
-  return {
-    original_document_id: documentId,
-    sunat_concept_credit_note_type_id: Number(
-      data.sunat_concept_credit_note_type_id
-    ),
-    series: Number(data.series),
-    fecha_de_emision: fecha_de_emision,
-    observaciones: data.observaciones,
-    enviar_automaticamente_a_la_sunat: data.enviar_automaticamente_a_la_sunat,
-    enviar_automaticamente_al_cliente: data.enviar_automaticamente_al_cliente,
-    items: data.items,
-  };
-}
-
 export async function createCreditNote(
   id: number,
-  data: CreditNoteSchema,
-  fecha_de_emision: string
+  data: CreditNoteSchema
 ): Promise<ElectronicDocumentResource> {
-  const payload = enrichCreditNotePayload(id, data, fecha_de_emision);
-  const response = await api.post<ElectronicDocumentResource>(
+  const response = await api.patch<ElectronicDocumentResource>(
     `${ENDPOINT}/${id}/credit-note`,
-    payload
+    data
   );
   return response.data;
 }
 
 export async function updateCreditNote(
   id: number,
-  data: CreditNoteSchema,
-  fecha_de_emision: string
+  data: CreditNoteSchema
 ): Promise<ElectronicDocumentResource> {
-  const payload = enrichCreditNotePayload(id, data, fecha_de_emision);
-  const response = await api.put<ElectronicDocumentResource>(
+  const response = await api.patch<ElectronicDocumentResource>(
     `${ENDPOINT}/${id}`,
-    payload
+    data
   );
   return response.data;
 }

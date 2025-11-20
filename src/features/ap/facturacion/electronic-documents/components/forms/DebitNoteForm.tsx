@@ -108,7 +108,7 @@ export function DebitNoteForm({
       sunat_concept_debit_note_type_id: "",
       series: "",
       observaciones: "",
-      enviar_automaticamente_a_la_sunat: true,
+      enviar_automaticamente_a_la_sunat: false,
       enviar_automaticamente_al_cliente: false,
       items: [],
     },

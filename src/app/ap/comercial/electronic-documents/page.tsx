@@ -125,14 +125,10 @@ export default function ElectronicDocumentsPage() {
           onRefresh={handleRefresh}
           isLoading={isFetching && !isLoading}
           permissions={{
-            canCreate: permissions.canCreate || false, // TODO: Implementar verificación de permisos
+            canCreate: permissions.canCreate || false,
           }}
         />
       </HeaderTableWrapper>
-
-      <pre>
-        <code>{JSON.stringify(permissions, null, 2)}</code>
-      </pre>
 
       <ElectronicDocumentTable
         isLoading={isLoading}
