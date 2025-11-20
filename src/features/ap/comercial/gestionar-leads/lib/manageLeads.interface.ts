@@ -8,6 +8,7 @@ export interface ManageLeadsResponse {
 
 export interface ManageLeadsResource {
   id: number;
+  created_at: string;
   registration_date: string;
   model: string;
   version: string;

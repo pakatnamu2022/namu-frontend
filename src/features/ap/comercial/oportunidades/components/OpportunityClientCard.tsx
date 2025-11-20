@@ -19,7 +19,7 @@ export default function OpportunityClientCard({ data }: Props) {
       <CardContent>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="flex items-start gap-2 md:col-span-2">
-            <User className="size-4 text-primary mt-0.5 flex-shrink-0" />
+            <User className="size-4 text-primary mt-0.5 shrink-0" />
             <div>
               <p className="text-xs text-muted-foreground">Nombre completo</p>
               <p className="text-sm font-medium">{data.full_name}</p>
@@ -28,7 +28,7 @@ export default function OpportunityClientCard({ data }: Props) {
 
           {data.email && (
             <div className="flex items-start gap-2">
-              <Mail className="size-4 text-primary mt-0.5 flex-shrink-0" />
+              <Mail className="size-4 text-primary mt-0.5 shrink-0" />
               <div>
                 <p className="text-xs text-muted-foreground">Correo</p>
                 <p className="text-sm font-medium break-all">{data.email}</p>
@@ -37,7 +37,7 @@ export default function OpportunityClientCard({ data }: Props) {
           )}
           {data.phone && (
             <div className="flex items-start gap-2">
-              <Phone className="size-4 text-primary mt-0.5 flex-shrink-0" />
+              <Phone className="size-4 text-primary mt-0.5 shrink-0" />
               <div>
                 <p className="text-xs text-muted-foreground">Teléfono</p>
                 <p className="text-sm font-medium">{data.phone}</p>
@@ -46,7 +46,7 @@ export default function OpportunityClientCard({ data }: Props) {
           )}
           {data.num_doc && (
             <div className="flex items-start gap-2">
-              <IdCard className="size-4 text-primary mt-0.5 flex-shrink-0" />
+              <IdCard className="size-4 text-primary mt-0.5 shrink-0" />
               <div>
                 <p className="text-xs text-muted-foreground">DNI</p>
                 <p className="text-sm font-medium">{data.num_doc}</p>
@@ -56,7 +56,7 @@ export default function OpportunityClientCard({ data }: Props) {
 
           {data.birth_date && (
             <div className="flex items-start gap-2">
-              <CakeSlice className="size-4 text-primary mt-0.5 flex-shrink-0" />
+              <CakeSlice className="size-4 text-primary mt-0.5 shrink-0" />
               <div>
                 <p className="text-xs text-muted-foreground">
                   Fecha de Nacimiento
@@ -74,7 +74,7 @@ export default function OpportunityClientCard({ data }: Props) {
 
           {data.direction && (
             <div className="flex items-start gap-2 md:col-span-2">
-              <MapPin className="size-4 text-primary mt-0.5 flex-shrink-0" />
+              <MapPin className="size-4 text-primary mt-0.5 shrink-0" />
               <div>
                 <p className="text-xs text-muted-foreground">Dirección</p>
                 <p className="text-sm font-medium">{data.direction}</p>

@@ -3,10 +3,18 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { X, UserPlus, User, Car, Phone, BriefcaseBusiness } from "lucide-react";
+import {
+  X,
+  UserPlus,
+  User,
+  Car,
+  Phone,
+  BriefcaseBusiness,
+  Calendar,
+} from "lucide-react";
 import { SearchableSelect } from "@/shared/components/SearchableSelect";
 import { ManageLeadsResource } from "../../gestionar-leads/lib/manageLeads.interface";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import {
   AlertDialog,
@@ -97,10 +105,16 @@ export const LeadCard = ({ lead, onDiscard }: LeadCardProps) => {
             <p className="font-medium text-sm truncate">{lead.model}</p>
           </div>
 
-          {/* Contact & Date */}
+          {/* Contact */}
           <div className="flex items-center gap-2">
             <Phone className="size-4 text-muted-foreground" />
             <p className="font-medium text-sm truncate">{lead.phone}</p>
+          </div>
+
+          {/* Date */}
+          <div className="flex items-center gap-2">
+            <Calendar className="size-4 text-muted-foreground" />
+            <p className="font-medium text-sm truncate">{lead.created_at}</p>
           </div>
 
           {/* Action Buttons */}

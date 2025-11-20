@@ -27,9 +27,8 @@ import ManageLeadsOptions from "@/features/ap/comercial/gestionar-leads/componen
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { notFound } from "@/shared/hooks/useNotFound";
 
-
 export default function ManageLeadsPage() {
-    const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
+  const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
@@ -38,13 +37,14 @@ export default function ManageLeadsPage() {
   const [dateFrom, setDateFrom] = useState<Date | undefined>(currentDate);
   const [dateTo, setDateTo] = useState<Date | undefined>(currentDate);
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [conditionFilter, setConditionFilter] = useState<string>("all");
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const { MODEL, ROUTE } = MANAGE_LEADS;
   const permissions = useModulePermissions(ROUTE);
 
   useEffect(() => {
     setPage(1);
-  }, [search, per_page, statusFilter]);
+  }, [search, per_page, statusFilter, conditionFilter]);
 
   const formatDate = (date: Date | undefined) => {
     return date ? date.toISOString().split("T")[0] : undefined;
@@ -60,6 +60,7 @@ export default function ManageLeadsPage() {
         : undefined,
     type: TIPO_LEADS.LEADS,
     status_num_doc: statusFilter !== "all" ? statusFilter : undefined,
+    use: conditionFilter !== "all" ? conditionFilter : undefined,
     sort: "created_at",
   });
 
@@ -133,6 +134,8 @@ export default function ManageLeadsPage() {
           setDateTo={setDateTo}
           statusFilter={statusFilter}
           setStatusFilter={setStatusFilter}
+          conditionFilter={conditionFilter}
+          setConditionFilter={setConditionFilter}
         />
       </ManageLeadsTable>
 

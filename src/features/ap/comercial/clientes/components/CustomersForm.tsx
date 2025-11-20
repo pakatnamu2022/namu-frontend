@@ -604,7 +604,7 @@ export const CustomersForm = ({
                       : "bg-red-100 text-secondary border border-red-200"
                   }`}
                 >
-                  <Info className="size-4 flex-shrink-0" />
+                  <Info className="size-4 shrink-0" />
                   <span className="text-xs font-medium">
                     {notificationMessage}
                   </span>
