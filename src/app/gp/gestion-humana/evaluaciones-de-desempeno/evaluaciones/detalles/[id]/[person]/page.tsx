@@ -46,12 +46,9 @@ import EvaluationPersonObjectiveTable from "@/features/gp/gestionhumana/evaluaci
 import EvaluationPersonCompetenceTableWithColumns from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/components/EvaluationPersonCompetenceTable";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link, useParams } from "react-router-dom";
-import {
-  ABSOLUTE_ROUTE,
-  EVALUATION_OBJECTIVE,
-} from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluaciones/lib/evaluation.constans";
+import { EVALUATION_OBJECTIVE } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluaciones/lib/evaluation.constans";
 
-const { QUERY_KEY, MODEL } = EVALUATION_PERSON;
+const { QUERY_KEY, MODEL, ABSOLUTE_ROUTE } = EVALUATION_PERSON;
 
 export default function EvaluationDetailPersonPage() {
   const { id, person } = useParams();

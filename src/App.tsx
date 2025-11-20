@@ -84,6 +84,7 @@ import UpdateParameterPage from "./app/gp/gestion-humana/evaluaciones-de-desempe
 import PeriodPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/periodos/page";
 import AddPeriodPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/periodos/agregar/page";
 import UpdatePeriodPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/periodos/actualizar/[id]/page";
+import EvaluatorParPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/asignacion-pares/page";
 const PositionsPage = lazy(
   () => import("./app/gp/gestion-humana/configuraciones/posiciones/page")
 );
@@ -1466,6 +1467,11 @@ function App() {
                 <AddPeriodPage />,
                 <UpdatePeriodPage />
               )}
+
+              <Route
+                path="evaluaciones-de-desempeno/asignacion-pares"
+                element={<EvaluatorParPage />}
+              />
             </Route>
 
             {/* ======================================================== */}

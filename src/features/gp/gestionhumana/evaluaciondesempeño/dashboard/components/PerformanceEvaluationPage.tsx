@@ -11,7 +11,7 @@ import { EvaluationResultsChart } from "../../evaluation-person/components/Evalu
 import { FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { ABSOLUTE_ROUTE } from "../../evaluaciones/lib/evaluation.constans";
+import { EVALUATION } from "../../evaluaciones/lib/evaluation.constans";
 
 // Tipos de datos
 interface ProgressStats {
@@ -25,6 +25,7 @@ interface ProgressStats {
 
 // Componente Principal
 export default function PerformanceEvaluationPage({ id }: { id?: number }) {
+  const { ABSOLUTE_ROUTE } = EVALUATION;
   // Use the appropriate hook based on whether id is provided
   const evaluationQuery = id
     ? useEvaluation(id)

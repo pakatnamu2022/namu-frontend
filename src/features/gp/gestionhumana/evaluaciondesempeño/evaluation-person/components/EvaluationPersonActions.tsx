@@ -2,9 +2,9 @@
 
 import { Link } from "react-router-dom";
 import RegenerateEvaluationSheet from "./RegenerateEvaluationSheet";
-import { ABSOLUTE_ROUTE } from "../../evaluaciones/lib/evaluation.constans";
 import { LayoutDashboard } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { EVALUATION } from "../../evaluaciones/lib/evaluation.constans";
 
 interface RegenerateEvaluationParams {
   mode: "full_reset" | "sync_with_cycle" | "add_missing_only";
@@ -17,6 +17,8 @@ interface Props {
   handleRegenerate: (params: RegenerateEvaluationParams) => void;
   loadingRegenerate: boolean;
 }
+
+const { ABSOLUTE_ROUTE } = EVALUATION;
 
 export default function EvaluationPersonActions({
   idEvaluation,
