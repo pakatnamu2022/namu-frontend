@@ -69,8 +69,8 @@ export function CreditNoteForm({
     resolver: zodResolver(CreditNoteSchema) as any,
     defaultValues: {
       fecha_de_emision: creditNote
-        ? creditNote.fecha_de_emision
-        : format,
+        ? format(new Date(creditNote.fecha_de_emision), "yyyy-MM-dd")
+        : format(new Date(), "yyyy-MM-dd"),
       sunat_concept_credit_note_type_id:
         creditNote?.sunat_concept_credit_note_type_id?.toString() || "",
       series: creditNote?.series_id?.toString() || "",
