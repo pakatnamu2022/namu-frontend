@@ -150,7 +150,8 @@ export async function sendEvaluationOpened(
   id: number
 ): Promise<NotificationResponse> {
   const { data } = await api.post<NotificationResponse>(
-    `${ENDPOINT}/${id}/notifications/send-opened`
+    `${ENDPOINT}/notifications/send-opened`,
+    { evaluation_id: id }
   );
   return data;
 }
@@ -159,7 +160,8 @@ export async function sendEvaluationReminder(
   id: number
 ): Promise<NotificationResponse> {
   const { data } = await api.post<NotificationResponse>(
-    `${ENDPOINT}/${id}/notifications/send-reminder`
+    `${ENDPOINT}/notifications/send-reminders`,
+    { evaluation_id: id }
   );
   return data;
 }
@@ -168,7 +170,8 @@ export async function sendEvaluationClosed(
   id: number
 ): Promise<NotificationResponse> {
   const { data } = await api.post<NotificationResponse>(
-    `${ENDPOINT}/${id}/notifications/send-closed`
+    `${ENDPOINT}/notifications/send-closed`,
+    { evaluation_id: id }
   );
   return data;
 }
