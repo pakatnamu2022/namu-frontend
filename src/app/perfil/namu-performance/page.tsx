@@ -392,7 +392,7 @@ export default function NamuPerformancePage() {
                           evaluationPersonResult?.competenceGroups
                         }
                         onUpdateCell={handleUpdateResultCellCompetence}
-                        readOnly={true}
+                        readOnly={false}
                         showProgress={true}
                       />
                     </>

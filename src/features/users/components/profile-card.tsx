@@ -83,7 +83,7 @@ export function ProfileCard({ variant = "sidebar" }: ProfileCardProps) {
           </>
         );
       },
-      allow: user.subordinates > 0,
+      allow: true,
     },
     {
       label: "OnBoarding",

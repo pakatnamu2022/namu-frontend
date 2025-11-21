@@ -16,7 +16,7 @@ import { EvaluationPersonResultModal } from "@/features/gp/gestionhumana/evaluac
 import { useQueryClient } from "@tanstack/react-query";
 import TeamActions from "@/features/profile/team/components/TeamActions";
 import FormSkeleton from "@/shared/components/FormSkeleton";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 
 export default function TeamPage() {
   const { user } = useAuthStore();
@@ -33,7 +33,7 @@ export default function TeamPage() {
 
   const { data, isLoading } = useTeamByChief(
     user?.partner_id,
-    !!user?.partner_id && user.subordinates > 0,
+    !!user?.partner_id,
     {
       page,
       search,
@@ -81,7 +81,7 @@ export default function TeamPage() {
       <HeaderTableWrapper>
         <TitleComponent
           title={"Evaluación de Guerreros"}
-          subtitle={"Gestiona la información de tu equipo"}
+          subtitle={"Gestiona tus evaluaciones asignadas"}
           icon={"Users2"}
         />
         <TeamActions />

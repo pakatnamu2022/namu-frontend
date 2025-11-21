@@ -11,6 +11,7 @@ import {
   CheckCircle2,
   TrendingUp,
 } from "lucide-react";
+import { useAuthStore } from "@/features/auth/lib/auth.store";
 
 export type EvaluationPersonCompetenceColumns = ColumnDef<Subcompetence>;
 
@@ -20,12 +21,14 @@ export const evaluationPersonCompetenceColumns = ({
   evaluationType = 2, // 1 = 180°, 2 = 360°
   requiredEvaluatorTypes = [0, 1, 2, 3], // Tipos de evaluadores requeridos
   competenceMaxScore, // Puntaje máximo por competencia
+  canEditAll = false, // Vista de administrador - puede editar todas las columnas
 }: {
   onUpdateCell: (id: number, value: number) => void;
   readOnly?: boolean;
   evaluationType?: number;
   requiredEvaluatorTypes?: number[];
   competenceMaxScore: number;
+  canEditAll?: boolean;
 }): EvaluationPersonCompetenceColumns[] => {
   // Función para obtener el color del resultado
   const getResultVariant = (result: string | number) => {
@@ -177,6 +180,8 @@ export const evaluationPersonCompetenceColumns = ({
       { type: 3, name: "Reportes (10%)", icon: UserCheck },
     ];
 
+    const { user } = useAuthStore();
+
     evaluatorTypes.forEach(({ type, name, icon: Icon }) => {
       if (requiredEvaluatorTypes.includes(type)) {
         evaluatorColumns.push({
@@ -189,14 +194,22 @@ export const evaluationPersonCompetenceColumns = ({
           ),
           cell: ({ row }) => {
             const subCompetence = row.original;
-            const evaluator = subCompetence.evaluators?.find(
-              (e) => e.evaluator_type === type
-            );
+            // Buscar el evaluador de este tipo específico
+            const evaluator = subCompetence.evaluators?.find((e) => {
+              return e.evaluator_type === type;
+            });
+
+            // Solo permitir edición si:
+            // 1. canEditAll es true (vista de administrador) O
+            // 2. El evaluador de este tipo es el usuario actual
+            const isMyEvaluation = evaluator?.evaluator_id === user.partner_id;
+            const shouldBeReadOnly = readOnly || (!canEditAll && !isMyEvaluation);
+
             return (
               <div className="flex items-center justify-center">
                 <EvaluationCell
                   evaluator={evaluator}
-                  readOnly={readOnly}
+                  readOnly={shouldBeReadOnly}
                   max={competenceMaxScore}
                 />
               </div>

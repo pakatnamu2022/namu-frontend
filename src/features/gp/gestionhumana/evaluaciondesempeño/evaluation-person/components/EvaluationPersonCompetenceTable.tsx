@@ -25,6 +25,7 @@ interface Props {
   showProgress?: boolean;
   isLoading?: boolean;
   evaluationPersonResult?: EvaluationPersonResultResource;
+  canEditAll?: boolean;
 }
 
 export default function EvaluationPersonCompetenceTableWithColumns({
@@ -34,6 +35,7 @@ export default function EvaluationPersonCompetenceTableWithColumns({
   showProgress = true,
   isLoading = false,
   evaluationPersonResult,
+  canEditAll = false,
 }: Props) {
   // Estado para controlar qué competencias están expandidas
   const [expandedGroups, setExpandedGroups] = useState<Set<number>>(new Set());
@@ -155,6 +157,7 @@ export default function EvaluationPersonCompetenceTableWithColumns({
             requiredEvaluatorTypes: group.required_evaluator_types,
             competenceMaxScore:
               evaluationPersonResult?.maxCompetenceParameter || 5,
+            canEditAll,
           });
 
           return (

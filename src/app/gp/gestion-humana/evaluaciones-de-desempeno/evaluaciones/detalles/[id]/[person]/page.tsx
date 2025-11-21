@@ -306,6 +306,7 @@ export default function EvaluationDetailPersonPage() {
                       }
                       onUpdateCell={handleUpdateResultCellCompetence}
                       showProgress={true}
+                      canEditAll={true}
                     />
                   )}
                 </TabsContent>
