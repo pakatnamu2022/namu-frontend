@@ -20,16 +20,10 @@ import { parEvaluatorColumns } from "@/features/gp/gestionhumana/evaluaciondesem
 import ParEvaluatorTable from "@/features/gp/gestionhumana/evaluaciondesempeño/asignacion-pares/components/ParEvaluatorTable";
 import ParEvaluatorOptions from "@/features/gp/gestionhumana/evaluaciondesempeño/asignacion-pares/components/ParEvaluatorOptions";
 import { useWorkers } from "@/features/gp/gestionhumana/personal/trabajadores/lib/worker.hook";
-import {
-  deleteParEvaluator,
-  getAllParEvaluators,
-  storeMultipleParEvaluators,
-} from "@/features/gp/gestionhumana/evaluaciondesempeño/asignacion-pares/lib/par-evaluator.actions";
-import { ParEvaluatorEditModal } from "@/features/gp/gestionhumana/evaluaciondesempeño/asignacion-pares/components/ParEvaluatorEditModal";
-import { ParEvaluatorSchema } from "@/features/gp/gestionhumana/evaluaciondesempeño/asignacion-pares/lib/par-evaluator.schema";
+import { deleteParEvaluator } from "@/features/gp/gestionhumana/evaluaciondesempeño/asignacion-pares/lib/par-evaluator.actions";
 import { STATUS_WORKER } from "@/features/gp/gestionhumana/personal/posiciones/lib/position.constant";
 
-const { MODEL, ROUTE } = PAR_EVALUATOR;
+const { MODEL, ROUTE, ROUTE_ADD } = PAR_EVALUATOR;
 
 export default function EvaluatorParPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -37,14 +31,6 @@ export default function EvaluatorParPage() {
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
-  const [editModalOpen, setEditModalOpen] = useState(false);
-  const [editingId, setEditingId] = useState<number | null>(null);
-  const [editingWorkerId, setEditingWorkerId] = useState<number | null>(null);
-  const [existingEvaluators, setExistingEvaluators] = useState<any[]>([]);
-  const [editingData, setEditingData] = useState<
-    Partial<ParEvaluatorSchema> | undefined
-  >(undefined);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     setPage(1);
@@ -56,54 +42,6 @@ export default function EvaluatorParPage() {
     per_page,
     status_id: STATUS_WORKER.ACTIVE,
   });
-
-  const handleAssign = async (id: number, workerId: number) => {
-    setEditingId(id);
-    setEditingWorkerId(workerId);
-    try {
-      // Cargar todos los evaluadores existentes para este trabajador
-      const parEvaluators = await getAllParEvaluators({
-        params: {
-          worker_id: workerId,
-        },
-      });
-      setExistingEvaluators(parEvaluators);
-      setEditingData({
-        worker_id: workerId.toString(),
-        mate_ids: [],
-      });
-      setEditModalOpen(true);
-    } catch (error: any) {
-      console.log("Error fetching existing evaluators:", error);
-      errorToast(ERROR_MESSAGE(MODEL, "fetch", error?.response?.data?.message));
-    }
-  };
-
-  const handleSubmitEdit = async (data: ParEvaluatorSchema) => {
-    if (!editingWorkerId) return;
-    setIsSubmitting(true);
-    try {
-      // Transformar los datos para enviar array de mate_ids
-      const payload = {
-        worker_id: editingWorkerId,
-        mate_ids: data.mate_ids.map((mate) => mate),
-      };
-      await storeMultipleParEvaluators(payload);
-      await refetch();
-      successToast(SUCCESS_MESSAGE(MODEL, "create"));
-      setEditModalOpen(false);
-      setEditingId(null);
-      setEditingWorkerId(null);
-      setExistingEvaluators([]);
-      setEditingData(undefined);
-    } catch (error: any) {
-      errorToast(
-        ERROR_MESSAGE(MODEL, "create", error?.response?.data?.message)
-      );
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
 
   const handleDelete = async () => {
     if (!deleteId) return;
@@ -135,7 +73,6 @@ export default function EvaluatorParPage() {
         isLoading={isLoading}
         columns={parEvaluatorColumns({
           onDelete: setDeleteId,
-          onAssign: handleAssign,
         })}
         data={data?.data || []}
       >
@@ -149,17 +86,6 @@ export default function EvaluatorParPage() {
           onConfirm={handleDelete}
         />
       )}
-
-      <ParEvaluatorEditModal
-        open={editModalOpen}
-        onOpenChange={setEditModalOpen}
-        parEvaluatorId={editingId}
-        workerId={editingWorkerId}
-        existingEvaluators={existingEvaluators}
-        defaultValues={editingData}
-        onSubmit={handleSubmitEdit}
-        isSubmitting={isSubmitting}
-      />
 
       <DataTablePagination
         page={page}

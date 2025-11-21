@@ -15,6 +15,8 @@ import { PAR_EVALUATOR } from "../lib/par-evaluator.constant";
 import { MultiSelectTags } from "@/shared/components/MultiSelectTags";
 import { WorkerResource } from "../../../personal/trabajadores/lib/worker.interface";
 import { ParEvaluatorResource } from "../lib/par-evaluator.interface";
+import { FormSelect } from "@/shared/components/FormSelect";
+import { useMemo } from "react";
 
 interface PeriodFormProps {
   persons: WorkerResource[];
@@ -49,11 +51,28 @@ export const ParEvaluatorForm = ({
 
   // Filtrar personas que ya están asignadas como evaluadores
   const existingMateIds = existingEvaluators.map((e) => e.mate_id);
-  const availablePersons = persons.filter(
-    (p) => !existingMateIds.includes(p.id)
-  );
+  const selectedWorkerId = form.watch("worker_id");
 
-  console.log(form.formState.errors);
+  // Filtrar personas disponibles para ser evaluadores
+  const availablePersons = useMemo(() => {
+    return persons.filter((p) => {
+      // No permitir seleccionarse a sí mismo como evaluador
+      if (selectedWorkerId && p.id === Number(selectedWorkerId)) {
+        return false;
+      }
+      // No mostrar personas que ya están asignadas
+      return !existingMateIds.includes(p.id);
+    });
+  }, [persons, selectedWorkerId, existingMateIds]);
+
+  // Convertir trabajadores a opciones para el FormSelect
+  const workerOptions = useMemo(() => {
+    return persons.map((person) => ({
+      value: person.id.toString(),
+      label: person.name,
+      description: person.document || person.position,
+    }));
+  }, [persons]);
 
   return (
     <Form {...form}>
@@ -62,6 +81,19 @@ export const ParEvaluatorForm = ({
         className="space-y-4 w-full formlayout"
       >
         <div className="grid grid-cols-1 gap-4">
+          {/* Selector de trabajador - solo en modo create */}
+          {mode === "create" && (
+            <FormSelect
+              control={form.control}
+              name="worker_id"
+              label="Trabajador a Evaluar"
+              placeholder="Selecciona un trabajador"
+              options={workerOptions}
+              required={true}
+              strictFilter={true}
+            />
+          )}
+
           {/* Mostrar evaluadores existentes */}
           {existingEvaluators.length > 0 && (
             <div className="space-y-2">
@@ -93,12 +125,6 @@ export const ParEvaluatorForm = ({
             required={true}
           />
         </div>
-
-        <pre>
-          <code className="text-xs text-muted-foreground">
-            {JSON.stringify(form.getValues(), null, 2)}
-          </code>
-        </pre>
 
         <div className="flex gap-4 w-full justify-end">
           {showCancelButton && (
