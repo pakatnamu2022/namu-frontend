@@ -27,11 +27,7 @@ import {
 } from "@/features/ap/comercial/oportunidades/lib/opportunities.constants";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import {
-  ERROR_MESSAGE,
-  errorToast,
-  successToast,
-} from "@/core/core.function";
+import { ERROR_MESSAGE, errorToast, successToast } from "@/core/core.function";
 import { cn } from "@/lib/utils";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { AGENDA } from "@/features/ap/comercial/agenda/lib/agenda.constants";
@@ -58,9 +54,8 @@ import type { CarouselApi } from "@/components/ui/carousel";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { notFound } from "@/shared/hooks/useNotFound";
 
-
 export default function OpportunitiesKanbanPage() {
-    const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
+  const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const { ROUTE } = AGENDA;
   const { QUERY_KEY, MODEL } = MANAGE_LEADS;
   const { selectedAdvisorId, setSelectedAdvisorId } =
@@ -139,7 +134,9 @@ export default function OpportunitiesKanbanPage() {
       opportunity.opportunity_status === OPPORTUNITY_VENDIDA ||
       opportunity.opportunity_status === OPPORTUNITY_CERRADA
     ) {
-      errorToast("No se pueden mover oportunidades que están Vendidas o Cerradas");
+      errorToast(
+        "No se pueden mover oportunidades que están Vendidas o Cerradas"
+      );
       invalidateQuery([QUERY_KEY, "my"]); // Revertir UI
       return;
     }

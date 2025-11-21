@@ -56,11 +56,11 @@ export default function UpdateViewPage() {
   const handleSubmit = (data: ViewSchema) => {
     mutate({
       ...data,
-      parent_id: data.parent_id ? data.parent_id.toString() : "",
-      idPadre: data.idPadre ? data.idPadre.toString() : "",
-      idSubPadre: data.idSubPadre ? data.idSubPadre.toString() : "",
-      idHijo: data.idHijo ? data.idHijo.toString() : "",
-      company_id: data.company_id ? data.company_id.toString() : "",
+      parent_id: data.parent_id ?? undefined,
+      idPadre: data.idPadre ?? undefined,
+      idSubPadre: data.idSubPadre ?? undefined,
+      idHijo: data.idHijo ?? undefined,
+      company_id: data.company_id ?? undefined,
     } as any);
   };
 
