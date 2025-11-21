@@ -154,9 +154,9 @@ export default function EvaluationDetailPersonPage() {
 
   return (
     <div className="w-full">
-      <Card className="border-none shadow-none">
-        <CardContent className="mx-auto max-w-7xl">
-          <CardHeader className="space-y-4 p-0">
+      <div className="border-none shadow-none">
+        <div className="mx-auto max-w-7xl">
+          <div className="space-y-4 p-0">
             {/* Header principal */}
             <div className="flex items-center gap-4">
               <Avatar className="h-16 w-16">
@@ -173,12 +173,12 @@ export default function EvaluationDetailPersonPage() {
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1">
-                <CardTitle className="text-2xl capitalize">
+                <div className="text-2xl capitalize font-bold">
                   {evaluationPersonResult.person.name.toLowerCase()}
-                </CardTitle>
-                <CardDescription className="capitalize text-base">
+                </div>
+                <div className="capitalize text-base font-medium text-muted-foreground">
                   {evaluationPersonResult.person.position.toLowerCase()}
-                </CardDescription>
+                </div>
               </div>
               <div className="text-right">
                 <div className="text-2xl font-bold text-primary">
@@ -243,7 +243,7 @@ export default function EvaluationDetailPersonPage() {
                 </Link>
               </div>
             </div>
-          </CardHeader>
+          </div>
 
           <div className="mt-6 space-y-4">
             {/* Resumen de estadísticas */}
@@ -378,8 +378,8 @@ export default function EvaluationDetailPersonPage() {
               </div>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }
