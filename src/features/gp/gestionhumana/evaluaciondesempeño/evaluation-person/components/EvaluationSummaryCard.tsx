@@ -56,42 +56,6 @@ export default function EvaluationSummaryCard({ evaluationResult }: Props) {
     <Card className="mb-4">
       <CardContent className="p-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* Resultado Final */}
-          <div className="text-center p-3 bg-primary/5 rounded-lg border">
-            <div className="flex items-center justify-center gap-2 mb-1">
-              <TrendingUp className="size-4 text-primary" />
-              <span className="text-xs font-medium text-muted-foreground">
-                Resultado Final
-              </span>
-              <ModalParameter parameter={evaluationResult.finalParameter} />
-            </div>
-            <div className="flex items-center justify-center gap-1">
-              <Badge
-                variant={"ghost"}
-                className={cn(
-                  "text-lg font-bold",
-                  getScales(evaluationResult.finalParameter.details.length)[
-                    evaluationResult.statistics.final.index_range_result
-                  ]
-                )}
-              >
-                {evaluationResult.result}/{evaluationResult.maxFinalParameter}%
-              </Badge>
-
-              <Badge
-                variant={"ghost"}
-                className={cn(
-                  "text-lg font-bold",
-                  getScales(evaluationResult.finalParameter.details.length)[
-                    evaluationResult.statistics.final.index_range_result
-                  ]
-                )}
-              >
-                {evaluationResult.statistics.final.label_range}
-              </Badge>
-            </div>
-          </div>
-
           {/* Objetivos */}
           <div className="text-center p-3 bg-muted/30 rounded-lg">
             <div className="flex items-center justify-center gap-2 mb-1">
@@ -180,43 +144,45 @@ export default function EvaluationSummaryCard({ evaluationResult }: Props) {
             </div>
           </div>
 
-          {/* Progreso General */}
-          {/* <div className="text-center p-3 bg-accent rounded-lg border border-primary/40">
-            <div className="flex items-center justify-center gap-2 mb-2">
-              <Calendar className="size-4 text-primary" />
-              <span className="text-xs font-medium text-primary">
-                Progreso General
+          {/* Resultado Final */}
+          <div className="text-center p-3 bg-primary/5 rounded-lg border">
+            <div className="flex items-center justify-center gap-2 mb-1">
+              <TrendingUp className="size-4 text-primary" />
+              <span className="text-xs font-medium text-muted-foreground">
+                Resultado Final
               </span>
+              <ModalParameter parameter={evaluationResult.finalParameter} />
             </div>
-            <div className="space-y-2">
-              <div className="text-xl font-bold text-primary">
-                {evaluationResult.statistics.overall_completion_rate}%
-              </div>
-              <Progress
-                value={evaluationResult.statistics.overall_completion_rate}
-                className="w-full h-2"
-              />
+            <div className="flex items-center justify-center gap-1">
+              <Badge
+                variant={"ghost"}
+                className={cn(
+                  "text-lg font-bold",
+                  getScales(evaluationResult.finalParameter.details.length)[
+                    evaluationResult.statistics.final.index_range_result
+                  ]
+                )}
+              >
+                {evaluationResult.result}/{evaluationResult.maxFinalParameter}%
+              </Badge>
+
+              <Badge
+                variant={"ghost"}
+                className={cn(
+                  "text-lg font-bold",
+                  getScales(evaluationResult.finalParameter.details.length)[
+                    evaluationResult.statistics.final.index_range_result
+                  ]
+                )}
+              >
+                {evaluationResult.statistics.final.label_range}
+              </Badge>
             </div>
-          </div> */}
+          </div>
         </div>
 
         {/* Detalles de progreso */}
         <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-          <div className="flex items-center justify-between p-2 bg-muted/20 rounded">
-            <span className="text-muted-foreground">
-              Competencias completadas:
-            </span>
-            <div className="flex items-center gap-2">
-              <span className="font-medium">
-                {evaluationResult.statistics.competences.completed}/
-                {evaluationResult.statistics.competences.total}
-              </span>
-              <Badge variant="outline" className="text-xs">
-                {evaluationResult.statistics.competences.completion_rate}%
-              </Badge>
-            </div>
-          </div>
-
           <div className="flex items-center justify-between p-2 bg-muted/20 rounded">
             <span className="text-muted-foreground">
               Objetivos completados:
@@ -228,6 +194,21 @@ export default function EvaluationSummaryCard({ evaluationResult }: Props) {
               </span>
               <Badge variant="outline" className="text-xs">
                 {evaluationResult.statistics.objectives.completion_rate}%
+              </Badge>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between p-2 bg-muted/20 rounded">
+            <span className="text-muted-foreground">
+              Competencias completadas:
+            </span>
+            <div className="flex items-center gap-2">
+              <span className="font-medium">
+                {evaluationResult.statistics.competences.completed}/
+                {evaluationResult.statistics.competences.total}
+              </span>
+              <Badge variant="outline" className="text-xs">
+                {evaluationResult.statistics.competences.completion_rate}%
               </Badge>
             </div>
           </div>
