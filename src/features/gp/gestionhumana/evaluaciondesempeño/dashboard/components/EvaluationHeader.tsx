@@ -168,16 +168,16 @@ export const EvaluationHeader: React.FC<EvaluationHeaderProps> = ({
               <div className="relative">
                 <div className="flex items-center gap-3 p-4 rounded-lg bg-primary/5 hover:bg-primary/10 transition-colors">
                   <div className="shrink-0 w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center">
-                    <Calendar className="h-5 w-5 text-primary" />
+                    <Calendar className="h-5 w-5 text-primary dark:text-primary-foreground" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-primary">
+                    <p className="text-sm font-medium text-primary dark:text-primary-foreground">
                       Fecha de Inicio
                     </p>
-                    <p className="text-lg font-bold text-primary">
+                    <p className="text-lg font-bold text-primary dark:text-primary-foreground">
                       {formatDate(evaluationData.start_date)}
                     </p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-xs text-muted-foreground dark:text-muted-foreground">
                       {formatDateLong(evaluationData.start_date)}
                     </p>
                   </div>
@@ -212,16 +212,16 @@ export const EvaluationHeader: React.FC<EvaluationHeaderProps> = ({
               <div className="relative">
                 <div className="flex items-center gap-3 p-4 rounded-lg bg-secondary/5 hover:bg-secondary/10 transition-colors">
                   <div className="shrink-0 w-10 h-10 bg-secondary/20 rounded-full flex items-center justify-center">
-                    <Calendar className="h-5 w-5 text-secondary" />
+                    <Calendar className="h-5 w-5 text-secondary dark:text-secondary-foreground" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-secondary">
+                    <p className="text-sm font-medium text-secondary dark:text-secondary-foreground">
                       Fecha de Fin
                     </p>
-                    <p className="text-lg font-bold text-secondary">
+                    <p className="text-lg font-bold text-secondary dark:text-secondary-foreground">
                       {formatDate(evaluationData.end_date)}
                     </p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-xs text-muted-foreground dark:text-muted-foreground">
                       {formatDateLong(evaluationData.end_date)}
                     </p>
                   </div>

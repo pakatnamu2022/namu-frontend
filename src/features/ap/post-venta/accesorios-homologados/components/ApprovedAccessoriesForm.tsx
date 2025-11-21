@@ -47,7 +47,6 @@ export const ApprovedAccesoriesForm = ({
   isSubmitting = false,
   mode = "create",
 }: ApprovedAccesoriesFormProps) => {
-  const { ABSOLUTE_ROUTE } = APPROVED_ACCESSORIES;
   const form = useForm({
     resolver: zodResolver(
       mode === "create"

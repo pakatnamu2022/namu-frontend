@@ -7,6 +7,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  CONDITION_OPTIONS,
+  STATUS_OPTIONS,
+} from "../../visitas-tienda/lib/storeVisits.constants";
 
 interface Props {
   search: string;
@@ -17,15 +21,9 @@ interface Props {
   setDateTo: (date: Date | undefined) => void;
   statusFilter?: string;
   setStatusFilter: (value: string) => void;
+  conditionFilter?: string;
+  setConditionFilter: (value: string) => void;
 }
-
-const STATUS_OPTIONS = [
-  { value: "all", label: "Todos los estados" },
-  { value: "PENDIENTE", label: "Pendiente" },
-  { value: "VALIDADO", label: "Validado" },
-  { value: "ERRADO", label: "Errado" },
-  { value: "NO_ENCONTRADO", label: "No Encontrado" },
-];
 
 export default function ManageLeadsOptions({
   search,
@@ -36,6 +34,8 @@ export default function ManageLeadsOptions({
   setDateTo,
   statusFilter = "all",
   setStatusFilter,
+  conditionFilter = "all",
+  setConditionFilter,
 }: Props) {
   return (
     <div className="flex items-center gap-2 flex-wrap">
@@ -44,6 +44,30 @@ export default function ManageLeadsOptions({
         onChange={setSearch}
         placeholder="Buscar ..."
       />
+      <Select value={statusFilter} onValueChange={setStatusFilter}>
+        <SelectTrigger className="w-[180px] h-8">
+          <SelectValue placeholder="Estado de validación" />
+        </SelectTrigger>
+        <SelectContent>
+          {STATUS_OPTIONS.map((option) => (
+            <SelectItem key={option.value} value={option.value}>
+              {option.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      <Select value={conditionFilter} onValueChange={setConditionFilter}>
+        <SelectTrigger className="w-[180px] h-8">
+          <SelectValue placeholder="Condición" />
+        </SelectTrigger>
+        <SelectContent>
+          {CONDITION_OPTIONS.map((option) => (
+            <SelectItem key={option.value} value={option.value}>
+              {option.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
       <DatePicker
         value={dateFrom}
         onChange={setDateFrom}
@@ -58,18 +82,6 @@ export default function ManageLeadsOptions({
         showClearButton={false}
         captionLayout="dropdown"
       />
-      <Select value={statusFilter} onValueChange={setStatusFilter}>
-        <SelectTrigger className="w-[200px]">
-          <SelectValue placeholder="Estado de validación" />
-        </SelectTrigger>
-        <SelectContent>
-          {STATUS_OPTIONS.map((option) => (
-            <SelectItem key={option.value} value={option.value}>
-              {option.label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
     </div>
   );
 }

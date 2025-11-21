@@ -2,9 +2,10 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { StoreVisitsResource } from "../lib/storeVisits.interface";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { Pencil } from "lucide-react";
 import { STORE_VISITS } from "../lib/storeVisits.constants";
+import { Badge } from "@/components/ui/badge";
 
 export type StoreVisitsColumns = ColumnDef<StoreVisitsResource>;
 
@@ -61,9 +62,53 @@ export const storeVisitsColumns = ({
     header: "N° Documento",
   },
   {
+    accessorKey: "use",
+    header: "Condición",
+    cell: ({ getValue }) => {
+      const condition = getValue() as string;
+
+      const conditionConfig: Record<
+        string,
+        {
+          label: string;
+          variant: "default" | "secondary" | "destructive" | "outline";
+          className?: string;
+        }
+      > = {
+        Subido: {
+          label: "Subido",
+          variant: "secondary",
+          className: "bg-blue-100 text-blue-700 hover:bg-blue-200",
+        },
+        Atendido: {
+          label: "Atendido",
+          variant: "default",
+          className: "bg-green-100 text-green-700 hover:bg-green-200",
+        },
+        Descartado: {
+          label: "Descartado",
+          variant: "destructive",
+          className: "bg-red-100 text-red-700 hover:bg-red-200",
+        },
+      };
+
+      const config = conditionConfig[condition] || {
+        label: condition,
+        variant: "secondary",
+      };
+
+      return (
+        <Badge variant={config.variant} className={config.className}>
+          {config.label}
+        </Badge>
+      );
+    },
+  },
+  {
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
       const router = useNavigate();
       const { id } = row.original;
       const { ROUTE_UPDATE } = STORE_VISITS;

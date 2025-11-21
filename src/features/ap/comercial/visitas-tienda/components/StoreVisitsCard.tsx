@@ -35,7 +35,7 @@ export default function StoreVisitsCard({
   const hasEmail = data.email && data.email.trim() !== "";
 
   const formatPhoneForLinks = (phone: string) => {
-    return phone.replace(/[\s\-\(\)]/g, "");
+    return phone.replace(/[\s\-()]/g, "");
   };
 
   return (

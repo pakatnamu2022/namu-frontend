@@ -12,10 +12,10 @@ import {
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import FormWrapper from "@/shared/components/FormWrapper";
 import NotFound from "@/app/not-found";
-import { storeReception } from "@/features/ap/post-venta/gestion-compras/recepciones-producto/lib/receptions-products.actions";
-import { ReceptionSchema } from "@/features/ap/post-venta/gestion-compras/recepciones-producto/lib/receptions-products.schema";
+import { storeReception } from "@/features/ap/post-venta/gestion-compras/recepciones-producto/lib/receptionsProducts.actions";
+import { ReceptionSchema } from "@/features/ap/post-venta/gestion-compras/recepciones-producto/lib/receptionsProducts.schema";
 import { ReceptionsProductsForm } from "@/features/ap/post-venta/gestion-compras/recepciones-producto/components/ReceptionsProductsForm";
-import { RECEPTION } from "@/features/ap/post-venta/gestion-compras/recepciones-producto/lib/receptions-products.constants";
+import { RECEPTION } from "@/features/ap/post-venta/gestion-compras/recepciones-producto/lib/receptionsProducts.constants";
 import { usePurchaseOrderProductsById } from "@/features/ap/post-venta/gestion-compras/orden-compra-producto/lib/purchaseOrderProducts.hook";
 import PageSkeleton from "@/shared/components/PageSkeleton";
 
@@ -54,7 +54,7 @@ export default function CreateReceptionProductPage() {
   if (!currentView) return <NotFound />;
   if (!purchaseOrder) return <NotFound />;
 
-  const today = new Date().toISOString().split("T")[0];
+  const today = new Date();
 
   return (
     <FormWrapper>
@@ -68,11 +68,8 @@ export default function CreateReceptionProductPage() {
           purchase_order_id: purchaseOrderId || "",
           reception_date: today,
           warehouse_id: purchaseOrder.warehouse_id?.toString() || "",
-          supplier_invoice_number: "",
-          supplier_invoice_date: "",
           shipping_guide_number: "",
           notes: "",
-          received_by: "",
           details: [],
         }}
         onSubmit={handleSubmit}
@@ -84,6 +81,7 @@ export default function CreateReceptionProductPage() {
           )
         }
         purchaseOrderNumber={purchaseOrder.number}
+        purchaseOrderItems={purchaseOrder.items}
       />
     </FormWrapper>
   );

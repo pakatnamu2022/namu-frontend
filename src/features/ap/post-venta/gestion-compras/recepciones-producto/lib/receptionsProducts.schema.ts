@@ -7,22 +7,14 @@ const receptionDetailSchema = z.object({
   quantity_received: z
     .number()
     .min(0.01, { message: "La cantidad recibida debe ser mayor a 0" }),
-  quantity_accepted: z
+  observed_quantity: z
     .number()
-    .min(0, { message: "La cantidad aceptada debe ser mayor o igual a 0" }),
-  quantity_rejected: z
-    .number()
-    .min(0, { message: "La cantidad rechazada debe ser mayor o igual a 0" })
+    .min(0, { message: "La cantidad observada debe ser mayor o igual a 0" })
     .optional(),
   reception_type: z.enum(["ORDERED", "BONUS", "GIFT", "SAMPLE"], {
     message: "Tipo de recepción inválido",
   }),
-  unit_cost: z
-    .number()
-    .min(0, { message: "El costo unitario debe ser mayor o igual a 0" })
-    .optional(),
-  is_charged: z.boolean().optional(),
-  rejection_reason: z
+  reason_observation: z
     .enum([
       "DAMAGED",
       "DEFECTIVE",
@@ -33,36 +25,24 @@ const receptionDetailSchema = z.object({
       "OTHER",
     ])
     .optional(),
-  rejection_notes: z.string().optional(),
+  observation_notes: z.string().optional(),
   bonus_reason: z
     .string()
     .max(255, { message: "Máximo 255 caracteres" })
     .optional(),
-  batch_number: z
-    .string()
-    .max(100, { message: "Máximo 100 caracteres" })
-    .optional(),
-  expiration_date: z.string().optional(),
   notes: z.string().optional(),
 });
 
 const receptionSchemaBase = z.object({
   purchase_order_id: requiredStringId("Orden de compra es requerida"),
-  reception_date: z.string().refine((value) => value.trim() !== "", {
-    message: "Fecha de recepción es requerida",
-  }),
+  reception_date: z.date({ message: "Fecha de recepción es requerida" }),
   warehouse_id: requiredStringId("Almacén es requerido"),
-  supplier_invoice_number: z
-    .string()
-    .max(100, { message: "Máximo 100 caracteres" })
-    .optional(),
-  supplier_invoice_date: z.string().optional(),
   shipping_guide_number: z
     .string()
     .max(100, { message: "Máximo 100 caracteres" })
-    .optional(),
-  notes: z.string().optional(),
-  received_by: z.string().optional(),
+    .optional()
+    .or(z.literal("")),
+  notes: z.string().optional().or(z.literal("")),
   details: z
     .array(receptionDetailSchema)
     .min(1, { message: "Debe agregar al menos un producto" }),

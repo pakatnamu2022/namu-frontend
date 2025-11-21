@@ -78,12 +78,6 @@ export const OpportunityCard = ({
             {opportunity.family.brand} {opportunity.family.description}
           </p>
         </div>
-
-        {/* <Badge
-          className={`${statusColor} text-xs h-5 shrink-0 whitespace-nowrap`}
-        >
-          {opportunity.opportunity_status}
-        </Badge> */}
       </div>
 
       {/* Client Phone */}
@@ -93,13 +87,6 @@ export const OpportunityCard = ({
           {opportunity.client.phone}
         </p>
       </div>
-
-      {/* Client Status */}
-      {/* <div className="bg-gray-50 rounded px-2 py-1">
-        <p className="text-xs font-medium text-gray-700 truncate">
-          {opportunity.client_status}
-        </p>
-      </div> */}
 
       {/* Document & Date */}
       <div className="flex items-center justify-between">

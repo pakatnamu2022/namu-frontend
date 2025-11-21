@@ -24,9 +24,8 @@ import StoreVisitsOptions from "@/features/ap/comercial/visitas-tienda/component
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { notFound } from "@/shared/hooks/useNotFound";
 
-
 export default function StoreVisitsPage() {
-    const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
+  const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
@@ -34,13 +33,14 @@ export default function StoreVisitsPage() {
 
   const [dateFrom, setDateFrom] = useState<Date | undefined>(currentDate);
   const [dateTo, setDateTo] = useState<Date | undefined>(currentDate);
+  const [conditionFilter, setConditionFilter] = useState<string>("all");
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const { MODEL, ROUTE } = STORE_VISITS;
   const permissions = useModulePermissions(ROUTE);
 
   useEffect(() => {
     setPage(1);
-  }, [search, per_page]);
+  }, [search, per_page, conditionFilter]);
 
   const formatDate = (date: Date | undefined) => {
     return date ? date.toISOString().split("T")[0] : undefined;
@@ -55,6 +55,7 @@ export default function StoreVisitsPage() {
         ? [formatDate(dateFrom), formatDate(dateTo)]
         : undefined,
     type: TIPO_LEADS.VISITA,
+    use: conditionFilter !== "all" ? conditionFilter : undefined,
     sort: "created_at",
   });
 
@@ -106,6 +107,8 @@ export default function StoreVisitsPage() {
           setDateFrom={setDateFrom}
           dateTo={dateTo}
           setDateTo={setDateTo}
+          conditionFilter={conditionFilter}
+          setConditionFilter={setConditionFilter}
         />
       </StoreVisitsTable>
 

@@ -24,13 +24,19 @@ export default function VehicleCategoryTable({
         initialColumnVisibility={{
           created_at: true,
           registration_date: true,
+          status_num_doc: true,
           sede: true,
+          vehicle_brand: true,
+          worker: true,
+          district: true,
+          model: false,
+          version: false,
+          document_type: false,
+          num_doc: true,
           full_name: true,
           phone: true,
           email: true,
-          vehicle_brand: true,
-          document_type: false,
-          num_doc: false,
+          use: true,
         }}
       >
         {children}

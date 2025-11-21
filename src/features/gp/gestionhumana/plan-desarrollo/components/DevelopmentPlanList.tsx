@@ -18,6 +18,8 @@ import {
   CheckCircle2,
   Trash2,
   Send,
+  Target,
+  Award,
 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -51,6 +53,8 @@ export default function DevelopmentPlanList({
   personId,
 }: DevelopmentPlanListProps) {
   const [expandedPlans, setExpandedPlans] = useState<Set<number>>(new Set());
+  const [expandedObjectivesCompetences, setExpandedObjectivesCompetences] =
+    useState<Set<number>>(new Set());
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [comments, setComments] = useState<Record<number, string>>({});
 
@@ -72,6 +76,16 @@ export default function DevelopmentPlanList({
       newExpanded.add(planId);
     }
     setExpandedPlans(newExpanded);
+  };
+
+  const toggleObjectivesCompetences = (planId: number) => {
+    const newExpanded = new Set(expandedObjectivesCompetences);
+    if (newExpanded.has(planId)) {
+      newExpanded.delete(planId);
+    } else {
+      newExpanded.add(planId);
+    }
+    setExpandedObjectivesCompetences(newExpanded);
   };
 
   const toggleTaskCompletion = async (planId: number, taskId: number) => {
@@ -209,6 +223,56 @@ export default function DevelopmentPlanList({
                     <CardDescription className="text-sm">
                       {plan.description}
                     </CardDescription>
+
+                    {/* Mostrar objetivos y competencias de forma sutil */}
+                    {plan.objectives_competences &&
+                      plan.objectives_competences.length > 0 && (
+                        <div className="space-y-2 pt-2">
+                          <div className="flex flex-wrap gap-2">
+                            {(expandedObjectivesCompetences.has(plan.id)
+                              ? plan.objectives_competences
+                              : plan.objectives_competences.slice(0, 2)
+                            ).map((item, index) => (
+                              <div key={index}>
+                                {item.objective_detail && (
+                                  <div className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800">
+                                    <Target className="w-3 h-3 text-blue-600 dark:text-blue-400" />
+                                    <span className="text-xs text-blue-700 dark:text-blue-300 font-medium">
+                                      {item.objective_detail.objective}
+                                    </span>
+                                  </div>
+                                )}
+                                {item.competence_detail && (
+                                  <div className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800">
+                                    <Award className="w-3 h-3 text-red-600 dark:text-red-400" />
+                                    <span className="text-xs text-red-700 dark:text-red-300 font-medium">
+                                      {item.competence_detail.competence}
+                                    </span>
+                                  </div>
+                                )}
+                              </div>
+                            ))}
+                            {plan.objectives_competences.length > 2 && (
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  toggleObjectivesCompetences(plan.id);
+                                }}
+                                className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-muted hover:bg-muted/80 border border-border transition-colors"
+                              >
+                                <span className="text-xs font-medium text-muted-foreground">
+                                  {expandedObjectivesCompetences.has(plan.id)
+                                    ? "Ver menos"
+                                    : `+${
+                                        plan.objectives_competences.length - 2
+                                      } más`}
+                                </span>
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      )}
                   </div>
                   {isLeader && (
                     <Button

@@ -36,3 +36,18 @@ export const STORE_VISITS: ModelComplete<StoreVisitsResource> = {
     area_id: "",
   },
 };
+
+export const STATUS_OPTIONS = [
+  { value: "all", label: "Todos Estado" },
+  { value: "PENDIENTE", label: "Pendiente" },
+  { value: "VALIDADO", label: "Validado" },
+  { value: "ERRADO", label: "Errado" },
+  { value: "NO_ENCONTRADO", label: "No Encontrado" },
+];
+
+export const CONDITION_OPTIONS = [
+  { value: "all", label: "Todos Condición" },
+  { value: "0", label: "Subido" },
+  { value: "1", label: "Atendido" },
+  { value: "2", label: "Descartado" },
+];

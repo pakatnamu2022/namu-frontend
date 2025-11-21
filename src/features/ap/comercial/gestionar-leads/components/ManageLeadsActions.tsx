@@ -53,8 +53,11 @@ export default function ManageLeadsActions({
         params: { created_at },
       });
       successToast("Archivo Excel descargado exitosamente");
-    } catch (error) {
-      errorToast("Error al descargar el Excel. Por favor, intente nuevamente.");
+    } catch (error: any) {
+      errorToast(
+        "Error al descargar el Excel. Por favor, intente nuevamente.",
+        error.message.toString()
+      );
     }
   };
 
@@ -69,8 +72,11 @@ export default function ManageLeadsActions({
         params: { format: "pdf", created_at },
       });
       successToast("Archivo PDF descargado exitosamente");
-    } catch (error) {
-      errorToast("Error al descargar el PDF. Por favor, intente nuevamente.");
+    } catch (error: any) {
+      errorToast(
+        "Error al descargar el PDF. Por favor, intente nuevamente.",
+        error.message.toString()
+      );
     }
   };
 
@@ -108,8 +114,6 @@ export default function ManageLeadsActions({
             </Tooltip>
           </div>
         )}
-
-        
       </div>
       <Button size="sm" variant="outline" onClick={handleDownloadTemplate}>
         <Download className="size-4 mr-2" /> Formato Redes Sociales

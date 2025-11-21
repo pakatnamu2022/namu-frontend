@@ -1,7 +1,7 @@
 "use client";
 
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   ERROR_MESSAGE,
   errorToast,
@@ -11,28 +11,24 @@ import {
 import PageSkeleton from "@/shared/components/PageSkeleton";
 import TitleComponent from "@/shared/components/TitleComponent";
 import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
-import DataTablePagination from "@/shared/components/DataTablePagination";
-import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import NotFound from "@/app/not-found";
-import { useReceptions } from "@/features/ap/post-venta/gestion-compras/recepciones-producto/lib/receptions-products.hook";
-import { deleteReception } from "@/features/ap/post-venta/gestion-compras/recepciones-producto/lib/receptions-products.actions";
+import { useAllReceptions } from "@/features/ap/post-venta/gestion-compras/recepciones-producto/lib/receptionsProducts.hook";
+import { deleteReception } from "@/features/ap/post-venta/gestion-compras/recepciones-producto/lib/receptionsProducts.actions";
 import ReceptionsProductsTable from "@/features/ap/post-venta/gestion-compras/recepciones-producto/components/ReceptionsProductsTable";
-import { receptionsProductsColumns } from "@/features/ap/post-venta/gestion-compras/recepciones-producto/components/ReceptionsProductsColumns";
+import ReceptionsProductsCards from "@/features/ap/post-venta/gestion-compras/recepciones-producto/components/ReceptionsProductsCards";
 import ReceptionsProductsOptions from "@/features/ap/post-venta/gestion-compras/recepciones-producto/components/ReceptionsProductsOptions";
-import { RECEPTION } from "@/features/ap/post-venta/gestion-compras/recepciones-producto/lib/receptions-products.constants";
+import { RECEPTION } from "@/features/ap/post-venta/gestion-compras/recepciones-producto/lib/receptionsProducts.constants";
 import { useParams, useNavigate } from "react-router-dom";
 import { usePurchaseOrderProductsById } from "@/features/ap/post-venta/gestion-compras/orden-compra-producto/lib/purchaseOrderProducts.hook";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Plus } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
+import { useMemo } from "react";
 
 export default function ReceptionsProductsPage() {
   const { checkRouteExists, isLoadingModule } = useCurrentModule();
-  const [page, setPage] = useState(1);
-  const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const { MODEL, ROUTE_ADD, ROUTE_UPDATE } = RECEPTION;
@@ -46,18 +42,25 @@ export default function ReceptionsProductsPage() {
   const { data: purchaseOrder, isLoading: isLoadingPurchaseOrder } =
     usePurchaseOrderProductsById(purchaseOrderIdNum || 0);
 
-  useEffect(() => {
-    setPage(1);
-  }, [search, per_page]);
-
-  const { data, isLoading, refetch } = useReceptions(
-    {
-      page,
-      search,
-      per_page,
-    },
+  const { data, isLoading, refetch } = useAllReceptions(
+    { search },
     purchaseOrderIdNum
   );
+
+  // Filtrar los datos según el search
+  const filteredData = useMemo(() => {
+    if (!data) return [];
+    if (!search.trim()) return data;
+
+    const searchLower = search.toLowerCase();
+    return data.filter((reception) => {
+      return (
+        reception.reception_number?.toLowerCase().includes(searchLower) ||
+        reception.shipping_guide_number?.toLowerCase().includes(searchLower) ||
+        reception.received_by_user_name?.toLowerCase().includes(searchLower)
+      );
+    });
+  }, [data, search]);
 
   const handleDelete = async () => {
     if (!deleteId) return;
@@ -71,10 +74,6 @@ export default function ReceptionsProductsPage() {
     } finally {
       setDeleteId(null);
     }
-  };
-
-  const handleView = (id: number) => {
-    console.log("Ver recepción:", id);
   };
 
   const handleBack = () => {
@@ -117,7 +116,7 @@ export default function ReceptionsProductsPage() {
       </HeaderTableWrapper>
 
       <Card className="p-4">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           <div>
             <p className="text-sm text-muted-foreground">Proveedor</p>
             <p className="font-semibold">{purchaseOrder.supplier}</p>
@@ -130,22 +129,25 @@ export default function ReceptionsProductsPage() {
             <p className="text-sm text-muted-foreground">Total Orden</p>
             <p className="font-semibold">S/ {purchaseOrder.total.toFixed(2)}</p>
           </div>
-          <div>
-            <p className="text-sm text-muted-foreground">Estado</p>
-            <Badge className="capitalize">{purchaseOrder.status}</Badge>
-          </div>
         </div>
       </Card>
 
       <ReceptionsProductsTable
         isLoading={isLoading}
-        columns={receptionsProductsColumns({
-          onDelete: setDeleteId,
-          onView: handleView,
-          permissions,
-          routeUpdate: `${ROUTE_UPDATE}/${purchaseOrderId}`,
-        })}
-        data={data?.data || []}
+        data={filteredData}
+        customContent={
+          <ReceptionsProductsCards
+            data={filteredData}
+            onDelete={setDeleteId}
+            permissions={{
+              canUpdate: permissions.canUpdate,
+              canDelete: permissions.canDelete,
+            }}
+            routeUpdate={`${ROUTE_UPDATE}/${purchaseOrderId}`}
+            purchaseOrderNumber={purchaseOrder?.number}
+            warehouseName={purchaseOrder?.warehouse}
+          />
+        }
       >
         <ReceptionsProductsOptions search={search} setSearch={setSearch} />
       </ReceptionsProductsTable>
@@ -157,15 +159,6 @@ export default function ReceptionsProductsPage() {
           onConfirm={handleDelete}
         />
       )}
-
-      <DataTablePagination
-        page={page}
-        totalPages={data?.meta?.last_page || 1}
-        totalData={data?.meta?.total || 0}
-        onPageChange={setPage}
-        per_page={per_page}
-        setPerPage={setPerPage}
-      />
     </div>
   );
 }

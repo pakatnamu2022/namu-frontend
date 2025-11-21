@@ -1,5 +1,5 @@
 import type { ColumnDef } from "@tanstack/react-table";
-import { ReceptionResource } from "../lib/receptions-products.interface";
+import { ReceptionListItem } from "../lib/receptionsProducts.interface";
 import { Button } from "@/components/ui/button";
 import { Eye, Pencil } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
@@ -7,7 +7,7 @@ import { Link } from "react-router-dom";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 
-export type ReceptionsProductsColumns = ColumnDef<ReceptionResource>;
+export type ReceptionsProductsColumns = ColumnDef<ReceptionListItem>;
 
 interface Props {
   onDelete: (id: number) => void;
@@ -18,6 +18,8 @@ interface Props {
     canView: boolean;
   };
   routeUpdate?: string;
+  purchaseOrderNumber?: string;
+  warehouseName?: string;
 }
 
 export const receptionsProductsColumns = ({
@@ -25,13 +27,26 @@ export const receptionsProductsColumns = ({
   onView,
   permissions,
   routeUpdate,
+  purchaseOrderNumber,
+  warehouseName,
 }: Props): ReceptionsProductsColumns[] => [
   {
-    accessorKey: "purchase_order_number",
-    header: "Nº Orden de Compra",
-    cell: ({ getValue }) => {
-      const value = getValue() as string;
+    accessorKey: "reception_number",
+    header: "Nº Recepción",
+    cell: ({ row }) => {
+      const value = row.original.reception_number;
       return value ? <p className="font-semibold">{value}</p> : "-";
+    },
+  },
+  {
+    accessorKey: "purchase_order_id",
+    header: "Nº Orden de Compra",
+    cell: () => {
+      return purchaseOrderNumber ? (
+        <p className="font-semibold">{purchaseOrderNumber}</p>
+      ) : (
+        "-"
+      );
     },
   },
   {
@@ -48,19 +63,10 @@ export const receptionsProductsColumns = ({
     },
   },
   {
-    accessorKey: "warehouse_name",
+    accessorKey: "warehouse_id",
     header: "Almacén",
-    cell: ({ getValue }) => {
-      const value = getValue() as string;
-      return value || "-";
-    },
-  },
-  {
-    accessorKey: "supplier_invoice_number",
-    header: "Nº Factura Proveedor",
-    cell: ({ getValue }) => {
-      const value = getValue() as string;
-      return value || "-";
+    cell: () => {
+      return warehouseName || "-";
     },
   },
   {
@@ -72,7 +78,15 @@ export const receptionsProductsColumns = ({
     },
   },
   {
-    accessorKey: "received_by_name",
+    accessorKey: "total_items",
+    header: "Total Items",
+    cell: ({ row }) => {
+      const value = row.original.total_items;
+      return value !== undefined ? value : "-";
+    },
+  },
+  {
+    accessorKey: "received_by_user_name",
     header: "Recibido por",
     cell: ({ getValue }) => {
       const value = getValue() as string;
