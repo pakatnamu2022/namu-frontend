@@ -1,38 +1,3 @@
-/**
- * MultiSelectTags - Componente genérico reutilizable para selección múltiple con Tags
- *
- * IMPORTANTE: Este componente guarda directamente los IDs (numbers) en el formulario,
- * no los objetos completos. Internamente maneja los objetos para mostrar la información.
- *
- * @example
- * // Ejemplo con categorías
- * <MultiSelectTags
- *   control={form.control}
- *   name="categories"
- *   label="Categorías"
- *   placeholder="Selecciona las categorías"
- *   searchPlaceholder="Buscar categoría..."
- *   emptyMessage="No se encontró categoría."
- *   options={categories}
- *   getDisplayValue={(item) => item.name}
- *   getSecondaryText={(item) => item.description}
- * />
- * // form.watch("categories") retorna: [10, 12, 15]
- *
- * @example
- * // Ejemplo con usuarios
- * <MultiSelectTags
- *   control={form.control}
- *   name="users"
- *   label="Usuarios"
- *   placeholder="Selecciona usuarios"
- *   options={users}
- *   getDisplayValue={(user) => `${user.firstName} ${user.lastName}`}
- *   getSecondaryText={(user) => user.email}
- * />
- * // form.watch("users") retorna: [1, 5, 8]
- */
-
 "use client";
 
 import { CheckIcon } from "lucide-react";
