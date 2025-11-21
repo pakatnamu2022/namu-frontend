@@ -23,7 +23,7 @@ import { useWorkers } from "@/features/gp/gestionhumana/personal/trabajadores/li
 import { deleteParEvaluator } from "@/features/gp/gestionhumana/evaluaciondesempeño/asignacion-pares/lib/par-evaluator.actions";
 import { STATUS_WORKER } from "@/features/gp/gestionhumana/personal/posiciones/lib/position.constant";
 
-const { MODEL, ROUTE, ROUTE_ADD } = PAR_EVALUATOR;
+const { MODEL, ROUTE } = PAR_EVALUATOR;
 
 export default function EvaluatorParPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();

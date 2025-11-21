@@ -80,7 +80,7 @@ export default function TeamPage() {
     <div className="space-y-4 w-full py-4">
       <HeaderTableWrapper>
         <TitleComponent
-          title={"Mi Equipo"}
+          title={"Evaluación de Guerreros"}
           subtitle={"Gestiona la información de tu equipo"}
           icon={"Users2"}
         />

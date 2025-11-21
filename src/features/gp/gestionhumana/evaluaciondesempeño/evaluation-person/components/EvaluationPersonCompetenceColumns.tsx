@@ -171,10 +171,10 @@ export const evaluationPersonCompetenceColumns = ({
   } else {
     // 360° - Múltiples evaluadores
     const evaluatorTypes = [
-      { type: 0, name: "Jefe", icon: User },
-      { type: 1, name: "Auto", icon: Target },
-      { type: 2, name: "Pares", icon: Users },
-      { type: 3, name: "Reportes", icon: UserCheck },
+      { type: 0, name: "Jefe (60%)", icon: User },
+      { type: 1, name: "Auto (20%)", icon: Target },
+      { type: 2, name: "Pares (10%)", icon: Users },
+      { type: 3, name: "Reportes (10%)", icon: UserCheck },
     ];
 
     evaluatorTypes.forEach(({ type, name, icon: Icon }) => {
