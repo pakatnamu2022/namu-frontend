@@ -1,5 +1,5 @@
 import React from "react";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { ExternalLink } from "lucide-react";
@@ -141,7 +141,7 @@ const PersonResultsSheet: React.FC<PersonResultsSheetProps> = ({
       open={open}
       onClose={onClose}
       title={title}
-      className="!max-w-xl h-full"
+      className="max-w-xl! h-full"
     >
       <div className="space-y-4 h-full">
         {isLoading ? (
