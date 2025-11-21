@@ -18,7 +18,7 @@ import { notFound } from "@/shared/hooks/useNotFound";
 import { METRIC } from "@/features/profile/team/lib/team.constant";
 
 export default function AddMetricPage() {
-  const { MODEL } = METRIC;
+  const { MODEL, ABSOLUTE_ROUTE } = METRIC;
   const router = useNavigate();
   const { currentView, checkRouteExists } = useCurrentModule();
 
@@ -26,7 +26,7 @@ export default function AddMetricPage() {
     mutationFn: storeMetric,
     onSuccess: () => {
       successToast(SUCCESS_MESSAGE(MODEL, "create"));
-      router("./");
+      router(ABSOLUTE_ROUTE);
     },
     onError: (error: any) => {
       errorToast(

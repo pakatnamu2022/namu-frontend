@@ -166,7 +166,7 @@ export function DataTable<TData, TValue>({
                         <span className="text-xs font-semibold text-primary/70 uppercase tracking-wide">
                           {headerText}
                         </span>
-                        <div className="text-sm break-words text-foreground">
+                        <div className="text-sm wrap-break-word text-foreground">
                           {flexRender(
                             cell.column.columnDef.cell,
                             cell.getContext()

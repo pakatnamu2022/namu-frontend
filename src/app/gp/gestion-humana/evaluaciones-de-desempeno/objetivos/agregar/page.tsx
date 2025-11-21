@@ -1,6 +1,6 @@
 "use client";
 
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import { errorToast, successToast } from "@/core/core.function";
 import { storeObjective } from "@/features/gp/gestionhumana/evaluaciondesempeño/objetivos/lib/objective.actions";
@@ -10,17 +10,18 @@ import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import FormWrapper from "@/shared/components/FormWrapper";
 import { notFound } from "@/shared/hooks/useNotFound";
-
+import { OBJECTIVE } from "@/features/gp/gestionhumana/evaluaciondesempeño/objetivos/lib/objective.constants";
 
 export default function AddObjectivePage() {
+  const { ABSOLUTE_ROUTE } = OBJECTIVE;
   const router = useNavigate();
-    const { currentView, checkRouteExists } = useCurrentModule();
+  const { currentView, checkRouteExists } = useCurrentModule();
 
   const { mutate, isPending } = useMutation({
     mutationFn: storeObjective,
     onSuccess: () => {
       successToast("Objetivo creado exitosamente");
-      router("./");
+      router(ABSOLUTE_ROUTE);
     },
     onError: (error: any) => {
       errorToast(

@@ -22,13 +22,13 @@ import { notFound } from "@/shared/hooks/useNotFound";
 export default function AddVehiclePurchaseOrderPage() {
   const router = useNavigate();
   const { currentView, checkRouteExists } = useCurrentModule();
-  const { ROUTE, MODEL } = VEHICLE_PURCHASE_ORDER;
+  const { ROUTE, MODEL, ABSOLUTE_ROUTE } = VEHICLE_PURCHASE_ORDER;
 
   const { mutate, isPending } = useMutation({
     mutationFn: storeVehiclePurchaseOrder,
     onSuccess: () => {
       successToast(SUCCESS_MESSAGE(MODEL, "create"));
-      router("./");
+      router(ABSOLUTE_ROUTE);
     },
     onError: (error: any) => {
       const msg = error?.response?.data?.message || "";

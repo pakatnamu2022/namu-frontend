@@ -1,6 +1,6 @@
 "use client";
 
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import { errorToast, successToast } from "@/core/core.function";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
@@ -10,17 +10,18 @@ import { HierarchicalCategoryForm } from "@/features/gp/gestionhumana/evaluacion
 import { storeHierarchicalCategory } from "@/features/gp/gestionhumana/evaluaciondesempeño/categorias-jerarquicas/lib/hierarchicalCategory.actions";
 import FormWrapper from "@/shared/components/FormWrapper";
 import { notFound } from "@/shared/hooks/useNotFound";
-
+import { HIERARCHICAL_CATEGORY } from "@/features/gp/gestionhumana/evaluaciondesempeño/categorias-jerarquicas/lib/hierarchicalCategory.constants";
 
 export default function AddHierarchicalCategoryPage() {
+  const { ABSOLUTE_ROUTE } = HIERARCHICAL_CATEGORY;
   const router = useNavigate();
-    const { currentView, checkRouteExists } = useCurrentModule();
+  const { currentView, checkRouteExists } = useCurrentModule();
 
   const { mutate, isPending } = useMutation({
     mutationFn: storeHierarchicalCategory,
     onSuccess: () => {
       successToast("Categoría Jerárquica creada exitosamente");
-      router("./");
+      router(ABSOLUTE_ROUTE);
     },
     onError: (error: any) => {
       errorToast(

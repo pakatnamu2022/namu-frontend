@@ -17,7 +17,7 @@ import FormWrapper from "@/shared/components/FormWrapper";
 import { CLASS_ARTICLE } from "@/features/ap/configuraciones/maestros-general/clase-articulo/lib/classArticle.constants";
 import { notFound } from "@/shared/hooks/useNotFound";
 
-const { MODEL, ROUTE } = CLASS_ARTICLE;
+const { MODEL, ROUTE, ABSOLUTE_ROUTE } = CLASS_ARTICLE;
 
 export default function AddClassArticlePage() {
   const router = useNavigate();
@@ -27,7 +27,7 @@ export default function AddClassArticlePage() {
     mutationFn: storeClassArticle,
     onSuccess: () => {
       successToast(SUCCESS_MESSAGE(MODEL, "create"));
-      router("./");
+      router(ABSOLUTE_ROUTE);
     },
     onError: (error: any) => {
       const msg = error?.response?.data?.message || "";

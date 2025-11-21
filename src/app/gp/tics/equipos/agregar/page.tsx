@@ -1,6 +1,6 @@
 "use client";
 
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import { EquipmentForm } from "@/features/gp/tics/equipment/components/EquipmentForm";
 import { EquipmentSchema } from "@/features/gp/tics/equipment/lib/equipment.schema";
@@ -13,11 +13,12 @@ import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import FormWrapper from "@/shared/components/FormWrapper";
 import { notFound } from "@/shared/hooks/useNotFound";
-
+import { EQUIPMENT } from "@/features/gp/tics/equipment/lib/equipment.constants";
 
 export default function AddEquipmentPage() {
+  const { ABSOLUTE_ROUTE } = EQUIPMENT;
   const router = useNavigate();
-  
+
   const { data: equipmentTypes, isLoading: loadingEquipmentTypes } =
     useAllEquipmentTypes();
   const { currentView, checkRouteExists } = useCurrentModule();
@@ -28,7 +29,7 @@ export default function AddEquipmentPage() {
     mutationFn: storeEquipment,
     onSuccess: () => {
       successToast("Equipo creado exitosamente");
-      router("./");
+      router(ABSOLUTE_ROUTE);
     },
     onError: () => {
       errorToast("Hubo un error al crear el equipo");

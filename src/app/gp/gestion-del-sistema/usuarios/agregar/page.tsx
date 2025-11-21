@@ -1,6 +1,6 @@
 "use client";
 
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import { errorToast, successToast } from "@/core/core.function";
 import { storeView } from "@/features/gp/gestionsistema/vistas/lib/view.actions";
@@ -12,11 +12,12 @@ import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import FormWrapper from "@/shared/components/FormWrapper";
 import { notFound } from "@/shared/hooks/useNotFound";
-
+import { VIEW } from "@/features/gp/gestionsistema/vistas/lib/view.constants";
 
 export default function AddViewPage() {
+  const { ABSOLUTE_ROUTE } = VIEW;
   const router = useNavigate();
-  
+
   const { data: views, isLoading: loadingViews } = useAllViews();
   const { data: companies, isLoading: loadingCompanies } = useAllCompanies();
   const { currentView, checkRouteExists } = useCurrentModule();
@@ -25,7 +26,7 @@ export default function AddViewPage() {
     mutationFn: storeView,
     onSuccess: () => {
       successToast("Usuario creado exitosamente");
-      router("./");
+      router(ABSOLUTE_ROUTE);
     },
     onError: () => {
       errorToast("Hubo un error al crear el equipo");

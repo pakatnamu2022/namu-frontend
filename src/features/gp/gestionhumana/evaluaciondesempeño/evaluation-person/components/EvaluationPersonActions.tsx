@@ -27,7 +27,7 @@ export default function EvaluationPersonActions({
 }: Props) {
   return (
     <div className="flex items-center gap-2 w-full md:justify-end">
-      <Link to={ABSOLUTE_ROUTE + `/${idEvaluation}`}>
+      <Link to={`${ABSOLUTE_ROUTE}/${idEvaluation}`}>
         <Button size={"sm"} variant={"tertiary"}>
           <LayoutDashboard className="w-4 h-4" />
           Dashboard

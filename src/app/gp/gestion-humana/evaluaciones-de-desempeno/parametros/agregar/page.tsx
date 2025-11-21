@@ -20,7 +20,7 @@ import ParameterForm from "@/features/gp/gestionhumana/evaluaciondesempeño/para
 import FormWrapper from "@/shared/components/FormWrapper";
 import { notFound } from "@/shared/hooks/useNotFound";
 
-const { MODEL } = PARAMETER;
+const { MODEL, ABSOLUTE_ROUTE } = PARAMETER;
 
 export default function AddParameterPage() {
   const router = useNavigate();
@@ -30,7 +30,7 @@ export default function AddParameterPage() {
     mutationFn: storeParameter,
     onSuccess: () => {
       successToast(SUCCESS_MESSAGE(MODEL, "create"));
-      router("./");
+      router(ABSOLUTE_ROUTE);
     },
     onError: () => {
       errorToast(ERROR_MESSAGE(MODEL, "create"));

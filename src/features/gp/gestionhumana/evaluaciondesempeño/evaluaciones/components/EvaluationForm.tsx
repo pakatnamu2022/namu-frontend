@@ -54,7 +54,7 @@ export const EvaluationForm = ({
   const form = useForm({
     resolver: zodResolver(
       mode === "create" ? evaluationSchemaCreate : evaluationSchemaUpdate
-    ),
+    ) as any,
     defaultValues: {
       ...defaultValues,
     },

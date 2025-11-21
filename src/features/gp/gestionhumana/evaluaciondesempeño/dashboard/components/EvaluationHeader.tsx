@@ -15,6 +15,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { EvaluationResource } from "../../evaluaciones/lib/evaluation.interface";
 import { parse } from "date-fns";
 import { Link } from "react-router-dom";
+import { EVALUATION_PERSON } from "../../evaluation-person/lib/evaluationPerson.constans";
 
 interface EvaluationHeaderProps {
   evaluationData: EvaluationResource;
@@ -22,6 +23,8 @@ interface EvaluationHeaderProps {
   onRefresh: () => void;
   onDownloadReport: () => void;
 }
+
+const { ABSOLUTE_ROUTE } = EVALUATION_PERSON;
 
 export const EvaluationHeader: React.FC<EvaluationHeaderProps> = ({
   evaluationData,
@@ -92,7 +95,7 @@ export const EvaluationHeader: React.FC<EvaluationHeaderProps> = ({
         {/* Información Principal */}
         <div className="space-y-3">
           <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-            <h1 className="text-2xl sm:text-3xl font-semibold text-foreground">
+            <h1 className="text-2xl xl:text-3xl font-semibold text-foreground">
               {evaluationData.name}
             </h1>
             <Badge
@@ -130,9 +133,7 @@ export const EvaluationHeader: React.FC<EvaluationHeaderProps> = ({
             />
             Actualizar
           </Button>
-          <Link
-            to={`/gp/gestion-humana/evaluaciones-de-desempeno/evaluaciones/detalles/${evaluationData.id}`}
-          >
+          <Link to={`${ABSOLUTE_ROUTE}/${evaluationData.id}`}>
             <Button variant="outline" size="sm" className="order-2 sm:order-1">
               <Activity className="h-4 w-4 mr-2" />
               Ver Evaluaciones

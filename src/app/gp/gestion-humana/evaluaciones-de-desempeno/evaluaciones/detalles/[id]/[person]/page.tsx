@@ -188,7 +188,7 @@ export default function EvaluationDetailPersonPage() {
             </div>
 
             {/* Selector de evaluación y controles */}
-            <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center justify-between gap-4 flex-wrap">
               {isLoadingEvaluations ? (
                 <Skeleton className="h-8 w-80" />
               ) : (
@@ -232,7 +232,7 @@ export default function EvaluationDetailPersonPage() {
                   />
                   Actualizar
                 </Button>
-                <Link to={ABSOLUTE_ROUTE + `/detalles/${selectedEvaluationId}`}>
+                <Link to={`${ABSOLUTE_ROUTE}/${selectedEvaluationId}`}>
                   <Button size={"sm"} variant={"tertiary"}>
                     <ChevronLeft className="w-4 h-4" />
                     Ver Evaluaciones

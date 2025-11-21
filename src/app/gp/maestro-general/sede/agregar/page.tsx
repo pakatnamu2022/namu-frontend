@@ -1,6 +1,6 @@
 "use client";
 
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import { useMutation } from "@tanstack/react-query";
 import {
@@ -17,17 +17,16 @@ import { SedeSchema } from "@/features/gp/maestro-general/sede/lib/sede.schema";
 import { SedeForm } from "@/features/gp/maestro-general/sede/components/SedeForm";
 import { notFound } from "@/shared/hooks/useNotFound";
 
-
 export default function AddSedePage() {
   const router = useNavigate();
-    const { currentView, checkRouteExists } = useCurrentModule();
-  const { ROUTE, MODEL } = SEDE;
+  const { currentView, checkRouteExists } = useCurrentModule();
+  const { ROUTE, MODEL, ABSOLUTE_ROUTE } = SEDE;
 
   const { mutate, isPending } = useMutation({
     mutationFn: storeSede,
     onSuccess: () => {
       successToast(SUCCESS_MESSAGE(MODEL, "create"));
-      router("./");
+      router(ABSOLUTE_ROUTE);
     },
     onError: (error: any) => {
       const msg = error?.response?.data?.message || "";

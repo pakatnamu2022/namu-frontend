@@ -1,16 +1,15 @@
 "use client";
 
-import type { ColumnDef } from "@tanstack/react-table";
+import { ColumnDef } from "@tanstack/react-table";
 import { CompetenceResource } from "../lib/competence.interface";
 import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { COMPETENCE } from "../lib/competence.constans";
 
 export type CompetenceColumns = ColumnDef<CompetenceResource>;
-
-const { ROUTE_UPDATE } = COMPETENCE;
 
 export const competenceColumns = ({
   onDelete,
@@ -27,11 +26,38 @@ export const competenceColumns = ({
     ),
   },
   {
+    accessorKey: "subcompetences",
+    header: "Subcompetencias",
+    cell: ({ row }) => {
+      const subcompetences = row.original.subcompetences;
+      return (
+        <span className="text-wrap! line-clamp-1">
+          {subcompetences.map((sub) => sub.nombre).join(", ")}
+        </span>
+      );
+    },
+  },
+  {
+    accessorKey: "subcompetencesWithoutDescription",
+    header: "Sin descripción",
+    cell: ({ row }) => {
+      const subcompetencesWithoutDescription = row.original.subcompetences;
+      const count = subcompetencesWithoutDescription.filter(
+        (sub) => sub.definicion || sub.definicion.trim() !== ""
+      ).length;
+      return (
+        <Badge variant={count > 0 ? "default" : "destructive"}>{count}</Badge>
+      );
+    },
+  },
+
+  {
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
       const router = useNavigate();
       const id = row.original.id;
+      const { ROUTE_UPDATE } = COMPETENCE;
 
       return (
         <div className="flex items-center gap-2">

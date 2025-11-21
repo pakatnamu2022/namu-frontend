@@ -11,8 +11,8 @@ const baseEvaluationSchema = z.object({
   typeEvaluation: z.enum(TYPE_EVALUATION_VALUES, {
     error: "Tipo de evaluación inválido",
   }),
-  objectivesPercentage: z.number().int().min(0).max(100),
-  competencesPercentage: z.number().int().min(0).max(100),
+  objectivesPercentage: z.coerce.number().int().min(0).max(100),
+  competencesPercentage: z.coerce.number().int().min(0).max(100),
   cycle_id: requiredStringId("El ciclo es obligatorio"),
   competence_parameter_id: requiredStringId(
     "El parámetro de competencia es obligatorio"

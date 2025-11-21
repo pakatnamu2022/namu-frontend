@@ -21,7 +21,7 @@ import { useAllParameters } from "@/features/gp/gestionhumana/evaluaciondesempeÃ
 import FormWrapper from "@/shared/components/FormWrapper";
 import { notFound } from "@/shared/hooks/useNotFound";
 
-const { MODEL } = EVALUATION;
+const { MODEL, ABSOLUTE_ROUTE } = EVALUATION;
 
 export default function AddEvaluationPage() {
   const router = useNavigate();
@@ -31,10 +31,12 @@ export default function AddEvaluationPage() {
     mutationFn: storeEvaluation,
     onSuccess: () => {
       successToast(SUCCESS_MESSAGE(MODEL, "create"));
-      router("./");
+      router(ABSOLUTE_ROUTE);
     },
-    onError: () => {
-      errorToast(ERROR_MESSAGE(MODEL, "create"));
+    onError: (error: any) => {
+      errorToast(
+        ERROR_MESSAGE(MODEL, "create", error?.response?.data?.message)
+      );
     },
   });
 

@@ -97,7 +97,7 @@ export default function RegenerateEvaluationSheet({
               value={mode}
               onChange={setMode}
               placeholder="Seleccionar modo"
-              className="!w-full"
+              className="w-full!"
               withValue={false}
             />
           </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import { errorToast, successToast } from "@/core/core.function";
 import { storePeriod } from "@/features/gp/gestionhumana/evaluaciondesempeño/periodos/lib/period.actions";
@@ -10,17 +10,18 @@ import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import FormWrapper from "@/shared/components/FormWrapper";
 import { notFound } from "@/shared/hooks/useNotFound";
-
+import { PERIOD } from "@/features/gp/gestionhumana/evaluaciondesempeño/periodos/lib/period.constans";
 
 export default function AddPeriodPage() {
+  const { ABSOLUTE_ROUTE } = PERIOD;
   const router = useNavigate();
-    const { currentView, checkRouteExists } = useCurrentModule();
+  const { currentView, checkRouteExists } = useCurrentModule();
 
   const { mutate, isPending } = useMutation({
     mutationFn: storePeriod,
     onSuccess: () => {
       successToast("Periodo creado exitosamente");
-      router("./");
+      router(ABSOLUTE_ROUTE);
     },
     onError: (error: any) => {
       errorToast(
@@ -52,6 +53,6 @@ export default function AddPeriodPage() {
         isSubmitting={isPending}
         mode="create"
       />
-   </FormWrapper>
+    </FormWrapper>
   );
 }

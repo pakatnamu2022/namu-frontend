@@ -23,7 +23,7 @@ import FormSkeleton from "@/shared/components/FormSkeleton";
 import { notFound } from "@/shared/hooks/useNotFound";
 
 export default function AddElectronicDocumentPage() {
-  const { ROUTE, MODEL } = ELECTRONIC_DOCUMENT;
+  const { ROUTE, MODEL, ABSOLUTE_ROUTE } = ELECTRONIC_DOCUMENT;
   const router = useNavigate();
   const { currentView, checkRouteExists, isLoadingModule } = useCurrentModule();
 
@@ -88,7 +88,7 @@ export default function AddElectronicDocumentPage() {
     mutationFn: storeElectronicDocument,
     onSuccess: () => {
       successToast(SUCCESS_MESSAGE(MODEL, "create"));
-      router("./");
+      router(ABSOLUTE_ROUTE);
     },
     onError: (error: any) => {
       const msg = error?.response?.data?.message || "";
