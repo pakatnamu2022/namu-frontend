@@ -1,6 +1,6 @@
 import { DataTable } from "@/shared/components/DataTable";
-import { WorkerResource } from "../lib/par-evaluator.interface";
 import { ParEvaluatorColumns } from "./ParEvaluatorColumns";
+import { WorkerResource } from "../../../personal/trabajadores/lib/worker.interface";
 
 interface Props {
   columns: ParEvaluatorColumns[];

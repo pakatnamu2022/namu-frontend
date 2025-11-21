@@ -2,8 +2,7 @@ import { z } from "zod";
 
 const weightSchema = z
   .number({
-    required_error: "El peso es obligatorio",
-    invalid_type_error: "Debe ser un número",
+    error: "El peso es obligatorio",
   })
   .min(0, "El peso no puede ser negativo")
   .max(100, "El peso no puede ser mayor a 100");

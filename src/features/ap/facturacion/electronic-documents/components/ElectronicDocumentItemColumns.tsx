@@ -16,7 +16,6 @@ export const getElectronicDocumentItemColumns = ({
   currencySymbol,
   onRemove,
   onEdit,
-  isAdvancePayment = false,
 }: ElectronicDocumentItemColumnsProps): ColumnDef<
   ElectronicDocumentItemSchema & { index: number }
 >[] => [

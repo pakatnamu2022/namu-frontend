@@ -19,7 +19,7 @@ export default function AddEvaluationModelPage() {
       self_weight: data.self_weight,
       par_weight: data.par_weight,
       report_weight: data.report_weight,
-      categories: data.categories.map((cat) => cat.id),
+      categories: data.categories,
     };
     mutate(payload as any);
   };

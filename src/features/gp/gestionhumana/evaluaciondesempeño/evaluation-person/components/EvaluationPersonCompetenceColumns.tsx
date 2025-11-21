@@ -184,38 +184,98 @@ export const evaluationPersonCompetenceColumns = ({
 
     evaluatorTypes.forEach(({ type, name, icon: Icon }) => {
       if (requiredEvaluatorTypes.includes(type)) {
-        evaluatorColumns.push({
-          accessorKey: `evaluator_${type}`,
-          header: () => (
-            <div className="flex items-center justify-center gap-1">
-              <Icon className="size-3" />
-              <span>{name}</span>
-            </div>
-          ),
-          cell: ({ row }) => {
-            const subCompetence = row.original;
-            // Buscar el evaluador de este tipo específico
-            const evaluator = subCompetence.evaluators?.find((e) => {
-              return e.evaluator_type === type;
-            });
+        // Para tipo 3 (Reportes) puede haber múltiples evaluadores
+        // Solo mostrar la columna si el usuario actual es uno de ellos
+        // Para otros tipos, siempre mostrar la columna
+        const shouldShowColumn = type !== 3 || canEditAll;
 
-            // Solo permitir edición si:
-            // 1. canEditAll es true (vista de administrador) O
-            // 2. El evaluador de este tipo es el usuario actual
-            const isMyEvaluation = evaluator?.evaluator_id === user.partner_id;
-            const shouldBeReadOnly = readOnly || (!canEditAll && !isMyEvaluation);
-
-            return (
-              <div className="flex items-center justify-center">
-                <EvaluationCell
-                  evaluator={evaluator}
-                  readOnly={shouldBeReadOnly}
-                  max={competenceMaxScore}
-                />
+        // Si no es tipo 3, o si es admin, mostrar la columna normalmente
+        if (shouldShowColumn) {
+          evaluatorColumns.push({
+            accessorKey: `evaluator_${type}`,
+            header: () => (
+              <div className="flex items-center justify-center gap-1">
+                <Icon className="size-3" />
+                <span>{name}</span>
               </div>
-            );
-          },
-        });
+            ),
+            cell: ({ row }) => {
+              const subCompetence = row.original;
+              // Buscar el evaluador de este tipo específico
+              // Para tipo 3, buscar específicamente el que corresponde al usuario actual
+              const evaluator = subCompetence.evaluators?.find((e) => {
+                if (type === 3 && !canEditAll) {
+                  // Para Reportes, buscar el evaluador que es el usuario actual
+                  return (
+                    e.evaluator_type === type &&
+                    e.evaluator_id === user.partner_id
+                  );
+                }
+                // Para otros tipos, buscar por tipo
+                return e.evaluator_type === type;
+              });
+
+              // Solo permitir edición si:
+              // 1. canEditAll es true (vista de administrador) O
+              // 2. El evaluador de este tipo es el usuario actual
+              const isMyEvaluation =
+                evaluator?.evaluator_id === user.partner_id;
+              const shouldBeReadOnly =
+                readOnly || (!canEditAll && !isMyEvaluation);
+
+              return (
+                <div className="flex items-center justify-center">
+                  <EvaluationCell
+                    evaluator={evaluator}
+                    readOnly={shouldBeReadOnly}
+                    max={competenceMaxScore}
+                  />
+                </div>
+              );
+            },
+          });
+        } else if (type === 3) {
+          // Para tipo 3, verificar si el usuario actual es un evaluador de este tipo
+          // Necesitamos revisar al menos una subcompetencia para saber si mostrar la columna
+          // Esto se hace de forma dinámica en cada fila
+          evaluatorColumns.push({
+            accessorKey: `evaluator_${type}`,
+            header: () => (
+              <div className="flex items-center justify-center gap-1">
+                <Icon className="size-3" />
+                <span>{name}</span>
+              </div>
+            ),
+            cell: ({ row }) => {
+              const subCompetence = row.original;
+              // Buscar el evaluador tipo 3 que es el usuario actual
+              const evaluator = subCompetence.evaluators?.find((e) => {
+                return (
+                  e.evaluator_type === type &&
+                  e.evaluator_id === user.partner_id
+                );
+              });
+
+              // Solo mostrar si existe un evaluador para este usuario
+              if (!evaluator) {
+                return null;
+              }
+
+              const isMyEvaluation = true; // Siempre es mi evaluación si llegamos aquí
+              const shouldBeReadOnly = readOnly || !isMyEvaluation;
+
+              return (
+                <div className="flex items-center justify-center">
+                  <EvaluationCell
+                    evaluator={evaluator}
+                    readOnly={shouldBeReadOnly}
+                    max={competenceMaxScore}
+                  />
+                </div>
+              );
+            },
+          });
+        }
       }
     });
   }
