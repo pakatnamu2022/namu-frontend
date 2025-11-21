@@ -287,64 +287,26 @@ export default function EvaluationDetailPersonPage() {
                   {isLoadingEvaluationPerson ? (
                     <FormSkeleton />
                   ) : (
-                    <>
-                      <div className="flex items-center justify-between">
-                        <h3 className="text-lg font-semibold">
-                          Evaluación de Objetivos
-                        </h3>
-                        {evaluationPersonResult?.objectivesPercentage && (
-                          <Badge variant="outline">
-                            Peso: {evaluationPersonResult.objectivesPercentage}%
-                            del total
-                          </Badge>
-                        )}
-                      </div>
-                      <EvaluationPersonObjectiveTable
-                        evaluationPersonResult={evaluationPersonResult}
-                        details={evaluationPersonResult?.details}
-                        onUpdateCell={handleUpdateResultCell}
-                        onCommentCell={handleCommentSubmit}
-                      />
-                    </>
+                    <EvaluationPersonObjectiveTable
+                      evaluationPersonResult={evaluationPersonResult}
+                      details={evaluationPersonResult?.details}
+                      onUpdateCell={handleUpdateResultCell}
+                      onCommentCell={handleCommentSubmit}
+                    />
                   )}
                 </TabsContent>
                 <TabsContent value="competences" className="space-y-6 p-6">
                   {isLoadingEvaluationPerson ? (
                     <FormSkeleton />
                   ) : (
-                    <>
-                      <div className="flex items-center justify-between">
-                        <h3 className="text-lg font-semibold">
-                          Evaluación de Competencias
-                        </h3>
-                        <div className="flex items-center gap-2">
-                          {evaluationPersonResult?.competencesPercentage && (
-                            <Badge variant="outline">
-                              Peso:{" "}
-                              {evaluationPersonResult.competencesPercentage}%
-                              del total
-                            </Badge>
-                          )}
-                          {evaluationPersonResult?.evaluation
-                            ?.typeEvaluationName && (
-                            <Badge variant="secondary">
-                              {
-                                evaluationPersonResult.evaluation
-                                  .typeEvaluationName
-                              }
-                            </Badge>
-                          )}
-                        </div>
-                      </div>
-                      <EvaluationPersonCompetenceTableWithColumns
-                        evaluationPersonResult={evaluationPersonResult}
-                        competenceGroups={
-                          evaluationPersonResult?.competenceGroups
-                        }
-                        onUpdateCell={handleUpdateResultCellCompetence}
-                        showProgress={true}
-                      />
-                    </>
+                    <EvaluationPersonCompetenceTableWithColumns
+                      evaluationPersonResult={evaluationPersonResult}
+                      competenceGroups={
+                        evaluationPersonResult?.competenceGroups
+                      }
+                      onUpdateCell={handleUpdateResultCellCompetence}
+                      showProgress={true}
+                    />
                   )}
                 </TabsContent>
               </TabsContents>
