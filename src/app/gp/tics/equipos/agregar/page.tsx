@@ -16,9 +16,8 @@ import { notFound } from "@/shared/hooks/useNotFound";
 import { EQUIPMENT } from "@/features/gp/tics/equipment/lib/equipment.constants";
 
 export default function AddEquipmentPage() {
-  const { ABSOLUTE_ROUTE } = EQUIPMENT;
   const router = useNavigate();
-
+  const { ABSOLUTE_ROUTE } = EQUIPMENT;
   const { data: equipmentTypes, isLoading: loadingEquipmentTypes } =
     useAllEquipmentTypes();
   const { currentView, checkRouteExists } = useCurrentModule();

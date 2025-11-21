@@ -128,7 +128,7 @@ export const storeVisitsColumns = ({
             </Button>
           )}
 
-          {/* Delete */}
+          {/* Delete */}  
           {permissions.canDelete && (
             <DeleteButton onClick={() => onDelete(id)} />
           )}

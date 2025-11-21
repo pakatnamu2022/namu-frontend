@@ -22,6 +22,7 @@ export default function AddHierarchicalCategoryPage() {
     onSuccess: () => {
       successToast("Categoría Jerárquica creada exitosamente");
       router(ABSOLUTE_ROUTE);
+      router(ABSOLUTE_ROUTE);
     },
     onError: (error: any) => {
       errorToast(

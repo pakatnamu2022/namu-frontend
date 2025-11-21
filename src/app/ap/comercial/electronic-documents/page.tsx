@@ -130,6 +130,10 @@ export default function ElectronicDocumentsPage() {
         />
       </HeaderTableWrapper>
 
+      {/* <pre>
+        <code>{JSON.stringify(permissions, null, 2)}</code>
+      </pre> */}
+
       <ElectronicDocumentTable
         isLoading={isLoading}
         columns={electronicDocumentColumns({

@@ -13,10 +13,9 @@ import { notFound } from "@/shared/hooks/useNotFound";
 import { PERIOD } from "@/features/gp/gestionhumana/evaluaciondesempeño/periodos/lib/period.constans";
 
 export default function AddPeriodPage() {
-  const { ABSOLUTE_ROUTE } = PERIOD;
   const router = useNavigate();
   const { currentView, checkRouteExists } = useCurrentModule();
-
+  const { ABSOLUTE_ROUTE } = PERIOD;
   const { mutate, isPending } = useMutation({
     mutationFn: storePeriod,
     onSuccess: () => {

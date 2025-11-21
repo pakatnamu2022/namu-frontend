@@ -283,7 +283,8 @@ export const electronicDocumentColumns = ({
         !document.anulado &&
         onAnnul &&
         document.migration_status === "completed" &&
-        permissions.canAnnul;
+        permissions.canAnnul
+        ;
 
       // Puede crear NC/ND si el documento está aceptado por SUNAT, no está anulado, y es factura o boleta
       const isInvoiceOrBoleta =

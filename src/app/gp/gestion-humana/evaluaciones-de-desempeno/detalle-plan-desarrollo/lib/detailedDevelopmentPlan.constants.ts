@@ -17,5 +17,5 @@ export const DETAILED_DEVELOPMENT_PLAN: ModelComplete<DetailedDevelopmentPlanRes
     ROUTE,
     ABSOLUTE_ROUTE,
     ROUTE_ADD: `${ABSOLUTE_ROUTE}/agregar`,
-    ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/editar`,
+    ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/actualizar`,
   };
