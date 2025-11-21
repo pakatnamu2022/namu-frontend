@@ -53,7 +53,7 @@ export async function storeMultipleParEvaluators(data: {
   worker_id: number;
   mate_ids: number[];
 }): Promise<any> {
-  const response = await api.post<any>(`${ENDPOINT}/bulk`, data);
+  const response = await api.post<any>(`${ENDPOINT}`, data);
   return response.data;
 }
 

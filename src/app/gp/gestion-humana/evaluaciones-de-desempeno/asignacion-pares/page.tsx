@@ -27,6 +27,7 @@ import {
 } from "@/features/gp/gestionhumana/evaluaciondesempeño/asignacion-pares/lib/par-evaluator.actions";
 import { ParEvaluatorEditModal } from "@/features/gp/gestionhumana/evaluaciondesempeño/asignacion-pares/components/ParEvaluatorEditModal";
 import { ParEvaluatorSchema } from "@/features/gp/gestionhumana/evaluaciondesempeño/asignacion-pares/lib/par-evaluator.schema";
+import { STATUS_WORKER } from "@/features/gp/gestionhumana/personal/posiciones/lib/position.constant";
 
 const { MODEL, ROUTE } = PAR_EVALUATOR;
 
@@ -53,6 +54,7 @@ export default function EvaluatorParPage() {
     page,
     search,
     per_page,
+    status_id: STATUS_WORKER.ACTIVE,
   });
 
   const handleAssign = async (id: number, workerId: number) => {
@@ -84,7 +86,7 @@ export default function EvaluatorParPage() {
       // Transformar los datos para enviar array de mate_ids
       const payload = {
         worker_id: editingWorkerId,
-        mate_ids: data.mate_ids.map((mate) => mate.id),
+        mate_ids: data.mate_ids.map((mate) => mate),
       };
       await storeMultipleParEvaluators(payload);
       await refetch();
@@ -94,8 +96,10 @@ export default function EvaluatorParPage() {
       setEditingWorkerId(null);
       setExistingEvaluators([]);
       setEditingData(undefined);
-    } catch (error) {
-      errorToast(ERROR_MESSAGE(MODEL, "create"));
+    } catch (error: any) {
+      errorToast(
+        ERROR_MESSAGE(MODEL, "create", error?.response?.data?.message)
+      );
     } finally {
       setIsSubmitting(false);
     }

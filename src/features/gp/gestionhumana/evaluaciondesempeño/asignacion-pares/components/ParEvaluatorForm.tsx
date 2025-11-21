@@ -53,6 +53,8 @@ export const ParEvaluatorForm = ({
     (p) => !existingMateIds.includes(p.id)
   );
 
+  console.log(form.formState.errors);
+
   return (
     <Form {...form}>
       <form
@@ -87,7 +89,7 @@ export const ParEvaluatorForm = ({
             emptyMessage="No se encontraron evaluadores disponibles."
             options={availablePersons}
             getDisplayValue={(person) => person.name}
-            getSecondaryText={(person) => person.document}
+            getSecondaryText={(person) => person.document || person.position}
             required={true}
           />
         </div>

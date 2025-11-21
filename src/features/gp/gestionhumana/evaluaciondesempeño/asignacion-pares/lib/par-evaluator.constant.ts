@@ -7,7 +7,7 @@ export const PAR_EVALUATOR: ModelComplete = {
   MODEL: {
     name: "Evaluador Par",
     plural: "Evaluadores Pares",
-    gender: true,
+    gender: false,
   },
   ICON: "ContactRound",
   ENDPOINT: "/gp/gh/performanceEvaluation/parEvaluator",
