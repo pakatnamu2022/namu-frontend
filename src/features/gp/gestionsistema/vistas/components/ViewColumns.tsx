@@ -184,6 +184,8 @@ export const viewColumns = ({
       // eslint-disable-next-line react-hooks/rules-of-hooks
       const router = useNavigate();
       const id = row.original.id;
+      const submodule = row.original.submodule;
+      const route = row.original.route;
       const { ROUTE_UPDATE, ABSOLUTE_ROUTE } = VIEW;
 
       return (
@@ -194,6 +196,7 @@ export const viewColumns = ({
             variant="outline"
             size="icon"
             className="size-7"
+            disabled={Boolean(submodule) || route === null}
             onClick={() => router(`${ABSOLUTE_ROUTE}/permisos/${id}`)}
           >
             <ShieldCheck className="size-5" />

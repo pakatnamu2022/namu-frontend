@@ -106,7 +106,6 @@ export function SocialFeed() {
 
   const handleCreatePost = () => {
     if (newPost.trim()) {
-      console.log("Nuevo post:", newPost);
       setNewPost("");
       setShowCreatePost(false);
     }

@@ -27,19 +27,16 @@ export default function ModulePage() {
 
       setIsLoading(true);
 
-      console.log('Intentando cargar página de módulo:', { company, moduleSlug });
 
       // Buscar componente en el diccionario
       const Component = findComponentByRoute(company, moduleSlug);
 
       if (Component) {
-        console.log('Componente encontrado en diccionario');
         setPageComponent(() => Component);
         setIsLoading(false);
         return;
       }
 
-      console.log('No se encontró página de módulo para cargar');
       setIsLoading(false);
     };
 
@@ -73,21 +70,18 @@ export default function ModulePage() {
         const firstRoute = `/${company}/${moduleSlug}/${
           firstOption.slug || firstOption.id
         }`;
-        console.log('Redirigiendo a submódulo:', firstRoute);
         router(firstRoute, { replace: true });
       } else {
         // Si no tiene hijos, redirigir directamente a la vista
         const firstRoute = `/${company}/${moduleSlug}/${
           firstOption.route || firstOption.slug || firstOption.id
         }`;
-        console.log('Redirigiendo a vista:', firstRoute);
         router(firstRoute, { replace: true });
       }
       return;
     }
 
     // Si no tiene hijos, intentar cargar la página del módulo
-    console.log('No tiene hijos, intentando cargar página del módulo');
     loadPageComponent();
   }, [company, moduleSlug, permissions, currentModule, router]);
 

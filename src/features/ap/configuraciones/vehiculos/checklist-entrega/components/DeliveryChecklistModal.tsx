@@ -72,7 +72,6 @@ export default function DeliveryChecklistModal({
   });
 
   const handleSubmit = (data: DeliveryChecklistSchema) => {
-    console.log(data);
     mutate({
       ...data,
     } as any);

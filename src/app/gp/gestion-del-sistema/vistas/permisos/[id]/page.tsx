@@ -122,7 +122,6 @@ export default function ViewPermissionsPage() {
         actions: selectedActions,
         is_active: isActive,
       };
-      console.log("Payload a enviar:", JSON.stringify(payload, null, 2));
 
       await bulkCreatePermissions(payload);
 

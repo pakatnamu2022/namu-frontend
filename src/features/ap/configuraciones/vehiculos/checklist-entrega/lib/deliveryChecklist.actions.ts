@@ -58,7 +58,6 @@ export async function updateDeliveryChecklist(
   id: number,
   data: any
 ): Promise<DeliveryChecklistResource> {
-  console.log(data);
   const response = await api.put<DeliveryChecklistResource>(
     `${ENDPOINT}/${id}`,
     data

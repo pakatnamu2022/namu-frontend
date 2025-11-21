@@ -72,7 +72,8 @@ export const FormDebugPanel = ({
       {hasErrors && (
         <div className="bg-white p-3 rounded">
           <p className="font-bold text-red-600 mb-2">
-            ❌ Errores de validación ({Object.keys(form.formState.errors).length}):
+            ❌ Errores de validación (
+            {Object.keys(form.formState.errors).length}):
           </p>
           <pre className="bg-red-50 p-2 rounded overflow-auto max-h-60 text-xs">
             {JSON.stringify(form.formState.errors, null, 2)}
@@ -116,7 +117,8 @@ export const FormDebugPanel = ({
       </div>
 
       <p className="text-yellow-700 text-xs italic">
-        ⚠️ Este panel es temporal para debugging. Recuerda eliminarlo en producción.
+        ⚠️ Este panel es temporal para debugging. Recuerda eliminarlo en
+        producción.
       </p>
     </div>
   );

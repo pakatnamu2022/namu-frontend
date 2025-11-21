@@ -71,8 +71,6 @@ export default function UpdateCreditNotePage() {
     return <FormSkeleton />;
   }
 
-  console.log(creditNote);
-
   return (
     <FormWrapper maxWidth="max-w-(--breakpoint-2xl)">
       <TitleFormComponent

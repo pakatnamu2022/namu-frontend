@@ -23,7 +23,6 @@ export const BasicCustomCalendar = () => {
 
   const handleDayClick = (dayData: CalendarDayData) => {
     setSelectedDate(dayData.date);
-    console.log("Día seleccionado:", dayData);
   };
 
   return (
@@ -162,8 +161,6 @@ export const AgendaCalendar = () => {
   });
 
   const openModal = (dayData: CalendarDayData) => {
-    // Aquí podrías abrir un modal para gestionar citas
-    console.log("Abrir modal para:", dayData.date);
     alert(
       `Modal para gestionar citas del ${dayData.date.toLocaleDateString()}`
     );

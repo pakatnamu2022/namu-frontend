@@ -173,7 +173,6 @@ export function CreditNoteForm({
       ? 1
       : -1;
   });
-  console.log(form.formState.errors);
 
   return (
     <Form {...form}>

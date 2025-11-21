@@ -161,8 +161,6 @@ export default function ResendVehiclePurchaseOrderPage() {
     return <FormSkeleton />;
   }
 
-  console.log(mapVehiclePurchaseOrderToForm(vehiclePurchaseOrder));
-
   return (
     <FormWrapper>
       <TitleFormComponent

@@ -51,8 +51,6 @@ export function FeedPost({
 
   const handleComment = () => {
     if (newComment.trim()) {
-      // Aquí se agregaría la lógica para enviar el comentario
-      console.log("Nuevo comentario:", newComment);
       setNewComment("");
     }
   };

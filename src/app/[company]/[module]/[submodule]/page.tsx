@@ -30,9 +30,6 @@ export default function ModulePage() {
 
       setIsLoading(true);
 
-      // Log para debugging
-      console.log('Intentando cargar página:', { company, moduleSlug, subModuleSlug });
-
       // Buscar componente en el diccionario
       const Component = findComponentByRoute(company, moduleSlug, subModuleSlug);
 

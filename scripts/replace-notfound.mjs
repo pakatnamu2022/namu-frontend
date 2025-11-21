@@ -22,8 +22,6 @@ function findFiles(dir, pattern, fileList = []) {
 // Encontrar todos los archivos .tsx en la carpeta app
 const files = findFiles('app', '.tsx');
 
-console.log(`Encontrados ${files.length} archivos .tsx en la carpeta app`);
-
 let totalChanges = 0;
 
 files.forEach(file => {
@@ -115,8 +113,6 @@ files.forEach(file => {
   if (changed) {
     writeFileSync(file, content, 'utf-8');
     totalChanges++;
-    console.log(`✓ Actualizado: ${file}`);
   }
 });
 
-console.log(`\n✅ Proceso completado. ${totalChanges} archivos modificados.`);

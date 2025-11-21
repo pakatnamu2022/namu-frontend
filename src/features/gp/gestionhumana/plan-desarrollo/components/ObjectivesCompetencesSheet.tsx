@@ -113,8 +113,6 @@ export default function ObjectivesCompetencesSheet({
       }
     });
 
-    console.log("Competencias únicas:", Array.from(uniqueCompetences.values()));
-
     return Array.from(uniqueCompetences.values());
   }, [evaluationPersonData]);
 
