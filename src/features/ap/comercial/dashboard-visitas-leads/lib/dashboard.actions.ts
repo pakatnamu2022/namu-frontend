@@ -139,42 +139,39 @@ export async function getIndicatorsByCampaign(
 export async function downloadDashboardFile(
   filters: DashboardFilters & { format?: "pdf" }
 ): Promise<void> {
-  try {
-    const isPDF = filters.format === "pdf";
+  const isPDF = filters.format === "pdf";
 
-    const config: AxiosRequestConfig = {
-      params: {
-        created_at: [filters.date_from, filters.date_to],
-        ...(isPDF && { format: "pdf" }),
-      },
-      responseType: "blob",
-    };
+  const config: AxiosRequestConfig = {
+    params: {
+      type: filters.type,
+      registration_date: [filters.date_from, filters.date_to],
+      ...(isPDF && { format: "pdf" }),
+    },
+    responseType: "blob",
+  };
 
-    const response = await api.get(
-      "/ap/commercial/potentialBuyers/export",
-      config
-    );
+  const response = await api.get(
+    "/ap/commercial/potentialBuyers/export",
+    config
+  );
 
-    // Determinar el tipo MIME y extensión según el formato
-    const mimeType = isPDF
-      ? "application/pdf"
-      : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-    const extension = isPDF ? "pdf" : "xlsx";
+  // Determinar el tipo MIME y extensión según el formato
+  const mimeType = isPDF
+    ? "application/pdf"
+    : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+  const extension = isPDF ? "pdf" : "xlsx";
 
-    const blob = new Blob([response.data], { type: mimeType });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
+  const blob = new Blob([response.data], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
 
-    // Generar nombre de archivo con fechas y tipo
-    const dateRange = `${filters.date_from}_${filters.date_to}`;
+  // Generar nombre de archivo con fechas y tipo
+  const dateRange = `${filters.date_from}_${filters.date_to}`;
 
-    link.download = `dashboard-${dateRange}.${extension}`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-  } catch (error) {
-    throw error;
-  }
+  link.download = `REPORTE-${filters.type}-${dateRange}.${extension}`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
 }

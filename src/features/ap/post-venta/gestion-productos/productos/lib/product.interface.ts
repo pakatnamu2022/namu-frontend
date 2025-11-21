@@ -36,6 +36,13 @@ export interface ProductResource {
   status: "ACTIVE" | "INACTIVE" | "DISCONTINUED";
 }
 
+export interface WarehouseStock {
+  warehouse_id: string;
+  initial_quantity?: number;
+  minimum_stock?: number;
+  maximum_stock?: number;
+}
+
 export interface ProductRequest {
   code: string;
   dyn_code?: string;
@@ -45,19 +52,14 @@ export interface ProductRequest {
   product_category_id: string;
   brand_id?: string;
   unit_measurement_id: string;
-  warehouse_id?: string;
   ap_class_article_id: string;
-  minimum_stock?: number;
-  maximum_stock?: number;
-  current_stock?: number;
   cost_price?: number;
   sale_price: number;
-  tax_rate?: number;
-  is_taxable?: boolean;
-  sunat_code?: string;
   warranty_months?: number;
   notes?: string;
-  status: "ACTIVE" | "INACTIVE" | "DISCONTINUED";
+  status?: "ACTIVE" | "INACTIVE" | "DISCONTINUED";
+  // Warehouse stock configuration (only for create)
+  warehouses?: WarehouseStock[];
 }
 
 export interface getProductProps {

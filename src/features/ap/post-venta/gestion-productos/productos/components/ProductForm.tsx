@@ -3,7 +3,7 @@ import {
   productSchemaCreate,
   productSchemaUpdate,
 } from "../lib/product.schema";
-import { useForm } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Form,
@@ -15,13 +15,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import {
-  CircleDollarSign,
-  Layers,
-  LibraryBig,
-  Loader,
-  Shapes,
-} from "lucide-react";
+import { LibraryBig, Loader, Plus, Trash2, Warehouse } from "lucide-react";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { useAllBrands } from "@/features/ap/configuraciones/vehiculos/marcas/lib/brands.hook";
@@ -30,7 +24,6 @@ import { useAllUnitMeasurement } from "@/features/ap/configuraciones/maestros-ge
 import { useAllWarehouse } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
 import { useAllClassArticle } from "@/features/ap/configuraciones/maestros-general/clase-articulo/lib/classArticle.hook";
 import { Textarea } from "@/components/ui/textarea";
-import { FormSwitch } from "@/shared/components/FormSwitch";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { STATUS_ACTIVE } from "@/core/core.constants";
 
@@ -55,8 +48,14 @@ export const ProductForm = ({
     ),
     defaultValues: {
       ...defaultValues,
+      warehouses: defaultValues.warehouses || [],
     },
     mode: "onChange",
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "warehouses",
   });
 
   const { data: brands = [], isLoading: isLoadingBrands } = useAllBrands({
@@ -67,7 +66,9 @@ export const ProductForm = ({
   const { data: unitMeasurements = [], isLoading: isLoadingUnitMeasurements } =
     useAllUnitMeasurement();
   const { data: warehouses = [], isLoading: isLoadingWarehouses } =
-    useAllWarehouse();
+    useAllWarehouse({
+      is_received: 1,
+    });
   const { data: classArticles = [], isLoading: isLoadingClassArticles } =
     useAllClassArticle();
 
@@ -120,19 +121,6 @@ export const ProductForm = ({
           />
           <FormField
             control={form.control}
-            name="nubefac_code"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Código Nubefact</FormLabel>
-                <FormControl>
-                  <Input placeholder="Código Nubefact" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
             name="name"
             render={({ field }) => (
               <FormItem>
@@ -144,28 +132,6 @@ export const ProductForm = ({
               </FormItem>
             )}
           />
-          <FormField
-            control={form.control}
-            name="sunat_code"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Código SUNAT</FormLabel>
-                <FormControl>
-                  <Input placeholder="Código SUNAT" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </GroupFormSection>
-
-        <GroupFormSection
-          title="Clasificación"
-          icon={Shapes}
-          iconColor="text-secondary"
-          bgColor="bg-red-50"
-          cols={{ sm: 2, md: 3 }}
-        >
           <FormSelect
             name="product_category_id"
             label="Categoría"
@@ -206,141 +172,6 @@ export const ProductForm = ({
             }))}
             control={form.control}
           />
-          <FormSelect
-            name="warehouse_id"
-            label="Almacén"
-            placeholder="Selecciona un almacén"
-            options={warehouses.map((warehouse) => ({
-              label: warehouse.description,
-              value: warehouse.id.toString(),
-            }))}
-            control={form.control}
-          />
-        </GroupFormSection>
-
-        {/* Inventario */}
-
-        <GroupFormSection
-          title="Inventario"
-          icon={Layers}
-          iconColor="text-primary"
-          bgColor="bg-blue-50"
-          cols={{ sm: 2, md: 3 }}
-        >
-          <FormField
-            control={form.control}
-            name="current_stock"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Stock Actual</FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    min="0"
-                    placeholder="0.00"
-                    value={typeof field.value === "number" ? field.value : ""}
-                    onChange={(e) => {
-                      if (e.target.value === "") {
-                        field.onChange("");
-                      } else {
-                        const num = parseFloat(e.target.value);
-                        field.onChange(isNaN(num) ? "" : num);
-                      }
-                    }}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="minimum_stock"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Stock Mínimo</FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    min="0"
-                    placeholder="0.00"
-                    value={typeof field.value === "number" ? field.value : ""}
-                    onChange={(e) => {
-                      if (e.target.value === "") {
-                        field.onChange("");
-                      } else {
-                        const num = parseFloat(e.target.value);
-                        field.onChange(isNaN(num) ? "" : num);
-                      }
-                    }}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="maximum_stock"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Stock Máximo</FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    min="0"
-                    placeholder="0.00"
-                    value={typeof field.value === "number" ? field.value : ""}
-                    onChange={(e) => {
-                      if (e.target.value === "") {
-                        field.onChange("");
-                      } else {
-                        const num = parseFloat(e.target.value);
-                        field.onChange(isNaN(num) ? "" : num);
-                      }
-                    }}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="warranty_months"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Garantía (Meses)</FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    min="0"
-                    placeholder="0.00"
-                    value={typeof field.value === "number" ? field.value : ""}
-                    onChange={(e) => {
-                      if (e.target.value === "") {
-                        field.onChange("");
-                      } else {
-                        const num = parseFloat(e.target.value);
-                        field.onChange(isNaN(num) ? "" : num);
-                      }
-                    }}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </GroupFormSection>
-
-        {/* Precios e Impuestos */}
-        <GroupFormSection
-          title="Precios e Impuestos"
-          icon={CircleDollarSign}
-          iconColor="text-secondary"
-          bgColor="bg-red-50"
-          cols={{ sm: 2, md: 3 }}
-        >
           <FormField
             control={form.control}
             name="cost_price"
@@ -397,22 +228,21 @@ export const ProductForm = ({
           />
           <FormField
             control={form.control}
-            name="tax_rate"
+            name="warranty_months"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Tasa de Impuesto (%)</FormLabel>
+                <FormLabel>Garantía (Meses)</FormLabel>
                 <FormControl>
                   <Input
                     type="number"
                     min="0"
-                    step="0.01"
-                    placeholder="0.00"
+                    placeholder="0"
                     value={typeof field.value === "number" ? field.value : ""}
                     onChange={(e) => {
                       if (e.target.value === "") {
                         field.onChange("");
                       } else {
-                        const num = parseFloat(e.target.value);
+                        const num = parseInt(e.target.value);
                         field.onChange(isNaN(num) ? "" : num);
                       }
                     }}
@@ -422,13 +252,175 @@ export const ProductForm = ({
               </FormItem>
             )}
           />
-          <FormSwitch
-            name="is_taxable"
-            label="¿Aplicar Impuesto?"
-            text={form.watch("is_taxable") ? "Sí" : "No"}
-            control={form.control}
-          />
         </GroupFormSection>
+
+        {/* Configuración de Almacenes - Solo en modo crear */}
+        {mode === "create" && (
+          <GroupFormSection
+            title="Configuración de Almacenes"
+            icon={Warehouse}
+            iconColor="text-primary"
+            bgColor="bg-blue-50"
+          >
+            <div className="col-span-full space-y-3">
+              {fields.map((field, index) => (
+                <div
+                  key={field.id}
+                  className="p-4 border rounded-lg bg-linear-to-br from-slate-50 to-slate-100/50 border-slate-200 hover:border-slate-300 transition-colors"
+                >
+                  {/* Header */}
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                      <Warehouse className="h-4 w-4 text-primary" />
+                      Almacén #{index + 1}
+                    </h4>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                      onClick={() => remove(index)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+
+                  {/* Almacén Select */}
+                  <div className="mb-3">
+                    <FormSelect
+                      name={`warehouses.${index}.warehouse_id`}
+                      label="Almacén"
+                      placeholder="Selecciona un almacén"
+                      options={warehouses.map((warehouse) => ({
+                        label: warehouse.description,
+                        value: warehouse.id.toString(),
+                      }))}
+                      control={form.control}
+                    />
+                  </div>
+
+                  {/* Cantidades en Grid */}
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    <FormField
+                      control={form.control}
+                      name={`warehouses.${index}.initial_quantity`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-xs">
+                            Cant. Inicial
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              min="0"
+                              step="0.01"
+                              placeholder="0.00"
+                              className="h-9"
+                              value={
+                                typeof field.value === "number"
+                                  ? field.value
+                                  : ""
+                              }
+                              onChange={(e) => {
+                                if (e.target.value === "") {
+                                  field.onChange(undefined);
+                                } else {
+                                  const num = parseFloat(e.target.value);
+                                  field.onChange(isNaN(num) ? undefined : num);
+                                }
+                              }}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name={`warehouses.${index}.minimum_stock`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-xs">Stock Mín.</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              min="0"
+                              step="0.01"
+                              placeholder="0.00"
+                              className="h-9"
+                              value={
+                                typeof field.value === "number"
+                                  ? field.value
+                                  : ""
+                              }
+                              onChange={(e) => {
+                                if (e.target.value === "") {
+                                  field.onChange(undefined);
+                                } else {
+                                  const num = parseFloat(e.target.value);
+                                  field.onChange(isNaN(num) ? undefined : num);
+                                }
+                              }}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name={`warehouses.${index}.maximum_stock`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-xs">Stock Máx.</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              min="0"
+                              step="0.01"
+                              placeholder="0.00"
+                              className="h-9"
+                              value={
+                                typeof field.value === "number"
+                                  ? field.value
+                                  : ""
+                              }
+                              onChange={(e) => {
+                                if (e.target.value === "") {
+                                  field.onChange(undefined);
+                                } else {
+                                  const num = parseFloat(e.target.value);
+                                  field.onChange(isNaN(num) ? undefined : num);
+                                }
+                              }}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+              ))}
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() =>
+                  append({
+                    warehouse_id: "",
+                    initial_quantity: undefined,
+                    minimum_stock: undefined,
+                    maximum_stock: undefined,
+                  })
+                }
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Agregar Almacén
+              </Button>
+            </div>
+          </GroupFormSection>
+        )}
 
         {/* Notas */}
         <FormField

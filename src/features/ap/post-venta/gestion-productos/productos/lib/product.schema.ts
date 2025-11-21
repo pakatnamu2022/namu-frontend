@@ -1,6 +1,24 @@
 import { requiredStringId } from "@/shared/lib/global.schema";
 import { z } from "zod";
 
+// Warehouse stock schema for create mode
+const warehouseStockSchema = z.object({
+  warehouse_id: requiredStringId("Almacén es requerido"),
+  initial_quantity: z
+    .number()
+    .min(0, { message: "La cantidad inicial debe ser mayor o igual a 0" })
+    .optional(),
+  minimum_stock: z
+    .number()
+    .min(0, { message: "El stock mínimo debe ser mayor o igual a 0" })
+    .optional(),
+  maximum_stock: z
+    .number()
+    .min(0, { message: "El stock máximo debe ser mayor o igual a 0" })
+    .optional(),
+});
+
+// Base schema for common fields
 const productSchemaBase = z.object({
   code: z
     .string()
@@ -23,20 +41,7 @@ const productSchemaBase = z.object({
   product_category_id: requiredStringId("Categoría es requerida"),
   brand_id: z.string().optional(),
   unit_measurement_id: requiredStringId("Unidad de medida es requerida"),
-  warehouse_id: z.string().optional(),
   ap_class_article_id: requiredStringId("Clase de artículo es requerida"),
-  minimum_stock: z
-    .number()
-    .min(0, { message: "El stock mínimo debe ser mayor o igual a 0" })
-    .optional(),
-  maximum_stock: z
-    .number()
-    .min(0, { message: "El stock máximo debe ser mayor o igual a 0" })
-    .optional(),
-  current_stock: z
-    .number()
-    .min(0, { message: "El stock actual debe ser mayor o igual a 0" })
-    .optional(),
   cost_price: z
     .number()
     .min(0, { message: "El precio de costo debe ser mayor o igual a 0" })
@@ -44,16 +49,6 @@ const productSchemaBase = z.object({
   sale_price: z
     .number()
     .min(0, { message: "El precio de venta debe ser mayor o igual a 0" }),
-  tax_rate: z
-    .number()
-    .min(0, { message: "La tasa de impuesto debe ser mayor o igual a 0" })
-    .max(100, { message: "La tasa de impuesto no puede ser mayor a 100" })
-    .optional(),
-  is_taxable: z.boolean().optional(),
-  sunat_code: z
-    .string()
-    .max(20, { message: "Máximo 20 caracteres" })
-    .optional(),
   warranty_months: z
     .number()
     .int({ message: "Debe ser un número entero" })
@@ -61,31 +56,13 @@ const productSchemaBase = z.object({
     .optional(),
 });
 
-export const productSchemaCreate = productSchemaBase.refine(
-  (data) => {
-    if (data.maximum_stock !== undefined && data.minimum_stock !== undefined) {
-      return data.maximum_stock >= data.minimum_stock;
-    }
-    return true;
-  },
-  {
-    message: "El stock máximo debe ser mayor o igual al stock mínimo",
-    path: ["maximum_stock"],
-  }
-);
+// Create schema includes warehouses array
+export const productSchemaCreate = productSchemaBase.extend({
+  warehouses: z.array(warehouseStockSchema).optional(),
+});
 
-export const productSchemaUpdate = productSchemaBase.partial().refine(
-  (data) => {
-    if (data.maximum_stock !== undefined && data.minimum_stock !== undefined) {
-      return data.maximum_stock >= data.minimum_stock;
-    }
-    return true;
-  },
-  {
-    message: "El stock máximo debe ser mayor o igual al stock mínimo",
-    path: ["maximum_stock"],
-  }
-);
+// Update schema does NOT include warehouses (warehouse management happens elsewhere)
+export const productSchemaUpdate = productSchemaBase.partial();
 
 export type ProductSchema = z.infer<typeof productSchemaCreate>;
 

@@ -56,9 +56,6 @@ export default function AddProductPage() {
           brand_id: "",
           product_category_id: "",
           unit_measurement_id: "",
-          current_stock: 0,
-          minimum_stock: 0,
-          maximum_stock: 0,
           cost_price: 0,
           sale_price: 0,
         }}

@@ -8,7 +8,7 @@ import { ButtonGroup } from "@/components/ui/button-group";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { cn } from "@/lib/utils";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { Calendar } from "@/components/ui/calendar";
 import {
   Popover,
@@ -137,8 +137,11 @@ export default function DashboardStoreVisitsPage() {
       }
 
       successToast("Dashboard actualizado correctamente");
-    } catch (error) {
-      errorToast("Error al cargar los datos del dashboard");
+    } catch (error: any) {
+      errorToast(
+        "Error al cargar los datos del dashboard",
+        error.message.toString()
+      );
     } finally {
       setIsLoading(false);
     }
@@ -221,7 +224,9 @@ export default function DashboardStoreVisitsPage() {
                       )}
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
-                      {dateFrom ? format(dateFrom, "PPP", { locale: es }) : "Selecciona fecha"}
+                      {dateFrom
+                        ? format(dateFrom, "PPP", { locale: es })
+                        : "Selecciona fecha"}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
@@ -229,7 +234,7 @@ export default function DashboardStoreVisitsPage() {
                       mode="single"
                       selected={dateFrom}
                       onSelect={setDateFrom}
-                      disabled={(date) => dateTo ? date > dateTo : false}
+                      disabled={(date) => (dateTo ? date > dateTo : false)}
                       locale={es}
                     />
                   </PopoverContent>
@@ -251,7 +256,9 @@ export default function DashboardStoreVisitsPage() {
                       )}
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
-                      {dateTo ? format(dateTo, "PPP", { locale: es }) : "Selecciona fecha"}
+                      {dateTo
+                        ? format(dateTo, "PPP", { locale: es })
+                        : "Selecciona fecha"}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
@@ -259,7 +266,7 @@ export default function DashboardStoreVisitsPage() {
                       mode="single"
                       selected={dateTo}
                       onSelect={setDateTo}
-                      disabled={(date) => dateFrom ? date < dateFrom : false}
+                      disabled={(date) => (dateFrom ? date < dateFrom : false)}
                       locale={es}
                     />
                   </PopoverContent>

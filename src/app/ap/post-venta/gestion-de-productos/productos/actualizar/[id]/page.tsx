@@ -62,20 +62,13 @@ export default function UpdateProductPage() {
       nubefac_code: data.nubefac_code,
       name: data.name,
       description: data.description,
-      sunat_code: data.sunat_code,
       product_category_id: String(data.product_category_id),
       brand_id: String(data.brand_id),
       ap_class_article_id: String(data.ap_class_article_id),
       unit_measurement_id: String(data.unit_measurement_id),
-      warehouse_id: String(data.warehouse_id),
-      current_stock: Number(data.current_stock),
-      minimum_stock: Number(data.minimum_stock),
-      maximum_stock: Number(data.maximum_stock),
       warranty_months: Number(data.warranty_months),
       cost_price: data.cost_price,
       sale_price: data.sale_price,
-      tax_rate: data.tax_rate,
-      is_taxable: Boolean(data.is_taxable),
     };
   }
 

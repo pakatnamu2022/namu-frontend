@@ -132,42 +132,38 @@ export async function downloadManageLeadsFile({
     return;
   }
 
-  try {
-    const isPDF = params.format === "pdf";
+  const isPDF = params.format === "pdf";
 
-    const config: AxiosRequestConfig = {
-      params: {
-        type: "LEADS",
-        created_at: params.created_at,
-        ...(isPDF && { format: "pdf" }),
-      },
-      responseType: "blob",
-    };
+  const config: AxiosRequestConfig = {
+    params: {
+      type: "LEADS",
+      registration_date: params.created_at,
+      ...(isPDF && { format: "pdf" }),
+    },
+    responseType: "blob",
+  };
 
-    const response = await api.get(`${ENDPOINT}/export`, config);
+  const response = await api.get(`${ENDPOINT}/export`, config);
 
-    // Determinar el tipo MIME y extensión según el formato
-    const mimeType = isPDF
-      ? "application/pdf"
-      : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-    const extension = isPDF ? "pdf" : "xlsx";
+  // Determinar el tipo MIME y extensión según el formato
+  const mimeType = isPDF
+    ? "application/pdf"
+    : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+  const extension = isPDF ? "pdf" : "xlsx";
 
-    const blob = new Blob([response.data], { type: mimeType });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
+  const blob = new Blob([response.data], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
 
-    // Generar nombre de archivo con fechas si están disponibles
-    const dateRange = params.created_at
-      ? `${params.created_at[0]}_${params.created_at[1]}`
-      : new Date().toISOString().split("T")[0];
+  // Generar nombre de archivo con fechas si están disponibles
+  const dateRange = params.created_at
+    ? `${params.created_at[0]}_${params.created_at[1]}`
+    : new Date().toISOString().split("T")[0];
 
-    link.download = `visitas-tienda-${dateRange}.${extension}`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-  } catch (error) {
-    throw error;
-  }
+  link.download = `leads-${dateRange}.${extension}`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
 }
