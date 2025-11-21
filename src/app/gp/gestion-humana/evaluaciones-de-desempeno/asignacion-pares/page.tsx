@@ -22,8 +22,8 @@ import ParEvaluatorOptions from "@/features/gp/gestionhumana/evaluaciondesempeñ
 import { useWorkers } from "@/features/gp/gestionhumana/personal/trabajadores/lib/worker.hook";
 import {
   deleteParEvaluator,
-  findParEvaluatorById,
-  updateParEvaluator,
+  getAllParEvaluators,
+  storeMultipleParEvaluators,
 } from "@/features/gp/gestionhumana/evaluaciondesempeño/asignacion-pares/lib/par-evaluator.actions";
 import { ParEvaluatorEditModal } from "@/features/gp/gestionhumana/evaluaciondesempeño/asignacion-pares/components/ParEvaluatorEditModal";
 import { ParEvaluatorSchema } from "@/features/gp/gestionhumana/evaluaciondesempeño/asignacion-pares/lib/par-evaluator.schema";
@@ -39,6 +39,7 @@ export default function EvaluatorParPage() {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editingWorkerId, setEditingWorkerId] = useState<number | null>(null);
+  const [existingEvaluators, setExistingEvaluators] = useState<any[]>([]);
   const [editingData, setEditingData] = useState<
     Partial<ParEvaluatorSchema> | undefined
   >(undefined);
@@ -58,30 +59,43 @@ export default function EvaluatorParPage() {
     setEditingId(id);
     setEditingWorkerId(workerId);
     try {
-      const parEvaluator = await findParEvaluatorById(id.toString());
+      // Cargar todos los evaluadores existentes para este trabajador
+      const parEvaluators = await getAllParEvaluators({
+        params: {
+          worker_id: workerId,
+        },
+      });
+      setExistingEvaluators(parEvaluators);
       setEditingData({
-        mate_id: parEvaluator.mate_id.toString(),
-        worker_id: parEvaluator.worker_id.toString(),
+        worker_id: workerId.toString(),
+        mate_ids: [],
       });
       setEditModalOpen(true);
-    } catch (error) {
-      errorToast(ERROR_MESSAGE(MODEL, "fetch"));
+    } catch (error: any) {
+      console.log("Error fetching existing evaluators:", error);
+      errorToast(ERROR_MESSAGE(MODEL, "fetch", error?.response?.data?.message));
     }
   };
 
   const handleSubmitEdit = async (data: ParEvaluatorSchema) => {
-    if (!editingId) return;
+    if (!editingWorkerId) return;
     setIsSubmitting(true);
     try {
-      await updateParEvaluator(editingId.toString(), data);
+      // Transformar los datos para enviar array de mate_ids
+      const payload = {
+        worker_id: editingWorkerId,
+        mate_ids: data.mate_ids.map((mate) => mate.id),
+      };
+      await storeMultipleParEvaluators(payload);
       await refetch();
-      successToast(SUCCESS_MESSAGE(MODEL, "update"));
+      successToast(SUCCESS_MESSAGE(MODEL, "create"));
       setEditModalOpen(false);
       setEditingId(null);
       setEditingWorkerId(null);
+      setExistingEvaluators([]);
       setEditingData(undefined);
     } catch (error) {
-      errorToast(ERROR_MESSAGE(MODEL, "update"));
+      errorToast(ERROR_MESSAGE(MODEL, "create"));
     } finally {
       setIsSubmitting(false);
     }
@@ -137,6 +151,7 @@ export default function EvaluatorParPage() {
         onOpenChange={setEditModalOpen}
         parEvaluatorId={editingId}
         workerId={editingWorkerId}
+        existingEvaluators={existingEvaluators}
         defaultValues={editingData}
         onSubmit={handleSubmitEdit}
         isSubmitting={isSubmitting}

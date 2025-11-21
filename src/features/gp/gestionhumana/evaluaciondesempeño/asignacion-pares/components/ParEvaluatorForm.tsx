@@ -12,11 +12,13 @@ import {
 import { Loader } from "lucide-react";
 import { Link } from "react-router-dom";
 import { PAR_EVALUATOR } from "../lib/par-evaluator.constant";
-import { FormSelect } from "@/shared/components/FormSelect";
+import { MultiSelectTags } from "@/shared/components/MultiSelectTags";
 import { WorkerResource } from "../../../personal/trabajadores/lib/worker.interface";
+import { ParEvaluatorResource } from "../lib/par-evaluator.interface";
 
 interface PeriodFormProps {
   persons: WorkerResource[];
+  existingEvaluators?: ParEvaluatorResource[];
   defaultValues: Partial<ParEvaluatorSchema>;
   onSubmit: (data: any) => void;
   isSubmitting?: boolean;
@@ -26,22 +28,30 @@ interface PeriodFormProps {
 
 export const ParEvaluatorForm = ({
   persons,
+  existingEvaluators = [],
   defaultValues,
   onSubmit,
   isSubmitting = false,
   mode = "create",
   showCancelButton = true,
 }: PeriodFormProps) => {
-  const { ABSOLUTE_ROUTE, MODEL } = PAR_EVALUATOR;
+  const { ABSOLUTE_ROUTE } = PAR_EVALUATOR;
   const form = useForm({
     resolver: zodResolver(
       mode === "create" ? parEvaluatorSchemaCreate : parEvaluatorSchemaUpdate
     ),
     defaultValues: {
       ...defaultValues,
+      mate_ids: defaultValues.mate_ids || [],
     },
     mode: "onChange",
   });
+
+  // Filtrar personas que ya están asignadas como evaluadores
+  const existingMateIds = existingEvaluators.map((e) => e.mate_id);
+  const availablePersons = persons.filter(
+    (p) => !existingMateIds.includes(p.id)
+  );
 
   return (
     <Form {...form}>
@@ -50,24 +60,43 @@ export const ParEvaluatorForm = ({
         className="space-y-4 w-full formlayout"
       >
         <div className="grid grid-cols-1 gap-4">
-          <FormSelect
+          {/* Mostrar evaluadores existentes */}
+          {existingEvaluators.length > 0 && (
+            <div className="space-y-2">
+              <p className="text-sm font-medium">Evaluadores Actuales:</p>
+              <div className="flex flex-wrap gap-2">
+                {existingEvaluators.map((evaluator) => (
+                  <div
+                    key={evaluator.id}
+                    className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-secondary text-secondary-foreground"
+                  >
+                    {evaluator.mate.name}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* MultiSelectTags para nuevos evaluadores */}
+          <MultiSelectTags
             control={form.control}
-            name="mate_id"
-            label="Evaluador Par"
-            placeholder="Selecciona un evaluador par"
-            options={persons.map((p) => ({
-              value: p.id.toString(),
-              label: p.name,
-            }))}
-            strictFilter={true}
+            name="mate_ids"
+            label="Agregar Evaluadores Par"
+            placeholder="Selecciona evaluadores par"
+            searchPlaceholder="Buscar evaluador..."
+            emptyMessage="No se encontraron evaluadores disponibles."
+            options={availablePersons}
+            getDisplayValue={(person) => person.name}
+            getSecondaryText={(person) => person.document}
+            required={true}
           />
         </div>
 
-        {/* <pre>
+        <pre>
           <code className="text-xs text-muted-foreground">
             {JSON.stringify(form.getValues(), null, 2)}
           </code>
-        </pre> */}
+        </pre>
 
         <div className="flex gap-4 w-full justify-end">
           {showCancelButton && (
@@ -85,7 +114,7 @@ export const ParEvaluatorForm = ({
             <Loader
               className={`mr-2 h-4 w-4 ${!isSubmitting ? "hidden" : ""}`}
             />
-            {isSubmitting ? "Guardando" : `Guardar ${MODEL}`}
+            {isSubmitting ? "Guardando" : `Guardar`}
           </Button>
         </div>
       </form>

@@ -5,7 +5,11 @@
       "Bash(git checkout:*)",
       "Bash(npm run build:*)",
       "Bash(npm uninstall:*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(nul)",
+      "Bash(dir /s /b e:pakatnamunamu-frontendsrcfeaturesgpgestionhumanaevaluaciondesempeño 2)",
+      "Bash(Select-Object -First 30)",
+      "Bash(mkdir:*)"
     ],
     "deny": [],
     "ask": []

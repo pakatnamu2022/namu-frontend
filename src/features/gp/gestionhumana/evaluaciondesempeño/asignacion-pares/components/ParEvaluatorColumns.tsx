@@ -4,9 +4,9 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { UserPlus } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
-import { ParEvaluatorResource } from "../lib/par-evaluator.interface";
+import { WorkerResource } from "../../../personal/trabajadores/lib/worker.interface";
 
-export type ParEvaluatorColumns = ColumnDef<ParEvaluatorResource>;
+export type ParEvaluatorColumns = ColumnDef<WorkerResource>;
 
 export const parEvaluatorColumns = ({
   onDelete,
@@ -39,7 +39,7 @@ export const parEvaluatorColumns = ({
     header: "Acciones",
     cell: ({ row }) => {
       const id = row.original.id;
-      const workerId = row.original.worker_id;
+      const workerId = row.original.id;
 
       return (
         <div className="flex items-center gap-2">

@@ -85,6 +85,9 @@ import PeriodPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/period
 import AddPeriodPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/periodos/agregar/page";
 import UpdatePeriodPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/periodos/actualizar/[id]/page";
 import EvaluatorParPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/asignacion-pares/page";
+import EvaluationModelPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/modelo-evaluacion/page";
+import AddEvaluationModelPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/modelo-evaluacion/agregar/page";
+import UpdateEvaluationModelPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/modelo-evaluacion/actualizar/[id]/page";
 const PositionsPage = lazy(
   () => import("./app/gp/gestion-humana/configuraciones/posiciones/page")
 );
@@ -1472,6 +1475,13 @@ function App() {
                 path="evaluaciones-de-desempeno/asignacion-pares"
                 element={<EvaluatorParPage />}
               />
+
+              {RouterCrud(
+                "evaluaciones-de-desempeno/modelo-evaluacion",
+                <EvaluationModelPage />,
+                <AddEvaluationModelPage />,
+                <UpdateEvaluationModelPage />
+              )}
             </Route>
 
             {/* ======================================================== */}

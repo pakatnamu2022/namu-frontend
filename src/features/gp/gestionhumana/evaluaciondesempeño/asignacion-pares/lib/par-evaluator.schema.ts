@@ -3,7 +3,9 @@ import { z } from "zod";
 
 export const parEvaluatorSchemaCreate = z.object({
   worker_id: requiredStringId("Seleccione un trabajador"),
-  mate_id: requiredStringId("Seleccione un par"),
+  mate_ids: z
+    .array(z.object({ id: z.number() }))
+    .min(1, "Seleccione al menos un evaluador par"),
 });
 
 export const parEvaluatorSchemaUpdate = parEvaluatorSchemaCreate.partial();

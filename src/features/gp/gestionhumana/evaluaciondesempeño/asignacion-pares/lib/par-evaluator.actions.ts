@@ -49,6 +49,14 @@ export async function storeParEvaluator(
   return response.data;
 }
 
+export async function storeMultipleParEvaluators(data: {
+  worker_id: number;
+  mate_ids: number[];
+}): Promise<any> {
+  const response = await api.post<any>(`${ENDPOINT}/bulk`, data);
+  return response.data;
+}
+
 export async function updateParEvaluator(
   id: string,
   data: any
@@ -57,6 +65,16 @@ export async function updateParEvaluator(
     `${ENDPOINT}/${id}`,
     data
   );
+  return response.data;
+}
+
+export async function updateMultipleParEvaluators(data: {
+  worker_id: number;
+  mate_ids: number[];
+}): Promise<any> {
+  const response = await api.put<any>(`${ENDPOINT}/bulk/${data.worker_id}`, {
+    mate_ids: data.mate_ids,
+  });
   return response.data;
 }
 

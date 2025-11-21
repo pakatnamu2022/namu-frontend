@@ -1,6 +1,5 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -8,15 +7,18 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { ParEvaluatorForm } from "./ParEvaluatorForm";
-import { useWorkers } from "../../../personal/trabajadores/lib/worker.hook";
+import { useAllWorkers } from "../../../personal/trabajadores/lib/worker.hook";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { ParEvaluatorSchema } from "../lib/par-evaluator.schema";
+import { ParEvaluatorResource } from "../lib/par-evaluator.interface";
+import { STATUS_WORKER } from "../../../personal/posiciones/lib/position.constant";
 
 interface ParEvaluatorEditModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   parEvaluatorId: number | null;
   workerId: number | null;
+  existingEvaluators?: ParEvaluatorResource[];
   defaultValues?: Partial<ParEvaluatorSchema>;
   onSubmit: (data: ParEvaluatorSchema) => void;
   isSubmitting?: boolean;
@@ -25,13 +27,15 @@ interface ParEvaluatorEditModalProps {
 export function ParEvaluatorEditModal({
   open,
   onOpenChange,
-  parEvaluatorId,
   workerId,
+  existingEvaluators = [],
   defaultValues,
   onSubmit,
   isSubmitting = false,
 }: ParEvaluatorEditModalProps) {
-  const { data: workersData, isLoading: loadingWorkers } = useWorkers();
+  const { data: workersData, isLoading: loadingWorkers } = useAllWorkers({
+    status_id: STATUS_WORKER.ACTIVE,
+  });
 
   const handleSubmit = (data: ParEvaluatorSchema) => {
     onSubmit(data);
@@ -48,10 +52,11 @@ export function ParEvaluatorEditModal({
           <FormSkeleton />
         ) : (
           <ParEvaluatorForm
-            persons={workersData?.data || []}
+            persons={workersData || []}
+            existingEvaluators={existingEvaluators}
             defaultValues={{
               ...defaultValues,
-              worker_id: workerId || undefined,
+              worker_id: workerId?.toString() || undefined,
             }}
             onSubmit={handleSubmit}
             isSubmitting={isSubmitting}
