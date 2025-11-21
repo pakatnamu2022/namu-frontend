@@ -2,7 +2,7 @@ import {
   ReceptionSchema,
   receptionSchemaCreate,
   receptionSchemaUpdate,
-} from "../lib/receptions-products.schema";
+} from "../lib/receptionsProducts.schema";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -33,7 +33,7 @@ import { Card } from "@/components/ui/card";
 import {
   RECEPTION_TYPES,
   OBSERVATION_REASONS,
-} from "../lib/receptions-products.constants";
+} from "../lib/receptionsProducts.constants";
 import { useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";

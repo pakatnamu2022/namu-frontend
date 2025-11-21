@@ -1,5 +1,5 @@
 import { DataTable } from "@/shared/components/DataTable";
-import { ReceptionResource } from "../lib/receptions-products.interface";
+import { ReceptionResource } from "../lib/receptionsProducts.interface";
 import { ReceptionsProductsColumns } from "./ReceptionsProductsColumns";
 
 interface Props {

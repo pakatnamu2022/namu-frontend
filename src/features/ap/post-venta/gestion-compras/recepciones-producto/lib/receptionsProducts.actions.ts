@@ -6,8 +6,8 @@ import {
   ReceptionRequest,
   ReceptionResource,
   ReceptionResponse,
-} from "./receptions-products.interface";
-import { RECEPTION } from "./receptions-products.constants";
+} from "./receptionsProducts.interface";
+import { RECEPTION } from "./receptionsProducts.constants";
 
 const { ENDPOINT } = RECEPTION;
 
@@ -40,9 +40,7 @@ export async function getAllReceptions({
   return data;
 }
 
-export async function getReceptionById(
-  id: number
-): Promise<ReceptionResource> {
+export async function getReceptionById(id: number): Promise<ReceptionResource> {
   const { data } = await api.get<ReceptionResource>(`${ENDPOINT}/${id}`);
   return data;
 }

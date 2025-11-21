@@ -2,13 +2,13 @@ import { useQuery } from "@tanstack/react-query";
 import {
   ReceptionResource,
   ReceptionResponse,
-} from "./receptions-products.interface";
+} from "./receptionsProducts.interface";
 import {
   findReceptionById,
   getAllReceptions,
   getReceptions,
-} from "./receptions-products.actions";
-import { RECEPTION } from "./receptions-products.constants";
+} from "./receptionsProducts.actions";
+import { RECEPTION } from "./receptionsProducts.constants";
 
 const { QUERY_KEY } = RECEPTION;
 

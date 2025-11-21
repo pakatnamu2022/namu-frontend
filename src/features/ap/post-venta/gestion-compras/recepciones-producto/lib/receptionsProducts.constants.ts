@@ -1,5 +1,5 @@
 import { ModelComplete } from "@/core/core.interface";
-import { ReceptionResource } from "./receptions-products.interface";
+import { ReceptionResource } from "./receptionsProducts.interface";
 
 const ROUTE = "recepcion";
 const ABSOLUTE_ROUTE =

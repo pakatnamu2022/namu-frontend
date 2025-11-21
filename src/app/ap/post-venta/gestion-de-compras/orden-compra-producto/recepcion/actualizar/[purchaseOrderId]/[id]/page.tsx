@@ -17,11 +17,11 @@ import NotFound from "@/app/not-found";
 import {
   findReceptionById,
   updateReception,
-} from "@/features/ap/post-venta/gestion-compras/recepciones-producto/lib/receptions-products.actions";
-import { ReceptionSchema } from "@/features/ap/post-venta/gestion-compras/recepciones-producto/lib/receptions-products.schema";
-import { ReceptionResource } from "@/features/ap/post-venta/gestion-compras/recepciones-producto/lib/receptions-products.interface";
+} from "@/features/ap/post-venta/gestion-compras/recepciones-producto/lib/receptionsProducts.actions";
+import { ReceptionSchema } from "@/features/ap/post-venta/gestion-compras/recepciones-producto/lib/receptionsProducts.schema";
+import { ReceptionResource } from "@/features/ap/post-venta/gestion-compras/recepciones-producto/lib/receptionsProducts.interface";
 import { ReceptionsProductsForm } from "@/features/ap/post-venta/gestion-compras/recepciones-producto/components/ReceptionsProductsForm";
-import { RECEPTION } from "@/features/ap/post-venta/gestion-compras/recepciones-producto/lib/receptions-products.constants";
+import { RECEPTION } from "@/features/ap/post-venta/gestion-compras/recepciones-producto/lib/receptionsProducts.constants";
 import { usePurchaseOrderProductsById } from "@/features/ap/post-venta/gestion-compras/orden-compra-producto/lib/purchaseOrderProducts.hook";
 
 export default function EditReceptionProductPage() {

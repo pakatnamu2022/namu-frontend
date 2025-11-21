@@ -1,5 +1,5 @@
 import type { ColumnDef } from "@tanstack/react-table";
-import { ReceptionListItem } from "../lib/receptions-products.interface";
+import { ReceptionListItem } from "../lib/receptionsProducts.interface";
 import { Button } from "@/components/ui/button";
 import { Eye, Pencil } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";

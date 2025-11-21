@@ -5,7 +5,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { useQuery } from "@tanstack/react-query";
-import { findReceptionById } from "../lib/receptions-products.actions";
+import { findReceptionById } from "../lib/receptionsProducts.actions";
 import { Loader2, PackageCheck, FileText } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";

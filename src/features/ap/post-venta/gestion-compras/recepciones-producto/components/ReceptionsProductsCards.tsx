@@ -1,4 +1,4 @@
-import { ReceptionResource } from "../lib/receptions-products.interface";
+import { ReceptionResource } from "../lib/receptionsProducts.interface";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Pencil, Calendar, FileText, Package, User, Box } from "lucide-react";
