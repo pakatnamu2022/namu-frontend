@@ -3,7 +3,7 @@ import { EVALUATION_PERSON } from "./evaluationPerson.constans";
 import {
   getEvaluationPersonResult,
   getEvaluationPersonResultByPersonAndEvaluation,
-  getTeamByChief,
+  getEvaluationsByPersonToEvaluate,
 } from "./evaluationPerson.actions";
 import type { EvaluationPersonResultResource } from "./evaluationPerson.interface";
 
@@ -29,14 +29,14 @@ export const useEvaluationPersonResult = (params?: Record<string, any>) => {
   });
 };
 
-export const useTeamByChief = (
+export const useEvaluationsByPersonToEvaluate = (
   id: number,
   enabled: boolean,
   params?: Record<string, any>
 ) => {
   return useQuery({
     queryKey: [QUERY_KEY, id, params],
-    queryFn: () => getTeamByChief(id, params),
+    queryFn: () => getEvaluationsByPersonToEvaluate(id, params),
     refetchOnWindowFocus: false,
     enabled: enabled,
   });

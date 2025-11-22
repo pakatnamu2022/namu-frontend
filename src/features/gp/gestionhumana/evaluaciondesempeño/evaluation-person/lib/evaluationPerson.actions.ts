@@ -67,15 +67,19 @@ export async function getEvaluationPersonResultByPersonAndEvaluation(
   return data.data;
 }
 
-export async function getTeamByChief(
+export async function getEvaluationsByPersonToEvaluate(
   chief_id: number,
   params?: Record<string, any>
-): Promise<EvaluationPersonResponse> {
-  const { data } = await api.get<EvaluationPersonResponse>(
-    `${ENDPOINT}/getTeamByChief/${chief_id}`,
-    {
-      params,
-    }
+): Promise<EvaluationPersonResultResource[]> {
+  const config: AxiosRequestConfig = {
+    params: {
+      ...params,
+      all: true,
+    },
+  };
+  const { data } = await api.get<EvaluationPersonResultResource[]>(
+    `${ENDPOINT}/evaluations-to-evaluate/${chief_id}`,
+    config
   );
   return data;
 }
