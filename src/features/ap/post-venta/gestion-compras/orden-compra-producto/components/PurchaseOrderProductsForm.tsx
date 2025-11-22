@@ -105,7 +105,9 @@ export const PurchaseOrderProductsForm = ({
     useAllWarehouse({
       sede_id: form.watch("sede_id") || undefined,
     });
-  const { data: products = [], isLoading: isLoadingProducts } = useAllProduct();
+  const { data: products = [], isLoading: isLoadingProducts } = useAllProduct({
+    warehouse_id: form.watch("warehouse_id") || undefined,
+  });
   const { data: currencyTypes = [], isLoading: isLoadingCurrencyTypes } =
     useAllCurrencyTypes();
   const {
@@ -216,7 +218,6 @@ export const PurchaseOrderProductsForm = ({
 
   if (
     isLoadingSuppliers ||
-    isLoadingProducts ||
     isLoadingCurrencyTypes ||
     isLoadingMySedes ||
     isLoadingOrderTypeSupplier
@@ -547,6 +548,7 @@ export const PurchaseOrderProductsForm = ({
                                     value: product.id.toString(),
                                   }))}
                                 control={form.control}
+                                disabled={isLoadingProducts}
                               />
                             </div>
                           </TableCell>

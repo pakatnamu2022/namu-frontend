@@ -15,7 +15,7 @@ export const useProduct = (params?: Record<string, any>) => {
 
 export const useAllProduct = (params?: Record<string, any>) => {
   return useQuery<ProductResource[]>({
-    queryKey: [QUERY_KEY],
+    queryKey: [QUERY_KEY, "all", params],
     queryFn: () => getAllProduct({ params }),
     refetchOnWindowFocus: false,
   });

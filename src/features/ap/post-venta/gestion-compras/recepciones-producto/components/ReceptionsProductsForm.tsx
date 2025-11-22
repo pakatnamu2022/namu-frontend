@@ -79,7 +79,9 @@ export const ReceptionsProductsForm = ({
   });
 
   const { data: warehouses = [], isLoading: isLoadingWarehouses } =
-    useAllWarehouse();
+    useAllWarehouse({
+      is_received: 1,
+    });
   const { data: products = [], isLoading: isLoadingProducts } = useAllProduct();
 
   const watchedDetails = form.watch("details");
@@ -290,7 +292,31 @@ export const ReceptionsProductsForm = ({
                                 }
                                 onChange={(e) => {
                                   const num = parseFloat(e.target.value);
-                                  field.onChange(isNaN(num) ? "" : num);
+                                  const newQuantityReceived = isNaN(num)
+                                    ? 0
+                                    : num;
+
+                                  // Si es producto ordenado, calcular cantidad observada
+                                  if (isOrderedProduct && productItem) {
+                                    const orderedQuantity =
+                                      productItem.quantity;
+
+                                    // No permitir que la cantidad recibida supere la ordenada
+                                    const finalQuantityReceived = Math.min(
+                                      newQuantityReceived,
+                                      orderedQuantity
+                                    );
+                                    const observedQuantity =
+                                      orderedQuantity - finalQuantityReceived;
+
+                                    field.onChange(finalQuantityReceived);
+                                    form.setValue(
+                                      `details.${index}.observed_quantity`,
+                                      observedQuantity
+                                    );
+                                  } else {
+                                    field.onChange(newQuantityReceived);
+                                  }
                                 }}
                               />
                             </FormControl>
@@ -321,7 +347,31 @@ export const ReceptionsProductsForm = ({
                                   }
                                   onChange={(e) => {
                                     const num = parseFloat(e.target.value);
-                                    field.onChange(isNaN(num) ? "" : num);
+                                    const newObservedQuantity = isNaN(num)
+                                      ? 0
+                                      : num;
+
+                                    // Si es producto ordenado, calcular cantidad recibida
+                                    if (productItem) {
+                                      const orderedQuantity =
+                                        productItem.quantity;
+
+                                      // No permitir que la cantidad observada supere la ordenada
+                                      const finalObservedQuantity = Math.min(
+                                        newObservedQuantity,
+                                        orderedQuantity
+                                      );
+                                      const receivedQuantity =
+                                        orderedQuantity - finalObservedQuantity;
+
+                                      field.onChange(finalObservedQuantity);
+                                      form.setValue(
+                                        `details.${index}.quantity_received`,
+                                        receivedQuantity
+                                      );
+                                    } else {
+                                      field.onChange(newObservedQuantity);
+                                    }
                                   }}
                                 />
                               </FormControl>

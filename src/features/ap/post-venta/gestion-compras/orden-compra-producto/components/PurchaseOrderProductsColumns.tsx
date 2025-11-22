@@ -135,8 +135,9 @@ export const purchaseOrderProductsColumns = ({
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
-      const { id, status } = row.original;
-      const canEdit = status === true;
+      const { id, status, migration_status, has_receptions } = row.original;
+      const canEditDelete =
+        !has_receptions || migration_status === "completed" || status === true; // Disable edit/delete if there are receptions
 
       return (
         <div className="flex items-center gap-2">
@@ -145,6 +146,7 @@ export const purchaseOrderProductsColumns = ({
               variant="outline"
               size="icon"
               className="size-7"
+              tooltip="Ver"
               onClick={() => onView(id)}
             >
               <Eye className="size-4" />
@@ -157,22 +159,27 @@ export const purchaseOrderProductsColumns = ({
                 variant="outline"
                 size="icon"
                 className="size-7"
-                title="Recepción"
+                tooltip="Recepcionar"
               >
                 <PackageCheck className="size-4" />
               </Button>
             </Link>
           )}
 
-          {permissions.canUpdate && canEdit && routeUpdate && (
+          {permissions.canUpdate && canEditDelete && routeUpdate && (
             <Link to={`${routeUpdate}/${id}`}>
-              <Button variant="outline" size="icon" className="size-7">
+              <Button
+                variant="outline"
+                size="icon"
+                className="size-7"
+                tooltip="Editar"
+              >
                 <Pencil className="size-4" />
               </Button>
             </Link>
           )}
 
-          {permissions.canDelete && canEdit && (
+          {permissions.canDelete && canEditDelete && (
             <DeleteButton onClick={() => onDelete(id)} />
           )}
         </div>

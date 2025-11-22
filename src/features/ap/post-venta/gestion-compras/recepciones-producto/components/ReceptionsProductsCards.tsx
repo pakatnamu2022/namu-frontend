@@ -1,7 +1,19 @@
 import { ReceptionResource } from "../lib/receptionsProducts.interface";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Pencil, Calendar, FileText, Package, User, Box } from "lucide-react";
+import {
+  Pencil,
+  Calendar,
+  FileText,
+  Package,
+  User,
+  Box,
+  TruckIcon,
+  AlertCircle,
+  Building2,
+  Coins,
+  Tag,
+} from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { Link } from "react-router-dom";
 import { format } from "date-fns";
@@ -50,26 +62,44 @@ export default function ReceptionsProductsCards({
       {data.map((reception) => (
         <Card key={reception.id} className="hover:shadow-md transition-shadow">
           <CardContent className={isSingleCard ? "p-6" : "p-4 space-y-3"}>
-            {/* Header con número de recepción y acciones */}
+            {/* Header con número de recepción, estado y acciones */}
             <div
               className={`flex items-start justify-between ${
-                isSingleCard ? "gap-4 mb-6" : "gap-2"
+                isSingleCard ? "gap-4 mb-4" : "gap-2 mb-3"
               }`}
             >
               <div className="flex-1">
-                <h3
-                  className={`font-bold text-primary ${
-                    isSingleCard ? "text-2xl" : "text-lg"
-                  }`}
-                >
-                  {reception.reception_number || `#${reception.id}`}
-                </h3>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h3
+                    className={`font-bold text-primary ${
+                      isSingleCard ? "text-2xl" : "text-lg"
+                    }`}
+                  >
+                    {reception.reception_number || `#${reception.id}`}
+                  </h3>
+                  {reception.status && (
+                    <Badge
+                      variant="secondary"
+                      className={isSingleCard ? "text-xs" : "text-[10px]"}
+                    >
+                      {reception.status}
+                    </Badge>
+                  )}
+                  {reception.reception_type && (
+                    <Badge
+                      variant="outline"
+                      className={isSingleCard ? "text-xs" : "text-[10px]"}
+                    >
+                      {reception.reception_type}
+                    </Badge>
+                  )}
+                </div>
                 <p
                   className={`text-muted-foreground ${
-                    isSingleCard ? "text-sm mt-1" : "text-xs"
+                    isSingleCard ? "text-sm mt-1" : "text-xs mt-0.5"
                   }`}
                 >
-                  Orden: {purchaseOrderNumber || "-"}
+                  OC: {purchaseOrderNumber || "-"}
                 </p>
               </div>
               <div className="flex gap-2">
@@ -90,12 +120,64 @@ export default function ReceptionsProductsCards({
               </div>
             </div>
 
+            {/* Información del proveedor y sede */}
+            {reception.purchase_order && (
+              <div
+                className={`${
+                  isSingleCard ? "p-4 mb-4" : "p-3 mb-3"
+                } bg-muted/30 rounded-lg`}
+              >
+                <div className="flex items-start gap-2">
+                  <Building2
+                    className={`text-muted-foreground shrink-0 ${
+                      isSingleCard ? "size-5 mt-0.5" : "size-4"
+                    }`}
+                  />
+                  <div className="flex-1 min-w-0">
+                    <p
+                      className={`font-semibold text-foreground truncate ${
+                        isSingleCard ? "text-base" : "text-sm"
+                      }`}
+                    >
+                      {reception.purchase_order.supplier}
+                    </p>
+                    <p
+                      className={`text-muted-foreground ${
+                        isSingleCard ? "text-sm" : "text-xs"
+                      }`}
+                    >
+                      RUC: {reception.purchase_order.supplier_num_doc}
+                    </p>
+                    <div className="flex items-center gap-2 mt-1 flex-wrap">
+                      <Badge
+                        variant="outline"
+                        className={isSingleCard ? "text-xs" : "text-[10px]"}
+                      >
+                        {reception.purchase_order.sede}
+                      </Badge>
+                      {reception.purchase_order.currency && (
+                        <Badge
+                          variant="outline"
+                          className={`${
+                            isSingleCard ? "text-xs" : "text-[10px]"
+                          }`}
+                        >
+                          <Coins className="size-3 mr-1" />
+                          {reception.purchase_order.currency_code}
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Información principal - Layout diferente según cantidad */}
             <div
               className={
                 isSingleCard
-                  ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6"
-                  : "space-y-2"
+                  ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4"
+                  : "space-y-2.5"
               }
             >
               {/* Fecha de recepción */}
@@ -109,13 +191,13 @@ export default function ReceptionsProductsCards({
                     isSingleCard ? "mb-2" : ""
                   }`}
                 />
-                <div>
+                <div className="flex-1">
                   <p
                     className={`text-muted-foreground ${
                       isSingleCard ? "text-xs font-medium mb-1" : "text-xs"
                     }`}
                   >
-                    Fecha
+                    Fecha de Recepción
                   </p>
                   <p
                     className={`font-medium ${isSingleCard ? "text-base" : ""}`}
@@ -144,7 +226,7 @@ export default function ReceptionsProductsCards({
                     isSingleCard ? "mb-2" : ""
                   }`}
                 />
-                <div>
+                <div className="flex-1 min-w-0">
                   <p
                     className={`text-muted-foreground ${
                       isSingleCard ? "text-xs font-medium mb-1" : "text-xs"
@@ -153,9 +235,11 @@ export default function ReceptionsProductsCards({
                     Almacén
                   </p>
                   <p
-                    className={`font-medium ${isSingleCard ? "text-base" : ""}`}
+                    className={`font-medium ${
+                      isSingleCard ? "text-base" : ""
+                    } truncate`}
                   >
-                    {warehouseName || "-"}
+                    {warehouseName || reception.warehouse?.description || "-"}
                   </p>
                 </div>
               </div>
@@ -167,12 +251,12 @@ export default function ReceptionsProductsCards({
                     isSingleCard ? "flex-col items-start" : "gap-2"
                   } text-sm`}
                 >
-                  <FileText
+                  <TruckIcon
                     className={`size-4 text-muted-foreground shrink-0 ${
                       isSingleCard ? "mb-2" : ""
                     }`}
                   />
-                  <div>
+                  <div className="flex-1">
                     <p
                       className={`text-muted-foreground ${
                         isSingleCard ? "text-xs font-medium mb-1" : "text-xs"
@@ -191,33 +275,6 @@ export default function ReceptionsProductsCards({
                 </div>
               )}
 
-              {/* Total items */}
-              {reception.total_items !== undefined && (
-                <div
-                  className={`flex items-center ${
-                    isSingleCard ? "flex-col items-start" : "pt-2 border-t"
-                  }`}
-                >
-                  {isSingleCard && (
-                    <Package className="size-4 text-muted-foreground mb-2" />
-                  )}
-                  <div>
-                    {isSingleCard && (
-                      <p className="text-xs font-medium text-muted-foreground mb-1">
-                        Total Items
-                      </p>
-                    )}
-                    <Badge
-                      variant="secondary"
-                      className={isSingleCard ? "text-sm" : "text-xs"}
-                    >
-                      {reception.total_items}{" "}
-                      {reception.total_items === 1 ? "item" : "items"}
-                    </Badge>
-                  </div>
-                </div>
-              )}
-
               {/* Recibido por */}
               {reception.received_by_user_name && (
                 <div
@@ -230,7 +287,7 @@ export default function ReceptionsProductsCards({
                       isSingleCard ? "mb-2" : ""
                     }`}
                   />
-                  <div>
+                  <div className="flex-1 min-w-0">
                     <p
                       className={`text-muted-foreground ${
                         isSingleCard ? "text-xs font-medium mb-1" : "text-xs"
@@ -241,20 +298,112 @@ export default function ReceptionsProductsCards({
                     <p
                       className={`font-medium ${
                         isSingleCard ? "text-sm" : "text-xs"
-                      }`}
+                      } truncate`}
                     >
                       {reception.received_by_user_name}
                     </p>
                   </div>
                 </div>
               )}
+
+              {/* Total cantidad */}
+              {reception.total_quantity && (
+                <div
+                  className={`flex items-center ${
+                    isSingleCard
+                      ? "flex-col items-start"
+                      : "gap-2 pt-2 border-t"
+                  } text-sm`}
+                >
+                  {isSingleCard && (
+                    <Box className="size-4 text-muted-foreground mb-2" />
+                  )}
+                  <div className="flex-1">
+                    <p
+                      className={`text-muted-foreground ${
+                        isSingleCard ? "text-xs font-medium mb-1" : "text-xs"
+                      }`}
+                    >
+                      Cantidad Total
+                    </p>
+                    <Badge
+                      variant="secondary"
+                      className={isSingleCard ? "text-sm" : "text-xs"}
+                    >
+                      {Number(reception.total_quantity).toFixed(2)} unidades
+                    </Badge>
+                  </div>
+                </div>
+              )}
+
+              {/* Total items */}
+              {reception.total_items !== undefined && (
+                <div
+                  className={`flex items-center ${
+                    isSingleCard ? "flex-col items-start" : "gap-2"
+                  } text-sm`}
+                >
+                  {isSingleCard && (
+                    <Package className="size-4 text-muted-foreground mb-2" />
+                  )}
+                  <div className="flex-1">
+                    <p
+                      className={`text-muted-foreground ${
+                        isSingleCard ? "text-xs font-medium mb-1" : "text-xs"
+                      }`}
+                    >
+                      Items Únicos
+                    </p>
+                    <Badge
+                      variant="secondary"
+                      className={isSingleCard ? "text-sm" : "text-xs"}
+                    >
+                      {reception.total_items}{" "}
+                      {reception.total_items === 1 ? "item" : "items"}
+                    </Badge>
+                  </div>
+                </div>
+              )}
             </div>
+
+            {/* Notas de recepción */}
+            {reception.notes && (
+              <div
+                className={`${
+                  isSingleCard ? "p-4 mb-4" : "p-3 mb-3"
+                } bg-blue-500/5 border border-blue-200 rounded-lg`}
+              >
+                <div className="flex items-start gap-2">
+                  <FileText
+                    className={`text-blue-600 shrink-0 ${
+                      isSingleCard ? "size-5" : "size-4"
+                    }`}
+                  />
+                  <div>
+                    <p
+                      className={`font-medium text-blue-900 ${
+                        isSingleCard ? "text-sm mb-1" : "text-xs mb-0.5"
+                      }`}
+                    >
+                      Notas
+                    </p>
+                    <p
+                      className={`text-blue-700 ${
+                        isSingleCard ? "text-sm" : "text-xs"
+                      }`}
+                    >
+                      {reception.notes}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Lista de productos recepcionados */}
             {reception.details && reception.details.length > 0 && (
               <div
                 className={`${
-                  isSingleCard ? "pt-6" : "pt-3"
+                  isSingleCard ? "pt-4" : "pt-3"
                 } border-t space-y-2`}
               >
                 <div className="flex items-center gap-2 mb-3">
@@ -268,57 +417,146 @@ export default function ReceptionsProductsCards({
                       isSingleCard ? "text-sm" : "text-xs"
                     }`}
                   >
-                    Productos Recepcionados
+                    Productos Recepcionados ({reception.details.length})
                   </p>
                 </div>
                 <div
                   className={`space-y-2 ${
-                    isSingleCard ? "max-h-64" : "max-h-48"
-                  } overflow-y-auto`}
+                    isSingleCard ? "max-h-80" : "max-h-64"
+                  } overflow-y-auto pr-1`}
                 >
                   {reception.details.map((detail, idx) => (
                     <div
                       key={idx}
-                      className={`flex justify-between items-start gap-3 p-3 rounded bg-muted/30 ${
+                      className={`p-3 rounded-lg border bg-card ${
                         isSingleCard ? "text-sm" : "text-xs"
                       }`}
                     >
-                      <div className="flex-1 min-w-0">
-                        <p
-                          className={`font-medium truncate ${
-                            isSingleCard ? "text-base" : ""
-                          }`}
-                        >
-                          {detail.product?.name ||
-                            detail.purchase_order_item?.product_name ||
-                            "Producto sin nombre"}
-                        </p>
-                        {detail.product?.code && (
+                      <div className="flex justify-between items-start gap-3 mb-2">
+                        <div className="flex-1 min-w-0">
                           <p
-                            className={`text-muted-foreground ${
-                              isSingleCard ? "text-xs mt-1" : "text-[10px]"
+                            className={`font-semibold truncate ${
+                              isSingleCard ? "text-base" : "text-sm"
                             }`}
                           >
-                            Código: {detail.product.code}
+                            {detail.product?.name ||
+                              detail.purchase_order_item?.product_name ||
+                              "Producto sin nombre"}
                           </p>
-                        )}
-                      </div>
-                      <div className="text-right shrink-0">
-                        <Badge
-                          variant="outline"
-                          className={
-                            isSingleCard ? "text-xs h-6" : "text-[10px] h-5"
-                          }
-                        >
-                          {detail.quantity_received}
-                          {detail.observed_quantity &&
-                            Number(detail.observed_quantity) > 0 && (
-                              <span className="text-destructive ml-1">
-                                (-{detail.observed_quantity})
-                              </span>
+                          <div className="flex items-center gap-2 mt-1 flex-wrap">
+                            {detail.product?.code && (
+                              <Badge
+                                variant="outline"
+                                className={
+                                  isSingleCard ? "text-xs" : "text-[10px]"
+                                }
+                              >
+                                <Tag className="size-3 mr-1" />
+                                {detail.product.code}
+                              </Badge>
                             )}
-                        </Badge>
+                            {detail.product?.brand_name && (
+                              <Badge
+                                variant="outline"
+                                className={
+                                  isSingleCard ? "text-xs" : "text-[10px]"
+                                }
+                              >
+                                {detail.product.brand_name}
+                              </Badge>
+                            )}
+                            {detail.product?.category_name && (
+                              <Badge
+                                variant="outline"
+                                className={
+                                  isSingleCard ? "text-xs" : "text-[10px]"
+                                }
+                              >
+                                {detail.product.category_name}
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
+                        <div className="text-right shrink-0">
+                          <Badge
+                            variant="default"
+                            className={
+                              isSingleCard ? "text-sm h-7" : "text-xs h-6"
+                            }
+                          >
+                            {Number(detail.quantity_received).toFixed(2)}
+                            {detail.product?.unit_measurement_name &&
+                              ` ${detail.product.unit_measurement_name}`}
+                          </Badge>
+                        </div>
                       </div>
+
+                      {/* Observaciones */}
+                      {detail.observed_quantity &&
+                        Number(detail.observed_quantity) > 0 && (
+                          <div className="mt-2 pt-2 border-t bg-yellow-500/10 -mx-3 -mb-3 px-3 py-2 rounded-b-lg">
+                            <div className="flex items-start gap-2">
+                              <AlertCircle className="size-4 text-yellow-600 shrink-0 mt-0.5" />
+                              <div className="flex-1">
+                                <p className="font-medium text-yellow-900 text-xs mb-1">
+                                  Cantidad Observada:{" "}
+                                  {Number(detail.observed_quantity).toFixed(2)}
+                                </p>
+                                {detail.reason_observation && (
+                                  <p className="text-yellow-700 text-xs">
+                                    Razón: {detail.reason_observation}
+                                  </p>
+                                )}
+                                {detail.observation_notes && (
+                                  <p className="text-yellow-700 text-xs mt-1">
+                                    {detail.observation_notes}
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                      {/* Lote y vencimiento */}
+                      {(detail.batch_number || detail.expiration_date) && (
+                        <div className="mt-2 pt-2 border-t grid grid-cols-2 gap-2 text-xs">
+                          {detail.batch_number && (
+                            <div>
+                              <span className="text-muted-foreground">
+                                Lote:{" "}
+                              </span>
+                              <span className="font-medium">
+                                {detail.batch_number}
+                              </span>
+                            </div>
+                          )}
+                          {detail.expiration_date && (
+                            <div>
+                              <span className="text-muted-foreground">
+                                Vence:{" "}
+                              </span>
+                              <span className="font-medium">
+                                {format(
+                                  new Date(detail.expiration_date),
+                                  "dd/MM/yyyy",
+                                  {
+                                    locale: es,
+                                  }
+                                )}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Notas del detalle */}
+                      {detail.notes && (
+                        <div className="mt-2 pt-2 border-t">
+                          <p className="text-xs text-muted-foreground">
+                            Nota: {detail.notes}
+                          </p>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>

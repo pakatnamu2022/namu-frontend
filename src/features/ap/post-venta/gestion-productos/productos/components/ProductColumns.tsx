@@ -222,7 +222,7 @@ export const productColumns = ({
 
           {/* View Details */}
           <Button
-            variant="ghost"
+            variant="outline"
             size="icon"
             className="size-7"
             onClick={() => onView(id)}
