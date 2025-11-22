@@ -80,7 +80,10 @@ export default function ViewPermissionsPage() {
           setIsActive(permissions[0].is_active);
         }
       } catch (error: any) {
-        errorToast("Error al cargar los datos", error.message.toString());
+        errorToast(
+          "Error al cargar los datos",
+          error.response.data?.message?.toString()
+        );
       } finally {
         setIsLoading(false);
       }
@@ -129,7 +132,10 @@ export default function ViewPermissionsPage() {
         `Permisos sincronizados correctamente para "${view.descripcion}"`
       );
     } catch (error: any) {
-      errorToast("Error al sincronizar permisos", error.message.toString());
+      errorToast(
+        "Error al sincronizar permisos",
+        error.response.data?.message?.toString()
+      );
     } finally {
       setIsSaving(false);
     }

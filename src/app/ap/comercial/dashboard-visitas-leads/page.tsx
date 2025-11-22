@@ -140,7 +140,7 @@ export default function DashboardStoreVisitsPage() {
     } catch (error: any) {
       errorToast(
         "Error al cargar los datos del dashboard",
-        error.message.toString()
+        error.response.data?.message?.toString()
       );
     } finally {
       setIsLoading(false);

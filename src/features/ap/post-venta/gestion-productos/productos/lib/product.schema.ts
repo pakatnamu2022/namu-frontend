@@ -27,10 +27,6 @@ const productSchemaBase = z.object({
       message: "Código es requerido",
     }),
   dyn_code: z.string().max(50, { message: "Máximo 50 caracteres" }).optional(),
-  nubefac_code: z
-    .string()
-    .max(50, { message: "Máximo 50 caracteres" })
-    .optional(),
   name: z
     .string()
     .max(255, { message: "Máximo 255 caracteres" })

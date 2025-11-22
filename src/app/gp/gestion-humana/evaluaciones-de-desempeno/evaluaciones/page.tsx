@@ -57,7 +57,10 @@ export default function EvaluationPage() {
       await refetch();
       successToast(SUCCESS_MESSAGE(MODEL, "delete"));
     } catch (error: any) {
-      errorToast(ERROR_MESSAGE(MODEL, "delete"), error.message.toString());
+      errorToast(
+        ERROR_MESSAGE(MODEL, "delete"),
+        error.response.data?.message?.toString()
+      );
     } finally {
       setDeleteId(null);
     }
@@ -69,7 +72,10 @@ export default function EvaluationPage() {
       await refetch();
       successToast(SUCCESS_MESSAGE(MODEL, "update"));
     } catch (error: any) {
-      errorToast(ERROR_MESSAGE(MODEL, "update"), error.message.toString());
+      errorToast(
+        ERROR_MESSAGE(MODEL, "update"),
+        error.response.data?.message?.toString()
+      );
     }
   };
 
@@ -83,9 +89,10 @@ export default function EvaluationPage() {
         errorToast("Error al enviar notificación", response.message);
       }
     } catch (error: any) {
+      console.log(error);
       errorToast(
-        "Error al enviar notificación",
-        error.message?.toString() || "Ocurrió un error inesperado"
+        error.response.data?.message?.toString() ||
+          "Ocurrió un error inesperado"
       );
     }
   };
@@ -100,8 +107,8 @@ export default function EvaluationPage() {
       }
     } catch (error: any) {
       errorToast(
-        "Error al enviar recordatorio",
-        error.message?.toString() || "Ocurrió un error inesperado"
+        error.response.data?.message?.toString() ||
+          "Ocurrió un error inesperado"
       );
     }
   };
@@ -117,8 +124,8 @@ export default function EvaluationPage() {
       }
     } catch (error: any) {
       errorToast(
-        "Error al enviar notificación",
-        error.message?.toString() || "Ocurrió un error inesperado"
+        error.response.data?.message?.toString() ||
+          "Ocurrió un error inesperado"
       );
     }
   };

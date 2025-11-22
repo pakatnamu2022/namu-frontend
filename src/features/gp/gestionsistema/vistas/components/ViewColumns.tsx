@@ -196,7 +196,7 @@ export const viewColumns = ({
             variant="outline"
             size="icon"
             className="size-7"
-            disabled={Boolean(submodule) || route === null}
+            disabled={submodule || route === null}
             onClick={() => router(`${ABSOLUTE_ROUTE}/permisos/${id}`)}
           >
             <ShieldCheck className="size-5" />

@@ -1,7 +1,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { ProductResource } from "../lib/product.interface";
 import { Button } from "@/components/ui/button";
-import { Pencil, RefreshCw } from "lucide-react";
+import { Eye, Pencil, RefreshCw } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
@@ -18,6 +18,7 @@ export type ProductColumns = ColumnDef<ProductResource>;
 interface Props {
   onDelete: (id: number) => void;
   onStatusChange: (id: number, newStatus: string) => void;
+  onView: (id: number) => void;
   permissions: {
     canUpdate: boolean;
     canDelete: boolean;
@@ -27,6 +28,7 @@ interface Props {
 export const productColumns = ({
   onDelete,
   onStatusChange,
+  onView,
   permissions,
 }: Props): ProductColumns[] => [
   {
@@ -70,26 +72,67 @@ export const productColumns = ({
     },
   },
   {
-    accessorKey: "current_stock",
-    header: "Stock",
+    accessorKey: "total_stock",
+    header: "Stock Total",
     cell: ({ getValue, row }) => {
-      const stock = getValue() as number;
-      const minimum_stock = row.original.minimum_stock;
-      const isLowStock = stock <= minimum_stock;
+      const stock = getValue() as number | undefined;
+      const warehouseStocks = row.original.warehouse_stocks;
+
+      // Check if any warehouse has low stock
+      const hasLowStock =
+        warehouseStocks?.some((ws) => ws.is_low_stock) || false;
+      const hasOutOfStock =
+        warehouseStocks?.some((ws) => ws.is_out_of_stock) || false;
+
+      const displayStock = stock ?? 0;
+
       return (
-        <Badge variant={isLowStock ? "destructive" : "default"}>{stock}</Badge>
+        <Badge
+          variant={
+            hasOutOfStock
+              ? "destructive"
+              : hasLowStock
+              ? "secondary"
+              : "default"
+          }
+        >
+          {displayStock}
+        </Badge>
+      );
+    },
+  },
+  {
+    accessorKey: "total_available_stock",
+    header: "Stock Disponible",
+    cell: ({ getValue }) => {
+      const stock = getValue() as number | undefined;
+      return (
+        <span className="font-medium text-muted-foreground">{stock ?? 0}</span>
       );
     },
   },
   {
     accessorKey: "sale_price",
     header: "P. Venta",
-    cell: ({ getValue }) => {
+    cell: ({ getValue, row }) => {
       const value = getValue();
+      const priceWithTax = row.original.price_with_tax;
+
       if (value == null || value === "") return "S/ 0.00";
       const numValue =
         typeof value === "string" ? parseFloat(value) : Number(value);
-      return isNaN(numValue) ? "S/ 0.00" : `S/ ${numValue.toFixed(2)}`;
+      const basePrice = isNaN(numValue) ? 0 : numValue;
+
+      return (
+        <div className="flex flex-col">
+          <span className="font-medium">S/ {basePrice.toFixed(2)}</span>
+          {priceWithTax != null && priceWithTax !== basePrice && (
+            <span className="text-xs text-muted-foreground">
+              c/IGV: S/ {priceWithTax.toFixed(2)}
+            </span>
+          )}
+        </div>
+      );
     },
   },
   {
@@ -176,6 +219,16 @@ export const productColumns = ({
               </SelectContent>
             </Select>
           )}
+
+          {/* View Details */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="size-7"
+            onClick={() => onView(id)}
+          >
+            <Eye className="size-4" />
+          </Button>
 
           {/* Edit */}
           {permissions.canUpdate && (

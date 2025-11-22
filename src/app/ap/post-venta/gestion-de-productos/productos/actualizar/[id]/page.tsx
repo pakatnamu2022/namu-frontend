@@ -59,16 +59,15 @@ export default function UpdateProductPage() {
     return {
       code: data.code,
       dyn_code: data.dyn_code,
-      nubefac_code: data.nubefac_code,
       name: data.name,
       description: data.description,
       product_category_id: String(data.product_category_id),
       brand_id: String(data.brand_id),
       ap_class_article_id: String(data.ap_class_article_id),
       unit_measurement_id: String(data.unit_measurement_id),
+      cost_price: Number(data.cost_price),
+      sale_price: Number(data.sale_price),
       warranty_months: Number(data.warranty_months),
-      cost_price: data.cost_price,
-      sale_price: data.sale_price,
     };
   }
 

@@ -49,7 +49,10 @@ export default function PositionsPage() {
       await refetch();
       successToast(SUCCESS_MESSAGE(MODEL, "delete"));
     } catch (error: any) {
-      errorToast(ERROR_MESSAGE(MODEL, "delete"), error.message.toString());
+      errorToast(
+        ERROR_MESSAGE(MODEL, "delete"),
+        error.response.data?.message?.toString()
+      );
     } finally {
       setDeleteId(null);
     }

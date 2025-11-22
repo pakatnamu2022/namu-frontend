@@ -61,7 +61,10 @@ export default function ViewPage() {
       await refetch();
       successToast("Vista eliminada correctamente.");
     } catch (error: any) {
-      errorToast("Error al eliminar la vista.", error.message.toString());
+      errorToast(
+        "Error al eliminar la vista.",
+        error.response.data?.message?.toString()
+      );
     } finally {
       setDeleteId(null);
     }
@@ -73,7 +76,10 @@ export default function ViewPage() {
       await refetch();
       successToast(SUCCESS_MESSAGE(MODEL, "update"));
     } catch (error: any) {
-      errorToast(ERROR_MESSAGE(MODEL, "update"), error.message.toString());
+      errorToast(
+        ERROR_MESSAGE(MODEL, "update"),
+        error.response.data?.message?.toString()
+      );
     }
   };
 
