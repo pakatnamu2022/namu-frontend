@@ -8,7 +8,7 @@ export const EVALUATOR_TYPES = {
     id: 0,
     name: "Jefe Directo",
     shortName: "Jefe",
-    description: "Como Jefe",
+    description: "Como Líder",
     weight: "60%",
     icon: User,
     color: "default" as const,
