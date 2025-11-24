@@ -1,7 +1,7 @@
 "use client";
 
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   ERROR_MESSAGE,
   errorToast,
@@ -15,52 +15,34 @@ import DataTablePagination from "@/shared/components/DataTablePagination";
 import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import { TYPES_CATEGORY } from "@/features/ap/post-venta/gestion-productos/tipos-categoria/lib/typesCategory.constants";
-import TypesCategoryActions from "@/features/ap/post-venta/gestion-productos/tipos-categoria/components/TypesCategoryActions";
-import TypesCategoryTable from "@/features/ap/post-venta/gestion-productos/tipos-categoria/components/TypesCategoryTable";
-import { typesCategoryColumns } from "@/features/ap/post-venta/gestion-productos/tipos-categoria/components/TypesCategoryColumns";
-import TypesCategoryOptions from "@/features/ap/post-venta/gestion-productos/tipos-categoria/components/TypesCategoryOptions";
-import TypesCategoryModal from "@/features/ap/post-venta/gestion-productos/tipos-categoria/components/TypesCategoryModal";
-import { useTypesCategory } from "@/features/ap/post-venta/gestion-productos/tipos-categoria/lib/typesCategory.hook";
 import { notFound } from "@/shared/hooks/useNotFound";
-import {
-  deleteTypesCategory,
-  updateTypesCategory,
-} from "@/features/ap/post-venta/gestion-productos/tipos-categoria/lib/typesCategory.actions";
+import { deleteAdjustmentsProduct } from "@/features/ap/post-venta/gestion-compras/ajuste-producto/lib/adjustmentsProduct.actions";
+import AdjustmentsProductActions from "@/features/ap/post-venta/gestion-compras/ajuste-producto/components/AdjustmentsProductActions";
+import AdjustmentsProductTable from "@/features/ap/post-venta/gestion-compras/ajuste-producto/components/AdjustmentsProductTable";
+import { adjustmentsProductColumns } from "@/features/ap/post-venta/gestion-compras/ajuste-producto/components/AdjustmentsProductColumns";
+import AdjustmentsProductOptions from "@/features/ap/post-venta/gestion-compras/ajuste-producto/components/AdjustmentsProductOptions";
+import { ADJUSTMENT } from "@/features/ap/post-venta/gestion-compras/ajuste-producto/lib/adjustmentsProduct.constants";
+import { useAdjustmentsProduct } from "@/features/ap/post-venta/gestion-compras/ajuste-producto/lib/adjustmentsProduct.hook";
 
-export default function TypesCategoryPage() {
+export default function AdjustmentsProductPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
-  const [updateId, setUpdateId] = useState<number | null>(null);
-  const { MODEL, ROUTE } = TYPES_CATEGORY;
+  const { MODEL, ROUTE } = ADJUSTMENT;
   const permissions = useModulePermissions(ROUTE);
 
-  useEffect(() => {
-    setPage(1);
-  }, [search, per_page]);
-  const { data, isLoading, refetch } = useTypesCategory({
+  const { data, isLoading, refetch } = useAdjustmentsProduct({
     page,
     search,
     per_page,
   });
 
-  const handleToggleStatus = async (id: number, newStatus: boolean) => {
-    try {
-      await updateTypesCategory(id, { status: newStatus });
-      await refetch();
-      successToast("Estado actualizado correctamente.");
-    } catch {
-      errorToast("Error al actualizar el estado.");
-    }
-  };
-
   const handleDelete = async () => {
     if (!deleteId) return;
     try {
-      await deleteTypesCategory(deleteId);
+      await deleteAdjustmentsProduct(deleteId);
       await refetch();
       successToast(SUCCESS_MESSAGE(MODEL, "delete"));
     } catch (error: any) {
@@ -80,41 +62,27 @@ export default function TypesCategoryPage() {
       <HeaderTableWrapper>
         <TitleComponent
           title={currentView.descripcion}
-          subtitle={"Tipos de Motor de Vehículos"}
+          subtitle={currentView.descripcion}
           icon={currentView.icon}
         />
-        <TypesCategoryActions permissions={permissions} />
+        <AdjustmentsProductActions permissions={permissions} />
       </HeaderTableWrapper>
-      <TypesCategoryTable
+      <AdjustmentsProductTable
         isLoading={isLoading}
-        columns={typesCategoryColumns({
-          onToggleStatus: handleToggleStatus,
+        columns={adjustmentsProductColumns({
           onDelete: setDeleteId,
-          onUpdate: setUpdateId,
           permissions,
         })}
         data={data?.data || []}
       >
-        <TypesCategoryOptions search={search} setSearch={setSearch} />
-      </TypesCategoryTable>
+        <AdjustmentsProductOptions search={search} setSearch={setSearch} />
+      </AdjustmentsProductTable>
 
       {deleteId !== null && (
         <SimpleDeleteDialog
           open={true}
           onOpenChange={(open) => !open && setDeleteId(null)}
           onConfirm={handleDelete}
-        />
-      )}
-
-      {updateId !== null && (
-        <TypesCategoryModal
-          id={updateId}
-          title={"Actualizar Tipo de Motor"}
-          open={true}
-          onClose={() => {
-            setUpdateId(null);
-          }}
-          mode="update"
         />
       )}
 

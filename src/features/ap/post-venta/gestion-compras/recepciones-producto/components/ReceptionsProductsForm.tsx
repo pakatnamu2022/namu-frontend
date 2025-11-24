@@ -186,6 +186,7 @@ export const ReceptionsProductsForm = ({
               variant="outline"
               size="sm"
               onClick={handleAddDetail}
+              className="hidden"
             >
               <Plus className="h-4 w-4 mr-2" />
               Agregar Producto
@@ -226,7 +227,7 @@ export const ReceptionsProductsForm = ({
                         {isOrderedProduct && (
                           <Badge
                             variant="secondary"
-                            className="text-xs h-5 shrink-0 bg-blue-100 text-blue-700"
+                            className="text-xs h-5 shrink-0 bg-blue-100 text-primary"
                           >
                             ORDENADO
                           </Badge>
@@ -268,6 +269,7 @@ export const ReceptionsProductsForm = ({
                             value: product.id.toString(),
                           }))}
                           control={form.control}
+                          disabled={mode === "update"}
                         />
                       )}
 
@@ -285,6 +287,7 @@ export const ReceptionsProductsForm = ({
                                 min="0"
                                 className="text-center"
                                 placeholder="0"
+                                disabled={mode === "update"}
                                 value={
                                   typeof field.value === "number"
                                     ? field.value
@@ -340,6 +343,7 @@ export const ReceptionsProductsForm = ({
                                   min="0"
                                   className="text-center"
                                   placeholder="0"
+                                  disabled={mode === "update"}
                                   value={
                                     typeof field.value === "number"
                                       ? field.value
@@ -404,7 +408,7 @@ export const ReceptionsProductsForm = ({
                                       }))
                                 }
                                 control={form.control}
-                                disabled={isOrderedProduct}
+                                disabled={isOrderedProduct || mode === "update"}
                               />
                             </FormControl>
                             <FormMessage />
@@ -434,6 +438,7 @@ export const ReceptionsProductsForm = ({
                               <FormControl>
                                 <Input
                                   placeholder="Ingresa el motivo..."
+                                  disabled={mode === "update"}
                                   {...field}
                                   value={field.value || ""}
                                 />
@@ -471,6 +476,7 @@ export const ReceptionsProductsForm = ({
                                       })
                                     )}
                                     control={form.control}
+                                    disabled={mode === "update"}
                                   />
                                 </FormControl>
                                 <FormMessage />
@@ -489,6 +495,7 @@ export const ReceptionsProductsForm = ({
                                 <FormControl>
                                   <Input
                                     placeholder="Detalles adicionales..."
+                                    disabled={mode === "update"}
                                     {...field}
                                     value={field.value || ""}
                                   />
@@ -514,6 +521,7 @@ export const ReceptionsProductsForm = ({
                             <FormControl>
                               <Input
                                 placeholder="Comentarios sobre este producto..."
+                                disabled={mode === "update"}
                                 {...field}
                                 value={field.value || ""}
                               />
@@ -557,7 +565,11 @@ export const ReceptionsProductsForm = ({
 
           <Button
             type="submit"
-            disabled={isSubmitting || !form.formState.isValid}
+            disabled={
+              isSubmitting ||
+              (mode === "create" && !form.formState.isValid) ||
+              (mode === "update" && !form.formState.isDirty)
+            }
           >
             <Loader
               className={`mr-2 h-4 w-4 ${!isSubmitting ? "hidden" : ""}`}

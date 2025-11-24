@@ -36,12 +36,12 @@ export default function VehicleCategoryModal({
   const queryClient = useQueryClient();
   const { MODEL, EMPTY, QUERY_KEY } = VEHICLE_CATEGORY;
   const {
-    data: vehicleCategory,
+    data: vehicleCategoryData,
     isLoading: loadingVehicleCategory,
     refetch,
-  } = mode === "create"
-    ? { data: EMPTY, isLoading: false, refetch: () => {} }
-    : useVehicleCategoryById(id!);
+  } = useVehicleCategoryById(id);
+
+  const vehicleCategory = mode === "create" ? EMPTY : vehicleCategoryData;
 
   function mapVehicleCategoryToForm(
     data: VehicleCategoryResource

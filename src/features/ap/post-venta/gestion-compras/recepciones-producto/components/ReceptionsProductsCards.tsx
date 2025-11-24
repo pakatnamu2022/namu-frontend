@@ -19,6 +19,11 @@ import { Link } from "react-router-dom";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge";
+import {
+  translateStatus,
+  translateReceptionTypeStatus,
+  translateReasonObservation,
+} from "../lib/receptionsProducts.constants";
 
 interface Props {
   data: ReceptionResource[];
@@ -79,10 +84,10 @@ export default function ReceptionsProductsCards({
                   </h3>
                   {reception.status && (
                     <Badge
-                      variant="secondary"
+                      variant="default"
                       className={isSingleCard ? "text-xs" : "text-[10px]"}
                     >
-                      {reception.status}
+                      {translateStatus(reception.status)}
                     </Badge>
                   )}
                   {reception.reception_type && (
@@ -90,7 +95,7 @@ export default function ReceptionsProductsCards({
                       variant="outline"
                       className={isSingleCard ? "text-xs" : "text-[10px]"}
                     >
-                      {reception.reception_type}
+                      {translateReceptionTypeStatus(reception.reception_type)}
                     </Badge>
                   )}
                 </div>
@@ -105,11 +110,7 @@ export default function ReceptionsProductsCards({
               <div className="flex gap-2">
                 {permissions.canUpdate && routeUpdate && (
                   <Link to={`${routeUpdate}/${reception.id}`}>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      className={isSingleCard ? "size-9" : "size-8"}
-                    >
+                    <Button variant="outline" size="icon" className="size-7">
                       <Pencil className="size-4" />
                     </Button>
                   </Link>
@@ -375,20 +376,20 @@ export default function ReceptionsProductsCards({
               >
                 <div className="flex items-start gap-2">
                   <FileText
-                    className={`text-blue-600 shrink-0 ${
+                    className={`text-primary shrink-0 ${
                       isSingleCard ? "size-5" : "size-4"
                     }`}
                   />
                   <div>
                     <p
-                      className={`font-medium text-blue-900 ${
+                      className={`font-medium text-primary ${
                         isSingleCard ? "text-sm mb-1" : "text-xs mb-0.5"
                       }`}
                     >
                       Notas
                     </p>
                     <p
-                      className={`text-blue-700 ${
+                      className={`text-primary ${
                         isSingleCard ? "text-sm" : "text-xs"
                       }`}
                     >
@@ -504,7 +505,10 @@ export default function ReceptionsProductsCards({
                                 </p>
                                 {detail.reason_observation && (
                                   <p className="text-yellow-700 text-xs">
-                                    Razón: {detail.reason_observation}
+                                    Razón:{" "}
+                                    {translateReasonObservation(
+                                      detail.reason_observation
+                                    )}
                                   </p>
                                 )}
                                 {detail.observation_notes && (

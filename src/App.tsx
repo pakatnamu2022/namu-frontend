@@ -521,6 +521,24 @@ const TiposCategoriaPage = lazy(
 );
 
 // Gestión de Compras
+const ReasonsAdjustmentPage = lazy(
+  () => import("./app/ap/post-venta/gestion-de-compras/motivos-ajuste/page")
+);
+const ProductAdjustmentPage = lazy(
+  () => import("./app/ap/post-venta/gestion-de-compras/ajuste-producto/page")
+);
+const AddProductAdjustmentPage = lazy(
+  () =>
+    import(
+      "./app/ap/post-venta/gestion-de-compras/ajuste-producto/agregar/page"
+    )
+);
+const EditProductAdjustmentPage = lazy(
+  () =>
+    import(
+      "./app/ap/post-venta/gestion-de-compras/ajuste-producto/actualizar/[id]/page"
+    )
+);
 const PurchaseOrderProductsPage = lazy(
   () =>
     import("./app/ap/post-venta/gestion-de-compras/orden-compra-producto/page")
@@ -1283,6 +1301,22 @@ function App() {
               />
 
               {/* Gestion Compra */}
+              <Route
+                path="gestion-de-compras/motivos-ajuste"
+                element={<ReasonsAdjustmentPage />}
+              />
+              <Route
+                path="gestion-de-compras/ajuste-producto"
+                element={<ProductAdjustmentPage />}
+              />
+              <Route
+                path="gestion-de-compras/ajuste-producto/agregar"
+                element={<AddProductAdjustmentPage />}
+              />
+              <Route
+                path="gestion-de-compras/ajuste-producto/actualizar/:id"
+                element={<EditProductAdjustmentPage />}
+              />
               <Route
                 path="gestion-de-compras/orden-compra-producto"
                 element={<PurchaseOrderProductsPage />}

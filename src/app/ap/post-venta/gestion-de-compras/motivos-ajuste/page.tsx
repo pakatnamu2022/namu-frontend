@@ -15,33 +15,33 @@ import DataTablePagination from "@/shared/components/DataTablePagination";
 import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import { TYPES_CATEGORY } from "@/features/ap/post-venta/gestion-productos/tipos-categoria/lib/typesCategory.constants";
-import TypesCategoryActions from "@/features/ap/post-venta/gestion-productos/tipos-categoria/components/TypesCategoryActions";
-import TypesCategoryTable from "@/features/ap/post-venta/gestion-productos/tipos-categoria/components/TypesCategoryTable";
-import { typesCategoryColumns } from "@/features/ap/post-venta/gestion-productos/tipos-categoria/components/TypesCategoryColumns";
-import TypesCategoryOptions from "@/features/ap/post-venta/gestion-productos/tipos-categoria/components/TypesCategoryOptions";
-import TypesCategoryModal from "@/features/ap/post-venta/gestion-productos/tipos-categoria/components/TypesCategoryModal";
-import { useTypesCategory } from "@/features/ap/post-venta/gestion-productos/tipos-categoria/lib/typesCategory.hook";
 import { notFound } from "@/shared/hooks/useNotFound";
+import { REASONS_ADJUSTMENT } from "@/features/ap/post-venta/gestion-compras/motivos-ajuste/lib/reasonsAdjustment.constants";
+import { useReasonsAdjustment } from "@/features/ap/post-venta/gestion-compras/motivos-ajuste/lib/reasonsAdjustment.hook";
 import {
-  deleteTypesCategory,
-  updateTypesCategory,
-} from "@/features/ap/post-venta/gestion-productos/tipos-categoria/lib/typesCategory.actions";
+  deleteReasonsAdjustment,
+  updateReasonsAdjustment,
+} from "@/features/ap/post-venta/gestion-compras/motivos-ajuste/lib/reasonsAdjustment.actions";
+import { reasonsAdjustmentColumns } from "@/features/ap/post-venta/gestion-compras/motivos-ajuste/components/ReasonsAdjustmentColumns";
+import ReasonsAdjustmentTable from "@/features/ap/post-venta/gestion-compras/motivos-ajuste/components/ReasonsAdjustmentTable";
+import ReasonsAdjustmentActions from "@/features/ap/post-venta/gestion-compras/motivos-ajuste/components/ReasonsAdjustmentActions";
+import ReasonsAdjustmentOptions from "@/features/ap/post-venta/gestion-compras/motivos-ajuste/components/ReasonsAdjustmentOptions";
+import ReasonsAdjustmentModal from "@/features/ap/post-venta/gestion-compras/motivos-ajuste/components/ReasonsAdjustmentModel";
 
-export default function TypesCategoryPage() {
+export default function ReasonsAdjustmentPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [updateId, setUpdateId] = useState<number | null>(null);
-  const { MODEL, ROUTE } = TYPES_CATEGORY;
+  const { MODEL, ROUTE } = REASONS_ADJUSTMENT;
   const permissions = useModulePermissions(ROUTE);
 
   useEffect(() => {
     setPage(1);
   }, [search, per_page]);
-  const { data, isLoading, refetch } = useTypesCategory({
+  const { data, isLoading, refetch } = useReasonsAdjustment({
     page,
     search,
     per_page,
@@ -49,7 +49,7 @@ export default function TypesCategoryPage() {
 
   const handleToggleStatus = async (id: number, newStatus: boolean) => {
     try {
-      await updateTypesCategory(id, { status: newStatus });
+      await updateReasonsAdjustment(id, { status: newStatus });
       await refetch();
       successToast("Estado actualizado correctamente.");
     } catch {
@@ -60,7 +60,7 @@ export default function TypesCategoryPage() {
   const handleDelete = async () => {
     if (!deleteId) return;
     try {
-      await deleteTypesCategory(deleteId);
+      await deleteReasonsAdjustment(deleteId);
       await refetch();
       successToast(SUCCESS_MESSAGE(MODEL, "delete"));
     } catch (error: any) {
@@ -80,14 +80,14 @@ export default function TypesCategoryPage() {
       <HeaderTableWrapper>
         <TitleComponent
           title={currentView.descripcion}
-          subtitle={"Tipos de Motor de Vehículos"}
+          subtitle={"Motivos de Ajuste"}
           icon={currentView.icon}
         />
-        <TypesCategoryActions permissions={permissions} />
+        <ReasonsAdjustmentActions permissions={permissions} />
       </HeaderTableWrapper>
-      <TypesCategoryTable
+      <ReasonsAdjustmentTable
         isLoading={isLoading}
-        columns={typesCategoryColumns({
+        columns={reasonsAdjustmentColumns({
           onToggleStatus: handleToggleStatus,
           onDelete: setDeleteId,
           onUpdate: setUpdateId,
@@ -95,8 +95,8 @@ export default function TypesCategoryPage() {
         })}
         data={data?.data || []}
       >
-        <TypesCategoryOptions search={search} setSearch={setSearch} />
-      </TypesCategoryTable>
+        <ReasonsAdjustmentOptions search={search} setSearch={setSearch} />
+      </ReasonsAdjustmentTable>
 
       {deleteId !== null && (
         <SimpleDeleteDialog
@@ -107,9 +107,9 @@ export default function TypesCategoryPage() {
       )}
 
       {updateId !== null && (
-        <TypesCategoryModal
+        <ReasonsAdjustmentModal
           id={updateId}
-          title={"Actualizar Tipo de Motor"}
+          title={"Actualizar Motivo"}
           open={true}
           onClose={() => {
             setUpdateId(null);
