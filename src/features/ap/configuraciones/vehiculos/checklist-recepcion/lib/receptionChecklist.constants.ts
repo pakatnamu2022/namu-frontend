@@ -16,7 +16,7 @@ export const ITEM_RECEPTION: ModelComplete<ReceptionChecklistResource> = {
   ROUTE,
   ABSOLUTE_ROUTE,
   ROUTE_ADD: `${ABSOLUTE_ROUTE}/agregar`,
-  ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/editar`,
+  ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/actualizar`,
   EMPTY: {
     id: 0,
     description: "",

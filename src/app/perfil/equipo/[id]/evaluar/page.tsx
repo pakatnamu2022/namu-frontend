@@ -35,6 +35,7 @@ import {
 import { EVALUATION_PERSON } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/lib/evaluationPerson.constans";
 import { useActivePerformanceEvaluation } from "@/features/gp/gestionhumana/evaluaciondesempeño/dashboard/lib/performance-evaluation.hook";
 import {
+  getEvaluationPersonResultByPersonAndEvaluation,
   updateEvaluationPerson,
   updateEvaluationPersonCompetence,
 } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/lib/evaluationPerson.actions";
@@ -44,6 +45,7 @@ import EvaluationPersonCompetenceTableWithColumns from "@/features/gp/gestionhum
 import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { EVALUATION_OBJECTIVE } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluaciones/lib/evaluation.constans";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useAuthStore } from "@/features/auth/lib/auth.store";
 
 const { QUERY_KEY, MODEL } = EVALUATION_PERSON;
 
@@ -51,6 +53,7 @@ export default function EvaluarPage() {
   const { id } = useParams();
   const router = useNavigate();
   const [searchParams] = useSearchParams();
+  const { user } = useAuthStore();
 
   const personId = Number(id);
   const [saving, setSaving] = useState(false);
@@ -67,13 +70,9 @@ export default function EvaluarPage() {
   } = useQuery({
     queryKey: [QUERY_KEY, personId, activeEvaluation?.id],
     queryFn: () =>
-      import(
-        "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/lib/evaluationPerson.actions"
-      ).then((m) =>
-        m.getEvaluationPersonResultByPersonAndEvaluation(
-          personId,
-          activeEvaluation?.id
-        )
+      getEvaluationPersonResultByPersonAndEvaluation(
+        personId,
+        activeEvaluation?.id
       ),
     enabled: !!activeEvaluation?.id && !!personId,
     refetchOnWindowFocus: false,
@@ -381,7 +380,9 @@ export default function EvaluarPage() {
                         details={evaluationPersonResult?.details}
                         onUpdateCell={handleUpdateResultCell}
                         onCommentCell={handleCommentSubmit}
-                        readOnly={false}
+                        readOnly={
+                          evaluationPersonResult.details[0].chief_id !== user.partner_id
+                        }
                       />
                     </>
                   )}

@@ -293,12 +293,30 @@ export function ElectronicDocumentForm({
           ? Math.max(pendingBalance - 1, 0) // Máximo disponible para anticipo
           : quotationPrice; // Para venta total, siempre usar precio completo
         const cantidad = 1;
+
+        // Calcular descuentos negativos totales (con IGV)
+        const negativeDiscounts = quotation.bonus_discounts?.reduce((total, discount) => {
+          if (discount.is_negative) {
+            const valor = discount.type === "PORCENTAJE"
+              ? (parseFloat(quotation.base_selling_price) * parseFloat(discount.percentage)) / 100
+              : parseFloat(discount.amount);
+            return total + valor;
+          }
+          return total;
+        }, 0) || 0;
+
         // Según SUNAT:
-        // precio_unitario = precio CON IGV (sin descuento)
-        // valor_unitario = precio SIN IGV (sin descuento)
+        // precio_unitario = precio CON IGV (sin descuento aplicado, es el precio base del vehículo)
+        // valor_unitario = precio SIN IGV (sin descuento aplicado)
+        // descuento = descuento SIN IGV
         const precio_unitario = effectivePrice / cantidad; // Precio CON IGV
         const valor_unitario = precio_unitario / (1 + porcentaje_de_igv / 100); // Precio SIN IGV
-        const subtotal = valor_unitario * cantidad; // Base imponible
+
+        // Calcular descuento sin IGV
+        const descuento_sin_igv = negativeDiscounts / (1 + porcentaje_de_igv / 100);
+
+        // Subtotal = valor_unitario - descuento
+        const subtotal = (valor_unitario * cantidad) - descuento_sin_igv; // Base imponible
         const igvAmount = subtotal * (porcentaje_de_igv / 100);
 
         // Construir descripción base del vehículo
@@ -342,6 +360,7 @@ MODELO: ${vehicle?.model?.version || ``}
           cantidad: 1,
           valor_unitario: valor_unitario,
           precio_unitario: precio_unitario,
+          descuento: descuento_sin_igv > 0 ? descuento_sin_igv : undefined,
           subtotal: subtotal,
           sunat_concept_igv_type_id:
             igvTypes.find(

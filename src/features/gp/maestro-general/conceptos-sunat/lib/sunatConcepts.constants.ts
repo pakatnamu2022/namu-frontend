@@ -16,7 +16,7 @@ export const SUNAT_CONCEPTS: ModelComplete<SunatConceptsResource> = {
   ROUTE,
   ABSOLUTE_ROUTE,
   ROUTE_ADD: `${ABSOLUTE_ROUTE}/agregar`,
-  ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/editar`,
+  ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/actualizar`,
 };
 
 export const SUNAT_CONCEPTS_TYPE = {

@@ -409,6 +409,9 @@ export const electronicDocumentColumns = ({
                   size="icon"
                   className="size-7"
                   tooltip="Anular en Nubefact"
+                  onClick={() => {
+                    
+                  }}
                 >
                   <Ban className="h-4 w-4 text-orange-600" />
                 </Button>

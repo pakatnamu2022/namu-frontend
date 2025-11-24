@@ -5,6 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Check, ShieldQuestion, History, Edit } from "lucide-react";
 import { EvaluationPersonResultResource } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/lib/evaluationPerson.interface";
 import { Badge } from "@/components/ui/badge";
+import { getMyEvaluatorTypes } from "../lib/teamHelpers";
+import { getEvaluatorTypeById } from "../lib/teamConstants";
+import { useAuthStore } from "@/features/auth/lib/auth.store";
 
 export type TeamColumns = ColumnDef<EvaluationPersonResultResource>;
 
@@ -31,6 +34,41 @@ export const teamColumns = ({
     accessorKey: "position",
     accessorFn: (row) => row.person.position,
     header: "Posición",
+  },
+  {
+    id: "my_roles",
+    header: "Mi Rol",
+    cell: ({ row }) => {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      const { user } = useAuthStore();
+      const myTypes = getMyEvaluatorTypes(row.original, user?.partner_id);
+
+      if (myTypes.length === 0) {
+        return <span className="text-muted-foreground text-xs">-</span>;
+      }
+
+      return (
+        <div className="flex flex-wrap gap-1">
+          {myTypes.map((typeId) => {
+            const typeConfig = getEvaluatorTypeById(typeId);
+            if (!typeConfig) return null;
+
+            const Icon = typeConfig.icon;
+
+            return (
+              <Badge
+                key={typeId}
+                variant={typeConfig.color}
+                className="text-xs gap-1"
+              >
+                <Icon className="h-3 w-3" />
+                {typeConfig.shortName}
+              </Badge>
+            );
+          })}
+        </div>
+      );
+    },
   },
   {
     accessorKey: "sede",

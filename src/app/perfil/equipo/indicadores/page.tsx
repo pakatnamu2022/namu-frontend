@@ -23,14 +23,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Cell,
-  Rectangle,
-  XAxis,
-} from "recharts";
+import { Bar, BarChart, CartesianGrid, Cell, Rectangle, XAxis } from "recharts";
 import {
   CardDescription,
   CardFooter,
@@ -65,6 +58,7 @@ import {
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useNavigate } from "react-router-dom";
 
 const SCALE_COLORS: Record<string, string> = {
   Excelente: "hsl(142, 71%, 45%)",
@@ -75,6 +69,7 @@ const SCALE_COLORS: Record<string, string> = {
 };
 
 export default function TeamIndicatorsPage() {
+  const router = useNavigate();
   const [selectedEvaluationId, setSelectedEvaluationId] = useState<
     number | null
   >(null);
@@ -100,14 +95,17 @@ export default function TeamIndicatorsPage() {
 
   if (!data) {
     return (
-      <div className="min-h-screen bg-background xl:p-6 flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold mb-2">
+      <div className="h-full bg-background xl:p-6 flex items-center justify-center w-full border-2 border-dashed rounded-lg">
+        <div className="text-center w-full">
+          <h2 className="text-2xl font-bold mb-2 w-full">
             No se encontraron datos del equipo
           </h2>
           <p className="text-muted-foreground">
             No hay información disponible para mostrar.
           </p>
+          <Button variant="outline" className="mt-4" onClick={() => router("/perfil/equipo")}>
+            Regresar
+          </Button>
         </div>
       </div>
     );
@@ -191,7 +189,7 @@ function EvaluationSelector({
   );
 
   return (
-    <div className="flex-shrink-0">
+    <div className="shrink-0">
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button

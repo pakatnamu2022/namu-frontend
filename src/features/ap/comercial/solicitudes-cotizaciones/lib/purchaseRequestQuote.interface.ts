@@ -15,6 +15,7 @@ export interface BonusDiscountResource {
   amount: string;
   concept_code_id: number;
   concept_code: string;
+  is_negative?: boolean;
 }
 
 export interface AccessoryResource {

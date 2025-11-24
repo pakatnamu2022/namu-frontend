@@ -1,12 +1,10 @@
 "use client";
 
 import TitleComponent from "@/shared/components/TitleComponent";
-import DataTablePagination from "@/shared/components/DataTablePagination";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import PageSkeleton from "@/shared/components/PageSkeleton";
-import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
-import { useTeamByChief } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/lib/evaluationPerson.hook";
+import { useEvaluationsByPersonToEvaluate } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/lib/evaluationPerson.hook";
 import { useAuthStore } from "@/features/auth/lib/auth.store";
 import TeamTable from "@/features/profile/team/components/TeamTable";
 import MetricOptions from "@/features/profile/team/components/TeamOptions";
@@ -17,6 +15,10 @@ import { useQueryClient } from "@tanstack/react-query";
 import TeamActions from "@/features/profile/team/components/TeamActions";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { useNavigate } from "react-router-dom";
+import {
+  filterByEvaluatorType,
+  getUserEvaluatorTypeCounts,
+} from "@/features/profile/team/lib/teamHelpers";
 
 export default function TeamPage() {
   const { user } = useAuthStore();
@@ -24,33 +26,44 @@ export default function TeamPage() {
 
   const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
-  const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
+  const [evaluatorTypeFilter, setEvaluatorTypeFilter] = useState<number | null>(
+    null
+  );
   const [selectedWorker, setSelectedWorker] = useState<WorkerResource | null>(
     null
   );
   const [openDetailModal, setOpenDetailModal] = useState(false);
 
-  const { data, isLoading } = useTeamByChief(
+  const { data, isLoading } = useEvaluationsByPersonToEvaluate(
     user?.partner_id,
     !!user?.partner_id,
     {
       page,
       search,
-      per_page,
     }
   );
 
+  // Filtrar datos por tipo de evaluador
+  const filteredData = useMemo(() => {
+    return filterByEvaluatorType(
+      data || [],
+      evaluatorTypeFilter,
+      user?.partner_id
+    );
+  }, [data, evaluatorTypeFilter, user?.partner_id]);
+  // Calcular contadores por tipo de evaluador
+  const evaluatorTypeCounts = useMemo(() => {
+    return getUserEvaluatorTypeCounts(data || [], user?.partner_id);
+  }, [data, user?.partner_id]);
   useEffect(() => {
     setPage(1);
-  }, [search, per_page]);
+  }, [search, evaluatorTypeFilter]);
 
   const getCurrentParams = () => {
     const params = new URLSearchParams();
     if (page !== 1) params.set("page", page.toString());
     if (search) params.set("search", search);
-    if (per_page !== DEFAULT_PER_PAGE)
-      params.set("per_page", per_page.toString());
     return params.toString();
   };
 
@@ -92,9 +105,15 @@ export default function TeamPage() {
           onEvaluate: handleOnEvaluate,
           onHistory: handleOnHistory,
         })}
-        data={data?.data || []}
+        data={filteredData}
       >
-        <MetricOptions search={search} setSearch={setSearch} />
+        <MetricOptions
+          search={search}
+          setSearch={setSearch}
+          evaluatorTypeFilter={evaluatorTypeFilter}
+          setEvaluatorTypeFilter={setEvaluatorTypeFilter}
+          counts={evaluatorTypeCounts}
+        />
       </TeamTable>
 
       {selectedWorker && openDetailModal && (
@@ -111,15 +130,6 @@ export default function TeamPage() {
           evaluation_id={Number(1)}
         />
       )}
-
-      <DataTablePagination
-        page={page}
-        totalPages={data?.meta?.last_page || 1}
-        onPageChange={setPage}
-        per_page={per_page}
-        setPerPage={setPerPage}
-        totalData={data?.meta?.total || 0}
-      />
     </div>
   );
 }

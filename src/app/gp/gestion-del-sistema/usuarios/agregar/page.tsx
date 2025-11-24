@@ -15,9 +15,8 @@ import { notFound } from "@/shared/hooks/useNotFound";
 import { VIEW } from "@/features/gp/gestionsistema/vistas/lib/view.constants";
 
 export default function AddViewPage() {
-  const { ABSOLUTE_ROUTE } = VIEW;
   const router = useNavigate();
-
+  const { ABSOLUTE_ROUTE } = VIEW;
   const { data: views, isLoading: loadingViews } = useAllViews();
   const { data: companies, isLoading: loadingCompanies } = useAllCompanies();
   const { currentView, checkRouteExists } = useCurrentModule();

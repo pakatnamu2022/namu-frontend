@@ -20,7 +20,6 @@ export default function AddCyclePage() {
   const { ABSOLUTE_ROUTE } = CYCLE;
   const router = useNavigate();
   const { currentView, checkRouteExists } = useCurrentModule();
-
   const { mutate, isPending } = useMutation({
     mutationFn: storeCycle,
     onSuccess: () => {
