@@ -313,7 +313,10 @@ export function ElectronicDocumentForm({
         // precio_unitario = precio CON IGV (sin descuento aplicado, es el precio base del vehículo)
         // valor_unitario = precio SIN IGV (sin descuento aplicado)
         // descuento = descuento SIN IGV
-        const precio_unitario = effectivePrice / cantidad; // Precio CON IGV
+        // IMPORTANTE: El sale_price ya tiene el descuento aplicado, entonces:
+        // precio_base_con_igv = sale_price + descuento
+        const precio_base_con_igv = effectivePrice + negativeDiscounts;
+        const precio_unitario = precio_base_con_igv / cantidad; // Precio CON IGV antes de descuento
         const valor_unitario = precio_unitario / (1 + porcentaje_de_igv / 100); // Precio SIN IGV
 
         // Calcular descuento sin IGV
