@@ -295,33 +295,39 @@ export function ElectronicDocumentForm({
         const cantidad = 1;
 
         // Calcular descuentos negativos totales (con IGV)
-        const negativeDiscounts =
-          quotation.bonus_discounts?.reduce((total, discount) => {
-            if (discount.is_negative) {
-              const valor =
-                discount.type === "PORCENTAJE"
-                  ? (parseFloat(quotation.base_selling_price) *
-                      parseFloat(discount.percentage)) /
-                    100
-                  : parseFloat(discount.amount);
-              return total + valor;
-            }
-            return total;
-          }, 0) || 0;
+        // SOLO aplicar descuento si NO es anticipo
+        const negativeDiscounts = !isAdvancePayment
+          ? quotation.bonus_discounts?.reduce((total, discount) => {
+              if (discount.is_negative) {
+                const valor =
+                  discount.type === "PORCENTAJE"
+                    ? (parseFloat(quotation.base_selling_price) *
+                        parseFloat(discount.percentage)) /
+                      100
+                    : parseFloat(discount.amount);
+                return total + valor;
+              }
+              return total;
+            }, 0) || 0
+          : 0;
 
         // Según SUNAT:
         // precio_unitario = precio CON IGV (sin descuento aplicado, es el precio base del vehículo)
         // valor_unitario = precio SIN IGV (sin descuento aplicado)
         // descuento = descuento SIN IGV
-        // IMPORTANTE: El sale_price ya tiene el descuento aplicado, entonces:
-        // precio_base_con_igv = sale_price + descuento
-        const precio_base_con_igv = effectivePrice + negativeDiscounts;
-        const precio_unitario = precio_base_con_igv / cantidad; // Precio CON IGV antes de descuento
-        const valor_unitario = precio_unitario / (1 + porcentaje_de_igv / 100); // Precio SIN IGV
+        // IMPORTANTE:
+        // - Si es ANTICIPO: usar directamente effectivePrice (ya tiene descuento aplicado, no mostrar descuento)
+        // - Si es VENTA TOTAL: reconstruir precio base sumando descuento para mostrar el descuento en el item
+        const precio_base_con_igv = !isAdvancePayment
+          ? effectivePrice + negativeDiscounts // Venta total: reconstruir precio base
+          : effectivePrice; // Anticipo: usar precio con descuento ya aplicado
+        const precio_unitario = precio_base_con_igv / cantidad;
+        const valor_unitario = precio_unitario / (1 + porcentaje_de_igv / 100);
 
-        // Calcular descuento sin IGV
-        const descuento_sin_igv =
-          negativeDiscounts / (1 + porcentaje_de_igv / 100);
+        // Calcular descuento sin IGV (solo para venta total)
+        const descuento_sin_igv = !isAdvancePayment
+          ? negativeDiscounts / (1 + porcentaje_de_igv / 100)
+          : 0;
 
         // Subtotal = valor_unitario - descuento
         const subtotal = valor_unitario * cantidad - descuento_sin_igv; // Base imponible
