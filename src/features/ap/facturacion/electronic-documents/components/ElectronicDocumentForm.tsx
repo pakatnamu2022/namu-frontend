@@ -286,24 +286,28 @@ export function ElectronicDocumentForm({
         //   Item vehículo: $22,000
         //   Items anticipos: -$10,000, -$5,000
         //   Total neto = $22,000 - $10,000 - $5,000 = $7,000
-        // - Para ANTICIPO: usar el máximo disponible (pendingBalance - 1)
+        // - Para ANTICIPO: usar el máximo disponible (pendingBalance)
         //   Deja $1 reservado para la factura final
         //   El usuario puede modificar el monto si desea anticipar menos
         const effectivePrice = isAdvancePayment
-          ? Math.max(pendingBalance - 1, 0) // Máximo disponible para anticipo
+          ? Math.max(pendingBalance, 0) // Máximo disponible para anticipo
           : quotationPrice; // Para venta total, siempre usar precio completo
         const cantidad = 1;
 
         // Calcular descuentos negativos totales (con IGV)
-        const negativeDiscounts = quotation.bonus_discounts?.reduce((total, discount) => {
-          if (discount.is_negative) {
-            const valor = discount.type === "PORCENTAJE"
-              ? (parseFloat(quotation.base_selling_price) * parseFloat(discount.percentage)) / 100
-              : parseFloat(discount.amount);
-            return total + valor;
-          }
-          return total;
-        }, 0) || 0;
+        const negativeDiscounts =
+          quotation.bonus_discounts?.reduce((total, discount) => {
+            if (discount.is_negative) {
+              const valor =
+                discount.type === "PORCENTAJE"
+                  ? (parseFloat(quotation.base_selling_price) *
+                      parseFloat(discount.percentage)) /
+                    100
+                  : parseFloat(discount.amount);
+              return total + valor;
+            }
+            return total;
+          }, 0) || 0;
 
         // Según SUNAT:
         // precio_unitario = precio CON IGV (sin descuento aplicado, es el precio base del vehículo)
@@ -313,10 +317,11 @@ export function ElectronicDocumentForm({
         const valor_unitario = precio_unitario / (1 + porcentaje_de_igv / 100); // Precio SIN IGV
 
         // Calcular descuento sin IGV
-        const descuento_sin_igv = negativeDiscounts / (1 + porcentaje_de_igv / 100);
+        const descuento_sin_igv =
+          negativeDiscounts / (1 + porcentaje_de_igv / 100);
 
         // Subtotal = valor_unitario - descuento
-        const subtotal = (valor_unitario * cantidad) - descuento_sin_igv; // Base imponible
+        const subtotal = valor_unitario * cantidad - descuento_sin_igv; // Base imponible
         const igvAmount = subtotal * (porcentaje_de_igv / 100);
 
         // Construir descripción base del vehículo
@@ -656,7 +661,7 @@ MODELO: ${vehicle?.model?.version || ``}
               isAdvancePayment={isAdvancePayment}
               maxAdvanceAmount={
                 selectedQuotationId && isAdvancePayment
-                  ? Math.max(pendingBalance - 1, 0)
+                  ? Math.max(pendingBalance, 0)
                   : undefined
               }
               isFromQuotation={!!selectedQuotationId}

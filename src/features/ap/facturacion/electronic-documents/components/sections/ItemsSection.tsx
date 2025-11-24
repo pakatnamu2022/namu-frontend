@@ -275,7 +275,7 @@ export function ItemsSection({
                 {maxAdvanceAmount &&
                   ` Máximo permitido: ${currencySymbol} ${maxAdvanceAmount.toFixed(
                     2
-                  )} (se reserva ${currencySymbol}1.00 para factura final)`}
+                  )}`}
               </AlertDescription>
             </Alert>
           )}
