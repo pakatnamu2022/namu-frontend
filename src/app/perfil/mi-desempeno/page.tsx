@@ -27,13 +27,7 @@ import {
   successToast,
 } from "@/core/core.function";
 import { Badge } from "@/components/ui/badge";
-import {
-  TrendingUp,
-  Target,
-  Calendar,
-  RefreshCw,
-  FileText,
-} from "lucide-react";
+import { TrendingUp, Target, Calendar, RefreshCw } from "lucide-react";
 import { EVALUATION_PERSON } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/lib/evaluationPerson.constans";
 import { useEvaluationPersonByPersonAndEvaluation } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/lib/evaluationPerson.hook";
 import { useAllEvaluations } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluaciones/lib/evaluation.hook";
@@ -46,11 +40,10 @@ import EvaluationPersonObjectiveTable from "@/features/gp/gestionhumana/evaluaci
 import EvaluationPersonCompetenceTableWithColumns from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/components/EvaluationPersonCompetenceTable";
 import { useAuthStore } from "@/features/auth/lib/auth.store";
 import { useQueryClient } from "@tanstack/react-query";
-import DevelopmentPlanSheet from "@/app/gp/gestion-humana/evaluaciones-de-desempeno/detalle-plan-desarrollo/components/DevelopmentPlanSheet";
 
 const { QUERY_KEY, MODEL } = EVALUATION_PERSON;
 
-export default function NamuPerformancePage() {
+export default function MyPerformance() {
   const queryClient = useQueryClient();
   const { user } = useAuthStore();
 
@@ -58,7 +51,6 @@ export default function NamuPerformancePage() {
     number | undefined
   >();
   const [saving, setSaving] = useState(false);
-  const [showDevelopmentPlan, setShowDevelopmentPlan] = useState(false);
 
   const {
     data: evaluationPersonResult,
@@ -166,7 +158,15 @@ export default function NamuPerformancePage() {
 
   const quickStats = getQuickStats();
 
-  if (!user || !user.name) return <FormSkeleton />;
+  if (
+    !user ||
+    !user.name ||
+    !selectedEvaluationId ||
+    isLoadingEvaluationPerson ||
+    isLoadingEvaluations ||
+    !evaluationPersonResult
+  )
+    return <FormSkeleton />;
 
   return (
     <div className="w-full">
@@ -249,17 +249,6 @@ export default function NamuPerformancePage() {
                   </div>
                 )}
                 <div className="flex flex-col sm:flex-row gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setShowDevelopmentPlan(true)}
-                    disabled={!evaluationPersonResult}
-                    className="gap-2 w-full sm:w-auto"
-                  >
-                    <FileText className="size-4" />
-                    <span className="hidden sm:inline">Plan de Desarrollo</span>
-                    <span className="sm:hidden">Plan</span>
-                  </Button>
                   <Button
                     variant="outline"
                     size="sm"
@@ -435,17 +424,6 @@ export default function NamuPerformancePage() {
           </div>
         </CardContent>
       </Card>
-
-      {/* Sheet para ver/editar plan de desarrollo */}
-      {evaluationPersonResult && (
-        <DevelopmentPlanSheet
-          open={showDevelopmentPlan}
-          onClose={() => setShowDevelopmentPlan(false)}
-          evaluationId={evaluationPersonResult.evaluation.id}
-          workerId={user.partner_id}
-          bossId={0}
-        />
-      )}
     </div>
   );
 }

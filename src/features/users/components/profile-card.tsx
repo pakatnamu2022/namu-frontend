@@ -51,7 +51,7 @@ export function ProfileCard({ variant = "sidebar" }: ProfileCardProps) {
     },
     {
       label: "Mi desempeño",
-      route: "namu-performance",
+      route: "mi-desempeno",
       icon: ClipboardList,
       stats: () => (
         <Badge className="bg-primary text-white animate-pulse">Nuevo</Badge>

@@ -18,6 +18,7 @@ export const useEvaluationPersonByPersonAndEvaluation = (
     queryFn: () =>
       getEvaluationPersonResultByPersonAndEvaluation(person_id, evaluation_id),
     refetchOnWindowFocus: false,
+    enabled: !!person_id && !!evaluation_id,
   });
 };
 
