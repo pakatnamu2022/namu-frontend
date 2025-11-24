@@ -201,6 +201,11 @@ export const PurchaseRequestQuoteForm = ({
   const originalPrice = selectedModel?.sale_price || 0;
   const currencySymbol = selectedModel?.currency_symbol || "S/";
 
+  console.log("vehicleVnSelected", vehicleVnSelected);
+  console.log("selectedModel", selectedModel);
+  console.log("originalPrice", originalPrice);
+  console.log("currencySymbol", currencySymbol);
+
   // Effect para limpiar campos cuando se cambia el switch (solo si no es carga inicial)
   useEffect(() => {
     if (!isInitialLoad) {
