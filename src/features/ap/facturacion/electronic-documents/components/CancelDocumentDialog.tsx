@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Ban } from "lucide-react";
+import { Ban, Loader2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -12,19 +12,49 @@ import {
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { toast } from "sonner";
 
 interface AnnulDocumentDialogProps {
   onConfirm: (reason: string) => void;
   trigger: React.ReactNode;
+  onPreCancel?: () => Promise<void>;
 }
 
 export function AnnulDocumentDialog({
   onConfirm,
   trigger,
+  onPreCancel,
 }: AnnulDocumentDialogProps) {
   const [open, setOpen] = useState(false);
   const [reason, setReason] = useState("");
   const [error, setError] = useState("");
+  const [isValidating, setIsValidating] = useState(false);
+
+  const handleTriggerClick = async () => {
+    if (onPreCancel) {
+      setIsValidating(true);
+      try {
+        await onPreCancel();
+        setOpen(true);
+      } catch (error: any) {
+        toast.error(
+          error.response?.data?.message || error.message || "Documento no encontrado en Dynamics"
+        );
+      } finally {
+        setIsValidating(false);
+      }
+    } else {
+      setOpen(true);
+    }
+  };
+
+  const handleOpenChange = (newOpen: boolean) => {
+    setOpen(newOpen);
+    if (!newOpen) {
+      setReason("");
+      setError("");
+    }
+  };
 
   const handleConfirm = () => {
     // Validar que la razón tenga entre 10 y 250 caracteres
@@ -57,9 +87,23 @@ export function AnnulDocumentDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>{trigger}</DialogTrigger>
-      <DialogContent className="sm:max-w-[500px]">
+    <>
+      {isValidating ? (
+        <Button
+          variant="outline"
+          size="icon"
+          className="size-7"
+          disabled
+        >
+          <Loader2 className="h-4 w-4 animate-spin" />
+        </Button>
+      ) : (
+        <div onClick={handleTriggerClick}>
+          {trigger}
+        </div>
+      )}
+      <Dialog open={open} onOpenChange={handleOpenChange}>
+        <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Ban className="h-5 w-5 text-orange-600" />
@@ -112,5 +156,6 @@ export function AnnulDocumentDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
+    </>
   );
 }
