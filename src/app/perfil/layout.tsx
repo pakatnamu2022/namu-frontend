@@ -25,8 +25,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       <SidebarLeft />
       <SidebarInset className="bg-linear-to-br from-slate-50 to-blue-50/30">
         <Header />
-        <div className="p-3 flex gap-8 w-full h-[calc(100vh-3.5rem)] overflow-auto">
-          {children}
+        <div className="flex gap-8 w-full h-[calc(100vh-3.5rem)] overflow-auto">
+          <div className="p-3 w-full">
+            {children}
+          </div>
         </div>
       </SidebarInset>
     </SidebarProvider>
