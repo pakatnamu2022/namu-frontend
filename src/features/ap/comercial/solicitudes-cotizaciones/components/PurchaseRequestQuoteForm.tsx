@@ -189,12 +189,22 @@ export const PurchaseRequestQuoteForm = ({
     }
   }, [mode]);
 
+  // Obtener el vehiculo seleccionado
+  const vehicleVnSelected = vehiclesVn.find(
+    (vehicle) => vehicle.id === Number(vehicleVnWatch)
+  );
+
   // Obtener el modelo seleccionado y su precio original
   const selectedModel = modelsVn.find(
-    (model) => model.id === Number(modelVnWatch)
+    (model) => model.id === vehicleVnSelected?.ap_models_vn_id
   );
   const originalPrice = selectedModel?.sale_price || 0;
   const currencySymbol = selectedModel?.currency_symbol || "S/";
+
+  console.log("vehicleVnSelected", vehicleVnSelected);
+  console.log("selectedModel", selectedModel);
+  console.log("originalPrice", originalPrice);
+  console.log("currencySymbol", currencySymbol);
 
   // Effect para limpiar campos cuando se cambia el switch (solo si no es carga inicial)
   useEffect(() => {
@@ -395,8 +405,10 @@ export const PurchaseRequestQuoteForm = ({
     // Calcular bonos/descuentos (ya están en la moneda del vehículo)
     // Los bonos/descuentos con isNegative SÍ afectan el precio final (se restan)
     const bonusDiscountTotal = bonusDiscountRows.reduce((total, row) => {
-      const valor = row.isPercentage ? (salePrice * row.valor) / 100 : row.valor;
-      return row.isNegative ? total - valor : total + valor;
+      const valor = row.isPercentage
+        ? (salePrice * row.valor) / 100
+        : row.valor;
+      return row.isNegative ? 0 : total + valor;
     }, 0);
 
     // Calcular accesorios (siempre en soles, necesitan conversión)
@@ -424,7 +436,9 @@ export const PurchaseRequestQuoteForm = ({
     // Calcular descuentos negativos (los que sí afectan el precio final)
     const negativeDiscounts = bonusDiscountRows.reduce((total, row) => {
       if (row.isNegative) {
-        const valor = row.isPercentage ? (salePrice * row.valor) / 100 : row.valor;
+        const valor = row.isPercentage
+          ? (salePrice * row.valor) / 100
+          : row.valor;
         return total + valor;
       }
       return total;
@@ -494,7 +508,7 @@ export const PurchaseRequestQuoteForm = ({
       accessories: accessoriesData,
       type_currency_id: vehicleCurrency.currencyId,
       base_selling_price: totals.salePrice,
-      sale_price: totals.subtotal,
+      sale_price: totals.salePrice,
       doc_sale_price: finalTotal,
     };
 
@@ -694,6 +708,7 @@ export const PurchaseRequestQuoteForm = ({
               </FormItem>
             )}
           />
+
           <FormField
             control={form.control}
             name="warranty"
