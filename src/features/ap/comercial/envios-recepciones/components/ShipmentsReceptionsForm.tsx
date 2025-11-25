@@ -190,6 +190,7 @@ export const ShipmentsReceptionsForm = ({
   const { data: articleClass = [], isLoading: isLoadingArticleClass } =
     useAllClassArticle({
       type: "VEHICULO",
+      type_operation_id: CM_COMERCIAL_ID,
     });
 
   const { data: mySedes = [], isLoading: isLoadingMySedes } =
