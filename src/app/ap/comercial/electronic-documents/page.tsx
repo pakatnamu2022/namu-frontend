@@ -11,6 +11,7 @@ import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import {
   sendElectronicDocumentToSunat,
   cancelElectronicDocument,
+  preCancelElectronicDocument,
 } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.actions";
 import ElectronicDocumentTable from "@/features/ap/facturacion/electronic-documents/components/ElectronicDocumentTable";
 import { electronicDocumentColumns } from "@/features/ap/facturacion/electronic-documents/components/ElectronicDocumentColumns";
@@ -104,6 +105,17 @@ export default function ElectronicDocumentsPage() {
     cancelDocumentMutation.mutate({ id, reason });
   };
 
+  const handlePreCancel = async (id: number) => {
+    try {
+      const result = await preCancelElectronicDocument(id);
+      if (!result.annulled) {
+        throw new Error("El documento no está anulado en Dynamics. No se puede anular en Nubefact.");
+      }
+    } catch (error: any) {
+      throw error;
+    }
+  };
+
   const handleRefresh = () => {
     queryClient.invalidateQueries({ queryKey: ["electronic-documents"] });
     refetch();
@@ -130,12 +142,17 @@ export default function ElectronicDocumentsPage() {
         />
       </HeaderTableWrapper>
 
+      {/* <pre>
+        <code>{JSON.stringify(permissions, null, 2)}</code>
+      </pre> */}
+
       <ElectronicDocumentTable
         isLoading={isLoading}
         columns={electronicDocumentColumns({
           onView: handleView,
           onSendToSunat: handleSendToSunat,
           onAnnul: handleCancel,
+          onPreCancel: handlePreCancel,
           permissions: {
             canUpdate,
             canAnnul,

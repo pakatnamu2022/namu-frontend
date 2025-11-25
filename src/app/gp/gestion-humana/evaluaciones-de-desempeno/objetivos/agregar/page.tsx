@@ -13,10 +13,9 @@ import { notFound } from "@/shared/hooks/useNotFound";
 import { OBJECTIVE } from "@/features/gp/gestionhumana/evaluaciondesempeño/objetivos/lib/objective.constants";
 
 export default function AddObjectivePage() {
-  const { ABSOLUTE_ROUTE } = OBJECTIVE;
   const router = useNavigate();
   const { currentView, checkRouteExists } = useCurrentModule();
-
+  const { ABSOLUTE_ROUTE } = OBJECTIVE;
   const { mutate, isPending } = useMutation({
     mutationFn: storeObjective,
     onSuccess: () => {

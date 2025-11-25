@@ -27,6 +27,7 @@ interface Props {
   onView: (document: ElectronicDocumentResource) => void;
   onSendToSunat?: (id: number) => void;
   onAnnul?: (id: number, reason: string) => void;
+  onPreCancel?: (id: number) => Promise<void>;
   permissions: {
     canSend: boolean;
     canUpdate: boolean;
@@ -42,6 +43,7 @@ export const electronicDocumentColumns = ({
   onView,
   onSendToSunat,
   onAnnul,
+  onPreCancel,
   permissions,
 }: Props): ElectronicDocumentColumn[] => [
   {
@@ -403,6 +405,11 @@ export const electronicDocumentColumns = ({
           {canAnnul && (
             <AnnulDocumentDialog
               onConfirm={(reason) => onAnnul(document.id, reason)}
+              onPreCancel={
+                onPreCancel
+                  ? async () => await onPreCancel(document.id)
+                  : undefined
+              }
               trigger={
                 <Button
                   variant="outline"

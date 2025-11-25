@@ -18,7 +18,7 @@ import { format, parse } from "date-fns";
 import { es } from "date-fns/locale";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ReactNode } from "react";
-import { useTeamByChief } from "../../gp/gestionhumana/evaluaciondesempeño/evaluation-person/lib/evaluationPerson.hook";
+import { useEvaluationsByPersonToEvaluate } from "../../gp/gestionhumana/evaluaciondesempeño/evaluation-person/lib/evaluationPerson.hook";
 import { SidebarMenuButton } from "@/components/ui/sidebar";
 
 interface ProfileCardProps {
@@ -30,12 +30,9 @@ export function ProfileCard({ variant = "sidebar" }: ProfileCardProps) {
 
   const { user } = useAuthStore();
 
-  const { data } = useTeamByChief(
+  const { data } = useEvaluationsByPersonToEvaluate(
     user?.partner_id,
-    !!user?.partner_id && user.subordinates > 0,
-    {
-      per_page: 9999,
-    }
+    !!user?.partner_id && user.subordinates > 0
   );
 
   const UserMenuOptions: {
@@ -54,7 +51,7 @@ export function ProfileCard({ variant = "sidebar" }: ProfileCardProps) {
     },
     {
       label: "Mi desempeño",
-      route: "namu-performance",
+      route: "mi-desempeno",
       icon: ClipboardList,
       stats: () => (
         <Badge className="bg-primary text-white animate-pulse">Nuevo</Badge>
@@ -67,7 +64,7 @@ export function ProfileCard({ variant = "sidebar" }: ProfileCardProps) {
       icon: Users,
       stats: () => {
         const pendingEvaluations = data
-          ? data?.data
+          ? data
               .map((ep) => ep.statistics.overall_completion_rate === 0)
               .filter(Boolean).length
           : 0;

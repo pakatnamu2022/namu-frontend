@@ -177,6 +177,7 @@ export const ShipmentsReceptionsForm = ({
         : undefined,
       warehouse$is_received: vehiclesIsReceived,
       warehouse$ap_class_article_id: watchArticleClassId,
+      model$class_id: watchArticleClassId,
     });
 
   const { data: series = [], isLoading: isLoadingSeries } = useAuthorizedSeries(
@@ -189,6 +190,7 @@ export const ShipmentsReceptionsForm = ({
   const { data: articleClass = [], isLoading: isLoadingArticleClass } =
     useAllClassArticle({
       type: "VEHICULO",
+      type_operation_id: CM_COMERCIAL_ID,
     });
 
   const { data: mySedes = [], isLoading: isLoadingMySedes } =

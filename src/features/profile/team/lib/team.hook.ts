@@ -25,5 +25,6 @@ export const useLeaderDashboard = (evaluationId: number) => {
     queryFn: () => getLeaderDashboard(evaluationId),
     refetchOnWindowFocus: false,
     enabled: !!evaluationId,
+    retry: false,
   });
 };

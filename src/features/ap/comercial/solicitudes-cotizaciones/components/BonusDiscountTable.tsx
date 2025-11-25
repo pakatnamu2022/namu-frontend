@@ -40,6 +40,7 @@ export interface BonusDiscountRow {
   descripcion: string;
   isPercentage: boolean;
   valor: number;
+  isNegative: boolean;
 }
 
 interface BonusDiscountTableProps {
@@ -61,6 +62,7 @@ export const BonusDiscountTable = ({
 }: BonusDiscountTableProps) => {
   const BONO_FINANCIERO_ID = "862";
   const BONO_MARCA_ID = "861";
+  const DESCUENTO_NUEVO_ID = "863";
 
   const [rows, setRows] = useState<BonusDiscountRow[]>(initialData);
   const [newRow, setNewRow] = useState<Omit<BonusDiscountRow, "id">>({
@@ -68,6 +70,7 @@ export const BonusDiscountTable = ({
     descripcion: "",
     isPercentage: false,
     valor: 0,
+    isNegative: false,
   });
   const [errors, setErrors] = useState({
     concept_id: false,
@@ -93,13 +96,19 @@ export const BonusDiscountTable = ({
   };
 
   // Limpiar descripción cuando cambia el concepto (evitar loop)
+  // Y auto-marcar isNegative si es DESCUENTO_NUEVO_ID
   const [previousConceptId, setPreviousConceptId] = useState("");
   useEffect(() => {
     if (newRow.concept_id && newRow.concept_id !== previousConceptId) {
-      setNewRow((prev) => ({ ...prev, descripcion: "" }));
+      const isNegativeDiscount = newRow.concept_id === DESCUENTO_NUEVO_ID;
+      setNewRow((prev) => ({
+        ...prev,
+        descripcion: "",
+        isNegative: isNegativeDiscount
+      }));
       setPreviousConceptId(newRow.concept_id);
     }
-  }, [newRow.concept_id, previousConceptId]);
+  }, [newRow.concept_id, previousConceptId, DESCUENTO_NUEVO_ID]);
 
   // Effect para cargar datos iniciales
   useEffect(() => {
@@ -116,10 +125,9 @@ export const BonusDiscountTable = ({
   const calcularDescuentoTotal = () => {
     const costo = Number(costoReferencia) || 0;
     return rows.reduce((total, row) => {
-      if (row.isPercentage) {
-        return total + (costo * row.valor) / 100;
-      }
-      return total + row.valor;
+      const valor = row.isPercentage ? (costo * row.valor) / 100 : row.valor;
+      // Si es negativo, resta; si no, suma
+      return row.isNegative ? total - valor : total + valor;
     }, 0);
   };
 
@@ -158,6 +166,7 @@ export const BonusDiscountTable = ({
       descripcion: "",
       isPercentage: false,
       valor: 0,
+      isNegative: false,
     });
     setErrors({
       concept_id: false,
@@ -391,8 +400,8 @@ export const BonusDiscountTable = ({
                         ? `${row.valor}%`
                         : `${currencySymbol} ${row.valor.toFixed(2)}`}
                     </TableCell>
-                    <TableCell className="text-right font-medium text-primary">
-                      {currencySymbol}{" "}
+                    <TableCell className={`text-right font-medium ${row.isNegative ? 'text-red-600' : 'text-primary'}`}>
+                      {row.isNegative ? '- ' : ''}{currencySymbol}{" "}
                       <NumberFormat value={descuentoCalculado.toFixed(2)} />
                     </TableCell>
                     <TableCell className="text-center">

@@ -16,7 +16,7 @@ export const AP_GOAL_SELL_OUT_IN: ModelComplete<ApGoalSellOutInResource> = {
   ROUTE,
   ABSOLUTE_ROUTE,
   ROUTE_ADD: `${ABSOLUTE_ROUTE}/agregar`,
-  ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/editar`,
+  ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/actualizar`,
   EMPTY: {
     id: 0,
     year: 0,

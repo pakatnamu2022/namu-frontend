@@ -23,6 +23,7 @@ export type AuthResponseWithoutToken = Omit<AuthResponse, "access_token">;
 
 export interface AuthResponseUser {
   id: number;
+  dni: string;
   partner_id: number;
   name: string;
   username: string;

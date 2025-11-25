@@ -123,6 +123,15 @@ export async function queryElectronicDocumentStatus(
   return response.data;
 }
 
+export async function preCancelElectronicDocument(
+  id: number
+): Promise<{ annulled: boolean }> {
+  const response = await api.get<{ annulled: boolean }>(
+    `${ENDPOINT}/${id}/pre-cancel`
+  );
+  return response.data;
+}
+
 export async function cancelElectronicDocument(
   id: number,
   reason: string

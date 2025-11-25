@@ -161,6 +161,7 @@ export const PurchaseRequestQuoteForm = ({
               descripcion: bonus.description,
               isPercentage: isPercentage,
               valor: valor,
+              isNegative: bonus.is_negative || false,
             };
           }
         );
@@ -188,12 +189,22 @@ export const PurchaseRequestQuoteForm = ({
     }
   }, [mode]);
 
+  // Obtener el vehiculo seleccionado
+  const vehicleVnSelected = vehiclesVn.find(
+    (vehicle) => vehicle.id === Number(vehicleVnWatch)
+  );
+
   // Obtener el modelo seleccionado y su precio original
   const selectedModel = modelsVn.find(
-    (model) => model.id === Number(modelVnWatch)
+    (model) => model.id === vehicleVnSelected?.ap_models_vn_id
   );
   const originalPrice = selectedModel?.sale_price || 0;
   const currencySymbol = selectedModel?.currency_symbol || "S/";
+
+  console.log("vehicleVnSelected", vehicleVnSelected);
+  console.log("selectedModel", selectedModel);
+  console.log("originalPrice", originalPrice);
+  console.log("currencySymbol", currencySymbol);
 
   // Effect para limpiar campos cuando se cambia el switch (solo si no es carga inicial)
   useEffect(() => {
@@ -392,12 +403,12 @@ export const PurchaseRequestQuoteForm = ({
     const vehicleCurrencyId = vehicleCurrency.currencyId;
 
     // Calcular bonos/descuentos (ya están en la moneda del vehículo)
-    // NOTA: Los bonos/descuentos NO afectan el precio final, solo se muestran informativamente
+    // Los bonos/descuentos con isNegative SÍ afectan el precio final (se restan)
     const bonusDiscountTotal = bonusDiscountRows.reduce((total, row) => {
-      if (row.isPercentage) {
-        return total + (salePrice * row.valor) / 100;
-      }
-      return total + row.valor;
+      const valor = row.isPercentage
+        ? (salePrice * row.valor) / 100
+        : row.valor;
+      return row.isNegative ? 0 : total + valor;
     }, 0);
 
     // Calcular accesorios (siempre en soles, necesitan conversión)
@@ -422,13 +433,25 @@ export const PurchaseRequestQuoteForm = ({
       return total;
     }, 0);
 
-    // Subtotal SIN incluir bonos/descuentos (no afectan al precio final)
-    const subtotal = salePrice + accessoriesTotal;
+    // Calcular descuentos negativos (los que sí afectan el precio final)
+    const negativeDiscounts = bonusDiscountRows.reduce((total, row) => {
+      if (row.isNegative) {
+        const valor = row.isPercentage
+          ? (salePrice * row.valor) / 100
+          : row.valor;
+        return total + valor;
+      }
+      return total;
+    }, 0);
+
+    // Subtotal: precio de venta + accesorios - descuentos negativos
+    const subtotal = salePrice + accessoriesTotal - negativeDiscounts;
 
     return {
       salePrice,
       bonusDiscountTotal,
       accessoriesTotal,
+      negativeDiscounts,
       subtotal,
       vehicleCurrencyId,
     };
@@ -460,6 +483,7 @@ export const PurchaseRequestQuoteForm = ({
         description: row.descripcion,
         type: row.isPercentage ? "PORCENTAJE" : "FIJO",
         value: row.valor,
+        is_negative: row.isNegative,
       };
     });
   };
@@ -484,7 +508,7 @@ export const PurchaseRequestQuoteForm = ({
       accessories: accessoriesData,
       type_currency_id: vehicleCurrency.currencyId,
       base_selling_price: totals.salePrice,
-      sale_price: totals.subtotal,
+      sale_price: totals.salePrice,
       doc_sale_price: finalTotal,
     };
 
@@ -684,6 +708,7 @@ export const PurchaseRequestQuoteForm = ({
               </FormItem>
             )}
           />
+
           <FormField
             control={form.control}
             name="warranty"
@@ -763,6 +788,18 @@ export const PurchaseRequestQuoteForm = ({
                   })}
                 </span>
               </div>
+              {totals.negativeDiscounts > 0 && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Descuentos:</span>
+                  <span className="font-medium text-red-600">
+                    - {vehicleCurrency.symbol}{" "}
+                    {totals.negativeDiscounts.toLocaleString("es-PE", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </span>
+                </div>
+              )}
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600">Accesorios:</span>
                 <span className="font-medium text-primary">

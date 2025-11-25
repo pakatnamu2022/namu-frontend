@@ -70,6 +70,7 @@ import AddPurchaseRequestQuotePage from "./app/ap/comercial/solicitudes-cotizaci
 import UpdatePurchaseRequestQuotePage from "./app/ap/comercial/solicitudes-cotizaciones/actualizar/[id]/page";
 import DashboardStoreVisitsPage from "./app/ap/comercial/dashboard-visitas-leads/page";
 import ReasonsRejectionPage from "./app/ap/comercial/motivos-descarte/page";
+import ReportesComercialPage from "./app/ap/comercial/reportes/page";
 import { NotFoundBoundary } from "./shared/components/NotFoundBoundary";
 import ExcludedPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/excluidos/page";
 import MetricPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/metricas/page";
@@ -88,6 +89,8 @@ import EvaluatorParPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/
 import EvaluationModelPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/modelo-evaluacion/page";
 import AddEvaluationModelPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/modelo-evaluacion/agregar/page";
 import UpdateEvaluationModelPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/modelo-evaluacion/actualizar/[id]/page";
+import MyPerformance from "./app/perfil/mi-desempeno/page";
+import VacationPage from "./app/perfil/vacaciones/page";
 const PositionsPage = lazy(
   () => import("./app/gp/gestion-humana/configuraciones/posiciones/page")
 );
@@ -181,10 +184,6 @@ const PerfilEquipoPlanDesarrolloPage = lazy(
 const PerfilEquipoPlanDesarrolloCrearPage = lazy(
   () => import("./app/perfil/equipo/[id]/plan-desarrollo/agregar/page")
 );
-const PerfilNamuPerformancePage = lazy(
-  () => import("./app/perfil/namu-performance/page")
-);
-const PerfilVacacionesPage = lazy(() => import("./app/perfil/vacaciones/page"));
 
 // ============================================================================
 // AP - CONFIGURACIONES
@@ -816,11 +815,8 @@ function App() {
                 path="equipo/:id/plan-desarrollo/crear"
                 element={<PerfilEquipoPlanDesarrolloCrearPage />}
               />
-              <Route
-                path="namu-performance"
-                element={<PerfilNamuPerformancePage />}
-              />
-              <Route path="vacaciones" element={<PerfilVacacionesPage />} />
+              <Route path="mi-desempeno" element={<MyPerformance />} />
+              <Route path="vacaciones" element={<VacationPage />} />
             </Route>
 
             {/* ======================================================== */}
@@ -993,6 +989,9 @@ function App() {
                 path="motivos-descarte"
                 element={<ReasonsRejectionPage />}
               />
+
+              {/* Reportes */}
+              <Route path="reportes" element={<ReportesComercialPage />} />
             </Route>
 
             {/* ======================================================== */}

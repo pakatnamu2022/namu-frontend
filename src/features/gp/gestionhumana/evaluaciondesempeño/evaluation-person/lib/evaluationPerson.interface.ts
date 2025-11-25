@@ -66,6 +66,8 @@ export interface EvaluationPersonResultByPersonAndEvaluationResponse {
 export interface EvaluationPersonResource {
   id: number;
   person: string;
+  chief: string;
+  chief_id: number;
   personCycleDetail: CyclePersonDetailResource;
   evaluation: string;
   result: string;
