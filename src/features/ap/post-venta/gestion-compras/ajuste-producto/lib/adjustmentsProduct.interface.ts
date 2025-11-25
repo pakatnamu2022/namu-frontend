@@ -30,12 +30,12 @@ export interface AdjustmentsProductResource {
   id: number;
   movement_number?: string;
   movement_type: MovementType;
-  adjustment_reason_id?: number;
+  reason_in_out_id?: number;
   warehouse_id: number;
   movement_date: string;
   notes?: string;
-  created_by?: number;
-  created_by_user_name?: string;
+  user_id?: number;
+  user_name?: string;
   total_items?: number;
   total_quantity?: string;
   total_cost?: string;
@@ -44,7 +44,7 @@ export interface AdjustmentsProductResource {
     id: number;
     description: string;
   };
-  adjustment_reason?: {
+  reason_in_out?: {
     id: number;
     code: string;
     description: string;
@@ -63,8 +63,8 @@ export interface AdjustmentsProductListItem {
   warehouse_id: number;
   movement_date: string | Date;
   notes?: string;
-  created_by?: number;
-  created_by_user_name?: string;
+  user_id?: number;
+  user_name?: string;
   total_items?: number;
   total_quantity?: string;
   total_cost?: string;
@@ -88,7 +88,7 @@ export interface AdjustmentsProductDetailRequest {
 
 export interface AdjustmentsProductRequest {
   movement_type: MovementType;
-  adjustment_reason_id: string;
+  reason_in_out_id: string;
   warehouse_id: string;
   movement_date: string | Date;
   notes?: string;

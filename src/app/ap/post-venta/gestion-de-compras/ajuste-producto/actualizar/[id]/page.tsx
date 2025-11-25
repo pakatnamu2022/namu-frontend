@@ -61,9 +61,13 @@ export default function UpdateAdjustmentsProductPage() {
   ): Partial<AdjustmentSchema> {
     return {
       movement_type: data.movement_type,
-      adjustment_reason_id: data.adjustment_reason_id ? String(data.adjustment_reason_id) : "",
+      reason_in_out_id: data.reason_in_out_id
+        ? String(data.reason_in_out_id)
+        : "",
       warehouse_id: String(data.warehouse_id),
-      movement_date: data.movement_date ? new Date(data.movement_date) : new Date(),
+      movement_date: data.movement_date
+        ? new Date(data.movement_date)
+        : new Date(),
       notes: data.notes || "",
       details:
         data.details?.map((item) => ({
@@ -71,7 +75,9 @@ export default function UpdateAdjustmentsProductPage() {
           quantity: Number(item.quantity),
           unit_cost: item.unit_cost ? Number(item.unit_cost) : undefined,
           batch_number: item.batch_number || "",
-          expiration_date: item.expiration_date ? new Date(item.expiration_date) : undefined,
+          expiration_date: item.expiration_date
+            ? new Date(item.expiration_date)
+            : undefined,
           notes: item.notes || "",
         })) || [],
     };

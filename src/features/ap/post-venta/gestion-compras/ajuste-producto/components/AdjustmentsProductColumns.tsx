@@ -1,16 +1,18 @@
 import { useNavigate } from "react-router-dom";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-import { Pencil } from "lucide-react";
+import { Pencil, Eye } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
-import { Badge } from "@/components/ui/badge";
 import { ADJUSTMENT } from "../lib/adjustmentsProduct.constants";
 import { AdjustmentsProductListItem } from "../lib/adjustmentsProduct.interface";
+import { Badge } from "@/components/ui/badge";
+import { AP_MASTER_POST_VENTA } from "@/features/ap/lib/ap.constants";
 
 export type AdjustmentsProductColumns = ColumnDef<AdjustmentsProductListItem>;
 
 interface Props {
   onDelete: (id: number) => void;
+  onView: (id: number) => void;
   permissions: {
     canUpdate: boolean;
     canDelete: boolean;
@@ -19,62 +21,57 @@ interface Props {
 
 export const adjustmentsProductColumns = ({
   onDelete,
+  onView,
   permissions,
 }: Props): AdjustmentsProductColumns[] => [
   {
-    accessorKey: "full_name",
-    header: "Nombre Completo",
+    accessorKey: "movement_number",
+    header: "N° Movimiento",
   },
   {
-    accessorKey: "num_doc",
-    header: "Documento",
+    accessorKey: "movement_date",
+    header: "Fecha de Movimiento",
   },
   {
-    accessorKey: "document_type",
-    header: "Tipo Documento",
-    cell: ({ row }) => (
-      <Badge variant="outline">{row.getValue("document_type")}</Badge>
-    ),
+    accessorKey: "warehouse_code",
+    header: "Almacén Origen",
   },
   {
-    accessorKey: "phone",
-    header: "Teléfono",
+    accessorKey: "user_name",
+    header: "Registrado Por",
   },
   {
-    accessorKey: "email",
-    header: "Email",
+    accessorKey: "notes",
+    header: "Observaciones",
   },
   {
-    accessorKey: "district",
-    header: "Distrito",
+    accessorKey: "movement_type",
+    header: "Tipo Movimiento",
+    cell: ({ getValue }) => {
+      const value = getValue() as string;
+      return (
+        <Badge
+          variant={
+            value == AP_MASTER_POST_VENTA.TYPE_ADJUSTMENT_IN
+              ? "default"
+              : "secondary"
+          }
+          className="capitalize w-20 flex items-center justify-center"
+        >
+          {value == AP_MASTER_POST_VENTA.TYPE_ADJUSTMENT_IN
+            ? "INGRESO"
+            : "SALIDA"}
+        </Badge>
+      );
+    },
   },
   {
-    accessorKey: "activity_economic",
-    header: "Actividad Económica",
+    accessorKey: "total_items",
+    header: "Total de Ítems",
   },
   {
-    accessorKey: "legal_representative_full_name",
-    header: "Representante Legal",
-  },
-  {
-    accessorKey: "driving_license",
-    header: "Licencia de Conducir",
-  },
-  {
-    accessorKey: "status_license",
-    header: "Estado de la Licencia",
-  },
-  {
-    accessorKey: "restriction",
-    header: "Restricción",
-  },
-  {
-    accessorKey: "company_status",
-    header: "Estado de la Empresa",
-  },
-  {
-    accessorKey: "company_condition",
-    header: "Condición de la Empresa",
+    accessorKey: "total_quantity",
+    header: "Cantidad Total",
   },
   {
     id: "actions",
@@ -87,6 +84,17 @@ export const adjustmentsProductColumns = ({
 
       return (
         <div className="flex items-center gap-2">
+          {/* View Details */}
+          <Button
+            variant="outline"
+            size="icon"
+            className="size-7"
+            tooltip="Ver detalle"
+            onClick={() => onView(id)}
+          >
+            <Eye className="size-5" />
+          </Button>
+
           {/* Edit */}
           {permissions.canUpdate && (
             <Button

@@ -22,21 +22,14 @@ export default function AdjustmentsProductTable({
         data={data}
         isLoading={isLoading}
         initialColumnVisibility={{
-          full_name: true,
-          num_doc: true,
-          document_type: false,
-          phone: true,
-          email: false,
-          type_person: true,
-          person_segment: true,
-          district: false,
-          nationality: false,
-          legal_representative_full_name: false,
-          driving_license: false,
-          status_license: false,
-          restriction: false,
-          company_status: false,
-          company_condition: false,
+          movement_number: true,
+          movement_type: true,
+          movement_date: true,
+          warehouse_code: true,
+          user_name: true,
+          notes: false,
+          total_items: false,
+          total_quantity: false,
         }}
       >
         {children}

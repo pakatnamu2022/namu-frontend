@@ -32,7 +32,7 @@ const adjustmentSchemaBase = z.object({
       message: "Tipo de movimiento inválido",
     }
   ),
-  adjustment_reason_id: requiredStringId("Motivo de ajuste es requerido"),
+  reason_in_out_id: requiredStringId("Motivo de ajuste es requerido"),
   warehouse_id: requiredStringId("Almacén es requerido"),
   movement_date: z.union([z.literal(""), z.date()]),
   notes: z

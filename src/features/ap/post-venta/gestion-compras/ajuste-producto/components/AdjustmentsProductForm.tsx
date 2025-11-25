@@ -135,7 +135,7 @@ export const AdjustmentsProductForm = ({
           />
 
           <FormSelect
-            name="adjustment_reason_id"
+            name="reason_in_out_id"
             label="Motivo de Ajuste"
             placeholder={
               selectedMovementType
@@ -252,8 +252,7 @@ export const AdjustmentsProductForm = ({
                             <FormControl>
                               <Input
                                 type="number"
-                                step="0.01"
-                                min="0.01"
+                                min="1"
                                 className="h-9 text-center font-medium"
                                 placeholder="Cantidad"
                                 disabled={mode === "update"}
@@ -311,7 +310,6 @@ export const AdjustmentsProductForm = ({
                   placeholder="Notas o comentarios adicionales del movimiento"
                   className="resize-none"
                   rows={3}
-                  disabled={mode === "update"}
                   {...field}
                 />
               </FormControl>

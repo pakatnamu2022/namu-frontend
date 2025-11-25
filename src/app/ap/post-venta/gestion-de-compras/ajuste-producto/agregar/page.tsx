@@ -52,7 +52,7 @@ export default function AddAdjustmentsProductPage() {
       <AdjustmentsProductForm
         defaultValues={{
           movement_type: AP_MASTER_POST_VENTA.TYPE_ADJUSTMENT_IN,
-          adjustment_reason_id: "",
+          reason_in_out_id: "",
           warehouse_id: "",
           movement_date: "",
           notes: "",
