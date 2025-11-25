@@ -60,9 +60,11 @@ export const WarehouseForm = ({
   const { data: classArticles = [], isLoading: isLoadingClassArticles } =
     useAllClassArticle();
 
+  const isReceivedValue = form.watch("is_received");
+
   const { data: parentWarehouses = [], isLoading: isLoadingParentWarehouses } =
     useAllParentWarehouse({
-      is_received: 1,
+      is_received: isReceivedValue ? 1 : 0,
       type_operation_id: CM_POSTVENTA_ID,
     });
 
