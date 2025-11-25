@@ -1,0 +1,43 @@
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { downloadReport, fetchSelectOptions } from "./reports.actions";
+import { useToast } from "@/hooks/use-toast";
+
+export const useDownloadReport = () => {
+  const { toast } = useToast();
+
+  return useMutation({
+    mutationFn: ({
+      endpoint,
+      params,
+    }: {
+      endpoint: string;
+      params: Record<string, any>;
+    }) => downloadReport(endpoint, params),
+    onSuccess: () => {
+      toast({
+        title: "Reporte descargado",
+        description: "El reporte se ha descargado correctamente",
+        variant: "default",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error al descargar",
+        description:
+          error?.response?.data?.message ||
+          "Ocurrió un error al descargar el reporte",
+        variant: "destructive",
+      });
+    },
+  });
+};
+
+export const useSelectOptions = (endpoint?: string) => {
+  return useQuery({
+    queryKey: ["select-options", endpoint],
+    queryFn: () => fetchSelectOptions(endpoint!),
+    enabled: !!endpoint,
+    staleTime: 5 * 60 * 1000, // 5 minutos
+    refetchOnWindowFocus: false,
+  });
+};

@@ -12,7 +12,8 @@
       "Bash(mkdir:*)",
       "Bash(dir /s /b e:pakatnamunamu-frontendsrcappgpgestion-humanaevaluaciones-de-desempenoasignacion-pares 2)",
       "Bash(if not exist \"e:\\pakatnamu\\namu-frontend\\src\\app\\gp\\gestion-humana\\evaluaciones-de-desempeno\\asignacion-pares\\agregar\" mkdir \"e:\\pakatnamu\\namu-frontend\\src\\app\\gp\\gestion-humana\\evaluaciones-de-desempeno\\asignacion-pares\\agregar\")",
-      "Bash(dir:*)"
+      "Bash(dir:*)",
+      "Bash(xargs ls:*)"
     ],
     "deny": [],
     "ask": []

@@ -70,6 +70,7 @@ import AddPurchaseRequestQuotePage from "./app/ap/comercial/solicitudes-cotizaci
 import UpdatePurchaseRequestQuotePage from "./app/ap/comercial/solicitudes-cotizaciones/actualizar/[id]/page";
 import DashboardStoreVisitsPage from "./app/ap/comercial/dashboard-visitas-leads/page";
 import ReasonsRejectionPage from "./app/ap/comercial/motivos-descarte/page";
+import ReportesComercialPage from "./app/ap/comercial/reportes/page";
 import { NotFoundBoundary } from "./shared/components/NotFoundBoundary";
 import ExcludedPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/excluidos/page";
 import MetricPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/metricas/page";
@@ -924,6 +925,9 @@ function App() {
                 path="motivos-descarte"
                 element={<ReasonsRejectionPage />}
               />
+
+              {/* Reportes */}
+              <Route path="reportes" element={<ReportesComercialPage />} />
             </Route>
 
             {/* ======================================================== */}
