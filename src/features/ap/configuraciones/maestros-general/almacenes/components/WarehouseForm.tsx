@@ -19,7 +19,7 @@ import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { useAllSedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
-import { EMPRESA_AP } from "@/core/core.constants";
+import { CM_POSTVENTA_ID, EMPRESA_AP } from "@/core/core.constants";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { useAllTypesOperation } from "../../tipos-operacion/lib/typesOperation.hook";
 import { useAllClassArticle } from "../../clase-articulo/lib/classArticle.hook";
@@ -61,7 +61,10 @@ export const WarehouseForm = ({
     useAllClassArticle();
 
   const { data: parentWarehouses = [], isLoading: isLoadingParentWarehouses } =
-    useAllParentWarehouse();
+    useAllParentWarehouse({
+      is_received: 1,
+      type_operation_id: CM_POSTVENTA_ID,
+    });
 
   if (
     isLoadingSedes ||
