@@ -29,6 +29,7 @@ export const warehouseSchemaCreate = z.object({
   type_operation_id: requiredStringId("Tipo de Operación es requerido"),
   sede_id: requiredStringId("Sede es requerido"),
   article_class_id: requiredStringId("Clase de Artículo es requerido"),
+  parent_warehouse_id: requiredStringId("Almacén Padre es requerido"),
   is_received: z.boolean().default(true),
 });
 

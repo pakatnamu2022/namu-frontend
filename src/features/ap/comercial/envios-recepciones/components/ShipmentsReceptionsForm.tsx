@@ -574,15 +574,25 @@ export const ShipmentsReceptionsForm = ({
     }
   }, [selectedVIN]);
 
-  // Limpiar sede destino cuando cambia el motivo de traslado
+  // Manejar sede destino cuando cambia el motivo de traslado
   useEffect(() => {
     if (watchTransferReasonId) {
       const currentSedeReceiver = form.getValues("sede_receiver_id");
 
-      // Si cambia a COMPRA u OTROS, limpiar sede destino ya que no se muestra
-      if (
-        (watchTransferReasonId === SUNAT_CONCEPTS_ID.TRANSFER_REASON_COMPRA ||
-          watchTransferReasonId === SUNAT_CONCEPTS_ID.TRANSFER_REASON_OTROS) &&
+      // Si es COMPRA, setear sede destino igual a sede origen
+      if (watchTransferReasonId === SUNAT_CONCEPTS_ID.TRANSFER_REASON_COMPRA) {
+        if (
+          watchSedeTransmitterId &&
+          currentSedeReceiver !== watchSedeTransmitterId
+        ) {
+          form.setValue("sede_receiver_id", watchSedeTransmitterId, {
+            shouldValidate: false,
+          });
+        }
+      }
+      // Si es OTROS, limpiar sede destino ya que no se muestra
+      else if (
+        watchTransferReasonId === SUNAT_CONCEPTS_ID.TRANSFER_REASON_OTROS &&
         currentSedeReceiver
       ) {
         form.setValue("sede_receiver_id", "", {
@@ -590,7 +600,7 @@ export const ShipmentsReceptionsForm = ({
         });
       }
     }
-  }, [watchTransferReasonId]);
+  }, [watchTransferReasonId, watchSedeTransmitterId]);
 
   if (
     isLoadingCustomers ||

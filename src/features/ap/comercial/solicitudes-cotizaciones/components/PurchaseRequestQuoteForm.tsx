@@ -27,7 +27,7 @@ import { useEffect, useState, useRef } from "react";
 import { BonusDiscountTable } from "./BonusDiscountTable";
 import { ApprovedAccessoriesTable } from "./ApprovedAccessoriesTable";
 import { useAllConceptDiscountBond } from "../lib/purchaseRequestQuote.hook";
-import { useAllApprovedAccesories } from "../../../post-venta/accesorios-homologados/lib/approvedAccessories.hook";
+import { useAllApprovedAccesories } from "@/features/ap/post-venta/repuestos/accesorios-homologados/lib/approvedAccessories.hook";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";

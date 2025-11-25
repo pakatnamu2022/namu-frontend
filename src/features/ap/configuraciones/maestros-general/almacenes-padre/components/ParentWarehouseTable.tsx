@@ -1,15 +1,15 @@
 import { DataTable } from "@/shared/components/DataTable";
-import { WarehouseColumns } from "./WarehouseColumns";
-import { WarehouseResource } from "../lib/warehouse.interface";
+import { ParentWarehouseColumns } from "./ParentWarehouseColumns";
+import { ParentWarehouseResource } from "../lib/parentWarehouse.interface";
 
 interface Props {
-  columns: WarehouseColumns[];
-  data: WarehouseResource[];
+  columns: ParentWarehouseColumns[];
+  data: ParentWarehouseResource[];
   children?: React.ReactNode;
   isLoading?: boolean;
 }
 
-export default function WarehouseTable({
+export default function ParentWarehouseTable({
   columns,
   data,
   children,
@@ -23,12 +23,9 @@ export default function WarehouseTable({
         isLoading={isLoading}
         initialColumnVisibility={{
           dyn_code: true,
-          description: true,
           article_class: true,
           sede: true,
           type_operation: false,
-          inventory_account: false,
-          counterparty_account: false,
           is_received: true,
           status: true,
         }}

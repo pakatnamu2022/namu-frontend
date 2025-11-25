@@ -1,8 +1,3 @@
-import {
-  WarehouseSchema,
-  warehouseSchemaCreate,
-  warehouseSchemaUpdate,
-} from "../lib/warehouse.schema";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -23,33 +18,39 @@ import { EMPRESA_AP } from "@/core/core.constants";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { useAllTypesOperation } from "../../tipos-operacion/lib/typesOperation.hook";
 import { useAllClassArticle } from "../../clase-articulo/lib/classArticle.hook";
-import { useAllParentWarehouse } from "../../almacenes-padre/lib/parentWarehouse.hook";
 import { FormSwitch } from "@/shared/components/FormSwitch";
-import { WAREHOUSE } from "../lib/warehouse.constants";
+import { PARENT_WAREHOUSE } from "../lib/parentWarehouse.constants";
+import {
+  ParentWarehouseSchema,
+  parentWarehouseSchemaCreate,
+  parentWarehouseSchemaUpdate,
+} from "../lib/parentWarehouse.schema";
 
-interface WarehouseFormProps {
-  defaultValues: Partial<WarehouseSchema>;
+interface ParentWarehouseFormProps {
+  defaultValues: Partial<ParentWarehouseSchema>;
   onSubmit: (data: any) => void;
   isSubmitting?: boolean;
   mode?: "create" | "update";
 }
 
-export const WarehouseForm = ({
+export const ParentWarehouseForm = ({
   defaultValues,
   onSubmit,
   isSubmitting = false,
   mode = "create",
-}: WarehouseFormProps) => {
+}: ParentWarehouseFormProps) => {
   const form = useForm({
     resolver: zodResolver(
-      mode === "create" ? warehouseSchemaCreate : warehouseSchemaUpdate
+      mode === "create"
+        ? parentWarehouseSchemaCreate
+        : parentWarehouseSchemaUpdate
     ),
     defaultValues: {
       ...defaultValues,
     },
     mode: "onChange",
   });
-  const { ABSOLUTE_ROUTE } = WAREHOUSE;
+  const { ABSOLUTE_ROUTE } = PARENT_WAREHOUSE;
   const { data: sedes = [], isLoading: isLoadingSedes } = useAllSedes({
     empresa_id: EMPRESA_AP.id,
   });
@@ -60,15 +61,7 @@ export const WarehouseForm = ({
   const { data: classArticles = [], isLoading: isLoadingClassArticles } =
     useAllClassArticle();
 
-  const { data: parentWarehouses = [], isLoading: isLoadingParentWarehouses } =
-    useAllParentWarehouse();
-
-  if (
-    isLoadingSedes ||
-    isLoadingTypesOperation ||
-    isLoadingClassArticles ||
-    isLoadingParentWarehouses
-  )
+  if (isLoadingSedes || isLoadingTypesOperation || isLoadingClassArticles)
     return <FormSkeleton />;
 
   return (
@@ -86,48 +79,6 @@ export const WarehouseForm = ({
                 <FormLabel>Cod. Dynamic</FormLabel>
                 <FormControl>
                   <Input placeholder="Ej: EXR-SU-TUM" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="description"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Descripción</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="Ej: EXI. POR REC. SUMINISTROS TUM."
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="inventory_account"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Cuenta de Inventario</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: 2011112" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="counterparty_account"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Cuenta de Contrapartida</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: 0211111" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -160,16 +111,6 @@ export const WarehouseForm = ({
             options={classArticles.map((classArticle) => ({
               label: classArticle.description,
               value: classArticle.id.toString(),
-            }))}
-            control={form.control}
-          />
-          <FormSelect
-            name="parent_warehouse_id"
-            label="Almacén Padre"
-            placeholder="Selecciona un Almacén Padre"
-            options={parentWarehouses.map((parentWarehouse) => ({
-              label: parentWarehouse.dyn_code,
-              value: parentWarehouse.id.toString(),
             }))}
             control={form.control}
           />
