@@ -31,12 +31,14 @@ interface ApprovedAccessoriesTableProps {
   accessories: ApprovedAccesoriesResource[];
   onAccessoriesChange?: (accessories: ApprovedAccessoryRow[]) => void;
   initialData?: ApprovedAccessoryRow[];
+  currencySymbol: string;
 }
 
 export const ApprovedAccessoriesTable = ({
   accessories,
   onAccessoriesChange,
   initialData = [],
+  currencySymbol,
 }: ApprovedAccessoriesTableProps) => {
   const [rows, setRows] = useState<ApprovedAccessoryRow[]>(initialData);
   const [newRow, setNewRow] = useState<Omit<ApprovedAccessoryRow, "id">>({
@@ -322,7 +324,7 @@ export const ApprovedAccessoriesTable = ({
               <div>
                 <span className="text-sm text-gray-600">Total Accesorios:</span>
                 <span className="ml-2 text-lg font-bold text-primary">
-                  S/
+                  {currencySymbol}{" "}
                   <NumberFormat value={calculateTotal().toFixed(2)} />
                 </span>
               </div>
