@@ -24,17 +24,15 @@ import { errorToast, successToast } from "@/core/core.function";
 import { Separator } from "@/components/ui/separator";
 import { JSX } from "react";
 import { notFound } from "@/shared/hooks/useNotFound";
+import { VEHICLE_DELIVERY } from "@/features/ap/comercial/entrega-vehiculo/lib/vehicleDelivery.constants";
 
 export default function ShippingGuidePage(): JSX.Element {
   const params = useParams();
   const router = useNavigate();
   const id = Number(params.id);
+  const { ABSOLUTE_ROUTE } = VEHICLE_DELIVERY;
 
-  const {
-    data: vehicleDelivery,
-    isLoading,
-    refetch,
-  } = useVehicleDeliveryById(id);
+  const { data: vehicleDelivery, isLoading } = useVehicleDeliveryById(id);
   const generateMutation = useGenerateOrUpdateShippingGuide();
 
   if (isLoading) return <PageSkeleton />;
@@ -54,7 +52,7 @@ export default function ShippingGuidePage(): JSX.Element {
           ? "Guía de remisión actualizada exitosamente"
           : "Guía de remisión creada exitosamente"
       );
-      await refetch();
+      router(ABSOLUTE_ROUTE);
     } catch (error: any) {
       const errorMessage =
         error?.response?.data?.message ||
@@ -65,7 +63,7 @@ export default function ShippingGuidePage(): JSX.Element {
   };
 
   const handleCancel = () => {
-    router(-1);
+    router(ABSOLUTE_ROUTE);
   };
 
   return (
