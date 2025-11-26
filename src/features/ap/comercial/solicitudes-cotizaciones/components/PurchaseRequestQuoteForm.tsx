@@ -508,7 +508,7 @@ export const PurchaseRequestQuoteForm = ({
       accessories: accessoriesData,
       type_currency_id: vehicleCurrency.currencyId,
       base_selling_price: totals.salePrice,
-      sale_price: totals.salePrice,
+      sale_price: totals.subtotal,
       doc_sale_price: finalTotal,
     };
 

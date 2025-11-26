@@ -36,6 +36,7 @@ export interface PurchaseRequestQuoteResource {
   exchange_rate: string;
   base_selling_price: string;
   sale_price: string;
+  doc_sale_price: number;
   comment: string;
   warranty: string;
   is_invoiced: number;
