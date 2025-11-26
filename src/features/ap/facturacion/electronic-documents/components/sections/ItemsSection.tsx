@@ -106,7 +106,7 @@ export function ItemsSection({
     const descuento = newItem.descuento || 0;
     const valor_unitario = precio_con_igv_input / (1 + porcentaje_de_igv / 100);
     const precio_unitario = precio_con_igv_input; // Precio CON IGV (sin descuento aplicado)
-    const subtotal = (valor_unitario * newItem.cantidad) - descuento;
+    const subtotal = valor_unitario * newItem.cantidad - descuento;
     const igv = subtotal * (porcentaje_de_igv / 100);
     const total = subtotal + igv;
 
@@ -115,7 +115,7 @@ export function ItemsSection({
       errorToast(
         `El monto del anticipo no puede exceder ${currencySymbol} ${maxAdvanceAmount.toFixed(
           2
-        )} (debe quedar al menos ${currencySymbol}1.00 para la factura final)`
+        )}`
       );
       return;
     }
@@ -189,7 +189,7 @@ export function ItemsSection({
     const descuento = newItem.descuento || 0;
     const valor_unitario = precio_con_igv_input / (1 + porcentaje_de_igv / 100);
     const precio_unitario = precio_con_igv_input; // Precio CON IGV (sin descuento aplicado)
-    const subtotal = (valor_unitario * newItem.cantidad) - descuento;
+    const subtotal = valor_unitario * newItem.cantidad - descuento;
     const igv = subtotal * (porcentaje_de_igv / 100);
     const total = subtotal + igv;
 
@@ -198,7 +198,7 @@ export function ItemsSection({
       errorToast(
         `El monto del anticipo no puede exceder ${currencySymbol} ${maxAdvanceAmount.toFixed(
           2
-        )} (debe quedar al menos ${currencySymbol}1.00 para la factura final)`
+        )}`
       );
       return;
     }
@@ -381,6 +381,7 @@ export function ItemsSection({
                     cantidad: parseFloat(e.target.value) || 1,
                   })
                 }
+                disabled={isFromQuotation}
               />
             </div>
 
@@ -398,12 +399,14 @@ export function ItemsSection({
                     precio_unitario: parseFloat(e.target.value) || 0,
                   })
                 }
-                disabled={isFromQuotation}
+                disabled={isFromQuotation && !isAdvancePayment}
               />
             </div>
 
             <div className="flex flex-col gap-2">
-              <Label htmlFor="item-discount">Descuento (Sobre Precio Unitario)</Label>
+              <Label htmlFor="item-discount">
+                Descuento (Sobre Precio Unitario)
+              </Label>
               <Input
                 id="item-discount"
                 type="number"
@@ -417,6 +420,7 @@ export function ItemsSection({
                     descuento: parseFloat(e.target.value) || 0,
                   })
                 }
+                disabled={isAdvancePayment}
               />
               {newItem.descuento > 0 && newItem.precio_unitario > 0 && (
                 <p className="text-xs text-muted-foreground">
