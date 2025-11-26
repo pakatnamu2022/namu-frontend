@@ -56,6 +56,7 @@ export default function AddWarehousePage() {
           article_class_id: "",
           inventory_account: "",
           counterparty_account: "",
+          header_warehouse_id: "",
           is_received: true,
         }}
         onSubmit={handleSubmit}

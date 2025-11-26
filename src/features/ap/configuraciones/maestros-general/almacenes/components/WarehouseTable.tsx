@@ -22,7 +22,8 @@ export default function WarehouseTable({
         data={data}
         isLoading={isLoading}
         initialColumnVisibility={{
-          dyn_code: true,
+          header_warehouse_dyn_code: true,
+          dyn_code: false,
           description: true,
           article_class: true,
           sede: true,
