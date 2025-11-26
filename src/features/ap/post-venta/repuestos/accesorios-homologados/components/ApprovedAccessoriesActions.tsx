@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button.tsx";
 import { Plus } from "lucide-react";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import ActionsWrapper from "@/shared/components/ActionsWrapper.tsx";
 import { APPROVED_ACCESSORIES } from "../lib/approvedAccessories.constants.ts";
 

@@ -2,7 +2,7 @@ import { type ModelComplete } from "@/core/core.interface.ts";
 import { ApprovedAccesoriesResource } from "./approvedAccessories.interface.ts";
 
 const ROUTE = "accesorios-homologados";
-const ABSOLUTE_ROUTE = `/ap/post-venta/${ROUTE}`;
+const ABSOLUTE_ROUTE = `/ap/post-venta/repuestos/${ROUTE}`;
 
 export const APPROVED_ACCESSORIES: ModelComplete<ApprovedAccesoriesResource> = {
   MODEL: {
