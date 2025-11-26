@@ -54,7 +54,6 @@ export default function AddApprovedAccesoriesPage() {
           description: "",
           price: 0,
           body_type_id: "",
-          type_currency_id: "",
         }}
         onSubmit={handleSubmit}
         isSubmitting={isPending}
