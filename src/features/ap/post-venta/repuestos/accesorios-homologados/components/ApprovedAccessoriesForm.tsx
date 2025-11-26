@@ -52,7 +52,7 @@ export const ApprovedAccesoriesForm = ({
       mode === "create"
         ? approvedAccesoriesSchemaCreate
         : approvedAccesoriesSchemaUpdate
-    ),
+    ) as any,
     defaultValues: {
       ...defaultValues,
     },
