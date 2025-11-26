@@ -3,7 +3,7 @@ import { z } from "zod";
 
 // Warehouse stock schema for create mode
 const warehouseStockSchema = z.object({
-  warehouse_id: requiredStringId("Almacén es requerido"),
+  parent_warehouse_id: requiredStringId("Almacén es requerido"),
   initial_quantity: z
     .number()
     .min(0, { message: "La cantidad inicial debe ser mayor o igual a 0" })
@@ -33,7 +33,7 @@ const productSchemaBase = z.object({
     .refine((value) => value.trim() !== "", {
       message: "Nombre es requerido",
     }),
-  description: z.string().optional(),
+  description: z.string().optional().nullable(),
   product_category_id: requiredStringId("Categoría es requerida"),
   brand_id: z.string().optional(),
   unit_measurement_id: requiredStringId("Unidad de medida es requerida"),

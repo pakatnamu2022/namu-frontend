@@ -37,8 +37,7 @@ export default function UpdateProductTransferPage() {
   });
 
   const { mutate, isPending } = useMutation({
-    mutationFn: (data: ProductTransferSchema) =>
-      updateProductTransfer(Number(id), data),
+    mutationFn: (data: any) => updateProductTransfer(Number(id), data),
     onSuccess: async () => {
       successToast(SUCCESS_MESSAGE(MODEL, "update"));
       await queryClient.invalidateQueries({
