@@ -3,7 +3,7 @@ import { z } from "zod";
 
 // Warehouse stock schema for create mode
 const warehouseStockSchema = z.object({
-  parent_warehouse_id: requiredStringId("Almacén es requerido"),
+  warehouse_id: requiredStringId("Almacén es requerido"),
   initial_quantity: z
     .number()
     .min(0, { message: "La cantidad inicial debe ser mayor o igual a 0" })

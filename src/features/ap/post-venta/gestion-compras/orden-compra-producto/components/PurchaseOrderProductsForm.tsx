@@ -103,6 +103,7 @@ export const PurchaseOrderProductsForm = ({
 
   const { data: warehouses = [], isLoading: isLoadingWarehouses } =
     useAllWarehouse({
+      is_physical_warehouse: 1,
       sede_id: form.watch("sede_id") || undefined,
     });
   const { data: products = [], isLoading: isLoadingProducts } = useAllProduct({
@@ -326,6 +327,7 @@ export const PurchaseOrderProductsForm = ({
               placeholder="Selecciona una fecha"
               dateFormat="dd/MM/yyyy"
               captionLayout="dropdown"
+              disabledRange={{ before: watchedEmissionDate || new Date() }}
             />
 
             <FormSelect

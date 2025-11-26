@@ -4,8 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Eye, Pencil } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { Link } from "react-router-dom";
-import { format } from "date-fns";
-import { es } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge";
 
 export type ProductTransferColumns = ColumnDef<ProductTransferResource>;
@@ -28,99 +26,50 @@ export const productTransferColumns = ({
   routeUpdate,
 }: Props): ProductTransferColumns[] => [
   {
-    accessorKey: "id",
-    header: "ID",
-    cell: ({ getValue }) => {
-      const value = getValue() as number;
-      return <p className="font-semibold">#{value}</p>;
-    },
+    accessorKey: "movement_number",
+    header: "N° Movimiento",
   },
   {
     accessorKey: "movement_date",
     header: "Fecha de Movimiento",
-    cell: ({ getValue }) => {
-      const value = getValue() as string;
-      if (!value) return "-";
-      try {
-        return format(new Date(value), "dd/MM/yyyy", { locale: es });
-      } catch {
-        return value;
-      }
-    },
   },
   {
-    accessorKey: "warehouse_origin",
+    accessorKey: "warehouse_code",
     header: "Almacén Origen",
-    cell: ({ row }) => {
-      const warehouse = row.original.warehouse_origin;
-      return warehouse?.description || "-";
-    },
   },
   {
-    accessorKey: "warehouse_destination",
+    accessorKey: "warehouse_destination_code",
     header: "Almacén Destino",
-    cell: ({ row }) => {
-      const warehouse = row.original.warehouse_destination;
-      return warehouse?.description || "-";
-    },
   },
   {
-    accessorKey: "transfer_reason",
-    header: "Motivo de Traslado",
-    cell: ({ row }) => {
-      const reason = row.original.transfer_reason;
-      return reason?.description || "-";
-    },
+    accessorKey: "user_name",
+    header: "Registrado Por",
   },
   {
-    accessorKey: "driver_name",
-    header: "Conductor",
-    cell: ({ getValue }) => {
-      const value = getValue() as string;
-      return value || "-";
-    },
+    accessorKey: "notes",
+    header: "Observaciones",
   },
   {
-    accessorKey: "plate",
-    header: "Placa",
-    cell: ({ getValue }) => {
-      const value = getValue() as string;
-      return value ? (
-        <Badge variant="outline" className="font-mono">
-          {value}
-        </Badge>
-      ) : (
-        "-"
-      );
-    },
-  },
-  {
-    accessorKey: "total_packages",
-    header: "Bultos",
-    cell: ({ getValue }) => {
-      const value = getValue() as number;
-      return value || "-";
-    },
-  },
-  {
-    accessorKey: "total_weight",
-    header: "Peso Total",
-    cell: ({ getValue }) => {
-      const value = getValue() as number;
-      return value ? `${value} kg` : "-";
-    },
-  },
-  {
-    accessorKey: "status",
-    header: "Estado",
-    cell: ({ getValue }) => {
-      const value = getValue() as boolean;
+    accessorKey: "movement_type",
+    header: "Tipo Movimiento",
+    cell: () => {
       return (
-        <Badge variant={value ? "default" : "destructive"}>
-          {value ? "Activo" : "Inactivo"}
+        <Badge
+          variant="default"
+          className="capitalize w-28 flex items-center justify-center"
+        >
+          TRANSFERENCIA
         </Badge>
       );
     },
+  },
+  {
+    accessorKey: "total_items",
+    header: "Total de Ítems",
+  },
+  {
+    accessorKey: "total_quantity",
+    header: "Cantidad Total",
   },
   {
     id: "actions",

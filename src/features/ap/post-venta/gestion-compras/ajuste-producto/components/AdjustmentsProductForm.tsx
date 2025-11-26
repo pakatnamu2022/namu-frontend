@@ -69,7 +69,7 @@ export const AdjustmentsProductForm = ({
 
   const { data: warehouses = [], isLoading: isLoadingWarehouses } =
     useAllWarehouse({
-      is_received: 1,
+      is_physical_warehouse: 1,
     });
   const { data: products = [], isLoading: isLoadingProducts } = useAllProduct({
     warehouse_id: form.watch("warehouse_id") || undefined,

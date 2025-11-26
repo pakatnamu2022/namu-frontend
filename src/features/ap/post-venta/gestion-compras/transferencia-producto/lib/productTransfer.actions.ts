@@ -8,6 +8,7 @@ import {
   ProductTransferResource,
   ProductTransferResponse,
 } from "./productTransfer.interface";
+import { AP_MASTER_POST_VENTA } from "@/features/ap/lib/ap.constants";
 
 const { ENDPOINT } = PRODUCT_TRANSFER;
 
@@ -17,6 +18,7 @@ export async function getProductTransfers({
   const config: AxiosRequestConfig = {
     params: {
       ...params,
+      movement_type: [AP_MASTER_POST_VENTA.TRANSFER_OUT],
     },
   };
   const { data } = await api.get<ProductTransferResponse>(ENDPOINT, config);

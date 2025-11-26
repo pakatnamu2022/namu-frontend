@@ -80,7 +80,7 @@ export const ReceptionsProductsForm = ({
 
   const { data: warehouses = [], isLoading: isLoadingWarehouses } =
     useAllWarehouse({
-      is_received: 1,
+      is_physical_warehouse: 1,
     });
   const { data: products = [], isLoading: isLoadingProducts } = useAllProduct();
 
@@ -157,6 +157,7 @@ export const ReceptionsProductsForm = ({
               value: warehouse.id.toString(),
             }))}
             control={form.control}
+            disabled={true}
           />
 
           <FormField

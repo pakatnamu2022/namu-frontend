@@ -15,11 +15,13 @@ import { notFound } from "@/shared/hooks/useNotFound.ts";
 import { storeProductTransfer } from "@/features/ap/post-venta/gestion-compras/transferencia-producto/lib/productTransfer.actions.ts";
 import { ProductTransferForm } from "@/features/ap/post-venta/gestion-compras/transferencia-producto/components/ProductTransferForm.tsx";
 import { PRODUCT_TRANSFER } from "@/features/ap/post-venta/gestion-compras/transferencia-producto/lib/productTransfer.constants.ts";
+import { SUNAT_CONCEPTS_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
 
 export default function AddProductTransferPage() {
   const router = useNavigate();
   const { currentView, checkRouteExists } = useCurrentModule();
   const { ROUTE, MODEL, ABSOLUTE_ROUTE } = PRODUCT_TRANSFER;
+  const AUTOMOTORES_PAKATNAMU_ID = "17";
 
   const { mutate, isPending } = useMutation({
     mutationFn: storeProductTransfer,
@@ -51,24 +53,23 @@ export default function AddProductTransferPage() {
         defaultValues={{
           warehouse_origin_id: "",
           warehouse_destination_id: "",
+          document_series_id: "",
           movement_date: "",
           notes: "",
-          reason_in_out_id: "",
           driver_name: "",
           driver_doc: "",
           license: "",
           plate: "",
-          transfer_reason_id: "",
+          issue_date: "",
+          issuer_type: "NOSOTROS",
+          document_type: "GUIA_REMISION",
+          transfer_reason_id: SUNAT_CONCEPTS_ID.TRANSFER_REASON_TRASLADO_SEDE,
           transfer_modality_id: "",
           transport_company_id: "",
           total_packages: "1",
           total_weight: "0",
-          origin_ubigeo: "",
-          origin_address: "",
-          destination_ubigeo: "",
-          destination_address: "",
-          ruc_transport: "",
-          company_name_transport: "",
+          transmitter_origin_id: AUTOMOTORES_PAKATNAMU_ID,
+          receiver_destination_id: AUTOMOTORES_PAKATNAMU_ID,
           details: [],
         }}
         onSubmit={handleSubmit}

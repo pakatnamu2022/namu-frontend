@@ -30,10 +30,15 @@ export const productTransferDetailSchema = z.object({
 // Schema base para transferencia de productos
 const productTransferSchemaBase = z.object({
   warehouse_origin_id: requiredStringId("El almacén de origen es requerido"),
-  warehouse_destination_id: requiredStringId("El almacén de destino es requerido"),
+  document_type: z.string().min(1, "El tipo de documento es requerido"),
+  issuer_type: z.string().min(1, "El tipo de emisor es requerido"),
+  issue_date: z.union([z.literal(""), z.date()]).optional(),
+  document_series_id: requiredStringId("La serie del documento es requerida"),
+  warehouse_destination_id: requiredStringId(
+    "El almacén de destino es requerido"
+  ),
   movement_date: z.union([z.literal(""), z.date()]).optional(),
   notes: z.string().optional(),
-  reason_in_out_id: requiredStringId("El motivo de entrada/salida es requerido"),
   driver_name: z.string().min(1, "El nombre del conductor es requerido"),
   driver_doc: z
     .string()
@@ -51,8 +56,12 @@ const productTransferSchemaBase = z.object({
       "La placa solo puede contener letras mayúsculas, números y guiones"
     ),
   transfer_reason_id: requiredStringId("El motivo de traslado es requerido"),
-  transfer_modality_id: requiredStringId("La modalidad de traslado es requerida"),
-  transport_company_id: requiredStringId("La empresa de transporte es requerida"),
+  transfer_modality_id: requiredStringId(
+    "La modalidad de traslado es requerida"
+  ),
+  transport_company_id: requiredStringId(
+    "La empresa de transporte es requerida"
+  ),
   total_packages: z
     .string()
     .min(1, "El total de bultos es requerido")
@@ -73,30 +82,33 @@ const productTransferSchemaBase = z.object({
       },
       { message: "El peso total debe ser un número mayor o igual a 0.1" }
     ),
-  origin_ubigeo: z.string().min(1, "El ubigeo de origen es requerido"),
-  origin_address: z.string().min(1, "La dirección de origen es requerida"),
-  destination_ubigeo: z.string().min(1, "El ubigeo de destino es requerido"),
-  destination_address: z.string().min(1, "La dirección de destino es requerida"),
-  ruc_transport: z.string().min(11, "El RUC debe tener 11 caracteres").max(11, "El RUC debe tener 11 caracteres"),
-  company_name_transport: z.string().min(1, "El nombre de la empresa de transporte es requerido"),
-  details: z.array(productTransferDetailSchema).min(1, "Debe agregar al menos un producto"),
+  details: z
+    .array(productTransferDetailSchema)
+    .min(1, "Debe agregar al menos un producto"),
+  transmitter_origin_id: requiredStringId(
+    "El remitente en el origen es requerido"
+  ),
+  receiver_destination_id: requiredStringId(
+    "El receptor en el destino es requerido"
+  ),
 });
 
 // Schema para creación con validaciones condicionales
-export const productTransferSchemaCreate = productTransferSchemaBase
-  .refine(
-    (data) => {
-      // El almacén de origen no puede ser igual al de destino
-      return data.warehouse_origin_id !== data.warehouse_destination_id;
-    },
-    {
-      message: "El almacén de origen no puede ser igual al almacén de destino",
-      path: ["warehouse_destination_id"],
-    }
-  );
+export const productTransferSchemaCreate = productTransferSchemaBase.refine(
+  (data) => {
+    // El almacén de origen no puede ser igual al de destino
+    return data.warehouse_origin_id !== data.warehouse_destination_id;
+  },
+  {
+    message: "El almacén de origen no puede ser igual al almacén de destino",
+    path: ["warehouse_destination_id"],
+  }
+);
 
 // Schema para actualización (todos los campos opcionales)
 export const productTransferSchemaUpdate = productTransferSchemaBase.partial();
 
 export type ProductTransferSchema = z.infer<typeof productTransferSchemaCreate>;
-export type ProductTransferDetailSchema = z.infer<typeof productTransferDetailSchema>;
+export type ProductTransferDetailSchema = z.infer<
+  typeof productTransferDetailSchema
+>;

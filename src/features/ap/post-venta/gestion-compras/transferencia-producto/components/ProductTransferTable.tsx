@@ -22,14 +22,12 @@ export default function ProductTransferTable({
         data={data}
         isLoading={isLoading}
         initialColumnVisibility={{
-          id: true,
+          movement_number: true,
           movement_date: true,
-          warehouse_origin: true,
-          warehouse_destination: true,
-          transfer_reason: true,
-          driver_name: true,
-          plate: true,
-          status: true,
+          warehouse_code: true,
+          user_name: true,
+          notes: true,
+          movement_type: false,
         }}
       >
         {children}

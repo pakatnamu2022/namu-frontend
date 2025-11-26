@@ -10,9 +10,9 @@ export interface ProductTransferResource {
   id: number;
   warehouse_origin_id: number;
   warehouse_destination_id: number;
+  document_series_id: number;
   movement_date: string;
   notes?: string;
-  reason_in_out_id: number;
   driver_name: string;
   driver_doc: string;
   license: string;
@@ -22,12 +22,8 @@ export interface ProductTransferResource {
   transport_company_id: number;
   total_packages: number;
   total_weight: number;
-  origin_ubigeo: string;
-  origin_address: string;
   destination_ubigeo: string;
   destination_address: string;
-  ruc_transport: string;
-  company_name_transport: string;
   status?: boolean;
   created_at?: string;
   updated_at?: string;
@@ -91,7 +87,6 @@ export interface ProductTransferRequest {
   warehouse_destination_id: string;
   movement_date: string | Date;
   notes?: string;
-  reason_in_out_id: string;
   driver_name: string;
   driver_doc: string;
   license: string;
@@ -101,12 +96,6 @@ export interface ProductTransferRequest {
   transport_company_id: string;
   total_packages: string;
   total_weight: string;
-  origin_ubigeo: string;
-  origin_address: string;
-  destination_ubigeo: string;
-  destination_address: string;
-  ruc_transport: string;
-  company_name_transport: string;
   details: ProductTransferDetailRequest[];
 }
 

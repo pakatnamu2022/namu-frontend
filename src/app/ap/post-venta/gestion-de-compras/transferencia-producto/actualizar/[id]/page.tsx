@@ -61,11 +61,11 @@ export default function UpdateProductTransferPage() {
     return {
       warehouse_origin_id: String(data.warehouse_origin_id),
       warehouse_destination_id: String(data.warehouse_destination_id),
+      document_series_id: String(data.document_series_id),
       movement_date: data.movement_date
         ? new Date(data.movement_date)
         : new Date(),
       notes: data.notes || "",
-      reason_in_out_id: String(data.reason_in_out_id),
       driver_name: data.driver_name,
       driver_doc: data.driver_doc,
       license: data.license,
@@ -75,12 +75,7 @@ export default function UpdateProductTransferPage() {
       transport_company_id: String(data.transport_company_id),
       total_packages: String(data.total_packages),
       total_weight: String(data.total_weight),
-      origin_ubigeo: data.origin_ubigeo,
-      origin_address: data.origin_address,
-      destination_ubigeo: data.destination_ubigeo,
-      destination_address: data.destination_address,
-      ruc_transport: data.ruc_transport,
-      company_name_transport: data.company_name_transport,
+      issue_date: data.created_at ? new Date(data.created_at) : undefined,
       details:
         data.details?.map((item) => ({
           product_id: String(item.product_id),

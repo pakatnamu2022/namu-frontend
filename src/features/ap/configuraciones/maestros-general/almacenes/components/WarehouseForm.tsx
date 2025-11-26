@@ -107,7 +107,7 @@ export const WarehouseForm = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormSwitch
             name="is_physical_warehouse"
-            label="¿Es Padre?"
+            label="¿Es almacén fisico?"
             text={form.watch("is_physical_warehouse") ? "Sí" : "No"}
             control={form.control}
           />

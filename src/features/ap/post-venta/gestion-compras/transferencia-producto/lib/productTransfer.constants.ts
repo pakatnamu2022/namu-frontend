@@ -11,7 +11,7 @@ export const PRODUCT_TRANSFER: ModelComplete<ProductTransferResource> = {
     gender: true,
   },
   ICON: "Package",
-  ENDPOINT: "/ap/postVenta/inventoryMovements/transfers",
+  ENDPOINT: "/ap/postVenta/inventoryMovements",
   QUERY_KEY: "product-transfers",
   ROUTE,
   ABSOLUTE_ROUTE,

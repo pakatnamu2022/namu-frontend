@@ -67,8 +67,8 @@ export const ProductForm = ({
     useAllUnitMeasurement();
   const { data: warehouses = [], isLoading: isLoadingWarehouses } =
     useAllWarehouse({
-      is_received: 1,
       type_operation_id: CM_POSTVENTA_ID,
+      is_physical_warehouse: 1,
     });
   const { data: classArticles = [], isLoading: isLoadingClassArticles } =
     useAllClassArticle();
@@ -289,7 +289,7 @@ export const ProductForm = ({
                   {/* Almacén Select */}
                   <div className="mb-3">
                     <FormSelect
-                      name={`warehouses.${index}.parent_warehouse_id`}
+                      name={`warehouses.${index}.warehouse_id`}
                       label="Almacén"
                       placeholder="Selecciona un almacén"
                       options={warehouses.map((warehouse) => ({
@@ -412,7 +412,7 @@ export const ProductForm = ({
                 size="sm"
                 onClick={() =>
                   append({
-                    parent_warehouse_id: "",
+                    warehouse_id: "",
                     initial_quantity: undefined,
                     minimum_stock: undefined,
                     maximum_stock: undefined,

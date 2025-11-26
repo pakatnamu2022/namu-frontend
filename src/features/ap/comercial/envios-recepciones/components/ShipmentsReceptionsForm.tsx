@@ -834,8 +834,8 @@ export const ShipmentsReceptionsForm = ({
         <GroupFormSection
           icon={Truck}
           title="Conductor y Vehículo"
-          iconColor="text-blue-600 dark:text-blue-100"
-          bgColor="bg-blue-50 dark:bg-blue-950"
+          iconColor="text-primary"
+          bgColor="bg-blue-50"
           cols={{
             sm: 1,
             md: 2,
