@@ -74,6 +74,7 @@ export const VehicleDeliveryForm = ({
   const { data: articleClass = [], isLoading: isLoadingArticleClass } =
     useAllClassArticle({
       type: "VEHICULO",
+      type_operation_id: CM_COMERCIAL_ID,
     });
 
   // Observar la sede seleccionada
@@ -83,7 +84,7 @@ export const VehicleDeliveryForm = ({
     useAllVehicles({
       warehouse$sede_id: watchSedeId ? Number(watchSedeId) : undefined,
       warehouse$is_received: 1,
-      warehouse$ap_class_article_id: watchArticleClassId,
+      warehouse$article_class_id: watchArticleClassId,
     });
 
   // Obtener el vehículo seleccionado
