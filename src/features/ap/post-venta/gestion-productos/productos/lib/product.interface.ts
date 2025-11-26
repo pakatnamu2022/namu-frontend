@@ -9,7 +9,7 @@ export interface ProductResponse {
 export interface WarehouseStockDetail {
   id: number;
   product_id: number;
-  warehouse_id: number;
+  parent_warehouse_id: number;
   quantity: number;
   quantity_in_transit: number;
   quantity_pending_credit_note: number;
@@ -110,7 +110,7 @@ export interface ProductResource {
 }
 
 export interface WarehouseStock {
-  warehouse_id: string;
+  parent_warehouse_id: string;
   initial_quantity?: number;
   minimum_stock?: number;
   maximum_stock?: number;

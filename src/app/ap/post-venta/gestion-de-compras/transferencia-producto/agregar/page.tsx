@@ -13,7 +13,6 @@ import TitleFormComponent from "@/shared/components/TitleFormComponent.tsx";
 import FormWrapper from "@/shared/components/FormWrapper.tsx";
 import { notFound } from "@/shared/hooks/useNotFound.ts";
 import { storeProductTransfer } from "@/features/ap/post-venta/gestion-compras/transferencia-producto/lib/productTransfer.actions.ts";
-import { ProductTransferSchema } from "@/features/ap/post-venta/gestion-compras/transferencia-producto/lib/productTransfer.schema.ts";
 import { ProductTransferForm } from "@/features/ap/post-venta/gestion-compras/transferencia-producto/components/ProductTransferForm.tsx";
 import { PRODUCT_TRANSFER } from "@/features/ap/post-venta/gestion-compras/transferencia-producto/lib/productTransfer.constants.ts";
 
@@ -34,7 +33,7 @@ export default function AddProductTransferPage() {
     },
   });
 
-  const handleSubmit = (data: ProductTransferSchema) => {
+  const handleSubmit = (data: any) => {
     mutate(data);
   };
 

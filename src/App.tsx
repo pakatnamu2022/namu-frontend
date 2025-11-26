@@ -194,21 +194,6 @@ const ActividadEconomicaPage = lazy(
   () =>
     import("./app/ap/configuraciones/maestros-general/actividad-economica/page")
 );
-const AlmacenesPadrePage = lazy(
-  () => import("./app/ap/configuraciones/maestros-general/almacenes-padre/page")
-);
-const AddAlmacenesPadrePage = lazy(
-  () =>
-    import(
-      "./app/ap/configuraciones/maestros-general/almacenes-padre/agregar/page"
-    )
-);
-const EditAlmacenesPadrePage = lazy(
-  () =>
-    import(
-      "./app/ap/configuraciones/maestros-general/almacenes-padre/actualizar/[id]/page"
-    )
-);
 const AlmacenesPage = lazy(
   () => import("./app/ap/configuraciones/maestros-general/almacenes/page")
 );
@@ -1011,18 +996,6 @@ function App() {
               <Route
                 path="maestros-general/actividad-economica"
                 element={<ActividadEconomicaPage />}
-              />
-              <Route
-                path="maestros-general/almacenes-padre"
-                element={<AlmacenesPadrePage />}
-              />
-              <Route
-                path="maestros-general/almacenes-padre/agregar"
-                element={<AddAlmacenesPadrePage />}
-              />
-              <Route
-                path="maestros-general/almacenes-padre/actualizar/:id"
-                element={<EditAlmacenesPadrePage />}
               />
               <Route
                 path="maestros-general/almacenes"
