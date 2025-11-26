@@ -201,11 +201,6 @@ export const PurchaseRequestQuoteForm = ({
   const originalPrice = selectedModel?.sale_price || 0;
   const currencySymbol = selectedModel?.currency_symbol || "S/";
 
-  console.log("vehicleVnSelected", vehicleVnSelected);
-  console.log("selectedModel", selectedModel);
-  console.log("originalPrice", originalPrice);
-  console.log("currencySymbol", currencySymbol);
-
   // Effect para limpiar campos cuando se cambia el switch (solo si no es carga inicial)
   useEffect(() => {
     if (!isInitialLoad) {
@@ -445,6 +440,7 @@ export const PurchaseRequestQuoteForm = ({
     }, 0);
 
     // Subtotal: precio de venta + accesorios - descuentos negativos
+
     const subtotal = salePrice + accessoriesTotal - negativeDiscounts;
 
     return {
@@ -508,7 +504,7 @@ export const PurchaseRequestQuoteForm = ({
       accessories: accessoriesData,
       type_currency_id: vehicleCurrency.currencyId,
       base_selling_price: totals.salePrice,
-      sale_price: totals.subtotal,
+      sale_price: totals.salePrice + totals.accessoriesTotal,
       doc_sale_price: finalTotal,
     };
 
