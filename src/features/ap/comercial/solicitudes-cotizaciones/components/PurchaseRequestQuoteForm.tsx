@@ -751,7 +751,6 @@ export const PurchaseRequestQuoteForm = ({
         >
           <ApprovedAccessoriesTable
             accessories={approvedAccesories}
-            currencySymbol={currencySymbol}
             onAccessoriesChange={setAccessoriesRows}
             initialData={initialAccessories}
           />

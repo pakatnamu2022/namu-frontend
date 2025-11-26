@@ -17,8 +17,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Plus, Trash2 } from "lucide-react";
-import { ApprovedAccesoriesResource } from "@/features/ap/post-venta/repuestos/accesorios-homologados/lib/approvedAccessories.interface";
 import { NumberFormat } from "@/shared/components/NumberFormat";
+import { ApprovedAccesoriesResource } from "@/features/ap/post-venta/repuestos/accesorios-homologados/lib/approvedAccessories.interface";
 
 export interface ApprovedAccessoryRow {
   id: string;
@@ -31,14 +31,12 @@ interface ApprovedAccessoriesTableProps {
   accessories: ApprovedAccesoriesResource[];
   onAccessoriesChange?: (accessories: ApprovedAccessoryRow[]) => void;
   initialData?: ApprovedAccessoryRow[];
-  currencySymbol: string;
 }
 
 export const ApprovedAccessoriesTable = ({
   accessories,
   onAccessoriesChange,
   initialData = [],
-  currencySymbol,
 }: ApprovedAccessoriesTableProps) => {
   const [rows, setRows] = useState<ApprovedAccessoryRow[]>(initialData);
   const [newRow, setNewRow] = useState<Omit<ApprovedAccessoryRow, "id">>({
@@ -324,7 +322,7 @@ export const ApprovedAccessoriesTable = ({
               <div>
                 <span className="text-sm text-gray-600">Total Accesorios:</span>
                 <span className="ml-2 text-lg font-bold text-primary">
-                  {currencySymbol}{" "}
+                  S/
                   <NumberFormat value={calculateTotal().toFixed(2)} />
                 </span>
               </div>
