@@ -66,7 +66,6 @@ export default function UpdateApprovedAccesoriesPage() {
       description: data.description,
       price: data.price,
       body_type_id: String(data.body_type_id),
-      type_currency_id: String(data.type_currency_id),
     };
   }
 

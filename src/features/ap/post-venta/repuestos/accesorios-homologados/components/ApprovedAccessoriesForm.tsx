@@ -19,7 +19,6 @@ import {
   approvedAccesoriesSchemaUpdate,
 } from "../lib/approvedAccessories.schema.ts";
 import FormSkeleton from "@/shared/components/FormSkeleton.tsx";
-import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.hook.ts";
 import { useAllBodyType } from "@/features/ap/configuraciones/vehiculos/tipos-carroceria/lib/bodyType.hook.ts";
 import { APPROVED_ACCESSORIES } from "../lib/approvedAccessories.constants.ts";
 
@@ -60,13 +59,10 @@ export const ApprovedAccesoriesForm = ({
   });
   const { ABSOLUTE_ROUTE } = APPROVED_ACCESSORIES;
 
-  const { data: typesCurrency = [], isLoading: isLoadingTypesCurrency } =
-    useAllCurrencyTypes();
-
   const { data: typesBody = [], isLoading: isLoadingTypesBody } =
     useAllBodyType();
 
-  if (isLoadingTypesCurrency || isLoadingTypesBody) {
+  if (isLoadingTypesBody) {
     return <FormSkeleton />;
   }
 
@@ -102,18 +98,6 @@ export const ApprovedAccesoriesForm = ({
                 <FormMessage />
               </FormItem>
             )}
-          />
-          <FormSelect
-            name="type_currency_id"
-            label="Moneda"
-            placeholder="Selecciona una moneda"
-            options={
-              typesCurrency.map((item) => ({
-                label: item.code + " - " + item.name,
-                value: item.id.toString(),
-              })) /* Replace with actual options */
-            }
-            control={form.control}
           />
           <FormField
             control={form.control}
