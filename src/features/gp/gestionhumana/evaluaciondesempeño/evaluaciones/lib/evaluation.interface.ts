@@ -31,6 +31,8 @@ export interface EvaluationResource {
   results_stats?: ResultsStats;
   send_open_notifications: boolean;
   send_close_notifications: boolean;
+  send_opened_email: boolean;
+  send_closed_email: boolean;
 }
 
 export interface ProgressStats {

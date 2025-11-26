@@ -194,6 +194,21 @@ const ActividadEconomicaPage = lazy(
   () =>
     import("./app/ap/configuraciones/maestros-general/actividad-economica/page")
 );
+const AlmacenesPadrePage = lazy(
+  () => import("./app/ap/configuraciones/maestros-general/almacenes-padre/page")
+);
+const AddAlmacenesPadrePage = lazy(
+  () =>
+    import(
+      "./app/ap/configuraciones/maestros-general/almacenes-padre/agregar/page"
+    )
+);
+const EditAlmacenesPadrePage = lazy(
+  () =>
+    import(
+      "./app/ap/configuraciones/maestros-general/almacenes-padre/actualizar/[id]/page"
+    )
+);
 const AlmacenesPage = lazy(
   () => import("./app/ap/configuraciones/maestros-general/almacenes/page")
 );
@@ -479,7 +494,7 @@ const TiendasPage = lazy(
 
 // Accesorios
 const AccesoriosHomologadosPage = lazy(
-  () => import("./app/ap/post-venta/accesorios-homologados/page")
+  () => import("@/app/ap/post-venta/repuestos/accesorios-homologados/page")
 );
 
 // Gestión de Productos
@@ -520,6 +535,40 @@ const TiposCategoriaPage = lazy(
 );
 
 // Gestión de Compras
+const ProductTransferPage = lazy(
+  () =>
+    import("./app/ap/post-venta/gestion-de-compras/transferencia-producto/page")
+);
+const AddProductTransferPage = lazy(
+  () =>
+    import(
+      "./app/ap/post-venta/gestion-de-compras/transferencia-producto/agregar/page"
+    )
+);
+const EditProductTransferPage = lazy(
+  () =>
+    import(
+      "./app/ap/post-venta/gestion-de-compras/transferencia-producto/actualizar/[id]/page"
+    )
+);
+const ReasonsAdjustmentPage = lazy(
+  () => import("./app/ap/post-venta/gestion-de-compras/motivos-ajuste/page")
+);
+const ProductAdjustmentPage = lazy(
+  () => import("./app/ap/post-venta/gestion-de-compras/ajuste-producto/page")
+);
+const AddProductAdjustmentPage = lazy(
+  () =>
+    import(
+      "./app/ap/post-venta/gestion-de-compras/ajuste-producto/agregar/page"
+    )
+);
+const EditProductAdjustmentPage = lazy(
+  () =>
+    import(
+      "./app/ap/post-venta/gestion-de-compras/ajuste-producto/actualizar/[id]/page"
+    )
+);
 const PurchaseOrderProductsPage = lazy(
   () =>
     import("./app/ap/post-venta/gestion-de-compras/orden-compra-producto/page")
@@ -552,6 +601,21 @@ const EditReceptionPurchaseOrderProductsPage = lazy(
   () =>
     import(
       "./app/ap/post-venta/gestion-de-compras/orden-compra-producto/recepcion/actualizar/[purchaseOrderId]/[id]/page"
+    )
+);
+
+// Repuestos
+const ApprovedAccessoriesPage = lazy(
+  () => import("./app/ap/post-venta/repuestos/accesorios-homologados/page")
+);
+const AddApprovedAccessoriesPage = lazy(
+  () =>
+    import("./app/ap/post-venta/repuestos/accesorios-homologados/agregar/page")
+);
+const EditApprovedAccessoriesPage = lazy(
+  () =>
+    import(
+      "./app/ap/post-venta/repuestos/accesorios-homologados/actualizar/[id]/page"
     )
 );
 
@@ -949,6 +1013,18 @@ function App() {
                 element={<ActividadEconomicaPage />}
               />
               <Route
+                path="maestros-general/almacenes-padre"
+                element={<AlmacenesPadrePage />}
+              />
+              <Route
+                path="maestros-general/almacenes-padre/agregar"
+                element={<AddAlmacenesPadrePage />}
+              />
+              <Route
+                path="maestros-general/almacenes-padre/actualizar/:id"
+                element={<EditAlmacenesPadrePage />}
+              />
+              <Route
                 path="maestros-general/almacenes"
                 element={<AlmacenesPage />}
               />
@@ -1283,6 +1359,34 @@ function App() {
 
               {/* Gestion Compra */}
               <Route
+                path="gestion-de-compras/transferencia-producto"
+                element={<ProductTransferPage />}
+              />
+              <Route
+                path="gestion-de-compras/transferencia-producto/agregar"
+                element={<AddProductTransferPage />}
+              />
+              <Route
+                path="gestion-de-compras/transferencia-producto/actualizar/:id"
+                element={<EditProductTransferPage />}
+              />
+              <Route
+                path="gestion-de-compras/motivos-ajuste"
+                element={<ReasonsAdjustmentPage />}
+              />
+              <Route
+                path="gestion-de-compras/ajuste-producto"
+                element={<ProductAdjustmentPage />}
+              />
+              <Route
+                path="gestion-de-compras/ajuste-producto/agregar"
+                element={<AddProductAdjustmentPage />}
+              />
+              <Route
+                path="gestion-de-compras/ajuste-producto/actualizar/:id"
+                element={<EditProductAdjustmentPage />}
+              />
+              <Route
                 path="gestion-de-compras/orden-compra-producto"
                 element={<PurchaseOrderProductsPage />}
               />
@@ -1305,6 +1409,20 @@ function App() {
               <Route
                 path="gestion-de-compras/orden-compra-producto/recepcion/actualizar/:purchaseOrderId/:id"
                 element={<EditReceptionPurchaseOrderProductsPage />}
+              />
+
+              {/* Repuestos */}
+              <Route
+                path="repuestos/accesorios-homologados"
+                element={<ApprovedAccessoriesPage />}
+              />
+              <Route
+                path="repuestos/accesorios-homologados/agregar"
+                element={<AddApprovedAccessoriesPage />}
+              />
+              <Route
+                path="repuestos/accesorios-homologados/actualizar/:id"
+                element={<EditApprovedAccessoriesPage />}
               />
 
               {/* Taller */}

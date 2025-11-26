@@ -23,8 +23,10 @@ import { EMPRESA_AP } from "@/core/core.constants";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { useAllTypesOperation } from "../../tipos-operacion/lib/typesOperation.hook";
 import { useAllClassArticle } from "../../clase-articulo/lib/classArticle.hook";
+import { useAllParentWarehouse } from "../../almacenes-padre/lib/parentWarehouse.hook";
 import { FormSwitch } from "@/shared/components/FormSwitch";
 import { WAREHOUSE } from "../lib/warehouse.constants";
+import { useEffect, useRef } from "react";
 
 interface WarehouseFormProps {
   defaultValues: Partial<WarehouseSchema>;
@@ -49,6 +51,7 @@ export const WarehouseForm = ({
     mode: "onChange",
   });
   const { ABSOLUTE_ROUTE } = WAREHOUSE;
+  const hasLoadedInitialData = useRef(false);
   const { data: sedes = [], isLoading: isLoadingSedes } = useAllSedes({
     empresa_id: EMPRESA_AP.id,
   });
@@ -58,6 +61,37 @@ export const WarehouseForm = ({
 
   const { data: classArticles = [], isLoading: isLoadingClassArticles } =
     useAllClassArticle();
+
+  const isReceivedWatch = form.watch("is_received");
+  const headerWarehouseIdWatch = form.watch("header_warehouse_id");
+
+  const { data: parentWarehouses = [], isLoading: isLoadingParentWarehouses } =
+    useAllParentWarehouse({
+      is_received: isReceivedWatch ? 1 : 0,
+    });
+
+  useEffect(() => {
+    // En modo edición, saltar solo la primera carga para mantener valores originales
+    if (mode === "update" && !hasLoadedInitialData.current) {
+      hasLoadedInitialData.current = true;
+      return;
+    }
+
+    // Después de la primera carga, ejecutar auto-llenado en ambos modos
+    if (isReceivedWatch && headerWarehouseIdWatch !== "") {
+      const parentWarehouse = parentWarehouses.find(
+        (pw) => pw.id.toString() === headerWarehouseIdWatch
+      );
+
+      if (parentWarehouse) {
+        form.setValue("sede_id", parentWarehouse.sede_id.toString());
+        form.setValue(
+          "type_operation_id",
+          parentWarehouse.type_operation_id.toString()
+        );
+      }
+    }
+  }, [mode, isReceivedWatch, headerWarehouseIdWatch, form, parentWarehouses]);
 
   if (isLoadingSedes || isLoadingTypesOperation || isLoadingClassArticles)
     return <FormSkeleton />;
@@ -69,6 +103,12 @@ export const WarehouseForm = ({
         className="space-y-4 w-full formlayout"
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormSwitch
+            name="is_received"
+            label="¿Es Almacén de Recepción?"
+            text={form.watch("is_received") ? "Sí" : "No"}
+            control={form.control}
+          />
           <FormField
             control={form.control}
             name="dyn_code"
@@ -125,6 +165,32 @@ export const WarehouseForm = ({
             )}
           />
           <FormSelect
+            name="article_class_id"
+            label="Clase de Artículo"
+            placeholder="Selecciona una Clase de Artículo"
+            options={classArticles.map((classArticle) => ({
+              label: classArticle.description,
+              value: classArticle.id.toString(),
+            }))}
+            control={form.control}
+          />
+          <FormSelect
+            name="header_warehouse_id"
+            label="Almacén Padre"
+            placeholder="Selecciona un Almacén Padre"
+            options={parentWarehouses.map((parentWarehouse) => ({
+              label: parentWarehouse.dyn_code,
+              description:
+                parentWarehouse.sede + " - " + parentWarehouse.type_operation,
+              value: parentWarehouse.id.toString(),
+            }))}
+            control={form.control}
+            disabled={
+              isLoadingParentWarehouses || parentWarehouses.length === 0
+            }
+            withValue={false}
+          />
+          <FormSelect
             name="sede_id"
             label="Sede"
             placeholder="Selecciona una Sede"
@@ -133,6 +199,7 @@ export const WarehouseForm = ({
               value: sede.id.toString(),
             }))}
             control={form.control}
+            disabled={headerWarehouseIdWatch !== ""}
           />
           <FormSelect
             name="type_operation_id"
@@ -143,22 +210,7 @@ export const WarehouseForm = ({
               value: typeOperation.id.toString(),
             }))}
             control={form.control}
-          />
-          <FormSelect
-            name="article_class_id"
-            label="Clase de Artículo"
-            placeholder="Selecciona una Clase de Artículo"
-            options={classArticles.map((classArticle) => ({
-              label: classArticle.description,
-              value: classArticle.id.toString(),
-            }))}
-            control={form.control}
-          />
-          <FormSwitch
-            name="is_received"
-            label="¿Es Almacén de Recepción?"
-            text={form.watch("is_received") ? "Sí" : "No"}
-            control={form.control}
+            disabled={headerWarehouseIdWatch !== ""}
           />
         </div>
         <div className="flex gap-4 w-full justify-end">

@@ -36,12 +36,12 @@ export default function TypesCategoryModal({
   const queryClient = useQueryClient();
   const { EMPTY, MODEL, QUERY_KEY } = TYPES_CATEGORY;
   const {
-    data: TypesCategory,
+    data: fetchedTypesCategory,
     isLoading: loadingTypesCategory,
     refetch,
-  } = mode === "create"
-    ? { data: EMPTY, isLoading: false, refetch: () => {} }
-    : useTypesCategoryById(id!);
+  } = useTypesCategoryById(id);
+
+  const TypesCategory = mode === "create" ? EMPTY : fetchedTypesCategory;
 
   function mapRoleToForm(
     data: TypesCategoryResource

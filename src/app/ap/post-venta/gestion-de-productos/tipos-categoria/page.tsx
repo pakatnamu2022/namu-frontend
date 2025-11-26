@@ -24,13 +24,12 @@ import TypesCategoryModal from "@/features/ap/post-venta/gestion-productos/tipos
 import { useTypesCategory } from "@/features/ap/post-venta/gestion-productos/tipos-categoria/lib/typesCategory.hook";
 import { notFound } from "@/shared/hooks/useNotFound";
 import {
-
   deleteTypesCategory,
   updateTypesCategory,
 } from "@/features/ap/post-venta/gestion-productos/tipos-categoria/lib/typesCategory.actions";
 
 export default function TypesCategoryPage() {
-    const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
+  const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");

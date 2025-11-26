@@ -56,7 +56,7 @@ export default function ManageLeadsActions({
     } catch (error: any) {
       errorToast(
         "Error al descargar el Excel. Por favor, intente nuevamente.",
-        error.message.toString()
+        error.response.data?.message?.toString()
       );
     }
   };
@@ -75,7 +75,7 @@ export default function ManageLeadsActions({
     } catch (error: any) {
       errorToast(
         "Error al descargar el PDF. Por favor, intente nuevamente.",
-        error.message.toString()
+        error.response.data?.message?.toString()
       );
     }
   };

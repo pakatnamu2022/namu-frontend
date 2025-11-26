@@ -18,17 +18,25 @@ export interface ReceptionDetailResource {
     | "OTHER";
   observation_notes?: string;
   bonus_reason?: string;
+  batch_number?: string;
+  expiration_date?: string;
   notes?: string;
   product?: {
     id: number;
     code: string;
     name: string;
+    brand_name?: string;
+    category_name?: string;
+    unit_measurement_name?: string;
+    cost_price?: string | number;
+    sale_price?: string | number;
   };
   purchase_order_item?: {
     id: number;
     product_id: number;
     product_name?: string;
     quantity: number;
+    unit_price?: number;
   };
 }
 
@@ -50,6 +58,10 @@ export interface ReceptionResource {
     id: number;
     number: string;
     supplier?: string;
+    supplier_num_doc?: string;
+    sede?: string;
+    currency?: string;
+    currency_code?: string;
     items?: Array<{
       id: number;
       product_id: number;

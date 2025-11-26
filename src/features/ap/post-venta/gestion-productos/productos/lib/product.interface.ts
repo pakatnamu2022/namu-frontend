@@ -6,34 +6,107 @@ export interface ProductResponse {
   meta: Meta;
 }
 
+export interface WarehouseStockDetail {
+  id: number;
+  product_id: number;
+  warehouse_id: number;
+  quantity: number;
+  quantity_in_transit: number;
+  quantity_pending_credit_note: number;
+  reserved_quantity: number;
+  available_quantity: number;
+  minimum_stock: number;
+  maximum_stock: number;
+  last_movement_date: string | null;
+  is_low_stock: boolean;
+  is_out_of_stock: boolean;
+  stock_status: "NORMAL" | "LOW" | "OUT";
+  total_expected_stock: number;
+  warehouse: {
+    id: number;
+    dyn_code: string;
+    description: string;
+    article_class_id: number;
+    article_class: string;
+    sede_id: number;
+    sede: string;
+    type_operation_id: number;
+    type_operation: string;
+    status: number;
+    is_received: number;
+    inventory_account: string;
+    counterparty_account: string;
+  };
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ProductCategory {
+  id: number;
+  name: string;
+  description: string;
+  status: number;
+  type_id: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ProductBrand {
+  id: number;
+  code: string;
+  dyn_code: string;
+  name: string;
+  description: string;
+  logo: string;
+  logo_min: string;
+  is_commercial: number;
+  status: number;
+  group_id: number;
+  group: string;
+  sede_id: number | null;
+}
+
+export interface ProductUnitMeasurement {
+  id: number;
+  dyn_code: string;
+  nubefac_code: string;
+  description: string;
+  status: boolean;
+}
+
 export interface ProductResource {
   id: number;
   code: string;
   dyn_code?: string;
-  nubefac_code?: string;
+  nubefac_code?: string | null;
   name: string;
   description?: string;
   product_category_id: number;
-  product_category_name?: string;
   brand_id?: number;
-  brand_name?: string;
   unit_measurement_id: number;
-  unit_measurement_name?: string;
-  warehouse_id?: number;
-  warehouse_name?: string;
   ap_class_article_id: number;
-  ap_class_article_name?: string;
-  minimum_stock: number;
-  maximum_stock: number;
-  current_stock?: number;
-  cost_price?: number;
-  sale_price: number;
-  tax_rate?: number;
+  cost_price?: string;
+  sale_price: string;
+  tax_rate?: string;
   is_taxable?: boolean;
-  sunat_code?: string;
+  sunat_code?: string | null;
   warranty_months?: number;
-  notes?: string;
   status: "ACTIVE" | "INACTIVE" | "DISCONTINUED";
+
+  // Computed/appended fields from backend
+  brand_name?: string;
+  category_name?: string;
+  unit_measurement_name?: string;
+  total_stock?: number;
+  total_available_stock?: number;
+  price_with_tax?: number;
+  cost_with_tax?: number;
+
+  // Nested relations (when included)
+  warehouse_stocks?: WarehouseStockDetail[];
+  category?: ProductCategory;
+  brand?: ProductBrand;
+  unit_measurement?: ProductUnitMeasurement;
 }
 
 export interface WarehouseStock {
