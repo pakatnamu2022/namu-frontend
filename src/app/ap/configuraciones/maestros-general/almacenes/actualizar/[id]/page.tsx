@@ -68,6 +68,7 @@ export default function UpdateWarehousePage() {
       counterparty_account: String(data.counterparty_account),
       parent_warehouse_id: String(data.parent_warehouse_id),
       is_received: Boolean(data.is_received),
+      is_physical_warehouse: Boolean(data.is_physical_warehouse),
     };
   }
 

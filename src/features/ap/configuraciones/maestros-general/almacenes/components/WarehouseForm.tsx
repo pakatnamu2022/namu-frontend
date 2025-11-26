@@ -69,6 +69,7 @@ export const WarehouseForm = ({
   const { data: parentWarehouses = [], isLoading: isLoadingParentWarehouses } =
     useAllWarehouse({
       is_received: isReceivedWatch ? 1 : 0,
+      is_physical_warehouse: 1,
     });
 
   useEffect(() => {
@@ -177,6 +178,12 @@ export const WarehouseForm = ({
                 }))}
                 control={form.control}
               />
+              <FormSwitch
+                name="is_received"
+                label="¿Es Almacén de Recepción?"
+                text={form.watch("is_received") ? "Sí" : "No"}
+                control={form.control}
+              />
               <FormSelect
                 name="parent_warehouse_id"
                 label="Almacén Padre"
@@ -219,12 +226,14 @@ export const WarehouseForm = ({
             control={form.control}
             disabled={parentWarehouseIdWatch !== "" && !idParentWarehouseWatch}
           />
-          <FormSwitch
-            name="is_received"
-            label="¿Es Almacén de Recepción?"
-            text={form.watch("is_received") ? "Sí" : "No"}
-            control={form.control}
-          />
+          {idParentWarehouseWatch && (
+            <FormSwitch
+              name="is_received"
+              label="¿Es Almacén de Recepción?"
+              text={form.watch("is_received") ? "Sí" : "No"}
+              control={form.control}
+            />
+          )}
         </div>
         <div className="flex gap-4 w-full justify-end">
           <Link to={ABSOLUTE_ROUTE!}>

@@ -26,7 +26,7 @@ export const warehouseColumns = ({
   permissions,
 }: Props): WarehouseColumns[] => [
   {
-    accessorKey: "header_warehouse_dyn_code",
+    accessorKey: "parent_warehouse_dyn_code",
     header: "P. Cod. Dynamic",
     cell: ({ getValue }) => {
       const value = getValue() as string;
