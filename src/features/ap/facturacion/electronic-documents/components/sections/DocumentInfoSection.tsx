@@ -55,12 +55,12 @@ export function DocumentInfoSection({
     const documentTypeId = selectedCustomer.document_type_id;
 
     // Si el cliente tiene RUC (810), solo mostrar Factura (id: 29)
-    if (documentTypeId === 810) {
+    if (Number(documentTypeId) === 810) {
       return type.id === 29;
     }
 
     // Si el cliente tiene Cédula (809), solo mostrar el tipo con id 30
-    if (documentTypeId === 809) {
+    if (Number(documentTypeId) === 809) {
       return type.id === 30;
     }
 

@@ -45,7 +45,7 @@ export interface CustomersResource {
   supplier_tax_class_type_igv?: number;
   type_person_id: string;
   district_id: string;
-  document_type_id: number;
+  document_type_id: string;
   person_segment_id: string;
   marital_status_id: string;
   gender_id: string;
