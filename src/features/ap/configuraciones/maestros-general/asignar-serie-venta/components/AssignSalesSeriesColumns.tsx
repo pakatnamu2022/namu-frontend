@@ -50,6 +50,10 @@ export const assignSalesSeriesColumns = ({
     header: "Sede",
   },
   {
+    accessorKey: "type",
+    header: "Tipo",
+  },
+  {
     accessorKey: "status",
     header: "Estado",
     cell: ({ getValue }) => {
