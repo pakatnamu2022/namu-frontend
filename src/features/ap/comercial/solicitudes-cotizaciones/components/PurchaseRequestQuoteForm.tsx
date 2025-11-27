@@ -112,7 +112,9 @@ export const PurchaseRequestQuoteForm = ({
     isLoading: isLoadingApprovedAccesories,
   } = useAllApprovedAccesories();
   const { data: vehiclesVn = [], isLoading: isLoadingVehiclesVn } =
-    useAllVehiclesWithCosts();
+    useAllVehiclesWithCosts({
+      family_id: selectedFamilyId,
+    });
   const { data: currencyTypes = [], isLoading: isLoadingCurrencyTypes } =
     useAllCurrencyTypes();
 
@@ -202,7 +204,9 @@ export const PurchaseRequestQuoteForm = ({
   const currencySymbol = selectedModel?.currency_symbol || "S/";
 
   // Obtener el billed_cost del vehículo seleccionado (cuando se selecciona con VIN)
-  const billedCost = vehicleVnSelected?.billed_cost ? parseFloat(vehicleVnSelected.billed_cost.toString()) : 0;
+  const billedCost = vehicleVnSelected?.billed_cost
+    ? parseFloat(vehicleVnSelected.billed_cost.toString())
+    : 0;
 
   // Calcular el margen de ganancia
   const calculateMargin = () => {
@@ -216,7 +220,7 @@ export const PurchaseRequestQuoteForm = ({
 
     return {
       amount: marginAmount,
-      percentage: marginPercentage
+      percentage: marginPercentage,
     };
   };
 
@@ -267,7 +271,15 @@ export const PurchaseRequestQuoteForm = ({
         }
       }
     }
-  }, [vehicleVnWatch, withVinWatch, vehiclesVn, modelsVn, form, isInitialLoad, mode]);
+  }, [
+    vehicleVnWatch,
+    withVinWatch,
+    vehiclesVn,
+    modelsVn,
+    form,
+    isInitialLoad,
+    mode,
+  ]);
 
   // Effect para inicializar el switch en modo actualizar (solo una vez)
   useEffect(() => {
@@ -331,7 +343,7 @@ export const PurchaseRequestQuoteForm = ({
         form.setValue("holder_id", "");
       }
     }
-  }, [copyClientToHolder]);
+  }, [copyClientToHolder, opportunityWatch, opportunities, form, mode]);
 
   // Effect para actualizar family_id cuando cambia la oportunidad seleccionada
   useEffect(() => {
@@ -746,37 +758,61 @@ export const PurchaseRequestQuoteForm = ({
                       <>
                         <div className="text-xs text-gray-600 bg-gray-50 px-2 py-1 rounded">
                           <span className="font-medium">Costo Facturado:</span>{" "}
-                          {currencySymbol} {billedCost.toLocaleString("es-PE", {
+                          {currencySymbol}{" "}
+                          {billedCost.toLocaleString("es-PE", {
                             minimumFractionDigits: 2,
                             maximumFractionDigits: 2,
                           })}
                         </div>
                         {margin.amount !== 0 && (
-                          <div className={`text-xs px-2 py-1 rounded ${
-                            margin.amount > 0
-                              ? "text-green-700 bg-green-50"
-                              : "text-red-700 bg-red-50"
-                          }`}>
+                          <div
+                            className={`text-xs px-2 py-1 rounded ${
+                              margin.amount > 0
+                                ? "text-green-700 bg-green-50"
+                                : "text-red-700 bg-red-50"
+                            }`}
+                          >
                             <span className="font-medium">Margen:</span>{" "}
-                            {currencySymbol} {margin.amount.toLocaleString("es-PE", {
+                            {currencySymbol}{" "}
+                            {margin.amount.toLocaleString("es-PE", {
                               minimumFractionDigits: 2,
                               maximumFractionDigits: 2,
-                            })}
-                            {" "}({margin.percentage > 0 ? "+" : ""}{margin.percentage.toFixed(2)}%)
+                            })}{" "}
+                            ({margin.percentage > 0 ? "+" : ""}
+                            {margin.percentage.toFixed(2)}%)
                           </div>
                         )}
                       </>
                     ) : (
                       <div className="text-xs text-orange-600 bg-orange-50 px-2 py-1 rounded">
-                        ⚠️ Este vehículo no tiene costo de compra registrado. Revisar el registro del vehículo.
+                        ⚠️ Este vehículo no tiene costo de compra registrado.
+                        Revisar el registro del vehículo.
                       </div>
                     )}
                     {parseFloat(salePriceWatch || "0") === 0 && (
                       <div className="text-xs text-red-600 bg-red-50 px-2 py-1 rounded font-medium">
-                        {originalPrice === 0 ? (
-                          <>⚠️ <strong>Precio de venta en 0:</strong> El modelo <strong>"{selectedModel?.code || 'N/A'}"</strong> (ID: {selectedModel?.id}) de este vehículo no tiene precio de venta configurado. Ir a Configuraciones → Modelos VN para agregarlo.</>
+                        {!selectedModel ? (
+                          <>
+                            ⚠️ <strong>Precio de venta en 0:</strong> No se pudo cargar la información del modelo de este vehículo. Verifique que el vehículo pertenezca a la familia de la oportunidad seleccionada.
+                          </>
+                        ) : originalPrice === 0 ? (
+                          <>
+                            ⚠️ <strong>Precio de venta en 0:</strong> El modelo{" "}
+                            <strong>"{selectedModel.code}"</strong>{" "}
+                            (ID: {selectedModel.id}) de este vehículo no tiene
+                            precio de venta configurado. Ir a Configuraciones →
+                            Modelos VN para agregarlo.
+                          </>
                         ) : (
-                          <>⚠️ <strong>Precio de venta en 0:</strong> Se estableció manualmente, pero el modelo tiene configurado {currencySymbol} {originalPrice.toLocaleString("es-PE", { minimumFractionDigits: 2 })}. Verifique si esto es correcto.</>
+                          <>
+                            ⚠️ <strong>Precio de venta en 0:</strong> Se
+                            estableció manualmente, pero el modelo tiene
+                            configurado {currencySymbol}{" "}
+                            {originalPrice.toLocaleString("es-PE", {
+                              minimumFractionDigits: 2,
+                            })}
+                            . Verifique si esto es correcto.
+                          </>
                         )}
                       </div>
                     )}
