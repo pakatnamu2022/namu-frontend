@@ -4,7 +4,7 @@ import type {
   AuthResponseUser,
   ModulePermissions,
 } from "./auth.interface";
-import { authenticate, login } from "./auth.actions";
+import { authenticate, login, logout } from "./auth.actions";
 import type { ViewsResponseOpcionesMenu } from "../../views/lib/views.interface";
 
 const getInitialToken = () => {
@@ -23,7 +23,7 @@ interface AuthState {
   permissionsModules?: ModulePermissions; // Module permissions { "module.action": true }
   setToken?: (token: string) => void;
   login: (request: AuthRequest) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
   authenticate: () => void;
   hasPermission: (permissionCode: string) => boolean;
 }
@@ -79,12 +79,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       });
     }
   },
-  logout: () => {
-    if (typeof window !== "undefined") {
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-      localStorage.removeItem("permissions");
-    }
+  logout: async () => {
+    await logout();
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    localStorage.removeItem("permissions");
     set({
       isAuthenticated: false,
       user: undefined,
