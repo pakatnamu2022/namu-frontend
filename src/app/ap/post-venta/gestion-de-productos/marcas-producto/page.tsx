@@ -21,7 +21,7 @@ import {
   deleteBrand,
   updateBrands,
 } from "@/features/ap/configuraciones/vehiculos/marcas/lib/brands.actions";
-import { DEFAULT_PER_PAGE } from "@/core/core.constants";
+import { CM_POSTVENTA_ID, DEFAULT_PER_PAGE } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { BRAND_POSTVENTA } from "@/features/ap/configuraciones/vehiculos/marcas/lib/brands.constants";
@@ -48,7 +48,10 @@ export default function BrandsPage() {
 
   const handleToggleStatus = async (id: number, newStatus: boolean) => {
     try {
-      await updateBrands(id, { status: newStatus, is_commercial: false });
+      await updateBrands(id, {
+        status: newStatus,
+        type_operation_id: String(CM_POSTVENTA_ID),
+      });
       await refetch();
       successToast("Estado actualizado correctamente.");
     } catch {
@@ -82,7 +85,10 @@ export default function BrandsPage() {
           subtitle={currentView.descripcion}
           icon={currentView.icon}
         />
-        <BrandsActions permissions={permissions} isCommercial={false} />
+        <BrandsActions
+          permissions={permissions}
+          isCommercial={CM_POSTVENTA_ID}
+        />
       </HeaderTableWrapper>
       <BrandsTable
         isLoading={isLoading}
@@ -90,7 +96,7 @@ export default function BrandsPage() {
           onToggleStatus: handleToggleStatus,
           onDelete: setDeleteId,
           permissions,
-          isCommercial: false,
+          isCommercial: CM_POSTVENTA_ID,
         })}
         data={data?.data || []}
       >

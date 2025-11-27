@@ -22,6 +22,7 @@ import { ProductTransferSchema } from "@/features/ap/post-venta/gestion-compras/
 import { ProductTransferResource } from "@/features/ap/post-venta/gestion-compras/transferencia-producto/lib/productTransfer.interface.ts";
 import { ProductTransferForm } from "@/features/ap/post-venta/gestion-compras/transferencia-producto/components/ProductTransferForm.tsx";
 import { PRODUCT_TRANSFER } from "@/features/ap/post-venta/gestion-compras/transferencia-producto/lib/productTransfer.constants.ts";
+import { SUNAT_CONCEPTS_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
 
 export default function UpdateProductTransferPage() {
   const { id } = useParams();
@@ -29,6 +30,7 @@ export default function UpdateProductTransferPage() {
   const queryClient = useQueryClient();
   const { currentView, checkRouteExists } = useCurrentModule();
   const { ROUTE, MODEL, QUERY_KEY, ABSOLUTE_ROUTE } = PRODUCT_TRANSFER;
+  const AUTOMOTORES_PAKATNAMU_ID = "17";
 
   const { data: transfer, isLoading: loadingTransfer } = useQuery({
     queryKey: [QUERY_KEY, id],
@@ -61,20 +63,24 @@ export default function UpdateProductTransferPage() {
     return {
       warehouse_origin_id: String(data.warehouse_origin_id),
       warehouse_destination_id: String(data.warehouse_destination_id),
-      document_series_id: String(data.document_series_id),
+      document_series_id: String(data.reference.document_series_id),
       movement_date: data.movement_date
         ? new Date(data.movement_date)
         : new Date(),
       notes: data.notes || "",
-      driver_name: data.driver_name,
-      driver_doc: data.driver_doc,
-      license: data.license,
-      plate: data.plate,
-      transfer_reason_id: String(data.transfer_reason_id),
-      transfer_modality_id: String(data.transfer_modality_id),
-      transport_company_id: String(data.transport_company_id),
-      total_packages: String(data.total_packages),
-      total_weight: String(data.total_weight),
+      driver_name: data.reference.driver_name,
+      driver_doc: data.reference.driver_doc,
+      license: data.reference.license,
+      plate: data.reference.plate,
+      issuer_type: "NOSOTROS",
+      document_type: "GUIA_REMISION",
+      transfer_reason_id: SUNAT_CONCEPTS_ID.TRANSFER_REASON_TRASLADO_SEDE,
+      transfer_modality_id: String(data.reference.transfer_modality_id),
+      transport_company_id: String(data.reference.transport_company_id),
+      transmitter_origin_id: AUTOMOTORES_PAKATNAMU_ID,
+      receiver_destination_id: AUTOMOTORES_PAKATNAMU_ID,
+      total_packages: String(data.reference.total_packages),
+      total_weight: String(data.reference.total_weight),
       issue_date: data.created_at ? new Date(data.created_at) : undefined,
       details:
         data.details?.map((item) => ({

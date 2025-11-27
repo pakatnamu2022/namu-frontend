@@ -20,6 +20,7 @@ import { BrandsForm } from "@/features/ap/configuraciones/vehiculos/marcas/compo
 import { BRAND } from "@/features/ap/configuraciones/vehiculos/marcas/lib/brands.constants";
 import FormWrapper from "@/shared/components/FormWrapper";
 import { notFound } from "@/shared/hooks/useNotFound";
+import { CM_COMERCIAL_ID } from "@/core/core.constants";
 
 export default function UpdateBrandPage() {
   const { id } = useParams();
@@ -60,7 +61,7 @@ export default function UpdateBrandPage() {
       name: data.name,
       description: data.description,
       group_id: data.group_id.toString(),
-      is_commercial: true,
+      type_operation_id: String(CM_COMERCIAL_ID),
     };
   }
 

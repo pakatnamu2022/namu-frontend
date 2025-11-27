@@ -536,6 +536,18 @@ const EditProductTransferPage = lazy(
       "./app/ap/post-venta/gestion-de-compras/transferencia-producto/actualizar/[id]/page"
     )
 );
+const ReceiveTransferPage = lazy(
+  () =>
+    import(
+      "./app/ap/post-venta/gestion-de-compras/transferencia-producto/recepcion/[productTransferId]/page"
+    )
+);
+const AddReceiveTransferPage = lazy(
+  () =>
+    import(
+      "./app/ap/post-venta/gestion-de-compras/transferencia-producto/recepcion/agregar/[productTransferId]/page"
+    )
+);
 const ReasonsAdjustmentPage = lazy(
   () => import("./app/ap/post-venta/gestion-de-compras/motivos-ajuste/page")
 );
@@ -552,6 +564,15 @@ const EditProductAdjustmentPage = lazy(
   () =>
     import(
       "./app/ap/post-venta/gestion-de-compras/ajuste-producto/actualizar/[id]/page"
+    )
+);
+const InventoryPage = lazy(
+  () => import("./app/ap/post-venta/gestion-de-compras/inventario/page")
+);
+const InventoryKardexPage = lazy(
+  () =>
+    import(
+      "./app/ap/post-venta/gestion-de-compras/inventario/kardex/[productId]/[warehouseId]/page"
     )
 );
 const PurchaseOrderProductsPage = lazy(
@@ -607,6 +628,15 @@ const EditApprovedAccessoriesPage = lazy(
 // Taller
 const LavadoVehiculoPage = lazy(
   () => import("./app/ap/post-venta/taller/lavado-vehiculo/page")
+);
+const ModelsVnPostVentaPage = lazy(
+  () => import("./app/ap/post-venta/taller/modelos-vn-pv/page")
+);
+const AddModelsVnPostVentaPage = lazy(
+  () => import("./app/ap/post-venta/taller/modelos-vn-pv/agregar/page")
+);
+const EditModelsVnPostVentaPage = lazy(
+  () => import("./app/ap/post-venta/taller/modelos-vn-pv/actualizar/[id]/page")
 );
 
 // ============================================================================
@@ -1344,6 +1374,14 @@ function App() {
                 element={<EditProductTransferPage />}
               />
               <Route
+                path="gestion-de-compras/transferencia-producto/recepcion/:productTransferId"
+                element={<ReceiveTransferPage />}
+              />
+              <Route
+                path="gestion-de-compras/transferencia-producto/recepcion/agregar/:productTransferId"
+                element={<AddReceiveTransferPage />}
+              />
+              <Route
                 path="gestion-de-compras/motivos-ajuste"
                 element={<ReasonsAdjustmentPage />}
               />
@@ -1358,6 +1396,14 @@ function App() {
               <Route
                 path="gestion-de-compras/ajuste-producto/actualizar/:id"
                 element={<EditProductAdjustmentPage />}
+              />
+              <Route
+                path="gestion-de-compras/inventario"
+                element={<InventoryPage />}
+              />
+              <Route
+                path="gestion-de-compras/inventario/kardex/:productId/:warehouseId"
+                element={<InventoryKardexPage />}
               />
               <Route
                 path="gestion-de-compras/orden-compra-producto"
@@ -1402,6 +1448,18 @@ function App() {
               <Route
                 path="taller/lavado-vehiculo"
                 element={<LavadoVehiculoPage />}
+              />
+              <Route
+                path="taller/modelos-vn-pv"
+                element={<ModelsVnPostVentaPage />}
+              />
+              <Route
+                path="taller/modelos-vn-pv/agregar"
+                element={<AddModelsVnPostVentaPage />}
+              />
+              <Route
+                path="taller/modelos-vn-pv/actualizar/:id"
+                element={<EditModelsVnPostVentaPage />}
               />
             </Route>
 

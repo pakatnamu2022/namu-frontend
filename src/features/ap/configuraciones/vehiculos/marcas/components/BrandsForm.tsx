@@ -23,6 +23,7 @@ import {
 import { BrandsRequest } from "../lib/brands.interface";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { BRAND } from "../lib/brands.constants";
+import { CM_COMERCIAL_ID, CM_POSTVENTA_ID } from "@/core/core.constants";
 
 interface BrandsFormProps {
   defaultValues: Partial<BrandsSchema>;
@@ -43,7 +44,8 @@ export const BrandsForm = ({
     ),
     defaultValues: {
       ...defaultValues,
-      is_commercial: defaultValues.is_commercial ?? true,
+      type_operation_id:
+        defaultValues.type_operation_id ?? String(CM_COMERCIAL_ID),
     },
     mode: "onChange",
   });
@@ -51,16 +53,17 @@ export const BrandsForm = ({
 
   const { data: brandGroups = [], isLoading: isLoadingbrandGroups } =
     useAllBrandGroup();
+  console.log("defaultValues", defaultValues);
 
   const isCommercial = useWatch({
     control: form.control,
-    name: "is_commercial",
-    defaultValue: defaultValues.is_commercial ?? true,
+    name: "type_operation_id",
+    defaultValue: defaultValues.type_operation_id ?? String(CM_COMERCIAL_ID),
   });
 
-  // Establecer dyn_code a "-" cuando is_commercial es false
+  // Establecer dyn_code a "-" cuando CM_COMERCIAL_ID es seleccionado
   useEffect(() => {
-    if (isCommercial === false) {
+    if (isCommercial === String(CM_POSTVENTA_ID)) {
       form.setValue("dyn_code", "-");
     }
   }, [isCommercial, form]);
@@ -93,7 +96,7 @@ export const BrandsForm = ({
               </FormItem>
             )}
           />
-          {isCommercial && (
+          {isCommercial === String(CM_COMERCIAL_ID) && (
             <FormField
               control={form.control}
               name="dyn_code"
@@ -163,6 +166,7 @@ export const BrandsForm = ({
                       }}
                       className="pl-10"
                       {...field}
+                      value={undefined}
                     />
                     <Image className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                   </div>
@@ -171,6 +175,7 @@ export const BrandsForm = ({
               </FormItem>
             )}
           />
+
           <FormField
             control={form.control}
             name="logo_min"
@@ -188,6 +193,7 @@ export const BrandsForm = ({
                       }}
                       className="pl-10"
                       {...field}
+                      value={undefined}
                     />
                     <Image className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                   </div>
@@ -200,7 +206,7 @@ export const BrandsForm = ({
         <div className="flex gap-4 w-full justify-end">
           <Link
             to={
-              isCommercial
+              isCommercial === String(CM_COMERCIAL_ID)
                 ? ABSOLUTE_ROUTE!
                 : "/ap/post-venta/gestion-de-productos/marcas-producto"
             }

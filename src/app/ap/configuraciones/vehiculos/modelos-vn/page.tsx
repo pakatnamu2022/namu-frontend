@@ -12,7 +12,7 @@ import {
   SUCCESS_MESSAGE,
   successToast,
 } from "@/core/core.function";
-import { DEFAULT_PER_PAGE } from "@/core/core.constants";
+import { CM_COMERCIAL_ID, DEFAULT_PER_PAGE } from "@/core/core.constants";
 import { useModelsVn } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.hook";
 import {
   deleteModelsVn,
@@ -28,9 +28,8 @@ import { useAllBrands } from "@/features/ap/configuraciones/vehiculos/marcas/lib
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { notFound } from "@/shared/hooks/useNotFound";
 
-
 export default function ModelsVnPage() {
-    const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
+  const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
@@ -54,7 +53,10 @@ export default function ModelsVnPage() {
 
   const handleToggleStatus = async (id: number, newStatus: boolean) => {
     try {
-      await updateModelsVn(id, { status: newStatus });
+      await updateModelsVn(id, {
+        status: newStatus,
+        type_operation_id: String(CM_COMERCIAL_ID),
+      });
       await refetch();
       successToast("Estado actualizado correctamente.");
     } catch {
@@ -88,7 +90,10 @@ export default function ModelsVnPage() {
           subtitle={currentView.descripcion}
           icon={currentView.icon}
         />
-        <ModelsVnActions permissions={permissions} />
+        <ModelsVnActions
+          permissions={permissions}
+          isCommercial={CM_COMERCIAL_ID}
+        />
       </HeaderTableWrapper>
       <ModelsVnTable
         isLoading={isLoading}
@@ -96,6 +101,7 @@ export default function ModelsVnPage() {
           onToggleStatus: handleToggleStatus,
           onDelete: setDeleteId,
           permissions,
+          isCommercial: CM_COMERCIAL_ID,
         })}
         data={data?.data || []}
       >

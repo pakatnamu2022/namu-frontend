@@ -1,10 +1,12 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { ProductTransferResource } from "../lib/productTransfer.interface";
 import { Button } from "@/components/ui/button";
-import { Eye, Pencil } from "lucide-react";
+import { Eye, Pencil, PackageCheck } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
 
 export type ProductTransferColumns = ColumnDef<ProductTransferResource>;
 
@@ -15,8 +17,10 @@ interface Props {
     canUpdate: boolean;
     canDelete: boolean;
     canView: boolean;
+    canReceive?: boolean;
   };
   routeUpdate?: string;
+  routeReception?: string;
 }
 
 export const productTransferColumns = ({
@@ -24,6 +28,7 @@ export const productTransferColumns = ({
   onView,
   permissions,
   routeUpdate,
+  routeReception,
 }: Props): ProductTransferColumns[] => [
   {
     accessorKey: "movement_number",
@@ -32,6 +37,15 @@ export const productTransferColumns = ({
   {
     accessorKey: "movement_date",
     header: "Fecha de Movimiento",
+    cell: ({ getValue }) => {
+      const date = getValue() as string;
+      if (!date) return "-";
+      try {
+        return format(new Date(date), "dd/MM/yyyy", { locale: es });
+      } catch {
+        return date;
+      }
+    },
   },
   {
     accessorKey: "warehouse_code",
@@ -84,15 +98,29 @@ export const productTransferColumns = ({
               variant="outline"
               size="icon"
               className="size-7"
+              tooltip="Ver"
               onClick={() => onView(id)}
             >
               <Eye className="size-5" />
             </Button>
           )}
 
+          {permissions.canReceive && routeReception && (
+            <Link to={`${routeReception}/${id}`}>
+              <Button
+                variant="outline"
+                size="icon"
+                className="size-7"
+                tooltip="Recepcionar"
+              >
+                <PackageCheck className="size-4" />
+              </Button>
+            </Link>
+          )}
+
           {permissions.canUpdate && routeUpdate && (
             <Link to={`${routeUpdate}/${id}`}>
-              <Button variant="outline" size="icon" className="size-7">
+              <Button variant="outline" size="icon" className="size-7" tooltip="Editar">
                 <Pencil className="size-5" />
               </Button>
             </Link>

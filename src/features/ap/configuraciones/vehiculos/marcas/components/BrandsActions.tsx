@@ -2,12 +2,13 @@
 
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import ActionsWrapper from "@/shared/components/ActionsWrapper";
 import { BRAND, BRAND_POSTVENTA } from "../lib/brands.constants";
+import { CM_COMERCIAL_ID } from "@/core/core.constants";
 
 interface BrandActionsProps {
-  isCommercial?: boolean;
+  isCommercial: number;
   permissions: {
     canCreate: boolean;
   };
@@ -15,9 +16,10 @@ interface BrandActionsProps {
 
 export default function BrandActions({
   permissions,
-  isCommercial = true,
+  isCommercial = CM_COMERCIAL_ID,
 }: BrandActionsProps) {
-  const { ROUTE_ADD } = isCommercial ? BRAND : BRAND_POSTVENTA;
+  const { ROUTE_ADD } =
+    isCommercial === CM_COMERCIAL_ID ? BRAND : BRAND_POSTVENTA;
   const router = useNavigate();
 
   if (!permissions.canCreate) {

@@ -27,7 +27,7 @@ export default function ProductTable({
           brand_name: true,
           category_name: true,
           unit_measurement_name: true,
-          total_stock: true,
+          total_stock: false,
           sale_price: true,
           status: true,
         }}

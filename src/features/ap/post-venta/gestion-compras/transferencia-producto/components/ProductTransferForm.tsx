@@ -189,7 +189,7 @@ export const ProductTransferForm = ({
         });
       }
     }
-  }, [conductorDniData, isFirstLoad]);
+  }, [conductorDniData, isFirstLoad, form]);
 
   // Limpiar serie cuando cambia el almacén origen
   useEffect(() => {
@@ -198,11 +198,11 @@ export const ProductTransferForm = ({
       const isValidSeries = filteredSeries.some(
         (serie) => serie.id.toString() === currentSeriesId
       );
-      if (!isValidSeries) {
+      if (!isValidSeries && mode === "create") {
         form.setValue("document_series_id", "");
       }
     }
-  }, [watchWarehouseOriginId, filteredSeries, form]);
+  }, [watchWarehouseOriginId, filteredSeries, form, mode]);
 
   const handleAddDetail = () => {
     append({
@@ -247,6 +247,7 @@ export const ProductTransferForm = ({
             }))}
             control={form.control}
             strictFilter={true}
+            disabled={mode === "update"}
           />
 
           <FormSelect
@@ -259,6 +260,7 @@ export const ProductTransferForm = ({
             }))}
             control={form.control}
             strictFilter={true}
+            disabled={mode === "update"}
           />
 
           <DatePickerFormField
@@ -482,6 +484,7 @@ export const ProductTransferForm = ({
               variant="outline"
               size="sm"
               onClick={handleAddDetail}
+              disabled={mode === "update"}
             >
               <Plus className="h-4 w-4 mr-2" />
               Agregar Producto
@@ -510,6 +513,7 @@ export const ProductTransferForm = ({
                       size="icon"
                       className="h-7 w-7 text-destructive hover:bg-destructive/10"
                       onClick={() => remove(index)}
+                      disabled={mode === "update"}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -526,7 +530,7 @@ export const ProductTransferForm = ({
                       }))}
                       control={form.control}
                       strictFilter={true}
-                      disabled={isLoadingProducts}
+                      disabled={isLoadingProducts || mode === "update"}
                     />
 
                     <FormField
@@ -541,6 +545,7 @@ export const ProductTransferForm = ({
                               min="1"
                               placeholder="1"
                               {...field}
+                              disabled={mode === "update"}
                             />
                           </FormControl>
                           <FormMessage />
@@ -555,7 +560,11 @@ export const ProductTransferForm = ({
                         <FormItem>
                           <FormLabel>Notas</FormLabel>
                           <FormControl>
-                            <Input placeholder="Observaciones" {...field} />
+                            <Input
+                              placeholder="Observaciones"
+                              {...field}
+                              disabled={mode === "update"}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>

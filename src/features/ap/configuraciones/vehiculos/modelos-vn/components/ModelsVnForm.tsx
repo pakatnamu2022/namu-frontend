@@ -37,7 +37,8 @@ import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-gene
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { useNavigate } from "react-router-dom";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
-import { MODELS_VN } from "../lib/modelsVn.constanst";
+import { MODELS_VN, MODELS_VN_POSTVENTA } from "../lib/modelsVn.constanst";
+import { CM_COMERCIAL_ID } from "@/core/core.constants";
 
 interface ModelsVnFormProps {
   defaultValues: Partial<ModelsVnSchema>;
@@ -59,15 +60,17 @@ export const ModelsVnForm = ({
     ),
     defaultValues: {
       ...defaultValues,
+      type_operation_id:
+        defaultValues.type_operation_id ?? String(CM_COMERCIAL_ID),
     },
     mode: "onChange",
   });
-  const { ABSOLUTE_ROUTE } = MODELS_VN;
   const codigoOriginalRef = useRef(defaultValues.code);
   const marcaSeleccionada = form.watch("brand_id");
   const precioDistribuidor = form.watch("distributor_price");
   const familiaSeleccionada = form.watch("family_id");
   const yearModelo = form.watch("model_year");
+  const typeOperationId = form.watch("type_operation_id");
   const { data: brands = [], isLoading: isLoadingbrands } = useAllBrands();
   const { data: families = [], isLoading: isLoadingFamilies } = useAllFamilies({
     brand_id: marcaSeleccionada,
@@ -88,6 +91,10 @@ export const ModelsVnForm = ({
   } = useAllGearShiftType();
   const { data: currencyTypes = [], isLoading: isLoadingCurrencyTypes } =
     useAllCurrencyTypes();
+  const { ABSOLUTE_ROUTE } =
+    typeOperationId === String(CM_COMERCIAL_ID)
+      ? MODELS_VN
+      : MODELS_VN_POSTVENTA;
 
   useEffect(() => {
     if (!familiaSeleccionada || !yearModelo) return;
@@ -609,173 +616,175 @@ export const ModelsVnForm = ({
           </GroupFormSection>
 
           {/* Sección: Precio Distribuidor */}
-          <GroupFormSection
-            title="Precio Distribuidor"
-            icon={CircleDollarSign}
-            iconColor="text-gray-600"
-            bgColor="bg-gray-50"
-          >
-            <FormSelect
-              name="currency_type_id"
-              label="Tipo Moneda"
-              placeholder="Seleccionar Tipo"
-              options={currencyTypes.map((currencyType) => ({
-                label: currencyType.name,
-                value: currencyType.id.toString(),
-              }))}
-              control={form.control}
-            />
-            <FormField
-              control={form.control}
-              name="distributor_price"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm font-medium text-gray-700">
-                    Precio Distribuidor
-                  </FormLabel>
-                  <FormControl>
-                    <Input type="number" placeholder="Ej: 0.00" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="transport_cost"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm font-medium text-gray-700">
-                    Costo Transporte
-                  </FormLabel>
-                  <FormControl>
-                    <Input type="number" placeholder="Ej: 0.00" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="other_amounts"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm font-medium text-gray-700">
-                    Otros Importes
-                  </FormLabel>
-                  <FormControl>
-                    <Input type="number" placeholder="Ej: 0.00" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="purchase_discount"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm font-medium text-gray-700">
-                    % Dsc. de Compra
-                  </FormLabel>
-                  <FormControl>
-                    <Input type="number" placeholder="Ej: 0.00" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="igv_amount"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm font-medium text-gray-700">
-                    Importe IGV
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      className="bg-accent"
-                      placeholder="Ej: 0.00"
-                      {...field}
-                      readOnly
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="total_purchase_excl_igv"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm font-medium text-gray-700">
-                    Total Compra sin IGV
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      className="bg-accent"
-                      placeholder="Ej: 0.00"
-                      {...field}
-                      readOnly
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="total_purchase_incl_igv"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm font-medium text-gray-700">
-                    Total Compra con IGV
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      className="bg-accent"
-                      placeholder="Ej: 0.00"
-                      {...field}
-                      readOnly
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="sale_price"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm font-medium text-gray-700">
-                    Precio Venta
-                  </FormLabel>
-                  <FormControl>
-                    <Input type="number" placeholder="Ej: 0.00" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="margin"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm font-medium text-gray-700">
-                    % Margen
-                  </FormLabel>
-                  <FormControl>
-                    <Input type="number" placeholder="Ej: 0.00" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </GroupFormSection>
+          {typeOperationId === String(CM_COMERCIAL_ID) && (
+            <GroupFormSection
+              title="Precio Distribuidor"
+              icon={CircleDollarSign}
+              iconColor="text-gray-600"
+              bgColor="bg-gray-50"
+            >
+              <FormSelect
+                name="currency_type_id"
+                label="Tipo Moneda"
+                placeholder="Seleccionar Tipo"
+                options={currencyTypes.map((currencyType) => ({
+                  label: currencyType.name,
+                  value: currencyType.id.toString(),
+                }))}
+                control={form.control}
+              />
+              <FormField
+                control={form.control}
+                name="distributor_price"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-medium text-gray-700">
+                      Precio Distribuidor
+                    </FormLabel>
+                    <FormControl>
+                      <Input type="number" placeholder="Ej: 0.00" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="transport_cost"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-medium text-gray-700">
+                      Costo Transporte
+                    </FormLabel>
+                    <FormControl>
+                      <Input type="number" placeholder="Ej: 0.00" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="other_amounts"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-medium text-gray-700">
+                      Otros Importes
+                    </FormLabel>
+                    <FormControl>
+                      <Input type="number" placeholder="Ej: 0.00" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="purchase_discount"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-medium text-gray-700">
+                      % Dsc. de Compra
+                    </FormLabel>
+                    <FormControl>
+                      <Input type="number" placeholder="Ej: 0.00" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="igv_amount"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-medium text-gray-700">
+                      Importe IGV
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        className="bg-accent"
+                        placeholder="Ej: 0.00"
+                        {...field}
+                        readOnly
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="total_purchase_excl_igv"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-medium text-gray-700">
+                      Total Compra sin IGV
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        className="bg-accent"
+                        placeholder="Ej: 0.00"
+                        {...field}
+                        readOnly
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="total_purchase_incl_igv"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-medium text-gray-700">
+                      Total Compra con IGV
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        className="bg-accent"
+                        placeholder="Ej: 0.00"
+                        {...field}
+                        readOnly
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="sale_price"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-medium text-gray-700">
+                      Precio Venta
+                    </FormLabel>
+                    <FormControl>
+                      <Input type="number" placeholder="Ej: 0.00" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="margin"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-medium text-gray-700">
+                      % Margen
+                    </FormLabel>
+                    <FormControl>
+                      <Input type="number" placeholder="Ej: 0.00" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </GroupFormSection>
+          )}
         </div>
         <div className="flex gap-4 w-full justify-end">
           <ConfirmationDialog

@@ -27,7 +27,7 @@ export const BRAND: ModelComplete<BrandsResource> = {
     logo_min_url: "",
     group_id: 0,
     status: true,
-    is_commercial: true,
+    type_operation_id: 0,
   },
 };
 
@@ -57,6 +57,6 @@ export const BRAND_POSTVENTA: ModelComplete<BrandsResource> = {
     logo_min_url: "",
     group_id: 0,
     status: true,
-    is_commercial: false,
+    type_operation_id: 0,
   },
 };

@@ -23,6 +23,7 @@ import { productTransferColumns } from "@/features/ap/post-venta/gestion-compras
 import ProductTransferOptions from "@/features/ap/post-venta/gestion-compras/transferencia-producto/components/ProductTransferOptions.tsx";
 import { PRODUCT_TRANSFER } from "@/features/ap/post-venta/gestion-compras/transferencia-producto/lib/productTransfer.constants.ts";
 import { useProductTransfers } from "@/features/ap/post-venta/gestion-compras/transferencia-producto/lib/productTransfer.hook.ts";
+import { ProductTransferViewSheet } from "@/features/ap/post-venta/gestion-compras/recepcion-transferencia/components/ProductTransferViewSheet";
 
 export default function ProductTransferPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -30,6 +31,8 @@ export default function ProductTransferPage() {
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [viewId, setViewId] = useState<number | null>(null);
+  const [isViewSheetOpen, setIsViewSheetOpen] = useState(false);
   const { MODEL, ROUTE, ROUTE_UPDATE } = PRODUCT_TRANSFER;
   const permissions = useModulePermissions(ROUTE);
   const currentDate = new Date();
@@ -50,6 +53,11 @@ export default function ProductTransferPage() {
         ? [formatDate(dateFrom), formatDate(dateTo)]
         : undefined,
   });
+
+  const handleView = (id: number) => {
+    setViewId(id);
+    setIsViewSheetOpen(true);
+  };
 
   const handleDelete = async () => {
     if (!deleteId) return;
@@ -83,8 +91,14 @@ export default function ProductTransferPage() {
         isLoading={isLoading}
         columns={productTransferColumns({
           onDelete: setDeleteId,
-          permissions,
+          onView: handleView,
+          permissions: {
+            ...permissions,
+            canReceive: permissions.canCreate,
+          },
           routeUpdate: ROUTE_UPDATE,
+          routeReception:
+            "/ap/post-venta/gestion-de-compras/transferencia-producto/recepcion",
         })}
         data={data?.data || []}
       >
@@ -105,6 +119,12 @@ export default function ProductTransferPage() {
           onConfirm={handleDelete}
         />
       )}
+
+      <ProductTransferViewSheet
+        open={isViewSheetOpen}
+        onOpenChange={setIsViewSheetOpen}
+        transferId={viewId}
+      />
 
       <DataTablePagination
         page={page}

@@ -16,6 +16,7 @@ import { storeBrands } from "@/features/ap/configuraciones/vehiculos/marcas/lib/
 import FormWrapper from "@/shared/components/FormWrapper";
 import { BRAND } from "@/features/ap/configuraciones/vehiculos/marcas/lib/brands.constants";
 import { notFound } from "@/shared/hooks/useNotFound";
+import { CM_COMERCIAL_ID } from "@/core/core.constants";
 
 export default function AddBrandsPage() {
   const router = useNavigate();
@@ -53,7 +54,7 @@ export default function AddBrandsPage() {
           name: "",
           description: "",
           group_id: "",
-          is_commercial: true,
+          type_operation_id: String(CM_COMERCIAL_ID),
         }}
         onSubmit={handleSubmit}
         isSubmitting={isPending}

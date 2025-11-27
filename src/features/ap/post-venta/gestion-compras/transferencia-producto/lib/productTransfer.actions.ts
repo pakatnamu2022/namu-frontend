@@ -55,7 +55,10 @@ export async function findProductTransferById(
 export async function storeProductTransfer(
   payload: ProductTransferRequest
 ): Promise<ProductTransferResource> {
-  const { data } = await api.post<ProductTransferResource>(ENDPOINT, payload);
+  const { data } = await api.post<ProductTransferResource>(
+    `${ENDPOINT}/transfers`,
+    payload
+  );
   return data;
 }
 
@@ -64,7 +67,7 @@ export async function updateProductTransfer(
   payload: ProductTransferRequest
 ): Promise<ProductTransferResource> {
   const { data } = await api.put<ProductTransferResource>(
-    `${ENDPOINT}/${id}`,
+    `${ENDPOINT}/transfers/${id}`,
     payload
   );
   return data;
@@ -73,6 +76,8 @@ export async function updateProductTransfer(
 export async function deleteProductTransfer(
   id: number
 ): Promise<GeneralResponse> {
-  const { data } = await api.delete<GeneralResponse>(`${ENDPOINT}/${id}`);
+  const { data } = await api.delete<GeneralResponse>(
+    `${ENDPOINT}/transfers/${id}`
+  );
   return data;
 }

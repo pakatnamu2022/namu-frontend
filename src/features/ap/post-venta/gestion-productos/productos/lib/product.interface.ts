@@ -59,7 +59,7 @@ export interface ProductBrand {
   description: string;
   logo: string;
   logo_min: string;
-  is_commercial: number;
+  type_operation_id: number;
   status: number;
   group_id: number;
   group: string;

@@ -22,13 +22,14 @@ import { ModelsVnForm } from "@/features/ap/configuraciones/vehiculos/modelos-vn
 import FormWrapper from "@/shared/components/FormWrapper";
 import { MODELS_VN } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.constanst";
 import { notFound } from "@/shared/hooks/useNotFound";
+import { CM_COMERCIAL_ID } from "@/core/core.constants";
 
 export default function UpdateModelsVnPage() {
   const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();
   const { currentView, checkRouteExists } = useCurrentModule();
-  const { QUERY_KEY, MODEL, ABSOLUTE_ROUTE } = MODELS_VN;
+  const { QUERY_KEY, MODEL, ABSOLUTE_ROUTE, ROUTE } = MODELS_VN;
 
   const { data: ModelsVn, isLoading: loadingModelsVn } = useQuery({
     queryKey: [QUERY_KEY, id],
@@ -92,6 +93,7 @@ export default function UpdateModelsVnPage() {
       sale_price: Number(data.sale_price),
       currency_type_id: String(data.currency_type_id),
       margin: Number(data.margin),
+      type_operation_id: String(CM_COMERCIAL_ID),
     };
   }
 
@@ -100,7 +102,7 @@ export default function UpdateModelsVnPage() {
   if (isLoadingAny) {
     return <FormSkeleton />;
   }
-  if (!checkRouteExists("modelos-vn")) notFound();
+  if (!checkRouteExists(ROUTE)) notFound();
   if (!currentView) notFound();
 
   return (

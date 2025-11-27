@@ -10,7 +10,7 @@ export interface ProductTransferResource {
   id: number;
   warehouse_origin_id: number;
   warehouse_destination_id: number;
-  document_series_id: number;
+  reference: ReferenceShippingGuidesResource;
   movement_date: string;
   notes?: string;
   driver_name: string;
@@ -18,10 +18,6 @@ export interface ProductTransferResource {
   license: string;
   plate: string;
   transfer_reason_id: number;
-  transfer_modality_id: number;
-  transport_company_id: number;
-  total_packages: number;
-  total_weight: number;
   destination_ubigeo: string;
   destination_address: string;
   status?: boolean;
@@ -36,6 +32,18 @@ export interface ProductTransferResource {
   transfer_modality?: TransferModalityResource;
   transport_company?: TransportCompanyResource;
   details?: ProductTransferDetailResource[];
+}
+
+export interface ReferenceShippingGuidesResource {
+  document_series_id: number;
+  transfer_modality_id: number;
+  transport_company_id: number;
+  total_packages: number;
+  total_weight: number;
+  driver_doc: string;
+  driver_name: string;
+  license: string;
+  plate: string;
 }
 
 export interface WarehouseResource {

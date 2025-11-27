@@ -24,7 +24,7 @@ import { useAllUnitMeasurement } from "@/features/ap/configuraciones/maestros-ge
 import { useAllClassArticle } from "@/features/ap/configuraciones/maestros-general/clase-articulo/lib/classArticle.hook";
 import { Textarea } from "@/components/ui/textarea";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
-import { CM_POSTVENTA_ID, STATUS_ACTIVE } from "@/core/core.constants";
+import { CM_COMERCIAL_ID, CM_POSTVENTA_ID } from "@/core/core.constants";
 import { useAllWarehouse } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
 
 interface ProductFormProps {
@@ -59,7 +59,7 @@ export const ProductForm = ({
   });
 
   const { data: brands = [], isLoading: isLoadingBrands } = useAllBrands({
-    is_commercial: STATUS_ACTIVE,
+    type_operation_id: CM_COMERCIAL_ID,
   });
   const { data: categories = [], isLoading: isLoadingCategories } =
     useAllProductCategory();

@@ -62,7 +62,7 @@ const purchaseOrderProductsSchemaBase = z.object({
     .number()
     .min(0, { message: "El monto total debe ser mayor o igual a 0" }),
   status: z.enum(["PENDING", "APPROVED", "RECEIVED", "CANCELLED"], {
-    message: "Estado inv�lido",
+    message: "Estado inválido",
   }),
   notes: z.string().optional(),
   items: z

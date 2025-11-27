@@ -1,0 +1,161 @@
+import type { ColumnDef } from "@tanstack/react-table";
+import { InventoryResource } from "../lib/inventory.interface";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
+import { FileText } from "lucide-react";
+import { Link } from "react-router-dom";
+
+export type InventoryColumns = ColumnDef<InventoryResource>;
+
+export const inventoryColumns = (): InventoryColumns[] => [
+  {
+    accessorKey: "product.code",
+    header: "Código",
+  },
+  {
+    accessorKey: "product.name",
+    header: "Producto",
+  },
+  {
+    accessorKey: "product.brand_name",
+    header: "Marca",
+  },
+  {
+    accessorKey: "product.category_name",
+    header: "Categoría",
+  },
+  {
+    accessorKey: "warehouse.dyn_code",
+    header: "Almacén",
+  },
+  {
+    accessorKey: "quantity",
+    header: "Stock Total",
+    cell: ({ getValue }) => {
+      const value = getValue() as number;
+      return value?.toFixed(2) || "0.00";
+    },
+  },
+  {
+    accessorKey: "available_quantity",
+    header: "Stock Disponible",
+    cell: ({ getValue }) => {
+      const value = getValue() as number;
+      return value?.toFixed(2) || "0.00";
+    },
+  },
+  {
+    accessorKey: "reserved_quantity",
+    header: "Stock Reservado",
+    cell: ({ getValue }) => {
+      const value = getValue() as number;
+      return value?.toFixed(2) || "0.00";
+    },
+  },
+  {
+    accessorKey: "quantity_in_transit",
+    header: "En Tránsito",
+    cell: ({ getValue }) => {
+      const value = getValue() as number;
+      return value?.toFixed(2) || "0.00";
+    },
+  },
+  {
+    accessorKey: "quantity_pending_credit_note",
+    header: "Pendiente Nota de Crédito",
+    cell: ({ getValue }) => {
+      const value = getValue() as number;
+      return value?.toFixed(2) || "0.00";
+    },
+  },
+  {
+    accessorKey: "minimum_stock",
+    header: "Stock Mínimo",
+    cell: ({ getValue }) => {
+      const value = getValue() as number;
+      return value?.toFixed(2) || "0.00";
+    },
+  },
+  {
+    accessorKey: "maximum_stock",
+    header: "Stock Máximo",
+    cell: ({ getValue }) => {
+      const value = getValue() as number;
+      return value?.toFixed(2) || "0.00";
+    },
+  },
+  {
+    accessorKey: "stock_status",
+    header: "Estado",
+    cell: ({ row }) => {
+      const status = row.original.stock_status;
+      const isLowStock = row.original.is_low_stock;
+      const isOutOfStock = row.original.is_out_of_stock;
+
+      if (isOutOfStock || status === "OUT_OF_STOCK") {
+        return (
+          <Badge
+            variant="destructive"
+            className="w-28 flex items-center justify-center"
+          >
+            Sin Stock
+          </Badge>
+        );
+      }
+
+      if (isLowStock || status === "LOW_STOCK") {
+        return (
+          <Badge
+            variant="secondary"
+            className="w-28 flex items-center justify-center bg-yellow-500 text-white hover:bg-yellow-600"
+          >
+            Stock Bajo
+          </Badge>
+        );
+      }
+
+      return (
+        <Badge
+          variant="secondary"
+          className="w-28 flex items-center justify-center bg-green-500 text-white hover:bg-green-600"
+        >
+          Normal
+        </Badge>
+      );
+    },
+  },
+  {
+    accessorKey: "last_movement_date",
+    header: "Último Movimiento",
+    cell: ({ getValue }) => {
+      const date = getValue() as string;
+      if (!date) return "-";
+      try {
+        return format(new Date(date), "dd/MM/yyyy HH:mm", { locale: es });
+      } catch {
+        return date;
+      }
+    },
+  },
+  {
+    id: "actions",
+    header: "Kardex",
+    cell: ({ row }) => {
+      const productId = row.original.product_id;
+      const warehouseId = row.original.warehouse_id;
+
+      return (
+        <Link
+          to={`/ap/post-venta/gestion-de-compras/inventario/kardex/${productId}/${warehouseId}`}
+        >
+          <Button variant="outline" size="sm" className="gap-2">
+            <FileText className="h-4 w-4" />
+            Ver Kardex
+          </Button>
+        </Link>
+      );
+    },
+  },
+];
