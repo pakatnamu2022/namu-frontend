@@ -197,9 +197,12 @@ export const PurchaseRequestQuoteForm = ({
   );
 
   // Obtener el modelo seleccionado y su precio original
-  const selectedModel = modelsVn.find(
-    (model) => model.id === vehicleVnSelected?.ap_models_vn_id
-  );
+  // Si está CON VIN: buscar por el modelo del vehículo
+  // Si está SIN VIN: buscar directamente por el modelVnWatch
+  const selectedModel = withVinWatch
+    ? modelsVn.find((model) => model.id === vehicleVnSelected?.ap_models_vn_id)
+    : modelsVn.find((model) => model.id === Number(modelVnWatch));
+
   const originalPrice = selectedModel?.sale_price || 0;
   const currencySymbol = selectedModel?.currency_symbol || "S/";
 
@@ -751,7 +754,7 @@ export const PurchaseRequestQuoteForm = ({
                 </FormControl>
                 <FormMessage />
 
-                {/* Mostrar billed_cost y margen cuando se selecciona con VIN */}
+                {/* Mostrar información adicional según el modo */}
                 {withVinWatch && vehicleVnWatch && (
                   <div className="mt-2 space-y-1">
                     {billedCost > 0 ? (
@@ -816,6 +819,35 @@ export const PurchaseRequestQuoteForm = ({
                         )}
                       </div>
                     )}
+                  </div>
+                )}
+
+                {/* Mostrar diagnóstico cuando NO hay VIN y el precio es 0 */}
+                {!withVinWatch && modelVnWatch && parseFloat(salePriceWatch || "0") === 0 && (
+                  <div className="mt-2">
+                    <div className="text-xs text-red-600 bg-red-50 px-2 py-1 rounded font-medium">
+                      {!selectedModel ? (
+                        <>
+                          ⚠️ <strong>Precio de venta en 0:</strong> No se pudo cargar la información del modelo seleccionado.
+                        </>
+                      ) : originalPrice === 0 ? (
+                        <>
+                          ⚠️ <strong>Precio de venta en 0:</strong> El modelo{" "}
+                          <strong>"{selectedModel.code}"</strong>{" "}
+                          (ID: {selectedModel.id}) no tiene precio de venta configurado.
+                          Ir a Configuraciones → Modelos VN para agregarlo.
+                        </>
+                      ) : (
+                        <>
+                          ⚠️ <strong>Precio de venta en 0:</strong> Se estableció manualmente,
+                          pero el modelo tiene configurado {currencySymbol}{" "}
+                          {originalPrice.toLocaleString("es-PE", {
+                            minimumFractionDigits: 2,
+                          })}
+                          . Verifique si esto es correcto.
+                        </>
+                      )}
+                    </div>
                   </div>
                 )}
               </FormItem>
