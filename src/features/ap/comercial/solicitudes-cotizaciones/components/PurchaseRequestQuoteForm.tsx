@@ -201,6 +201,27 @@ export const PurchaseRequestQuoteForm = ({
   const originalPrice = selectedModel?.sale_price || 0;
   const currencySymbol = selectedModel?.currency_symbol || "S/";
 
+  // Obtener el billed_cost del vehículo seleccionado (cuando se selecciona con VIN)
+  const billedCost = vehicleVnSelected?.billed_cost ? parseFloat(vehicleVnSelected.billed_cost.toString()) : 0;
+
+  // Calcular el margen de ganancia
+  const calculateMargin = () => {
+    const salePrice = parseFloat(salePriceWatch || "0");
+    const basePrice = withVinWatch ? billedCost : 0;
+
+    if (basePrice === 0 || salePrice === 0) return { amount: 0, percentage: 0 };
+
+    const marginAmount = salePrice - basePrice;
+    const marginPercentage = (marginAmount / basePrice) * 100;
+
+    return {
+      amount: marginAmount,
+      percentage: marginPercentage
+    };
+  };
+
+  const margin = calculateMargin();
+
   // Effect para limpiar campos cuando se cambia el switch (solo si no es carga inicial)
   useEffect(() => {
     if (!isInitialLoad) {
@@ -213,10 +234,11 @@ export const PurchaseRequestQuoteForm = ({
 
   // Effect para actualizar el precio cuando cambia el modelo (solo si no es carga inicial y es modo create)
   useEffect(() => {
-    if (!isInitialLoad && mode === "create" && originalPrice > 0) {
+    if (!isInitialLoad && mode === "create" && !withVinWatch && modelVnWatch) {
+      // Siempre actualizar el precio, incluso si es 0
       form.setValue("sale_price", originalPrice.toString());
     }
-  }, [modelVnWatch, originalPrice, form, isInitialLoad, mode]);
+  }, [modelVnWatch, originalPrice, form, isInitialLoad, mode, withVinWatch]);
 
   // Effect para auto-completar campos cuando se selecciona un vehículo VN (solo si no es carga inicial)
   useEffect(() => {
@@ -233,9 +255,19 @@ export const PurchaseRequestQuoteForm = ({
           "vehicle_color_id",
           String(selectedVehicle.vehicle_color_id)
         );
+
+        // Actualizar el precio de venta basado en el modelo del vehículo seleccionado
+        const modelOfSelectedVehicle = modelsVn.find(
+          (model) => model.id === Number(selectedVehicle.ap_models_vn_id)
+        );
+        if (modelOfSelectedVehicle && mode === "create") {
+          // Siempre actualizar el precio, incluso si es 0
+          const newPrice = modelOfSelectedVehicle.sale_price || 0;
+          form.setValue("sale_price", newPrice.toString());
+        }
       }
     }
-  }, [vehicleVnWatch, withVinWatch, vehiclesVn, form, isInitialLoad]);
+  }, [vehicleVnWatch, withVinWatch, vehiclesVn, modelsVn, form, isInitialLoad, mode]);
 
   // Effect para inicializar el switch en modo actualizar (solo una vez)
   useEffect(() => {
@@ -682,13 +714,18 @@ export const PurchaseRequestQuoteForm = ({
                 <FormLabel className="flex items-center gap-2 relative">
                   Precio Venta
                   <div className="absolute left-36 text-primary whitespace-nowrap bg-blue-50 px-2 rounded">
-                    {originalPrice > 0 && (
+                    {originalPrice > 0 && !withVinWatch && (
                       <span className="text-xs text-primary bg-blue-50 px-1 rounded">
                         Original: {currencySymbol}{" "}
                         {originalPrice.toLocaleString("es-PE", {
                           minimumFractionDigits: 2,
                           maximumFractionDigits: 2,
                         })}
+                      </span>
+                    )}
+                    {originalPrice === 0 && !withVinWatch && modelVnWatch && (
+                      <span className="text-xs text-orange-600 bg-orange-50 px-1 rounded">
+                        ⚠️ Modelo sin precio configurado
                       </span>
                     )}
                   </div>
@@ -701,6 +738,50 @@ export const PurchaseRequestQuoteForm = ({
                   />
                 </FormControl>
                 <FormMessage />
+
+                {/* Mostrar billed_cost y margen cuando se selecciona con VIN */}
+                {withVinWatch && vehicleVnWatch && (
+                  <div className="mt-2 space-y-1">
+                    {billedCost > 0 ? (
+                      <>
+                        <div className="text-xs text-gray-600 bg-gray-50 px-2 py-1 rounded">
+                          <span className="font-medium">Costo Facturado:</span>{" "}
+                          {currencySymbol} {billedCost.toLocaleString("es-PE", {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })}
+                        </div>
+                        {margin.amount !== 0 && (
+                          <div className={`text-xs px-2 py-1 rounded ${
+                            margin.amount > 0
+                              ? "text-green-700 bg-green-50"
+                              : "text-red-700 bg-red-50"
+                          }`}>
+                            <span className="font-medium">Margen:</span>{" "}
+                            {currencySymbol} {margin.amount.toLocaleString("es-PE", {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            })}
+                            {" "}({margin.percentage > 0 ? "+" : ""}{margin.percentage.toFixed(2)}%)
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <div className="text-xs text-orange-600 bg-orange-50 px-2 py-1 rounded">
+                        ⚠️ Este vehículo no tiene costo de compra registrado. Revisar el registro del vehículo.
+                      </div>
+                    )}
+                    {parseFloat(salePriceWatch || "0") === 0 && (
+                      <div className="text-xs text-red-600 bg-red-50 px-2 py-1 rounded font-medium">
+                        {originalPrice === 0 ? (
+                          <>⚠️ <strong>Precio de venta en 0:</strong> El modelo <strong>"{selectedModel?.code || 'N/A'}"</strong> (ID: {selectedModel?.id}) de este vehículo no tiene precio de venta configurado. Ir a Configuraciones → Modelos VN para agregarlo.</>
+                        ) : (
+                          <>⚠️ <strong>Precio de venta en 0:</strong> Se estableció manualmente, pero el modelo tiene configurado {currencySymbol} {originalPrice.toLocaleString("es-PE", { minimumFractionDigits: 2 })}. Verifique si esto es correcto.</>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
               </FormItem>
             )}
           />
