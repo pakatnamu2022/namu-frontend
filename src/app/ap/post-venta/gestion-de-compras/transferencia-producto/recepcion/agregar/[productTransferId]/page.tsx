@@ -65,11 +65,10 @@ export default function CreateTransferReceptionPage() {
       />
       <TransferReceptionForm
         defaultValues={{
-          product_transfer_id: productTransferId || "",
+          transfer_movement_id: productTransferId || "",
           reception_date: today,
           warehouse_id:
             productTransfer.warehouse_destination_id?.toString() || "",
-          shipping_guide_number: "",
           notes: "",
           details: [],
         }}
@@ -84,8 +83,8 @@ export default function CreateTransferReceptionPage() {
         productTransferItems={productTransfer.details?.map((detail) => ({
           id: detail.id,
           product_id: detail.product_id,
-          product_name: detail.product?.description,
-          quantity: detail.quantity,
+          product_name: detail.product?.name,
+          quantity: Number(detail.quantity),
           unit_cost: detail.unit_cost,
         }))}
       />

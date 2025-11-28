@@ -7,66 +7,35 @@ import {
 } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/core/api";
-import { Loader2 } from "lucide-react";
+import {
+  Loader2,
+  FileText,
+  Download,
+  QrCode,
+  FileCode,
+  Truck,
+  Calendar,
+  Package,
+  FileCheck,
+  ClipboardList,
+  CheckCircle2,
+  XCircle,
+} from "lucide-react";
+import { Link } from "react-router-dom";
+import {
+  TransferData,
+  TransferDetail,
+} from "../../transferencia-producto/lib/productTransfer.interface";
 
 interface ProductTransferViewSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   transferId: number | null;
-}
-
-interface TransferDetail {
-  id: number;
-  inventory_movement_id: number;
-  product_id: number;
-  quantity: string;
-  unit_cost: string;
-  total_cost: string;
-  product: {
-    id: number;
-    code: string;
-    dyn_code: string;
-    name: string;
-    description: string;
-    cost_price: string;
-    sale_price: string;
-  };
-}
-
-interface TransferData {
-  id: number;
-  movement_number: string;
-  movement_type: string;
-  movement_date: string;
-  warehouse_id: number;
-  warehouse_code: string;
-  warehouse: {
-    id: number;
-    dyn_code: string;
-    description: string;
-    sede_id: number;
-  };
-  warehouse_destination_id: number;
-  warehouse_destination_code: string;
-  warehouse_destination: {
-    id: number;
-    dyn_code: string;
-    description: string;
-    sede_id: number;
-  };
-  user_id: number;
-  user_name: string;
-  status: string;
-  notes: string;
-  total_items: number;
-  total_quantity: string;
-  details: TransferDetail[];
-  created_at: string;
-  updated_at: string;
 }
 
 const getStatusBadge = (status: string) => {
@@ -105,13 +74,24 @@ export function ProductTransferViewSheet({
     enabled: !!transferId && open,
   });
 
+  const formatDate = (date: string | null) => {
+    if (!date) return "-";
+    return format(new Date(date), "dd/MM/yyyy HH:mm", { locale: es });
+  };
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="sm:max-w-[600px] overflow-y-auto">
-        <SheetHeader>
-          <SheetTitle>Detalle de Transferencia</SheetTitle>
+      <SheetContent
+        side="right"
+        className="w-full sm:max-w-3xl lg:max-w-4xl overflow-y-auto"
+      >
+        <SheetHeader className="pb-6 border-b">
+          <SheetTitle className="text-2xl font-bold text-primary">
+            Detalle de Transferencia
+          </SheetTitle>
           <SheetDescription>
-            Información completa de la transferencia de productos
+            {data?.movement_number ||
+              "Información completa de la transferencia"}
           </SheetDescription>
         </SheetHeader>
 
@@ -126,9 +106,7 @@ export function ProductTransferViewSheet({
               <h3 className="font-semibold text-lg">Información General</h3>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-sm text-muted-foreground">
-                    N° Movimiento
-                  </p>
+                  <p className="text-sm text-muted-foreground">N° Movimiento</p>
                   <p className="font-medium">{data.movement_number}</p>
                 </div>
                 <div>
@@ -169,7 +147,7 @@ export function ProductTransferViewSheet({
                     Almacén Origen
                   </p>
                   <p className="font-semibold">{data.warehouse_code}</p>
-                  <p className="text-sm">{data.warehouse.description}</p>
+                  <p className="text-sm">{data.warehouse_origin.description}</p>
                 </div>
                 <div className="border rounded-lg p-4 bg-muted/50">
                   <p className="text-sm text-muted-foreground mb-2">
@@ -186,6 +164,256 @@ export function ProductTransferViewSheet({
             </div>
 
             <Separator />
+
+            {/* Información de la Guía de Remisión */}
+            {data.reference && (
+              <>
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold flex items-center gap-2">
+                    <FileText className="size-5" />
+                    Información de la Guía de Remisión
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-5 bg-blue-50/50 rounded-lg border border-blue-100">
+                    <div className="space-y-3">
+                      <div className="flex items-start gap-2">
+                        <FileCheck className="size-5 text-muted-foreground mt-0.5" />
+                        <div>
+                          <p className="text-sm font-medium text-muted-foreground">
+                            Número de Documento
+                          </p>
+                          <p className="text-base font-semibold">
+                            {data.reference.document_number}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-start gap-2">
+                        <Calendar className="size-5 text-muted-foreground mt-0.5" />
+                        <div>
+                          <p className="text-sm font-medium text-muted-foreground">
+                            Fecha de Emisión
+                          </p>
+                          <p className="text-base">
+                            {data.reference.issue_date
+                              ? format(
+                                  new Date(data.reference.issue_date),
+                                  "dd/MM/yyyy",
+                                  { locale: es }
+                                )
+                              : "-"}
+                          </p>
+                        </div>
+                      </div>
+
+                      {data.reference.transfer_reason_description && (
+                        <div className="flex items-start gap-2">
+                          <ClipboardList className="size-5 text-muted-foreground mt-0.5" />
+                          <div>
+                            <p className="text-sm font-medium text-muted-foreground">
+                              Motivo de Traslado
+                            </p>
+                            <p className="text-base">
+                              {data.reference.transfer_reason_description}
+                            </p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="space-y-3">
+                      {data.reference.transfer_modality_description && (
+                        <div className="flex items-start gap-2">
+                          <Truck className="size-5 text-muted-foreground mt-0.5" />
+                          <div>
+                            <p className="text-sm font-medium text-muted-foreground">
+                              Modalidad de Transporte
+                            </p>
+                            <p className="text-base">
+                              {data.reference.transfer_modality_description}
+                            </p>
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="flex items-start gap-2">
+                        <Truck className="size-5 text-muted-foreground mt-0.5" />
+                        <div>
+                          <p className="text-sm font-medium text-muted-foreground">
+                            Placa
+                          </p>
+                          <p className="text-base font-semibold">
+                            {data.reference.plate}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-start gap-2">
+                        <Package className="size-5 text-muted-foreground mt-0.5" />
+                        <div>
+                          <p className="text-sm font-medium text-muted-foreground">
+                            Peso Total
+                          </p>
+                          <p className="text-base font-semibold">
+                            {data.reference.total_weight} kg
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Información del Conductor */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-blue-50 rounded-lg">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">
+                        Conductor
+                      </p>
+                      <p className="text-base">
+                        {data.reference.driver_name || "-"}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">
+                        Licencia
+                      </p>
+                      <p className="text-base">
+                        {data.reference.license || "-"}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <Separator />
+
+                {/* Estado SUNAT */}
+                {data.reference.requires_sunat && (
+                  <>
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-semibold flex items-center gap-2">
+                        <FileCheck className="size-5" />
+                        Estado SUNAT
+                      </h3>
+                      <div className="p-4 bg-gray-50 rounded-lg space-y-3">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium">
+                            Registrado en SUNAT
+                          </span>
+                          {data.reference.is_sunat_registered ? (
+                            <CheckCircle2 className="size-5 text-green-600" />
+                          ) : (
+                            <XCircle className="size-5 text-secondary" />
+                          )}
+                        </div>
+                        {data.reference.sent_at && (
+                          <div>
+                            <span className="text-sm font-medium">
+                              Fecha de Envío:{" "}
+                            </span>
+                            <span className="text-sm">
+                              {formatDate(data.reference.sent_at)}
+                            </span>
+                          </div>
+                        )}
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium">
+                            Aceptado por SUNAT
+                          </span>
+                          {data.reference.aceptada_por_sunat ? (
+                            <CheckCircle2 className="size-5 text-green-600" />
+                          ) : (
+                            <XCircle className="size-5 text-secondary" />
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    <Separator />
+                  </>
+                )}
+
+                {/* Documentos SUNAT */}
+                {data.reference.requires_sunat &&
+                  data.reference.is_sunat_registered && (
+                    <>
+                      <div className="space-y-4">
+                        <h3 className="text-lg font-semibold">
+                          Documentos SUNAT
+                        </h3>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                          {data.reference.enlace_del_pdf && (
+                            <Link
+                              to={data.reference.enlace_del_pdf}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="w-full"
+                            >
+                              <Button
+                                variant="outline"
+                                className="w-full gap-2 h-20 flex-col"
+                              >
+                                <FileText className="size-6 text-primary" />
+                                <span className="text-xs">Ver PDF</span>
+                              </Button>
+                            </Link>
+                          )}
+
+                          {data.reference.enlace_del_xml && (
+                            <Link
+                              to={data.reference.enlace_del_xml}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="w-full"
+                            >
+                              <Button
+                                variant="outline"
+                                className="w-full gap-2 h-20 flex-col"
+                              >
+                                <FileCode className="size-6 text-primary" />
+                                <span className="text-xs">Descargar XML</span>
+                              </Button>
+                            </Link>
+                          )}
+
+                          {data.reference.enlace_del_cdr && (
+                            <Link
+                              to={data.reference.enlace_del_cdr}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="w-full"
+                            >
+                              <Button
+                                variant="outline"
+                                className="w-full gap-2 h-20 flex-col"
+                              >
+                                <Download className="size-6 text-primary" />
+                                <span className="text-xs">Descargar CDR</span>
+                              </Button>
+                            </Link>
+                          )}
+
+                          {data.reference.cadena_para_codigo_qr && (
+                            <Link
+                              to={data.reference.cadena_para_codigo_qr}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="w-full"
+                            >
+                              <Button
+                                variant="outline"
+                                className="w-full gap-2 h-20 flex-col"
+                              >
+                                <QrCode className="size-6 text-primary" />
+                                <span className="text-xs">Ver QR</span>
+                              </Button>
+                            </Link>
+                          )}
+                        </div>
+                      </div>
+
+                      <Separator />
+                    </>
+                  )}
+              </>
+            )}
 
             {/* Productos Transferidos */}
             <div className="space-y-4">

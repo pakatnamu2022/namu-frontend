@@ -64,7 +64,7 @@ export default function UpdateAdjustmentsProductPage() {
       reason_in_out_id: data.reason_in_out_id
         ? String(data.reason_in_out_id)
         : "",
-      warehouse_id: String(data.warehouse_id),
+      warehouse_id: String(data.warehouse_origin_id),
       movement_date: data.movement_date
         ? new Date(data.movement_date)
         : new Date(),

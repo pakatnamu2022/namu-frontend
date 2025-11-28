@@ -113,7 +113,7 @@ export function AdjustmentsProductDetailSheet({
                   <div>
                     <p className="text-xs text-muted-foreground">Almacén</p>
                     <p className="font-medium text-sm">
-                      {data.warehouse?.description || "-"}
+                      {data.warehouse_origin?.description || "-"}
                     </p>
                   </div>
                 </div>

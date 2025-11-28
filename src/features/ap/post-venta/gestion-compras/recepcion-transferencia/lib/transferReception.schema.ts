@@ -4,6 +4,9 @@ import { z } from "zod";
 const transferReceptionDetailSchema = z.object({
   transfer_item_id: z.string().optional(),
   product_id: requiredStringId("Producto es requerido"),
+  quantity_sent: z
+    .number()
+    .min(0.01, { message: "La cantidad enviada debe ser mayor a 0" }),
   quantity_received: z
     .number()
     .min(0.01, { message: "La cantidad recibida debe ser mayor a 0" }),
@@ -11,9 +14,6 @@ const transferReceptionDetailSchema = z.object({
     .number()
     .min(0, { message: "La cantidad observada debe ser mayor o igual a 0" })
     .optional(),
-  reception_type: z.enum(["ORDERED", "BONUS", "GIFT", "SAMPLE"], {
-    message: "Tipo de recepción inválido",
-  }),
   reason_observation: z
     .enum([
       "DAMAGED",
@@ -34,14 +34,11 @@ const transferReceptionDetailSchema = z.object({
 });
 
 const transferReceptionSchemaBase = z.object({
-  product_transfer_id: requiredStringId("Transferencia de producto es requerida"),
+  transfer_movement_id: requiredStringId(
+    "Transferencia de producto es requerida"
+  ),
   reception_date: z.date({ message: "Fecha de recepción es requerida" }),
   warehouse_id: requiredStringId("Almacén es requerido"),
-  shipping_guide_number: z
-    .string()
-    .max(100, { message: "Máximo 100 caracteres" })
-    .optional()
-    .or(z.literal("")),
   notes: z.string().optional().or(z.literal("")),
   details: z
     .array(transferReceptionDetailSchema)
@@ -50,13 +47,20 @@ const transferReceptionSchemaBase = z.object({
 
 export const transferReceptionSchemaCreate = transferReceptionSchemaBase;
 
-export const transferReceptionSchemaUpdate = transferReceptionSchemaBase.partial();
+export const transferReceptionSchemaUpdate =
+  transferReceptionSchemaBase.partial();
 
-export type TransferReceptionSchema = z.infer<typeof transferReceptionSchemaCreate>;
+export type TransferReceptionSchema = z.infer<
+  typeof transferReceptionSchemaCreate
+>;
 
-export type TransferReceptionDetailSchema = z.infer<typeof transferReceptionDetailSchema>;
+export type TransferReceptionDetailSchema = z.infer<
+  typeof transferReceptionDetailSchema
+>;
 
-export function validateTransferReceptionFormData(data: any): TransferReceptionSchema {
+export function validateTransferReceptionFormData(
+  data: any
+): TransferReceptionSchema {
   return transferReceptionSchemaCreate.parse(data);
 }
 

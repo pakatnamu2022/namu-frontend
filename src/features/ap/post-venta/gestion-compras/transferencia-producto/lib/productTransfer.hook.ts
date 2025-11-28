@@ -14,6 +14,11 @@ import {
   updateProductTransfer,
 } from "./productTransfer.actions";
 import { toast } from "sonner";
+import {
+  sendShippingGuideToNubefact,
+  queryShippingGuideFromNubefact,
+} from "@/features/ap/comercial/envios-recepciones/lib/shipmentsReceptions.actions";
+import { successToast, errorToast } from "@/core/core.function";
 
 const { QUERY_KEY } = PRODUCT_TRANSFER;
 
@@ -84,6 +89,74 @@ export const useDeleteProductTransfer = () => {
         error?.response?.data?.message ||
           "Error al eliminar la transferencia de producto"
       );
+    },
+  });
+};
+
+// Hook para enviar a Nubefact (reutilizando el mismo endpoint que ShipmentsReceptions)
+export const useSendShippingGuideToNubefact = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => sendShippingGuideToNubefact(id),
+    onSuccess: (response) => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
+
+      if (response.success) {
+        successToast(response.message);
+      } else {
+        errorToast(
+          response.message || "Error al enviar la guía de remisión a Nubefact"
+        );
+      }
+    },
+    onError: (error: any) => {
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.response?.data?.error ||
+        "Error al enviar la guía de remisión a Nubefact";
+
+      errorToast(errorMessage);
+
+      if (error?.response?.data?.errors) {
+        const errors = error.response.data.errors;
+        Object.keys(errors).forEach((key) => {
+          errorToast(`${key}: ${errors[key].join(", ")}`);
+        });
+      }
+    },
+  });
+};
+
+// Hook para consultar estado en Nubefact (reutilizando el mismo endpoint que ShipmentsReceptions)
+export const useQueryShippingGuideFromNubefact = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => queryShippingGuideFromNubefact(id),
+    onSuccess: (response) => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
+
+      if (response.success) {
+        successToast(response.message);
+      } else {
+        errorToast(
+          response.message || "Error al consultar el estado de la guía"
+        );
+      }
+    },
+    onError: (error: any) => {
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.response?.data?.error ||
+        "Error al consultar el estado de la guía";
+
+      errorToast(errorMessage);
+
+      if (error?.response?.data?.errors) {
+        const errors = error.response.data.errors;
+        Object.keys(errors).forEach((key) => {
+          errorToast(`${key}: ${errors[key].join(", ")}`);
+        });
+      }
     },
   });
 };

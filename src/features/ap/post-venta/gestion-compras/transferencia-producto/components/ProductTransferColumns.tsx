@@ -1,7 +1,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { ProductTransferResource } from "../lib/productTransfer.interface";
 import { Button } from "@/components/ui/button";
-import { Eye, Pencil, PackageCheck } from "lucide-react";
+import { Eye, Pencil, PackageCheck, Send, RefreshCw } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
@@ -13,6 +13,8 @@ export type ProductTransferColumns = ColumnDef<ProductTransferResource>;
 interface Props {
   onDelete: (id: number) => void;
   onView?: (id: number) => void;
+  onSendToNubefact?: (id: number) => void;
+  onQueryFromNubefact?: (id: number) => void;
   permissions: {
     canUpdate: boolean;
     canDelete: boolean;
@@ -26,6 +28,8 @@ interface Props {
 export const productTransferColumns = ({
   onDelete,
   onView,
+  onSendToNubefact,
+  onQueryFromNubefact,
   permissions,
   routeUpdate,
   routeReception,
@@ -89,7 +93,10 @@ export const productTransferColumns = ({
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
-      const { id } = row.original;
+      const { id, reference, reference_id } = row.original;
+      // Obtener valores desde la referencia (guía de remisión)
+      const isSent = !!reference?.sent_at;
+      const isAcceptedBySunat = reference?.aceptada_por_sunat === true;
 
       return (
         <div className="flex items-center gap-2">
@@ -105,6 +112,35 @@ export const productTransferColumns = ({
             </Button>
           )}
 
+          {/* Enviar a Nubefact - Solo si NO ha sido enviado */}
+          {!isSent && onSendToNubefact && reference_id && (
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-7"
+              tooltip="Enviar a Nubefact"
+              onClick={() => onSendToNubefact(reference_id)}
+            >
+              <Send className="size-4" />
+            </Button>
+          )}
+
+          {/* Consultar estado en Nubefact - Solo si ya fue enviado y NO está aceptado */}
+          {isSent &&
+            !isAcceptedBySunat &&
+            onQueryFromNubefact &&
+            reference_id && (
+              <Button
+                variant="outline"
+                size="icon"
+                className="size-7"
+                tooltip="Consultar estado en SUNAT"
+                onClick={() => onQueryFromNubefact(reference_id)}
+              >
+                <RefreshCw className="size-4" />
+              </Button>
+            )}
+
           {permissions.canReceive && routeReception && (
             <Link to={`${routeReception}/${id}`}>
               <Button
@@ -118,15 +154,22 @@ export const productTransferColumns = ({
             </Link>
           )}
 
-          {permissions.canUpdate && routeUpdate && (
+          {/* Editar - Oculto si fue aceptada por SUNAT */}
+          {permissions.canUpdate && routeUpdate && !isAcceptedBySunat && (
             <Link to={`${routeUpdate}/${id}`}>
-              <Button variant="outline" size="icon" className="size-7" tooltip="Editar">
+              <Button
+                variant="outline"
+                size="icon"
+                className="size-7"
+                tooltip="Editar"
+              >
                 <Pencil className="size-5" />
               </Button>
             </Link>
           )}
 
-          {permissions.canDelete && (
+          {/* Eliminar - Oculto si fue aceptada por SUNAT */}
+          {permissions.canDelete && !isAcceptedBySunat && (
             <DeleteButton onClick={() => onDelete(id)} />
           )}
         </div>

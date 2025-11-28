@@ -32,10 +32,7 @@ import { Card } from "@/components/ui/card";
 import { useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
-import {
-  OBSERVATION_REASONS,
-  RECEPTION_TYPES,
-} from "../lib/transferReception.constants";
+import { OBSERVATION_REASONS } from "../lib/transferReception.constants";
 
 interface TransferReceptionFormProps {
   defaultValues: Partial<TransferReceptionSchema>;
@@ -73,7 +70,7 @@ export const TransferReceptionForm = ({
     mode: "onChange",
   });
 
-  const { fields, append, remove } = useFieldArray({
+  const { fields, remove } = useFieldArray({
     control: form.control,
     name: "details",
   });
@@ -96,6 +93,7 @@ export const TransferReceptionForm = ({
       const initialDetails = productTransferItems.map((item) => ({
         transfer_item_id: String(item.id),
         product_id: item.product_id.toString(),
+        quantity_sent: item.quantity,
         quantity_received: item.quantity,
         observed_quantity: 0,
         reception_type: "ORDERED" as const,
@@ -113,20 +111,6 @@ export const TransferReceptionForm = ({
     return <FormSkeleton />;
   }
 
-  const handleAddDetail = () => {
-    append({
-      transfer_item_id: undefined,
-      product_id: "",
-      quantity_received: 1,
-      observed_quantity: undefined,
-      reception_type: "BONUS",
-      reason_observation: undefined,
-      observation_notes: "",
-      bonus_reason: "",
-      notes: "",
-    });
-  };
-
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 w-full">
@@ -136,7 +120,7 @@ export const TransferReceptionForm = ({
           icon={FileText}
           iconColor="text-primary"
           bgColor="bg-blue-50"
-          cols={{ sm: 2, md: 3 }}
+          cols={{ sm: 2, md: 2 }}
         >
           <DatePickerFormField
             control={form.control}
@@ -159,20 +143,6 @@ export const TransferReceptionForm = ({
             control={form.control}
             disabled={true}
           />
-
-          <FormField
-            control={form.control}
-            name="shipping_guide_number"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Número de Guía de Remisión</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: G001-00001234" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
         </GroupFormSection>
 
         {/* Detalles de Productos Recibidos */}
@@ -193,7 +163,6 @@ export const TransferReceptionForm = ({
             <div className="space-y-3">
               {fields.map((field, index) => {
                 const detail = watchedDetails?.[index];
-                const receptionType = detail?.reception_type;
                 const observedQuantity = detail?.observed_quantity || 0;
                 const hasObservation = observedQuantity > 0;
 
@@ -262,6 +231,23 @@ export const TransferReceptionForm = ({
                           control={form.control}
                           disabled={mode === "update"}
                         />
+                      )}
+
+                      {isOrderedProduct && productItem && (
+                        <FormItem>
+                          <FormLabel className="text-xs font-medium">
+                            Cant. Enviada
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              className="text-center bg-slate-100"
+                              value={productItem.quantity}
+                              disabled
+                              readOnly
+                            />
+                          </FormControl>
+                        </FormItem>
                       )}
 
                       <FormField
@@ -377,71 +363,7 @@ export const TransferReceptionForm = ({
                           )}
                         />
                       )}
-
-                      <FormField
-                        control={form.control}
-                        name={`details.${index}.reception_type`}
-                        render={() => (
-                          <FormItem>
-                            <FormLabel className="text-xs font-medium">
-                              Tipo *
-                            </FormLabel>
-                            <FormControl>
-                              <FormSelect
-                                name={`details.${index}.reception_type`}
-                                placeholder="Tipo"
-                                options={
-                                  isOrderedProduct
-                                    ? [{ label: "Ordenado", value: "ORDERED" }]
-                                    : RECEPTION_TYPES.filter(
-                                        (type) => type.value !== "ORDERED"
-                                      ).map((type) => ({
-                                        label: type.label,
-                                        value: type.value,
-                                      }))
-                                }
-                                control={form.control}
-                                disabled={isOrderedProduct || mode === "update"}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
                     </div>
-
-                    {/* Motivo bonificación */}
-                    {(receptionType === "BONUS" ||
-                      receptionType === "GIFT" ||
-                      receptionType === "SAMPLE") && (
-                      <div className="mb-3">
-                        <FormField
-                          control={form.control}
-                          name={`details.${index}.bonus_reason`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-xs font-medium">
-                                Motivo{" "}
-                                {receptionType === "BONUS"
-                                  ? "Bonificación"
-                                  : receptionType === "GIFT"
-                                  ? "Regalo"
-                                  : "Muestra"}
-                              </FormLabel>
-                              <FormControl>
-                                <Input
-                                  placeholder="Ingresa el motivo..."
-                                  disabled={mode === "update"}
-                                  {...field}
-                                  value={field.value || ""}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                    )}
 
                     {/* Observaciones */}
                     {hasObservation && (

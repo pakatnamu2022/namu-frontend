@@ -1,5 +1,7 @@
 import { AP_MASTER_POST_VENTA } from "@/features/ap/lib/ap.constants";
 import { type Links, type Meta } from "@/shared/lib/pagination.interface.ts";
+import { ProductResource } from "../../../gestion-productos/productos/lib/product.interface";
+import { WarehouseResource } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.interface";
 
 export type MovementType =
   | typeof AP_MASTER_POST_VENTA.TYPE_ADJUSTMENT_IN
@@ -14,16 +16,7 @@ export interface AdjustmentsProductDetailResource {
   batch_number?: string;
   expiration_date: string | Date;
   notes?: string;
-  product?: {
-    id: number;
-    code: string;
-    name: string;
-    brand_name?: string;
-    category_name?: string;
-    unit_measurement_name?: string;
-    cost_price?: string | number;
-    sale_price?: string | number;
-  };
+  product?: ProductResource;
 }
 
 export interface AdjustmentsProductResource {
@@ -31,7 +24,7 @@ export interface AdjustmentsProductResource {
   movement_number?: string;
   movement_type: MovementType;
   reason_in_out_id?: number;
-  warehouse_id: number;
+  warehouse_origin_id: number;
   movement_date: string;
   notes?: string;
   user_id?: number;
@@ -40,10 +33,7 @@ export interface AdjustmentsProductResource {
   total_quantity?: string;
   total_cost?: string;
   status?: string;
-  warehouse?: {
-    id: number;
-    description: string;
-  };
+  warehouse_origin?: WarehouseResource;
   reason_in_out?: {
     id: number;
     code: string;
@@ -60,7 +50,7 @@ export interface AdjustmentsProductListItem {
   id: number;
   movement_number?: string;
   movement_type: MovementType;
-  warehouse_id: number;
+  warehouse_origin_id: number;
   movement_date: string | Date;
   notes?: string;
   user_id?: number;

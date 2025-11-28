@@ -2,7 +2,7 @@ import { type ModelComplete } from "@/core/core.interface";
 import { TypesOperationResource } from "./typesOperation.interface";
 import { COMMERCIAL_MASTERS_ENDPOINT } from "../../../../lib/ap.constants";
 
-const ROUTE = "tipos-operacion";
+const ROUTE = "tipos-operacion-cita";
 const ABSOLUTE_ROUTE = `/ap/configuraciones/maestros-general/${ROUTE}`;
 
 export const TYPES_OPERATION: ModelComplete<TypesOperationResource> = {

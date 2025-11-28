@@ -84,14 +84,19 @@ export default function TransferReceptionsPage() {
           </Button>
           <div className="flex-1">
             <TitleComponent
-              title={`Recepciones - Transferencia #${productTransfer.id}`}
+              title={`Recepciones - Transferencia`}
               subtitle="Gestión de recepciones de transferencias"
               icon="PackageCheck"
             />
           </div>
         </div>
         {permissions.canCreate && (
-          <Button size="sm" variant="outline" onClick={handleAddReception}>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={handleAddReception}
+            disabled={Boolean(productTransfer.status === "APPROVED")}
+          >
             <Plus className="size-4 mr-2" /> Agregar Recepción
           </Button>
         )}
@@ -131,7 +136,6 @@ export default function TransferReceptionsPage() {
               canUpdate: permissions.canUpdate,
               canDelete: permissions.canDelete,
             }}
-            warehouseName={productTransfer?.warehouse_destination?.description}
           />
         }
       ></TransferReceptionsTable>

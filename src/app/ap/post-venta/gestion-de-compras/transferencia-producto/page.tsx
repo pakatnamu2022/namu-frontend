@@ -11,6 +11,7 @@ import {
 import PageSkeleton from "@/shared/components/PageSkeleton.tsx";
 import TitleComponent from "@/shared/components/TitleComponent.tsx";
 import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog.tsx";
+import { SimpleConfirmDialog } from "@/shared/components/SimpleConfirmDialog.tsx";
 import DataTablePagination from "@/shared/components/DataTablePagination.tsx";
 import { DEFAULT_PER_PAGE } from "@/core/core.constants.ts";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper.tsx";
@@ -22,7 +23,11 @@ import ProductTransferTable from "@/features/ap/post-venta/gestion-compras/trans
 import { productTransferColumns } from "@/features/ap/post-venta/gestion-compras/transferencia-producto/components/ProductTransferColumns.tsx";
 import ProductTransferOptions from "@/features/ap/post-venta/gestion-compras/transferencia-producto/components/ProductTransferOptions.tsx";
 import { PRODUCT_TRANSFER } from "@/features/ap/post-venta/gestion-compras/transferencia-producto/lib/productTransfer.constants.ts";
-import { useProductTransfers } from "@/features/ap/post-venta/gestion-compras/transferencia-producto/lib/productTransfer.hook.ts";
+import {
+  useProductTransfers,
+  useSendShippingGuideToNubefact,
+  useQueryShippingGuideFromNubefact,
+} from "@/features/ap/post-venta/gestion-compras/transferencia-producto/lib/productTransfer.hook.ts";
 import { ProductTransferViewSheet } from "@/features/ap/post-venta/gestion-compras/recepcion-transferencia/components/ProductTransferViewSheet";
 
 export default function ProductTransferPage() {
@@ -31,10 +36,13 @@ export default function ProductTransferPage() {
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [sendToNubefactId, setSendToNubefactId] = useState<number | null>(null);
   const [viewId, setViewId] = useState<number | null>(null);
   const [isViewSheetOpen, setIsViewSheetOpen] = useState(false);
   const { MODEL, ROUTE, ROUTE_UPDATE } = PRODUCT_TRANSFER;
   const permissions = useModulePermissions(ROUTE);
+  const sendToNubefactMutation = useSendShippingGuideToNubefact();
+  const queryFromNubefactMutation = useQueryShippingGuideFromNubefact();
   const currentDate = new Date();
 
   const [dateFrom, setDateFrom] = useState<Date | undefined>(currentDate);
@@ -73,6 +81,24 @@ export default function ProductTransferPage() {
     }
   };
 
+  const handleSendToNubefact = async () => {
+    if (!sendToNubefactId) return;
+    sendToNubefactMutation.mutate(sendToNubefactId, {
+      onSettled: () => {
+        refetch();
+        setSendToNubefactId(null);
+      },
+    });
+  };
+
+  const handleQueryFromNubefact = (id: number) => {
+    queryFromNubefactMutation.mutate(id, {
+      onSettled: () => {
+        refetch();
+      },
+    });
+  };
+
   if (isLoadingModule) return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
   if (!currentView) notFound();
@@ -92,6 +118,8 @@ export default function ProductTransferPage() {
         columns={productTransferColumns({
           onDelete: setDeleteId,
           onView: handleView,
+          onSendToNubefact: setSendToNubefactId,
+          onQueryFromNubefact: handleQueryFromNubefact,
           permissions: {
             ...permissions,
             canReceive: permissions.canCreate,
@@ -117,6 +145,21 @@ export default function ProductTransferPage() {
           open={true}
           onOpenChange={(open) => !open && setDeleteId(null)}
           onConfirm={handleDelete}
+        />
+      )}
+
+      {sendToNubefactId !== null && (
+        <SimpleConfirmDialog
+          open={true}
+          onOpenChange={(open) => !open && setSendToNubefactId(null)}
+          onConfirm={handleSendToNubefact}
+          title="Enviar a Nubefact"
+          description="¿Está seguro de que desea enviar esta guía de remisión a Nubefact? Una vez enviada, no podrá editarla ni eliminarla."
+          confirmText="Sí, enviar"
+          cancelText="Cancelar"
+          variant="default"
+          icon="warning"
+          isLoading={sendToNubefactMutation.isPending}
         />
       )}
 

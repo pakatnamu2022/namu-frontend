@@ -417,6 +417,15 @@ const TransmisionVehiculoPage = lazy(
   () => import("./app/ap/configuraciones/vehiculos/transmision-vehiculo/page")
 );
 
+// PostVentas Configuration
+const TypeOperationAppointmentPage = lazy(
+  () => import("@/app/ap/configuraciones/postventa/tipos-operacion-cita/page")
+);
+
+const TypePlanningPage = lazy(
+  () => import("./app/ap/configuraciones/postventa/tipos-planificacion/page")
+);
+
 // Ventas Configuration
 const AsignarGrupoMarcaPage = lazy(
   () => import("./app/ap/configuraciones/ventas/asignar-grupo-marca/page")
@@ -1250,6 +1259,16 @@ function App() {
               <Route
                 path="vehiculos/transmision-vehiculo"
                 element={<TransmisionVehiculoPage />}
+              />
+
+              {/* PostVentas Configuration */}
+              <Route
+                path="postventa/tipos-operacion-cita"
+                element={<TypeOperationAppointmentPage />}
+              />
+              <Route
+                path="postventa/tipos-planificacion"
+                element={<TypePlanningPage />}
               />
 
               {/* Ventas Configuration */}
