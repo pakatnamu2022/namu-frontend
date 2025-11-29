@@ -26,6 +26,7 @@ import UpdateEvaluationPage from "./app/gp/gestion-humana/evaluaciones-de-desemp
 import EvaluationPersonPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/evaluaciones/[id]/page";
 import EvaluationDetailPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/evaluaciones/detalles/[id]/page";
 import EvaluationDetailPersonPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/evaluaciones/detalles/[id]/[person]/page";
+import CommercialDashboardPage from "./app/ap/comercial/page";
 import AgendaPage from "./app/ap/comercial/agenda/page";
 import OpportunitiesKanbanPage from "./app/ap/comercial/agenda/oportunidades/page";
 import AddOpportunityPage from "./app/ap/comercial/agenda/oportunidades/agregar/page";
@@ -768,6 +769,9 @@ function App() {
                 </Suspense>
               }
             >
+              {/* Dashboard Principal */}
+              <Route index element={<CommercialDashboardPage />} />
+
               {/* Agenda */}
               <Route path="agenda" element={<AgendaPage />} />
 
