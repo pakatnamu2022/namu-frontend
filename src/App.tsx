@@ -647,6 +647,15 @@ const AddModelsVnPostVentaPage = lazy(
 const EditModelsVnPostVentaPage = lazy(
   () => import("./app/ap/post-venta/taller/modelos-vn-pv/actualizar/[id]/page")
 );
+const AppointmentPlanningPage = lazy(
+  () => import("./app/ap/post-venta/taller/citas/page")
+);
+const AddAppointmentPlanningPage = lazy(
+  () => import("./app/ap/post-venta/taller/citas/agregar/page")
+);
+const EditAppointmentPlanningPage = lazy(
+  () => import("./app/ap/post-venta/taller/citas/actualizar/[id]/page")
+);
 
 // ============================================================================
 // GP - GESTION DEL SISTEMA
@@ -1479,6 +1488,18 @@ function App() {
               <Route
                 path="taller/modelos-vn-pv/actualizar/:id"
                 element={<EditModelsVnPostVentaPage />}
+              />
+              <Route
+                path="taller/citas"
+                element={<AppointmentPlanningPage />}
+              />
+              <Route
+                path="taller/citas/agregar"
+                element={<AddAppointmentPlanningPage />}
+              />
+              <Route
+                path="taller/citas/actualizar/:id"
+                element={<EditAppointmentPlanningPage />}
               />
             </Route>
 

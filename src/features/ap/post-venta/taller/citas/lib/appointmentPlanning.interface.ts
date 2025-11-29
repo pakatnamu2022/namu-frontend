@@ -1,0 +1,58 @@
+import { type Links, type Meta } from "@/shared/lib/pagination.interface.ts";
+
+export interface AppointmentPlanningResponse {
+  data: AppointmentPlanningResource[];
+  links: Links;
+  meta: Meta;
+}
+
+export interface AppointmentPlanningResource {
+  id: number;
+  description: string;
+  delivery_date: string;
+  delivery_time: string;
+  date_appointment: string;
+  time_appointment: string;
+  full_name_client: string;
+  email_client: string;
+  phone_client: string;
+  type_operation_appointment_id: number;
+  type_planning_id: number;
+  ap_vehicle_id: number;
+}
+
+export interface AppointmentPlanningRequest {
+  description: string;
+  delivery_date: string;
+  delivery_time: string;
+  date_appointment: string;
+  time_appointment: string;
+  full_name_client: string;
+  email_client: string;
+  phone_client: string;
+  type_operation_appointment_id: number;
+  type_planning_id: number;
+  ap_vehicle_id: number;
+}
+
+export interface getAppointmentPlanningProps {
+  params?: Record<string, any>;
+}
+
+// Interfaces para slots de tiempo disponibles
+export interface TimeSlot {
+  date: string;
+  time: string;
+  available: boolean;
+  appointment_id?: number;
+}
+
+export interface AvailableSlotsResponse {
+  date: string;
+  slots: TimeSlot[];
+}
+
+export interface GetAvailableSlotsParams {
+  start_date: string;
+  end_date: string;
+}

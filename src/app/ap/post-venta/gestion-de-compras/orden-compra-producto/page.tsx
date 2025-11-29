@@ -38,12 +38,23 @@ export default function PurchaseOrderProductsPage() {
   const { MODEL, ROUTE, ROUTE_ADD, ROUTE_UPDATE, ABSOLUTE_ROUTE } =
     PURCHASE_ORDER_PRODUCT;
   const permissions = useModulePermissions(ROUTE);
+  const currentDate = new Date();
+  const [dateFrom, setDateFrom] = useState<Date | undefined>(currentDate);
+  const [dateTo, setDateTo] = useState<Date | undefined>(currentDate);
+
+  const formatDate = (date: Date | undefined) => {
+    return date ? date.toISOString().split("T")[0] : undefined;
+  };
 
   const { data, isLoading, refetch } = usePurchaseOrderProducts({
     page,
     search,
     per_page,
     type_operation_id: TYPES_OPERATION_ID.POSTVENTA,
+    emission_date:
+      dateFrom && dateTo
+        ? [formatDate(dateFrom), formatDate(dateTo)]
+        : undefined,
   });
 
   const handleDelete = async () => {
@@ -98,7 +109,14 @@ export default function PurchaseOrderProductsPage() {
         })}
         data={data?.data || []}
       >
-        <PurchaseOrderProductsOptions search={search} setSearch={setSearch} />
+        <PurchaseOrderProductsOptions
+          search={search}
+          setSearch={setSearch}
+          dateFrom={dateFrom}
+          setDateFrom={setDateFrom}
+          dateTo={dateTo}
+          setDateTo={setDateTo}
+        />
       </PurchaseOrderProductsTable>
 
       {deleteId !== null && (
