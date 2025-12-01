@@ -153,7 +153,7 @@ export function FormSelect({
                 >
                   <Command
                     className="max-h-72 overflow-hidden"
-                    shouldFilter={!isSearchable}
+                    shouldFilter={!isSearchable && !strictFilter}
                   >
                     <CommandInput
                       className="border-none focus:ring-0"

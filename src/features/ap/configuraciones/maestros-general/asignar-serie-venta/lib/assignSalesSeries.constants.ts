@@ -25,6 +25,7 @@ export const ASSIGN_SALES_SERIES: ModelComplete<AssignSalesSeriesResource> = {
     type_operation_id: 0,
     sede_id: 0,
     status: true,
+    type: "SALE",
   },
 };
 

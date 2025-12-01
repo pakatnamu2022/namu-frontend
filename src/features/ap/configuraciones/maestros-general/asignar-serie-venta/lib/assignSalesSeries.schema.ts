@@ -1,7 +1,4 @@
-import {
-  requiredNumber,
-  requiredStringId,
-} from "@/shared/lib/global.schema";
+import { requiredNumber, requiredStringId } from "@/shared/lib/global.schema";
 import { z } from "zod";
 
 export const assignSalesSeriesSchemaCreate = z.object({
@@ -15,6 +12,7 @@ export const assignSalesSeriesSchemaCreate = z.object({
   type_receipt_id: requiredStringId("Tipo de Comprobante es requerido"),
   type_operation_id: requiredStringId("Tipo de Operación es requerido"),
   sede_id: requiredStringId("Sede es requerido"),
+  type: z.enum(["SALE", "PURCHASE"], "Tipo es requerido"),
 });
 
 export const assignSalesSeriesSchemaUpdate =

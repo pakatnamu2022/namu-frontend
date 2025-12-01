@@ -17,6 +17,7 @@ export interface AssignSalesSeriesResource {
   type_receipt?: string;
   type_operation?: string;
   status: boolean;
+  type: "SALE" | "PURCHASE";
 }
 
 export interface AssignSalesSeriesRequest {

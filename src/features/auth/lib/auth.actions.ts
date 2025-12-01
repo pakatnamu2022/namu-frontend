@@ -20,3 +20,7 @@ export const authenticate = async (): Promise<AuthResponseWithoutToken> => {
   const { data } = await api.get<AuthResponseWithoutToken>("/authenticate");
   return data;
 };
+
+export const logout = async (): Promise<void> => {
+  await api.post("/logout");
+};

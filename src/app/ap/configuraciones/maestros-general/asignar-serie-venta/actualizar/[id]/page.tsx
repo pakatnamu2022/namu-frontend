@@ -66,6 +66,7 @@ export default function UpdateAssignSalesSeriesPage() {
       type_receipt_id: String(data.type_receipt_id),
       type_operation_id: String(data.type_operation_id),
       sede_id: String(data.sede_id),
+      type: data.type,
     };
   }
 
