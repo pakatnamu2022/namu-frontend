@@ -1,43 +1,90 @@
 import { Package, TrendingUp, Truck } from "lucide-react";
-import { DailyDeliverySummary } from "../lib/daily-delivery.interface";
+import {
+  DailyDeliveryHierarchyNode,
+  DailyDeliverySummary,
+} from "../lib/daily-delivery.interface";
 
 interface DailySummaryCardsProps {
   summary: DailyDeliverySummary;
+  hierarchy: DailyDeliveryHierarchyNode[];
 }
 
-export default function DailySummaryCards({ summary }: DailySummaryCardsProps) {
+export default function DailySummaryCards({
+  summary,
+  hierarchy,
+}: DailySummaryCardsProps) {
+  // Calcular totales por grupo de marca desde la jerarquía
+  const calculateBrandGroupTotals = () => {
+    const totals = {
+      TRADICIONAL: { entregas: 0, facturadas: 0 },
+      CHINA: { entregas: 0, facturadas: 0 },
+      INCHCAPE: { entregas: 0, facturadas: 0 },
+    };
+
+    hierarchy.forEach((node) => {
+      if (node.brand_group && totals[node.brand_group as keyof typeof totals]) {
+        totals[node.brand_group as keyof typeof totals].entregas +=
+          node.entregas;
+        totals[node.brand_group as keyof typeof totals].facturadas +=
+          node.facturadas;
+      }
+    });
+
+    return totals;
+  };
+
+  const brandTotals = calculateBrandGroupTotals();
+
   const cards = [
     {
-      title: "Livianos",
+      title: "Tradicional",
       icon: Package,
       color: "bg-blue-500",
-      data: summary.TOTAL_AP_LIVIANOS,
+      data: {
+        entregas: brandTotals.TRADICIONAL.entregas,
+        facturadas: brandTotals.TRADICIONAL.facturadas,
+        reporteria_dealer_portal: null,
+      },
     },
     {
-      title: "Camiones",
+      title: "China",
       icon: Truck,
       color: "bg-emerald-500",
-      data: summary.TOTAL_AP_CAMIONES,
+      data: {
+        entregas: brandTotals.CHINA.entregas,
+        facturadas: brandTotals.CHINA.facturadas,
+        reporteria_dealer_portal: null,
+      },
+    },
+    {
+      title: "Inchcape",
+      icon: Truck,
+      color: "bg-amber-500",
+      data: {
+        entregas: brandTotals.INCHCAPE.entregas,
+        facturadas: brandTotals.INCHCAPE.facturadas,
+        reporteria_dealer_portal: null,
+      },
     },
     {
       title: "Total General",
       icon: TrendingUp,
       color: "bg-violet-500",
-      data: summary.TOTAL_AP,
+      data: summary.TOTAL,
     },
   ];
 
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat("es-PE", {
-      style: "currency",
-      currency: "PEN",
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(value);
-  };
+  // const formatCurrency = (value: number) => {
+  //   return new Intl.NumberFormat("es-PE", {
+  //     style: "currency",
+  //     currency: "PEN",
+  //     minimumFractionDigits: 0,
+  //     maximumFractionDigits: 0,
+  //   }).format(value);
+  // };
 
   return (
-    <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+    <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
       {cards.map((card, index) => {
         const Icon = card.icon;
         return (
@@ -56,13 +103,19 @@ export default function DailySummaryCards({ summary }: DailySummaryCardsProps) {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <div className="text-xs text-muted-foreground mb-0.5">Entregas</div>
-                  <div className="text-xl font-bold tracking-tight">{card.data.entregas}</div>
+                  <div className="text-xs text-muted-foreground mb-0.5">
+                    Entregas
+                  </div>
+                  <div className="text-xl font-bold tracking-tight">
+                    {card.data.entregas}
+                  </div>
                 </div>
                 <div>
-                  <div className="text-xs text-muted-foreground mb-0.5">Facturación</div>
-                  <div className="text-sm font-semibold text-emerald-600">
-                    {formatCurrency(card.data.facturacion)}
+                  <div className="text-xs text-muted-foreground mb-0.5">
+                    Facturadas
+                  </div>
+                  <div className="text-xl font-bold tracking-tight text-emerald-600">
+                    {card.data.facturadas}
                   </div>
                 </div>
               </div>

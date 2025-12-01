@@ -1,23 +1,22 @@
 export interface DailyDeliverySummaryItem {
   entregas: number;
-  facturacion: number;
+  facturadas: number;
   reporteria_dealer_portal: number | null;
 }
 
 export interface DailyDeliverySummary {
-  TOTAL_AP_LIVIANOS: DailyDeliverySummaryItem;
-  TOTAL_AP_CAMIONES: DailyDeliverySummaryItem;
-  TOTAL_AP: DailyDeliverySummaryItem;
+  TOTAL: DailyDeliverySummaryItem;
 }
 
 export interface DailyDeliveryHierarchyNode {
   id: number;
   name: string;
-  level: "gerente" | "asesor";
+  level: "gerente" | "jefe" | "asesor";
+  brand_group?: string;
   entregas: number;
-  facturacion: number;
+  facturadas: number;
   reporteria_dealer_portal: number | null;
-  children: DailyDeliveryHierarchyNode[];
+  children?: DailyDeliveryHierarchyNode[];
 }
 
 export interface DailyDeliveryResponse {

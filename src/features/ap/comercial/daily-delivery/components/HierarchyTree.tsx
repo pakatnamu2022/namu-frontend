@@ -17,14 +17,14 @@ function HierarchyNode({ node, level = 0 }: HierarchyNodeProps) {
   const [isExpanded, setIsExpanded] = useState(true);
   const hasChildren = node.children && node.children.length > 0;
 
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat("es-PE", {
-      style: "currency",
-      currency: "PEN",
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(value);
-  };
+  // const formatCurrency = (value: number) => {
+  //   return new Intl.NumberFormat("es-PE", {
+  //     style: "currency",
+  //     currency: "PEN",
+  //     minimumFractionDigits: 0,
+  //     maximumFractionDigits: 0,
+  //   }).format(value);
+  // };
 
   const isManager = node.level === "gerente";
 
@@ -38,16 +38,17 @@ function HierarchyNode({ node, level = 0 }: HierarchyNodeProps) {
       >
         <div className="flex items-center gap-2 min-w-0 flex-1">
           <div className="w-4 flex items-center justify-center shrink-0">
-            {hasChildren && (
-              isExpanded ? (
+            {hasChildren &&
+              (isExpanded ? (
                 <ChevronDown className="h-3 w-3 text-muted-foreground" />
               ) : (
                 <ChevronRight className="h-3 w-3 text-muted-foreground" />
-              )
-            )}
+              ))}
           </div>
 
-          <span className={`text-sm truncate ${isManager ? "font-semibold" : ""}`}>
+          <span
+            className={`text-sm truncate ${isManager ? "font-semibold" : ""}`}
+          >
             {node.name}
           </span>
 
@@ -60,13 +61,19 @@ function HierarchyNode({ node, level = 0 }: HierarchyNodeProps) {
 
         <div className="flex gap-8 items-center shrink-0">
           <div className="text-right w-14">
-            <div className="text-[10px] text-muted-foreground uppercase tracking-wide mb-0.5">Entregas</div>
-            <div className="text-sm font-bold tabular-nums">{node.entregas}</div>
+            <div className="text-[10px] text-muted-foreground uppercase tracking-wide mb-0.5">
+              Entregas
+            </div>
+            <div className="text-sm font-bold tabular-nums">
+              {node.entregas}
+            </div>
           </div>
           <div className="text-right w-24">
-            <div className="text-[10px] text-muted-foreground uppercase tracking-wide mb-0.5">Facturación</div>
-            <div className="text-xs font-semibold text-emerald-600 tabular-nums">
-              {formatCurrency(node.facturacion)}
+            <div className="text-[10px] text-muted-foreground uppercase tracking-wide mb-0.5">
+              Facturadas
+            </div>
+            <div className="text-sm font-bold text-emerald-600 tabular-nums">
+              {node.facturadas}
             </div>
           </div>
         </div>
@@ -74,7 +81,7 @@ function HierarchyNode({ node, level = 0 }: HierarchyNodeProps) {
 
       {hasChildren && isExpanded && (
         <div>
-          {node.children.map((child) => (
+          {node.children?.map((child) => (
             <HierarchyNode key={child.id} node={child} level={level + 1} />
           ))}
         </div>
@@ -87,7 +94,9 @@ export default function HierarchyTree({ hierarchy }: HierarchyTreeProps) {
   return (
     <div className="rounded-lg border bg-card text-card-foreground">
       <div className="px-4 py-3 border-b">
-        <h3 className="text-sm font-semibold">Desempeño por Gerente y Asesor</h3>
+        <h3 className="text-sm font-semibold">
+          Desempeño por Gerente y Asesor
+        </h3>
       </div>
       <div className="p-2">
         {hierarchy.length === 0 ? (
@@ -95,9 +104,7 @@ export default function HierarchyTree({ hierarchy }: HierarchyTreeProps) {
             No hay datos disponibles para la fecha seleccionada
           </div>
         ) : (
-          hierarchy.map((node) => (
-            <HierarchyNode key={node.id} node={node} />
-          ))
+          hierarchy.map((node) => <HierarchyNode key={node.id} node={node} />)
         )}
       </div>
     </div>

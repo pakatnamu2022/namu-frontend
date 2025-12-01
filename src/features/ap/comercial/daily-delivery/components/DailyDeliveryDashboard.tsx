@@ -11,7 +11,10 @@ import {
 } from "@/components/ui/popover";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { useDailyDelivery, useExportDailyDelivery } from "../lib/daily-delivery.hook";
+import {
+  useDailyDelivery,
+  useExportDailyDelivery,
+} from "../lib/daily-delivery.hook";
 import DailySummaryCards from "./DailySummaryCards";
 import HierarchyTree from "./HierarchyTree";
 
@@ -20,7 +23,8 @@ export default function DailyDeliveryDashboard() {
 
   const formattedDate = format(selectedDate, "yyyy-MM-dd");
   const { data, isLoading, error } = useDailyDelivery(formattedDate);
-  const { mutate: exportToExcel, isPending: isExporting } = useExportDailyDelivery();
+  const { mutate: exportToExcel, isPending: isExporting } =
+    useExportDailyDelivery();
 
   const handleDateChange = (date: Date | undefined) => {
     if (date) {
@@ -76,7 +80,11 @@ export default function DailyDeliveryDashboard() {
 
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="outline" className="h-8 gap-1.5 text-xs" size="sm">
+              <Button
+                variant="outline"
+                className="h-8 gap-1.5 text-xs"
+                size="sm"
+              >
                 <Calendar className="h-3 w-3" />
                 {format(selectedDate, "d MMM yyyy", { locale: es })}
               </Button>
@@ -86,7 +94,7 @@ export default function DailyDeliveryDashboard() {
                 mode="single"
                 selected={selectedDate}
                 onSelect={handleDateChange}
-                initialFocus
+                autoFocus
                 locale={es}
               />
             </PopoverContent>
@@ -98,14 +106,20 @@ export default function DailyDeliveryDashboard() {
         <div className="space-y-3">
           <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-20 rounded-lg border bg-muted/20 animate-pulse" />
+              <div
+                key={i}
+                className="h-20 rounded-lg border bg-muted/20 animate-pulse"
+              />
             ))}
           </div>
           <div className="h-64 rounded-lg border bg-muted/20 animate-pulse" />
         </div>
       ) : data ? (
         <>
-          <DailySummaryCards summary={data.summary} />
+          <DailySummaryCards
+            summary={data.summary}
+            hierarchy={data.hierarchy}
+          />
           <HierarchyTree hierarchy={data.hierarchy} />
         </>
       ) : null}
