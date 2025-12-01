@@ -1,4 +1,4 @@
-import { requiredStringId } from "@/shared/lib/global.schema";
+import { optionalStringId, requiredStringId } from "@/shared/lib/global.schema";
 import { z } from "zod";
 
 export const modelsVnSchemaCreate = z.object({
@@ -114,25 +114,15 @@ export const modelsVnSchemaCreate = z.object({
     .refine((value) => value.trim() !== "", {
       message: "Número de ruedas es requerido",
     }),
-  distributor_price: z.coerce
-    .number()
-    .min(0, "Precio distribuidor debe ser al menos 0"),
-  transport_cost: z.coerce
-    .number()
-    .min(0, "Costo de transporte debe ser al menos 0"),
-  other_amounts: z.coerce.number().min(0, "Otros importes debe ser al menos 0"),
-  purchase_discount: z.coerce
-    .number()
-    .min(0, "Descuento de compra debe ser al menos 0"),
-  igv_amount: z.coerce.number().min(0, "Importe IGV debe ser al menos 0"),
-  total_purchase_excl_igv: z.coerce
-    .number()
-    .min(0, "Total compra sin IGV debe ser al menos 0"),
-  total_purchase_incl_igv: z.coerce
-    .number()
-    .min(0, "Total compra con IGV debe ser al menos 0"),
-  sale_price: z.coerce.number().min(0, "Precio de venta debe ser al menos 0"),
-  margin: z.coerce.number().min(0, "Margen debe ser al menos 0"),
+  distributor_price: z.coerce.number().optional(),
+  transport_cost: z.coerce.number().optional(),
+  other_amounts: z.coerce.number().optional(),
+  purchase_discount: z.coerce.number().optional(),
+  igv_amount: z.coerce.number().optional(),
+  total_purchase_excl_igv: z.coerce.number().optional(),
+  total_purchase_incl_igv: z.coerce.number().optional(),
+  sale_price: z.coerce.number().optional(),
+  margin: z.coerce.number().optional(),
   brand_id: requiredStringId("Marca es requerida"),
   family_id: requiredStringId("Familia es requerida"),
   class_id: requiredStringId("Clase de artículo es requerida"),
@@ -141,7 +131,8 @@ export const modelsVnSchemaCreate = z.object({
   body_type_id: requiredStringId("Tipo carrocería es requerida"),
   traction_type_id: requiredStringId("Tipo tracción es requerida"),
   transmission_id: requiredStringId("Tipo transmisión es requerida"),
-  currency_type_id: requiredStringId("Selecciona un tipo de moneda"),
+  currency_type_id: optionalStringId("Selecciona un tipo de moneda"),
+  type_operation_id: z.string().optional(),
 });
 
 export const modelsVnSchemaUpdate = modelsVnSchemaCreate.partial();

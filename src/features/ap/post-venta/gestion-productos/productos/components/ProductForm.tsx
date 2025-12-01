@@ -21,11 +21,11 @@ import { FormSelect } from "@/shared/components/FormSelect";
 import { useAllBrands } from "@/features/ap/configuraciones/vehiculos/marcas/lib/brands.hook";
 import { useAllProductCategory } from "../../categorias-producto/lib/productCategory.hook";
 import { useAllUnitMeasurement } from "@/features/ap/configuraciones/maestros-general/unidad-medida/lib/unitMeasurement.hook";
-import { useAllWarehouse } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
 import { useAllClassArticle } from "@/features/ap/configuraciones/maestros-general/clase-articulo/lib/classArticle.hook";
 import { Textarea } from "@/components/ui/textarea";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
-import { STATUS_ACTIVE } from "@/core/core.constants";
+import { CM_COMERCIAL_ID, CM_POSTVENTA_ID } from "@/core/core.constants";
+import { useAllWarehouse } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
 
 interface ProductFormProps {
   defaultValues: Partial<ProductSchema>;
@@ -59,7 +59,7 @@ export const ProductForm = ({
   });
 
   const { data: brands = [], isLoading: isLoadingBrands } = useAllBrands({
-    is_commercial: STATUS_ACTIVE,
+    type_operation_id: CM_COMERCIAL_ID,
   });
   const { data: categories = [], isLoading: isLoadingCategories } =
     useAllProductCategory();
@@ -67,7 +67,8 @@ export const ProductForm = ({
     useAllUnitMeasurement();
   const { data: warehouses = [], isLoading: isLoadingWarehouses } =
     useAllWarehouse({
-      is_received: 1,
+      type_operation_id: CM_POSTVENTA_ID,
+      is_physical_warehouse: 1,
     });
   const { data: classArticles = [], isLoading: isLoadingClassArticles } =
     useAllClassArticle();
@@ -292,10 +293,13 @@ export const ProductForm = ({
                       label="Almacén"
                       placeholder="Selecciona un almacén"
                       options={warehouses.map((warehouse) => ({
-                        label: warehouse.description,
+                        label: warehouse.dyn_code,
+                        description:
+                          warehouse.sede + " - " + warehouse.type_operation,
                         value: warehouse.id.toString(),
                       }))}
                       control={form.control}
+                      withValue={false}
                     />
                   </div>
 
@@ -435,6 +439,7 @@ export const ProductForm = ({
                   className="resize-none"
                   rows={3}
                   {...field}
+                  value={field.value ?? ""}
                 />
               </FormControl>
               <FormMessage />

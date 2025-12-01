@@ -58,6 +58,7 @@ export interface ModelsVnResource {
   status: boolean;
   currency_type?: string;
   currency_symbol?: string;
+  type_operation_id: number;
 }
 
 export interface ModelsVnRequest {

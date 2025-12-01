@@ -1,17 +1,16 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { ModelsVnResource } from "../lib/modelsVn.interface";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
-import { MODELS_VN } from "../lib/modelsVn.constanst";
+import { MODELS_VN, MODELS_VN_POSTVENTA } from "../lib/modelsVn.constanst";
+import { CM_COMERCIAL_ID } from "@/core/core.constants";
 
 export type ModelsVnColumns = ColumnDef<ModelsVnResource>;
-
-const { ROUTE_UPDATE } = MODELS_VN;
 
 interface Props {
   onDelete: (id: number) => void;
@@ -20,12 +19,14 @@ interface Props {
     canUpdate: boolean;
     canDelete: boolean;
   };
+  isCommercial: number;
 }
 
 export const modelsVnColumns = ({
   onDelete,
   onToggleStatus,
   permissions,
+  isCommercial = CM_COMERCIAL_ID,
 }: Props): ModelsVnColumns[] => [
   {
     accessorKey: "code",
@@ -194,8 +195,11 @@ export const modelsVnColumns = ({
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
+      const { ROUTE_UPDATE } =
+        isCommercial === CM_COMERCIAL_ID ? MODELS_VN : MODELS_VN_POSTVENTA;
+      // eslint-disable-next-line react-hooks/rules-of-hooks
       const router = useNavigate();
-      const { id, status } = row.original;
+      const { id, status, type_operation_id } = row.original;
 
       return (
         <div className="flex items-center gap-2">
@@ -206,6 +210,7 @@ export const modelsVnColumns = ({
               thumbClassName="size-4"
               onCheckedChange={(checked) => onToggleStatus(id, checked)}
               className={cn("h-5 w-9", status ? "bg-primary" : "bg-secondary")}
+              disabled={type_operation_id !== isCommercial}
             />
           )}
 
@@ -216,6 +221,7 @@ export const modelsVnColumns = ({
               size="icon"
               className="size-7"
               onClick={() => router(`${ROUTE_UPDATE}/${id}`)}
+              disabled={type_operation_id !== isCommercial}
             >
               <Pencil className="size-5" />
             </Button>

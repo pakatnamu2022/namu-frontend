@@ -138,6 +138,30 @@ export const evaluationColumns = ({
     },
   },
   {
+    accessorKey: "send_opened_email",
+    header: "Email Apertura",
+    cell: ({ row }) => {
+      const evaluation = row.original as EvaluationResource;
+      return (
+        <Badge variant={evaluation.send_opened_email ? "default" : "secondary"}>
+          {evaluation.send_opened_email ? "Enviado" : "No enviado"}
+        </Badge>
+      );
+    },
+  },
+  {
+    accessorKey: "send_closed_email",
+    header: "Email Cierre",
+    cell: ({ row }) => {
+      const evaluation = row.original as EvaluationResource;
+      return (
+        <Badge variant={evaluation.send_closed_email ? "default" : "secondary"}>
+          {evaluation.send_closed_email ? "Enviado" : "No enviado"}
+        </Badge>
+      );
+    },
+  },
+  {
     accessorKey: "objectiveParameter",
     header: "Parametro Objetivos",
   },

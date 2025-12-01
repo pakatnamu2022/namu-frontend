@@ -95,8 +95,8 @@ function createBrandFormData(
     formData.append("logo_min", data.logo_min);
   }
 
-  if (data.is_commercial !== null && data.is_commercial !== undefined) {
-    formData.append("is_commercial", data.is_commercial ? "1" : "0");
+  if (data.type_operation_id !== null && data.type_operation_id !== undefined) {
+    formData.append("type_operation_id", String(data.type_operation_id));
   }
 
   if (data.status !== null && data.status !== undefined) {

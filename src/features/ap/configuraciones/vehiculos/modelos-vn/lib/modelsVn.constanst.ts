@@ -18,3 +18,21 @@ export const MODELS_VN: ModelComplete<ModelsVnResource> = {
   ROUTE_ADD: `${ABSOLUTE_ROUTE}/agregar`,
   ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/actualizar`,
 };
+
+const ROUTE_POSTVENTA = "modelos-vn-pv";
+const ABSOLUTE_ROUTE_POSTVENTA = `/ap/post-venta/taller/${ROUTE_POSTVENTA}`;
+
+export const MODELS_VN_POSTVENTA: ModelComplete<ModelsVnResource> = {
+  MODEL: {
+    name: "Modelo VN",
+    plural: "Modelos VN",
+    gender: true,
+  },
+  ICON: "ContactRound",
+  ENDPOINT: "/ap/configuration/modelsVn",
+  QUERY_KEY: "modelsVn",
+  ROUTE: ROUTE_POSTVENTA,
+  ABSOLUTE_ROUTE: ABSOLUTE_ROUTE_POSTVENTA,
+  ROUTE_ADD: `${ABSOLUTE_ROUTE_POSTVENTA}/agregar`,
+  ROUTE_UPDATE: `${ABSOLUTE_ROUTE_POSTVENTA}/actualizar`,
+};

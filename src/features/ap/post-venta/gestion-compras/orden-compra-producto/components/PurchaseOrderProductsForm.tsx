@@ -103,9 +103,12 @@ export const PurchaseOrderProductsForm = ({
 
   const { data: warehouses = [], isLoading: isLoadingWarehouses } =
     useAllWarehouse({
+      is_physical_warehouse: 1,
       sede_id: form.watch("sede_id") || undefined,
     });
-  const { data: products = [], isLoading: isLoadingProducts } = useAllProduct();
+  const { data: products = [], isLoading: isLoadingProducts } = useAllProduct({
+    warehouse_id: form.watch("warehouse_id") || undefined,
+  });
   const { data: currencyTypes = [], isLoading: isLoadingCurrencyTypes } =
     useAllCurrencyTypes();
   const {
@@ -216,7 +219,6 @@ export const PurchaseOrderProductsForm = ({
 
   if (
     isLoadingSuppliers ||
-    isLoadingProducts ||
     isLoadingCurrencyTypes ||
     isLoadingMySedes ||
     isLoadingOrderTypeSupplier
@@ -325,6 +327,7 @@ export const PurchaseOrderProductsForm = ({
               placeholder="Selecciona una fecha"
               dateFormat="dd/MM/yyyy"
               captionLayout="dropdown"
+              disabledRange={{ before: watchedEmissionDate || new Date() }}
             />
 
             <FormSelect
@@ -547,6 +550,7 @@ export const PurchaseOrderProductsForm = ({
                                     value: product.id.toString(),
                                   }))}
                                 control={form.control}
+                                disabled={isLoadingProducts}
                               />
                             </div>
                           </TableCell>

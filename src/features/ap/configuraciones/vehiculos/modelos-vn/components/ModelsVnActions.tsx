@@ -2,19 +2,25 @@
 
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import ActionsWrapper from "@/shared/components/ActionsWrapper";
-import { MODELS_VN } from "../lib/modelsVn.constanst";
+import { MODELS_VN, MODELS_VN_POSTVENTA } from "../lib/modelsVn.constanst";
+import { CM_COMERCIAL_ID } from "@/core/core.constants";
 
 interface ModelsVnActionsProps {
+  isCommercial: number;
   permissions: {
     canCreate: boolean;
   };
 }
 
-export default function ModelsVnActions({ permissions }: ModelsVnActionsProps) {
+export default function ModelsVnActions({
+  permissions,
+  isCommercial = CM_COMERCIAL_ID,
+}: ModelsVnActionsProps) {
   const router = useNavigate();
-  const { ROUTE_ADD } = MODELS_VN;
+  const { ROUTE_ADD } =
+    isCommercial === CM_COMERCIAL_ID ? MODELS_VN : MODELS_VN_POSTVENTA;
 
   if (!permissions.canCreate) {
     return null;

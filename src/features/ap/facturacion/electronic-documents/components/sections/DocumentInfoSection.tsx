@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { FileText } from "lucide-react";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
@@ -40,6 +41,55 @@ export function DocumentInfoSection({
   hasVehicle = true,
 }: DocumentInfoSectionProps) {
   const { data: customers = [], isLoading } = useAllCustomers();
+
+  // Obtener el cliente seleccionado
+  const clientId = form.watch("client_id");
+  const selectedCustomer = customers.find(
+    (customer) => customer.id.toString() === clientId
+  );
+
+  // Filtrar tipos de documento según el document_type_id del cliente
+  const filteredDocumentTypes = documentTypes.filter((type) => {
+    if (!selectedCustomer) return true; // Si no hay cliente seleccionado, mostrar todos
+
+    const documentTypeId = selectedCustomer.document_type_id;
+
+    // Si el cliente tiene RUC (810), solo mostrar Factura (id: 29)
+    if (Number(documentTypeId) === 810) {
+      return type.id === 29;
+    }
+
+    // Si el cliente tiene Cédula (809), solo mostrar el tipo con id 30
+    if (Number(documentTypeId) === 809) {
+      return type.id === 30;
+    }
+
+    // Para otros tipos de documento, mostrar todos
+    return true;
+  });
+
+  // Validar y limpiar tipo de documento cuando cambia el cliente
+  useEffect(() => {
+    if (!selectedCustomer) return;
+
+    const currentDocumentTypeId = form.getValues(
+      "sunat_concept_document_type_id"
+    );
+
+    // Si hay un tipo de documento seleccionado, verificar si sigue siendo válido
+    if (currentDocumentTypeId) {
+      const isValid = filteredDocumentTypes.some(
+        (type) => type.id.toString() === currentDocumentTypeId
+      );
+
+      // Si el tipo de documento actual no es válido, limpiarlo
+      if (!isValid) {
+        form.setValue("sunat_concept_document_type_id", "");
+        form.setValue("serie", ""); // También limpiar la serie ya que depende del tipo
+      }
+    }
+  }, [selectedCustomer, filteredDocumentTypes, form]);
+
   return (
     <GroupFormSection
       title="Información del Documento"
@@ -51,7 +101,7 @@ export function DocumentInfoSection({
       <FormSelect
         control={form.control}
         name="sunat_concept_document_type_id"
-        options={documentTypes.map((type) => ({
+        options={filteredDocumentTypes.map((type) => ({
           value: type.id.toString(),
           label: type.description,
         }))}

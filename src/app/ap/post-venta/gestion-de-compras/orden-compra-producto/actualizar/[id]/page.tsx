@@ -63,8 +63,10 @@ export default function UpdatePurchaseOrderProductsPage() {
       supplier_id: String(data.supplier_id),
       invoice_series: data.invoice_series,
       invoice_number: data.invoice_number,
-      emission_date: data.emission_date ? new Date(data.emission_date) : "",
-      due_date: data.due_date ? new Date(data.due_date) : "",
+      emission_date: data.emission_date
+        ? new Date(data.emission_date + "T00:00:00")
+        : "",
+      due_date: data.due_date ? new Date(data.due_date + "T00:00:00") : "",
       sede_id: String(data.sede_id),
       warehouse_id: String(data.warehouse_id),
       supplier_order_type_id: String(data.supplier_order_type_id),

@@ -17,8 +17,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Plus, Trash2 } from "lucide-react";
-import { ApprovedAccesoriesResource } from "../../../post-venta/accesorios-homologados/lib/approvedAccessories.interface";
 import { NumberFormat } from "@/shared/components/NumberFormat";
+import { ApprovedAccesoriesResource } from "@/features/ap/post-venta/repuestos/accesorios-homologados/lib/approvedAccessories.interface";
 
 export interface ApprovedAccessoryRow {
   id: string;

@@ -19,6 +19,8 @@ export interface WarehouseResource {
   counterparty_account: string;
   inventory_account: string;
   is_received: boolean;
+  is_physical_warehouse: boolean;
+  parent_warehouse_id: string;
   status: boolean | null;
 }
 

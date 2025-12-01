@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 import { BRAND, BRAND_POSTVENTA } from "../lib/brands.constants";
+import { CM_COMERCIAL_ID } from "@/core/core.constants";
 
 export type BrandColumns = ColumnDef<BrandsResource>;
 
@@ -20,14 +21,14 @@ interface Props {
     canUpdate: boolean;
     canDelete: boolean;
   };
-  isCommercial?: boolean;
+  isCommercial: number;
 }
 
 export const brandsColumns = ({
   onDelete,
   onToggleStatus,
   permissions,
-  isCommercial = true,
+  isCommercial = CM_COMERCIAL_ID,
 }: Props): BrandColumns[] => [
   {
     accessorKey: "code",
@@ -104,10 +105,11 @@ export const brandsColumns = ({
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
-      const { ROUTE_UPDATE } = isCommercial ? BRAND : BRAND_POSTVENTA;
+      const { ROUTE_UPDATE } =
+        isCommercial === CM_COMERCIAL_ID ? BRAND : BRAND_POSTVENTA;
       // eslint-disable-next-line react-hooks/rules-of-hooks
       const router = useNavigate();
-      const { id, status, is_commercial } = row.original;
+      const { id, status, type_operation_id } = row.original;
 
       return (
         <div className="flex items-center gap-2">
@@ -118,7 +120,7 @@ export const brandsColumns = ({
               thumbClassName="size-4"
               onCheckedChange={(checked) => onToggleStatus(id, checked)}
               className={cn("h-5 w-9", status ? "bg-primary" : "bg-secondary")}
-              disabled={isCommercial != is_commercial}
+              disabled={type_operation_id !== isCommercial}
             />
           )}
 
@@ -129,7 +131,7 @@ export const brandsColumns = ({
               size="icon"
               className="size-7"
               onClick={() => router(`${ROUTE_UPDATE}/${id}`)}
-              disabled={isCommercial != is_commercial}
+              disabled={type_operation_id !== isCommercial}
             >
               <Pencil className="size-5" />
             </Button>

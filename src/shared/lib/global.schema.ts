@@ -27,7 +27,7 @@ export const requiredStringId = (message: string) =>
     .refine((val) => val !== undefined, { message });
 
 export function requiredNumber(object: string, minValue: number = 0) {
-  return z
+  return z.coerce
     .number({
       error: `${object} es requerido`,
     })

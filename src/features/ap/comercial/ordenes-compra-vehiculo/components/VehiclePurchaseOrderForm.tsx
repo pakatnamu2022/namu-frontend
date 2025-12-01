@@ -88,7 +88,7 @@ export const VehiclePurchaseOrderForm = ({
         : isVehiclePurchase
         ? vehiclePurchaseOrderSchemaUpdate
         : genericPurchaseOrderSchemaUpdate
-    ),
+    ) as any,
     defaultValues: {
       ...defaultValues,
       items: defaultValues.items || [],

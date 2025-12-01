@@ -56,7 +56,9 @@ export default function AddWarehousePage() {
           article_class_id: "",
           inventory_account: "",
           counterparty_account: "",
+          parent_warehouse_id: "",
           is_received: true,
+          is_physical_warehouse: false,
         }}
         onSubmit={handleSubmit}
         isSubmitting={isPending}

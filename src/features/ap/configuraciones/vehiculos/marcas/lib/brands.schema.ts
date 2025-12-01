@@ -12,9 +12,12 @@ const imageField = z
     return undefined;
   })
   .optional()
-  .refine((file) => file === undefined || file === null || file instanceof File, {
-    message: "Archivo inválido",
-  })
+  .refine(
+    (file) => file === undefined || file === null || file instanceof File,
+    {
+      message: "Archivo inválido",
+    }
+  )
   .refine((file) => !file || file.size <= 2 * 1024 * 1024, {
     message: "Máximo 2MB",
   })
@@ -52,7 +55,7 @@ export const brandSchemaCreate = z.object({
   logo: imageField,
   logo_min: imageField,
   group_id: requiredStringId("Selecciona un grupo"),
-  is_commercial: z.boolean().optional().default(false),
+  type_operation_id: z.string().optional(),
   status: z.boolean().optional().default(true),
 });
 

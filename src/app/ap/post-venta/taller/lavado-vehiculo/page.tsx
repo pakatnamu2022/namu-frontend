@@ -20,9 +20,8 @@ import { cardWashColumns } from "@/features/ap/comercial/entrega-vehiculo/compon
 import { toast } from "sonner";
 import { notFound } from "@/shared/hooks/useNotFound";
 
-
 export default function CardWashPage() {
-    const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
+  const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
@@ -32,6 +31,7 @@ export default function CardWashPage() {
   const updateVehicleDeliveryMutation = useUpdateVehicleDelivery();
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setPage(1);
   }, [search, per_page]);
 

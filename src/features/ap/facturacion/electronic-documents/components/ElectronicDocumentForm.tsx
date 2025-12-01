@@ -78,6 +78,7 @@ export function ElectronicDocumentForm({
     useAllPurchaseRequestQuote({
       status: "approved", // Solo cotizaciones aprobadas
       // has_vehicle: 1,
+      is_approved: 1,
       is_paid: 0, // Solo cotizaciones no pagadas
     });
 
@@ -132,9 +133,7 @@ export function ElectronicDocumentForm({
   // Calcular el saldo pendiente
   // Siempre usar quotation como fuente de verdad para el precio
   // Si hay anticipos, restar el total_amount
-  const quotationPrice = quotation
-    ? parseFloat(quotation.sale_price || "0")
-    : 0;
+  const quotationPrice = quotation ? quotation.doc_sale_price : 0;
   const totalAdvancesAmount = advancePaymentsResponse
     ? advancePaymentsResponse.total_amount || 0
     : 0;

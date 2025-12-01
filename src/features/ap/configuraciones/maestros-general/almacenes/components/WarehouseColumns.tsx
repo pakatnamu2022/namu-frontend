@@ -26,12 +26,16 @@ export const warehouseColumns = ({
   permissions,
 }: Props): WarehouseColumns[] => [
   {
-    accessorKey: "dyn_code",
-    header: "Cod. Dynamic",
+    accessorKey: "parent_warehouse_dyn_code",
+    header: "P. Cod. Dynamic",
     cell: ({ getValue }) => {
       const value = getValue() as string;
       return value && <p className="font-semibold">{value}</p>;
     },
+  },
+  {
+    accessorKey: "dyn_code",
+    header: "Cod. Dynamic",
   },
   {
     accessorKey: "description",

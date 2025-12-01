@@ -418,6 +418,15 @@ const TransmisionVehiculoPage = lazy(
   () => import("./app/ap/configuraciones/vehiculos/transmision-vehiculo/page")
 );
 
+// PostVentas Configuration
+const TypeOperationAppointmentPage = lazy(
+  () => import("@/app/ap/configuraciones/postventa/tipos-operacion-cita/page")
+);
+
+const TypePlanningPage = lazy(
+  () => import("./app/ap/configuraciones/postventa/tipos-planificacion/page")
+);
+
 // Ventas Configuration
 const AsignarGrupoMarcaPage = lazy(
   () => import("./app/ap/configuraciones/ventas/asignar-grupo-marca/page")
@@ -480,7 +489,7 @@ const TiendasPage = lazy(
 
 // Accesorios
 const AccesoriosHomologadosPage = lazy(
-  () => import("./app/ap/post-venta/accesorios-homologados/page")
+  () => import("@/app/ap/post-venta/repuestos/accesorios-homologados/page")
 );
 
 // Gestión de Productos
@@ -521,6 +530,61 @@ const TiposCategoriaPage = lazy(
 );
 
 // Gestión de Compras
+const ProductTransferPage = lazy(
+  () =>
+    import("./app/ap/post-venta/gestion-de-compras/transferencia-producto/page")
+);
+const AddProductTransferPage = lazy(
+  () =>
+    import(
+      "./app/ap/post-venta/gestion-de-compras/transferencia-producto/agregar/page"
+    )
+);
+const EditProductTransferPage = lazy(
+  () =>
+    import(
+      "./app/ap/post-venta/gestion-de-compras/transferencia-producto/actualizar/[id]/page"
+    )
+);
+const ReceiveTransferPage = lazy(
+  () =>
+    import(
+      "./app/ap/post-venta/gestion-de-compras/transferencia-producto/recepcion/[productTransferId]/page"
+    )
+);
+const AddReceiveTransferPage = lazy(
+  () =>
+    import(
+      "./app/ap/post-venta/gestion-de-compras/transferencia-producto/recepcion/agregar/[productTransferId]/page"
+    )
+);
+const ReasonsAdjustmentPage = lazy(
+  () => import("./app/ap/post-venta/gestion-de-compras/motivos-ajuste/page")
+);
+const ProductAdjustmentPage = lazy(
+  () => import("./app/ap/post-venta/gestion-de-compras/ajuste-producto/page")
+);
+const AddProductAdjustmentPage = lazy(
+  () =>
+    import(
+      "./app/ap/post-venta/gestion-de-compras/ajuste-producto/agregar/page"
+    )
+);
+const EditProductAdjustmentPage = lazy(
+  () =>
+    import(
+      "./app/ap/post-venta/gestion-de-compras/ajuste-producto/actualizar/[id]/page"
+    )
+);
+const InventoryPage = lazy(
+  () => import("./app/ap/post-venta/gestion-de-compras/inventario/page")
+);
+const InventoryKardexPage = lazy(
+  () =>
+    import(
+      "./app/ap/post-venta/gestion-de-compras/inventario/kardex/[productId]/[warehouseId]/page"
+    )
+);
 const PurchaseOrderProductsPage = lazy(
   () =>
     import("./app/ap/post-venta/gestion-de-compras/orden-compra-producto/page")
@@ -556,9 +620,42 @@ const EditReceptionPurchaseOrderProductsPage = lazy(
     )
 );
 
+// Repuestos
+const ApprovedAccessoriesPage = lazy(
+  () => import("./app/ap/post-venta/repuestos/accesorios-homologados/page")
+);
+const AddApprovedAccessoriesPage = lazy(
+  () =>
+    import("./app/ap/post-venta/repuestos/accesorios-homologados/agregar/page")
+);
+const EditApprovedAccessoriesPage = lazy(
+  () =>
+    import(
+      "./app/ap/post-venta/repuestos/accesorios-homologados/actualizar/[id]/page"
+    )
+);
+
 // Taller
 const LavadoVehiculoPage = lazy(
   () => import("./app/ap/post-venta/taller/lavado-vehiculo/page")
+);
+const ModelsVnPostVentaPage = lazy(
+  () => import("./app/ap/post-venta/taller/modelos-vn-pv/page")
+);
+const AddModelsVnPostVentaPage = lazy(
+  () => import("./app/ap/post-venta/taller/modelos-vn-pv/agregar/page")
+);
+const EditModelsVnPostVentaPage = lazy(
+  () => import("./app/ap/post-venta/taller/modelos-vn-pv/actualizar/[id]/page")
+);
+const AppointmentPlanningPage = lazy(
+  () => import("./app/ap/post-venta/taller/citas/page")
+);
+const AddAppointmentPlanningPage = lazy(
+  () => import("./app/ap/post-venta/taller/citas/agregar/page")
+);
+const EditAppointmentPlanningPage = lazy(
+  () => import("./app/ap/post-venta/taller/citas/actualizar/[id]/page")
 );
 
 // ============================================================================
@@ -1177,6 +1274,16 @@ function App() {
                 element={<TransmisionVehiculoPage />}
               />
 
+              {/* PostVentas Configuration */}
+              <Route
+                path="postventa/tipos-operacion-cita"
+                element={<TypeOperationAppointmentPage />}
+              />
+              <Route
+                path="postventa/tipos-planificacion"
+                element={<TypePlanningPage />}
+              />
+
               {/* Ventas Configuration */}
               <Route
                 path="ventas/asignar-grupo-marca"
@@ -1287,6 +1394,50 @@ function App() {
 
               {/* Gestion Compra */}
               <Route
+                path="gestion-de-compras/transferencia-producto"
+                element={<ProductTransferPage />}
+              />
+              <Route
+                path="gestion-de-compras/transferencia-producto/agregar"
+                element={<AddProductTransferPage />}
+              />
+              <Route
+                path="gestion-de-compras/transferencia-producto/actualizar/:id"
+                element={<EditProductTransferPage />}
+              />
+              <Route
+                path="gestion-de-compras/transferencia-producto/recepcion/:productTransferId"
+                element={<ReceiveTransferPage />}
+              />
+              <Route
+                path="gestion-de-compras/transferencia-producto/recepcion/agregar/:productTransferId"
+                element={<AddReceiveTransferPage />}
+              />
+              <Route
+                path="gestion-de-compras/motivos-ajuste"
+                element={<ReasonsAdjustmentPage />}
+              />
+              <Route
+                path="gestion-de-compras/ajuste-producto"
+                element={<ProductAdjustmentPage />}
+              />
+              <Route
+                path="gestion-de-compras/ajuste-producto/agregar"
+                element={<AddProductAdjustmentPage />}
+              />
+              <Route
+                path="gestion-de-compras/ajuste-producto/actualizar/:id"
+                element={<EditProductAdjustmentPage />}
+              />
+              <Route
+                path="gestion-de-compras/inventario"
+                element={<InventoryPage />}
+              />
+              <Route
+                path="gestion-de-compras/inventario/kardex/:productId/:warehouseId"
+                element={<InventoryKardexPage />}
+              />
+              <Route
                 path="gestion-de-compras/orden-compra-producto"
                 element={<PurchaseOrderProductsPage />}
               />
@@ -1311,10 +1462,48 @@ function App() {
                 element={<EditReceptionPurchaseOrderProductsPage />}
               />
 
+              {/* Repuestos */}
+              <Route
+                path="repuestos/accesorios-homologados"
+                element={<ApprovedAccessoriesPage />}
+              />
+              <Route
+                path="repuestos/accesorios-homologados/agregar"
+                element={<AddApprovedAccessoriesPage />}
+              />
+              <Route
+                path="repuestos/accesorios-homologados/actualizar/:id"
+                element={<EditApprovedAccessoriesPage />}
+              />
+
               {/* Taller */}
               <Route
                 path="taller/lavado-vehiculo"
                 element={<LavadoVehiculoPage />}
+              />
+              <Route
+                path="taller/modelos-vn-pv"
+                element={<ModelsVnPostVentaPage />}
+              />
+              <Route
+                path="taller/modelos-vn-pv/agregar"
+                element={<AddModelsVnPostVentaPage />}
+              />
+              <Route
+                path="taller/modelos-vn-pv/actualizar/:id"
+                element={<EditModelsVnPostVentaPage />}
+              />
+              <Route
+                path="taller/citas"
+                element={<AppointmentPlanningPage />}
+              />
+              <Route
+                path="taller/citas/agregar"
+                element={<AddAppointmentPlanningPage />}
+              />
+              <Route
+                path="taller/citas/actualizar/:id"
+                element={<EditAppointmentPlanningPage />}
               />
             </Route>
 

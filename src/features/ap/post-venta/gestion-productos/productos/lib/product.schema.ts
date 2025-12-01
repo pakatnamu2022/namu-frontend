@@ -27,17 +27,13 @@ const productSchemaBase = z.object({
       message: "Código es requerido",
     }),
   dyn_code: z.string().max(50, { message: "Máximo 50 caracteres" }).optional(),
-  nubefac_code: z
-    .string()
-    .max(50, { message: "Máximo 50 caracteres" })
-    .optional(),
   name: z
     .string()
     .max(255, { message: "Máximo 255 caracteres" })
     .refine((value) => value.trim() !== "", {
       message: "Nombre es requerido",
     }),
-  description: z.string().optional(),
+  description: z.string().optional().nullable(),
   product_category_id: requiredStringId("Categoría es requerida"),
   brand_id: z.string().optional(),
   unit_measurement_id: requiredStringId("Unidad de medida es requerida"),

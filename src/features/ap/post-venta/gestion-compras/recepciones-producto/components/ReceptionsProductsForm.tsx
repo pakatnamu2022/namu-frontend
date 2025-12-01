@@ -79,7 +79,9 @@ export const ReceptionsProductsForm = ({
   });
 
   const { data: warehouses = [], isLoading: isLoadingWarehouses } =
-    useAllWarehouse();
+    useAllWarehouse({
+      is_physical_warehouse: 1,
+    });
   const { data: products = [], isLoading: isLoadingProducts } = useAllProduct();
 
   const watchedDetails = form.watch("details");
@@ -155,6 +157,7 @@ export const ReceptionsProductsForm = ({
               value: warehouse.id.toString(),
             }))}
             control={form.control}
+            disabled={true}
           />
 
           <FormField
@@ -184,6 +187,7 @@ export const ReceptionsProductsForm = ({
               variant="outline"
               size="sm"
               onClick={handleAddDetail}
+              className="hidden"
             >
               <Plus className="h-4 w-4 mr-2" />
               Agregar Producto
@@ -224,7 +228,7 @@ export const ReceptionsProductsForm = ({
                         {isOrderedProduct && (
                           <Badge
                             variant="secondary"
-                            className="text-xs h-5 shrink-0 bg-blue-100 text-blue-700"
+                            className="text-xs h-5 shrink-0 bg-blue-100 text-primary"
                           >
                             ORDENADO
                           </Badge>
@@ -266,6 +270,7 @@ export const ReceptionsProductsForm = ({
                             value: product.id.toString(),
                           }))}
                           control={form.control}
+                          disabled={mode === "update"}
                         />
                       )}
 
@@ -283,6 +288,7 @@ export const ReceptionsProductsForm = ({
                                 min="0"
                                 className="text-center"
                                 placeholder="0"
+                                disabled={mode === "update"}
                                 value={
                                   typeof field.value === "number"
                                     ? field.value
@@ -290,7 +296,31 @@ export const ReceptionsProductsForm = ({
                                 }
                                 onChange={(e) => {
                                   const num = parseFloat(e.target.value);
-                                  field.onChange(isNaN(num) ? "" : num);
+                                  const newQuantityReceived = isNaN(num)
+                                    ? 0
+                                    : num;
+
+                                  // Si es producto ordenado, calcular cantidad observada
+                                  if (isOrderedProduct && productItem) {
+                                    const orderedQuantity =
+                                      productItem.quantity;
+
+                                    // No permitir que la cantidad recibida supere la ordenada
+                                    const finalQuantityReceived = Math.min(
+                                      newQuantityReceived,
+                                      orderedQuantity
+                                    );
+                                    const observedQuantity =
+                                      orderedQuantity - finalQuantityReceived;
+
+                                    field.onChange(finalQuantityReceived);
+                                    form.setValue(
+                                      `details.${index}.observed_quantity`,
+                                      observedQuantity
+                                    );
+                                  } else {
+                                    field.onChange(newQuantityReceived);
+                                  }
                                 }}
                               />
                             </FormControl>
@@ -314,6 +344,7 @@ export const ReceptionsProductsForm = ({
                                   min="0"
                                   className="text-center"
                                   placeholder="0"
+                                  disabled={mode === "update"}
                                   value={
                                     typeof field.value === "number"
                                       ? field.value
@@ -321,7 +352,31 @@ export const ReceptionsProductsForm = ({
                                   }
                                   onChange={(e) => {
                                     const num = parseFloat(e.target.value);
-                                    field.onChange(isNaN(num) ? "" : num);
+                                    const newObservedQuantity = isNaN(num)
+                                      ? 0
+                                      : num;
+
+                                    // Si es producto ordenado, calcular cantidad recibida
+                                    if (productItem) {
+                                      const orderedQuantity =
+                                        productItem.quantity;
+
+                                      // No permitir que la cantidad observada supere la ordenada
+                                      const finalObservedQuantity = Math.min(
+                                        newObservedQuantity,
+                                        orderedQuantity
+                                      );
+                                      const receivedQuantity =
+                                        orderedQuantity - finalObservedQuantity;
+
+                                      field.onChange(finalObservedQuantity);
+                                      form.setValue(
+                                        `details.${index}.quantity_received`,
+                                        receivedQuantity
+                                      );
+                                    } else {
+                                      field.onChange(newObservedQuantity);
+                                    }
                                   }}
                                 />
                               </FormControl>
@@ -354,7 +409,7 @@ export const ReceptionsProductsForm = ({
                                       }))
                                 }
                                 control={form.control}
-                                disabled={isOrderedProduct}
+                                disabled={isOrderedProduct || mode === "update"}
                               />
                             </FormControl>
                             <FormMessage />
@@ -384,6 +439,7 @@ export const ReceptionsProductsForm = ({
                               <FormControl>
                                 <Input
                                   placeholder="Ingresa el motivo..."
+                                  disabled={mode === "update"}
                                   {...field}
                                   value={field.value || ""}
                                 />
@@ -421,6 +477,7 @@ export const ReceptionsProductsForm = ({
                                       })
                                     )}
                                     control={form.control}
+                                    disabled={mode === "update"}
                                   />
                                 </FormControl>
                                 <FormMessage />
@@ -439,6 +496,7 @@ export const ReceptionsProductsForm = ({
                                 <FormControl>
                                   <Input
                                     placeholder="Detalles adicionales..."
+                                    disabled={mode === "update"}
                                     {...field}
                                     value={field.value || ""}
                                   />
@@ -464,6 +522,7 @@ export const ReceptionsProductsForm = ({
                             <FormControl>
                               <Input
                                 placeholder="Comentarios sobre este producto..."
+                                disabled={mode === "update"}
                                 {...field}
                                 value={field.value || ""}
                               />
@@ -507,7 +566,11 @@ export const ReceptionsProductsForm = ({
 
           <Button
             type="submit"
-            disabled={isSubmitting || !form.formState.isValid}
+            disabled={
+              isSubmitting ||
+              (mode === "create" && !form.formState.isValid) ||
+              (mode === "update" && !form.formState.isDirty)
+            }
           >
             <Loader
               className={`mr-2 h-4 w-4 ${!isSubmitting ? "hidden" : ""}`}

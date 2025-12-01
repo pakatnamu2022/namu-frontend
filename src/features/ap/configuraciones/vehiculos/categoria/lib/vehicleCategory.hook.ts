@@ -16,10 +16,11 @@ export const useVehicleCategory = (params?: Record<string, any>) => {
   });
 };
 
-export const useVehicleCategoryById = (id: number) => {
+export const useVehicleCategoryById = (id?: number) => {
   return useQuery({
     queryKey: [QUERY_KEY, id],
-    queryFn: () => findVehicleCategoryById(id),
+    queryFn: () => findVehicleCategoryById(id!),
     refetchOnWindowFocus: false,
+    enabled: !!id,
   });
 };

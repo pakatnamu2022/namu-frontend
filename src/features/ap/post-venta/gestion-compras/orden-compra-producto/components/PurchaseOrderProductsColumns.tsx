@@ -4,8 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Eye, Pencil, PackageCheck } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { Link } from "react-router-dom";
-import { format } from "date-fns";
-import { es } from "date-fns/locale";
 
 export type PurchaseOrderProductsColumns =
   ColumnDef<PurchaseOrderProductsResource>;
@@ -35,7 +33,7 @@ export const purchaseOrderProductsColumns = ({
     header: "Nº Orden",
     cell: ({ getValue }) => {
       const value = getValue() as string;
-      return value && <p className="font-semibold text-xs">{value}</p>;
+      return value && <p className="font-semibold">{value}</p>;
     },
   },
   {
@@ -46,9 +44,7 @@ export const purchaseOrderProductsColumns = ({
       const number = row.original.invoice_number;
       return (
         <div className="flex flex-col">
-          <p className="font-medium text-xs">
-            {series}-{number}
-          </p>
+          {series}-{number}
         </div>
       );
     },
@@ -61,9 +57,9 @@ export const purchaseOrderProductsColumns = ({
       const numDoc = row.original.supplier_num_doc;
       return (
         <div className="flex flex-col">
-          <p className="font-medium text-xs">{value}</p>
+          <p className="font-medium">{value}</p>
           {numDoc && (
-            <p className="text-[10px] text-muted-foreground">RUC: {numDoc}</p>
+            <p className="text-[12px] text-muted-foreground">RUC: {numDoc}</p>
           )}
         </div>
       );
@@ -72,36 +68,10 @@ export const purchaseOrderProductsColumns = ({
   {
     accessorKey: "emission_date",
     header: "F. Emisión",
-    cell: ({ getValue }) => {
-      const value = getValue() as string;
-      if (!value) return "-";
-      try {
-        return (
-          <span className="text-xs">
-            {format(new Date(value), "dd/MM/yyyy", { locale: es })}
-          </span>
-        );
-      } catch {
-        return value;
-      }
-    },
   },
   {
     accessorKey: "due_date",
     header: "F. Vencimiento",
-    cell: ({ getValue }) => {
-      const value = getValue() as string;
-      if (!value) return "-";
-      try {
-        return (
-          <span className="text-xs">
-            {format(new Date(value), "dd/MM/yyyy", { locale: es })}
-          </span>
-        );
-      } catch {
-        return value;
-      }
-    },
   },
   {
     accessorKey: "total",
@@ -117,7 +87,7 @@ export const purchaseOrderProductsColumns = ({
       return isNaN(numValue) ? (
         `${symbol} 0.00`
       ) : (
-        <p className="font-semibold text-xs">
+        <p className="font-semibold">
           {symbol} {numValue.toFixed(2)}
         </p>
       );
@@ -126,17 +96,14 @@ export const purchaseOrderProductsColumns = ({
   {
     accessorKey: "sede",
     header: "Sede",
-    cell: ({ getValue }) => {
-      const value = getValue() as string;
-      return value && <p className="text-xs">{value}</p>;
-    },
   },
   {
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
-      const { id, status } = row.original;
-      const canEdit = status === true;
+      const { id, status, migration_status, has_receptions } = row.original;
+      const canEditDelete =
+        !has_receptions || migration_status === "completed" || status === true; // Disable edit/delete if there are receptions
 
       return (
         <div className="flex items-center gap-2">
@@ -145,6 +112,7 @@ export const purchaseOrderProductsColumns = ({
               variant="outline"
               size="icon"
               className="size-7"
+              tooltip="Ver"
               onClick={() => onView(id)}
             >
               <Eye className="size-4" />
@@ -157,22 +125,27 @@ export const purchaseOrderProductsColumns = ({
                 variant="outline"
                 size="icon"
                 className="size-7"
-                title="Recepción"
+                tooltip="Recepcionar"
               >
                 <PackageCheck className="size-4" />
               </Button>
             </Link>
           )}
 
-          {permissions.canUpdate && canEdit && routeUpdate && (
+          {permissions.canUpdate && canEditDelete && routeUpdate && (
             <Link to={`${routeUpdate}/${id}`}>
-              <Button variant="outline" size="icon" className="size-7">
+              <Button
+                variant="outline"
+                size="icon"
+                className="size-7"
+                tooltip="Editar"
+              >
                 <Pencil className="size-4" />
               </Button>
             </Link>
           )}
 
-          {permissions.canDelete && canEdit && (
+          {permissions.canDelete && canEditDelete && (
             <DeleteButton onClick={() => onDelete(id)} />
           )}
         </div>

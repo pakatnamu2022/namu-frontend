@@ -28,10 +28,11 @@ export const useAllTypesCategory = (params?: Record<string, any>) => {
   });
 };
 
-export const useTypesCategoryById = (id: number) => {
+export const useTypesCategoryById = (id?: number) => {
   return useQuery({
     queryKey: [QUERY_KEY, id],
-    queryFn: () => findTypesCategoryById(id),
+    queryFn: () => findTypesCategoryById(id!),
     refetchOnWindowFocus: false,
+    enabled: !!id,
   });
 };

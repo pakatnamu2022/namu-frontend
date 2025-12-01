@@ -1,5 +1,6 @@
 import { type Links, type Meta } from "@/shared/lib/pagination.interface";
 import { ModelsVnResource } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.interface";
+import { CustomersResource } from "../../clientes/lib/customers.interface";
 
 export interface VehicleResponse {
   data: VehicleResource[];
@@ -39,8 +40,16 @@ export interface VehicleResource {
   sede_name_warehouse?: string;
   model: ModelsVnResource;
   movements: VehicleMovement[];
+  owner: owner;
   billed_cost?: number;
   freight_cost?: number;
+}
+
+export interface owner {
+  has_purchase_order: boolean;
+  is_cancelled: boolean;
+  is_paid: boolean;
+  client: CustomersResource;
 }
 
 export interface VehicleResourceWithCosts {

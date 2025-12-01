@@ -20,10 +20,10 @@ import ProductActions from "@/features/ap/post-venta/gestion-productos/productos
 import ProductTable from "@/features/ap/post-venta/gestion-productos/productos/components/ProductTable";
 import { productColumns } from "@/features/ap/post-venta/gestion-productos/productos/components/ProductColumns";
 import ProductOptions from "@/features/ap/post-venta/gestion-productos/productos/components/ProductOptions";
+import ProductDetailSheet from "@/features/ap/post-venta/gestion-productos/productos/components/ProductDetailSheet";
 import { useProduct } from "@/features/ap/post-venta/gestion-productos/productos/lib/product.hook";
 import { notFound } from "@/shared/hooks/useNotFound";
 import {
-
   deleteProduct,
   updateProduct,
 } from "@/features/ap/post-venta/gestion-productos/productos/lib/product.actions";
@@ -34,6 +34,8 @@ export default function ProductPage() {
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [viewProductId, setViewProductId] = useState<number | null>(null);
+  const [isDetailSheetOpen, setIsDetailSheetOpen] = useState(false);
   const { MODEL, ROUTE } = PRODUCT;
   const permissions = useModulePermissions(ROUTE);
 
@@ -55,6 +57,11 @@ export default function ProductPage() {
     } catch {
       errorToast("Error al actualizar el estado.");
     }
+  };
+
+  const handleView = (id: number) => {
+    setViewProductId(id);
+    setIsDetailSheetOpen(true);
   };
 
   const handleDelete = async () => {
@@ -90,6 +97,7 @@ export default function ProductPage() {
         columns={productColumns({
           onStatusChange: handleToggleStatus,
           onDelete: setDeleteId,
+          onView: handleView,
           permissions,
         })}
         data={data?.data || []}
@@ -104,6 +112,12 @@ export default function ProductPage() {
           onConfirm={handleDelete}
         />
       )}
+
+      <ProductDetailSheet
+        productId={viewProductId}
+        open={isDetailSheetOpen}
+        onOpenChange={setIsDetailSheetOpen}
+      />
 
       <DataTablePagination
         page={page}

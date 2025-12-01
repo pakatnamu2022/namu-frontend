@@ -16,6 +16,7 @@ import { ModelsVnForm } from "@/features/ap/configuraciones/vehiculos/modelos-vn
 import FormWrapper from "@/shared/components/FormWrapper";
 import { MODELS_VN } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.constanst";
 import { notFound } from "@/shared/hooks/useNotFound";
+import { CM_COMERCIAL_ID } from "@/core/core.constants";
 
 export default function AddModelsVnPage() {
   const router = useNavigate();
@@ -84,6 +85,7 @@ export default function AddModelsVnPage() {
           traction_type_id: "",
           transmission_id: "",
           currency_type_id: "",
+          type_operation_id: String(CM_COMERCIAL_ID),
         }}
         onSubmit={handleSubmit}
         isSubmitting={isPending}

@@ -53,3 +53,68 @@ export const OBSERVATION_REASON_COLORS = {
   POOR_QUALITY: "bg-orange-100 text-orange-800",
   OTHER: "bg-gray-100 text-gray-800",
 } as const;
+
+// Estados de recepción
+export const RECEPTION_STATUS_OPTIONS = [
+  { value: "APPROVED", label: "Aprobado" },
+  { value: "PARTIAL", label: "Parcial" },
+  { value: "INCOMPLETE", label: "Incompleto" },
+] as const;
+
+// Tipos de recepción (completa/parcial)
+export const RECEPTION_TYPE_OPTIONS = [
+  { value: "COMPLETE", label: "Completa" },
+  { value: "PARTIAL", label: "Parcial" },
+] as const;
+
+/**
+ * Traducciones para reception_type (tipo de producto recibido)
+ */
+export function translateReceptionType(type?: string | null): string {
+  const translations: Record<string, string> = {
+    ORDERED: "Ordenado",
+    BONUS: "Bonificación",
+    GIFT: "Regalo",
+    SAMPLE: "Muestra",
+  };
+  return type ? translations[type] ?? type : "-";
+}
+
+/**
+ * Traducciones para reason_observation
+ */
+export function translateReasonObservation(reason?: string | null): string {
+  const translations: Record<string, string> = {
+    DAMAGED: "Dañado",
+    DEFECTIVE: "Defectuoso",
+    EXPIRED: "Vencido",
+    WRONG_PRODUCT: "Producto Incorrecto",
+    WRONG_QUANTITY: "Cantidad Incorrecta",
+    POOR_QUALITY: "Mala Calidad",
+    OTHER: "Otro",
+  };
+  return reason ? translations[reason] ?? reason : "-";
+}
+
+/**
+ * Traducciones para status
+ */
+export function translateStatus(status?: string | null): string {
+  const translations: Record<string, string> = {
+    APPROVED: "Aprobado",
+    PARTIAL: "Parcial",
+    INCOMPLETE: "Incompleto",
+  };
+  return status ? translations[status] ?? status : "-";
+}
+
+/**
+ * Traducciones para reception type (completa/parcial)
+ */
+export function translateReceptionTypeStatus(type?: string | null): string {
+  const translations: Record<string, string> = {
+    COMPLETE: "Completa",
+    PARTIAL: "Parcial",
+  };
+  return type ? translations[type] ?? type : "-";
+}

@@ -9,7 +9,7 @@ interface Props {
   isLoading?: boolean;
 }
 
-export default function VehicleCategoryTable({
+export default function WarehouseTable({
   columns,
   data,
   children,
@@ -22,7 +22,8 @@ export default function VehicleCategoryTable({
         data={data}
         isLoading={isLoading}
         initialColumnVisibility={{
-          dyn_code: true,
+          header_warehouse_dyn_code: true,
+          dyn_code: false,
           description: true,
           article_class: true,
           sede: true,

@@ -53,6 +53,7 @@ export interface PurchaseOrderProductsResource {
   receipt_dynamics?: string | null;
   credit_note_dynamics?: string | null;
   vehicleMovement?: any;
+  has_receptions?: boolean;
   migrated_at?: string | null;
   created_at: string;
   updated_at: string;

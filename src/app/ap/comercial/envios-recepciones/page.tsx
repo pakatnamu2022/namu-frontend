@@ -36,9 +36,8 @@ import { ShipmentsReceptionsResource } from "@/features/ap/comercial/envios-rece
 import { SheetShipmentDetailsDialog } from "@/features/ap/comercial/envios-recepciones/components/SheetShipmentDetailsDialog";
 import { notFound } from "@/shared/hooks/useNotFound";
 
-
 export default function ShipmentsReceptionsPage() {
-    const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
+  const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
@@ -57,6 +56,7 @@ export default function ShipmentsReceptionsPage() {
   const permissions = useModulePermissions(ROUTE);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setPage(1);
   }, [search, per_page]);
 

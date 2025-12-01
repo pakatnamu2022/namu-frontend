@@ -18,18 +18,15 @@ import { useAllReceptions } from "@/features/ap/post-venta/gestion-compras/recep
 import { deleteReception } from "@/features/ap/post-venta/gestion-compras/recepciones-producto/lib/receptionsProducts.actions";
 import ReceptionsProductsTable from "@/features/ap/post-venta/gestion-compras/recepciones-producto/components/ReceptionsProductsTable";
 import ReceptionsProductsCards from "@/features/ap/post-venta/gestion-compras/recepciones-producto/components/ReceptionsProductsCards";
-import ReceptionsProductsOptions from "@/features/ap/post-venta/gestion-compras/recepciones-producto/components/ReceptionsProductsOptions";
 import { RECEPTION } from "@/features/ap/post-venta/gestion-compras/recepciones-producto/lib/receptionsProducts.constants";
 import { useParams, useNavigate } from "react-router-dom";
 import { usePurchaseOrderProductsById } from "@/features/ap/post-venta/gestion-compras/orden-compra-producto/lib/purchaseOrderProducts.hook";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Plus } from "lucide-react";
 import { Card } from "@/components/ui/card";
-import { useMemo } from "react";
 
 export default function ReceptionsProductsPage() {
   const { checkRouteExists, isLoadingModule } = useCurrentModule();
-  const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const { MODEL, ROUTE_ADD, ROUTE_UPDATE } = RECEPTION;
   const permissions = useModulePermissions("orden-compra-producto");
@@ -42,25 +39,7 @@ export default function ReceptionsProductsPage() {
   const { data: purchaseOrder, isLoading: isLoadingPurchaseOrder } =
     usePurchaseOrderProductsById(purchaseOrderIdNum || 0);
 
-  const { data, isLoading, refetch } = useAllReceptions(
-    { search },
-    purchaseOrderIdNum
-  );
-
-  // Filtrar los datos según el search
-  const filteredData = useMemo(() => {
-    if (!data) return [];
-    if (!search.trim()) return data;
-
-    const searchLower = search.toLowerCase();
-    return data.filter((reception) => {
-      return (
-        reception.reception_number?.toLowerCase().includes(searchLower) ||
-        reception.shipping_guide_number?.toLowerCase().includes(searchLower) ||
-        reception.received_by_user_name?.toLowerCase().includes(searchLower)
-      );
-    });
-  }, [data, search]);
+  const { data, isLoading, refetch } = useAllReceptions({}, purchaseOrderIdNum);
 
   const handleDelete = async () => {
     if (!deleteId) return;
@@ -134,10 +113,10 @@ export default function ReceptionsProductsPage() {
 
       <ReceptionsProductsTable
         isLoading={isLoading}
-        data={filteredData}
+        data={data!}
         customContent={
           <ReceptionsProductsCards
-            data={filteredData}
+            data={data!}
             onDelete={setDeleteId}
             permissions={{
               canUpdate: permissions.canUpdate,
@@ -148,9 +127,7 @@ export default function ReceptionsProductsPage() {
             warehouseName={purchaseOrder?.warehouse}
           />
         }
-      >
-        <ReceptionsProductsOptions search={search} setSearch={setSearch} />
-      </ReceptionsProductsTable>
+      ></ReceptionsProductsTable>
 
       {deleteId !== null && (
         <SimpleDeleteDialog

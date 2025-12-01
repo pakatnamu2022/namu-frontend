@@ -24,7 +24,7 @@ import {
   Calendar,
 } from "lucide-react";
 import { useState, useEffect } from "react";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { OpportunityResource } from "../../oportunidades/lib/opportunities.interface";
 import { getAllOpportunitiesByCustomer } from "../lib/customers.actions";
 import {
@@ -34,6 +34,7 @@ import {
   BORDER_OPPORTUNITY,
   OPPORTUNITIES,
 } from "../../oportunidades/lib/opportunities.constants";
+import { errorToast } from "@/core/core.function";
 
 interface Props {
   customerId: number;
@@ -53,7 +54,8 @@ export default function OpportunitiesSheet({
   const { ABSOLUTE_ROUTE } = OPPORTUNITIES;
 
   // Get client name from first opportunity
-  const clientName = opportunities.length > 0 ? opportunities[0].client.full_name : "";
+  const clientName =
+    opportunities.length > 0 ? opportunities[0].client.full_name : "";
 
   const loadOpportunities = async () => {
     setLoadingOpportunities(true);
@@ -61,8 +63,11 @@ export default function OpportunitiesSheet({
     try {
       const data = await getAllOpportunitiesByCustomer(customerId);
       setOpportunities(data);
-    } catch (err) {
-      setError("Error al cargar las oportunidades");
+    } catch (error: any) {
+      errorToast(
+        "Error al cargar las oportunidades",
+        error.response?.data?.message
+      );
     } finally {
       setLoadingOpportunities(false);
     }
@@ -153,10 +158,18 @@ export default function OpportunitiesSheet({
 
               <div className="grid gap-4 max-h-[400px] overflow-y-auto pr-2">
                 {opportunities.map((opportunity) => {
-                  const bgColor = BG_OPPORTUNITY[opportunity.opportunity_status] || BG_OPPORTUNITY["FRIO"];
-                  const bgTextColor = BG_TEXT_OPPORTUNITY[opportunity.opportunity_status] || BG_TEXT_OPPORTUNITY["FRIO"];
-                  const textColor = TEXT_OPPORTUNITY[opportunity.opportunity_status] || TEXT_OPPORTUNITY["FRIO"];
-                  const borderColor = BORDER_OPPORTUNITY[opportunity.opportunity_status] || BORDER_OPPORTUNITY["FRIO"];
+                  const bgColor =
+                    BG_OPPORTUNITY[opportunity.opportunity_status] ||
+                    BG_OPPORTUNITY["FRIO"];
+                  const bgTextColor =
+                    BG_TEXT_OPPORTUNITY[opportunity.opportunity_status] ||
+                    BG_TEXT_OPPORTUNITY["FRIO"];
+                  const textColor =
+                    TEXT_OPPORTUNITY[opportunity.opportunity_status] ||
+                    TEXT_OPPORTUNITY["FRIO"];
+                  const borderColor =
+                    BORDER_OPPORTUNITY[opportunity.opportunity_status] ||
+                    BORDER_OPPORTUNITY["FRIO"];
 
                   const isClosed = opportunity.is_closed;
                   const canClick = isClosed;
@@ -176,18 +189,23 @@ export default function OpportunitiesSheet({
                         bgColor,
                         borderColor,
                         "border-2",
-                        canClick ? "cursor-pointer hover:shadow-md" : "cursor-not-allowed opacity-60"
+                        canClick
+                          ? "cursor-pointer hover:shadow-md"
+                          : "cursor-not-allowed opacity-60"
                       )}
                     >
                       <CardHeader className="pb-3">
                         <CardTitle className="text-base flex items-start justify-between gap-2">
                           <div className="flex items-center gap-2 min-w-0">
-                            <Car className={cn("size-5 flex-shrink-0", textColor)} />
+                            <Car className={cn("size-5 shrink-0", textColor)} />
                             <span className="font-semibold truncate">
-                              {opportunity.family.brand} {opportunity.family.description}
+                              {opportunity.family.brand}{" "}
+                              {opportunity.family.description}
                             </span>
                           </div>
-                          <Badge className={cn("shrink-0", bgTextColor, textColor)}>
+                          <Badge
+                            className={cn("shrink-0", bgTextColor, textColor)}
+                          >
                             {opportunity.opportunity_status}
                           </Badge>
                         </CardTitle>
@@ -197,12 +215,17 @@ export default function OpportunitiesSheet({
                         <div className="grid gap-3">
                           {/* Advisor/Worker */}
                           <div className="flex items-start gap-3">
-                            <BriefcaseBusiness className={cn("size-4 mt-0.5 flex-shrink-0", textColor)} />
+                            <BriefcaseBusiness
+                              className={cn(
+                                "size-4 mt-0.5 shrink-0",
+                                textColor
+                              )}
+                            />
                             <div className="min-w-0 flex-1">
                               <p className="text-sm font-medium text-gray-900">
                                 Asesor Asignado
                               </p>
-                              <p className="text-sm text-gray-600 break-words">
+                              <p className="text-sm text-gray-600 wrap-break-word">
                                 {opportunity.worker.name}
                               </p>
                             </div>
@@ -210,12 +233,17 @@ export default function OpportunitiesSheet({
 
                           {/* Opportunity Type */}
                           <div className="flex items-start gap-3">
-                            <Tag className={cn("size-4 mt-0.5 flex-shrink-0", textColor)} />
+                            <Tag
+                              className={cn(
+                                "size-4 mt-0.5 shrink-0",
+                                textColor
+                              )}
+                            />
                             <div className="min-w-0 flex-1">
                               <p className="text-sm font-medium text-gray-900">
                                 Tipo de Oportunidad
                               </p>
-                              <p className="text-sm text-gray-600 break-words">
+                              <p className="text-sm text-gray-600 wrap-break-word">
                                 {opportunity.opportunity_type}
                               </p>
                             </div>
@@ -223,28 +251,41 @@ export default function OpportunitiesSheet({
 
                           {/* Client Status */}
                           <div className="flex items-start gap-3">
-                            <Calendar className={cn("size-4 mt-0.5 flex-shrink-0", textColor)} />
+                            <Calendar
+                              className={cn(
+                                "size-4 mt-0.5 shrink-0",
+                                textColor
+                              )}
+                            />
                             <div className="min-w-0 flex-1">
                               <p className="text-sm font-medium text-gray-900">
                                 Estado del Cliente
                               </p>
-                              <p className="text-sm text-gray-600 break-words">
+                              <p className="text-sm text-gray-600 wrap-break-word">
                                 {opportunity.client_status}
                               </p>
                             </div>
                           </div>
 
                           {/* Actions Count */}
-                          {opportunity.actions && opportunity.actions.length > 0 && (
-                            <div className={cn("rounded-lg p-3 mt-2", bgTextColor)}>
-                              <p className="text-sm font-medium">
-                                <span className={cn("font-bold", textColor)}>
-                                  {opportunity.actions.length}
-                                </span>{" "}
-                                {opportunity.actions.length === 1 ? "acción registrada" : "acciones registradas"}
-                              </p>
-                            </div>
-                          )}
+                          {opportunity.actions &&
+                            opportunity.actions.length > 0 && (
+                              <div
+                                className={cn(
+                                  "rounded-lg p-3 mt-2",
+                                  bgTextColor
+                                )}
+                              >
+                                <p className="text-sm font-medium">
+                                  <span className={cn("font-bold", textColor)}>
+                                    {opportunity.actions.length}
+                                  </span>{" "}
+                                  {opportunity.actions.length === 1
+                                    ? "acción registrada"
+                                    : "acciones registradas"}
+                                </p>
+                              </div>
+                            )}
                         </div>
                       </CardContent>
                     </Card>

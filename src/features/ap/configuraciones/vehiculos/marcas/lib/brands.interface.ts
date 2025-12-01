@@ -15,7 +15,7 @@ export interface BrandsResource {
   logo_url: string;
   logo_min_url: string;
   group_id: number;
-  is_commercial: boolean;
+  type_operation_id: number;
   status: boolean;
 }
 
@@ -27,7 +27,7 @@ export interface BrandsRequest {
   logo?: File;
   logo_min?: File;
   group_id?: string;
-  is_commercial?: boolean;
+  type_operation_id?: number;
   status?: boolean;
 }
 
