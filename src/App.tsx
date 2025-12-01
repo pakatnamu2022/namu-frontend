@@ -698,7 +698,7 @@ const VistasPermisosPage = lazy(
 const TrabajadoresPage = lazy(
   () =>
     import(
-      "./app/gp/gestion-humana/administracion-de-personal/trabajadores/page"
+      "./app/gp/gestion-humana/personal/trabajadores/page"
     )
 );
 
@@ -1562,7 +1562,7 @@ function App() {
             >
               {/* Administración de Personal */}
               <Route
-                path="administracion-de-personal/trabajadores"
+                path="personal/trabajadores"
                 element={<TrabajadoresPage />}
               />
 
