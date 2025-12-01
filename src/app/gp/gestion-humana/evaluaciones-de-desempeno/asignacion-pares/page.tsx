@@ -20,8 +20,13 @@ import { parEvaluatorColumns } from "@/features/gp/gestionhumana/evaluaciondesem
 import ParEvaluatorTable from "@/features/gp/gestionhumana/evaluaciondesempeño/asignacion-pares/components/ParEvaluatorTable";
 import ParEvaluatorOptions from "@/features/gp/gestionhumana/evaluaciondesempeño/asignacion-pares/components/ParEvaluatorOptions";
 import { useWorkers } from "@/features/gp/gestionhumana/personal/trabajadores/lib/worker.hook";
-import { deleteParEvaluator } from "@/features/gp/gestionhumana/evaluaciondesempeño/asignacion-pares/lib/par-evaluator.actions";
+import {
+  deleteParEvaluator,
+  storeMultipleParEvaluators,
+} from "@/features/gp/gestionhumana/evaluaciondesempeño/asignacion-pares/lib/par-evaluator.actions";
 import { STATUS_WORKER } from "@/features/gp/gestionhumana/personal/posiciones/lib/position.constant";
+import { ParEvaluatorAddModal } from "@/features/gp/gestionhumana/evaluaciondesempeño/asignacion-pares/components/ParEvaluatorAddModal";
+import { ParEvaluatorSchema } from "@/features/gp/gestionhumana/evaluaciondesempeño/asignacion-pares/lib/par-evaluator.schema";
 
 const { MODEL, ROUTE } = PAR_EVALUATOR;
 
@@ -31,6 +36,9 @@ export default function EvaluatorParPage() {
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [selectedWorkerId, setSelectedWorkerId] = useState<number | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     setPage(1);
@@ -56,6 +64,36 @@ export default function EvaluatorParPage() {
     }
   };
 
+  const handleOpenAddModal = (workerId?: number) => {
+    setSelectedWorkerId(workerId || null);
+    setShowAddModal(true);
+  };
+
+  const handleCloseAddModal = () => {
+    setShowAddModal(false);
+    setSelectedWorkerId(null);
+  };
+
+  const handleSubmitAdd = async (data: ParEvaluatorSchema) => {
+    setIsSubmitting(true);
+    try {
+      const payload = {
+        worker_id: Number(data.worker_id),
+        mate_ids: data.mate_ids,
+      };
+      await storeMultipleParEvaluators(payload);
+      successToast(SUCCESS_MESSAGE(MODEL, "create"));
+      await refetch();
+      handleCloseAddModal();
+    } catch (error: any) {
+      errorToast(
+        ERROR_MESSAGE(MODEL, "create", error?.response?.data?.message)
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   if (isLoadingModule) return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
   if (!currentView) notFound();
@@ -73,6 +111,7 @@ export default function EvaluatorParPage() {
         isLoading={isLoading}
         columns={parEvaluatorColumns({
           onDelete: setDeleteId,
+          onAssign: handleOpenAddModal,
         })}
         data={data?.data || []}
       >
@@ -84,6 +123,16 @@ export default function EvaluatorParPage() {
           open={true}
           onOpenChange={(open) => !open && setDeleteId(null)}
           onConfirm={handleDelete}
+        />
+      )}
+
+      {showAddModal && (
+        <ParEvaluatorAddModal
+          open={showAddModal}
+          onOpenChange={handleCloseAddModal}
+          workerId={selectedWorkerId}
+          onSubmit={handleSubmitAdd}
+          isSubmitting={isSubmitting}
         />
       )}
 
