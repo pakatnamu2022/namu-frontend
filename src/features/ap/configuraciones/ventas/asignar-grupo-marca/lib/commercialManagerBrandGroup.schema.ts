@@ -11,8 +11,7 @@ export const commercialManagerBrandGroupSchemaCreate = z.object({
         id: z.number().int().positive(),
         name: z.string().min(1, "El Gerente Comercial es requerido"),
       })
-    )
-    .min(1, { message: "Debe seleccionar al menos un Gerente Comercial" }),
+    ),
 });
 
 export const commercialManagerBrandGroupSchemaUpdate =

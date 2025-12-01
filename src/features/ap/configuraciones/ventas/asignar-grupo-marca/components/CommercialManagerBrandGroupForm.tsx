@@ -93,8 +93,8 @@ export const CommercialManagerBrandGroupForm = ({
 
   const handleSubmit = (data: any) => {
     const payload = {
-      year: currentYear(),
-      month: currentMonth(),
+      year: mode === "update" ? data.year : currentYear(),
+      month: mode === "update" ? data.month : currentMonth(),
       brand_group_id: Number(data.brand_group_id),
       commercial_managers: data.commercial_managers.map(
         (commercial_manager: AsesorResource) => commercial_manager.id
