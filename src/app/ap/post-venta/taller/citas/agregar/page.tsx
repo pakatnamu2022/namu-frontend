@@ -12,7 +12,6 @@ import {
 import FormWrapper from "@/shared/components/FormWrapper";
 import { APPOINTMENT_PLANNING } from "@/features/ap/post-venta/taller/citas/lib/appointmentPlanning.constants";
 import { storeAppointmentPlanning } from "@/features/ap/post-venta/taller/citas/lib/appointmentPlanning.actions";
-import { AppointmentPlanningSchema } from "@/features/ap/post-venta/taller/citas/lib/appointmentPlanning.schema";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import { AppointmentPlanningForm } from "@/features/ap/post-venta/taller/citas/components/AppointmentPlanningForm";
 import { notFound } from "@/shared/hooks/useNotFound";
@@ -34,7 +33,7 @@ export default function AddAppointmentPlanningPage() {
     },
   });
 
-  const handleSubmit = (data: AppointmentPlanningSchema) => {
+  const handleSubmit = (data: any) => {
     mutate(data);
   };
 
@@ -58,9 +57,9 @@ export default function AddAppointmentPlanningPage() {
           full_name_client: "",
           email_client: "",
           phone_client: "",
-          type_operation_appointment_id: 0,
-          type_planning_id: 0,
-          ap_vehicle_id: 0,
+          type_operation_appointment_id: "",
+          type_planning_id: "",
+          ap_vehicle_id: "",
         }}
         onSubmit={handleSubmit}
         isSubmitting={isPending}

@@ -39,9 +39,7 @@ export default function VehicleModal({
     ? { data: EMPTY, isLoading: false, refetch: () => {} }
     : useVehicleById(id!);
 
-  function mapVehicleToForm(
-    data: VehicleResource | VehicleSchema
-  ): Partial<VehicleSchema> {
+  function mapVehicleToForm(data: VehicleResource): Partial<VehicleSchema> {
     return {
       vin: data.vin,
       year: data.year,

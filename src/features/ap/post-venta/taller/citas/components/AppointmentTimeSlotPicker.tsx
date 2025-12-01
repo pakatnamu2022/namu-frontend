@@ -15,14 +15,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
-import {
-  format,
-  addDays,
-  startOfWeek,
-  endOfWeek,
-  isSameDay,
-  parseISO,   
-} from "date-fns";
+import { format, addDays, startOfWeek, endOfWeek, isSameDay } from "date-fns";
 import { es } from "date-fns/locale";
 import { getAvailableSlots } from "../lib/appointmentPlanning.actions";
 import {
@@ -43,9 +36,9 @@ export default function AppointmentTimeSlotPicker({
   open,
   onClose,
   onSelect,
-  selectedDate,
-  selectedTime,
-}: AppointmentTimeSlotPickerProps) {
+}: // selectedDate,
+// selectedTime,
+AppointmentTimeSlotPickerProps) {
   const [currentWeekStart, setCurrentWeekStart] = useState(
     startOfWeek(new Date(), { weekStartsOn: 1 })
   );
