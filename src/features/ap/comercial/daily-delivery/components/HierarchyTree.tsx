@@ -1,7 +1,7 @@
 "use client";
 
 import { ChevronDown, ChevronRight } from "lucide-react";
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { DailyDeliveryHierarchyNode } from "../lib/daily-delivery.interface";
 
@@ -18,35 +18,30 @@ interface HierarchyNodeProps {
 const POSITION_STYLES = {
   gerente: {
     label: "Gerente",
-    className: "bg-purple-100 text-purple-700 border-purple-200",
+    className: "bg-indigo-100 text-indigo-700 border-indigo-200",
+    textColor: "text-indigo-700",
+    fontSize: "text-base",
+    fontWeight: "font-semibold",
   },
   jefe: {
     label: "Jefe",
     className: "bg-blue-100 text-blue-700 border-blue-200",
+    textColor: "text-blue-700",
+    fontSize: "text-sm",
+    fontWeight: "font-semibold",
   },
   asesor: {
     label: "Asesor",
     className: "bg-green-100 text-green-700 border-green-200",
+    textColor: "text-slate-700",
+    fontSize: "text-sm",
+    fontWeight: "font-medium",
   },
 };
 
-
-function HierarchyNode({
-  node,
-  level = 0,
-  parentNodes = [],
-}: HierarchyNodeProps) {
+function HierarchyNode({ node, level = 0 }: HierarchyNodeProps) {
   const [isExpanded, setIsExpanded] = useState(true);
   const hasChildren = node.children && node.children.length > 0;
-
-  // const formatCurrency = (value: number) => {
-  //   return new Intl.NumberFormat("es-PE", {
-  //     style: "currency",
-  //     currency: "PEN",
-  //     minimumFractionDigits: 0,
-  //     maximumFractionDigits: 0,
-  //   }).format(value);
-  // };
 
   const isManager = node.level === "gerente";
 
@@ -70,7 +65,9 @@ function HierarchyNode({
           </div>
 
           <span
-            className={`text-sm truncate ${isManager ? "font-semibold" : ""}`}
+            className={`truncate ${POSITION_STYLES[node.level].textColor} ${
+              POSITION_STYLES[node.level].fontSize
+            } ${POSITION_STYLES[node.level].fontWeight}`}
           >
             {node.name}
           </span>
