@@ -1,7 +1,8 @@
 "use client";
 
 import { ChevronDown, ChevronRight } from "lucide-react";
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import { Badge } from "@/components/ui/badge";
 import { DailyDeliveryHierarchyNode } from "../lib/daily-delivery.interface";
 
 interface HierarchyTreeProps {
@@ -11,9 +12,30 @@ interface HierarchyTreeProps {
 interface HierarchyNodeProps {
   node: DailyDeliveryHierarchyNode;
   level?: number;
+  parentNodes?: DailyDeliveryHierarchyNode[];
 }
 
-function HierarchyNode({ node, level = 0 }: HierarchyNodeProps) {
+const POSITION_STYLES = {
+  gerente: {
+    label: "Gerente",
+    className: "bg-purple-100 text-purple-700 border-purple-200",
+  },
+  jefe: {
+    label: "Jefe",
+    className: "bg-blue-100 text-blue-700 border-blue-200",
+  },
+  asesor: {
+    label: "Asesor",
+    className: "bg-green-100 text-green-700 border-green-200",
+  },
+};
+
+
+function HierarchyNode({
+  node,
+  level = 0,
+  parentNodes = [],
+}: HierarchyNodeProps) {
   const [isExpanded, setIsExpanded] = useState(true);
   const hasChildren = node.children && node.children.length > 0;
 
@@ -32,11 +54,12 @@ function HierarchyNode({ node, level = 0 }: HierarchyNodeProps) {
     <div>
       <div
         onClick={() => hasChildren && setIsExpanded(!isExpanded)}
-        className={`group flex items-center gap-3 py-1.5 px-3 rounded-md hover:bg-accent/50 transition-all cursor-pointer ${
+        className={`group grid grid-cols-[auto_1fr_120px_300px_100px_100px] gap-4 items-center py-2 px-3 rounded-md hover:bg-accent/50 transition-all cursor-pointer ${
           level > 0 ? "ml-6" : ""
         } ${isManager ? "font-medium" : ""}`}
       >
-        <div className="flex items-center gap-2 min-w-0 flex-1">
+        {/* Columna 1: Chevron + Nombre */}
+        <div className="flex items-center gap-2 min-w-0 col-span-2">
           <div className="w-4 flex items-center justify-center shrink-0">
             {hasChildren &&
               (isExpanded ? (
@@ -52,29 +75,63 @@ function HierarchyNode({ node, level = 0 }: HierarchyNodeProps) {
             {node.name}
           </span>
 
-          {isManager && (
-            <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-blue-100 text-blue-700 shrink-0">
-              GERENTE
-            </span>
+          {node.brand_group && (
+            <Badge
+              variant="outline"
+              className="text-[10px] font-medium px-1.5 py-0.5 bg-indigo-100 text-indigo-700 border-indigo-200 shrink-0"
+            >
+              {node.brand_group}
+            </Badge>
+          )}
+
+          {node.article_class && (
+            <Badge
+              variant="outline"
+              className="text-[10px] font-medium px-1.5 py-0.5 bg-slate-100 text-slate-700 border-slate-200 shrink-0"
+            >
+              {node.article_class}
+            </Badge>
           )}
         </div>
 
-        <div className="flex gap-8 items-center shrink-0">
-          <div className="text-right w-14">
-            <div className="text-[10px] text-muted-foreground uppercase tracking-wide mb-0.5">
-              Entregas
-            </div>
-            <div className="text-sm font-bold tabular-nums">
-              {node.entregas}
-            </div>
-          </div>
-          <div className="text-right w-24">
-            <div className="text-[10px] text-muted-foreground uppercase tracking-wide mb-0.5">
-              Facturadas
-            </div>
-            <div className="text-sm font-bold text-emerald-600 tabular-nums">
-              {node.facturadas}
-            </div>
+        {/* Columna 2: Cargo */}
+        <div className="flex items-center">
+          <Badge
+            variant="outline"
+            className={`text-[10px] font-medium px-2 py-0.5 ${
+              POSITION_STYLES[node.level].className
+            }`}
+          >
+            {POSITION_STYLES[node.level].label}
+          </Badge>
+        </div>
+
+        {/* Columna 3: Marcas */}
+        <div className="flex gap-1 overflow-x-auto no-scrollbar whitespace-nowrap">
+          {node.brands && node.brands.length > 0 ? (
+            node.brands.map((brand) => (
+              <Badge
+                key={brand}
+                variant="outline"
+                className="text-[9px] font-medium px-1.5 py-0.5 bg-gray-100 text-gray-700 border-gray-200 shrink-0"
+              >
+                {brand}
+              </Badge>
+            ))
+          ) : (
+            <span className="text-xs text-muted-foreground">-</span>
+          )}
+        </div>
+
+        {/* Columna 4: Entregas */}
+        <div className="text-right">
+          <div className="text-sm font-bold tabular-nums">{node.entregas}</div>
+        </div>
+
+        {/* Columna 5: Facturadas */}
+        <div className="text-right">
+          <div className="text-sm font-bold text-emerald-600 tabular-nums">
+            {node.facturadas}
           </div>
         </div>
       </div>
@@ -82,7 +139,12 @@ function HierarchyNode({ node, level = 0 }: HierarchyNodeProps) {
       {hasChildren && isExpanded && (
         <div>
           {node.children?.map((child) => (
-            <HierarchyNode key={child.id} node={child} level={level + 1} />
+            <HierarchyNode
+              key={child.id}
+              node={child}
+              level={level + 1}
+              parentNodes={node.children || []}
+            />
           ))}
         </div>
       )}
@@ -98,6 +160,36 @@ export default function HierarchyTree({ hierarchy }: HierarchyTreeProps) {
           Desempeño por Gerente y Asesor
         </h3>
       </div>
+
+      {/* Header de columnas */}
+      <div className="grid grid-cols-[auto_1fr_120px_300px_100px_100px] gap-4 px-3 py-2 border-b bg-muted/30">
+        <div className="col-span-2">
+          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+            Nombre
+          </span>
+        </div>
+        <div>
+          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+            Cargo
+          </span>
+        </div>
+        <div>
+          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+            Marcas
+          </span>
+        </div>
+        <div className="text-right">
+          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+            Entregas
+          </span>
+        </div>
+        <div className="text-right">
+          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+            Facturadas
+          </span>
+        </div>
+      </div>
+
       <div className="p-2">
         {hierarchy.length === 0 ? (
           <div className="text-center py-12 text-sm text-muted-foreground">

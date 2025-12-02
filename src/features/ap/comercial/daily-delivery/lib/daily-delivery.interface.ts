@@ -13,6 +13,8 @@ export interface DailyDeliveryHierarchyNode {
   name: string;
   level: "gerente" | "jefe" | "asesor";
   brand_group?: string;
+  article_class?: string;
+  brands?: string[] | null;
   entregas: number;
   facturadas: number;
   reporteria_dealer_portal: number | null;
