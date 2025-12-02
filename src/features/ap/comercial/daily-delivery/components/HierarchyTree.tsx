@@ -1,8 +1,9 @@
 "use client";
 
-import { ChevronDown, ChevronRight } from "lucide-react";
-import { useState } from "react";
+import { ChevronDown, ChevronRight, Maximize2, Minimize2 } from "lucide-react";
+import { useState, createContext, useContext, useMemo } from "react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { DailyDeliveryHierarchyNode } from "../lib/daily-delivery.interface";
 
 interface HierarchyTreeProps {
@@ -14,6 +15,16 @@ interface HierarchyNodeProps {
   level?: number;
   parentNodes?: DailyDeliveryHierarchyNode[];
 }
+
+interface ExpandContextType {
+  expandedNodes: Set<number>;
+  toggleNode: (id: number) => void;
+}
+
+const ExpandContext = createContext<ExpandContextType>({
+  expandedNodes: new Set(),
+  toggleNode: () => {},
+});
 
 const POSITION_STYLES = {
   gerente: {
@@ -29,7 +40,7 @@ const POSITION_STYLES = {
     textColor: "text-blue-700",
     fontSize: "text-sm",
     fontWeight: "font-semibold",
-  },
+  },  
   asesor: {
     label: "Asesor",
     className: "bg-green-100 text-green-700 border-green-200",
@@ -40,15 +51,15 @@ const POSITION_STYLES = {
 };
 
 function HierarchyNode({ node, level = 0 }: HierarchyNodeProps) {
-  const [isExpanded, setIsExpanded] = useState(true);
+  const { expandedNodes, toggleNode } = useContext(ExpandContext);
   const hasChildren = node.children && node.children.length > 0;
-
+  const isExpanded = expandedNodes.has(node.id);
   const isManager = node.level === "gerente";
 
   return (
     <div>
       <div
-        onClick={() => hasChildren && setIsExpanded(!isExpanded)}
+        onClick={() => hasChildren && toggleNode(node.id)}
         className={`group grid grid-cols-[auto_1fr_120px_300px_100px_100px] gap-4 items-center py-2 px-3 rounded-md hover:bg-accent/50 transition-all cursor-pointer ${
           level > 0 ? "ml-6" : ""
         } ${isManager ? "font-medium" : ""}`}
@@ -150,52 +161,123 @@ function HierarchyNode({ node, level = 0 }: HierarchyNodeProps) {
 }
 
 export default function HierarchyTree({ hierarchy }: HierarchyTreeProps) {
+  const [expandedNodes, setExpandedNodes] = useState<Set<number>>(() => {
+    // Inicialmente expandir todos los nodos
+    const allIds = new Set<number>();
+    const collectIds = (nodes: DailyDeliveryHierarchyNode[]) => {
+      nodes.forEach((node) => {
+        allIds.add(node.id);
+        if (node.children) {
+          collectIds(node.children);
+        }
+      });
+    };
+    collectIds(hierarchy);
+    return allIds;
+  });
+
+  const allNodeIds = useMemo(() => {
+    const ids = new Set<number>();
+    const collectIds = (nodes: DailyDeliveryHierarchyNode[]) => {
+      nodes.forEach((node) => {
+        ids.add(node.id);
+        if (node.children) {
+          collectIds(node.children);
+        }
+      });
+    };
+    collectIds(hierarchy);
+    return ids;
+  }, [hierarchy]);
+
+  const toggleNode = (id: number) => {
+    setExpandedNodes((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(id)) {
+        newSet.delete(id);
+      } else {
+        newSet.add(id);
+      }
+      return newSet;
+    });
+  };
+
+  const expandAll = () => {
+    setExpandedNodes(new Set(allNodeIds));
+  };
+
+  const collapseAll = () => {
+    setExpandedNodes(new Set());
+  };
+
   return (
-    <div className="rounded-lg border bg-card text-card-foreground">
-      <div className="px-4 py-3 border-b">
-        <h3 className="text-sm font-semibold">
-          Desempeño por Gerente y Asesor
-        </h3>
-      </div>
-
-      {/* Header de columnas */}
-      <div className="grid grid-cols-[auto_1fr_120px_300px_100px_100px] gap-4 px-3 py-2 border-b bg-muted/30">
-        <div className="col-span-2">
-          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-            Nombre
-          </span>
-        </div>
-        <div>
-          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-            Cargo
-          </span>
-        </div>
-        <div>
-          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-            Marcas
-          </span>
-        </div>
-        <div className="text-right">
-          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-            Entregas
-          </span>
-        </div>
-        <div className="text-right">
-          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-            Facturadas
-          </span>
-        </div>
-      </div>
-
-      <div className="p-2">
-        {hierarchy.length === 0 ? (
-          <div className="text-center py-12 text-sm text-muted-foreground">
-            No hay datos disponibles para la fecha seleccionada
+    <ExpandContext.Provider value={{ expandedNodes, toggleNode }}>
+      <div className="rounded-lg border bg-card text-card-foreground">
+        <div className="px-4 py-3 border-b flex items-center justify-between">
+          <h3 className="text-sm font-semibold">
+            Desempeño por Gerente y Asesor
+          </h3>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={expandAll}
+              className="h-7 text-xs"
+            >
+              <Maximize2 className="h-3 w-3 mr-1" />
+              Expandir Todo
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={collapseAll}
+              className="h-7 text-xs"
+            >
+              <Minimize2 className="h-3 w-3 mr-1" />
+              Contraer Todo
+            </Button>
           </div>
-        ) : (
-          hierarchy.map((node) => <HierarchyNode key={node.id} node={node} />)
-        )}
+        </div>
+
+        {/* Header de columnas */}
+        <div className="grid grid-cols-[auto_1fr_120px_300px_100px_100px] gap-4 px-3 py-2 border-b bg-muted/30">
+          <div className="col-span-2">
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+              Nombre
+            </span>
+          </div>
+          <div>
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+              Cargo
+            </span>
+          </div>
+          <div>
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+              Marcas
+            </span>
+          </div>
+          <div className="text-right">
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+              Entregas
+            </span>
+          </div>
+          <div className="text-right">
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+              Facturadas
+            </span>
+          </div>
+        </div>
+
+        <div className="p-2">
+          {hierarchy.length === 0 ? (
+            <div className="text-center py-12 text-sm text-muted-foreground">
+              No hay datos disponibles para la fecha seleccionada
+            </div>
+          ) : (
+            hierarchy.map((node) => <HierarchyNode key={node.id} node={node} />)
+          )}
+        </div>
       </div>
-    </div>
+    </ExpandContext.Provider>
   );
 }

@@ -9,6 +9,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import {
@@ -17,9 +18,11 @@ import {
 } from "../lib/daily-delivery.hook";
 import DailySummaryCards from "./DailySummaryCards";
 import HierarchyTree from "./HierarchyTree";
+import BrandReport from "./BrandReport";
 
 export default function DailyDeliveryDashboard() {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [activeTab, setActiveTab] = useState("hierarchy");
 
   const formattedDate = format(selectedDate, "yyyy-MM-dd");
   const { data, isLoading, error } = useDailyDelivery(formattedDate);
@@ -120,7 +123,21 @@ export default function DailyDeliveryDashboard() {
             summary={data.summary}
             hierarchy={data.hierarchy}
           />
-          <HierarchyTree hierarchy={data.hierarchy} />
+
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="grid w-full max-w-md grid-cols-2">
+              <TabsTrigger value="hierarchy">Por Jerarquía</TabsTrigger>
+              <TabsTrigger value="brands">Por Marcas</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="hierarchy" className="mt-4">
+              <HierarchyTree hierarchy={data.hierarchy} />
+            </TabsContent>
+
+            <TabsContent value="brands" className="mt-4">
+              <BrandReport brandReport={data.brand_report} />
+            </TabsContent>
+          </Tabs>
         </>
       ) : null}
     </div>

@@ -21,6 +21,20 @@ export interface DailyDeliveryHierarchyNode {
   children?: DailyDeliveryHierarchyNode[];
 }
 
+export interface BrandReportItem {
+  name: string;
+  level: "group" | "sede" | "brand";
+  compras: number;
+  entregas: number;
+  facturadas: number;
+  reporteria_dealer_portal: number | null;
+}
+
+export interface BrandReportSection {
+  title: string;
+  items: BrandReportItem[];
+}
+
 export interface DailyDeliveryResponse {
   date: string;
   period: {
@@ -30,4 +44,5 @@ export interface DailyDeliveryResponse {
   summary: DailyDeliverySummary;
   advisors: any[];
   hierarchy: DailyDeliveryHierarchyNode[];
+  brand_report: BrandReportSection[];
 }
