@@ -55,7 +55,11 @@ export default function CommercialManagerBrandGroupPage() {
           subtitle={currentView.descripcion}
           icon={currentView.icon}
         />
-        <CommercialManagerBrandGroupActions permissions={permissions} />
+        <CommercialManagerBrandGroupActions
+          year={Number(year)}
+          month={Number(month)}
+          permissions={permissions}
+        />
       </HeaderTableWrapper>
       <CommercialManagerBrandGroupTable
         isLoading={isLoading}

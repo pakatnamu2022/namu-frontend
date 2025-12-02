@@ -1,6 +1,6 @@
 "use client";
 
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import { useMutation } from "@tanstack/react-query";
 import {
@@ -21,6 +21,9 @@ import { notFound } from "@/shared/hooks/useNotFound";
 
 export default function AddCommercialManagerBrandGroupPage() {
   const router = useNavigate();
+  const [searchParams] = useSearchParams();
+  const year = Number(searchParams.get("year")) || currentYear();
+  const month = Number(searchParams.get("month")) || currentMonth();
   const { currentView, checkRouteExists } = useCurrentModule();
   const { ROUTE, MODEL, ABSOLUTE_ROUTE } = COMMERCIAL_MANAGER_BRAND_GROUP;
 
@@ -51,8 +54,8 @@ export default function AddCommercialManagerBrandGroupPage() {
       />
       <CommercialManagerBrandGroupForm
         defaultValues={{
-          year: currentYear(),
-          month: currentMonth(),
+          year: year,
+          month: month,
           brand_group_id: "",
           commercial_managers: [],
         }}
