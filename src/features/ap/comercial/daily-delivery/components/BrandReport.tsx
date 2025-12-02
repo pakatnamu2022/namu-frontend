@@ -11,12 +11,6 @@ interface BrandReportProps {
 }
 
 const LEVEL_STYLES = {
-  group: {
-    textColor: "text-purple-700",
-    fontSize: "text-base",
-    fontWeight: "font-bold",
-    bgColor: "bg-purple-50",
-  },
   sede: {
     textColor: "text-blue-700",
     fontSize: "text-sm",
@@ -32,13 +26,11 @@ const LEVEL_STYLES = {
 };
 
 function organizeItems(items: BrandReportItem[]) {
-  const result: Array<{ type: 'group' | 'sede'; item: BrandReportItem; brands?: BrandReportItem[] }> = [];
+  const result: Array<{ type: 'sede'; item: BrandReportItem; brands: BrandReportItem[] }> = [];
   let currentSede: { type: 'sede'; item: BrandReportItem; brands: BrandReportItem[] } | null = null;
 
   for (const item of items) {
-    if (item.level === "group") {
-      result.push({ type: 'group', item });
-    } else if (item.level === "sede") {
+    if (item.level === "sede") {
       if (currentSede) {
         result.push(currentSede);
       }
@@ -174,55 +166,39 @@ export default function BrandReport({ brandReport }: BrandReportProps) {
 
             return (
               <div key={sectionIndex} className="space-y-1">
-                {/* Título de sección con accordion */}
+                {/* Título de sección con accordion y totales */}
                 <div
-                  className="px-3 py-2 bg-slate-100 rounded-md flex items-center gap-2 cursor-pointer hover:bg-slate-200 transition-colors"
+                  className="cursor-pointer hover:bg-slate-200 transition-colors rounded-md"
                   onClick={() => toggleSection(sectionIndex)}
                 >
-                  {isSectionExpanded ? (
-                    <ChevronDown className="h-4 w-4 text-slate-600 shrink-0" />
-                  ) : (
-                    <ChevronRight className="h-4 w-4 text-slate-600 shrink-0" />
-                  )}
-                  <h4 className="text-sm font-bold text-slate-800">
-                    {section.title}
-                  </h4>
+                  <div className="px-3 py-2 bg-slate-100 rounded-md flex items-center gap-2">
+                    {isSectionExpanded ? (
+                      <ChevronDown className="h-4 w-4 text-slate-600 shrink-0" />
+                    ) : (
+                      <ChevronRight className="h-4 w-4 text-slate-600 shrink-0" />
+                    )}
+                    <h4 className="text-sm font-bold text-slate-800 flex-1">
+                      {section.title}
+                    </h4>
+                    <div className="flex gap-4 items-center text-xs font-semibold">
+                      <div className="text-slate-600">
+                        <span className="text-muted-foreground">Compras: </span>
+                        {section.total_compras}
+                      </div>
+                      <div className="text-slate-600">
+                        <span className="text-muted-foreground">Entregas: </span>
+                        {section.total_entregas}
+                      </div>
+                      <div className="text-emerald-600">
+                        <span className="text-muted-foreground">Facturadas: </span>
+                        {section.total_facturadas}
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Items organizados - Solo mostrar si la sección está expandida */}
                 {isSectionExpanded && organized.map((entry, entryIndex) => {
-                  if (entry.type === "group") {
-                    return (
-                      <div
-                        key={`group-${entryIndex}`}
-                        className={`grid grid-cols-[1fr_120px_120px_120px] gap-4 items-center py-2 px-3 rounded-md ${LEVEL_STYLES.group.bgColor}`}
-                      >
-                        <div className="flex items-center gap-2">
-                          <span
-                            className={`truncate ${LEVEL_STYLES.group.textColor} ${LEVEL_STYLES.group.fontSize} ${LEVEL_STYLES.group.fontWeight}`}
-                          >
-                            {entry.item.name}
-                          </span>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-sm font-bold tabular-nums">
-                            {entry.item.compras}
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-sm font-bold tabular-nums">
-                            {entry.item.entregas}
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-sm font-bold text-emerald-600 tabular-nums">
-                            {entry.item.facturadas}
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  }
-
                   // Sede con sus marcas
                   const sedeKey = `${sectionIndex}-${entryIndex}`;
                   const isSedeExpanded = expandedSedes.has(sedeKey);

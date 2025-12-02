@@ -32,6 +32,9 @@ export interface BrandReportItem {
 
 export interface BrandReportSection {
   title: string;
+  total_compras: number;
+  total_entregas: number;
+  total_facturadas: number;
   items: BrandReportItem[];
 }
 
