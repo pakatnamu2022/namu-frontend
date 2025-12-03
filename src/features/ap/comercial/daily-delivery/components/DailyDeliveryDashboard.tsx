@@ -1,17 +1,10 @@
 "use client";
 
-import { Calendar, FileSpreadsheet } from "lucide-react";
+import { FileSpreadsheet } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Calendar as CalendarComponent } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { format } from "date-fns";
-import { es } from "date-fns/locale";
 import {
   useDailyDelivery,
   useExportDailyDelivery,
@@ -19,24 +12,30 @@ import {
 import DailySummaryCards from "./DailySummaryCards";
 import HierarchyTree from "./HierarchyTree";
 import BrandReport from "./BrandReport";
+import { DateRangePickerFilter } from "@/shared/components/DateRangePickerFilter";
 
 export default function DailyDeliveryDashboard() {
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [dateFrom, setDateFrom] = useState<Date | undefined>(new Date());
+  const [dateTo, setDateTo] = useState<Date | undefined>(new Date());
   const [activeTab, setActiveTab] = useState("hierarchy");
 
-  const formattedDate = format(selectedDate, "yyyy-MM-dd");
-  const { data, isLoading, error } = useDailyDelivery(formattedDate);
+  const formattedDateFrom = dateFrom ? format(dateFrom, "yyyy-MM-dd") : "";
+  const formattedDateTo = dateTo ? format(dateTo, "yyyy-MM-dd") : "";
+
+  const { data, isLoading, error } = useDailyDelivery(
+    formattedDateFrom,
+    formattedDateTo
+  );
   const { mutate: exportToExcel, isPending: isExporting } =
     useExportDailyDelivery();
 
-  const handleDateChange = (date: Date | undefined) => {
-    if (date) {
-      setSelectedDate(date);
-    }
+  const handleDateChange = (from: Date | undefined, to: Date | undefined) => {
+    setDateFrom(from);
+    setDateTo(to);
   };
 
   const handleExport = () => {
-    exportToExcel(formattedDate);
+    exportToExcel({ dateFrom: formattedDateFrom, dateTo: formattedDateTo });
   };
 
   if (error) {
@@ -81,27 +80,14 @@ export default function DailyDeliveryDashboard() {
             {isExporting ? "Exportando..." : "Exportar"}
           </Button>
 
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                className="h-8 gap-1.5 text-xs"
-                size="sm"
-              >
-                <Calendar className="h-3 w-3" />
-                {format(selectedDate, "d MMM yyyy", { locale: es })}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="end">
-              <CalendarComponent
-                mode="single"
-                selected={selectedDate}
-                onSelect={handleDateChange}
-                autoFocus
-                locale={es}
-              />
-            </PopoverContent>
-          </Popover>
+          <DateRangePickerFilter
+            dateFrom={dateFrom}
+            dateTo={dateTo}
+            onDateChange={handleDateChange}
+            placeholder="Seleccionar rango"
+            dateFormat="d MMM yyyy"
+            className="h-8 text-xs"
+          />
         </div>
       </div>
 

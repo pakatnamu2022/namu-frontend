@@ -14,7 +14,8 @@
       "Bash(if not exist \"e:\\pakatnamu\\namu-frontend\\src\\app\\gp\\gestion-humana\\evaluaciones-de-desempeno\\asignacion-pares\\agregar\" mkdir \"e:\\pakatnamu\\namu-frontend\\src\\app\\gp\\gestion-humana\\evaluaciones-de-desempeno\\asignacion-pares\\agregar\")",
       "Bash(dir:*)",
       "Bash(xargs ls:*)",
-      "Bash(del /f \"c:\\Users\\david\\Documents\\data\\front\\namu-frontend\\src\\app\\gp\\gestion-humana\\evaluaciones-de-desempeno\\asignacion-pares\\agregar\\page.tsx\")"
+      "Bash(del /f \"c:\\Users\\david\\Documents\\data\\front\\namu-frontend\\src\\app\\gp\\gestion-humana\\evaluaciones-de-desempeno\\asignacion-pares\\agregar\\page.tsx\")",
+      "Bash(Select-Object -First 20)"
     ],
     "deny": [],
     "ask": []
