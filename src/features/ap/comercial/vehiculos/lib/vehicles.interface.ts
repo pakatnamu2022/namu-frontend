@@ -41,7 +41,7 @@ export interface VehicleResource {
   sede_name_warehouse?: string;
   model: ModelsVnResource;
   movements: VehicleMovement[];
-  owner?: owner;
+  owner?: Owner;
   billed_cost?: number;
   freight_cost?: number;
 }
