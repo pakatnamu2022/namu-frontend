@@ -1,7 +1,7 @@
 "use client";
 
 import { FileSpreadsheet } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { format } from "date-fns";
@@ -12,6 +12,7 @@ import {
 import DailySummaryCards from "./DailySummaryCards";
 import HierarchyTree from "./HierarchyTree";
 import BrandReport from "./BrandReport";
+import AvancePorSede from "./AvancePorSede";
 import { DateRangePickerFilter } from "@/shared/components/DateRangePickerFilter";
 
 export default function DailyDeliveryDashboard() {
@@ -110,10 +111,15 @@ export default function DailyDeliveryDashboard() {
             hierarchy={data.hierarchy}
           />
 
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full max-w-md grid-cols-2">
+          <Tabs
+            value={activeTab}
+            onValueChange={setActiveTab}
+            className="w-full"
+          >
+            <TabsList className="grid w-full max-w-2xl grid-cols-3">
               <TabsTrigger value="hierarchy">Por Jerarquía</TabsTrigger>
               <TabsTrigger value="brands">Por Marcas</TabsTrigger>
+              <TabsTrigger value="avance">Avance por Sede</TabsTrigger>
             </TabsList>
 
             <TabsContent value="hierarchy" className="mt-4">
@@ -122,6 +128,10 @@ export default function DailyDeliveryDashboard() {
 
             <TabsContent value="brands" className="mt-4">
               <BrandReport brandReport={data.brand_report} />
+            </TabsContent>
+
+            <TabsContent value="avance" className="mt-4">
+              <AvancePorSede avancePorSede={data.avance_por_sede || []} />
             </TabsContent>
           </Tabs>
         </>
