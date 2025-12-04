@@ -77,49 +77,35 @@ export async function deleteAppointmentPlanning(
 export async function getAvailableSlots(
   params: GetAvailableSlotsParams
 ): Promise<AvailableSlotsResponse[]> {
-  // TODO: Reemplazar con llamada real a la API cuando esté disponible
-  // const config: AxiosRequestConfig = { params };
-  // const { data } = await api.get<AvailableSlotsResponse[]>(`${ENDPOINT}/available-slots`, config);
-  // return data;
-
-  // Mock data por ahora
-  return generateMockSlots(params.start_date, params.end_date);
+  const config: AxiosRequestConfig = { params };
+  const { data } = await api.get<AvailableSlotsResponse[]>(
+    `${ENDPOINT}/available-slots`,
+    config
+  );
+  return data;
 }
 
-// Función helper para generar slots mock (remover cuando API esté lista)
-function generateMockSlots(startDate: string, endDate: string): AvailableSlotsResponse[] {
-  const slots: AvailableSlotsResponse[] = [];
-  const start = new Date(startDate);
-  const end = new Date(endDate);
+export async function downloadAppointmentPlanningPdf(
+  id: number
+): Promise<void> {
+  const response = await api.get(`${ENDPOINT}/${id}/pdf`, {
+    responseType: "blob",
+  });
 
-  // Horario de trabajo: 8:00 AM - 6:00 PM
-  const workStart = 8;
-  const workEnd = 18;
+  // Crear un blob desde la respuesta
+  const blob = new Blob([response.data], { type: "application/pdf" });
 
-  for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-    const dateStr = d.toISOString().split('T')[0];
-    const daySlots: AvailableSlotsResponse = {
-      date: dateStr,
-      slots: [],
-    };
+  // Crear un enlace temporal para descargar el archivo
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.setAttribute("download", `cita-planificacion-${id}.pdf`);
 
-    for (let hour = workStart; hour < workEnd; hour++) {
-      for (let minute = 0; minute < 60; minute += 15) {
-        const timeStr = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
-        // Simular algunos slots ocupados aleatoriamente
-        const isAvailable = Math.random() > 0.3; // 70% disponibles
+  // Hacer clic automáticamente para iniciar la descarga
+  document.body.appendChild(link);
+  link.click();
 
-        daySlots.slots.push({
-          date: dateStr,
-          time: timeStr,
-          available: isAvailable,
-          appointment_id: isAvailable ? undefined : Math.floor(Math.random() * 100),
-        });
-      }
-    }
-
-    slots.push(daySlots);
-  }
-
-  return slots;
+  // Limpiar
+  link.parentNode?.removeChild(link);
+  window.URL.revokeObjectURL(url);
 }

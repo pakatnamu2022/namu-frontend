@@ -296,7 +296,7 @@ export default function ProductDetailSheet({
                           <div className="grid grid-cols-3 gap-2 text-xs">
                             <div>
                               <p className="text-muted-foreground">
-                                En Tránsito
+                                En Tránsito (Entre Almacenes)
                               </p>
                               <p className="font-medium">
                                 {ws.quantity_in_transit}
@@ -308,14 +308,6 @@ export default function ProductDetailSheet({
                               </p>
                               <p className="font-medium">
                                 {ws.quantity_pending_credit_note}
-                              </p>
-                            </div>
-                            <div>
-                              <p className="text-muted-foreground">
-                                Stock Esperado
-                              </p>
-                              <p className="font-medium">
-                                {ws.total_expected_stock}
                               </p>
                             </div>
                           </div>

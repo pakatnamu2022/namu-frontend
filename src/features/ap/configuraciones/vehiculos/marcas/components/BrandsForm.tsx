@@ -1,6 +1,5 @@
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect } from "react";
 import {
   Form,
   FormField,
@@ -23,7 +22,7 @@ import {
 import { BrandsRequest } from "../lib/brands.interface";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { BRAND } from "../lib/brands.constants";
-import { CM_COMERCIAL_ID, CM_POSTVENTA_ID } from "@/core/core.constants";
+import { CM_COMERCIAL_ID } from "@/core/core.constants";
 
 interface BrandsFormProps {
   defaultValues: Partial<BrandsSchema>;
@@ -53,20 +52,12 @@ export const BrandsForm = ({
 
   const { data: brandGroups = [], isLoading: isLoadingbrandGroups } =
     useAllBrandGroup();
-  console.log("defaultValues", defaultValues);
 
   const isCommercial = useWatch({
     control: form.control,
     name: "type_operation_id",
     defaultValue: defaultValues.type_operation_id ?? String(CM_COMERCIAL_ID),
   });
-
-  // Establecer dyn_code a "-" cuando CM_COMERCIAL_ID es seleccionado
-  useEffect(() => {
-    if (isCommercial === String(CM_POSTVENTA_ID)) {
-      form.setValue("dyn_code", "-");
-    }
-  }, [isCommercial, form]);
 
   const handleSubmit = (data: BrandsRequest) => {
     onSubmit(data);
@@ -96,21 +87,19 @@ export const BrandsForm = ({
               </FormItem>
             )}
           />
-          {isCommercial === String(CM_COMERCIAL_ID) && (
-            <FormField
-              control={form.control}
-              name="dyn_code"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Cod. Dynamics</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Ej: 01" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          )}
+          <FormField
+            control={form.control}
+            name="dyn_code"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Cod. Dynamics</FormLabel>
+                <FormControl>
+                  <Input placeholder="Ej: 01" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
           <FormField
             control={form.control}
             name="name"

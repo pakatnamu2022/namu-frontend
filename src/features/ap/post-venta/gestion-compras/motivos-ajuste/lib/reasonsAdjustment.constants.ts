@@ -26,3 +26,13 @@ export const REASONS_ADJUSTMENT: ModelComplete<ReasonsAdjustmentResource> = {
     status: true,
   },
 };
+
+export const OBSERVATION_REASONS = [
+  { value: "DAMAGED", label: "Dañado" },
+  { value: "DEFECTIVE", label: "Defectuoso" },
+  { value: "EXPIRED", label: "Vencido" },
+  { value: "WRONG_PRODUCT", label: "Producto Incorrecto" },
+  { value: "WRONG_QUANTITY", label: "Cantidad Incorrecta" },
+  { value: "POOR_QUALITY", label: "Mala Calidad" },
+  { value: "OTHER", label: "Otro" },
+] as const;

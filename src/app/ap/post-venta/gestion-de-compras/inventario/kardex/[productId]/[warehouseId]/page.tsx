@@ -16,6 +16,7 @@ import { inventoryMovementsColumns } from "@/features/ap/post-venta/gestion-comp
 import InventoryMovementsOptions from "@/features/ap/post-venta/gestion-compras/inventario/components/InventoryMovementsOptions";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
+import BackButton from "@/shared/components/BackButton";
 
 export default function ProductKardexPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -24,7 +25,7 @@ export default function ProductKardexPage() {
   const [search, setSearch] = useState("");
   const [dateFrom, setDateFrom] = useState<Date | undefined>(undefined);
   const [dateTo, setDateTo] = useState<Date | undefined>(undefined);
-  const { ROUTE } = INVENTORY;
+  const { ROUTE, ABSOLUTE_ROUTE } = INVENTORY;
   const params = useParams();
 
   const productId = parseInt(params.productId as string);
@@ -79,19 +80,16 @@ export default function ProductKardexPage() {
   return (
     <div className="space-y-4">
       <HeaderTableWrapper>
-        <div>
-          <Link to="/ap/post-venta/gestion-de-compras/inventario">
-            <Button variant="outline" size="sm" className="mb-2">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Volver al Inventario
-            </Button>
-          </Link>
-          <TitleComponent
-            title="Kardex de Producto"
-            subtitle={`Movimientos del producto #${productId} en almacén #${warehouseId}`}
-            icon={currentView.icon}
-          />
-        </div>
+        <TitleComponent
+          title="Kardex de Producto"
+          subtitle={`Movimientos del producto #${productId} en almacén #${warehouseId}`}
+          icon={currentView.icon}
+        />
+        <BackButton
+          route={`${ABSOLUTE_ROUTE}/inventario`}
+          name={"Inventario"}
+          fullname={false}
+        />
       </HeaderTableWrapper>
       <InventoryMovementsTable
         isLoading={isLoading}

@@ -21,6 +21,7 @@ export interface VehicleMovement {
 export interface VehicleResource {
   id: number;
   vin: string;
+  plate: string;
   year: number;
   engine_number: string;
   ap_models_vn_id: number;
@@ -40,7 +41,7 @@ export interface VehicleResource {
   sede_name_warehouse?: string;
   model: ModelsVnResource;
   movements: VehicleMovement[];
-  owner: owner;
+  owner?: owner;
   billed_cost?: number;
   freight_cost?: number;
 }

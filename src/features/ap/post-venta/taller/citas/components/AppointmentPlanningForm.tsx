@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState, useEffect } from "react";
@@ -27,6 +28,15 @@ import AppointmentTimeSlotPicker from "./AppointmentTimeSlotPicker";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { EMPRESA_AP } from "@/core/core.constants";
+import {
+  POSITION_TYPE,
+  STATUS_WORKER,
+} from "@/features/gp/gestionhumana/personal/posiciones/lib/position.constant";
+import { useAllWorkers } from "@/features/gp/gestionhumana/personal/trabajadores/lib/worker.hook";
+import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
+import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
+import { APPOINTMENT_PLANNING } from "../lib/appointmentPlanning.constants";
 
 interface AppointmentPlanningFormProps {
   defaultValues: Partial<AppointmentPlanningSchema>;
@@ -41,12 +51,13 @@ export const AppointmentPlanningForm = ({
   onSubmit,
   isSubmitting = false,
   mode = "create",
-  onCancel,
 }: AppointmentPlanningFormProps) => {
+  const router = useNavigate();
   const [showAppointmentTimePicker, setShowAppointmentTimePicker] =
     useState(false);
   const [showDeliveryTimePicker, setShowDeliveryTimePicker] = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState<any>(null);
+  const { ABSOLUTE_ROUTE } = APPOINTMENT_PLANNING;
 
   const form = useForm({
     resolver: zodResolver(
@@ -66,9 +77,22 @@ export const AppointmentPlanningForm = ({
     useAllTypesPlanning();
   const { data: vehicles = [], isLoading: isLoadingVehicles } =
     useAllVehicles();
+  const { data: sedes = [], isLoading: isLoadingSedes } = useMySedes({
+    company: EMPRESA_AP.id,
+  });
+
+  const { data: asesores = [], isLoading: isLoadingAsesores } = useAllWorkers({
+    cargo_id: POSITION_TYPE.CONSULTANT,
+    status_id: STATUS_WORKER.ACTIVE,
+    sede$empresa_id: EMPRESA_AP.id,
+  });
 
   const isLoading =
-    isLoadingOperations || isLoadingPlanning || isLoadingVehicles;
+    isLoadingOperations ||
+    isLoadingPlanning ||
+    isLoadingVehicles ||
+    isLoadingAsesores ||
+    isLoadingSedes;
 
   // Watch vehicle selection
   const watchedVehicleId = form.watch("ap_vehicle_id");
@@ -93,21 +117,49 @@ export const AppointmentPlanningForm = ({
     }
   }, [watchedVehicleId, vehicles, form]);
 
+  // Normalizar formato de hora a HH:mm
+  const normalizeTime = (time: string): string => {
+    if (!time) return time;
+    // Si tiene formato HH:mm:ss, convertir a HH:mm
+    if (time.includes(":")) {
+      const parts = time.split(":");
+      return `${parts[0]}:${parts[1]}`;
+    }
+    return time;
+  };
+
   const handleAppointmentTimeSlotSelect = (date: string, time: string) => {
     form.setValue("date_appointment", date, { shouldValidate: true });
-    form.setValue("time_appointment", time, { shouldValidate: true });
+    form.setValue("time_appointment", normalizeTime(time), {
+      shouldValidate: true,
+    });
   };
 
   const handleDeliveryTimeSlotSelect = (date: string, time: string) => {
     form.setValue("delivery_date", date, { shouldValidate: true });
-    form.setValue("delivery_time", time, { shouldValidate: true });
+    form.setValue("delivery_time", normalizeTime(time), {
+      shouldValidate: true,
+    });
+  };
+
+  const handleFormSubmit = (data: any) => {
+    // Normalizar tiempos antes de enviar
+    const normalizedData = {
+      ...data,
+      time_appointment: normalizeTime(data.time_appointment || ""),
+      delivery_time: normalizeTime(data.delivery_time || ""),
+    };
+    onSubmit(normalizedData);
   };
 
   if (isLoading) return <FormSkeleton />;
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 w-full">
+      <form
+        onSubmit={form.handleSubmit(handleFormSubmit)}
+        className="space-y-6 w-full"
+      >
         {/* Información del Cliente */}
         <GroupFormSection
           title="Información del Cliente"
@@ -116,6 +168,20 @@ export const AppointmentPlanningForm = ({
           bgColor="bg-blue-50"
           cols={{ sm: 2, md: 3 }}
         >
+          <FormSelect
+            name="ap_vehicle_id"
+            label="Vehículo"
+            placeholder="Seleccione vehículo"
+            options={vehicles.map((item) => ({
+              label: `(${item.plate || "S/N"}) ${item.model?.brand || ""} ${
+                item.model?.version || ""
+              } (${item.year || ""})`,
+              value: item.id.toString(),
+            }))}
+            control={form.control}
+            strictFilter={true}
+          />
+
           <FormField
             control={form.control}
             name="full_name_client"
@@ -161,6 +227,18 @@ export const AppointmentPlanningForm = ({
               </FormItem>
             )}
           />
+
+          <FormSelect
+            name="sede_id"
+            label="Sede"
+            placeholder="Seleccione sede"
+            options={sedes.map((item) => ({
+              label: item.description,
+              value: item.id.toString(),
+            }))}
+            control={form.control}
+            strictFilter={true}
+          />
         </GroupFormSection>
 
         {/* Información de la Cita */}
@@ -197,13 +275,11 @@ export const AppointmentPlanningForm = ({
             />
 
             <FormSelect
-              name="ap_vehicle_id"
-              label="Vehículo"
-              placeholder="Seleccione vehículo"
-              options={vehicles.map((item) => ({
-                label: `${item.vin || "S/N"} - ${item.model?.brand || ""} ${
-                  item.model?.version || ""
-                } (${item.year || ""})`,
+              name="advisor_id"
+              label="Asesor"
+              placeholder="Seleccione asesor"
+              options={asesores.map((item) => ({
+                label: item.name,
                 value: item.id.toString(),
               }))}
               control={form.control}
@@ -470,9 +546,19 @@ export const AppointmentPlanningForm = ({
         </GroupFormSection>
 
         <div className="flex gap-4 w-full justify-end">
-          <Button type="button" variant="outline" onClick={onCancel}>
-            Cancelar
-          </Button>
+          <ConfirmationDialog
+            trigger={
+              <Button type="button" variant="outline">
+                Cancelar
+              </Button>
+            }
+            title="¿Cancelar registro?"
+            variant="destructive"
+            icon="warning"
+            onConfirm={() => {
+              router(ABSOLUTE_ROUTE!);
+            }}
+          />
 
           <Button
             type="submit"

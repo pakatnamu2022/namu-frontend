@@ -15,14 +15,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
-import {
-  format,
-  addDays,
-  startOfWeek,
-  endOfWeek,
-  isSameDay,
-  parseISO,   
-} from "date-fns";
+import { format, addDays, startOfWeek, endOfWeek, isSameDay } from "date-fns";
 import { es } from "date-fns/locale";
 import { getAvailableSlots } from "../lib/appointmentPlanning.actions";
 import {
@@ -43,8 +36,6 @@ export default function AppointmentTimeSlotPicker({
   open,
   onClose,
   onSelect,
-  selectedDate,
-  selectedTime,
 }: AppointmentTimeSlotPickerProps) {
   const [currentWeekStart, setCurrentWeekStart] = useState(
     startOfWeek(new Date(), { weekStartsOn: 1 })
@@ -285,7 +276,19 @@ export default function AppointmentTimeSlotPicker({
                   {slot.available ? (
                     <Check className="h-3 w-3 absolute top-1 right-1 text-green-600" />
                   ) : (
-                    <X className="h-3 w-3 absolute top-1 right-1 text-red-500" />
+                    <>
+                      <div
+                        className={cn(
+                          "absolute top-1 left-1 h-4 w-4 rounded-full flex items-center justify-center text-white text-[10px] font-bold",
+                          slot.type === "Entrega"
+                            ? "bg-green-500"
+                            : "bg-primary"
+                        )}
+                      >
+                        {slot.type === "Entrega" ? "E" : "R"}
+                      </div>
+                      <X className="h-3 w-3 absolute top-1 right-1 text-red-500" />
+                    </>
                   )}
                   <span>{slot.time}</span>
                 </button>
@@ -321,7 +324,17 @@ export default function AppointmentTimeSlotPicker({
                   {slot.available ? (
                     <Check className="h-3 w-3 absolute top-1 right-1 text-green-600" />
                   ) : (
-                    <X className="h-3 w-3 absolute top-1 right-1 text-red-500" />
+                    <>
+                      <div
+                        className={cn(
+                          "absolute top-1 left-1 h-4 w-4 rounded-full flex items-center justify-center text-white text-[10px] font-bold",
+                          slot.type === "Entrega" ? "bg-red-500" : "bg-primary"
+                        )}
+                      >
+                        {slot.type === "Entrega" ? "E" : "R"}
+                      </div>
+                      <X className="h-3 w-3 absolute top-1 right-1 text-red-500" />
+                    </>
                   )}
                   <span>{slot.time}</span>
                 </button>
@@ -358,18 +371,20 @@ export default function AppointmentTimeSlotPicker({
         )}
 
         {/* Legend */}
-        <div className="mt-6 flex items-center justify-center space-x-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
-          <div className="flex items-center space-x-2">
-            <div className="h-4 w-4 rounded bg-green-500"></div>
-            <span className="text-sm text-gray-600">Disponible</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <div className="h-4 w-4 rounded bg-red-500"></div>
-            <span className="text-sm text-gray-600">Ocupado</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <div className="h-4 w-4 rounded bg-gray-400"></div>
-            <span className="text-sm text-gray-600">No disponible</span>
+        <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+          <div className="flex items-center justify-center space-x-6 border-gray-300">
+            <div className="flex items-center space-x-2">
+              <div className="h-6 w-6 rounded-full bg-primary flex items-center justify-center text-white text-xs font-bold">
+                R
+              </div>
+              <span className="text-sm text-gray-600">Reservación</span>
+              <div className="flex items-center space-x-2">
+                <div className="h-6 w-6 rounded-full bg-red-500 flex items-center justify-center text-white text-xs font-bold">
+                  E
+                </div>
+                <span className="text-sm text-gray-600">Entrega</span>
+              </div>
+            </div>
           </div>
         </div>
       </DialogContent>

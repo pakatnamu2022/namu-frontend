@@ -18,6 +18,8 @@ export interface InventoryMovementResource {
   warehouse_destination?: string;
   supplier?: string;
   customer?: string;
+  is_inbound?: boolean;
+  is_outbound?: boolean;
   created_at: string;
 }
 

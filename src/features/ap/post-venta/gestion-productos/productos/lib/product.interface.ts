@@ -21,7 +21,6 @@ export interface WarehouseStockDetail {
   is_low_stock: boolean;
   is_out_of_stock: boolean;
   stock_status: "NORMAL" | "LOW" | "OUT";
-  total_expected_stock: number;
   warehouse: {
     id: number;
     dyn_code: string;

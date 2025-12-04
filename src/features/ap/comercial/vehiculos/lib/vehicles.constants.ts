@@ -21,6 +21,7 @@ export const VEHICLES: ModelComplete<VehicleResource> = {
   EMPTY: {
     id: 0,
     vin: "",
+    plate: "",
     year: new Date().getFullYear(),
     engine_number: "",
     ap_models_vn_id: 0,

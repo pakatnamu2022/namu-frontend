@@ -4,8 +4,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { FileText } from "lucide-react";
+import { ArrowRightLeft } from "lucide-react";
 import { Link } from "react-router-dom";
+import { INVENTORY } from "../lib/inventory.constants";
 
 export type InventoryColumns = ColumnDef<InventoryResource>;
 
@@ -141,20 +142,25 @@ export const inventoryColumns = (): InventoryColumns[] => [
   },
   {
     id: "actions",
-    header: "Kardex",
+    header: "Acciones",
     cell: ({ row }) => {
       const productId = row.original.product_id;
       const warehouseId = row.original.warehouse_id;
+      const { ABSOLUTE_ROUTE } = INVENTORY;
 
       return (
-        <Link
-          to={`/ap/post-venta/gestion-de-compras/inventario/kardex/${productId}/${warehouseId}`}
+        <Button
+          variant="outline"
+          size="icon"
+          className="size-7"
+          tooltip="Ver Movimientos"
         >
-          <Button variant="outline" size="sm" className="gap-2">
-            <FileText className="h-4 w-4" />
-            Ver Kardex
-          </Button>
-        </Link>
+          <Link
+            to={`${ABSOLUTE_ROUTE}/inventario/kardex/${productId}/${warehouseId}`}
+          >
+            <ArrowRightLeft className="size-5" />
+          </Link>
+        </Button>
       );
     },
   },

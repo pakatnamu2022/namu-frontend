@@ -23,8 +23,9 @@ export default function AppointmentPlanningTable({
         isLoading={isLoading}
         initialColumnVisibility={{
           full_name_client: true,
-          email_client: true,
-          phone_client: true,
+          plate: true,
+          email_client: false,
+          phone_client: false,
           date_appointment: true,
           time_appointment: true,
         }}

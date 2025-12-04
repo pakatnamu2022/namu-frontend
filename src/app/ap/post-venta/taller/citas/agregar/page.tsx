@@ -58,9 +58,11 @@ export default function AddAppointmentPlanningPage() {
           full_name_client: "",
           email_client: "",
           phone_client: "",
-          type_operation_appointment_id: 0,
-          type_planning_id: 0,
-          ap_vehicle_id: 0,
+          type_operation_appointment_id: "",
+          type_planning_id: "",
+          ap_vehicle_id: "",
+          advisor_id: "",
+          sede_id: "",
         }}
         onSubmit={handleSubmit}
         isSubmitting={isPending}
