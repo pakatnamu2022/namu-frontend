@@ -203,14 +203,8 @@ export default function VehicleInspectionPage() {
         damages:
           existingInspection.damages?.map((damage) => ({
             damage_type: damage.damage_type,
-            x_coordinate:
-              typeof damage.x_coordinate === "number"
-                ? damage.x_coordinate
-                : Number(damage.x_coordinate) || 0,
-            y_coordinate:
-              typeof damage.y_coordinate === "number"
-                ? damage.y_coordinate
-                : Number(damage.y_coordinate) || 0,
+            x_coordinate: Number(damage.x_coordinate),
+            y_coordinate: Number(damage.y_coordinate),
             description: damage.description,
             photo_url: damage.photo_url,
           })) || [],
