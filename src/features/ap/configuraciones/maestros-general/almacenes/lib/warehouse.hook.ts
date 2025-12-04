@@ -51,8 +51,8 @@ export const useWarehousesByCompany = ({
   type_operation_id,
   only_physical = 0,
 }: {
-  my?: number; // 1 for true, 0 for false
-  is_received?: number; // 1 for true, 0 for false
+  my?: number;
+  is_received?: number;
   ap_class_article_id?: string;
   empresa_id?: number;
   type_operation_id?: number;
@@ -89,5 +89,6 @@ export const useWarehouseById = (id: number) => {
     queryKey: [QUERY_KEY, id],
     queryFn: () => findWarehouseById(id),
     refetchOnWindowFocus: false,
+    enabled: !!id,
   });
 };

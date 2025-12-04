@@ -6,7 +6,7 @@ export const appointmentPlanningSchemaCreate = z.object({
     .string()
     .max(500)
     .refine((value) => value.trim() !== "", {
-      message: "Descripci�n es requerida",
+      message: "Descripción es requerida",
     }),
   delivery_date: z.string().refine((value) => value.trim() !== "", {
     message: "Fecha de entrega es requerida",
@@ -26,20 +26,22 @@ export const appointmentPlanningSchemaCreate = z.object({
     .refine((value) => value.trim() !== "", {
       message: "Nombre del cliente es requerido",
     }),
-  email_client: z.string().email({
-    message: "Email inv�lido",
+  email_client: z.email({
+    message: "Email inválido",
   }),
   phone_client: z
     .string()
     .max(50)
     .refine((value) => value.trim() !== "", {
-      message: "Tel�fono del cliente es requerido",
+      message: "Teléfono del cliente es requerido",
     }),
   type_operation_appointment_id: requiredStringId(
-    "Tipo de operaci�n de cita es requerido"
+    "Tipo de operación de cita es requerido"
   ),
-  type_planning_id: requiredStringId("Tipo de planificaci�n es requerido"),
+  sede_id: requiredStringId("Sede es requerida"),
+  type_planning_id: requiredStringId("Tipo de planificación es requerido"),
   ap_vehicle_id: requiredStringId("Vehículo es requerido"),
+  advisor_id: requiredStringId("Asesor es requerido"),
 });
 
 export const appointmentPlanningSchemaUpdate =

@@ -89,7 +89,6 @@ export default function EvaluationPage() {
         errorToast("Error al enviar notificación", response.message);
       }
     } catch (error: any) {
-      console.log(error);
       errorToast(
         error.response.data?.message?.toString() ||
           "Ocurrió un error inesperado"

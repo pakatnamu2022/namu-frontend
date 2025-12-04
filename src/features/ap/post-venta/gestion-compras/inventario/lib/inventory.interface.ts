@@ -97,7 +97,6 @@ export interface InventoryResource {
   is_low_stock: boolean;
   is_out_of_stock: boolean;
   stock_status: "LOW_STOCK" | "OUT_OF_STOCK" | "NORMAL";
-  total_expected_stock: number;
   product: InventoryProduct;
   warehouse: InventoryWarehouse;
   created_at: string;

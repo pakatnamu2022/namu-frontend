@@ -1,10 +1,12 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-import { Pencil } from "lucide-react";
+import { Pencil, Download } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { AppointmentPlanningResource } from "../lib/appointmentPlanning.interface";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
+import { downloadAppointmentPlanningPdf } from "../lib/appointmentPlanning.actions";
+import { errorToast } from "@/core/core.function";
 
 export type AppointmentPlanningColumns = ColumnDef<AppointmentPlanningResource>;
 
@@ -29,6 +31,14 @@ export const appointmentPlanningColumns = ({
       const value = getValue() as string;
       return value && <p className="font-semibold">{value}</p>;
     },
+  },
+  {
+    accessorKey: "sede_name",
+    header: "Sede",
+  },
+  {
+    accessorKey: "plate",
+    header: "Placa",
   },
   {
     accessorKey: "email_client",
@@ -80,13 +90,32 @@ export const appointmentPlanningColumns = ({
     cell: ({ row }) => {
       const { id } = row.original;
 
+      const handleDownloadPdf = async () => {
+        try {
+          await downloadAppointmentPlanningPdf(id);
+        } catch {
+          errorToast("Error al descargar el PDF");
+        }
+      };
+
       return (
         <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="icon"
+            className="size-7"
+            onClick={handleDownloadPdf}
+            tooltip="PDF"
+          >
+            <Download className="size-5" />
+          </Button>
+
           {permissions.canUpdate && (
             <Button
               variant="outline"
               size="icon"
               className="size-7"
+              tooltip="Editar"
               onClick={() => onUpdate(id)}
             >
               <Pencil className="size-5" />

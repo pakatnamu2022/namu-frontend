@@ -20,10 +20,10 @@ import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge";
 import {
-  translateStatus,
-  translateReceptionTypeStatus,
   translateReasonObservation,
-} from "../lib/receptionsProducts.constants";
+  translateReceptionTypeStatus,
+  translateStatus,
+} from "../../recepcion-transferencia/lib/transferReception.constants";
 
 interface Props {
   data: ReceptionResource[];

@@ -4,10 +4,6 @@ import { z } from "zod";
 // Warehouse stock schema for create mode
 const warehouseStockSchema = z.object({
   warehouse_id: requiredStringId("Almacén es requerido"),
-  initial_quantity: z
-    .number()
-    .min(0, { message: "La cantidad inicial debe ser mayor o igual a 0" })
-    .optional(),
   minimum_stock: z
     .number()
     .min(0, { message: "El stock mínimo debe ser mayor o igual a 0" })
@@ -23,9 +19,8 @@ const productSchemaBase = z.object({
   code: z
     .string()
     .max(50, { message: "Máximo 50 caracteres" })
-    .refine((value) => value.trim() !== "", {
-      message: "Código es requerido",
-    }),
+    .optional()
+    .or(z.literal("")),
   dyn_code: z.string().max(50, { message: "Máximo 50 caracteres" }).optional(),
   name: z
     .string()

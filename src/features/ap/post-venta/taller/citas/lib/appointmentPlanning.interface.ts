@@ -18,7 +18,10 @@ export interface AppointmentPlanningResource {
   phone_client: string;
   type_operation_appointment_id: number;
   type_planning_id: number;
+  type_planning_name: string;
   ap_vehicle_id: number;
+  advisor_id: number;
+  sede_id: number;
 }
 
 export interface AppointmentPlanningRequest {
@@ -30,9 +33,9 @@ export interface AppointmentPlanningRequest {
   full_name_client: string;
   email_client: string;
   phone_client: string;
-  type_operation_appointment_id: number;
-  type_planning_id: number;
-  ap_vehicle_id: number;
+  type_operation_appointment_id: string;
+  type_planning_id: string;
+  ap_vehicle_id: string;
 }
 
 export interface getAppointmentPlanningProps {
@@ -45,6 +48,9 @@ export interface TimeSlot {
   time: string;
   available: boolean;
   appointment_id?: number;
+  type: string;
+  advisor_id: number;
+  advisor_name: string;
 }
 
 export interface AvailableSlotsResponse {

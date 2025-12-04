@@ -658,6 +658,30 @@ const EditAppointmentPlanningPage = lazy(
   () => import("./app/ap/post-venta/taller/citas/actualizar/[id]/page")
 );
 
+const WorkOrderPage = lazy(
+  () => import("./app/ap/post-venta/taller/orden-trabajo/page")
+);
+const AddWorkOrderPage = lazy(
+  () => import("./app/ap/post-venta/taller/orden-trabajo/agregar/page")
+);
+const EditWorkOrderPage = lazy(
+  () => import("./app/ap/post-venta/taller/orden-trabajo/actualizar/[id]/page")
+);
+const RequestPartsWorkOrderPage = lazy(
+  () =>
+    import(
+      "./app/ap/post-venta/taller/orden-trabajo/[id]/solicitar-repuestos/page"
+    )
+);
+const ManageWorkOrderPage = lazy(
+  () => import("./app/ap/post-venta/taller/orden-trabajo/gestionar/[id]/page")
+);
+const WorkOrderInspeccionPage = lazy(
+  () =>
+    import(
+      "./app/ap/post-venta/taller/orden-trabajo/[workOrderId]/inspeccion/page"
+    )
+);
 // ============================================================================
 // GP - GESTION DEL SISTEMA
 // ============================================================================
@@ -1357,7 +1381,6 @@ function App() {
                 path="accesorios-homologados"
                 element={<AccesoriosHomologadosPage />}
               />
-
               {/* Gestión de Productos */}
               <Route
                 path="gestion-de-productos/categorias-producto"
@@ -1391,7 +1414,6 @@ function App() {
                 path="gestion-de-productos/tipos-categoria"
                 element={<TiposCategoriaPage />}
               />
-
               {/* Gestion Compra */}
               <Route
                 path="gestion-de-compras/transferencia-producto"
@@ -1461,7 +1483,6 @@ function App() {
                 path="gestion-de-compras/orden-compra-producto/recepcion/actualizar/:purchaseOrderId/:id"
                 element={<EditReceptionPurchaseOrderProductsPage />}
               />
-
               {/* Repuestos */}
               <Route
                 path="repuestos/accesorios-homologados"
@@ -1475,7 +1496,6 @@ function App() {
                 path="repuestos/accesorios-homologados/actualizar/:id"
                 element={<EditApprovedAccessoriesPage />}
               />
-
               {/* Taller */}
               <Route
                 path="taller/lavado-vehiculo"
@@ -1504,6 +1524,27 @@ function App() {
               <Route
                 path="taller/citas/actualizar/:id"
                 element={<EditAppointmentPlanningPage />}
+              />
+              <Route path="taller/orden-trabajo" element={<WorkOrderPage />} />
+              <Route
+                path="taller/orden-trabajo/agregar"
+                element={<AddWorkOrderPage />}
+              />
+              <Route
+                path="taller/orden-trabajo/actualizar/:id"
+                element={<EditWorkOrderPage />}
+              />
+              <Route
+                path="taller/orden-trabajo/gestionar/:id"
+                element={<ManageWorkOrderPage />}
+              />
+              <Route
+                path="taller/orden-trabajo/:id/solicitar-repuestos"
+                element={<RequestPartsWorkOrderPage />}
+              />
+              <Route
+                path="taller/orden-trabajo/:workOrderId/inspeccion"
+                element={<WorkOrderInspeccionPage />}
               />
             </Route>
 

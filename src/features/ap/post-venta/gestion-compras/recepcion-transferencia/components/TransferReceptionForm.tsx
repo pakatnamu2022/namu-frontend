@@ -32,7 +32,7 @@ import { Card } from "@/components/ui/card";
 import { useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
-import { OBSERVATION_REASONS } from "../lib/transferReception.constants";
+import { OBSERVATION_REASONS } from "../../motivos-ajuste/lib/reasonsAdjustment.constants";
 
 interface TransferReceptionFormProps {
   defaultValues: Partial<TransferReceptionSchema>;

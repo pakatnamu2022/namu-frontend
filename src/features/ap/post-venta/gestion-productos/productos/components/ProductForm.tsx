@@ -26,6 +26,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { CM_COMERCIAL_ID, CM_POSTVENTA_ID } from "@/core/core.constants";
 import { useAllWarehouse } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
+import { useEffect } from "react";
 
 interface ProductFormProps {
   defaultValues: Partial<ProductSchema>;
@@ -73,6 +74,42 @@ export const ProductForm = ({
   const { data: classArticles = [], isLoading: isLoadingClassArticles } =
     useAllClassArticle();
 
+  // Watch para generar código automáticamente
+  const watchedCategoryId = form.watch("product_category_id");
+  const watchedBrandId = form.watch("brand_id");
+  const watchedClassId = form.watch("ap_class_article_id");
+
+  // Generar código automáticamente
+  useEffect(() => {
+    if (watchedCategoryId && watchedBrandId && watchedClassId) {
+      const category = categories.find(
+        (c) => c.id.toString() === watchedCategoryId
+      );
+      const brand = brands.find((b) => b.id.toString() === watchedBrandId);
+      const classArticle = classArticles.find(
+        (ca) => ca.id.toString() === watchedClassId
+      );
+
+      if (category && brand && classArticle) {
+        const generatedCode = `${category.name || ""}${brand.code || ""}${
+          classArticle.dyn_code || ""
+        }X`;
+        form.setValue("code", generatedCode, {
+          shouldValidate: true,
+          shouldDirty: true,
+        });
+      }
+    }
+  }, [
+    watchedCategoryId,
+    watchedBrandId,
+    watchedClassId,
+    categories,
+    brands,
+    classArticles,
+    form,
+  ]);
+
   if (
     isLoadingBrands ||
     isLoadingCategories ||
@@ -99,9 +136,14 @@ export const ProductForm = ({
             name="code"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Código</FormLabel>
+                <FormLabel>Código (Generado)</FormLabel>
                 <FormControl>
-                  <Input placeholder="Ej: PROD001" {...field} />
+                  <Input
+                    placeholder="Se genera automáticamente"
+                    {...field}
+                    readOnly
+                    className="bg-slate-100"
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -304,41 +346,7 @@ export const ProductForm = ({
                   </div>
 
                   {/* Cantidades en Grid */}
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                    <FormField
-                      control={form.control}
-                      name={`warehouses.${index}.initial_quantity`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-xs">
-                            Cant. Inicial
-                          </FormLabel>
-                          <FormControl>
-                            <Input
-                              type="number"
-                              min="0"
-                              step="0.01"
-                              placeholder="0.00"
-                              className="h-9"
-                              value={
-                                typeof field.value === "number"
-                                  ? field.value
-                                  : ""
-                              }
-                              onChange={(e) => {
-                                if (e.target.value === "") {
-                                  field.onChange(undefined);
-                                } else {
-                                  const num = parseFloat(e.target.value);
-                                  field.onChange(isNaN(num) ? undefined : num);
-                                }
-                              }}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <FormField
                       control={form.control}
                       name={`warehouses.${index}.minimum_stock`}
@@ -413,7 +421,6 @@ export const ProductForm = ({
                 onClick={() =>
                   append({
                     warehouse_id: "",
-                    initial_quantity: undefined,
                     minimum_stock: undefined,
                     maximum_stock: undefined,
                   })

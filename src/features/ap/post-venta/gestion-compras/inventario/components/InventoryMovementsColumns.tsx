@@ -3,6 +3,8 @@ import { InventoryMovementResource } from "../lib/inventoryMovements.interface";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
+import { translateMovementType } from "../lib/inventory.constants";
+import { ArrowDown, ArrowUp } from "lucide-react";
 
 export type InventoryMovementColumns = ColumnDef<InventoryMovementResource>;
 
@@ -10,11 +12,37 @@ export const inventoryMovementsColumns = (): InventoryMovementColumns[] => [
   {
     accessorKey: "movement_date",
     header: "Fecha",
-    cell: ({ getValue }) => {
+    cell: ({ row, getValue }) => {
       const date = getValue() as string;
+      const isInbound = row.original.is_inbound;
+      const isOutbound = row.original.is_outbound;
+
       if (!date) return "-";
+
       try {
-        return format(new Date(date), "dd/MM/yyyy", { locale: es });
+        const formattedDate = format(new Date(date), "dd/MM/yyyy", {
+          locale: es,
+        });
+
+        if (isInbound) {
+          return (
+            <div className="flex items-center gap-1 text-green-600">
+              <ArrowUp className="h-4 w-4" />
+              <span>{formattedDate}</span>
+            </div>
+          );
+        }
+
+        if (isOutbound) {
+          return (
+            <div className="flex items-center gap-1 text-red-600">
+              <ArrowDown className="h-4 w-4" />
+              <span>{formattedDate}</span>
+            </div>
+          );
+        }
+
+        return formattedDate;
       } catch {
         return date;
       }
@@ -27,7 +55,7 @@ export const inventoryMovementsColumns = (): InventoryMovementColumns[] => [
       const type = getValue() as string;
       return (
         <Badge variant="outline" className="whitespace-nowrap">
-          {type}
+          {translateMovementType(type)}
         </Badge>
       );
     },

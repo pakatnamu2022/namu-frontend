@@ -12,7 +12,7 @@ import {
   SUCCESS_MESSAGE,
   successToast,
 } from "@/core/core.function";
-import { DEFAULT_PER_PAGE } from "@/core/core.constants";
+import { DEFAULT_PER_PAGE, EMPRESA_AP } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { APPOINTMENT_PLANNING } from "@/features/ap/post-venta/taller/citas/lib/appointmentPlanning.constants";
 import { useAppointmentPlanning } from "@/features/ap/post-venta/taller/citas/lib/appointmentPlanning.hook";
@@ -24,6 +24,14 @@ import AppointmentPlanningOptions from "@/features/ap/post-venta/taller/citas/co
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { useNavigate } from "react-router-dom";
+import AppointmentCalendarView from "@/features/ap/post-venta/taller/citas/components/AppointmentCalendarView";
+import { Button } from "@/components/ui/button";
+import { Calendar, Table } from "lucide-react";
+import {
+  POSITION_TYPE,
+  STATUS_WORKER,
+} from "@/features/gp/gestionhumana/personal/posiciones/lib/position.constant";
+import { useAllWorkers } from "@/features/gp/gestionhumana/personal/trabajadores/lib/worker.hook";
 
 export default function AppointmentPlanningPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -31,9 +39,24 @@ export default function AppointmentPlanningPage() {
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [viewMode, setViewMode] = useState<"table" | "calendar">("table");
   const { MODEL, ROUTE, ROUTE_UPDATE } = APPOINTMENT_PLANNING;
   const permissions = useModulePermissions(ROUTE);
   const router = useNavigate();
+  const currentDate = new Date();
+
+  const [dateFrom, setDateFrom] = useState<Date | undefined>(currentDate);
+  const [dateTo, setDateTo] = useState<Date | undefined>(currentDate);
+
+  const formatDate = (date: Date | undefined) => {
+    return date ? date.toISOString().split("T")[0] : undefined;
+  };
+
+  const { data: asesores = [], isLoading: isLoadingAsesores } = useAllWorkers({
+    cargo_id: POSITION_TYPE.CONSULTANT,
+    status_id: STATUS_WORKER.ACTIVE,
+    sede$empresa_id: EMPRESA_AP.id,
+  });
 
   useEffect(() => {
     setPage(1);
@@ -43,6 +66,10 @@ export default function AppointmentPlanningPage() {
     page,
     search,
     per_page,
+    date_appointment:
+      dateFrom && dateTo
+        ? [formatDate(dateFrom), formatDate(dateTo)]
+        : undefined,
   });
 
   const handleDelete = async () => {
@@ -75,19 +102,67 @@ export default function AppointmentPlanningPage() {
           subtitle={currentView.descripcion}
           icon={currentView.icon}
         />
-        <AppointmentPlanningActions permissions={permissions} />
+        <div className="flex items-center gap-2">
+          <div className="flex items-center bg-gray-100 rounded-lg p-1">
+            <Button
+              variant={viewMode === "table" ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setViewMode("table")}
+              className="flex items-center gap-2"
+            >
+              <Table className="h-4 w-4" />
+              Tabla
+            </Button>
+            <Button
+              variant={viewMode === "calendar" ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setViewMode("calendar")}
+              className="flex items-center gap-2"
+            >
+              <Calendar className="h-4 w-4" />
+              Calendario
+            </Button>
+          </div>
+          <AppointmentPlanningActions permissions={permissions} />
+        </div>
       </HeaderTableWrapper>
-      <AppointmentPlanningTable
-        isLoading={isLoading}
-        columns={appointmentPlanningColumns({
-          onDelete: setDeleteId,
-          onUpdate: handleUpdate,
-          permissions,
-        })}
-        data={data?.data || []}
-      >
-        <AppointmentPlanningOptions search={search} setSearch={setSearch} />
-      </AppointmentPlanningTable>
+
+      {viewMode === "table" ? (
+        <>
+          <AppointmentPlanningTable
+            isLoading={isLoading}
+            columns={appointmentPlanningColumns({
+              onDelete: setDeleteId,
+              onUpdate: handleUpdate,
+              permissions,
+            })}
+            data={data?.data || []}
+          >
+            <AppointmentPlanningOptions
+              search={search}
+              setSearch={setSearch}
+              dateFrom={dateFrom}
+              setDateFrom={setDateFrom}
+              dateTo={dateTo}
+              setDateTo={setDateTo}
+            />
+          </AppointmentPlanningTable>
+
+          <DataTablePagination
+            page={page}
+            totalPages={data?.meta?.last_page || 1}
+            totalData={data?.meta?.total || 0}
+            onPageChange={setPage}
+            per_page={per_page}
+            setPerPage={setPerPage}
+          />
+        </>
+      ) : (
+        <AppointmentCalendarView
+          asesores={asesores}
+          isLoadingAsesores={isLoadingAsesores}
+        />
+      )}
 
       {deleteId !== null && (
         <SimpleDeleteDialog
@@ -96,15 +171,6 @@ export default function AppointmentPlanningPage() {
           onConfirm={handleDelete}
         />
       )}
-
-      <DataTablePagination
-        page={page}
-        totalPages={data?.meta?.last_page || 1}
-        totalData={data?.meta?.total || 0}
-        onPageChange={setPage}
-        per_page={per_page}
-        setPerPage={setPerPage}
-      />
     </div>
   );
 }

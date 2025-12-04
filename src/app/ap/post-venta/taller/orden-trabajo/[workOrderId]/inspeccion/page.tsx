@@ -1,0 +1,303 @@
+"use client";
+
+import { useParams, useNavigate } from "react-router-dom";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  ERROR_MESSAGE,
+  errorToast,
+  SUCCESS_MESSAGE,
+  successToast,
+} from "@/core/core.function";
+import TitleFormComponent from "@/shared/components/TitleFormComponent";
+import FormSkeleton from "@/shared/components/FormSkeleton";
+import FormWrapper from "@/shared/components/FormWrapper";
+import { VEHICLE_INSPECTION } from "@/features/ap/post-venta/taller/inspeccion-vehiculo/lib/vehicleInspection.constants";
+import {
+  findVehicleInspectionByWorkOrderId,
+  storeVehicleInspection,
+  updateVehicleInspection,
+} from "@/features/ap/post-venta/taller/inspeccion-vehiculo/lib/vehicleInspection.actions";
+import { VehicleInspectionSchema } from "@/features/ap/post-venta/taller/inspeccion-vehiculo/lib/vehicleInspection.schema";
+import { VehicleInspectionForm } from "@/features/ap/post-venta/taller/inspeccion-vehiculo/components/VehicleInspectionForm";
+import { notFound } from "@/shared/hooks/useNotFound";
+import { WORKER_ORDER } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.constants";
+import { useFindWorkOrderById } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.hook";
+import { Card } from "@/components/ui/card";
+import { Car } from "lucide-react";
+
+export default function VehicleInspectionPage() {
+  const { workOrderId } = useParams();
+  const router = useNavigate();
+  const queryClient = useQueryClient();
+  const { QUERY_KEY, MODEL } = VEHICLE_INSPECTION;
+  const { ABSOLUTE_ROUTE } = WORKER_ORDER;
+
+  // Obtener información de la orden de trabajo
+  const { data: workOrder, isLoading: isLoadingWorkOrder } =
+    useFindWorkOrderById(Number(workOrderId));
+
+  // Verificar si ya existe una inspección para esta orden de trabajo
+  const {
+    data: existingInspection,
+    isLoading: isLoadingInspection,
+    error: inspectionError,
+  } = useQuery({
+    queryKey: [QUERY_KEY, "work-order", workOrderId],
+    queryFn: () => findVehicleInspectionByWorkOrderId(Number(workOrderId)),
+    enabled: !!workOrderId,
+    retry: false,
+  });
+
+  const isUpdate = !!existingInspection && !inspectionError;
+
+  // Mutation para crear
+  const { mutate: create, isPending: isCreating } = useMutation({
+    mutationFn: storeVehicleInspection,
+    onSuccess: () => {
+      successToast(SUCCESS_MESSAGE(MODEL, "create"));
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
+      router(ABSOLUTE_ROUTE!);
+    },
+    onError: (error: any) => {
+      const msg = error?.response?.data?.message || "";
+      errorToast(ERROR_MESSAGE(MODEL, "create", msg));
+    },
+  });
+
+  // Mutation para actualizar
+  const { mutate: update, isPending: isUpdating } = useMutation({
+    mutationFn: (data: VehicleInspectionSchema) =>
+      updateVehicleInspection(existingInspection!.id, data),
+    onSuccess: () => {
+      successToast(SUCCESS_MESSAGE(MODEL, "update"));
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
+      router(ABSOLUTE_ROUTE!);
+    },
+    onError: (error: any) => {
+      const msg = error?.response?.data?.message || "";
+      errorToast(ERROR_MESSAGE(MODEL, "update", msg));
+    },
+  });
+
+  const handleSubmit = (data: VehicleInspectionSchema) => {
+    // Crear FormData con todos los datos y archivos
+    const formData = new FormData();
+
+    // Agregar campos básicos
+    formData.append("work_order_id", data.work_order_id);
+    formData.append("dirty_unit", data.dirty_unit ? "1" : "0");
+    formData.append("unit_ok", data.unit_ok ? "1" : "0");
+    formData.append("title_deed", data.title_deed ? "1" : "0");
+    formData.append("soat", data.soat ? "1" : "0");
+    formData.append("moon_permits", data.moon_permits ? "1" : "0");
+    formData.append("service_card", data.service_card ? "1" : "0");
+    formData.append("owner_manual", data.owner_manual ? "1" : "0");
+    formData.append("key_ring", data.key_ring ? "1" : "0");
+    formData.append("wheel_lock", data.wheel_lock ? "1" : "0");
+    formData.append("safe_glasses", data.safe_glasses ? "1" : "0");
+    formData.append("radio_mask", data.radio_mask ? "1" : "0");
+    formData.append("lighter", data.lighter ? "1" : "0");
+    formData.append("floors", data.floors ? "1" : "0");
+    formData.append("seat_cover", data.seat_cover ? "1" : "0");
+    formData.append("quills", data.quills ? "1" : "0");
+    formData.append("antenna", data.antenna ? "1" : "0");
+    formData.append("glasses_wheel", data.glasses_wheel ? "1" : "0");
+    formData.append("emblems", data.emblems ? "1" : "0");
+    formData.append("spare_tire", data.spare_tire ? "1" : "0");
+    formData.append("fluid_caps", data.fluid_caps ? "1" : "0");
+    formData.append("tool_kit", data.tool_kit ? "1" : "0");
+    formData.append("jack_and_lever", data.jack_and_lever ? "1" : "0");
+    formData.append("general_observations", data.general_observations || "");
+    formData.append("inspected_by", data.inspected_by);
+    formData.append(
+      "inspection_date",
+      data.inspection_date instanceof Date
+        ? data.inspection_date.toISOString()
+        : ""
+    );
+    formData.append("fuel_level", data.fuel_level);
+    formData.append("oil_level", data.oil_level);
+    formData.append("mileage", data.mileage);
+
+    // Agregar daños y sus fotos
+    if (data.damages && data.damages.length > 0) {
+      data.damages.forEach((damage, index) => {
+        formData.append(`damages[${index}][damage_type]`, damage.damage_type);
+        if (damage.x_coordinate !== undefined) {
+          formData.append(
+            `damages[${index}][x_coordinate]`,
+            String(damage.x_coordinate)
+          );
+        }
+        if (damage.y_coordinate !== undefined) {
+          formData.append(
+            `damages[${index}][y_coordinate]`,
+            String(damage.y_coordinate)
+          );
+        }
+        if (damage.description) {
+          formData.append(`damages[${index}][description]`, damage.description);
+        }
+        // Agregar archivo de foto si existe
+        if (damage.photo_file) {
+          formData.append(`damages[${index}][photo]`, damage.photo_file);
+        }
+      });
+    }
+
+    if (isUpdate) {
+      update(formData as any);
+    } else {
+      create(formData as any);
+    }
+  };
+
+  const isLoadingAny = isLoadingWorkOrder || isLoadingInspection;
+
+  if (isLoadingAny) {
+    return <FormSkeleton />;
+  }
+
+  if (!workOrder) {
+    notFound();
+    return null;
+  }
+
+  const getCurrentDate = () => {
+    return new Date();
+  };
+
+  const defaultValues: Partial<VehicleInspectionSchema> = isUpdate
+    ? {
+        work_order_id: String(workOrder.id),
+        dirty_unit: existingInspection.dirty_unit,
+        unit_ok: existingInspection.unit_ok,
+        title_deed: existingInspection.title_deed,
+        soat: existingInspection.soat,
+        moon_permits: existingInspection.moon_permits,
+        service_card: existingInspection.service_card,
+        owner_manual: existingInspection.owner_manual,
+        key_ring: existingInspection.key_ring,
+        wheel_lock: existingInspection.wheel_lock,
+        safe_glasses: existingInspection.safe_glasses,
+        radio_mask: existingInspection.radio_mask,
+        lighter: existingInspection.lighter,
+        floors: existingInspection.floors,
+        seat_cover: existingInspection.seat_cover,
+        quills: existingInspection.quills,
+        antenna: existingInspection.antenna,
+        glasses_wheel: existingInspection.glasses_wheel,
+        emblems: existingInspection.emblems,
+        spare_tire: existingInspection.spare_tire,
+        fluid_caps: existingInspection.fluid_caps,
+        tool_kit: existingInspection.tool_kit,
+        jack_and_lever: existingInspection.jack_and_lever,
+        general_observations: existingInspection.general_observations || "",
+        inspected_by: String(existingInspection.inspected_by),
+        inspection_date: existingInspection.inspection_date
+          ? new Date(existingInspection.inspection_date)
+          : "",
+        fuel_level: existingInspection.fuel_level,
+        oil_level: existingInspection.oil_level,
+        mileage: existingInspection.mileage,
+        damages:
+          existingInspection.damages?.map((damage) => ({
+            damage_type: damage.damage_type,
+            x_coordinate:
+              typeof damage.x_coordinate === "number"
+                ? damage.x_coordinate
+                : Number(damage.x_coordinate) || 0,
+            y_coordinate:
+              typeof damage.y_coordinate === "number"
+                ? damage.y_coordinate
+                : Number(damage.y_coordinate) || 0,
+            description: damage.description,
+            photo_url: damage.photo_url,
+          })) || [],
+      }
+    : {
+        work_order_id: String(workOrder.id),
+        dirty_unit: false,
+        unit_ok: false,
+        title_deed: false,
+        soat: false,
+        moon_permits: false,
+        service_card: true,
+        owner_manual: true,
+        key_ring: true,
+        wheel_lock: true,
+        safe_glasses: true,
+        radio_mask: true,
+        lighter: true,
+        floors: true,
+        seat_cover: true,
+        quills: true,
+        antenna: true,
+        glasses_wheel: true,
+        emblems: true,
+        spare_tire: true,
+        fluid_caps: true,
+        tool_kit: true,
+        jack_and_lever: true,
+        general_observations: "",
+        inspected_by: "",
+        inspection_date: getCurrentDate(),
+        fuel_level: workOrder.fuel_level || "",
+        oil_level: "",
+        mileage: workOrder.mileage ? String(workOrder.mileage) : "",
+        damages: [],
+      };
+
+  return (
+    <FormWrapper>
+      <TitleFormComponent
+        title={`Inspección de Vehículo - ${workOrder.correlative}`}
+        mode={isUpdate ? "edit" : "create"}
+        icon="ClipboardCheck"
+      />
+
+      {/* Información de la Orden de Trabajo */}
+      <Card className="p-4 mb-6 gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+        <div className="flex items-center gap-2 mb-3">
+          <Car className="h-5 w-5 text-blue-600" />
+          <h4 className="font-semibold text-gray-800">
+            Información de la Orden de Trabajo
+          </h4>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div>
+            <p className="text-xs text-gray-500">Correlativo</p>
+            <p className="font-semibold text-sm">{workOrder.correlative}</p>
+          </div>
+          <div>
+            <p className="text-xs text-gray-500">Placa</p>
+            <p className="font-semibold text-sm">
+              {workOrder.vehicle_plate || "N/A"}
+            </p>
+          </div>
+          <div>
+            <p className="text-xs text-gray-500">VIN</p>
+            <p className="font-semibold text-sm">
+              {workOrder.vehicle_vin || "N/A"}
+            </p>
+          </div>
+          <div>
+            <p className="text-xs text-gray-500">Kilometraje</p>
+            <p className="font-semibold text-sm">
+              {workOrder.mileage ? `${workOrder.mileage} km` : "N/A"}
+            </p>
+          </div>
+        </div>
+      </Card>
+
+      <VehicleInspectionForm
+        defaultValues={defaultValues}
+        onSubmit={handleSubmit}
+        isSubmitting={isCreating || isUpdating}
+        mode={isUpdate ? "update" : "create"}
+        onCancel={() => router(ABSOLUTE_ROUTE!)}
+        workOrderId={String(workOrder.id)}
+      />
+    </FormWrapper>
+  );
+}

@@ -60,6 +60,8 @@ export default function AddAppointmentPlanningPage() {
           type_operation_appointment_id: "",
           type_planning_id: "",
           ap_vehicle_id: "",
+          advisor_id: "",
+          sede_id: "",
         }}
         onSubmit={handleSubmit}
         isSubmitting={isPending}

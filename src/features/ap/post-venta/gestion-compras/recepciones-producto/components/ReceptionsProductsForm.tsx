@@ -30,13 +30,11 @@ import { useAllProduct } from "@/features/ap/post-venta/gestion-productos/produc
 import { Textarea } from "@/components/ui/textarea";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { Card } from "@/components/ui/card";
-import {
-  RECEPTION_TYPES,
-  OBSERVATION_REASONS,
-} from "../lib/receptionsProducts.constants";
+import { RECEPTION_TYPES } from "../lib/receptionsProducts.constants";
 import { useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
+import { OBSERVATION_REASONS } from "../../motivos-ajuste/lib/reasonsAdjustment.constants";
 
 interface ReceptionsProductsFormProps {
   defaultValues: Partial<ReceptionSchema>;

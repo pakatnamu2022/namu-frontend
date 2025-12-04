@@ -72,10 +72,11 @@ export default function UpdateAppointmentPlanningPage() {
       full_name_client: data.full_name_client,
       email_client: data.email_client,
       phone_client: data.phone_client,
-      type_operation_appointment_id:
-        data.type_operation_appointment_id.toString(),
-      type_planning_id: data.type_planning_id.toString(),
-      ap_vehicle_id: data.ap_vehicle_id.toString(),
+      type_operation_appointment_id: String(data.type_operation_appointment_id),
+      type_planning_id: String(data.type_planning_id),
+      ap_vehicle_id: String(data.ap_vehicle_id),
+      advisor_id: data.advisor_id ? String(data.advisor_id) : "",
+      sede_id: String(data.sede_id),
     };
   }
 
