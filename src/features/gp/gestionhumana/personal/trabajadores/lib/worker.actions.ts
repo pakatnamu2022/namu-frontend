@@ -35,6 +35,19 @@ export async function getAllWorkers({
   return data;
 }
 
+export async function getMyConsultants({
+  params,
+}: getWorkersProps): Promise<WorkerResource[]> {
+  const config: AxiosRequestConfig = {
+    params: {
+      all: true, // Assuming you want to fetch all periods
+      ...params,
+    },
+  };
+  const { data } = await api.get<WorkerResource[]>(`${ENDPOINT}/my-consultants`, config);
+  return data;
+}
+
 export async function findWorkerById(id: string): Promise<WorkerResource> {
   const response = await api.get<WorkerResource>(`${ENDPOINT}/${id}`);
   return response.data;

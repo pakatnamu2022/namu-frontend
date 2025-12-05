@@ -5,7 +5,8 @@ import {
   getWorker,
   getWorkersWithoutObjectives,
   getWorkersWithoutCategories,
-  getWorkersWithoutCompetences
+  getWorkersWithoutCompetences,
+  getMyConsultants,
 } from "./worker.actions";
 import { WORKER } from "./worker.constant";
 
@@ -23,6 +24,14 @@ export const useAllWorkers = (params?: Record<string, any>) => {
   return useQuery<WorkerResource[]>({
     queryKey: [QUERY_KEY + "All", params],
     queryFn: () => getAllWorkers({ params }),
+    refetchOnWindowFocus: false,
+  });
+};
+
+export const useMyConsultants = (params?: Record<string, any>) => {
+  return useQuery<WorkerResource[]>({
+    queryKey: [QUERY_KEY, "my-consultants", params],
+    queryFn: () => getMyConsultants({ params }),
     refetchOnWindowFocus: false,
   });
 };
