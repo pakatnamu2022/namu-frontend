@@ -25,7 +25,7 @@ export default function ProfileHeader() {
   };
 
   const handleProfileClick = () => {
-    push("/perfil/usuario");
+    push("/perfil");
   };
 
   const ProfileHeaderButton = () => {
