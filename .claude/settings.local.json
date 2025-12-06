@@ -15,7 +15,8 @@
       "Bash(dir:*)",
       "Bash(xargs ls:*)",
       "Bash(del /f \"c:\\Users\\david\\Documents\\data\\front\\namu-frontend\\src\\app\\gp\\gestion-humana\\evaluaciones-de-desempeno\\asignacion-pares\\agregar\\page.tsx\")",
-      "Bash(Select-Object -First 20)"
+      "Bash(Select-Object -First 20)",
+      "Bash(findstr:*)"
     ],
     "deny": [],
     "ask": []

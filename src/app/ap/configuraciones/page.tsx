@@ -2,6 +2,6 @@
 
 import ModuleViewsDashboard from "@/shared/components/ModuleViewsDashboard";
 
-export default function EvaluacionesDesempenoPage() {
+export default function ConfiguracionesPage() {
   return <ModuleViewsDashboard />;
 }

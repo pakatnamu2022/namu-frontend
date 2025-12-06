@@ -92,6 +92,7 @@ import AddEvaluationModelPage from "./app/gp/gestion-humana/evaluaciones-de-dese
 import UpdateEvaluationModelPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/modelo-evaluacion/actualizar/[id]/page";
 import MyPerformance from "./app/perfil/mi-desempeno/page";
 import VacationPage from "./app/perfil/vacaciones/page";
+import ModulePage from "./components/ModulePage";
 const PositionsPage = lazy(
   () => import("./app/gp/gestion-humana/configuraciones/posiciones/page")
 );
@@ -720,10 +721,7 @@ const VistasPermisosPage = lazy(
 
 // Administración de Personal
 const TrabajadoresPage = lazy(
-  () =>
-    import(
-      "./app/gp/gestion-humana/personal/trabajadores/page"
-    )
+  () => import("./app/gp/gestion-humana/personal/trabajadores/page")
 );
 
 // ============================================================================
@@ -891,7 +889,7 @@ function App() {
               }
             >
               {/* Dashboard Principal */}
-              <Route index element={<CommercialDashboardPage />} />
+              <Route index element={<ModulePage />} />
 
               {/* Agenda */}
               <Route path="agenda" element={<AgendaPage />} />
@@ -1068,6 +1066,9 @@ function App() {
                 </Suspense>
               }
             >
+              {/* Dashboard Principal */}
+              <Route path="maestros-general" element={<ModulePage />} />
+
               {/* Maestros General */}
               <Route
                 path="maestros-general/actividad-economica"
@@ -1376,6 +1377,9 @@ function App() {
                 </Suspense>
               }
             >
+              {/* Dashboard Principal */}
+              <Route index element={<ModulePage />} />
+
               {/* Accesorios */}
               <Route
                 path="accesorios-homologados"
@@ -1561,7 +1565,9 @@ function App() {
                 </Suspense>
               }
             >
-              <Route index element={<GPGestionSistemaPage />} />
+              {/* Dashboard Principal */}
+              <Route index element={<ModulePage />} />
+
               <Route path="roles" element={<RolesPage />} />
               <Route
                 path="roles/permisos/:id"
@@ -1730,6 +1736,9 @@ function App() {
                 </Suspense>
               }
             >
+              {/* Dashboard Principal */}
+              <Route index element={<ModulePage />} />
+
               <Route path="sede" element={<SedePage />} />
             </Route>
 
