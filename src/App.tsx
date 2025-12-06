@@ -26,7 +26,6 @@ import UpdateEvaluationPage from "./app/gp/gestion-humana/evaluaciones-de-desemp
 import EvaluationPersonPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/evaluaciones/[id]/page";
 import EvaluationDetailPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/evaluaciones/detalles/[id]/page";
 import EvaluationDetailPersonPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/evaluaciones/detalles/[id]/[person]/page";
-import CommercialDashboardPage from "./app/ap/comercial/page";
 import AgendaPage from "./app/ap/comercial/agenda/page";
 import OpportunitiesKanbanPage from "./app/ap/comercial/agenda/oportunidades/page";
 import AddOpportunityPage from "./app/ap/comercial/agenda/oportunidades/agregar/page";
@@ -686,9 +685,7 @@ const WorkOrderInspeccionPage = lazy(
 // ============================================================================
 // GP - GESTION DEL SISTEMA
 // ============================================================================
-const GPGestionSistemaPage = lazy(
-  () => import("./app/gp/gestion-del-sistema/page")
-);
+
 const RolesPage = lazy(() => import("./app/gp/gestion-del-sistema/roles/page"));
 const RolesPermisosPage = lazy(
   () => import("./app/gp/gestion-del-sistema/roles/permisos/[id]/page")
