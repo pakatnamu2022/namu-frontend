@@ -103,10 +103,10 @@ export const PERMISSION_ACTIONS: PermissionAction[] = [
  * const { canCreate, canUpdate, canDelete, hasPermission } = useModulePermissions("solicitudes-y-cotizaciones");
  *
  * if (canCreate) {
- *   // Show create button
+ *   Show create button
  * }
  *
- * // Or check custom permissions
+ * Or check custom permissions
  * const canApprove = hasPermission("approve");
  */
 export function useModulePermissions(moduleCode: string) {
