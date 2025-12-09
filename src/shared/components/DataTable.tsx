@@ -175,7 +175,7 @@ export function DataTable<TData, TValue>({
                       return (
                         <div
                           key={cell.id}
-                          className="grid grid-cols-3 text-nowrap"
+                          className="grid grid-cols-3 items-center gap-1 text-nowrap"
                         >
                           <span className="text-xs font-semibold text-primary uppercase">
                             {headerText}

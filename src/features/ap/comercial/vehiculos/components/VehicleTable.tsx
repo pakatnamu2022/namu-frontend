@@ -23,13 +23,16 @@ export default function VehicleTable({
         isLoading={isLoading}
         initialColumnVisibility={{
           vin: true,
+          brand: true,
+          family: false,
           model: true,
+          model_code: false,
           year: true,
           engine_number: true,
           vehicle_color: true,
-          engine_type: true,
+          engine_type: false,
           sede: true,
-          warehouse_physical: true,
+          warehouse_physical: false,
           status: true,
         }}
       >
