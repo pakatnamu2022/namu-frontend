@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { FileText, Pencil, Check, Car, Link2Off } from "lucide-react";
@@ -58,6 +58,10 @@ export const purchaseRequestQuoteColumns = ({
   {
     accessorKey: "holder",
     header: "Titular",
+  },
+  {
+    accessorKey: "consultant.name",
+    header: "Asesor",
   },
   {
     accessorKey: "is_approved",
