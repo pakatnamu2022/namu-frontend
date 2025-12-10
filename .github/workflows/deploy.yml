@@ -15,7 +15,7 @@ jobs:
         host: ${{ secrets.HOST }}
         username: ${{ secrets.USERNAME }}
         password: ${{ secrets.PASSWORD }}
-        port: 22
+        port: 2222
         timeout: 30s
         command_timeout: 15m
         script: |
@@ -24,8 +24,10 @@ jobs:
           echo "📥 Pulling latest changes..."
           git pull origin main
           
-          echo "🔧 Configuring Node environment..."
-          export PATH="/root/.nvm/versions/node/v20.19.4/bin:$PATH"
+          echo "🔧 Loading Node (nvm)..."
+          export NVM_DIR="$HOME/.nvm"
+          source "$NVM_DIR/nvm.sh"
+          nvm use 22
           
           echo "📦 Installing dependencies..."
           npm install

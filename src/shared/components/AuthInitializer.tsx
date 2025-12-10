@@ -4,7 +4,7 @@ import { useAuthStore } from "@/features/auth/lib/auth.store";
 import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
 
-const PUBLIC_ROUTES = ["/", "/login", "/register", "/forgot-password"];
+const PUBLIC_ROUTES = ["/", "/login"];
 
 export const AuthInitializer = () => {
   const { authenticate } = useAuthStore();

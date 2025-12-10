@@ -35,6 +35,10 @@ export const assignBrandConsultantColumns = ({
     header: "Marca",
   },
   {
+    accessorKey: "group_brand",
+    header: "Grupo Marca",
+  },
+  {
     accessorKey: "worker",
     header: "Asesor",
   },

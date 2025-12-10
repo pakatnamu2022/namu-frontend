@@ -16,9 +16,8 @@ export default function ModulePage() {
     useCurrentModule();
   const { permissions } = useAuthStore();
   const router = useNavigate();
-  const [PageComponent, setPageComponent] = useState<React.ComponentType | null>(
-    null
-  );
+  const [PageComponent, setPageComponent] =
+    useState<React.ComponentType | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -31,7 +30,11 @@ export default function ModulePage() {
       setIsLoading(true);
 
       // Buscar componente en el diccionario
-      const Component = findComponentByRoute(company, moduleSlug, subModuleSlug);
+      const Component = findComponentByRoute(
+        company,
+        moduleSlug,
+        subModuleSlug
+      );
 
       if (Component) {
         setPageComponent(() => Component);
@@ -58,19 +61,6 @@ export default function ModulePage() {
     // Casos especiales que tienen su propia página hardcoded
     if (subModuleSlug === "tics" || subModuleSlug === "metricas") {
       setIsLoading(false);
-      return;
-    }
-
-    // Obtener las opciones del submódulo actual
-    const subModuleOptions = currentSubmodule.children || [];
-
-    // Si hay opciones disponibles, redirigir a la primera
-    if (subModuleOptions.length > 0) {
-      const firstOption = subModuleOptions[0];
-      const firstRoute = `/${company}/${moduleSlug}/${subModuleSlug}/${
-        firstOption.route || firstOption.slug || firstOption.id
-      }`;
-      router(firstRoute, { replace: true });
       return;
     }
 

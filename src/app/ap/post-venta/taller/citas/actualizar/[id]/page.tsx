@@ -19,7 +19,10 @@ import {
   updateAppointmentPlanning,
 } from "@/features/ap/post-venta/taller/citas/lib/appointmentPlanning.actions";
 import { AppointmentPlanningSchema } from "@/features/ap/post-venta/taller/citas/lib/appointmentPlanning.schema";
-import { AppointmentPlanningResource } from "@/features/ap/post-venta/taller/citas/lib/appointmentPlanning.interface";
+import {
+  AppointmentPlanningRequest,
+  AppointmentPlanningResource,
+} from "@/features/ap/post-venta/taller/citas/lib/appointmentPlanning.interface";
 import { AppointmentPlanningForm } from "@/features/ap/post-venta/taller/citas/components/AppointmentPlanningForm";
 import { notFound } from "@/shared/hooks/useNotFound";
 
@@ -38,7 +41,7 @@ export default function UpdateAppointmentPlanningPage() {
     });
 
   const { mutate, isPending } = useMutation({
-    mutationFn: (data: AppointmentPlanningSchema) =>
+    mutationFn: (data: AppointmentPlanningRequest) =>
       updateAppointmentPlanning(Number(id), data),
     onSuccess: async () => {
       successToast(SUCCESS_MESSAGE(MODEL, "update"));
@@ -53,7 +56,7 @@ export default function UpdateAppointmentPlanningPage() {
     },
   });
 
-  const handleSubmit = (data: AppointmentPlanningSchema) => {
+  const handleSubmit = (data: AppointmentPlanningRequest) => {
     mutate(data);
   };
 

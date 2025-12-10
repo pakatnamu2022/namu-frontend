@@ -20,11 +20,12 @@ export default function ProfileHeader() {
   const { setTheme } = useTheme();
 
   const handleLogout = () => {
+    useAuthStore.getState().logout();
     push("/");
   };
 
   const handleProfileClick = () => {
-    push("/perfil/usuario");
+    push("/perfil");
   };
 
   const ProfileHeaderButton = () => {

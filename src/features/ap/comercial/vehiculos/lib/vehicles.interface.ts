@@ -41,7 +41,7 @@ export interface VehicleResource {
   sede_name_warehouse?: string;
   model: ModelsVnResource;
   movements: VehicleMovement[];
-  owner?: owner;
+  owner?: Owner;
   billed_cost?: number;
   freight_cost?: number;
   type_operation_id: number;
@@ -49,7 +49,7 @@ export interface VehicleResource {
   sede_warehouse_physical_id?: number;
 }
 
-export interface owner {
+export interface Owner {
   has_purchase_order: boolean;
   is_cancelled: boolean;
   is_paid: boolean;

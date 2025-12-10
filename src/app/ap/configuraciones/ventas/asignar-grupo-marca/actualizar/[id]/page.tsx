@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
@@ -25,6 +25,7 @@ import { notFound } from "@/shared/hooks/useNotFound";
 
 export default function UpdateCommercialManagerBrandGroupPage() {
   const { id } = useParams();
+  const [searchParams] = useSearchParams();
   const router = useNavigate();
   const queryClient = useQueryClient();
   const { currentView, checkRouteExists } = useCurrentModule();
@@ -35,12 +36,16 @@ export default function UpdateCommercialManagerBrandGroupPage() {
     isLoading: loadingCommercialManagerBrandGroup,
   } = useQuery({
     queryKey: [QUERY_KEY, id],
-    queryFn: () => findCommercialManagerBrandGroupById(Number(id)),
+    queryFn: () =>
+      findCommercialManagerBrandGroupById(Number(id), {
+        year: searchParams.get("year") || undefined,
+        month: searchParams.get("month") || undefined,
+      }),
     refetchOnWindowFocus: false,
   });
 
   const { mutate, isPending } = useMutation({
-    mutationFn: (data: CommercialManagerBrandGroupResource) =>
+    mutationFn: (data: Partial<CommercialManagerBrandGroupSchema>) =>
       updateCommercialManagerBrandGroup(Number(id), data),
     onSuccess: async () => {
       successToast(SUCCESS_MESSAGE(MODEL, "update"));
@@ -55,7 +60,7 @@ export default function UpdateCommercialManagerBrandGroupPage() {
     },
   });
 
-  const handleSubmit = (data: CommercialManagerBrandGroupResource) => {
+  const handleSubmit = (data: Partial<CommercialManagerBrandGroupSchema>) => {
     mutate(data);
   };
 
@@ -63,6 +68,8 @@ export default function UpdateCommercialManagerBrandGroupPage() {
     data: CommercialManagerBrandGroupResource
   ): Partial<CommercialManagerBrandGroupSchema> {
     return {
+      year: Number(searchParams.get("year")) || data.year,
+      month: Number(searchParams.get("month")) || data.month,
       brand_group_id: data.brand_group_id.toString(),
       commercial_managers: data.commercial_managers.map(
         (commercial_manager) => ({

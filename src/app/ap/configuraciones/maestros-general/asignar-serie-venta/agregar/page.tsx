@@ -54,6 +54,7 @@ export default function AddAssignSalesSeriesPage() {
           type_receipt_id: "",
           type_operation_id: "",
           sede_id: "",
+          type: "SALE",
         }}
         onSubmit={handleSubmit}
         isSubmitting={isPending}

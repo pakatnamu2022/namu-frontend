@@ -18,9 +18,8 @@ import { generateYear } from "@/core/core.function";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { notFound } from "@/shared/hooks/useNotFound";
 
-
 export default function CommercialManagerBrandGroupPage() {
-    const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
+  const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const currentYear = new Date().getFullYear().toString();
   const currentMonth = (new Date().getMonth() + 1).toString().padStart(2, "0");
   const [year, setYear] = useState(currentYear);
@@ -56,11 +55,18 @@ export default function CommercialManagerBrandGroupPage() {
           subtitle={currentView.descripcion}
           icon={currentView.icon}
         />
-        <CommercialManagerBrandGroupActions permissions={permissions} />
+        <CommercialManagerBrandGroupActions
+          year={Number(year)}
+          month={Number(month)}
+          permissions={permissions}
+        />
       </HeaderTableWrapper>
       <CommercialManagerBrandGroupTable
         isLoading={isLoading}
-        columns={commercialManagerBrandGroupColumns()}
+        columns={commercialManagerBrandGroupColumns({
+          month,
+          year,
+        })}
         data={data?.data || []}
       >
         <CommercialManagerBrandGroupOptions

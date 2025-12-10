@@ -5,6 +5,7 @@ import {
   CommercialManagerBrandGroupResponse,
   getCommercialManagerBrandGroupProps,
 } from "./commercialManagerBrandGroup.interface";
+import { CommercialManagerBrandGroupSchema } from "./commercialManagerBrandGroup.schema";
 import { api } from "@/core/api";
 
 const { ENDPOINT } = COMMERCIAL_MANAGER_BRAND_GROUP;
@@ -25,16 +26,23 @@ export async function getCommercialManagerBrandGroup({
 }
 
 export async function findCommercialManagerBrandGroupById(
-  id: number
+  id: number,
+  params?: Record<string, any>
 ): Promise<CommercialManagerBrandGroupResource> {
+  const config: AxiosRequestConfig = {
+    params: {
+      ...params,
+    },
+  };
   const response = await api.get<CommercialManagerBrandGroupResource>(
-    `${ENDPOINT}/${id}`
+    `${ENDPOINT}/${id}`,
+    config
   );
   return response.data;
 }
 
 export async function storeCommercialManagerBrandGroup(
-  data: any
+  data: CommercialManagerBrandGroupSchema
 ): Promise<CommercialManagerBrandGroupResource> {
   const response = await api.post<CommercialManagerBrandGroupResource>(
     ENDPOINT,
@@ -45,7 +53,7 @@ export async function storeCommercialManagerBrandGroup(
 
 export async function updateCommercialManagerBrandGroup(
   id: number,
-  data: any
+  data: Partial<CommercialManagerBrandGroupSchema>
 ): Promise<CommercialManagerBrandGroupResource> {
   const response = await api.put<CommercialManagerBrandGroupResource>(
     `${ENDPOINT}/${id}`,

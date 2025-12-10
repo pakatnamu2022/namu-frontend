@@ -91,6 +91,7 @@ import AddEvaluationModelPage from "./app/gp/gestion-humana/evaluaciones-de-dese
 import UpdateEvaluationModelPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/modelo-evaluacion/actualizar/[id]/page";
 import MyPerformance from "./app/perfil/mi-desempeno/page";
 import VacationPage from "./app/perfil/vacaciones/page";
+import ModulePage from "./components/ModulePage";
 const PositionsPage = lazy(
   () => import("./app/gp/gestion-humana/configuraciones/posiciones/page")
 );
@@ -725,9 +726,7 @@ const WorkOrderInspeccionPage = lazy(
 // ============================================================================
 // GP - GESTION DEL SISTEMA
 // ============================================================================
-const GPGestionSistemaPage = lazy(
-  () => import("./app/gp/gestion-del-sistema/page")
-);
+
 const RolesPage = lazy(() => import("./app/gp/gestion-del-sistema/roles/page"));
 const RolesPermisosPage = lazy(
   () => import("./app/gp/gestion-del-sistema/roles/permisos/[id]/page")
@@ -760,10 +759,7 @@ const VistasPermisosPage = lazy(
 
 // Administración de Personal
 const TrabajadoresPage = lazy(
-  () =>
-    import(
-      "./app/gp/gestion-humana/administracion-de-personal/trabajadores/page"
-    )
+  () => import("./app/gp/gestion-humana/personal/trabajadores/page")
 );
 
 // ============================================================================
@@ -936,6 +932,9 @@ function App() {
                 </Suspense>
               }
             >
+              {/* Dashboard Principal */}
+              <Route index element={<ModulePage />} />
+
               {/* Agenda */}
               <Route path="agenda" element={<AgendaPage />} />
 
@@ -1111,6 +1110,9 @@ function App() {
                 </Suspense>
               }
             >
+              {/* Dashboard Principal */}
+              <Route path="maestros-general" element={<ModulePage />} />
+
               {/* Maestros General */}
               <Route
                 path="maestros-general/actividad-economica"
@@ -1423,6 +1425,9 @@ function App() {
                 </Suspense>
               }
             >
+              {/* Dashboard Principal */}
+              <Route index element={<ModulePage />} />
+
               {/* Accesorios */}
               <Route
                 path="accesorios-homologados"
@@ -1648,7 +1653,9 @@ function App() {
                 </Suspense>
               }
             >
-              <Route index element={<GPGestionSistemaPage />} />
+              {/* Dashboard Principal */}
+              <Route index element={<ModulePage />} />
+
               <Route path="roles" element={<RolesPage />} />
               <Route
                 path="roles/permisos/:id"
@@ -1690,7 +1697,7 @@ function App() {
             >
               {/* Administración de Personal */}
               <Route
-                path="administracion-de-personal/trabajadores"
+                path="personal/trabajadores"
                 element={<TrabajadoresPage />}
               />
 
@@ -1817,6 +1824,9 @@ function App() {
                 </Suspense>
               }
             >
+              {/* Dashboard Principal */}
+              <Route index element={<ModulePage />} />
+
               <Route path="sede" element={<SedePage />} />
               <Route path="sede/actualizar/:id" element={<EditSedePage />} />
               <Route path="sede/agregar" element={<AddSedePage />} />

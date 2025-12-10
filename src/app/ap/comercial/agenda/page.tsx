@@ -11,9 +11,10 @@ import AgendaCalendarCard from "@/features/ap/comercial/agenda/components/Agenda
 import AgendaDayDetails from "@/features/ap/comercial/agenda/components/AgendaDayDetails";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { useCommercialFiltersStore } from "@/features/ap/comercial/lib/commercial.store";
-import { useAllWorkers } from "@/features/gp/gestionhumana/personal/trabajadores/lib/worker.hook";
 import {
-  POSITION_TYPE,
+  useMyConsultants,
+} from "@/features/gp/gestionhumana/personal/trabajadores/lib/worker.hook";
+import {
   STATUS_WORKER,
 } from "@/features/gp/gestionhumana/personal/posiciones/lib/position.constant";
 import { EMPRESA_AP } from "@/core/core.constants";
@@ -21,19 +22,12 @@ import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { AGENDA } from "@/features/ap/comercial/agenda/lib/agenda.constants";
 import { notFound } from "@/shared/hooks/useNotFound";
 
-
 export default function AgendaPage() {
-    const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
+  const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const { selectedAdvisorId, setSelectedAdvisorId } =
     useCommercialFiltersStore();
   const { ROUTE } = AGENDA;
   const permissions = useModulePermissions(ROUTE);
-
-  const { data: workers = [], isLoading: isLoadingWorkers } = useAllWorkers({
-    cargo_id: POSITION_TYPE.CONSULTANT,
-    status_id: STATUS_WORKER.ACTIVE,
-    sede$empresa_id: EMPRESA_AP.id,
-  });
 
   // Get current month range
   const now = new Date();
@@ -59,6 +53,13 @@ export default function AgendaPage() {
   const selectedDayData = selectedDate
     ? agendaData.find((item) => item.date === selectedDate)
     : undefined;
+
+  const { data: workers = [], isLoading: isLoadingWorkers } = useMyConsultants({
+    status_id: STATUS_WORKER.ACTIVE,
+    sede$empresa_id: EMPRESA_AP.id,
+    year: selectedDate ? selectedDate.split("-")[0] : now.getFullYear(),
+    month: selectedDate ? selectedDate.split("-")[1] : now.getMonth() + 1,
+  });
 
   // Create a map for quick lookup
   const agendaMap = new Map(agendaData.map((item) => [item.date, item]));

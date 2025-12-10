@@ -1,5 +1,6 @@
 import { type Links, type Meta } from "@/shared/lib/pagination.interface";
 import { VehicleResource } from "../../vehiculos/lib/vehicles.interface";
+import { WorkerResource } from "@/features/gp/gestionhumana/personal/trabajadores/lib/worker.interface";
 
 export interface PurchaseRequestQuoteResponse {
   data: PurchaseRequestQuoteResource[];
@@ -30,6 +31,7 @@ export interface AccessoryResource {
 export interface PurchaseRequestQuoteResource {
   id: number;
   correlative: string;
+  consultant: WorkerResource;
   type_document: string;
   quote_deadline: string | null;
   exchange_rate_id: number;

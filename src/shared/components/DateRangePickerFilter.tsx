@@ -54,11 +54,6 @@ export function DateRangePickerFilter({
     // Always update both dates, even if one is undefined
     // This allows the calendar to work naturally in range mode
     onDateChange(range?.from, range?.to);
-
-    // Auto-close when both dates are selected
-    if (range?.from && range?.to) {
-      setOpen(false);
-    }
   };
 
   return (

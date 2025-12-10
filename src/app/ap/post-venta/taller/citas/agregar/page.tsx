@@ -12,7 +12,6 @@ import {
 import FormWrapper from "@/shared/components/FormWrapper";
 import { APPOINTMENT_PLANNING } from "@/features/ap/post-venta/taller/citas/lib/appointmentPlanning.constants";
 import { storeAppointmentPlanning } from "@/features/ap/post-venta/taller/citas/lib/appointmentPlanning.actions";
-import { AppointmentPlanningSchema } from "@/features/ap/post-venta/taller/citas/lib/appointmentPlanning.schema";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import { AppointmentPlanningForm } from "@/features/ap/post-venta/taller/citas/components/AppointmentPlanningForm";
 import { notFound } from "@/shared/hooks/useNotFound";
@@ -34,7 +33,7 @@ export default function AddAppointmentPlanningPage() {
     },
   });
 
-  const handleSubmit = (data: AppointmentPlanningSchema) => {
+  const handleSubmit = (data: any) => {
     mutate(data);
   };
 

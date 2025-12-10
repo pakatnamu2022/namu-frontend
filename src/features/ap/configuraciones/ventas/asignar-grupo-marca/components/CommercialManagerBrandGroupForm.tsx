@@ -28,7 +28,6 @@ import {
   TagsValue,
 } from "@/shared/components/Tags";
 import { Info } from "lucide-react";
-import { currentYear, currentMonth } from "@/core/core.function";
 import { EMPRESA_AP, MONTHS } from "@/core/core.constants";
 import {
   CommercialManagerBrandGroupSchema,
@@ -57,8 +56,6 @@ export const CommercialManagerBrandGroupForm = ({
   isSubmitting = false,
   mode = "create",
 }: CommercialManagerBrandGroupFormProps) => {
-  const currentMonthIndex = currentMonth() - 1;
-  const currentMonthName = MONTHS[currentMonthIndex].label;
   const form = useForm({
     resolver: zodResolver(
       mode === "create"
@@ -93,8 +90,8 @@ export const CommercialManagerBrandGroupForm = ({
 
   const handleSubmit = (data: any) => {
     const payload = {
-      year: currentYear(),
-      month: currentMonth(),
+      year: data.year,
+      month: data.month,
       brand_group_id: Number(data.brand_group_id),
       commercial_managers: data.commercial_managers.map(
         (commercial_manager: AsesorResource) => commercial_manager.id
@@ -108,8 +105,8 @@ export const CommercialManagerBrandGroupForm = ({
       <div className="bg-blue-50 border border-blue-200 text-blue-800 rounded-lg px-4 py-3 flex items-center gap-2">
         <Info className="h-5 w-5" />
         <span className="font-semibold">
-          La acción se realizará para el periodo {currentYear()} y mes{" "}
-          {currentMonthName}.
+          La acción se realizará para el periodo {defaultValues.year} y mes{" "}
+          {MONTHS.find((m) => m.value === String(defaultValues.month))?.label || defaultValues.month}.
         </span>
       </div>
       <form

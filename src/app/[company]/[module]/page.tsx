@@ -13,9 +13,8 @@ export default function ModulePage() {
   const { company, moduleSlug, currentModule } = useCurrentModule();
   const { permissions } = useAuthStore();
   const router = useNavigate();
-  const [PageComponent, setPageComponent] = useState<React.ComponentType | null>(
-    null
-  );
+  const [PageComponent, setPageComponent] =
+    useState<React.ComponentType | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -26,7 +25,6 @@ export default function ModulePage() {
       }
 
       setIsLoading(true);
-
 
       // Buscar componente en el diccionario
       const Component = findComponentByRoute(company, moduleSlug);
@@ -55,29 +53,6 @@ export default function ModulePage() {
     // Casos especiales que tienen su propia página hardcoded
     if (moduleSlug === "tics") {
       setIsLoading(false);
-      return;
-    }
-
-    // Obtener las opciones del módulo actual
-    const moduleOptions = currentModule.children || [];
-
-    // Si hay opciones disponibles, redirigir a la primera
-    if (moduleOptions.length > 0) {
-      const firstOption = moduleOptions[0];
-
-      // Si la primera opción tiene hijos (es un submódulo), redirigir a ese submódulo
-      if (firstOption.children && firstOption.children.length > 0) {
-        const firstRoute = `/${company}/${moduleSlug}/${
-          firstOption.slug || firstOption.id
-        }`;
-        router(firstRoute, { replace: true });
-      } else {
-        // Si no tiene hijos, redirigir directamente a la vista
-        const firstRoute = `/${company}/${moduleSlug}/${
-          firstOption.route || firstOption.slug || firstOption.id
-        }`;
-        router(firstRoute, { replace: true });
-      }
       return;
     }
 

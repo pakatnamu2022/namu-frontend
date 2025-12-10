@@ -126,6 +126,16 @@ export const AssignSalesSeriesForm = ({
             }))}
             control={form.control}
           />
+          <FormSelect
+            name="type"
+            label="Tipo"
+            placeholder="Selecciona un Tipo"
+            options={[
+              { label: "VENTA", value: "SALE" },
+              { label: "COMPRA", value: "PURCHASE" },
+            ]}
+            control={form.control}
+          />
         </div>
         <div className="flex gap-4 w-full justify-end">
           <Link to={ABSOLUTE_ROUTE!}>
