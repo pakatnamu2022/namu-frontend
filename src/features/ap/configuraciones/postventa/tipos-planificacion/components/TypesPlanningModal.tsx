@@ -36,12 +36,13 @@ export default function TypesPlanningModal({
   const queryClient = useQueryClient();
   const { EMPTY, MODEL, QUERY_KEY } = TYPE_PLANNING;
   const {
-    data: fetchedTypesPlanning,
+    data: TypesPlanning,
     isLoading: loadingTypesPlanning,
     refetch,
-  } = useTypesPlanningById(id);
-
-  const TypesPlanning = mode === "create" ? EMPTY : fetchedTypesPlanning;
+  } = mode === "create"
+    ? { data: EMPTY, isLoading: false, refetch: () => {} }
+    : // eslint-disable-next-line react-hooks/rules-of-hooks
+      useTypesPlanningById(id!);
 
   function mapRoleToForm(
     data: TypesPlanningResource
