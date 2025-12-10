@@ -30,7 +30,6 @@ import { useAllProduct } from "@/features/ap/post-venta/gestion-productos/produc
 import { Textarea } from "@/components/ui/textarea";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { Card } from "@/components/ui/card";
-import { RECEPTION_TYPES } from "../lib/receptionsProducts.constants";
 import { useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
@@ -254,8 +253,8 @@ export const ReceptionsProductsForm = ({
                     <div
                       className={`grid gap-3 mb-3 ${
                         isOrderedProduct
-                          ? "grid-cols-2 md:grid-cols-3"
-                          : "grid-cols-1 md:grid-cols-3"
+                          ? "grid-cols-2 md:grid-cols-2"
+                          : "grid-cols-1 md:grid-cols-2"
                       }`}
                     >
                       {!isOrderedProduct && (
@@ -384,7 +383,7 @@ export const ReceptionsProductsForm = ({
                         />
                       )}
 
-                      <FormField
+                      {/* <FormField
                         control={form.control}
                         name={`details.${index}.reception_type`}
                         render={() => (
@@ -411,6 +410,17 @@ export const ReceptionsProductsForm = ({
                               />
                             </FormControl>
                             <FormMessage />
+                          </FormItem>
+                        )}
+                      /> */}
+                      <FormField
+                        control={form.control}
+                        name={`details.${index}.reception_type`}
+                        render={({ field }) => (
+                          <FormItem className="hidden">
+                            <FormControl>
+                              <input type="hidden" {...field} />
+                            </FormControl>
                           </FormItem>
                         )}
                       />
