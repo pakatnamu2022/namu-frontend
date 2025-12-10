@@ -63,7 +63,9 @@ export default function TypesCategoryModal({
       await queryClient.invalidateQueries({
         queryKey: [QUERY_KEY],
       });
-      await refetch();
+      if (mode === "update" && id) {
+        await refetch();
+      }
     },
     onError: (error: any) => {
       errorToast(error.response?.data?.message, ERROR_MESSAGE(MODEL, mode));
