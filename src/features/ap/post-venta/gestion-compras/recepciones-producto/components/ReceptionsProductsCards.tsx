@@ -1,8 +1,6 @@
 import { ReceptionResource } from "../lib/receptionsProducts.interface";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import {
-  Pencil,
   Calendar,
   FileText,
   Package,
@@ -15,7 +13,6 @@ import {
   Tag,
 } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
-import { Link } from "react-router-dom";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge";
@@ -41,7 +38,6 @@ export default function ReceptionsProductsCards({
   data,
   onDelete,
   permissions,
-  routeUpdate,
   purchaseOrderNumber,
   warehouseName,
 }: Props) {
@@ -108,13 +104,6 @@ export default function ReceptionsProductsCards({
                 </p>
               </div>
               <div className="flex gap-2">
-                {permissions.canUpdate && routeUpdate && (
-                  <Link to={`${routeUpdate}/${reception.id}`}>
-                    <Button variant="outline" size="icon" className="size-7">
-                      <Pencil className="size-4" />
-                    </Button>
-                  </Link>
-                )}
                 {permissions.canDelete && (
                   <DeleteButton onClick={() => onDelete(reception.id)} />
                 )}
