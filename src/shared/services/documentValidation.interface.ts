@@ -94,3 +94,24 @@ export interface Licencia {
   estado: string;
   restricciones: string;
 }
+
+export interface DocumentValidationPlateResponse {
+  success: boolean;
+  document_type: string;
+  document_number: string;
+  provider: string;
+  validated_at: Date;
+  data: DataPlate;
+  source: string;
+}
+
+export interface DataPlate {
+  valid: boolean;
+  plate_number: string;
+  brand: string;
+  model: string;
+  series: string;
+  color: string;
+  engine_number: string;
+  vin: string;
+}

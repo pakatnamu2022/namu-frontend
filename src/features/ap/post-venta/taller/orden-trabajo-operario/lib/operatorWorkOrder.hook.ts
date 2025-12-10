@@ -12,7 +12,11 @@ import {
   storeOperatorWorkOrder,
   updateOperatorWorkOrder,
 } from "./operatorWorkOrder.actions";
-import { SUCCESS_MESSAGE, successToast } from "@/core/core.function";
+import {
+  errorToast,
+  SUCCESS_MESSAGE,
+  successToast,
+} from "@/core/core.function";
 
 const { QUERY_KEY, MODEL } = OPERATOR_WORKER_ORDER;
 
@@ -47,10 +51,10 @@ export function useStoreOperatorWorkOrder() {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
       queryClient.invalidateQueries({
-        queryKey: ["workOrder", variables.work_order_id]
+        queryKey: ["workOrder", variables.work_order_id],
       });
       queryClient.invalidateQueries({
-        queryKey: ["workOrderAssignOperators", variables.work_order_id]
+        queryKey: ["workOrderAssignOperators", variables.work_order_id],
       });
       successToast(SUCCESS_MESSAGE(MODEL, "create"));
     },
@@ -60,7 +64,7 @@ export function useStoreOperatorWorkOrder() {
         `Error al registrar ${
           MODEL.gender ? "la" : "el"
         } ${MODEL.name.toLowerCase()}`;
-      toast.error(errorMessage);
+      errorToast(errorMessage);
     },
   });
 }

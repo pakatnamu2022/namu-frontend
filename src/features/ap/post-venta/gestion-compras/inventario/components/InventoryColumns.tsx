@@ -156,7 +156,7 @@ export const inventoryColumns = (): InventoryColumns[] => [
           tooltip="Ver Movimientos"
         >
           <Link
-            to={`${ABSOLUTE_ROUTE}/inventario/kardex/${productId}/${warehouseId}`}
+            to={`${ABSOLUTE_ROUTE}/inventario/movimientos/${productId}/${warehouseId}`}
           >
             <ArrowRightLeft className="size-5" />
           </Link>

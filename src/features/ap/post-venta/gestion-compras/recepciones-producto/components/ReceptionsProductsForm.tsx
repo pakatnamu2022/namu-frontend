@@ -34,7 +34,7 @@ import { RECEPTION_TYPES } from "../lib/receptionsProducts.constants";
 import { useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
-import { OBSERVATION_REASONS } from "../../motivos-ajuste/lib/reasonsAdjustment.constants";
+import { OBSERVATION_REASONS } from "@/features/ap/configuraciones/postventa/motivos-ajuste/lib/reasonsAdjustment.constants";
 
 interface ReceptionsProductsFormProps {
   defaultValues: Partial<ReceptionSchema>;

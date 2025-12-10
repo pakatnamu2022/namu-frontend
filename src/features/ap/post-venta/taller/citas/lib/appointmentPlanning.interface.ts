@@ -22,6 +22,9 @@ export interface AppointmentPlanningResource {
   ap_vehicle_id: number;
   advisor_id: number;
   sede_id: number;
+  sede_name: string;
+  plate: string;
+  is_taken: boolean;
 }
 
 export interface AppointmentPlanningRequest {

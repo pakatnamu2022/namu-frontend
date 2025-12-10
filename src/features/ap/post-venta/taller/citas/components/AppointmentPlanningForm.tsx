@@ -29,11 +29,6 @@ import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { EMPRESA_AP } from "@/core/core.constants";
-import {
-  POSITION_TYPE,
-  STATUS_WORKER,
-} from "@/features/gp/gestionhumana/personal/posiciones/lib/position.constant";
-import { useAllWorkers } from "@/features/gp/gestionhumana/personal/trabajadores/lib/worker.hook";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { APPOINTMENT_PLANNING } from "../lib/appointmentPlanning.constants";
@@ -79,19 +74,13 @@ export const AppointmentPlanningForm = ({
     useAllVehicles();
   const { data: sedes = [], isLoading: isLoadingSedes } = useMySedes({
     company: EMPRESA_AP.id,
-  });
-
-  const { data: asesores = [], isLoading: isLoadingAsesores } = useAllWorkers({
-    cargo_id: POSITION_TYPE.CONSULTANT,
-    status_id: STATUS_WORKER.ACTIVE,
-    sede$empresa_id: EMPRESA_AP.id,
+    has_workshop: true,
   });
 
   const isLoading =
     isLoadingOperations ||
     isLoadingPlanning ||
     isLoadingVehicles ||
-    isLoadingAsesores ||
     isLoadingSedes;
 
   // Watch vehicle selection
@@ -230,7 +219,7 @@ export const AppointmentPlanningForm = ({
 
           <FormSelect
             name="sede_id"
-            label="Sede"
+            label="Sede Taller"
             placeholder="Seleccione sede"
             options={sedes.map((item) => ({
               label: item.description,
@@ -274,24 +263,12 @@ export const AppointmentPlanningForm = ({
               strictFilter={true}
             />
 
-            <FormSelect
-              name="advisor_id"
-              label="Asesor"
-              placeholder="Seleccione asesor"
-              options={asesores.map((item) => ({
-                label: item.name,
-                value: item.id.toString(),
-              }))}
-              control={form.control}
-              strictFilter={true}
-            />
-
             {/* Información del Vehículo Seleccionado */}
             {selectedVehicle && (
               <div className="col-span-1 md:col-span-3">
                 <Card className="p-4 bg-linear-to-r from-blue-50 to-indigo-50 border-blue-200">
                   <div className="flex items-center gap-2 mb-3">
-                    <Car className="h-5 w-5 text-blue-600" />
+                    <Car className="h-5 w-5 text-primary" />
                     <h4 className="font-semibold text-gray-800">
                       Información del Vehículo
                     </h4>
@@ -354,7 +331,7 @@ export const AppointmentPlanningForm = ({
                     {selectedVehicle.owner?.client && (
                       <div className="col-span-1 sm:col-span-2 lg:col-span-3 pt-2 border-t border-blue-200">
                         <div className="flex items-center gap-2 mb-2">
-                          <User className="h-4 w-4 text-blue-600" />
+                          <User className="h-4 w-4 text-primary" />
                           <p className="text-xs font-semibold text-gray-700">
                             Propietario
                           </p>

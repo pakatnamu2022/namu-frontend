@@ -33,19 +33,19 @@ export const productColumns = ({
 }: Props): ProductColumns[] => [
   {
     accessorKey: "code",
-    header: "Código",
+    header: "Cód.",
     cell: ({ getValue }) => {
       const value = getValue() as string;
       return value && <p className="font-semibold">{value}</p>;
     },
   },
   {
+    accessorKey: "dyn_code",
+    header: "Cód. Dynamic",
+  },
+  {
     accessorKey: "name",
     header: "Nombre",
-    cell: ({ getValue }) => {
-      const value = getValue() as string;
-      return value && <p className="font-medium">{value}</p>;
-    },
   },
   {
     accessorKey: "brand_name",

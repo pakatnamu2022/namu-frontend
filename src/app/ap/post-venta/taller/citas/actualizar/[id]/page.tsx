@@ -72,7 +72,6 @@ export default function UpdateAppointmentPlanningPage() {
       type_operation_appointment_id: String(data.type_operation_appointment_id),
       type_planning_id: String(data.type_planning_id),
       ap_vehicle_id: String(data.ap_vehicle_id),
-      advisor_id: data.advisor_id ? String(data.advisor_id) : "",
       sede_id: String(data.sede_id),
     };
   }

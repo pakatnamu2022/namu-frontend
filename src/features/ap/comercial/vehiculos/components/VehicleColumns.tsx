@@ -7,12 +7,13 @@ import { Badge } from "@/components/ui/badge";
 import { Pencil } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import VehicleMovements from "./VehicleMovements";
+import { CM_POSTVENTA_ID } from "@/core/core.constants";
 
 export type VehicleColumns = ColumnDef<VehicleResource>;
 
 interface Props {
-  onDelete: (id: number) => void;
-  onUpdate: (id: number) => void;
+  onDelete?: (id: number) => void;
+  onUpdate?: (id: number) => void;
 }
 
 export const vehicleColumns = ({
@@ -148,7 +149,7 @@ export const vehicleColumns = ({
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
-      const { id, movements } = row.original;
+      const { id, movements, type_operation_id } = row.original;
 
       return (
         <div className="flex items-center gap-2">
@@ -156,18 +157,22 @@ export const vehicleColumns = ({
           <VehicleMovements movements={movements || []} />
 
           {/* Edit */}
-          <Button
-            variant="outline"
-            size="icon"
-            className="size-7"
-            tooltip="Editar Vehículo"
-            onClick={() => onUpdate(id)}
-          >
-            <Pencil className="size-4" />
-          </Button>
+          {type_operation_id === CM_POSTVENTA_ID && (
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-7"
+              tooltip="Editar Vehículo"
+              onClick={() => onUpdate!(id)}
+            >
+              <Pencil className="size-4" />
+            </Button>
+          )}
 
           {/* Delete */}
-          <DeleteButton onClick={() => onDelete(id)} />
+          {type_operation_id === CM_POSTVENTA_ID && (
+            <DeleteButton onClick={() => onDelete!(id)} />
+          )}
         </div>
       );
     },

@@ -6,6 +6,11 @@ import {
   InventoryResource,
   InventoryResponse,
 } from "./inventory.interface.ts";
+import {
+  getInventoryKardexProps,
+  getInventoryMovementProps,
+  InventoryMovementResponse,
+} from "./inventoryMovements.interface.ts";
 
 const { ENDPOINT } = INVENTORY;
 
@@ -39,3 +44,35 @@ export async function getAllInventory({
   );
   return data;
 }
+
+export const getInventoryMovements = async ({
+  productId,
+  warehouseId,
+  params,
+}: getInventoryMovementProps): Promise<InventoryMovementResponse> => {
+  const config: AxiosRequestConfig = {
+    params: {
+      ...params,
+    },
+  };
+  const { data } = await api.get<InventoryMovementResponse>(
+    `/ap/postVenta/inventoryMovements/product/${productId}/warehouse/${warehouseId}/history`,
+    config
+  );
+  return data;
+};
+
+export const getInventoryKardex = async ({
+  params,
+}: getInventoryKardexProps): Promise<InventoryMovementResponse> => {
+  const config: AxiosRequestConfig = {
+    params: {
+      ...params,
+    },
+  };
+  const { data } = await api.get<InventoryMovementResponse>(
+    `/ap/postVenta/inventoryMovements/kardex`,
+    config
+  );
+  return data;
+};

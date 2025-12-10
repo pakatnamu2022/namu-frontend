@@ -7,6 +7,8 @@ import { ADJUSTMENT } from "../lib/adjustmentsProduct.constants";
 import { AdjustmentsProductListItem } from "../lib/adjustmentsProduct.interface";
 import { Badge } from "@/components/ui/badge";
 import { AP_MASTER_POST_VENTA } from "@/features/ap/lib/ap.constants";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
 
 export type AdjustmentsProductColumns = ColumnDef<AdjustmentsProductListItem>;
 
@@ -31,6 +33,16 @@ export const adjustmentsProductColumns = ({
   {
     accessorKey: "movement_date",
     header: "Fecha de Movimiento",
+    cell: ({ getValue }) => {
+      const value = getValue() as string;
+      if (!value) return "-";
+      try {
+        const date = new Date(value);
+        return format(date, "dd/MM/yyyy", { locale: es });
+      } catch {
+        return value;
+      }
+    },
   },
   {
     accessorKey: "warehouse_code",

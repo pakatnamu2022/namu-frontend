@@ -97,7 +97,7 @@ export default function ManageWorkOrderPage() {
             className="w-full"
           >
             <div className="overflow-x-auto overflow-y-hidden scrollbar-hide -mx-6 px-6">
-              <TabsList className="inline-flex w-auto min-w-full lg:w-full lg:grid lg:grid-cols-7 gap-1">
+              <TabsList className="inline-flex w-auto min-w-full lg:w-full lg:grid lg:grid-cols-8 gap-1">
                 <TabsTrigger
                   value="general"
                   className="flex items-center gap-2 whitespace-nowrap"

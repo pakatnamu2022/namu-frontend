@@ -61,3 +61,17 @@ export const useLicenseValidation = (
     staleTime: 5 * 60 * 1000,
   });
 };
+
+export const usePlateValidation = (plate?: string, enabled = false) => {
+  return useQuery({
+    queryKey: ["plateValidation", plate],
+    queryFn: () => {
+      if (!plate) throw new Error("Plate is required");
+      return documentValidationService.validatePlate(plate);
+    },
+    enabled: enabled && !!plate && plate.length > 0,
+    refetchOnWindowFocus: false,
+    retry: false,
+    staleTime: 5 * 60 * 1000,
+  });
+};

@@ -416,6 +416,9 @@ export default function RequestPartsPage() {
                       <p className="text-sm font-medium truncate">
                         {part.product_name}
                       </p>
+                      <p className="text-xs font-bold text-gray-600 truncate">
+                        SOLICITADO POR: {part.registered_by_name}
+                      </p>
                       <p className="text-xs text-gray-600 truncate">
                         {part.warehouse_name}
                       </p>

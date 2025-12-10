@@ -23,6 +23,7 @@ export default function ProductTable({
         isLoading={isLoading}
         initialColumnVisibility={{
           code: true,
+          dyn_code: true,
           name: true,
           brand_name: true,
           category_name: true,

@@ -18,6 +18,8 @@ import { INVENTORY } from "@/features/ap/post-venta/gestion-compras/inventario/l
 import { useInventory } from "@/features/ap/post-venta/gestion-compras/inventario/lib/inventory.hook";
 import InventoryTable from "@/features/ap/post-venta/gestion-compras/inventario/components/InventoryTable";
 import { inventoryColumns } from "@/features/ap/post-venta/gestion-compras/inventario/components/InventoryColumns";
+import InventoryActions from "@/features/ap/post-venta/gestion-compras/inventario/components/InventoryActions";
+import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 
 export default function InventoryPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -26,6 +28,7 @@ export default function InventoryPage() {
   const [search, setSearch] = useState("");
   const [warehouseId, setWarehouseId] = useState<string>("");
   const { ROUTE } = INVENTORY;
+  const permissions = useModulePermissions(ROUTE);
 
   // Obtener mis almacenes físicos de postventa
   const { data: warehouses = [], isLoading: isLoadingWarehouses } =
@@ -100,6 +103,7 @@ export default function InventoryPage() {
           subtitle={currentView.descripcion}
           icon={currentView.icon}
         />
+        <InventoryActions permissions={permissions} />
       </HeaderTableWrapper>
       <InventoryTable
         isLoading={isLoading}

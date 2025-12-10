@@ -1,22 +1,35 @@
 import { Button } from "@/components/ui/button";
 import { WORKER_ORDER } from "../lib/workOrder.constants";
+import { useNavigate } from "react-router-dom";
+import ActionsWrapper from "@/shared/components/ActionsWrapper";
+import { Plus } from "lucide-react";
 
 interface WorkOrderActionsProps {
-  onCreate: () => void;
-  canCreate: boolean;
+  permissions: {
+    canCreate: boolean;
+  };
 }
 
 export default function WorkOrderActions({
-  onCreate,
-  canCreate,
+  permissions,
 }: WorkOrderActionsProps) {
-  const { MODEL } = WORKER_ORDER;
+  const router = useNavigate();
+  const { ROUTE_ADD } = WORKER_ORDER;
+
+  if (!permissions.canCreate) {
+    return null;
+  }
 
   return (
-    <>
-      {canCreate && (
-        <Button onClick={onCreate}>Agregar {MODEL.name}</Button>
-      )}
-    </>
+    <ActionsWrapper>
+      <Button
+        size="sm"
+        variant="outline"
+        className="ml-auto"
+        onClick={() => router(ROUTE_ADD)}
+      >
+        <Plus className="size-4 mr-2" /> Agregar Orden de Trabajo
+      </Button>
+    </ActionsWrapper>
   );
 }

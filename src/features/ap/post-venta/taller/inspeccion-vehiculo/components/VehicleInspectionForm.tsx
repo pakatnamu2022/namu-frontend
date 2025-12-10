@@ -133,7 +133,7 @@ export const VehicleInspectionForm = ({
             placeholder="Selecciona una fecha"
             dateFormat="dd/MM/yyyy"
             captionLayout="dropdown"
-            disabledRange={{ after: new Date() }}
+            disabled={true}
           />
 
           <FormField

@@ -24,7 +24,7 @@ export const useAllTypesOperationsAppointment = (
   params?: Record<string, any>
 ) => {
   return useQuery<TypesOperationsAppointmentResource[]>({
-    queryKey: [QUERY_KEY],
+    queryKey: [QUERY_KEY, "all", params],
     queryFn: () => getAllTypesOperationsAppointment({ params }),
     refetchOnWindowFocus: false,
   });

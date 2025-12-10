@@ -4,7 +4,7 @@ import { z } from "zod";
 export const appointmentPlanningSchemaCreate = z.object({
   description: z
     .string()
-    .max(500)
+    .max(250)
     .refine((value) => value.trim() !== "", {
       message: "Descripción es requerida",
     }),
@@ -41,7 +41,6 @@ export const appointmentPlanningSchemaCreate = z.object({
   sede_id: requiredStringId("Sede es requerida"),
   type_planning_id: requiredStringId("Tipo de planificación es requerido"),
   ap_vehicle_id: requiredStringId("Vehículo es requerido"),
-  advisor_id: requiredStringId("Asesor es requerido"),
 });
 
 export const appointmentPlanningSchemaUpdate =

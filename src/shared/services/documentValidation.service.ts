@@ -2,6 +2,7 @@ import { api } from "@/core/api";
 import {
   DocumentValidationDniResponse,
   DocumentValidationLicenseResponse,
+  DocumentValidationPlateResponse,
   DocumentValidationRucResponse,
   DocumentValidationService,
 } from "./documentValidation.interface";
@@ -38,6 +39,14 @@ class DocumentValidationServiceImpl implements DocumentValidationService {
     const { data } = await api.post<DocumentValidationLicenseResponse>(
       `${BASE_ENDPOINT}/validate/license`,
       { license, isBusinessPartners }
+    );
+    return data;
+  }
+
+  async validatePlate(plate: string): Promise<DocumentValidationPlateResponse> {
+    const { data } = await api.post<DocumentValidationPlateResponse>(
+      `${BASE_ENDPOINT}/validate/plate`,
+      { plate }
     );
     return data;
   }

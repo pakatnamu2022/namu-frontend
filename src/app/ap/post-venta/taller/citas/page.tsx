@@ -86,6 +86,12 @@ export default function AppointmentPlanningPage() {
     }
   };
 
+  useEffect(() => {
+    if (dateFrom && dateTo && dateFrom > dateTo) {
+      errorToast("La fecha 'Desde' no puede ser mayor que la fecha 'Hasta'.");
+    }
+  }, [dateFrom, dateTo]);
+
   const handleUpdate = (id: number) => {
     router(`${ROUTE_UPDATE}/${id}`);
   };

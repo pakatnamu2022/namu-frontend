@@ -216,23 +216,23 @@ export default function VehicleInspectionPage() {
         title_deed: false,
         soat: false,
         moon_permits: false,
-        service_card: true,
-        owner_manual: true,
-        key_ring: true,
-        wheel_lock: true,
-        safe_glasses: true,
-        radio_mask: true,
-        lighter: true,
-        floors: true,
-        seat_cover: true,
-        quills: true,
-        antenna: true,
-        glasses_wheel: true,
-        emblems: true,
-        spare_tire: true,
-        fluid_caps: true,
-        tool_kit: true,
-        jack_and_lever: true,
+        service_card: false,
+        owner_manual: false,
+        key_ring: false,
+        wheel_lock: false,
+        safe_glasses: false,
+        radio_mask: false,
+        lighter: false,
+        floors: false,
+        seat_cover: false,
+        quills: false,
+        antenna: false,
+        glasses_wheel: false,
+        emblems: false,
+        spare_tire: false,
+        fluid_caps: false,
+        tool_kit: false,
+        jack_and_lever: false,
         general_observations: "",
         inspected_by: "",
         inspection_date: getCurrentDate(),
@@ -253,7 +253,7 @@ export default function VehicleInspectionPage() {
       {/* Información de la Orden de Trabajo */}
       <Card className="p-4 mb-6 gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
         <div className="flex items-center gap-2 mb-3">
-          <Car className="h-5 w-5 text-blue-600" />
+          <Car className="h-5 w-5 text-primary" />
           <h4 className="font-semibold text-gray-800">
             Información de la Orden de Trabajo
           </h4>
