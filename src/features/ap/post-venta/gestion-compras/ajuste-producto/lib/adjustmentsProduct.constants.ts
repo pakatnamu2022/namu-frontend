@@ -3,7 +3,7 @@ import { AdjustmentsProductResource } from "./adjustmentsProduct.interface";
 import { AP_MASTER_POST_VENTA } from "@/features/ap/lib/ap.constants";
 
 const ROUTE = "ajuste-producto";
-const ABSOLUTE_ROUTE = "/ap/post-venta/gestion-de-compras";
+const ABSOLUTE_ROUTE = `/ap/post-venta/gestion-de-compras/${ROUTE}`;
 
 export const ADJUSTMENT: ModelComplete<AdjustmentsProductResource> = {
   MODEL: {
@@ -16,8 +16,8 @@ export const ADJUSTMENT: ModelComplete<AdjustmentsProductResource> = {
   QUERY_KEY: "inventory-movements",
   ROUTE,
   ABSOLUTE_ROUTE,
-  ROUTE_ADD: `${ABSOLUTE_ROUTE}/${ROUTE}/agregar`,
-  ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/${ROUTE}/actualizar`,
+  ROUTE_ADD: `${ABSOLUTE_ROUTE}/agregar`,
+  ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/actualizar`,
 };
 
 export const ALL_MOVEMENT_TYPES = [
