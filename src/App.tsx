@@ -92,6 +92,7 @@ import UpdateEvaluationModelPage from "./app/gp/gestion-humana/evaluaciones-de-d
 import MyPerformance from "./app/perfil/mi-desempeno/page";
 import VacationPage from "./app/perfil/vacaciones/page";
 import ModulePage from "./components/ModulePage";
+import CommercialPage from "./app/ap/comercial/page.tsx";
 const PositionsPage = lazy(
   () => import("./app/gp/gestion-humana/configuraciones/posiciones/page")
 );
@@ -933,7 +934,7 @@ function App() {
               }
             >
               {/* Dashboard Principal */}
-              <Route index element={<ModulePage />} />
+              <Route index element={<CommercialPage />} />
 
               {/* Agenda */}
               <Route path="agenda" element={<AgendaPage />} />
