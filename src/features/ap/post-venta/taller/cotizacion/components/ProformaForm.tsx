@@ -92,9 +92,9 @@ export default function OrderQuotationForm({
             label="Vehículo"
             placeholder="Seleccione vehículo"
             options={vehicles.map((item) => ({
-              label: `(${item.plate || "S/N"}) ${item.model?.brand || ""} ${
-                item.model?.version || ""
-              } (${item.year || ""})`,
+              label: `${item.vin || "S/N"} | ${item.plate || ""} | ${
+                item.model?.brand || ""
+              }`,
               value: item.id.toString(),
             }))}
             control={form.control}
@@ -186,7 +186,7 @@ export default function OrderQuotationForm({
                     {selectedVehicle.vehicle_status || "N/A"}
                   </Badge>
                 </div>
-                {selectedVehicle.owner?.client && (
+                {selectedVehicle.owner !== null && (
                   <div className="col-span-1 sm:col-span-2 lg:col-span-3 pt-2 border-t border-blue-200">
                     <div className="flex items-center gap-2 mb-2">
                       <User className="h-4 w-4 text-primary" />
@@ -198,19 +198,19 @@ export default function OrderQuotationForm({
                       <div>
                         <p className="text-xs text-gray-500">Nombre</p>
                         <p className="font-medium text-sm">
-                          {selectedVehicle.owner.client.full_name}
+                          {selectedVehicle.owner.full_name}
                         </p>
                       </div>
                       <div>
                         <p className="text-xs text-gray-500">Documento</p>
                         <p className="font-medium text-sm">
-                          {selectedVehicle.owner.client.num_doc}
+                          {selectedVehicle.owner.num_doc}
                         </p>
                       </div>
                       <div>
                         <p className="text-xs text-gray-500">Teléfono</p>
                         <p className="font-medium text-sm">
-                          {selectedVehicle.owner.client.phone || "N/A"}
+                          {selectedVehicle.owner.phone || "N/A"}
                         </p>
                       </div>
                     </div>

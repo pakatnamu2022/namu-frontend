@@ -41,19 +41,12 @@ export interface VehicleResource {
   sede_name_warehouse?: string;
   model: ModelsVnResource;
   movements: VehicleMovement[];
-  owner?: Owner;
+  owner?: CustomersResource;
   billed_cost?: number;
   freight_cost?: number;
   type_operation_id: number;
   sede_warehouse_id?: number;
   sede_warehouse_physical_id?: number;
-}
-
-export interface Owner {
-  has_purchase_order: boolean;
-  is_cancelled: boolean;
-  is_paid: boolean;
-  client: CustomersResource;
 }
 
 export interface VehicleResourceWithCosts {

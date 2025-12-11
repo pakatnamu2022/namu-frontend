@@ -95,11 +95,15 @@ export const AppointmentPlanningForm = ({
       setSelectedVehicle(vehicle);
 
       // Si el vehículo tiene cliente (owner), autocompletar los campos
-      if (vehicle?.owner?.client) {
-        const client = vehicle.owner.client;
+      if (vehicle?.owner && vehicle.owner !== null) {
+        const client = vehicle.owner;
         form.setValue("full_name_client", client.full_name || "");
         form.setValue("email_client", client.email || "");
         form.setValue("phone_client", client.phone || "");
+      } else {
+        form.setValue("full_name_client", "");
+        form.setValue("email_client", "");
+        form.setValue("phone_client", "");
       }
     } else {
       setSelectedVehicle(null);
@@ -162,9 +166,9 @@ export const AppointmentPlanningForm = ({
             label="Vehículo"
             placeholder="Seleccione vehículo"
             options={vehicles.map((item) => ({
-              label: `(${item.plate || "S/N"}) ${item.model?.brand || ""} ${
-                item.model?.version || ""
-              } (${item.year || ""})`,
+              label: `${item.vin || "S/N"} | ${item.plate || ""} | ${
+                item.model?.brand || ""
+              }`,
               value: item.id.toString(),
             }))}
             control={form.control}

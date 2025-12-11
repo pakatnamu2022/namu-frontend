@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Car, Loader, MapPin } from "lucide-react";
+import { Car, Loader } from "lucide-react";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import FormSkeleton from "@/shared/components/FormSkeleton";
@@ -67,12 +67,11 @@ export const VehiclePVForm = ({
   const { data: mySedes = [], isLoading: isLoadingMySedes } = useMySedes({
     company: EMPRESA_AP.id,
   });
-  const { data: warehouses = [], isLoading: isLoadingWarehouses } =
-    useWarehouseByModelSede({
-      model_vn_id: String(form.watch("ap_models_vn_id")),
-      sede_id: String(form.watch("sede_id")),
-      is_received: 1,
-    });
+  const { data: warehouses = [] } = useWarehouseByModelSede({
+    model_vn_id: String(form.watch("ap_models_vn_id")),
+    sede_id: String(form.watch("sede_id")),
+    is_received: 1,
+  });
 
   // Watch para plate
   const plateWatch = form.watch("plate");
@@ -104,6 +103,13 @@ export const VehiclePVForm = ({
       form.setValue("engine_number", "");
     }
   }, [plateData, form]);
+
+  // Auto-seleccionar el primer almacén cuando se carguen los datos
+  useEffect(() => {
+    if (warehouses.length > 0 && !form.watch("warehouse_physical_id")) {
+      form.setValue("warehouse_physical_id", warehouses[0].id.toString());
+    }
+  }, [warehouses, form]);
 
   // Obtener la información de la API para mostrar como guía
   const apiInfo = plateData?.success && plateData.data ? plateData.data : null;
@@ -283,13 +289,7 @@ export const VehiclePVForm = ({
               label: type.description,
             }))}
           />
-        </GroupFormSection>
 
-        <GroupFormSection
-          title="Ubicación"
-          icon={MapPin}
-          cols={{ sm: 1, md: 2 }}
-        >
           <FormSelect
             name="warehouse_physical_id"
             placeholder="Seleccionar almacén"
@@ -299,7 +299,7 @@ export const VehiclePVForm = ({
               label: warehouse.description,
             }))}
             label={"Almacén Físico"}
-            disabled={isLoadingWarehouses}
+            disabled={true}
           />
         </GroupFormSection>
 

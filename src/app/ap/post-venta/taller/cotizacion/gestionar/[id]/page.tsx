@@ -230,7 +230,7 @@ export default function ManageQuotationPage() {
               </div>
             </div>
 
-            {quotation.vehicle.owner?.client && (
+            {quotation.vehicle.owner && (
               <div className="pt-4 border-t border-gray-200">
                 <div className="flex items-center gap-2 mb-3">
                   <User className="h-4 w-4 text-gray-600" />
@@ -244,19 +244,19 @@ export default function ManageQuotationPage() {
                       Nombre Completo
                     </p>
                     <p className="font-medium text-sm text-gray-900">
-                      {quotation.vehicle.owner.client.full_name}
+                      {quotation.vehicle.owner.full_name}
                     </p>
                   </div>
                   <div>
                     <p className="text-xs text-gray-600 mb-0.5">Documento</p>
                     <p className="font-medium text-sm text-gray-900">
-                      {quotation.vehicle.owner.client.num_doc}
+                      {quotation.vehicle.owner.num_doc}
                     </p>
                   </div>
                   <div>
                     <p className="text-xs text-gray-600 mb-0.5">Teléfono</p>
                     <p className="font-medium text-sm text-gray-900">
-                      {quotation.vehicle.owner.client.phone || "N/A"}
+                      {quotation.vehicle.owner.phone || "N/A"}
                     </p>
                   </div>
                 </div>
