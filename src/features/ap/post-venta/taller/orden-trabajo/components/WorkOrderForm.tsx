@@ -48,7 +48,7 @@ import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 import { DEFAULT_GROUP_COLOR, GROUP_COLORS } from "../lib/workOrder.interface";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { WORKER_ORDER } from "../lib/workOrder.constants";
-import { AppointmentSelectionModal } from "./AppointmentSelectionModal";
+import { AppointmentSelectionModal } from "../../citas/components/AppointmentSelectionModal";
 
 const getGroupColor = (groupNumber: number) => {
   return GROUP_COLORS[groupNumber] || DEFAULT_GROUP_COLOR;

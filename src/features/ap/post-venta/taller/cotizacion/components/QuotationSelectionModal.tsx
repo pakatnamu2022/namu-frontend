@@ -5,28 +5,29 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Calendar, Clock } from "lucide-react";
-import { useAppointmentPlanning } from "../../citas/lib/appointmentPlanning.hook";
-import { AppointmentPlanningResource } from "../../citas/lib/appointmentPlanning.interface";
+import { Calendar, DollarSign } from "lucide-react";
+import { useOrderQuotations } from "../lib/proforma.hook";
+import { OrderQuotationResource } from "../lib/proforma.interface";
 import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import DatePicker from "@/shared/components/DatePicker";
 import DataTablePagination from "@/shared/components/DataTablePagination";
-import { AppointmentSelectionTable } from "../../citas/components/AppointmentSelectionTable";
+import { QuotationSelectionTable } from "./QuotationSelectionTable";
 import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
+import { errorToast } from "@/core/core.function";
 
-interface AppointmentSelectionModalProps {
+interface QuotationSelectionModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSelectAppointment: (appointmentId: string) => void;
+  onSelectQuotation: (quotationId: string) => void;
 }
 
-export const AppointmentSelectionModal = ({
+export const QuotationSelectionModal = ({
   open,
   onOpenChange,
-  onSelectAppointment,
-}: AppointmentSelectionModalProps) => {
+  onSelectQuotation,
+}: QuotationSelectionModalProps) => {
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const currentDate = new Date();
@@ -42,44 +43,56 @@ export const AppointmentSelectionModal = ({
     setPage(1);
   }, [per_page]);
 
-  const { data, isLoading } = useAppointmentPlanning({
+  useEffect(() => {
+    if (dateFrom && dateTo && dateFrom > dateTo) {
+      errorToast("La fecha 'Desde' no puede ser mayor que la fecha 'Hasta'.");
+    }
+  }, [dateFrom, dateTo]);
+
+  const { data, isLoading } = useOrderQuotations({
     page,
     per_page,
-    is_taken: 0,
-    date_appointment:
+    is_take: 0,
+    quotation_date:
       dateFrom && dateTo
         ? [formatDate(dateFrom), formatDate(dateTo)]
         : undefined,
   });
 
-  const handleRowClick = (appointment: AppointmentPlanningResource) => {
-    onSelectAppointment(appointment.id.toString());
+  const handleRowClick = (quotation: OrderQuotationResource) => {
+    onSelectQuotation(quotation.id.toString());
     onOpenChange(false);
   };
 
-  const columns: ColumnDef<AppointmentPlanningResource>[] = [
+  const columns: ColumnDef<OrderQuotationResource>[] = [
     {
-      accessorKey: "full_name_client",
-      header: "Cliente",
+      accessorKey: "quotation_number",
+      header: "Número de Cotización",
       cell: ({ getValue }) => {
         const value = getValue() as string;
         return value && <p className="font-semibold">{value}</p>;
       },
     },
     {
-      accessorKey: "plate",
-      header: "Placa",
-      cell: ({ getValue }) => {
-        const value = getValue() as string;
-        return <span className="font-medium">{value || "-"}</span>;
+      accessorKey: "vehicle",
+      header: "Vehículo",
+      cell: ({ row }) => {
+        const vehicle = row.original.vehicle;
+        return (
+          <div className="flex flex-col gap-0.5">
+            <span className="font-medium">{vehicle.plate || "-"}</span>
+            <span className="text-xs text-muted-foreground">
+              {vehicle.model?.brand || ""} {vehicle.model?.family || ""}
+            </span>
+          </div>
+        );
       },
     },
     {
-      id: "appointment_datetime",
-      header: "Fecha y Hora de Cita",
+      id: "quotation_date",
+      header: "Fecha de Cotización",
       cell: ({ row }) => {
-        const date = row.original.date_appointment;
-        const time = row.original.time_appointment;
+        const date = row.original.quotation_date;
 
         if (!date) return "-";
 
@@ -90,22 +103,29 @@ export const AppointmentSelectionModal = ({
             { locale: es }
           );
           return (
-            <div className="flex flex-col gap-1">
-              <div className="flex items-center gap-1.5 text-sm">
-                <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
-                <span className="font-medium">{formattedDate}</span>
-              </div>
-              {time && (
-                <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                  <Clock className="h-3.5 w-3.5" />
-                  <span>{time}</span>
-                </div>
-              )}
+            <div className="flex items-center gap-1.5 text-sm">
+              <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
+              <span className="font-medium">{formattedDate}</span>
             </div>
           );
         } catch {
           return date;
         }
+      },
+    },
+    {
+      accessorKey: "total_amount",
+      header: "Monto Total",
+      cell: ({ getValue }) => {
+        const value = getValue() as number;
+        return (
+          <div className="flex items-center gap-1.5 text-sm">
+            <DollarSign className="h-3.5 w-3.5 text-green-600" />
+            <span className="font-semibold text-green-700">
+              S/ {value.toFixed(2)}
+            </span>
+          </div>
+        );
       },
     },
   ];
@@ -115,7 +135,7 @@ export const AppointmentSelectionModal = ({
       <DialogContent className="w-[90vw] sm:w-[85vw] md:w-[80vw] lg:w-[75vw] xl:w-[70vw] 2xl:max-w-[1400px] h-[85vh] sm:h-[80vh] md:h-[75vh] lg:h-[80vh] overflow-hidden flex flex-col p-3 sm:p-4 md:p-5 lg:p-6">
         <DialogHeader>
           <DialogTitle className="text-lg sm:text-xl">
-            Seleccionar Cita de Planificación
+            Seleccionar Cotización
           </DialogTitle>
         </DialogHeader>
 
@@ -125,6 +145,7 @@ export const AppointmentSelectionModal = ({
             <DatePicker
               value={dateFrom}
               onChange={setDateFrom}
+              label="Fecha Desde"
               placeholder="Fecha Desde"
               showClearButton={false}
               captionLayout="dropdown"
@@ -132,6 +153,7 @@ export const AppointmentSelectionModal = ({
             <DatePicker
               value={dateTo}
               onChange={setDateTo}
+              label="Fecha Hasta"
               placeholder="Fecha Hasta"
               showClearButton={false}
               captionLayout="dropdown"
@@ -139,14 +161,15 @@ export const AppointmentSelectionModal = ({
           </div>
 
           {/* Tabla */}
-          <AppointmentSelectionTable
+          <QuotationSelectionTable
             columns={columns}
             data={data?.data || []}
             isLoading={isLoading}
             initialColumnVisibility={{
-              full_name_client: true,
-              plate: true,
-              appointment_datetime: true,
+              quotation_number: true,
+              vehicle: true,
+              quotation_date: true,
+              total_amount: true,
             }}
             onRowClick={handleRowClick}
           />

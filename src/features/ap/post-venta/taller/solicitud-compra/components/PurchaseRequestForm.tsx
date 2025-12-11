@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Plus, Trash2, Package } from "lucide-react";
+import { Plus, Trash2, Package, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -32,6 +32,7 @@ import { getInventory } from "@/features/ap/post-venta/gestion-compras/inventari
 import { InventoryResource } from "@/features/ap/post-venta/gestion-compras/inventario/lib/inventory.interface";
 import { getAllOrderQuotations } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.actions";
 import { OrderQuotationResource } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.interface";
+import { QuotationSelectionModal } from "../../cotizacion/components/QuotationSelectionModal";
 
 interface PurchaseRequestFormProps {
   defaultValues: Partial<PurchaseRequestSchema>;
@@ -57,6 +58,7 @@ export default function PurchaseRequestForm({
   const [isLoadingProducts, setIsLoadingProducts] = useState(false);
   const [quotations, setQuotations] = useState<OrderQuotationResource[]>([]);
   const [isLoadingQuotations, setIsLoadingQuotations] = useState(false);
+  const [isQuotationModalOpen, setIsQuotationModalOpen] = useState(false);
 
   const { data: warehouses = [], isLoading: isLoadingWarehouses } =
     useAllWarehouse({
@@ -244,6 +246,26 @@ export default function PurchaseRequestForm({
     );
   };
 
+  const handleSelectQuotation = (quotationId: string) => {
+    form.setValue("ap_order_quotation_id", quotationId);
+  };
+
+  const getSelectedQuotationLabel = () => {
+    if (!selectedQuotationId || quotations.length === 0) return null;
+
+    const quotation = quotations.find(
+      (q) => q.id.toString() === selectedQuotationId
+    );
+
+    if (!quotation) return null;
+
+    return `${quotation.quotation_number} - ${quotation.vehicle.plate} (${
+      quotation.vehicle.model.brand
+    } ${quotation.vehicle.model.family}) - S/ ${quotation.total_amount.toFixed(
+      2
+    )}`;
+  };
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -299,35 +321,35 @@ export default function PurchaseRequestForm({
             />
           </div>
 
-          {/* Select de cotizaciones (se muestra solo si el checkbox está activo) */}
+          {/* Selector de Cotización - Solo visible si has_appointment es true */}
           {hasAppointment && (
             <div className="mt-4">
-              <FormSelect
-                name="ap_order_quotation_id"
-                label="Cotización"
-                placeholder={
-                  isLoadingQuotations
-                    ? "Cargando cotizaciones..."
-                    : "Seleccione una cotización"
-                }
-                options={quotations.map((quotation) => ({
-                  label: () => (
-                    <div className="flex flex-col gap-1">
-                      <span className="font-medium">
-                        {quotation.quotation_number}
-                      </span>
-                      <span className="text-xs text-gray-500">
-                        {quotation.vehicle.plate} -{" "}
-                        {quotation.vehicle.model.brand}{" "}
-                        {quotation.vehicle.model.family} | Total: S/{" "}
-                        {quotation.total_amount.toFixed(2)}
-                      </span>
-                    </div>
-                  ),
-                  value: quotation.id.toString(),
-                }))}
+              <FormField
                 control={form.control}
-                disabled={isLoadingQuotations}
+                name="ap_order_quotation_id"
+                render={() => (
+                  <FormItem>
+                    <FormLabel>Cotización</FormLabel>
+                    <FormControl>
+                      <div className="space-y-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="w-full justify-start"
+                          onClick={() => setIsQuotationModalOpen(true)}
+                          disabled={isLoadingQuotations}
+                        >
+                          <Search className="h-4 w-4 mr-2" />
+                          {isLoadingQuotations
+                            ? "Cargando cotizaciones..."
+                            : getSelectedQuotationLabel() ||
+                              "Buscar y seleccionar cotización"}
+                        </Button>
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
             </div>
           )}
@@ -577,6 +599,13 @@ export default function PurchaseRequestForm({
               : "Actualizar Solicitud"}
           </Button>
         </div>
+
+        {/* Modal de Selección de Cotización */}
+        <QuotationSelectionModal
+          open={isQuotationModalOpen}
+          onOpenChange={setIsQuotationModalOpen}
+          onSelectQuotation={handleSelectQuotation}
+        />
       </form>
     </Form>
   );
