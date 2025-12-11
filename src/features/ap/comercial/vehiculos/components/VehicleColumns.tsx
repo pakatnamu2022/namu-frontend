@@ -106,6 +106,10 @@ export const vehicleColumns = ({
     header: "Color",
   },
   {
+    accessorKey: "sede_name_warehouse",
+    header: "Sede",
+  },
+  {
     accessorKey: "engine_type",
     header: "Tipo Motor",
   },
