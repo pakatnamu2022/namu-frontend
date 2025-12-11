@@ -368,6 +368,7 @@ export default function VehicleDamageMarker({
 
           <DialogFooter>
             <Button
+              type="button"
               variant="outline"
               onClick={() => {
                 setIsDialogOpen(false);
@@ -377,7 +378,7 @@ export default function VehicleDamageMarker({
             >
               Cancelar
             </Button>
-            <Button onClick={handleSaveDamage}>Guardar Daño</Button>
+            <Button type="button" onClick={handleSaveDamage}>Guardar Daño</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
