@@ -46,6 +46,11 @@ export default function VehicleInspectionPage() {
     queryFn: () => findVehicleInspectionByWorkOrderId(Number(workOrderId)),
     enabled: !!workOrderId,
     retry: false,
+    staleTime: Infinity, // Los datos nunca se consideran "obsoletos"
+    gcTime: Infinity, // Mantener en caché indefinidamente
+    refetchOnWindowFocus: false, // NO refrescar cuando vuelves a la ventana
+    refetchOnMount: false, // NO refrescar cuando el componente se monta de nuevo
+    refetchOnReconnect: false, // NO refrescar cuando se reconecta internet
   });
 
   const isUpdate = !!existingInspection && !inspectionError;
@@ -290,7 +295,6 @@ export default function VehicleInspectionPage() {
         isSubmitting={isCreating || isUpdating}
         mode={isUpdate ? "update" : "create"}
         onCancel={() => router(ABSOLUTE_ROUTE!)}
-        workOrderId={String(workOrder.id)}
       />
     </FormWrapper>
   );

@@ -37,7 +37,6 @@ interface VehicleInspectionFormProps {
   isSubmitting?: boolean;
   mode?: "create" | "update";
   onCancel?: () => void;
-  workOrderId?: string;
 }
 
 // Niveles de combustible
@@ -64,7 +63,6 @@ export const VehicleInspectionForm = ({
   isSubmitting = false,
   mode = "create",
   onCancel,
-  workOrderId,
 }: VehicleInspectionFormProps) => {
   const form = useForm({
     resolver: zodResolver(
@@ -72,10 +70,7 @@ export const VehicleInspectionForm = ({
         ? vehicleInspectionSchemaCreate
         : vehicleInspectionSchemaUpdate
     ),
-    defaultValues: {
-      ...defaultValues,
-      work_order_id: workOrderId || defaultValues.work_order_id,
-    },
+    defaultValues,
     mode: "onChange",
   });
 
