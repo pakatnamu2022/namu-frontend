@@ -34,6 +34,7 @@ import { DocumentValidationStatus } from "@/shared/components/DocumentValidation
 import { ValidationIndicator } from "@/shared/components/ValidationIndicator";
 import { usePlateValidation } from "@/shared/hooks/useDocumentValidation";
 import { useEffect, useState } from "react";
+import { ModelsVnResource } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.interface";
 
 interface VehiclePVFormProps {
   defaultValues: Partial<VehicleSchema>;
@@ -242,9 +243,9 @@ export const VehiclePVForm = ({
             )}
             placeholder="Seleccionar modelo"
             useQueryHook={useModelsVn}
-            mapOptionFn={(model) => ({
-              value: model.id.toString(),
-              label: `${model.code} - ${model.version}`,
+            mapOptionFn={(item: ModelsVnResource) => ({
+              value: item.id.toString(),
+              label: `${item.code} - ${item.version}`,
             })}
             perPage={10}
             debounceMs={500}

@@ -13,7 +13,7 @@ import {
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import FormWrapper from "@/shared/components/FormWrapper";
-import { ESTABLISHMENTS } from "@/features/ap/comercial/establecimientos/lib/establishments.constants";
+import { ESTABLISHMENTS_PV } from "@/features/ap/comercial/establecimientos/lib/establishments.constants";
 import {
   findEstablishmentsById,
   updateEstablishments,
@@ -21,15 +21,15 @@ import {
 import { EstablishmentsSchema } from "@/features/ap/comercial/establecimientos/lib/establishments.schema";
 import { EstablishmentsResource } from "@/features/ap/comercial/establecimientos/lib/establishments.interface";
 import { EstablishmentsForm } from "@/features/ap/comercial/establecimientos/components/EstablishmentsForm";
-import { CUSTOMERS } from "@/features/ap/comercial/clientes/lib/customers.constants";
 import { notFound } from "@/shared/hooks/useNotFound";
+import { CUSTOMERS_PV } from "@/features/ap/comercial/clientes/lib/customers.constants";
 
 export default function UpdateCustomerEstablishmentPage() {
   const { id, establishmentId } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();
   const { currentView, checkRouteExists } = useCurrentModule();
-  const { QUERY_KEY, MODEL, ABSOLUTE_ROUTE } = ESTABLISHMENTS;
+  const { QUERY_KEY, MODEL, ABSOLUTE_ROUTE } = ESTABLISHMENTS_PV;
 
   const { data: establishment, isLoading: loadingEstablishment } = useQuery({
     queryKey: [QUERY_KEY, establishmentId],
@@ -80,7 +80,7 @@ export default function UpdateCustomerEstablishmentPage() {
   if (isLoadingAny) {
     return <FormSkeleton />;
   }
-  if (!checkRouteExists(CUSTOMERS.ROUTE)) notFound();
+  if (!checkRouteExists(CUSTOMERS_PV.ROUTE)) notFound();
   if (!currentView) notFound();
 
   return (
@@ -97,6 +97,7 @@ export default function UpdateCustomerEstablishmentPage() {
         mode="update"
         businessPartnerId={establishment.business_partner_id}
         isCustomer={true}
+        isCommercial={false}
       />
     </FormWrapper>
   );

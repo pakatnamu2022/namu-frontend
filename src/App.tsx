@@ -696,9 +696,36 @@ const EditVehiclePostVentaPage = lazy(
       "./app/ap/post-venta/taller/vehiculos-post-venta/actualizar/[id]/page"
     )
 );
-// const EditOrderQuotationPage = lazy(
-//   () => import("./app/ap/post-venta/taller/cotizacion/actualizar/[id]/page")
-// );
+const CustomersPostVentaPage = lazy(
+  () => import("./app/ap/post-venta/taller/clientes-post-venta/page")
+);
+const AddCustomersPostVentaPage = lazy(
+  () => import("./app/ap/post-venta/taller/clientes-post-venta/agregar/page")
+);
+const EditCustomersPostVentaPage = lazy(
+  () =>
+    import(
+      "./app/ap/post-venta/taller/clientes-post-venta/actualizar/[id]/page"
+    )
+);
+const CustomerEstablishmentsPostVentaPage = lazy(
+  () =>
+    import(
+      "./app/ap/post-venta/taller/clientes-post-venta/establecimientos/[id]/page"
+    )
+);
+const AddCustomerEstablishmentsPostVentaPage = lazy(
+  () =>
+    import(
+      "./app/ap/post-venta/taller/clientes-post-venta/establecimientos/[id]/agregar/page"
+    )
+);
+const EditCustomerEstablishmentsPostVentaPage = lazy(
+  () =>
+    import(
+      "./app/ap/post-venta/taller/clientes-post-venta/establecimientos/[id]/actualizar/[establishmentId]/page"
+    )
+);
 const WorkOrderPage = lazy(
   () => import("./app/ap/post-venta/taller/orden-trabajo/page")
 );
@@ -1601,6 +1628,32 @@ function App() {
                 path="taller/solicitud-compra/actualizar/:id"
                 element={<EditPurchaseRequestPage />}
               />
+
+              <Route
+                path="taller/clientes-post-venta"
+                element={<CustomersPostVentaPage />}
+              />
+              <Route
+                path="taller/clientes-post-venta/agregar"
+                element={<AddCustomersPostVentaPage />}
+              />
+              <Route
+                path="taller/clientes-post-venta/actualizar/:id"
+                element={<EditCustomersPostVentaPage />}
+              />
+              <Route
+                path="taller/clientes-post-venta/establecimientos/:id"
+                element={<CustomerEstablishmentsPostVentaPage />}
+              />
+              <Route
+                path="taller/clientes-post-venta/establecimientos/:id/agregar"
+                element={<AddCustomerEstablishmentsPostVentaPage />}
+              />
+              <Route
+                path="taller/clientes-post-venta/establecimientos/:id/actualizar/:establishmentId"
+                element={<EditCustomerEstablishmentsPostVentaPage />}
+              />
+
               <Route
                 path="taller/vehiculos-post-venta"
                 element={<VehiclePostVentaPage />}
