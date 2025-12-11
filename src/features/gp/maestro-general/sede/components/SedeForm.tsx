@@ -28,6 +28,7 @@ import {
   useAllProvince,
 } from "../../../gestionsistema/ubicaciones/lib/location.hook";
 import { SEDE } from "../lib/sede.constants";
+import { FormSwitch } from "@/shared/components/FormSwitch";
 
 interface SedeFormProps {
   defaultValues: Partial<SedeSchema>;
@@ -239,6 +240,12 @@ export const SedeForm = ({
             }))}
             control={form.control}
             disabled={!selectedProvinceId || isLoadingDistricts}
+          />
+          <FormSwitch
+            name="has_workshop"
+            label="¿Tiene Taller?"
+            text={form.watch("has_workshop") ? "Sí" : "No"}
+            control={form.control}
           />
         </div>
         <div className="flex gap-4 w-full justify-end">

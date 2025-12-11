@@ -1,99 +1,43 @@
-import {
-  ColumnDef,
-  flexRender,
-  getCoreRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Skeleton } from "@/components/ui/skeleton";
+import { DataTable } from "@/shared/components/DataTable";
+import { InventoryMovementColumns } from "./InventoryMovementsColumns";
+import { InventoryMovementResource } from "../lib/inventoryMovements.interface";
 
-interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
-  data: TData[];
+interface Props {
+  columns: InventoryMovementColumns[];
+  data: InventoryMovementResource[];
   children?: React.ReactNode;
   isLoading?: boolean;
 }
 
-export default function InventoryMovementsTable<TData, TValue>({
+export default function InventoryMovementsTable({
   columns,
   data,
   children,
-  isLoading = false,
-}: DataTableProps<TData, TValue>) {
-  const table = useReactTable({
-    data,
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-  });
-
+  isLoading,
+}: Props) {
   return (
-    <>
-      {children}
-      <div className="rounded-md border bg-card">
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                  </TableHead>
-                ))}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {isLoading ? (
-              Array.from({ length: 5 }).map((_, index) => (
-                <TableRow key={index}>
-                  {columns.map((_, cellIndex) => (
-                    <TableCell key={cellIndex}>
-                      <Skeleton className="h-6 w-full" />
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  No hay movimientos registrados.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
-    </>
+    <div className="border-none text-muted-foreground max-w-full">
+      <DataTable
+        columns={columns}
+        data={data}
+        isLoading={isLoading}
+        initialColumnVisibility={{
+          movement_date: true,
+          Fecha: true,
+          movement_type: true,
+          movement_number: true,
+          document_number: true,
+          warehouse_origin: false,
+          warehouse_destination: false,
+          user_name: false,
+          notes: false,
+          quantity_in: true,
+          quantity_out: true,
+          balance: true,
+        }}
+      >
+        {children}
+      </DataTable>
+    </div>
   );
 }

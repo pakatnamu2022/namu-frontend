@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
@@ -59,6 +59,21 @@ export const sedeColumns = ({
     header: "Departamento",
   },
   {
+    accessorKey: "has_workshop",
+    header: "¿Tiene Taller?",
+    cell: ({ getValue }) => {
+      const value = getValue() as boolean;
+      return (
+        <Badge
+          variant={value ? "default" : "secondary"}
+          className="capitalize w-8 flex items-center justify-center"
+        >
+          {value ? "Sí" : "No"}
+        </Badge>
+      );
+    },
+  },
+  {
     accessorKey: "status",
     header: "Estado",
     cell: ({ getValue }) => {
@@ -77,6 +92,7 @@ export const sedeColumns = ({
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
       const router = useNavigate();
       const { id, status } = row.original;
 

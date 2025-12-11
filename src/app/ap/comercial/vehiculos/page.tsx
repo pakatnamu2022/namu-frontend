@@ -12,28 +12,23 @@ import {
   SUCCESS_MESSAGE,
   successToast,
 } from "@/core/core.function";
-import { DEFAULT_PER_PAGE } from "@/core/core.constants";
+import { CM_COMERCIAL_ID, DEFAULT_PER_PAGE } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { VEHICLES } from "@/features/ap/comercial/vehiculos/lib/vehicles.constants";
 import { useVehicles } from "@/features/ap/comercial/vehiculos/lib/vehicles.hook";
-import {
-  deleteVehicle,
-} from "@/features/ap/comercial/vehiculos/lib/vehicles.actions";
+import { deleteVehicle } from "@/features/ap/comercial/vehiculos/lib/vehicles.actions";
 import VehicleActions from "@/features/ap/comercial/vehiculos/components/VehicleActions";
 import { vehicleColumns } from "@/features/ap/comercial/vehiculos/components/VehicleColumns";
 import VehicleTable from "@/features/ap/comercial/vehiculos/components/VehicleTable";
 import VehicleOptions from "@/features/ap/comercial/vehiculos/components/VehicleOptions";
-import VehicleModal from "@/features/ap/comercial/vehiculos/components/VehicleModal";
 import { notFound } from "@/shared/hooks/useNotFound";
 
-
 export default function VehiclesPage() {
-    const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
+  const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
-  const [updateId, setUpdateId] = useState<number | null>(null);
   const { MODEL, ROUTE } = VEHICLES;
 
   useEffect(() => {
@@ -43,6 +38,7 @@ export default function VehiclesPage() {
     page,
     search,
     per_page,
+    type_operation_id: CM_COMERCIAL_ID,
   });
 
   const handleDelete = async () => {
@@ -77,7 +73,6 @@ export default function VehiclesPage() {
         isLoading={isLoading}
         columns={vehicleColumns({
           onDelete: setDeleteId,
-          onUpdate: setUpdateId,
         })}
         data={data?.data || []}
       >
@@ -89,18 +84,6 @@ export default function VehiclesPage() {
           open={true}
           onOpenChange={(open) => !open && setDeleteId(null)}
           onConfirm={handleDelete}
-        />
-      )}
-
-      {updateId !== null && (
-        <VehicleModal
-          id={updateId}
-          title={"Actualizar Vehículo"}
-          open={true}
-          onClose={() => {
-            setUpdateId(null);
-          }}
-          mode="update"
         />
       )}
 

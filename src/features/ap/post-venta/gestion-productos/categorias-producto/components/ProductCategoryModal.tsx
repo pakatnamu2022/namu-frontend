@@ -40,7 +40,8 @@ export default function ProductCategoryModal({
     refetch,
   } = mode === "create"
     ? { data: EMPTY, isLoading: false, refetch: () => {} }
-    : useProductCategoryById(id!);
+    : // eslint-disable-next-line react-hooks/rules-of-hooks
+      useProductCategoryById(id!);
 
   function mapRoleToForm(
     data: ProductCategoryResource

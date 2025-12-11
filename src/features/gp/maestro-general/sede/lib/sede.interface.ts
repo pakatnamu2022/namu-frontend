@@ -30,6 +30,7 @@ export interface SedeResource {
   province_id: null | number;
   department_id: null | number;
   status: boolean;
+  has_workshop: boolean;
 }
 
 export interface getSedesProps {

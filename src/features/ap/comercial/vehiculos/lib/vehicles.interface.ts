@@ -41,16 +41,12 @@ export interface VehicleResource {
   sede_name_warehouse?: string;
   model: ModelsVnResource;
   movements: VehicleMovement[];
-  owner?: Owner;
+  owner?: CustomersResource;
   billed_cost?: number;
   freight_cost?: number;
-}
-
-export interface Owner {
-  has_purchase_order: boolean;
-  is_cancelled: boolean;
-  is_paid: boolean;
-  client: CustomersResource;
+  type_operation_id: number;
+  sede_warehouse_id?: number;
+  sede_warehouse_physical_id?: number;
 }
 
 export interface VehicleResourceWithCosts {
@@ -80,13 +76,13 @@ export interface VehicleRequest {
   vin: string;
   year: number;
   engine_number: string;
-  ap_models_vn_id: number;
-  vehicle_color_id: number;
+  ap_models_vn_id: string;
+  vehicle_color_id: string;
   supplier_order_type_id: number;
-  engine_type_id: number;
+  engine_type_id: string;
   ap_vehicle_status_id: number;
-  sede_id: number;
-  warehouse_physical_id?: number | null;
+  sede_id: string;
+  warehouse_physical_id: string;
 }
 
 export interface GetVehiclesProps {

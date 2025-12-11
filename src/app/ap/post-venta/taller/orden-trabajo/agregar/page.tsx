@@ -54,7 +54,7 @@ export default function AddWorkOrderPage() {
           vehicle_id: "",
           advisor_id: "",
           sede_id: "",
-          opening_date: "",
+          opening_date: new Date(),
           estimated_delivery_date: "",
           diagnosis_date: "",
           observations: "",

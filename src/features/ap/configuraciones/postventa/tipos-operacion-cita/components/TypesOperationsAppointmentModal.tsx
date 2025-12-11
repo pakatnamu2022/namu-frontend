@@ -36,13 +36,13 @@ export default function TypesOperationsAppointmentModal({
   const queryClient = useQueryClient();
   const { EMPTY, MODEL, QUERY_KEY } = TYPE_OPERACTION_APPOINTMENT;
   const {
-    data: fetchedTypesOperationsAppointment,
+    data: TypesOperationsAppointment,
     isLoading: loadingTypesOperationsAppointment,
     refetch,
-  } = useTypesOperationsAppointmentById(id);
-
-  const TypesOperationsAppointment =
-    mode === "create" ? EMPTY : fetchedTypesOperationsAppointment;
+  } = mode === "create"
+    ? { data: EMPTY, isLoading: false, refetch: () => {} }
+    : // eslint-disable-next-line react-hooks/rules-of-hooks
+      useTypesOperationsAppointmentById(id!);
 
   function mapRoleToForm(
     data: TypesOperationsAppointmentResource

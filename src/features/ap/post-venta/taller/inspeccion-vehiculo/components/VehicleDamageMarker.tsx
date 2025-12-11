@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useMemo } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -24,7 +24,7 @@ import {
   DamageType,
 } from "../lib/vehicleInspection.interface";
 import { VehicleInspectionDamageSchema } from "../lib/vehicleInspection.schema";
-import { X, Upload, Trash2 } from "lucide-react";
+import { X, Upload, Trash2, Camera } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 interface VehicleDamageMarkerProps {
@@ -44,6 +44,15 @@ export default function VehicleDamageMarker({
   const [previewUrl, setPreviewUrl] = useState<string>("");
   const imageRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Detectar si es dispositivo móvil con cámara
+  const isMobile = useMemo(() => {
+    if (typeof window === "undefined") return false;
+    const userAgent = navigator.userAgent || "";
+    const mobile = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent.toLowerCase());
+    const hasMediaDevices = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+    return mobile && hasMediaDevices;
+  }, []);
 
   const handleImageClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (disabled) return;
@@ -329,6 +338,7 @@ export default function VehicleDamageMarker({
                       ref={fileInputRef}
                       type="file"
                       accept="image/*"
+                      capture={isMobile ? "environment" : undefined}
                       className="hidden"
                       onChange={handleFileChange}
                     />
@@ -338,8 +348,17 @@ export default function VehicleDamageMarker({
                       onClick={() => fileInputRef.current?.click()}
                       className="w-full"
                     >
-                      <Upload className="h-4 w-4 mr-2" />
-                      Subir Foto
+                      {isMobile ? (
+                        <>
+                          <Camera className="h-4 w-4 mr-2" />
+                          Tomar Foto
+                        </>
+                      ) : (
+                        <>
+                          <Upload className="h-4 w-4 mr-2" />
+                          Subir Foto
+                        </>
+                      )}
                     </Button>
                   </>
                 )}
@@ -349,6 +368,7 @@ export default function VehicleDamageMarker({
 
           <DialogFooter>
             <Button
+              type="button"
               variant="outline"
               onClick={() => {
                 setIsDialogOpen(false);
@@ -358,7 +378,7 @@ export default function VehicleDamageMarker({
             >
               Cancelar
             </Button>
-            <Button onClick={handleSaveDamage}>Guardar Daño</Button>
+            <Button type="button" onClick={handleSaveDamage}>Guardar Daño</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

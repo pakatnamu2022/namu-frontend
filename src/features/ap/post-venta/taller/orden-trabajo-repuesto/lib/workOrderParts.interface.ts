@@ -16,6 +16,7 @@ export interface WorkOrderPartsResource {
   warehouse_name: string;
   quantity_used: number;
   is_delivered: boolean;
+  registered_by_name: string;
 }
 
 export interface WorkOrderPartsRequest {

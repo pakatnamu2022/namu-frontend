@@ -56,6 +56,7 @@ export default function AddSedePage() {
           district_id: "",
           province_id: "",
           department_id: "",
+          has_workshop: false,
         }}
         onSubmit={handleSubmit}
         isSubmitting={isPending}

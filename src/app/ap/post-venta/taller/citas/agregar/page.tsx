@@ -49,7 +49,7 @@ export default function AddAppointmentPlanningPage() {
       />
       <AppointmentPlanningForm
         defaultValues={{
-          description: "",
+          description: "Ninguna",
           delivery_date: "",
           delivery_time: "",
           date_appointment: "",
@@ -60,7 +60,6 @@ export default function AddAppointmentPlanningPage() {
           type_operation_appointment_id: "",
           type_planning_id: "",
           ap_vehicle_id: "",
-          advisor_id: "",
           sede_id: "",
         }}
         onSubmit={handleSubmit}

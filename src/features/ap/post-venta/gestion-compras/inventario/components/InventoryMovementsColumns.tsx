@@ -5,6 +5,7 @@ import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { translateMovementType } from "../lib/inventory.constants";
 import { ArrowDown, ArrowUp } from "lucide-react";
+import InventoryMovementActions from "./InventoryMovementActions";
 
 export type InventoryMovementColumns = ColumnDef<InventoryMovementResource>;
 
@@ -69,97 +70,53 @@ export const inventoryMovementsColumns = (): InventoryMovementColumns[] => [
     },
   },
   {
-    accessorKey: "document_number",
-    header: "N° Documento",
+    accessorKey: "warehouse_origin",
+    header: "Almacén Origen",
     cell: ({ row }) => {
-      const docType = row.original.document_type;
-      const docNumber = row.original.document_number;
-      if (!docNumber) return "-";
-      return (
-        <div className="flex flex-col">
-          {docType && (
-            <span className="text-xs text-muted-foreground">{docType}</span>
-          )}
-          <span>{docNumber}</span>
-        </div>
-      );
+      const warehouseOrigin = row.original.warehouse_origin;
+
+      if (!warehouseOrigin) return "-";
+
+      if (typeof warehouseOrigin === "object") {
+        return (
+          <div className="flex flex-col">
+            <span>{warehouseOrigin.description}</span>
+            {warehouseOrigin.dyn_code && (
+              <span className="text-xs text-gray-500">
+                {warehouseOrigin.dyn_code}
+              </span>
+            )}
+          </div>
+        );
+      }
+
+      return warehouseOrigin;
     },
   },
   {
-    accessorKey: "quantity_in",
-    header: "Entrada",
-    cell: ({ getValue }) => {
-      const value = getValue() as number;
-      if (!value || value === 0) return "-";
-      return (
-        <span className="text-green-600 font-medium">+{value.toFixed(2)}</span>
-      );
+    accessorKey: "warehouse_destination",
+    header: "Almacén Destino",
+    cell: ({ row }) => {
+      const warehouseDestination = row.original.warehouse_destination;
+
+      if (!warehouseDestination) return "-";
+
+      if (typeof warehouseDestination === "object") {
+        return (
+          <div className="flex flex-col">
+            <span>{warehouseDestination.description}</span>
+            {warehouseDestination.dyn_code && (
+              <span className="text-xs text-gray-500">
+                {warehouseDestination.dyn_code}
+              </span>
+            )}
+          </div>
+        );
+      }
+
+      return warehouseDestination;
     },
   },
-  {
-    accessorKey: "quantity_out",
-    header: "Salida",
-    cell: ({ getValue }) => {
-      const value = getValue() as number;
-      if (!value || value === 0) return "-";
-      return (
-        <span className="text-red-600 font-medium">-{value.toFixed(2)}</span>
-      );
-    },
-  },
-  {
-    accessorKey: "balance",
-    header: "Saldo",
-    cell: ({ getValue }) => {
-      const value = getValue() as number;
-      return (
-        <span className="font-semibold">{value?.toFixed(2) || "0.00"}</span>
-      );
-    },
-  },
-  {
-    accessorKey: "unit_cost",
-    header: "Costo Unitario",
-    cell: ({ getValue }) => {
-      const value = getValue() as number;
-      if (!value) return "-";
-      return `S/ ${value.toFixed(2)}`;
-    },
-  },
-  {
-    accessorKey: "total_cost",
-    header: "Costo Total",
-    cell: ({ getValue }) => {
-      const value = getValue() as number;
-      if (!value) return "-";
-      return `S/ ${value.toFixed(2)}`;
-    },
-  },
-  // {
-  //   accessorKey: "warehouse_origin",
-  //   header: "Almacén Origen",
-  //   cell: ({ getValue }) => {
-  //     const value = getValue() as string;
-  //     return value || "-";
-  //   },
-  // },
-  // {
-  //   accessorKey: "warehouse_destination",
-  //   header: "Almacén Destino",
-  //   cell: ({ getValue }) => {
-  //     const value = getValue() as string;
-  //     return value || "-";
-  //   },
-  // },
-  // {
-  //   accessorKey: "supplier",
-  //   header: "Proveedor/Cliente",
-  //   cell: ({ row }) => {
-  //     const supplier = row.original.supplier;
-  //     const customer = row.original.customer;
-  //     return supplier || customer || "-";
-  //   },
-  // },
   {
     accessorKey: "user_name",
     header: "Usuario",
@@ -179,6 +136,26 @@ export const inventoryMovementsColumns = (): InventoryMovementColumns[] => [
           {value}
         </span>
       );
+    },
+  },
+  {
+    accessorKey: "quantity_in",
+    header: "Cant. Ingresada",
+  },
+  {
+    accessorKey: "quantity_out",
+    header: "Cant. Salida",
+  },
+  {
+    accessorKey: "balance",
+    header: "Saldo",
+  },
+  {
+    id: "actions",
+    header: "Acciones",
+    cell: ({ row }) => {
+      const movement = row.original;
+      return <InventoryMovementActions movement={movement} />;
     },
   },
 ];

@@ -21,6 +21,7 @@ export const sedeSchemaCreate = z.object({
   district_id: requiredStringId("Distrito es requerido"),
   province_id: requiredStringId("Provincia es requerido"),
   department_id: requiredStringId("Departamento es requerido"),
+  has_workshop: z.boolean().default(false),
 });
 
 export const sedeSchemaUpdate = sedeSchemaCreate.partial();

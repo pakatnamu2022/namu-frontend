@@ -25,6 +25,7 @@ export function WorkOrderProvider({ children }: { children: ReactNode }) {
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useWorkOrderContext() {
   const context = useContext(WorkOrderContext);
   if (context === undefined) {

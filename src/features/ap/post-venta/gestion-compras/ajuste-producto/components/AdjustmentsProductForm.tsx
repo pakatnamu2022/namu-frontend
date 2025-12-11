@@ -32,9 +32,9 @@ import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { Card } from "@/components/ui/card";
 import { ALL_MOVEMENT_TYPES } from "../lib/adjustmentsProduct.constants";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
-import { useAllReasonsAdjustment } from "@/features/ap/post-venta/gestion-compras/motivos-ajuste/lib/reasonsAdjustment.hook";
+import { useAllReasonsAdjustment } from "@/features/ap/configuraciones/postventa/motivos-ajuste/lib/reasonsAdjustment.hook";
 import { AP_MASTER_POST_VENTA } from "@/features/ap/lib/ap.constants";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 
 interface AdjustmentsProductFormProps {
   defaultValues: Partial<AdjustmentSchema>;
@@ -96,6 +96,18 @@ export const AdjustmentsProductForm = ({
 
     return allReasons.filter((reason) => reason.type === targetType);
   }, [selectedMovementType, allReasons]);
+
+  // Limpiar unit_cost cuando el tipo de movimiento cambia a SALIDA
+  useEffect(() => {
+    if (selectedMovementType === AP_MASTER_POST_VENTA.TYPE_ADJUSTMENT_OUT) {
+      const currentDetails = form.getValues("details");
+      const updatedDetails = currentDetails!.map((detail) => ({
+        ...detail,
+        unit_cost: 0,
+      }));
+      form.setValue("details", updatedDetails);
+    }
+  }, [selectedMovementType, form]);
 
   if (isLoadingWarehouses || isLoadingReasons) {
     return <FormSkeleton />;
@@ -203,11 +215,6 @@ export const AdjustmentsProductForm = ({
           ) : (
             <div className="space-y-2">
               {fields.map((field, index) => {
-                const productId = form.watch(`details.${index}.product_id`);
-                const selectedProduct = products.find(
-                  (p) => p.id.toString() === productId
-                );
-
                 return (
                   <div
                     key={field.id}
@@ -222,7 +229,7 @@ export const AdjustmentsProductForm = ({
                     <div className="flex-1 min-w-0">
                       <FormSelect
                         name={`details.${index}.product_id`}
-                        label=""
+                        label="Producto"
                         placeholder="Selecciona un producto"
                         options={products.map((product) => ({
                           label: () => (
@@ -231,7 +238,8 @@ export const AdjustmentsProductForm = ({
                                 {product.name}
                               </span>
                               <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded shrink-0">
-                                {product.code}
+                                CÓD. DYN:{product.dyn_code} - UM:
+                                {product.unit_measurement_name}
                               </span>
                             </div>
                           ),
@@ -244,6 +252,7 @@ export const AdjustmentsProductForm = ({
 
                     {/* Input de cantidad compacto */}
                     <div className="w-32 shrink-0">
+                      <FormLabel className="text-center">Cantidad</FormLabel>
                       <FormField
                         control={form.control}
                         name={`details.${index}.quantity`}
@@ -272,12 +281,57 @@ export const AdjustmentsProductForm = ({
                         )}
                       />
                     </div>
-
-                    {/* Badge con unidad de medida */}
-                    {selectedProduct?.unit_measurement_name && (
-                      <span className="text-xs font-medium text-slate-600 bg-slate-200 px-2 py-1 rounded shrink-0">
-                        {selectedProduct.unit_measurement_name}
-                      </span>
+                    {selectedMovementType ===
+                      AP_MASTER_POST_VENTA.TYPE_ADJUSTMENT_IN && (
+                      <>
+                        <div className="w-32 shrink-0">
+                          <FormLabel className="text-center">
+                            Costo Unitario
+                          </FormLabel>
+                          <FormField
+                            control={form.control}
+                            name={`details.${index}.unit_cost`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormControl>
+                                  <Input
+                                    type="number"
+                                    min="0"
+                                    step="0.01"
+                                    className="h-9 text-center font-medium"
+                                    placeholder="Costo Unitario"
+                                    disabled={mode === "update"}
+                                    value={
+                                      typeof field.value === "number"
+                                        ? field.value
+                                        : ""
+                                    }
+                                    onChange={(e) => {
+                                      const num = parseFloat(e.target.value);
+                                      field.onChange(isNaN(num) ? 0 : num);
+                                    }}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                        <div className="w-32 shrink-0">
+                          <FormLabel className="text-center">
+                            Costo Total
+                          </FormLabel>
+                          <div className="h-9 flex items-center justify-center bg-gray-100 border border-gray-200 rounded-md px-3">
+                            <span className="text-sm font-semibold text-gray-700">
+                              S/.{" "}
+                              {(
+                                (form.watch(`details.${index}.quantity`) || 0) *
+                                (form.watch(`details.${index}.unit_cost`) || 0)
+                              ).toFixed(2)}
+                            </span>
+                          </div>
+                        </div>
+                      </>
                     )}
 
                     {/* Botón eliminar */}

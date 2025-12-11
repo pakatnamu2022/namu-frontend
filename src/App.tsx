@@ -418,9 +418,13 @@ const TransmisionVehiculoPage = lazy(
   () => import("./app/ap/configuraciones/vehiculos/transmision-vehiculo/page")
 );
 
-// PostVentas Configuration
+// PostVentas Configurationes
 const TypeOperationAppointmentPage = lazy(
   () => import("@/app/ap/configuraciones/postventa/tipos-operacion-cita/page")
+);
+
+const ReasonsAdjustmentPage = lazy(
+  () => import("./app/ap/configuraciones/postventa/motivos-ajuste/page")
 );
 
 const TypePlanningPage = lazy(
@@ -558,9 +562,6 @@ const AddReceiveTransferPage = lazy(
       "./app/ap/post-venta/gestion-de-compras/transferencia-producto/recepcion/agregar/[productTransferId]/page"
     )
 );
-const ReasonsAdjustmentPage = lazy(
-  () => import("./app/ap/post-venta/gestion-de-compras/motivos-ajuste/page")
-);
 const ProductAdjustmentPage = lazy(
   () => import("./app/ap/post-venta/gestion-de-compras/ajuste-producto/page")
 );
@@ -581,8 +582,12 @@ const InventoryPage = lazy(
 );
 const InventoryKardexPage = lazy(
   () =>
+    import("./app/ap/post-venta/gestion-de-compras/inventario/kardex/page.tsx")
+);
+const InventoryMovimientosPage = lazy(
+  () =>
     import(
-      "./app/ap/post-venta/gestion-de-compras/inventario/kardex/[productId]/[warehouseId]/page"
+      "./app/ap/post-venta/gestion-de-compras/inventario/movimientos/[productId]/[warehouseId]/page.tsx"
     )
 );
 const PurchaseOrderProductsPage = lazy(
@@ -657,7 +662,43 @@ const AddAppointmentPlanningPage = lazy(
 const EditAppointmentPlanningPage = lazy(
   () => import("./app/ap/post-venta/taller/citas/actualizar/[id]/page")
 );
-
+const OrderQuotationPage = lazy(
+  () => import("./app/ap/post-venta/taller/cotizacion/page")
+);
+const AddOrderQuotationPage = lazy(
+  () => import("./app/ap/post-venta/taller/cotizacion/agregar/page")
+);
+const EditOrderQuotationPage = lazy(
+  () => import("./app/ap/post-venta/taller/cotizacion/actualizar/[id]/page")
+);
+const ManageOrderQuotationPage = lazy(
+  () => import("./app/ap/post-venta/taller/cotizacion/gestionar/[id]/page")
+);
+const PurchaseRequestPage = lazy(
+  () => import("./app/ap/post-venta/taller/solicitud-compra/page")
+);
+const AddPurchaseRequestPage = lazy(
+  () => import("./app/ap/post-venta/taller/solicitud-compra/agregar/page")
+);
+const EditPurchaseRequestPage = lazy(
+  () =>
+    import("./app/ap/post-venta/taller/solicitud-compra/actualizar/[id]/page")
+);
+const VehiclePostVentaPage = lazy(
+  () => import("./app/ap/post-venta/taller/vehiculos-post-venta/page")
+);
+const AddVehiclePostVentaPage = lazy(
+  () => import("./app/ap/post-venta/taller/vehiculos-post-venta/agregar/page")
+);
+const EditVehiclePostVentaPage = lazy(
+  () =>
+    import(
+      "./app/ap/post-venta/taller/vehiculos-post-venta/actualizar/[id]/page"
+    )
+);
+// const EditOrderQuotationPage = lazy(
+//   () => import("./app/ap/post-venta/taller/cotizacion/actualizar/[id]/page")
+// );
 const WorkOrderPage = lazy(
   () => import("./app/ap/post-venta/taller/orden-trabajo/page")
 );
@@ -725,6 +766,12 @@ const TrabajadoresPage = lazy(
 // GP - MAESTRO GENERAL
 // ============================================================================
 const SedePage = lazy(() => import("./app/gp/maestro-general/sede/page"));
+const EditSedePage = lazy(
+  () => import("./app/gp/maestro-general/sede/actualizar/[id]/page")
+);
+const AddSedePage = lazy(
+  () => import("./app/gp/maestro-general/sede/agregar/page")
+);
 
 // ============================================================================
 // GP - TICS
@@ -1302,6 +1349,10 @@ function App() {
                 element={<TypeOperationAppointmentPage />}
               />
               <Route
+                path="postventa/motivos-ajuste"
+                element={<ReasonsAdjustmentPage />}
+              />
+              <Route
                 path="postventa/tipos-planificacion"
                 element={<TypePlanningPage />}
               />
@@ -1437,10 +1488,6 @@ function App() {
                 element={<AddReceiveTransferPage />}
               />
               <Route
-                path="gestion-de-compras/motivos-ajuste"
-                element={<ReasonsAdjustmentPage />}
-              />
-              <Route
                 path="gestion-de-compras/ajuste-producto"
                 element={<ProductAdjustmentPage />}
               />
@@ -1457,8 +1504,12 @@ function App() {
                 element={<InventoryPage />}
               />
               <Route
-                path="gestion-de-compras/inventario/kardex/:productId/:warehouseId"
+                path="gestion-de-compras/inventario/kardex"
                 element={<InventoryKardexPage />}
+              />
+              <Route
+                path="gestion-de-compras/inventario/movimientos/:productId/:warehouseId"
+                element={<InventoryMovimientosPage />}
               />
               <Route
                 path="gestion-de-compras/orden-compra-producto"
@@ -1525,6 +1576,46 @@ function App() {
               <Route
                 path="taller/citas/actualizar/:id"
                 element={<EditAppointmentPlanningPage />}
+              />
+              <Route
+                path="taller/cotizacion"
+                element={<OrderQuotationPage />}
+              />
+              <Route
+                path="taller/cotizacion/agregar"
+                element={<AddOrderQuotationPage />}
+              />
+              <Route
+                path="taller/cotizacion/actualizar/:id"
+                element={<EditOrderQuotationPage />}
+              />
+              <Route
+                path="taller/solicitud-compra"
+                element={<PurchaseRequestPage />}
+              />
+              <Route
+                path="taller/solicitud-compra/agregar"
+                element={<AddPurchaseRequestPage />}
+              />
+              <Route
+                path="taller/solicitud-compra/actualizar/:id"
+                element={<EditPurchaseRequestPage />}
+              />
+              <Route
+                path="taller/vehiculos-post-venta"
+                element={<VehiclePostVentaPage />}
+              />
+              <Route
+                path="taller/vehiculos-post-venta/agregar"
+                element={<AddVehiclePostVentaPage />}
+              />
+              <Route
+                path="taller/vehiculos-post-venta/actualizar/:id"
+                element={<EditVehiclePostVentaPage />}
+              />
+              <Route
+                path="taller/cotizacion/gestionar/:id"
+                element={<ManageOrderQuotationPage />}
               />
               <Route path="taller/orden-trabajo" element={<WorkOrderPage />} />
               <Route
@@ -1737,6 +1828,8 @@ function App() {
               <Route index element={<ModulePage />} />
 
               <Route path="sede" element={<SedePage />} />
+              <Route path="sede/actualizar/:id" element={<EditSedePage />} />
+              <Route path="sede/agregar" element={<AddSedePage />} />
             </Route>
 
             {/* ======================================================== */}

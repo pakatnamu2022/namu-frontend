@@ -36,12 +36,13 @@ export default function TypesCategoryModal({
   const queryClient = useQueryClient();
   const { EMPTY, MODEL, QUERY_KEY } = TYPES_CATEGORY;
   const {
-    data: fetchedTypesCategory,
+    data: TypesCategory,
     isLoading: loadingTypesCategory,
     refetch,
-  } = useTypesCategoryById(id);
-
-  const TypesCategory = mode === "create" ? EMPTY : fetchedTypesCategory;
+  } = mode === "create"
+    ? { data: EMPTY, isLoading: false, refetch: () => {} }
+    : // eslint-disable-next-line react-hooks/rules-of-hooks
+      useTypesCategoryById(id!);
 
   function mapRoleToForm(
     data: TypesCategoryResource

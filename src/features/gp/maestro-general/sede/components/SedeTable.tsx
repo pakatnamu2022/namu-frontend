@@ -30,6 +30,7 @@ export default function SedeTable({
           district: false,
           province: false,
           department: true,
+          has_workshop: false,
         }}
       >
         {children}

@@ -87,7 +87,7 @@ export default function ReceptionsProductsPage() {
             />
           </div>
         </div>
-        {permissions.canCreate && (
+        {permissions.canCreate && data && data.length === 0 && (
           <Button size="sm" variant="outline" onClick={handleAddReception}>
             <Plus className="size-4 mr-2" /> Agregar Recepción
           </Button>

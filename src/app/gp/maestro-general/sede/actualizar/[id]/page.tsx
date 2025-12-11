@@ -66,6 +66,7 @@ export default function UpdateSedePage() {
       department_id: String(data.department_id),
       province_id: String(data.province_id),
       district_id: String(data.district_id),
+      has_workshop: Boolean(data.has_workshop),
     };
   }
 

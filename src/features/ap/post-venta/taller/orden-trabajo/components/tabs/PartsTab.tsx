@@ -100,6 +100,7 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
               <TableHead>Grupo</TableHead>
               <TableHead>Producto</TableHead>
               <TableHead>Almacén</TableHead>
+              <TableHead>Solicitado</TableHead>
               <TableHead className="text-center">Cantidad</TableHead>
               <TableHead className="text-center">Estado</TableHead>
               <TableHead className="text-center">Acciones</TableHead>
@@ -129,6 +130,11 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
                   <TableCell>
                     <p className="text-sm text-gray-600">
                       {part.warehouse_name}
+                    </p>
+                  </TableCell>
+                  <TableCell>
+                    <p className="text-sm text-gray-600">
+                      {part.registered_by_name}
                     </p>
                   </TableCell>
                   <TableCell className="text-center">

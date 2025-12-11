@@ -31,7 +31,7 @@ export default function WorkOrderPage() {
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
-  const { MODEL, ROUTE, ROUTE_ADD, ABSOLUTE_ROUTE } = WORKER_ORDER;
+  const { MODEL, ROUTE, ABSOLUTE_ROUTE } = WORKER_ORDER;
   const permissions = useModulePermissions(ROUTE);
   const router = useNavigate();
   const currentDate = new Date();
@@ -46,6 +46,12 @@ export default function WorkOrderPage() {
   useEffect(() => {
     setPage(1);
   }, [search, per_page]);
+
+  useEffect(() => {
+    if (dateFrom && dateTo && dateFrom > dateTo) {
+      errorToast("La fecha 'Desde' no puede ser mayor que la fecha 'Hasta'.");
+    }
+  }, [dateFrom, dateTo]);
 
   const { data, isLoading, refetch } = useGetWorkOrder({
     params: {
@@ -77,10 +83,6 @@ export default function WorkOrderPage() {
     router(`${ABSOLUTE_ROUTE}/gestionar/${id}`);
   };
 
-  const handleCreate = () => {
-    router(ROUTE_ADD);
-  };
-
   const handleInspect = (id: number) => {
     router(`${ABSOLUTE_ROUTE}/${id}/inspeccion`);
   };
@@ -101,10 +103,7 @@ export default function WorkOrderPage() {
           subtitle={currentView.descripcion}
           icon={currentView.icon}
         />
-        <WorkOrderActions
-          onCreate={handleCreate}
-          canCreate={permissions.canCreate}
-        />
+        <WorkOrderActions permissions={permissions} />
       </HeaderTableWrapper>
 
       <WorkOrderTable

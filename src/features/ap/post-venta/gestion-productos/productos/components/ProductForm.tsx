@@ -91,10 +91,10 @@ export const ProductForm = ({
       );
 
       if (category && brand && classArticle) {
-        const generatedCode = `${category.name || ""}${brand.code || ""}${
-          classArticle.dyn_code || ""
+        const generatedCode = `${category.name || ""}${brand.dyn_code || ""}${
+          classArticle.id || ""
         }X`;
-        form.setValue("code", generatedCode, {
+        form.setValue("dyn_code", generatedCode, {
           shouldValidate: true,
           shouldDirty: true,
         });
@@ -136,14 +136,9 @@ export const ProductForm = ({
             name="code"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Código (Generado)</FormLabel>
+                <FormLabel>Código</FormLabel>
                 <FormControl>
-                  <Input
-                    placeholder="Se genera automáticamente"
-                    {...field}
-                    readOnly
-                    className="bg-slate-100"
-                  />
+                  <Input placeholder="Se genera automáticamente" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -154,9 +149,14 @@ export const ProductForm = ({
             name="dyn_code"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Código Dynamic</FormLabel>
+                <FormLabel>Código Dynamic (Generado)</FormLabel>
                 <FormControl>
-                  <Input placeholder="Código dynamic" {...field} />
+                  <Input
+                    readOnly
+                    placeholder="Código dynamic"
+                    {...field}
+                    className="bg-slate-100"
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -200,7 +200,7 @@ export const ProductForm = ({
             label="Clase de Artículo"
             placeholder="Selecciona una clase"
             options={classArticles.map((classArticle) => ({
-              label: classArticle.description,
+              label: classArticle.description + ` (${classArticle.id})`,
               value: classArticle.id.toString(),
             }))}
             control={form.control}

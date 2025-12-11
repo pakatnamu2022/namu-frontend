@@ -33,3 +33,16 @@ export function requiredNumber(object: string, minValue: number = 0) {
     })
     .min(minValue, `${object} debe ser al menos ${minValue}`);
 }
+
+export const requiredDecimalNumber = (object: string, minValue: number = 0) => {
+  return z
+    .string()
+    .min(1, `${object} es requerido`)
+    .refine(
+      (val) => {
+        const num = Number(val);
+        return !isNaN(num) && num >= 0.1;
+      },
+      { message: `${object} debe ser un número mayor o igual a ${minValue}` }
+    );
+};

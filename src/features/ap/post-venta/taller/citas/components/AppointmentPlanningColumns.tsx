@@ -1,12 +1,13 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-import { Pencil, Download } from "lucide-react";
+import { Pencil, Download, Calendar, Clock } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { AppointmentPlanningResource } from "../lib/appointmentPlanning.interface";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { downloadAppointmentPlanningPdf } from "../lib/appointmentPlanning.actions";
 import { errorToast } from "@/core/core.function";
+import { Badge } from "@/components/ui/badge";
 
 export type AppointmentPlanningColumns = ColumnDef<AppointmentPlanningResource>;
 
@@ -49,46 +50,93 @@ export const appointmentPlanningColumns = ({
     header: "Teléfono",
   },
   {
-    accessorKey: "date_appointment",
-    header: "Fecha de Cita",
-    cell: ({ getValue }) => {
-      const value = getValue() as string;
-      if (!value) return "-";
+    id: "appointment_datetime",
+    header: "Fecha y Hora de Cita",
+    cell: ({ row }) => {
+      const date = row.original.date_appointment;
+      const time = row.original.time_appointment;
+
+      if (!date) return "-";
+
       try {
-        const date = new Date(value + "T00:00:00");
-        return format(date, "dd/MM/yyyy", { locale: es });
+        const formattedDate = format(
+          new Date(date + "T00:00:00"),
+          "dd/MM/yyyy",
+          { locale: es }
+        );
+        return (
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center gap-1.5 text-sm">
+              <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
+              <span className="font-medium">{formattedDate}</span>
+            </div>
+            {time && (
+              <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                <Clock className="h-3.5 w-3.5" />
+                <span>{time}</span>
+              </div>
+            )}
+          </div>
+        );
       } catch {
-        return value;
+        return date;
       }
     },
   },
   {
-    accessorKey: "time_appointment",
-    header: "Hora de Cita",
-  },
-  {
-    accessorKey: "delivery_date",
-    header: "Fecha de Entrega",
-    cell: ({ getValue }) => {
-      const value = getValue() as string;
-      if (!value) return "-";
+    id: "delivery_datetime",
+    header: "Fecha y Hora de Entrega",
+    cell: ({ row }) => {
+      const date = row.original.delivery_date;
+      const time = row.original.delivery_time;
+
+      if (!date) return "-";
+
       try {
-        const date = new Date(value + "T00:00:00");
-        return format(date, "dd/MM/yyyy", { locale: es });
+        const formattedDate = format(
+          new Date(date + "T00:00:00"),
+          "dd/MM/yyyy",
+          { locale: es }
+        );
+        return (
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center gap-1.5 text-sm">
+              <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
+              <span className="font-medium">{formattedDate}</span>
+            </div>
+            {time && (
+              <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                <Clock className="h-3.5 w-3.5" />
+                <span>{time}</span>
+              </div>
+            )}
+          </div>
+        );
       } catch {
-        return value;
+        return date;
       }
     },
   },
   {
-    accessorKey: "delivery_time",
-    header: "Hora de Entrega",
+    accessorKey: "is_taken",
+    header: "Tomada",
+    cell: ({ getValue }) => {
+      const value = getValue() as boolean;
+      return (
+        <Badge
+          variant={value ? "default" : "secondary"}
+          className="capitalize w-8 flex items-center justify-center"
+        >
+          {value ? "Sí" : "No"}
+        </Badge>
+      );
+    },
   },
   {
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
-      const { id } = row.original;
+      const { id, is_taken } = row.original;
 
       const handleDownloadPdf = async () => {
         try {
@@ -117,12 +165,13 @@ export const appointmentPlanningColumns = ({
               className="size-7"
               tooltip="Editar"
               onClick={() => onUpdate(id)}
+              disabled={is_taken}
             >
               <Pencil className="size-5" />
             </Button>
           )}
 
-          {permissions.canDelete && (
+          {permissions.canDelete && !is_taken && (
             <DeleteButton onClick={() => onDelete(id)} />
           )}
         </div>

@@ -30,14 +30,18 @@ export const useAllWarehouse = (params?: Record<string, any>) => {
 export const useWarehouseByModelSede = ({
   model_vn_id,
   sede_id,
+  is_received,
 }: {
   model_vn_id?: string;
   sede_id?: string;
+  is_received?: number;
 }) => {
   return useQuery<WarehouseResource[]>({
     queryKey: [QUERY_KEY, "byModelSede", model_vn_id, sede_id],
     queryFn: () =>
-      getWarehouseByModelSede({ params: { model_vn_id, sede_id } }),
+      getWarehouseByModelSede({
+        params: { model_vn_id, sede_id, is_received },
+      }),
     refetchOnWindowFocus: false,
     enabled: !!model_vn_id && !!sede_id,
   });

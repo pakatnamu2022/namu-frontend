@@ -19,6 +19,7 @@ import {
   Plus,
   Trash2,
   List,
+  Search,
 } from "lucide-react";
 import {
   WorkOrderSchema,
@@ -47,6 +48,7 @@ import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 import { DEFAULT_GROUP_COLOR, GROUP_COLORS } from "../lib/workOrder.interface";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { WORKER_ORDER } from "../lib/workOrder.constants";
+import { AppointmentSelectionModal } from "../../citas/components/AppointmentSelectionModal";
 
 const getGroupColor = (groupNumber: number) => {
   return GROUP_COLORS[groupNumber] || DEFAULT_GROUP_COLOR;
@@ -67,6 +69,7 @@ export const WorkOrderForm = ({
 }: WorkOrderFormProps) => {
   const router = useNavigate();
   const [selectedVehicle, setSelectedVehicle] = useState<any>(null);
+  const [isAppointmentModalOpen, setIsAppointmentModalOpen] = useState(false);
   const { ABSOLUTE_ROUTE } = WORKER_ORDER;
 
   const form = useForm({
@@ -89,12 +92,13 @@ export const WorkOrderForm = ({
   const { data: vehicles = [], isLoading: isLoadingVehicles } =
     useAllVehicles();
   const { data: appointments = [], isLoading: isLoadingAppointments } =
-    useAllAppointmentPlanning({});
+    useAllAppointmentPlanning({ is_taken: 0 });
   const { data: sedes = [], isLoading: isLoadingSedes } = useMySedes({
     company: EMPRESA_AP.id,
+    has_workshop: true,
   });
   const { data: asesores = [], isLoading: isLoadingAsesores } = useAllWorkers({
-    cargo_id: POSITION_TYPE.CONSULTANT,
+    cargo_id: POSITION_TYPE.SERVICE_ADVISOR,
     status_id: STATUS_WORKER.ACTIVE,
     sede$empresa_id: EMPRESA_AP.id,
   });
@@ -188,8 +192,24 @@ export const WorkOrderForm = ({
     append({
       group_number: lastGroup + 1,
       type_planning_id: "",
-      description: "",
+      description: "-",
     });
+  };
+
+  const handleSelectAppointment = (appointmentId: string) => {
+    form.setValue("appointment_planning_id", appointmentId);
+  };
+
+  const getSelectedAppointmentLabel = () => {
+    if (!watchedAppointmentId || appointments.length === 0) return null;
+
+    const appointment = appointments.find(
+      (a) => a.id.toString() === watchedAppointmentId
+    );
+
+    if (!appointment) return null;
+
+    return `${appointment.full_name_client} - ${appointment.date_appointment} ${appointment.time_appointment}`;
   };
 
   if (isLoading) return <FormSkeleton />;
@@ -230,16 +250,29 @@ export const WorkOrderForm = ({
 
           {/* Selector de Cita - Solo visible si has_appointment es true */}
           {watchedHasAppointment && (
-            <FormSelect
-              name="appointment_planning_id"
-              label="Cita de Planificación"
-              placeholder="Seleccione cita"
-              options={appointments.map((item) => ({
-                label: `${item.full_name_client} - ${item.date_appointment} ${item.time_appointment}`,
-                value: item.id.toString(),
-              }))}
+            <FormField
               control={form.control}
-              strictFilter={true}
+              name="appointment_planning_id"
+              render={() => (
+                <FormItem>
+                  <FormLabel>Cita de Planificación</FormLabel>
+                  <FormControl>
+                    <div className="space-y-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="w-full justify-start"
+                        onClick={() => setIsAppointmentModalOpen(true)}
+                      >
+                        <Search className="h-4 w-4 mr-2" />
+                        {getSelectedAppointmentLabel() ||
+                          "Buscar y seleccionar cita"}
+                      </Button>
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
           )}
         </GroupFormSection>
@@ -280,7 +313,7 @@ export const WorkOrderForm = ({
 
           <FormSelect
             name="sede_id"
-            label="Sede"
+            label="Sede Taller"
             placeholder="Seleccione sede"
             options={sedes.map((item) => ({
               label: item.description,
@@ -504,7 +537,7 @@ export const WorkOrderForm = ({
             placeholder="Selecciona una fecha"
             dateFormat="dd/MM/yyyy"
             captionLayout="dropdown"
-            disabledRange={{ after: new Date() }}
+            disabled={true}
           />
 
           <DatePickerFormField
@@ -514,7 +547,7 @@ export const WorkOrderForm = ({
             placeholder="Selecciona una fecha"
             dateFormat="dd/MM/yyyy"
             captionLayout="dropdown"
-            disabledRange={{ after: new Date() }}
+            disabledRange={{ before: new Date() }}
           />
 
           <DatePickerFormField
@@ -524,6 +557,7 @@ export const WorkOrderForm = ({
             placeholder="Selecciona una fecha"
             dateFormat="dd/MM/yyyy"
             captionLayout="dropdown"
+            disabledRange={{ after: new Date() }}
           />
         </GroupFormSection>
 
@@ -580,6 +614,13 @@ export const WorkOrderForm = ({
             {isSubmitting ? "Guardando" : "Guardar Orden"}
           </Button>
         </div>
+
+        {/* Modal de Selección de Cita */}
+        <AppointmentSelectionModal
+          open={isAppointmentModalOpen}
+          onOpenChange={setIsAppointmentModalOpen}
+          onSelectAppointment={handleSelectAppointment}
+        />
       </form>
     </Form>
   );
