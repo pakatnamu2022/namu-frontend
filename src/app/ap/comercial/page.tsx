@@ -1,7 +1,7 @@
 "use client";
 
-import ModuleViewsDashboard from "@/shared/components/ModuleViewsDashboard";
+import SalesManagerDashboard from "@/features/ap/comercial/dashboard-visitas-leads/components/SalesManagerDashboard";
 
-export default function ModulePage() {
-  return <ModuleViewsDashboard />;
+export default function CommercialPage() {
+  return <SalesManagerDashboard />;
 }

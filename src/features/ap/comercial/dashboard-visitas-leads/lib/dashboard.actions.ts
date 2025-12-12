@@ -175,3 +175,43 @@ export async function downloadDashboardFile(
   document.body.removeChild(link);
   URL.revokeObjectURL(url);
 }
+
+// Sales Manager Dashboard Actions
+export async function getSalesManagerStats(
+  filters: import("./dashboard.interface").SalesManagerFilters
+): Promise<import("./dashboard.interface").SalesManagerStatsResponse> {
+  const config: AxiosRequestConfig = {
+    params: {
+      date_from: filters.date_from,
+      date_to: filters.date_to,
+      type: filters.type,
+      ...(filters.boss_id && { boss_id: filters.boss_id }),
+    },
+  };
+
+  const { data } = await api.get<
+    import("./dashboard.interface").SalesManagerStatsResponse
+  >(`${BASE_ENDPOINT}/for-sales-manager-stats`, config);
+  return data;
+}
+
+export async function getSalesManagerDetails(
+  filters: import("./dashboard.interface").SalesManagerDetailsFilters
+): Promise<import("./dashboard.interface").SalesManagerDetailsResponse> {
+  const config: AxiosRequestConfig = {
+    params: {
+      date_from: filters.date_from,
+      date_to: filters.date_to,
+      type: filters.type,
+      ...(filters.boss_id && { boss_id: filters.boss_id }),
+      ...(filters.per_page && { per_page: filters.per_page }),
+      ...(filters.worker_id && { worker_id: filters.worker_id }),
+      ...(filters.page && { page: filters.page }),
+    },
+  };
+
+  const { data } = await api.get<
+    import("./dashboard.interface").SalesManagerDetailsResponse
+  >(`${BASE_ENDPOINT}/for-sales-manager-details`, config);
+  return data;
+}
