@@ -202,13 +202,13 @@ export default function SalesManagerStatsCards({
   } satisfies ChartConfig;
 
   // Datos para el gráfico de estados de oportunidad
-  const opportunityData = Object.entries(
-    teamTotals.by_opportunity_status
-  ).map(([name, value], index) => ({
-    name,
-    value,
-    fill: `var(--color-${name})`,
-  }));
+  const opportunityData = Object.entries(teamTotals.by_opportunity_status).map(
+    ([name, value]) => ({
+      name,
+      value,
+      fill: `var(--color-${name})`,
+    })
+  );
 
   const opportunityConfig = Object.entries(
     teamTotals.by_opportunity_status
