@@ -92,6 +92,7 @@ export default function AddVehiclePurchaseOrderPage() {
           items: [],
           discount: 0,
           isc: 0,
+          // eslint-disable-next-line react-hooks/purity
           due_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
         }}
         onSubmit={handleSubmit}

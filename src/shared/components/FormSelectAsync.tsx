@@ -60,6 +60,7 @@ interface FormSelectAsyncProps {
   mapOptionFn: (item: any) => Option;
   perPage?: number;
   debounceMs?: number;
+  defaultOption?: Option; // Opción inicial para mostrar cuando se edita
 }
 
 export function FormSelectAsync({
@@ -80,13 +81,18 @@ export function FormSelectAsync({
   mapOptionFn,
   perPage = 10,
   debounceMs = 500,
+  defaultOption,
 }: FormSelectAsyncProps) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [page, setPage] = useState(1);
-  const [allOptions, setAllOptions] = useState<Option[]>([]);
-  const [selectedOption, setSelectedOption] = useState<Option | null>(null);
+  const [allOptions, setAllOptions] = useState<Option[]>(
+    defaultOption ? [defaultOption] : []
+  );
+  const [selectedOption, setSelectedOption] = useState<Option | null>(
+    defaultOption || null
+  );
   const scrollRef = useRef<HTMLDivElement>(null);
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(
     undefined

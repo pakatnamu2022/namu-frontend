@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Car, Loader } from "lucide-react";
+import { Car, Loader, Plus, ExternalLink } from "lucide-react";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import FormSkeleton from "@/shared/components/FormSkeleton";
@@ -35,12 +35,20 @@ import { ValidationIndicator } from "@/shared/components/ValidationIndicator";
 import { usePlateValidation } from "@/shared/hooks/useDocumentValidation";
 import { useEffect, useState } from "react";
 import { ModelsVnResource } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.interface";
+import VehicleColorModal from "@/features/ap/configuraciones/vehiculos/colores-vehiculo/components/VehicleColorModal";
+import { useQueryClient } from "@tanstack/react-query";
+import { VEHICLE_COLOR } from "@/features/ap/configuraciones/vehiculos/colores-vehiculo/lib/vehicleColor.constants";
+import { useCustomers } from "../../clientes/lib/customers.hook";
+import { CUSTOMERS_PV } from "../../clientes/lib/customers.constants";
+import { CustomersResource } from "../../clientes/lib/customers.interface";
+import { VehicleResource } from "../lib/vehicles.interface";
 
 interface VehiclePVFormProps {
   defaultValues: Partial<VehicleSchema>;
   onSubmit: (data: any) => void;
   isSubmitting?: boolean;
   mode?: "create" | "update";
+  vehicleData?: VehicleResource; // Datos completos del vehículo cuando se edita
 }
 
 export const VehiclePVForm = ({
@@ -48,8 +56,11 @@ export const VehiclePVForm = ({
   onSubmit,
   isSubmitting = false,
   mode = "create",
+  vehicleData,
 }: VehiclePVFormProps) => {
   const router = useNavigate();
+  const queryClient = useQueryClient();
+  const [isColorModalOpen, setIsColorModalOpen] = useState(false);
   const form = useForm({
     resolver: zodResolver(
       mode === "create" ? vehicleSchemaCreate : vehicleSchemaUpdate
@@ -249,36 +260,46 @@ export const VehiclePVForm = ({
             })}
             perPage={10}
             debounceMs={500}
+            defaultOption={
+              vehicleData?.model
+                ? {
+                    value: vehicleData.model.id.toString(),
+                    label: `${vehicleData.model.code} - ${vehicleData.model.version}`,
+                  }
+                : undefined
+            }
           />
 
-          <FormField
-            control={form.control}
+          <FormSelect
             name="vehicle_color_id"
-            render={() => (
-              <FormItem>
-                <FormLabel className="flex items-center gap-2 relative">
-                  Color
-                  {apiInfo && apiInfo.color && (
-                    <span className="absolute right-0 text-xs font-normal text-muted-foreground">
-                      {apiInfo.color}
-                    </span>
-                  )}
-                </FormLabel>
-                <FormControl>
-                  <FormSelect
-                    placeholder="Seleccionar color"
-                    control={form.control}
-                    name="vehicle_color_id"
-                    options={colors.map((color) => ({
-                      value: color.id.toString(),
-                      label: color.description,
-                    }))}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
+            label={() => (
+              <FormLabel className="flex items-center gap-2 relative">
+                Color
+                {apiInfo && apiInfo.color && (
+                  <span className="absolute right-0 text-xs font-normal text-muted-foreground">
+                    {apiInfo.color}
+                  </span>
+                )}
+              </FormLabel>
             )}
-          />
+            placeholder="Seleccionar color"
+            options={colors.map((color) => ({
+              value: color.id.toString(),
+              label: color.description,
+            }))}
+            control={form.control}
+          >
+            <Button
+              type="button"
+              variant="outline"
+              size="icon-lg"
+              className="aspect-square"
+              onClick={() => setIsColorModalOpen(true)}
+              tooltip="Agregar nuevo color"
+            >
+              <Plus className="h-4 w-4" />
+            </Button>
+          </FormSelect>
 
           <FormSelect
             placeholder="Seleccionar tipo de motor"
@@ -290,6 +311,39 @@ export const VehiclePVForm = ({
               label: type.description,
             }))}
           />
+
+          <FormSelectAsync
+            placeholder="Seleccionar cliente"
+            control={form.control}
+            label={"Cliente"}
+            name="customer_id"
+            useQueryHook={useCustomers}
+            mapOptionFn={(item: CustomersResource) => ({
+              value: item.id.toString(),
+              label: `${item.full_name}`,
+            })}
+            perPage={10}
+            debounceMs={500}
+            defaultOption={
+              vehicleData?.owner
+                ? {
+                    value: vehicleData.owner.id.toString(),
+                    label: `${vehicleData.owner.full_name}`,
+                  }
+                : undefined
+            }
+          >
+            <Button
+              type="button"
+              variant="outline"
+              size="icon-lg"
+              className="aspect-square"
+              onClick={() => window.open(CUSTOMERS_PV.ROUTE_ADD, "_blank")}
+              tooltip="Agregar nuevo cliente"
+            >
+              <ExternalLink className="h-4 w-4" />
+            </Button>
+          </FormSelectAsync>
 
           <FormSelect
             name="warehouse_physical_id"
@@ -328,6 +382,18 @@ export const VehiclePVForm = ({
           </Button>
         </div>
       </form>
+
+      <VehicleColorModal
+        open={isColorModalOpen}
+        onClose={() => {
+          setIsColorModalOpen(false);
+          queryClient.invalidateQueries({
+            queryKey: [VEHICLE_COLOR.QUERY_KEY],
+          });
+        }}
+        title="Agregar Nuevo Color"
+        mode="create"
+      />
     </Form>
   );
 };

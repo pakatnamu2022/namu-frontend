@@ -111,6 +111,7 @@ export const establishmentsColumns = ({
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
       const router = useNavigate();
       const { id, status } = row.original;
 

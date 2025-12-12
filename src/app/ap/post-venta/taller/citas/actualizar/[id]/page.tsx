@@ -69,7 +69,8 @@ export default function UpdateAppointmentPlanningPage() {
       delivery_time: data.delivery_time,
       date_appointment: data.date_appointment,
       time_appointment: data.time_appointment,
-      full_name_client: data.full_name_client,
+      num_doc_client: data.num_doc_client,
+      full_name_client: String(data.full_name_client),
       email_client: data.email_client,
       phone_client: data.phone_client,
       type_operation_appointment_id: String(data.type_operation_appointment_id),
@@ -99,7 +100,7 @@ export default function UpdateAppointmentPlanningPage() {
         onSubmit={handleSubmit}
         isSubmitting={isPending}
         mode="update"
-        onCancel={() => router(ABSOLUTE_ROUTE!)}
+        appointmentPlanningData={appointmentPlanning}
       />
     </FormWrapper>
   );

@@ -529,9 +529,6 @@ const EditProductosPage = lazy(
       "./app/ap/post-venta/gestion-de-productos/productos/actualizar/[id]/page"
     )
 );
-const TiposCategoriaPage = lazy(
-  () => import("./app/ap/post-venta/gestion-de-productos/tipos-categoria/page")
-);
 
 // Gestión de Compras
 const ProductTransferPage = lazy(
@@ -1488,10 +1485,6 @@ function App() {
               <Route
                 path="gestion-de-productos/productos/actualizar/:id"
                 element={<EditProductosPage />}
-              />
-              <Route
-                path="gestion-de-productos/tipos-categoria"
-                element={<TiposCategoriaPage />}
               />
               {/* Gestion Compra */}
               <Route

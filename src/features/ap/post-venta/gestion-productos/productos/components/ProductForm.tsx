@@ -91,7 +91,7 @@ export const ProductForm = ({
       );
 
       if (category && brand && classArticle) {
-        const generatedCode = `${category.name || ""}${brand.dyn_code || ""}${
+        const generatedCode = `${category.code || ""}${brand.dyn_code || ""}${
           classArticle.id || ""
         }X`;
         form.setValue("dyn_code", generatedCode, {

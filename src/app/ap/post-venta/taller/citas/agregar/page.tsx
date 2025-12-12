@@ -49,11 +49,12 @@ export default function AddAppointmentPlanningPage() {
       />
       <AppointmentPlanningForm
         defaultValues={{
-          description: "Ninguna",
+          description: "-",
           delivery_date: "",
           delivery_time: "",
           date_appointment: "",
           time_appointment: "",
+          num_doc_client: "",
           full_name_client: "",
           email_client: "",
           phone_client: "",
@@ -65,7 +66,6 @@ export default function AddAppointmentPlanningPage() {
         onSubmit={handleSubmit}
         isSubmitting={isPending}
         mode="create"
-        onCancel={() => router(ABSOLUTE_ROUTE!)}
       />
     </FormWrapper>
   );

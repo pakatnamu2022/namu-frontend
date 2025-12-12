@@ -1,5 +1,6 @@
 import { type ModelComplete } from "@/core/core.interface";
 import { ProductCategoryResource } from "./productCategory.interface";
+import { POSTVENTA_MASTERS_ENDPOINT } from "@/features/ap/lib/ap.constants";
 
 const ROUTE = "categorias-producto";
 const ABSOLUTE_ROUTE = `/ap/post-venta/gestion-productos/${ROUTE}`;
@@ -11,7 +12,7 @@ export const PRODUCT_CATEGORY: ModelComplete<ProductCategoryResource> = {
     gender: true,
   },
   ICON: "ContactRound",
-  ENDPOINT: "/ap/postVenta/productCategory",
+  ENDPOINT: POSTVENTA_MASTERS_ENDPOINT,
   QUERY_KEY: "productCategory",
   ROUTE,
   ABSOLUTE_ROUTE,
@@ -19,9 +20,9 @@ export const PRODUCT_CATEGORY: ModelComplete<ProductCategoryResource> = {
   ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/actualizar`,
   EMPTY: {
     id: 0,
-    name: "",
+    code: "",
     description: "",
-    type_id: "",
+    type: "",
     status: true,
   },
 };

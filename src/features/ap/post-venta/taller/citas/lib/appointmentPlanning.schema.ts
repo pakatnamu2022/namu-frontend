@@ -20,6 +20,12 @@ export const appointmentPlanningSchemaCreate = z.object({
   time_appointment: z.string().refine((value) => value.trim() !== "", {
     message: "Hora de cita es requerida",
   }),
+  num_doc_client: z
+    .string()
+    .max(8)
+    .refine((value) => value.trim() !== "", {
+      message: "Número de documento es requerido",
+    }),
   full_name_client: z
     .string()
     .max(255)

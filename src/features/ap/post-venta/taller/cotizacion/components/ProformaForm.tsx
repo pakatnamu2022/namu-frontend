@@ -21,7 +21,6 @@ import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 import { useAllVehicles } from "@/features/ap/comercial/vehiculos/lib/vehicles.hook";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { FormSelect } from "@/shared/components/FormSelect";
-import { Badge } from "@/components/ui/badge";
 import { Car, User } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { useState, useEffect } from "react";
@@ -174,17 +173,6 @@ export default function OrderQuotationForm({
                   <p className="font-semibold text-sm">
                     {selectedVehicle.engine_number || "N/A"}
                   </p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500">Estado</p>
-                  <Badge
-                    className="text-xs"
-                    style={{
-                      backgroundColor: selectedVehicle.status_color || "#gray",
-                    }}
-                  >
-                    {selectedVehicle.vehicle_status || "N/A"}
-                  </Badge>
                 </div>
                 {selectedVehicle.owner !== null && (
                   <div className="col-span-1 sm:col-span-2 lg:col-span-3 pt-2 border-t border-blue-200">

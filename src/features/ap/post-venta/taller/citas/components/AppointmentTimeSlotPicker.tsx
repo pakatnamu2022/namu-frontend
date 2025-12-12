@@ -208,6 +208,18 @@ export default function AppointmentTimeSlotPicker({
     </div>
   );
 
+  const isTimeSlotPast = (slot: TimeSlot, day: Date): boolean => {
+    const isToday = isSameDay(day, new Date());
+    if (!isToday) return false;
+
+    const now = new Date();
+    const [hours, minutes] = slot.time.split(":").map(Number);
+    const slotDate = new Date(day);
+    slotDate.setHours(hours, minutes, 0, 0);
+
+    return slotDate < now;
+  };
+
   const renderDayView = () => {
     if (!selectedDay) return null;
 
@@ -260,39 +272,44 @@ export default function AppointmentTimeSlotPicker({
               </span>
             </div>
             <div className="grid grid-cols-4 gap-2 max-h-96 overflow-y-auto pr-2">
-              {morningSlots.map((slot) => (
-                <button
-                  key={slot.time}
-                  onClick={() => handleSlotClick(slot)}
-                  disabled={!slot.available}
-                  className={cn(
-                    "relative p-3 rounded-lg border-2 transition-all duration-200",
-                    "flex flex-col items-center justify-center font-semibold text-sm",
-                    slot.available
-                      ? "bg-white border-green-300 text-green-700 hover:bg-green-50 hover:border-green-500 hover:scale-105 cursor-pointer shadow-sm"
-                      : "bg-gray-100 border-gray-300 text-gray-400 cursor-not-allowed opacity-60"
-                  )}
-                >
-                  {slot.available ? (
-                    <Check className="h-3 w-3 absolute top-1 right-1 text-green-600" />
-                  ) : (
-                    <>
-                      <div
-                        className={cn(
-                          "absolute top-1 left-1 h-4 w-4 rounded-full flex items-center justify-center text-white text-[10px] font-bold",
-                          slot.type === "Entrega"
-                            ? "bg-green-500"
-                            : "bg-primary"
-                        )}
-                      >
-                        {slot.type === "Entrega" ? "E" : "R"}
-                      </div>
-                      <X className="h-3 w-3 absolute top-1 right-1 text-red-500" />
-                    </>
-                  )}
-                  <span>{slot.time}</span>
-                </button>
-              ))}
+              {morningSlots.map((slot) => {
+                const isPast = isTimeSlotPast(slot, selectedDay);
+                const isAvailable = slot.available && !isPast;
+
+                return (
+                  <button
+                    key={slot.time}
+                    onClick={() => handleSlotClick(slot)}
+                    disabled={!isAvailable}
+                    className={cn(
+                      "relative p-3 rounded-lg border-2 transition-all duration-200",
+                      "flex flex-col items-center justify-center font-semibold text-sm",
+                      isAvailable
+                        ? "bg-white border-green-300 text-green-700 hover:bg-green-50 hover:border-green-500 hover:scale-105 cursor-pointer shadow-sm"
+                        : "bg-gray-100 border-gray-300 text-gray-400 cursor-not-allowed opacity-60"
+                    )}
+                  >
+                    {isAvailable ? (
+                      <Check className="h-3 w-3 absolute top-1 right-1 text-green-600" />
+                    ) : (
+                      <>
+                        <div
+                          className={cn(
+                            "absolute top-1 left-1 h-4 w-4 rounded-full flex items-center justify-center text-white text-[10px] font-bold",
+                            slot.type === "Entrega"
+                              ? "bg-green-500"
+                              : "bg-primary"
+                          )}
+                        >
+                          {slot.type === "Entrega" ? "E" : "R"}
+                        </div>
+                        <X className="h-3 w-3 absolute top-1 right-1 text-red-500" />
+                      </>
+                    )}
+                    <span>{slot.time}</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
 
@@ -308,37 +325,44 @@ export default function AppointmentTimeSlotPicker({
               </span>
             </div>
             <div className="grid grid-cols-4 gap-2 max-h-96 overflow-y-auto pr-2">
-              {afternoonSlots.map((slot) => (
-                <button
-                  key={slot.time}
-                  onClick={() => handleSlotClick(slot)}
-                  disabled={!slot.available}
-                  className={cn(
-                    "relative p-3 rounded-lg border-2 transition-all duration-200",
-                    "flex flex-col items-center justify-center font-semibold text-sm",
-                    slot.available
-                      ? "bg-white border-green-300 text-green-700 hover:bg-green-50 hover:border-green-500 hover:scale-105 cursor-pointer shadow-sm"
-                      : "bg-gray-100 border-gray-300 text-gray-400 cursor-not-allowed opacity-60"
-                  )}
-                >
-                  {slot.available ? (
-                    <Check className="h-3 w-3 absolute top-1 right-1 text-green-600" />
-                  ) : (
-                    <>
-                      <div
-                        className={cn(
-                          "absolute top-1 left-1 h-4 w-4 rounded-full flex items-center justify-center text-white text-[10px] font-bold",
-                          slot.type === "Entrega" ? "bg-red-500" : "bg-primary"
-                        )}
-                      >
-                        {slot.type === "Entrega" ? "E" : "R"}
-                      </div>
-                      <X className="h-3 w-3 absolute top-1 right-1 text-red-500" />
-                    </>
-                  )}
-                  <span>{slot.time}</span>
-                </button>
-              ))}
+              {afternoonSlots.map((slot) => {
+                const isPast = isTimeSlotPast(slot, selectedDay);
+                const isAvailable = slot.available && !isPast;
+
+                return (
+                  <button
+                    key={slot.time}
+                    onClick={() => handleSlotClick(slot)}
+                    disabled={!isAvailable}
+                    className={cn(
+                      "relative p-3 rounded-lg border-2 transition-all duration-200",
+                      "flex flex-col items-center justify-center font-semibold text-sm",
+                      isAvailable
+                        ? "bg-white border-green-300 text-green-700 hover:bg-green-50 hover:border-green-500 hover:scale-105 cursor-pointer shadow-sm"
+                        : "bg-gray-100 border-gray-300 text-gray-400 cursor-not-allowed opacity-60"
+                    )}
+                  >
+                    {isAvailable ? (
+                      <Check className="h-3 w-3 absolute top-1 right-1 text-green-600" />
+                    ) : (
+                      <>
+                        <div
+                          className={cn(
+                            "absolute top-1 left-1 h-4 w-4 rounded-full flex items-center justify-center text-white text-[10px] font-bold",
+                            slot.type === "Entrega"
+                              ? "bg-red-500"
+                              : "bg-primary"
+                          )}
+                        >
+                          {slot.type === "Entrega" ? "E" : "R"}
+                        </div>
+                        <X className="h-3 w-3 absolute top-1 right-1 text-red-500" />
+                      </>
+                    )}
+                    <span>{slot.time}</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>

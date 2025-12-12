@@ -47,6 +47,7 @@ interface CustomersPvFormProps {
   isSubmitting?: boolean;
   mode?: "create" | "update";
   onCancel?: () => void;
+  isModal?: boolean;
 }
 
 export const CustomersPvForm = ({
@@ -384,7 +385,7 @@ export const CustomersPvForm = ({
           </div>
 
           <div className="p-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 items-start">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 items-start">
               {/* Fila 1: Datos básicos */}
               <FormSelect
                 name="type_person_id"
