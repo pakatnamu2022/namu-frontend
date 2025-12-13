@@ -59,6 +59,7 @@ interface DatePickerFormFieldProps<T extends FieldValues> {
   disabledRange?: Matcher | Matcher[];
   captionLayout?: "label" | "dropdown" | "dropdown-months" | "dropdown-years";
   endMonth?: Date;
+  size?: "sm" | "default" | "lg";
 }
 
 export function DatePickerFormField<T extends FieldValues>({
@@ -72,7 +73,13 @@ export function DatePickerFormField<T extends FieldValues>({
   disabled = false,
   disabledRange,
   captionLayout = "label",
-  endMonth,
+  // end month = one year more than today
+  endMonth = new Date(
+    new Date().getFullYear() + 1,
+    new Date().getMonth(),
+    new Date().getDate()
+  ),
+  size,
 }: DatePickerFormFieldProps<T>) {
   const isMobile = useIsMobile();
   const { field, fieldState } = useController({ control, name });
@@ -114,7 +121,7 @@ export function DatePickerFormField<T extends FieldValues>({
   return (
     <FormItem className="flex flex-col justify-between">
       {label && (
-        <FormLabel className="flex justify-start items-center">
+        <FormLabel className="flex justify-start items-center text-xs md:text-sm mb-1">
           {label}
           {tooltip && (
             <Tooltip>
@@ -137,12 +144,13 @@ export function DatePickerFormField<T extends FieldValues>({
           <DrawerTrigger asChild>
             <FormControl>
               <Button
+                size={size ? size : isMobile ? "sm" : "lg"}
                 variant="outline"
-                className="w-full justify-between font-normal"
+                className="w-full justify-between font-normal text-xs"
                 disabled={disabled}
               >
                 {displayValue}
-                <CalendarPlusIcon />
+                <CalendarPlusIcon className="ml-2 h-4 w-4 opacity-50" />
               </Button>
             </FormControl>
           </DrawerTrigger>
@@ -170,7 +178,7 @@ export function DatePickerFormField<T extends FieldValues>({
             <FormControl>
               <Button
                 variant="outline"
-                size={"lg"}
+                size={size ? size : isMobile ? "sm" : "lg"}
                 className={cn(
                   "w-full justify-start text-left font-normal",
                   !parsedDate && "text-muted-foreground"
@@ -182,7 +190,7 @@ export function DatePickerFormField<T extends FieldValues>({
               </Button>
             </FormControl>
           </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="start">
+          <PopoverContent className="w-auto p-0 overflow-hidden" align="start">
             <Calendar
               mode="single"
               locale={es}
@@ -200,7 +208,9 @@ export function DatePickerFormField<T extends FieldValues>({
       )}
 
       <FormMessage>{fieldState.error?.message}</FormMessage>
-      {description && <FormDescription className="text-xs">{description}</FormDescription>}
+      {description && (
+        <FormDescription className="text-xs">{description}</FormDescription>
+      )}
     </FormItem>
   );
 }

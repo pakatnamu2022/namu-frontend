@@ -53,12 +53,15 @@ export function GeneralModal({
       <Drawer open={open} onOpenChange={(v: any) => !v && onClose()}>
         <DrawerContent
           ref={refToUse}
-          className={cn("w-full overflow-y-auto px-4 pb-4", maxWidth)}
+          className={cn(
+            "w-full max-h-[85vh] flex flex-col px-4 pb-4",
+            maxWidth
+          )}
         >
-          <DrawerHeader>
+          <DrawerHeader className="shrink-0">
             {title && <DrawerTitle>{title}</DrawerTitle>}
           </DrawerHeader>
-          <div>{renderedChildren}</div>
+          <div className="overflow-y-auto flex-1">{renderedChildren}</div>
         </DrawerContent>
       </Drawer>
     );

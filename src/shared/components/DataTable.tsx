@@ -58,7 +58,7 @@ const mobileCardVariants = cva("overflow-hidden transition-colors", {
       default: "border-primary/10 hover:border-primary/30 border shadow-sm",
       simple: "border-transparent",
       outline: "border hover:border-primary/30",
-      ghost: "border-transparent hover:bg-muted/50",
+      ghost: "border-transparent hover:bg-muted/50 shadow-none",
     },
   },
   defaultVariants: {
@@ -74,7 +74,7 @@ const mobileCardFooterVariants = cva(
         default: "bg-muted/60 border-primary/10",
         simple: "bg-transparent border-transparent",
         outline: "bg-muted/30 border-muted",
-        ghost: "bg-transparent border-transparent",
+        ghost: "bg-muted border-transparent",
       },
     },
     defaultVariants: {

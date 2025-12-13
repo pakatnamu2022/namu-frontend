@@ -37,6 +37,7 @@ export function FormInput({
   tooltip,
   children,
   required,
+  className,
   ...inputProps
 }: FormInputProps) {
   return (
@@ -65,10 +66,7 @@ export function FormInput({
           <div className="flex flex-col gap-2 items-center">
             <FormControl>
               <Input
-                className={cn(
-                  inputProps.className,
-                  "h-8 md:h-10 text-xs md:text-sm"
-                )}
+                className={cn("h-8 md:h-10 text-xs md:text-sm", className)}
                 {...field}
                 {...inputProps}
               />

@@ -3,10 +3,9 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { Trash2, Car } from "lucide-react";
-import { FormField, FormItem, FormControl, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { Control, UseFormSetValue, UseFormWatch } from "react-hook-form";
+import { FormInput } from "@/shared/components/FormInput";
 
 export interface PurchaseOrderItem {
   unit_measurement_id: string;
@@ -24,13 +23,16 @@ interface Props {
   setValue: UseFormSetValue<any>;
   onRemove: (index: number) => void;
   isVehiclePurchase: boolean;
-  unitMeasurements: Array<{ id: number; dyn_code: string; description: string }>;
+  unitMeasurements: Array<{
+    id: number;
+    dyn_code: string;
+    description: string;
+  }>;
 }
 
 export const purchaseOrderItemsColumns = ({
   control,
   watch,
-  setValue,
   onRemove,
   isVehiclePurchase,
   unitMeasurements,
@@ -79,25 +81,14 @@ export const purchaseOrderItemsColumns = ({
     cell: ({ row }) => {
       const index = row.index;
       return (
-        <FormField
+        <FormInput
           control={control}
           name={`items.${index}.description`}
-          render={({ field }) => (
-            <FormItem>
-              <FormControl>
-                <Input
-                  min={0}
-                  placeholder="Descripción del item"
-                  {...field}
-                  disabled={isVehiclePurchase && index === 0}
-                  className={
-                    isVehiclePurchase && index === 0 ? "bg-muted" : ""
-                  }
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          placeholder="Descripción del item"
+          type="text"
+          min={0}
+          disabled={isVehiclePurchase && index === 0}
+          className={isVehiclePurchase && index === 0 ? "bg-muted" : ""}
         />
       );
     },
@@ -108,37 +99,17 @@ export const purchaseOrderItemsColumns = ({
     header: "Precio Unitario",
     cell: ({ row }) => {
       const index = row.index;
-      const itemPrice = watch(`items.${index}.unit_price`) || 0;
-
-      if (isVehiclePurchase && index === 0) {
-        return (
-          <div className="text-sm font-medium pt-2 px-3 py-2 bg-muted rounded-md">
-            {new Intl.NumberFormat("es-PE", {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
-            }).format(Number(itemPrice) || 0)}
-          </div>
-        );
-      }
 
       return (
-        <FormField
+        <FormInput
           control={control}
           name={`items.${index}.unit_price`}
-          render={({ field }) => (
-            <FormItem>
-              <FormControl>
-                <Input
-                  min={0}
-                  type="number"
-                  step="0.01"
-                  placeholder="0.00"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          min={0}
+          type="number"
+          step="0.01"
+          placeholder="0.00"
+          disabled={isVehiclePurchase && index === 0}
+          className={isVehiclePurchase && index === 0 ? "bg-muted" : ""}
         />
       );
     },
@@ -150,26 +121,14 @@ export const purchaseOrderItemsColumns = ({
     cell: ({ row }) => {
       const index = row.index;
       return (
-        <FormField
+        <FormInput
           control={control}
           name={`items.${index}.quantity`}
-          render={({ field }) => (
-            <FormItem>
-              <FormControl>
-                <Input
-                  min={0}
-                  type="number"
-                  placeholder="1"
-                  {...field}
-                  disabled={isVehiclePurchase && index === 0}
-                  className={
-                    isVehiclePurchase && index === 0 ? "bg-muted" : ""
-                  }
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          min={0}
+          type="number"
+          placeholder="1"
+          disabled={isVehiclePurchase && index === 0}
+          className={isVehiclePurchase && index === 0 ? "bg-muted" : ""}
         />
       );
     },
