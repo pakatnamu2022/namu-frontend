@@ -1,3 +1,5 @@
+"use client";
+
 import {
   FormField,
   FormItem,
@@ -11,6 +13,13 @@ import {
   PopoverTrigger,
   PopoverContent,
 } from "@/components/ui/popover";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
 import {
   Command,
   CommandInput,
@@ -32,6 +41,7 @@ import {
 } from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";
 import RequiredField from "./RequiredField";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface FormSelectProps {
   name: string;
@@ -80,6 +90,7 @@ export function FormSelect({
 }: FormSelectProps) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
+  const isMobile = useIsMobile();
 
   return (
     <FormField
@@ -87,6 +98,127 @@ export function FormSelect({
       name={name}
       render={({ field }) => {
         const selected = options.find((opt) => opt.value === field.value);
+
+        const handleSelect = (optionValue: string) => {
+          const newValue = optionValue === field.value ? "" : optionValue;
+          field.onChange(newValue);
+          setOpen(false);
+        };
+
+        const CommandContent = () => (
+          <Command
+            className="max-h-72 overflow-hidden"
+            shouldFilter={!isSearchable && !strictFilter}
+          >
+            <CommandInput
+              className="border-none focus:ring-0"
+              placeholder="Buscar..."
+              value={strictFilter ? search : undefined}
+              onValueChange={(value) => {
+                if (strictFilter) {
+                  setSearch(value);
+                }
+                if (isSearchable && setSearchQuery) {
+                  setSearchQuery(value);
+                }
+              }}
+            />
+            <CommandList className="max-h-60 overflow-y-auto">
+              {isLoadingOptions ? (
+                <div className="py-6 text-center text-sm flex flex-col items-center justify-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                  <span className="text-muted-foreground">Buscando...</span>
+                </div>
+              ) : (
+                <>
+                  <CommandEmpty className="py-4 text-center text-sm">
+                    No hay resultados.
+                  </CommandEmpty>
+                  {(strictFilter
+                    ? options.filter((option) => {
+                        if (!search) return true;
+                        const label =
+                          typeof option.label === "function"
+                            ? option.label()
+                            : option.label;
+                        const labelStr = (label || "").toString().toLowerCase();
+                        const searchStr = search.toLowerCase();
+
+                        return startsWith
+                          ? labelStr.startsWith(searchStr)
+                          : labelStr.includes(searchStr);
+                      })
+                    : options
+                  )
+                    .sort((a, b) => {
+                      if (!sortByLength) return 0;
+
+                      const labelA =
+                        typeof a.label === "function" ? a.label() : a.label;
+                      const labelB =
+                        typeof b.label === "function" ? b.label() : b.label;
+
+                      const lengthA = (labelA || "").toString().length;
+                      const lengthB = (labelB || "").toString().length;
+
+                      return lengthA - lengthB;
+                    })
+                    .map((option) => (
+                      <CommandItem
+                        key={option.value}
+                        className="cursor-pointer"
+                        onSelect={() => handleSelect(option.value)}
+                      >
+                        <Check
+                          className={cn(
+                            "mr-2 h-4 w-4 shrink-0",
+                            option.value === field.value
+                              ? "opacity-100"
+                              : "opacity-0"
+                          )}
+                        />
+                        <div className="flex flex-col min-w-0 flex-1">
+                          <span className={cn("truncate", classNameOption)}>
+                            {typeof option.label === "function"
+                              ? option.label()
+                              : option.label}
+                          </span>
+                          {option.description && (
+                            <span className="text-[10px] text-muted-foreground truncate">
+                              {withValue && `${option.value} - `}{" "}
+                              {option.description}
+                            </span>
+                          )}
+                        </div>
+                      </CommandItem>
+                    ))}
+                </>
+              )}
+            </CommandList>
+          </Command>
+        );
+
+        const triggerButton = (
+          <Button
+            variant="outline"
+            role="combobox"
+            disabled={disabled}
+            className={cn(
+              "w-full justify-between min-h-10 flex",
+              !field.value && "text-muted-foreground",
+              className
+            )}
+          >
+            <span className="text-nowrap! line-clamp-1">
+              {selected
+                ? typeof selected.label === "function"
+                  ? selected.label()
+                  : selected.label
+                : placeholder}
+            </span>
+            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          </Button>
+        );
 
         return (
           <FormItem className="flex flex-col justify-between">
@@ -113,152 +245,52 @@ export function FormSelect({
                 )}
 
             <div className="flex gap-2 items-center">
-              <Popover
-                open={open}
-                onOpenChange={(newOpen) => {
-                  setOpen(newOpen);
-                  if (!newOpen && strictFilter) setSearch("");
-                }}
-              >
-                <PopoverTrigger asChild>
-                  <FormControl>
-                    <Button
-                      variant="outline"
-                      role="combobox"
-                      disabled={disabled}
-                      className={cn(
-                        "w-full justify-between min-h-10 flex",
-                        !field.value && "text-muted-foreground",
-                        className
-                      )}
-                    >
-                      <span className="text-nowrap! line-clamp-1">
-                        {selected
-                          ? typeof selected.label === "function"
-                            ? selected.label()
-                            : selected.label
-                          : placeholder}
-                      </span>
-                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                    </Button>
-                  </FormControl>
-                </PopoverTrigger>
-
-                <PopoverContent
-                  className={cn("p-0", popoverWidth)}
-                  onWheel={(e) => e.stopPropagation()}
-                  onWheelCapture={(e) => e.stopPropagation()}
-                  onTouchMove={(e) => e.stopPropagation()}
+              {isMobile ? (
+                <Drawer
+                  open={open}
+                  onOpenChange={(newOpen) => {
+                    setOpen(newOpen);
+                    if (!newOpen && strictFilter) setSearch("");
+                  }}
                 >
-                  <Command
-                    className="max-h-72 overflow-hidden"
-                    shouldFilter={!isSearchable && !strictFilter}
+                  <DrawerTrigger asChild>
+                    <FormControl>{triggerButton}</FormControl>
+                  </DrawerTrigger>
+                  <DrawerContent className="px-4 pb-4 max-h-[80vh]">
+                    <DrawerHeader>
+                      <DrawerTitle>
+                        {typeof label === "function"
+                          ? "Seleccionar opción"
+                          : label || "Seleccionar opción"}
+                      </DrawerTitle>
+                    </DrawerHeader>
+                    <div className="overflow-hidden">
+                      <CommandContent />
+                    </div>
+                  </DrawerContent>
+                </Drawer>
+              ) : (
+                <Popover
+                  open={open}
+                  onOpenChange={(newOpen) => {
+                    setOpen(newOpen);
+                    if (!newOpen && strictFilter) setSearch("");
+                  }}
+                >
+                  <PopoverTrigger asChild>
+                    <FormControl>{triggerButton}</FormControl>
+                  </PopoverTrigger>
+
+                  <PopoverContent
+                    className={cn("p-0", popoverWidth)}
+                    onWheel={(e) => e.stopPropagation()}
+                    onWheelCapture={(e) => e.stopPropagation()}
+                    onTouchMove={(e) => e.stopPropagation()}
                   >
-                    <CommandInput
-                      className="border-none focus:ring-0"
-                      placeholder="Buscar..."
-                      value={strictFilter ? search : undefined}
-                      onValueChange={(value) => {
-                        if (strictFilter) {
-                          setSearch(value);
-                        }
-                        if (isSearchable && setSearchQuery) {
-                          setSearchQuery(value);
-                        }
-                      }}
-                    />
-                    <CommandList className="max-h-60 overflow-y-auto">
-                      {isLoadingOptions ? (
-                        <div className="py-6 text-center text-sm flex flex-col items-center justify-center gap-2">
-                          <Loader2 className="h-4 w-4 animate-spin text-primary" />
-                          <span className="text-muted-foreground">
-                            Buscando...
-                          </span>
-                        </div>
-                      ) : (
-                        <>
-                          <CommandEmpty className="py-4 text-center text-sm">
-                            No hay resultados.
-                          </CommandEmpty>
-                          {(strictFilter
-                            ? options.filter((option) => {
-                                if (!search) return true;
-                                const label =
-                                  typeof option.label === "function"
-                                    ? option.label()
-                                    : option.label;
-                                const labelStr = (label || "")
-                                  .toString()
-                                  .toLowerCase();
-                                const searchStr = search.toLowerCase();
-
-                                return startsWith
-                                  ? labelStr.startsWith(searchStr)
-                                  : labelStr.includes(searchStr);
-                              })
-                            : options
-                          )
-                            .sort((a, b) => {
-                              if (!sortByLength) return 0;
-
-                              const labelA =
-                                typeof a.label === "function"
-                                  ? a.label()
-                                  : a.label;
-                              const labelB =
-                                typeof b.label === "function"
-                                  ? b.label()
-                                  : b.label;
-
-                              const lengthA = (labelA || "").toString().length;
-                              const lengthB = (labelB || "").toString().length;
-
-                              return lengthA - lengthB;
-                            })
-                            .map((option) => (
-                              <CommandItem
-                                key={option.value}
-                                className="cursor-pointer"
-                                onSelect={() => {
-                                  const newValue =
-                                    option.value === field.value
-                                      ? ""
-                                      : option.value;
-                                  field.onChange(newValue);
-                                  setOpen(false);
-                                }}
-                              >
-                                <Check
-                                  className={cn(
-                                    "mr-2 h-4 w-4 shrink-0",
-                                    option.value === field.value
-                                      ? "opacity-100"
-                                      : "opacity-0"
-                                  )}
-                                />
-                                <div className="flex flex-col min-w-0 flex-1">
-                                  <span
-                                    className={cn("truncate", classNameOption)}
-                                  >
-                                    {typeof option.label === "function"
-                                      ? option.label()
-                                      : option.label}
-                                  </span>
-                                  {option.description && (
-                                    <span className="text-[10px] text-muted-foreground truncate">
-                                      {withValue && `${option.value} - `}{" "}
-                                      {option.description}
-                                    </span>
-                                  )}
-                                </div>
-                              </CommandItem>
-                            ))}
-                        </>
-                      )}
-                    </CommandList>
-                  </Command>
-                </PopoverContent>
-              </Popover>
+                    <CommandContent />
+                  </PopoverContent>
+                </Popover>
+              )}
               {children}
             </div>
             {description && (
