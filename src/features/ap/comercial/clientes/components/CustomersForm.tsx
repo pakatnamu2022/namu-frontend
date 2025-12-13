@@ -581,33 +581,29 @@ export const CustomersForm = ({
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 w-full">
         {/* GRUPO 1: INFORMACIÓN PERSONAL */}
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-          <div className="bg-blue-50 px-6 py-4 border-b border-gray-200">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-              <h3 className="text-lg font-semibold text-gray-800 flex items-center">
-                <User className="size-5 text-primary mr-2" />
-                Información Personal
-              </h3>
-
-              {notificationMessage && (
-                <div
-                  className={`px-2 py-1 rounded-md flex items-center gap-2 text-sm sm:text-base ${
-                    businessPartnerType === TYPE_BUSINESS_PARTNERS.PROVEEDOR
-                      ? "bg-blue-100 text-primary border border-blue-200"
-                      : "bg-red-100 text-secondary border border-red-200"
-                  }`}
-                >
-                  <Info className="size-4 shrink-0" />
-                  <span className="text-xs font-medium">
-                    {notificationMessage}
-                  </span>
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="p-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 items-start">
+        <GroupFormSection
+          title="Información Personal"
+          icon={User}
+          iconColor="text-primary"
+          bgColor="bg-blue-50"
+          cols={{ sm: 2, md: 3 }}
+          headerExtra={
+            notificationMessage && (
+              <div
+                className={`px-2 py-1 rounded-md flex items-center gap-2 text-sm sm:text-base ${
+                  businessPartnerType === TYPE_BUSINESS_PARTNERS.PROVEEDOR
+                    ? "bg-blue-100 text-primary border border-blue-200"
+                    : "bg-red-100 text-secondary border border-red-200"
+                }`}
+              >
+                <Info className="size-4 shrink-0" />
+                <span className="text-xs font-medium">
+                  {notificationMessage}
+                </span>
+              </div>
+            )
+          }
+        >
               {/* Fila 1: Datos básicos */}
               <FormSelect
                 name="type_person_id"
@@ -948,136 +944,132 @@ export const CustomersForm = ({
                   strictFilter={true}
                 />
               </div>
-            </div>
 
-            {/* Sección: Datos del Cónyuge (Solo si está casado) */}
-            {!isJuridica && isMarried && !fromOpportunities && (
-              <div className="mt-8 pt-6 border-t border-gray-200">
-                <div className="mb-4 flex items-center">
-                  <Heart className="size-5 text-pink-600 mr-2" />
-                  <h4 className="text-md font-medium text-gray-800">
-                    Datos del Cónyuge
-                  </h4>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                  <FormInput
-                    control={form.control}
-                    name="spouse_num_doc"
-                    label={
-                      <div className="flex items-center gap-2 relative">
-                        DNI
-                        <DocumentValidationStatus
-                          shouldValidate={true}
-                          documentNumber={conyugeDni || ""}
-                          expectedDigits={8}
-                          isValidating={isConyugeDniLoading}
-                          leftPosition="right-0"
-                        />
-                      </div>
-                    }
-                    type="number"
-                    placeholder="Número de documento"
-                    maxLength={8}
-                    addonEnd={
-                      <ValidationIndicator
-                        show={!!conyugeDni}
-                        isValidating={isConyugeDniLoading}
-                        isValid={
-                          conyugeDniData?.success && !!conyugeDniData.data
-                        }
-                        hasError={
-                          !!conyugeDniError ||
-                          (conyugeDniData && !conyugeDniData.success)
-                        }
-                      />
-                    }
-                  />
-
-                  <div className="col-span-1 md:col-span-2">
-                    <FormInput
-                      control={form.control}
-                      name="spouse_full_name"
-                      label="Nombres Completos"
-                      placeholder="Nombres Completos"
-                      disabled={shouldDisableSpouseFields}
+          {/* Sección: Datos del Cónyuge (Solo si está casado) */}
+          {!isJuridica && isMarried && !fromOpportunities && (
+            <GroupFormSection
+              title="Datos del Cónyuge"
+              icon={Heart}
+              iconColor="text-pink-600"
+              bgColor="bg-pink-50"
+              cols={{ sm: 1, md: 3 }}
+              className="mt-8"
+            >
+              <FormInput
+                control={form.control}
+                name="spouse_num_doc"
+                label={
+                  <div className="flex items-center gap-2 relative">
+                    DNI
+                    <DocumentValidationStatus
+                      shouldValidate={true}
+                      documentNumber={conyugeDni || ""}
+                      expectedDigits={8}
+                      isValidating={isConyugeDniLoading}
+                      leftPosition="right-0"
                     />
                   </div>
-                </div>
-              </div>
-            )}
-
-            {/* Sección: Representante Legal (Solo si es Persona Jurídica y NO viene de oportunidades) */}
-            {isJuridica && !fromOpportunities && (
-              <div className="mt-8 pt-6 border-t border-gray-200">
-                <div className="mb-4 flex items-center">
-                  <Scale className="size-5 text-purple-600 mr-2" />
-                  <h4 className="text-md font-medium text-gray-800">
-                    Representante Legal
-                  </h4>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                  <FormInput
-                    control={form.control}
-                    name="legal_representative_num_doc"
-                    label={
-                      <div className="flex items-center gap-2 relative">
-                        DNI
-                        <DocumentValidationStatus
-                          shouldValidate={true}
-                          documentNumber={legalRepresentativeDni || ""}
-                          expectedDigits={8}
-                          isValidating={isLegalRepDniLoading}
-                          leftPosition="right-0"
-                        />
-                      </div>
+                }
+                type="number"
+                placeholder="Número de documento"
+                maxLength={8}
+                addonEnd={
+                  <ValidationIndicator
+                    show={!!conyugeDni}
+                    isValidating={isConyugeDniLoading}
+                    isValid={
+                      conyugeDniData?.success && !!conyugeDniData.data
                     }
-                    type="number"
-                    placeholder="Número de documento"
-                    maxLength={8}
-                    addonEnd={
-                      <ValidationIndicator
-                        show={!!legalRepresentativeDni}
+                    hasError={
+                      !!conyugeDniError ||
+                      (conyugeDniData && !conyugeDniData.success)
+                    }
+                  />
+                }
+              />
+
+              <div className="col-span-1 md:col-span-2">
+                <FormInput
+                  control={form.control}
+                  name="spouse_full_name"
+                  label="Nombres Completos"
+                  placeholder="Nombres Completos"
+                  disabled={shouldDisableSpouseFields}
+                />
+              </div>
+            </GroupFormSection>
+          )}
+
+          {/* Sección: Representante Legal (Solo si es Persona Jurídica y NO viene de oportunidades) */}
+          {isJuridica && !fromOpportunities && (
+            <GroupFormSection
+                title="Representante Legal"
+                icon={Scale}
+                iconColor="text-purple-600"
+                bgColor="bg-purple-50"
+                cols={{ sm: 2, md: 3 }}
+                className="mt-8"
+              >
+                <FormInput
+                  control={form.control}
+                  name="legal_representative_num_doc"
+                  label={
+                    <div className="flex items-center gap-2 relative">
+                      DNI
+                      <DocumentValidationStatus
+                        shouldValidate={true}
+                        documentNumber={legalRepresentativeDni || ""}
+                        expectedDigits={8}
                         isValidating={isLegalRepDniLoading}
-                        isValid={
-                          legalRepDniData?.success &&
-                          !!legalRepDniData.data
-                        }
-                        hasError={
-                          !!legalRepDniError ||
-                          (legalRepDniData && !legalRepDniData.success)
-                        }
+                        leftPosition="right-0"
                       />
-                    }
-                  />
+                    </div>
+                  }
+                  type="number"
+                  placeholder="Número de documento"
+                  maxLength={8}
+                  addonEnd={
+                    <ValidationIndicator
+                      show={!!legalRepresentativeDni}
+                      isValidating={isLegalRepDniLoading}
+                      isValid={
+                        legalRepDniData?.success &&
+                        !!legalRepDniData.data
+                      }
+                      hasError={
+                        !!legalRepDniError ||
+                        (legalRepDniData && !legalRepDniData.success)
+                      }
+                    />
+                  }
+                />
 
-                  <FormInput
-                    control={form.control}
-                    name="legal_representative_name"
-                    label="Nombres"
-                    placeholder="Nombres"
-                    disabled={shouldDisableLegalRepFields}
-                  />
+                <FormInput
+                  control={form.control}
+                  name="legal_representative_name"
+                  label="Nombres"
+                  placeholder="Nombres"
+                  disabled={shouldDisableLegalRepFields}
+                />
 
-                  <FormInput
-                    control={form.control}
-                    name="legal_representative_paternal_surname"
-                    label="Apellido Paterno"
-                    placeholder="Apellido paterno"
-                    disabled={shouldDisableLegalRepFields}
-                  />
+                <FormInput
+                  control={form.control}
+                  name="legal_representative_paternal_surname"
+                  label="Apellido Paterno"
+                  placeholder="Apellido paterno"
+                  disabled={shouldDisableLegalRepFields}
+                />
 
-                  <FormInput
-                    control={form.control}
-                    name="legal_representative_maternal_surname"
-                    label="Apellido Materno"
-                    placeholder="Apellido materno"
-                    disabled={shouldDisableLegalRepFields}
-                  />
-                </div>
-              </div>
+                <FormInput
+                  control={form.control}
+                  name="legal_representative_maternal_surname"
+                  label="Apellido Materno"
+                  placeholder="Apellido materno"
+                  disabled={shouldDisableLegalRepFields}
+                />
+              </GroupFormSection>
             )}
-          </div>
-        </div>
+        </GroupFormSection>
 
         {/* GRUPO 2: INFORMACIÓN ADICIONAL */}
         <GroupFormSection
