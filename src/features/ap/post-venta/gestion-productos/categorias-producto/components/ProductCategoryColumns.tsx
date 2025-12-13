@@ -26,7 +26,7 @@ export const productCategoryColumns = ({
   permissions,
 }: Props): ProductCategoryColumns[] => [
   {
-    accessorKey: "name",
+    accessorKey: "code",
     header: "Cod.",
     cell: ({ getValue }) => {
       const value = getValue() as string;

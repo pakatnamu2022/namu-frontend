@@ -50,6 +50,8 @@ export const ProductForm = ({
     defaultValues: {
       ...defaultValues,
       warehouses: defaultValues.warehouses || [],
+      cost_price: 0,
+      sale_price: 0,
     },
     mode: "onChange",
   });
@@ -138,7 +140,7 @@ export const ProductForm = ({
               <FormItem>
                 <FormLabel>Código</FormLabel>
                 <FormControl>
-                  <Input placeholder="Se genera automáticamente" {...field} />
+                  <Input placeholder="Código producto" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -153,7 +155,7 @@ export const ProductForm = ({
                 <FormControl>
                   <Input
                     readOnly
-                    placeholder="Código dynamic"
+                    placeholder="Generado automáticamente"
                     {...field}
                     className="bg-slate-100"
                   />
@@ -214,60 +216,6 @@ export const ProductForm = ({
               value: unit.id.toString(),
             }))}
             control={form.control}
-          />
-          <FormField
-            control={form.control}
-            name="cost_price"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Precio de Costo</FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    placeholder="0.00"
-                    value={typeof field.value === "number" ? field.value : ""}
-                    onChange={(e) => {
-                      if (e.target.value === "") {
-                        field.onChange("");
-                      } else {
-                        const num = parseFloat(e.target.value);
-                        field.onChange(isNaN(num) ? "" : num);
-                      }
-                    }}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="sale_price"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Precio de Venta</FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    placeholder="0.00"
-                    value={typeof field.value === "number" ? field.value : ""}
-                    onChange={(e) => {
-                      if (e.target.value === "") {
-                        field.onChange("");
-                      } else {
-                        const num = parseFloat(e.target.value);
-                        field.onChange(isNaN(num) ? "" : num);
-                      }
-                    }}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
           />
           <FormField
             control={form.control}

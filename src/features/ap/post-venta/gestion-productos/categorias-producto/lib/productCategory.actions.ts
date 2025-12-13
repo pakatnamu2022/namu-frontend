@@ -18,7 +18,7 @@ export async function getProductCategory({
   const config: AxiosRequestConfig = {
     params: {
       ...params,
-      type: AP_MASTER_POST_VENTA.PRODUCT_CATEGORY,
+      type: [AP_MASTER_POST_VENTA.PRODUCT_CATEGORY],
     },
   };
   const { data } = await api.get<ProductCategoryResponse>(ENDPOINT, config);
@@ -32,7 +32,7 @@ export async function getAllProductCategory({
     params: {
       all: true, // Assuming you want to fetch all periods
       ...params,
-      type: AP_MASTER_POST_VENTA.PRODUCT_CATEGORY,
+      type: [AP_MASTER_POST_VENTA.PRODUCT_CATEGORY],
       status: STATUS_ACTIVE,
     },
   };
