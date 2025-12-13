@@ -41,11 +41,9 @@ export default function SalesManagerAdvisorTable({
   };
 
   return (
-    <div className="space-y-4">
-      <h3 className="text-lg font-semibold">Rendimiento por Asesor</h3>
-      <div className="rounded-lg border overflow-hidden">
-        <div className="overflow-x-auto">
-          <Table>
+    <div className="rounded-lg border overflow-hidden">
+      <div className="overflow-x-auto">
+        <Table>
             <TableHeader>
               <TableRow>
                 <TableHead className="font-bold">Asesor</TableHead>
@@ -199,7 +197,6 @@ export default function SalesManagerAdvisorTable({
             </TableBody>
           </Table>
         </div>
-      </div>
     </div>
   );
 }

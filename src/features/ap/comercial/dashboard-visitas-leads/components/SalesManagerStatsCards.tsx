@@ -50,11 +50,11 @@ function InteractivePieChart({
   const items = React.useMemo(() => data.map((item) => item.name), [data]);
 
   return (
-    <Card data-chart={id} className="flex flex-col border-none shadow-none">
+    <Card data-chart={id} className="flex flex-col">
       <ChartStyle id={id} config={config} />
-      <CardHeader className="flex-row items-start space-y-0 pb-0">
-        <div className="grid gap-1">
-          <CardTitle className="text-base">{title}</CardTitle>
+      <CardHeader className="flex-row items-start space-y-0 pb-2">
+        <div className="grid gap-1 flex-1">
+          <CardTitle>{title}</CardTitle>
         </div>
         <Select value={activeItem} onValueChange={setActiveItem}>
           <SelectTrigger
@@ -202,13 +202,13 @@ export default function SalesManagerStatsCards({
   } satisfies ChartConfig;
 
   // Datos para el gráfico de estados de oportunidad
-  const opportunityData = Object.entries(
-    teamTotals.by_opportunity_status
-  ).map(([name, value], index) => ({
-    name,
-    value,
-    fill: `var(--color-${name})`,
-  }));
+  const opportunityData = Object.entries(teamTotals.by_opportunity_status).map(
+    ([name, value]) => ({
+      name,
+      value,
+      fill: `var(--color-${name})`,
+    })
+  );
 
   const opportunityConfig = Object.entries(
     teamTotals.by_opportunity_status

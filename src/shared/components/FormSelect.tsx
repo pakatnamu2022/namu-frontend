@@ -40,7 +40,6 @@ interface FormSelectProps {
   placeholder?: string;
   options: Option[];
   control: Control<any>;
-  portalContainer?: HTMLElement | null;
   disabled?: boolean;
   tooltip?: string | React.ReactNode;
   strictFilter?: boolean;
@@ -54,6 +53,7 @@ interface FormSelectProps {
   isLoadingOptions?: boolean;
   className?: string;
   required?: boolean;
+  popoverWidth?: string;
 }
 
 export function FormSelect({
@@ -63,7 +63,6 @@ export function FormSelect({
   placeholder,
   options,
   control,
-  portalContainer,
   disabled,
   tooltip,
   strictFilter = false,
@@ -77,6 +76,7 @@ export function FormSelect({
   isLoadingOptions = false,
   className,
   required = false,
+  popoverWidth = "w-(--radix-popover-trigger-width)!",
 }: FormSelectProps) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -145,8 +145,7 @@ export function FormSelect({
                 </PopoverTrigger>
 
                 <PopoverContent
-                  container={portalContainer}
-                  className="p-0 w-(--radix-popover-trigger-width)!"
+                  className={cn("p-0", popoverWidth)}
                   onWheel={(e) => e.stopPropagation()}
                   onWheelCapture={(e) => e.stopPropagation()}
                   onTouchMove={(e) => e.stopPropagation()}

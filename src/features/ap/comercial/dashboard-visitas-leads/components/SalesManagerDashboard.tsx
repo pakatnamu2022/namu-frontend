@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Form,
   FormField,
@@ -27,6 +29,8 @@ import SalesManagerStatsCards from "./SalesManagerStatsCards";
 import SalesManagerAdvisorTable from "./SalesManagerAdvisorTable";
 import SalesManagerDetailsSheet from "./SalesManagerDetailsSheet";
 import { DateRangePickerFormField } from "@/shared/components/DateRangePickerFormField";
+import { FormSelect } from "@/shared/components/FormSelect";
+import { useAllWorkers } from "@/features/gp/gestionhumana/personal/trabajadores/lib/worker.hook";
 
 // Obtener el primer y último día del mes pasado
 const getLastMonthRange = () => {
@@ -41,6 +45,7 @@ interface DashboardFormValues {
   date_from: string;
   date_to: string;
   type: "VISITA" | "LEADS";
+  boss_id?: number | null;
 }
 
 export default function SalesManagerDashboard() {
@@ -59,8 +64,11 @@ export default function SalesManagerDashboard() {
       date_from: format(lastMonthRange.firstDay, "yyyy-MM-dd"),
       date_to: format(lastMonthRange.lastDay, "yyyy-MM-dd"),
       type: "LEADS",
+      boss_id: null,
     },
   });
+
+  const { data: bosses = [] } = useAllWorkers();
 
   // Cargar datos automáticamente al montar el componente
   useEffect(() => {
@@ -74,6 +82,7 @@ export default function SalesManagerDashboard() {
         date_from: values.date_from,
         date_to: values.date_to,
         type: values.type,
+        boss_id: values.boss_id,
       };
 
       const response = await getSalesManagerStats(filters);
@@ -97,31 +106,43 @@ export default function SalesManagerDashboard() {
   return (
     <div className="space-y-6 p-6">
       {/* Header */}
-      <div className="space-y-1">
-        <h1 className="text-3xl font-bold tracking-tight">
-          Dashboard de Gerencia de Ventas
-        </h1>
-        {statsData && (
-          <p className="text-muted-foreground">
-            {statsData.data.manager_info.boss_name} •{" "}
-            {statsData.data.manager_info.boss_position} •{" "}
-            {format(new Date(statsData.period.start_date), "dd/MM/yyyy")} -{" "}
-            {format(new Date(statsData.period.end_date), "dd/MM/yyyy")}
-          </p>
-        )}
-      </div>
+      <div className="flex items-center justify-between border-b pb-4">
+        <div>
+          <h1 className="text-2xl font-semibold text-foreground">
+            Resumen Gerencial
+          </h1>
+          {statsData && (
+            <p className="text-sm text-muted-foreground mt-1">
+              {statsData.data.manager_info.boss_name} •{" "}
+              {statsData.data.manager_info.boss_position}
+            </p>
+          )}
+        </div>
 
-      {/* Filters */}
-      <div className="bg-muted/50 rounded-lg p-4">
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)}>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Filters */}
+        <div className="flex items-end gap-3">
+          <Form {...form}>
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="flex items-end gap-3"
+            >
+              <FormSelect
+                options={bosses.map((boss) => ({
+                  label: boss.name,
+                  value: boss.id.toString(),
+                }))}
+                control={form.control}
+                name="boss_id"
+                placeholder="Jefe"
+                
+              />
+
               <DateRangePickerFormField
                 control={form.control}
                 nameFrom="date_from"
                 nameTo="date_to"
-                label="Rango de Fechas"
-                placeholder="Selecciona un rango"
+                label="Período"
+                placeholder="Selecciona rango"
                 required
               />
 
@@ -130,14 +151,14 @@ export default function SalesManagerDashboard() {
                 name="type"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Tipo</FormLabel>
+                    <FormLabel className="text-xs">Tipo</FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
                     >
                       <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecciona un tipo" />
+                        <SelectTrigger className="w-[120px] h-9">
+                          <SelectValue placeholder="Tipo" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -149,73 +170,140 @@ export default function SalesManagerDashboard() {
                 )}
               />
 
-              <div className="flex items-end">
-                <Button type="submit" disabled={isLoading} className="w-full">
-                  {isLoading ? "Cargando..." : "Consultar"}
-                </Button>
-              </div>
-            </div>
-          </form>
-        </Form>
+              <Button
+                type="submit"
+                disabled={isLoading}
+                size="sm"
+                className="h-9"
+              >
+                {isLoading ? "Cargando..." : "Aplicar"}
+              </Button>
+            </form>
+          </Form>
+        </div>
       </div>
 
       {/* Stats Overview */}
-      {statsData && (
-        <>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-            <div className="space-y-2">
-              <p className="text-sm text-muted-foreground">Total Asesores</p>
-              <p className="text-3xl font-bold">
-                {statsData.data.team_totals.total_advisors}
-              </p>
-            </div>
-            <div className="space-y-2">
-              <p className="text-sm text-muted-foreground">Total Visitas</p>
-              <p className="text-3xl font-bold">
-                {statsData.data.team_totals.total_visits}
-              </p>
-            </div>
-            <div className="space-y-2">
-              <p className="text-sm text-muted-foreground">Atendidos</p>
-              <p className="text-3xl font-bold text-green-600">
-                {statsData.data.team_totals.attended}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                {statsData.data.team_totals.attention_percentage.toFixed(1)}%
-              </p>
-            </div>
-            <div className="space-y-2">
-              <p className="text-sm text-muted-foreground">No Atendidos</p>
-              <p className="text-3xl font-bold text-yellow-600">
-                {statsData.data.team_totals.not_attended}
-              </p>
-            </div>
-            <div className="space-y-2">
-              <p className="text-sm text-muted-foreground">Descartados</p>
-              <p className="text-3xl font-bold text-red-600">
-                {statsData.data.team_totals.discarded}
-              </p>
-            </div>
+      {isLoading && !statsData ? (
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+            {[...Array(5)].map((_, i) => (
+              <Card key={i}>
+                <CardContent className="pt-6">
+                  <Skeleton className="h-4 w-24 mb-2" />
+                  <Skeleton className="h-8 w-16" />
+                </CardContent>
+              </Card>
+            ))}
           </div>
+          <Skeleton className="h-96 w-full" />
+        </div>
+      ) : (
+        statsData && (
+          <>
+            {/* Metrics Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-muted-foreground">
+                      Total Asesores
+                    </p>
+                    <p className="text-3xl font-bold">
+                      {statsData.data.team_totals.total_advisors}
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
 
-          {/* Charts and Table */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Advisors Table - Takes 2 columns */}
-            <div className="lg:col-span-2">
-              <SalesManagerAdvisorTable
-                advisors={statsData.data.by_advisor}
-                onAdvisorClick={handleAdvisorClick}
-              />
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-muted-foreground">
+                      Total{" "}
+                      {form.getValues("type") === "VISITA"
+                        ? "Visitas"
+                        : "Leads"}
+                    </p>
+                    <p className="text-3xl font-bold">
+                      {statsData.data.team_totals.total_visits}
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-muted-foreground">
+                      Atendidos
+                    </p>
+                    <p className="text-3xl font-bold text-green-600">
+                      {statsData.data.team_totals.attended}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {statsData.data.team_totals.attention_percentage.toFixed(
+                        1
+                      )}
+                      % del total
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-muted-foreground">
+                      No Atendidos
+                    </p>
+                    <p className="text-3xl font-bold text-amber-600">
+                      {statsData.data.team_totals.not_attended}
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-muted-foreground">
+                      Descartados
+                    </p>
+                    <p className="text-3xl font-bold text-red-600">
+                      {statsData.data.team_totals.discarded}
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
 
-            {/* Charts - Takes 1 column */}
-            <div className="space-y-6">
-              <SalesManagerStatsCards
-                teamTotals={statsData.data.team_totals}
-              />
+            {/* Content Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Advisors Table */}
+              <div className="lg:col-span-2">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Rendimiento por Asesor</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <SalesManagerAdvisorTable
+                      advisors={statsData.data.by_advisor}
+                      onAdvisorClick={handleAdvisorClick}
+                    />
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Charts */}
+              <div className="space-y-6">
+                <SalesManagerStatsCards
+                  teamTotals={statsData.data.team_totals}
+                />
+              </div>
             </div>
-          </div>
-        </>
+          </>
+        )
       )}
 
       {/* Details Sheet */}
