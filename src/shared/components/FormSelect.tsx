@@ -64,6 +64,8 @@ interface FormSelectProps {
   className?: string;
   required?: boolean;
   popoverWidth?: string;
+  portalContainer?: HTMLElement | null;
+  size?: "sm" | "default" | "lg";
 }
 
 export function FormSelect({
@@ -87,6 +89,8 @@ export function FormSelect({
   className,
   required = false,
   popoverWidth = "w-(--radix-popover-trigger-width)!",
+  size,
+  portalContainer,
 }: FormSelectProps) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -100,14 +104,15 @@ export function FormSelect({
         const selected = options.find((opt) => opt.value === field.value);
 
         const handleSelect = (optionValue: string) => {
-          const newValue = optionValue === field.value ? "" : optionValue;
+          const newValue =
+            optionValue === field.value && !required ? "" : optionValue;
           field.onChange(newValue);
           setOpen(false);
         };
 
         const CommandContent = () => (
           <Command
-            className="max-h-72 overflow-hidden"
+            className="md:max-h-72 overflow-hidden"
             shouldFilter={!isSearchable && !strictFilter}
           >
             <CommandInput
@@ -123,7 +128,7 @@ export function FormSelect({
                 }
               }}
             />
-            <CommandList className="max-h-60 overflow-y-auto">
+            <CommandList className="md:max-h-60 overflow-y-auto">
               {isLoadingOptions ? (
                 <div className="py-6 text-center text-sm flex flex-col items-center justify-center gap-2">
                   <Loader2 className="h-4 w-4 animate-spin text-primary" />
@@ -200,11 +205,12 @@ export function FormSelect({
 
         const triggerButton = (
           <Button
+            size={size ? size : isMobile ? "sm" : "lg"}
             variant="outline"
             role="combobox"
             disabled={disabled}
             className={cn(
-              "w-full justify-between min-h-10 flex",
+              "w-full justify-between flex",
               !field.value && "text-muted-foreground",
               className
             )}
@@ -225,7 +231,7 @@ export function FormSelect({
             {label && typeof label === "function"
               ? label()
               : label && (
-                  <FormLabel className="flex justify-start items-center">
+                  <FormLabel className="flex justify-start items-center text-xs md:text-sm mb-1">
                     {label}
                     {required && <RequiredField />}
                     {tooltip && (
@@ -282,6 +288,7 @@ export function FormSelect({
                   </PopoverTrigger>
 
                   <PopoverContent
+                    container={portalContainer}
                     className={cn("p-0", popoverWidth)}
                     onWheel={(e) => e.stopPropagation()}
                     onWheelCapture={(e) => e.stopPropagation()}

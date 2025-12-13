@@ -16,17 +16,15 @@ import {
 } from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";
 import RequiredField from "./RequiredField";
+import { cn } from "@/lib/utils";
 
-interface FormInputProps {
+interface FormInputProps
+  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "name"> {
   name: string;
   description?: string;
   label?: string;
-  placeholder?: string;
   control: Control<any>;
-  disabled?: boolean;
   tooltip?: string | React.ReactNode;
-  className?: string;
-  type?: string;
   children?: React.ReactNode;
   required?: boolean;
 }
@@ -35,14 +33,11 @@ export function FormInput({
   name,
   description,
   label,
-  placeholder,
   control,
-  disabled,
   tooltip,
-  className,
-  type = "text",
   children,
   required,
+  ...inputProps
 }: FormInputProps) {
   return (
     <FormField
@@ -50,7 +45,7 @@ export function FormInput({
       name={name}
       render={({ field }) => (
         <FormItem className="flex flex-col justify-between">
-          <FormLabel className="flex justify-start items-center">
+          <FormLabel className="flex justify-start items-center text-xs md:text-sm mb-1">
             {label}
             {required && <RequiredField />}
             {tooltip && (
@@ -70,11 +65,12 @@ export function FormInput({
           <div className="flex gap-2 items-center">
             <FormControl>
               <Input
+                className={cn(
+                  inputProps.className,
+                  "h-8 md:h-10 text-xs md:text-sm"
+                )}
                 {...field}
-                type={type}
-                placeholder={placeholder}
-                disabled={disabled}
-                className={className}
+                {...inputProps}
               />
             </FormControl>
             {children}

@@ -57,6 +57,8 @@ import { VEHICLE_COLOR } from "@/features/ap/configuraciones/vehiculos/colores-v
 import { useAllBrandsBySede } from "../../../configuraciones/ventas/asignar-marca/lib/assignBrandConsultant.hook";
 import { UNIT_MEASUREMENT_ID } from "../../../configuraciones/maestros-general/unidad-medida/lib/unitMeasurement.constants";
 import { VEHICLE_PURCHASE_ORDER } from "../lib/vehiclePurchaseOrder.constants";
+import { FormInput } from "@/shared/components/FormInput";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface VehiclePurchaseOrderFormProps {
   defaultValues: Partial<VehiclePurchaseOrderSchema>;
@@ -73,6 +75,7 @@ export const VehiclePurchaseOrderForm = ({
   mode = "create",
   isVehiclePurchase = true, // Por defecto es compra de vehículo
 }: VehiclePurchaseOrderFormProps) => {
+  const isMobile = useIsMobile();
   const { ABSOLUTE_ROUTE } = VEHICLE_PURCHASE_ORDER;
   const queryClient = useQueryClient();
   const [isColorModalOpen, setIsColorModalOpen] = useState(false);
@@ -473,43 +476,25 @@ export const VehiclePurchaseOrderForm = ({
                 />
               </div>
 
-              <FormField
+              <FormInput
                 control={form.control}
                 name="vin"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>VIN</FormLabel>
-                    <FormControl>
-                      <Input
-                        maxLength={17}
-                        placeholder="Ej: 1HGBH41AX1N109186"
-                        {...field}
-                        onChange={(e) => {
-                          field.onChange(e.target.value.toUpperCase());
-                        }}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+                label="VIN"
+                maxLength={17}
+                placeholder="Ej: 1HGBH41AX1N109186"
+                onChange={(e) => {
+                  const value = e.target.value.toUpperCase();
+                  form.setValue("vin", value);
+                }}
               />
-              <FormField
+
+              <FormInput
                 control={form.control}
                 name="year"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Año Vehículo</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        min={0}
-                        placeholder="Ej: 2024"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+                label="Año Vehículo"
+                maxLength={4}
+                placeholder="Ej: 2024"
+                type="number"
               />
 
               <FormSelect
@@ -526,12 +511,12 @@ export const VehiclePurchaseOrderForm = ({
                 <Button
                   type="button"
                   variant="outline"
-                  size="icon-lg"
+                  size={isMobile ? "icon-sm" : "icon-lg"}
                   className="aspect-square"
                   onClick={() => setIsColorModalOpen(true)}
                   title="Agregar nuevo color"
                 >
-                  <Plus className="h-4 w-4" />
+                  <Plus className="size-2 md:size-4" />
                 </Button>
               </FormSelect>
 
@@ -555,54 +540,35 @@ export const VehiclePurchaseOrderForm = ({
                 }))}
                 control={form.control}
               />
-              <FormField
+
+              <FormInput
                 control={form.control}
                 name="engine_number"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Núm. Motor</FormLabel>
-                    <FormControl>
-                      <Input
-                        maxLength={25}
-                        placeholder="Ej: ENG32345XYZ"
-                        {...field}
-                        onChange={(e) => {
-                          field.onChange(e.target.value.toUpperCase());
-                        }}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+                label="Núm. Motor"
+                maxLength={25}
+                placeholder="Ej: ENG32345XYZ"
+                type="text"
+                onChange={(e) => {
+                  const value = e.target.value.toUpperCase();
+                  form.setValue("engine_number", value);
+                }}
               />
-              <FormField
+
+              <FormInput
                 control={form.control}
                 name="vehicle_unit_price"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Precio Unitario Vehículo</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        min={0}
-                        step="0.01"
-                        placeholder="Ej: 25000.00"
-                        {...field}
-                        onChange={(e) => {
-                          field.onChange(e);
-                          // Actualizar el precio del primer item automáticamente
-                          if (fields.length > 0) {
-                            form.setValue(
-                              "items.0.unit_price",
-                              Number(e.target.value)
-                            );
-                          }
-                        }}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+                label="Precio Unitario Vehículo"
+                placeholder="Ej: 25000.00"
+                min={0}
+                step="0.01"
+                type="number"
+                onChange={(e) => {
+                  const value = e.target.value;
+                  form.setValue("vehicle_unit_price", Number(value));
+                  if (fields.length > 0) {
+                    form.setValue("items.0.unit_price", Number(value) || 0);
+                  }
+                }}
               />
             </GroupFormSection>
           )}

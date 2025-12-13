@@ -1,36 +1,25 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-} from "@/components/ui/form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Form } from "@/components/ui/form";
 import { format, startOfMonth, endOfMonth, subMonths } from "date-fns";
+import { useQuery } from "@tanstack/react-query";
 import { getSalesManagerStats } from "../lib/dashboard.actions";
-import {
-  SalesManagerStatsResponse,
-  SalesManagerFilters,
-} from "../lib/dashboard.interface";
+import { SalesManagerFilters } from "../lib/dashboard.interface";
 import SalesManagerStatsCards from "./SalesManagerStatsCards";
 import SalesManagerAdvisorTable from "./SalesManagerAdvisorTable";
 import SalesManagerDetailsSheet from "./SalesManagerDetailsSheet";
 import { DateRangePickerFormField } from "@/shared/components/DateRangePickerFormField";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { useAllWorkers } from "@/features/gp/gestionhumana/personal/trabajadores/lib/worker.hook";
+import {
+  POSITION_TYPE,
+  STATUS_WORKER,
+} from "@/features/gp/gestionhumana/personal/posiciones/lib/position.constant";
+import { EMPRESA_AP } from "@/core/core.constants";
 
 // Obtener el primer y último día del mes pasado
 const getLastMonthRange = () => {
@@ -50,10 +39,6 @@ interface DashboardFormValues {
 
 export default function SalesManagerDashboard() {
   const lastMonthRange = getLastMonthRange();
-  const [statsData, setStatsData] = useState<SalesManagerStatsResponse | null>(
-    null
-  );
-  const [isLoading, setIsLoading] = useState(false);
   const [selectedAdvisorId, setSelectedAdvisorId] = useState<number | null>(
     null
   );
@@ -68,39 +53,43 @@ export default function SalesManagerDashboard() {
     },
   });
 
-  const { data: bosses = [] } = useAllWorkers();
+  const { data: bosses = [] } = useAllWorkers({
+    cargo_id: [...POSITION_TYPE.SALES_MANAGER, ...POSITION_TYPE.SALES_BOSS],
+    status_id: STATUS_WORKER.ACTIVE,
+    sede$empresa_id: EMPRESA_AP.id,
+  });
 
-  // Cargar datos automáticamente al montar el componente
-  useEffect(() => {
-    loadStats(form.getValues());
-  }, []);
+  // Observar los valores del formulario
+  const filters = form.watch();
 
-  const loadStats = async (values: DashboardFormValues) => {
-    setIsLoading(true);
-    try {
-      const filters: SalesManagerFilters = {
-        date_from: values.date_from,
-        date_to: values.date_to,
-        type: values.type,
-        boss_id: values.boss_id,
+  // Query para obtener las estadísticas
+  const { data: statsData, isLoading } = useQuery({
+    queryKey: [
+      "salesManagerStats",
+      filters.date_from,
+      filters.date_to,
+      filters.type,
+      filters.boss_id,
+    ],
+    queryFn: async () => {
+      const queryFilters: SalesManagerFilters = {
+        date_from: filters.date_from,
+        date_to: filters.date_to,
+        type: filters.type,
+        boss_id: filters.boss_id
+          ? typeof filters.boss_id === "string"
+            ? parseInt(filters.boss_id, 10)
+            : filters.boss_id
+          : undefined,
       };
-
-      const response = await getSalesManagerStats(filters);
-      setStatsData(response);
-    } catch (error) {
-      console.error("Error loading stats:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+      return await getSalesManagerStats(queryFilters);
+    },
+    enabled: !!(filters.date_from && filters.date_to && filters.type),
+  });
 
   const handleAdvisorClick = (workerId: number) => {
     setSelectedAdvisorId(workerId);
     setShowDetailsSheet(true);
-  };
-
-  const onSubmit = (values: DashboardFormValues) => {
-    loadStats(values);
   };
 
   return (
@@ -122,10 +111,7 @@ export default function SalesManagerDashboard() {
         {/* Filters */}
         <div className="flex items-end gap-3">
           <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(onSubmit)}
-              className="flex items-end gap-3"
-            >
+            <div className="flex items-end gap-3">
               <FormSelect
                 options={bosses.map((boss) => ({
                   label: boss.name,
@@ -134,51 +120,32 @@ export default function SalesManagerDashboard() {
                 control={form.control}
                 name="boss_id"
                 placeholder="Jefe"
-                
+                popoverWidth="w-72"
+                size="sm"
               />
 
               <DateRangePickerFormField
+                size="sm"
                 control={form.control}
                 nameFrom="date_from"
                 nameTo="date_to"
-                label="Período"
                 placeholder="Selecciona rango"
                 required
               />
 
-              <FormField
+              <FormSelect
+                options={[
+                  { label: "Visitas", value: "VISITA" },
+                  { label: "Leads", value: "LEADS" },
+                ]}
                 control={form.control}
                 name="type"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-xs">Tipo</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger className="w-[120px] h-9">
-                          <SelectValue placeholder="Tipo" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="VISITA">Visitas</SelectItem>
-                        <SelectItem value="LEADS">Leads</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </FormItem>
-                )}
-              />
-
-              <Button
-                type="submit"
-                disabled={isLoading}
+                placeholder="Tipo"
+                popoverWidth="w-40"
                 size="sm"
-                className="h-9"
-              >
-                {isLoading ? "Cargando..." : "Aplicar"}
-              </Button>
-            </form>
+                required
+              />
+            </div>
           </Form>
         </div>
       </div>

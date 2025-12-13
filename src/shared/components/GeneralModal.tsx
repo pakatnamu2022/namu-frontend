@@ -8,8 +8,15 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer";
 import { cn } from "@/lib/utils";
 import { ReactNode, useRef } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 type ChildrenRender = (args: {
   portalContainer: HTMLElement | null;
@@ -34,11 +41,31 @@ export function GeneralModal({
 }: GeneralModalProps) {
   const localRef = useRef<HTMLDivElement>(null);
   const refToUse = contentRef ?? localRef;
+  const isMobile = useIsMobile();
 
   const renderedChildren =
     typeof children === "function"
       ? (children as ChildrenRender)({ portalContainer: refToUse.current })
       : children;
+
+  if (isMobile) {
+    return (
+      <Drawer open={open} onOpenChange={(v: any) => !v && onClose()}>
+        <DrawerContent
+          ref={refToUse}
+          className={cn(
+            "w-full rounded-xl max-h-[85vh] overflow-y-auto px-4 pb-4",
+            maxWidth
+          )}
+        >
+          <DrawerHeader>
+            {title && <DrawerTitle>{title}</DrawerTitle>}
+          </DrawerHeader>
+          <div>{renderedChildren}</div>
+        </DrawerContent>
+      </Drawer>
+    );
+  }
 
   return (
     <Dialog open={open} onOpenChange={(v: any) => !v && onClose()}>

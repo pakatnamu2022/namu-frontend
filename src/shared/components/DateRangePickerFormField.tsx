@@ -6,7 +6,6 @@ import { es } from "date-fns/locale";
 import { type DateRange } from "react-day-picker";
 import { CalendarIcon } from "lucide-react";
 import { Control, FieldValues, Path } from "react-hook-form";
-
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import {
@@ -42,6 +41,7 @@ interface DateRangePickerFormFieldProps<T extends FieldValues> {
   dateFormat?: string;
   disabled?: { before?: Date; after?: Date };
   required?: boolean;
+  size?: "sm" | "default" | "lg";
 }
 
 export function DateRangePickerFormField<T extends FieldValues>({
@@ -54,6 +54,7 @@ export function DateRangePickerFormField<T extends FieldValues>({
   tooltip,
   dateFormat = "dd/MM/yyyy",
   required = false,
+  size = "lg",
 }: DateRangePickerFormFieldProps<T>) {
   const [open, setOpen] = React.useState(false);
 
@@ -108,7 +109,7 @@ export function DateRangePickerFormField<T extends FieldValues>({
                   <PopoverTrigger asChild>
                     <FormControl>
                       <Button
-                        size="lg"
+                        size={size}
                         variant="outline"
                         className={cn(
                           "w-full justify-start text-left font-normal",
@@ -131,8 +132,15 @@ export function DateRangePickerFormField<T extends FieldValues>({
                       selected={dateRange}
                       defaultMonth={dateRange?.from}
                       onSelect={(range) => {
-                        fieldFrom.onChange(range?.from ?? "");
-                        fieldTo.onChange(range?.to ?? "");
+                        fieldFrom.onChange(
+                          range?.from ? format(range.from, "yyyy-MM-dd") : ""
+                        );
+                        fieldTo.onChange(
+                          range?.to ? format(range.to, "yyyy-MM-dd") : ""
+                        );
+                        if (range?.from && range?.to) {
+                          setOpen(false);
+                        }
                       }}
                       className="rounded-md border"
                     />

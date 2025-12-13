@@ -81,7 +81,7 @@ const vehiclePurchaseOrderSchemaBase = basePurchaseOrderSchema.extend({
     .refine((value) => value.trim() !== "", {
       message: "VIN es requerido",
     }),
-  year: z
+  year: z.coerce
     .number({
       error: "El año del vehículo es requerido",
     })
