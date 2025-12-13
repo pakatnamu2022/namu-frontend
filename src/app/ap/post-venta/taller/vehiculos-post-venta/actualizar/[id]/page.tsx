@@ -62,6 +62,7 @@ export default function UpdateVehiclePVPage() {
       engine_type_id: String(data.engine_type_id),
       warehouse_physical_id: String(data.warehouse_physical_id),
       sede_id: String(data.sede_warehouse_id),
+      customer_id: String(data.owner?.id || ""),
     };
   }
 
@@ -85,6 +86,7 @@ export default function UpdateVehiclePVPage() {
         onSubmit={handleSubmit}
         isSubmitting={isPending}
         mode="update"
+        vehicleData={vehicle}
       />
     </FormWrapper>
   );

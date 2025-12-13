@@ -1,3 +1,4 @@
+import { VehicleResource } from "@/features/ap/comercial/vehiculos/lib/vehicles.interface";
 import { type Links, type Meta } from "@/shared/lib/pagination.interface.ts";
 
 export interface AppointmentPlanningResponse {
@@ -13,6 +14,7 @@ export interface AppointmentPlanningResource {
   delivery_time: string;
   date_appointment: string;
   time_appointment: string;
+  num_doc_client: string;
   full_name_client: string;
   email_client: string;
   phone_client: string;
@@ -20,6 +22,7 @@ export interface AppointmentPlanningResource {
   type_planning_id: number;
   type_planning_name: string;
   ap_vehicle_id: number;
+  vehicle: VehicleResource;
   advisor_id: number;
   sede_id: number;
   sede_name: string;

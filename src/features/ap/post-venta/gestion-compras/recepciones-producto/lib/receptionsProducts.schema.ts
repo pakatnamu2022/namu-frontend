@@ -42,7 +42,11 @@ const receptionSchemaBase = z.object({
     .max(100, { message: "Máximo 100 caracteres" })
     .optional()
     .or(z.literal("")),
+  freight_cost: z
+    .number({ message: "Costo de flete es requerido" })
+    .min(0, { message: "El costo de flete debe ser mayor o igual a 0" }),
   notes: z.string().optional().or(z.literal("")),
+  carrier_id: requiredStringId("Transportista es requerido"),
   details: z
     .array(receptionDetailSchema)
     .min(1, { message: "Debe agregar al menos un producto" }),

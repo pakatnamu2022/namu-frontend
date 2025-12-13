@@ -16,9 +16,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
-import { useAllTypesCategory } from "../../tipos-categoria/lib/typesCategory.hook";
-import FormSkeleton from "@/shared/components/FormSkeleton";
-import { FormSelect } from "@/shared/components/FormSelect";
 
 interface ProductCategoryFormProps {
   defaultValues: Partial<ProductCategorySchema>;
@@ -47,20 +44,13 @@ export const ProductCategoryForm = ({
     mode: "onChange",
   });
 
-  const { data: typesCategory = [], isLoading: isLoadingTypesCategory } =
-    useAllTypesCategory();
-
-  if (isLoadingTypesCategory) {
-    return <FormSkeleton />;
-  }
-
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-full">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <FormField
             control={form.control}
-            name="name"
+            name="code"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Cod.</FormLabel>
@@ -85,21 +75,6 @@ export const ProductCategoryForm = ({
             )}
           />
         </div>
-        <div className="grid grid-cols-1 gap-4">
-          <FormSelect
-            name="type_id"
-            label="Tipo de Categoría"
-            placeholder="Selecciona un tipo"
-            options={
-              typesCategory.map((item) => ({
-                label: item.code + " - " + item.description,
-                value: item.id.toString(),
-              })) /* Replace with actual options */
-            }
-            control={form.control}
-          />
-        </div>
-
         <div className="flex gap-4 w-full justify-end">
           <Button type="button" variant="outline" onClick={onCancel}>
             Cancelar

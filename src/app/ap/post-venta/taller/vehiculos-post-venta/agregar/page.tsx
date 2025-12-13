@@ -50,6 +50,7 @@ export default function AddVehiclePVPage() {
       <VehiclePVForm
         defaultValues={{
           vin: "",
+          plate: "",
           year: new Date().getFullYear(),
           engine_number: "",
           ap_models_vn_id: "",
@@ -58,6 +59,7 @@ export default function AddVehiclePVPage() {
           warehouse_physical_id: "",
           type_operation_id: "",
           sede_id: "",
+          customer_id: "",
         }}
         onSubmit={handleSubmit}
         isSubmitting={isPending}

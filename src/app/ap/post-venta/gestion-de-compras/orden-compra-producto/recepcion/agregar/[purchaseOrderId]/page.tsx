@@ -68,8 +68,10 @@ export default function CreateReceptionProductPage() {
           purchase_order_id: purchaseOrderId || "",
           reception_date: today,
           warehouse_id: purchaseOrder.warehouse_id?.toString() || "",
+          freight_cost: 0,
           shipping_guide_number: "",
           notes: "",
+          carrier_id: "",
           details: [],
         }}
         onSubmit={handleSubmit}

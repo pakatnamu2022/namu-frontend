@@ -58,7 +58,6 @@ export default function AddPurchaseOrderProductsPage() {
           sede_id: "",
           warehouse_id: "",
           currency_id: "",
-          supplier_order_type_id: "",
           payment_terms: "",
           total_discount: 0,
           total_tax: 0,

@@ -22,9 +22,9 @@ export default function VehicleTable({
         data={data}
         isLoading={isLoading}
         initialColumnVisibility={{
+          owner_name: false,
           vin: true,
-          brand: true,
-          family: false,
+          plate: true,
           model: true,
           model_code: false,
           year: true,
@@ -33,7 +33,6 @@ export default function VehicleTable({
           engine_type: false,
           sede: true,
           warehouse_physical: false,
-          status: true,
         }}
       >
         {children}

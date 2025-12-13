@@ -1,8 +1,7 @@
-import { requiredStringId } from "@/shared/lib/global.schema";
 import { z } from "zod";
 
 export const productCategorySchemaCreate = z.object({
-  name: z
+  code: z
     .string()
     .max(50)
     .refine((value) => value.trim() !== "", {
@@ -14,7 +13,12 @@ export const productCategorySchemaCreate = z.object({
     .refine((value) => value.trim() !== "", {
       message: "Descripción es requerida",
     }),
-  type_id: requiredStringId("Tipo es requerido"),
+  type: z
+    .string()
+    .max(100)
+    .refine((value) => value.trim() !== "", {
+      message: "Tipo es requerido",
+    }),
   status: z.boolean().optional().default(true),
 });
 
