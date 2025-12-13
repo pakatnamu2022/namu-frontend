@@ -54,7 +54,7 @@ const basePurchaseOrderSchema = z.object({
     })
     .min(0, "El descuento no puede ser negativo")
     .optional(),
-  isc: z
+  isc: z.coerce
     .number({
       error: "El ISC debe ser un número válido",
     })

@@ -62,7 +62,7 @@ export function FormInput({
               </Tooltip>
             )}
           </FormLabel>
-          <div className="flex gap-2 items-center">
+          <div className="flex flex-col gap-2 items-center">
             <FormControl>
               <Input
                 className={cn(

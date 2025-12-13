@@ -7,32 +7,17 @@ import {
 } from "../lib/vehiclePurchaseOrder.schema";
 import { useForm, useFieldArray, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { Form } from "@/components/ui/form";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { DataTable } from "@/shared/components/DataTable";
+import { purchaseOrderItemsColumns } from "./PurchaseOrderItemsColumns";
 import {
   Loader,
   Car,
   FileText,
   Calculator,
   Plus,
-  Trash2,
   Package,
   FileEdit,
 } from "lucide-react";
@@ -580,180 +565,21 @@ export const VehiclePurchaseOrderForm = ({
             className="mt-6 w-full col-span-full"
             cols={{ sm: 1 }}
           >
-            <div className="w-full space-y-4">
-              {/* Tabla de Items */}
-              <div className="w-full rounded-md border-none">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-12">#</TableHead>
-                      <TableHead className="min-w-[180px]">
-                        Unidad de Medida
-                      </TableHead>
-                      <TableHead className="min-w-[250px]">
-                        Descripción
-                      </TableHead>
-                      <TableHead className="w-[140px]">
-                        Precio Unitario
-                      </TableHead>
-                      <TableHead className="w-20">Cantidad</TableHead>
-                      <TableHead className="w-[140px] text-end">
-                        Subtotal
-                      </TableHead>
-                      <TableHead className="w-20 text-center">Acción</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {fields.map((field, index) => {
-                      const itemPrice =
-                        form.watch(`items.${index}.unit_price`) || 0;
-                      const itemQty =
-                        form.watch(`items.${index}.quantity`) || 0;
-                      const itemSubtotal = Number(itemPrice) * Number(itemQty);
-
-                      return (
-                        <TableRow key={field.id}>
-                          <TableCell className="align-middle p-1.5 h-full">
-                            <div className="flex items-center justify-center gap-1 h-full">
-                              {isVehiclePurchase && index === 0 ? (
-                                <Car className="h-4 w-4 text-primary" />
-                              ) : (
-                                <span className="text-sm font-medium">
-                                  {index + 1}
-                                </span>
-                              )}
-                            </div>
-                          </TableCell>
-                          <TableCell className="align-middle p-1.5">
-                            <FormSelect
-                              name={`items.${index}.unit_measurement_id`}
-                              placeholder="Selecciona"
-                              className={
-                                isVehiclePurchase && index === 0
-                                  ? "bg-muted"
-                                  : ""
-                              }
-                              disabled={isVehiclePurchase && index === 0}
-                              options={unitMeasurements.map((item) => ({
-                                label: item.dyn_code + " - " + item.description,
-                                value: item.id.toString(),
-                              }))}
-                              control={form.control}
-                            />
-                          </TableCell>
-                          <TableCell className="align-middle p-1.5">
-                            <FormField
-                              control={form.control}
-                              name={`items.${index}.description`}
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormControl>
-                                    <Input
-                                      min={0}
-                                      placeholder="Descripción del item"
-                                      {...field}
-                                      disabled={
-                                        isVehiclePurchase && index === 0
-                                      }
-                                      className={
-                                        isVehiclePurchase && index === 0
-                                          ? "bg-muted"
-                                          : ""
-                                      }
-                                    />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                          </TableCell>
-                          <TableCell className="align-middle p-1.5">
-                            {isVehiclePurchase && index === 0 ? (
-                              <div className="text-sm font-medium pt-2 px-3 py-2 bg-muted rounded-md">
-                                {new Intl.NumberFormat("es-PE", {
-                                  minimumFractionDigits: 2,
-                                  maximumFractionDigits: 2,
-                                }).format(Number(itemPrice) || 0)}
-                              </div>
-                            ) : (
-                              <FormField
-                                control={form.control}
-                                name={`items.${index}.unit_price`}
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormControl>
-                                      <Input
-                                        min={0}
-                                        type="number"
-                                        step="0.01"
-                                        placeholder="0.00"
-                                        {...field}
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                            )}
-                          </TableCell>
-                          <TableCell className="align-middle p-1.5">
-                            <FormField
-                              control={form.control}
-                              name={`items.${index}.quantity`}
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormControl>
-                                    <Input
-                                      min={0}
-                                      type="number"
-                                      placeholder="1"
-                                      {...field}
-                                      disabled={
-                                        isVehiclePurchase && index === 0
-                                      }
-                                      className={
-                                        isVehiclePurchase && index === 0
-                                          ? "bg-muted"
-                                          : ""
-                                      }
-                                    />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                          </TableCell>
-                          <TableCell className="align-middle p-1.5 text-end">
-                            <div className="text-sm font-medium text-end">
-                              {new Intl.NumberFormat("es-PE", {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2,
-                              }).format(itemSubtotal)}
-                            </div>
-                          </TableCell>
-                          <TableCell className="align-middle text-center p-1.5">
-                            {!(isVehiclePurchase && index === 0) ? (
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => remove(index)}
-                                className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            ) : (
-                              <span className="text-xs text-muted-foreground">
-                                -
-                              </span>
-                            )}
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
-              </div>
+            <div className="w-full space-y-4 col-span-full">
+              {/* DataTable de Items */}
+              <DataTable
+                columns={purchaseOrderItemsColumns({
+                  control: form.control,
+                  watch: form.watch,
+                  setValue: form.setValue,
+                  onRemove: remove,
+                  isVehiclePurchase,
+                  unitMeasurements,
+                })}
+                data={fields}
+                isVisibleColumnFilter={false}
+                variant={"ghost"}
+              />
 
               {/* Botón para agregar items */}
               <Button
@@ -793,31 +619,21 @@ export const VehiclePurchaseOrderForm = ({
               }))}
               control={form.control}
             />
-            <FormField
+
+            <FormInput
               control={form.control}
               name="invoice_series"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Serie Factura</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Ej: F001" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              label="Serie Factura"
+              placeholder="Ej: F001"
+              type="text"
             />
-            <FormField
+
+            <FormInput
               control={form.control}
               name="invoice_number"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Núm. Factura</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Ej: 00001234" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              label="Número Factura"
+              placeholder="Ej: 00001234"
+              type="text"
             />
 
             <DatePickerFormField
@@ -871,26 +687,16 @@ export const VehiclePurchaseOrderForm = ({
               disabled={isLoadingWarehouses || warehouses.length === 0}
             />
 
-            <FormField
+            <FormInput
               control={form.control}
               name="subtotal"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Subtotal (Calculado: Total / 1.18)</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      min={0}
-                      step="0.01"
-                      placeholder="Ej: 25000.00"
-                      {...field}
-                      disabled
-                      className="bg-muted"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              label="Subtotal"
+              type="number"
+              className="bg-muted"
+              placeholder="Ej: 25000.00"
+              step="0.01"
+              min={0}
+              disabled
             />
 
             {/* Alerta de validación de diferencia */}
@@ -946,79 +752,50 @@ export const VehiclePurchaseOrderForm = ({
               </div>
             )}
 
-            <FormField
+            <FormInput
               control={form.control}
               name="igv"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>IGV (Calculado: Total - Subtotal)</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      min={0}
-                      step="0.01"
-                      placeholder="Ej: 4500.00"
-                      {...field}
-                      disabled
-                      className="bg-muted"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              label="IGV"
+              type="number"
+              className="bg-muted"
+              placeholder="Ej: 4500.00"
+              step="0.01"
+              min={0}
+              disabled
             />
 
-            <FormField
+            <FormInput
               control={form.control}
               name="total"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Total (Requerido)</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      min={0}
-                      step="0.01"
-                      placeholder="Ej: 29500.00"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              label="Total (Requerido)"
+              type="number"
+              className="bg-muted"
+              placeholder="Ej: 29500.00"
+              step="0.01"
+              min={0}
             />
 
-            <FormField
+            <FormInput
               control={form.control}
               name="isc"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>ISC (Opcional)</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      min={0}
-                      step="0.01"
-                      placeholder="Ej: 0.00"
-                      {...field}
-                    />
-                  </FormControl>
-                  {hasIsc && (
-                    <p className="text-xs text-amber-600 mt-1">
-                      ⚠ Con ISC: La validación verifica que (suma items + ISC) =
-                      subtotal
-                    </p>
-                  )}
-                  {!hasIsc && (
-                    <p className="text-xs text-green-600 mt-1">
-                      ✓ Sin ISC: La validación verifica que suma items =
-                      subtotal
-                    </p>
-                  )}
-                  <FormMessage />
-                </FormItem>
+              label="ISC (Opcional)"
+              type="number"
+              placeholder="Ej: 150.00"
+              step="0.01"
+              min={0}
+            >
+              {hasIsc && (
+                <p className="text-xs text-amber-600 mt-1">
+                  ⚠ Con ISC: La validación verifica que (suma items + ISC) =
+                  subtotal
+                </p>
               )}
-            />
+              {!hasIsc && (
+                <p className="text-xs text-green-600 mt-1">
+                  ✓ Sin ISC: La validación verifica que suma items = subtotal
+                </p>
+              )}
+            </FormInput>
           </GroupFormSection>
 
           {/* Sección 3: Resumen de Factura */}
