@@ -57,6 +57,7 @@ import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { useNavigate } from "react-router-dom";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { CUSTOMERS } from "../lib/customers.constants";
+import { FormInput } from "@/shared/components/FormInput";
 
 interface CustomersFormProps {
   defaultValues: Partial<CustomersSchema>;
@@ -639,6 +640,47 @@ export const CustomersForm = ({
                 control={form.control}
                 strictFilter={true}
               />
+
+              <FormInput
+                control={form.control}
+                label={
+                  <div className="flex items-center justify-between gap-2 w-full">
+                    Núm. Documento
+                    <DocumentValidationStatus
+                      shouldValidate={shouldValidate}
+                      documentNumber={documentNumber!}
+                      expectedDigits={expectedDigits}
+                      isValidating={isValidatingDocument}
+                    />
+                  </div>
+                }
+                name="num_doc"
+                type="number"
+                placeholder={
+                  selectedDocumentType
+                    ? `Ingrese ${expectedDigits} dígitos`
+                    : "Ingrese número"
+                }
+                maxLength={expectedDigits || undefined}
+              >
+                {/* Indicador de estado */}
+                {shouldValidate && documentNumber && (
+                  <div>
+                    {isValidatingDocument && (
+                      <div className="animate-spin h-4 w-4 border-2 border-amber-500 border-t-transparent rounded-full" />
+                    )}
+                    {validationData?.success && validationData.data && (
+                      <div className="text-green-500">✓</div>
+                    )}
+                    {(validationError ||
+                      (validationData &&
+                        !validationData.data &&
+                        validationData?.source !== "database")) && (
+                      <div className="text-red-500">✗</div>
+                    )}
+                  </div>
+                )}
+              </FormInput>
 
               <FormField
                 control={form.control}

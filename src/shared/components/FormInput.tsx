@@ -22,7 +22,7 @@ interface FormInputProps
   extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "name"> {
   name: string;
   description?: string;
-  label?: string;
+  label?: string | React.ReactNode;
   control: Control<any>;
   tooltip?: string | React.ReactNode;
   children?: React.ReactNode;
