@@ -11,6 +11,7 @@ import {
 import {
   Drawer,
   DrawerContent,
+  DrawerDescription,
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
@@ -60,6 +61,7 @@ export function GeneralModal({
         >
           <DrawerHeader className="shrink-0">
             {title && <DrawerTitle>{title}</DrawerTitle>}
+            <DrawerDescription className="hidden" />
           </DrawerHeader>
           <div className="overflow-y-auto flex-1">{renderedChildren}</div>
         </DrawerContent>
@@ -78,8 +80,8 @@ export function GeneralModal({
       >
         <DialogHeader>
           {title && <DialogTitle>{title}</DialogTitle>}
+          <DialogDescription className="hidden" />
         </DialogHeader>
-        <DialogDescription className="hidden" />
         <div>{renderedChildren}</div>
       </DialogContent>
     </Dialog>

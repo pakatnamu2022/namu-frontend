@@ -16,6 +16,7 @@ import {
 import {
   Drawer,
   DrawerContent,
+  DrawerDescription,
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
@@ -269,6 +270,7 @@ export function FormSelect({
                           ? "Seleccionar opción"
                           : label || "Seleccionar opción"}
                       </DrawerTitle>
+                      <DrawerDescription className="hidden" />
                     </DrawerHeader>
                     <div className="overflow-hidden">
                       <CommandContent />
