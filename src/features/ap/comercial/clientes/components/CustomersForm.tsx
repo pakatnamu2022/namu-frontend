@@ -655,81 +655,36 @@ export const CustomersForm = ({
                   </div>
                 }
                 name="num_doc"
-                type="number"
+                type="text"
+                inputMode="numeric"
                 placeholder={
                   selectedDocumentType
                     ? `Ingrese ${expectedDigits} dígitos`
                     : "Ingrese número"
                 }
                 maxLength={expectedDigits || undefined}
-              >
-                {/* Indicador de estado */}
-                {shouldValidate && documentNumber && (
-                  <div>
-                    {isValidatingDocument && (
-                      <div className="animate-spin h-4 w-4 border-2 border-amber-500 border-t-transparent rounded-full" />
-                    )}
-                    {validationData?.success && validationData.data && (
-                      <div className="text-green-500">✓</div>
-                    )}
-                    {(validationError ||
-                      (validationData &&
-                        !validationData.data &&
-                        validationData?.source !== "database")) && (
-                      <div className="text-red-500">✗</div>
-                    )}
-                  </div>
-                )}
-              </FormInput>
-
-              <FormField
-                control={form.control}
-                name="num_doc"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="flex items-center gap-2 relative">
-                      Núm. Documento
-                      <DocumentValidationStatus
-                        shouldValidate={shouldValidate}
-                        documentNumber={documentNumber!}
-                        expectedDigits={expectedDigits}
-                        isValidating={isValidatingDocument}
-                      />
-                    </FormLabel>
-                    <FormControl>
-                      <div className="relative">
-                        <Input
-                          type="number"
-                          placeholder={
-                            selectedDocumentType
-                              ? `Ingrese ${expectedDigits} dígitos`
-                              : "Ingrese número"
-                          }
-                          {...field}
-                          maxLength={expectedDigits || undefined}
-                        />
-                        {/* Indicador de estado */}
-                        {shouldValidate && documentNumber && (
-                          <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                            {isValidatingDocument && (
-                              <div className="animate-spin h-4 w-4 border-2 border-amber-500 border-t-transparent rounded-full" />
-                            )}
-                            {validationData?.success && validationData.data && (
-                              <div className="text-green-500">✓</div>
-                            )}
-                            {(validationError ||
-                              (validationData &&
-                                !validationData.data &&
-                                validationData?.source !== "database")) && (
-                              <div className="text-red-500">✗</div>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+                onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
+                  e.target.value = e.target.value.replace(/\D/g, "");
+                }}
+                addonEnd={
+                  shouldValidate &&
+                  documentNumber && (
+                    <div>
+                      {isValidatingDocument && (
+                        <div className="animate-spin h-4 w-4 border-2 border-amber-500 border-t-transparent rounded-full" />
+                      )}
+                      {validationData?.success && validationData.data && (
+                        <div className="text-green-500">✓</div>
+                      )}
+                      {(validationError ||
+                        (validationData &&
+                          !validationData.data &&
+                          validationData?.source !== "database")) && (
+                        <div className="text-red-500">✗</div>
+                      )}
+                    </div>
+                  )
+                }
               />
 
               {/* Campos para Persona Jurídica */}

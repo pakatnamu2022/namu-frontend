@@ -27,6 +27,8 @@ interface FormInputProps
   tooltip?: string | React.ReactNode;
   children?: React.ReactNode;
   required?: boolean;
+  addonStart?: React.ReactNode;
+  addonEnd?: React.ReactNode;
 }
 
 export function FormInput({
@@ -38,6 +40,8 @@ export function FormInput({
   children,
   required,
   className,
+  addonStart,
+  addonEnd,
   ...inputProps
 }: FormInputProps) {
   return (
@@ -65,11 +69,28 @@ export function FormInput({
           </FormLabel>
           <div className="flex flex-col gap-2 items-center">
             <FormControl>
-              <Input
-                className={cn("h-8 md:h-10 text-xs md:text-sm", className)}
-                {...field}
-                {...inputProps}
-              />
+              <div className="relative w-full">
+                {addonStart && (
+                  <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center justify-center text-muted-foreground pointer-events-none z-10">
+                    {addonStart}
+                  </div>
+                )}
+                <Input
+                  className={cn(
+                    "h-8 md:h-10 text-xs md:text-sm",
+                    addonStart && "pl-10",
+                    addonEnd && "pr-10",
+                    className
+                  )}
+                  {...field}
+                  {...inputProps}
+                />
+                {addonEnd && (
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center justify-center text-muted-foreground pointer-events-none z-10">
+                    {addonEnd}
+                  </div>
+                )}
+              </div>
             </FormControl>
             {children}
           </div>

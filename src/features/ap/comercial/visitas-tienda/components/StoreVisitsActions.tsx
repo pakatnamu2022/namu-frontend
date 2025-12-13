@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { FileText, Plus, Sheet } from "lucide-react";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import ActionsWrapper from "@/shared/components/ActionsWrapper";
 import { STORE_VISITS } from "../lib/storeVisits.constants";
 import { Tooltip, TooltipTrigger } from "@radix-ui/react-tooltip";
@@ -96,11 +96,7 @@ export default function StoreVisitsActions({
         )}
 
         {permissions.canCreate && (
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => router(ROUTE_ADD!)}
-          >
+          <Button size="sm" onClick={() => router(ROUTE_ADD!)}>
             <Plus className="size-4 mr-2" /> Agregar Visita
           </Button>
         )}

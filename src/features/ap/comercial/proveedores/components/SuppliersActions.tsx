@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import ActionsWrapper from "@/shared/components/ActionsWrapper";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { SUPPLIERS } from "../lib/suppliers.constants";
 
 interface Props {
@@ -22,12 +22,7 @@ export default function SuppliersActions({ permissions }: Props) {
 
   return (
     <ActionsWrapper>
-      <Button
-        size="sm"
-        variant="outline"
-        className="ml-auto"
-        onClick={() => router(ROUTE_ADD!)}
-      >
+      <Button size="sm" className="ml-auto" onClick={() => router(ROUTE_ADD!)}>
         <Plus className="size-4 mr-2" /> Agregar Proveedor
       </Button>
     </ActionsWrapper>

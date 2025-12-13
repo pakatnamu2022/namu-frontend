@@ -33,7 +33,7 @@ export default function ElectronicDocumentActions({
       </Button>
 
       {permissions.canCreate && (
-        <Button size="sm" variant="outline" onClick={() => router(ROUTE_ADD!)}>
+        <Button size="sm" onClick={() => router(ROUTE_ADD!)}>
           <Plus className="size-4 mr-2" />
           Nuevo Documento
         </Button>
