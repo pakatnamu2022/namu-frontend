@@ -29,22 +29,41 @@ export const SignaturePad = ({
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
+    // Configurar el tamaño real del canvas para evitar desfases
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width;
+    canvas.height = rect.height;
+
     // Si hay un valor previo (base64), cargarlo
     if (value) {
       const img = new Image();
       img.onload = () => {
-        ctx.drawImage(img, 0, 0);
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
         setIsEmpty(false);
       };
       img.src = value;
-    } else {
-      // Configuración inicial del canvas
-      ctx.strokeStyle = "#000";
-      ctx.lineWidth = 2;
-      ctx.lineCap = "round";
-      ctx.lineJoin = "round";
     }
+
+    // Configuración inicial del canvas
+    ctx.strokeStyle = "#000";
+    ctx.lineWidth = 2;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
   }, [value]);
+
+  const getCoordinates = (clientX: number, clientY: number) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return { x: 0, y: 0 };
+
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+
+    return {
+      x: (clientX - rect.left) * scaleX,
+      y: (clientY - rect.top) * scaleY,
+    };
+  };
 
   const startDrawing = (e: React.MouseEvent<HTMLCanvasElement>) => {
     if (disabled) return;
@@ -52,9 +71,7 @@ export const SignaturePad = ({
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    const { x, y } = getCoordinates(e.clientX, e.clientY);
 
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
@@ -69,9 +86,7 @@ export const SignaturePad = ({
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    const { x, y } = getCoordinates(e.clientX, e.clientY);
 
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
@@ -102,10 +117,8 @@ export const SignaturePad = ({
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const rect = canvas.getBoundingClientRect();
     const touch = e.touches[0];
-    const x = touch.clientX - rect.left;
-    const y = touch.clientY - rect.top;
+    const { x, y } = getCoordinates(touch.clientX, touch.clientY);
 
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
@@ -121,10 +134,8 @@ export const SignaturePad = ({
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const rect = canvas.getBoundingClientRect();
     const touch = e.touches[0];
-    const x = touch.clientX - rect.left;
-    const y = touch.clientY - rect.top;
+    const { x, y } = getCoordinates(touch.clientX, touch.clientY);
 
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
@@ -180,12 +191,11 @@ export const SignaturePad = ({
           isEmpty && !disabled && "border-muted-foreground/25",
           !isEmpty && "border-primary/50"
         )}
+        style={{ height: "200px" }}
       >
         <canvas
           ref={canvasRef}
-          width={600}
-          height={200}
-          className="w-full touch-none"
+          className="w-full h-full touch-none"
           onMouseDown={startDrawing}
           onMouseMove={draw}
           onMouseUp={stopDrawing}
@@ -193,6 +203,9 @@ export const SignaturePad = ({
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
+          style={{
+            touchAction: "none",
+          }}
         />
         {isEmpty && !disabled && (
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
