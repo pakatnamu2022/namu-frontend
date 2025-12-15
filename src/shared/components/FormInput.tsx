@@ -16,33 +16,33 @@ import {
 } from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";
 import RequiredField from "./RequiredField";
+import { cn } from "@/lib/utils";
 
-interface FormInputProps {
+interface FormInputProps
+  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "name"> {
   name: string;
   description?: string;
-  label?: string;
-  placeholder?: string;
+  label?: string | React.ReactNode;
   control: Control<any>;
-  disabled?: boolean;
   tooltip?: string | React.ReactNode;
-  className?: string;
-  type?: string;
   children?: React.ReactNode;
   required?: boolean;
+  addonStart?: React.ReactNode;
+  addonEnd?: React.ReactNode;
 }
 
 export function FormInput({
   name,
   description,
   label,
-  placeholder,
   control,
-  disabled,
   tooltip,
-  className,
-  type = "text",
   children,
   required,
+  className,
+  addonStart,
+  addonEnd,
+  ...inputProps
 }: FormInputProps) {
   return (
     <FormField
@@ -50,7 +50,7 @@ export function FormInput({
       name={name}
       render={({ field }) => (
         <FormItem className="flex flex-col justify-between">
-          <FormLabel className="flex justify-start items-center">
+          <FormLabel className="flex justify-start items-center text-xs md:text-sm mb-1">
             {label}
             {required && <RequiredField />}
             {tooltip && (
@@ -67,15 +67,30 @@ export function FormInput({
               </Tooltip>
             )}
           </FormLabel>
-          <div className="flex gap-2 items-center">
+          <div className="flex flex-col gap-2 items-center">
             <FormControl>
-              <Input
-                {...field}
-                type={type}
-                placeholder={placeholder}
-                disabled={disabled}
-                className={className}
-              />
+              <div className="relative w-full">
+                {addonStart && (
+                  <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center justify-center text-muted-foreground pointer-events-none z-10">
+                    {addonStart}
+                  </div>
+                )}
+                <Input
+                  className={cn(
+                    "h-8 md:h-10 text-xs md:text-sm",
+                    addonStart && "pl-10",
+                    addonEnd && "pr-10",
+                    className
+                  )}
+                  {...field}
+                  {...inputProps}
+                />
+                {addonEnd && (
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center justify-center text-muted-foreground pointer-events-none z-10">
+                    {addonEnd}
+                  </div>
+                )}
+              </div>
             </FormControl>
             {children}
           </div>

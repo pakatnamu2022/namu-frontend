@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import ActionsWrapper from "@/shared/components/ActionsWrapper";
 import { PURCHASE_REQUEST_QUOTE } from "../lib/purchaseRequestQuote.constants";
 
@@ -22,12 +22,7 @@ export default function PurchaseRequestQuoteActions({
 
   return (
     <ActionsWrapper>
-      <Button
-        size="sm"
-        variant="outline"
-        className="ml-auto"
-        onClick={() => router(ROUTE_ADD!)}
-      >
+      <Button size="sm" className="ml-auto" onClick={() => router(ROUTE_ADD!)}>
         <Plus className="size-4 mr-2" /> Agregar Solicitud / Cotización
       </Button>
     </ActionsWrapper>

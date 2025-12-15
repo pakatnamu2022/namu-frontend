@@ -16,16 +16,7 @@ import { SearchableSelect } from "@/shared/components/SearchableSelect";
 import { ManageLeadsResource } from "../../gestionar-leads/lib/manageLeads.interface";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { useAllReasonsRejection } from "../../motivos-descarte/lib/reasonsRejection.hook";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { OPPORTUNITIES } from "../lib/opportunities.constants";
@@ -42,7 +33,6 @@ interface LeadCardProps {
 
 export const LeadCard = ({ lead, onDiscard }: LeadCardProps) => {
   const router = useNavigate();
-  const [showDiscardDialog, setShowDiscardDialog] = useState(false);
   const [comment, setComment] = useState("");
   const [reasonDiscardingId, setReasonDiscardingId] = useState<number | null>(
     null
@@ -74,14 +64,9 @@ export const LeadCard = ({ lead, onDiscard }: LeadCardProps) => {
   const { data: reasonDiscarding = [], isLoading: isLoadingreasonDiscarding } =
     useAllReasonsRejection();
 
-  const handleDiscard = () => {
-    setShowDiscardDialog(true);
-  };
-
   const confirmDiscard = () => {
     if (reasonDiscardingId) {
       onDiscard(lead.id, comment, reasonDiscardingId);
-      setShowDiscardDialog(false);
       setComment("");
       setReasonDiscardingId(null);
     }
@@ -119,15 +104,46 @@ export const LeadCard = ({ lead, onDiscard }: LeadCardProps) => {
 
           {/* Action Buttons */}
           <div className="flex gap-1.5 pt-1">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="flex-1 text-xs h-7 text-muted-foreground hover:text-red-600 hover:bg-red-50"
-              onClick={handleDiscard}
+            <ConfirmationDialog
+              trigger={
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="flex-1 text-xs h-7 text-muted-foreground hover:text-red-600 hover:bg-red-50"
+                >
+                  <X className="size-3 mr-1" />
+                  Descartar
+                </Button>
+              }
+              title="¿Descartar Lead?"
+              description={`¿Estás seguro de descartar a ${lead.full_name}? Esta acción cambiará el estado del lead.`}
+              confirmText="Sí, Descartar"
+              cancelText="Cancelar"
+              onConfirm={confirmDiscard}
+              variant="destructive"
+              icon="danger"
+              confirmDisabled={!comment || !reasonDiscardingId}
             >
-              <X className="size-3 mr-1" />
-              Descartar
-            </Button>
+              <div className="grid gap-4 grid-cols-1">
+                <SearchableSelect
+                  className="w-full!"
+                  label="Motivo de Descarte"
+                  value={reasonDiscardingId?.toString() || ""}
+                  onChange={(value) => setReasonDiscardingId(Number(value))}
+                  options={reasonDiscarding.map((item) => ({
+                    label: item.description,
+                    value: item.id.toString(),
+                  }))}
+                  placeholder="Selecciona un motivo"
+                />
+                <Textarea
+                  placeholder="Agrega un comentario"
+                  value={comment}
+                  onChange={(e) => setComment(cleanText(e.target.value))}
+                  className="min-h-[100px]"
+                />
+              </div>
+            </ConfirmationDialog>
 
             <Button
               size="sm"
@@ -144,48 +160,6 @@ export const LeadCard = ({ lead, onDiscard }: LeadCardProps) => {
           </div>
         </div>
       </Card>
-
-      {/* Discard Confirmation Dialog */}
-      <AlertDialog open={showDiscardDialog} onOpenChange={setShowDiscardDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>¿Descartar Lead?</AlertDialogTitle>
-            <AlertDialogDescription>
-              ¿Estás seguro de descartar a{" "}
-              <span className="font-semibold">{lead.full_name}</span>? Esta
-              acción cambiará el estado del lead.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <div className="py-4 grid gap-4 grid-cols-1">
-            <SearchableSelect
-              className="!w-full"
-              label="Motivo de Descarte"
-              value={reasonDiscardingId?.toString() || ""}
-              onChange={(value) => setReasonDiscardingId(Number(value))}
-              options={reasonDiscarding.map((item) => ({
-                label: item.description,
-                value: item.id.toString(),
-              }))}
-              placeholder="Selecciona un motivo"
-            />
-            <Textarea
-              placeholder="Agrega un comentario"
-              value={comment}
-              onChange={(e) => setComment(cleanText(e.target.value))}
-              className="min-h-[100px]"
-            />
-          </div>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction
-              disabled={!comment || !reasonDiscardingId}
-              onClick={confirmDiscard}
-            >
-              Sí, Descartar
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </>
   );
 };

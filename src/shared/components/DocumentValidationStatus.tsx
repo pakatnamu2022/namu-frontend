@@ -16,7 +16,7 @@ export const DocumentValidationStatus = ({
   if (!shouldValidate) return null;
 
   return (
-    <div className={`absolute ${leftPosition} whitespace-nowrap`}>
+    <div className={`${leftPosition} whitespace-nowrap`}>
       {(!documentNumber ||
         (documentNumber.length === expectedDigits && !isValidating)) && (
         <span className="text-xs text-primary bg-blue-50 px-2 rounded">

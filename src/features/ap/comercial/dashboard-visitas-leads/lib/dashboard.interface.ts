@@ -166,9 +166,7 @@ export interface SalesManagerFilters {
 }
 
 export interface SalesManagerDetailsFilters extends SalesManagerFilters {
-  per_page?: number | null;
   worker_id?: number | null;
-  page?: number;
 }
 
 export interface LeadVisitDetail {

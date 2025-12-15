@@ -22,7 +22,7 @@ export default function VehicleDeliveryActions({ permissions }: Props) {
   return (
     <ActionsWrapper>
       <Link to={ROUTE_ADD}>
-        <Button size="sm" variant="outline" className="ml-auto">
+        <Button size="sm" className="ml-auto">
           <Plus className="size-4 mr-2" /> Programar Entrega
         </Button>
       </Link>

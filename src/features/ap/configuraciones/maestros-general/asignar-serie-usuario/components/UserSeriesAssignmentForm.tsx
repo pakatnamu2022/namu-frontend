@@ -73,6 +73,7 @@ export const UserSeriesAssignmentForm = ({
       ...POSITION_TYPE.BOX_OFFICE,
       ...POSITION_TYPE.SALES_COORDINATOR,
       ...POSITION_TYPE.TICS,
+      ...POSITION_TYPE.PDI,
     ],
     status_id: STATUS_WORKER.ACTIVE,
     sede$empresa_id: EMPRESA_AP.id,

@@ -28,6 +28,7 @@ export const POSITION_TYPE = {
   SALES_COORDINATOR: [59, 81, 101, 104, 110, 121],
   TICS: [38, 39, 40, 273, 280, 281, 317, 345, 356],
   OPERATORS: [70, 79, 100, 144],
+  PDI: [132, 249],
 };
 
 export const STATUS_WORKER = {

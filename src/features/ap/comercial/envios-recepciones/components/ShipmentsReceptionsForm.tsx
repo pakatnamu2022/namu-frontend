@@ -731,20 +731,22 @@ export const ShipmentsReceptionsForm = ({
             />
           )}
 
-          <FormSelect
-            key={`sede-transmitter-${watchArticleClassId}`}
-            name="sede_transmitter_id"
-            label="Sede Origen"
-            placeholder="Selecciona sede"
-            options={mySedes.map((item) => ({
-              label: item.sede,
-              description: item.description,
-              value: item.sede_id.toString(),
-            }))}
-            control={form.control}
-            strictFilter={true}
-            disabled={!watchArticleClassId || isLoadingMySedes}
-          />
+          {vehiclesIsReceived ? (
+            <FormSelect
+              key={`sede-transmitter-${watchArticleClassId}`}
+              name="sede_transmitter_id"
+              label="Sede Origen"
+              placeholder="Selecciona sede"
+              options={mySedes.map((item) => ({
+                label: item.sede,
+                description: item.description,
+                value: item.sede_id.toString(),
+              }))}
+              control={form.control}
+              strictFilter={true}
+              disabled={!watchArticleClassId || isLoadingMySedes}
+            />
+          ) : null}
 
           {watchTransferReasonId !== SUNAT_CONCEPTS_ID.TRANSFER_REASON_OTROS &&
             watchTransferReasonId !==
@@ -1069,6 +1071,10 @@ export const ShipmentsReceptionsForm = ({
             required={false}
           />
         </div>
+{/* 
+        <pre>
+          <code>{JSON.stringify(form.getValues(), null, 2)}</code>
+        </pre> */}
 
         {/* Botones de Acción */}
         <div className="flex gap-4 w-full justify-end">

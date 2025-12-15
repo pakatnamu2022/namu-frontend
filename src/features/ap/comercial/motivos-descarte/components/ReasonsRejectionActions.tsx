@@ -21,12 +21,7 @@ export default function ReasonsRejectionActions({ permissions }: Props) {
 
   return (
     <ActionsWrapper>
-      <Button
-        size="sm"
-        variant="outline"
-        className="ml-auto"
-        onClick={() => setOpen(true)}
-      >
+      <Button size="sm" className="ml-auto" onClick={() => setOpen(true)}>
         <Plus className="size-4 mr-2" /> Agregar Motivo de Descarte
       </Button>
       <ReasonsRejectionModal

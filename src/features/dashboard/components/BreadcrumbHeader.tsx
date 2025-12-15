@@ -9,6 +9,7 @@ import {
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import { Link } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export default function BreadCrumbHeader() {
   const {
@@ -18,6 +19,7 @@ export default function BreadCrumbHeader() {
     currentView,
     isLoadingModule,
   } = useCurrentModule();
+  const isMobile = useIsMobile();
 
   if (isLoadingModule)
     return (
@@ -25,96 +27,122 @@ export default function BreadCrumbHeader() {
         <Skeleton className="h-4 w-24" />
         <span className="text-muted">/</span>
         <Skeleton className="h-4 w-32" />
-        <span className="text-muted">/</span>
-        <Skeleton className="h-4 w-28" />
-        {/* Skeleton adicional para submódulo y vista */}
-        <span className="text-muted">/</span>
-        <Skeleton className="h-4 w-24" />
-        <span className="text-muted">/</span>
-        <Skeleton className="h-4 w-20" />
+        {!isMobile && (
+          <>
+            <span className="text-muted">/</span>
+            <Skeleton className="h-4 w-28" />
+            <span className="text-muted">/</span>
+            <Skeleton className="h-4 w-24" />
+            <span className="text-muted">/</span>
+            <Skeleton className="h-4 w-20" />
+          </>
+        )}
       </div>
     );
 
+  // Construir array de breadcrumbs
+  const breadcrumbs = [];
+
+  // 1. Empresas
+  breadcrumbs.push({
+    key: "empresas",
+    link: "/companies",
+    label: "Empresas",
+    isLast: !currentCompany && !currentModule && !currentSubmodule && !currentView,
+  });
+
+  // 2. Empresa
+  if (currentCompany) {
+    breadcrumbs.push({
+      key: "empresa",
+      link: `/modules/${currentCompany.empresa_abreviatura}`,
+      label: currentCompany.empresa_nombre || "Empresa",
+      isLast: !currentModule && !currentSubmodule && !currentView,
+    });
+  }
+
+  // 3. Módulo
+  if (currentModule) {
+    breadcrumbs.push({
+      key: "modulo",
+      link: `/modules/${currentCompany?.empresa_abreviatura}/${currentModule.slug}`,
+      label: currentModule.descripcion || "Módulo",
+      isLast: !currentSubmodule && !currentView,
+    });
+  }
+
+  // 4. Submódulo
+  if (currentSubmodule) {
+    breadcrumbs.push({
+      key: "submodulo",
+      link: `/${currentCompany?.empresa_abreviatura}/${currentModule?.slug}/${currentSubmodule.slug}`,
+      label: currentSubmodule.descripcion || "Submódulo",
+      isLast: !currentView,
+    });
+  }
+
+  // 5. Vista
+  if (currentView) {
+    breadcrumbs.push({
+      key: "vista",
+      link: null,
+      label: currentView.descripcion || "Vista",
+      isLast: true,
+    });
+  }
+
+  // Si es mobile, tomar solo los últimos 2
+  const visibleBreadcrumbs = isMobile
+    ? breadcrumbs.slice(-2)
+    : breadcrumbs;
+
+  if (isMobile) {
+    return (
+      <div className="flex flex-col gap-0.5">
+        {visibleBreadcrumbs.map((breadcrumb) => (
+          <div key={breadcrumb.key} className="flex items-center">
+            {breadcrumb.isLast ? (
+              <span className="text-secondary font-semibold text-xs">
+                {breadcrumb.label}
+              </span>
+            ) : (
+              <Link
+                to={breadcrumb.link!}
+                className="text-primary hover:text-secondary text-xs"
+              >
+                {breadcrumb.label}
+              </Link>
+            )}
+          </div>
+        ))}
+      </div>
+    );
+  }
+
   return (
     <Breadcrumb>
-      <BreadcrumbList className="flex-nowrap!">
-        <BreadcrumbItem className="hidden md:block">
-          <BreadcrumbLink asChild>
-            <Link
-              to="/companies"
-              className="text-primary hover:text-secondary text-xs md:text-sm"
-            >
-              Empresas
-            </Link>
-          </BreadcrumbLink>
-        </BreadcrumbItem>
-
-        <BreadcrumbSeparator className="hidden md:block" />
-        <BreadcrumbItem className="hidden md:block truncate">
-          <BreadcrumbLink asChild>
-            <Link
-              to={`/modules/${currentCompany?.empresa_abreviatura}`}
-              className="text-primary hover:text-secondary text-xs md:text-sm"
-            >
-              {currentCompany?.empresa_nombre || "Empresa"}
-            </Link>
-          </BreadcrumbLink>
-        </BreadcrumbItem>
-
-        <BreadcrumbSeparator className="hidden md:block" />
-        <BreadcrumbItem
-          className={currentSubmodule || currentView ? "truncate" : "truncate"}
-        >
-          {currentSubmodule || currentView ? (
-            <BreadcrumbLink asChild>
-              <Link
-                to={`/modules/${currentCompany?.empresa_abreviatura}/${currentModule?.slug}`}
-                className="text-primary hover:text-secondary text-xs md:text-sm"
-              >
-                {currentModule?.descripcion || "Módulo"}
-              </Link>
-            </BreadcrumbLink>
-          ) : (
-            <BreadcrumbPage className="text-secondary font-semibold text-xs md:text-sm">
-              {currentModule?.descripcion || "Módulo"}
-            </BreadcrumbPage>
-          )}
-        </BreadcrumbItem>
-
-        {/* Submódulo */}
-        {currentSubmodule && (
-          <>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem className={currentView ? "truncate" : "truncate"}>
-              {currentView ? (
+      <BreadcrumbList>
+        {visibleBreadcrumbs.map((breadcrumb, index) => (
+          <div key={breadcrumb.key} className="flex items-center">
+            {index > 0 && <BreadcrumbSeparator />}
+            <BreadcrumbItem>
+              {breadcrumb.isLast ? (
+                <BreadcrumbPage className="text-secondary font-semibold text-sm">
+                  {breadcrumb.label}
+                </BreadcrumbPage>
+              ) : (
                 <BreadcrumbLink asChild>
                   <Link
-                    to={`/${currentCompany?.empresa_abreviatura}/${currentModule?.slug}/${currentSubmodule?.slug}`}
-                    className="text-primary hover:text-secondary text-xs md:text-sm"
+                    to={breadcrumb.link!}
+                    className="text-primary hover:text-secondary text-sm"
                   >
-                    {currentSubmodule?.descripcion || "Submódulo"}
+                    {breadcrumb.label}
                   </Link>
                 </BreadcrumbLink>
-              ) : (
-                <BreadcrumbPage className="text-secondary font-semibold text-xs md:text-sm">
-                  {currentSubmodule?.descripcion || "Submódulo"}
-                </BreadcrumbPage>
               )}
             </BreadcrumbItem>
-          </>
-        )}
-
-        {/* Vista */}
-        {currentView && (
-          <>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem className="truncate">
-              <BreadcrumbPage className="text-secondary font-semibold text-xs md:text-sm">
-                {currentView?.descripcion || "Vista"}
-              </BreadcrumbPage>
-            </BreadcrumbItem>
-          </>
-        )}
+          </div>
+        ))}
       </BreadcrumbList>
     </Breadcrumb>
   );

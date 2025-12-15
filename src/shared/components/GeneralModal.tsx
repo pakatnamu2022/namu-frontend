@@ -8,8 +8,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer";
 import { cn } from "@/lib/utils";
 import { ReactNode, useRef } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 type ChildrenRender = (args: {
   portalContainer: HTMLElement | null;
@@ -34,11 +42,32 @@ export function GeneralModal({
 }: GeneralModalProps) {
   const localRef = useRef<HTMLDivElement>(null);
   const refToUse = contentRef ?? localRef;
+  const isMobile = useIsMobile();
 
   const renderedChildren =
     typeof children === "function"
       ? (children as ChildrenRender)({ portalContainer: refToUse.current })
       : children;
+
+  if (isMobile) {
+    return (
+      <Drawer open={open} onOpenChange={(v: any) => !v && onClose()}>
+        <DrawerContent
+          ref={refToUse}
+          className={cn(
+            "w-full max-h-[85vh] flex flex-col px-4 pb-4",
+            maxWidth
+          )}
+        >
+          <DrawerHeader className="shrink-0">
+            {title && <DrawerTitle>{title}</DrawerTitle>}
+            <DrawerDescription className="hidden" />
+          </DrawerHeader>
+          <div className="overflow-y-auto flex-1">{renderedChildren}</div>
+        </DrawerContent>
+      </Drawer>
+    );
+  }
 
   return (
     <Dialog open={open} onOpenChange={(v: any) => !v && onClose()}>
@@ -51,8 +80,8 @@ export function GeneralModal({
       >
         <DialogHeader>
           {title && <DialogTitle>{title}</DialogTitle>}
+          <DialogDescription className="hidden" />
         </DialogHeader>
-        <DialogDescription className="hidden" />
         <div>{renderedChildren}</div>
       </DialogContent>
     </Dialog>

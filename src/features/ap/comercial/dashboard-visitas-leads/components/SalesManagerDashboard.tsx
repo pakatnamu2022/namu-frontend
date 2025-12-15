@@ -1,32 +1,27 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-} from "@/components/ui/form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Form } from "@/components/ui/form";
 import { format, startOfMonth, endOfMonth, subMonths } from "date-fns";
+import { useQuery } from "@tanstack/react-query";
 import { getSalesManagerStats } from "../lib/dashboard.actions";
-import {
-  SalesManagerStatsResponse,
-  SalesManagerFilters,
-} from "../lib/dashboard.interface";
+import { SalesManagerFilters } from "../lib/dashboard.interface";
 import SalesManagerStatsCards from "./SalesManagerStatsCards";
 import SalesManagerAdvisorTable from "./SalesManagerAdvisorTable";
 import SalesManagerDetailsSheet from "./SalesManagerDetailsSheet";
 import { DateRangePickerFormField } from "@/shared/components/DateRangePickerFormField";
+import { FormSelect } from "@/shared/components/FormSelect";
+import { useAllWorkers } from "@/features/gp/gestionhumana/personal/trabajadores/lib/worker.hook";
+import {
+  POSITION_TYPE,
+  STATUS_WORKER,
+} from "@/features/gp/gestionhumana/personal/posiciones/lib/position.constant";
+import { EMPRESA_AP } from "@/core/core.constants";
+import TitleComponent from "@/shared/components/TitleComponent";
+import { MetricCard } from "@/shared/components/MetricCard";
 
 // Obtener el primer y último día del mes pasado
 const getLastMonthRange = () => {
@@ -41,14 +36,11 @@ interface DashboardFormValues {
   date_from: string;
   date_to: string;
   type: "VISITA" | "LEADS";
+  boss_id?: number | null;
 }
 
 export default function SalesManagerDashboard() {
   const lastMonthRange = getLastMonthRange();
-  const [statsData, setStatsData] = useState<SalesManagerStatsResponse | null>(
-    null
-  );
-  const [isLoading, setIsLoading] = useState(false);
   const [selectedAdvisorId, setSelectedAdvisorId] = useState<number | null>(
     null
   );
@@ -59,163 +51,188 @@ export default function SalesManagerDashboard() {
       date_from: format(lastMonthRange.firstDay, "yyyy-MM-dd"),
       date_to: format(lastMonthRange.lastDay, "yyyy-MM-dd"),
       type: "LEADS",
+      boss_id: null,
     },
   });
 
-  // Cargar datos automáticamente al montar el componente
-  useEffect(() => {
-    loadStats(form.getValues());
-  }, []);
+  const { data: bosses = [] } = useAllWorkers({
+    cargo_id: [...POSITION_TYPE.SALES_MANAGER, ...POSITION_TYPE.SALES_BOSS],
+    status_id: STATUS_WORKER.ACTIVE,
+    sede$empresa_id: EMPRESA_AP.id,
+  });
 
-  const loadStats = async (values: DashboardFormValues) => {
-    setIsLoading(true);
-    try {
-      const filters: SalesManagerFilters = {
-        date_from: values.date_from,
-        date_to: values.date_to,
-        type: values.type,
+  // Observar los valores del formulario
+  const filters = form.watch();
+
+  // Query para obtener las estadísticas
+  const { data: statsData, isLoading } = useQuery({
+    queryKey: [
+      "salesManagerStats",
+      filters.date_from,
+      filters.date_to,
+      filters.type,
+      filters.boss_id,
+    ],
+    queryFn: async () => {
+      const queryFilters: SalesManagerFilters = {
+        date_from: filters.date_from,
+        date_to: filters.date_to,
+        type: filters.type,
+        boss_id: filters.boss_id
+          ? typeof filters.boss_id === "string"
+            ? parseInt(filters.boss_id, 10)
+            : filters.boss_id
+          : undefined,
       };
-
-      const response = await getSalesManagerStats(filters);
-      setStatsData(response);
-    } catch (error) {
-      console.error("Error loading stats:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+      return await getSalesManagerStats(queryFilters);
+    },
+    enabled: !!(filters.date_from && filters.date_to && filters.type),
+  });
 
   const handleAdvisorClick = (workerId: number) => {
     setSelectedAdvisorId(workerId);
     setShowDetailsSheet(true);
   };
 
-  const onSubmit = (values: DashboardFormValues) => {
-    loadStats(values);
-  };
-
   return (
     <div className="space-y-6 p-6">
-      {/* Header */}
-      <div className="space-y-1">
-        <h1 className="text-3xl font-bold tracking-tight">
-          Dashboard de Gerencia de Ventas
-        </h1>
-        {statsData && (
-          <p className="text-muted-foreground">
-            {statsData.data.manager_info.boss_name} •{" "}
-            {statsData.data.manager_info.boss_position} •{" "}
-            {format(new Date(statsData.period.start_date), "dd/MM/yyyy")} -{" "}
-            {format(new Date(statsData.period.end_date), "dd/MM/yyyy")}
-          </p>
-        )}
-      </div>
+      <div className="flex items-center justify-between border-b pb-4">
+        {/* Header */}
+        <TitleComponent
+          icon={"FileSignature"}
+          title="Dashboard de Leads de Equipo de Ventas"
+          subtitle={
+            statsData
+              ? `Resumen gerencial de ${statsData.data.manager_info.boss_name}`
+              : "Resumen gerencial"
+          }
+        />
 
-      {/* Filters */}
-      <div className="bg-muted/50 rounded-lg p-4">
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)}>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Filters */}
+        <div className="flex items-end gap-3">
+          <Form {...form}>
+            <div className="flex items-end gap-3">
+              <FormSelect
+                options={bosses.map((boss) => ({
+                  label: boss.name,
+                  value: boss.id.toString(),
+                }))}
+                control={form.control}
+                name="boss_id"
+                placeholder="Jefe"
+                popoverWidth="w-72"
+                size="sm"
+              />
+
               <DateRangePickerFormField
+                size="sm"
                 control={form.control}
                 nameFrom="date_from"
                 nameTo="date_to"
-                label="Rango de Fechas"
-                placeholder="Selecciona un rango"
+                placeholder="Selecciona rango"
                 required
               />
 
-              <FormField
+              <FormSelect
+                options={[
+                  { label: "Visitas", value: "VISITA" },
+                  { label: "Leads", value: "LEADS" },
+                ]}
                 control={form.control}
                 name="type"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Tipo</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecciona un tipo" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="VISITA">Visitas</SelectItem>
-                        <SelectItem value="LEADS">Leads</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </FormItem>
-                )}
+                placeholder="Tipo"
+                popoverWidth="w-40"
+                size="sm"
+                required
               />
-
-              <div className="flex items-end">
-                <Button type="submit" disabled={isLoading} className="w-full">
-                  {isLoading ? "Cargando..." : "Consultar"}
-                </Button>
-              </div>
             </div>
-          </form>
-        </Form>
+          </Form>
+        </div>
       </div>
 
       {/* Stats Overview */}
-      {statsData && (
-        <>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-            <div className="space-y-2">
-              <p className="text-sm text-muted-foreground">Total Asesores</p>
-              <p className="text-3xl font-bold">
-                {statsData.data.team_totals.total_advisors}
-              </p>
-            </div>
-            <div className="space-y-2">
-              <p className="text-sm text-muted-foreground">Total Visitas</p>
-              <p className="text-3xl font-bold">
-                {statsData.data.team_totals.total_visits}
-              </p>
-            </div>
-            <div className="space-y-2">
-              <p className="text-sm text-muted-foreground">Atendidos</p>
-              <p className="text-3xl font-bold text-green-600">
-                {statsData.data.team_totals.attended}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                {statsData.data.team_totals.attention_percentage.toFixed(1)}%
-              </p>
-            </div>
-            <div className="space-y-2">
-              <p className="text-sm text-muted-foreground">No Atendidos</p>
-              <p className="text-3xl font-bold text-yellow-600">
-                {statsData.data.team_totals.not_attended}
-              </p>
-            </div>
-            <div className="space-y-2">
-              <p className="text-sm text-muted-foreground">Descartados</p>
-              <p className="text-3xl font-bold text-red-600">
-                {statsData.data.team_totals.discarded}
-              </p>
-            </div>
+      {isLoading && !statsData ? (
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+            {[...Array(5)].map((_, i) => (
+              <Card key={i} className="border-0 bg-muted/50">
+                <CardContent className="pt-6">
+                  <Skeleton className="h-3 w-24 mb-3" />
+                  <Skeleton className="h-8 w-16 mb-2" />
+                  <Skeleton className="h-3 w-20" />
+                </CardContent>
+              </Card>
+            ))}
           </div>
+          <Skeleton className="h-96 w-full" />
+        </div>
+      ) : (
+        statsData && (
+          <>
+            {/* Metrics Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+              <MetricCard
+                title="Total Asesores"
+                value={statsData.data.team_totals.total_advisors}
+                subtitle="Miembros del equipo"
+                variant="info"
+              />
 
-          {/* Charts and Table */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Advisors Table - Takes 2 columns */}
-            <div className="lg:col-span-2">
-              <SalesManagerAdvisorTable
-                advisors={statsData.data.by_advisor}
-                onAdvisorClick={handleAdvisorClick}
+              <MetricCard
+                title={`Total ${form.getValues("type") === "VISITA" ? "Visitas" : "Leads"}`}
+                value={statsData.data.team_totals.total_visits}
+                subtitle="En el período seleccionado"
+                variant="default"
+              />
+
+              <MetricCard
+                title="Atendidos"
+                value={statsData.data.team_totals.attended}
+                subtitle={`${statsData.data.team_totals.attention_percentage.toFixed(1)}% del total`}
+                variant="success"
+              />
+
+              <MetricCard
+                title="No Atendidos"
+                value={statsData.data.team_totals.not_attended}
+                subtitle={`${((statsData.data.team_totals.not_attended / statsData.data.team_totals.total_visits) * 100).toFixed(1)}% del total`}
+                variant="warning"
+              />
+
+              <MetricCard
+                title="Descartados"
+                value={statsData.data.team_totals.discarded}
+                subtitle={`${((statsData.data.team_totals.discarded / statsData.data.team_totals.total_visits) * 100).toFixed(1)}% del total`}
+                variant="danger"
               />
             </div>
 
-            {/* Charts - Takes 1 column */}
-            <div className="space-y-6">
-              <SalesManagerStatsCards
-                teamTotals={statsData.data.team_totals}
-              />
+            {/* Content Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Advisors Table */}
+              <div className="lg:col-span-2">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Rendimiento por Asesor</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <SalesManagerAdvisorTable
+                      advisors={statsData.data.by_advisor}
+                      onAdvisorClick={handleAdvisorClick}
+                    />
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Charts */}
+              <div className="space-y-6">
+                <SalesManagerStatsCards
+                  teamTotals={statsData.data.team_totals}
+                />
+              </div>
             </div>
-          </div>
-        </>
+          </>
+        )
       )}
 
       {/* Details Sheet */}

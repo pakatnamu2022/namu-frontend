@@ -65,12 +65,13 @@ export const useWarehousesByCompany = ({
   return useQuery<WarehouseResource[]>({
     queryKey: [
       QUERY_KEY,
-      "byArticleClass",
+      "byCompany",
       my,
       is_received,
       ap_class_article_id,
       empresa_id,
       type_operation_id,
+      only_physical,
     ],
     queryFn: () =>
       getWarehousesByCompany({
@@ -84,7 +85,7 @@ export const useWarehousesByCompany = ({
         },
       }),
     refetchOnWindowFocus: false,
-    enabled: !!ap_class_article_id && only_physical === 0 ? false : true,
+    enabled: !!ap_class_article_id,
   });
 };
 
