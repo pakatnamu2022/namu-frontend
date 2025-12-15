@@ -200,7 +200,6 @@ export const ShipmentsReceptionsForm = ({
       ap_class_article_id: watchArticleClassId,
       empresa_id: EMPRESA_AP.id,
       type_operation_id: CM_COMERCIAL_ID,
-      only_physical: 0,
     });
 
   // Determinar is_received para sedes según el motivo de traslado
