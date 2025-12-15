@@ -2,7 +2,7 @@
 
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Form,
   FormField,
@@ -95,6 +95,7 @@ export const ProductTransferForm = ({
   const conductorDni = form.watch("driver_doc");
   const typePersonId = form.watch("type_person_id");
   const transferType = form.watch("item_type");
+  const prevTransferTypeRef = useRef(transferType);
 
   // Determinar si es persona natural o jurídica
   const isPersonaNatural =
@@ -249,6 +250,23 @@ export const ProductTransferForm = ({
     }
   }, [watchWarehouseOriginId, filteredSeries, form, mode]);
 
+  // Limpiar detalles cuando cambia el tipo de transferencia (PRODUCTO <-> SERVICIO)
+  useEffect(() => {
+    if (isFirstLoad) return;
+
+    // Solo limpiar si el tipo realmente cambió
+    if (
+      mode === "create" &&
+      prevTransferTypeRef.current !== transferType &&
+      fields.length > 0
+    ) {
+      form.setValue("details", []);
+    }
+
+    // Actualizar la referencia al tipo actual
+    prevTransferTypeRef.current = transferType;
+  }, [transferType, isFirstLoad, mode, form, fields.length]);
+
   const handleAddDetail = () => {
     if (isProducto) {
       append({
@@ -260,7 +278,7 @@ export const ProductTransferForm = ({
     } else {
       // Para servicios
       append({
-        description: "",
+        notes: "",
         quantity: "1",
       });
     }
@@ -716,10 +734,12 @@ export const ProductTransferForm = ({
                     <div className="grid gap-3 grid-cols-1 md:grid-cols-2">
                       <FormField
                         control={form.control}
-                        name={`details.${index}.description`}
+                        name={`details.${index}.notes`}
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Descripción * (mín. 6 caracteres)</FormLabel>
+                            <FormLabel>
+                              Descripción * (mín. 6 caracteres)
+                            </FormLabel>
                             <FormControl>
                               <Input
                                 placeholder="Ej: Sobres de documentos, celulares, etc."

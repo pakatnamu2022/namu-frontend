@@ -214,42 +214,61 @@ export default function TransferReceptionsCards({
                 )}
               </div>
 
-              {/* Productos Recibidos */}
+              {/* Productos/Servicios Recibidos */}
               <div className="pt-2 border-t">
                 <div className="flex items-center gap-2 py-2">
                   <Package className="h-4 w-4 text-primary" />
                   <p className="font-semibold text-primary">
-                    Productos Recibidos ({reception.details.length})
+                    {reception.item_type === "SERVICIO"
+                      ? "Servicios"
+                      : "Productos"}{" "}
+                    Recibidos ({reception.details.length})
                   </p>
                 </div>
                 <div className="space-y-2 py-4">
-                  {reception.details.map((detail) => (
-                    <div
-                      key={detail.id}
-                      className="bg-slate-50 rounded-md p-2 border border-slate-200"
-                    >
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="flex-1 min-w-0">
-                          <p className="font-medium truncate text-slate-800">
-                            {detail.product.name}
-                          </p>
-                          <p className="text-muted-foreground">
-                            Código: {detail.product.code}
-                          </p>
-                        </div>
-                        <div className="text-right shrink-0">
-                          <p className="font-semibold text-green-600">
-                            {detail.quantity_received}
-                          </p>
-                          {parseFloat(detail.observed_quantity) > 0 && (
-                            <p className="text-orange-600">
-                              Obs: {detail.observed_quantity}
+                  {reception.details.map((detail) => {
+                    const isService = !detail.product_id;
+                    const itemName = isService
+                      ? detail.observation_notes || "Servicio sin descripción"
+                      : detail.product?.name || "Producto sin nombre";
+                    const itemCode = isService ? null : detail.product?.code;
+
+                    return (
+                      <div
+                        key={detail.id}
+                        className="bg-slate-50 rounded-md p-2 border border-slate-200"
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium truncate text-slate-800">
+                              {itemName}
                             </p>
-                          )}
+                            {itemCode && (
+                              <p className="text-muted-foreground text-sm">
+                                Código: {itemCode}
+                              </p>
+                            )}
+                            {/* Notas adicionales para productos */}
+                            {!isService && detail.observation_notes && (
+                              <p className="text-muted-foreground text-sm italic mt-1">
+                                Nota: {detail.observation_notes}
+                              </p>
+                            )}
+                          </div>
+                          <div className="text-right shrink-0">
+                            <p className="font-semibold text-green-600">
+                              {detail.quantity_received}
+                            </p>
+                            {parseFloat(detail.observed_quantity) > 0 && (
+                              <p className="text-orange-600 text-sm">
+                                Obs: {detail.observed_quantity}
+                              </p>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
 

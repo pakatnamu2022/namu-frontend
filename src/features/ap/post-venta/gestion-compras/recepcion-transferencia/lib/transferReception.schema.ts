@@ -3,7 +3,7 @@ import { z } from "zod";
 
 const transferReceptionDetailSchema = z.object({
   transfer_item_id: z.string().optional(),
-  product_id: requiredStringId("Producto es requerido"),
+  product_id: z.string().optional(),
   quantity_sent: z
     .number()
     .min(0.01, { message: "La cantidad enviada debe ser mayor a 0" }),

@@ -141,18 +141,22 @@ export const productTransferColumns = ({
               </Button>
             )}
 
-          {permissions.canReceive && routeReception && (
-            <Link to={`${routeReception}/${id}`}>
-              <Button
-                variant="outline"
-                size="icon"
-                className="size-7"
-                tooltip="Recepcionar"
-              >
-                <PackageCheck className="size-4" />
-              </Button>
-            </Link>
-          )}
+          {/* Recepcionar - Solo si fue enviado y aceptado por SUNAT */}
+          {permissions.canReceive &&
+            routeReception &&
+            isSent &&
+            isAcceptedBySunat && (
+              <Link to={`${routeReception}/${id}`}>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="size-7"
+                  tooltip="Recepcionar"
+                >
+                  <PackageCheck className="size-4" />
+                </Button>
+              </Link>
+            )}
 
           {/* Editar - Oculto si fue aceptada por SUNAT */}
           {permissions.canUpdate && routeUpdate && !isAcceptedBySunat && (

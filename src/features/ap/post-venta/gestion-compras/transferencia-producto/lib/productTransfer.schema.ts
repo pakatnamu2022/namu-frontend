@@ -1,22 +1,10 @@
+import { BUSINESS_PARTNERS } from "@/core/core.constants";
 import { requiredStringId } from "@/shared/lib/global.schema";
 import { z } from "zod";
 
 // Schema para los detalles de productos
 export const productTransferDetailSchema = z.object({
   product_id: z.string().optional(),
-  description: z
-    .string()
-    .optional()
-    .refine(
-      (val) => {
-        // Si hay descripción, debe tener al menos 6 caracteres
-        if (val && val.length > 0) {
-          return val.length >= 6;
-        }
-        return true;
-      },
-      { message: "La descripción debe tener al menos 6 caracteres" }
-    ),
   quantity: z
     .string()
     .min(1, "La cantidad es requerida")
@@ -114,10 +102,10 @@ export const productTransferSchemaCreate = productTransferSchemaBase
   )
   .refine(
     (data) => {
-      // Si es SERVICIO, todos los detalles deben tener description con al menos 6 caracteres
+      // Si es SERVICIO, todos los detalles deben tener notes con al menos 6 caracteres
       if (data.item_type === "SERVICIO") {
         return data.details.every((detail) => {
-          return detail.description && detail.description.length >= 6;
+          return detail.notes && detail.notes.length >= 6;
         });
       }
       return true;
@@ -130,7 +118,7 @@ export const productTransferSchemaCreate = productTransferSchemaBase
   .refine(
     (data) => {
       // Si es persona natural (704), debe tener DNI del conductor
-      if (data.type_person_id === "704") {
+      if (data.type_person_id === BUSINESS_PARTNERS.TYPE_PERSON_NATURAL_ID) {
         return !!data.driver_doc && data.driver_doc.length === 8;
       }
       return true;
@@ -143,7 +131,7 @@ export const productTransferSchemaCreate = productTransferSchemaBase
   .refine(
     (data) => {
       // Si es persona natural (704), debe tener nombre del conductor
-      if (data.type_person_id === "704") {
+      if (data.type_person_id === BUSINESS_PARTNERS.TYPE_PERSON_NATURAL_ID) {
         return !!data.driver_name && data.driver_name.length > 0;
       }
       return true;
@@ -156,7 +144,7 @@ export const productTransferSchemaCreate = productTransferSchemaBase
   .refine(
     (data) => {
       // Si es persona natural (704), debe tener licencia
-      if (data.type_person_id === "704") {
+      if (data.type_person_id === BUSINESS_PARTNERS.TYPE_PERSON_NATURAL_ID) {
         return (
           !!data.license &&
           data.license.length >= 9 &&
@@ -173,7 +161,7 @@ export const productTransferSchemaCreate = productTransferSchemaBase
   .refine(
     (data) => {
       // Si es persona natural (704), debe tener placa
-      if (data.type_person_id === "704") {
+      if (data.type_person_id === BUSINESS_PARTNERS.TYPE_PERSON_NATURAL_ID) {
         return !!data.plate && data.plate.length >= 6 && data.plate.length <= 7;
       }
       return true;
@@ -186,7 +174,7 @@ export const productTransferSchemaCreate = productTransferSchemaBase
   .refine(
     (data) => {
       // Si es persona jurídica (705), debe tener proveedor seleccionado
-      if (data.type_person_id === "705") {
+      if (data.type_person_id === BUSINESS_PARTNERS.TYPE_PERSON_JURIDICA_ID) {
         return (
           !!data.transport_company_id && data.transport_company_id.length > 0
         );

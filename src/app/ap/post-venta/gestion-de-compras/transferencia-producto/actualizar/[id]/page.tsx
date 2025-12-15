@@ -23,6 +23,7 @@ import { ProductTransferResource } from "@/features/ap/post-venta/gestion-compra
 import { ProductTransferForm } from "@/features/ap/post-venta/gestion-compras/transferencia-producto/components/ProductTransferForm.tsx";
 import { PRODUCT_TRANSFER } from "@/features/ap/post-venta/gestion-compras/transferencia-producto/lib/productTransfer.constants.ts";
 import { SUNAT_CONCEPTS_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
+import { BUSINESS_PARTNERS } from "@/core/core.constants";
 
 export default function UpdateProductTransferPage() {
   const { id } = useParams();
@@ -76,6 +77,10 @@ export default function UpdateProductTransferPage() {
       item_type: data.item_type,
       document_type: "GUIA_REMISION",
       transfer_reason_id: SUNAT_CONCEPTS_ID.TRANSFER_REASON_TRASLADO_SEDE,
+      type_person_id:
+        !data.reference.driver_doc || data.reference.driver_doc === ""
+          ? BUSINESS_PARTNERS.TYPE_PERSON_JURIDICA_ID
+          : BUSINESS_PARTNERS.TYPE_PERSON_NATURAL_ID,
       transfer_modality_id: String(data.reference.transfer_modality_id),
       transport_company_id: String(data.reference.transport_company_id),
       transmitter_origin_id: AUTOMOTORES_PAKATNAMU_ID,

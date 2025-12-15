@@ -40,10 +40,12 @@ interface TransferReceptionFormProps {
   isSubmitting?: boolean;
   mode?: "create" | "update";
   onCancel?: () => void;
+  itemType?: "PRODUCTO" | "SERVICIO";
   productTransferItems?: Array<{
     id: number;
-    product_id: number;
+    product_id: number | null;
     product_name?: string;
+    notes?: string;
     quantity: number;
     unit_cost: number;
   }>;
@@ -55,8 +57,10 @@ export const TransferReceptionForm = ({
   isSubmitting = false,
   mode = "create",
   onCancel,
+  itemType = "PRODUCTO",
   productTransferItems = [],
 }: TransferReceptionFormProps) => {
+  const isServicio = itemType === "SERVICIO";
   const form = useForm({
     resolver: zodResolver(
       mode === "create"
@@ -92,13 +96,13 @@ export const TransferReceptionForm = ({
     ) {
       const initialDetails = productTransferItems.map((item) => ({
         transfer_item_id: String(item.id),
-        product_id: item.product_id.toString(),
+        product_id: item.product_id ? item.product_id.toString() : undefined,
         quantity_sent: item.quantity,
         quantity_received: item.quantity,
         observed_quantity: 0,
         reception_type: "ORDERED" as const,
         reason_observation: undefined,
-        observation_notes: "",
+        observation_notes: item.notes || "",
         bonus_reason: "",
         notes: "",
       }));
@@ -169,9 +173,26 @@ export const TransferReceptionForm = ({
                 // Determinar si es producto de la transferencia
                 const isOrderedProduct = detail?.transfer_item_id != null;
 
-                const productItem = productTransferItems.find(
-                  (item) => item.product_id.toString() === detail?.product_id
-                );
+                // Para servicios, buscar por transfer_item_id, para productos por product_id
+                const transferItem = productTransferItems.find((item) => {
+                  if (isServicio) {
+                    // Para servicios, buscar por transfer_item_id
+                    return (
+                      detail?.transfer_item_id &&
+                      item.id.toString() === detail.transfer_item_id
+                    );
+                  } else {
+                    // Para productos, buscar por product_id
+                    return (
+                      item.product_id &&
+                      detail?.product_id &&
+                      item.product_id.toString() === detail.product_id
+                    );
+                  }
+                });
+
+                // Determinar si el detalle es un ítem de servicio (sin product_id)
+                const isServiceItem = isServicio && !detail?.product_id;
 
                 return (
                   <Card
@@ -182,19 +203,32 @@ export const TransferReceptionForm = ({
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-2 flex-1 min-w-0">
                         <h4 className="font-semibold text-sm truncate text-slate-700">
-                          {productItem?.product_name || `Producto ${index + 1}`}
+                          {isServiceItem
+                            ? detail?.observation_notes ||
+                              transferItem?.notes ||
+                              `Servicio ${index + 1}`
+                            : transferItem?.product_name ||
+                              `Producto ${index + 1}`}
                         </h4>
                         {isOrderedProduct && (
                           <Badge
-                            variant="secondary"
-                            className="text-xs h-5 shrink-0 bg-blue-100 text-primary"
+                            variant="default"
+                            className="text-xs h-5 shrink-0"
                           >
                             TRANSFERIDO
                           </Badge>
                         )}
-                        {productItem && (
+                        {isServiceItem && (
+                          <Badge
+                            variant="default"
+                            className="text-xs h-5 shrink-0"
+                          >
+                            SERVICIO
+                          </Badge>
+                        )}
+                        {transferItem && !isServiceItem && (
                           <span className="text-xs text-slate-500 shrink-0 bg-slate-200 px-2 py-0.5 rounded">
-                            Trans: {productItem.quantity}
+                            Trans: {transferItem.quantity}
                           </span>
                         )}
                       </div>
@@ -214,12 +248,12 @@ export const TransferReceptionForm = ({
                     {/* Campos en grid responsivo */}
                     <div
                       className={`grid gap-3 mb-3 ${
-                        isOrderedProduct
+                        isOrderedProduct || isServiceItem
                           ? "grid-cols-2 md:grid-cols-3"
                           : "grid-cols-1 md:grid-cols-3"
                       }`}
                     >
-                      {!isOrderedProduct && (
+                      {!isOrderedProduct && !isServiceItem && (
                         <FormSelect
                           name={`details.${index}.product_id`}
                           label="Producto *"
@@ -233,7 +267,7 @@ export const TransferReceptionForm = ({
                         />
                       )}
 
-                      {isOrderedProduct && productItem && (
+                      {(isOrderedProduct || isServiceItem) && transferItem && (
                         <FormItem>
                           <FormLabel className="text-xs font-medium">
                             Cant. Enviada
@@ -242,7 +276,7 @@ export const TransferReceptionForm = ({
                             <Input
                               type="number"
                               className="text-center bg-slate-100"
-                              value={productItem.quantity}
+                              value={transferItem.quantity}
                               disabled
                               readOnly
                             />
@@ -276,10 +310,10 @@ export const TransferReceptionForm = ({
                                     ? 0
                                     : num;
 
-                                  // Si es producto transferido, calcular cantidad observada
-                                  if (isOrderedProduct && productItem) {
+                                  // Si es ítem transferido (producto o servicio), calcular cantidad observada
+                                  if (isOrderedProduct && transferItem) {
                                     const transferredQuantity =
-                                      productItem.quantity;
+                                      transferItem.quantity;
 
                                     // No permitir que la cantidad recibida supere la transferida
                                     const finalQuantityReceived = Math.min(
@@ -333,10 +367,10 @@ export const TransferReceptionForm = ({
                                       ? 0
                                       : num;
 
-                                    // Si es producto transferido, calcular cantidad recibida
-                                    if (productItem) {
+                                    // Si es ítem transferido (producto o servicio), calcular cantidad recibida
+                                    if (transferItem) {
                                       const transferredQuantity =
-                                        productItem.quantity;
+                                        transferItem.quantity;
 
                                       // No permitir que la cantidad observada supere la transferida
                                       const finalObservedQuantity = Math.min(
@@ -399,35 +433,52 @@ export const TransferReceptionForm = ({
                             )}
                           />
 
-                          <FormField
-                            control={form.control}
-                            name={`details.${index}.observation_notes`}
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel className="text-xs font-medium">
-                                  Notas de Observación
-                                </FormLabel>
-                                <FormControl>
-                                  <Input
-                                    placeholder="Detalles adicionales..."
-                                    disabled={mode === "update"}
-                                    {...field}
-                                    value={field.value || ""}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
+                          {!isServiceItem && (
+                            <FormField
+                              control={form.control}
+                              name={`details.${index}.observation_notes`}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-xs font-medium">
+                                    Notas de Observación
+                                  </FormLabel>
+                                  <FormControl>
+                                    <Input
+                                      placeholder="Detalles adicionales..."
+                                      disabled={mode === "update"}
+                                      {...field}
+                                      value={field.value || ""}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          )}
                         </div>
                       </div>
                     )}
 
-                    {/* Notas del producto - solo para productos transferidos */}
-                    {isOrderedProduct && (
+                    {/* Campo oculto para mantener observation_notes en servicios */}
+                    {isServiceItem && (
                       <FormField
                         control={form.control}
-                        name={`details.${index}.notes`}
+                        name={`details.${index}.observation_notes`}
+                        render={({ field }) => (
+                          <input
+                            type="hidden"
+                            {...field}
+                            value={field.value || ""}
+                          />
+                        )}
+                      />
+                    )}
+
+                    {/* Notas del producto - solo para productos (no servicios) */}
+                    {isOrderedProduct && !isServiceItem && (
+                      <FormField
+                        control={form.control}
+                        name={`details.${index}.observation_notes`}
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel className="text-xs font-medium">

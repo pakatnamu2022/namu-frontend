@@ -142,6 +142,7 @@ interface TransferMovementResource {
 
 export interface TransferReceptionResource {
   id: number;
+  item_type: string;
   reception_number?: string;
   transfer_movement_id: number;
   shipping_guide_id: number;
@@ -218,7 +219,7 @@ export interface TransferReceptionResponse {
 
 export interface TransferReceptionDetailRequest {
   transfer_item_id?: string;
-  product_id: string;
+  product_id?: string;
   quantity_sent: number;
   quantity_received: number;
   observed_quantity?: number;

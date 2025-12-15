@@ -59,7 +59,7 @@ export default function CreateTransferReceptionPage() {
   return (
     <FormWrapper>
       <TitleFormComponent
-        title={`Nueva Recepción - Transferencia #${productTransfer.id}`}
+        title={`Nueva Recepción - Transferencia ${productTransfer.movement_number}`}
         mode="create"
         icon="PackageCheck"
       />
@@ -80,10 +80,12 @@ export default function CreateTransferReceptionPage() {
             `/ap/post-venta/gestion-de-compras/transferencia-producto/recepcion/${productTransferId}`
           )
         }
+        itemType={productTransfer.item_type as "PRODUCTO" | "SERVICIO"}
         productTransferItems={productTransfer.details?.map((detail) => ({
           id: detail.id,
           product_id: detail.product_id,
           product_name: detail.product?.name,
+          notes: detail.notes,
           quantity: Number(detail.quantity),
           unit_cost: detail.unit_cost,
         }))}

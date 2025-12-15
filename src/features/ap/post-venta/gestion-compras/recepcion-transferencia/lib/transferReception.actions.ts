@@ -17,7 +17,7 @@ export async function getTransferReceptions({
   const config: AxiosRequestConfig = {
     params: {
       ...params,
-      ...(productTransferId && { product_transfer_id: productTransferId }),
+      ...(productTransferId && { transfer_movement_id: productTransferId }),
     },
   };
   const { data } = await api.get<TransferReceptionResponse>(ENDPOINT, config);
@@ -31,7 +31,7 @@ export async function getAllTransferReceptions({
   const config: AxiosRequestConfig = {
     params: {
       ...params,
-      ...(productTransferId && { product_transfer_id: productTransferId }),
+      ...(productTransferId && { transfer_movement_id: productTransferId }),
       all: true,
     },
   };
@@ -39,15 +39,21 @@ export async function getAllTransferReceptions({
   return data;
 }
 
-export async function getTransferReceptionById(id: number): Promise<TransferReceptionResource> {
-  const { data } = await api.get<TransferReceptionResource>(`${ENDPOINT}/${id}`);
+export async function getTransferReceptionById(
+  id: number
+): Promise<TransferReceptionResource> {
+  const { data } = await api.get<TransferReceptionResource>(
+    `${ENDPOINT}/${id}`
+  );
   return data;
 }
 
 export async function findTransferReceptionById(
   id: number
 ): Promise<TransferReceptionResource> {
-  const response = await api.get<TransferReceptionResource>(`${ENDPOINT}/${id}`);
+  const response = await api.get<TransferReceptionResource>(
+    `${ENDPOINT}/${id}`
+  );
   return response.data;
 }
 
@@ -58,7 +64,9 @@ export async function storeTransferReception(
   return data;
 }
 
-export async function deleteTransferReception(id: number): Promise<GeneralResponse> {
+export async function deleteTransferReception(
+  id: number
+): Promise<GeneralResponse> {
   const { data } = await api.delete<GeneralResponse>(`${ENDPOINT}/${id}`);
   return data;
 }

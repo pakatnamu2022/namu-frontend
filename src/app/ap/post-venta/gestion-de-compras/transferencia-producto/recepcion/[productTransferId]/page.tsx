@@ -85,7 +85,7 @@ export default function TransferReceptionsPage() {
           <div className="flex-1">
             <TitleComponent
               title={`Recepciones - Transferencia`}
-              subtitle="Gestión de recepciones de transferencias"
+              subtitle={`Gestión de Transferencia: ${productTransfer.movement_number}`}
               icon="PackageCheck"
             />
           </div>

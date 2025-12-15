@@ -11,6 +11,7 @@ export interface ProductTransferResponse {
 
 export interface ProductTransferResource {
   id: number;
+  movement_number: string;
   warehouse_origin_id: number;
   warehouse_destination_id: number;
   item_type: "PRODUCTO" | "SERVICIO";
@@ -63,7 +64,7 @@ export interface TransportCompanyResource {
 export interface ProductTransferDetailResource {
   id: number;
   product_transfer_id: number;
-  product_id: number;
+  product_id: number | null;
   quantity: number;
   unit_cost: number;
   notes?: string;
@@ -97,7 +98,7 @@ export interface ProductTransferDetailRequest {
 export interface TransferDetail {
   id: number;
   inventory_movement_id: number;
-  product_id: number;
+  product_id: number | null;
   quantity: string;
   unit_cost: string;
   total_cost: string;
@@ -110,7 +111,7 @@ export interface TransferDetail {
     description: string;
     cost_price: string;
     sale_price: string;
-  };
+  } | null;
 }
 
 export interface TransferData {
