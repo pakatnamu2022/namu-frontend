@@ -1,15 +1,13 @@
 "use client";
 
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
+import GeneralSheet from "@/shared/components/GeneralSheet";
+import { Input } from "@/components/ui/input";
+import { Search } from "lucide-react";
 import { SalesManagerDetailsFilters } from "../lib/dashboard.interface";
 import { useAllManageLeads } from "../../gestionar-leads/lib/manageLeads.hook";
 import { LeadInfoCard } from "../../oportunidades/components/LeadInfoCard";
+import { useState, useMemo } from "react";
+import FormSkeleton from "@/shared/components/FormSkeleton";
 
 interface SalesManagerDetailsSheetProps {
   open: boolean;
@@ -22,43 +20,68 @@ export default function SalesManagerDetailsSheet({
   onOpenChange,
   filters,
 }: SalesManagerDetailsSheetProps) {
+  const [searchTerm, setSearchTerm] = useState("");
+
   const { data: leads = [], isLoading } = useAllManageLeads({
-    params: {
-      ...filters,
-    },
+    ...filters,
   });
 
-  return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent
-        side="right"
-        className="w-full sm:max-w-3xl overflow-y-auto"
-      >
-        <SheetHeader>
-          <SheetTitle>Detalles de Visitas/Leads</SheetTitle>
-          <SheetDescription>
-            Información detallada de las visitas y leads registrados
-          </SheetDescription>
-        </SheetHeader>
+  const filteredLeads = useMemo(() => {
+    if (!searchTerm.trim()) return leads;
 
-        <div className="mt-6 space-y-3">
+    const searchLower = searchTerm.toLowerCase();
+    return leads.filter((lead) => {
+      return (
+        lead.full_name?.toLowerCase().includes(searchLower) ||
+        lead.num_doc?.toLowerCase().includes(searchLower) ||
+        lead.phone?.toLowerCase().includes(searchLower) ||
+        lead.email?.toLowerCase().includes(searchLower) ||
+        lead.vehicle_brand?.toLowerCase().includes(searchLower) ||
+        lead.model?.toLowerCase().includes(searchLower)
+      );
+    });
+  }, [leads, searchTerm]);
+
+  return (
+    <GeneralSheet
+      open={open}
+      onClose={() => onOpenChange(false)}
+      title="Detalles de Visitas/Leads"
+      subtitle="Información detallada de las visitas y leads registrados"
+      icon="FileText"
+      size="xl"
+      side="right"
+      className="overflow-y-auto"
+    >
+      <div className="space-y-4">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Buscar por nombre, documento, teléfono, email o vehículo..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+
+        <div className="space-y-3">
           {isLoading ? (
-            <div className="flex items-center justify-center py-12">
-              <p className="text-sm text-muted-foreground">Cargando...</p>
-            </div>
-          ) : leads?.length === 0 ? (
+            <FormSkeleton />
+          ) : filteredLeads?.length === 0 ? (
             <div className="flex items-center justify-center py-12">
               <p className="text-sm text-muted-foreground">
-                No hay detalles disponibles
+                {searchTerm.trim()
+                  ? "No se encontraron resultados para tu búsqueda"
+                  : "No hay detalles disponibles"}
               </p>
             </div>
           ) : (
-            leads.map((detail) => (
+            filteredLeads.map((detail) => (
               <LeadInfoCard lead={detail} key={detail.id} />
             ))
           )}
         </div>
-      </SheetContent>
-    </Sheet>
+      </div>
+    </GeneralSheet>
   );
 }

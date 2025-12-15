@@ -13,6 +13,7 @@ import {
   Phone,
   Mail,
   MapPin,
+  UserCheck,
 } from "lucide-react";
 import { format } from "date-fns";
 
@@ -126,6 +127,12 @@ export const LeadInfoCard = ({ lead }: LeadInfoCardProps) => {
                 <div className="flex items-center gap-1.5 text-muted-foreground">
                   <Briefcase className="h-3 w-3" />
                   <span>{lead.income_sector}</span>
+                </div>
+              )}
+              {lead.worker && (
+                <div className="flex items-center gap-1.5 text-muted-foreground">
+                  <UserCheck className="h-3 w-3" />
+                  <span>{lead.worker}</span>
                 </div>
               )}
             </div>
