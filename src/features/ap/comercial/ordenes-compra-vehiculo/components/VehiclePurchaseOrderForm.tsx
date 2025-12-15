@@ -393,6 +393,20 @@ export const VehiclePurchaseOrderForm = ({
     return `Diferencia excesiva de ${diff.toFixed(2)}`;
   };
 
+  // Memorizar las columnas para evitar re-renderizados innecesarios que causan pérdida de focus
+  const columns = useMemo(
+    () =>
+      purchaseOrderItemsColumns({
+        control: form.control,
+        watch: form.watch,
+        setValue: form.setValue,
+        onRemove: remove,
+        isVehiclePurchase,
+        unitMeasurements,
+      }),
+    [form.control, form.watch, form.setValue, remove, isVehiclePurchase, unitMeasurements]
+  );
+
   // Solo mostrar skeleton en carga inicial, no durante búsquedas (fetching)
   const isInitialLoading =
     isLoadingSuppliers ||
@@ -569,14 +583,7 @@ export const VehiclePurchaseOrderForm = ({
             <div className="w-full space-y-4 col-span-full">
               {/* DataTable de Items */}
               <DataTable
-                columns={purchaseOrderItemsColumns({
-                  control: form.control,
-                  watch: form.watch,
-                  setValue: form.setValue,
-                  onRemove: remove,
-                  isVehiclePurchase,
-                  unitMeasurements,
-                })}
+                columns={columns}
                 data={fields}
                 isVisibleColumnFilter={false}
                 variant={"ghost"}

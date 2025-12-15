@@ -86,7 +86,6 @@ export const purchaseOrderItemsColumns = ({
           name={`items.${index}.description`}
           placeholder="Descripción del item"
           type="text"
-          min={0}
           disabled={isVehiclePurchase && index === 0}
           className={isVehiclePurchase && index === 0 ? "bg-muted" : ""}
         />
