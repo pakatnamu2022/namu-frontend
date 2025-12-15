@@ -65,7 +65,7 @@ export const useWarehousesByCompany = ({
   return useQuery<WarehouseResource[]>({
     queryKey: [
       QUERY_KEY,
-      "byArticleClass",
+      "byCompany",
       my,
       is_received,
       ap_class_article_id,
