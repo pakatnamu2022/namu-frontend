@@ -23,6 +23,10 @@ interface ConfirmationDialogProps {
   onConfirm: () => void;
   variant?: "default" | "destructive";
   icon?: "warning" | "danger" | "info";
+  children?: ReactNode;
+  confirmDisabled?: boolean;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 export const ConfirmationDialog = ({
@@ -34,8 +38,16 @@ export const ConfirmationDialog = ({
   onConfirm,
   variant = "default",
   icon = "warning",
+  children,
+  confirmDisabled = false,
+  open: controlledOpen,
+  onOpenChange: controlledOnOpenChange,
 }: ConfirmationDialogProps) => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+
+  const isControlled = controlledOpen !== undefined;
+  const isOpen = isControlled ? controlledOpen : internalOpen;
+  const setIsOpen = isControlled ? (controlledOnOpenChange || (() => {})) : setInternalOpen;
 
   const handleConfirm = () => {
     setIsOpen(false);
@@ -76,10 +88,12 @@ export const ConfirmationDialog = ({
         <AlertDialogDescription className="text-left mt-2">
           {description}
         </AlertDialogDescription>
+        {children && <div className="mt-4">{children}</div>}
         <AlertDialogFooter className="flex-col sm:flex-row gap-2">
           <AlertDialogCancel className="mt-0">{cancelText}</AlertDialogCancel>
           <AlertDialogAction
             onClick={handleConfirm}
+            disabled={confirmDisabled}
             className={
               variant === "destructive"
                 ? "bg-secondary hover:bg-red-700 text-white"

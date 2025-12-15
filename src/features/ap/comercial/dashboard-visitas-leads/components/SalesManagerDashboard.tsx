@@ -20,6 +20,7 @@ import {
   STATUS_WORKER,
 } from "@/features/gp/gestionhumana/personal/posiciones/lib/position.constant";
 import { EMPRESA_AP } from "@/core/core.constants";
+import TitleComponent from "@/shared/components/TitleComponent";
 
 // Obtener el primer y último día del mes pasado
 const getLastMonthRange = () => {
@@ -94,19 +95,17 @@ export default function SalesManagerDashboard() {
 
   return (
     <div className="space-y-6 p-6">
-      {/* Header */}
       <div className="flex items-center justify-between border-b pb-4">
-        <div>
-          <h1 className="text-2xl font-semibold text-foreground">
-            Resumen Gerencial
-          </h1>
-          {statsData && (
-            <p className="text-sm text-muted-foreground mt-1">
-              {statsData.data.manager_info.boss_name} •{" "}
-              {statsData.data.manager_info.boss_position}
-            </p>
-          )}
-        </div>
+        {/* Header */}
+        <TitleComponent
+          icon={"FileSignature"}
+          title="Dashboard de Leads de Equipo de Ventas"
+          subtitle={
+            statsData
+              ? `Resumen gerencial de ${statsData.data.manager_info.boss_name}`
+              : "Resumen gerencial"
+          }
+        />
 
         {/* Filters */}
         <div className="flex items-end gap-3">
