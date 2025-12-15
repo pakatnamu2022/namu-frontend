@@ -1071,10 +1071,10 @@ export const ShipmentsReceptionsForm = ({
             required={false}
           />
         </div>
-
+{/* 
         <pre>
           <code>{JSON.stringify(form.getValues(), null, 2)}</code>
-        </pre>
+        </pre> */}
 
         {/* Botones de Acción */}
         <div className="flex gap-4 w-full justify-end">
