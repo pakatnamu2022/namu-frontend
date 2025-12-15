@@ -11,7 +11,7 @@ import { Form } from "@/components/ui/form";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/shared/components/DataTable";
-import { purchaseOrderItemsColumns } from "./PurchaseOrderItemsColumns";
+import { usePurchaseOrderItemsColumns } from "./PurchaseOrderItemsColumns";
 import {
   Loader,
   Car,
@@ -393,19 +393,15 @@ export const VehiclePurchaseOrderForm = ({
     return `Diferencia excesiva de ${diff.toFixed(2)}`;
   };
 
-  // Memorizar las columnas para evitar re-renderizados innecesarios que causan pérdida de focus
-  const columns = useMemo(
-    () =>
-      purchaseOrderItemsColumns({
-        control: form.control,
-        watch: form.watch,
-        setValue: form.setValue,
-        onRemove: remove,
-        isVehiclePurchase,
-        unitMeasurements,
-      }),
-    [form.control, form.watch, form.setValue, remove, isVehiclePurchase, unitMeasurements]
-  );
+  // Usar hook personalizado que memoriza las columnas automáticamente
+  const columns = usePurchaseOrderItemsColumns({
+    control: form.control,
+    watch: form.watch,
+    setValue: form.setValue,
+    onRemove: remove,
+    isVehiclePurchase,
+    unitMeasurements,
+  });
 
   // Solo mostrar skeleton en carga inicial, no durante búsquedas (fetching)
   const isInitialLoading =
