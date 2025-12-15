@@ -33,7 +33,7 @@ import {
 } from "lucide-react";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { FormSelect } from "@/shared/components/FormSelect";
-import { useAllSuppliers } from "@/features/ap/comercial/proveedores/lib/suppliers.hook";
+import { useSuppliers } from "@/features/ap/comercial/proveedores/lib/suppliers.hook";
 import {
   useAllWarehouse,
   useWarehouseById,
@@ -49,10 +49,12 @@ import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import { EMPRESA_AP } from "@/core/core.constants";
 import { useState } from "react";
 import { api } from "@/core/api";
-import { format } from "date-fns";
+import { format, addDays } from "date-fns";
 import { CURRENCY_TYPE_IDS } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.constants";
-import { useAllSupplierOrderType } from "@/features/ap/configuraciones/vehiculos/tipos-pedido-proveedor/lib/supplierOrderType.hook";
 import { TYPES_OPERATION_ID } from "@/features/ap/configuraciones/maestros-general/tipos-operacion/lib/typesOperation.constants";
+import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
+import { SuppliersResource } from "@/features/ap/comercial/proveedores/lib/suppliers.interface";
+import { PurchaseOrderProductsResource } from "../lib/purchaseOrderProducts.interface";
 
 interface PurchaseOrderProductsFormProps {
   defaultValues: Partial<PurchaseOrderProductsSchema>;
@@ -60,6 +62,7 @@ interface PurchaseOrderProductsFormProps {
   isSubmitting?: boolean;
   mode?: "create" | "update";
   onCancel?: () => void;
+  PurchaseOrderProductsData?: PurchaseOrderProductsResource;
 }
 
 export const PurchaseOrderProductsForm = ({
@@ -68,6 +71,7 @@ export const PurchaseOrderProductsForm = ({
   isSubmitting = false,
   mode = "create",
   onCancel,
+  PurchaseOrderProductsData,
 }: PurchaseOrderProductsFormProps) => {
   const form = useForm({
     resolver: zodResolver(
@@ -88,8 +92,6 @@ export const PurchaseOrderProductsForm = ({
     name: "items",
   });
 
-  const { data: suppliers = [], isLoading: isLoadingSuppliers } =
-    useAllSuppliers();
   const { data: mySedes = [], isLoading: isLoadingMySedes } = useMySedes({
     company: EMPRESA_AP.id,
   });
@@ -111,10 +113,6 @@ export const PurchaseOrderProductsForm = ({
   });
   const { data: currencyTypes = [], isLoading: isLoadingCurrencyTypes } =
     useAllCurrencyTypes();
-  const {
-    data: orderTypeSupplier = [],
-    isLoading: isLoadingOrderTypeSupplier,
-  } = useAllSupplierOrderType();
 
   const [exchangeRate, setExchangeRate] = useState<number | null>(null);
   const [exchangeRateError, setExchangeRateError] = useState<string>("");
@@ -217,12 +215,15 @@ export const PurchaseOrderProductsForm = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [itemTotalsKey]);
 
-  if (
-    isLoadingSuppliers ||
-    isLoadingCurrencyTypes ||
-    isLoadingMySedes ||
-    isLoadingOrderTypeSupplier
-  ) {
+  // useEffect para calcular automáticamente la fecha de vencimiento (30 días después de la emisión)
+  useEffect(() => {
+    if (watchedEmissionDate instanceof Date) {
+      const dueDate = addDays(watchedEmissionDate, 30);
+      form.setValue("due_date", dueDate, { shouldValidate: true });
+    }
+  }, [watchedEmissionDate, form]);
+
+  if (isLoadingCurrencyTypes || isLoadingMySedes) {
     return <FormSkeleton />;
   }
 
@@ -271,16 +272,25 @@ export const PurchaseOrderProductsForm = ({
             className="xl:col-span-2"
             cols={{ sm: 1, md: 2 }}
           >
-            <FormSelect
-              name="supplier_id"
-              label="Proveedor"
-              placeholder="Selecciona un proveedor"
-              options={suppliers.map((supplier) => ({
-                label: `${supplier.full_name} - ${supplier.num_doc}`,
-                value: supplier.id.toString(),
-              }))}
+            <FormSelectAsync
+              placeholder="Seleccionar Proveedor"
               control={form.control}
-            />
+              label={"Proveedor"}
+              name="supplier_id"
+              useQueryHook={useSuppliers}
+              mapOptionFn={(item: SuppliersResource) => ({
+                value: item.id.toString(),
+                label: `${item.num_doc || "S/N"} | ${item.full_name || "S/N"}`,
+              })}
+              perPage={10}
+              debounceMs={500}
+              defaultOption={{
+                value: PurchaseOrderProductsData!.supplier_id.toString(),
+                label: `${
+                  PurchaseOrderProductsData!.supplier_num_doc || "S/N"
+                } | ${PurchaseOrderProductsData!.supplier || "S/N"}`,
+              }}
+            ></FormSelectAsync>
 
             <FormField
               control={form.control}
@@ -323,11 +333,12 @@ export const PurchaseOrderProductsForm = ({
             <DatePickerFormField
               control={form.control}
               name="due_date"
-              label="Fecha Vencimiento Factura"
-              placeholder="Selecciona una fecha"
+              label="Fecha Vencimiento Factura (30 días después)"
+              placeholder="Calculado automáticamente"
               dateFormat="dd/MM/yyyy"
               captionLayout="dropdown"
               disabledRange={{ before: watchedEmissionDate || new Date() }}
+              disabled={true}
             />
 
             <FormSelect
@@ -367,17 +378,6 @@ export const PurchaseOrderProductsForm = ({
                     <span>{item.name}</span>
                   </div>
                 ),
-                value: item.id.toString(),
-              }))}
-              control={form.control}
-            />
-
-            <FormSelect
-              name="supplier_order_type_id"
-              label="Tipo Pedido Proveedor"
-              placeholder="Selecciona un tipo"
-              options={orderTypeSupplier.map((item) => ({
-                label: item.description,
                 value: item.id.toString(),
               }))}
               control={form.control}

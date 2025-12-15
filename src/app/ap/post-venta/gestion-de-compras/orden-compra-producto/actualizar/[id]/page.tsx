@@ -69,7 +69,6 @@ export default function UpdatePurchaseOrderProductsPage() {
       due_date: data.due_date ? new Date(data.due_date + "T00:00:00") : "",
       sede_id: String(data.sede_id),
       warehouse_id: String(data.warehouse_id),
-      supplier_order_type_id: String(data.supplier_order_type_id),
       currency_id: String(data.currency_id),
       payment_terms: data.payment_terms,
       items:
@@ -104,6 +103,7 @@ export default function UpdatePurchaseOrderProductsPage() {
         isSubmitting={isPending}
         mode="update"
         onCancel={() => router(ABSOLUTE_ROUTE)}
+        PurchaseOrderProductsData={purchaseOrder}
       />
     </FormWrapper>
   );

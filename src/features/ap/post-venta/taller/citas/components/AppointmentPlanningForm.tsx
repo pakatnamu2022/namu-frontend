@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Loader, Calendar, Car, User } from "lucide-react";
+import { Loader, Calendar, Car, User, ExternalLink } from "lucide-react";
 import {
   AppointmentPlanningSchema,
   appointmentPlanningSchemaCreate,
@@ -21,24 +21,33 @@ import {
 import { FormSelect } from "@/shared/components/FormSelect";
 import { useAllTypesOperationsAppointment } from "@/features/ap/configuraciones/postventa/tipos-operacion-cita/lib/typesOperationsAppointment.hook";
 import { useAllTypesPlanning } from "@/features/ap/configuraciones/postventa/tipos-planificacion/lib/typesPlanning.hook";
-import { useAllVehicles } from "@/features/ap/comercial/vehiculos/lib/vehicles.hook";
+import {
+  useAllVehicles,
+  useVehicles,
+} from "@/features/ap/comercial/vehiculos/lib/vehicles.hook";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { Textarea } from "@/components/ui/textarea";
 import AppointmentTimeSlotPicker from "./AppointmentTimeSlotPicker";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { EMPRESA_AP } from "@/core/core.constants";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { APPOINTMENT_PLANNING } from "../lib/appointmentPlanning.constants";
+import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
+import { VehicleResource } from "@/features/ap/comercial/vehiculos/lib/vehicles.interface";
+import { VEHICLES_PV } from "@/features/ap/comercial/vehiculos/lib/vehicles.constants";
+import { AppointmentPlanningResource } from "../lib/appointmentPlanning.interface";
+import { DocumentValidationStatus } from "@/shared/components/DocumentValidationStatus";
+import { ValidationIndicator } from "@/shared/components/ValidationIndicator";
+import { useDniValidation } from "@/shared/hooks/useDocumentValidation";
 
 interface AppointmentPlanningFormProps {
   defaultValues: Partial<AppointmentPlanningSchema>;
   onSubmit: (data: any) => void;
   isSubmitting?: boolean;
   mode?: "create" | "update";
-  onCancel?: () => void;
+  appointmentPlanningData?: AppointmentPlanningResource;
 }
 
 export const AppointmentPlanningForm = ({
@@ -46,12 +55,14 @@ export const AppointmentPlanningForm = ({
   onSubmit,
   isSubmitting = false,
   mode = "create",
+  appointmentPlanningData,
 }: AppointmentPlanningFormProps) => {
   const router = useNavigate();
   const [showAppointmentTimePicker, setShowAppointmentTimePicker] =
     useState(false);
   const [showDeliveryTimePicker, setShowDeliveryTimePicker] = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState<any>(null);
+  const [isFirstLoad, setIsFirstLoad] = useState(mode === "update");
   const { ABSOLUTE_ROUTE } = APPOINTMENT_PLANNING;
 
   const form = useForm({
@@ -84,14 +95,28 @@ export const AppointmentPlanningForm = ({
     isLoadingSedes;
 
   // Watch vehicle selection
-  const watchedVehicleId = form.watch("ap_vehicle_id");
+  const watchVehicleId = form.watch("ap_vehicle_id");
+  const watchCustomer = form.watch("num_doc_client");
+
+  const {
+    data: customerData,
+    isLoading: isCustomerLoading,
+    error: customerError,
+  } = useDniValidation(
+    watchCustomer,
+    !isFirstLoad && !!watchCustomer && watchCustomer.length === 8,
+    true
+  );
 
   // Effect para cargar datos del cliente cuando se selecciona un vehículo
   useEffect(() => {
-    if (watchedVehicleId && vehicles.length > 0) {
-      const vehicle = vehicles.find(
-        (v) => v.id.toString() === watchedVehicleId
-      );
+    if (isFirstLoad) {
+      setIsFirstLoad(false);
+      return;
+    }
+
+    if (watchVehicleId && vehicles.length > 0) {
+      const vehicle = vehicles.find((v) => v.id.toString() === watchVehicleId);
       setSelectedVehicle(vehicle);
 
       // Si el vehículo tiene cliente (owner), autocompletar los campos
@@ -108,7 +133,24 @@ export const AppointmentPlanningForm = ({
     } else {
       setSelectedVehicle(null);
     }
-  }, [watchedVehicleId, vehicles, form]);
+  }, [watchVehicleId, vehicles, form]);
+
+  // UseEffect específico para conyuge:
+  useEffect(() => {
+    if (isFirstLoad) return;
+
+    if (customerData?.success && customerData.data) {
+      const repInfo = customerData.data;
+      form.setValue("full_name_client", repInfo.names || "");
+    } else if (customerData && !customerData.success) {
+      form.setValue("full_name_client", "");
+    }
+  }, [customerData, form]);
+
+  // Deshabilitar campos de cliente si se encontró información
+  const shouldDisableCustomerFields = Boolean(
+    customerData?.success && customerData.data
+  );
 
   // Normalizar formato de hora a HH:mm
   const normalizeTime = (time: string): string => {
@@ -161,18 +203,80 @@ export const AppointmentPlanningForm = ({
           bgColor="bg-blue-50"
           cols={{ sm: 2, md: 3 }}
         >
-          <FormSelect
+          <FormSelectAsync
+            placeholder="Seleccionar vehículo"
+            control={form.control}
+            label={"Vehículo"}
             name="ap_vehicle_id"
-            label="Vehículo"
-            placeholder="Seleccione vehículo"
-            options={vehicles.map((item) => ({
+            useQueryHook={useVehicles}
+            mapOptionFn={(item: VehicleResource) => ({
+              value: item.id.toString(),
               label: `${item.vin || "S/N"} | ${item.plate || ""} | ${
                 item.model?.brand || ""
               }`,
-              value: item.id.toString(),
-            }))}
+            })}
+            perPage={10}
+            debounceMs={500}
+            defaultOption={
+              appointmentPlanningData?.vehicle
+                ? {
+                    value: appointmentPlanningData.vehicle.id.toString(),
+                    label: `${appointmentPlanningData.vehicle.vin || "S/N"} | ${
+                      appointmentPlanningData.vehicle.plate || ""
+                    } | ${appointmentPlanningData.vehicle.model?.brand || ""}`,
+                  }
+                : undefined
+            }
+          >
+            <Button
+              type="button"
+              variant="outline"
+              size="icon-lg"
+              className="aspect-square"
+              onClick={() => window.open(VEHICLES_PV.ROUTE_ADD, "_blank")}
+              tooltip="Agregar nuevo vehículo"
+            >
+              <ExternalLink className="h-4 w-4" />
+            </Button>
+          </FormSelectAsync>
+
+          <FormField
             control={form.control}
-            strictFilter={true}
+            name="num_doc_client"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="flex items-center gap-2 relative">
+                  Cliente DNI
+                  <DocumentValidationStatus
+                    shouldValidate={true}
+                    documentNumber={watchCustomer || ""}
+                    expectedDigits={8}
+                    isValidating={isCustomerLoading}
+                    leftPosition="right-0"
+                  />
+                </FormLabel>
+                <FormControl>
+                  <div className="relative">
+                    <Input
+                      placeholder="Número de documento"
+                      {...field}
+                      maxLength={8}
+                      type="number"
+                    />
+                    <ValidationIndicator
+                      show={!!watchCustomer}
+                      isValidating={isCustomerLoading}
+                      isValid={customerData?.success && !!customerData.data}
+                      hasError={
+                        !!customerError ||
+                        (customerData && !customerData.success)
+                      }
+                    />
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
 
           <FormField
@@ -182,7 +286,11 @@ export const AppointmentPlanningForm = ({
               <FormItem>
                 <FormLabel>Nombre Completo</FormLabel>
                 <FormControl>
-                  <Input placeholder="Nombre del cliente" {...field} />
+                  <Input
+                    placeholder="Nombre del cliente"
+                    {...field}
+                    disabled={shouldDisableCustomerFields}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -320,19 +428,7 @@ export const AppointmentPlanningForm = ({
                         {selectedVehicle.engine_number || "N/A"}
                       </p>
                     </div>
-                    <div>
-                      <p className="text-xs text-gray-500">Estado</p>
-                      <Badge
-                        className="text-xs"
-                        style={{
-                          backgroundColor:
-                            selectedVehicle.status_color || "#gray",
-                        }}
-                      >
-                        {selectedVehicle.vehicle_status || "N/A"}
-                      </Badge>
-                    </div>
-                    {selectedVehicle.owner?.client && (
+                    {selectedVehicle.owner !== null && (
                       <div className="col-span-1 sm:col-span-2 lg:col-span-3 pt-2 border-t border-blue-200">
                         <div className="flex items-center gap-2 mb-2">
                           <User className="h-4 w-4 text-primary" />
@@ -344,19 +440,19 @@ export const AppointmentPlanningForm = ({
                           <div>
                             <p className="text-xs text-gray-500">Nombre</p>
                             <p className="font-medium text-sm">
-                              {selectedVehicle.owner.client.full_name}
+                              {selectedVehicle.owner.full_name}
                             </p>
                           </div>
                           <div>
                             <p className="text-xs text-gray-500">Documento</p>
                             <p className="font-medium text-sm">
-                              {selectedVehicle.owner.client.num_doc}
+                              {selectedVehicle.owner.num_doc}
                             </p>
                           </div>
                           <div>
                             <p className="text-xs text-gray-500">Teléfono</p>
                             <p className="font-medium text-sm">
-                              {selectedVehicle.owner.client.phone || "N/A"}
+                              {selectedVehicle.owner.phone || "N/A"}
                             </p>
                           </div>
                         </div>

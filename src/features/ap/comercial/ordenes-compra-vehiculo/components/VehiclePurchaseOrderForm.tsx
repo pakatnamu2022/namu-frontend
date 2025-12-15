@@ -152,6 +152,7 @@ export const VehiclePurchaseOrderForm = ({
       // Convert to string for comparison to handle numeric strings
       return String(currentVal) !== String(initialVal);
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mode, form.watch()]);
 
   // Obtener lista de campos que cambiaron

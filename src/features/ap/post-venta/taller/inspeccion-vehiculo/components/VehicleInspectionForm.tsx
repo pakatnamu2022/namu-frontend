@@ -9,7 +9,8 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
-import { Loader, ClipboardCheck } from "lucide-react";
+import { Loader, ClipboardCheck, PenLine } from "lucide-react";
+import { SignaturePad } from "./SignaturePad";
 import {
   VehicleInspectionSchema,
   vehicleInspectionSchemaCreate,
@@ -206,6 +207,53 @@ export const VehicleInspectionForm = ({
                     rows={4}
                     {...field}
                     value={field.value || ""}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </GroupFormSection>
+
+        {/* Sección de Firmas */}
+        <GroupFormSection
+          title="Firmas de Conformidad"
+          icon={PenLine}
+          iconColor="text-primary"
+          bgColor="bg-blue-50"
+          cols={{ sm: 1, md: 2 }}
+        >
+          <FormField
+            control={form.control}
+            name="customer_signature"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <SignaturePad
+                    label="Firma del Cliente"
+                    value={field.value}
+                    onChange={field.onChange}
+                    disabled={isSubmitting}
+                    required
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="advisor_signature"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <SignaturePad
+                    label="Firma del Asesor"
+                    value={field.value}
+                    onChange={field.onChange}
+                    disabled={isSubmitting}
+                    required
                   />
                 </FormControl>
                 <FormMessage />

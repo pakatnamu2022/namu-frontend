@@ -1,3 +1,4 @@
+import { SuppliersResource } from "@/features/ap/comercial/proveedores/lib/suppliers.interface";
 import { type Links, type Meta } from "@/shared/lib/pagination.interface";
 
 export interface ReceptionDetailResource {
@@ -46,6 +47,7 @@ export interface ReceptionResource {
   purchase_order_id: number;
   reception_date: string;
   warehouse_id: number;
+  freight_cost: number;
   shipping_guide_number?: string;
   reception_type?: string;
   notes?: string;
@@ -74,6 +76,7 @@ export interface ReceptionResource {
     id: number;
     description: string;
   };
+  carrier: SuppliersResource;
   details?: ReceptionDetailResource[];
   created_at?: string;
   updated_at?: string;

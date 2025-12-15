@@ -171,16 +171,8 @@ export default function ReceptionsProductsCards({
               }
             >
               {/* Fecha de recepción */}
-              <div
-                className={`flex items-center ${
-                  isSingleCard ? "flex-col items-start" : "gap-2"
-                } text-sm`}
-              >
-                <Calendar
-                  className={`size-4 text-muted-foreground shrink-0 ${
-                    isSingleCard ? "mb-2" : ""
-                  }`}
-                />
+              <div className="flex items-start gap-2 text-sm">
+                <Calendar className="size-4 text-muted-foreground shrink-0 mt-0.5" />
                 <div className="flex-1">
                   <p
                     className={`text-muted-foreground ${
@@ -206,16 +198,8 @@ export default function ReceptionsProductsCards({
               </div>
 
               {/* Almacén */}
-              <div
-                className={`flex items-center ${
-                  isSingleCard ? "flex-col items-start" : "gap-2"
-                } text-sm`}
-              >
-                <Package
-                  className={`size-4 text-muted-foreground shrink-0 ${
-                    isSingleCard ? "mb-2" : ""
-                  }`}
-                />
+              <div className="flex items-start gap-2 text-sm">
+                <Package className="size-4 text-muted-foreground shrink-0 mt-0.5" />
                 <div className="flex-1 min-w-0">
                   <p
                     className={`text-muted-foreground ${
@@ -236,16 +220,8 @@ export default function ReceptionsProductsCards({
 
               {/* Guía de remisión */}
               {reception.shipping_guide_number && (
-                <div
-                  className={`flex items-center ${
-                    isSingleCard ? "flex-col items-start" : "gap-2"
-                  } text-sm`}
-                >
-                  <TruckIcon
-                    className={`size-4 text-muted-foreground shrink-0 ${
-                      isSingleCard ? "mb-2" : ""
-                    }`}
-                  />
+                <div className="flex items-start gap-2 text-sm">
+                  <TruckIcon className="size-4 text-muted-foreground shrink-0 mt-0.5" />
                   <div className="flex-1">
                     <p
                       className={`text-muted-foreground ${
@@ -265,18 +241,66 @@ export default function ReceptionsProductsCards({
                 </div>
               )}
 
+              {/* Costo de flete */}
+              {reception.freight_cost !== undefined &&
+                reception.freight_cost !== null && (
+                  <div className="flex items-start gap-2 text-sm">
+                    <Coins className="size-4 text-muted-foreground shrink-0 mt-0.5" />
+                    <div className="flex-1">
+                      <p
+                        className={`text-muted-foreground ${
+                          isSingleCard ? "text-xs font-medium mb-1" : "text-xs"
+                        }`}
+                      >
+                        Costo de Flete
+                      </p>
+                      <p
+                        className={`font-medium ${
+                          isSingleCard ? "text-base" : ""
+                        }`}
+                      >
+                        {"S/."} {Number(reception.freight_cost).toFixed(2)}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+              {/* Transportista */}
+              {reception.carrier && (
+                <div className="flex items-start gap-2 text-sm">
+                  <TruckIcon className="size-4 text-muted-foreground shrink-0 mt-0.5" />
+                  <div className="flex-1 min-w-0">
+                    <p
+                      className={`text-muted-foreground ${
+                        isSingleCard ? "text-xs font-medium mb-1" : "text-xs"
+                      }`}
+                    >
+                      Transportista
+                    </p>
+                    <p
+                      className={`font-medium ${
+                        isSingleCard ? "text-base" : ""
+                      } truncate`}
+                    >
+                      {reception.carrier.full_name || "-"}
+                    </p>
+                    {reception.carrier.num_doc && (
+                      <p
+                        className={`text-muted-foreground ${
+                          isSingleCard ? "text-xs" : "text-[10px]"
+                        }`}
+                      >
+                        RUC: {reception.carrier.num_doc}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
+
               {/* Recibido por */}
               {reception.received_by_user_name && (
-                <div
-                  className={`flex items-center ${
-                    isSingleCard ? "flex-col items-start" : "gap-2"
-                  } text-sm`}
-                >
-                  <User
-                    className={`size-4 text-muted-foreground shrink-0 ${
-                      isSingleCard ? "mb-2" : ""
-                    }`}
-                  />
+                <div className="flex items-start gap-2 text-sm">
+                  <User className="size-4 text-muted-foreground shrink-0 mt-0.5" />
                   <div className="flex-1 min-w-0">
                     <p
                       className={`text-muted-foreground ${
@@ -298,16 +322,8 @@ export default function ReceptionsProductsCards({
 
               {/* Total cantidad */}
               {reception.total_quantity && (
-                <div
-                  className={`flex items-center ${
-                    isSingleCard
-                      ? "flex-col items-start"
-                      : "gap-2 pt-2 border-t"
-                  } text-sm`}
-                >
-                  {isSingleCard && (
-                    <Box className="size-4 text-muted-foreground mb-2" />
-                  )}
+                <div className="flex items-start gap-2 text-sm">
+                  <Box className="size-4 text-muted-foreground shrink-0 mt-0.5" />
                   <div className="flex-1">
                     <p
                       className={`text-muted-foreground ${

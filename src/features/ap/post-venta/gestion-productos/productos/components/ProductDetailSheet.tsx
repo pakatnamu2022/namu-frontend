@@ -114,7 +114,7 @@ export default function ProductDetailSheet({
                         {product.category.description}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        {product.category.name}
+                        {product.category.code}
                       </p>
                     </div>
                   )}

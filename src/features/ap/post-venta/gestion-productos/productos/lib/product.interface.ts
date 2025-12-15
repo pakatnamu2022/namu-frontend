@@ -42,12 +42,10 @@ export interface WarehouseStockDetail {
 
 export interface ProductCategory {
   id: number;
-  name: string;
+  code: string;
   description: string;
   status: number;
-  type_id: number;
-  created_at: string;
-  updated_at: string;
+  type: number;
 }
 
 export interface ProductBrand {

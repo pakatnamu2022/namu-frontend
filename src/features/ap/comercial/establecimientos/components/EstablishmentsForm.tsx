@@ -32,6 +32,7 @@ import { EMPRESA_AP } from "@/core/core.constants";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   ESTABLISHMENTS,
+  ESTABLISHMENTS_PV,
   SUPPLIER_ESTABLISHMENTS,
 } from "../lib/establishments.constants";
 
@@ -44,6 +45,7 @@ interface EstablishmentsFormProps {
   mode?: "create" | "update";
   businessPartnerId: number;
   isCustomer: boolean;
+  isCommercial?: boolean;
 }
 
 export const EstablishmentsForm = ({
@@ -53,8 +55,9 @@ export const EstablishmentsForm = ({
   mode = "create",
   businessPartnerId,
   isCustomer,
+  isCommercial = true,
 }: EstablishmentsFormProps) => {
-  const { ABSOLUTE_ROUTE } = ESTABLISHMENTS;
+  const { ABSOLUTE_ROUTE } = isCommercial ? ESTABLISHMENTS : ESTABLISHMENTS_PV;
   const { ABSOLUTE_ROUTE: SUPPLIER_ABSOLUTE_ROUTE } = SUPPLIER_ESTABLISHMENTS;
   const form = useForm<EstablishmentsSchema>({
     resolver: zodResolver(establishmentsSchema),
@@ -316,6 +319,7 @@ export const EstablishmentsForm = ({
               Cancelar
             </Button>
           </Link>
+
           <Button
             type="submit"
             disabled={isSubmitting || !form.formState.isValid}

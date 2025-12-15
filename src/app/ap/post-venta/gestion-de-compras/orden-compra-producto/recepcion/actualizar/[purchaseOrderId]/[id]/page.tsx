@@ -77,8 +77,10 @@ export default function EditReceptionProductPage() {
         ? new Date(data.reception_date)
         : undefined,
       warehouse_id: String(data.warehouse_id),
+      freight_cost: data.freight_cost,
       shipping_guide_number: data.shipping_guide_number || "",
       notes: data.notes || "",
+      carrier_id: data.carrier ? String(data.carrier.id) : "",
       details:
         data.details?.map((detail) => ({
           purchase_order_item_id: detail.purchase_order_item_id

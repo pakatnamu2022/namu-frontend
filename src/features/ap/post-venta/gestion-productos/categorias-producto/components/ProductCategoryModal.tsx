@@ -16,6 +16,7 @@ import { GeneralModal } from "@/shared/components/GeneralModal";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { ProductCategoryForm } from "./ProductCategoryForm";
 import { PRODUCT_CATEGORY } from "../lib/productCategory.constants";
+import { AP_MASTER_POST_VENTA } from "@/features/ap/lib/ap.constants";
 
 interface Props {
   id?: number;
@@ -47,9 +48,9 @@ export default function ProductCategoryModal({
     data: ProductCategoryResource
   ): Partial<ProductCategorySchema> {
     return {
-      name: data.name,
+      code: data.code,
       description: data.description,
-      type_id: String(data.type_id),
+      type: AP_MASTER_POST_VENTA.PRODUCT_CATEGORY,
     };
   }
 

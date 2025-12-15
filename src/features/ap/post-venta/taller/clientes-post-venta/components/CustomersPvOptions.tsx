@@ -1,6 +1,6 @@
 import SearchInput from "@/shared/components/SearchInput";
 
-export default function TypesCategoryOptions({
+export default function CustomersPvOptions({
   search,
   setSearch,
 }: {
@@ -12,7 +12,7 @@ export default function TypesCategoryOptions({
       <SearchInput
         value={search}
         onChange={setSearch}
-        placeholder="Buscar tipo de categoría..."
+        placeholder="Buscar cliente..."
       />
     </div>
   );

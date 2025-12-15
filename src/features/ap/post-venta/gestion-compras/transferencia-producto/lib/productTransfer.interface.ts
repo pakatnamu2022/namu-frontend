@@ -13,6 +13,7 @@ export interface ProductTransferResource {
   id: number;
   warehouse_origin_id: number;
   warehouse_destination_id: number;
+  item_type: "PRODUCTO" | "SERVICIO";
   reference_id: number; // ID de la guía de remisión
   reference: ShipmentsReceptionsResource; // Relación con guía de remisión
   movement_date: string;
@@ -100,6 +101,7 @@ export interface TransferDetail {
   quantity: string;
   unit_cost: string;
   total_cost: string;
+  notes?: string;
   product: {
     id: number;
     code: string;
@@ -118,6 +120,7 @@ export interface TransferData {
   movement_date: string;
   warehouse_id: number;
   warehouse_code: string;
+  item_type: string;
   warehouse_origin: {
     id: number;
     dyn_code: string;

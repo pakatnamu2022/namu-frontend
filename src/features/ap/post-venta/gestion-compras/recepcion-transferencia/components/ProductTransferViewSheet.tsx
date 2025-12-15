@@ -133,6 +133,12 @@ export function ProductTransferViewSheet({
                       : data.movement_type}
                   </Badge>
                 </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Tipo de Ítem</p>
+                  <Badge variant="secondary" className="capitalize">
+                    {data.item_type === "SERVICIO" ? "Servicio" : "Producto"}
+                  </Badge>
+                </div>
               </div>
             </div>
 
@@ -210,7 +216,7 @@ export function ProductTransferViewSheet({
                           <ClipboardList className="size-5 text-muted-foreground mt-0.5" />
                           <div>
                             <p className="text-sm font-medium text-muted-foreground">
-                              Motivo de Traslado
+                              ID Motivo de Traslado
                             </p>
                             <p className="text-base">
                               {data.reference.transfer_reason_description}
@@ -226,7 +232,7 @@ export function ProductTransferViewSheet({
                           <Truck className="size-5 text-muted-foreground mt-0.5" />
                           <div>
                             <p className="text-sm font-medium text-muted-foreground">
-                              Modalidad de Transporte
+                              ID Modalidad de Transporte
                             </p>
                             <p className="text-base">
                               {data.reference.transfer_modality_description}
@@ -415,52 +421,59 @@ export function ProductTransferViewSheet({
               </>
             )}
 
-            {/* Productos Transferidos */}
+            {/* Productos/Servicios Transferidos */}
             <div className="space-y-4">
-              <h3 className="font-semibold text-lg">Productos Transferidos</h3>
+              <h3 className="font-semibold text-lg">
+                {data.item_type === "SERVICIO"
+                  ? "Servicios Transferidos"
+                  : "Productos Transferidos"}
+              </h3>
               <div className="space-y-3">
                 {data.details.map((detail: TransferDetail, index: number) => (
-                  <div
-                    key={detail.id}
-                    className="border rounded-lg p-4 space-y-2"
-                  >
-                    <div className="flex justify-between items-start">
-                      <div className="flex-1">
-                        <p className="font-semibold">{detail.product.name}</p>
-                        <p className="text-sm text-muted-foreground">
-                          Código: {detail.product.code} | Código Dinámico:{" "}
-                          {detail.product.dyn_code}
-                        </p>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          {detail.product.description}
-                        </p>
+                  <div key={detail.id} className="border rounded-lg p-4">
+                    <div className="flex justify-between items-start gap-4">
+                      <div className="flex-1 min-w-0">
+                        {detail.product ? (
+                          <>
+                            <p className="font-semibold">
+                              {detail.product.name}
+                            </p>
+                            <p className="text-sm text-muted-foreground">
+                              Código: {detail.product.code} | Código Dinámico:{" "}
+                              {detail.product.dyn_code}
+                            </p>
+                            {detail.product.description && (
+                              <p className="text-sm text-muted-foreground mt-1">
+                                {detail.product.description}
+                              </p>
+                            )}
+                            {detail.notes && (
+                              <p className="text-sm text-muted-foreground mt-1">
+                                {detail.notes}
+                              </p>
+                            )}
+                          </>
+                        ) : (
+                          <p className="font-semibold">
+                            {detail.notes || "Servicio sin descripción"}
+                          </p>
+                        )}
                       </div>
-                      <Badge variant="secondary" className="ml-2">
-                        {index + 1}
-                      </Badge>
-                    </div>
-                    <div className="grid grid-cols-3 gap-2 pt-2 border-t">
-                      <div>
-                        <p className="text-xs text-muted-foreground">
-                          Cantidad
-                        </p>
-                        <p className="font-medium">{detail.quantity}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground">
-                          Costo Unitario
-                        </p>
-                        <p className="font-medium">
-                          S/ {parseFloat(detail.unit_cost).toFixed(2)}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground">
-                          Costo Total
-                        </p>
-                        <p className="font-medium">
-                          S/ {parseFloat(detail.total_cost).toFixed(2)}
-                        </p>
+                      <div className="flex items-center gap-3 shrink-0">
+                        <div className="text-right">
+                          <p className="text-xs text-muted-foreground mb-1">
+                            Cantidad
+                          </p>
+                          <Badge
+                            variant="secondary"
+                            className="text-sm font-semibold"
+                          >
+                            {detail.quantity}
+                          </Badge>
+                        </div>
+                        <Badge variant="outline" className="ml-2">
+                          #{index + 1}
+                        </Badge>
                       </div>
                     </div>
                   </div>

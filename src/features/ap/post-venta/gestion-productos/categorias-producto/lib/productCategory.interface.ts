@@ -8,16 +8,16 @@ export interface ProductCategoryResponse {
 
 export interface ProductCategoryResource {
   id: number;
-  name: string;
+  code: string;
   description: string;
-  type_id: string;
+  type: string;
   status: boolean;
 }
 
 export interface ProductCategoryRequest {
   code: string;
   description: string;
-  type_id: string;
+  type: string;
   status: boolean;
 }
 

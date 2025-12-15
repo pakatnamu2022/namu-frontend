@@ -29,7 +29,7 @@ export default function UpdateCustomerEstablishmentPage() {
   const router = useNavigate();
   const queryClient = useQueryClient();
   const { currentView, checkRouteExists } = useCurrentModule();
-  const { QUERY_KEY, MODEL } = ESTABLISHMENTS;
+  const { QUERY_KEY, MODEL, ABSOLUTE_ROUTE } = ESTABLISHMENTS;
 
   const { data: establishment, isLoading: loadingEstablishment } = useQuery({
     queryKey: [QUERY_KEY, establishmentId],
@@ -45,7 +45,7 @@ export default function UpdateCustomerEstablishmentPage() {
       await queryClient.invalidateQueries({
         queryKey: [QUERY_KEY],
       });
-      router(`/ap/comercial/clientes/establecimientos/${id}`);
+      router(`${ABSOLUTE_ROUTE}/${id}`);
     },
     onError: (error: any) => {
       const msg = error?.response?.data?.message || "";

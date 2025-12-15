@@ -34,6 +34,9 @@ import { useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 import { OBSERVATION_REASONS } from "@/features/ap/configuraciones/postventa/motivos-ajuste/lib/reasonsAdjustment.constants";
+import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
+import { useSuppliers } from "@/features/ap/comercial/proveedores/lib/suppliers.hook";
+import { SuppliersResource } from "@/features/ap/comercial/proveedores/lib/suppliers.interface";
 
 interface ReceptionsProductsFormProps {
   defaultValues: Partial<ReceptionSchema>;
@@ -162,7 +165,7 @@ export const ReceptionsProductsForm = ({
             name="shipping_guide_number"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Número de Guía de Remisión</FormLabel>
+                <FormLabel>Núm. de Guía de Remisión</FormLabel>
                 <FormControl>
                   <Input placeholder="Ej: G001-00001234" {...field} />
                 </FormControl>
@@ -170,6 +173,46 @@ export const ReceptionsProductsForm = ({
               </FormItem>
             )}
           />
+
+          <FormField
+            control={form.control}
+            name="freight_cost"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-sm font-medium text-gray-700">
+                  Costo de Flete (SOL PERUANO)
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    placeholder="Ej: 0.00"
+                    value={typeof field.value === "number" ? field.value : ""}
+                    onChange={(e) => {
+                      const num = parseFloat(e.target.value);
+                      field.onChange(isNaN(num) ? 0 : num);
+                    }}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormSelectAsync
+            placeholder="Seleccionar Transportista"
+            control={form.control}
+            label={"Proveedor Transportista"}
+            name="carrier_id"
+            useQueryHook={useSuppliers}
+            mapOptionFn={(item: SuppliersResource) => ({
+              value: item.id.toString(),
+              label: `${item.num_doc || "S/N"} | ${item.full_name || "S/N"}`,
+            })}
+            perPage={10}
+            debounceMs={500}
+          ></FormSelectAsync>
         </GroupFormSection>
 
         {/* Detalles de Productos Recibidos */}

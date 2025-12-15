@@ -14,7 +14,15 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader, Truck, Package, Plus, Trash2 } from "lucide-react";
+import {
+  Loader,
+  Truck,
+  Package,
+  Plus,
+  Trash2,
+  Box,
+  FileText,
+} from "lucide-react";
 import {
   ProductTransferSchema,
   productTransferSchemaCreate,
@@ -28,7 +36,7 @@ import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { useNavigate } from "react-router-dom";
 import { PRODUCT_TRANSFER } from "../lib/productTransfer.constants";
 import { useWarehousesByCompany } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
-import { useAllSuppliers } from "@/features/ap/comercial/proveedores/lib/suppliers.hook";
+import { useSuppliers } from "@/features/ap/comercial/proveedores/lib/suppliers.hook";
 import { useAllSunatConcepts } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.hook";
 import { SUNAT_CONCEPTS_TYPE } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
 import { ValidationIndicator } from "@/shared/components/ValidationIndicator";
@@ -36,12 +44,19 @@ import { DocumentValidationStatus } from "@/shared/components/DocumentValidation
 import { useLicenseValidation } from "@/shared/hooks/useDocumentValidation";
 import { useAllProduct } from "@/features/ap/post-venta/gestion-productos/productos/lib/product.hook";
 import { Card } from "@/components/ui/card";
-import { EMPRESA_AP, CM_POSTVENTA_ID } from "@/core/core.constants";
+import {
+  EMPRESA_AP,
+  CM_POSTVENTA_ID,
+  BUSINESS_PARTNERS,
+} from "@/core/core.constants";
 import {
   TYPE_OPERATION,
   TYPE_RECEIPT_SERIES,
 } from "@/features/ap/configuraciones/maestros-general/asignar-serie-venta/lib/assignSalesSeries.constants";
 import { useAuthorizedSeries } from "@/features/ap/configuraciones/maestros-general/asignar-serie-usuario/lib/userSeriesAssignment.hook";
+import { useAllTypeClient } from "@/features/ap/configuraciones/maestros-general/tipos-persona/lib/typeClient.hook";
+import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
+import { SuppliersResource } from "@/features/ap/comercial/proveedores/lib/suppliers.interface";
 
 interface ProductTransferFormProps {
   defaultValues: Partial<ProductTransferSchema>;
@@ -67,6 +82,7 @@ export const ProductTransferForm = ({
     ) as any,
     defaultValues: {
       ...defaultValues,
+      item_type: defaultValues.item_type || "PRODUCTO",
       issuer_type: defaultValues.issuer_type || "NOSOTROS",
       transmitter_origin_id: defaultValues.transmitter_origin_id || "",
       receiver_destination_id: defaultValues.receiver_destination_id || "",
@@ -77,6 +93,18 @@ export const ProductTransferForm = ({
 
   const [isFirstLoad, setIsFirstLoad] = useState(mode === "update");
   const conductorDni = form.watch("driver_doc");
+  const typePersonId = form.watch("type_person_id");
+  const transferType = form.watch("item_type");
+
+  // Determinar si es persona natural o jurídica
+  const isPersonaNatural =
+    typePersonId === BUSINESS_PARTNERS.TYPE_PERSON_NATURAL_ID;
+  const isPersonaJuridica =
+    typePersonId === BUSINESS_PARTNERS.TYPE_PERSON_JURIDICA_ID;
+
+  // Determinar si es producto o servicio
+  const isProducto = transferType === "PRODUCTO";
+  const isServicio = transferType === "SERVICIO";
 
   const {
     data: conductorDniData,
@@ -84,7 +112,10 @@ export const ProductTransferForm = ({
     error: conductorDniError,
   } = useLicenseValidation(
     conductorDni,
-    !isFirstLoad && !!conductorDni && conductorDni.length === 8
+    !isFirstLoad &&
+      isPersonaNatural &&
+      !!conductorDni &&
+      conductorDni.length === 8
   );
 
   const { fields, append, remove } = useFieldArray({
@@ -109,11 +140,8 @@ export const ProductTransferForm = ({
     warehouse_id: form.watch("warehouse_origin_id") || undefined,
   });
 
-  // Obtener proveedores/empresas de transporte
-  const { data: suppliers = [], isLoading: isLoadingSuppliers } =
-    useAllSuppliers({
-      status_ap: 1,
-    });
+  const { data: typesPerson = [], isLoading: isLoadingTypesPerson } =
+    useAllTypeClient();
 
   const { data: series = [], isLoading: isLoadingSeries } = useAuthorizedSeries(
     {
@@ -191,6 +219,23 @@ export const ProductTransferForm = ({
     }
   }, [conductorDniData, isFirstLoad, form]);
 
+  // UseEffect para limpiar campos cuando cambia el tipo de persona
+  useEffect(() => {
+    if (isFirstLoad) return;
+
+    // Limpiar campos de persona natural cuando se selecciona jurídica
+    if (isPersonaJuridica) {
+      form.setValue("driver_doc", "");
+      form.setValue("driver_name", "");
+      form.setValue("license", "");
+    }
+
+    // Limpiar campos de persona jurídica cuando se selecciona natural
+    if (isPersonaNatural) {
+      form.setValue("transport_company_id", "");
+    }
+  }, [typePersonId, isFirstLoad, form, isPersonaNatural, isPersonaJuridica]);
+
   // Limpiar serie cuando cambia el almacén origen
   useEffect(() => {
     const currentSeriesId = form.getValues("document_series_id");
@@ -205,19 +250,27 @@ export const ProductTransferForm = ({
   }, [watchWarehouseOriginId, filteredSeries, form, mode]);
 
   const handleAddDetail = () => {
-    append({
-      product_id: "",
-      quantity: "1",
-      unit_cost: "0",
-      notes: "",
-    });
+    if (isProducto) {
+      append({
+        product_id: "",
+        quantity: "1",
+        unit_cost: "0",
+        notes: "",
+      });
+    } else {
+      // Para servicios
+      append({
+        description: "",
+        quantity: "1",
+      });
+    }
   };
 
   if (
     isLoadingWarehouses ||
-    isLoadingSuppliers ||
     isLoadingSunatConcepts ||
-    isLoadingSeries
+    isLoadingSeries ||
+    isLoadingTypesPerson
   ) {
     return <FormSkeleton />;
   }
@@ -362,100 +415,140 @@ export const ProductTransferForm = ({
           }}
         >
           <FormSelect
-            name="transport_company_id"
-            label="Empresa de Transporte"
-            placeholder="Selecciona empresa"
-            options={suppliers.map((item) => ({
-              label: item.full_name,
-              value: item.id.toString(),
-            }))}
+            name="type_person_id"
+            label="Tipo de Persona"
+            placeholder="Selecciona tipo"
+            options={typesPerson
+              .filter(
+                (item) =>
+                  item.id.toString() ===
+                    BUSINESS_PARTNERS.TYPE_PERSON_NATURAL_ID ||
+                  item.id.toString() ===
+                    BUSINESS_PARTNERS.TYPE_PERSON_JURIDICA_ID
+              )
+              .map((item) => ({
+                label: item.description,
+                value: item.id.toString(),
+              }))}
             control={form.control}
             strictFilter={true}
           />
 
-          <FormField
-            control={form.control}
-            name="driver_doc"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="flex items-center gap-2 relative">
-                  DNI del Conductor
-                  <DocumentValidationStatus
-                    shouldValidate={true}
-                    documentNumber={conductorDni || ""}
-                    expectedDigits={8}
-                    isValidating={isConductorDniLoading}
-                    leftPosition="right-0"
-                  />
-                </FormLabel>
-                <FormControl>
-                  <div className="relative">
-                    <Input
-                      placeholder="Número de documento"
-                      {...field}
-                      maxLength={8}
-                      type="number"
-                    />
-                    <ValidationIndicator
-                      show={!!conductorDni}
-                      isValidating={isConductorDniLoading}
-                      isValid={
-                        conductorDniData?.success && !!conductorDniData.data
-                      }
-                      hasError={
-                        !!conductorDniError ||
-                        (conductorDniData && !conductorDniData.success)
-                      }
-                    />
-                  </div>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          {/* Campos para Persona Natural */}
+          {isPersonaNatural && (
+            <>
+              <FormField
+                control={form.control}
+                name="driver_doc"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center gap-2 relative">
+                      DNI del Conductor
+                      <DocumentValidationStatus
+                        shouldValidate={true}
+                        documentNumber={conductorDni || ""}
+                        expectedDigits={8}
+                        isValidating={isConductorDniLoading}
+                        leftPosition="right-0"
+                      />
+                    </FormLabel>
+                    <FormControl>
+                      <div className="relative">
+                        <Input
+                          placeholder="Número de documento"
+                          {...field}
+                          maxLength={8}
+                          type="number"
+                        />
+                        <ValidationIndicator
+                          show={!!conductorDni}
+                          isValidating={isConductorDniLoading}
+                          isValid={
+                            conductorDniData?.success && !!conductorDniData.data
+                          }
+                          hasError={
+                            !!conductorDniError ||
+                            (conductorDniData && !conductorDniData.success)
+                          }
+                        />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-          <FormField
-            control={form.control}
-            name="driver_name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Nombre del Conductor</FormLabel>
-                <FormControl>
-                  <Input placeholder="Nombre completo" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+              <FormField
+                control={form.control}
+                name="driver_name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nombre del Conductor</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Nombre completo" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-          <FormField
-            control={form.control}
-            name="license"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="flex items-center gap-2 relative">
-                  Licencia de Conducir
-                  {conductorDniData?.success &&
-                    conductorDniData.data?.licencia?.estado && (
-                      <span className="text-xs font-normal text-primary absolute right-0">
-                        {conductorDniData.data.licencia.estado}
-                      </span>
-                    )}
-                </FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: Q12345678" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+              <FormField
+                control={form.control}
+                name="license"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center gap-2 relative">
+                      Licencia de Conducir
+                      {conductorDniData?.success &&
+                        conductorDniData.data?.licencia?.estado && (
+                          <span className="text-xs font-normal text-primary absolute right-0">
+                            {conductorDniData.data.licencia.estado}
+                          </span>
+                        )}
+                    </FormLabel>
+                    <FormControl>
+                      <Input placeholder="Ej: Q12345678" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </>
+          )}
 
+          {/* Campos para Persona Jurídica */}
+          {isPersonaJuridica && (
+            <>
+              <FormSelectAsync
+                placeholder="Seleccionar Proveedor"
+                control={form.control}
+                label={"Proveedor"}
+                name="transport_company_id"
+                useQueryHook={useSuppliers}
+                mapOptionFn={(item: SuppliersResource) => ({
+                  value: item.id.toString(),
+                  label: `${item.num_doc || "S/N"} | ${
+                    item.full_name || "S/N"
+                  }`,
+                })}
+                perPage={10}
+                debounceMs={500}
+              />
+            </>
+          )}
+
+          {/* Placa - Obligatoria para Natural, Opcional para Jurídica */}
           <FormField
             control={form.control}
             name="plate"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Placa del Vehículo de Envío</FormLabel>
+                <FormLabel>
+                  Placa del Vehículo{" "}
+                  {isPersonaJuridica && (
+                    <span className="text-muted-foreground">(Opcional)</span>
+                  )}
+                </FormLabel>
                 <FormControl>
                   <Input
                     placeholder="Ej: ABC-123"
@@ -474,27 +567,72 @@ export const ProductTransferForm = ({
 
         {/* Sección: Detalles de Productos */}
         <Card className="p-4">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
             <div className="flex items-center gap-2">
               <Package className="h-5 w-5 text-primary" />
-              <h3 className="text-lg font-semibold">Productos a Transferir</h3>
+              <h3 className="text-lg font-semibold">
+                {isProducto
+                  ? "Productos a Transferir"
+                  : "Servicios a Transferir"}
+              </h3>
             </div>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={handleAddDetail}
-              disabled={mode === "update"}
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Agregar Producto
-            </Button>
+
+            <div className="flex items-center gap-4">
+              {/* Toggle PRODUCTO/SERVICIO */}
+              <div className="flex items-center gap-3 bg-slate-100 dark:bg-slate-800 rounded-lg p-1">
+                <button
+                  type="button"
+                  onClick={() => form.setValue("item_type", "PRODUCTO")}
+                  disabled={mode === "update"}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all ${
+                    isProducto
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground"
+                  } ${
+                    mode === "update"
+                      ? "opacity-50 cursor-not-allowed"
+                      : "cursor-pointer"
+                  }`}
+                >
+                  <Box className="h-4 w-4" />
+                  <span className="font-medium text-sm">Producto</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => form.setValue("item_type", "SERVICIO")}
+                  disabled={mode === "update"}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all ${
+                    isServicio
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground"
+                  } ${
+                    mode === "update"
+                      ? "opacity-50 cursor-not-allowed"
+                      : "cursor-pointer"
+                  }`}
+                >
+                  <FileText className="h-4 w-4" />
+                  <span className="font-medium text-sm">Servicio</span>
+                </button>
+              </div>
+
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleAddDetail}
+                disabled={mode === "update"}
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Agregar {isProducto ? "Producto" : "Servicio"}
+              </Button>
+            </div>
           </div>
 
           {fields.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               <Package className="h-12 w-12 mx-auto mb-2 opacity-50" />
-              <p>No hay productos agregados</p>
+              <p>No hay {isProducto ? "productos" : "servicios"} agregados</p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -505,7 +643,7 @@ export const ProductTransferForm = ({
                 >
                   <div className="flex items-center justify-between mb-3">
                     <h4 className="font-semibold text-sm">
-                      Producto {index + 1}
+                      {isProducto ? "Producto" : "Servicio"} {index + 1}
                     </h4>
                     <Button
                       type="button"
@@ -519,58 +657,103 @@ export const ProductTransferForm = ({
                     </Button>
                   </div>
 
-                  <div className="grid gap-3 grid-cols-1 md:grid-cols-3">
-                    <FormSelect
-                      name={`details.${index}.product_id`}
-                      label="Producto *"
-                      placeholder="Selecciona"
-                      options={products.map((product) => ({
-                        label: `${product.name} (${product.code})`,
-                        value: product.id.toString(),
-                      }))}
-                      control={form.control}
-                      strictFilter={true}
-                      disabled={isLoadingProducts || mode === "update"}
-                    />
+                  {isProducto ? (
+                    /* Campos para PRODUCTO */
+                    <div className="grid gap-3 grid-cols-1 md:grid-cols-3">
+                      <FormSelect
+                        name={`details.${index}.product_id`}
+                        label="Producto *"
+                        placeholder="Selecciona"
+                        options={products.map((product) => ({
+                          label: `${product.name} (${product.code})`,
+                          value: product.id.toString(),
+                        }))}
+                        control={form.control}
+                        strictFilter={true}
+                        disabled={isLoadingProducts || mode === "update"}
+                      />
 
-                    <FormField
-                      control={form.control}
-                      name={`details.${index}.quantity`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Cantidad *</FormLabel>
-                          <FormControl>
-                            <Input
-                              type="number"
-                              min="1"
-                              placeholder="1"
-                              {...field}
-                              disabled={mode === "update"}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                      <FormField
+                        control={form.control}
+                        name={`details.${index}.quantity`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Cantidad *</FormLabel>
+                            <FormControl>
+                              <Input
+                                type="number"
+                                min="1"
+                                placeholder="1"
+                                {...field}
+                                disabled={mode === "update"}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
 
-                    <FormField
-                      control={form.control}
-                      name={`details.${index}.notes`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Notas</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="Observaciones"
-                              {...field}
-                              disabled={mode === "update"}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
+                      <FormField
+                        control={form.control}
+                        name={`details.${index}.notes`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Notas</FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="Observaciones"
+                                {...field}
+                                disabled={mode === "update"}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  ) : (
+                    /* Campos para SERVICIO */
+                    <div className="grid gap-3 grid-cols-1 md:grid-cols-2">
+                      <FormField
+                        control={form.control}
+                        name={`details.${index}.description`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Descripción * (mín. 6 caracteres)</FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="Ej: Sobres de documentos, celulares, etc."
+                                {...field}
+                                disabled={mode === "update"}
+                                minLength={6}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name={`details.${index}.quantity`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Cantidad *</FormLabel>
+                            <FormControl>
+                              <Input
+                                type="number"
+                                min="1"
+                                placeholder="1"
+                                {...field}
+                                disabled={mode === "update"}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  )}
                 </Card>
               ))}
             </div>
