@@ -19,7 +19,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { format } from "date-fns";
+import { format, parse } from "date-fns";
 
 interface VehiclePurchaseOrderDetailViewProps {
   purchaseOrder: VehiclePurchaseOrderResource;
@@ -66,14 +66,20 @@ export default function VehiclePurchaseOrderDetailView({
         <div>
           <p className="text-xs text-muted-foreground">Fecha Emisión</p>
           <p className="font-medium">
-            {format(new Date(purchaseOrder.emission_date), "dd/MM/yyyy")}
+            {format(
+              parse(purchaseOrder.emission_date, "yyyy-MM-dd", new Date()),
+              "dd/MM/yyyy"
+            )}
           </p>
         </div>
         {purchaseOrder.due_date && (
           <div>
             <p className="text-xs text-muted-foreground">Fecha Vencimiento</p>
             <p className="font-medium">
-              {format(new Date(purchaseOrder.due_date), "dd/MM/yyyy")}
+              {format(
+                parse(purchaseOrder.due_date, "yyyy-MM-dd", new Date()),
+                "dd/MM/yyyy"
+              )}
             </p>
           </div>
         )}

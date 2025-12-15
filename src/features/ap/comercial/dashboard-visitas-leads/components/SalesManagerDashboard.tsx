@@ -21,6 +21,7 @@ import {
 } from "@/features/gp/gestionhumana/personal/posiciones/lib/position.constant";
 import { EMPRESA_AP } from "@/core/core.constants";
 import TitleComponent from "@/shared/components/TitleComponent";
+import { MetricCard } from "@/shared/components/MetricCard";
 
 // Obtener el primer y último día del mes pasado
 const getLastMonthRange = () => {
@@ -154,10 +155,11 @@ export default function SalesManagerDashboard() {
         <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
             {[...Array(5)].map((_, i) => (
-              <Card key={i}>
+              <Card key={i} className="border-0 bg-muted/50">
                 <CardContent className="pt-6">
-                  <Skeleton className="h-4 w-24 mb-2" />
-                  <Skeleton className="h-8 w-16" />
+                  <Skeleton className="h-3 w-24 mb-3" />
+                  <Skeleton className="h-8 w-16 mb-2" />
+                  <Skeleton className="h-3 w-20" />
                 </CardContent>
               </Card>
             ))}
@@ -169,79 +171,40 @@ export default function SalesManagerDashboard() {
           <>
             {/* Metrics Cards */}
             <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium text-muted-foreground">
-                      Total Asesores
-                    </p>
-                    <p className="text-3xl font-bold">
-                      {statsData.data.team_totals.total_advisors}
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
+              <MetricCard
+                title="Total Asesores"
+                value={statsData.data.team_totals.total_advisors}
+                subtitle="Miembros del equipo"
+                variant="info"
+              />
 
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium text-muted-foreground">
-                      Total{" "}
-                      {form.getValues("type") === "VISITA"
-                        ? "Visitas"
-                        : "Leads"}
-                    </p>
-                    <p className="text-3xl font-bold">
-                      {statsData.data.team_totals.total_visits}
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
+              <MetricCard
+                title={`Total ${form.getValues("type") === "VISITA" ? "Visitas" : "Leads"}`}
+                value={statsData.data.team_totals.total_visits}
+                subtitle="En el período seleccionado"
+                variant="default"
+              />
 
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium text-muted-foreground">
-                      Atendidos
-                    </p>
-                    <p className="text-3xl font-bold text-green-600">
-                      {statsData.data.team_totals.attended}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {statsData.data.team_totals.attention_percentage.toFixed(
-                        1
-                      )}
-                      % del total
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
+              <MetricCard
+                title="Atendidos"
+                value={statsData.data.team_totals.attended}
+                subtitle={`${statsData.data.team_totals.attention_percentage.toFixed(1)}% del total`}
+                variant="success"
+              />
 
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium text-muted-foreground">
-                      No Atendidos
-                    </p>
-                    <p className="text-3xl font-bold text-amber-600">
-                      {statsData.data.team_totals.not_attended}
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
+              <MetricCard
+                title="No Atendidos"
+                value={statsData.data.team_totals.not_attended}
+                subtitle={`${((statsData.data.team_totals.not_attended / statsData.data.team_totals.total_visits) * 100).toFixed(1)}% del total`}
+                variant="warning"
+              />
 
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium text-muted-foreground">
-                      Descartados
-                    </p>
-                    <p className="text-3xl font-bold text-red-600">
-                      {statsData.data.team_totals.discarded}
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
+              <MetricCard
+                title="Descartados"
+                value={statsData.data.team_totals.discarded}
+                subtitle={`${((statsData.data.team_totals.discarded / statsData.data.team_totals.total_visits) * 100).toFixed(1)}% del total`}
+                variant="danger"
+              />
             </div>
 
             {/* Content Grid */}
