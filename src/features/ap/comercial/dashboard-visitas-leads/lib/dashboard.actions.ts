@@ -204,9 +204,7 @@ export async function getSalesManagerDetails(
       date_to: filters.date_to,
       type: filters.type,
       ...(filters.boss_id && { boss_id: filters.boss_id }),
-      ...(filters.per_page && { per_page: filters.per_page }),
       ...(filters.worker_id && { worker_id: filters.worker_id }),
-      ...(filters.page && { page: filters.page }),
     },
   };
 
