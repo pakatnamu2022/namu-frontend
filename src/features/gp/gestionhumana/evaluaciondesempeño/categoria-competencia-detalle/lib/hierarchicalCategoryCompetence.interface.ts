@@ -1,5 +1,5 @@
 import { type Links, type Meta } from "@/shared/lib/pagination.interface";
-import { WorkerResource } from "../../../personal/trabajadores/lib/worker.interface";
+import { WorkerResource } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.interface";
 import { CompetenceResource } from "../../competencias/lib/competence.interface";
 
 export interface HierarchicalCategoryCompetenceResponse {

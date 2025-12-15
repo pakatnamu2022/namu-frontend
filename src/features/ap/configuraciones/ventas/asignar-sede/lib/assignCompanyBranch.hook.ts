@@ -6,7 +6,7 @@ import {
 } from "./assignCompanyBranch.actions";
 import { AssignCompanyBranchResponse } from "./assignCompanyBranch.interface";
 import { ASSIGN_COMPANY_BRANCH } from "./assignCompanyBranch.constants";
-import { WorkerResource } from "@/features/gp/gestionhumana/personal/trabajadores/lib/worker.interface";
+import { WorkerResource } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.interface";
 
 const { QUERY_KEY } = ASSIGN_COMPANY_BRANCH;
 

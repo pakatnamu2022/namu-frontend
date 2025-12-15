@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { ExcludedSchema, excludedSchemaCreate } from "../lib/excluded.schema";
 import { Loader } from "lucide-react";
 import { FormSelect } from "@/shared/components/FormSelect";
-import { WorkerResource } from "../../../personal/trabajadores/lib/worker.interface";
+import { WorkerResource } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.interface";
 import { Form } from "@/components/ui/form";
 import { EXCLUDED } from "../lib/excluded.constants";
 

@@ -16,7 +16,7 @@ import {
   storeHierarchicalCategoryDetails,
 } from "@/features/gp/gestionhumana/evaluaciondesempeño/categorias-jerarquicas/lib/hierarchicalCategory.actions";
 import { errorToast, successToast } from "@/core/core.function";
-import { useAllPositions } from "@/features/gp/gestionhumana/personal/posiciones/lib/position.hook";
+import { useAllPositions } from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.hook";
 import { HierarchicalCategoryDetailModal } from "@/features/gp/gestionhumana/evaluaciondesempeño/categorias-jerarquicas/components/HierarchicalCategoryDetailModal";
 import { HierarchicalCategoryResource } from "@/features/gp/gestionhumana/evaluaciondesempeño/categorias-jerarquicas/lib/hierarchicalCategory.interface";
 import { useQueryClient } from "@tanstack/react-query";

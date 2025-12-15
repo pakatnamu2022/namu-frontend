@@ -4,7 +4,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { PanelLeft, RefreshCw } from "lucide-react";
 import { EvaluationPersonResultResource } from "../lib/evaluationPerson.interface";
-import { WorkerResource } from "../../../personal/trabajadores/lib/worker.interface";
+import { WorkerResource } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.interface";
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
 import {

@@ -13,10 +13,10 @@ import FormSkeleton from "@/shared/components/FormSkeleton";
 import { useCommercialFiltersStore } from "@/features/ap/comercial/lib/commercial.store";
 import {
   useMyConsultants,
-} from "@/features/gp/gestionhumana/personal/trabajadores/lib/worker.hook";
+} from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
 import {
   STATUS_WORKER,
-} from "@/features/gp/gestionhumana/personal/posiciones/lib/position.constant";
+} from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.constant";
 import { EMPRESA_AP } from "@/core/core.constants";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { AGENDA } from "@/features/ap/comercial/agenda/lib/agenda.constants";

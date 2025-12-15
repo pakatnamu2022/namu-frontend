@@ -3,7 +3,7 @@
 import { DEFAULT_PER_PAGE, MONTHS } from "@/core/core.constants";
 import { COMMERCIAL_MANAGER_BRAND_GROUP } from "@/features/ap/configuraciones/ventas/asignar-grupo-marca/lib/commercialManagerBrandGroup.constants";
 import { useCommercialManagerBrandGroup } from "@/features/ap/configuraciones/ventas/asignar-grupo-marca/lib/commercialManagerBrandGroup.hook";
-import { POSITION_TYPE } from "@/features/gp/gestionhumana/personal/posiciones/lib/position.constant";
+import { POSITION_TYPE } from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.constant";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import PageSkeleton from "@/shared/components/PageSkeleton";
 import { useEffect, useState } from "react";

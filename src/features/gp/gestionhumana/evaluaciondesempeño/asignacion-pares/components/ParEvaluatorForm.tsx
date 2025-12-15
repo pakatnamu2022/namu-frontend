@@ -13,7 +13,7 @@ import { Loader } from "lucide-react";
 import { Link } from "react-router-dom";
 import { PAR_EVALUATOR } from "../lib/par-evaluator.constant";
 import { MultiSelectTags } from "@/shared/components/MultiSelectTags";
-import { WorkerResource } from "../../../personal/trabajadores/lib/worker.interface";
+import { WorkerResource } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.interface";
 import { ParEvaluatorResource } from "../lib/par-evaluator.interface";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { useMemo } from "react";

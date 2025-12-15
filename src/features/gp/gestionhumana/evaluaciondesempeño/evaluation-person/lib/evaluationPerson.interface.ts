@@ -1,7 +1,7 @@
 import { type Links, type Meta } from "@/shared/lib/pagination.interface";
 import { type CyclePersonDetailResource } from "../../ciclos/lib/cyclePersonDetail";
 import { type EvaluationResource } from "../../evaluaciones/lib/evaluation.interface";
-import { type WorkerResource } from "../../../personal/trabajadores/lib/worker.interface";
+import { type WorkerResource } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.interface";
 import { type ParameterResource } from "../../parametros/lib/parameter.interface";
 
 export interface EvaluationPersonResponse {

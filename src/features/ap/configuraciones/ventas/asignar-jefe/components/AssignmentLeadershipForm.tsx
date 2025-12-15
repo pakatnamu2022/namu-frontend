@@ -36,11 +36,11 @@ import {
 import { currentYear, currentMonth } from "@/core/core.function";
 import { EMPRESA_AP, MONTHS } from "@/core/core.constants";
 import { AsesorResource } from "../lib/assignmentLeadership.interface";
-import { useAllWorkers } from "@/features/gp/gestionhumana/personal/trabajadores/lib/worker.hook";
+import { useAllWorkers } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
 import {
   POSITION_TYPE,
   STATUS_WORKER,
-} from "@/features/gp/gestionhumana/personal/posiciones/lib/position.constant";
+} from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.constant";
 import { ASSIGNMENT_LEADERSHIP } from "../lib/assignmentLeadership.constants";
 
 interface AssignmentLeadershipFormProps {

@@ -9,7 +9,7 @@ import { useAuthStore } from "@/features/auth/lib/auth.store";
 import TeamTable from "@/features/profile/team/components/TeamTable";
 import MetricOptions from "@/features/profile/team/components/TeamOptions";
 import { teamColumns } from "@/features/profile/team/components/TeamColumns";
-import { WorkerResource } from "@/features/gp/gestionhumana/personal/trabajadores/lib/worker.interface";
+import { WorkerResource } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.interface";
 import { EvaluationPersonResultModal } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/components/EvaluationPersonResultModal";
 import { useQueryClient } from "@tanstack/react-query";
 import TeamActions from "@/features/profile/team/components/TeamActions";

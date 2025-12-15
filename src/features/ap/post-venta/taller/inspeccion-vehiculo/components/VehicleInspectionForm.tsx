@@ -23,8 +23,8 @@ import { EMPRESA_AP } from "@/core/core.constants";
 import {
   POSITION_TYPE,
   STATUS_WORKER,
-} from "@/features/gp/gestionhumana/personal/posiciones/lib/position.constant";
-import { useAllWorkers } from "@/features/gp/gestionhumana/personal/trabajadores/lib/worker.hook";
+} from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.constant";
+import { useAllWorkers } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
 import VehicleInspectionChecklist from "./VehicleInspectionChecklist";
 import VehicleDamageMarker from "./VehicleDamageMarker";
 import { CHECKLIST_ITEMS } from "../lib/vehicleInspection.constants";
@@ -221,7 +221,7 @@ export const VehicleInspectionForm = ({
           icon={PenLine}
           iconColor="text-primary"
           bgColor="bg-blue-50"
-          cols={{ sm: 1, md: 2 }}
+          cols={{ sm: 1 }}
         >
           <FormField
             control={form.control}
@@ -231,25 +231,6 @@ export const VehicleInspectionForm = ({
                 <FormControl>
                   <SignaturePad
                     label="Firma del Cliente"
-                    value={field.value}
-                    onChange={field.onChange}
-                    disabled={isSubmitting}
-                    required
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="advisor_signature"
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <SignaturePad
-                    label="Firma del Asesor"
                     value={field.value}
                     onChange={field.onChange}
                     disabled={isSubmitting}

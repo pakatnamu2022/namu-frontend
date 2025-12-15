@@ -7,11 +7,11 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { ParEvaluatorForm } from "./ParEvaluatorForm";
-import { useAllWorkers } from "../../../personal/trabajadores/lib/worker.hook";
+import { useAllWorkers } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { ParEvaluatorSchema } from "../lib/par-evaluator.schema";
 import { ParEvaluatorResource } from "../lib/par-evaluator.interface";
-import { STATUS_WORKER } from "../../../personal/posiciones/lib/position.constant";
+import { STATUS_WORKER } from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.constant";
 
 interface ParEvaluatorEditModalProps {
   open: boolean;

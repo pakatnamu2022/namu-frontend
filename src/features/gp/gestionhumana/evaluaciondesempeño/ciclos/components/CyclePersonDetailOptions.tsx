@@ -2,8 +2,8 @@
 
 import { SearchableSelect } from "@/shared/components/SearchableSelect";
 import SearchInput from "@/shared/components/SearchInput";
-import { WorkerResource } from "../../../personal/trabajadores/lib/worker.interface";
-import { PositionResource } from "../../../personal/posiciones/lib/position.interface";
+import { WorkerResource } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.interface";
+import { PositionResource } from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.interface";
 import { RootObject } from "../lib/cycle.actions";
 
 export default function CyclePersonDetailOptions({

@@ -57,7 +57,6 @@ export const vehicleInspectionSchemaCreate = z.object({
     }),
   damages: z.array(vehicleInspectionDamageSchema).default([]),
   customer_signature: z.string().min(1, "Firma del cliente es requerida"),
-  advisor_signature: z.string().min(1, "Firma del asesor es requerida"),
 });
 
 export const vehicleInspectionSchemaUpdate =

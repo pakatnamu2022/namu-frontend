@@ -39,8 +39,8 @@ import { EMPRESA_AP } from "@/core/core.constants";
 import {
   POSITION_TYPE,
   STATUS_WORKER,
-} from "@/features/gp/gestionhumana/personal/posiciones/lib/position.constant";
-import { useAllWorkers } from "@/features/gp/gestionhumana/personal/trabajadores/lib/worker.hook";
+} from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.constant";
+import { useAllWorkers } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
 import { useAllAppointmentPlanning } from "../../citas/lib/appointmentPlanning.hook";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import { useAllTypesPlanning } from "@/features/ap/configuraciones/postventa/tipos-planificacion/lib/typesPlanning.hook";

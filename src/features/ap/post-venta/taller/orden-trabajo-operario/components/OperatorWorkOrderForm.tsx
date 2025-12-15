@@ -19,12 +19,12 @@ import {
   OperatorWorkOrderFormData,
 } from "../lib/operatorWorkOrder.schema";
 import { FormSelect } from "@/shared/components/FormSelect";
-import { useAllWorkers } from "@/features/gp/gestionhumana/personal/trabajadores/lib/worker.hook";
+import { useAllWorkers } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
 import { EMPRESA_AP } from "@/core/core.constants";
 import {
   POSITION_TYPE,
   STATUS_WORKER,
-} from "@/features/gp/gestionhumana/personal/posiciones/lib/position.constant";
+} from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.constant";
 
 interface OperatorWorkOrderFormProps {
   workOrderId: number;
