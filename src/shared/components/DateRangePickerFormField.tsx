@@ -6,6 +6,7 @@ import { es } from "date-fns/locale";
 import { type DateRange } from "react-day-picker";
 import { CalendarIcon } from "lucide-react";
 import { Control, FieldValues, Path } from "react-hook-form";
+
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import {
@@ -132,15 +133,8 @@ export function DateRangePickerFormField<T extends FieldValues>({
                       selected={dateRange}
                       defaultMonth={dateRange?.from}
                       onSelect={(range) => {
-                        fieldFrom.onChange(
-                          range?.from ? format(range.from, "yyyy-MM-dd") : ""
-                        );
-                        fieldTo.onChange(
-                          range?.to ? format(range.to, "yyyy-MM-dd") : ""
-                        );
-                        if (range?.from && range?.to) {
-                          setOpen(false);
-                        }
+                        fieldFrom.onChange(range?.from ?? "");
+                        fieldTo.onChange(range?.to ?? "");
                       }}
                       className="rounded-md border"
                     />

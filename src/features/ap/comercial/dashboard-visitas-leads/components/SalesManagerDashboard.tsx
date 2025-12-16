@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Form } from "@/components/ui/form";
-import { format, startOfMonth, endOfMonth, subMonths } from "date-fns";
+import { startOfMonth, endOfMonth, subMonths } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
 import { getSalesManagerStats } from "../lib/dashboard.actions";
 import { SalesManagerFilters } from "../lib/dashboard.interface";
@@ -52,8 +52,8 @@ export default function SalesManagerDashboard() {
 
   const form = useForm<DashboardFormValues>({
     defaultValues: {
-      date_from: format(lastMonthRange.firstDay, "yyyy-MM-dd"),
-      date_to: format(lastMonthRange.lastDay, "yyyy-MM-dd"),
+      date_from: lastMonthRange.firstDay.toISOString().split("T")[0],
+      date_to: lastMonthRange.lastDay.toISOString().split("T")[0],
       type: "LEADS",
       boss_id: null,
     },
@@ -79,8 +79,8 @@ export default function SalesManagerDashboard() {
     ],
     queryFn: async () => {
       const queryFilters: SalesManagerFilters = {
-        date_from: filters.date_from,
-        date_to: filters.date_to,
+        date_from: filters.date_from.split("T")[0],
+        date_to: filters.date_to.split("T")[0],
         type: filters.type,
         boss_id: filters.boss_id
           ? typeof filters.boss_id === "string"
