@@ -123,6 +123,8 @@ export const PurchaseRequestQuoteForm = ({
   const hasInitializedCheckboxRef = useRef(false);
   const hasInitializedSwitchRef = useRef(false);
   const hasInitializedFamilyIdRef = useRef(false);
+  const previousVehicleVnRef = useRef<string | undefined>(undefined);
+  const previousModelVnRef = useRef<string | undefined>(undefined);
 
   // Form watchers
   const modelVnWatch = form.watch("ap_models_vn_id");
@@ -236,53 +238,57 @@ export const PurchaseRequestQuoteForm = ({
       form.setValue("vehicle_color_id", "");
       form.setValue("sale_price", "0");
       form.setValue("ap_vehicle_id", "");
+      // Limpiar las referencias
+      previousVehicleVnRef.current = undefined;
+      previousModelVnRef.current = undefined;
     }
-  }, [withVinWatch, form]);
+  }, [withVinWatch]);
 
   // Effect para actualizar el precio cuando cambia el modelo (solo si no es carga inicial y es modo create)
   useEffect(() => {
     if (!isInitialLoad && mode === "create" && !withVinWatch && modelVnWatch) {
-      // Siempre actualizar el precio, incluso si es 0
-      form.setValue("sale_price", originalPrice.toString());
+      // Solo actualizar si el modelo realmente cambió
+      if (previousModelVnRef.current !== modelVnWatch) {
+        previousModelVnRef.current = modelVnWatch;
+        // Siempre actualizar el precio, incluso si es 0
+        form.setValue("sale_price", originalPrice.toString());
+      }
     }
-  }, [modelVnWatch, originalPrice, form, isInitialLoad, mode, withVinWatch]);
+  }, [modelVnWatch, originalPrice, isInitialLoad, withVinWatch]);
 
   // Effect para auto-completar campos cuando se selecciona un vehículo VN (solo si no es carga inicial)
   useEffect(() => {
     if (!isInitialLoad && withVinWatch && vehicleVnWatch) {
-      const selectedVehicle = vehiclesVn.find(
-        (vehicle) => vehicle.id === Number(vehicleVnWatch)
-      );
-      if (selectedVehicle) {
-        form.setValue(
-          "ap_models_vn_id",
-          String(selectedVehicle.ap_models_vn_id)
-        );
-        form.setValue(
-          "vehicle_color_id",
-          String(selectedVehicle.vehicle_color_id)
-        );
+      // Solo actualizar si el vehículo realmente cambió
+      if (previousVehicleVnRef.current !== vehicleVnWatch) {
+        previousVehicleVnRef.current = vehicleVnWatch;
 
-        // Actualizar el precio de venta basado en el modelo del vehículo seleccionado
-        const modelOfSelectedVehicle = modelsVn.find(
-          (model) => model.id === Number(selectedVehicle.ap_models_vn_id)
+        const selectedVehicle = vehiclesVn.find(
+          (vehicle) => vehicle.id === Number(vehicleVnWatch)
         );
-        if (modelOfSelectedVehicle && mode === "create") {
-          // Siempre actualizar el precio, incluso si es 0
-          const newPrice = modelOfSelectedVehicle.sale_price || 0;
-          form.setValue("sale_price", newPrice.toString());
+        if (selectedVehicle) {
+          form.setValue(
+            "ap_models_vn_id",
+            String(selectedVehicle.ap_models_vn_id)
+          );
+          form.setValue(
+            "vehicle_color_id",
+            String(selectedVehicle.vehicle_color_id)
+          );
+
+          // Actualizar el precio de venta basado en el modelo del vehículo seleccionado
+          const modelOfSelectedVehicle = modelsVn.find(
+            (model) => model.id === Number(selectedVehicle.ap_models_vn_id)
+          );
+          if (modelOfSelectedVehicle && mode === "create") {
+            // Siempre actualizar el precio, incluso si es 0
+            const newPrice = modelOfSelectedVehicle.sale_price || 0;
+            form.setValue("sale_price", newPrice.toString());
+          }
         }
       }
     }
-  }, [
-    vehicleVnWatch,
-    withVinWatch,
-    vehiclesVn,
-    modelsVn,
-    form,
-    isInitialLoad,
-    mode,
-  ]);
+  }, [vehicleVnWatch, isInitialLoad, withVinWatch]);
 
   // Effect para inicializar el switch en modo actualizar (solo una vez)
   useEffect(() => {
@@ -298,7 +304,7 @@ export const PurchaseRequestQuoteForm = ({
       form.setValue("with_vin", hasVehiclePurchaseOrderId);
       hasInitializedSwitchRef.current = true;
     }
-  }, [mode, isInitialLoad, defaultValues, form]);
+  }, [isInitialLoad]);
 
   // Effect para inicializar el checkbox en modo actualizar (solo una vez)
   useEffect(() => {
@@ -323,7 +329,7 @@ export const PurchaseRequestQuoteForm = ({
         hasInitializedCheckboxRef.current = true;
       }
     }
-  }, [mode, isInitialLoad, opportunityWatch, holderWatch, opportunities]);
+  }, [isInitialLoad, opportunityWatch, holderWatch]);
 
   // Effect para manejar cambios en el checkbox (solo interacciones del usuario)
   useEffect(() => {
@@ -346,7 +352,7 @@ export const PurchaseRequestQuoteForm = ({
         form.setValue("holder_id", "");
       }
     }
-  }, [copyClientToHolder, opportunityWatch, opportunities, form, mode]);
+  }, [copyClientToHolder, opportunityWatch]);
 
   // Effect para actualizar family_id cuando cambia la oportunidad seleccionada
   useEffect(() => {
@@ -381,7 +387,7 @@ export const PurchaseRequestQuoteForm = ({
       setSelectedFamilyId(undefined);
       hasInitializedFamilyIdRef.current = false;
     }
-  }, [opportunityWatch, opportunities, form, isInitialLoad, selectedFamilyId]);
+  }, [opportunityWatch, isInitialLoad, selectedFamilyId]);
 
   // Effect para sincronizar la moneda de facturación seleccionada
   useEffect(() => {
