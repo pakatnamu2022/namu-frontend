@@ -172,7 +172,6 @@ export const ApGoalSellOutInForm = ({
         <div className="flex items-center space-x-2 justify-end">
           <Switch
             checked={switchValue === "IN"}
-            thumbClassName="size-4"
             onCheckedChange={(checked) => {
               const newValue = checked ? "IN" : "OUT";
               setSwitchValue(newValue);

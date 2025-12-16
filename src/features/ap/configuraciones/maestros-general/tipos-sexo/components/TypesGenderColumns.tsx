@@ -56,9 +56,8 @@ export const typeGenderColumns = ({
           {permissions.canUpdate && (
             <Switch
               checked={status}
-              thumbClassName="size-4"
               onCheckedChange={(checked) => onToggleStatus(id, checked)}
-              className={cn("h-5 w-9", status ? "bg-primary" : "bg-secondary")}
+              className={cn(status ? "bg-primary" : "bg-secondary")}
             />
           )}
 

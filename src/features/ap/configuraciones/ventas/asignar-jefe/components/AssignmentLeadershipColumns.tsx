@@ -116,11 +116,10 @@ export const assignmentLeadershipColumns = ({
           {permissions.canUpdate && (
             <Switch
               checked={status}
-              thumbClassName="size-4"
               onCheckedChange={(checked) =>
                 onToggleStatus(boss_id, checked, year, month)
               }
-              className={cn("h-5 w-9", status ? "bg-primary" : "bg-secondary")}
+              className={cn(status ? "bg-primary" : "bg-secondary")}
             />
           )}
 
