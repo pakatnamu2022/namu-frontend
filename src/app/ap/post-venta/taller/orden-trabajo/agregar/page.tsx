@@ -52,7 +52,6 @@ export default function AddWorkOrderPage() {
         defaultValues={{
           appointment_planning_id: "",
           vehicle_id: "",
-          advisor_id: "",
           sede_id: "",
           opening_date: new Date(),
           estimated_delivery_date: "",

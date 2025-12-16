@@ -16,15 +16,8 @@ import {
   vehicleInspectionSchemaCreate,
   vehicleInspectionSchemaUpdate,
 } from "../lib/vehicleInspection.schema";
-import FormSkeleton from "@/shared/components/FormSkeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
-import { EMPRESA_AP } from "@/core/core.constants";
-import {
-  POSITION_TYPE,
-  STATUS_WORKER,
-} from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.constant";
-import { useAllWorkers } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
 import VehicleInspectionChecklist from "./VehicleInspectionChecklist";
 import VehicleDamageMarker from "./VehicleDamageMarker";
 import { CHECKLIST_ITEMS } from "../lib/vehicleInspection.constants";
@@ -75,15 +68,6 @@ export const VehicleInspectionForm = ({
     mode: "onChange",
   });
 
-  const { data: inspectors = [], isLoading: isLoadingInspectors } =
-    useAllWorkers({
-      cargo_id: POSITION_TYPE.CONSULTANT,
-      status_id: STATUS_WORKER.ACTIVE,
-      sede$empresa_id: EMPRESA_AP.id,
-    });
-
-  const isLoading = isLoadingInspectors;
-
   const handleChecklistChange = (key: string, value: boolean) => {
     form.setValue(key as any, value);
   };
@@ -91,8 +75,6 @@ export const VehicleInspectionForm = ({
   const handleDamagesChange = (damages: any[]) => {
     form.setValue("damages", damages);
   };
-
-  if (isLoading) return <FormSkeleton />;
 
   const checklistValues = CHECKLIST_ITEMS.reduce((acc, item) => {
     acc[item.key] = form.watch(item.key as any) || false;
@@ -108,20 +90,8 @@ export const VehicleInspectionForm = ({
           icon={ClipboardCheck}
           iconColor="text-primary"
           bgColor="bg-blue-50"
-          cols={{ sm: 2, md: 3 }}
+          cols={{ sm: 2 }}
         >
-          <FormSelect
-            name="inspected_by"
-            label="Inspector"
-            placeholder="Seleccione inspector"
-            options={inspectors.map((item) => ({
-              label: item.name,
-              value: item.id.toString(),
-            }))}
-            control={form.control}
-            strictFilter={true}
-          />
-
           <DatePickerFormField
             control={form.control}
             name="inspection_date"

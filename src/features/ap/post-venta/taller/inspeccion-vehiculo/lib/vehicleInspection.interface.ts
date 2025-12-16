@@ -80,7 +80,6 @@ export interface VehicleInspectionRequest {
   tool_kit: boolean;
   jack_and_lever: boolean;
   general_observations?: string;
-  inspected_by: string;
   inspection_date: string | Date;
   damages: VehicleInspectionDamageRequest[];
 }

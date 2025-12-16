@@ -36,11 +36,6 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { EMPRESA_AP } from "@/core/core.constants";
-import {
-  POSITION_TYPE,
-  STATUS_WORKER,
-} from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.constant";
-import { useAllWorkers } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
 import { useAllAppointmentPlanning } from "../../citas/lib/appointmentPlanning.hook";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import { useAllTypesPlanning } from "@/features/ap/configuraciones/postventa/tipos-planificacion/lib/typesPlanning.hook";
@@ -97,11 +92,6 @@ export const WorkOrderForm = ({
     company: EMPRESA_AP.id,
     has_workshop: true,
   });
-  const { data: asesores = [], isLoading: isLoadingAsesores } = useAllWorkers({
-    cargo_id: POSITION_TYPE.SERVICE_ADVISOR,
-    status_id: STATUS_WORKER.ACTIVE,
-    sede$empresa_id: EMPRESA_AP.id,
-  });
   const { data: typesPlanning = [], isLoading: isLoadingTypesPlanning } =
     useAllTypesPlanning();
 
@@ -109,7 +99,6 @@ export const WorkOrderForm = ({
     isLoadingVehicles ||
     isLoadingAppointments ||
     isLoadingSedes ||
-    isLoadingAsesores ||
     isLoadingTypesPlanning;
 
   // Watch fields
@@ -148,9 +137,6 @@ export const WorkOrderForm = ({
         if (appointment.sede_id) {
           form.setValue("sede_id", appointment.sede_id.toString());
         }
-        if (appointment.advisor_id) {
-          form.setValue("advisor_id", appointment.advisor_id.toString());
-        }
 
         // Agregar item desde la cita solo si no hay items
         if (fields.length === 0) {
@@ -177,7 +163,6 @@ export const WorkOrderForm = ({
       form.setValue("appointment_planning_id", "");
       form.setValue("vehicle_id", "");
       form.setValue("sede_id", "");
-      form.setValue("advisor_id", "");
       // Limpiar todos los items si hay alguno
       if (fields.length > 0) {
         form.setValue("items", []);
@@ -283,7 +268,7 @@ export const WorkOrderForm = ({
           icon={Car}
           iconColor="text-gray-800"
           bgColor="bg-gray-50"
-          cols={{ sm: 2, md: 3 }}
+          cols={{ sm: 2 }}
         >
           <FormSelect
             name="vehicle_id"
@@ -293,18 +278,6 @@ export const WorkOrderForm = ({
               label: `(${item.plate || "S/N"}) ${item.model?.brand || ""} ${
                 item.model?.version || ""
               } (${item.year || ""})`,
-              value: item.id.toString(),
-            }))}
-            control={form.control}
-            strictFilter={true}
-          />
-
-          <FormSelect
-            name="advisor_id"
-            label="Asesor"
-            placeholder="Seleccione asesor"
-            options={asesores.map((item) => ({
-              label: item.name,
               value: item.id.toString(),
             }))}
             control={form.control}
@@ -381,17 +354,6 @@ export const WorkOrderForm = ({
                 <p className="font-semibold text-sm">
                   {selectedVehicle.engine_number || "N/A"}
                 </p>
-              </div>
-              <div>
-                <p className="text-xs text-gray-500">Estado</p>
-                <Badge
-                  className="text-xs"
-                  style={{
-                    backgroundColor: selectedVehicle.status_color || "#gray",
-                  }}
-                >
-                  {selectedVehicle.vehicle_status || "N/A"}
-                </Badge>
               </div>
             </div>
           </Card>

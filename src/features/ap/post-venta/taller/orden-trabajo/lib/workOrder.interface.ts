@@ -38,7 +38,6 @@ export interface WorkOrderResource {
 export interface WorkOrderRequest {
   appointment_planning_id?: string;
   vehicle_id: string;
-  advisor_id: string;
   sede_id: string;
   opening_date: string | Date;
   estimated_delivery_date: string | Date;
