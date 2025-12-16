@@ -191,7 +191,7 @@ export const SignaturePad = ({
           isEmpty && !disabled && "border-muted-foreground/25",
           !isEmpty && "border-primary/50"
         )}
-        style={{ height: "200px" }}
+        style={{ height: "400px" }}
       >
         <canvas
           ref={canvasRef}

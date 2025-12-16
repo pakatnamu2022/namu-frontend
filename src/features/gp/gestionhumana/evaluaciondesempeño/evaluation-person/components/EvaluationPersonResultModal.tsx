@@ -22,7 +22,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAllEvaluations } from "../../evaluaciones/lib/evaluation.hook";
 import { useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { WorkerResource } from "../../../personal/trabajadores/lib/worker.interface";
+import { WorkerResource } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.interface";
 import {
   updateEvaluationPerson,
   updateEvaluationPersonCompetence,

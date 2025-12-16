@@ -5,7 +5,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Plus, X, Loader2, Trash2 } from "lucide-react";
 import { HierarchicalCategoryDetail } from "../lib/hierarchicalCategory.interface";
-import { PositionResource } from "../../../personal/posiciones/lib/position.interface";
+import { PositionResource } from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.interface";
 import { AnimatePresence, motion } from "framer-motion";
 import { SearchableSelect } from "@/shared/components/SearchableSelect";
 import { errorToast, successToast } from "@/core/core.function";

@@ -6,7 +6,7 @@ import ActionsWrapper from "@/shared/components/ActionsWrapper";
 import { useNavigate } from 'react-router-dom';
 import { AGENDA } from "../../agenda/lib/agenda.constants";
 import { SearchableSelect } from "@/shared/components/SearchableSelect";
-import { WorkerResource } from "@/features/gp/gestionhumana/personal/trabajadores/lib/worker.interface";
+import { WorkerResource } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.interface";
 
 interface Props {
   canViewAllUsers: boolean;

@@ -12,13 +12,13 @@ import {
   successToast,
 } from "@/core/core.function";
 import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
-import PositionOptions from "@/features/gp/gestionhumana/personal/posiciones/components/PositionOptions";
-import PositionTable from "@/features/gp/gestionhumana/personal/posiciones/components/PositionTable";
-import PositionActions from "@/features/gp/gestionhumana/personal/posiciones/components/PositionActions";
-import { deletePosition } from "@/features/gp/gestionhumana/personal/posiciones/lib/position.actions";
-import { usePositions } from "@/features/gp/gestionhumana/personal/posiciones/lib/position.hook";
-import { POSITION } from "@/features/gp/gestionhumana/personal/posiciones/lib/position.constant";
-import { positionColumns } from "@/features/gp/gestionhumana/personal/posiciones/components/PositionColumns";
+import PositionOptions from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/components/PositionOptions";
+import PositionTable from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/components/PositionTable";
+import PositionActions from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/components/PositionActions";
+import { deletePosition } from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.actions";
+import { usePositions } from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.hook";
+import { POSITION } from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.constant";
+import { positionColumns } from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/components/PositionColumns";
 import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { notFound } from "@/shared/hooks/useNotFound";

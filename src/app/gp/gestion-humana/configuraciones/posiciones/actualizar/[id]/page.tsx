@@ -12,15 +12,15 @@ import {
 import {
   findPositionById,
   updatePosition,
-} from "@/features/gp/gestionhumana/personal/posiciones/lib/position.actions";
-import { PositionSchema } from "@/features/gp/gestionhumana/personal/posiciones/lib/position.schema";
-import { PositionResource } from "@/features/gp/gestionhumana/personal/posiciones/lib/position.interface";
-import { PositionForm } from "@/features/gp/gestionhumana/personal/posiciones/components/PositionForm";
+} from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.actions";
+import { PositionSchema } from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.schema";
+import { PositionResource } from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.interface";
+import { PositionForm } from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/components/PositionForm";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import FormWrapper from "@/shared/components/FormWrapper";
-import { POSITION } from "@/features/gp/gestionhumana/personal/posiciones/lib/position.constant";
+import { POSITION } from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.constant";
 import { notFound } from "@/shared/hooks/useNotFound";
 
 export default function UpdatePositionPage() {

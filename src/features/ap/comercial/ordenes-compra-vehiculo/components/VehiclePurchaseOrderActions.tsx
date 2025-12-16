@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Plus, RefreshCcw } from "lucide-react";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import ActionsWrapper from "@/shared/components/ActionsWrapper";
 import { VEHICLE_PURCHASE_ORDER } from "../lib/vehiclePurchaseOrder.constants";
 import { cn } from "@/lib/utils";
@@ -25,11 +25,7 @@ export default function VehiclePurchaseOrderActions({
         />
         Actualizar
       </Button>
-      <Button
-        size="sm"
-        variant="outline"
-        onClick={() => router(ROUTE_ADD!)}
-      >
+      <Button size="sm" variant="outline" onClick={() => router(ROUTE_ADD!)}>
         <Plus className="size-4 mr-2" /> Agregar Orden de Compra
       </Button>
     </ActionsWrapper>

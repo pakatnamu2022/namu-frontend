@@ -7,8 +7,8 @@ import {
   EvaluationResponse,
 } from "./evaluation.interface";
 import { EVALUATION } from "./evaluation.constans";
-import { WorkerResource } from "../../../personal/trabajadores/lib/worker.interface";
-import { PositionResource } from "../../../personal/posiciones/lib/position.interface";
+import { WorkerResource } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.interface";
+import { PositionResource } from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.interface";
 import { HierarchicalCategoryResource } from "../../categorias-jerarquicas/lib/hierarchicalCategory.interface";
 
 const { ENDPOINT } = EVALUATION;

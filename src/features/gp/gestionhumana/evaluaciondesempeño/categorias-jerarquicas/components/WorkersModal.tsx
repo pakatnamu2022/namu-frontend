@@ -12,7 +12,7 @@ import {
   useWorkersWithoutObjectives,
   useWorkersWithoutCategories,
   useWorkersWithoutCompetences,
-} from "@/features/gp/gestionhumana/personal/trabajadores/lib/worker.hook";
+} from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
 import WorkerTable from "./WorkerTable";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 

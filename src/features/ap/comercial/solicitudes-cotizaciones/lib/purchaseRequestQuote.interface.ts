@@ -1,6 +1,6 @@
 import { type Links, type Meta } from "@/shared/lib/pagination.interface";
 import { VehicleResource } from "../../vehiculos/lib/vehicles.interface";
-import { WorkerResource } from "@/features/gp/gestionhumana/personal/trabajadores/lib/worker.interface";
+import { WorkerResource } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.interface";
 
 export interface PurchaseRequestQuoteResponse {
   data: PurchaseRequestQuoteResource[];

@@ -19,12 +19,12 @@ import { PAR_EVALUATOR } from "@/features/gp/gestionhumana/evaluaciondesempeño/
 import { parEvaluatorColumns } from "@/features/gp/gestionhumana/evaluaciondesempeño/asignacion-pares/components/ParEvaluatorColumns";
 import ParEvaluatorTable from "@/features/gp/gestionhumana/evaluaciondesempeño/asignacion-pares/components/ParEvaluatorTable";
 import ParEvaluatorOptions from "@/features/gp/gestionhumana/evaluaciondesempeño/asignacion-pares/components/ParEvaluatorOptions";
-import { useWorkers } from "@/features/gp/gestionhumana/personal/trabajadores/lib/worker.hook";
+import { useWorkers } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
 import {
   deleteParEvaluator,
   storeMultipleParEvaluators,
 } from "@/features/gp/gestionhumana/evaluaciondesempeño/asignacion-pares/lib/par-evaluator.actions";
-import { STATUS_WORKER } from "@/features/gp/gestionhumana/personal/posiciones/lib/position.constant";
+import { STATUS_WORKER } from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.constant";
 import { ParEvaluatorAddModal } from "@/features/gp/gestionhumana/evaluaciondesempeño/asignacion-pares/components/ParEvaluatorAddModal";
 import { ParEvaluatorSchema } from "@/features/gp/gestionhumana/evaluaciondesempeño/asignacion-pares/lib/par-evaluator.schema";
 

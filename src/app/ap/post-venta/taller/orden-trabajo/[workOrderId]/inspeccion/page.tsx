@@ -123,6 +123,7 @@ export default function VehicleInspectionPage() {
     formData.append("fuel_level", data.fuel_level);
     formData.append("oil_level", data.oil_level);
     formData.append("mileage", data.mileage);
+    formData.append("customer_signature", data.customer_signature);
 
     // Agregar daños y sus fotos
     if (data.damages && data.damages.length > 0) {

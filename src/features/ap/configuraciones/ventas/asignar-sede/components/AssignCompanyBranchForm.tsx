@@ -26,11 +26,11 @@ import {
   TagsTrigger,
   TagsValue,
 } from "@/shared/components/Tags";
-import { useAllWorkers } from "@/features/gp/gestionhumana/personal/trabajadores/lib/worker.hook";
+import { useAllWorkers } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
 import {
   POSITION_TYPE,
   STATUS_WORKER,
-} from "@/features/gp/gestionhumana/personal/posiciones/lib/position.constant";
+} from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.constant";
 import { AsesorResource } from "../lib/assignCompanyBranch.interface";
 import { EMPRESA_AP, MONTHS } from "@/core/core.constants";
 import { currentMonth, currentYear } from "@/core/core.function";

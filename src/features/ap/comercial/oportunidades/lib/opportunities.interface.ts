@@ -2,7 +2,7 @@ import { type Links, type Meta } from "@/shared/lib/pagination.interface";
 import { CustomersResource } from "../../clientes/lib/customers.interface";
 import { FamiliesResource } from "@/features/ap/configuraciones/vehiculos/familias/lib/families.interface";
 import { OpportunityActionResource } from "./opportunityAction.interface";
-import { WorkerResource } from "@/features/gp/gestionhumana/personal/trabajadores/lib/worker.interface";
+import { WorkerResource } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.interface";
 
 export interface OpportunitiesResponse {
   data: OpportunityResource[];

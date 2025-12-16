@@ -30,8 +30,8 @@ import { Calendar, Table } from "lucide-react";
 import {
   POSITION_TYPE,
   STATUS_WORKER,
-} from "@/features/gp/gestionhumana/personal/posiciones/lib/position.constant";
-import { useAllWorkers } from "@/features/gp/gestionhumana/personal/trabajadores/lib/worker.hook";
+} from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.constant";
+import { useAllWorkers } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
 
 export default function AppointmentPlanningPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();

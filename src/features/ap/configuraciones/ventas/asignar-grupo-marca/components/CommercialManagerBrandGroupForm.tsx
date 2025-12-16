@@ -36,11 +36,11 @@ import {
 } from "../lib/commercialManagerBrandGroup.schema";
 import { AsesorResource } from "../lib/commercialManagerBrandGroup.interface";
 import { useAllBrandGroup } from "../../../vehiculos/grupos-marcas/lib/brandGroup.hook";
-import { useAllWorkers } from "@/features/gp/gestionhumana/personal/trabajadores/lib/worker.hook";
+import { useAllWorkers } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
 import {
   POSITION_TYPE,
   STATUS_WORKER,
-} from "@/features/gp/gestionhumana/personal/posiciones/lib/position.constant";
+} from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.constant";
 import { COMMERCIAL_MANAGER_BRAND_GROUP } from "../lib/commercialManagerBrandGroup.constants";
 
 interface CommercialManagerBrandGroupFormProps {

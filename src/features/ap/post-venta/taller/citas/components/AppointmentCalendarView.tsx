@@ -19,7 +19,7 @@ import {
 } from "../lib/appointmentPlanning.interface";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { WorkerResource } from "@/features/gp/gestionhumana/personal/trabajadores/lib/worker.interface";
+import { WorkerResource } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.interface";
 import {
   Popover,
   PopoverContent,

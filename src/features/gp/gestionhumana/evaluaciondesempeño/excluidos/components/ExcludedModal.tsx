@@ -10,7 +10,7 @@ import { GeneralModal } from "@/shared/components/GeneralModal";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { ExcludedForm } from "./ExcludedForm";
 import { storeEvaluationPersonDetail } from "../lib/excluded.actions";
-import { useAllWorkers } from "../../../personal/trabajadores/lib/worker.hook";
+import { useAllWorkers } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
 import { EXCLUDED } from "../lib/excluded.constants";
 
 const { MODEL, QUERY_KEY } = EXCLUDED;

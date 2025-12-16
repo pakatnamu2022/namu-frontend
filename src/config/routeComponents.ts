@@ -35,7 +35,7 @@ export const routeComponents: Record<string, RouteComponent> = {
   'gp/gestion-humana': lazy(() => import('@/app/gp/gestion-humana/page')),
 
   // Administración de Personal
-  'gp/gestion-humana/personal/trabajadores': lazy(() => import('@/app/gp/gestion-humana/personal/trabajadores/page')),
+  'gp/gestion-humana/personal/trabajadores': lazy(() => import('@/app/gp/gestion-humana/gestion-de-personal/trabajadores/page')),
 
   // Configuraciones
   'gp/gestion-humana/configuraciones/posiciones': lazy(() => import('@/app/gp/gestion-humana/configuraciones/posiciones/page')),

@@ -3,10 +3,10 @@
 import { useNavigate } from "react-router-dom";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import PageSkeleton from "@/shared/components/PageSkeleton";
-import { PositionForm } from "@/features/gp/gestionhumana/personal/posiciones/components/PositionForm";
+import { PositionForm } from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/components/PositionForm";
 import { useState } from "react";
-import { storePosition } from "@/features/gp/gestionhumana/personal/posiciones/lib/position.actions";
-import { POSITION } from "@/features/gp/gestionhumana/personal/posiciones/lib/position.constant";
+import { storePosition } from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.actions";
+import { POSITION } from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.constant";
 import { notFound } from "@/shared/hooks/useNotFound";
 import {
   ERROR_MESSAGE,

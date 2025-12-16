@@ -786,7 +786,13 @@ const VistasPermisosPage = lazy(
 
 // Administración de Personal
 const TrabajadoresPage = lazy(
-  () => import("./app/gp/gestion-humana/personal/trabajadores/page")
+  () => import("./app/gp/gestion-humana/gestion-de-personal/trabajadores/page")
+);
+const EditTrabajadoresPage = lazy(
+  () =>
+    import(
+      "./app/gp/gestion-humana/gestion-de-personal/trabajadores/actualizar/[id]/page"
+    )
 );
 
 // ============================================================================
@@ -1758,8 +1764,12 @@ function App() {
             >
               {/* Administración de Personal */}
               <Route
-                path="personal/trabajadores"
+                path="gestion-de-personal/trabajadores"
                 element={<TrabajadoresPage />}
+              />
+              <Route
+                path="gestion-de-personal/trabajadores/actualizar/:id"
+                element={<EditTrabajadoresPage />}
               />
 
               {/* Configuraciones */}

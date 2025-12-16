@@ -10,8 +10,8 @@ import {
   CyclePersonDetailResource,
   CyclePersonDetailResponse,
 } from "./cyclePersonDetail";
-import { WorkerResource } from "../../../personal/trabajadores/lib/worker.interface";
-import { PositionResource } from "../../../personal/posiciones/lib/position.interface";
+import { WorkerResource } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.interface";
+import { PositionResource } from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.interface";
 import { CYCLE, ENDPOINT_DETAIL } from "./cycle.constants";
 
 const { ENDPOINT } = CYCLE;

@@ -36,7 +36,7 @@ import { discardLead } from "@/features/ap/comercial/gestionar-leads/lib/manageL
 import { MANAGE_LEADS } from "@/features/ap/comercial/gestionar-leads/lib/manageLeads.constants";
 import { useInvalidateQuery } from "@/core/core.hook";
 import { useCommercialFiltersStore } from "@/features/ap/comercial/lib/commercial.store";
-import { useAllWorkers } from "@/features/gp/gestionhumana/personal/trabajadores/lib/worker.hook";
+import { useAllWorkers } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
 import {
   Carousel,
   CarouselContent,
@@ -47,7 +47,7 @@ import {
 import {
   POSITION_TYPE,
   STATUS_WORKER,
-} from "@/features/gp/gestionhumana/personal/posiciones/lib/position.constant";
+} from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.constant";
 import { EMPRESA_AP } from "@/core/core.constants";
 import { useEffect, useState } from "react";
 import type { CarouselApi } from "@/components/ui/carousel";

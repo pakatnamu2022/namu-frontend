@@ -78,7 +78,7 @@ export async function downloadOrderQuotationPdf(id: number): Promise<void> {
   const url = window.URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.setAttribute("download", `cita-planificacion-${id}.pdf`);
+  link.setAttribute("download", `cotizacion-${id}.pdf`);
 
   // Hacer clic automáticamente para iniciar la descarga
   document.body.appendChild(link);
