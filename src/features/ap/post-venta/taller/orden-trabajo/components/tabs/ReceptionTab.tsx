@@ -1,5 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   CheckCircle2,
   XCircle,
@@ -7,6 +8,7 @@ import {
   Calendar,
   User,
   ImageIcon,
+  FileText,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { CHECKLIST_ITEMS } from "@/features/ap/post-venta/taller/inspeccion-vehiculo/lib/vehicleInspection.constants";
@@ -14,13 +16,20 @@ import {
   DAMAGE_SYMBOLS,
   DAMAGE_COLORS,
 } from "@/features/ap/post-venta/taller/inspeccion-vehiculo/lib/vehicleInspection.interface";
-import { findVehicleInspectionByWorkOrderId } from "@/features/ap/post-venta/taller/inspeccion-vehiculo/lib/vehicleInspection.actions";
+import {
+  findVehicleInspectionByWorkOrderId,
+  downloadVehicleInspectionPdf,
+} from "@/features/ap/post-venta/taller/inspeccion-vehiculo/lib/vehicleInspection.actions";
+import { toast } from "sonner";
+import { useState } from "react";
 
 interface ReceptionTabProps {
   workOrderId: number;
 }
 
 export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
+  const [isDownloading, setIsDownloading] = useState(false);
+
   const {
     data: inspection,
     isLoading,
@@ -30,6 +39,21 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
     queryFn: () => findVehicleInspectionByWorkOrderId(workOrderId),
     retry: false,
   });
+
+  const handleDownloadPdf = async () => {
+    if (!inspection?.id) return;
+
+    try {
+      setIsDownloading(true);
+      await downloadVehicleInspectionPdf(inspection.id);
+      toast.success("PDF descargado exitosamente");
+    } catch (error) {
+      console.error("Error al descargar PDF:", error);
+      toast.error("Error al descargar el PDF de la inspección");
+    } finally {
+      setIsDownloading(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -80,7 +104,17 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
     <div className="grid gap-6">
       {/* Inspection Header */}
       <Card className="p-6">
-        <h3 className="text-lg font-semibold mb-4">Inspección de Recepción</h3>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold">Inspección de Recepción</h3>
+          <Button
+            onClick={handleDownloadPdf}
+            disabled={isDownloading}
+            className="gap-2"
+          >
+            <FileText className="h-4 w-4" />
+            {isDownloading ? "Generando PDF..." : "Generar PDF para Cliente"}
+          </Button>
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="flex items-start gap-2">

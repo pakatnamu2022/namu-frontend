@@ -97,7 +97,6 @@ export default function OrderQuotationForm({
               value: item.id.toString(),
             }))}
             control={form.control}
-            strictFilter={true}
           />
 
           <DatePickerFormField

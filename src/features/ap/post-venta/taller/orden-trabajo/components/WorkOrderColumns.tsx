@@ -1,12 +1,10 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-import { Settings, Download, ClipboardCheck, Package } from "lucide-react";
+import { Settings, ClipboardCheck, Package } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { WorkOrderResource } from "../lib/workOrder.interface";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { downloadWorkOrderPdf } from "../lib/workOrder.actions";
-import { errorToast } from "@/core/core.function";
 import { Badge } from "@/components/ui/badge";
 
 export type WorkOrderColumns = ColumnDef<WorkOrderResource>;
@@ -117,13 +115,13 @@ export const workOrderColumns = ({
     cell: ({ row }) => {
       const { id, is_inspection_completed } = row.original;
 
-      const handleDownloadPdf = async () => {
-        try {
-          await downloadWorkOrderPdf(id);
-        } catch {
-          errorToast("Error al descargar el PDF");
-        }
-      };
+      // const handleDownloadPdf = async () => {
+      //   try {
+      //     await downloadWorkOrderPdf(id);
+      //   } catch {
+      //     errorToast("Error al descargar el PDF");
+      //   }
+      // };
 
       return (
         <div className="flex items-center gap-2">
@@ -151,7 +149,7 @@ export const workOrderColumns = ({
             </Button>
           )}
 
-          <Button
+          {/* <Button
             variant="outline"
             size="icon"
             className="size-7"
@@ -159,7 +157,7 @@ export const workOrderColumns = ({
             tooltip="PDF"
           >
             <Download className="size-5" />
-          </Button>
+          </Button> */}
 
           <Button
             variant="outline"
