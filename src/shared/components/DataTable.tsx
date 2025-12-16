@@ -226,7 +226,7 @@ export function DataTable<TData, TValue>({
                 key={row.id}
                 className={cn(mobileCardVariants({ variant }))}
               >
-                <CardContent className="py-4 px-2">
+                <CardContent className="p-4">
                   <div className="grid grid-cols-1 gap-2">
                     {contentCells.map((cell) => {
                       const header = cell.column.columnDef.header;
@@ -242,7 +242,7 @@ export function DataTable<TData, TValue>({
                           key={cell.id}
                           className="grid grid-cols-3 items-center gap-1 text-wrap"
                         >
-                          <span className="text-xs font-semibold text-primary uppercase">
+                          <span className="text-xs font-medium text-primary">
                             {headerText}
                           </span>
                           <div className="text-xs text-foreground col-span-2">

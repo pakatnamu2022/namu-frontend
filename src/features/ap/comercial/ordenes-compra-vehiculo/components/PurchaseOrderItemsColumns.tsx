@@ -6,6 +6,7 @@ import { Trash2, Car } from "lucide-react";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { Control, UseFormSetValue, UseFormWatch } from "react-hook-form";
 import { FormInput } from "@/shared/components/FormInput";
+import { useMemo } from "react";
 
 export interface PurchaseOrderItem {
   unit_measurement_id: string;
@@ -86,7 +87,6 @@ export const purchaseOrderItemsColumns = ({
           name={`items.${index}.description`}
           placeholder="Descripción del item"
           type="text"
-          min={0}
           disabled={isVehiclePurchase && index === 0}
           className={isVehiclePurchase && index === 0 ? "bg-muted" : ""}
         />
@@ -185,3 +185,18 @@ export const purchaseOrderItemsColumns = ({
     size: 80,
   },
 ];
+
+// Hook personalizado que memoriza las columnas automáticamente
+export const usePurchaseOrderItemsColumns = (props: Props) => {
+  return useMemo(
+    () => purchaseOrderItemsColumns(props),
+    [
+      props.control,
+      props.watch,
+      props.setValue,
+      props.onRemove,
+      props.isVehiclePurchase,
+      props.unitMeasurements,
+    ]
+  );
+};
