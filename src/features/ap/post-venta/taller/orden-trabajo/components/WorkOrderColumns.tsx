@@ -139,6 +139,18 @@ export const workOrderColumns = ({
             </Button>
           )}
 
+          {permissions.canUpdate && (
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-7"
+              tooltip="Gestionar"
+              onClick={() => onManage(id)}
+            >
+              <Settings className="size-5" />
+            </Button>
+          )}
+
           <Button
             variant="outline"
             size="icon"
@@ -158,18 +170,6 @@ export const workOrderColumns = ({
           >
             <Package className="size-5" />
           </Button>
-
-          {permissions.canUpdate && (
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-7"
-              tooltip="Gestionar"
-              onClick={() => onManage(id)}
-            >
-              <Settings className="size-5" />
-            </Button>
-          )}
 
           {permissions.canDelete && (
             <DeleteButton onClick={() => onDelete(id)} />

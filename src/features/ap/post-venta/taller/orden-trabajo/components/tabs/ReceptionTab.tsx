@@ -347,6 +347,31 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
         </Card>
       )}
 
+      {/* No se encontraron daños en el vehiculo */}
+      {inspection.damages?.length === 0 && (
+        <Card className="p-8 border-2 border-gray-100 bg-gray-50/50">
+          <div className="flex flex-col items-center justify-center text-center space-y-4">
+            <div className="rounded-full bg-gray-100 p-4">
+              <CheckCircle2 className="h-12 w-12 text-gray-600" />
+            </div>
+            <div className="space-y-2">
+              <h3 className="text-xl font-semibold text-gray-900">
+                Vehículo en perfecto estado
+              </h3>
+              <p className="text-gray-600 max-w-md">
+                La inspección de recepción se ha completado exitosamente. No se
+                identificaron daños, rayones o desperfectos en el vehículo.
+              </p>
+            </div>
+            <div className="mt-2 px-4 py-2 bg-white rounded-lg border border-gray-200">
+              <p className="text-sm text-gray-500">
+                ✓ Inspección completada sin observaciones
+              </p>
+            </div>
+          </div>
+        </Card>
+      )}
+
       {/* General Observations */}
       {inspection.general_observations && (
         <Card className="p-6">
@@ -356,6 +381,58 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
           <p className="text-gray-700 whitespace-pre-wrap bg-gray-50 p-4 rounded-lg">
             {inspection.general_observations}
           </p>
+        </Card>
+      )}
+
+      {/* Customer Signature */}
+      {inspection.customer_signature_url && (
+        <Card className="p-6">
+          <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+            <User className="h-5 w-5 text-gray-600" />
+            Firma de Conformidad del Cliente
+          </h3>
+          <div className="bg-gray-50 rounded-lg p-6">
+            <p className="text-sm text-gray-600 mb-4 text-center">
+              El cliente confirma que la información registrada en la inspección
+              de recepción es correcta
+            </p>
+            <div className="flex justify-center">
+              <div className="bg-white border-2 border-gray-200 rounded-lg p-4 inline-block">
+                <img
+                  src={inspection.customer_signature_url}
+                  alt="Firma del cliente"
+                  className="max-h-32 w-auto object-contain"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.style.display = "none";
+                    const parent = target.parentElement;
+                    if (parent) {
+                      parent.innerHTML = `
+                        <div class="flex items-center justify-center h-32 w-64 text-gray-400">
+                          <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                          </svg>
+                          <p class="text-sm ml-2">Error al cargar firma</p>
+                        </div>
+                      `;
+                    }
+                  }}
+                />
+              </div>
+            </div>
+            <div className="mt-4 text-center">
+              <div className="inline-block border-t-2 border-gray-300 pt-2 px-8">
+                <p className="text-sm font-medium text-gray-700">
+                  Firma del Cliente
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  {new Date(inspection.inspection_date).toLocaleDateString(
+                    "es-PE"
+                  )}
+                </p>
+              </div>
+            </div>
+          </div>
         </Card>
       )}
     </div>

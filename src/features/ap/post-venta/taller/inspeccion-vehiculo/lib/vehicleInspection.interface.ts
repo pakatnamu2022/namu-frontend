@@ -38,6 +38,7 @@ export interface VehicleInspectionResource {
   inspected_by: number;
   inspected_by_name: string;
   inspection_date: string | Date;
+  customer_signature_url: string;
   damages?: VehicleInspectionDamageResource[];
 }
 
