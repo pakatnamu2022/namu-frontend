@@ -16,6 +16,7 @@ import { useMemo } from "react";
 
 interface SalesManagerAdvisorTableProps {
   advisors: AdvisorStats[];
+  type: "VISITA" | "LEADS";
   onAdvisorClick?: (workerId: number) => void;
 }
 
@@ -33,14 +34,10 @@ const getStatusColor = (status: string) => {
   }
 };
 
-const renderMetricsBar = (advisor: AdvisorStats) => {
+const renderMetricsBar = (advisor: AdvisorStats, type: "VISITA" | "LEADS") => {
   const total = advisor.total_visits;
   if (total === 0) {
-    return (
-      <div className="text-xs text-muted-foreground">
-        Sin datos
-      </div>
-    );
+    return <div className="text-xs text-muted-foreground">Sin datos</div>;
   }
 
   const attendedPct = (advisor.attended / total) * 100;
@@ -55,7 +52,9 @@ const renderMetricsBar = (advisor: AdvisorStats) => {
             {/* Header: Total y % Atención */}
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-2">
-                <span className="text-sm font-semibold">{total} visitas</span>
+                <span className="text-sm font-semibold">
+                  {total} {type === "VISITA" ? "visitas" : "leads"}
+                </span>
                 <span className="text-xs text-muted-foreground">
                   • {advisor.average_response_time}
                 </span>
@@ -123,25 +122,33 @@ const renderMetricsBar = (advisor: AdvisorStats) => {
                   <div className="w-3 h-3 rounded-sm bg-green-500" />
                   <span className="text-xs">Atendidos</span>
                 </div>
-                <span className="text-xs font-semibold">{advisor.attended} ({attendedPct.toFixed(1)}%)</span>
+                <span className="text-xs font-semibold">
+                  {advisor.attended} ({attendedPct.toFixed(1)}%)
+                </span>
               </div>
               <div className="flex items-center justify-between gap-8">
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 rounded-sm bg-amber-500" />
                   <span className="text-xs">No Atendidos</span>
                 </div>
-                <span className="text-xs font-semibold">{advisor.not_attended} ({notAttendedPct.toFixed(1)}%)</span>
+                <span className="text-xs font-semibold">
+                  {advisor.not_attended} ({notAttendedPct.toFixed(1)}%)
+                </span>
               </div>
               <div className="flex items-center justify-between gap-8">
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 rounded-sm bg-slate-500" />
                   <span className="text-xs">Descartados</span>
                 </div>
-                <span className="text-xs font-semibold">{advisor.discarded} ({discardedPct.toFixed(1)}%)</span>
+                <span className="text-xs font-semibold">
+                  {advisor.discarded} ({discardedPct.toFixed(1)}%)
+                </span>
               </div>
               <div className="flex items-center justify-between gap-8 pt-2 border-t">
                 <span className="text-xs">Tiempo promedio</span>
-                <span className="text-xs font-semibold">{advisor.average_response_time}</span>
+                <span className="text-xs font-semibold">
+                  {advisor.average_response_time}
+                </span>
               </div>
             </div>
           </div>
@@ -154,6 +161,7 @@ const renderMetricsBar = (advisor: AdvisorStats) => {
 export default function SalesManagerAdvisorTable({
   advisors,
   onAdvisorClick,
+  type,
 }: SalesManagerAdvisorTableProps) {
   const columns = useMemo<ColumnDef<AdvisorStats>[]>(
     () => [
@@ -162,15 +170,19 @@ export default function SalesManagerAdvisorTable({
         header: "Asesor",
         cell: ({ row }) => (
           <div className="space-y-0.5">
-            <div className="font-medium text-sm">{row.original.worker_name}</div>
-            <div className="text-xs text-muted-foreground">ID: {row.original.worker_id}</div>
+            <div className="font-medium text-sm">
+              {row.original.worker_name}
+            </div>
+            <div className="text-xs text-muted-foreground">
+              ID: {row.original.worker_id}
+            </div>
           </div>
         ),
       },
       {
         id: "metrics",
         header: "Métricas",
-        cell: ({ row }) => renderMetricsBar(row.original),
+        cell: ({ row }) => renderMetricsBar(row.original, type),
       },
       {
         id: "states",
