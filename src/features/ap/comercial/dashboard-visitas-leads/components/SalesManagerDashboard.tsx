@@ -22,6 +22,7 @@ import {
 import { EMPRESA_AP } from "@/core/core.constants";
 import TitleComponent from "@/shared/components/TitleComponent";
 import { MetricCard } from "@/shared/components/MetricCard";
+import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 
 // Obtener el primer y último día del mes pasado
 const getLastMonthRange = () => {
@@ -40,6 +41,9 @@ interface DashboardFormValues {
 }
 
 export default function SalesManagerDashboard() {
+  const ROUTE = "dashboard-equipo-leads";
+  const { canViewAdvisors } = useModulePermissions(ROUTE);
+
   const lastMonthRange = getLastMonthRange();
   const [selectedAdvisorId, setSelectedAdvisorId] = useState<number | null>(
     null
@@ -112,17 +116,19 @@ export default function SalesManagerDashboard() {
         <div className="flex items-end gap-3">
           <Form {...form}>
             <div className="flex items-end gap-3">
-              <FormSelect
-                options={bosses.map((boss) => ({
-                  label: boss.name,
-                  value: boss.id.toString(),
-                }))}
-                control={form.control}
-                name="boss_id"
-                placeholder="Jefe"
-                popoverWidth="w-72"
-                size="sm"
-              />
+              {canViewAdvisors && (
+                <FormSelect
+                  options={bosses.map((boss) => ({
+                    label: boss.name,
+                    value: boss.id.toString(),
+                  }))}
+                  control={form.control}
+                  name="boss_id"
+                  placeholder="Jefe"
+                  popoverWidth="w-72"
+                  size="sm"
+                />
+              )}
 
               <DateRangePickerFormField
                 size="sm"
@@ -179,7 +185,9 @@ export default function SalesManagerDashboard() {
               />
 
               <MetricCard
-                title={`Total ${form.getValues("type") === "VISITA" ? "Visitas" : "Leads"}`}
+                title={`Total ${
+                  form.getValues("type") === "VISITA" ? "Visitas" : "Leads"
+                }`}
                 value={statsData.data.team_totals.total_visits}
                 subtitle="En el período seleccionado"
                 variant="default"
@@ -188,21 +196,31 @@ export default function SalesManagerDashboard() {
               <MetricCard
                 title="Atendidos"
                 value={statsData.data.team_totals.attended}
-                subtitle={`${statsData.data.team_totals.attention_percentage.toFixed(1)}% del total`}
+                subtitle={`${statsData.data.team_totals.attention_percentage.toFixed(
+                  1
+                )}% del total`}
                 variant="success"
               />
 
               <MetricCard
                 title="No Atendidos"
                 value={statsData.data.team_totals.not_attended}
-                subtitle={`${((statsData.data.team_totals.not_attended / statsData.data.team_totals.total_visits) * 100).toFixed(1)}% del total`}
+                subtitle={`${(
+                  (statsData.data.team_totals.not_attended /
+                    statsData.data.team_totals.total_visits) *
+                  100
+                ).toFixed(1)}% del total`}
                 variant="warning"
               />
 
               <MetricCard
                 title="Descartados"
                 value={statsData.data.team_totals.discarded}
-                subtitle={`${((statsData.data.team_totals.discarded / statsData.data.team_totals.total_visits) * 100).toFixed(1)}% del total`}
+                subtitle={`${(
+                  (statsData.data.team_totals.discarded /
+                    statsData.data.team_totals.total_visits) *
+                  100
+                ).toFixed(1)}% del total`}
                 variant="danger"
               />
             </div>

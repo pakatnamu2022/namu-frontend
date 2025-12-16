@@ -36,15 +36,19 @@ export function FormSwitch<T extends FieldValues>({
       name={name}
       render={({ field }) => (
         <FormItem>
-          {label && <FormLabel className="h-fit flex">{label}</FormLabel>}
+          {label && (
+            <FormLabel className="flex justify-start items-center text-xs md:text-sm mb-1">
+              {label}
+            </FormLabel>
+          )}
           <FormLabel
             className={cn(
-              "flex flex-row items-center justify-between rounded-lg border h-10 p-3 shadow-xs bg-background hover:bg-muted hover:cursor-pointer",
+              "flex flex-row items-center justify-between rounded-lg border h-8 md:h-10 p-3 shadow-xs bg-background hover:bg-muted hover:cursor-pointer",
               className
             )}
           >
             <div className="flex flex-col gap-1">
-              <p>{text}</p>
+              <p className="text-xs md:text-sm">{text}</p>
               {textDescription && (
                 <p className="text-xs text-muted-foreground font-normal">
                   {textDescription}

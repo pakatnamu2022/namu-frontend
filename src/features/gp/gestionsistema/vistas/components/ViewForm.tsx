@@ -11,7 +11,6 @@ import {
   FormMessage,
   FormDescription,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
   ViewSchema,
@@ -20,8 +19,9 @@ import {
 } from "../lib/view.schema";
 import { Loader } from "lucide-react";
 import { Link } from "react-router-dom";
-import { Switch } from "@/components/ui/switch";
 import { FormSelect } from "@/shared/components/FormSelect";
+import { FormInput } from "@/shared/components/FormInput";
+import { FormSwitch } from "@/shared/components/FormSwitch";
 import { ViewResource } from "../lib/view.interface";
 import { CompanyResource } from "../../empresa/lib/company.interface";
 import RequiredField from "@/shared/components/RequiredField";
@@ -63,34 +63,21 @@ export const ViewForm = ({
         className="space-y-4 w-full formlayout"
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
+          <FormInput
             control={form.control}
             name="descripcion"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>
-                  Descripción <RequiredField />
-                </FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: Módulo de Ventas" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Descripción"
+            placeholder="Ej: Módulo de Ventas"
+            description="Nombre descriptivo de la vista o módulo"
+            required
           />
 
-          <FormField
+          <FormInput
             control={form.control}
             name="route"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Ruta</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: configuracion" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Ruta"
+            placeholder="Ej: configuracion"
+            description="Ruta de navegación del módulo"
           />
 
           <FormField
@@ -98,14 +85,14 @@ export const ViewForm = ({
             name="icon"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>
+                <FormLabel className="text-xs md:text-sm">
                   Ícono <RequiredField />
                 </FormLabel>
                 <FormControl>
                   <IconPicker value={field.value} onChange={field.onChange} />
                 </FormControl>
-                <FormDescription className="text-xs">
-                  Selecciona un ícono representativo para la vista.
+                <FormDescription className="text-xs text-muted-foreground">
+                  Selecciona un ícono representativo para la vista en el sistema
                 </FormDescription>
                 <FormMessage />
               </FormItem>
@@ -115,8 +102,8 @@ export const ViewForm = ({
           <FormSelect
             control={form.control}
             name="parent_id"
-            description="Selecciona el módulo padre si aplica"
-            label="Modulo Superior"
+            description="Selecciona el módulo padre al que pertenece esta vista"
+            label="Módulo Superior"
             required={true}
             placeholder="Selecciona la vista padre"
             options={views.map((v) => ({
@@ -136,6 +123,7 @@ export const ViewForm = ({
                 Empresa <RequiredField />
               </FormLabel>
             )}
+            description="Empresa a la que pertenece este módulo"
             placeholder="Selecciona la empresa"
             options={companies.map((company) => ({
               label: company.name,
@@ -143,66 +131,38 @@ export const ViewForm = ({
             }))}
           />
 
-          <FormField
+          <FormSwitch
             control={form.control}
             name="submodule"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="flex flex-col gap-1">
-                  <div className="h-6 flex items-center">Tiene submódulos</div>
-                  <div className="flex flex-row items-center justify-between rounded-md border h-10 px-3 bg-background hover:bg-accent transition-colors hover:cursor-pointer">
-                    <p className="text-sm font-medium text-muted-foreground">
-                      Marcar si la vista tiene submódulos.
-                    </p>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                  </div>
-                </FormLabel>
-              </FormItem>
-            )}
+            label="Tiene submódulos"
+            text="Marcar si la vista tiene submódulos"
+            description="Indica si este módulo contiene submódulos en su estructura"
           />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
+          <FormInput
             control={form.control}
             name="ruta"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>
-                  {/* Cambiar luego de cambiar todo, no es obligatorio|CODE : 500 */}
-                  Ruta Milla <RequiredField />
-                </FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: /ap/configuracion" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Ruta Milla"
+            placeholder="Ej: /ap/configuracion"
+            description="Ruta completa del módulo en el sistema Milla"
+            required
           />
 
-          <FormField
+          <FormInput
             control={form.control}
             name="icono"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Ícono de Milla</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: fa fas-user" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Ícono de Milla"
+            placeholder="Ej: fa fas-user"
+            description="Clase del ícono FontAwesome para Milla"
           />
 
           <FormSelect
             control={form.control}
             name="idPadre"
             label="Padre"
+            description="Módulo padre en la jerarquía de Milla"
             placeholder="Seleccionar padre"
             options={views.map((v) => ({
               label: v.descripcion,
@@ -215,6 +175,7 @@ export const ViewForm = ({
             control={form.control}
             name="idSubPadre"
             label="Sub Padre"
+            description="Módulo sub-padre en la jerarquía de Milla"
             placeholder="Seleccionar sub padre"
             options={views.map((v) => ({
               label: v.descripcion,
@@ -227,6 +188,7 @@ export const ViewForm = ({
             control={form.control}
             name="idHijo"
             label="Hijo"
+            description="Módulo hijo en la jerarquía de Milla"
             placeholder="Seleccionar hijo"
             options={views.map((v) => ({
               label: v.descripcion,
