@@ -93,6 +93,8 @@ import MyPerformance from "./app/perfil/mi-desempeno/page";
 import VacationPage from "./app/perfil/vacaciones/page";
 import ModulePage from "./components/ModulePage";
 import CommercialPage from "./app/ap/comercial/page.tsx";
+import DashboardDeliveryPage from "./app/ap/comercial/dashboard-entregas/page.tsx";
+import TeamLeadsDashboard from "./app/ap/comercial/dashboard-equipo-leads/page.tsx";
 const PositionsPage = lazy(
   () => import("./app/gp/gestion-humana/configuraciones/posiciones/page")
 );
@@ -1111,6 +1113,18 @@ function App() {
                 <AddPurchaseRequestQuotePage />,
                 <UpdatePurchaseRequestQuotePage />
               )}
+
+              {/* Dashboard Entregas */}
+              <Route
+                path="dashboard-entregas"
+                element={<DashboardDeliveryPage />}
+              />
+
+              {/* Dashboard Equipo Leads */}
+              <Route
+                path="dashboard-equipo-leads"
+                element={<TeamLeadsDashboard />}
+              />
 
               {/* Dashboard Visitas Leads */}
               <Route

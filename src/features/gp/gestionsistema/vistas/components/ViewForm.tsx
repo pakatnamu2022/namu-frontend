@@ -9,6 +9,7 @@ import {
   FormLabel,
   FormControl,
   FormMessage,
+  FormDescription,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -103,6 +104,9 @@ export const ViewForm = ({
                 <FormControl>
                   <IconPicker value={field.value} onChange={field.onChange} />
                 </FormControl>
+                <FormDescription className="text-xs">
+                  Selecciona un ícono representativo para la vista.
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -112,11 +116,8 @@ export const ViewForm = ({
             control={form.control}
             name="parent_id"
             description="Selecciona el módulo padre si aplica"
-            label={() => (
-              <FormLabel className="mb-0">
-                Modulo Superior <RequiredField />
-              </FormLabel>
-            )}
+            label="Modulo Superior"
+            required={true}
             placeholder="Selecciona la vista padre"
             options={views.map((v) => ({
               label: v.descripcion,
@@ -141,6 +142,7 @@ export const ViewForm = ({
               value: company.id.toString(),
             }))}
           />
+
           <FormField
             control={form.control}
             name="submodule"
