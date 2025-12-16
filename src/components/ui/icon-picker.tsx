@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 // Exportaciones que no son componentes de iconos
 const EXCLUDED_EXPORTS = [
@@ -332,12 +333,15 @@ export function IconPicker({ value, onChange }: IconPickerProps) {
       ? LucideIconsMap[value]
       : LucideIcons.ImageIcon;
 
+  const isMobile = useIsMobile();
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button
           type="button"
           variant="outline"
+          size={isMobile ? "sm" : "lg"}
           className="w-full justify-start gap-2"
         >
           {CurrentIcon && <CurrentIcon className="h-4 w-4" />}
