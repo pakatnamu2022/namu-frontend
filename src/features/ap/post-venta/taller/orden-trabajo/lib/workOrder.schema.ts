@@ -12,7 +12,6 @@ export const workOrderSchemaCreate = z
     has_appointment: z.boolean().default(false),
     appointment_planning_id: z.string().optional(),
     vehicle_id: requiredStringId("Vehículo es requerido"),
-    advisor_id: requiredStringId("Asesor es requerido"),
     sede_id: requiredStringId("Sede es requerida"),
     opening_date: z.union([z.literal(""), z.date()]),
     estimated_delivery_date: z

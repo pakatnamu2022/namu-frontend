@@ -35,7 +35,6 @@ export const vehicleInspectionSchemaCreate = z.object({
   tool_kit: z.boolean().default(true),
   jack_and_lever: z.boolean().default(true),
   general_observations: z.string().max(1000).optional(),
-  inspected_by: requiredStringId("Inspector es requerido"),
   inspection_date: z.union([z.literal(""), z.date()]),
   fuel_level: z
     .string()

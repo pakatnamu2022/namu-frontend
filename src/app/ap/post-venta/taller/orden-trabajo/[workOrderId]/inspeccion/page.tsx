@@ -113,7 +113,6 @@ export default function VehicleInspectionPage() {
     formData.append("tool_kit", data.tool_kit ? "1" : "0");
     formData.append("jack_and_lever", data.jack_and_lever ? "1" : "0");
     formData.append("general_observations", data.general_observations || "");
-    formData.append("inspected_by", data.inspected_by);
     formData.append(
       "inspection_date",
       data.inspection_date instanceof Date
@@ -199,7 +198,6 @@ export default function VehicleInspectionPage() {
         tool_kit: existingInspection.tool_kit,
         jack_and_lever: existingInspection.jack_and_lever,
         general_observations: existingInspection.general_observations || "",
-        inspected_by: String(existingInspection.inspected_by),
         inspection_date: existingInspection.inspection_date
           ? new Date(existingInspection.inspection_date)
           : "",
@@ -240,7 +238,6 @@ export default function VehicleInspectionPage() {
         tool_kit: false,
         jack_and_lever: false,
         general_observations: "",
-        inspected_by: "",
         inspection_date: getCurrentDate(),
         fuel_level: workOrder.fuel_level || "",
         oil_level: "",
