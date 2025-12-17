@@ -35,12 +35,13 @@ export default function ReasonsAdjustmentModal({
   const queryClient = useQueryClient();
   const { EMPTY, MODEL, QUERY_KEY } = REASONS_ADJUSTMENT;
   const {
-    data: fetchedData,
+    data: ReasonsAdjustment,
     isLoading: loadingReasonsAdjustment,
     refetch,
-  } = useReasonsAdjustmentById(id);
-
-  const ReasonsAdjustment = mode === "create" ? EMPTY : fetchedData;
+  } = mode === "create"
+    ? { data: EMPTY, isLoading: false, refetch: () => {} }
+    : // eslint-disable-next-line react-hooks/rules-of-hooks
+      useReasonsAdjustmentById(id!);
 
   function mapRoleToForm(
     data: ReasonsAdjustmentResource

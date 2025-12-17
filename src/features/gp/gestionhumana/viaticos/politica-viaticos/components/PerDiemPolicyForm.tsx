@@ -22,7 +22,7 @@ import { Button } from "@/components/ui/button";
 import { Loader, FileText, Upload } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 
 interface PerDiemPolicyFormProps {
@@ -53,6 +53,18 @@ export const PerDiemPolicyForm = ({
     },
     mode: "onChange",
   });
+
+  useEffect(() => {
+    if (mode === "update" && Object.keys(defaultValues).length > 0) {
+      form.reset(defaultValues, {
+        keepDefaultValues: true,
+      });
+      setTimeout(() => {
+        form.trigger();
+      }, 0);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [defaultValues, mode]);
 
   return (
     <Form {...form}>

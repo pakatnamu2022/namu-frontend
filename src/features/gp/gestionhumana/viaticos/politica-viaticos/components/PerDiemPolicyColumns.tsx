@@ -42,10 +42,30 @@ export const perDiemPolicyColumns = ({
   {
     accessorKey: "effective_from",
     header: "Vigencia Desde",
+    cell: ({ getValue }) => {
+      const value = getValue() as string;
+      if (!value) return "-";
+      const date = new Date(value);
+      return date.toLocaleDateString("es-PE", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      });
+    },
   },
   {
     accessorKey: "effective_to",
     header: "Vigencia Hasta",
+    cell: ({ getValue }) => {
+      const value = getValue() as string;
+      if (!value) return "-";
+      const date = new Date(value);
+      return date.toLocaleDateString("es-PE", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      });
+    },
   },
   {
     accessorKey: "is_current",

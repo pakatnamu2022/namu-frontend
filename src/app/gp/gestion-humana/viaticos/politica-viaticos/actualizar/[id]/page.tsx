@@ -73,8 +73,8 @@ export default function UpdatePerDiemPolicyPage() {
     return {
       version: data.version,
       name: data.name,
-      effective_from: data.effective_from,
-      effective_to: data.effective_to,
+      effective_from: data.effective_from ? new Date(data.effective_from) : "",
+      effective_to: data.effective_to ? new Date(data.effective_to) : "",
       is_current: data.is_current,
       notes: data.notes || "",
     };

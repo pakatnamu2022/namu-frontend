@@ -33,14 +33,15 @@ export default function PerDiemCategoryModal({
   mode,
 }: Props) {
   const queryClient = useQueryClient();
-  const { MODEL, QUERY_KEY } = PER_DIEM_CATEGORY;
+  const { MODEL, QUERY_KEY, EMPTY } = PER_DIEM_CATEGORY;
   const {
-    data: perDiemCategoryData,
+    data: perDiemCategory,
     isLoading: loadingPerDiemCategory,
     refetch,
-  } = useFindPerDiemCategoryById(id!);
-
-  const perDiemCategory = mode === "create" ? { name: "", description: "", active: true } : perDiemCategoryData;
+  } = mode === "create"
+    ? { data: EMPTY, isLoading: false, refetch: () => {} }
+    : // eslint-disable-next-line react-hooks/rules-of-hooks
+      useFindPerDiemCategoryById(id!);
 
   function mapPerDiemCategoryToForm(
     data: PerDiemCategoryResource
@@ -83,7 +84,9 @@ export default function PerDiemCategoryModal({
     <GeneralModal open={open} onClose={onClose} title={title}>
       {!isLoadingAny && perDiemCategory ? (
         <PerDiemCategoryForm
-          defaultValues={mapPerDiemCategoryToForm(perDiemCategory as PerDiemCategoryResource)}
+          defaultValues={mapPerDiemCategoryToForm(
+            perDiemCategory as PerDiemCategoryResource
+          )}
           onCancel={onClose}
           onSubmit={handleSubmit}
           isSubmitting={isPending}
