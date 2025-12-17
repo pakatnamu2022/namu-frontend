@@ -14,7 +14,6 @@ import { storePerDiemRequest } from "@/features/gp/gestionhumana/viaticos/solici
 import { PER_DIEM_REQUEST } from "@/features/gp/gestionhumana/viaticos/solicitud-viaticos/lib/perDiemRequest.constants";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { PerDiemRequestSchema } from "@/features/gp/gestionhumana/viaticos/solicitud-viaticos/lib/perDiemRequest.schema";
 import FormWrapper from "@/shared/components/FormWrapper";
 import { useNavigate } from "react-router-dom";
 
@@ -39,7 +38,7 @@ export default function AddPerDiemRequestPage() {
     },
   });
 
-  const handleSubmit = (data: PerDiemRequestSchema) => {
+  const handleSubmit = (data: any) => {
     mutate(data);
   };
 
@@ -60,18 +59,12 @@ export default function AddPerDiemRequestPage() {
       />
       <PerDiemRequestForm
         defaultValues={{
-          per_diem_policy_id: "",
           employee_id: "",
           company_id: "",
           per_diem_category_id: "",
           start_date: "",
           end_date: "",
           purpose: "",
-          final_result: "",
-          total_budget: 0,
-          cash_amount: 0,
-          transfer_amount: 0,
-          payment_method: "",
           notes: "",
         }}
         onSubmit={handleSubmit}

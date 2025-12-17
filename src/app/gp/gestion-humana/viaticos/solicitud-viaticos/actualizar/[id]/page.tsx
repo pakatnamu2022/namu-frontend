@@ -71,18 +71,9 @@ export default function UpdatePerDiemRequestPage() {
     data: PerDiemRequestResource
   ): Partial<PerDiemRequestSchemaUpdate> {
     return {
-      per_diem_policy_id: data.per_diem_policy_id,
-      employee_id: data.employee_id,
-      company_id: data.company_id,
-      per_diem_category_id: data.per_diem_category_id as any,
       start_date: data.start_date ? new Date(data.start_date) : "",
       end_date: data.end_date ? new Date(data.end_date) : "",
       purpose: data.purpose,
-      final_result: data.final_result || "",
-      total_budget: data.total_budget,
-      cash_amount: data.cash_amount,
-      transfer_amount: data.transfer_amount,
-      payment_method: data.payment_method || "",
       notes: data.notes || "",
       status: data.status,
       paid: data.paid,
