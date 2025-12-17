@@ -120,6 +120,7 @@ export default function UpdateProductTransferPage() {
         isSubmitting={isPending}
         mode="update"
         onCancel={() => router(ABSOLUTE_ROUTE)}
+        transferData={transfer}
       />
     </FormWrapper>
   );

@@ -71,7 +71,11 @@ export const ModelsVnForm = ({
   const familiaSeleccionada = form.watch("family_id");
   const yearModelo = form.watch("model_year");
   const typeOperationId = form.watch("type_operation_id");
-  const { data: brands = [], isLoading: isLoadingbrands } = useAllBrands();
+  const { data: brands = [], isLoading: isLoadingbrands } = useAllBrands(
+    typeOperationId === String(CM_COMERCIAL_ID)
+      ? { type_operation_id: typeOperationId }
+      : {}
+  );
   const { data: families = [], isLoading: isLoadingFamilies } = useAllFamilies({
     brand_id: marcaSeleccionada,
   });
@@ -333,21 +337,23 @@ export const ModelsVnForm = ({
               }))}
               control={form.control}
             />
-            <FormField
-              control={form.control}
-              name="power"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm font-medium text-gray-700">
-                    Potencia
-                  </FormLabel>
-                  <FormControl>
-                    <Input placeholder="Ej: 0.00" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {typeOperationId === String(CM_COMERCIAL_ID) && (
+              <FormField
+                control={form.control}
+                name="power"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-medium text-gray-700">
+                      Potencia
+                    </FormLabel>
+                    <FormControl>
+                      <Input placeholder="Ej: 0.00" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
             <FormField
               control={form.control}
               name="model_year"
@@ -363,36 +369,48 @@ export const ModelsVnForm = ({
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="wheelbase"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm font-medium text-gray-700">
-                    Distancia Ejes
-                  </FormLabel>
-                  <FormControl>
-                    <Input type="number" placeholder="Ej: 0.00" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="axles_number"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm font-medium text-gray-700">
-                    Núm. Ejes
-                  </FormLabel>
-                  <FormControl>
-                    <Input type="number" placeholder="Ej: 0.00" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {typeOperationId === String(CM_COMERCIAL_ID) && (
+              <>
+                <FormField
+                  control={form.control}
+                  name="wheelbase"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm font-medium text-gray-700">
+                        Distancia Ejes
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          placeholder="Ej: 0.00"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="axles_number"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm font-medium text-gray-700">
+                        Núm. Ejes
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          placeholder="Ej: 0.00"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </>
+            )}
             <FormSelect
               name="vehicle_type_id"
               label="Tipo Vehículo"
@@ -433,66 +451,74 @@ export const ModelsVnForm = ({
               }))}
               control={form.control}
             />
-            <FormField
-              control={form.control}
-              name="width"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm font-medium text-gray-700">
-                    Ancho
-                  </FormLabel>
-                  <FormControl>
-                    <Input placeholder="Ej: 0.00" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="length"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm font-medium text-gray-700">
-                    Largo
-                  </FormLabel>
-                  <FormControl>
-                    <Input placeholder="Ej: 0.00" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="height"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm font-medium text-gray-700">
-                    Altura
-                  </FormLabel>
-                  <FormControl>
-                    <Input placeholder="Ej: 0.00" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="seats_number"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm font-medium text-gray-700">
-                    Núm. Asientos
-                  </FormLabel>
-                  <FormControl>
-                    <Input type="number" placeholder="Ej: 0.00" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {typeOperationId === String(CM_COMERCIAL_ID) && (
+              <>
+                <FormField
+                  control={form.control}
+                  name="width"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm font-medium text-gray-700">
+                        Ancho
+                      </FormLabel>
+                      <FormControl>
+                        <Input placeholder="Ej: 0.00" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="length"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm font-medium text-gray-700">
+                        Largo
+                      </FormLabel>
+                      <FormControl>
+                        <Input placeholder="Ej: 0.00" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="height"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm font-medium text-gray-700">
+                        Altura
+                      </FormLabel>
+                      <FormControl>
+                        <Input placeholder="Ej: 0.00" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="seats_number"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm font-medium text-gray-700">
+                        Núm. Asientos
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          placeholder="Ej: 0.00"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </>
+            )}
             <FormField
               control={form.control}
               name="doors_number"
@@ -508,81 +534,89 @@ export const ModelsVnForm = ({
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="net_weight"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm font-medium text-gray-700">
-                    Peso Neto
-                  </FormLabel>
-                  <FormControl>
-                    <Input placeholder="Ej: 0.00" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="gross_weight"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm font-medium text-gray-700">
-                    Peso Bruto
-                  </FormLabel>
-                  <FormControl>
-                    <Input placeholder="Ej: 0.00" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="payload"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm font-medium text-gray-700">
-                    Carga Útil
-                  </FormLabel>
-                  <FormControl>
-                    <Input placeholder="Ej: 0.00" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="displacement"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm font-medium text-gray-700">
-                    Cilindrada
-                  </FormLabel>
-                  <FormControl>
-                    <Input placeholder="Ej: 0.00" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="cylinders_number"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm font-medium text-gray-700">
-                    Núm. Cilindros
-                  </FormLabel>
-                  <FormControl>
-                    <Input type="number" placeholder="Ej: 0.00" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {typeOperationId === String(CM_COMERCIAL_ID) && (
+              <>
+                <FormField
+                  control={form.control}
+                  name="net_weight"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm font-medium text-gray-700">
+                        Peso Neto
+                      </FormLabel>
+                      <FormControl>
+                        <Input placeholder="Ej: 0.00" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="gross_weight"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm font-medium text-gray-700">
+                        Peso Bruto
+                      </FormLabel>
+                      <FormControl>
+                        <Input placeholder="Ej: 0.00" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="payload"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm font-medium text-gray-700">
+                        Carga Útil
+                      </FormLabel>
+                      <FormControl>
+                        <Input placeholder="Ej: 0.00" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="displacement"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm font-medium text-gray-700">
+                        Cilindrada
+                      </FormLabel>
+                      <FormControl>
+                        <Input placeholder="Ej: 0.00" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="cylinders_number"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm font-medium text-gray-700">
+                        Núm. Cilindros
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          placeholder="Ej: 0.00"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </>
+            )}
             <FormField
               control={form.control}
               name="passengers_number"

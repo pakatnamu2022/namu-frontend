@@ -55,6 +55,7 @@ export interface PurchaseOrderProductsResource {
   vehicleMovement?: any;
   has_receptions?: boolean;
   migrated_at?: string | null;
+  notes?: string;
   created_at: string;
   updated_at: string;
 }

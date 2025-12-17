@@ -4,8 +4,10 @@ import { z } from "zod";
 
 const adjustmentDetailSchema = z.object({
   product_id: requiredStringId("Producto es requerido"),
-  quantity: z.number().min(0.01, { message: "La cantidad debe ser mayor a 0" }),
-  unit_cost: z
+  quantity: z.coerce
+    .number()
+    .min(0.01, { message: "La cantidad debe ser mayor a 0" }),
+  unit_cost: z.coerce
     .number()
     .min(0, { message: "El costo unitario debe ser mayor o igual a 0" })
     .optional(),

@@ -30,6 +30,8 @@ export default function WorkOrderTable({
           opening_date: true,
           estimated_delivery_date: false,
           actual_delivery_date: false,
+          is_guarantee: true,
+          is_recall: true,
           is_invoiced: true,
         }}
       >

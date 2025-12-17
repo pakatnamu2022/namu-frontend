@@ -44,6 +44,7 @@ import { DEFAULT_GROUP_COLOR, GROUP_COLORS } from "../lib/workOrder.interface";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { WORKER_ORDER } from "../lib/workOrder.constants";
 import { AppointmentSelectionModal } from "../../citas/components/AppointmentSelectionModal";
+import { FormSwitch } from "@/shared/components/FormSwitch";
 
 const getGroupColor = (groupNumber: number) => {
   return GROUP_COLORS[groupNumber] || DEFAULT_GROUP_COLOR;
@@ -75,6 +76,8 @@ export const WorkOrderForm = ({
       ...defaultValues,
       has_appointment: defaultValues.has_appointment ?? false,
       items: defaultValues.items ?? [],
+      diagnosis_date:
+        defaultValues.diagnosis_date || defaultValues.opening_date,
     },
     mode: "onChange",
   });
@@ -490,7 +493,7 @@ export const WorkOrderForm = ({
           icon={Building}
           iconColor="text-gray-800"
           bgColor="bg-gray-50"
-          cols={{ sm: 2, md: 3 }}
+          cols={{ sm: 2 }}
         >
           <DatePickerFormField
             control={form.control}
@@ -512,14 +515,18 @@ export const WorkOrderForm = ({
             disabledRange={{ before: new Date() }}
           />
 
-          <DatePickerFormField
+          <FormSwitch
+            name="is_guarantee"
+            label="Vehículo en Garantía"
+            text={form.watch("is_guarantee") ? "Sí" : "No"}
             control={form.control}
-            name="diagnosis_date"
-            label="Fecha de Diagnóstico"
-            placeholder="Selecciona una fecha"
-            dateFormat="dd/MM/yyyy"
-            captionLayout="dropdown"
-            disabledRange={{ after: new Date() }}
+          />
+
+          <FormSwitch
+            name="is_recall"
+            label="Recall"
+            text={form.watch("is_recall") ? "Sí" : "No"}
+            control={form.control}
           />
         </GroupFormSection>
 

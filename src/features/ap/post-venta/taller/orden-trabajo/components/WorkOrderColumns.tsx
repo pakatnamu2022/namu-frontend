@@ -98,6 +98,30 @@ export const workOrderColumns = ({
     },
   },
   {
+    accessorKey: "is_guarantee",
+    header: "Garantía",
+    cell: ({ getValue }) => {
+      const value = getValue() as boolean;
+      return (
+        <Badge variant={value ? "default" : "secondary"}>
+          {value ? "Sí" : "No"}
+        </Badge>
+      );
+    },
+  },
+  {
+    accessorKey: "is_recall",
+    header: "Recall",
+    cell: ({ getValue }) => {
+      const value = getValue() as boolean;
+      return (
+        <Badge variant={value ? "default" : "secondary"}>
+          {value ? "Sí" : "No"}
+        </Badge>
+      );
+    },
+  },
+  {
     accessorKey: "is_invoiced",
     header: "Facturado",
     cell: ({ getValue }) => {

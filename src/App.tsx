@@ -180,6 +180,9 @@ import UpdateBrandPage from "./app/ap/configuraciones/vehiculos/marcas/actualiza
 import ModelsVnPage from "./app/ap/configuraciones/vehiculos/modelos-vn/page.tsx";
 import AddModelsVnPage from "./app/ap/configuraciones/vehiculos/modelos-vn/agregar/page.tsx";
 import UpdateModelsVnPage from "./app/ap/configuraciones/vehiculos/modelos-vn/actualizar/[id]/page.tsx";
+import ModelsVnPvPage from "./app/ap/post-venta/taller/modelos-vn-pv/page.tsx";
+import AddModelsVnPvPage from "./app/ap/post-venta/taller/modelos-vn-pv/agregar/page.tsx";
+import UpdateModelsVnPvPage from "./app/ap/post-venta/taller/modelos-vn-pv/actualizar/[id]/page.tsx";
 import TypeVehicleOriginPage from "./app/ap/configuraciones/vehiculos/origen-vehiculo/page.tsx";
 import BodyTypePage from "./app/ap/configuraciones/vehiculos/tipos-carroceria/page.tsx";
 import FuelTypePage from "./app/ap/configuraciones/vehiculos/tipos-combustible/page.tsx";
@@ -1065,14 +1068,14 @@ function App() {
               />
               {/* Taller */}
               <Route path="taller/lavado-vehiculo" element={<CardWashPage />} />
-              <Route path="taller/modelos-vn-pv" element={<ModelsVnPage />} />
+              <Route path="taller/modelos-vn-pv" element={<ModelsVnPvPage />} />
               <Route
                 path="taller/modelos-vn-pv/agregar"
-                element={<AddModelsVnPage />}
+                element={<AddModelsVnPvPage />}
               />
               <Route
                 path="taller/modelos-vn-pv/actualizar/:id"
-                element={<UpdateModelsVnPage />}
+                element={<UpdateModelsVnPvPage />}
               />
               <Route
                 path="taller/citas"

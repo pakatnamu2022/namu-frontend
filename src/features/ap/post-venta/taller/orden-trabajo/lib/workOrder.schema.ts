@@ -26,6 +26,8 @@ export const workOrderSchemaCreate = z
       }),
     observations: z.string().max(250),
     items: z.array(workOrderItemSchema).optional(),
+    is_guarantee: z.boolean().default(true),
+    is_recall: z.boolean().default(true),
   })
   .refine(
     (data) => {

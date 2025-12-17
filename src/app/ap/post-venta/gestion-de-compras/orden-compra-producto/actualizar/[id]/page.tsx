@@ -71,6 +71,7 @@ export default function UpdatePurchaseOrderProductsPage() {
       warehouse_id: String(data.warehouse_id),
       currency_id: String(data.currency_id),
       payment_terms: data.payment_terms,
+      notes: data.notes,
       items:
         data.items?.map((item) => ({
           product_id: String(item.product_id),

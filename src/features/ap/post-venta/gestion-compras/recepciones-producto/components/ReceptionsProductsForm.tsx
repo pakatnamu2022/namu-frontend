@@ -26,7 +26,8 @@ import {
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { useAllWarehouse } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
-import { useAllProduct } from "@/features/ap/post-venta/gestion-productos/productos/lib/product.hook";
+import { useProduct } from "@/features/ap/post-venta/gestion-productos/productos/lib/product.hook";
+import { ProductResource } from "@/features/ap/post-venta/gestion-productos/productos/lib/product.interface";
 import { Textarea } from "@/components/ui/textarea";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { Card } from "@/components/ui/card";
@@ -82,7 +83,6 @@ export const ReceptionsProductsForm = ({
     useAllWarehouse({
       is_physical_warehouse: 1,
     });
-  const { data: products = [], isLoading: isLoadingProducts } = useAllProduct();
 
   const watchedDetails = form.watch("details");
 
@@ -109,7 +109,7 @@ export const ReceptionsProductsForm = ({
     }
   }, [mode, purchaseOrderItems, fields.length, form]);
 
-  if (isLoadingWarehouses || isLoadingProducts) {
+  if (isLoadingWarehouses) {
     return <FormSkeleton />;
   }
 
@@ -301,17 +301,34 @@ export const ReceptionsProductsForm = ({
                       }`}
                     >
                       {!isOrderedProduct && (
-                        <FormSelect
-                          name={`details.${index}.product_id`}
-                          label="Producto *"
-                          placeholder="Selecciona"
-                          options={products.map((product) => ({
-                            label: `${product.name} (${product.code})`,
-                            value: product.id.toString(),
-                          }))}
-                          control={form.control}
-                          disabled={mode === "update"}
-                        />
+                        mode === "update" ? (
+                          // Modo edición: Mostrar nombre del producto (solo lectura)
+                          <div className="space-y-1">
+                            <FormLabel className="text-xs font-medium">
+                              Producto *
+                            </FormLabel>
+                            <div className="h-auto min-h-10 w-full rounded-md border border-input bg-muted/50 px-3 py-2 text-sm flex items-center">
+                              <span className="font-medium text-sm truncate">
+                                {productItem?.product_name || "Producto no disponible"}
+                              </span>
+                            </div>
+                          </div>
+                        ) : (
+                          // Modo creación: Selector asíncrono
+                          <FormSelectAsync
+                            name={`details.${index}.product_id`}
+                            label="Producto *"
+                            placeholder="Buscar producto..."
+                            control={form.control}
+                            useQueryHook={useProduct}
+                            mapOptionFn={(product: ProductResource) => ({
+                              value: product.id.toString(),
+                              label: `${product.name} (${product.code})`,
+                            })}
+                            perPage={10}
+                            debounceMs={500}
+                          />
+                        )
                       )}
 
                       <FormField
