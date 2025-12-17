@@ -70,10 +70,12 @@ export async function deleteHotelAgreement(
 }
 
 export async function toggleActiveHotelAgreement(
-  id: number
+  id: number,
+  data: any
 ): Promise<HotelAgreementResource> {
-  const response = await api.patch<HotelAgreementResource>(
-    `${ENDPOINT}/${id}/toggle-active`
+  const response = await api.put<HotelAgreementResource>(
+    `${ENDPOINT}/${id}`,
+    data
   );
   return response.data;
 }

@@ -36,10 +36,10 @@ export interface PerDiemRequestResource {
   policy: string;
   approvals: ApprovalResource[];
   hotel_reservation: HotelReservationResource;
-  expenses: Expense[];
+  expenses: ExpenseResource[];
 }
 
-interface Expense {
+export interface ExpenseResource {
   id: number;
   expense_date: string;
   concept: string;
@@ -52,8 +52,46 @@ interface Expense {
   notes: null | string;
   validated: boolean;
   validated_at: null | string;
+  expense_type: ExpenseType;
+  validated_by: ValidatedBy | null;
   created_at: string;
   updated_at: string;
+}
+
+export interface ExpenseType {
+  id: number;
+  code: string;
+  name: string;
+  full_name: string;
+  description: string;
+  requires_receipt: boolean;
+  active: boolean;
+  order: number;
+  parent: {
+    id: number;
+    code: string;
+    name: string;
+  } | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ValidatedBy {
+  id: number;
+  name: string;
+}
+
+export interface ExpenseRequest {
+  expense_date: string | Date;
+  concept: string;
+  receipt_amount: number;
+  company_amount: number;
+  employee_amount: number;
+  receipt_type: string;
+  receipt_number: string;
+  receipt_file?: File;
+  notes?: string;
+  expense_type_id: number;
 }
 
 interface HotelReservationResource {

@@ -54,9 +54,11 @@ export default function HotelAgreementPage() {
     router(`${ROUTE_UPDATE}/${id}`);
   };
 
-  const handleToggleActive = async (id: number) => {
+  const handleToggleActive = async (id: number, active: boolean) => {
     try {
-      await toggleActiveHotelAgreement(id);
+      await toggleActiveHotelAgreement(id, {
+        active,
+      });
       await refetch();
       successToast("Estado actualizado correctamente");
     } catch (error: any) {

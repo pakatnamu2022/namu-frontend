@@ -5,7 +5,6 @@ import { HotelAgreementResource } from "../lib/hotelAgreement.interface";
 import { Button } from "@/components/ui/button";
 import { Pencil, CheckCircle2, XCircle } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
-import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 
 export type HotelAgreementColumns = ColumnDef<HotelAgreementResource>;
@@ -13,7 +12,7 @@ export type HotelAgreementColumns = ColumnDef<HotelAgreementResource>;
 interface Props {
   onDelete: (id: number) => void;
   onUpdate: (id: number) => void;
-  onToggleActive: (id: number) => void;
+  onToggleActive: (id: number, active: boolean) => void;
   permissions: {
     canUpdate: boolean;
     canDelete: boolean;
@@ -53,6 +52,38 @@ export const hotelAgreementColumns = ({
   {
     accessorKey: "includes_breakfast",
     header: "Desayuno",
+    cell: ({ getValue }) => {
+      const value = getValue() as boolean;
+      return (
+        <div className="flex justify-center">
+          {value ? (
+            <CheckCircle2 className="h-5 w-5 text-green-600" />
+          ) : (
+            <XCircle className="h-5 w-5 text-gray-400" />
+          )}
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "includes_lunch",
+    header: "Almuerzo",
+    cell: ({ getValue }) => {
+      const value = getValue() as boolean;
+      return (
+        <div className="flex justify-center">
+          {value ? (
+            <CheckCircle2 className="h-5 w-5 text-green-600" />
+          ) : (
+            <XCircle className="h-5 w-5 text-gray-400" />
+          )}
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "includes_dinner",
+    header: "Cena",
     cell: ({ getValue }) => {
       const value = getValue() as boolean;
       return (
@@ -107,7 +138,7 @@ export const hotelAgreementColumns = ({
         <div className="flex justify-center">
           <Switch
             checked={active}
-            onCheckedChange={() => onToggleActive(id)}
+            onCheckedChange={() => onToggleActive(id, !active)}
             disabled={!permissions.canUpdate}
           />
         </div>

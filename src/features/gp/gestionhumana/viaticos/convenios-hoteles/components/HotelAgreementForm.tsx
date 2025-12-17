@@ -75,10 +75,7 @@ export const HotelAgreementForm = ({
               <FormItem>
                 <FormLabel>Nombre del Hotel</FormLabel>
                 <FormControl>
-                  <Input
-                    placeholder="Ej: Hotel Costa del Sol"
-                    {...field}
-                  />
+                  <Input placeholder="Ej: Hotel Costa del Sol" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -143,10 +140,7 @@ export const HotelAgreementForm = ({
               <FormItem>
                 <FormLabel>Sitio Web (Opcional)</FormLabel>
                 <FormControl>
-                  <Input
-                    placeholder="Ej: https://www.hotel.com"
-                    {...field}
-                  />
+                  <Input placeholder="Ej: https://www.hotel.com" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -270,26 +264,28 @@ export const HotelAgreementForm = ({
           </div>
         </div>
 
-        <FormField
-          control={form.control}
-          name="active"
-          render={({ field }) => (
-            <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-              <FormControl>
-                <Checkbox
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                />
-              </FormControl>
-              <div className="space-y-1 leading-none">
-                <FormLabel>Convenio Activo</FormLabel>
-                <FormDescription>
-                  Marcar si este convenio está vigente actualmente
-                </FormDescription>
-              </div>
-            </FormItem>
-          )}
-        />
+        {mode === "update" && (
+          <FormField
+            control={form.control}
+            name="active"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                <FormControl>
+                  <Checkbox
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+                <div className="space-y-1 leading-none">
+                  <FormLabel>Convenio Activo</FormLabel>
+                  <FormDescription>
+                    Marcar si este convenio está vigente actualmente
+                  </FormDescription>
+                </div>
+              </FormItem>
+            )}
+          />
+        )}
 
         <div className="flex gap-4 w-full justify-end pt-4 border-t">
           <Button type="button" variant="outline" onClick={onCancel}>
