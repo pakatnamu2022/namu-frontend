@@ -1231,25 +1231,34 @@ function App() {
                 element={<UpdateWorkerSignaturePage />}
               />
 
-              {/* Administración de Categoria Viaticos */}
               <Route
-                path="viaticos/categoria-viaticos"
-                element={<PerDiemCategoryPage />}
-              />
+                path="viaticos"
+                element={
+                  <Suspense fallback={<LoadingFallback />}>
+                    <Outlet />
+                  </Suspense>
+                }
+              >
+                {/* Administración de Categoria Viaticos */}
+                <Route
+                  path="categoria-viaticos"
+                  element={<PerDiemCategoryPage />}
+                />
 
-              {/* Administración de Politica Viaticos */}
-              <Route
-                path="viaticos/politica-viaticos"
-                element={<PerDiemPolicyPage />}
-              />
-              <Route
-                path="viaticos/politica-viaticos/agregar"
-                element={<AddPerDiemPolicyPage />}
-              />
-              <Route
-                path="viaticos/politica-viaticos/actualizar/:id"
-                element={<UpdatePerDiemPolicyPage />}
-              />
+                {/* Administración de Politica Viaticos */}
+                <Route
+                  path="politica-viaticos"
+                  element={<PerDiemPolicyPage />}
+                />
+                <Route
+                  path="politica-viaticos/agregar"
+                  element={<AddPerDiemPolicyPage />}
+                />
+                <Route
+                  path="politica-viaticos/actualizar/:id"
+                  element={<UpdatePerDiemPolicyPage />}
+                />
+              </Route>
 
               {/* Configuraciones */}
               <Route
