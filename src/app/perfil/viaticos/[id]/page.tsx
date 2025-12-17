@@ -85,8 +85,8 @@ export default function PerDiemRequestDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto p-6 space-y-6">
-        <Skeleton className="h-10 w-64" />
+      <div className="space-y-6 w-full">
+        <Skeleton className="h-10 w-full max-w-md" />
         <div className="space-y-4">
           <Skeleton className="h-48 w-full" />
           <Skeleton className="h-48 w-full" />
@@ -98,7 +98,7 @@ export default function PerDiemRequestDetailPage() {
 
   if (!request) {
     return (
-      <div className="container mx-auto p-6">
+      <div className="space-y-6 w-full">
         <div className="text-center py-12">
           <p className="text-muted-foreground">Solicitud no encontrada</p>
           <Button onClick={() => navigate("/perfil/viaticos")} className="mt-4">
@@ -110,10 +110,10 @@ export default function PerDiemRequestDetailPage() {
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="space-y-6 w-full">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
           <Button
             variant="ghost"
             size="icon"
@@ -122,8 +122,8 @@ export default function PerDiemRequestDetailPage() {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
-            <h1 className="text-3xl font-bold">{request.code}</h1>
-            <p className="text-muted-foreground">
+            <h1 className="text-2xl sm:text-3xl font-bold text-primary">{request.code}</h1>
+            <p className="text-sm text-muted-foreground">
               Detalle de Solicitud de Viáticos
             </p>
           </div>
@@ -134,10 +134,10 @@ export default function PerDiemRequestDetailPage() {
       {/* Status and Basic Info */}
       <Card>
         <CardHeader>
-          <CardTitle>Información General</CardTitle>
+          <CardTitle className="text-primary">Información General</CardTitle>
           <CardDescription>Detalles de la solicitud</CardDescription>
         </CardHeader>
-        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="flex items-start gap-3">
             <Calendar className="h-5 w-5 text-muted-foreground mt-0.5" />
             <div>
@@ -190,11 +190,11 @@ export default function PerDiemRequestDetailPage() {
       {/* Financial Summary */}
       <Card>
         <CardHeader>
-          <CardTitle>Resumen Financiero</CardTitle>
+          <CardTitle className="text-primary">Resumen Financiero</CardTitle>
           <CardDescription>Montos y saldos</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="space-y-1">
               <p className="text-sm text-muted-foreground">Presupuesto Total</p>
               <p className="text-2xl font-bold">
@@ -237,9 +237,9 @@ export default function PerDiemRequestDetailPage() {
       {/* Expenses Table */}
       <Card>
         <CardHeader>
-          <div className="flex justify-between items-center">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
             <div>
-              <CardTitle>Gastos Registrados</CardTitle>
+              <CardTitle className="text-primary">Gastos Registrados</CardTitle>
               <CardDescription>
                 Lista de todos los gastos de esta solicitud
               </CardDescription>

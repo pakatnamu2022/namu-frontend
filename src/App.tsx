@@ -276,6 +276,7 @@ import UpdatePerDiemPolicyPage from "./app/gp/gestion-humana/viaticos/politica-v
 import HotelAgreementPage from "./app/gp/gestion-humana/viaticos/convenios-hoteles/page.tsx";
 import AddHotelAgreementPage from "./app/gp/gestion-humana/viaticos/convenios-hoteles/agregar/page.tsx";
 import UpdateHotelAgreementPage from "./app/gp/gestion-humana/viaticos/convenios-hoteles/actualizar/[id]/page.tsx";
+import ExpenseTypePage from "./app/gp/gestion-humana/viaticos/tipo-gasto/page.tsx";
 import UpdatePositionPage from "./app/gp/gestion-humana/configuraciones/posiciones/actualizar/[id]/page";
 import UpdateHierarchicalCategoryPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/categorias-jerarquicas/actualizar/[id]/page";
 import SedePage from "./app/gp/maestro-general/sede/page.tsx";
@@ -1268,6 +1269,12 @@ function App() {
                 <Route
                   path="politica-viaticos/actualizar/:id"
                   element={<UpdatePerDiemPolicyPage />}
+                />
+
+                {/* Administración de Tipos de Gasto */}
+                <Route
+                  path="tipo-gasto"
+                  element={<ExpenseTypePage />}
                 />
 
                 {/* Administración de Convenios de Hoteles */}

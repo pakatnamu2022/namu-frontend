@@ -47,8 +47,11 @@ export default function PerDiemRequestActions({
     formData.append("company_amount", data.company_amount.toString());
     formData.append("employee_amount", data.employee_amount.toString());
     formData.append("receipt_type", data.receipt_type);
-    formData.append("receipt_number", data.receipt_number);
     formData.append("expense_type_id", data.expense_type_id.toString());
+
+    if (data.receipt_number) {
+      formData.append("receipt_number", data.receipt_number);
+    }
 
     if (data.notes) {
       formData.append("notes", data.notes);
