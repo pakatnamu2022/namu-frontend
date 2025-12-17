@@ -32,7 +32,10 @@ export default function AvancePorSede({ avancePorSede }: AvancePorSedeProps) {
   return (
     <div className="space-y-6">
       {avancePorSede.map((sede) => (
-        <div key={sede.sede_id} className="rounded-lg border bg-card overflow-hidden">
+        <div
+          key={sede.sede_id}
+          className="rounded-lg border bg-card overflow-hidden"
+        >
           <div className="bg-muted/30 px-4 py-2.5 border-b">
             <h3 className="font-semibold text-sm">{sede.sede_name}</h3>
           </div>
@@ -75,14 +78,27 @@ export default function AvancePorSede({ avancePorSede }: AvancePorSedeProps) {
                       <span className="text-xs text-muted-foreground">
                         {brand.resultado_entrega} / {brand.objetivo_ap_entregas}
                       </span>
-                      <span className={cn("text-xs font-semibold", getTextColor(brand.cumplimiento_entrega))}>
+                      <span
+                        className={cn(
+                          "text-xs font-semibold",
+                          getTextColor(brand.cumplimiento_entrega)
+                        )}
+                      >
                         {brand.cumplimiento_entrega.toFixed(0)}%
                       </span>
                     </div>
                     <div className="h-2 bg-muted/50 rounded-full overflow-hidden">
                       <div
-                        className={cn("h-full transition-all", getProgressColor(brand.cumplimiento_entrega))}
-                        style={{ width: `${Math.min(brand.cumplimiento_entrega, 100)}%` }}
+                        className={cn(
+                          "h-full transition-all",
+                          getProgressColor(brand.cumplimiento_entrega)
+                        )}
+                        style={{
+                          width: `${Math.min(
+                            brand.cumplimiento_entrega,
+                            100
+                          )}%`,
+                        }}
                       />
                     </div>
                   </div>
@@ -91,16 +107,27 @@ export default function AvancePorSede({ avancePorSede }: AvancePorSedeProps) {
                   <div className="flex flex-col gap-1.5">
                     <div className="flex items-center justify-between">
                       <span className="text-xs text-muted-foreground">
-                        {brand.avance_compra} / {brand.objetivos_compra_inchcape}
+                        {brand.avance_compra} /{" "}
+                        {brand.objetivos_compra_inchcape}
                       </span>
-                      <span className={cn("text-xs font-semibold", getTextColor(brand.cumplimiento_compra))}>
+                      <span
+                        className={cn(
+                          "text-xs font-semibold",
+                          getTextColor(brand.cumplimiento_compra)
+                        )}
+                      >
                         {brand.cumplimiento_compra.toFixed(0)}%
                       </span>
                     </div>
                     <div className="h-2 bg-muted/50 rounded-full overflow-hidden">
                       <div
-                        className={cn("h-full transition-all", getProgressColor(brand.cumplimiento_compra))}
-                        style={{ width: `${Math.min(brand.cumplimiento_compra, 100)}%` }}
+                        className={cn(
+                          "h-full transition-all",
+                          getProgressColor(brand.cumplimiento_compra)
+                        )}
+                        style={{
+                          width: `${Math.min(brand.cumplimiento_compra, 100)}%`,
+                        }}
                       />
                     </div>
                   </div>
@@ -109,18 +136,20 @@ export default function AvancePorSede({ avancePorSede }: AvancePorSedeProps) {
                   <div className="flex flex-col gap-1.5">
                     <div className="flex items-center justify-between">
                       <span className="text-xs text-muted-foreground">
-                        {brand.reporte_dealer_portal ?? "-"} / {brand.objetivos_reporte_inchcape}
+                        {brand.reporte_dealer_portal ?? "-"} /{" "}
+                        {brand.objetivos_reporte_inchcape}
                       </span>
-                      <span className={cn(
-                        "text-xs font-semibold",
-                        brand.cumplimiento_reporte !== null
-                          ? getTextColor(brand.cumplimiento_reporte)
-                          : "text-muted-foreground"
-                      )}>
+                      <span
+                        className={cn(
+                          "text-xs font-semibold",
+                          brand.cumplimiento_reporte !== null
+                            ? getTextColor(brand.cumplimiento_reporte)
+                            : "text-muted-foreground"
+                        )}
+                      >
                         {brand.cumplimiento_reporte !== null
                           ? `${brand.cumplimiento_reporte.toFixed(0)}%`
-                          : "-"
-                        }
+                          : "-"}
                       </span>
                     </div>
                     <div className="h-2 bg-muted/50 rounded-full overflow-hidden">
@@ -132,7 +161,11 @@ export default function AvancePorSede({ avancePorSede }: AvancePorSedeProps) {
                             : "bg-gray-300"
                         )}
                         style={{
-                          width: `${brand.cumplimiento_reporte !== null ? Math.min(brand.cumplimiento_reporte, 100) : 0}%`
+                          width: `${
+                            brand.cumplimiento_reporte !== null
+                              ? Math.min(brand.cumplimiento_reporte, 100)
+                              : 0
+                          }%`,
                         }}
                       />
                     </div>
