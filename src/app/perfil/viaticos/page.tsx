@@ -7,6 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { useNavigate } from "react-router-dom";
+import PerDiemRequestActions from "@/features/gp/gestionhumana/viaticos/solicitud-viaticos/components/PerDiemRequestActions";
 
 export default function MyPerDiemPage() {
   const navigate = useNavigate();
@@ -30,10 +31,13 @@ export default function MyPerDiemPage() {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto p-6 space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold">Mis Viáticos</h1>
-          <p className="text-muted-foreground">Gestiona tus solicitudes de viáticos y gastos</p>
+      <div className="space-y-6 w-full">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <h1 className="text-3xl font-bold">Mis Viáticos</h1>
+            <p className="text-muted-foreground">Gestiona tus solicitudes de viáticos y gastos</p>
+          </div>
+          <PerDiemRequestActions permissions={{ canCreate: true }} />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {[1, 2, 3].map((i) => (
@@ -54,10 +58,13 @@ export default function MyPerDiemPage() {
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Mis Viáticos</h1>
-        <p className="text-muted-foreground">Gestiona tus solicitudes de viáticos y gastos</p>
+    <div className="space-y-6 w-full">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="text-3xl font-bold">Mis Viáticos</h1>
+          <p className="text-muted-foreground">Gestiona tus solicitudes de viáticos y gastos</p>
+        </div>
+        <PerDiemRequestActions permissions={{ canCreate: true }} />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
