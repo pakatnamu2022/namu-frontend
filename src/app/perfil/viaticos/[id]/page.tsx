@@ -24,9 +24,9 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import ExpensesTable from "@/features/gp/gestionhumana/viaticos/solicitud-viaticos/components/ExpensesTable";
-import PerDiemRequestActions from "@/features/gp/gestionhumana/viaticos/solicitud-viaticos/components/PerDiemRequestActions";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import PerDiemRequestActions2 from "@/features/gp/gestionhumana/viaticos/solicitud-viaticos/components/PerDiemRequestActions2";
 
 export default function PerDiemRequestDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -122,7 +122,9 @@ export default function PerDiemRequestDetailPage() {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-primary">{request.code}</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-primary">
+              {request.code}
+            </h1>
             <p className="text-sm text-muted-foreground">
               Detalle de Solicitud de Viáticos
             </p>
@@ -244,7 +246,7 @@ export default function PerDiemRequestDetailPage() {
                 Lista de todos los gastos de esta solicitud
               </CardDescription>
             </div>
-            <PerDiemRequestActions requestId={request.id} />
+            <PerDiemRequestActions2 requestId={request.id} />
           </div>
         </CardHeader>
         <CardContent>
