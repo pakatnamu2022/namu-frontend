@@ -20,7 +20,7 @@ import FormWrapper from "@/shared/components/FormWrapper";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { VIEW } from "@/features/gp/gestionsistema/vistas/lib/view.constants";
 
-export default function UpdateViewPage() {
+export default function UpdateUserPage() {
   const { ABSOLUTE_ROUTE } = VIEW;
   const { id } = useParams();
   const router = useNavigate();

@@ -25,7 +25,7 @@ import PurchaseRequestOptions from "@/features/ap/post-venta/taller/solicitud-co
 import { deletePurchaseRequest } from "@/features/ap/post-venta/taller/solicitud-compra/lib/purchaseRequest.actions";
 import { usePurchaseRequests } from "@/features/ap/post-venta/taller/solicitud-compra/lib/purchaseRequest.hook";
 
-export default function PurchaseRequestPage() {
+export default function PurchaseRequestPVPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);

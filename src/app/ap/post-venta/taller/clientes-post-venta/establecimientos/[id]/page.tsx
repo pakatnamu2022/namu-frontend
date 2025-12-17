@@ -32,7 +32,7 @@ import { useEstablishments } from "@/features/ap/comercial/establecimientos/lib/
 import { notFound } from "@/shared/hooks/useNotFound";
 import BackButton from "@/shared/components/BackButton";
 
-export default function CustomerEstablishmentsListPage() {
+export default function CustomerPvEstablishmentsListPage() {
   const { MODEL, ABSOLUTE_ROUTE } = ESTABLISHMENTS_PV;
   const {
     ABSOLUTE_ROUTE: CUSTOMERS_ABSOLUTE_ROUTE,

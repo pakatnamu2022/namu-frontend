@@ -23,7 +23,7 @@ import { PurchaseRequestResource } from "@/features/ap/post-venta/taller/solicit
 import PurchaseRequestForm from "@/features/ap/post-venta/taller/solicitud-compra/components/PurchaseRequestForm";
 import { notFound } from "@/shared/hooks/useNotFound";
 
-export default function UpdatePurchaseRequestPage() {
+export default function UpdatePurchaseRequestPVPage() {
   const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();

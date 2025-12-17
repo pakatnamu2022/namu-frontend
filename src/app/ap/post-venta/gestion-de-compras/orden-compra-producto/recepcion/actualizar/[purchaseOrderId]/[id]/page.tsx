@@ -24,7 +24,7 @@ import { ReceptionsProductsForm } from "@/features/ap/post-venta/gestion-compras
 import { RECEPTION } from "@/features/ap/post-venta/gestion-compras/recepciones-producto/lib/receptionsProducts.constants";
 import { usePurchaseOrderProductsById } from "@/features/ap/post-venta/gestion-compras/orden-compra-producto/lib/purchaseOrderProducts.hook";
 
-export default function EditReceptionProductPage() {
+export default function UpdateReceptionProductPage() {
   const { id, purchaseOrderId } = useParams<{
     id: string;
     purchaseOrderId: string;

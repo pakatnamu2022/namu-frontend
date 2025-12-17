@@ -9,7 +9,7 @@ import { useEffect, useState, Suspense } from "react";
 import DashboardSkeleton from "@/shared/components/DashboardSkeleton";
 import { findComponentByRoute } from "@/config/routeComponents";
 
-export default function ModulePage() {
+export default function CompanyModulePage() {
   const { company, moduleSlug, currentModule } = useCurrentModule();
   const { permissions } = useAuthStore();
   const router = useNavigate();

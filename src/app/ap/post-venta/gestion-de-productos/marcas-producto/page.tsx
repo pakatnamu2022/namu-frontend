@@ -27,7 +27,7 @@ import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { BRAND_POSTVENTA } from "@/features/ap/configuraciones/vehiculos/marcas/lib/brands.constants";
 import { notFound } from "@/shared/hooks/useNotFound";
 
-export default function BrandsPage() {
+export default function BrandsPVPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);

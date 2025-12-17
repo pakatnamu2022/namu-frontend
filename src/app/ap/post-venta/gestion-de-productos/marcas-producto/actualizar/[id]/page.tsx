@@ -22,7 +22,7 @@ import { BRAND_POSTVENTA } from "@/features/ap/configuraciones/vehiculos/marcas/
 import { notFound } from "@/shared/hooks/useNotFound";
 import { CM_POSTVENTA_ID } from "@/core/core.constants";
 
-export default function UpdateBrandPage() {
+export default function UpdateBrandsPVPage() {
   const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();

@@ -11,7 +11,7 @@ import {
   ViewsResponseMenuChild,
 } from "@/features/views/lib/views.interface";
 
-export default function ModulesPage() {
+export default function ModulesCompanyPage() {
   const router = useNavigate();
   const params = useParams();
   const { permissions } = useAuthStore();

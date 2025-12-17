@@ -19,7 +19,7 @@ import { RECEPTION } from "@/features/ap/post-venta/gestion-compras/recepciones-
 import { usePurchaseOrderProductsById } from "@/features/ap/post-venta/gestion-compras/orden-compra-producto/lib/purchaseOrderProducts.hook";
 import PageSkeleton from "@/shared/components/PageSkeleton";
 
-export default function CreateReceptionProductPage() {
+export default function AddReceptionProductPage() {
   const router = useNavigate();
   const { currentView, checkRouteExists } = useCurrentModule();
   const { MODEL } = RECEPTION;
