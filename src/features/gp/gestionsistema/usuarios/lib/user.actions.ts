@@ -9,6 +9,7 @@ import {
   UserSedeResource,
   StoreUserSedesRequest,
 } from "./user.interface";
+import { CompanyResource } from "../../empresa/lib/company.interface";
 
 export async function getUser({
   params,
@@ -72,6 +73,13 @@ export async function getUserSedes(
 ): Promise<UserSedeResource[]> {
   const { data } = await api.get<UserSedeResource[]>(
     `/configuration/user-sede/user/${userId}/sedes`
+  );
+  return data;
+}
+
+export async function getUserCompanies(): Promise<CompanyResource[]> {
+  const { data } = await api.get<CompanyResource[]>(
+    `/configuration/user/my-companies`
   );
   return data;
 }

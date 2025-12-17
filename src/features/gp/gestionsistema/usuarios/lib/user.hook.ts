@@ -9,10 +9,12 @@ import {
 import {
   getAllUser,
   getUser,
+  getUserCompanies,
   getUserSedes,
   showUser,
   storeUserSedes,
 } from "./user.actions";
+import { CompanyResource } from "../../empresa/lib/company.interface";
 
 export const useUsers = (params?: Record<string, any>) => {
   return useQuery<UserResponse>({
@@ -44,6 +46,14 @@ export const useUserSedes = (userId: number) => {
     queryFn: () => getUserSedes(userId),
     refetchOnWindowFocus: false,
     enabled: !!userId,
+  });
+};
+
+export const useUserCompanies = () => {
+  return useQuery<CompanyResource[]>({
+    queryKey: ["userSedes"],
+    queryFn: () => getUserCompanies(),
+    refetchOnWindowFocus: false,
   });
 };
 

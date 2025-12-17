@@ -16,10 +16,10 @@ export function useGetPerDiemCategory(props: getPerDiemCategoryProps) {
   });
 }
 
-export function useGetAllPerDiemCategory(props: getPerDiemCategoryProps) {
+export function useGetAllPerDiemCategory(params?: Record<string, any>) {
   return useQuery({
-    queryKey: [QUERY_KEY, "all", props],
-    queryFn: () => getAllPerDiemCategory(props),
+    queryKey: [QUERY_KEY, "all", params],
+    queryFn: () => getAllPerDiemCategory({ params }),
   });
 }
 
