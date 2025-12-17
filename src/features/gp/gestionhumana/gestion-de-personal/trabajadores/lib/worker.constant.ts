@@ -10,7 +10,7 @@ export const WORKER: ModelComplete = {
     gender: true,
   },
   ICON: "ContactRound",
-  ENDPOINT: "/gp/gh/personal/person",
+  ENDPOINT: "/gp/gh/personal/worker",
   QUERY_KEY: "worker",
   ROUTE,
   ABSOLUTE_ROUTE,

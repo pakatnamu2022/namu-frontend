@@ -95,51 +95,29 @@ import ModulePage from "./components/ModulePage";
 import CommercialPage from "./app/ap/comercial/page.tsx";
 import DashboardDeliveryPage from "./app/ap/comercial/dashboard-entregas/page.tsx";
 import TeamLeadsDashboard from "./app/ap/comercial/dashboard-equipo-leads/page.tsx";
-const PositionsPage = lazy(
-  () => import("./app/gp/gestion-humana/configuraciones/posiciones/page")
-);
-const AddPositionPage = lazy(
-  () =>
-    import("./app/gp/gestion-humana/configuraciones/posiciones/agregar/page")
-);
-const EditPositionPage = lazy(
-  () =>
-    import(
-      "./app/gp/gestion-humana/configuraciones/posiciones/actualizar/[id]/page"
-    )
-);
+import PositionsPage from "./app/gp/gestion-humana/configuraciones/posiciones/page";
+import AddPositionPage from "./app/gp/gestion-humana/configuraciones/posiciones/agregar/page";
+import EditPositionPage from "./app/gp/gestion-humana/configuraciones/posiciones/actualizar/[id]/page";
 
 // ============================================================================
 // LAYOUTS
 // ============================================================================
-const DashboardLayout = lazy(
-  () => import("./features/dashboard/components/DashboardLayout")
-);
-const MainLayout = lazy(
-  () => import("./features/dashboard/components/MainLayout")
-);
-const ProfileLayout = lazy(() => import("./app/perfil/layout"));
-const APComercialLayout = lazy(() => import("./app/ap/comercial/layout"));
-const APConfiguracionesLayout = lazy(
-  () => import("./app/ap/configuraciones/layout")
-);
-const APPostVentaLayout = lazy(() => import("./app/ap/post-venta/layout"));
-const GPGestionSistemaLayout = lazy(
-  () => import("./app/gp/gestion-del-sistema/layout")
-);
-const GPGestionHumanaLayout = lazy(
-  () => import("./app/gp/gestion-humana/layout")
-);
-const GPMaestroGeneralLayout = lazy(
-  () => import("./app/gp/maestro-general/layout")
-);
-const GPTicsLayout = lazy(() => import("./app/gp/tics/layout"));
+import DashboardLayout from "./features/dashboard/components/DashboardLayout";
+import MainLayout from "./features/dashboard/components/MainLayout";
+import ProfileLayout from "./app/perfil/layout";
+import APComercialLayout from "./app/ap/comercial/layout";
+import APConfiguracionesLayout from "./app/ap/configuraciones/layout";
+import APPostVentaLayout from "./app/ap/post-venta/layout";
+import GPGestionSistemaLayout from "./app/gp/gestion-del-sistema/layout";
+import GPGestionHumanaLayout from "./app/gp/gestion-humana/layout";
+import GPMaestroGeneralLayout from "./app/gp/maestro-general/layout";
+import GPTicsLayout from "./app/gp/tics/layout";
 
 // ============================================================================
 // ROOT & PUBLIC PAGES
 // ============================================================================
-const LoginPage = lazy(() => import("./app/page"));
-const NotFoundPage = lazy(() => import("./app/not-found"));
+import LoginPage from "./app/page";
+import NotFoundPage from "./app/not-found";
 
 // ============================================================================
 // MAIN PAGES
@@ -792,6 +770,27 @@ const EditTrabajadoresPage = lazy(
   () =>
     import(
       "./app/gp/gestion-humana/gestion-de-personal/trabajadores/actualizar/[id]/page"
+    )
+);
+
+// Administración de Viaticos
+const CategoriaViaticosPage = lazy(
+  () => import("./app/gp/gestion-humana/viaticos/categoria-viaticos/page")
+);
+
+const PoliticaViaticosPage = lazy(
+  () => import("./app/gp/gestion-humana/viaticos/politica-viaticos/page")
+);
+
+const AddPoliticaViaticosPage = lazy(
+  () =>
+    import("./app/gp/gestion-humana/viaticos/politica-viaticos/agregar/page")
+);
+
+const EditPoliticaViaticosPage = lazy(
+  () =>
+    import(
+      "./app/gp/gestion-humana/viaticos/politica-viaticos/actualizar/[id]/page"
     )
 );
 
@@ -1770,6 +1769,26 @@ function App() {
               <Route
                 path="gestion-de-personal/trabajadores/actualizar/:id"
                 element={<EditTrabajadoresPage />}
+              />
+
+              {/* Administración de Categoria Viaticos */}
+              <Route
+                path="viaticos/categoria-viaticos"
+                element={<CategoriaViaticosPage />}
+              />
+
+              {/* Administración de Politica Viaticos */}
+              <Route
+                path="viaticos/politica-viaticos"
+                element={<PoliticaViaticosPage />}
+              />
+              <Route
+                path="viaticos/politica-viaticos/agregar"
+                element={<AddPoliticaViaticosPage />}
+              />
+              <Route
+                path="viaticos/politica-viaticos/actualizar/:id"
+                element={<EditPoliticaViaticosPage />}
               />
 
               {/* Configuraciones */}

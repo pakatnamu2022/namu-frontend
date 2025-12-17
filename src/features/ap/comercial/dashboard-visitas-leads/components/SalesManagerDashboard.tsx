@@ -235,6 +235,7 @@ export default function SalesManagerDashboard() {
                   </CardHeader>
                   <CardContent>
                     <SalesManagerAdvisorTable
+                      type={form.getValues("type")}
                       advisors={statsData.data.by_advisor}
                       onAdvisorClick={handleAdvisorClick}
                     />
