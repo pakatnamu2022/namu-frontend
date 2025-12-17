@@ -290,6 +290,7 @@ import CompanyModulePage from "./app/[company]/[module]/page.tsx";
 import CompanyModuleSubmodulePage from "./app/[company]/[module]/[submodule]/page.tsx";
 import ProfilePage from "./app/perfil/page.tsx";
 import UserPage from "./app/gp/gestion-del-sistema/usuarios/page.tsx";
+import MyPerDiemPage from "./app/perfil/viaticos/page.tsx";
 
 // ============================================================================
 // PROTECTED ROUTE COMPONENT
@@ -424,6 +425,7 @@ function App() {
               />
               <Route path="mi-desempeno" element={<MyPerformance />} />
               <Route path="vacaciones" element={<VacationPage />} />
+              <Route path="viaticos" element={<MyPerDiemPage />} />
             </Route>
 
             {/* ======================================================== */}

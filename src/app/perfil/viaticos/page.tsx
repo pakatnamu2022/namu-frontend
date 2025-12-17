@@ -12,7 +12,7 @@ import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import PerDiemRequestDetail from "@/features/gp/gestionhumana/viaticos/solicitud-viaticos/components/PerDiemRequestDetail";
 
-export default function ViaticosPage() {
+export default function MyPerDiemPage() {
   const [selectedRequest, setSelectedRequest] = useState<PerDiemRequestResource | null>(null);
 
   const { data, isLoading } = useQuery({
