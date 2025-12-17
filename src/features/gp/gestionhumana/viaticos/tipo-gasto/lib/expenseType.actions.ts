@@ -9,8 +9,8 @@ import {
   ExpenseTypeResponse,
 } from "./expenseType.interface";
 
-const { ENDPOINT, ENDPOINT_ACTIVE } = EXPENSE_TYPE;
-
+const { ENDPOINT } = EXPENSE_TYPE;
+const ENDPOINT_ACTIVE = ENDPOINT + "/active";
 export async function getExpenseTypes({
   params,
 }: getExpenseTypeProps): Promise<ExpenseTypeResponse> {
@@ -43,7 +43,10 @@ export async function getActiveExpenseTypes({
       ...params,
     },
   };
-  const { data } = await api.get<ExpenseTypeResource[]>(ENDPOINT_ACTIVE, config);
+  const { data } = await api.get<ExpenseTypeResource[]>(
+    ENDPOINT_ACTIVE,
+    config
+  );
   return data;
 }
 
@@ -72,9 +75,7 @@ export async function updateExpenseType(
   return response.data;
 }
 
-export async function deleteExpenseType(
-  id: number
-): Promise<GeneralResponse> {
+export async function deleteExpenseType(id: number): Promise<GeneralResponse> {
   const { data } = await api.delete<GeneralResponse>(`${ENDPOINT}/${id}`);
   return data;
 }

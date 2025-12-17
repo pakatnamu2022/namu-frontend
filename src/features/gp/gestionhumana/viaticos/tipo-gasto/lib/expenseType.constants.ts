@@ -1,5 +1,7 @@
 import { ModelComplete } from "@/core/core.interface";
 
+
+
 export const EXPENSE_TYPE: ModelComplete = {
   QUERY_KEY: "expense-types",
   ENDPOINT: "/gp/gestion-humana/viaticos/expense-types",

@@ -36,7 +36,7 @@ export const ExpenseTypeForm = ({
   onCancel,
 }: ExpenseTypeFormProps) => {
   const form = useForm<ExpenseTypeSchema>({
-    resolver: zodResolver(expenseTypeSchema),
+    resolver: zodResolver(expenseTypeSchema) as any,
     defaultValues: {
       code: "",
       name: "",
@@ -64,7 +64,10 @@ export const ExpenseTypeForm = ({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 sm:space-y-6 w-full">
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="space-y-4 sm:space-y-6 w-full"
+      >
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <FormInput
             name="code"
@@ -96,7 +99,9 @@ export const ExpenseTypeForm = ({
           name="description"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-xs md:text-sm">Descripción (Opcional)</FormLabel>
+              <FormLabel className="text-xs md:text-sm">
+                Descripción (Opcional)
+              </FormLabel>
               <FormControl>
                 <Textarea
                   placeholder="Descripción del tipo de gasto..."
@@ -190,7 +195,9 @@ export const ExpenseTypeForm = ({
             className="w-full sm:w-auto"
           >
             <Loader
-              className={`mr-2 h-4 w-4 animate-spin ${!isSubmitting ? "hidden" : ""}`}
+              className={`mr-2 h-4 w-4 animate-spin ${
+                !isSubmitting ? "hidden" : ""
+              }`}
             />
             {isSubmitting ? "Guardando..." : "Guardar Tipo de Gasto"}
           </Button>
