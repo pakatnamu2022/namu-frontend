@@ -18,13 +18,9 @@ import { Loader, Upload, FileText } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { useState } from "react";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { FormSelect } from "@/shared/components/FormSelect";
+import { FormInput } from "@/shared/components/FormInput";
+import { Option } from "@/core/core.interface";
 
 interface ExpenseFormProps {
   onSubmit: (data: ExpenseSchema) => void;
@@ -59,6 +55,19 @@ export default function ExpenseForm({
     form.setValue("employee_amount", Math.max(0, employeeAmount));
   };
 
+  const expenseTypeOptions: Option[] = [
+    { value: "4", label: "Desayuno" },
+    { value: "5", label: "Almuerzo" },
+    { value: "6", label: "Cena" },
+    { value: "7", label: "Transporte" },
+    { value: "8", label: "Hospedaje" },
+  ];
+
+  const receiptTypeOptions: Option[] = [
+    { value: "receipt", label: "Boleta" },
+    { value: "invoice", label: "Factura" },
+  ];
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -71,46 +80,21 @@ export default function ExpenseForm({
           captionLayout="dropdown"
         />
 
-        <FormField
-          control={form.control}
+        <FormSelect
           name="expense_type_id"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Tipo de Gasto</FormLabel>
-              <Select
-                onValueChange={(value) => field.onChange(Number(value))}
-                value={field.value?.toString()}
-              >
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecciona un tipo" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="4">Desayuno</SelectItem>
-                  <SelectItem value="5">Almuerzo</SelectItem>
-                  <SelectItem value="6">Cena</SelectItem>
-                  <SelectItem value="7">Transporte</SelectItem>
-                  <SelectItem value="8">Hospedaje</SelectItem>
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
+          label="Tipo de Gasto"
+          placeholder="Selecciona un tipo"
+          options={expenseTypeOptions}
+          control={form.control}
+          required
         />
 
-        <FormField
-          control={form.control}
+        <FormInput
           name="concept"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Concepto</FormLabel>
-              <FormControl>
-                <Input placeholder="Descripción del gasto" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          label="Concepto"
+          placeholder="Descripción del gasto"
+          control={form.control}
+          required
         />
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

@@ -1,19 +1,15 @@
-"use client";
-
-import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getMyPerDiemRequests } from "@/features/gp/gestionhumana/viaticos/solicitud-viaticos/lib/perDiemRequest.actions";
 import { PER_DIEM_REQUEST } from "@/features/gp/gestionhumana/viaticos/solicitud-viaticos/lib/perDiemRequest.constants";
-import { PerDiemRequestResource } from "@/features/gp/gestionhumana/viaticos/solicitud-viaticos/lib/perDiemRequest.interface";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import PerDiemRequestDetail from "@/features/gp/gestionhumana/viaticos/solicitud-viaticos/components/PerDiemRequestDetail";
+import { useNavigate } from "react-router-dom";
 
 export default function MyPerDiemPage() {
-  const [selectedRequest, setSelectedRequest] = useState<PerDiemRequestResource | null>(null);
+  const navigate = useNavigate();
 
   const { data, isLoading } = useQuery({
     queryKey: [PER_DIEM_REQUEST.QUERY_KEY, "my-requests"],
@@ -69,7 +65,7 @@ export default function MyPerDiemPage() {
           <Card
             key={request.id}
             className="cursor-pointer hover:shadow-lg transition-shadow"
-            onClick={() => setSelectedRequest(request)}
+            onClick={() => navigate(`/perfil/viaticos/${request.id}`)}
           >
             <CardHeader>
               <div className="flex justify-between items-start">
@@ -109,14 +105,6 @@ export default function MyPerDiemPage() {
         <div className="text-center py-12">
           <p className="text-muted-foreground">No tienes solicitudes de viáticos</p>
         </div>
-      )}
-
-      {selectedRequest && (
-        <PerDiemRequestDetail
-          request={selectedRequest}
-          open={!!selectedRequest}
-          onClose={() => setSelectedRequest(null)}
-        />
       )}
     </div>
   );
