@@ -121,7 +121,6 @@ import ModulesCompanyPage from "./app/modules/[company]/page.tsx";
 import ModulesCompanyModulePage from "./app/modules/[company]/[module]/page.tsx";
 import FeedRoutePage from "./app/feed/page.tsx";
 import TestPage from "./app/test/page.tsx";
-import UserPage from "./app/perfil/page.tsx";
 import TrainingPage from "./app/perfil/capacitaciones/page.tsx";
 import DocumentPage from "./app/perfil/documentos/page.tsx";
 import TeamPage from "./app/perfil/equipo/page.tsx";
@@ -286,6 +285,8 @@ import UpdateEquipmentPage from "./app/gp/tics/equipos/actualizar/[id]/page.tsx"
 import AuditLogsPage from "./app/gp/tics/auditoria/page.tsx";
 import CompanyModulePage from "./app/[company]/[module]/page.tsx";
 import CompanyModuleSubmodulePage from "./app/[company]/[module]/[submodule]/page.tsx";
+import ProfilePage from "./app/perfil/page.tsx";
+import UserPage from "./app/gp/gestion-del-sistema/usuarios/page.tsx";
 
 // ============================================================================
 // PROTECTED ROUTE COMPONENT
@@ -393,7 +394,7 @@ function App() {
                 </Suspense>
               }
             >
-              <Route index element={<UserPage />} />
+              <Route index element={<ProfilePage />} />
               <Route path="capacitaciones" element={<TrainingPage />} />
               <Route path="documentos" element={<DocumentPage />} />
               <Route path="equipo" element={<TeamPage />} />

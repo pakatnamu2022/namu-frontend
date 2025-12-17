@@ -24,7 +24,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 
-export default function UserPage() {
+export default function ProfilePage() {
   const { user } = useAuthStore();
   const { data: userComplete } = useUserComplete(user.id);
 
