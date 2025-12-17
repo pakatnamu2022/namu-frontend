@@ -17,7 +17,7 @@ import PurchaseRequestForm from "@/features/ap/post-venta/taller/solicitud-compr
 import { storePurchaseRequest } from "@/features/ap/post-venta/taller/solicitud-compra/lib/purchaseRequest.actions";
 import { PurchaseRequestSchema } from "@/features/ap/post-venta/taller/solicitud-compra/lib/purchaseRequest.schema";
 
-export default function AddPurchaseRequestPage() {
+export default function AddPurchaseRequestPVPage() {
   const router = useNavigate();
   const { currentView, checkRouteExists } = useCurrentModule();
   const { ROUTE, MODEL, ABSOLUTE_ROUTE } = PURCHASE_REQUEST;

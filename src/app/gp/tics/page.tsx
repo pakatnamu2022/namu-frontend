@@ -5,7 +5,7 @@ import ProfileInfo from "@/features/dashboard/components/ProfileInfo";
 import TicsPage from "@/features/gp/tics/dashboard/components/TicsPage";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 
-export default function ModulePage() {
+export default function TICsModulePage() {
   const { company, moduleSlug } = useCurrentModule();
 
   if (company === "") {

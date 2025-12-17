@@ -18,7 +18,7 @@ import { BRAND_POSTVENTA } from "@/features/ap/configuraciones/vehiculos/marcas/
 import { notFound } from "@/shared/hooks/useNotFound";
 import { CM_POSTVENTA_ID } from "@/core/core.constants";
 
-export default function AddBrandsPage() {
+export default function AddBrandsPVPage() {
   const router = useNavigate();
   const { currentView, checkRouteExists } = useCurrentModule();
   const { ROUTE, MODEL, ABSOLUTE_ROUTE } = BRAND_POSTVENTA;

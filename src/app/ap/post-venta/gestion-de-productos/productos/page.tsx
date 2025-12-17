@@ -28,7 +28,7 @@ import {
   updateProduct,
 } from "@/features/ap/post-venta/gestion-productos/productos/lib/product.actions";
 
-export default function ProductPage() {
+export default function ProductPVPage() {
     const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);

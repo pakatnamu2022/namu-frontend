@@ -49,7 +49,7 @@ import { useAuthStore } from "@/features/auth/lib/auth.store";
 
 const { QUERY_KEY, MODEL } = EVALUATION_PERSON;
 
-export default function EvaluarPage() {
+export default function NamuPerformanceEvaluationPage() {
   const { id } = useParams();
   const router = useNavigate();
   const [searchParams] = useSearchParams();

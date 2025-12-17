@@ -17,7 +17,7 @@ import { ProductSchema } from "@/features/ap/post-venta/gestion-productos/produc
 import { ProductForm } from "@/features/ap/post-venta/gestion-productos/productos/components/ProductForm";
 import { notFound } from "@/shared/hooks/useNotFound";
 
-export default function AddProductPage() {
+export default function AddProductPVPage() {
   const router = useNavigate();
   const { currentView, checkRouteExists } = useCurrentModule();
   const { ROUTE, MODEL, ABSOLUTE_ROUTE } = PRODUCT;

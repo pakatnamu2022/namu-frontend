@@ -11,7 +11,7 @@ import { notFound } from "@/shared/hooks/useNotFound";
 import DashboardSkeleton from "@/shared/components/DashboardSkeleton";
 import { findComponentByRoute } from "@/config/routeComponents";
 
-export default function ModulePage() {
+export default function CompanyModuleSubmodulePage() {
   const { company, moduleSlug, subModuleSlug, currentSubmodule } =
     useCurrentModule();
   const { permissions } = useAuthStore();

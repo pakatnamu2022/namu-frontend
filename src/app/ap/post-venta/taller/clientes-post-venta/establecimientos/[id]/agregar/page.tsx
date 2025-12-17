@@ -21,7 +21,7 @@ import { CUSTOMERS_PV } from "@/features/ap/comercial/clientes/lib/customers.con
 import { findCustomersById } from "@/features/ap/comercial/clientes/lib/customers.actions";
 import { notFound } from "@/shared/hooks/useNotFound";
 
-export default function AddCustomerEstablishmentPage() {
+export default function AddCustomerPvEstablishmentPage() {
   const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();

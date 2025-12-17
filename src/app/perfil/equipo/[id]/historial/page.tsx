@@ -51,7 +51,7 @@ import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 
 const { QUERY_KEY, MODEL } = EVALUATION_PERSON;
 
-export default function HistorialPage() {
+export default function NamuPerformanceHistoryPage() {
   const { id } = useParams();
   const router = useNavigate();
   const [searchParams] = useSearchParams();

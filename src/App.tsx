@@ -8,11 +8,10 @@ import {
 import { useAuthStore } from "./features/auth/lib/auth.store";
 import DashboardSkeleton from "./shared/components/DashboardSkeleton";
 import { AuthInitializer } from "./shared/components/AuthInitializer";
-import { FC, JSX, lazy, Suspense } from "react";
+import { FC, JSX, Suspense } from "react";
 import ModulePerformanceEvaluationPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/page";
 import HierarchicalCategoryPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/categorias-jerarquicas/page";
 import AddHierarchicalCategoryPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/categorias-jerarquicas/agregar/page";
-import EditHierarchicalCategoryPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/categorias-jerarquicas/actualizar/[id]/page";
 import CyclePage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/ciclos/page";
 import AddCyclePage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/ciclos/agregar/page";
 import UpdateCyclePage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/ciclos/actualizar/[id]/page";
@@ -97,7 +96,6 @@ import DashboardDeliveryPage from "./app/ap/comercial/dashboard-entregas/page.ts
 import TeamLeadsDashboard from "./app/ap/comercial/dashboard-equipo-leads/page.tsx";
 import PositionsPage from "./app/gp/gestion-humana/configuraciones/posiciones/page";
 import AddPositionPage from "./app/gp/gestion-humana/configuraciones/posiciones/agregar/page";
-import EditPositionPage from "./app/gp/gestion-humana/configuraciones/posiciones/actualizar/[id]/page";
 
 // ============================================================================
 // LAYOUTS
@@ -118,699 +116,176 @@ import GPTicsLayout from "./app/gp/tics/layout";
 // ============================================================================
 import LoginPage from "./app/page";
 import NotFoundPage from "./app/not-found";
-
-// ============================================================================
-// MAIN PAGES
-// ============================================================================
-const CompaniesPage = lazy(() => import("./app/companies/page"));
-const FeedPage = lazy(() => import("./app/feed/page"));
-const TestPage = lazy(() => import("./app/test/page"));
-
-// Module Selection Pages
-const ModulesCompanyPage = lazy(() => import("./app/modules/[company]/page"));
-const ModulesCompanyModulePage = lazy(
-  () => import("./app/modules/[company]/[module]/page")
-);
-
-// Dynamic Routes
-const CompanyModulePage = lazy(() => import("./app/[company]/[module]/page"));
-const CompanyModuleSubmodulePage = lazy(
-  () => import("./app/[company]/[module]/[submodule]/page")
-);
-
-// ============================================================================
-// PERFIL (PROFILE) PAGES
-// ============================================================================
-const PerfilPage = lazy(() => import("./app/perfil/page"));
-const PerfilCapacitacionesPage = lazy(
-  () => import("./app/perfil/capacitaciones/page")
-);
-const PerfilDesempenoPage = lazy(() => import("./app/perfil/desempeño/page"));
-const PerfilDocumentosPage = lazy(() => import("./app/perfil/documentos/page"));
-const PerfilEquipoPage = lazy(() => import("./app/perfil/equipo/page"));
-const PerfilEquipoIndicadoresPage = lazy(
-  () => import("./app/perfil/equipo/indicadores/page")
-);
-const PerfilEquipoDetailPage = lazy(
-  () => import("./app/perfil/equipo/[id]/page")
-);
-const PerfilEquipoEvaluarPage = lazy(
-  () => import("./app/perfil/equipo/[id]/evaluar/page")
-);
-const PerfilEquipoHistorialPage = lazy(
-  () => import("./app/perfil/equipo/[id]/historial/page")
-);
-const PerfilEquipoPlanDesarrolloPage = lazy(
-  () => import("./app/perfil/equipo/[id]/plan-desarrollo/page")
-);
-const PerfilEquipoPlanDesarrolloCrearPage = lazy(
-  () => import("./app/perfil/equipo/[id]/plan-desarrollo/agregar/page")
-);
-
-// ============================================================================
-// AP - CONFIGURACIONES
-// ============================================================================
-
-// Maestros General
-const ActividadEconomicaPage = lazy(
-  () =>
-    import("./app/ap/configuraciones/maestros-general/actividad-economica/page")
-);
-const AlmacenesPage = lazy(
-  () => import("./app/ap/configuraciones/maestros-general/almacenes/page")
-);
-const AddAlmacenesPage = lazy(
-  () =>
-    import("./app/ap/configuraciones/maestros-general/almacenes/agregar/page")
-);
-const EditAlmacenesPage = lazy(
-  () =>
-    import(
-      "./app/ap/configuraciones/maestros-general/almacenes/actualizar/[id]/page"
-    )
-);
-const AsignarSerieUsuarioPage = lazy(
-  () =>
-    import(
-      "./app/ap/configuraciones/maestros-general/asignar-serie-usuario/page"
-    )
-);
-const AddAsignarSerieUsuarioPage = lazy(
-  () =>
-    import(
-      "./app/ap/configuraciones/maestros-general/asignar-serie-usuario/agregar/page"
-    )
-);
-const EditAsignarSerieUsuarioPage = lazy(
-  () =>
-    import(
-      "./app/ap/configuraciones/maestros-general/asignar-serie-usuario/actualizar/[id]/page"
-    )
-);
-const AsignarSerieVentaPage = lazy(
-  () =>
-    import("./app/ap/configuraciones/maestros-general/asignar-serie-venta/page")
-);
-const AddAsignarSerieVentaPage = lazy(
-  () =>
-    import(
-      "./app/ap/configuraciones/maestros-general/asignar-serie-venta/agregar/page"
-    )
-);
-const EditAsignarSerieVentaPage = lazy(
-  () =>
-    import(
-      "./app/ap/configuraciones/maestros-general/asignar-serie-venta/actualizar/[id]/page"
-    )
-);
-const BancosPage = lazy(
-  () => import("./app/ap/configuraciones/maestros-general/bancos/page")
-);
-const ChequerasPage = lazy(
-  () => import("./app/ap/configuraciones/maestros-general/chequeras/page")
-);
-const AddChequerasPage = lazy(
-  () =>
-    import("./app/ap/configuraciones/maestros-general/chequeras/agregar/page")
-);
-const EditChequerasPage = lazy(
-  () =>
-    import(
-      "./app/ap/configuraciones/maestros-general/chequeras/actualizar/[id]/page"
-    )
-);
-const EstadoCivilPage = lazy(
-  () => import("./app/ap/configuraciones/maestros-general/estado-civil/page")
-);
-const OrigenClientePage = lazy(
-  () => import("./app/ap/configuraciones/maestros-general/origen-cliente/page")
-);
-const ClassArticlePage = lazy(
-  () => import("./app/ap/configuraciones/maestros-general/clase-articulo/page")
-);
-const AddClassArticlePage = lazy(
-  () =>
-    import(
-      "./app/ap/configuraciones/maestros-general/clase-articulo/agregar/page"
-    )
-);
-const EditClassArticlePage = lazy(
-  () =>
-    import(
-      "./app/ap/configuraciones/maestros-general/clase-articulo/actualizar/[id]/page"
-    )
-);
-const PlanCuentaContablePage = lazy(
-  () =>
-    import(
-      "./app/ap/configuraciones/maestros-general/plan-cuenta-contable/page"
-    )
-);
-const SegmentosPersonaPage = lazy(
-  () =>
-    import("./app/ap/configuraciones/maestros-general/segmentos-persona/page")
-);
-const TiposClaseImpuestoPage = lazy(
-  () =>
-    import(
-      "./app/ap/configuraciones/maestros-general/tipos-clase-impuesto/page"
-    )
-);
-const TiposComprobantePage = lazy(
-  () =>
-    import("./app/ap/configuraciones/maestros-general/tipos-comprobante/page")
-);
-const TiposCuentaContablePage = lazy(
-  () =>
-    import(
-      "./app/ap/configuraciones/maestros-general/tipos-cuenta-contable/page"
-    )
-);
-const TiposDocumentoPage = lazy(
-  () => import("./app/ap/configuraciones/maestros-general/tipos-documento/page")
-);
-const TiposMonedaPage = lazy(
-  () => import("./app/ap/configuraciones/maestros-general/tipos-moneda/page")
-);
-const TiposOperacionPage = lazy(
-  () => import("./app/ap/configuraciones/maestros-general/tipos-operacion/page")
-);
-const TiposPersonaPage = lazy(
-  () => import("./app/ap/configuraciones/maestros-general/tipos-persona/page")
-);
-const TiposSexoPage = lazy(
-  () => import("./app/ap/configuraciones/maestros-general/tipos-sexo/page")
-);
-const UbigeosPage = lazy(
-  () => import("./app/ap/configuraciones/maestros-general/ubigeos/page")
-);
-const AddUbigeosPage = lazy(
-  () => import("./app/ap/configuraciones/maestros-general/ubigeos/agregar/page")
-);
-const EditUbigeosPage = lazy(
-  () =>
-    import(
-      "./app/ap/configuraciones/maestros-general/ubigeos/actualizar/[id]/page"
-    )
-);
-const UnidadMedidaPage = lazy(
-  () => import("./app/ap/configuraciones/maestros-general/unidad-medida/page")
-);
-
-// Vehículos Configuration
-const CategoriasVehiculoPage = lazy(
-  () => import("./app/ap/configuraciones/vehiculos/categorias/page")
-);
-const CategoriasChecklistPage = lazy(
-  () => import("./app/ap/configuraciones/vehiculos/categorias-checklist/page")
-);
-const ChecklistEntregaPage = lazy(
-  () => import("./app/ap/configuraciones/vehiculos/checklist-entrega/page")
-);
-const ChecklistRecepcionPage = lazy(
-  () => import("./app/ap/configuraciones/vehiculos/checklist-recepcion/page")
-);
-const ColoresVehiculoPage = lazy(
-  () => import("./app/ap/configuraciones/vehiculos/colores-vehiculo/page")
-);
-const EstadosVehiculoPage = lazy(
-  () => import("./app/ap/configuraciones/vehiculos/estados-vehiculo/page")
-);
-const AddEstadosVehiculoPage = lazy(
-  () =>
-    import("./app/ap/configuraciones/vehiculos/estados-vehiculo/agregar/page")
-);
-const EditEstadosVehiculoPage = lazy(
-  () =>
-    import(
-      "./app/ap/configuraciones/vehiculos/estados-vehiculo/actualizar/[id]/page"
-    )
-);
-const FamiliasVehiculoPage = lazy(
-  () => import("./app/ap/configuraciones/vehiculos/familias/page")
-);
-const GrupoMarcasPage = lazy(
-  () => import("./app/ap/configuraciones/vehiculos/grupo-marcas/page")
-);
-const MarcasVehiculoPage = lazy(
-  () => import("./app/ap/configuraciones/vehiculos/marcas/page")
-);
-const AddMarcasVehiculoPage = lazy(
-  () => import("./app/ap/configuraciones/vehiculos/marcas/agregar/page")
-);
-const EditMarcasVehiculoPage = lazy(
-  () => import("./app/ap/configuraciones/vehiculos/marcas/actualizar/[id]/page")
-);
-const ModelosVNPage = lazy(
-  () => import("./app/ap/configuraciones/vehiculos/modelos-vn/page")
-);
-const AddModelosVNPage = lazy(
-  () => import("./app/ap/configuraciones/vehiculos/modelos-vn/agregar/page")
-);
-const EditModelosVNPage = lazy(
-  () =>
-    import("./app/ap/configuraciones/vehiculos/modelos-vn/actualizar/[id]/page")
-);
-const OrigenVehiculoPage = lazy(
-  () => import("./app/ap/configuraciones/vehiculos/origen-vehiculo/page")
-);
-const TiposCarroceriaPage = lazy(
-  () => import("./app/ap/configuraciones/vehiculos/tipos-carroceria/page")
-);
-const TiposCombustiblePage = lazy(
-  () => import("./app/ap/configuraciones/vehiculos/tipos-combustible/page")
-);
-const TiposMotorPage = lazy(
-  () => import("./app/ap/configuraciones/vehiculos/tipos-motor/page")
-);
-const TiposPedidoProveedorPage = lazy(
-  () => import("./app/ap/configuraciones/vehiculos/tipos-pedido-proveedor/page")
-);
-const TiposProductoPage = lazy(
-  () => import("./app/ap/configuraciones/vehiculos/tipos-producto/page")
-);
-const TiposTraccionPage = lazy(
-  () => import("./app/ap/configuraciones/vehiculos/tipos-traccion/page")
-);
-const TiposVehiculoPage = lazy(
-  () => import("./app/ap/configuraciones/vehiculos/tipos-vehiculo/page")
-);
-const TransmisionVehiculoPage = lazy(
-  () => import("./app/ap/configuraciones/vehiculos/transmision-vehiculo/page")
-);
-
-// PostVentas Configurationes
-const TypeOperationAppointmentPage = lazy(
-  () => import("@/app/ap/configuraciones/postventa/tipos-operacion-cita/page")
-);
-
-const ReasonsAdjustmentPage = lazy(
-  () => import("./app/ap/configuraciones/postventa/motivos-ajuste/page")
-);
-
-const TypePlanningPage = lazy(
-  () => import("./app/ap/configuraciones/postventa/tipos-planificacion/page")
-);
-
-// Ventas Configuration
-const AsignarGrupoMarcaPage = lazy(
-  () => import("./app/ap/configuraciones/ventas/asignar-grupo-marca/page")
-);
-const AddAsignarGrupoMarcaPage = lazy(
-  () =>
-    import("./app/ap/configuraciones/ventas/asignar-grupo-marca/agregar/page")
-);
-const EditAsignarGrupoMarcaPage = lazy(
-  () =>
-    import(
-      "./app/ap/configuraciones/ventas/asignar-grupo-marca/actualizar/[id]/page"
-    )
-);
-const AsignarJefePage = lazy(
-  () => import("./app/ap/configuraciones/ventas/asignar-jefe/page")
-);
-const AddAsignarJefePage = lazy(
-  () => import("./app/ap/configuraciones/ventas/asignar-jefe/agregar/page")
-);
-const EditAsignarJefePage = lazy(
-  () =>
-    import("./app/ap/configuraciones/ventas/asignar-jefe/actualizar/[id]/page")
-);
-const AsignarMarcaPage = lazy(
-  () => import("./app/ap/configuraciones/ventas/asignar-marca/page")
-);
-const AsignarMarcaGestionarPage = lazy(
-  () => import("./app/ap/configuraciones/ventas/asignar-marca/gestionar/page")
-);
-const AsignarSedePage = lazy(
-  () => import("./app/ap/configuraciones/ventas/asignar-sede/page")
-);
-const AddAsignarSedePage = lazy(
-  () => import("./app/ap/configuraciones/ventas/asignar-sede/agregar/page")
-);
-const EditAsignarSedePage = lazy(
-  () =>
-    import("./app/ap/configuraciones/ventas/asignar-sede/actualizar/[id]/page")
-);
-const MetasCreditoSeguroPage = lazy(
-  () => import("./app/ap/configuraciones/ventas/metas-credito-seguro/page")
-);
-const MetasVentaPage = lazy(
-  () => import("./app/ap/configuraciones/ventas/metas-venta/page")
-);
-const MetasVentaGestionarPage = lazy(
-  () => import("./app/ap/configuraciones/ventas/metas-venta/gestionar/page")
-);
-const MetasVentaResumenPage = lazy(
-  () => import("./app/ap/configuraciones/ventas/metas-venta/resumen/page")
-);
-const TiendasPage = lazy(
-  () => import("./app/ap/configuraciones/ventas/tiendas/page")
-);
-
-// ============================================================================
-// AP - POST-VENTA
-// ============================================================================
-
-// Accesorios
-const AccesoriosHomologadosPage = lazy(
-  () => import("@/app/ap/post-venta/repuestos/accesorios-homologados/page")
-);
-
-// Gestión de Productos
-const CategoriasProductoPage = lazy(
-  () =>
-    import("./app/ap/post-venta/gestion-de-productos/categorias-producto/page")
-);
-const MarcasProductoPage = lazy(
-  () => import("./app/ap/post-venta/gestion-de-productos/marcas-producto/page")
-);
-const AddMarcasProductoPage = lazy(
-  () =>
-    import(
-      "./app/ap/post-venta/gestion-de-productos/marcas-producto/agregar/page"
-    )
-);
-const EditMarcasProductoPage = lazy(
-  () =>
-    import(
-      "./app/ap/post-venta/gestion-de-productos/marcas-producto/actualizar/[id]/page"
-    )
-);
-const ProductosPage = lazy(
-  () => import("./app/ap/post-venta/gestion-de-productos/productos/page")
-);
-const AddProductosPage = lazy(
-  () =>
-    import("./app/ap/post-venta/gestion-de-productos/productos/agregar/page")
-);
-const EditProductosPage = lazy(
-  () =>
-    import(
-      "./app/ap/post-venta/gestion-de-productos/productos/actualizar/[id]/page"
-    )
-);
-
-// Gestión de Compras
-const ProductTransferPage = lazy(
-  () =>
-    import("./app/ap/post-venta/gestion-de-compras/transferencia-producto/page")
-);
-const AddProductTransferPage = lazy(
-  () =>
-    import(
-      "./app/ap/post-venta/gestion-de-compras/transferencia-producto/agregar/page"
-    )
-);
-const EditProductTransferPage = lazy(
-  () =>
-    import(
-      "./app/ap/post-venta/gestion-de-compras/transferencia-producto/actualizar/[id]/page"
-    )
-);
-const ReceiveTransferPage = lazy(
-  () =>
-    import(
-      "./app/ap/post-venta/gestion-de-compras/transferencia-producto/recepcion/[productTransferId]/page"
-    )
-);
-const AddReceiveTransferPage = lazy(
-  () =>
-    import(
-      "./app/ap/post-venta/gestion-de-compras/transferencia-producto/recepcion/agregar/[productTransferId]/page"
-    )
-);
-const ProductAdjustmentPage = lazy(
-  () => import("./app/ap/post-venta/gestion-de-compras/ajuste-producto/page")
-);
-const AddProductAdjustmentPage = lazy(
-  () =>
-    import(
-      "./app/ap/post-venta/gestion-de-compras/ajuste-producto/agregar/page"
-    )
-);
-const EditProductAdjustmentPage = lazy(
-  () =>
-    import(
-      "./app/ap/post-venta/gestion-de-compras/ajuste-producto/actualizar/[id]/page"
-    )
-);
-const InventoryPage = lazy(
-  () => import("./app/ap/post-venta/gestion-de-compras/inventario/page")
-);
-const InventoryKardexPage = lazy(
-  () =>
-    import("./app/ap/post-venta/gestion-de-compras/inventario/kardex/page.tsx")
-);
-const InventoryMovimientosPage = lazy(
-  () =>
-    import(
-      "./app/ap/post-venta/gestion-de-compras/inventario/movimientos/[productId]/[warehouseId]/page.tsx"
-    )
-);
-const PurchaseOrderProductsPage = lazy(
-  () =>
-    import("./app/ap/post-venta/gestion-de-compras/orden-compra-producto/page")
-);
-const AddPurchaseOrderProductsPage = lazy(
-  () =>
-    import(
-      "./app/ap/post-venta/gestion-de-compras/orden-compra-producto/agregar/page"
-    )
-);
-const EditPurchaseOrderProductsPage = lazy(
-  () =>
-    import(
-      "./app/ap/post-venta/gestion-de-compras/orden-compra-producto/actualizar/[id]/page"
-    )
-);
-const ReceptionPurchaseOrderProductsPage = lazy(
-  () =>
-    import(
-      "./app/ap/post-venta/gestion-de-compras/orden-compra-producto/recepcion/[purchaseOrderId]/page"
-    )
-);
-const AddReceptionPurchaseOrderProductsPage = lazy(
-  () =>
-    import(
-      "./app/ap/post-venta/gestion-de-compras/orden-compra-producto/recepcion/agregar/[purchaseOrderId]/page"
-    )
-);
-const EditReceptionPurchaseOrderProductsPage = lazy(
-  () =>
-    import(
-      "./app/ap/post-venta/gestion-de-compras/orden-compra-producto/recepcion/actualizar/[purchaseOrderId]/[id]/page"
-    )
-);
-
-// Repuestos
-const ApprovedAccessoriesPage = lazy(
-  () => import("./app/ap/post-venta/repuestos/accesorios-homologados/page")
-);
-const AddApprovedAccessoriesPage = lazy(
-  () =>
-    import("./app/ap/post-venta/repuestos/accesorios-homologados/agregar/page")
-);
-const EditApprovedAccessoriesPage = lazy(
-  () =>
-    import(
-      "./app/ap/post-venta/repuestos/accesorios-homologados/actualizar/[id]/page"
-    )
-);
-
-// Taller
-const LavadoVehiculoPage = lazy(
-  () => import("./app/ap/post-venta/taller/lavado-vehiculo/page")
-);
-const ModelsVnPostVentaPage = lazy(
-  () => import("./app/ap/post-venta/taller/modelos-vn-pv/page")
-);
-const AddModelsVnPostVentaPage = lazy(
-  () => import("./app/ap/post-venta/taller/modelos-vn-pv/agregar/page")
-);
-const EditModelsVnPostVentaPage = lazy(
-  () => import("./app/ap/post-venta/taller/modelos-vn-pv/actualizar/[id]/page")
-);
-const AppointmentPlanningPage = lazy(
-  () => import("./app/ap/post-venta/taller/citas/page")
-);
-const AddAppointmentPlanningPage = lazy(
-  () => import("./app/ap/post-venta/taller/citas/agregar/page")
-);
-const EditAppointmentPlanningPage = lazy(
-  () => import("./app/ap/post-venta/taller/citas/actualizar/[id]/page")
-);
-const OrderQuotationPage = lazy(
-  () => import("./app/ap/post-venta/taller/cotizacion/page")
-);
-const AddOrderQuotationPage = lazy(
-  () => import("./app/ap/post-venta/taller/cotizacion/agregar/page")
-);
-const EditOrderQuotationPage = lazy(
-  () => import("./app/ap/post-venta/taller/cotizacion/actualizar/[id]/page")
-);
-const ManageOrderQuotationPage = lazy(
-  () => import("./app/ap/post-venta/taller/cotizacion/gestionar/[id]/page")
-);
-const PurchaseRequestPage = lazy(
-  () => import("./app/ap/post-venta/taller/solicitud-compra/page")
-);
-const AddPurchaseRequestPage = lazy(
-  () => import("./app/ap/post-venta/taller/solicitud-compra/agregar/page")
-);
-const EditPurchaseRequestPage = lazy(
-  () =>
-    import("./app/ap/post-venta/taller/solicitud-compra/actualizar/[id]/page")
-);
-const VehiclePostVentaPage = lazy(
-  () => import("./app/ap/post-venta/taller/vehiculos-post-venta/page")
-);
-const AddVehiclePostVentaPage = lazy(
-  () => import("./app/ap/post-venta/taller/vehiculos-post-venta/agregar/page")
-);
-const EditVehiclePostVentaPage = lazy(
-  () =>
-    import(
-      "./app/ap/post-venta/taller/vehiculos-post-venta/actualizar/[id]/page"
-    )
-);
-const CustomersPostVentaPage = lazy(
-  () => import("./app/ap/post-venta/taller/clientes-post-venta/page")
-);
-const AddCustomersPostVentaPage = lazy(
-  () => import("./app/ap/post-venta/taller/clientes-post-venta/agregar/page")
-);
-const EditCustomersPostVentaPage = lazy(
-  () =>
-    import(
-      "./app/ap/post-venta/taller/clientes-post-venta/actualizar/[id]/page"
-    )
-);
-const CustomerEstablishmentsPostVentaPage = lazy(
-  () =>
-    import(
-      "./app/ap/post-venta/taller/clientes-post-venta/establecimientos/[id]/page"
-    )
-);
-const AddCustomerEstablishmentsPostVentaPage = lazy(
-  () =>
-    import(
-      "./app/ap/post-venta/taller/clientes-post-venta/establecimientos/[id]/agregar/page"
-    )
-);
-const EditCustomerEstablishmentsPostVentaPage = lazy(
-  () =>
-    import(
-      "./app/ap/post-venta/taller/clientes-post-venta/establecimientos/[id]/actualizar/[establishmentId]/page"
-    )
-);
-const WorkOrderPage = lazy(
-  () => import("./app/ap/post-venta/taller/orden-trabajo/page")
-);
-const AddWorkOrderPage = lazy(
-  () => import("./app/ap/post-venta/taller/orden-trabajo/agregar/page")
-);
-const EditWorkOrderPage = lazy(
-  () => import("./app/ap/post-venta/taller/orden-trabajo/actualizar/[id]/page")
-);
-const RequestPartsWorkOrderPage = lazy(
-  () =>
-    import(
-      "./app/ap/post-venta/taller/orden-trabajo/[id]/solicitar-repuestos/page"
-    )
-);
-const ManageWorkOrderPage = lazy(
-  () => import("./app/ap/post-venta/taller/orden-trabajo/gestionar/[id]/page")
-);
-const WorkOrderInspeccionPage = lazy(
-  () =>
-    import(
-      "./app/ap/post-venta/taller/orden-trabajo/[workOrderId]/inspeccion/page"
-    )
-);
-// ============================================================================
-// GP - GESTION DEL SISTEMA
-// ============================================================================
-
-const RolesPage = lazy(() => import("./app/gp/gestion-del-sistema/roles/page"));
-const RolesPermisosPage = lazy(
-  () => import("./app/gp/gestion-del-sistema/roles/permisos/[id]/page")
-);
-const UsuariosPage = lazy(
-  () => import("./app/gp/gestion-del-sistema/usuarios/page")
-);
-const UsuariosAgregarPage = lazy(
-  () => import("./app/gp/gestion-del-sistema/usuarios/agregar/page")
-);
-const UsuariosActualizarPage = lazy(
-  () => import("./app/gp/gestion-del-sistema/usuarios/actualizar/[id]/page")
-);
-const VistasPage = lazy(
-  () => import("./app/gp/gestion-del-sistema/vistas/page")
-);
-const AddVistasPage = lazy(
-  () => import("./app/gp/gestion-del-sistema/vistas/agregar/page")
-);
-const EditVistasPage = lazy(
-  () => import("./app/gp/gestion-del-sistema/vistas/actualizar/[id]/page")
-);
-const VistasPermisosPage = lazy(
-  () => import("./app/gp/gestion-del-sistema/vistas/permisos/[id]/page")
-);
-
-// ============================================================================
-// GP - GESTION HUMANA
-// ============================================================================
-
-// Administración de Personal
-const TrabajadoresPage = lazy(
-  () => import("./app/gp/gestion-humana/gestion-de-personal/trabajadores/page")
-);
-const EditTrabajadoresPage = lazy(
-  () =>
-    import(
-      "./app/gp/gestion-humana/gestion-de-personal/trabajadores/actualizar/[id]/page"
-    )
-);
-
-// Administración de Viaticos
-const CategoriaViaticosPage = lazy(
-  () => import("./app/gp/gestion-humana/viaticos/categoria-viaticos/page")
-);
-
-const PoliticaViaticosPage = lazy(
-  () => import("./app/gp/gestion-humana/viaticos/politica-viaticos/page")
-);
-
-const AddPoliticaViaticosPage = lazy(
-  () =>
-    import("./app/gp/gestion-humana/viaticos/politica-viaticos/agregar/page")
-);
-
-const EditPoliticaViaticosPage = lazy(
-  () =>
-    import(
-      "./app/gp/gestion-humana/viaticos/politica-viaticos/actualizar/[id]/page"
-    )
-);
-
-// ============================================================================
-// GP - MAESTRO GENERAL
-// ============================================================================
-const SedePage = lazy(() => import("./app/gp/maestro-general/sede/page"));
-const EditSedePage = lazy(
-  () => import("./app/gp/maestro-general/sede/actualizar/[id]/page")
-);
-const AddSedePage = lazy(
-  () => import("./app/gp/maestro-general/sede/agregar/page")
-);
-
-// ============================================================================
-// GP - TICS
-// ============================================================================
-const GPTicsPage = lazy(() => import("./app/gp/tics/page"));
-const AuditoriaPage = lazy(() => import("./app/gp/tics/auditoria/page"));
-const EquiposPage = lazy(() => import("./app/gp/tics/equipos/page"));
+import CompaniesPage from "./app/companies/page.tsx";
+import ModulesCompanyPage from "./app/modules/[company]/page.tsx";
+import ModulesCompanyModulePage from "./app/modules/[company]/[module]/page.tsx";
+import FeedRoutePage from "./app/feed/page.tsx";
+import TestPage from "./app/test/page.tsx";
+import UserPage from "./app/perfil/page.tsx";
+import TrainingPage from "./app/perfil/capacitaciones/page.tsx";
+import DocumentPage from "./app/perfil/documentos/page.tsx";
+import TeamPage from "./app/perfil/equipo/page.tsx";
+import TeamIndicatorsPage from "./app/perfil/equipo/indicadores/page.tsx";
+import NamuPerformancePage from "./app/perfil/equipo/[id]/page.tsx";
+import NamuPerformanceEvaluationPage from "./app/perfil/equipo/[id]/evaluar/page.tsx";
+import NamuPerformanceHistoryPage from "./app/perfil/equipo/[id]/historial/page.tsx";
+import PlanDesarrolloPage from "./app/perfil/equipo/[id]/plan-desarrollo/page.tsx";
+import CrearPlanDesarrolloPage from "./app/perfil/equipo/[id]/plan-desarrollo/agregar/page.tsx";
+import EconomicActivityPage from "./app/ap/configuraciones/maestros-general/actividad-economica/page.tsx";
+import WarehousePage from "./app/ap/configuraciones/maestros-general/almacenes/page.tsx";
+import AddWarehousePage from "./app/ap/configuraciones/maestros-general/almacenes/agregar/page.tsx";
+import UpdateWarehousePage from "./app/ap/configuraciones/maestros-general/almacenes/actualizar/[id]/page.tsx";
+import UserSeriesAssignmentPage from "./app/ap/configuraciones/maestros-general/asignar-serie-usuario/page.tsx";
+import AddUserSeriesAssignmentPage from "./app/ap/configuraciones/maestros-general/asignar-serie-usuario/agregar/page.tsx";
+import UpdateUserSeriesAssignmentPage from "./app/ap/configuraciones/maestros-general/asignar-serie-usuario/actualizar/[id]/page.tsx";
+import AssignSalesSeriesPage from "./app/ap/configuraciones/maestros-general/asignar-serie-venta/page.tsx";
+import AddAssignSalesSeriesPage from "./app/ap/configuraciones/maestros-general/asignar-serie-venta/agregar/page.tsx";
+import UpdateAssignSalesSeriesPage from "./app/ap/configuraciones/maestros-general/asignar-serie-venta/actualizar/[id]/page.tsx";
+import BankPage from "./app/ap/configuraciones/maestros-general/bancos/page.tsx";
+import ApBankPage from "./app/ap/configuraciones/maestros-general/chequeras/page.tsx";
+import AddApBankPage from "./app/ap/configuraciones/maestros-general/chequeras/agregar/page.tsx";
+import UpdateApBankPage from "./app/ap/configuraciones/maestros-general/chequeras/actualizar/[id]/page.tsx";
+import ClassArticlePage from "./app/ap/configuraciones/maestros-general/clase-articulo/page.tsx";
+import AddClassArticlePage from "./app/ap/configuraciones/maestros-general/clase-articulo/agregar/page.tsx";
+import UpdateClassArticlePage from "./app/ap/configuraciones/maestros-general/clase-articulo/actualizar/[id]/page.tsx";
+import MaritalStatusPage from "./app/ap/configuraciones/maestros-general/estado-civil/page.tsx";
+import ClientOriginPage from "./app/ap/configuraciones/maestros-general/origen-cliente/page.tsx";
+import AccountingAccountPlanPage from "./app/ap/configuraciones/maestros-general/plan-cuenta-contable/page.tsx";
+import PersonSegmentPage from "./app/ap/configuraciones/maestros-general/segmentos-persona/page.tsx";
+import TaxClassTypesPage from "./app/ap/configuraciones/maestros-general/tipos-clase-impuesto/page.tsx";
+import VoucherTypesPage from "./app/ap/configuraciones/maestros-general/tipos-comprobante/page.tsx";
+import AccountingAccountTypePage from "./app/ap/configuraciones/maestros-general/tipos-cuenta-contable/page.tsx";
+import DocumentTypePage from "./app/ap/configuraciones/maestros-general/tipos-documento/page.tsx";
+import CurrencyTypesPage from "./app/ap/configuraciones/maestros-general/tipos-moneda/page.tsx";
+import TypesOperationPage from "./app/ap/configuraciones/maestros-general/tipos-operacion/page.tsx";
+import TypeClientPage from "./app/ap/configuraciones/maestros-general/tipos-persona/page.tsx";
+import TypeGenderPage from "./app/ap/configuraciones/maestros-general/tipos-sexo/page.tsx";
+import DistrictPage from "./app/ap/configuraciones/maestros-general/ubigeos/page.tsx";
+import AddDistrictPage from "./app/ap/configuraciones/maestros-general/ubigeos/agregar/page.tsx";
+import UpdateDistrictPage from "./app/ap/configuraciones/maestros-general/ubigeos/actualizar/[id]/page.tsx";
+import UnitMeasurementPage from "./app/ap/configuraciones/maestros-general/unidad-medida/page.tsx";
+import VehicleCategoryPage from "./app/ap/configuraciones/vehiculos/categorias/page.tsx";
+import CategoryChecklistPage from "./app/ap/configuraciones/vehiculos/categorias-checklist/page.tsx";
+import DeliveryChecklistPage from "./app/ap/configuraciones/vehiculos/checklist-entrega/page.tsx";
+import ReceptionChecklistPage from "./app/ap/configuraciones/vehiculos/checklist-recepcion/page.tsx";
+import VehicleColorPage from "./app/ap/configuraciones/vehiculos/colores-vehiculo/page.tsx";
+import VehicleStatusPage from "./app/ap/configuraciones/vehiculos/estados-vehiculo/page.tsx";
+import AddVehicleStatusPage from "./app/ap/configuraciones/vehiculos/estados-vehiculo/agregar/page.tsx";
+import UpdateVehicleStatusPage from "./app/ap/configuraciones/vehiculos/estados-vehiculo/actualizar/[id]/page.tsx";
+import FamiliesPage from "./app/ap/configuraciones/vehiculos/familias/page.tsx";
+import BrandGroupPage from "./app/ap/configuraciones/vehiculos/grupo-marcas/page.tsx";
+import BrandsPage from "./app/ap/configuraciones/vehiculos/marcas/page.tsx";
+import AddBrandsPage from "./app/ap/configuraciones/vehiculos/marcas/agregar/page.tsx";
+import UpdateBrandPage from "./app/ap/configuraciones/vehiculos/marcas/actualizar/[id]/page.tsx";
+import ModelsVnPage from "./app/ap/configuraciones/vehiculos/modelos-vn/page.tsx";
+import AddModelsVnPage from "./app/ap/configuraciones/vehiculos/modelos-vn/agregar/page.tsx";
+import UpdateModelsVnPage from "./app/ap/configuraciones/vehiculos/modelos-vn/actualizar/[id]/page.tsx";
+import TypeVehicleOriginPage from "./app/ap/configuraciones/vehiculos/origen-vehiculo/page.tsx";
+import BodyTypePage from "./app/ap/configuraciones/vehiculos/tipos-carroceria/page.tsx";
+import FuelTypePage from "./app/ap/configuraciones/vehiculos/tipos-combustible/page.tsx";
+import EngineTypesPage from "./app/ap/configuraciones/vehiculos/tipos-motor/page.tsx";
+import SupplierOrderTypePage from "./app/ap/configuraciones/vehiculos/tipos-pedido-proveedor/page.tsx";
+import ProductTypePage from "./app/ap/configuraciones/vehiculos/tipos-producto/page.tsx";
+import TractionTypePage from "./app/ap/configuraciones/vehiculos/tipos-traccion/page.tsx";
+import VehicleTypePage from "./app/ap/configuraciones/vehiculos/tipos-vehiculo/page.tsx";
+import GearShiftTypePage from "./app/ap/configuraciones/vehiculos/transmision-vehiculo/page.tsx";
+import ReasonsAdjustmentPage from "./app/ap/configuraciones/postventa/motivos-ajuste/page.tsx";
+import TypesOperationsAppointmentPage from "./app/ap/configuraciones/postventa/tipos-operacion-cita/page.tsx";
+import TypesPlanningPage from "./app/ap/configuraciones/postventa/tipos-planificacion/page.tsx";
+import CommercialManagerBrandGroupPage from "./app/ap/configuraciones/ventas/asignar-grupo-marca/page.tsx";
+import AddCommercialManagerBrandGroupPage from "./app/ap/configuraciones/ventas/asignar-grupo-marca/agregar/page.tsx";
+import UpdateCommercialManagerBrandGroupPage from "./app/ap/configuraciones/ventas/asignar-grupo-marca/actualizar/[id]/page.tsx";
+import AssignmentLeadershipPage from "./app/ap/configuraciones/ventas/asignar-jefe/page.tsx";
+import AddAssignmentLeadershipPage from "./app/ap/configuraciones/ventas/asignar-jefe/agregar/page.tsx";
+import UpdateAssignmentLeadershipPage from "./app/ap/configuraciones/ventas/asignar-jefe/actualizar/[id]/page.tsx";
+import AssignBrandConsultantPage from "./app/ap/configuraciones/ventas/asignar-marca/page.tsx";
+import AddAssignBrandConsultantPage from "./app/ap/configuraciones/ventas/asignar-marca/gestionar/page.tsx";
+import AssignCompanyBranchPage from "./app/ap/configuraciones/ventas/asignar-sede/page.tsx";
+import AddAssignCompanyBranchPage from "./app/ap/configuraciones/ventas/asignar-sede/agregar/page.tsx";
+import UpdateAssignCompanyBranchPage from "./app/ap/configuraciones/ventas/asignar-sede/actualizar/[id]/page.tsx";
+import ApSafeCreditGoalPage from "./app/ap/configuraciones/ventas/metas-credito-seguro/page.tsx";
+import ApGoalSellOutInPage from "./app/ap/configuraciones/ventas/metas-venta/page.tsx";
+import AddApGoalSellOutInPage from "./app/ap/configuraciones/ventas/metas-venta/gestionar/page.tsx";
+import ApGoalSellOutInSummaryPage from "./app/ap/configuraciones/ventas/metas-venta/resumen/page.tsx";
+import ShopPage from "./app/ap/configuraciones/ventas/tiendas/page.tsx";
+import ProductCategoryPage from "./app/ap/post-venta/gestion-de-productos/categorias-producto/page.tsx";
+import BrandsPVPage from "./app/ap/post-venta/gestion-de-productos/marcas-producto/page.tsx";
+import AddBrandsPVPage from "./app/ap/post-venta/gestion-de-productos/marcas-producto/agregar/page.tsx";
+import UpdateBrandsPVPage from "./app/ap/post-venta/gestion-de-productos/marcas-producto/actualizar/[id]/page.tsx";
+import ProductPVPage from "./app/ap/post-venta/gestion-de-productos/productos/page.tsx";
+import AddProductPVPage from "./app/ap/post-venta/gestion-de-productos/productos/agregar/page.tsx";
+import UpdateProductPVPage from "./app/ap/post-venta/gestion-de-productos/productos/actualizar/[id]/page.tsx";
+import ProductTransferPage from "./app/ap/post-venta/gestion-de-compras/transferencia-producto/page.tsx";
+import AddProductTransferPage from "./app/ap/post-venta/gestion-de-compras/transferencia-producto/agregar/page.tsx";
+import UpdateProductTransferPage from "./app/ap/post-venta/gestion-de-compras/transferencia-producto/actualizar/[id]/page.tsx";
+import TransferReceptionsPage from "./app/ap/post-venta/gestion-de-compras/transferencia-producto/recepcion/[productTransferId]/page.tsx";
+import CreateTransferReceptionPage from "./app/ap/post-venta/gestion-de-compras/transferencia-producto/recepcion/agregar/[productTransferId]/page.tsx";
+import AdjustmentsProductPage from "./app/ap/post-venta/gestion-de-compras/ajuste-producto/page.tsx";
+import AddAdjustmentsProductPage from "./app/ap/post-venta/gestion-de-compras/ajuste-producto/agregar/page.tsx";
+import UpdateAdjustmentsProductPage from "./app/ap/post-venta/gestion-de-compras/ajuste-producto/actualizar/[id]/page.tsx";
+import InventoryPage from "./app/ap/post-venta/gestion-de-compras/inventario/page.tsx";
+import InventoryKardexPage from "./app/ap/post-venta/gestion-de-compras/inventario/kardex/page.tsx";
+import ProductKardexPage from "./app/ap/post-venta/gestion-de-compras/inventario/movimientos/[productId]/[warehouseId]/page.tsx";
+import PurchaseOrderProductsPage from "./app/ap/post-venta/gestion-de-compras/orden-compra-producto/page.tsx";
+import AddPurchaseOrderProductsPage from "./app/ap/post-venta/gestion-de-compras/orden-compra-producto/agregar/page.tsx";
+import UpdatePurchaseOrderProductsPage from "./app/ap/post-venta/gestion-de-compras/orden-compra-producto/actualizar/[id]/page.tsx";
+import ReceptionsProductsPage from "./app/ap/post-venta/gestion-de-compras/orden-compra-producto/recepcion/[purchaseOrderId]/page.tsx";
+import UpdateReceptionProductPage from "./app/ap/post-venta/gestion-de-compras/orden-compra-producto/recepcion/actualizar/[purchaseOrderId]/[id]/page.tsx";
+import AddReceptionProductPage from "./app/ap/post-venta/gestion-de-compras/orden-compra-producto/recepcion/agregar/[purchaseOrderId]/page.tsx";
+import ApprovedAccesoriesPage from "./app/ap/post-venta/repuestos/accesorios-homologados/page.tsx";
+import AddApprovedAccesoriesPage from "./app/ap/post-venta/repuestos/accesorios-homologados/agregar/page.tsx";
+import UpdateApprovedAccesoriesPage from "./app/ap/post-venta/repuestos/accesorios-homologados/actualizar/[id]/page.tsx";
+import CardWashPage from "./app/ap/post-venta/taller/lavado-vehiculo/page.tsx";
+import AppointmentPlanningPage from "./app/ap/post-venta/taller/citas/page.tsx";
+import AddAppointmentPlanningPage from "./app/ap/post-venta/taller/citas/agregar/page.tsx";
+import UpdateAppointmentPlanningPage from "./app/ap/post-venta/taller/citas/actualizar/[id]/page.tsx";
+import OrderQuotationPage from "./app/ap/post-venta/taller/cotizacion/page.tsx";
+import AddOrderQuotationPage from "./app/ap/post-venta/taller/cotizacion/agregar/page.tsx";
+import UpdateOrderQuotationPage from "./app/ap/post-venta/taller/cotizacion/actualizar/[id]/page.tsx";
+import PurchaseRequestPVPage from "./app/ap/post-venta/taller/solicitud-compra/page.tsx";
+import AddPurchaseRequestPVPage from "./app/ap/post-venta/taller/solicitud-compra/agregar/page.tsx";
+import UpdatePurchaseRequestPVPage from "./app/ap/post-venta/taller/solicitud-compra/actualizar/[id]/page.tsx";
+import CustomersPvPage from "./app/ap/post-venta/taller/clientes-post-venta/page.tsx";
+import AddCustomersPvPage from "./app/ap/post-venta/taller/clientes-post-venta/agregar/page.tsx";
+import UpdateCustomersPvPage from "./app/ap/post-venta/taller/clientes-post-venta/actualizar/[id]/page.tsx";
+import CustomerPvEstablishmentsListPage from "./app/ap/post-venta/taller/clientes-post-venta/establecimientos/[id]/page.tsx";
+import AddCustomerPvEstablishmentPage from "./app/ap/post-venta/taller/clientes-post-venta/establecimientos/[id]/agregar/page.tsx";
+import UpdateCustomerPvEstablishmentPage from "./app/ap/post-venta/taller/clientes-post-venta/establecimientos/[id]/actualizar/[establishmentId]/page.tsx";
+import VehiclesPostVentaPage from "./app/ap/post-venta/taller/vehiculos-post-venta/page.tsx";
+import AddVehiclePVPage from "./app/ap/post-venta/taller/vehiculos-post-venta/agregar/page.tsx";
+import UpdateVehiclePVPage from "./app/ap/post-venta/taller/vehiculos-post-venta/actualizar/[id]/page.tsx";
+import WorkOrderPage from "./app/ap/post-venta/taller/orden-trabajo/page.tsx";
+import AddWorkOrderPage from "./app/ap/post-venta/taller/orden-trabajo/agregar/page.tsx";
+import UpdateWorkOrderPage from "./app/ap/post-venta/taller/orden-trabajo/actualizar/[id]/page.tsx";
+import ManageWorkOrderPage from "./app/ap/post-venta/taller/orden-trabajo/gestionar/[id]/page.tsx";
+import RequestPartsPage from "./app/ap/post-venta/taller/orden-trabajo/[id]/solicitar-repuestos/page.tsx";
+import VehicleInspectionPage from "./app/ap/post-venta/taller/orden-trabajo/[workOrderId]/inspeccion/page.tsx";
+import RolePage from "./app/gp/gestion-del-sistema/roles/page.tsx";
+import PermissionPage from "./app/gp/gestion-del-sistema/roles/permisos/[id]/page.tsx";
+import AddUserPage from "./app/gp/gestion-del-sistema/usuarios/agregar/page.tsx";
+import UpdateUserPage from "./app/gp/gestion-del-sistema/usuarios/actualizar/[id]/page.tsx";
+import ViewPage from "./app/gp/gestion-del-sistema/vistas/page.tsx";
+import AddViewPage from "./app/gp/gestion-del-sistema/vistas/agregar/page.tsx";
+import UpdateViewPage from "./app/gp/gestion-del-sistema/vistas/actualizar/[id]/page.tsx";
+import ViewPermissionsPage from "./app/gp/gestion-del-sistema/vistas/permisos/[id]/page.tsx";
+import WorkersPage from "./app/gp/gestion-humana/gestion-de-personal/trabajadores/page.tsx";
+import UpdateWorkerSignaturePage from "./app/gp/gestion-humana/gestion-de-personal/trabajadores/actualizar/[id]/page.tsx";
+import PerDiemCategoryPage from "./app/gp/gestion-humana/viaticos/categoria-viaticos/page.tsx";
+import PerDiemPolicyPage from "./app/gp/gestion-humana/viaticos/politica-viaticos/page.tsx";
+import AddPerDiemPolicyPage from "./app/gp/gestion-humana/viaticos/politica-viaticos/agregar/page.tsx";
+import UpdatePerDiemPolicyPage from "./app/gp/gestion-humana/viaticos/politica-viaticos/actualizar/[id]/page.tsx";
+import UpdatePositionPage from "./app/gp/gestion-humana/configuraciones/posiciones/actualizar/[id]/page";
+import UpdateHierarchicalCategoryPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/categorias-jerarquicas/actualizar/[id]/page";
+import SedePage from "./app/gp/maestro-general/sede/page.tsx";
+import UpdateSedePage from "./app/gp/maestro-general/sede/actualizar/[id]/page.tsx";
+import AddSedePage from "./app/gp/maestro-general/sede/agregar/page.tsx";
+import TICsModulePage from "./app/gp/tics/page.tsx";
+import EquipmentPage from "./app/gp/tics/equipos/page.tsx";
+import AddEquipmentPage from "./app/gp/tics/equipos/agregar/page.tsx";
+import UpdateEquipmentPage from "./app/gp/tics/equipos/actualizar/[id]/page.tsx";
+import AuditLogsPage from "./app/gp/tics/auditoria/page.tsx";
+import CompanyModulePage from "./app/[company]/[module]/page.tsx";
+import CompanyModuleSubmodulePage from "./app/[company]/[module]/[submodule]/page.tsx";
 
 // ============================================================================
 // PROTECTED ROUTE COMPONENT
@@ -900,7 +375,7 @@ function App() {
             </Route>
 
             {/* Feed */}
-            <Route path="/feed" element={<FeedPage />} />
+            <Route path="/feed" element={<FeedRoutePage />} />
 
             {/* Test */}
             <Route path="/test" element={<TestPage />} />
@@ -918,34 +393,30 @@ function App() {
                 </Suspense>
               }
             >
-              <Route index element={<PerfilPage />} />
-              <Route
-                path="capacitaciones"
-                element={<PerfilCapacitacionesPage />}
-              />
-              <Route path="desempeño" element={<PerfilDesempenoPage />} />
-              <Route path="documentos" element={<PerfilDocumentosPage />} />
-              <Route path="equipo" element={<PerfilEquipoPage />} />
+              <Route index element={<UserPage />} />
+              <Route path="capacitaciones" element={<TrainingPage />} />
+              <Route path="documentos" element={<DocumentPage />} />
+              <Route path="equipo" element={<TeamPage />} />
               <Route
                 path="equipo/indicadores"
-                element={<PerfilEquipoIndicadoresPage />}
+                element={<TeamIndicatorsPage />}
               />
-              <Route path="equipo/:id" element={<PerfilEquipoDetailPage />} />
+              <Route path="equipo/:id" element={<NamuPerformancePage />} />
               <Route
                 path="equipo/:id/evaluar"
-                element={<PerfilEquipoEvaluarPage />}
+                element={<NamuPerformanceEvaluationPage />}
               />
               <Route
                 path="equipo/:id/historial"
-                element={<PerfilEquipoHistorialPage />}
+                element={<NamuPerformanceHistoryPage />}
               />
               <Route
                 path="equipo/:id/plan-desarrollo"
-                element={<PerfilEquipoPlanDesarrolloPage />}
+                element={<PlanDesarrolloPage />}
               />
               <Route
                 path="equipo/:id/plan-desarrollo/crear"
-                element={<PerfilEquipoPlanDesarrolloCrearPage />}
+                element={<CrearPlanDesarrolloPage />}
               />
               <Route path="mi-desempeno" element={<MyPerformance />} />
               <Route path="vacaciones" element={<VacationPage />} />
@@ -1160,56 +631,56 @@ function App() {
               {/* Maestros General */}
               <Route
                 path="maestros-general/actividad-economica"
-                element={<ActividadEconomicaPage />}
+                element={<EconomicActivityPage />}
               />
               <Route
                 path="maestros-general/almacenes"
-                element={<AlmacenesPage />}
+                element={<WarehousePage />}
               />
               <Route
                 path="maestros-general/almacenes/agregar"
-                element={<AddAlmacenesPage />}
+                element={<AddWarehousePage />}
               />
               <Route
                 path="maestros-general/almacenes/actualizar/:id"
-                element={<EditAlmacenesPage />}
+                element={<UpdateWarehousePage />}
               />
               <Route
                 path="maestros-general/asignar-serie-usuario"
-                element={<AsignarSerieUsuarioPage />}
+                element={<UserSeriesAssignmentPage />}
               />
               <Route
                 path="maestros-general/asignar-serie-usuario/agregar"
-                element={<AddAsignarSerieUsuarioPage />}
+                element={<AddUserSeriesAssignmentPage />}
               />
               <Route
                 path="maestros-general/asignar-serie-usuario/actualizar/:id"
-                element={<EditAsignarSerieUsuarioPage />}
+                element={<UpdateUserSeriesAssignmentPage />}
               />
               <Route
                 path="maestros-general/asignar-serie-venta"
-                element={<AsignarSerieVentaPage />}
+                element={<AssignSalesSeriesPage />}
               />
               <Route
                 path="maestros-general/asignar-serie-venta/agregar"
-                element={<AddAsignarSerieVentaPage />}
+                element={<AddAssignSalesSeriesPage />}
               />
               <Route
                 path="maestros-general/asignar-serie-venta/actualizar/:id"
-                element={<EditAsignarSerieVentaPage />}
+                element={<UpdateAssignSalesSeriesPage />}
               />
-              <Route path="maestros-general/bancos" element={<BancosPage />} />
+              <Route path="maestros-general/bancos" element={<BankPage />} />
               <Route
                 path="maestros-general/chequeras"
-                element={<ChequerasPage />}
+                element={<ApBankPage />}
               />
               <Route
                 path="maestros-general/chequeras/agregar"
-                element={<AddChequerasPage />}
+                element={<AddApBankPage />}
               />
               <Route
                 path="maestros-general/chequeras/actualizar/:id"
-                element={<EditChequerasPage />}
+                element={<UpdateApBankPage />}
               />
               <Route
                 path="maestros-general/clase-articulo"
@@ -1222,175 +693,172 @@ function App() {
               />
               <Route
                 path="maestros-general/clase-articulo/actualizar/:id"
-                element={<EditClassArticlePage />}
+                element={<UpdateClassArticlePage />}
               />
 
               <Route
                 path="maestros-general/estado-civil"
-                element={<EstadoCivilPage />}
+                element={<MaritalStatusPage />}
               />
               <Route
                 path="maestros-general/origen-cliente"
-                element={<OrigenClientePage />}
+                element={<ClientOriginPage />}
               />
               <Route
                 path="maestros-general/plan-cuenta-contable"
-                element={<PlanCuentaContablePage />}
+                element={<AccountingAccountPlanPage />}
               />
               <Route
                 path="maestros-general/segmentos-persona"
-                element={<SegmentosPersonaPage />}
+                element={<PersonSegmentPage />}
               />
               <Route
                 path="maestros-general/tipos-clase-impuesto"
-                element={<TiposClaseImpuestoPage />}
+                element={<TaxClassTypesPage />}
               />
               <Route
                 path="maestros-general/tipos-comprobante"
-                element={<TiposComprobantePage />}
+                element={<VoucherTypesPage />}
               />
               <Route
                 path="maestros-general/tipos-cuenta-contable"
-                element={<TiposCuentaContablePage />}
+                element={<AccountingAccountTypePage />}
               />
               <Route
                 path="maestros-general/tipos-documento"
-                element={<TiposDocumentoPage />}
+                element={<DocumentTypePage />}
               />
               <Route
                 path="maestros-general/tipos-moneda"
-                element={<TiposMonedaPage />}
+                element={<CurrencyTypesPage />}
               />
               <Route
                 path="maestros-general/tipos-operacion"
-                element={<TiposOperacionPage />}
+                element={<TypesOperationPage />}
               />
               <Route
                 path="maestros-general/tipos-persona"
-                element={<TiposPersonaPage />}
+                element={<TypeClientPage />}
               />
               <Route
                 path="maestros-general/tipos-sexo"
-                element={<TiposSexoPage />}
+                element={<TypeGenderPage />}
               />
               <Route
                 path="maestros-general/ubigeos"
-                element={<UbigeosPage />}
+                element={<DistrictPage />}
               />
               <Route
                 path="maestros-general/ubigeos/agregar"
-                element={<AddUbigeosPage />}
+                element={<AddDistrictPage />}
               />
               <Route
                 path="maestros-general/ubigeos/actualizar/:id"
-                element={<EditUbigeosPage />}
+                element={<UpdateDistrictPage />}
               />
               <Route
                 path="maestros-general/unidad-medida"
-                element={<UnidadMedidaPage />}
+                element={<UnitMeasurementPage />}
               />
 
               {/* Vehículos Configuration */}
 
               <Route
                 path="vehiculos/categorias"
-                element={<CategoriasVehiculoPage />}
+                element={<VehicleCategoryPage />}
               />
               <Route
                 path="vehiculos/categorias-checklist"
-                element={<CategoriasChecklistPage />}
+                element={<CategoryChecklistPage />}
               />
               <Route
                 path="vehiculos/checklist-entrega"
-                element={<ChecklistEntregaPage />}
+                element={<DeliveryChecklistPage />}
               />
               <Route
                 path="vehiculos/checklist-recepcion"
-                element={<ChecklistRecepcionPage />}
+                element={<ReceptionChecklistPage />}
               />
               <Route
                 path="vehiculos/colores-vehiculo"
-                element={<ColoresVehiculoPage />}
+                element={<VehicleColorPage />}
               />
               <Route
                 path="vehiculos/estados-vehiculo"
-                element={<EstadosVehiculoPage />}
+                element={<VehicleStatusPage />}
               />
               <Route
                 path="vehiculos/estados-vehiculo/agregar"
-                element={<AddEstadosVehiculoPage />}
+                element={<AddVehicleStatusPage />}
               />
               <Route
                 path="vehiculos/estados-vehiculo/actualizar/:id"
-                element={<EditEstadosVehiculoPage />}
+                element={<UpdateVehicleStatusPage />}
               />
-              <Route
-                path="vehiculos/familias"
-                element={<FamiliasVehiculoPage />}
-              />
+              <Route path="vehiculos/familias" element={<FamiliesPage />} />
               <Route
                 path="vehiculos/grupo-marcas"
-                element={<GrupoMarcasPage />}
+                element={<BrandGroupPage />}
               />
-              <Route path="vehiculos/marcas" element={<MarcasVehiculoPage />} />
+              <Route path="vehiculos/marcas" element={<BrandsPage />} />
               <Route
                 path="vehiculos/marcas/agregar"
-                element={<AddMarcasVehiculoPage />}
+                element={<AddBrandsPage />}
               />
               <Route
                 path="vehiculos/marcas/actualizar/:id"
-                element={<EditMarcasVehiculoPage />}
+                element={<UpdateBrandPage />}
               />
-              <Route path="vehiculos/modelos-vn" element={<ModelosVNPage />} />
+              <Route path="vehiculos/modelos-vn" element={<ModelsVnPage />} />
               <Route
                 path="vehiculos/modelos-vn/agregar"
-                element={<AddModelosVNPage />}
+                element={<AddModelsVnPage />}
               />
               <Route
                 path="vehiculos/modelos-vn/actualizar/:id"
-                element={<EditModelosVNPage />}
+                element={<UpdateModelsVnPage />}
               />
               <Route
                 path="vehiculos/origen-vehiculo"
-                element={<OrigenVehiculoPage />}
+                element={<TypeVehicleOriginPage />}
               />
               <Route
                 path="vehiculos/tipos-carroceria"
-                element={<TiposCarroceriaPage />}
+                element={<BodyTypePage />}
               />
               <Route
                 path="vehiculos/tipos-combustible"
-                element={<TiposCombustiblePage />}
+                element={<FuelTypePage />}
               />
               <Route
                 path="vehiculos/tipos-motor"
-                element={<TiposMotorPage />}
+                element={<EngineTypesPage />}
               />
               <Route
                 path="vehiculos/tipos-pedido-proveedor"
-                element={<TiposPedidoProveedorPage />}
+                element={<SupplierOrderTypePage />}
               />
               <Route
                 path="vehiculos/tipos-producto"
-                element={<TiposProductoPage />}
+                element={<ProductTypePage />}
               />
               <Route
                 path="vehiculos/tipos-traccion"
-                element={<TiposTraccionPage />}
+                element={<TractionTypePage />}
               />
               <Route
                 path="vehiculos/tipos-vehiculo"
-                element={<TiposVehiculoPage />}
+                element={<VehicleTypePage />}
               />
               <Route
                 path="vehiculos/transmision-vehiculo"
-                element={<TransmisionVehiculoPage />}
+                element={<GearShiftTypePage />}
               />
 
               {/* PostVentas Configuration */}
               <Route
                 path="postventa/tipos-operacion-cita"
-                element={<TypeOperationAppointmentPage />}
+                element={<TypesOperationsAppointmentPage />}
               />
               <Route
                 path="postventa/motivos-ajuste"
@@ -1398,62 +866,71 @@ function App() {
               />
               <Route
                 path="postventa/tipos-planificacion"
-                element={<TypePlanningPage />}
+                element={<TypesPlanningPage />}
               />
 
               {/* Ventas Configuration */}
               <Route
                 path="ventas/asignar-grupo-marca"
-                element={<AsignarGrupoMarcaPage />}
+                element={<CommercialManagerBrandGroupPage />}
               />
               <Route
                 path="ventas/asignar-grupo-marca/agregar"
-                element={<AddAsignarGrupoMarcaPage />}
+                element={<AddCommercialManagerBrandGroupPage />}
               />
               <Route
                 path="ventas/asignar-grupo-marca/actualizar/:id"
-                element={<EditAsignarGrupoMarcaPage />}
+                element={<UpdateCommercialManagerBrandGroupPage />}
               />
-              <Route path="ventas/asignar-jefe" element={<AsignarJefePage />} />
+              <Route
+                path="ventas/asignar-jefe"
+                element={<AssignmentLeadershipPage />}
+              />
               <Route
                 path="ventas/asignar-jefe/agregar"
-                element={<AddAsignarJefePage />}
+                element={<AddAssignmentLeadershipPage />}
               />
               <Route
                 path="ventas/asignar-jefe/actualizar/:id"
-                element={<EditAsignarJefePage />}
+                element={<UpdateAssignmentLeadershipPage />}
               />
               <Route
                 path="ventas/asignar-marca"
-                element={<AsignarMarcaPage />}
+                element={<AssignBrandConsultantPage />}
               />
               <Route
                 path="ventas/asignar-marca/gestionar"
-                element={<AsignarMarcaGestionarPage />}
+                element={<AddAssignBrandConsultantPage />}
               />
-              <Route path="ventas/asignar-sede" element={<AsignarSedePage />} />
+              <Route
+                path="ventas/asignar-sede"
+                element={<AssignCompanyBranchPage />}
+              />
               <Route
                 path="ventas/asignar-sede/agregar"
-                element={<AddAsignarSedePage />}
+                element={<AddAssignCompanyBranchPage />}
               />
               <Route
                 path="ventas/asignar-sede/actualizar/:id"
-                element={<EditAsignarSedePage />}
+                element={<UpdateAssignCompanyBranchPage />}
               />
               <Route
                 path="ventas/metas-credito-seguro"
-                element={<MetasCreditoSeguroPage />}
+                element={<ApSafeCreditGoalPage />}
               />
-              <Route path="ventas/metas-venta" element={<MetasVentaPage />} />
+              <Route
+                path="ventas/metas-venta"
+                element={<ApGoalSellOutInPage />}
+              />
               <Route
                 path="ventas/metas-venta/gestionar"
-                element={<MetasVentaGestionarPage />}
+                element={<AddApGoalSellOutInPage />}
               />
               <Route
                 path="ventas/metas-venta/resumen"
-                element={<MetasVentaResumenPage />}
+                element={<ApGoalSellOutInSummaryPage />}
               />
-              <Route path="ventas/tiendas" element={<TiendasPage />} />
+              <Route path="ventas/tiendas" element={<ShopPage />} />
             </Route>
 
             {/* ======================================================== */}
@@ -1472,39 +949,34 @@ function App() {
               {/* Dashboard Principal */}
               <Route index element={<ModulePage />} />
 
-              {/* Accesorios */}
-              <Route
-                path="accesorios-homologados"
-                element={<AccesoriosHomologadosPage />}
-              />
               {/* Gestión de Productos */}
               <Route
                 path="gestion-de-productos/categorias-producto"
-                element={<CategoriasProductoPage />}
+                element={<ProductCategoryPage />}
               />
               <Route
                 path="gestion-de-productos/marcas-producto"
-                element={<MarcasProductoPage />}
+                element={<BrandsPVPage />}
               />
               <Route
                 path="gestion-de-productos/marcas-producto/agregar"
-                element={<AddMarcasProductoPage />}
+                element={<AddBrandsPVPage />}
               />
               <Route
                 path="gestion-de-productos/marcas-producto/actualizar/:id"
-                element={<EditMarcasProductoPage />}
+                element={<UpdateBrandsPVPage />}
               />
               <Route
                 path="gestion-de-productos/productos"
-                element={<ProductosPage />}
+                element={<ProductPVPage />}
               />
               <Route
                 path="gestion-de-productos/productos/agregar"
-                element={<AddProductosPage />}
+                element={<AddProductPVPage />}
               />
               <Route
                 path="gestion-de-productos/productos/actualizar/:id"
-                element={<EditProductosPage />}
+                element={<UpdateProductPVPage />}
               />
               {/* Gestion Compra */}
               <Route
@@ -1517,27 +989,27 @@ function App() {
               />
               <Route
                 path="gestion-de-compras/transferencia-producto/actualizar/:id"
-                element={<EditProductTransferPage />}
+                element={<UpdateProductTransferPage />}
               />
               <Route
                 path="gestion-de-compras/transferencia-producto/recepcion/:productTransferId"
-                element={<ReceiveTransferPage />}
+                element={<TransferReceptionsPage />}
               />
               <Route
                 path="gestion-de-compras/transferencia-producto/recepcion/agregar/:productTransferId"
-                element={<AddReceiveTransferPage />}
+                element={<CreateTransferReceptionPage />}
               />
               <Route
                 path="gestion-de-compras/ajuste-producto"
-                element={<ProductAdjustmentPage />}
+                element={<AdjustmentsProductPage />}
               />
               <Route
                 path="gestion-de-compras/ajuste-producto/agregar"
-                element={<AddProductAdjustmentPage />}
+                element={<AddAdjustmentsProductPage />}
               />
               <Route
                 path="gestion-de-compras/ajuste-producto/actualizar/:id"
-                element={<EditProductAdjustmentPage />}
+                element={<UpdateAdjustmentsProductPage />}
               />
               <Route
                 path="gestion-de-compras/inventario"
@@ -1549,7 +1021,7 @@ function App() {
               />
               <Route
                 path="gestion-de-compras/inventario/movimientos/:productId/:warehouseId"
-                element={<InventoryMovimientosPage />}
+                element={<ProductKardexPage />}
               />
               <Route
                 path="gestion-de-compras/orden-compra-producto"
@@ -1561,49 +1033,43 @@ function App() {
               />
               <Route
                 path="gestion-de-compras/orden-compra-producto/actualizar/:id"
-                element={<EditPurchaseOrderProductsPage />}
+                element={<UpdatePurchaseOrderProductsPage />}
               />
               <Route
                 path="gestion-de-compras/orden-compra-producto/recepcion/:purchaseOrderId"
-                element={<ReceptionPurchaseOrderProductsPage />}
+                element={<ReceptionsProductsPage />}
               />
               <Route
                 path="gestion-de-compras/orden-compra-producto/recepcion/agregar/:purchaseOrderId"
-                element={<AddReceptionPurchaseOrderProductsPage />}
+                element={<AddReceptionProductPage />}
               />
               <Route
                 path="gestion-de-compras/orden-compra-producto/recepcion/actualizar/:purchaseOrderId/:id"
-                element={<EditReceptionPurchaseOrderProductsPage />}
+                element={<UpdateReceptionProductPage />}
               />
               {/* Repuestos */}
               <Route
                 path="repuestos/accesorios-homologados"
-                element={<ApprovedAccessoriesPage />}
+                element={<ApprovedAccesoriesPage />}
               />
               <Route
                 path="repuestos/accesorios-homologados/agregar"
-                element={<AddApprovedAccessoriesPage />}
+                element={<AddApprovedAccesoriesPage />}
               />
               <Route
                 path="repuestos/accesorios-homologados/actualizar/:id"
-                element={<EditApprovedAccessoriesPage />}
+                element={<UpdateApprovedAccesoriesPage />}
               />
               {/* Taller */}
-              <Route
-                path="taller/lavado-vehiculo"
-                element={<LavadoVehiculoPage />}
-              />
-              <Route
-                path="taller/modelos-vn-pv"
-                element={<ModelsVnPostVentaPage />}
-              />
+              <Route path="taller/lavado-vehiculo" element={<CardWashPage />} />
+              <Route path="taller/modelos-vn-pv" element={<ModelsVnPage />} />
               <Route
                 path="taller/modelos-vn-pv/agregar"
-                element={<AddModelsVnPostVentaPage />}
+                element={<AddModelsVnPage />}
               />
               <Route
                 path="taller/modelos-vn-pv/actualizar/:id"
-                element={<EditModelsVnPostVentaPage />}
+                element={<UpdateModelsVnPage />}
               />
               <Route
                 path="taller/citas"
@@ -1615,7 +1081,7 @@ function App() {
               />
               <Route
                 path="taller/citas/actualizar/:id"
-                element={<EditAppointmentPlanningPage />}
+                element={<UpdateAppointmentPlanningPage />}
               />
               <Route
                 path="taller/cotizacion"
@@ -1627,61 +1093,61 @@ function App() {
               />
               <Route
                 path="taller/cotizacion/actualizar/:id"
-                element={<EditOrderQuotationPage />}
+                element={<UpdateOrderQuotationPage />}
               />
               <Route
                 path="taller/solicitud-compra"
-                element={<PurchaseRequestPage />}
+                element={<PurchaseRequestPVPage />}
               />
               <Route
                 path="taller/solicitud-compra/agregar"
-                element={<AddPurchaseRequestPage />}
+                element={<AddPurchaseRequestPVPage />}
               />
               <Route
                 path="taller/solicitud-compra/actualizar/:id"
-                element={<EditPurchaseRequestPage />}
+                element={<UpdatePurchaseRequestPVPage />}
               />
 
               <Route
                 path="taller/clientes-post-venta"
-                element={<CustomersPostVentaPage />}
+                element={<CustomersPvPage />}
               />
               <Route
                 path="taller/clientes-post-venta/agregar"
-                element={<AddCustomersPostVentaPage />}
+                element={<AddCustomersPvPage />}
               />
               <Route
                 path="taller/clientes-post-venta/actualizar/:id"
-                element={<EditCustomersPostVentaPage />}
+                element={<UpdateCustomersPvPage />}
               />
               <Route
                 path="taller/clientes-post-venta/establecimientos/:id"
-                element={<CustomerEstablishmentsPostVentaPage />}
+                element={<CustomerPvEstablishmentsListPage />}
               />
               <Route
                 path="taller/clientes-post-venta/establecimientos/:id/agregar"
-                element={<AddCustomerEstablishmentsPostVentaPage />}
+                element={<AddCustomerPvEstablishmentPage />}
               />
               <Route
                 path="taller/clientes-post-venta/establecimientos/:id/actualizar/:establishmentId"
-                element={<EditCustomerEstablishmentsPostVentaPage />}
+                element={<UpdateCustomerPvEstablishmentPage />}
               />
 
               <Route
                 path="taller/vehiculos-post-venta"
-                element={<VehiclePostVentaPage />}
+                element={<VehiclesPostVentaPage />}
               />
               <Route
                 path="taller/vehiculos-post-venta/agregar"
-                element={<AddVehiclePostVentaPage />}
+                element={<AddVehiclePVPage />}
               />
               <Route
                 path="taller/vehiculos-post-venta/actualizar/:id"
-                element={<EditVehiclePostVentaPage />}
+                element={<UpdateVehiclePVPage />}
               />
               <Route
                 path="taller/cotizacion/gestionar/:id"
-                element={<ManageOrderQuotationPage />}
+                element={<OrderQuotationPage />}
               />
               <Route path="taller/orden-trabajo" element={<WorkOrderPage />} />
               <Route
@@ -1690,7 +1156,7 @@ function App() {
               />
               <Route
                 path="taller/orden-trabajo/actualizar/:id"
-                element={<EditWorkOrderPage />}
+                element={<UpdateWorkOrderPage />}
               />
               <Route
                 path="taller/orden-trabajo/gestionar/:id"
@@ -1698,11 +1164,11 @@ function App() {
               />
               <Route
                 path="taller/orden-trabajo/:id/solicitar-repuestos"
-                element={<RequestPartsWorkOrderPage />}
+                element={<RequestPartsPage />}
               />
               <Route
                 path="taller/orden-trabajo/:workOrderId/inspeccion"
-                element={<WorkOrderInspeccionPage />}
+                element={<VehicleInspectionPage />}
               />
             </Route>
 
@@ -1722,29 +1188,23 @@ function App() {
               {/* Dashboard Principal */}
               <Route index element={<ModulePage />} />
 
-              <Route path="roles" element={<RolesPage />} />
-              <Route
-                path="roles/permisos/:id"
-                element={<RolesPermisosPage />}
-              />
-              <Route path="usuarios" element={<UsuariosPage />} />
-              <Route
-                path="usuarios/agregar"
-                element={<UsuariosAgregarPage />}
-              />
+              <Route path="roles" element={<RolePage />} />
+              <Route path="roles/permisos/:id" element={<PermissionPage />} />
+              <Route path="usuarios" element={<UserPage />} />
+              <Route path="usuarios/agregar" element={<AddUserPage />} />
               <Route
                 path="usuarios/actualizar/:id"
-                element={<UsuariosActualizarPage />}
+                element={<UpdateUserPage />}
               />
-              <Route path="vistas" element={<VistasPage />} />
-              <Route path="vistas/agregar" element={<AddVistasPage />} />
+              <Route path="vistas" element={<ViewPage />} />
+              <Route path="vistas/agregar" element={<AddViewPage />} />
               <Route
                 path="vistas/actualizar/:id"
-                element={<EditVistasPage />}
+                element={<UpdateViewPage />}
               />
               <Route
                 path="vistas/permisos/:id"
-                element={<VistasPermisosPage />}
+                element={<ViewPermissionsPage />}
               />
             </Route>
 
@@ -1764,31 +1224,31 @@ function App() {
               {/* Administración de Personal */}
               <Route
                 path="gestion-de-personal/trabajadores"
-                element={<TrabajadoresPage />}
+                element={<WorkersPage />}
               />
               <Route
                 path="gestion-de-personal/trabajadores/actualizar/:id"
-                element={<EditTrabajadoresPage />}
+                element={<UpdateWorkerSignaturePage />}
               />
 
               {/* Administración de Categoria Viaticos */}
               <Route
                 path="viaticos/categoria-viaticos"
-                element={<CategoriaViaticosPage />}
+                element={<PerDiemCategoryPage />}
               />
 
               {/* Administración de Politica Viaticos */}
               <Route
                 path="viaticos/politica-viaticos"
-                element={<PoliticaViaticosPage />}
+                element={<PerDiemPolicyPage />}
               />
               <Route
                 path="viaticos/politica-viaticos/agregar"
-                element={<AddPoliticaViaticosPage />}
+                element={<AddPerDiemPolicyPage />}
               />
               <Route
                 path="viaticos/politica-viaticos/actualizar/:id"
-                element={<EditPoliticaViaticosPage />}
+                element={<UpdatePerDiemPolicyPage />}
               />
 
               {/* Configuraciones */}
@@ -1806,7 +1266,7 @@ function App() {
               {/* Configuraciones */}
               <Route
                 path="configuraciones/posiciones/actualizar/:id"
-                element={<EditPositionPage />}
+                element={<UpdatePositionPage />}
               />
 
               {/* Evaluaciones de Desempeño */}
@@ -1819,7 +1279,7 @@ function App() {
                 "evaluaciones-de-desempeno/categorias-jerarquicas",
                 <HierarchicalCategoryPage />,
                 <AddHierarchicalCategoryPage />,
-                <EditHierarchicalCategoryPage />
+                <UpdateHierarchicalCategoryPage />
               )}
 
               {RouterCrud(
@@ -1918,8 +1378,8 @@ function App() {
               <Route index element={<ModulePage />} />
 
               <Route path="sede" element={<SedePage />} />
-              <Route path="sede/actualizar/:id" element={<EditSedePage />} />
               <Route path="sede/agregar" element={<AddSedePage />} />
+              <Route path="sede/actualizar/:id" element={<UpdateSedePage />} />
             </Route>
 
             {/* ======================================================== */}
@@ -1935,9 +1395,14 @@ function App() {
                 </Suspense>
               }
             >
-              <Route index element={<GPTicsPage />} />
-              <Route path="auditoria" element={<AuditoriaPage />} />
-              <Route path="equipos" element={<EquiposPage />} />
+              <Route index element={<TICsModulePage />} />
+              <Route path="auditoria" element={<AuditLogsPage />} />
+              {RouterCrud(
+                "equipos",
+                <EquipmentPage />,
+                <AddEquipmentPage />,
+                <UpdateEquipmentPage />
+              )}
             </Route>
 
             {/* ======================================================== */}

@@ -24,7 +24,7 @@ import { EstablishmentsForm } from "@/features/ap/comercial/establecimientos/com
 import { notFound } from "@/shared/hooks/useNotFound";
 import { CUSTOMERS_PV } from "@/features/ap/comercial/clientes/lib/customers.constants";
 
-export default function UpdateCustomerEstablishmentPage() {
+export default function UpdateCustomerPvEstablishmentPage() {
   const { id, establishmentId } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();
