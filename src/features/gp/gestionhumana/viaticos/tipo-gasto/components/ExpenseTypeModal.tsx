@@ -7,8 +7,17 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { ExpenseTypeForm } from "./ExpenseTypeForm";
-import { useStoreExpenseType, useUpdateExpenseType, useExpenseType } from "../lib/expenseType.hook";
-import { errorToast, successToast, SUCCESS_MESSAGE, ERROR_MESSAGE } from "@/core/core.function";
+import {
+  useStoreExpenseType,
+  useUpdateExpenseType,
+  useExpenseType,
+} from "../lib/expenseType.hook";
+import {
+  errorToast,
+  successToast,
+  SUCCESS_MESSAGE,
+  ERROR_MESSAGE,
+} from "@/core/core.function";
 import { EXPENSE_TYPE } from "../lib/expenseType.constants";
 
 interface ExpenseTypeModalProps {
@@ -27,7 +36,7 @@ export default function ExpenseTypeModal({
   mode,
 }: ExpenseTypeModalProps) {
   const { MODEL } = EXPENSE_TYPE;
-  const { data: expenseType, isLoading } = useExpenseType(id || 0);
+  const { data: expenseType } = useExpenseType(id || 0);
   const storeMutation = useStoreExpenseType();
   const updateMutation = useUpdateExpenseType();
 
