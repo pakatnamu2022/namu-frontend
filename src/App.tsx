@@ -274,6 +274,9 @@ import PerDiemCategoryPage from "./app/gp/gestion-humana/viaticos/categoria-viat
 import PerDiemPolicyPage from "./app/gp/gestion-humana/viaticos/politica-viaticos/page.tsx";
 import AddPerDiemPolicyPage from "./app/gp/gestion-humana/viaticos/politica-viaticos/agregar/page.tsx";
 import UpdatePerDiemPolicyPage from "./app/gp/gestion-humana/viaticos/politica-viaticos/actualizar/[id]/page.tsx";
+import PerDiemRequestPage from "./app/gp/gestion-humana/viaticos/solicitud-viaticos/page.tsx";
+import AddPerDiemRequestPage from "./app/gp/gestion-humana/viaticos/solicitud-viaticos/agregar/page.tsx";
+import UpdatePerDiemRequestPage from "./app/gp/gestion-humana/viaticos/solicitud-viaticos/actualizar/[id]/page.tsx";
 import UpdatePositionPage from "./app/gp/gestion-humana/configuraciones/posiciones/actualizar/[id]/page";
 import UpdateHierarchicalCategoryPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/categorias-jerarquicas/actualizar/[id]/page";
 import SedePage from "./app/gp/maestro-general/sede/page.tsx";
@@ -1257,6 +1260,20 @@ function App() {
                 <Route
                   path="politica-viaticos/actualizar/:id"
                   element={<UpdatePerDiemPolicyPage />}
+                />
+
+                {/* Administración de Solicitud de Viaticos */}
+                <Route
+                  path="solicitud-viaticos"
+                  element={<PerDiemRequestPage />}
+                />
+                <Route
+                  path="solicitud-viaticos/agregar"
+                  element={<AddPerDiemRequestPage />}
+                />
+                <Route
+                  path="solicitud-viaticos/actualizar/:id"
+                  element={<UpdatePerDiemRequestPage />}
                 />
               </Route>
 

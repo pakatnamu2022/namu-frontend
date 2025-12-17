@@ -1,6 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { PER_DIEM_POLICY } from "./perDiemPolicy.constants";
-import { getPerDiemPolicyProps } from "./perDiemPolicy.interface";
+import {
+  getPerDiemPolicyProps,
+  PerDiemPolicyResource,
+} from "./perDiemPolicy.interface";
 import {
   findPerDiemPolicyById,
   getAllPerDiemPolicy,
@@ -16,10 +19,10 @@ export function useGetPerDiemPolicy(props: getPerDiemPolicyProps) {
   });
 }
 
-export function useGetAllPerDiemPolicy(props: getPerDiemPolicyProps) {
-  return useQuery({
-    queryKey: [QUERY_KEY, "all", props],
-    queryFn: () => getAllPerDiemPolicy(props),
+export function useGetAllPerDiemPolicy(params?: Record<string, any>) {
+  return useQuery<PerDiemPolicyResource[]>({
+    queryKey: [QUERY_KEY, "all", params],
+    queryFn: () => getAllPerDiemPolicy({ params }),
   });
 }
 

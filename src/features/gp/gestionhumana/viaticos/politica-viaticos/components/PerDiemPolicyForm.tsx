@@ -222,7 +222,7 @@ export const PerDiemPolicyForm = ({
           )}
         />
 
-        <div className="flex gap-4 w-full justify-end pt-4 border-t">
+        <div className="flex gap-4 w-full justify-end pt-4">
           <Button type="button" variant="outline" onClick={onCancel}>
             Cancelar
           </Button>
