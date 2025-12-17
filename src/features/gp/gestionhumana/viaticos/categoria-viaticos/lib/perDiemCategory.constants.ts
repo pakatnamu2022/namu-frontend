@@ -17,4 +17,10 @@ export const PER_DIEM_CATEGORY: ModelComplete<PerDiemCategoryResource> = {
   ABSOLUTE_ROUTE,
   ROUTE_ADD: `${ABSOLUTE_ROUTE}/agregar`,
   ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/actualizar`,
+  EMPTY: {
+    id: 0,
+    name: "",
+    description: "",
+    active: true,
+  },
 };

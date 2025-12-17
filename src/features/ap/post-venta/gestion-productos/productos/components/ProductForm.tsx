@@ -74,7 +74,9 @@ export const ProductForm = ({
       is_physical_warehouse: 1,
     });
   const { data: classArticles = [], isLoading: isLoadingClassArticles } =
-    useAllClassArticle();
+    useAllClassArticle({
+      type_operation_id: CM_POSTVENTA_ID,
+    });
 
   // Watch para generar código automáticamente
   const watchedCategoryId = form.watch("product_category_id");

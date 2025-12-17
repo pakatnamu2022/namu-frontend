@@ -11,7 +11,7 @@ export const perDiemCategorySchemaCreate = z.object({
     .string()
     .max(255)
     .refine((value) => value.trim() !== "", {
-      message: "Descripción es requerida",
+      message: "DescripciÃ³n es requerida",
     }),
   active: z.boolean().optional().default(true),
 });
