@@ -75,6 +75,7 @@ export default function VehiclesPage() {
           onDelete: setDeleteId,
         })}
         data={data?.data || []}
+        initialColumnVisibility={{ plate: true }}
       >
         <VehicleOptions search={search} setSearch={setSearch} />
       </VehicleTable>

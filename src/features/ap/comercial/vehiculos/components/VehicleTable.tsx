@@ -7,6 +7,7 @@ interface Props {
   data: VehicleResource[];
   children?: React.ReactNode;
   isLoading?: boolean;
+  initialColumnVisibility?: Record<string, boolean>;
 }
 
 export default function VehicleTable({
@@ -14,6 +15,7 @@ export default function VehicleTable({
   data,
   children,
   isLoading,
+  initialColumnVisibility,
 }: Props) {
   return (
     <div className="border-none text-muted-foreground max-w-full">
@@ -24,7 +26,6 @@ export default function VehicleTable({
         initialColumnVisibility={{
           owner_name: false,
           vin: true,
-          plate: true,
           model: true,
           model_code: false,
           year: true,
@@ -33,6 +34,7 @@ export default function VehicleTable({
           engine_type: false,
           sede: true,
           warehouse_physical: false,
+          ...initialColumnVisibility,
         }}
       >
         {children}

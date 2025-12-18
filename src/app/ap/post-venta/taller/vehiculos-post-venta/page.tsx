@@ -78,6 +78,7 @@ export default function VehiclesPostVentaPage() {
           onUpdate: (id) => router(`${VEHICLES_PV.ROUTE_UPDATE}/${id}`),
         })}
         data={data?.data || []}
+        initialColumnVisibility={{ plate: true }}
       >
         <VehicleOptions search={search} setSearch={setSearch} />
       </VehicleTable>
