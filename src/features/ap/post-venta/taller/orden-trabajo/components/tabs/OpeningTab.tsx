@@ -192,7 +192,7 @@ export default function OpeningTab({ workOrderId }: OpeningTabProps) {
         </Card>
       )}
 
-      {/* Add Dialog */}
+      {/* Add GeneralSheet */}
       <GeneralSheet
         open={isDialogOpen}
         onClose={() => setIsDialogOpen(false)}

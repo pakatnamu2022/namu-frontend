@@ -261,6 +261,8 @@ import WorkOrderPage from "./app/ap/post-venta/taller/orden-trabajo/page.tsx";
 import AddWorkOrderPage from "./app/ap/post-venta/taller/orden-trabajo/agregar/page.tsx";
 import UpdateWorkOrderPage from "./app/ap/post-venta/taller/orden-trabajo/actualizar/[id]/page.tsx";
 import ManageWorkOrderPage from "./app/ap/post-venta/taller/orden-trabajo/gestionar/[id]/page.tsx";
+import WorkOrderPlanningPage from "./app/ap/post-venta/taller/planificacion-orden-trabajo/page.tsx";
+import AssignedWorkPage from "./app/ap/post-venta/taller/trabajos-asignados/page.tsx";
 import RequestPartsPage from "./app/ap/post-venta/taller/orden-trabajo/[id]/solicitar-repuestos/page.tsx";
 import VehicleInspectionPage from "./app/ap/post-venta/taller/orden-trabajo/[workOrderId]/inspeccion/page.tsx";
 import RolePage from "./app/gp/gestion-del-sistema/roles/page.tsx";
@@ -954,7 +956,6 @@ function App() {
             >
               {/* Dashboard Principal */}
               <Route index element={<ModulePage />} />
-
               {/* Gestión de Productos */}
               <Route
                 path="gestion-de-productos/categorias-producto"
@@ -1113,7 +1114,6 @@ function App() {
                 path="taller/solicitud-compra/actualizar/:id"
                 element={<UpdatePurchaseRequestPVPage />}
               />
-
               <Route
                 path="taller/clientes-post-venta"
                 element={<CustomersPvPage />}
@@ -1138,7 +1138,6 @@ function App() {
                 path="taller/clientes-post-venta/establecimientos/:id/actualizar/:establishmentId"
                 element={<UpdateCustomerPvEstablishmentPage />}
               />
-
               <Route
                 path="taller/vehiculos-post-venta"
                 element={<VehiclesPostVentaPage />}
@@ -1175,6 +1174,14 @@ function App() {
               <Route
                 path="taller/orden-trabajo/:workOrderId/inspeccion"
                 element={<VehicleInspectionPage />}
+              />
+              <Route
+                path="taller/planificacion-orden-trabajo"
+                element={<WorkOrderPlanningPage />}
+              />
+              <Route
+                path="taller/trabajos-asignados"
+                element={<AssignedWorkPage />}
               />
             </Route>
 

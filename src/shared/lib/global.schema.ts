@@ -46,3 +46,14 @@ export const requiredDecimalNumber = (object: string, minValue: number = 0) => {
       { message: `${object} debe ser un número mayor o igual a ${minValue}` }
     );
 };
+
+export const requiredText = (
+  object: string,
+  minLength: number = 3,
+  maxLength: number = 255
+) => {
+  return z
+    .string()
+    .min(minLength, `${object} debe tener al menos ${minLength} caracteres`)
+    .max(maxLength, `${object} no puede exceder ${maxLength} caracteres`);
+};
