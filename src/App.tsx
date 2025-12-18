@@ -94,6 +94,9 @@ import ModulePage from "./components/ModulePage";
 import CommercialPage from "./app/ap/comercial/page.tsx";
 import DashboardDeliveryPage from "./app/ap/comercial/dashboard-entregas/page.tsx";
 import TeamLeadsDashboard from "./app/ap/comercial/dashboard-equipo-leads/page.tsx";
+import ExhibitionVehiclesPage from "./app/ap/comercial/vehiculos-exhibicion/page";
+import AddExhibitionVehiclesPage from "./app/ap/comercial/vehiculos-exhibicion/agregar/page";
+import UpdateExhibitionVehiclesPage from "./app/ap/comercial/vehiculos-exhibicion/actualizar/[id]/page";
 import PositionsPage from "./app/gp/gestion-humana/configuraciones/posiciones/page";
 import AddPositionPage from "./app/gp/gestion-humana/configuraciones/posiciones/agregar/page";
 
@@ -622,6 +625,14 @@ function App() {
                 path="motivos-descarte"
                 element={<ReasonsRejectionPage />}
               />
+
+              {/* Vehículos de Exhibición */}
+              {RouterCrud(
+                "vehiculos-exhibicion",
+                <ExhibitionVehiclesPage />,
+                <AddExhibitionVehiclesPage />,
+                <UpdateExhibitionVehiclesPage />
+              )}
 
               {/* Reportes */}
               <Route path="reportes" element={<ReportesComercialPage />} />
