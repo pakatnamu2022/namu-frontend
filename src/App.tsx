@@ -261,6 +261,7 @@ import AddWorkOrderPage from "./app/ap/post-venta/taller/orden-trabajo/agregar/p
 import UpdateWorkOrderPage from "./app/ap/post-venta/taller/orden-trabajo/actualizar/[id]/page.tsx";
 import ManageWorkOrderPage from "./app/ap/post-venta/taller/orden-trabajo/gestionar/[id]/page.tsx";
 import WorkOrderPlanningPage from "./app/ap/post-venta/taller/planificacion-orden-trabajo/page.tsx";
+import AddWorkOrderPlanningPage from "./app/ap/post-venta/taller/planificacion-orden-trabajo/agregar/page.tsx";
 import AssignedWorkPage from "./app/ap/post-venta/taller/trabajos-asignados/page.tsx";
 import RequestPartsPage from "./app/ap/post-venta/taller/orden-trabajo/[id]/solicitar-repuestos/page.tsx";
 import VehicleInspectionPage from "./app/ap/post-venta/taller/orden-trabajo/[workOrderId]/inspeccion/page.tsx";
@@ -1192,6 +1193,10 @@ function App() {
                 element={<WorkOrderPlanningPage />}
               />
               <Route
+                path="taller/planificacion-orden-trabajo/agregar"
+                element={<AddWorkOrderPlanningPage />}
+              />
+              <Route
                 path="taller/trabajos-asignados"
                 element={<AssignedWorkPage />}
               />
@@ -1285,10 +1290,7 @@ function App() {
                 />
 
                 {/* Administración de Tipos de Gasto */}
-                <Route
-                  path="tipo-gasto"
-                  element={<ExpenseTypePage />}
-                />
+                <Route path="tipo-gasto" element={<ExpenseTypePage />} />
 
                 {/* Administración de Convenios de Hoteles */}
                 <Route

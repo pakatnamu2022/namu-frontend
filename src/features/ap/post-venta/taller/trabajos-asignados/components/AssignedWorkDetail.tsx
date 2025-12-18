@@ -40,7 +40,7 @@ export function AssignedWorkDetail({
       type={isTablet ? "tablet" : "default"}
       className="sm:max-w-3xl"
     >
-      <div className="space-y-6">
+      <div className="space-y-6 max-h-[calc(100vh-200px)] overflow-y-auto pr-2">
         {/* Estado */}
         <div className="flex items-center justify-between">
           <Badge
@@ -244,7 +244,7 @@ export function AssignedWorkDetail({
                       </p>
                       <p className="text-lg font-bold text-green-600">
                         {session.hours_worked
-                          ? `${session.hours_worked.toFixed(1)}h`
+                          ? `${Number(session.hours_worked).toFixed(1)}h`
                           : "En curso..."}
                       </p>
                     </div>

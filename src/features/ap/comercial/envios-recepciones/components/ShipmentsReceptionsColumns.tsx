@@ -18,7 +18,6 @@ import {
   Ban,
 } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
-import { StatusBadge } from "@/shared/components/StatusBadge";
 import type { ShipmentsReceptionsResource } from "../lib/shipmentsReceptions.interface";
 import { SHIPMENTS_RECEPTIONS } from "../lib/shipmentsReceptions.constants";
 import { format } from "date-fns";
@@ -241,16 +240,15 @@ export const shipmentsReceptionsColumns = ({
       const isReceived = row.getValue("is_received") as boolean;
 
       return isReceived ? (
-        <StatusBadge
-          variant="success"
-          icon={<CheckCircle2 className="size-3" />}
-        >
+        <Badge variant="green">
+          <CheckCircle2 className="size-3" />
           Recepcionado
-        </StatusBadge>
+        </Badge>
       ) : (
-        <StatusBadge variant="pending" icon={<XCircle className="size-3" />}>
+        <Badge variant="blue">
+          <XCircle className="size-3" />
           Pendiente
-        </StatusBadge>
+        </Badge>
       );
     },
   },
@@ -307,32 +305,33 @@ export const shipmentsReceptionsColumns = ({
           (now.getTime() - sentDate.getTime()) / (1000 * 60 * 60);
 
         // Determinar estado y variante
-        let variant: "success" | "error" | "info";
+        let variant: "green" | "destructive" | "blue";
         let label: string;
         let icon: React.ReactNode;
 
         if (aceptadaPorSunat === true) {
-          variant = "success";
+          variant = "green";
           label = "Aceptado";
           icon = <CheckCircle2 className="size-3" />;
         } else if (
           aceptadaPorSunat === false &&
           hoursDiff > WAITING_TIME_HOURS
         ) {
-          variant = "error";
+          variant = "destructive";
           label = "Rechazado";
           icon = <XCircle className="size-3" />;
         } else {
-          variant = "info";
+          variant = "blue";
           label = "En espera";
           icon = <CheckCircle2 className="size-3" />;
         }
 
         return (
           <div className="flex flex-col gap-1">
-            <StatusBadge variant={variant} icon={icon}>
+            <Badge variant={variant}>
+              {icon}
               {label}
-            </StatusBadge>
+            </Badge>
             <span className="text-xs text-muted-foreground">
               {format(sentDate, "dd/MM/yyyy HH:mm", { locale: es })}
             </span>
@@ -341,9 +340,10 @@ export const shipmentsReceptionsColumns = ({
       }
 
       return (
-        <StatusBadge variant="neutral" icon={<XCircle className="size-3" />}>
+        <Badge variant="gray">
+          <XCircle className="size-3" />
           No enviado
-        </StatusBadge>
+        </Badge>
       );
     },
   },

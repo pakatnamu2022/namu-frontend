@@ -9,6 +9,7 @@ import { DEFAULT_PER_PAGE, EMPRESA_AP } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { notFound } from "@/shared/hooks/useNotFound";
 import {
+  useCompleteWork,
   useGetWorkOrderPlanning,
   usePauseWork,
   useStartSession,
@@ -18,27 +19,10 @@ import { assignedWorkColumns } from "@/features/ap/post-venta/taller/trabajos-as
 import AssignedWorkTable from "@/features/ap/post-venta/taller/trabajos-asignados/components/AssignedWorkTable";
 import AssignedWorkOptions from "@/features/ap/post-venta/taller/trabajos-asignados/components/AssignedWorkOptions";
 import { AssignedWorkDetail } from "@/features/ap/post-venta/taller/trabajos-asignados/components/AssignedWorkDetail";
+import { PauseWorkSheet } from "@/features/ap/post-venta/taller/trabajos-asignados/components/PauseWorkSheet";
 import DataTablePagination from "@/shared/components/DataTablePagination";
 import { useAllWorkers } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
-import GeneralSheet from "@/shared/components/GeneralSheet";
-import { useIsTablet } from "@/hooks/use-mobile";
 import { SimpleConfirmDialog } from "@/shared/components/SimpleConfirmDialog";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  pauseWorkSchema,
-  PauseWorkFormValues,
-} from "@/features/ap/post-venta/taller/planificacion-orden-trabajo/lib/workOrderPlanning.schema";
 import {
   POSITION_TYPE,
   STATUS_WORKER,
@@ -46,7 +30,6 @@ import {
 import { WORK_ORDER_PLANNING_SESSION } from "@/features/ap/post-venta/taller/trabajos-asignados/lib/assignedWork.constants";
 
 export default function AssignedWorkPage() {
-  const isTablet = useIsTablet();
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
@@ -59,17 +42,12 @@ export default function AssignedWorkPage() {
     useState<WorkOrderPlanningResource | null>(null);
   const [openPauseSheet, setOpenPauseSheet] = useState(false);
   const [openStartAlert, setOpenStartAlert] = useState(false);
+  const [openContinueAlert, setOpenContinueAlert] = useState(false);
   const [openCompleteAlert, setOpenCompleteAlert] = useState(false);
   const { ROUTE } = WORK_ORDER_PLANNING_SESSION;
   const startSession = useStartSession();
   const pauseWork = usePauseWork();
-
-  const pauseForm = useForm<PauseWorkFormValues>({
-    resolver: zodResolver(pauseWorkSchema),
-    defaultValues: {
-      pause_reason: "",
-    },
-  });
+  const completeWork = useCompleteWork(); // Reutilizando la mutación de inicio para completar (ajustar según sea necesario)
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -97,6 +75,10 @@ export default function AssignedWorkPage() {
     setActionWork(work);
     setOpenStartAlert(true);
   };
+  const handleContinueWork = (work: WorkOrderPlanningResource) => {
+    setActionWork(work);
+    setOpenContinueAlert(true);
+  };
   const handlePauseWork = (work: WorkOrderPlanningResource) => {
     setActionWork(work);
     setOpenPauseSheet(true);
@@ -119,16 +101,16 @@ export default function AssignedWorkPage() {
     }
   };
 
-  const handlePause = async (data: PauseWorkFormValues) => {
+  const handlePause = async (data: { pause_reason?: string }) => {
     if (!actionWork) return;
     try {
       await pauseWork.mutateAsync({
         id: actionWork.id,
         data: { pause_reason: data.pause_reason },
       });
+      successToast("Trabajo pausado exitosamente");
       refetch();
       setOpenPauseSheet(false);
-      pauseForm.reset();
       setActionWork(null);
     } catch (error: any) {
       errorToast("Error al pausar el trabajo", error.response?.data?.message);
@@ -136,13 +118,21 @@ export default function AssignedWorkPage() {
     }
   };
 
-  const handleCompleteConfirm = () => {
+  const handleCompleteConfirm = async () => {
     if (!actionWork) return;
-    console.log("Completar trabajo:", { workId: actionWork.id });
-    successToast("Trabajo completado exitosamente");
-    refetch();
-    setOpenCompleteAlert(false);
-    setActionWork(null);
+    try {
+      await completeWork.mutateAsync(actionWork.id);
+      successToast("Trabajo completado exitosamente");
+      refetch();
+      setOpenCompleteAlert(false);
+      setActionWork(null);
+    } catch (error: any) {
+      errorToast(
+        "Error al completar el trabajo",
+        error.response?.data?.message
+      );
+      return;
+    }
   };
 
   if (isLoadingModule) return <PageSkeleton />;
@@ -163,6 +153,7 @@ export default function AssignedWorkPage() {
         columns={assignedWorkColumns({
           onView: handleViewWork,
           onStart: handleStartSession,
+          onContinue: handleContinueWork,
           onPause: handlePauseWork,
           onComplete: handleCompleteWork,
         })}
@@ -206,6 +197,19 @@ export default function AssignedWorkPage() {
         icon="success"
       />
 
+      {/* Alert para Continuar trabajo pausado */}
+      <SimpleConfirmDialog
+        open={openContinueAlert}
+        onOpenChange={setOpenContinueAlert}
+        onConfirm={handleStartConfirm}
+        title="¿Continuar trabajo?"
+        description="¿Estás seguro de continuar con este trabajo? Se creará una nueva sesión de trabajo."
+        confirmText="Sí, Continuar"
+        cancelText="No"
+        variant="default"
+        icon="success"
+      />
+
       {/* Alert para Completar */}
       <SimpleConfirmDialog
         open={openCompleteAlert}
@@ -219,78 +223,16 @@ export default function AssignedWorkPage() {
         icon="success"
       />
 
-      {/* Sheet para Pausar - Solo este requiere formulario */}
-      {actionWork && (
-        <GeneralSheet
-          open={openPauseSheet}
-          onClose={() => {
-            setOpenPauseSheet(false);
-            pauseForm.reset();
-            setActionWork(null);
-          }}
-          title={`Pausar Trabajo - ${actionWork.work_order_correlative}`}
-          type={isTablet ? "tablet" : "default"}
-          className="sm:max-w-2xl"
-        >
-          <div className="space-y-4">
-            <div className="p-4 bg-gray-50 rounded-lg">
-              <h3 className="font-semibold mb-2">{actionWork.description}</h3>
-              <p className="text-sm text-muted-foreground">
-                Orden: {actionWork.work_order_correlative}
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Horas trabajadas: {actionWork.actual_hours.toFixed(1)}h
-                {actionWork.estimated_hours &&
-                  ` / ${actionWork.estimated_hours}h estimadas`}
-              </p>
-            </div>
-            <Form {...pauseForm}>
-              <form
-                onSubmit={pauseForm.handleSubmit(handlePause)}
-                className="space-y-4"
-              >
-                <FormField
-                  control={pauseForm.control}
-                  name="pause_reason"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Razón de Pausa</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder="Ej: Esperando repuesto del almacén..."
-                          className="resize-none"
-                          rows={4}
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <div className="flex justify-end gap-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => {
-                      setOpenPauseSheet(false);
-                      pauseForm.reset();
-                      setActionWork(null);
-                    }}
-                  >
-                    Cancelar
-                  </Button>
-                  <Button
-                    type="submit"
-                    className="bg-yellow-600 hover:bg-yellow-700"
-                  >
-                    Pausar Trabajo
-                  </Button>
-                </div>
-              </form>
-            </Form>
-          </div>
-        </GeneralSheet>
-      )}
+      {/* Sheet para Pausar */}
+      <PauseWorkSheet
+        work={actionWork}
+        open={openPauseSheet}
+        onClose={() => {
+          setOpenPauseSheet(false);
+          setActionWork(null);
+        }}
+        onSubmit={handlePause}
+      />
     </div>
   );
 }

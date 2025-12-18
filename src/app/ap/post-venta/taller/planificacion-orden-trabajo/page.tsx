@@ -2,6 +2,7 @@
 
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import PageSkeleton from "@/shared/components/PageSkeleton";
 import TitleComponent from "@/shared/components/TitleComponent";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
@@ -14,8 +15,8 @@ import {
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  useGetWorkOrderPlanning,
   useCreateWorkOrderPlanning,
+  useGetWorkOrderPlanning,
 } from "@/features/ap/post-venta/taller/planificacion-orden-trabajo/lib/workOrderPlanning.hook";
 import { DashboardStats } from "@/features/ap/post-venta/taller/planificacion-orden-trabajo/components/DashboardStats";
 import { WorkerPerformanceChart } from "@/features/ap/post-venta/taller/planificacion-orden-trabajo/components/WorkerPerformanceChart";
@@ -36,11 +37,13 @@ import { useIsTablet } from "@/hooks/use-mobile";
 
 export default function PlanningPage() {
   const isTablet = useIsTablet();
+  const navigate = useNavigate();
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [openCreateDialog, setOpenCreateDialog] = useState(false);
   const [selectedPlanning, setSelectedPlanning] =
     useState<WorkOrderPlanningResource | null>(null);
   const [openDetailDialog, setOpenDetailDialog] = useState(false);
+
   const { ROUTE } = WORK_ORDER_PLANNING;
 
   const { data, isLoading, refetch } = useGetWorkOrderPlanning();
@@ -102,6 +105,10 @@ export default function PlanningPage() {
     setOpenDetailDialog(false);
   };
 
+  const handleOpenCreatePlanning = () => {
+    navigate("/ap/post-venta/taller/planificacion-orden-trabajo/agregar");
+  };
+
   if (isLoadingModule) return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
   if (!currentView) notFound();
@@ -116,7 +123,7 @@ export default function PlanningPage() {
           subtitle="Gestión de planificación de órdenes de trabajo con sesiones"
           icon={currentView.icon}
         />
-        <Button onClick={() => setOpenCreateDialog(true)}>
+        <Button onClick={handleOpenCreatePlanning}>
           <Plus className="h-4 w-4 mr-2" />
           Nueva Planificación
         </Button>

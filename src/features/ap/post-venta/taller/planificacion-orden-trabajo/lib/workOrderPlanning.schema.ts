@@ -10,6 +10,9 @@ export const workOrderPlanningSchema = z.object({
   worker_id: requiredStringId("El trabajador es requerido"),
   description: requiredText("La descripción", 3, 255),
   estimated_hours: requiredDecimalNumber("Las horas estimadas", 0.5),
+  planned_start_datetime: z
+    .string()
+    .min(1, "La fecha y hora de inicio es requerida"),
 });
 
 export const startSessionSchema = z.object({

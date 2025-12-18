@@ -31,6 +31,17 @@ export function PlanningForm({
   initialData,
   isLoading,
 }: PlanningFormProps) {
+  // Convertir ISO a formato datetime-local (yyyy-MM-ddTHH:mm)
+  const toDatetimeLocal = (isoString: string) => {
+    const date = new Date(isoString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  };
+
   const form = useForm<WorkOrderPlanningFormValues>({
     resolver: zodResolver(workOrderPlanningSchema),
     defaultValues: initialData
@@ -39,11 +50,16 @@ export function PlanningForm({
           worker_id: String(initialData.worker_id),
           description: initialData.description,
           estimated_hours: String(initialData.estimated_hours),
+          planned_start_datetime: initialData.planned_start_datetime
+            ? toDatetimeLocal(initialData.planned_start_datetime)
+            : toDatetimeLocal(new Date().toISOString()),
         }
       : {
           work_order_id: "",
           worker_id: "",
           description: "",
+          estimated_hours: "",
+          planned_start_datetime: toDatetimeLocal(new Date().toISOString()),
         },
   });
 
@@ -56,9 +72,23 @@ export function PlanningForm({
   const { data: workOrder = [], isLoading: isLoadingWorkOrder } =
     useGetAllWorkOrder();
 
+  const handleFormSubmit = (data: WorkOrderPlanningFormValues) => {
+    // Convertir datetime-local a ISO
+    const formattedData = {
+      ...data,
+      planned_start_datetime: new Date(
+        data.planned_start_datetime
+      ).toISOString(),
+    };
+    onSubmit(formattedData);
+  };
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form
+        onSubmit={form.handleSubmit(handleFormSubmit)}
+        className="space-y-4"
+      >
         <FormSelect
           name="work_order_id"
           label="Orden de Trabajo"
@@ -99,6 +129,13 @@ export function PlanningForm({
           label="Horas Estimadas"
           placeholder="Ej: 2.5"
           type="number"
+        />
+
+        <FormInput
+          control={form.control}
+          name="planned_start_datetime"
+          label="Fecha y Hora de Inicio Planificada"
+          type="datetime-local"
         />
 
         <div className="flex justify-end gap-2">

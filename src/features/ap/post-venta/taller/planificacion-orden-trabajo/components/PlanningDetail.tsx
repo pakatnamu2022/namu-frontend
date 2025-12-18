@@ -124,12 +124,16 @@ export function PlanningDetail({
                 <p
                   className={`text-2xl font-bold ${
                     planning.estimated_hours &&
-                    planning.actual_hours > planning.estimated_hours
+                    planning.actual_hours &&
+                    Number(planning.actual_hours) >
+                      Number(planning.estimated_hours)
                       ? "text-red-600"
                       : "text-green-600"
                   }`}
                 >
-                  {planning.actual_hours.toFixed(1)} horas
+                  {planning.actual_hours != null
+                    ? `${Number(planning.actual_hours).toFixed(1)} horas`
+                    : "-"}
                 </p>
               </div>
             </div>
@@ -253,7 +257,7 @@ export function PlanningDetail({
                       </p>
                       <p className="text-lg font-bold text-green-600">
                         {session.hours_worked
-                          ? `${session.hours_worked.toFixed(1)}h`
+                          ? `${Number(session.hours_worked).toFixed(1)}h`
                           : "En curso..."}
                       </p>
                     </div>

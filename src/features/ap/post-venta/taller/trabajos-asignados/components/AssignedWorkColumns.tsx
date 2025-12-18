@@ -2,7 +2,6 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-import { StatusBadge } from "@/shared/components/StatusBadge";
 import {
   WorkOrderPlanningResource,
   PLANNING_STATUS_LABELS,
@@ -17,6 +16,8 @@ import {
   PlayCircle,
   PauseCircle,
   CheckCircle,
+  Pause,
+  Play,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -25,10 +26,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 interface AssignedWorkColumnsProps {
   onView?: (planning: WorkOrderPlanningResource) => void;
   onStart?: (planning: WorkOrderPlanningResource) => void;
+  onContinue?: (planning: WorkOrderPlanningResource) => void;
   onPause?: (planning: WorkOrderPlanningResource) => void;
   onComplete?: (planning: WorkOrderPlanningResource) => void;
 }
@@ -36,6 +39,7 @@ interface AssignedWorkColumnsProps {
 export const assignedWorkColumns = ({
   onView,
   onStart,
+  onContinue,
   onPause,
   onComplete,
 }: AssignedWorkColumnsProps = {}): ColumnDef<WorkOrderPlanningResource>[] => [
@@ -61,26 +65,6 @@ export const assignedWorkColumns = ({
         </p>
       </div>
     ),
-  },
-  {
-    accessorKey: "status",
-    header: "Estado",
-    cell: ({ row }) => {
-      const status = row.original.status;
-
-      const variantMap = {
-        planned: "info" as const,
-        in_progress: "warning" as const,
-        completed: "completed" as const,
-        canceled: "canceled" as const,
-      };
-
-      return (
-        <StatusBadge variant={variantMap[status]}>
-          {PLANNING_STATUS_LABELS[status]}
-        </StatusBadge>
-      );
-    },
   },
   {
     accessorKey: "planned_start_datetime",
@@ -144,24 +128,31 @@ export const assignedWorkColumns = ({
     },
   },
   {
-    accessorKey: "has_active_session",
-    header: "Estado Sesión",
+    accessorKey: "status",
+    header: "Estado",
     cell: ({ row }) => {
-      const hasActive = row.original.has_active_session;
       const status = row.original.status;
+      const hasActive = row.original.has_active_session;
 
-      if (status === "completed") {
-        return <StatusBadge variant="completed">Completado</StatusBadge>;
-      }
+      const variantMap = {
+        planned: "blue" as const,
+        in_progress: "orange" as const,
+        completed: "green" as const,
+        canceled: "destructive" as const,
+      };
 
-      if (status === "canceled") {
-        return <StatusBadge variant="canceled">Cancelado</StatusBadge>;
-      }
-
-      return hasActive ? (
-        <StatusBadge variant="warning">En Curso</StatusBadge>
-      ) : (
-        <StatusBadge variant="neutral">Pausado</StatusBadge>
+      return (
+        <>
+          <Badge variant={variantMap[status]}>
+            {PLANNING_STATUS_LABELS[status]}
+          </Badge>
+          {status === "in_progress" && hasActive && (
+            <Play className="size-5 inline-block ml-2" />
+          )}
+          {status === "in_progress" && !hasActive && (
+            <Pause className="size-5 inline-block ml-2" />
+          )}
+        </>
       );
     },
   },
@@ -171,10 +162,20 @@ export const assignedWorkColumns = ({
     cell: ({ row }) => {
       const planning = row.original;
       const status = planning.status;
+      const hasActive = row.original.has_active_session;
+
+      // Verificar si hay sesiones pausadas
+      const hasPausedSession =
+        planning.sessions &&
+        planning.sessions.length > 0 &&
+        planning.sessions.some((session) => session.status === "paused");
 
       // Lógica de estados según requerimientos
-      const showStart = status === "planned";
-      const showPauseAndComplete = status === "in_progress";
+      const showStart = status === "planned" && !hasPausedSession;
+      const showContinue =
+        hasPausedSession && status === "in_progress" && !hasActive;
+      const showPauseAndComplete =
+        status === "in_progress" && planning.has_active_session;
 
       return (
         <div className="flex items-center gap-2">
@@ -186,7 +187,7 @@ export const assignedWorkColumns = ({
             <Eye className="h-4 w-4" />
           </Button>
 
-          {(showStart || showPauseAndComplete) && (
+          {(showStart || showContinue || showPauseAndComplete) && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="sm">
@@ -198,6 +199,12 @@ export const assignedWorkColumns = ({
                   <DropdownMenuItem onClick={() => onStart?.(planning)}>
                     <PlayCircle className="h-4 w-4 mr-2 text-green-600" />
                     Iniciar
+                  </DropdownMenuItem>
+                )}
+                {showContinue && (
+                  <DropdownMenuItem onClick={() => onContinue?.(planning)}>
+                    <PlayCircle className="h-4 w-4 mr-2 text-blue-600" />
+                    Continuar
                   </DropdownMenuItem>
                 )}
                 {showPauseAndComplete && (
