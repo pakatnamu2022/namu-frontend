@@ -11,6 +11,7 @@ import {
   File,
   Users,
   ClipboardList,
+  TicketsPlane,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../auth/lib/auth.store";
@@ -114,6 +115,13 @@ export function ProfileCard({ variant = "sidebar" }: ProfileCardProps) {
       label: "Políticas empresariales",
       route: "",
       icon: Clock,
+      stats: undefined,
+      allow: true,
+    },
+    {
+      label: "Viaticos",
+      route: "viaticos",
+      icon: TicketsPlane,
       stats: undefined,
       allow: true,
     },

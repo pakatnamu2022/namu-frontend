@@ -1,3 +1,5 @@
+"use client";
+
 import * as React from "react";
 import {
   Command,
@@ -11,10 +13,19 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Option } from "@/core/core.interface";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface SearchableSelectProps {
   options: Option[];
@@ -49,6 +60,7 @@ export function SearchableSelect({
 }: SearchableSelectProps) {
   const [open, setOpen] = React.useState(false);
   const [searchValue, setSearchValue] = React.useState("");
+  const isMobile = useIsMobile();
 
   const selected =
     value === "all" ? undefined : options.find((opt) => opt.value === value);
@@ -81,103 +93,134 @@ export function SearchableSelect({
     });
   }, [options, searchValue]);
 
-  // Resetear búsqueda cuando se cierra el popover
+  // Resetear búsqueda cuando se cierra el popover/drawer
   React.useEffect(() => {
     if (!open) {
       setSearchValue("");
     }
   }, [open]);
 
+  const handleSelect = (optionValue: string) => {
+    if (value === optionValue) {
+      onChange("");
+    } else {
+      onChange(optionValue);
+    }
+    setOpen(false);
+  };
+
+  const commandContent = (
+    <Command shouldFilter={false} className="md:max-h-72 overflow-hidden">
+      <CommandInput
+        className="border-none focus:ring-0"
+        placeholder="Buscar..."
+        value={searchValue}
+        onValueChange={setSearchValue}
+      />
+      <CommandList className="md:max-h-60 overflow-y-auto">
+        <CommandEmpty className="py-4 text-center text-sm">
+          No hay resultados.
+        </CommandEmpty>
+        {filteredOptions.map((option) => (
+          <CommandItem
+            key={option.value}
+            value={option.value}
+            onSelect={() => handleSelect(option.value)}
+            className="flex items-center cursor-pointer"
+          >
+            <Check
+              className={cn(
+                "mr-2 h-4 w-4 shrink-0",
+                value === option.value ? "opacity-100" : "opacity-0"
+              )}
+            />
+            <div className="flex flex-col min-w-0 flex-1">
+              <span className={cn("truncate", classNameOption)}>
+                {typeof option.label === "function"
+                  ? option.label()
+                  : option.label}
+              </span>
+              {option.description && (
+                <span className="text-[10px] text-muted-foreground truncate">
+                  {withValue && `${option.value} - `} {option.description}
+                </span>
+              )}
+            </div>
+          </CommandItem>
+        ))}
+      </CommandList>
+    </Command>
+  );
+
+  const triggerButton = (
+    <Button
+      variant="outline"
+      type="button"
+      size={buttonSize}
+      disabled={disabled}
+      className={cn(
+        "flex md:w-fit w-full items-center justify-between rounded-md border px-3 text-xs md:text-sm",
+        selected && "bg-muted text-muted-foreground",
+        className
+      )}
+    >
+      <span className="text-nowrap! line-clamp-1">
+        {selected
+          ? typeof selected.label === "function"
+            ? selected.label()
+            : selected.label
+          : placeholder}
+      </span>
+      <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
+    </Button>
+  );
+
   return (
     <div className={cn("flex flex-col gap-2", classNameDiv)}>
       {label && <label className="text-sm font-medium">{label}</label>}
-      <Popover
-        open={open}
-        onOpenChange={(isOpen) => {
-          setOpen(isOpen);
-          if (!isOpen && onBlur) {
-            onBlur();
-          }
-        }}
-      >
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            type="button"
-            size={buttonSize}
-            disabled={disabled}
-            className={cn(
-              "flex md:w-fit w-full items-center justify-between rounded-md border px-3 text-xs md:text-sm",
-              selected && "bg-muted text-muted-foreground",
-              className
-            )}
-          >
-            <span className="text-nowrap! line-clamp-1">
-              {selected
-                ? typeof selected.label === "function"
-                  ? selected.label()
-                  : selected.label
-                : placeholder}
-            </span>
-            <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent
-          container={portalContainer}
-          className="p-0 w-(--radix-popover-trigger-width)!"
-          onWheel={(e) => e.stopPropagation()}
-          onWheelCapture={(e) => e.stopPropagation()}
-          onTouchMove={(e) => e.stopPropagation()}
+      {isMobile ? (
+        <Drawer
+          open={open}
+          onOpenChange={(isOpen) => {
+            setOpen(isOpen);
+            if (!isOpen && onBlur) {
+              onBlur();
+            }
+          }}
         >
-          <Command shouldFilter={false}>
-            <CommandInput
-              className="h-9 border-none focus:ring-0"
-              placeholder="Buscar..."
-              value={searchValue}
-              onValueChange={setSearchValue}
-            />
-            <CommandList className="max-h-60 overflow-y-auto">
-              <CommandEmpty className="py-4 text-center text-sm">
-                No hay resultados.
-              </CommandEmpty>
-              {filteredOptions.map((option) => (
-                <CommandItem
-                  key={option.value}
-                  value={option.value}
-                  onSelect={() => {
-                    if (value === option.value) {
-                      onChange("");
-                    } else {
-                      onChange(option.value);
-                    }
-                    setOpen(false);
-                  }}
-                  className="flex items-center cursor-pointer"
-                >
-                  <Check
-                    className={cn(
-                      "mr-2 h-4 w-4 shrink-0",
-                      value === option.value ? "opacity-100" : "opacity-0"
-                    )}
-                  />
-                  <div className="flex flex-col min-w-0 flex-1">
-                    <span className={cn("truncate", classNameOption)}>
-                      {typeof option.label === "function"
-                        ? option.label()
-                        : option.label}
-                    </span>
-                    {option.description && (
-                      <span className="text-[10px] text-muted-foreground truncate">
-                        {withValue && `${option.value} - `} {option.description}
-                      </span>
-                    )}
-                  </div>
-                </CommandItem>
-              ))}
-            </CommandList>
-          </Command>
-        </PopoverContent>
-      </Popover>
+          <DrawerTrigger asChild>{triggerButton}</DrawerTrigger>
+          <DrawerContent className="px-4 pb-4 max-h-[80vh]">
+            <DrawerHeader>
+              <DrawerTitle>{label || "Seleccionar opción"}</DrawerTitle>
+              <DrawerDescription className="hidden" />
+            </DrawerHeader>
+            <div className="overflow-hidden">
+              {commandContent}
+            </div>
+          </DrawerContent>
+        </Drawer>
+      ) : (
+        <Popover
+          open={open}
+          onOpenChange={(isOpen) => {
+            setOpen(isOpen);
+            if (!isOpen && onBlur) {
+              onBlur();
+            }
+          }}
+        >
+          <PopoverTrigger asChild>{triggerButton}</PopoverTrigger>
+          <PopoverContent
+            container={portalContainer}
+            className="p-0 w-(--radix-popover-trigger-width)!"
+            onWheel={(e) => e.stopPropagation()}
+            onWheelCapture={(e) => e.stopPropagation()}
+            onTouchMove={(e) => e.stopPropagation()}
+          >
+            {commandContent}
+          </PopoverContent>
+        </Popover>
+      )}
     </div>
   );
 }

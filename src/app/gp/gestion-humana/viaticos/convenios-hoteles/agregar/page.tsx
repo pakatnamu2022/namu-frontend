@@ -9,22 +9,23 @@ import {
   SUCCESS_MESSAGE,
   successToast,
 } from "@/core/core.function";
-import { PerDiemRequestForm } from "@/features/gp/gestionhumana/viaticos/solicitud-viaticos/components/PerDiemRequestForm";
-import { storePerDiemRequest } from "@/features/gp/gestionhumana/viaticos/solicitud-viaticos/lib/perDiemRequest.actions";
-import { PER_DIEM_REQUEST } from "@/features/gp/gestionhumana/viaticos/solicitud-viaticos/lib/perDiemRequest.constants";
+import { HotelAgreementForm } from "@/features/gp/gestionhumana/viaticos/convenios-hoteles/components/HotelAgreementForm";
+import { storeHotelAgreement } from "@/features/gp/gestionhumana/viaticos/convenios-hoteles/lib/hotelAgreement.actions";
+import { HOTEL_AGREEMENT } from "@/features/gp/gestionhumana/viaticos/convenios-hoteles/lib/hotelAgreement.constants";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { HotelAgreementSchema } from "@/features/gp/gestionhumana/viaticos/convenios-hoteles/lib/hotelAgreement.schema";
 import FormWrapper from "@/shared/components/FormWrapper";
 import { useNavigate } from "react-router-dom";
 
-export default function AddPerDiemRequestPage() {
+export default function AddHotelAgreementPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const router = useNavigate();
   const queryClient = useQueryClient();
-  const { MODEL, ROUTE, ABSOLUTE_ROUTE, QUERY_KEY } = PER_DIEM_REQUEST;
+  const { MODEL, ROUTE, ABSOLUTE_ROUTE, QUERY_KEY } = HOTEL_AGREEMENT;
 
   const { mutate, isPending } = useMutation({
-    mutationFn: storePerDiemRequest,
+    mutationFn: storeHotelAgreement,
     onSuccess: async () => {
       successToast(SUCCESS_MESSAGE(MODEL, "create"));
       await queryClient.invalidateQueries({
@@ -38,7 +39,7 @@ export default function AddPerDiemRequestPage() {
     },
   });
 
-  const handleSubmit = (data: any) => {
+  const handleSubmit = (data: HotelAgreementSchema) => {
     mutate(data);
   };
 
@@ -57,15 +58,21 @@ export default function AddPerDiemRequestPage() {
         mode="create"
         icon={currentView.icon}
       />
-      <PerDiemRequestForm
+      <HotelAgreementForm
         defaultValues={{
-          employee_id: "",
-          company_id: "",
-          per_diem_category_id: "",
-          start_date: "",
-          end_date: "",
-          purpose: "",
-          notes: "",
+          city: "",
+          name: "",
+          corporate_rate: 0,
+          features: "",
+          includes_breakfast: false,
+          includes_lunch: false,
+          includes_dinner: false,
+          includes_parking: false,
+          email: "",
+          phone: "",
+          address: "",
+          website: "",
+          active: true,
         }}
         onSubmit={handleSubmit}
         isSubmitting={isPending}

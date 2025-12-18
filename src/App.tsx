@@ -121,7 +121,6 @@ import ModulesCompanyPage from "./app/modules/[company]/page.tsx";
 import ModulesCompanyModulePage from "./app/modules/[company]/[module]/page.tsx";
 import FeedRoutePage from "./app/feed/page.tsx";
 import TestPage from "./app/test/page.tsx";
-import UserPage from "./app/perfil/page.tsx";
 import TrainingPage from "./app/perfil/capacitaciones/page.tsx";
 import DocumentPage from "./app/perfil/documentos/page.tsx";
 import TeamPage from "./app/perfil/equipo/page.tsx";
@@ -279,6 +278,10 @@ import PerDiemCategoryPage from "./app/gp/gestion-humana/viaticos/categoria-viat
 import PerDiemPolicyPage from "./app/gp/gestion-humana/viaticos/politica-viaticos/page.tsx";
 import AddPerDiemPolicyPage from "./app/gp/gestion-humana/viaticos/politica-viaticos/agregar/page.tsx";
 import UpdatePerDiemPolicyPage from "./app/gp/gestion-humana/viaticos/politica-viaticos/actualizar/[id]/page.tsx";
+import HotelAgreementPage from "./app/gp/gestion-humana/viaticos/convenios-hoteles/page.tsx";
+import AddHotelAgreementPage from "./app/gp/gestion-humana/viaticos/convenios-hoteles/agregar/page.tsx";
+import UpdateHotelAgreementPage from "./app/gp/gestion-humana/viaticos/convenios-hoteles/actualizar/[id]/page.tsx";
+import ExpenseTypePage from "./app/gp/gestion-humana/viaticos/tipo-gasto/page.tsx";
 import PerDiemRequestPage from "./app/gp/gestion-humana/viaticos/solicitud-viaticos/page.tsx";
 import AddPerDiemRequestPage from "./app/gp/gestion-humana/viaticos/solicitud-viaticos/agregar/page.tsx";
 import UpdatePerDiemRequestPage from "./app/gp/gestion-humana/viaticos/solicitud-viaticos/actualizar/[id]/page.tsx";
@@ -294,6 +297,10 @@ import UpdateEquipmentPage from "./app/gp/tics/equipos/actualizar/[id]/page.tsx"
 import AuditLogsPage from "./app/gp/tics/auditoria/page.tsx";
 import CompanyModulePage from "./app/[company]/[module]/page.tsx";
 import CompanyModuleSubmodulePage from "./app/[company]/[module]/[submodule]/page.tsx";
+import ProfilePage from "./app/perfil/page.tsx";
+import UserPage from "./app/gp/gestion-del-sistema/usuarios/page.tsx";
+import MyPerDiemPage from "./app/perfil/viaticos/page.tsx";
+import PerDiemRequestDetailPage from "./app/perfil/viaticos/[id]/page.tsx";
 
 // ============================================================================
 // PROTECTED ROUTE COMPONENT
@@ -401,7 +408,7 @@ function App() {
                 </Suspense>
               }
             >
-              <Route index element={<UserPage />} />
+              <Route index element={<ProfilePage />} />
               <Route path="capacitaciones" element={<TrainingPage />} />
               <Route path="documentos" element={<DocumentPage />} />
               <Route path="equipo" element={<TeamPage />} />
@@ -428,6 +435,11 @@ function App() {
               />
               <Route path="mi-desempeno" element={<MyPerformance />} />
               <Route path="vacaciones" element={<VacationPage />} />
+              <Route path="viaticos" element={<MyPerDiemPage />} />
+              <Route
+                path="viaticos/:id"
+                element={<PerDiemRequestDetailPage />}
+              />
             </Route>
 
             {/* ======================================================== */}
@@ -1270,6 +1282,26 @@ function App() {
                 <Route
                   path="politica-viaticos/actualizar/:id"
                   element={<UpdatePerDiemPolicyPage />}
+                />
+
+                {/* Administración de Tipos de Gasto */}
+                <Route
+                  path="tipo-gasto"
+                  element={<ExpenseTypePage />}
+                />
+
+                {/* Administración de Convenios de Hoteles */}
+                <Route
+                  path="convenios-hoteles"
+                  element={<HotelAgreementPage />}
+                />
+                <Route
+                  path="convenios-hoteles/agregar"
+                  element={<AddHotelAgreementPage />}
+                />
+                <Route
+                  path="convenios-hoteles/actualizar/:id"
+                  element={<UpdateHotelAgreementPage />}
                 />
 
                 {/* Administración de Solicitud de Viaticos */}

@@ -10,39 +10,39 @@ import {
   SUCCESS_MESSAGE,
   successToast,
 } from "@/core/core.function";
-import { PerDiemRequestForm } from "@/features/gp/gestionhumana/viaticos/solicitud-viaticos/components/PerDiemRequestForm";
+import { HotelAgreementForm } from "@/features/gp/gestionhumana/viaticos/convenios-hoteles/components/HotelAgreementForm";
 import {
-  updatePerDiemRequest,
-  findPerDiemRequestById,
-} from "@/features/gp/gestionhumana/viaticos/solicitud-viaticos/lib/perDiemRequest.actions";
-import { PER_DIEM_REQUEST } from "@/features/gp/gestionhumana/viaticos/solicitud-viaticos/lib/perDiemRequest.constants";
+  updateHotelAgreement,
+  findHotelAgreementById,
+} from "@/features/gp/gestionhumana/viaticos/convenios-hoteles/lib/hotelAgreement.actions";
+import { HOTEL_AGREEMENT } from "@/features/gp/gestionhumana/viaticos/convenios-hoteles/lib/hotelAgreement.constants";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { PerDiemRequestSchemaUpdate } from "@/features/gp/gestionhumana/viaticos/solicitud-viaticos/lib/perDiemRequest.schema";
+import { HotelAgreementSchemaUpdate } from "@/features/gp/gestionhumana/viaticos/convenios-hoteles/lib/hotelAgreement.schema";
 import FormWrapper from "@/shared/components/FormWrapper";
-import { PerDiemRequestResource } from "@/features/gp/gestionhumana/viaticos/solicitud-viaticos/lib/perDiemRequest.interface";
+import { HotelAgreementResource } from "@/features/gp/gestionhumana/viaticos/convenios-hoteles/lib/hotelAgreement.interface";
 
-export default function UpdatePerDiemRequestPage() {
+export default function UpdateHotelAgreementPage() {
   const { id } = useParams();
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const router = useNavigate();
   const queryClient = useQueryClient();
-  const { MODEL, ROUTE, ABSOLUTE_ROUTE, QUERY_KEY } = PER_DIEM_REQUEST;
+  const { MODEL, ROUTE, ABSOLUTE_ROUTE, QUERY_KEY } = HOTEL_AGREEMENT;
 
   const {
-    data: perDiemRequest,
-    isLoading: loadingPerDiemRequest,
+    data: hotelAgreement,
+    isLoading: loadingHotelAgreement,
     error,
   } = useQuery({
     queryKey: [QUERY_KEY, Number(id)],
-    queryFn: () => findPerDiemRequestById(Number(id)),
+    queryFn: () => findHotelAgreementById(Number(id)),
     enabled: !!id,
     refetchOnWindowFocus: false,
   });
 
   const { mutate, isPending } = useMutation({
-    mutationFn: (data: PerDiemRequestSchemaUpdate) =>
-      updatePerDiemRequest(Number(id), data),
+    mutationFn: (data: HotelAgreementSchemaUpdate) =>
+      updateHotelAgreement(Number(id), data),
     onSuccess: async () => {
       successToast(SUCCESS_MESSAGE(MODEL, "update"));
       await queryClient.invalidateQueries({
@@ -59,7 +59,7 @@ export default function UpdatePerDiemRequestPage() {
     },
   });
 
-  const handleSubmit = (data: PerDiemRequestSchemaUpdate) => {
+  const handleSubmit = (data: HotelAgreementSchemaUpdate) => {
     mutate(data);
   };
 
@@ -67,30 +67,30 @@ export default function UpdatePerDiemRequestPage() {
     router(ABSOLUTE_ROUTE!);
   };
 
-  function mapPerDiemRequestToForm(
-    data: PerDiemRequestResource
-  ): Partial<PerDiemRequestSchemaUpdate> {
+  function mapHotelAgreementToForm(
+    data: HotelAgreementResource
+  ): Partial<HotelAgreementSchemaUpdate> {
     return {
-      start_date: data.start_date ? new Date(data.start_date) : "",
-      end_date: data.end_date ? new Date(data.end_date) : "",
-      purpose: data.purpose,
-      notes: data.notes || "",
-      status: data.status,
-      paid: data.paid,
-      payment_date: data.payment_date ? new Date(data.payment_date) : "",
-      settled: data.settled,
-      settlement_date: data.settlement_date
-        ? new Date(data.settlement_date)
-        : "",
-      total_spent: data.total_spent,
-      balance_to_return: data.balance_to_return,
+      city: data.city,
+      name: data.name,
+      corporate_rate: parseFloat(data.corporate_rate),
+      features: data.features || "",
+      includes_breakfast: data.includes_breakfast,
+      includes_lunch: data.includes_lunch,
+      includes_dinner: data.includes_dinner,
+      includes_parking: data.includes_parking,
+      email: data.email,
+      phone: data.phone,
+      address: data.address,
+      website: data.website || "",
+      active: data.active,
     };
   }
 
-  if (isLoadingModule || loadingPerDiemRequest) return <PageSkeleton />;
+  if (isLoadingModule || loadingHotelAgreement) return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
   if (!currentView) notFound();
-  if (error || !perDiemRequest) notFound();
+  if (error || !hotelAgreement) notFound();
 
   return (
     <FormWrapper>
@@ -99,8 +99,8 @@ export default function UpdatePerDiemRequestPage() {
         mode="edit"
         icon={currentView.icon}
       />
-      <PerDiemRequestForm
-        defaultValues={mapPerDiemRequestToForm(perDiemRequest)}
+      <HotelAgreementForm
+        defaultValues={mapHotelAgreementToForm(hotelAgreement)}
         onSubmit={handleSubmit}
         isSubmitting={isPending}
         mode="update"

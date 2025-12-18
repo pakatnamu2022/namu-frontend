@@ -17,7 +17,8 @@
       "Bash(del /f \"c:\\Users\\david\\Documents\\data\\front\\namu-frontend\\src\\app\\gp\\gestion-humana\\evaluaciones-de-desempeno\\asignacion-pares\\agregar\\page.tsx\")",
       "Bash(Select-Object -First 20)",
       "Bash(findstr:*)",
-      "Bash(npm run dev:*)"
+      "Bash(npm run dev:*)",
+      "Bash(Select-Object -First 10)"
     ],
     "deny": [],
     "ask": []

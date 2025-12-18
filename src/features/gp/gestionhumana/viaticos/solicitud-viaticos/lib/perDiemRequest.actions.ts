@@ -65,3 +65,59 @@ export async function deletePerDiemRequest(
   const { data } = await api.delete<GeneralResponse>(`${ENDPOINT}/${id}`);
   return data;
 }
+
+export async function getMyPerDiemRequests({
+  params,
+}: getPerDiemRequestProps): Promise<PerDiemRequestResponse> {
+  const config: AxiosRequestConfig = {
+    params,
+  };
+  const { data } = await api.get<PerDiemRequestResponse>(
+    `${ENDPOINT}/my-requests`,
+    config
+  );
+  return data;
+}
+
+export async function storeExpense(
+  requestId: number,
+  expenseData: FormData
+): Promise<any> {
+  const response = await api.post(
+    `${ENDPOINT}/${requestId}/expenses`,
+    expenseData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }
+  );
+  return response.data;
+}
+
+export async function updateExpense(
+  requestId: number,
+  expenseId: number,
+  expenseData: FormData
+): Promise<any> {
+  const response = await api.post(
+    `${ENDPOINT}/${requestId}/expenses/${expenseId}`,
+    expenseData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }
+  );
+  return response.data;
+}
+
+export async function deleteExpense(
+  requestId: number,
+  expenseId: number
+): Promise<GeneralResponse> {
+  const { data } = await api.delete<GeneralResponse>(
+    `${ENDPOINT}/${requestId}/expenses/${expenseId}`
+  );
+  return data;
+}

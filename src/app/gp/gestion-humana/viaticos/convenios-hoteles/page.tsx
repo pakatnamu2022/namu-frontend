@@ -12,41 +12,65 @@ import {
   SUCCESS_MESSAGE,
   successToast,
 } from "@/core/core.function";
-import { CM_POSTVENTA_ID, DEFAULT_PER_PAGE } from "@/core/core.constants";
+import HotelAgreementActions from "@/features/gp/gestionhumana/viaticos/convenios-hoteles/components/HotelAgreementActions";
+import HotelAgreementTable from "@/features/gp/gestionhumana/viaticos/convenios-hoteles/components/HotelAgreementTable";
+import { hotelAgreementColumns } from "@/features/gp/gestionhumana/viaticos/convenios-hoteles/components/HotelAgreementColumns";
+import HotelAgreementOptions from "@/features/gp/gestionhumana/viaticos/convenios-hoteles/components/HotelAgreementOptions";
+import { useGetHotelAgreement } from "@/features/gp/gestionhumana/viaticos/convenios-hoteles/lib/hotelAgreement.hook";
+import {
+  deleteHotelAgreement,
+  toggleActiveHotelAgreement,
+} from "@/features/gp/gestionhumana/viaticos/convenios-hoteles/lib/hotelAgreement.actions";
+import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
-import { deleteVehicle } from "@/features/ap/comercial/vehiculos/lib/vehicles.actions";
-import VehicleActionsPV from "@/features/ap/comercial/vehiculos/components/VehicleActionsPV";
-import { vehicleColumns } from "@/features/ap/comercial/vehiculos/components/VehicleColumns";
-import VehicleTable from "@/features/ap/comercial/vehiculos/components/VehicleTable";
-import VehicleOptions from "@/features/ap/comercial/vehiculos/components/VehicleOptions";
+import { HOTEL_AGREEMENT } from "@/features/gp/gestionhumana/viaticos/convenios-hoteles/lib/hotelAgreement.constants";
+import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { notFound } from "@/shared/hooks/useNotFound";
-import { VEHICLES_PV } from "@/features/ap/comercial/vehiculos/lib/vehicles.constants";
 import { useNavigate } from "react-router-dom";
-import { useVehicles } from "@/features/ap/comercial/vehiculos/lib/vehicles.hook";
 
-export default function VehiclesPostVentaPage() {
-  const router = useNavigate();
+export default function HotelAgreementPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
+  const router = useNavigate();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
-  const { MODEL, ROUTE } = VEHICLES_PV;
+  const { MODEL, ROUTE, ROUTE_UPDATE } = HOTEL_AGREEMENT;
+  const permissions = useModulePermissions(ROUTE);
 
   useEffect(() => {
     setPage(1);
   }, [search, per_page]);
-  const { data, isLoading, refetch } = useVehicles({
-    page,
-    search,
-    per_page,
-    type_operation_id: CM_POSTVENTA_ID,
+
+  const { data, isLoading, refetch } = useGetHotelAgreement({
+    params: {
+      page,
+      search,
+      per_page,
+    },
   });
+
+  const handleUpdate = (id: number) => {
+    router(`${ROUTE_UPDATE}/${id}`);
+  };
+
+  const handleToggleActive = async (id: number, active: boolean) => {
+    try {
+      await toggleActiveHotelAgreement(id, {
+        active,
+      });
+      await refetch();
+      successToast("Estado actualizado correctamente");
+    } catch (error: any) {
+      const msg = error?.response?.data?.message || "";
+      errorToast("Error al actualizar el estado: " + msg);
+    }
+  };
 
   const handleDelete = async () => {
     if (!deleteId) return;
     try {
-      await deleteVehicle(deleteId);
+      await deleteHotelAgreement(deleteId);
       await refetch();
       successToast(SUCCESS_MESSAGE(MODEL, "delete"));
     } catch (error: any) {
@@ -66,22 +90,23 @@ export default function VehiclesPostVentaPage() {
       <HeaderTableWrapper>
         <TitleComponent
           title={currentView.descripcion}
-          subtitle={"Gestión de vehículos"}
+          subtitle={"Convenios de Hoteles"}
           icon={currentView.icon}
         />
-        <VehicleActionsPV />
+        <HotelAgreementActions permissions={permissions} />
       </HeaderTableWrapper>
-      <VehicleTable
+      <HotelAgreementTable
         isLoading={isLoading}
-        columns={vehicleColumns({
+        columns={hotelAgreementColumns({
           onDelete: setDeleteId,
-          onUpdate: (id) => router(`${VEHICLES_PV.ROUTE_UPDATE}/${id}`),
+          onUpdate: handleUpdate,
+          onToggleActive: handleToggleActive,
+          permissions,
         })}
         data={data?.data || []}
-        initialColumnVisibility={{ plate: true }}
       >
-        <VehicleOptions search={search} setSearch={setSearch} />
-      </VehicleTable>
+        <HotelAgreementOptions search={search} setSearch={setSearch} />
+      </HotelAgreementTable>
 
       {deleteId !== null && (
         <SimpleDeleteDialog

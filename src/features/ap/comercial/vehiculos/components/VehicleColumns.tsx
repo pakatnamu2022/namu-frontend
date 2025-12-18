@@ -52,12 +52,16 @@ export const vehicleColumns = ({
     header: "Modelo",
   },
   {
+    accessorKey: "model.code",
+    header: "# Modelo",
+  },
+  {
     accessorKey: "year",
     header: "Año",
   },
   {
     accessorKey: "engine_number",
-    header: "Nro. Motor",
+    header: "# Motor",
   },
   {
     accessorKey: "vehicle_color",

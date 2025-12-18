@@ -87,7 +87,7 @@ const GeneralSheet: React.FC<GeneralSheetProps> = ({
       </Sheet>
     ) : (
       <Drawer open={open} onOpenChange={(v) => !v && onClose()} modal={modal}>
-        <DrawerContent className={cn(sizes[size], className, "px-4 pb-4")}>
+        <DrawerContent className={cn(sizes[size], className, "px-0 pb-4")}>
           <DrawerHeader>
             <div className="flex items-center gap-2">
               {icon && IconComponent && (
@@ -104,7 +104,7 @@ const GeneralSheet: React.FC<GeneralSheetProps> = ({
             </div>
             <DrawerClose onClick={onClose} />
           </DrawerHeader>
-          <div className="mt-4 h-full">{children}</div>
+          <div className="mt-4 h-full max-h-[calc(100vh-20rem)] overflow-auto">{children}</div>
         </DrawerContent>
       </Drawer>
     );
