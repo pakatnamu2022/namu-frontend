@@ -416,7 +416,7 @@ export const BonusDiscountTable = ({
           <DataTable
             columns={columns}
             data={rows}
-            variant="outline"
+            variant="ghost"
             isVisibleColumnFilter={false}
           />
 

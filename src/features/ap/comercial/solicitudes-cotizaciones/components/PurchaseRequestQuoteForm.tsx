@@ -14,14 +14,11 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Building2, Gift, PackagePlus, FileCheck } from "lucide-react";
+import { Building2, Gift, PackagePlus } from "lucide-react";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { FormSwitch } from "@/shared/components/FormSwitch";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
+import { PurchaseRequestQuoteSummary } from "./PurchaseRequestQuoteSummary";
 import { useMyOpportunities } from "../../oportunidades/lib/opportunities.hook";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { useAllCustomers } from "../../clientes/lib/customers.hook";
@@ -35,7 +32,6 @@ import { useAllApprovedAccesories } from "@/features/ap/post-venta/repuestos/acc
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.hook";
-import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import { EMPRESA_AP } from "@/core/core.constants";
 import {
@@ -949,236 +945,29 @@ export const PurchaseRequestQuoteForm = ({
           </div>
 
           {/* Columna derecha: Resumen - sticky */}
-          <div className="lg:col-span-1 lg:row-start-1 lg:col-start-3 h-full">
-            <Card className="h-full sticky top-6 bg-linear-to-br from-primary/5 via-background to-muted/20 border-primary/20">
-              <CardHeader className="space-y-1">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <FileCheck className="size-5 text-primary" />
-                    Resumen
-                  </CardTitle>
-                  <Badge
-                    variant="outline"
-                    className="bg-primary/10 text-primary border-primary/30"
-                  >
-                    {mode === "update" ? "Edición" : "Nuevo"}
-                  </Badge>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  {form.watch("type_document") === "COTIZACION"
-                    ? "Cotización"
-                    : "Solicitud de Compra"}
-                </p>
-              </CardHeader>
-
-              <CardContent className="space-y-4">
-                {/* Información del Vehículo */}
-                <div className="space-y-1 p-3 rounded-lg bg-muted/30 border border-muted-foreground/10">
-                  <p className="text-xs font-medium text-muted-foreground">
-                    Vehículo
-                  </p>
-                  <p className="text-sm font-semibold">
-                    {withVinWatch && vehicleVnWatch
-                      ? vehiclesVn.find((v) => v.id === Number(vehicleVnWatch))
-                          ?.vin || "Sin seleccionar"
-                      : modelVnWatch
-                      ? modelsVn.find((m) => m.id === Number(modelVnWatch))
-                          ?.version || "Sin seleccionar"
-                      : "Sin seleccionar"}
-                  </p>
-                  {selectedModel && (
-                    <p className="text-xs text-muted-foreground">
-                      {selectedModel.code} - {selectedModel.version}
-                    </p>
-                  )}
-                </div>
-
-                {/* Cliente/Titular */}
-                <div className="space-y-1 p-3 rounded-lg bg-muted/30 border border-muted-foreground/10">
-                  <p className="text-xs font-medium text-muted-foreground">
-                    Titular
-                  </p>
-                  <p className="text-sm font-semibold">
-                    {holderWatch
-                      ? clients.find((c) => c.id.toString() === holderWatch)
-                          ?.full_name || "Sin seleccionar"
-                      : "Sin seleccionar"}
-                  </p>
-                </div>
-
-                <Separator className="bg-muted-foreground/20" />
-
-                {/* Desglose de Precios */}
-                <div className="space-y-3">
-                  <p className="text-xs font-medium text-muted-foreground">
-                    Desglose
-                  </p>
-                  <div className="space-y-2 p-3 rounded-lg bg-background/50 border border-muted-foreground/10">
-                    <div className="flex justify-between items-center text-sm">
-                      <span className="text-muted-foreground">
-                        Precio de Venta
-                      </span>
-                      <span className="font-medium">
-                        {vehicleCurrency.symbol}{" "}
-                        {totals.salePrice.toLocaleString("es-PE", {
-                          minimumFractionDigits: 2,
-                        })}
-                      </span>
-                    </div>
-
-                    {totals.bonusDiscountTotal > 0 && (
-                      <div className="flex justify-between items-center text-sm">
-                        <span className="text-muted-foreground">
-                          Bonos/Desc. (info)
-                        </span>
-                        <span className="font-medium text-muted-foreground/60">
-                          {vehicleCurrency.symbol}{" "}
-                          {totals.bonusDiscountTotal.toLocaleString("es-PE", {
-                            minimumFractionDigits: 2,
-                          })}
-                        </span>
-                      </div>
-                    )}
-
-                    {totals.negativeDiscounts > 0 && (
-                      <div className="flex justify-between items-center text-sm">
-                        <span className="text-muted-foreground">Descuentos</span>
-                        <span className="font-medium text-red-600">
-                          - {vehicleCurrency.symbol}{" "}
-                          {totals.negativeDiscounts.toLocaleString("es-PE", {
-                            minimumFractionDigits: 2,
-                          })}
-                        </span>
-                      </div>
-                    )}
-
-                    {totals.accessoriesTotal > 0 && (
-                      <div className="flex justify-between items-center text-sm">
-                        <span className="text-muted-foreground">Accesorios</span>
-                        <span className="font-medium text-primary">
-                          + {vehicleCurrency.symbol}{" "}
-                          {totals.accessoriesTotal.toLocaleString("es-PE", {
-                            minimumFractionDigits: 2,
-                          })}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <Separator className="bg-primary/20" />
-
-                {/* Subtotal en moneda del vehículo */}
-                <div className="flex justify-between items-center p-3 rounded-lg bg-muted/50 border border-muted-foreground/20">
-                  <span className="text-sm font-semibold">Subtotal</span>
-                  <span className="text-base font-bold">
-                    {vehicleCurrency.symbol}{" "}
-                    {totals.subtotal.toLocaleString("es-PE", {
-                      minimumFractionDigits: 2,
-                    })}
-                  </span>
-                </div>
-
-                <Separator className="bg-muted-foreground/20" />
-
-                {/* Moneda de Facturación */}
-                <div className="space-y-3">
-                  <FormSelect
-                    name="doc_type_currency_id"
-                    label="Moneda de Facturación"
-                    placeholder="Selecciona la moneda"
-                    options={currencyTypes.map((item) => ({
-                      label: `${item.name} (${item.symbol})`,
-                      value: item.id.toString(),
-                    }))}
-                    control={form.control}
-                    strictFilter={true}
-                  />
-
-                  {/* Total a Facturar */}
-                  <div className="p-3 rounded-lg bg-primary/10 border border-primary/30">
-                    <div className="flex justify-between items-center">
-                      <span className="text-base font-semibold text-primary">
-                        Total a Facturar
-                      </span>
-                      <span className="text-xl font-bold text-primary">
-                        {selectedInvoiceCurrency?.symbol ||
-                          vehicleCurrency.symbol}{" "}
-                        {finalTotal.toLocaleString("es-PE", {
-                          minimumFractionDigits: 2,
-                        })}
-                      </span>
-                    </div>
-                    {invoiceCurrencyId &&
-                      Number(invoiceCurrencyId) !==
-                        vehicleCurrency.currencyId && (
-                        <p className="text-xs text-primary mt-1">
-                          T.C.:{" "}
-                          {Number(
-                            getExchangeRate(Number(invoiceCurrencyId))
-                          ).toFixed(3)}
-                        </p>
-                      )}
-                  </div>
-                </div>
-
-                <Separator className="bg-muted-foreground/20" />
-
-                {/* Comentarios */}
-                <FormField
-                  control={form.control}
-                  name="comment"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Comentarios/Notas</FormLabel>
-                      <FormControl>
-                        <textarea
-                          placeholder="Agregue cualquier comentario adicional..."
-                          className="flex min-h-20 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {/* Botones de Acción */}
-                <div className="space-y-2 pt-4">
-                  <Button
-                    type="submit"
-                    className="w-full"
-                    size="lg"
-                    disabled={isSubmitting || !form.formState.isValid}
-                  >
-                    <FileCheck className="size-4 mr-2" />
-                    {isSubmitting
-                      ? "Guardando..."
-                      : mode === "update"
-                      ? "Actualizar"
-                      : "Guardar"}
-                  </Button>
-                  <ConfirmationDialog
-                    trigger={
-                      <Button
-                        type="button"
-                        variant="outline"
-                        className="w-full"
-                      >
-                        Cancelar
-                      </Button>
-                    }
-                    title="¿Cancelar registro?"
-                    variant="destructive"
-                    icon="warning"
-                    onConfirm={() => {
-                      router(ABSOLUTE_ROUTE);
-                    }}
-                  />
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+          <PurchaseRequestQuoteSummary
+            form={form}
+            mode={mode}
+            isSubmitting={isSubmitting}
+            clients={clients}
+            modelsVn={modelsVn}
+            vehiclesVn={vehiclesVn}
+            currencyTypes={currencyTypes}
+            vehicleColors={color}
+            withVinWatch={withVinWatch}
+            vehicleVnWatch={vehicleVnWatch}
+            modelVnWatch={modelVnWatch}
+            vehicleColorWatch={vehicleColorWatch}
+            holderWatch={holderWatch}
+            selectedModel={selectedModel}
+            vehicleCurrency={vehicleCurrency}
+            totals={totals}
+            finalTotal={finalTotal}
+            invoiceCurrencyId={invoiceCurrencyId}
+            selectedInvoiceCurrency={selectedInvoiceCurrency}
+            getExchangeRate={getExchangeRate}
+            onCancel={() => router(ABSOLUTE_ROUTE)}
+          />
         </div>
       </form>
     </Form>
