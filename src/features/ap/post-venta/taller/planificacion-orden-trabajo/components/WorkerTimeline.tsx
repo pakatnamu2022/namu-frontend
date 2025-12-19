@@ -33,7 +33,8 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
+import { cn } from "@/lib/utils";
 import { ExceptionalCaseSheet } from "./ExceptionalCaseSheet";
 import { useAllWorkers } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
 import {
@@ -43,14 +44,20 @@ import {
 import { EMPRESA_AP } from "@/core/core.constants";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import { Building2 } from "lucide-react";
+import { useGetWorkOrder } from "../../orden-trabajo/lib/workOrder.hook";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { useGetAllWorkOrder } from "../../orden-trabajo/lib/workOrder.hook";
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandInput,
+  CommandEmpty,
+  CommandList,
+  CommandItem,
+} from "@/components/ui/command";
+import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -99,14 +106,47 @@ export function WorkerTimeline({
   const [selectedWorkOrderId, setSelectedWorkOrderId] = useState<string>("");
   const [selectedGroup, setSelectedGroup] = useState<number | null>(null);
   const [selectedItemId, setSelectedItemId] = useState<number | null>(null);
+  const [openWorkOrderSelect, setOpenWorkOrderSelect] = useState(false);
+  const [searchWorkOrder, setSearchWorkOrder] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [pageWorkOrder, setPageWorkOrder] = useState(1);
+  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   // Obtener sedes disponibles
   const { data: mySedes = [] } = useMySedes({
     company: EMPRESA_AP.id,
   });
 
-  // Obtener órdenes de trabajo
-  const { data: workOrders = [] } = useGetAllWorkOrder();
+  // Obtener órdenes de trabajo con búsqueda
+  const { data: workOrdersData, isLoading: isLoadingWorkOrders } = useGetWorkOrder({
+    params: {
+      search: debouncedSearch,
+      page: pageWorkOrder,
+      per_page: 20,
+    },
+  });
+
+  const workOrders = useMemo(() => workOrdersData?.data || [], [workOrdersData?.data]);
+
+  // Debounce para búsqueda
+  useEffect(() => {
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+
+    debounceTimerRef.current = setTimeout(() => {
+      if (debouncedSearch !== searchWorkOrder) {
+        setDebouncedSearch(searchWorkOrder);
+        setPageWorkOrder(1);
+      }
+    }, 300);
+
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
+  }, [searchWorkOrder, debouncedSearch]);
 
   // Encontrar el nombre de la sede seleccionada
   const selectedSede = mySedes.find((s) => s.id.toString() === sedeId);
@@ -446,30 +486,75 @@ export function WorkerTimeline({
               >
                 Orden de Trabajo
               </Label>
-              <Select
-                value={selectedWorkOrderId}
-                onValueChange={(value) => {
-                  setSelectedWorkOrderId(value);
-                  setSelectedGroup(null);
-                  setSelectedItemId(null);
-                }}
-              >
-                <SelectTrigger id="work-order" className="font-medium">
-                  <SelectValue placeholder="Seleccione una OT" />
-                </SelectTrigger>
-                <SelectContent>
-                  {workOrders.map((wo) => (
-                    <SelectItem key={wo.id} value={wo.id.toString()}>
+              <Popover open={openWorkOrderSelect} onOpenChange={setOpenWorkOrderSelect}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={openWorkOrderSelect}
+                    className="w-full justify-between font-medium"
+                  >
+                    {selectedWorkOrderId ? (
                       <div className="flex items-center gap-2">
                         <Badge variant="outline" className="font-mono text-xs">
-                          #{wo.correlative}
+                          #{selectedWorkOrder?.correlative}
                         </Badge>
-                        <span className="text-sm">{wo.vehicle_plate}</span>
+                        <span className="text-sm">{selectedWorkOrder?.vehicle_plate}</span>
                       </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                    ) : (
+                      <span className="text-muted-foreground">Buscar OT...</span>
+                    )}
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[400px] p-0" align="start">
+                  <Command shouldFilter={false}>
+                    <CommandInput
+                      placeholder="Buscar por correlativo o placa..."
+                      value={searchWorkOrder}
+                      onValueChange={setSearchWorkOrder}
+                    />
+                    <CommandList>
+                      {isLoadingWorkOrders ? (
+                        <div className="flex items-center justify-center py-6">
+                          <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                        </div>
+                      ) : workOrders.length === 0 ? (
+                        <CommandEmpty>No se encontraron órdenes de trabajo.</CommandEmpty>
+                      ) : (
+                        workOrders.map((wo) => (
+                          <CommandItem
+                            key={wo.id}
+                            value={wo.id.toString()}
+                            onSelect={() => {
+                              setSelectedWorkOrderId(wo.id.toString());
+                              setSelectedGroup(null);
+                              setSelectedItemId(null);
+                              setOpenWorkOrderSelect(false);
+                              setSearchWorkOrder("");
+                            }}
+                          >
+                            <Check
+                              className={cn(
+                                "mr-2 h-4 w-4",
+                                selectedWorkOrderId === wo.id.toString()
+                                  ? "opacity-100"
+                                  : "opacity-0"
+                              )}
+                            />
+                            <div className="flex items-center gap-2">
+                              <Badge variant="outline" className="font-mono text-xs">
+                                #{wo.correlative}
+                              </Badge>
+                              <span className="text-sm">{wo.vehicle_plate}</span>
+                            </div>
+                          </CommandItem>
+                        ))
+                      )}
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
             </div>
           </div>
 
