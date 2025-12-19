@@ -13,7 +13,7 @@ interface PurchaseOrderAccessoriesCardProps {
     description: string;
     unit_price: string | number;
     quantity: number;
-    total: number;
+    total: string | number;
     is_vehicle: boolean;
     unit_measurement?: {
       id: number;
