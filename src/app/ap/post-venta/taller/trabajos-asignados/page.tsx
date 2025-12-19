@@ -28,6 +28,7 @@ import {
   STATUS_WORKER,
 } from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.constant";
 import { WORK_ORDER_PLANNING_SESSION } from "@/features/ap/post-venta/taller/trabajos-asignados/lib/assignedWork.constants";
+import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 
 export default function AssignedWorkPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -35,6 +36,7 @@ export default function AssignedWorkPage() {
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
   const [workerId, setWorkerId] = useState<string>("");
+  const [sedeId, setSedeId] = useState<string>("");
   const [selectedWork, setSelectedWork] =
     useState<WorkOrderPlanningResource | null>(null);
   const [openDetail, setOpenDetail] = useState(false);
@@ -65,6 +67,11 @@ export default function AssignedWorkPage() {
     search,
     per_page,
     worker_id: workerId,
+    workOrder$sede_id: sedeId,
+  });
+
+  const { data: mySedes = [], isLoading: isLoadingMySedes } = useMySedes({
+    company: EMPRESA_AP.id,
   });
 
   const handleViewWork = (work: WorkOrderPlanningResource) => {
@@ -135,7 +142,7 @@ export default function AssignedWorkPage() {
     }
   };
 
-  if (isLoadingModule) return <PageSkeleton />;
+  if (isLoadingModule || isLoadingMySedes) return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
   if (!currentView) notFound();
 
@@ -165,6 +172,9 @@ export default function AssignedWorkPage() {
           workers={workers}
           workerId={workerId}
           setWorkerId={setWorkerId}
+          sedes={mySedes}
+          sedeId={sedeId}
+          setSedeId={setSedeId}
         />
       </AssignedWorkTable>
       <DataTablePagination

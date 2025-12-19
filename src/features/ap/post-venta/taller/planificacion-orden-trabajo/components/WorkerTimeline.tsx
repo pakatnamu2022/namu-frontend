@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import {
   WorkOrderPlanningResource,
   PLANNING_STATUS_COLORS,
+  PLANNING_STATUS_LABELS,
 } from "../lib/workOrderPlanning.interface";
 import { format, parseISO, isSameDay, addHours } from "date-fns";
 import { es } from "date-fns/locale";
@@ -49,6 +50,7 @@ interface WorkerTimelineProps {
   onTimeSelect?: (startDatetime: Date, workerId: number, hours: number) => void;
   onEstimatedHoursChange?: (hours: number) => void;
   fullPage?: boolean;
+  sedeId?: string;
 }
 
 export function WorkerTimeline({
@@ -62,6 +64,7 @@ export function WorkerTimeline({
   onTimeSelect,
   onEstimatedHoursChange,
   fullPage = false,
+  sedeId,
 }: WorkerTimelineProps) {
   const [selectedTime, setSelectedTime] = useState<{
     time: Date;
@@ -82,7 +85,9 @@ export function WorkerTimeline({
   const { data: workers = [] } = useAllWorkers({
     cargo_id: POSITION_TYPE.OPERATORS,
     status_id: STATUS_WORKER.ACTIVE,
-    sede$empresa_id: EMPRESA_AP.id,
+    ...(sedeId
+      ? { sede_id: Number(sedeId) }
+      : { sede$empresa_id: EMPRESA_AP.id }),
   });
 
   const dayPlannings = data.filter((planning) => {
@@ -365,264 +370,260 @@ export function WorkerTimeline({
 
       <div className="space-y-6">
         {workerPlannings.map(({ worker, plannings }) => (
-          <div key={worker.id} className="space-y-2">
-            <div className="flex items-center gap-3">
-              <div className="w-48 shrink-0">
-                <h3 className="font-semibold text-sm">{worker.name}</h3>
-                <p className="text-xs text-muted-foreground">
-                  {worker.specialty}
-                </p>
-              </div>
+          <div key={worker.id} className="flex items-center gap-3">
+            <div className="w-48 shrink-0">
+              <h3 className="font-semibold text-sm">{worker.name}</h3>
+              <p className="text-xs text-muted-foreground">
+                {worker.specialty}
+              </p>
             </div>
 
-            <div className="relative">
-              <div className="absolute top-0 left-48 right-0 h-full">
+            <div className="flex-1">
+              <div
+                className={`relative h-20 rounded border ${
+                  selectionMode ? "cursor-pointer" : ""
+                }`}
+                onClick={(e) =>
+                  selectionMode
+                    ? handleTimelineClick(e, worker.id, plannings)
+                    : undefined
+                }
+                onMouseMove={(e) =>
+                  selectionMode
+                    ? handleTimelineHover(e, worker.id, plannings)
+                    : undefined
+                }
+                onMouseLeave={() =>
+                  selectionMode ? setHoveredSlot(null) : undefined
+                }
+              >
+                {/* Área de mañana */}
                 <div
-                  className={`relative h-20 rounded border ${
-                    selectionMode ? "cursor-pointer" : ""
-                  }`}
-                  onClick={(e) =>
-                    selectionMode
-                      ? handleTimelineClick(e, worker.id, plannings)
-                      : undefined
-                  }
-                  onMouseMove={(e) =>
-                    selectionMode
-                      ? handleTimelineHover(e, worker.id, plannings)
-                      : undefined
-                  }
-                  onMouseLeave={() =>
-                    selectionMode ? setHoveredSlot(null) : undefined
-                  }
+                  className="absolute left-0 top-0 bottom-0 bg-gray-100"
+                  style={{ width: "50%" }}
+                ></div>
+
+                {/* Separador almuerzo */}
+                <div
+                  className="absolute top-0 bottom-0 bg-orange-100 border-l-2 border-r-2 border-orange-300 z-10"
+                  style={{ left: "50%", width: "10%" }}
                 >
-                  {/* Área de mañana */}
-                  <div
-                    className="absolute left-0 top-0 bottom-0 bg-gray-100"
-                    style={{ width: "50%" }}
-                  ></div>
-
-                  {/* Separador almuerzo */}
-                  <div
-                    className="absolute top-0 bottom-0 bg-orange-100 border-l-2 border-r-2 border-orange-300 z-10"
-                    style={{ left: "50%", width: "10%" }}
-                  >
-                    <div className="absolute -top-5 left-1/2 -translate-x-1/2 text-[10px] font-semibold text-orange-700 whitespace-nowrap">
-                      ALMUERZO
-                    </div>
+                  <div className="absolute -top-5 left-1/2 -translate-x-1/2 text-[10px] font-semibold text-orange-700 whitespace-nowrap">
+                    ALMUERZO
                   </div>
+                </div>
 
-                  {/* Área de tarde */}
+                {/* Área de tarde */}
+                <div
+                  className="absolute top-0 bottom-0 bg-gray-100"
+                  style={{ left: "60%", width: "40%" }}
+                ></div>
+
+                {/* Marcadores de hora */}
+                {timeMarkers.map((marker, index) => (
                   <div
-                    className="absolute top-0 bottom-0 bg-gray-100"
-                    style={{ left: "60%", width: "40%" }}
-                  ></div>
+                    key={index}
+                    className="absolute top-0 bottom-0 flex flex-col items-start z-20"
+                    style={{ left: `${marker.position}%` }}
+                  >
+                    <div className="w-px h-2 bg-gray-500"></div>
+                    <span className="text-[10px] text-gray-700 font-medium mt-1 -ml-2">
+                      {marker.time}
+                    </span>
+                  </div>
+                ))}
 
-                  {/* Marcadores de hora */}
-                  {timeMarkers.map((marker, index) => (
-                    <div
-                      key={index}
-                      className="absolute top-0 bottom-0 flex flex-col items-start z-20"
-                      style={{ left: `${marker.position}%` }}
-                    >
-                      <div className="w-px h-2 bg-gray-500"></div>
-                      <span className="text-[10px] text-gray-700 font-medium mt-1 -ml-2">
-                        {marker.time}
-                      </span>
-                    </div>
-                  ))}
+                {/* Barras de planificación */}
+                {plannings.map((planning) => {
+                  const startPos = calculatePosition(
+                    planning.planned_start_datetime!
+                  );
+                  const width = calculateWidth(planning);
 
-                  {/* Barras de planificación */}
-                  {plannings.map((planning, idx) => {
-                    const startPos = calculatePosition(
-                      planning.planned_start_datetime!
-                    );
-                    const width = calculateWidth(planning);
-
-                    return (
-                      <TooltipProvider key={planning.id}>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
+                  return (
+                    <TooltipProvider key={planning.id}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div
+                            className="absolute cursor-pointer"
+                            style={{
+                              left: `${startPos}%`,
+                              width: `${width}%`,
+                              top: "50%",
+                              transform: "translateY(-50%)",
+                            }}
+                            onClick={() => onPlanningClick?.(planning)}
+                          >
+                            {/* Barra única - color según estado */}
                             <div
-                              className="absolute cursor-pointer"
-                              style={{
-                                left: `${startPos}%`,
-                                width: `${width}%`,
-                                top: `${20 + idx * 25}px`,
-                              }}
-                              onClick={() => onPlanningClick?.(planning)}
-                            >
-                              {/* Barra única - color según estado */}
-                              <div
-                                className={`h-5 rounded border-2 ${
-                                  PLANNING_STATUS_COLORS[planning.status].border
-                                } ${
-                                  planning.actual_start_datetime
-                                    ? PLANNING_STATUS_COLORS[planning.status].bg
-                                    : "bg-blue-200 opacity-50"
-                                }`}
-                              ></div>
+                              className={`h-5 rounded border-2 ${
+                                PLANNING_STATUS_COLORS[planning.status].border
+                              } ${
+                                planning.actual_start_datetime
+                                  ? PLANNING_STATUS_COLORS[planning.status].bg
+                                  : "bg-blue-200 opacity-50"
+                              }`}
+                            ></div>
 
-                              {/* Texto centrado */}
-                              <div className="absolute top-0 left-0 right-0 h-5 flex items-center justify-center pointer-events-none z-10">
-                                <div className="flex items-center gap-1 px-1">
-                                  <span className="text-[10px] font-medium truncate  text-gray-900">
-                                    {planning.work_order_correlative}
-                                  </span>
-                                  {getEfficiencyIcon(planning)}
-                                </div>
+                            {/* Texto centrado */}
+                            <div className="absolute top-0 left-0 right-0 h-5 flex items-center justify-center pointer-events-none z-10">
+                              <div className="flex items-center gap-1 px-1">
+                                <span className="text-[10px] font-medium truncate text-gray-900">
+                                  {planning.work_order_correlative}
+                                </span>
+                                {getEfficiencyIcon(planning)}
                               </div>
                             </div>
-                          </TooltipTrigger>
-                          <TooltipContent side="top" className="max-w-xs">
-                            <div className="space-y-1">
-                              <div className="font-semibold">
-                                {planning.work_order_correlative}
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent
+                          side="top"
+                          className="max-w-xs bg-gray-50 text-black border border-gray-400"
+                        >
+                          <div className="space-y-1">
+                            <div className="font-semibold">
+                              {planning.work_order_correlative}
+                            </div>
+                            <div className="text-sm">
+                              {planning.description}
+                            </div>
+                            <div className="grid grid-cols-2 gap-2 text-xs">
+                              <div>
+                                <span className="text-muted-foreground ">
+                                  Planificado:
+                                </span>
+                                <p>
+                                  {planning.planned_start_datetime &&
+                                    format(
+                                      parseISO(planning.planned_start_datetime),
+                                      "HH:mm"
+                                    )}{" "}
+                                  -{" "}
+                                  {planning.planned_end_datetime &&
+                                    format(
+                                      parseISO(planning.planned_end_datetime),
+                                      "HH:mm"
+                                    )}
+                                </p>
                               </div>
-                              <div className="text-sm">
-                                {planning.description}
-                              </div>
-                              <div className="grid grid-cols-2 gap-2 text-xs">
-                                <div>
-                                  <span className="text-muted-foreground ">
-                                    Planificado:
-                                  </span>
-                                  <p>
-                                    {planning.planned_start_datetime &&
-                                      format(
+                              <div>
+                                <span className="text-muted-foreground">
+                                  Real:
+                                </span>
+                                <p>
+                                  {planning.actual_start_datetime
+                                    ? `${format(
                                         parseISO(
-                                          planning.planned_start_datetime
+                                          planning.actual_start_datetime
                                         ),
                                         "HH:mm"
-                                      )}{" "}
-                                    -{" "}
-                                    {planning.planned_end_datetime &&
-                                      format(
-                                        parseISO(planning.planned_end_datetime),
-                                        "HH:mm"
-                                      )}
-                                  </p>
-                                </div>
-                                <div>
-                                  <span className="text-muted-foreground">
-                                    Real:
-                                  </span>
-                                  <p>
-                                    {planning.actual_start_datetime
-                                      ? `${format(
-                                          parseISO(
-                                            planning.actual_start_datetime
-                                          ),
-                                          "HH:mm"
-                                        )} - ${
-                                          planning.actual_end_datetime
-                                            ? format(
-                                                parseISO(
-                                                  planning.actual_end_datetime
-                                                ),
-                                                "HH:mm"
-                                              )
-                                            : "En curso"
-                                        }`
-                                      : "No iniciado"}
-                                  </p>
-                                </div>
-                                <div>
-                                  <span className="text-muted-foreground">
-                                    Estimado:
-                                  </span>
-                                  <p>{planning.estimated_hours || "N/A"}h</p>
-                                </div>
-                                <div>
-                                  <span className="text-muted-foreground">
-                                    Real:
-                                  </span>
-                                  <p>{planning.actual_hours}h</p>
-                                </div>
-                                <div>
-                                  <span className="text-muted-foreground">
-                                    Eficiencia:
-                                  </span>
-                                  <p className="flex items-center gap-1">
-                                    {getEfficiencyPercentage(planning)}
-                                    {getEfficiencyIcon(planning)}
-                                  </p>
-                                </div>
+                                      )} - ${
+                                        planning.actual_end_datetime
+                                          ? format(
+                                              parseISO(
+                                                planning.actual_end_datetime
+                                              ),
+                                              "HH:mm"
+                                            )
+                                          : "En curso"
+                                      }`
+                                    : "No iniciado"}
+                                </p>
                               </div>
-                              <Badge
-                                className={`${
-                                  PLANNING_STATUS_COLORS[planning.status].bg
-                                } ${
-                                  PLANNING_STATUS_COLORS[planning.status].text
-                                }`}
-                              >
-                                {planning.status}
-                              </Badge>
+                              <div>
+                                <span className="text-muted-foreground">
+                                  Estimado:
+                                </span>
+                                <p>{planning.estimated_hours || "N/A"}h</p>
+                              </div>
+                              <div>
+                                <span className="text-muted-foreground">
+                                  Real:
+                                </span>
+                                <p>{planning.actual_hours}h</p>
+                              </div>
+                              <div>
+                                <span className="text-muted-foreground">
+                                  Eficiencia:
+                                </span>
+                                <p className="flex items-center gap-1">
+                                  {getEfficiencyPercentage(planning)}
+                                  {getEfficiencyIcon(planning)}
+                                </p>
+                              </div>
                             </div>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    );
-                  })}
+                            <Badge
+                              className={`${
+                                PLANNING_STATUS_COLORS[planning.status].bg
+                              } ${
+                                PLANNING_STATUS_COLORS[planning.status].text
+                              } hover:${
+                                PLANNING_STATUS_COLORS[planning.status].bg
+                              }`}
+                            >
+                              {PLANNING_STATUS_LABELS[planning.status]}
+                            </Badge>
+                          </div>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  );
+                })}
 
-                  {/* Preview hover */}
-                  {selectionMode &&
-                    hoveredSlot &&
-                    hoveredSlot.workerId === worker.id && (
-                      <div
-                        className="absolute top-0 h-full bg-blue-300 opacity-40 pointer-events-none border-2 border-blue-500 border-dashed z-20"
-                        style={{
-                          left: `${calculatePositionFromDate(
-                            hoveredSlot.time
-                          )}%`,
-                          width: `${
-                            calculatePositionFromDate(
-                              addHours(hoveredSlot.time, estimatedHours)
-                            ) - calculatePositionFromDate(hoveredSlot.time)
-                          }%`,
-                        }}
-                      ></div>
-                    )}
+                {/* Preview hover */}
+                {selectionMode &&
+                  hoveredSlot &&
+                  hoveredSlot.workerId === worker.id && (
+                    <div
+                      className="absolute top-0 h-full bg-blue-300 opacity-40 pointer-events-none border-2 border-blue-500 border-dashed z-20"
+                      style={{
+                        left: `${calculatePositionFromDate(hoveredSlot.time)}%`,
+                        width: `${
+                          calculatePositionFromDate(
+                            addHours(hoveredSlot.time, estimatedHours)
+                          ) - calculatePositionFromDate(hoveredSlot.time)
+                        }%`,
+                      }}
+                    ></div>
+                  )}
 
-                  {/* Selección confirmada */}
-                  {selectionMode &&
-                    selectedTime &&
-                    selectedTime.workerId === worker.id && (
-                      <div
-                        className="absolute top-0 h-full bg-blue-500 opacity-50 pointer-events-none border-2 border-blue-700 z-30"
-                        style={{
-                          left: `${calculatePositionFromDate(
-                            selectedTime.time
-                          )}%`,
-                          width: `${
-                            calculatePositionFromDate(
-                              addHours(selectedTime.time, estimatedHours)
-                            ) - calculatePositionFromDate(selectedTime.time)
-                          }%`,
-                        }}
-                      >
-                        <div className="flex items-center justify-center h-full">
-                          <span className="text-xs font-bold text-black">
-                            {format(selectedTime.time, "HH:mm")} -{" "}
-                            {format(
-                              addHours(selectedTime.time, estimatedHours),
-                              "HH:mm"
-                            )}
-                          </span>
-                        </div>
+                {/* Selección confirmada */}
+                {selectionMode &&
+                  selectedTime &&
+                  selectedTime.workerId === worker.id && (
+                    <div
+                      className="absolute top-0 h-full bg-blue-500 opacity-50 pointer-events-none border-2 border-blue-700 z-30"
+                      style={{
+                        left: `${calculatePositionFromDate(
+                          selectedTime.time
+                        )}%`,
+                        width: `${
+                          calculatePositionFromDate(
+                            addHours(selectedTime.time, estimatedHours)
+                          ) - calculatePositionFromDate(selectedTime.time)
+                        }%`,
+                      }}
+                    >
+                      <div className="flex items-center justify-center h-full">
+                        <span className="text-xs font-bold text-black">
+                          {format(selectedTime.time, "HH:mm")} -{" "}
+                          {format(
+                            addHours(selectedTime.time, estimatedHours),
+                            "HH:mm"
+                          )}
+                        </span>
                       </div>
-                    )}
-
-                  {plannings.length === 0 && !selectionMode && (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="text-sm text-muted-foreground">
-                        Sin tareas asignadas
-                      </span>
                     </div>
                   )}
-                </div>
-              </div>
 
-              <div className="h-20"></div>
+                {plannings.length === 0 && !selectionMode && (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="text-sm text-muted-foreground">
+                      Sin tareas asignadas
+                    </span>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         ))}
