@@ -46,8 +46,7 @@ import {
 import { FormSelect } from "@/shared/components/FormSelect";
 import { useAllWarehouse } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
 import FormSkeleton from "@/shared/components/FormSkeleton";
-import { getInventory } from "@/features/ap/post-venta/gestion-compras/inventario/lib/inventory.actions";
-import { InventoryResource } from "@/features/ap/post-venta/gestion-compras/inventario/lib/inventory.interface";
+import { ProductSelectAsync } from "./components/ProductSelectAsync";
 
 export default function RequestPartsPage() {
   const params = useParams();
@@ -56,13 +55,9 @@ export default function RequestPartsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isLoadingParts, setIsLoadingParts] = useState(false);
-  const [isLoadingProducts, setIsLoadingProducts] = useState(false);
   const [workOrder, setWorkOrder] = useState<WorkOrderResource | null>(null);
   const [requestedParts, setRequestedParts] = useState<
     WorkOrderPartsResource[]
-  >([]);
-  const [inventoryProducts, setInventoryProducts] = useState<
-    InventoryResource[]
   >([]);
 
   const form = useForm({
@@ -119,30 +114,6 @@ export default function RequestPartsPage() {
       is_physical_warehouse: 1,
     });
 
-  useEffect(() => {
-    if (selectedWarehouseId) {
-      loadInventoryProducts(selectedWarehouseId);
-    } else {
-      setInventoryProducts([]);
-    }
-  }, [selectedWarehouseId]);
-
-  const loadInventoryProducts = async (warehouseId: string) => {
-    try {
-      setIsLoadingProducts(true);
-      const response = await getInventory({
-        params: { warehouse_id: warehouseId },
-      });
-      setInventoryProducts(response.data || []);
-    } catch (error) {
-      errorToast("Error al cargar los productos");
-      console.error(error);
-      setInventoryProducts([]);
-    } finally {
-      setIsLoadingProducts(false);
-    }
-  };
-
   if (isLoadingWarehouses) {
     return <FormSkeleton />;
   }
@@ -150,25 +121,6 @@ export default function RequestPartsPage() {
   const onSubmit = async (data: WorkOrderPartsFormData) => {
     try {
       setIsSaving(true);
-
-      // Validar stock disponible
-      const selectedProduct = inventoryProducts.find(
-        (item) => item.product_id === Number(data.product_id)
-      );
-
-      if (!selectedProduct) {
-        errorToast("Producto no encontrado");
-        setIsSaving(false);
-        return;
-      }
-
-      if (data.quantity_used > selectedProduct.available_quantity) {
-        errorToast(
-          `Stock insuficiente. Disponible: ${selectedProduct.available_quantity}`
-        );
-        setIsSaving(false);
-        return;
-      }
 
       await storeWorkOrderParts({
         id: 0,
@@ -269,103 +221,37 @@ export default function RequestPartsPage() {
                 strictFilter={true}
               />
 
-              <FormSelect
-                name="product_id"
-                label="Producto"
-                placeholder="Seleccione producto"
-                options={inventoryProducts.map((inventory) => ({
-                  label: () => (
-                    <div className="flex items-center justify-between gap-2 w-full">
-                      <span className="font-medium truncate">
-                        {inventory.product.name}
-                      </span>
-                      <div className="flex items-center gap-2 shrink-0">
-                        <span
-                          className={`text-xs font-semibold px-2 py-0.5 rounded ${
-                            inventory.available_quantity > 0
-                              ? "bg-green-100 text-green-700"
-                              : "bg-red-100 text-red-700"
-                          }`}
-                        >
-                          Stock: {inventory.available_quantity}
-                        </span>
-                      </div>
-                    </div>
-                  ),
-                  value: inventory.product_id.toString(),
-                }))}
+              <ProductSelectAsync
                 control={form.control}
-                disabled={isLoadingProducts || !selectedWarehouseId}
+                warehouseId={selectedWarehouseId}
+                disabled={!selectedWarehouseId}
               />
 
               <FormField
                 control={form.control}
                 name="quantity_used"
-                render={({ field }) => {
-                  const selectedProductId = form.watch("product_id");
-                  const selectedProduct = inventoryProducts.find(
-                    (item) => item.product_id === Number(selectedProductId)
-                  );
-                  const availableStock =
-                    selectedProduct?.available_quantity || 0;
-                  const fieldValue = Number(field.value) || 0;
-                  const exceedsStock =
-                    fieldValue > availableStock && selectedProductId;
-
-                  return (
-                    <FormItem className="relative">
-                      <FormLabel>Cantidad</FormLabel>
-                      <div className="absolute top-0 right-0">
-                        {exceedsStock && (
-                          <p className="text-xs text-red-600 font-medium">
-                            Stock insuficiente. Disponible: {availableStock}
-                          </p>
-                        )}
-                        {selectedProductId &&
-                          !exceedsStock &&
-                          availableStock > 0 && (
-                            <p className="text-xs text-muted-foreground">
-                              Disponible: {availableStock}
-                            </p>
-                          )}
-                      </div>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          min="1"
-                          max={availableStock > 0 ? availableStock : undefined}
-                          value={field.value as number}
-                          name={field.name}
-                          ref={field.ref}
-                          onBlur={field.onBlur}
-                          onChange={(e) =>
-                            field.onChange(Number(e.target.value))
-                          }
-                          className={exceedsStock ? "border-red-500" : ""}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  );
-                }}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Cantidad</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        min="1"
+                        value={field.value as number}
+                        name={field.name}
+                        ref={field.ref}
+                        onBlur={field.onBlur}
+                        onChange={(e) => field.onChange(Number(e.target.value))}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
             </div>
 
             <div className="flex justify-end">
-              <Button
-                type="submit"
-                disabled={(() => {
-                  const selectedProductId = form.watch("product_id");
-                  const quantity = Number(form.watch("quantity_used")) || 0;
-                  const selectedProduct = inventoryProducts.find(
-                    (item) => item.product_id === Number(selectedProductId)
-                  );
-                  const exceedsStock =
-                    selectedProductId &&
-                    quantity > (selectedProduct?.available_quantity || 0);
-                  return Boolean(isSaving || isLoadingProducts || exceedsStock);
-                })()}
-              >
+              <Button type="submit" disabled={isSaving}>
                 <Plus className="h-4 w-4 mr-2" />
                 {isSaving ? "Agregando..." : "Agregar Repuesto"}
               </Button>

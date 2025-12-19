@@ -13,6 +13,7 @@ interface WorkerTimelineViewProps {
   data: WorkOrderPlanningResource[];
   onPlanningClick?: (planning: WorkOrderPlanningResource) => void;
   onBack: () => void;
+  sedeId?: string;
 }
 
 export function WorkerTimelineView({
@@ -20,6 +21,7 @@ export function WorkerTimelineView({
   data,
   onPlanningClick,
   onBack,
+  sedeId,
 }: WorkerTimelineViewProps) {
   return (
     <Card>
@@ -46,6 +48,7 @@ export function WorkerTimelineView({
           data={data}
           onPlanningClick={onPlanningClick}
           fullPage={true}
+          sedeId={sedeId}
         />
       </CardContent>
     </Card>

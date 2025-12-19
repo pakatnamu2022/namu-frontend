@@ -36,7 +36,7 @@ export function AssignedWorkDetail({
     <GeneralSheet
       open={open}
       onClose={onClose}
-      title={`Detalle - ${planning.work_order_correlative}`}
+      title={`Detalle de  - ${planning.work_order_correlative}`}
       type={isTablet ? "tablet" : "default"}
       className="sm:max-w-3xl"
     >
@@ -49,11 +49,6 @@ export function AssignedWorkDetail({
           >
             {PLANNING_STATUS_LABELS[planning.status]}
           </Badge>
-          {planning.has_active_session && (
-            <Badge className="bg-yellow-100 text-yellow-800 border-yellow-300 animate-pulse">
-              Sesión Activa
-            </Badge>
-          )}
         </div>
 
         {/* Información General */}
@@ -101,7 +96,7 @@ export function AssignedWorkDetail({
                   <Clock className="h-4 w-4 inline mr-1" />
                   Horas Estimadas
                 </p>
-                <p className="text-2xl font-bold text-blue-600">
+                <p className="text-2xl font-bold text-primary">
                   {planning.estimated_hours || "-"} horas
                 </p>
               </div>

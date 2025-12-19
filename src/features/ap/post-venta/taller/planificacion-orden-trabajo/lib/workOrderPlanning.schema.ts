@@ -29,8 +29,17 @@ export const pauseWorkSchema = z.object({
     .optional(),
 });
 
+export const exceptionalCaseSchema = z.object({
+  work_order_id: requiredStringId("La orden de trabajo es requerida"),
+  worker_id: requiredStringId("El operario es requerido"),
+  description: requiredText("La descripción", 3, 500),
+  estimated_hours: z.string().min(1, "La fecha es requerida"),
+  planned_start_datetime: z.string().min(1, "La hora de inicio es requerida"),
+});
+
 export type WorkOrderPlanningFormValues = z.infer<
   typeof workOrderPlanningSchema
 >;
 export type StartSessionFormValues = z.infer<typeof startSessionSchema>;
 export type PauseWorkFormValues = z.infer<typeof pauseWorkSchema>;
+export type ExceptionalCaseFormValues = z.infer<typeof exceptionalCaseSchema>;
