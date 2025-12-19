@@ -32,3 +32,15 @@ export const useDistrictById = (id: number) => {
     refetchOnWindowFocus: false,
   });
 };
+
+export const useDistricts = (params?: {
+  search?: string;
+  page?: number;
+  per_page?: number;
+}) => {
+  return useQuery<DistrictResponse>({
+    queryKey: [QUERY_KEY, params],
+    queryFn: () => getDistrict({ params }),
+    refetchOnWindowFocus: false,
+  });
+};

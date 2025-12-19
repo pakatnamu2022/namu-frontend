@@ -20,11 +20,12 @@ import {
 import { useAllClientOrigin } from "@/features/ap/configuraciones/maestros-general/origen-cliente/lib/clientOrigin.hook";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { FormSelect } from "@/shared/components/FormSelect";
+import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 import { useAllDocumentType } from "@/features/ap/configuraciones/maestros-general/tipos-documento/lib/documentTypes.hook";
 import { useAllTypeGender } from "@/features/ap/configuraciones/maestros-general/tipos-sexo/lib/typesGender.hook";
 import { useAllMaritalStatus } from "@/features/ap/configuraciones/maestros-general/estado-civil/lib/maritalStatus.hook";
-import { useAllDistrict } from "@/features/ap/configuraciones/maestros-general/ubigeos/lib/district.hook";
+import { useDistricts } from "@/features/ap/configuraciones/maestros-general/ubigeos/lib/district.hook";
 import { useAllTypeClient } from "@/features/ap/configuraciones/maestros-general/tipos-persona/lib/typeClient.hook";
 import { useAllPersonSegment } from "@/features/ap/configuraciones/maestros-general/segmentos-persona/lib/personSegment.hook";
 import { useAllTaxClassTypes } from "@/features/ap/configuraciones/maestros-general/tipos-clase-impuesto/lib/taxClassTypes.hook";
@@ -140,7 +141,6 @@ export const CustomersForm = ({
     data: typeMaritalStatus = [],
     isLoading: isLoadingTypeMaritalStatus,
   } = useAllMaritalStatus();
-  const { data: districts = [] } = useAllDistrict();
   const { data: personSegment = [], isLoading: isLoadingPersonSegment } =
     useAllPersonSegment();
   const { data: taxClassType = [], isLoading: isLoadingTaxClassType } =
@@ -362,7 +362,6 @@ export const CustomersForm = ({
         });
       } else if (rucData?.data && rucData.success && rucData.data.valid) {
         const rucInfo = rucData.data;
-        const ubigeo = rucInfo.ubigeo_sunat;
         form.setValue("first_name", rucInfo.business_name || "", {
           shouldValidate: true,
         });
@@ -387,14 +386,8 @@ export const CustomersForm = ({
           shouldValidate: true,
         });
 
-        const matchedDistrict = districts.find(
-          (district) => district.ubigeo === ubigeo
-        );
-        if (matchedDistrict) {
-          form.setValue("district_id", String(matchedDistrict.id), {
-            shouldValidate: true,
-          });
-        }
+        // Note: district_id will need to be set manually with FormSelectAsync
+        // or you can implement a search by ubigeo if needed
       } else {
         form.setValue("first_name", "", { shouldValidate: true });
         form.setValue("paternal_surname", "", { shouldValidate: true });
@@ -887,17 +880,19 @@ export const CustomersForm = ({
               />
 
               <div className="col-span-1 md:col-span-2">
-                <FormSelect
+                <FormSelectAsync
                   name="district_id"
                   label="Ubigeo"
                   placeholder="Selecciona ubigeo"
-                  options={districts.map((item) => ({
+                  control={form.control}
+                  useQueryHook={useDistricts}
+                  mapOptionFn={(item) => ({
                     label:
                       item.name + " - " + item.province + " - " + item.ubigeo,
                     value: item.id.toString(),
-                  }))}
-                  control={form.control}
-                  strictFilter={true}
+                  })}
+                  perPage={10}
+                  debounceMs={500}
                   disabled={
                     shouldDisableMainFields && !isRucNatural && isJuridica
                   }
