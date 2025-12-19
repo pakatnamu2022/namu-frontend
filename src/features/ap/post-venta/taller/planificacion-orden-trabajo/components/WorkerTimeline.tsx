@@ -76,7 +76,6 @@ export function WorkerTimeline({
   const MORNING_START = 480; // 8:00
   const MORNING_END = 780; // 13:00
   const LUNCH_START = 780; // 13:00
-  const LUNCH_END = 864; // 14:24
   const AFTERNOON_START = 864; // 14:24
   const AFTERNOON_END = 1080; // 18:00
 
@@ -157,12 +156,12 @@ export function WorkerTimeline({
     return date;
   };
 
-  const calculatePosition = (time: string, isEnd: boolean = false) => {
+  const calculatePosition = (time: string) => {
     const date = parseISO(time);
     return timeToPosition(date.getHours(), date.getMinutes());
   };
 
-  const calculatePositionFromDate = (date: Date, isEnd: boolean = false) => {
+  const calculatePositionFromDate = (date: Date) => {
     return timeToPosition(date.getHours(), date.getMinutes());
   };
 
@@ -170,7 +169,7 @@ export function WorkerTimeline({
     if (!planning.planned_start_datetime || !planning.planned_end_datetime)
       return 0;
     const startPos = calculatePosition(planning.planned_start_datetime);
-    const endPos = calculatePosition(planning.planned_end_datetime, true);
+    const endPos = calculatePosition(planning.planned_end_datetime);
     return endPos - startPos;
   };
 
@@ -422,11 +421,11 @@ export function WorkerTimeline({
                   {timeMarkers.map((marker, index) => (
                     <div
                       key={index}
-                      className="absolute top-0 bottom-0 flex flex-col items-center z-20"
+                      className="absolute top-0 bottom-0 flex flex-col items-start z-20"
                       style={{ left: `${marker.position}%` }}
                     >
                       <div className="w-px h-2 bg-gray-500"></div>
-                      <span className="text-[10px] text-gray-700 font-medium mt-1">
+                      <span className="text-[10px] text-gray-700 font-medium mt-1 -ml-2">
                         {marker.time}
                       </span>
                     </div>
@@ -442,7 +441,7 @@ export function WorkerTimeline({
                       ? calculatePosition(planning.actual_start_datetime)
                       : startPos;
                     const actualEndPos = planning.actual_end_datetime
-                      ? calculatePosition(planning.actual_end_datetime, true)
+                      ? calculatePosition(planning.actual_end_datetime)
                       : actualStartPos;
                     const actualWidth = actualEndPos - actualStartPos;
 
@@ -599,8 +598,7 @@ export function WorkerTimeline({
                           )}%`,
                           width: `${
                             calculatePositionFromDate(
-                              addHours(hoveredSlot.time, estimatedHours),
-                              true
+                              addHours(hoveredSlot.time, estimatedHours)
                             ) - calculatePositionFromDate(hoveredSlot.time)
                           }%`,
                         }}
@@ -619,8 +617,7 @@ export function WorkerTimeline({
                           )}%`,
                           width: `${
                             calculatePositionFromDate(
-                              addHours(selectedTime.time, estimatedHours),
-                              true
+                              addHours(selectedTime.time, estimatedHours)
                             ) - calculatePositionFromDate(selectedTime.time)
                           }%`,
                         }}
