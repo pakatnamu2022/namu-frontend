@@ -4,86 +4,130 @@
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { useIsMobile, useIsTablet } from "@/hooks/use-mobile";
+import { DialogDescription } from "@radix-ui/react-dialog";
+import type { ReactNode } from "react";
+
 import {
   Drawer,
+  DrawerClose,
   DrawerContent,
-  DrawerDescription,
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
 import { cn } from "@/lib/utils";
-import { ReactNode, useRef } from "react";
-import { useIsMobile } from "@/hooks/use-mobile";
-
-type ChildrenRender = (args: {
-  portalContainer: HTMLElement | null;
-}) => ReactNode;
+import * as LucideReact from "lucide-react";
 
 interface GeneralModalProps {
   open: boolean;
   onClose: () => void;
   title?: string;
-  children: ReactNode | ChildrenRender; // <-- acepta ambos
+  subtitle?: string;
+  children: ReactNode;
+  size?: Size;
   maxWidth?: string;
-  contentRef?: React.RefObject<HTMLDivElement>; // opcional si quieres manejarlo afuera
+  className?: string;
+  modal?: boolean;
+  icon?: keyof typeof LucideReact;
 }
+
+type Size = "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl" | "full";
+interface SizeClasses {
+  [key: string]: string;
+}
+
+const sizes: SizeClasses = {
+  md: "max-w-md!",
+  lg: "max-w-lg!",
+  xl: "max-w-xl!",
+  "2xl": "max-w-2xl!",
+  "3xl": "max-w-3xl!",
+  "4xl": "max-w-4xl!",
+  full: "w-full!",
+};
 
 export function GeneralModal({
   open,
   onClose,
   title,
+  subtitle,
   children,
-  maxWidth = "max-w-(--breakpoint-lg)",
-  contentRef,
+  maxWidth = "max-w-lg",
+  size = "lg",
+  className,
+  modal,
+  icon,
 }: GeneralModalProps) {
-  const localRef = useRef<HTMLDivElement>(null);
-  const refToUse = contentRef ?? localRef;
+  const IconComponent = icon
+    ? (LucideReact[icon] as React.ComponentType<any>)
+    : null;
+
   const isMobile = useIsMobile();
+  const isTablet = useIsTablet();
 
-  const renderedChildren =
-    typeof children === "function"
-      ? (children as ChildrenRender)({ portalContainer: refToUse.current })
-      : children;
-
-  if (isMobile) {
-    return (
-      <Drawer open={open} onOpenChange={(v: any) => !v && onClose()}>
+  const type = isMobile ? "mobile" : isTablet ? "tablet" : "default";
+  {
+    return type === "default" ? (
+      <Dialog
+        open={open}
+        onOpenChange={(v: any) => {
+          // Solo permitir cerrar si NO es por clic fuera
+          if (!v) {
+            onClose();
+          }
+        }}
+      >
+        <DialogContent
+          className={`w-[95vw] rounded-xl overflow-auto ${maxWidth}`}
+          onInteractOutside={(e) => e.preventDefault()}
+        >
+          <DialogHeader>
+            {title && <DialogTitle>{title}</DialogTitle>}
+            <DialogDescription className="text-muted-foreground text-sm">
+              {subtitle}
+            </DialogDescription>
+          </DialogHeader>
+          <div>{children}</div>
+        </DialogContent>
+      </Dialog>
+    ) : (
+      <Drawer open={open} onOpenChange={(v) => !v && onClose()} modal={modal}>
         <DrawerContent
-          ref={refToUse}
           className={cn(
-            "w-full max-h-[85vh] flex flex-col px-4 pb-4",
-            maxWidth
+            sizes[size],
+            className,
+            "pb-0 flex flex-col max-h-[96vh]"
           )}
         >
-          <DrawerHeader className="shrink-0">
-            {title && <DrawerTitle>{title}</DrawerTitle>}
-            <DrawerDescription className="hidden" />
+          <DrawerHeader className="shrink-0 p-2">
+            <div className="flex items-center gap-2">
+              {icon && IconComponent && (
+                <div className="mr-2 bg-primary text-primary-foreground rounded-md p-2">
+                  <IconComponent className="size-5" />
+                </div>
+              )}
+              <div className="flex flex-col items-start">
+                {title && <DrawerTitle>{title}</DrawerTitle>}
+                {subtitle && (
+                  <p className="text-xs text-start text-muted-foreground">
+                    {subtitle}
+                  </p>
+                )}
+              </div>
+            </div>
+            <DrawerClose onClick={onClose} />
           </DrawerHeader>
-          <div className="overflow-y-auto flex-1">{renderedChildren}</div>
+          <div
+            className="mt-4 overflow-y-auto flex-1 min-h-0 py-4 px-4"
+            data-vaul-no-drag
+          >
+            {children}
+          </div>
         </DrawerContent>
       </Drawer>
     );
   }
-
-  return (
-    <Dialog open={open} onOpenChange={(v: any) => !v && onClose()}>
-      <DialogContent
-        ref={refToUse}
-        className={cn(
-          "w-[95vw] rounded-xl max-h-[85vh] overflow-y-auto",
-          maxWidth
-        )}
-      >
-        <DialogHeader>
-          {title && <DialogTitle>{title}</DialogTitle>}
-          <DialogDescription className="hidden" />
-        </DialogHeader>
-        <div>{renderedChildren}</div>
-      </DialogContent>
-    </Dialog>
-  );
 }
