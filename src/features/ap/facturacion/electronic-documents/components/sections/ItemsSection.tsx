@@ -195,7 +195,11 @@ export function ItemsSection({
     const total = subtotal + igv;
 
     // Validar que el total no exceda el máximo permitido para anticipos
-    if (isAdvancePayment && maxAdvanceAmount && total > maxAdvanceAmount) {
+    if (
+      isAdvancePayment &&
+      maxAdvanceAmount &&
+      Number(total.toFixed(2)) > Number(maxAdvanceAmount.toFixed(2))
+    ) {
       errorToast(
         `El monto del anticipo no puede exceder ${currencySymbol} ${maxAdvanceAmount.toFixed(
           2
@@ -388,7 +392,6 @@ export function ItemsSection({
 
             <div className="flex flex-col gap-2">
               <FormInput
-                control={form.control}
                 name="item-price"
                 label="Precio Unitario (Con IGV)"
                 placeholder="Ej: 590.00"
