@@ -553,7 +553,7 @@ export const VehiclePurchaseOrderForm = ({
               <FormInput
                 control={form.control}
                 name="vehicle_unit_price"
-                label="Precio Unitario Vehículo"
+                label="Precio Unitario Vehículo (Sin IGV)"
                 placeholder="Ej: 25000.00"
                 min={0}
                 step="0.01"
