@@ -1,13 +1,21 @@
 "use client";
 
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { useAllWorkers } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
-import { POSITION_TYPE, STATUS_WORKER } from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.constant";
+import {
+  POSITION_TYPE,
+  STATUS_WORKER,
+} from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.constant";
 import { EMPRESA_AP } from "@/core/core.constants";
 import { useForm } from "react-hook-form";
 
@@ -17,7 +25,11 @@ interface PlanningInitFormProps {
   onContinue: (hours: number, workerId?: number) => void;
 }
 
-export function PlanningInitForm({ open, onOpenChange, onContinue }: PlanningInitFormProps) {
+export function PlanningInitForm({
+  open,
+  onOpenChange,
+  onContinue,
+}: PlanningInitFormProps) {
   const [hours, setHours] = useState("2");
   const [workerId, setWorkerId] = useState<string>("");
 
@@ -73,8 +85,6 @@ export function PlanningInitForm({ open, onOpenChange, onContinue }: PlanningIni
               control={form.control}
               strictFilter={true}
               disabled={isLoadingWorkers}
-              value={workerId}
-              onChange={(value) => setWorkerId(value as string)}
             />
             <p className="text-xs text-muted-foreground">
               Si seleccionas un operario, solo verás su línea de tiempo
@@ -85,7 +95,10 @@ export function PlanningInitForm({ open, onOpenChange, onContinue }: PlanningIni
             <Button variant="outline" onClick={() => onOpenChange(false)}>
               Cancelar
             </Button>
-            <Button onClick={handleContinue} disabled={!hours || Number(hours) <= 0}>
+            <Button
+              onClick={handleContinue}
+              disabled={!hours || Number(hours) <= 0}
+            >
               Continuar
             </Button>
           </div>
