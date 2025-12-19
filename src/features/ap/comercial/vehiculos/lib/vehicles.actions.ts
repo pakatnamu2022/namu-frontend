@@ -9,6 +9,7 @@ import {
   VehicleRequest,
   VehicleResourceWithCosts,
   VehicleClientDebtInfo,
+  VehiclePurchaseOrderData,
 } from "./vehicles.interface";
 
 const { ENDPOINT } = VEHICLES;
@@ -84,6 +85,15 @@ export async function getVehicleClientDebtInfo(
 ): Promise<VehicleClientDebtInfo> {
   const response = await api.get<VehicleClientDebtInfo>(
     `${ENDPOINT}/${vehicleId}/client-debt-info`
+  );
+  return response.data;
+}
+
+export async function getVehiclePurchaseOrder(
+  vehicleId: number
+): Promise<VehiclePurchaseOrderData> {
+  const response = await api.get<VehiclePurchaseOrderData>(
+    `${ENDPOINT}/${vehicleId}/purchase-order`
   );
   return response.data;
 }

@@ -35,8 +35,9 @@ import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-gene
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import { EMPRESA_AP } from "@/core/core.constants";
-import { useAllVehiclesWithCosts } from "../../vehiculos/lib/vehicles.hook";
+import { useAllVehiclesWithCosts, useVehiclePurchaseOrder } from "../../vehiculos/lib/vehicles.hook";
 import { PURCHASE_REQUEST_QUOTE } from "../lib/purchaseRequestQuote.constants";
+import { PurchaseOrderAccessoriesCard } from "./PurchaseOrderAccessoriesCard";
 
 interface PurchaseRequestQuoteFormProps {
   defaultValues: Partial<PurchaseRequestQuoteSchema>;
@@ -134,6 +135,11 @@ export const PurchaseRequestQuoteForm = ({
   const salePriceWatch = form.watch("sale_price");
   const docTypeCurrencyWatch = form.watch("doc_type_currency_id");
   const holderWatch = form.watch("holder_id");
+
+  // Hook para obtener datos de la orden de compra del vehículo
+  const { data: vehiclePurchaseOrderData } = useVehiclePurchaseOrder(
+    withVinWatch && vehicleVnWatch ? Number(vehicleVnWatch) : null
+  );
 
   // Datos iniciales para las tablas (solo en modo update)
   const [initialBonusDiscounts, setInitialBonusDiscounts] = useState<any[]>([]);
@@ -695,6 +701,23 @@ export const PurchaseRequestQuoteForm = ({
               disabled={isLoadingVehiclesVn}
             />
           )}
+
+          {/* Mostrar accesorios de la orden de compra cuando se selecciona un VIN */}
+          {withVinWatch &&
+            vehicleVnWatch &&
+            vehiclePurchaseOrderData?.purchase_order?.items && (
+              <div className="col-span-full">
+                <PurchaseOrderAccessoriesCard
+                  items={vehiclePurchaseOrderData.purchase_order.items}
+                  purchaseOrderNumber={
+                    vehiclePurchaseOrderData.purchase_order.number
+                  }
+                  currencySymbol={
+                    vehiclePurchaseOrderData.purchase_order.currency_code
+                  }
+                />
+              </div>
+            )}
 
           {/* Mostrar campos de Modelo VN y Color cuando with_vin es false */}
           {!withVinWatch && (
