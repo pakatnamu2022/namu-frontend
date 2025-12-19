@@ -35,7 +35,10 @@ import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-gene
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import { EMPRESA_AP } from "@/core/core.constants";
-import { useAllVehiclesWithCosts, useVehiclePurchaseOrder } from "../../vehiculos/lib/vehicles.hook";
+import {
+  useAllVehiclesWithCosts,
+  useVehiclePurchaseOrder,
+} from "../../vehiculos/lib/vehicles.hook";
 import { PURCHASE_REQUEST_QUOTE } from "../lib/purchaseRequestQuote.constants";
 import { PurchaseOrderAccessoriesCard } from "./PurchaseOrderAccessoriesCard";
 
