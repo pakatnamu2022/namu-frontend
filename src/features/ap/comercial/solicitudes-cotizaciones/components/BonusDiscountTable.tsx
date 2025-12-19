@@ -24,12 +24,13 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Plus, Trash2, Check, ChevronsUpDown, Edit2 } from "lucide-react";
+import { Plus, Trash2, Check, ChevronsUpDown, Edit2, Gift } from "lucide-react";
 import { ConceptDiscountBondResource } from "../lib/purchaseRequestQuote.interface";
 import { NumberFormat } from "@/shared/components/NumberFormat";
 import { cn } from "@/lib/utils";
 import GeneralSheet from "@/shared/components/GeneralSheet";
 import { DataTable } from "@/shared/components/DataTable";
+import EmptyState from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/components/EmptyState";
 
 export interface BonusDiscountRow {
   id: string;
@@ -117,7 +118,7 @@ export const BonusDiscountTable = ({
       setNewRow((prev) => ({
         ...prev,
         descripcion: "",
-        isNegative: isNegativeDiscount
+        isNegative: isNegativeDiscount,
       }));
       setPreviousConceptId(newRow.concept_id);
     }
@@ -130,7 +131,7 @@ export const BonusDiscountTable = ({
       const isNegativeDiscount = editForm.concept_id === DESCUENTO_NUEVO_ID;
       setEditForm((prev) => ({
         ...prev,
-        isNegative: isNegativeDiscount
+        isNegative: isNegativeDiscount,
       }));
       setPreviousEditConceptId(editForm.concept_id);
     }
@@ -305,9 +306,9 @@ export const BonusDiscountTable = ({
       header: "Concepto",
       cell: ({ getValue }) => {
         const conceptId = getValue() as string;
-        const conceptLabel = conceptsOptions.find(
-          (c) => c.id.toString() === conceptId
-        )?.description || conceptId;
+        const conceptLabel =
+          conceptsOptions.find((c) => c.id.toString() === conceptId)
+            ?.description || conceptId;
         return <span className="font-medium">{conceptLabel}</span>;
       },
     },
@@ -320,7 +321,11 @@ export const BonusDiscountTable = ({
       header: "Tipo",
       cell: ({ getValue }) => {
         const isPercentage = getValue() as boolean;
-        return <span className="text-right">{isPercentage ? "Porcentaje" : "Fijo"}</span>;
+        return (
+          <span className="text-right">
+            {isPercentage ? "Porcentaje" : "Fijo"}
+          </span>
+        );
       },
     },
     {
@@ -344,13 +349,16 @@ export const BonusDiscountTable = ({
       cell: ({ row }) => {
         const { isPercentage, valor, isNegative } = row.original;
         const costo = Number(costoReferencia) || 0;
-        const descuentoCalculado = isPercentage
-          ? (costo * valor) / 100
-          : valor;
+        const descuentoCalculado = isPercentage ? (costo * valor) / 100 : valor;
 
         return (
-          <span className={`text-right font-medium ${isNegative ? 'text-red-600' : 'text-primary'}`}>
-            {isNegative ? '- ' : ''}{currencySymbol}{" "}
+          <span
+            className={`text-right font-medium ${
+              isNegative ? "text-red-600" : "text-primary"
+            }`}
+          >
+            {isNegative ? "- " : ""}
+            {currencySymbol}{" "}
             <NumberFormat value={descuentoCalculado.toFixed(2)} />
           </span>
         );
@@ -395,6 +403,7 @@ export const BonusDiscountTable = ({
           onClick={() => setIsAddSheetOpen(true)}
           variant="default"
           className="gap-2"
+          size="sm"
         >
           <Plus className="h-4 w-4" />
           Agregar Bono / Descuento
@@ -412,9 +421,9 @@ export const BonusDiscountTable = ({
           />
 
           {/* Total de descuentos */}
-          <div className="bg-gray-50 px-4 py-3 border border-t-0 rounded-b-lg">
-            <div className="flex justify-between items-center">
-              <div>
+          <div className="bg-gray-50 px-4 py-2 mt-1 rounded-xl">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0">
+              <div className="flex items-center w-full sm:w-auto justify-between sm:justify-start">
                 <span className="text-sm text-gray-600">Precio de Venta:</span>
                 <span className="ml-2 font-medium">
                   {currencySymbol}{" "}
@@ -423,7 +432,7 @@ export const BonusDiscountTable = ({
                   />
                 </span>
               </div>
-              <div>
+              <div className="flex items-center w-full sm:w-auto justify-between sm:justify-end">
                 <span className="text-sm text-gray-600">Total Descuento:</span>
                 <span className="ml-2 text-lg font-bold text-primary">
                   {currencySymbol}{" "}
@@ -434,9 +443,11 @@ export const BonusDiscountTable = ({
           </div>
         </div>
       ) : (
-        <div className="text-center py-8 text-gray-500 border rounded-lg bg-gray-50">
-          No hay {title.toLowerCase()} agregados.
-        </div>
+        <EmptyState
+          title={`No hay ${title}`}
+          description="Agrega bonos o descuentos a la cotización."
+          icon={Gift}
+        />
       )}
 
       {/* Sheet para agregar bono/descuento */}
@@ -486,12 +497,16 @@ export const BonusDiscountTable = ({
               </SelectContent>
             </Select>
             {errors.concept_id && (
-              <p className="text-xs text-red-500 mt-1">Este campo es requerido</p>
+              <p className="text-xs text-red-500 mt-1">
+                Este campo es requerido
+              </p>
             )}
           </div>
 
           <div>
-            <label className="text-sm font-medium mb-1 block">Descripción</label>
+            <label className="text-sm font-medium mb-1 block">
+              Descripción
+            </label>
             {(() => {
               const options = getDescriptionOptions(newRow.concept_id);
 
@@ -577,7 +592,9 @@ export const BonusDiscountTable = ({
               );
             })()}
             {errors.descripcion && (
-              <p className="text-xs text-red-500 mt-1">Este campo es requerido</p>
+              <p className="text-xs text-red-500 mt-1">
+                Este campo es requerido
+              </p>
             )}
           </div>
 
@@ -606,7 +623,10 @@ export const BonusDiscountTable = ({
                 type="number"
                 value={newRow.valor || ""}
                 onChange={(e) => {
-                  setNewRow({ ...newRow, valor: parseFloat(e.target.value) || 0 });
+                  setNewRow({
+                    ...newRow,
+                    valor: parseFloat(e.target.value) || 0,
+                  });
                   setErrors({ ...errors, valor: false });
                 }}
                 placeholder="0.00"
@@ -632,16 +652,33 @@ export const BonusDiscountTable = ({
                   <div>
                     <span className="text-gray-600">Precio de Venta:</span>
                     <p className="font-medium">
-                      {currencySymbol} {costoReferencia.toLocaleString("es-PE", { minimumFractionDigits: 2 })}
+                      {currencySymbol}{" "}
+                      {costoReferencia.toLocaleString("es-PE", {
+                        minimumFractionDigits: 2,
+                      })}
                     </p>
                   </div>
                   <div>
-                    <span className="text-gray-600">Monto {newRow.isNegative ? 'Descuento' : 'Bono'}:</span>
-                    <p className={`font-medium ${newRow.isNegative ? 'text-red-600' : 'text-primary'}`}>
-                      {newRow.isNegative ? '- ' : ''}{currencySymbol}{" "}
+                    <span className="text-gray-600">
+                      Monto {newRow.isNegative ? "Descuento" : "Bono"}:
+                    </span>
+                    <p
+                      className={`font-medium ${
+                        newRow.isNegative ? "text-red-600" : "text-primary"
+                      }`}
+                    >
+                      {newRow.isNegative ? "- " : ""}
+                      {currencySymbol}{" "}
                       {newRow.isPercentage
-                        ? ((costoReferencia * newRow.valor) / 100).toLocaleString("es-PE", { minimumFractionDigits: 2 })
-                        : newRow.valor.toLocaleString("es-PE", { minimumFractionDigits: 2 })}
+                        ? (
+                            (costoReferencia * newRow.valor) /
+                            100
+                          ).toLocaleString("es-PE", {
+                            minimumFractionDigits: 2,
+                          })
+                        : newRow.valor.toLocaleString("es-PE", {
+                            minimumFractionDigits: 2,
+                          })}
                     </p>
                   </div>
                 </div>
@@ -680,11 +717,7 @@ export const BonusDiscountTable = ({
             >
               Cancelar
             </Button>
-            <Button
-              type="button"
-              onClick={agregarFila}
-              className="flex-1"
-            >
+            <Button type="button" onClick={agregarFila} className="flex-1">
               Agregar
             </Button>
           </div>
@@ -724,18 +757,25 @@ export const BonusDiscountTable = ({
               </SelectContent>
             </Select>
             {editErrors.concept_id && (
-              <p className="text-xs text-red-500 mt-1">Este campo es requerido</p>
+              <p className="text-xs text-red-500 mt-1">
+                Este campo es requerido
+              </p>
             )}
           </div>
 
           <div>
-            <label className="text-sm font-medium mb-1 block">Descripción</label>
+            <label className="text-sm font-medium mb-1 block">
+              Descripción
+            </label>
             {(() => {
               const options = getDescriptionOptions(editForm.concept_id);
 
               if (options) {
                 return (
-                  <Popover open={openEditCombobox} onOpenChange={setOpenEditCombobox}>
+                  <Popover
+                    open={openEditCombobox}
+                    onOpenChange={setOpenEditCombobox}
+                  >
                     <PopoverTrigger asChild>
                       <Button
                         variant="outline"
@@ -758,7 +798,10 @@ export const BonusDiscountTable = ({
                           value={editForm.descripcion}
                           onValueChange={(value) => {
                             setEditForm({ ...editForm, descripcion: value });
-                            setEditErrors({ ...editErrors, descripcion: false });
+                            setEditErrors({
+                              ...editErrors,
+                              descripcion: false,
+                            });
                           }}
                         />
                         <CommandList>
@@ -779,7 +822,10 @@ export const BonusDiscountTable = ({
                                     ...editForm,
                                     descripcion: currentValue.toUpperCase(),
                                   });
-                                  setEditErrors({ ...editErrors, descripcion: false });
+                                  setEditErrors({
+                                    ...editErrors,
+                                    descripcion: false,
+                                  });
                                   setOpenEditCombobox(false);
                                 }}
                               >
@@ -815,7 +861,9 @@ export const BonusDiscountTable = ({
               );
             })()}
             {editErrors.descripcion && (
-              <p className="text-xs text-red-500 mt-1">Este campo es requerido</p>
+              <p className="text-xs text-red-500 mt-1">
+                Este campo es requerido
+              </p>
             )}
           </div>
 
@@ -825,7 +873,10 @@ export const BonusDiscountTable = ({
               <Select
                 value={editForm.isPercentage ? "PORCENTAJE" : "FIJO"}
                 onValueChange={(value) =>
-                  setEditForm({ ...editForm, isPercentage: value === "PORCENTAJE" })
+                  setEditForm({
+                    ...editForm,
+                    isPercentage: value === "PORCENTAJE",
+                  })
                 }
               >
                 <SelectTrigger>
@@ -844,7 +895,10 @@ export const BonusDiscountTable = ({
                 type="number"
                 value={editForm.valor || ""}
                 onChange={(e) => {
-                  setEditForm({ ...editForm, valor: parseFloat(e.target.value) || 0 });
+                  setEditForm({
+                    ...editForm,
+                    valor: parseFloat(e.target.value) || 0,
+                  });
                   setEditErrors({ ...editErrors, valor: false });
                 }}
                 placeholder="0.00"
@@ -870,16 +924,33 @@ export const BonusDiscountTable = ({
                   <div>
                     <span className="text-gray-600">Precio de Venta:</span>
                     <p className="font-medium">
-                      {currencySymbol} {costoReferencia.toLocaleString("es-PE", { minimumFractionDigits: 2 })}
+                      {currencySymbol}{" "}
+                      {costoReferencia.toLocaleString("es-PE", {
+                        minimumFractionDigits: 2,
+                      })}
                     </p>
                   </div>
                   <div>
-                    <span className="text-gray-600">Monto {editForm.isNegative ? 'Descuento' : 'Bono'}:</span>
-                    <p className={`font-medium ${editForm.isNegative ? 'text-red-600' : 'text-primary'}`}>
-                      {editForm.isNegative ? '- ' : ''}{currencySymbol}{" "}
+                    <span className="text-gray-600">
+                      Monto {editForm.isNegative ? "Descuento" : "Bono"}:
+                    </span>
+                    <p
+                      className={`font-medium ${
+                        editForm.isNegative ? "text-red-600" : "text-primary"
+                      }`}
+                    >
+                      {editForm.isNegative ? "- " : ""}
+                      {currencySymbol}{" "}
                       {editForm.isPercentage
-                        ? ((costoReferencia * editForm.valor) / 100).toLocaleString("es-PE", { minimumFractionDigits: 2 })
-                        : editForm.valor.toLocaleString("es-PE", { minimumFractionDigits: 2 })}
+                        ? (
+                            (costoReferencia * editForm.valor) /
+                            100
+                          ).toLocaleString("es-PE", {
+                            minimumFractionDigits: 2,
+                          })
+                        : editForm.valor.toLocaleString("es-PE", {
+                            minimumFractionDigits: 2,
+                          })}
                     </p>
                   </div>
                 </div>
@@ -904,11 +975,7 @@ export const BonusDiscountTable = ({
             >
               Cancelar
             </Button>
-            <Button
-              type="button"
-              onClick={guardarEdicion}
-              className="flex-1"
-            >
+            <Button type="button" onClick={guardarEdicion} className="flex-1">
               Guardar Cambios
             </Button>
           </div>

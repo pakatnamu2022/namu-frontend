@@ -15,6 +15,7 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
+import { useIsMobile, useIsTablet } from "@/hooks/use-mobile";
 
 export interface GeneralSheetProps {
   open: boolean;
@@ -56,8 +57,21 @@ const GeneralSheet: React.FC<GeneralSheetProps> = ({
   modal,
   icon,
   size = "large",
-  type = "default",
+  type,
 }) => {
+  const isMobile = useIsMobile();
+  const isTablet = useIsTablet();
+
+  if (!type) {
+    if (isMobile) {
+      type = "mobile";
+    } else if (isTablet) {
+      type = "tablet";
+    } else {
+      type = "default";
+    }
+  }
+
   const IconComponent = icon
     ? (LucideReact[icon] as React.ComponentType<any>)
     : null;
@@ -104,7 +118,9 @@ const GeneralSheet: React.FC<GeneralSheetProps> = ({
             </div>
             <DrawerClose onClick={onClose} />
           </DrawerHeader>
-          <div className="mt-4 h-full max-h-[calc(100vh-20rem)] overflow-auto">{children}</div>
+          <div className="mt-4 h-full max-h-[calc(100vh-20rem)] overflow-auto">
+            {children}
+          </div>
         </DrawerContent>
       </Drawer>
     );

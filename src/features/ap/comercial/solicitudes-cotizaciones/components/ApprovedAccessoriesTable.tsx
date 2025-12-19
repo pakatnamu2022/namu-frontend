@@ -8,12 +8,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, Trash2, Edit2 } from "lucide-react";
+import { Plus, Trash2, Edit2, PackagePlus } from "lucide-react";
 import { NumberFormat } from "@/shared/components/NumberFormat";
 import { ApprovedAccesoriesResource } from "@/features/ap/post-venta/repuestos/accesorios-homologados/lib/approvedAccessories.interface";
 import GeneralSheet from "@/shared/components/GeneralSheet";
 import { DataTable } from "@/shared/components/DataTable";
 import { ColumnDef } from "@tanstack/react-table";
+import EmptyState from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/components/EmptyState";
 
 export interface ApprovedAccessoryRow {
   id: string;
@@ -43,7 +44,9 @@ export const ApprovedAccessoriesTable = ({
     accessory_id: false,
     quantity: false,
   });
-  const [editingRow, setEditingRow] = useState<ApprovedAccessoryRow | null>(null);
+  const [editingRow, setEditingRow] = useState<ApprovedAccessoryRow | null>(
+    null
+  );
   const [isEditSheetOpen, setIsEditSheetOpen] = useState(false);
   const [isAddSheetOpen, setIsAddSheetOpen] = useState(false);
   const [editForm, setEditForm] = useState({
@@ -164,7 +167,8 @@ export const ApprovedAccessoriesTable = ({
 
     // Verificar si el accesorio ya existe en otra fila
     const yaExiste = rows.find(
-      (row) => row.accessory_id === editForm.accessory_id && row.id !== editingRow.id
+      (row) =>
+        row.accessory_id === editForm.accessory_id && row.id !== editingRow.id
     );
     if (yaExiste) {
       setEditErrors({ ...editErrors, accessory_id: true });
@@ -265,7 +269,9 @@ export const ApprovedAccessoriesTable = ({
         const accessory = accessories.find(
           (acc) => acc.id === row.original.accessory_id
         );
-        return accessory?.description;
+        return (
+          <div className="text-sm text-wrap">{accessory?.description}</div>
+        );
       },
     },
     {
@@ -305,7 +311,9 @@ export const ApprovedAccessoriesTable = ({
         return (
           <div className="text-right font-medium text-primary">
             {row.original.type === "OBSEQUIO" ? (
-              <span className="text-green-600">0</span>
+              <span className="text-green-600">
+                {accessory ? accessory.currency_symbol : ""} 0.00
+              </span>
             ) : accessory ? (
               `${accessory.currency_symbol} ${Number(subtotal).toFixed(2)}`
             ) : null}
@@ -350,6 +358,7 @@ export const ApprovedAccessoriesTable = ({
           onClick={() => setIsAddSheetOpen(true)}
           variant="default"
           className="gap-2"
+          size="sm"
         >
           <Plus className="h-4 w-4" />
           Agregar Accesorio / Obsequio
@@ -358,37 +367,38 @@ export const ApprovedAccessoriesTable = ({
 
       {/* DataTable de accesorios agregados */}
       {rows.length > 0 ? (
-        <div className="border rounded-lg overflow-hidden">
+        <div>
           <DataTable
             columns={columns}
             data={rows}
             isVisibleColumnFilter={false}
-            variant="simple"
+            variant="ghost"
           />
 
           {/* Total general */}
-          <div className="bg-gray-50 px-4 py-3 border-t">
-            <div className="flex justify-between items-center">
-              <div>
+          <div className="bg-gray-50 px-4 py-2 mt-1 rounded-xl">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0">
+              <div className="flex items-center w-full sm:w-auto justify-between sm:justify-start">
                 <span className="text-sm text-gray-600">
                   Accesorios agregados:
                 </span>
                 <span className="ml-2 font-medium">{rows.length}</span>
               </div>
-              <div>
+              <div className="flex items-center w-full sm:w-auto justify-between sm:justify-end">
                 <span className="text-sm text-gray-600">Total Accesorios:</span>
                 <span className="ml-2 text-lg font-bold text-primary">
-                  S/
-                  <NumberFormat value={calculateTotal().toFixed(2)} />
+                  S/ <NumberFormat value={calculateTotal().toFixed(2)} />
                 </span>
               </div>
             </div>
           </div>
         </div>
       ) : (
-        <div className="text-center py-8 text-gray-500 border rounded-lg bg-gray-50">
-          No hay accesorios agregados.
-        </div>
+        <EmptyState
+          title={`No hay accesorios o obsequios agregados`}
+          description="Agrega accesorios adicionales u obsequios a la cotización."
+          icon={PackagePlus}
+        />
       )}
 
       {/* Sheet para agregar accesorio/obsequio */}
@@ -453,7 +463,10 @@ export const ApprovedAccessoriesTable = ({
               </SelectTrigger>
               <SelectContent>
                 {accessories.map((accessory) => (
-                  <SelectItem key={accessory.id} value={accessory.id.toString()}>
+                  <SelectItem
+                    key={accessory.id}
+                    value={accessory.id.toString()}
+                  >
                     {accessory.code} - {accessory.description}
                   </SelectItem>
                 ))}
@@ -473,7 +486,10 @@ export const ApprovedAccessoriesTable = ({
               min="1"
               value={newRow.quantity || ""}
               onChange={(e) => {
-                setNewRow({ ...newRow, quantity: parseInt(e.target.value) || 0 });
+                setNewRow({
+                  ...newRow,
+                  quantity: parseInt(e.target.value) || 0,
+                });
                 setErrors({ ...errors, quantity: false });
               }}
               placeholder="0"
@@ -523,7 +539,8 @@ export const ApprovedAccessoriesTable = ({
                       {newRow.type === "OBSEQUIO" && (
                         <div className="col-span-2 mt-2 p-2 bg-green-100 border border-green-300 rounded">
                           <p className="text-xs text-green-800 font-medium">
-                            Este artículo será marcado como obsequio y no se sumará al total
+                            Este artículo será marcado como obsequio y no se
+                            sumará al total
                           </p>
                         </div>
                       )}
@@ -555,11 +572,7 @@ export const ApprovedAccessoriesTable = ({
             >
               Cancelar
             </Button>
-            <Button
-              type="button"
-              onClick={agregarFila}
-              className="flex-1"
-            >
+            <Button type="button" onClick={agregarFila} className="flex-1">
               Agregar
             </Button>
           </div>
@@ -619,7 +632,10 @@ export const ApprovedAccessoriesTable = ({
               </SelectTrigger>
               <SelectContent>
                 {accessories.map((accessory) => (
-                  <SelectItem key={accessory.id} value={accessory.id.toString()}>
+                  <SelectItem
+                    key={accessory.id}
+                    value={accessory.id.toString()}
+                  >
                     {accessory.code} - {accessory.description}
                   </SelectItem>
                 ))}
@@ -692,7 +708,8 @@ export const ApprovedAccessoriesTable = ({
                       {editForm.type === "OBSEQUIO" && (
                         <div className="col-span-2 mt-2 p-2 bg-green-100 border border-green-300 rounded">
                           <p className="text-xs text-green-800 font-medium">
-                            Este artículo será marcado como obsequio y no se sumará al total
+                            Este artículo será marcado como obsequio y no se
+                            sumará al total
                           </p>
                         </div>
                       )}
@@ -713,11 +730,7 @@ export const ApprovedAccessoriesTable = ({
             >
               Cancelar
             </Button>
-            <Button
-              type="button"
-              onClick={guardarEdicion}
-              className="flex-1"
-            >
+            <Button type="button" onClick={guardarEdicion} className="flex-1">
               Guardar Cambios
             </Button>
           </div>
