@@ -20,6 +20,8 @@ import {
   TrendingDown,
   Minus,
   MousePointerClick,
+  Package,
+  ListChecks,
 } from "lucide-react";
 import {
   Tooltip,
@@ -31,7 +33,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { ExceptionalCaseSheet } from "./ExceptionalCaseSheet";
 import { useAllWorkers } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
 import {
@@ -41,6 +43,16 @@ import {
 import { EMPRESA_AP } from "@/core/core.constants";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import { Building2 } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useGetAllWorkOrder } from "../../orden-trabajo/lib/workOrder.hook";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Card, CardContent } from "@/components/ui/card";
 
 interface WorkerTimelineProps {
   open?: boolean;
@@ -50,7 +62,13 @@ interface WorkerTimelineProps {
   onPlanningClick?: (planning: WorkOrderPlanningResource) => void;
   selectionMode?: boolean;
   estimatedHours?: number;
-  onTimeSelect?: (startDatetime: Date, workerId: number, hours: number) => void;
+  onTimeSelect?: (
+    startDatetime: Date,
+    workerId: number,
+    hours: number,
+    workOrderId: number,
+    description: string
+  ) => void;
   onEstimatedHoursChange?: (hours: number) => void;
   fullPage?: boolean;
   sedeId?: string;
@@ -78,14 +96,50 @@ export function WorkerTimeline({
     workerId: number;
   } | null>(null);
   const [isExceptionalCaseOpen, setIsExceptionalCaseOpen] = useState(false);
+  const [selectedWorkOrderId, setSelectedWorkOrderId] = useState<string>("");
+  const [selectedGroup, setSelectedGroup] = useState<number | null>(null);
+  const [selectedItemId, setSelectedItemId] = useState<number | null>(null);
 
   // Obtener sedes disponibles
   const { data: mySedes = [] } = useMySedes({
     company: EMPRESA_AP.id,
   });
 
+  // Obtener órdenes de trabajo
+  const { data: workOrders = [] } = useGetAllWorkOrder();
+
   // Encontrar el nombre de la sede seleccionada
   const selectedSede = mySedes.find((s) => s.id.toString() === sedeId);
+
+  // Obtener la orden de trabajo seleccionada
+  const selectedWorkOrder = useMemo(() => {
+    if (!selectedWorkOrderId) return null;
+    return workOrders.find((wo) => wo.id.toString() === selectedWorkOrderId);
+  }, [selectedWorkOrderId, workOrders]);
+
+  // Obtener los grupos únicos de los items
+  const availableGroups = useMemo(() => {
+    if (!selectedWorkOrder?.items) return [];
+    const groups = new Set(
+      selectedWorkOrder.items.map((item) => item.group_number)
+    );
+    return Array.from(groups).sort();
+  }, [selectedWorkOrder]);
+
+  // Auto-seleccionar grupo si solo hay uno
+  const activeGroup = useMemo(() => {
+    if (availableGroups.length === 1) return availableGroups[0];
+    return selectedGroup;
+  }, [availableGroups, selectedGroup]);
+
+  // Filtrar items por grupo seleccionado
+  const filteredItems = useMemo(() => {
+    if (!selectedWorkOrder?.items) return [];
+    if (activeGroup === null) return selectedWorkOrder.items;
+    return selectedWorkOrder.items.filter(
+      (item) => item.group_number === activeGroup
+    );
+  }, [selectedWorkOrder, activeGroup]);
 
   // Horarios en minutos desde medianoche
   const MORNING_START = 480; // 8:00
@@ -282,12 +336,42 @@ export function WorkerTimeline({
   };
 
   const handleConfirmSelection = () => {
-    if (selectedTime && onTimeSelect) {
-      onTimeSelect(selectedTime.time, selectedTime.workerId, estimatedHours);
+    if (
+      selectedTime &&
+      onTimeSelect &&
+      selectedWorkOrderId &&
+      selectedItemId !== null
+    ) {
+      // Obtener la descripción del item seleccionado
+      const selectedItem = filteredItems.find(
+        (item) => item.id === selectedItemId
+      );
+      const description = selectedItem?.description || "";
+
+      onTimeSelect(
+        selectedTime.time,
+        selectedTime.workerId,
+        estimatedHours,
+        Number(selectedWorkOrderId),
+        description
+      );
+
+      // Limpiar selecciones
       setSelectedTime(null);
       setHoveredSlot(null);
+      setSelectedWorkOrderId("");
+      setSelectedGroup(null);
+      setSelectedItemId(null);
     }
   };
+
+  const handleItemSelect = (itemId: number) => {
+    // Si se selecciona el mismo item, deseleccionarlo; si no, seleccionar el nuevo
+    setSelectedItemId(selectedItemId === itemId ? null : itemId);
+  };
+
+  const canConfirm =
+    selectedTime && selectedWorkOrderId && selectedItemId !== null;
 
   const timeMarkers = [
     { time: "8:00", position: 0 },
@@ -327,55 +411,226 @@ export function WorkerTimeline({
       </div>
 
       {selectionMode && onEstimatedHoursChange && (
-        <div className="flex items-center gap-4 p-4 bg-slate-50 border border-slate-200 rounded-lg">
-          <Label
-            htmlFor="estimated-hours"
-            className="text-sm font-medium whitespace-nowrap"
-          >
-            Duración de la tarea:
-          </Label>
-          <div className="flex items-center gap-2">
-            <Input
-              id="estimated-hours"
-              type="number"
-              min="0.5"
-              step="0.5"
-              value={estimatedHours}
-              onChange={(e) => onEstimatedHoursChange(Number(e.target.value))}
-              className="w-20 text-center"
-            />
-            <span className="text-sm text-muted-foreground">horas</span>
+        <div className="space-y-4 p-6 bg-linear-to-br from-slate-50 to-slate-100 border border-slate-200 rounded-xl shadow-sm">
+          {/* Duración y Orden de Trabajo */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label
+                htmlFor="estimated-hours"
+                className="text-sm font-semibold text-slate-700"
+              >
+                Duración de la tarea
+              </Label>
+              <div className="flex items-center gap-2">
+                <Input
+                  id="estimated-hours"
+                  type="number"
+                  min="0.5"
+                  step="0.5"
+                  value={estimatedHours}
+                  onChange={(e) =>
+                    onEstimatedHoursChange(Number(e.target.value))
+                  }
+                  className="w-24 text-center font-semibold"
+                />
+                <span className="text-sm text-slate-600 font-medium">
+                  horas
+                </span>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label
+                htmlFor="work-order"
+                className="text-sm font-semibold text-slate-700"
+              >
+                Orden de Trabajo
+              </Label>
+              <Select
+                value={selectedWorkOrderId}
+                onValueChange={(value) => {
+                  setSelectedWorkOrderId(value);
+                  setSelectedGroup(null);
+                  setSelectedItemId(null);
+                }}
+              >
+                <SelectTrigger id="work-order" className="font-medium">
+                  <SelectValue placeholder="Seleccione una OT" />
+                </SelectTrigger>
+                <SelectContent>
+                  {workOrders.map((wo) => (
+                    <SelectItem key={wo.id} value={wo.id.toString()}>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className="font-mono text-xs">
+                          #{wo.correlative}
+                        </Badge>
+                        <span className="text-sm">{wo.vehicle_plate}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
+
+          {/* Selector de Grupo si hay más de uno */}
+          {selectedWorkOrder && availableGroups.length > 1 && (
+            <div className="space-y-2 p-4 bg-white rounded-lg border border-slate-200">
+              <Label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                <Package className="h-4 w-4" />
+                Seleccionar Grupo
+              </Label>
+              <RadioGroup
+                value={selectedGroup?.toString() || ""}
+                onValueChange={(value) => {
+                  setSelectedGroup(Number(value));
+                  setSelectedItemId(null);
+                }}
+              >
+                <div className="flex flex-wrap gap-2">
+                  {availableGroups.map((group) => {
+                    const itemCount = selectedWorkOrder.items.filter(
+                      (item) => item.group_number === group
+                    ).length;
+                    return (
+                      <div key={group} className="flex items-center space-x-2">
+                        <RadioGroupItem
+                          value={group.toString()}
+                          id={`group-${group}`}
+                        />
+                        <Label
+                          htmlFor={`group-${group}`}
+                          className="cursor-pointer font-medium text-sm"
+                        >
+                          Grupo {group}{" "}
+                          <span className="text-muted-foreground">
+                            ({itemCount} trabajos)
+                          </span>
+                        </Label>
+                      </div>
+                    );
+                  })}
+                </div>
+              </RadioGroup>
+            </div>
+          )}
+
+          {/* Lista de Descripciones */}
+          {selectedWorkOrder && activeGroup !== null && (
+            <div className="space-y-2 p-4 bg-white rounded-lg border border-slate-200">
+              <Label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                <ListChecks className="h-4 w-4" />
+                Seleccionar Descripción de Trabajo
+              </Label>
+              <RadioGroup
+                value={selectedItemId?.toString() || ""}
+                onValueChange={(value) => setSelectedItemId(Number(value))}
+              >
+                <div className="space-y-2 max-h-64 overflow-y-auto">
+                  {filteredItems.length > 0 ? (
+                    filteredItems.map((item) => (
+                      <Card
+                        key={item.id}
+                        className={`cursor-pointer transition-all hover:shadow-md ${
+                          selectedItemId === item.id
+                            ? "bg-blue-50 border-blue-300 shadow-sm"
+                            : "bg-white hover:bg-slate-50"
+                        }`}
+                        onClick={() => handleItemSelect(item.id)}
+                      >
+                        <CardContent className="p-3">
+                          <div className="flex items-start gap-3">
+                            <RadioGroupItem
+                              value={item.id.toString()}
+                              id={`item-${item.id}`}
+                              className="mt-0.5"
+                            />
+                            <div className="flex-1 space-y-1">
+                              <div className="flex items-center gap-2">
+                                <Badge
+                                  variant="outline"
+                                  className="text-xs font-semibold bg-linear-to-r from-blue-50 to-indigo-50"
+                                >
+                                  {item.type_planning_name}
+                                </Badge>
+                              </div>
+                              <p className="text-sm font-medium text-slate-800 leading-relaxed">
+                                {item.description}
+                              </p>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))
+                  ) : (
+                    <p className="text-sm text-muted-foreground text-center py-4">
+                      No hay items disponibles para este grupo
+                    </p>
+                  )}
+                </div>
+              </RadioGroup>
+            </div>
+          )}
         </div>
       )}
 
       {selectionMode && (
-        <Alert>
-          <Clock className="h-4 w-4" />
-          <AlertDescription>
-            Haz click en un espacio disponible de la línea de tiempo para
-            seleccionar la hora de inicio. La tarea durará{" "}
-            <strong>{estimatedHours}h</strong>.
+        <Alert className="border-blue-200 bg-blue-50">
+          <Clock className="h-4 w-4 text-primary" />
+          <AlertDescription className="text-primary">
+            {!selectedWorkOrderId && (
+              <span>
+                Seleccione una <strong>Orden de Trabajo</strong> y luego haz
+                click en un espacio disponible del timeline.
+              </span>
+            )}
+            {selectedWorkOrderId && !selectedTime && (
+              <span>
+                Ahora haz click en un espacio disponible de la línea de tiempo.
+                La tarea durará <strong>{estimatedHours}h</strong>.
+              </span>
+            )}
+            {selectedWorkOrderId && selectedTime && selectedItemId === null && (
+              <span>
+                Selecciona una <strong>descripción de trabajo</strong> para
+                continuar.
+              </span>
+            )}
+            {selectedWorkOrderId && selectedTime && selectedItemId !== null && (
+              <span className="text-green-700 font-semibold">
+                ¡Todo listo! Haz click en "Confirmar y Crear Planificación".
+              </span>
+            )}
           </AlertDescription>
         </Alert>
       )}
 
       {selectionMode && selectedTime && (
-        <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+        <div className="p-5 bg-linear-to-r from-blue-50 to-indigo-50 border-2 border-blue-300 rounded-xl shadow-md">
           <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-blue-900">
+            <div className="space-y-1">
+              <p className="text-sm font-medium text-primary">
                 Horario seleccionado:
               </p>
-              <p className="text-lg font-bold text-blue-700">
+              <p className="text-2xl font-bold text-primary">
                 {format(selectedTime.time, "HH:mm", { locale: es })} -{" "}
                 {format(addHours(selectedTime.time, estimatedHours), "HH:mm", {
                   locale: es,
                 })}
               </p>
+              {selectedItemId !== null && (
+                <p className="text-xs text-primary mt-1">
+                  1 descripción seleccionada
+                </p>
+              )}
             </div>
-            <Button onClick={handleConfirmSelection}>
-              Confirmar y Continuar
+            <Button
+              onClick={handleConfirmSelection}
+              disabled={!canConfirm}
+              size="lg"
+              className="bg-primary hover:bg-primary"
+            >
+              Confirmar y Crear Planificación
             </Button>
           </div>
         </div>
@@ -624,7 +879,7 @@ export function WorkerTimeline({
                   selectedTime &&
                   selectedTime.workerId === worker.id && (
                     <div
-                      className="absolute top-0 h-full bg-blue-500 opacity-50 pointer-events-none border-2 border-blue-700 z-30"
+                      className="absolute top-0 h-full bg-blue-500 opacity-50 pointer-events-none border-2 border-primary z-30"
                       style={{
                         left: `${calculatePositionFromDate(
                           selectedTime.time
