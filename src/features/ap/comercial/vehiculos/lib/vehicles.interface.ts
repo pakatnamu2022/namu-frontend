@@ -140,3 +140,34 @@ export interface VehicleClientDebtInfo {
   notas_credito: any[];
   notas_debito: any[];
 }
+
+export interface VehiclePurchaseOrderData {
+  vehicle: VehicleResource;
+  purchase_order: {
+    id: number;
+    number: string;
+    number_guide: string;
+    invoice_series: string;
+    invoice_number: string;
+    emission_date: string;
+    subtotal: string | number;
+    igv: string | number;
+    total: string | number;
+    sede: string;
+    supplier: string;
+    currency: string;
+    currency_code: string;
+    items?: Array<{
+      id: number;
+      description: string;
+      unit_price: string | number;
+      quantity: number;
+      total: number;
+      is_vehicle: boolean;
+      unit_measurement?: {
+        id: number;
+        description: string;
+      };
+    }>;
+  };
+}

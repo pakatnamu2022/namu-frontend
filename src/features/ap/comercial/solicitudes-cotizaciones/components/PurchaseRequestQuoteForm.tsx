@@ -14,10 +14,11 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Building2, Gift, Loader, PackagePlus, Calculator } from "lucide-react";
+import { Building2, Gift, PackagePlus } from "lucide-react";
 import { FormSelect } from "@/shared/components/FormSelect";
+import { FormSwitch } from "@/shared/components/FormSwitch";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
+import { PurchaseRequestQuoteSummary } from "./PurchaseRequestQuoteSummary";
 import { useMyOpportunities } from "../../oportunidades/lib/opportunities.hook";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { useAllCustomers } from "../../clientes/lib/customers.hook";
@@ -29,14 +30,16 @@ import { ApprovedAccessoriesTable } from "./ApprovedAccessoriesTable";
 import { useAllConceptDiscountBond } from "../lib/purchaseRequestQuote.hook";
 import { useAllApprovedAccesories } from "@/features/ap/post-venta/repuestos/accesorios-homologados/lib/approvedAccessories.hook";
 import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.hook";
-import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import { EMPRESA_AP } from "@/core/core.constants";
-import { useAllVehiclesWithCosts } from "../../vehiculos/lib/vehicles.hook";
+import {
+  useAllVehiclesWithCosts,
+  useVehiclePurchaseOrder,
+} from "../../vehiculos/lib/vehicles.hook";
 import { PURCHASE_REQUEST_QUOTE } from "../lib/purchaseRequestQuote.constants";
+import { PurchaseOrderAccessoriesCard } from "./PurchaseOrderAccessoriesCard";
 
 interface PurchaseRequestQuoteFormProps {
   defaultValues: Partial<PurchaseRequestQuoteSchema>;
@@ -130,10 +133,16 @@ export const PurchaseRequestQuoteForm = ({
   const modelVnWatch = form.watch("ap_models_vn_id");
   const withVinWatch = form.watch("with_vin");
   const vehicleVnWatch = form.watch("ap_vehicle_id");
+  const vehicleColorWatch = form.watch("vehicle_color_id");
   const opportunityWatch = form.watch("opportunity_id");
   const salePriceWatch = form.watch("sale_price");
   const docTypeCurrencyWatch = form.watch("doc_type_currency_id");
   const holderWatch = form.watch("holder_id");
+
+  // Hook para obtener datos de la orden de compra del vehículo
+  const { data: vehiclePurchaseOrderData } = useVehiclePurchaseOrder(
+    withVinWatch && vehicleVnWatch ? Number(vehicleVnWatch) : null
+  );
 
   // Datos iniciales para las tablas (solo en modo update)
   const [initialBonusDiscounts, setInitialBonusDiscounts] = useState<any[]>([]);
@@ -243,6 +252,14 @@ export const PurchaseRequestQuoteForm = ({
       previousModelVnRef.current = undefined;
     }
   }, [withVinWatch]);
+
+  // Effect para re-validar cuando cambian los campos relevantes
+  useEffect(() => {
+    if (!isInitialLoad) {
+      // Disparar validación del campo with_vin cuando cambian los valores
+      form.trigger("with_vin");
+    }
+  }, [withVinWatch, vehicleVnWatch, modelVnWatch, vehicleColorWatch, isInitialLoad, form]);
 
   // Effect para actualizar el precio cuando cambia el modelo (solo si no es carga inicial y es modo create)
   useEffect(() => {
@@ -577,496 +594,381 @@ export const PurchaseRequestQuoteForm = ({
 
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(handleFormSubmit)}
-        className="space-y-6 w-full"
-      >
-        {/*Seccion Información General*/}
-        <GroupFormSection
-          title="Información General"
-          icon={Building2}
-          iconColor="text-primary"
-          bgColor="bg-blue-50"
-          cols={{ sm: 2, md: 3 }}
-        >
-          <FormSelect
-            name="sede_id"
-            label="Sede"
-            placeholder="Selecciona una sede"
-            options={mySedes.map((item) => ({
-              label: item.abreviatura,
-              value: item.id.toString(),
-            }))}
-            control={form.control}
-            strictFilter={true}
-          />
-
-          <FormSelect
-            name="type_document"
-            label="Tipo de Documento"
-            placeholder="Selecciona el tipo"
-            options={typeDocOptions}
-            control={form.control}
-          />
-          <FormSelect
-            name="opportunity_id"
-            label="Oportunidad"
-            placeholder="Selecciona una oportunidad"
-            options={opportunities.map((item) => ({
-              label: item.client.full_name,
-              description: item.family.brand + " - " + item.family.description,
-              value: item.id.toString(),
-            }))}
-            control={form.control}
-            strictFilter={true}
-          />
-          <div className="relative">
-            <FormSelect
-              name="holder_id"
-              label="Titular"
-              placeholder="Selecciona un titular"
-              options={clients.map((item) => ({
-                label: item.full_name,
-                value: item.id.toString(),
-              }))}
-              control={form.control}
-              strictFilter={true}
-              disabled={copyClientToHolder}
-            />
-            <div className="flex items-center space-x-2 absolute top-0 right-0">
-              <Checkbox
-                id="copyClient"
-                checked={copyClientToHolder}
-                onCheckedChange={(checked) =>
-                  setCopyClientToHolder(checked as boolean)
-                }
+      <form onSubmit={form.handleSubmit(handleFormSubmit)} className="w-full">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Columna izquierda: Formulario (3 cols) */}
+          <div className="lg:col-span-2 space-y-6">
+            {/*Seccion Información General*/}
+            <GroupFormSection
+              title="Información General"
+              icon={Building2}
+              iconColor="text-primary"
+              bgColor="bg-blue-50"
+              cols={{ sm: 1, md: 2 }}
+            >
+              <FormSelect
+                name="sede_id"
+                label="Sede"
+                placeholder="Selecciona una sede"
+                options={mySedes.map((item) => ({
+                  label: item.abreviatura,
+                  value: item.id.toString(),
+                }))}
+                control={form.control}
+                strictFilter={true}
               />
-              <label
-                htmlFor="copyClient"
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-              >
-                Mismo que la Oportunidad
-              </label>
-            </div>
-          </div>
-        </GroupFormSection>
 
-        {/*Seccion Información de Vehiculo*/}
-        <GroupFormSection
-          title="Información del Vehículo"
-          icon={Building2}
-          iconColor="text-gray-500"
-          bgColor="bg-gray-50"
-          cols={{ sm: 2, md: 3 }}
-        >
-          {/* Switch para seleccionar Con VIN o Sin VIN */}
-          <FormField
-            control={form.control}
-            name="with_vin"
-            render={({ field }) => (
-              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                <div className="space-y-0.5">
-                  <FormLabel className="text-base">
-                    {field.value ? "Con VIN" : "Sin VIN"}
-                  </FormLabel>
+              <FormSelect
+                name="type_document"
+                label="Tipo de Documento"
+                placeholder="Selecciona el tipo"
+                options={typeDocOptions}
+                control={form.control}
+              />
+              <FormSelect
+                name="opportunity_id"
+                label="Oportunidad"
+                placeholder="Selecciona una oportunidad"
+                options={opportunities.map((item) => ({
+                  label: item.client.full_name,
+                  description:
+                    item.family.brand + " - " + item.family.description,
+                  value: item.id.toString(),
+                }))}
+                control={form.control}
+                strictFilter={true}
+              />
+              <div className="relative">
+                <FormSelect
+                  name="holder_id"
+                  label="Titular"
+                  placeholder="Selecciona un titular"
+                  options={clients.map((item) => ({
+                    label: item.full_name,
+                    value: item.id.toString(),
+                  }))}
+                  control={form.control}
+                  strictFilter={true}
+                  disabled={copyClientToHolder}
+                />
+                <div className="flex items-center space-x-2 absolute top-0 right-0">
+                  <Checkbox
+                    id="copyClient"
+                    checked={copyClientToHolder}
+                    onCheckedChange={(checked) =>
+                      setCopyClientToHolder(checked as boolean)
+                    }
+                  />
+                  <label
+                    htmlFor="copyClient"
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  >
+                    Mismo que la Oportunidad
+                  </label>
                 </div>
-                <FormControl>
-                  <Switch
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
+              </div>
+            </GroupFormSection>
 
-          {/* Mostrar campo de Vehículo VN cuando with_vin es true */}
-          {withVinWatch && (
-            <FormSelect
-              name="ap_vehicle_id"
-              label="Vehículo VN"
-              placeholder="Selecciona un vehículo"
-              options={vehiclesVn.map((item) => ({
-                label: item.vin + " | " + item.family,
-                value: item.id.toString(),
-              }))}
-              control={form.control}
-              strictFilter={true}
-              disabled={isLoadingVehiclesVn}
-            />
-          )}
-
-          {/* Mostrar campos de Modelo VN y Color cuando with_vin es false */}
-          {!withVinWatch && (
-            <>
-              <FormSelect
-                name="ap_models_vn_id"
-                label="Modelo VN"
-                placeholder="Selecciona un modelo"
-                options={modelsVn.map((item) => ({
-                  label: item.code + " - " + item.version,
-                  value: item.id.toString(),
-                }))}
+            {/*Seccion Información de Vehiculo*/}
+            <GroupFormSection
+              title="Información del Vehículo"
+              icon={Building2}
+              iconColor="text-gray-500"
+              bgColor="bg-gray-50"
+              cols={{ sm: 1, md: 2 }}
+            >
+              {/* Switch para seleccionar Con VIN o Sin VIN */}
+              <FormSwitch
                 control={form.control}
-                strictFilter={true}
-                disabled={isLoadingModelsVn}
+                name="with_vin"
+                label="Modo de Selección de Vehículo"
+                text={withVinWatch ? "Con VIN" : "Sin VIN"}
               />
 
-              <FormSelect
-                name="vehicle_color_id"
-                label="Color"
-                placeholder="Selecciona un color"
-                options={color.map((item) => ({
-                  label: item.description,
-                  value: item.id.toString(),
-                }))}
-                control={form.control}
-                strictFilter={true}
-                startsWith={true}
-                sortByLength={true}
-              />
-            </>
-          )}
+              {/* Mostrar campo de Vehículo VN cuando with_vin es true */}
+              {withVinWatch && (
+                <FormSelect
+                  name="ap_vehicle_id"
+                  label="Vehículo VN"
+                  placeholder="Selecciona un vehículo"
+                  options={vehiclesVn.map((item) => ({
+                    label: item.vin + " | " + item.family,
+                    value: item.id.toString(),
+                  }))}
+                  control={form.control}
+                  strictFilter={true}
+                  disabled={isLoadingVehiclesVn}
+                />
+              )}
 
-          <FormField
-            control={form.control}
-            name="sale_price"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="flex items-center gap-2 relative">
-                  Precio Venta
-                  <div className="absolute left-36 text-primary whitespace-nowrap bg-blue-50 px-2 rounded">
-                    {originalPrice > 0 && !withVinWatch && (
-                      <span className="text-xs text-primary bg-blue-50 px-1 rounded">
-                        Original: {currencySymbol}{" "}
-                        {originalPrice.toLocaleString("es-PE", {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        })}
-                      </span>
-                    )}
-                    {originalPrice === 0 && !withVinWatch && modelVnWatch && (
-                      <span className="text-xs text-orange-600 bg-orange-50 px-1 rounded">
-                        ⚠️ Modelo sin precio configurado
-                      </span>
-                    )}
-                  </div>
-                </FormLabel>
-                <FormControl>
-                  <Input
-                    type="text"
-                    placeholder="Ingrese precio de venta"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-
-                {/* Mostrar información adicional según el modo */}
-                {withVinWatch && vehicleVnWatch && (
-                  <div className="mt-2 space-y-1">
-                    {billedCost > 0 ? (
-                      <>
-                        <div className="text-xs text-gray-600 bg-gray-50 px-2 py-1 rounded">
-                          <span className="font-medium">Costo Facturado:</span>{" "}
-                          {currencySymbol}{" "}
-                          {billedCost.toLocaleString("es-PE", {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })}
-                        </div>
-                        {margin.amount !== 0 && (
-                          <div
-                            className={`text-xs px-2 py-1 rounded ${
-                              margin.amount > 0
-                                ? "text-green-700 bg-green-50"
-                                : "text-red-700 bg-red-50"
-                            }`}
-                          >
-                            <span className="font-medium">Margen:</span>{" "}
-                            {currencySymbol}{" "}
-                            {margin.amount.toLocaleString("es-PE", {
-                              minimumFractionDigits: 2,
-                              maximumFractionDigits: 2,
-                            })}{" "}
-                            ({margin.percentage > 0 ? "+" : ""}
-                            {margin.percentage.toFixed(2)}%)
-                          </div>
-                        )}
-                      </>
-                    ) : (
-                      <div className="text-xs text-orange-600 bg-orange-50 px-2 py-1 rounded">
-                        ⚠️ Este vehículo no tiene costo de compra registrado.
-                        Revisar el registro del vehículo.
-                      </div>
-                    )}
-                    {parseFloat(salePriceWatch || "0") === 0 && (
-                      <div className="text-xs text-red-600 bg-red-50 px-2 py-1 rounded font-medium">
-                        {!selectedModel ? (
-                          <>
-                            ⚠️ <strong>Precio de venta en 0:</strong> No se pudo
-                            cargar la información del modelo de este vehículo.
-                            Verifique que el vehículo pertenezca a la familia de
-                            la oportunidad seleccionada.
-                          </>
-                        ) : originalPrice === 0 ? (
-                          <>
-                            ⚠️ <strong>Precio de venta en 0:</strong> El modelo{" "}
-                            <strong>"{selectedModel.code}"</strong> (ID:{" "}
-                            {selectedModel.id}) de este vehículo no tiene precio
-                            de venta configurado. Ir a Configuraciones → Modelos
-                            VN para agregarlo.
-                          </>
-                        ) : (
-                          <>
-                            ⚠️ <strong>Precio de venta en 0:</strong> Se
-                            estableció manualmente, pero el modelo tiene
-                            configurado {currencySymbol}{" "}
-                            {originalPrice.toLocaleString("es-PE", {
-                              minimumFractionDigits: 2,
-                            })}
-                            . Verifique si esto es correcto.
-                          </>
-                        )}
-                      </div>
-                    )}
+              {/* Mostrar accesorios de la orden de compra cuando se selecciona un VIN */}
+              {withVinWatch &&
+                vehicleVnWatch &&
+                vehiclePurchaseOrderData?.purchase_order?.items && (
+                  <div className="col-span-full">
+                    <PurchaseOrderAccessoriesCard
+                      items={vehiclePurchaseOrderData.purchase_order.items}
+                      purchaseOrderNumber={
+                        vehiclePurchaseOrderData.purchase_order.number
+                      }
+                      currencySymbol={
+                        vehiclePurchaseOrderData.purchase_order.currency_code
+                      }
+                    />
                   </div>
                 )}
 
-                {/* Mostrar diagnóstico cuando NO hay VIN y el precio es 0 */}
-                {!withVinWatch &&
-                  modelVnWatch &&
-                  parseFloat(salePriceWatch || "0") === 0 && (
-                    <div className="mt-2">
-                      <div className="text-xs text-red-600 bg-red-50 px-2 py-1 rounded font-medium">
-                        {!selectedModel ? (
-                          <>
-                            ⚠️ <strong>Precio de venta en 0:</strong> No se pudo
-                            cargar la información del modelo seleccionado.
-                          </>
-                        ) : originalPrice === 0 ? (
-                          <>
-                            ⚠️ <strong>Precio de venta en 0:</strong> El modelo{" "}
-                            <strong>"{selectedModel.code}"</strong> (ID:{" "}
-                            {selectedModel.id}) no tiene precio de venta
-                            configurado. Ir a Configuraciones → Modelos VN para
-                            agregarlo.
-                          </>
-                        ) : (
-                          <>
-                            ⚠️ <strong>Precio de venta en 0:</strong> Se
-                            estableció manualmente, pero el modelo tiene
-                            configurado {currencySymbol}{" "}
+              {/* Mostrar campos de Modelo VN y Color cuando with_vin es false */}
+              {!withVinWatch && (
+                <>
+                  <FormSelect
+                    name="ap_models_vn_id"
+                    label="Modelo VN"
+                    placeholder="Selecciona un modelo"
+                    options={modelsVn.map((item) => ({
+                      label: item.code + " - " + item.version,
+                      value: item.id.toString(),
+                    }))}
+                    control={form.control}
+                    strictFilter={true}
+                    disabled={isLoadingModelsVn}
+                  />
+
+                  <FormSelect
+                    name="vehicle_color_id"
+                    label="Color"
+                    placeholder="Selecciona un color"
+                    options={color.map((item) => ({
+                      label: item.description,
+                      value: item.id.toString(),
+                    }))}
+                    control={form.control}
+                    strictFilter={true}
+                    startsWith={true}
+                    sortByLength={true}
+                  />
+                </>
+              )}
+
+              <FormField
+                control={form.control}
+                name="sale_price"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center gap-2 relative">
+                      Precio Venta
+                      <div className="absolute left-36 text-primary whitespace-nowrap bg-blue-50 px-2 rounded">
+                        {originalPrice > 0 && !withVinWatch && (
+                          <span className="text-xs text-primary bg-blue-50 px-1 rounded">
+                            Original: {currencySymbol}{" "}
                             {originalPrice.toLocaleString("es-PE", {
                               minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
                             })}
-                            . Verifique si esto es correcto.
+                          </span>
+                        )}
+                        {originalPrice === 0 &&
+                          !withVinWatch &&
+                          modelVnWatch && (
+                            <span className="text-xs text-orange-600 bg-orange-50 px-1 rounded">
+                              ⚠️ Modelo sin precio configurado
+                            </span>
+                          )}
+                      </div>
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        type="text"
+                        placeholder="Ingrese precio de venta"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+
+                    {/* Mostrar información adicional según el modo */}
+                    {withVinWatch && vehicleVnWatch && (
+                      <div className="mt-2 space-y-1">
+                        {billedCost > 0 ? (
+                          <>
+                            <div className="text-xs text-gray-600 bg-gray-50 px-2 py-1 rounded">
+                              <span className="font-medium">
+                                Costo Facturado:
+                              </span>{" "}
+                              {currencySymbol}{" "}
+                              {billedCost.toLocaleString("es-PE", {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2,
+                              })}
+                            </div>
+                            {margin.amount !== 0 && (
+                              <div
+                                className={`text-xs px-2 py-1 rounded ${
+                                  margin.amount > 0
+                                    ? "text-green-700 bg-green-50"
+                                    : "text-red-700 bg-red-50"
+                                }`}
+                              >
+                                <span className="font-medium">Margen:</span>{" "}
+                                {currencySymbol}{" "}
+                                {margin.amount.toLocaleString("es-PE", {
+                                  minimumFractionDigits: 2,
+                                  maximumFractionDigits: 2,
+                                })}{" "}
+                                ({margin.percentage > 0 ? "+" : ""}
+                                {margin.percentage.toFixed(2)}%)
+                              </div>
+                            )}
                           </>
+                        ) : (
+                          <div className="text-xs text-orange-600 bg-orange-50 px-2 py-1 rounded">
+                            ⚠️ Este vehículo no tiene costo de compra
+                            registrado. Revisar el registro del vehículo.
+                          </div>
+                        )}
+                        {parseFloat(salePriceWatch || "0") === 0 && (
+                          <div className="text-xs text-red-600 bg-red-50 px-2 py-1 rounded font-medium">
+                            {!selectedModel ? (
+                              <>
+                                ⚠️ <strong>Precio de venta en 0:</strong> No se
+                                pudo cargar la información del modelo de este
+                                vehículo. Verifique que el vehículo pertenezca a
+                                la familia de la oportunidad seleccionada.
+                              </>
+                            ) : originalPrice === 0 ? (
+                              <>
+                                ⚠️ <strong>Precio de venta en 0:</strong> El
+                                modelo <strong>"{selectedModel.code}"</strong>{" "}
+                                (ID: {selectedModel.id}) de este vehículo no
+                                tiene precio de venta configurado. Ir a
+                                Configuraciones → Modelos VN para agregarlo.
+                              </>
+                            ) : (
+                              <>
+                                ⚠️ <strong>Precio de venta en 0:</strong> Se
+                                estableció manualmente, pero el modelo tiene
+                                configurado {currencySymbol}{" "}
+                                {originalPrice.toLocaleString("es-PE", {
+                                  minimumFractionDigits: 2,
+                                })}
+                                . Verifique si esto es correcto.
+                              </>
+                            )}
+                          </div>
                         )}
                       </div>
-                    </div>
-                  )}
-              </FormItem>
-            )}
-          />
+                    )}
 
-          <FormField
-            control={form.control}
-            name="warranty"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Garantía</FormLabel>
-                <FormControl>
-                  <Input placeholder="3 años o 100.000km" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </GroupFormSection>
-
-        {/*Seccion de Bonos y Descuentos*/}
-        <GroupFormSection
-          title="Bonos / Descuentos"
-          icon={Gift}
-          iconColor="text-primary"
-          bgColor="bg-blue-50"
-          cols={{ sm: 1 }}
-        >
-          <BonusDiscountTable
-            conceptsOptions={conceptDiscountBond}
-            costoReferencia={parseFloat(salePriceWatch || "0")}
-            currencySymbol={currencySymbol}
-            onRowsChange={setBonusDiscountRows}
-            initialData={initialBonusDiscounts}
-          />
-        </GroupFormSection>
-
-        {/*Seccion Accesorios Homologados*/}
-        <GroupFormSection
-          title="Accesorios Homologados / Obsequios"
-          icon={PackagePlus}
-          iconColor="text-gray-500"
-          bgColor="bg-gray-50"
-          cols={{ sm: 1 }}
-        >
-          <ApprovedAccessoriesTable
-            accessories={approvedAccesories}
-            onAccessoriesChange={setAccessoriesRows}
-            initialData={initialAccessories}
-          />
-        </GroupFormSection>
-
-        {/*Seccion Resumen de Facturación*/}
-        <GroupFormSection
-          title="Resumen de Facturación"
-          icon={Calculator}
-          iconColor="text-green-700"
-          bgColor="bg-green-50"
-          cols={{ sm: 2, md: 3 }}
-        >
-          <div className="col-span-full grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-white rounded-lg border">
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Precio de Venta:</span>
-                <span className="font-medium">
-                  {vehicleCurrency.symbol}{" "}
-                  {totals.salePrice.toLocaleString("es-PE", {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })}
-                </span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-600">
-                  Bonos/Descuentos (no afecta):
-                </span>
-                <span className="font-medium text-gray-400">
-                  {vehicleCurrency.symbol}{" "}
-                  {totals.bonusDiscountTotal.toLocaleString("es-PE", {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })}
-                </span>
-              </div>
-              {totals.negativeDiscounts > 0 && (
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Descuentos:</span>
-                  <span className="font-medium text-red-600">
-                    - {vehicleCurrency.symbol}{" "}
-                    {totals.negativeDiscounts.toLocaleString("es-PE", {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    })}
-                  </span>
-                </div>
-              )}
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Accesorios:</span>
-                <span className="font-medium text-primary">
-                  + {vehicleCurrency.symbol}{" "}
-                  {totals.accessoriesTotal.toLocaleString("es-PE", {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })}
-                </span>
-              </div>
-              <div className="pt-2 border-t">
-                <div className="flex justify-between font-semibold">
-                  <span>Subtotal:</span>
-                  <span>
-                    {vehicleCurrency.symbol}{" "}
-                    {totals.subtotal.toLocaleString("es-PE", {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    })}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              <FormSelect
-                name="doc_type_currency_id"
-                label="Moneda de Facturación"
-                placeholder="Selecciona la moneda"
-                options={currencyTypes.map((item) => ({
-                  label: `${item.name} (${item.symbol})`,
-                  value: item.id.toString(),
-                }))}
-                control={form.control}
-                strictFilter={true}
+                    {/* Mostrar diagnóstico cuando NO hay VIN y el precio es 0 */}
+                    {!withVinWatch &&
+                      modelVnWatch &&
+                      parseFloat(salePriceWatch || "0") === 0 && (
+                        <div className="mt-2">
+                          <div className="text-xs text-red-600 bg-red-50 px-2 py-1 rounded font-medium">
+                            {!selectedModel ? (
+                              <>
+                                ⚠️ <strong>Precio de venta en 0:</strong> No se
+                                pudo cargar la información del modelo
+                                seleccionado.
+                              </>
+                            ) : originalPrice === 0 ? (
+                              <>
+                                ⚠️ <strong>Precio de venta en 0:</strong> El
+                                modelo <strong>"{selectedModel.code}"</strong>{" "}
+                                (ID: {selectedModel.id}) no tiene precio de
+                                venta configurado. Ir a Configuraciones →
+                                Modelos VN para agregarlo.
+                              </>
+                            ) : (
+                              <>
+                                ⚠️ <strong>Precio de venta en 0:</strong> Se
+                                estableció manualmente, pero el modelo tiene
+                                configurado {currencySymbol}{" "}
+                                {originalPrice.toLocaleString("es-PE", {
+                                  minimumFractionDigits: 2,
+                                })}
+                                . Verifique si esto es correcto.
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                  </FormItem>
+                )}
               />
-              <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm font-medium text-primary">
-                    Total a Facturar:
-                  </span>
-                  <span className="text-lg font-bold text-primary">
-                    {selectedInvoiceCurrency?.symbol || vehicleCurrency.symbol}{" "}
-                    {finalTotal.toLocaleString("es-PE", {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    })}
-                  </span>
-                </div>
-                {invoiceCurrencyId &&
-                  Number(invoiceCurrencyId) !== vehicleCurrency.currencyId && (
-                    <p className="text-xs text-primary mt-1">
-                      T.C.:{" "}
-                      {Number(
-                        getExchangeRate(Number(invoiceCurrencyId))
-                      ).toFixed(3)}
-                    </p>
-                  )}
-              </div>
-            </div>
+
+              <FormField
+                control={form.control}
+                name="warranty"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Garantía</FormLabel>
+                    <FormControl>
+                      <Input placeholder="3 años o 100.000km" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </GroupFormSection>
+
+            {/*Seccion de Bonos y Descuentos*/}
+            <GroupFormSection
+              title="Bonos / Descuentos"
+              icon={Gift}
+              iconColor="text-primary"
+              bgColor="bg-blue-50"
+              cols={{ sm: 1 }}
+            >
+              <BonusDiscountTable
+                conceptsOptions={conceptDiscountBond}
+                costoReferencia={parseFloat(salePriceWatch || "0")}
+                currencySymbol={currencySymbol}
+                onRowsChange={setBonusDiscountRows}
+                initialData={initialBonusDiscounts}
+              />
+            </GroupFormSection>
+
+            {/*Seccion Accesorios Homologados*/}
+            <GroupFormSection
+              title="Accesorios Homologados / Obsequios"
+              icon={PackagePlus}
+              iconColor="text-gray-500"
+              bgColor="bg-gray-50"
+              cols={{ sm: 1 }}
+            >
+              <ApprovedAccessoriesTable
+                accessories={approvedAccesories}
+                onAccessoriesChange={setAccessoriesRows}
+                initialData={initialAccessories}
+              />
+            </GroupFormSection>
           </div>
 
-          <div className="col-span-full mt-4">
-            <FormField
-              control={form.control}
-              name="comment"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Comentarios/Notas (Opcional)</FormLabel>
-                  <FormControl>
-                    <textarea
-                      placeholder="Agregue cualquier comentario o nota adicional sobre esta cotización/solicitud..."
-                      className="flex min-h-20 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-        </GroupFormSection>
-
-        <div className="flex gap-4 w-full justify-end">
-          <ConfirmationDialog
-            trigger={
-              <Button type="button" variant="outline">
-                Cancelar
-              </Button>
-            }
-            title="¿Cancelar registro?"
-            variant="destructive"
-            icon="warning"
-            onConfirm={() => {
-              router(ABSOLUTE_ROUTE);
-            }}
+          {/* Columna derecha: Resumen - sticky */}
+          <PurchaseRequestQuoteSummary
+            form={form}
+            mode={mode}
+            isSubmitting={isSubmitting}
+            clients={clients}
+            modelsVn={modelsVn}
+            vehiclesVn={vehiclesVn}
+            currencyTypes={currencyTypes}
+            vehicleColors={color}
+            withVinWatch={withVinWatch}
+            vehicleVnWatch={vehicleVnWatch}
+            modelVnWatch={modelVnWatch}
+            vehicleColorWatch={vehicleColorWatch}
+            holderWatch={holderWatch}
+            selectedModel={selectedModel}
+            vehicleCurrency={vehicleCurrency}
+            totals={totals}
+            finalTotal={finalTotal}
+            invoiceCurrencyId={invoiceCurrencyId}
+            selectedInvoiceCurrency={selectedInvoiceCurrency}
+            getExchangeRate={getExchangeRate}
+            onCancel={() => router(ABSOLUTE_ROUTE)}
+            onSubmit={handleFormSubmit}
           />
-
-          <Button
-            type="submit"
-            disabled={isSubmitting || !form.formState.isValid}
-          >
-            <Loader
-              className={`mr-2 h-4 w-4 ${!isSubmitting ? "hidden" : ""}`}
-            />
-            {isSubmitting ? "Guardando" : "Guardar Solicitud / Cotización"}
-          </Button>
         </div>
       </form>
     </Form>

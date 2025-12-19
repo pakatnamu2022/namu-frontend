@@ -1,12 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { VEHICLES } from "./vehicles.constants";
-import { VehicleResource, VehicleResourceWithCosts, VehicleResponse, VehicleClientDebtInfo } from "./vehicles.interface";
+import { VehicleResource, VehicleResourceWithCosts, VehicleResponse, VehicleClientDebtInfo, VehiclePurchaseOrderData } from "./vehicles.interface";
 import {
   findVehicleById,
   getAllVehicles,
   getAllVehiclesWithCosts,
   getVehicles,
   getVehicleClientDebtInfo,
+  getVehiclePurchaseOrder,
 } from "./vehicles.actions";
 
 const { QUERY_KEY } = VEHICLES;
@@ -47,6 +48,15 @@ export const useVehicleClientDebtInfo = (vehicleId: number | null) => {
   return useQuery<VehicleClientDebtInfo>({
     queryKey: [QUERY_KEY, "client-debt-info", vehicleId],
     queryFn: () => getVehicleClientDebtInfo(vehicleId!),
+    enabled: !!vehicleId,
+    refetchOnWindowFocus: false,
+  });
+};
+
+export const useVehiclePurchaseOrder = (vehicleId: number | null) => {
+  return useQuery<VehiclePurchaseOrderData>({
+    queryKey: [QUERY_KEY, "purchase-order", vehicleId],
+    queryFn: () => getVehiclePurchaseOrder(vehicleId!),
     enabled: !!vehicleId,
     refetchOnWindowFocus: false,
   });

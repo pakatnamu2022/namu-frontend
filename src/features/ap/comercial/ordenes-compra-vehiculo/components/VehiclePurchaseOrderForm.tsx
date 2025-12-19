@@ -8,7 +8,6 @@ import {
 import { useForm, useFieldArray, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
-import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/shared/components/DataTable";
 import { usePurchaseOrderItemsColumns } from "./PurchaseOrderItemsColumns";
@@ -44,6 +43,8 @@ import { UNIT_MEASUREMENT_ID } from "../../../configuraciones/maestros-general/u
 import { VEHICLE_PURCHASE_ORDER } from "../lib/vehiclePurchaseOrder.constants";
 import { FormInput } from "@/shared/components/FormInput";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
+import { useNavigate } from "react-router-dom";
 
 interface VehiclePurchaseOrderFormProps {
   defaultValues: Partial<VehiclePurchaseOrderSchema>;
@@ -61,6 +62,7 @@ export const VehiclePurchaseOrderForm = ({
   isVehiclePurchase = true, // Por defecto es compra de vehículo
 }: VehiclePurchaseOrderFormProps) => {
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
   const { ABSOLUTE_ROUTE } = VEHICLE_PURCHASE_ORDER;
   const queryClient = useQueryClient();
   const [isColorModalOpen, setIsColorModalOpen] = useState(false);
@@ -553,7 +555,7 @@ export const VehiclePurchaseOrderForm = ({
               <FormInput
                 control={form.control}
                 name="vehicle_unit_price"
-                label="Precio Unitario Vehículo"
+                label="Precio Unitario Vehículo (Sin IGV)"
                 placeholder="Ej: 25000.00"
                 min={0}
                 step="0.01"
@@ -911,32 +913,66 @@ export const VehiclePurchaseOrderForm = ({
           )}
 
           <div className="flex gap-4">
-            <Link to={ABSOLUTE_ROUTE}>
-              <Button type="button" variant="outline">
-                Cancelar
-              </Button>
-            </Link>
+            <ConfirmationDialog
+              trigger={
+                <Button type="button" variant="outline">
+                  Cancelar
+                </Button>
+              }
+              title="¿Cancelar registro?"
+              description="Se perderán todos los datos ingresados en el formulario. ¿Estás seguro de que deseas cancelar?"
+              confirmText="Sí, cancelar"
+              cancelText="No, continuar"
+              variant="destructive"
+              icon="warning"
+              onConfirm={() => navigate(ABSOLUTE_ROUTE)}
+            />
 
-            <Button
-              type="submit"
-              disabled={
+            <ConfirmationDialog
+              trigger={
+                <Button
+                  type="button"
+                  disabled={
+                    isSubmitting ||
+                    !form.formState.isValid ||
+                    (mode === "resend" && !hasChanges) ||
+                    subtotalDifference > 1
+                  }
+                >
+                  <Loader
+                    className={`mr-2 h-4 w-4 ${!isSubmitting ? "hidden" : ""}`}
+                  />
+                  {isSubmitting
+                    ? mode === "resend"
+                      ? "Actualizando..."
+                      : "Guardando..."
+                    : mode === "resend"
+                    ? "Reenviar Orden de Compra"
+                    : "Guardar Orden de Compra"}
+                </Button>
+              }
+              title={
+                mode === "resend"
+                  ? "¿Reenviar orden de compra?"
+                  : "¿Guardar orden de compra?"
+              }
+              description={
+                mode === "resend"
+                  ? "Se actualizarán los datos de la orden de compra en el sistema. ¿Deseas continuar?"
+                  : "Se creará una nueva orden de compra con los datos ingresados. ¿Deseas continuar?"
+              }
+              confirmText={mode === "resend" ? "Sí, reenviar" : "Sí, guardar"}
+              cancelText="Cancelar"
+              variant="default"
+              icon="info"
+              onConfirm={() => form.handleSubmit(onSubmit)()}
+              confirmDisabled={
                 isSubmitting ||
                 !form.formState.isValid ||
                 (mode === "resend" && !hasChanges) ||
                 subtotalDifference > 1
               }
-            >
-              <Loader
-                className={`mr-2 h-4 w-4 ${!isSubmitting ? "hidden" : ""}`}
-              />
-              {isSubmitting
-                ? mode === "resend"
-                  ? "Actualizando..."
-                  : "Guardando..."
-                : mode === "resend"
-                ? "Reenviar Orden de Compra"
-                : "Guardar Orden de Compra"}
-            </Button>
+            />
           </div>
         </div>
       </form>
