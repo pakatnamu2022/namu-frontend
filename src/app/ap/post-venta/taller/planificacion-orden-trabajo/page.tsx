@@ -50,7 +50,12 @@ export default function PlanningPage() {
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
   const [workerId, setWorkerId] = useState<string>("");
-  const [sedeId, setSedeId] = useState<string>("");
+
+  // Estado persistente para sede
+  const [sedeId, setSedeId] = useState<string>(() => {
+    const stored = localStorage.getItem("planningPage_selectedSedeId");
+    return stored || "";
+  });
 
   const { ROUTE } = WORK_ORDER_PLANNING;
 
@@ -72,6 +77,7 @@ export default function PlanningPage() {
     search,
     per_page,
     worker_id: workerId,
+    ...(sedeId && { sede_id: sedeId }),
   });
 
   const handleViewPlanning = (planning: WorkOrderPlanningResource) => {
@@ -85,6 +91,11 @@ export default function PlanningPage() {
 
   const handleOpenCreatePlanning = () => {
     navigate("/ap/post-venta/taller/planificacion-orden-trabajo/agregar");
+  };
+
+  const handleSedeChange = (value: string) => {
+    setSedeId(value);
+    localStorage.setItem("planningPage_selectedSedeId", value);
   };
 
   if (isLoadingModule || isLoadingMySedes) return <PageSkeleton />;
@@ -108,7 +119,7 @@ export default function PlanningPage() {
               label: item.abreviatura,
             }))}
             value={sedeId}
-            onChange={setSedeId}
+            onChange={handleSedeChange}
             placeholder="Filtrar por sede"
             className="min-w-72"
             classNameOption="text-xs"

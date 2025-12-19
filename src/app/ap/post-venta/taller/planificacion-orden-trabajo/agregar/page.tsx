@@ -35,6 +35,7 @@ export default function CreatePlanningPage() {
     hours: number;
   } | null>(null);
   const [showMiniForm, setShowMiniForm] = useState(false);
+  const selectedSedeId = localStorage.getItem("planningPage_selectedSedeId");
 
   const { ROUTE } = WORK_ORDER_PLANNING;
   const { data, refetch } = useGetWorkOrderPlanning();
@@ -131,6 +132,7 @@ export default function CreatePlanningPage() {
             onTimeSelect={handleTimeSelect}
             onEstimatedHoursChange={setEstimatedHours}
             fullPage={true}
+            sedeId={selectedSedeId || undefined}
           />
         </div>
 

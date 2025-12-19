@@ -32,12 +32,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
+import { ExceptionalCaseSheet } from "./ExceptionalCaseSheet";
 import { useAllWorkers } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
 import {
   POSITION_TYPE,
   STATUS_WORKER,
 } from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.constant";
 import { EMPRESA_AP } from "@/core/core.constants";
+import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
+import { Building2 } from "lucide-react";
 
 interface WorkerTimelineProps {
   open?: boolean;
@@ -74,6 +77,15 @@ export function WorkerTimeline({
     time: Date;
     workerId: number;
   } | null>(null);
+  const [isExceptionalCaseOpen, setIsExceptionalCaseOpen] = useState(false);
+
+  // Obtener sedes disponibles
+  const { data: mySedes = [] } = useMySedes({
+    company: EMPRESA_AP.id,
+  });
+
+  // Encontrar el nombre de la sede seleccionada
+  const selectedSede = mySedes.find((s) => s.id.toString() === sedeId);
 
   // Horarios en minutos desde medianoche
   const MORNING_START = 480; // 8:00
@@ -85,9 +97,8 @@ export function WorkerTimeline({
   const { data: workers = [] } = useAllWorkers({
     cargo_id: POSITION_TYPE.OPERATORS,
     status_id: STATUS_WORKER.ACTIVE,
-    ...(sedeId
-      ? { sede_id: Number(sedeId) }
-      : { sede$empresa_id: EMPRESA_AP.id }),
+    sede_id: sedeId,
+    sede$empresa_id: EMPRESA_AP.id,
   });
 
   const dayPlannings = data.filter((planning) => {
@@ -294,6 +305,27 @@ export function WorkerTimeline({
 
   const timelineContent = (
     <div className="space-y-6">
+      {/* Sede y Botón Caso Excepcional */}
+      <div className="flex justify-between items-center gap-4">
+        {selectedSede && (
+          <Badge
+            variant="outline"
+            className="flex items-center gap-2 px-3 py-1"
+          >
+            <Building2 className="h-4 w-4" />
+            <span className="font-medium">{selectedSede.description}</span>
+          </Badge>
+        )}
+        <Button
+          variant="outline"
+          onClick={() => setIsExceptionalCaseOpen(true)}
+          className="gap-2 ml-auto"
+        >
+          <Clock className="h-4 w-4" />
+          Caso Excepcional
+        </Button>
+      </div>
+
       {selectionMode && onEstimatedHoursChange && (
         <div className="flex items-center gap-4 p-4 bg-slate-50 border border-slate-200 rounded-lg">
           <Label
@@ -631,40 +663,55 @@ export function WorkerTimeline({
     </div>
   );
 
-  if (fullPage) {
-    return (
-      <div className="space-y-6">
-        <div className="flex items-center gap-2">
-          <h2 className="text-2xl font-bold">
-            {selectionMode ? "Seleccionar Horario" : "Línea de Tiempo"} -{" "}
-            {format(selectedDate, "EEEE, d 'de' MMMM 'de' yyyy", {
-              locale: es,
-            })}
-          </h2>
+  const renderTimeline = () => {
+    if (fullPage) {
+      return (
+        <div className="space-y-6">
+          <div className="flex items-center gap-2">
+            <h2 className="text-2xl font-bold">
+              {selectionMode ? "Seleccionar Horario" : "Línea de Tiempo"} -{" "}
+              {format(selectedDate, "EEEE, d 'de' MMMM 'de' yyyy", {
+                locale: es,
+              })}
+            </h2>
+          </div>
+          {timelineContent}
         </div>
-        {timelineContent}
-      </div>
+      );
+    }
+
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="max-w-[95vw] max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              {selectionMode ? (
+                <MousePointerClick className="h-5 w-5" />
+              ) : (
+                <Clock className="h-5 w-5" />
+              )}
+              {selectionMode ? "Seleccionar Horario" : "Línea de Tiempo"} -{" "}
+              {format(selectedDate, "EEEE, d 'de' MMMM 'de' yyyy", {
+                locale: es,
+              })}
+            </DialogTitle>
+          </DialogHeader>
+          {timelineContent}
+        </DialogContent>
+      </Dialog>
     );
-  }
+  };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[95vw] max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            {selectionMode ? (
-              <MousePointerClick className="h-5 w-5" />
-            ) : (
-              <Clock className="h-5 w-5" />
-            )}
-            {selectionMode ? "Seleccionar Horario" : "Línea de Tiempo"} -{" "}
-            {format(selectedDate, "EEEE, d 'de' MMMM 'de' yyyy", {
-              locale: es,
-            })}
-          </DialogTitle>
-        </DialogHeader>
-        {timelineContent}
-      </DialogContent>
-    </Dialog>
+    <>
+      {renderTimeline()}
+
+      {/* Sheet para Caso Excepcional */}
+      <ExceptionalCaseSheet
+        open={isExceptionalCaseOpen}
+        onOpenChange={setIsExceptionalCaseOpen}
+        sedeId={sedeId}
+      />
+    </>
   );
 }
