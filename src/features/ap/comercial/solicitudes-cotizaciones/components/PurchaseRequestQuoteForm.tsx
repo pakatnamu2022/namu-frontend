@@ -631,6 +631,7 @@ export const PurchaseRequestQuoteForm = ({
               }))}
               control={form.control}
               strictFilter={true}
+              disabled={copyClientToHolder}
             />
             <div className="flex items-center space-x-2 absolute top-0 right-0">
               <Checkbox
@@ -644,7 +645,7 @@ export const PurchaseRequestQuoteForm = ({
                 htmlFor="copyClient"
                 className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
               >
-                Es cliente
+                Mismo que la Oportunidad
               </label>
             </div>
           </div>
@@ -802,15 +803,18 @@ export const PurchaseRequestQuoteForm = ({
                       <div className="text-xs text-red-600 bg-red-50 px-2 py-1 rounded font-medium">
                         {!selectedModel ? (
                           <>
-                            ⚠️ <strong>Precio de venta en 0:</strong> No se pudo cargar la información del modelo de este vehículo. Verifique que el vehículo pertenezca a la familia de la oportunidad seleccionada.
+                            ⚠️ <strong>Precio de venta en 0:</strong> No se pudo
+                            cargar la información del modelo de este vehículo.
+                            Verifique que el vehículo pertenezca a la familia de
+                            la oportunidad seleccionada.
                           </>
                         ) : originalPrice === 0 ? (
                           <>
                             ⚠️ <strong>Precio de venta en 0:</strong> El modelo{" "}
-                            <strong>"{selectedModel.code}"</strong>{" "}
-                            (ID: {selectedModel.id}) de este vehículo no tiene
-                            precio de venta configurado. Ir a Configuraciones →
-                            Modelos VN para agregarlo.
+                            <strong>"{selectedModel.code}"</strong> (ID:{" "}
+                            {selectedModel.id}) de este vehículo no tiene precio
+                            de venta configurado. Ir a Configuraciones → Modelos
+                            VN para agregarlo.
                           </>
                         ) : (
                           <>
@@ -829,33 +833,38 @@ export const PurchaseRequestQuoteForm = ({
                 )}
 
                 {/* Mostrar diagnóstico cuando NO hay VIN y el precio es 0 */}
-                {!withVinWatch && modelVnWatch && parseFloat(salePriceWatch || "0") === 0 && (
-                  <div className="mt-2">
-                    <div className="text-xs text-red-600 bg-red-50 px-2 py-1 rounded font-medium">
-                      {!selectedModel ? (
-                        <>
-                          ⚠️ <strong>Precio de venta en 0:</strong> No se pudo cargar la información del modelo seleccionado.
-                        </>
-                      ) : originalPrice === 0 ? (
-                        <>
-                          ⚠️ <strong>Precio de venta en 0:</strong> El modelo{" "}
-                          <strong>"{selectedModel.code}"</strong>{" "}
-                          (ID: {selectedModel.id}) no tiene precio de venta configurado.
-                          Ir a Configuraciones → Modelos VN para agregarlo.
-                        </>
-                      ) : (
-                        <>
-                          ⚠️ <strong>Precio de venta en 0:</strong> Se estableció manualmente,
-                          pero el modelo tiene configurado {currencySymbol}{" "}
-                          {originalPrice.toLocaleString("es-PE", {
-                            minimumFractionDigits: 2,
-                          })}
-                          . Verifique si esto es correcto.
-                        </>
-                      )}
+                {!withVinWatch &&
+                  modelVnWatch &&
+                  parseFloat(salePriceWatch || "0") === 0 && (
+                    <div className="mt-2">
+                      <div className="text-xs text-red-600 bg-red-50 px-2 py-1 rounded font-medium">
+                        {!selectedModel ? (
+                          <>
+                            ⚠️ <strong>Precio de venta en 0:</strong> No se pudo
+                            cargar la información del modelo seleccionado.
+                          </>
+                        ) : originalPrice === 0 ? (
+                          <>
+                            ⚠️ <strong>Precio de venta en 0:</strong> El modelo{" "}
+                            <strong>"{selectedModel.code}"</strong> (ID:{" "}
+                            {selectedModel.id}) no tiene precio de venta
+                            configurado. Ir a Configuraciones → Modelos VN para
+                            agregarlo.
+                          </>
+                        ) : (
+                          <>
+                            ⚠️ <strong>Precio de venta en 0:</strong> Se
+                            estableció manualmente, pero el modelo tiene
+                            configurado {currencySymbol}{" "}
+                            {originalPrice.toLocaleString("es-PE", {
+                              minimumFractionDigits: 2,
+                            })}
+                            . Verifique si esto es correcto.
+                          </>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
               </FormItem>
             )}
           />
