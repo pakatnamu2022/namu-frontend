@@ -1,7 +1,7 @@
 "use client";
 
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import PageSkeleton from "@/shared/components/PageSkeleton";
 import TitleComponent from "@/shared/components/TitleComponent";
@@ -22,7 +22,6 @@ import { DashboardStats } from "@/features/ap/post-venta/taller/planificacion-or
 import { WorkerPerformanceChart } from "@/features/ap/post-venta/taller/planificacion-orden-trabajo/components/WorkerPerformanceChart";
 import { StatusDistributionChart } from "@/features/ap/post-venta/taller/planificacion-orden-trabajo/components/StatusDistributionChart";
 import { PlanningCalendar } from "@/features/ap/post-venta/taller/planificacion-orden-trabajo/components/PlanningCalendar";
-import { PlanningTable } from "@/features/ap/post-venta/taller/planificacion-orden-trabajo/components/PlanningTable";
 import { planningColumns } from "@/features/ap/post-venta/taller/planificacion-orden-trabajo/components/PlanningColumns";
 import { PlanningForm } from "@/features/ap/post-venta/taller/planificacion-orden-trabajo/components/PlanningForm";
 import { PlanningDetail } from "@/features/ap/post-venta/taller/planificacion-orden-trabajo/components/PlanningDetail";
@@ -34,6 +33,15 @@ import { successToast } from "@/core/core.function";
 import { Card } from "@/components/ui/card";
 import GeneralSheet from "@/shared/components/GeneralSheet";
 import { useIsTablet } from "@/hooks/use-mobile";
+import PlanningTable from "@/features/ap/post-venta/taller/planificacion-orden-trabajo/components/PlanningTable";
+import DataTablePagination from "@/shared/components/DataTablePagination";
+import { DEFAULT_PER_PAGE, EMPRESA_AP } from "@/core/core.constants";
+import { useAllWorkers } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
+import {
+  POSITION_TYPE,
+  STATUS_WORKER,
+} from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.constant";
+import PlanningOptions from "@/features/ap/post-venta/taller/planificacion-orden-trabajo/components/PlanningOptions";
 
 export default function PlanningPage() {
   const isTablet = useIsTablet();
@@ -44,9 +52,33 @@ export default function PlanningPage() {
     useState<WorkOrderPlanningResource | null>(null);
   const [openDetailDialog, setOpenDetailDialog] = useState(false);
 
+  // Estados para paginación y filtros
+  const [page, setPage] = useState(1);
+  const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
+  const [search, setSearch] = useState("");
+  const [workerId, setWorkerId] = useState<string>("");
+
   const { ROUTE } = WORK_ORDER_PLANNING;
 
-  const { data, isLoading, refetch } = useGetWorkOrderPlanning();
+  // Reiniciar página cuando cambian los filtros
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setPage(1);
+  }, [search, per_page, workerId]);
+
+  // Obtener trabajadores para el filtro
+  const { data: workers = [], isLoading: isLoadingWorkers } = useAllWorkers({
+    cargo_id: POSITION_TYPE.OPERATORS,
+    status_id: STATUS_WORKER.ACTIVE,
+    sede$empresa_id: EMPRESA_AP.id,
+  });
+
+  const { data, isLoading, refetch } = useGetWorkOrderPlanning({
+    page,
+    search,
+    per_page,
+    worker_id: workerId,
+  });
   const createMutation = useCreateWorkOrderPlanning();
 
   const handleCreatePlanning = async (
@@ -165,9 +197,25 @@ export default function PlanningPage() {
             <PlanningTable
               columns={planningColumns({ onView: handleViewPlanning })}
               data={plannings}
-              isLoading={isLoading}
-            />
+              isLoading={isLoading || isLoadingWorkers}
+            >
+              <PlanningOptions
+                search={search}
+                setSearch={setSearch}
+                workers={workers}
+                workerId={workerId}
+                setWorkerId={setWorkerId}
+              />
+            </PlanningTable>
           </Card>
+          <DataTablePagination
+            page={page}
+            totalPages={data?.meta?.last_page || 1}
+            onPageChange={setPage}
+            per_page={per_page}
+            setPerPage={setPerPage}
+            totalData={data?.meta?.total || 0}
+          />
         </TabsContent>
       </Tabs>
 

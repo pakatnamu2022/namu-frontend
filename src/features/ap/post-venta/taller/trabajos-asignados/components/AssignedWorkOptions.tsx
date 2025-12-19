@@ -23,7 +23,7 @@ export default function AssignedWorkOptions({
       <SearchInput
         value={search}
         onChange={setSearch}
-        placeholder="Buscar familias..."
+        placeholder="Buscar correlativo..."
       />
       <SearchableSelect
         options={workers.map((item) => ({

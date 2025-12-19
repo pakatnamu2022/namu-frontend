@@ -5,7 +5,6 @@ import { Badge } from "@/components/ui/badge";
 import {
   WorkOrderPlanningResource,
   PLANNING_STATUS_LABELS,
-  PLANNING_STATUS_COLORS,
 } from "../lib/workOrderPlanning.interface";
 import { format, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
@@ -56,24 +55,8 @@ export const planningColumns = ({
     ),
   },
   {
-    accessorKey: "status",
-    header: "Estado",
-    cell: ({ row }) => {
-      const status = row.original.status;
-      const colors = PLANNING_STATUS_COLORS[status];
-      return (
-        <Badge
-          className={`${colors.bg} ${colors.text} border ${colors.border}`}
-          variant="outline"
-        >
-          {PLANNING_STATUS_LABELS[status]}
-        </Badge>
-      );
-    },
-  },
-  {
     accessorKey: "planned_start_datetime",
-    header: "Inicio Planificado",
+    header: "Fecha Planificada",
     cell: ({ row }) => {
       const datetime = row.original.planned_start_datetime;
       if (!datetime) return <span className="text-muted-foreground">-</span>;
@@ -94,8 +77,8 @@ export const planningColumns = ({
       const hours = row.original.estimated_hours;
       return (
         <div className="flex items-center gap-1">
-          <Clock className="h-4 w-4 text-blue-600" />
-          <span className="font-medium text-blue-600">
+          <Clock className="h-4 w-4 text-primary" />
+          <span className="font-medium text-primary">
             {hours ? `${hours}h` : "-"}
           </span>
         </div>
@@ -104,11 +87,16 @@ export const planningColumns = ({
   },
   {
     accessorKey: "actual_hours",
-    header: "Hrs Reales",
+    header: "Hrs Trabajadas",
     cell: ({ row }) => {
       const hours = row.original.actual_hours;
       const estimated = row.original.estimated_hours;
       const isOvertime = estimated && hours > estimated;
+
+      if (hours == null) {
+        return <span className="text-muted-foreground">-</span>;
+      }
+
       return (
         <div className="flex items-center gap-1">
           <Clock
@@ -128,27 +116,24 @@ export const planningColumns = ({
     },
   },
   {
-    accessorKey: "sessions_count",
-    header: "Sesiones",
-    cell: ({ row }) => (
-      <div className="text-center">
-        <Badge variant="secondary">{row.original.sessions_count}</Badge>
-      </div>
-    ),
-  },
-  {
-    accessorKey: "has_active_session",
-    header: "Estado Actual",
+    accessorKey: "status",
+    header: "Estado",
     cell: ({ row }) => {
-      const hasActive = row.original.has_active_session;
-      return hasActive ? (
-        <Badge className="bg-yellow-100 text-yellow-800 border-yellow-300">
-          En Curso
-        </Badge>
-      ) : (
-        <Badge variant="outline" className="text-muted-foreground">
-          Pausado
-        </Badge>
+      const status = row.original.status;
+
+      const variantMap = {
+        planned: "blue" as const,
+        in_progress: "orange" as const,
+        completed: "green" as const,
+        canceled: "destructive" as const,
+      };
+
+      return (
+        <>
+          <Badge variant={variantMap[status]}>
+            {PLANNING_STATUS_LABELS[status]}
+          </Badge>
+        </>
       );
     },
   },

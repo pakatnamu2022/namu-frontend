@@ -437,13 +437,6 @@ export function WorkerTimeline({
                       planning.planned_start_datetime!
                     );
                     const width = calculateWidth(planning);
-                    const actualStartPos = planning.actual_start_datetime
-                      ? calculatePosition(planning.actual_start_datetime)
-                      : startPos;
-                    const actualEndPos = planning.actual_end_datetime
-                      ? calculatePosition(planning.actual_end_datetime)
-                      : actualStartPos;
-                    const actualWidth = actualEndPos - actualStartPos;
 
                     return (
                       <TooltipProvider key={planning.id}>
@@ -458,41 +451,26 @@ export function WorkerTimeline({
                               }}
                               onClick={() => onPlanningClick?.(planning)}
                             >
+                              {/* Barra única - color según estado */}
                               <div
                                 className={`h-5 rounded border-2 ${
                                   PLANNING_STATUS_COLORS[planning.status].border
-                                } bg-blue-200 opacity-50`}
+                                } ${
+                                  planning.actual_start_datetime
+                                    ? PLANNING_STATUS_COLORS[planning.status].bg
+                                    : "bg-blue-200 opacity-50"
+                                }`}
                               ></div>
 
-                              {planning.actual_start_datetime && (
-                                <div
-                                  className={`absolute top-0 h-5 rounded ${
-                                    PLANNING_STATUS_COLORS[planning.status].bg
-                                  } flex items-center justify-center`}
-                                  style={{
-                                    left: `${
-                                      ((actualStartPos - startPos) / width) *
-                                      100
-                                    }%`,
-                                    width: `${(actualWidth / width) * 100}%`,
-                                  }}
-                                >
-                                  <div className="flex items-center gap-1 px-1">
-                                    <span className="text-[10px] font-medium truncate text-white">
-                                      {planning.work_order_correlative}
-                                    </span>
-                                    {getEfficiencyIcon(planning)}
-                                  </div>
-                                </div>
-                              )}
-
-                              {!planning.actual_start_datetime && (
-                                <div className="absolute top-0 left-0 right-0 h-5 flex items-center justify-center">
-                                  <span className="text-[10px] font-medium truncate">
+                              {/* Texto centrado */}
+                              <div className="absolute top-0 left-0 right-0 h-5 flex items-center justify-center pointer-events-none z-10">
+                                <div className="flex items-center gap-1 px-1">
+                                  <span className="text-[10px] font-medium truncate  text-gray-900">
                                     {planning.work_order_correlative}
                                   </span>
+                                  {getEfficiencyIcon(planning)}
                                 </div>
-                              )}
+                              </div>
                             </div>
                           </TooltipTrigger>
                           <TooltipContent side="top" className="max-w-xs">
@@ -505,7 +483,7 @@ export function WorkerTimeline({
                               </div>
                               <div className="grid grid-cols-2 gap-2 text-xs">
                                 <div>
-                                  <span className="text-muted-foreground">
+                                  <span className="text-muted-foreground ">
                                     Planificado:
                                   </span>
                                   <p>
@@ -623,7 +601,7 @@ export function WorkerTimeline({
                         }}
                       >
                         <div className="flex items-center justify-center h-full">
-                          <span className="text-xs font-bold text-white">
+                          <span className="text-xs font-bold text-black">
                             {format(selectedTime.time, "HH:mm")} -{" "}
                             {format(
                               addHours(selectedTime.time, estimatedHours),

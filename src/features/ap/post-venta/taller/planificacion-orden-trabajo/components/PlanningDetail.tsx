@@ -13,7 +13,6 @@ import { format, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Clock, User, PlayCircle } from "lucide-react";
-import { SessionActions } from "./SessionActions";
 import { Separator } from "@/components/ui/separator";
 
 interface PlanningDetailProps {
@@ -31,11 +30,6 @@ export function PlanningDetail({
   planning,
   open,
   onClose,
-  onStart,
-  onPause,
-  onComplete,
-  onCancel,
-  isLoading,
 }: PlanningDetailProps) {
   const isTablet = useIsTablet();
 
@@ -47,7 +41,7 @@ export function PlanningDetail({
     <GeneralSheet
       open={open}
       onClose={onClose}
-      title={`Detalle de Planificación - ${planning.work_order_correlative}`}
+      title={`Detalle de Trabajo - ${planning.work_order_correlative}`}
       type={isTablet ? "tablet" : "default"}
       className="sm:max-w-4xl"
     >
@@ -60,16 +54,6 @@ export function PlanningDetail({
           >
             {PLANNING_STATUS_LABELS[planning.status]}
           </Badge>
-          {onStart && onPause && onComplete && onCancel && (
-            <SessionActions
-              planning={planning}
-              onStart={onStart}
-              onPause={onPause}
-              onComplete={onComplete}
-              onCancel={onCancel}
-              isLoading={isLoading}
-            />
-          )}
         </div>
 
         {/* Información General */}
@@ -112,7 +96,7 @@ export function PlanningDetail({
                   <Clock className="h-4 w-4 inline mr-1" />
                   Horas Estimadas
                 </p>
-                <p className="text-2xl font-bold text-blue-600">
+                <p className="text-2xl font-bold text-primary">
                   {planning.estimated_hours || "-"} horas
                 </p>
               </div>

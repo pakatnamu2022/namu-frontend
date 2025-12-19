@@ -22,9 +22,12 @@ export default function AssignedWorkTable({
         data={data}
         isLoading={isLoading}
         initialColumnVisibility={{
-          code: true,
+          work_order_correlative: true,
+          worker_name: true,
           description: true,
-          brand: true,
+          planned_start_datetime: true,
+          estimated_hours: true,
+          actual_hours: true,
           status: true,
         }}
       >

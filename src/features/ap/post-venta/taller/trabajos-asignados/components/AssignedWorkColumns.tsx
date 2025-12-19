@@ -18,6 +18,7 @@ import {
   CheckCircle,
   Pause,
   Play,
+  User,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -56,6 +57,16 @@ export const assignedWorkColumns = ({
     ),
   },
   {
+    accessorKey: "worker_name",
+    header: "Trabajador",
+    cell: ({ row }) => (
+      <div className="flex items-center gap-2">
+        <User className="h-4 w-4 text-muted-foreground" />
+        <span>{row.original.worker_name}</span>
+      </div>
+    ),
+  },
+  {
     accessorKey: "description",
     header: "Descripción",
     cell: ({ row }) => (
@@ -89,8 +100,8 @@ export const assignedWorkColumns = ({
       const hours = row.original.estimated_hours;
       return (
         <div className="flex items-center gap-1">
-          <Clock className="h-4 w-4 text-blue-600" />
-          <span className="font-medium text-blue-600">
+          <Clock className="h-4 w-4 text-primary" />
+          <span className="font-medium text-primary">
             {hours ? `${hours}h` : "-"}
           </span>
         </div>
@@ -203,7 +214,7 @@ export const assignedWorkColumns = ({
                 )}
                 {showContinue && (
                   <DropdownMenuItem onClick={() => onContinue?.(planning)}>
-                    <PlayCircle className="h-4 w-4 mr-2 text-blue-600" />
+                    <PlayCircle className="h-4 w-4 mr-2 text-primary" />
                     Continuar
                   </DropdownMenuItem>
                 )}
@@ -214,7 +225,7 @@ export const assignedWorkColumns = ({
                       Pausar
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => onComplete?.(planning)}>
-                      <CheckCircle className="h-4 w-4 mr-2 text-blue-600" />
+                      <CheckCircle className="h-4 w-4 mr-2 text-primary" />
                       Completar
                     </DropdownMenuItem>
                   </>
