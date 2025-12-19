@@ -20,7 +20,8 @@ export default function ExhibitionVehiclesTable({
       columns={columns}
       data={data}
       isLoading={isLoading}
-      filterComponent={children}
-    />
+    >
+      {children}
+    </DataTable>
   );
 }

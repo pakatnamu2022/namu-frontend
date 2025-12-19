@@ -9,8 +9,9 @@ export interface ApBankResponse {
 export interface ApBankResource {
   id: number;
   code: string;
-  account_number: string;
-  cci: string;
+  description: string;
+  account_number?: string;
+  cci?: string;
   bank_id: number;
   currency_id: number;
   company_branch_id: number;
@@ -20,8 +21,9 @@ export interface ApBankResource {
 
 export interface ApBankRequest {
   code: string;
-  account_number: string;
-  cci: string;
+  description?: string;
+  account_number?: string;
+  cci?: string;
   bank_id: number;
   currency_id: number;
   company_branch_id: number;

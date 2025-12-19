@@ -1,4 +1,3 @@
-import { requiredStringId } from "@/shared/lib/global.schema";
 import { z } from "zod";
 
 // Schema para VehicleData
@@ -24,7 +23,7 @@ const vehicleDataSchema = z.object({
 const exhibitionVehicleItemSchema = z
   .object({
     item_type: z.enum(["vehicle", "equipment"], {
-      required_error: "El tipo de item es requerido",
+      message: "El tipo de item es requerido",
     }),
     description: z.string().min(1, "La descripción es requerida"),
     quantity: z.number().min(1, "La cantidad debe ser al menos 1"),
@@ -72,6 +71,14 @@ export const exhibitionVehiclesSchemaUpdate = exhibitionVehiclesSchemaCreate.par
     .min(1, "Debe agregar al menos un item"),
 });
 
-export type ExhibitionVehiclesSchema = z.infer<
+export type ExhibitionVehiclesSchemaCreate = z.infer<
   typeof exhibitionVehiclesSchemaCreate
 >;
+
+export type ExhibitionVehiclesSchemaUpdate = z.infer<
+  typeof exhibitionVehiclesSchemaUpdate
+>;
+
+export type ExhibitionVehiclesSchema =
+  | ExhibitionVehiclesSchemaCreate
+  | ExhibitionVehiclesSchemaUpdate;

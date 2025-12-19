@@ -1,7 +1,4 @@
-import {
-  optionalStringId,
-  requiredStringId,
-} from "@/shared/lib/global.schema";
+import { optionalStringId, requiredStringId } from "@/shared/lib/global.schema";
 import { z } from "zod";
 
 export const apBankSchemaCreate = z.object({
@@ -11,6 +8,7 @@ export const apBankSchemaCreate = z.object({
     .refine((value) => value.trim() !== "", {
       message: "Código es requerido",
     }),
+  description: z.string().optional(),
   account_number: z.string().max(50).optional(),
   cci: z.string().max(50).optional(),
   bank_id: requiredStringId("Selecciona un Banco"),

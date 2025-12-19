@@ -43,8 +43,8 @@ export default function AddExhibitionVehiclesPage() {
     <div className="space-y-4">
       <HeaderTableWrapper>
         <TitleComponent
-          title={`Agregar ${MODEL}`}
-          subtitle={`Crear un nuevo ${MODEL.toLowerCase()}`}
+          title={`Agregar ${MODEL.name}`}
+          subtitle={`Crear un nuevo ${MODEL.name.toLowerCase()}`}
           icon={currentView.icon}
         />
       </HeaderTableWrapper>

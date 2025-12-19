@@ -2,7 +2,6 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
 import {
   Form,
   FormField,
@@ -20,10 +19,8 @@ import {
   exhibitionVehiclesSchemaCreate,
   exhibitionVehiclesSchemaUpdate,
 } from "../lib/exhibitionVehicles.schema";
-import { FormSelect } from "@/shared/components/FormSelect";
-import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
-import { GroupFormSection } from "@/shared/components/GroupFormSection";
-import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
+import { SearchableSelect } from "@/shared/components/SearchableSelect";
+import DatePicker from "@/shared/components/DatePicker";
 import { useNavigate } from "react-router-dom";
 import { EXHIBITION_VEHICLES } from "../lib/exhibitionVehicles.constants";
 import { useAllSuppliers } from "../../proveedores/lib/suppliers.hook";
@@ -81,10 +78,9 @@ export const ExhibitionVehiclesForm = ({
           onSubmit={form.handleSubmit(handleFormSubmit)}
           className="space-y-6"
         >
-          <GroupFormSection
-            title="Información General"
-            description="Datos principales del vehículo de exhibición"
-          >
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold">Información General</h3>
+            <p className="text-sm text-muted-foreground">Datos principales del vehículo de exhibición</p>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {/* Proveedor */}
               <FormField
@@ -94,7 +90,7 @@ export const ExhibitionVehiclesForm = ({
                   <FormItem className="col-span-full">
                     <FormLabel>Proveedor</FormLabel>
                     <FormControl>
-                      <FormSelect
+                      <SearchableSelect
                         options={suppliers.map((s) => ({
                           value: s.id.toString(),
                           label: `${s.full_name} - ${s.num_doc}`,
@@ -129,11 +125,17 @@ export const ExhibitionVehiclesForm = ({
                 control={form.control}
                 name="guia_date"
                 render={({ field }) => (
-                  <DatePickerFormField
-                    field={field}
-                    label="Fecha de Guía"
-                    placeholder="Seleccionar fecha"
-                  />
+                  <FormItem>
+                    <FormLabel>Fecha de Guía</FormLabel>
+                    <FormControl>
+                      <DatePicker
+                        value={field.value}
+                        onChange={field.onChange}
+                        placeholder="Seleccionar fecha"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
               />
 
@@ -142,11 +144,17 @@ export const ExhibitionVehiclesForm = ({
                 control={form.control}
                 name="llegada"
                 render={({ field }) => (
-                  <DatePickerFormField
-                    field={field}
-                    label="Fecha de Llegada"
-                    placeholder="Seleccionar fecha"
-                  />
+                  <FormItem>
+                    <FormLabel>Fecha de Llegada</FormLabel>
+                    <FormControl>
+                      <DatePicker
+                        value={field.value}
+                        onChange={field.onChange}
+                        placeholder="Seleccionar fecha"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
               />
 
@@ -158,7 +166,7 @@ export const ExhibitionVehiclesForm = ({
                   <FormItem>
                     <FormLabel>Ubicación</FormLabel>
                     <FormControl>
-                      <FormSelect
+                      <SearchableSelect
                         options={warehouses.map((w) => ({
                           value: w.id.toString(),
                           label: w.description,
@@ -181,10 +189,10 @@ export const ExhibitionVehiclesForm = ({
                   <FormItem>
                     <FormLabel>Asesor (Opcional)</FormLabel>
                     <FormControl>
-                      <FormSelect
+                      <SearchableSelect
                         options={workers.map((w) => ({
                           value: w.id.toString(),
-                          label: w.nombre_completo,
+                          label: w.name,
                         }))}
                         value={field.value?.toString() || ""}
                         onChange={(value) =>
@@ -206,10 +214,10 @@ export const ExhibitionVehiclesForm = ({
                   <FormItem>
                     <FormLabel>Propietario (Opcional)</FormLabel>
                     <FormControl>
-                      <FormSelect
+                      <SearchableSelect
                         options={workers.map((w) => ({
                           value: w.id.toString(),
-                          label: w.nombre_completo,
+                          label: w.name,
                         }))}
                         value={field.value?.toString() || ""}
                         onChange={(value) =>
@@ -231,7 +239,7 @@ export const ExhibitionVehiclesForm = ({
                   <FormItem>
                     <FormLabel>Estado del Vehículo</FormLabel>
                     <FormControl>
-                      <FormSelect
+                      <SearchableSelect
                         options={vehicleStatuses.map((vs) => ({
                           value: vs.id.toString(),
                           label: vs.description,
@@ -317,7 +325,7 @@ export const ExhibitionVehiclesForm = ({
                 )}
               />
             </div>
-          </GroupFormSection>
+          </div>
 
           {/* TODO: Aquí agregar la sección de Items (vehículos y equipos) */}
           {/* Esta sección requiere un componente de array dinámico con useFieldArray */}
@@ -347,16 +355,6 @@ export const ExhibitionVehiclesForm = ({
           </div>
         </form>
       </Form>
-
-      <ConfirmationDialog
-        open={false}
-        onOpenChange={() => {}}
-        onConfirm={() => navigate(ROUTE)}
-        title="¿Cancelar cambios?"
-        description="Los cambios no guardados se perderán. ¿Desea continuar?"
-        confirmText="Sí, cancelar"
-        cancelText="No, continuar editando"
-      />
     </>
   );
 };

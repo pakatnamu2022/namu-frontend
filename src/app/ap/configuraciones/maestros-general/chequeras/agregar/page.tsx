@@ -50,6 +50,7 @@ export default function AddApBankPage() {
       <ApBankForm
         defaultValues={{
           code: "",
+          description: "",
           account_number: "",
           cci: "",
           bank_id: "",

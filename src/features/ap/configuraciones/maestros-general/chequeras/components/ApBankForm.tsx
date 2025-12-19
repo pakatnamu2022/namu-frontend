@@ -24,6 +24,7 @@ import { Link } from "react-router-dom";
 import { EMPRESA_AP } from "@/core/core.constants";
 import { useAllSedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import { BANK_AP } from "../lib/apBank.constants";
+import { FormInput } from "@/shared/components/FormInput";
 
 interface ApBankFormProps {
   defaultValues: Partial<ApBankSchema>;
@@ -80,6 +81,14 @@ export const ApBankForm = ({
               </FormItem>
             )}
           />
+
+          <FormInput
+            control={form.control}
+            name="description"
+            label="Descripción"
+            placeholder="Ej: Chequera BCP PEN"
+          />
+
           <FormField
             control={form.control}
             name="account_number"

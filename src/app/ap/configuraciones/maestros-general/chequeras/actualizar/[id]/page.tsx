@@ -58,8 +58,9 @@ export default function UpdateApBankPage() {
   function mapApBankToForm(data: ApBankResource): Partial<ApBankSchema> {
     return {
       code: data.code,
-      account_number: data.account_number,
-      cci: data.cci,
+      account_number: data.account_number ?? "",
+      cci: data.cci ?? "",
+      description: data.description ?? "",
       bank_id: String(data.bank_id),
       currency_id: String(data.currency_id),
       company_branch_id: String(data.company_branch_id),

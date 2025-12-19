@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
@@ -34,6 +34,10 @@ export const apBankColumns = ({
       const value = getValue() as string;
       return value && <p className="font-semibold">{value}</p>;
     },
+  },
+  {
+    accessorKey: "description",
+    header: "Descripción",
   },
   {
     accessorKey: "account_number",

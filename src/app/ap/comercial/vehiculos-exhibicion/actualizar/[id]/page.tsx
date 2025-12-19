@@ -57,8 +57,8 @@ export default function UpdateExhibitionVehiclesPage() {
       <div className="space-y-4">
         <HeaderTableWrapper>
           <TitleComponent
-            title={`Actualizar ${MODEL}`}
-            subtitle={`Editar un ${MODEL.toLowerCase()} existente`}
+            title={`Actualizar ${MODEL.name}`}
+            subtitle={`Editar un ${MODEL.name.toLowerCase()} existente`}
             icon={currentView.icon}
           />
         </HeaderTableWrapper>
@@ -72,8 +72,8 @@ export default function UpdateExhibitionVehiclesPage() {
       <div className="space-y-4">
         <HeaderTableWrapper>
           <TitleComponent
-            title={`Actualizar ${MODEL}`}
-            subtitle={`Editar un ${MODEL.toLowerCase()} existente`}
+            title={`Actualizar ${MODEL.name}`}
+            subtitle={`Editar un ${MODEL.name.toLowerCase()} existente`}
             icon={currentView.icon}
           />
         </HeaderTableWrapper>
@@ -90,8 +90,8 @@ export default function UpdateExhibitionVehiclesPage() {
     <div className="space-y-4">
       <HeaderTableWrapper>
         <TitleComponent
-          title={`Actualizar ${MODEL}`}
-          subtitle={`Editar el ${MODEL.toLowerCase()} #${id}`}
+          title={`Actualizar ${MODEL.name}`}
+          subtitle={`Editar el ${MODEL.name.toLowerCase()} #${id}`}
           icon={currentView.icon}
         />
       </HeaderTableWrapper>

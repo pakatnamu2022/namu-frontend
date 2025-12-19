@@ -46,7 +46,7 @@ export default function ExhibitionVehiclesOptions({
     () => [
       ...workers.map((worker) => ({
         value: worker.id.toString(),
-        label: worker.nombre_completo,
+        label: worker.name,
       })),
     ],
     [workers]
@@ -56,7 +56,7 @@ export default function ExhibitionVehiclesOptions({
     () => [
       ...workers.map((worker) => ({
         value: worker.id.toString(),
-        label: worker.nombre_completo,
+        label: worker.name,
       })),
     ],
     [workers]

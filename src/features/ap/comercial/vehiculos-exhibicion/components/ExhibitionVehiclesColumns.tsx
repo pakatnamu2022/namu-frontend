@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Pencil, Eye } from "lucide-react";
+import { Pencil } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import type { ExhibitionVehiclesResource } from "../lib/exhibitionVehicles.interface";
 import { EXHIBITION_VEHICLES } from "../lib/exhibitionVehicles.constants";
@@ -174,7 +174,7 @@ export const exhibitionVehiclesColumns = ({
       accessorKey: "status",
       header: "Estado",
       cell: ({ row }) => (
-        <Badge variant={row.original.status ? "success" : "destructive"}>
+        <Badge variant={row.original.status ? "green" : "destructive"}>
           {row.original.status ? "Activo" : "Inactivo"}
         </Badge>
       ),
@@ -207,8 +207,6 @@ export const exhibitionVehiclesColumns = ({
             {permissions.canDelete && (
               <DeleteButton
                 onClick={() => onDelete(record.id)}
-                variant="ghost"
-                size="sm"
               />
             )}
           </div>
