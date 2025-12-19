@@ -181,9 +181,7 @@ export function DocumentInfoSection({
         name="is_advance_payment"
         label="¿Es un anticipo?"
         disabled={!isFromQuotation || !hasVehicle}
-        text={
-          isAdvancePayment ? "Si, es un pago parcial" : "No, es el pago total"
-        }
+        text={isAdvancePayment ? "Si, es un anticipo" : "No, no es un anticipo"}
         description={
           !hasVehicle && isFromQuotation
             ? "Cotización sin vehículo: Solo se permite anticipo"
