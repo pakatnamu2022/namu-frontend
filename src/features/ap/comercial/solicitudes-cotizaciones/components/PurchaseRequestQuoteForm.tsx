@@ -967,6 +967,7 @@ export const PurchaseRequestQuoteForm = ({
             selectedInvoiceCurrency={selectedInvoiceCurrency}
             getExchangeRate={getExchangeRate}
             onCancel={() => router(ABSOLUTE_ROUTE)}
+            onSubmit={handleFormSubmit}
           />
         </div>
       </form>

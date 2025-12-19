@@ -45,6 +45,7 @@ interface PurchaseRequestQuoteSummaryProps {
   selectedInvoiceCurrency: CurrencyTypesResource | undefined;
   getExchangeRate: (currencyId: number) => number;
   onCancel: () => void;
+  onSubmit: (data: any) => void;
 }
 
 export function PurchaseRequestQuoteSummary({
@@ -69,6 +70,7 @@ export function PurchaseRequestQuoteSummary({
   selectedInvoiceCurrency,
   getExchangeRate,
   onCancel,
+  onSubmit,
 }: PurchaseRequestQuoteSummaryProps) {
   // Obtener el color seleccionado
   const selectedColor = vehicleColorWatch
@@ -282,19 +284,43 @@ export function PurchaseRequestQuoteSummary({
 
           {/* Botones de Acción */}
           <div className="space-y-2 pt-4">
-            <Button
-              type="submit"
-              className="w-full"
-              size="lg"
-              disabled={isSubmitting || !form.formState.isValid}
-            >
-              <FileCheck className="size-4 mr-2" />
-              {isSubmitting
-                ? "Guardando..."
-                : mode === "update"
-                ? "Actualizar"
-                : "Guardar"}
-            </Button>
+            <ConfirmationDialog
+              trigger={
+                <Button
+                  type="button"
+                  className="w-full"
+                  size="lg"
+                  disabled={isSubmitting || !form.formState.isValid}
+                >
+                  <FileCheck className="size-4 mr-2" />
+                  {isSubmitting
+                    ? "Guardando..."
+                    : mode === "update"
+                    ? "Actualizar"
+                    : "Guardar"}
+                </Button>
+              }
+              title={
+                mode === "update"
+                  ? form.watch("type_document") === "COTIZACION"
+                    ? "¿Actualizar cotización?"
+                    : "¿Actualizar solicitud de compra?"
+                  : form.watch("type_document") === "COTIZACION"
+                  ? "¿Guardar cotización?"
+                  : "¿Guardar solicitud de compra?"
+              }
+              description={
+                mode === "update"
+                  ? "Se actualizarán los datos en el sistema. ¿Deseas continuar?"
+                  : "Se creará un nuevo registro con los datos ingresados. ¿Deseas continuar?"
+              }
+              confirmText={mode === "update" ? "Sí, actualizar" : "Sí, guardar"}
+              cancelText="Cancelar"
+              variant="default"
+              icon="info"
+              onConfirm={() => form.handleSubmit(onSubmit)()}
+              confirmDisabled={isSubmitting || !form.formState.isValid}
+            />
             <ConfirmationDialog
               trigger={
                 <Button
@@ -306,6 +332,9 @@ export function PurchaseRequestQuoteSummary({
                 </Button>
               }
               title="¿Cancelar registro?"
+              description="Se perderán todos los datos ingresados en el formulario. ¿Estás seguro de que deseas cancelar?"
+              confirmText="Sí, cancelar"
+              cancelText="No, continuar"
               variant="destructive"
               icon="warning"
               onConfirm={onCancel}
