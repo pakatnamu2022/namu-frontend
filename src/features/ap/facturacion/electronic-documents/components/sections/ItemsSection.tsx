@@ -18,6 +18,7 @@ import { useAllAccountingAccountPlan } from "@/features/ap/configuraciones/maest
 import GeneralSheet from "@/shared/components/GeneralSheet";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { errorToast } from "@/core/core.function";
+import { FormInput } from "@/shared/components/FormInput";
 
 interface ItemsSectionProps {
   form: UseFormReturn<ElectronicDocumentSchema>;
@@ -386,9 +387,11 @@ export function ItemsSection({
             </div>
 
             <div className="flex flex-col gap-2">
-              <Label htmlFor="item-price">Precio Unitario (Con IGV) *</Label>
-              <Input
-                id="item-price"
+              <FormInput
+                control={form.control}
+                name="item-price"
+                label="Precio Unitario (Con IGV)"
+                placeholder="Ej: 590.00"
                 type="number"
                 min="0"
                 step="0.01"

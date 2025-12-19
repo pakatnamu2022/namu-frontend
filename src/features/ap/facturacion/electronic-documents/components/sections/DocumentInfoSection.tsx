@@ -98,6 +98,27 @@ export function DocumentInfoSection({
       bgColor="bg-primary/5"
       cols={{ sm: 1, md: 3 }}
     >
+      <div className="md:col-span-3">
+        <FormSelect
+          control={form.control}
+          name="client_id"
+          options={customers.map((customer) => ({
+            value: customer.id.toString(),
+            label: `${customer.full_name} - ${customer.num_doc}`,
+          }))}
+          label="Cliente *"
+          description={
+            isFromQuotation
+              ? "Cliente asignado desde la cotización"
+              : "Seleccione el cliente"
+          }
+          placeholder={
+            isLoading ? "Cargando clientes..." : "Seleccionar cliente"
+          }
+          disabled={isEdit || isFromQuotation}
+        />
+      </div>
+
       <FormSelect
         control={form.control}
         name="sunat_concept_document_type_id"
@@ -108,6 +129,51 @@ export function DocumentInfoSection({
         label="Tipo de Comprobante *"
         description="Seleccione el tipo de comprobante electrónico"
         placeholder="Seleccionar tipo de comprobante"
+      />
+
+      {/* Switch de Anticipo */}
+      <FormSwitch
+        control={form.control}
+        name="is_advance_payment"
+        label="Tipo de Operación"
+        disabled={!isFromQuotation || !hasVehicle}
+        text={isAdvancePayment ? "Anticipo" : "Venta Interna"}
+        description={
+          !hasVehicle && isFromQuotation
+            ? "Cotización sin vehículo: Solo se permite anticipo"
+            : isAdvancePayment
+            ? "Tipo de operación: Venta Interna - Anticipos (código 04)"
+            : "Tipo de operación: Venta Interna (código 01)"
+        }
+      />
+
+      <FormSelect
+        control={form.control}
+        name="sunat_concept_currency_id"
+        options={currencyTypes.map((type) => ({
+          value: type.id.toString(),
+          label: type.description,
+        }))}
+        label="Moneda *"
+        description={
+          isFromQuotation
+            ? "Moneda asignada desde la cotización"
+            : "Seleccione la moneda del documento"
+        }
+        placeholder="Seleccionar moneda"
+        disabled={isFromQuotation}
+      />
+
+      <DatePickerFormField
+        control={form.control}
+        name="fecha_de_emision"
+        label="Fecha de Emisión *"
+        placeholder="Seleccione fecha"
+        description="Seleccione la fecha de emisión del documento"
+        disabledRange={{
+          before: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+          after: new Date(),
+        }}
       />
 
       <FormSelect
@@ -145,71 +211,6 @@ export function DocumentInfoSection({
           </FormItem>
         )}
       />
-
-      <DatePickerFormField
-        control={form.control}
-        name="fecha_de_emision"
-        label="Fecha de Emisión *"
-        placeholder="Seleccione fecha"
-        description="Seleccione la fecha de emisión del documento"
-        disabledRange={{
-          before: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
-          after: new Date(),
-        }}
-      />
-
-      <FormSelect
-        control={form.control}
-        name="sunat_concept_currency_id"
-        options={currencyTypes.map((type) => ({
-          value: type.id.toString(),
-          label: type.description,
-        }))}
-        label="Moneda *"
-        description={
-          isFromQuotation
-            ? "Moneda asignada desde la cotización"
-            : "Seleccione la moneda del documento"
-        }
-        placeholder="Seleccionar moneda"
-        disabled={isFromQuotation}
-      />
-
-      {/* Switch de Anticipo */}
-      <FormSwitch
-        control={form.control}
-        name="is_advance_payment"
-        label="¿Es un anticipo?"
-        disabled={!isFromQuotation || !hasVehicle}
-        text={isAdvancePayment ? "Si, es un anticipo" : "No, no es un anticipo"}
-        description={
-          !hasVehicle && isFromQuotation
-            ? "Cotización sin vehículo: Solo se permite anticipo"
-            : isAdvancePayment
-            ? "Tipo de operación: Venta Interna - Anticipos (código 04)"
-            : "Tipo de operación: Venta Interna (código 01)"
-        }
-      />
-      <div className="md:col-span-3">
-        <FormSelect
-          control={form.control}
-          name="client_id"
-          options={customers.map((customer) => ({
-            value: customer.id.toString(),
-            label: `${customer.full_name} - ${customer.num_doc}`,
-          }))}
-          label="Cliente *"
-          description={
-            isFromQuotation
-              ? "Cliente asignado desde la cotización"
-              : "Seleccione el cliente"
-          }
-          placeholder={
-            isLoading ? "Cargando clientes..." : "Seleccionar cliente"
-          }
-          disabled={isEdit || isFromQuotation}
-        />
-      </div>
     </GroupFormSection>
   );
 }

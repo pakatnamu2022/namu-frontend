@@ -48,61 +48,77 @@ export function FormInput({
     <FormField
       control={control}
       name={name}
-      render={({ field }) => (
-        <FormItem className="flex flex-col justify-between">
-          <FormLabel className="flex justify-start items-center text-xs md:text-sm mb-1">
-            {label}
-            {required && <RequiredField />}
-            {tooltip && (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Badge
-                    variant="tertiary"
-                    className="ml-2 p-0 aspect-square w-4 h-4 text-center justify-center"
-                  >
-                    ?
-                  </Badge>
-                </TooltipTrigger>
-                <TooltipContent>{tooltip}</TooltipContent>
-              </Tooltip>
-            )}
-          </FormLabel>
-          <div className="flex flex-col gap-2 items-center">
-            <FormControl>
-              <div className="relative w-full">
-                {addonStart && (
-                  <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center justify-center text-muted-foreground pointer-events-none z-10">
-                    {addonStart}
-                  </div>
-                )}
-                <Input
-                  className={cn(
-                    "h-8 md:h-10 text-xs md:text-sm",
-                    addonStart && "pl-10",
-                    addonEnd && "pr-10",
-                    className
-                  )}
-                  {...field}
-                  {...inputProps}
-                />
-                {addonEnd && (
-                  <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center justify-center text-muted-foreground pointer-events-none z-10">
-                    {addonEnd}
-                  </div>
-                )}
-              </div>
-            </FormControl>
-            {children}
-          </div>
+      render={({ field }) => {
+        const isNumberType = inputProps.type === "number";
 
-          {description && (
-            <FormDescription className="text-xs text-muted-foreground mb-0!">
-              {description}
-            </FormDescription>
-          )}
-          <FormMessage />
-        </FormItem>
-      )}
+        const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+          if (isNumberType) {
+            const value = e.target.value;
+            // Permitir string vacío temporalmente
+            field.onChange(value === "" ? "" : Number(value));
+          } else {
+            field.onChange(e);
+          }
+        };
+
+        return (
+          <FormItem className="flex flex-col justify-between">
+            <FormLabel className="flex justify-start items-center text-xs md:text-sm mb-1">
+              {label}
+              {required && <RequiredField />}
+              {tooltip && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Badge
+                      variant="tertiary"
+                      className="ml-2 p-0 aspect-square w-4 h-4 text-center justify-center"
+                    >
+                      ?
+                    </Badge>
+                  </TooltipTrigger>
+                  <TooltipContent>{tooltip}</TooltipContent>
+                </Tooltip>
+              )}
+            </FormLabel>
+            <div className="flex flex-col gap-2 items-center">
+              <FormControl>
+                <div className="relative w-full">
+                  {addonStart && (
+                    <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center justify-center text-muted-foreground pointer-events-none z-10">
+                      {addonStart}
+                    </div>
+                  )}
+                  <Input
+                    className={cn(
+                      "h-8 md:h-10 text-xs md:text-sm",
+                      addonStart && "pl-10",
+                      addonEnd && "pr-10",
+                      className
+                    )}
+                    {...field}
+                    {...inputProps}
+                    onChange={handleChange}
+                    value={field.value ?? ""}
+                  />
+                  {addonEnd && (
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center justify-center text-muted-foreground pointer-events-none z-10">
+                      {addonEnd}
+                    </div>
+                  )}
+                </div>
+              </FormControl>
+              {children}
+            </div>
+
+            {description && (
+              <FormDescription className="text-xs text-muted-foreground mb-0!">
+                {description}
+              </FormDescription>
+            )}
+            <FormMessage />
+          </FormItem>
+        );
+      }}
     />
   );
 }
