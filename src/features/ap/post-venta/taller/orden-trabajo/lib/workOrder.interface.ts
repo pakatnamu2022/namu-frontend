@@ -30,6 +30,8 @@ export interface WorkOrderResource {
   diagnosis_date: string;
   observations: string;
   is_invoiced: boolean;
+  is_guarantee: boolean;
+  is_recall: boolean;
   is_inspection_completed: boolean;
   vehicle_inspection: VehicleInspectionResource | null;
   items: WorkOrderItemResource[];

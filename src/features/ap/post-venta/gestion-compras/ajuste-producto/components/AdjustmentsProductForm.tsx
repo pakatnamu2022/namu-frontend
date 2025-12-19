@@ -13,7 +13,6 @@ import {
   FormControl,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
   FileText,
@@ -25,9 +24,12 @@ import {
 } from "lucide-react";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { FormSelect } from "@/shared/components/FormSelect";
+import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import { useAllWarehouse } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
-import { useAllProduct } from "@/features/ap/post-venta/gestion-productos/productos/lib/product.hook";
+import { useProduct } from "@/features/ap/post-venta/gestion-productos/productos/lib/product.hook";
 import { Textarea } from "@/components/ui/textarea";
+import { ProductResource } from "@/features/ap/post-venta/gestion-productos/productos/lib/product.interface";
+import { AdjustmentsProductResource } from "../lib/adjustmentsProduct.interface";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { Card } from "@/components/ui/card";
 import { ALL_MOVEMENT_TYPES } from "../lib/adjustmentsProduct.constants";
@@ -35,6 +37,7 @@ import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 import { useAllReasonsAdjustment } from "@/features/ap/configuraciones/postventa/motivos-ajuste/lib/reasonsAdjustment.hook";
 import { AP_MASTER_POST_VENTA } from "@/features/ap/lib/ap.constants";
 import { useEffect, useMemo } from "react";
+import { FormInput } from "@/shared/components/FormInput";
 
 interface AdjustmentsProductFormProps {
   defaultValues: Partial<AdjustmentSchema>;
@@ -42,6 +45,7 @@ interface AdjustmentsProductFormProps {
   isSubmitting?: boolean;
   mode?: "create" | "update";
   onCancel?: () => void;
+  AdjustmentData?: AdjustmentsProductResource;
 }
 
 export const AdjustmentsProductForm = ({
@@ -50,6 +54,7 @@ export const AdjustmentsProductForm = ({
   isSubmitting = false,
   mode = "create",
   onCancel,
+  AdjustmentData,
 }: AdjustmentsProductFormProps) => {
   const form = useForm({
     resolver: zodResolver(
@@ -71,9 +76,6 @@ export const AdjustmentsProductForm = ({
     useAllWarehouse({
       is_physical_warehouse: 1,
     });
-  const { data: products = [], isLoading: isLoadingProducts } = useAllProduct({
-    warehouse_id: form.watch("warehouse_id") || undefined,
-  });
   const { data: allReasons = [], isLoading: isLoadingReasons } =
     useAllReasonsAdjustment();
 
@@ -213,138 +215,137 @@ export const AdjustmentsProductForm = ({
               </p>
             </div>
           ) : (
-            <div className="space-y-2">
+            <div className="space-y-4">
               {fields.map((field, index) => {
                 return (
                   <div
                     key={field.id}
-                    className="flex items-center gap-3 p-3 bg-linear-to-r from-slate-50 to-slate-100/30 border border-slate-200 rounded-lg hover:border-slate-300 transition-colors"
+                    className="p-3 lg:p-4 bg-linear-to-r from-slate-50 to-slate-100/30 border border-slate-200 rounded-lg hover:border-slate-300 transition-colors"
                   >
-                    {/* Número del item */}
-                    <div className="flex items-center justify-center h-8 w-8 bg-primary/10 text-primary rounded-full text-sm font-semibold shrink-0">
-                      {index + 1}
-                    </div>
+                    {/* Layout compacto horizontal para desktop, vertical para móvil */}
+                    <div className="flex flex-col lg:flex-row lg:items-center gap-3">
+                      {/* Número del item */}
+                      <div className="flex lg:block items-center justify-between lg:justify-center h-8 w-full lg:w-8 lg:shrink-0">
+                        <div className="flex items-center justify-center h-8 w-8 bg-primary/10 text-primary rounded-full text-sm font-semibold">
+                          {index + 1}
+                        </div>
+                        {/* Botón eliminar - solo visible en móvil */}
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 lg:hidden text-red-600 hover:text-red-700 hover:bg-red-50"
+                          onClick={() => remove(index)}
+                          disabled={mode === "update"}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
 
-                    {/* Selector de producto */}
-                    <div className="flex-1 min-w-0">
-                      <FormSelect
-                        name={`details.${index}.product_id`}
-                        label="Producto"
-                        placeholder="Selecciona un producto"
-                        options={products.map((product) => ({
-                          label: () => (
-                            <div className="flex items-center justify-between gap-2 w-full">
-                              <span className="font-medium truncate">
-                                {product.name}
-                              </span>
-                              <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded shrink-0">
-                                CÓD. DYN:{product.dyn_code} - UM:
-                                {product.unit_measurement_name}
-                              </span>
+                      {/* Selector de producto */}
+                      <div className="flex-1 min-w-0">
+                        {mode === "update" ? (
+                          // Modo edición: Mostrar información del producto (solo lectura)
+                          <div className="space-y-1">
+                            <FormLabel>Producto</FormLabel>
+                            <div className="h-auto min-h-10 w-full rounded-md border border-input bg-muted/50 px-3 py-2 text-sm">
+                              <div className="flex items-center justify-between gap-2 w-full">
+                                <span className="font-medium truncate">
+                                  {AdjustmentData?.details?.[index]?.product
+                                    ?.name || "Producto no disponible"}
+                                </span>
+                                <span className="text-xs text-muted-foreground bg-background px-2 py-0.5 rounded shrink-0">
+                                  CÓD. DYN:
+                                  {AdjustmentData?.details?.[index]?.product
+                                    ?.dyn_code || "N/A"}{" "}
+                                  - UM:
+                                  {AdjustmentData?.details?.[index]?.product
+                                    ?.unit_measurement_name || "N/A"}
+                                </span>
+                              </div>
                             </div>
-                          ),
-                          value: product.id.toString(),
-                        }))}
-                        control={form.control}
-                        disabled={mode === "update" || isLoadingProducts}
-                      />
-                    </div>
-
-                    {/* Input de cantidad compacto */}
-                    <div className="w-32 shrink-0">
-                      <FormLabel className="text-center">Cantidad</FormLabel>
-                      <FormField
-                        control={form.control}
-                        name={`details.${index}.quantity`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormControl>
-                              <Input
-                                type="number"
-                                min="1"
-                                className="h-9 text-center font-medium"
-                                placeholder="Cantidad"
-                                disabled={mode === "update"}
-                                value={
-                                  typeof field.value === "number"
-                                    ? field.value
-                                    : ""
-                                }
-                                onChange={(e) => {
-                                  const num = parseFloat(e.target.value);
-                                  field.onChange(isNaN(num) ? 0 : num);
-                                }}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                    {selectedMovementType ===
-                      AP_MASTER_POST_VENTA.TYPE_ADJUSTMENT_IN && (
-                      <>
-                        <div className="w-32 shrink-0">
-                          <FormLabel className="text-center">
-                            Costo Unitario
-                          </FormLabel>
-                          <FormField
+                          </div>
+                        ) : (
+                          // Modo creación: Selector asíncrono
+                          <FormSelectAsync
+                            name={`details.${index}.product_id`}
+                            label="Producto"
+                            placeholder="Buscar producto..."
                             control={form.control}
-                            name={`details.${index}.unit_cost`}
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormControl>
-                                  <Input
-                                    type="number"
-                                    min="0"
-                                    step="0.01"
-                                    className="h-9 text-center font-medium"
-                                    placeholder="Costo Unitario"
-                                    disabled={mode === "update"}
-                                    value={
-                                      typeof field.value === "number"
-                                        ? field.value
-                                        : ""
-                                    }
-                                    onChange={(e) => {
-                                      const num = parseFloat(e.target.value);
-                                      field.onChange(isNaN(num) ? 0 : num);
-                                    }}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
+                            useQueryHook={useProduct}
+                            mapOptionFn={(product: ProductResource) => ({
+                              value: product.id.toString(),
+                              label: `${product.name} - CÓD. DYN:${product.dyn_code} - UM:${product.unit_measurement_name}`,
+                            })}
+                            perPage={10}
+                            debounceMs={500}
+                          />
+                        )}
+                      </div>
+
+                      {/* Campos de cantidad y costos - grid en móvil, inline en desktop */}
+                      <div className="grid grid-cols-2 lg:flex lg:items-center gap-3 lg:shrink-0">
+                        <div className="lg:w-32">
+                          <FormInput
+                            control={form.control}
+                            name={`details.${index}.quantity`}
+                            label="Cantidad"
+                            placeholder="Cantidad"
+                            disabled={mode === "update"}
+                            type="number"
                           />
                         </div>
-                        <div className="w-32 shrink-0">
-                          <FormLabel className="text-center">
-                            Costo Total
-                          </FormLabel>
-                          <div className="h-9 flex items-center justify-center bg-gray-100 border border-gray-200 rounded-md px-3">
-                            <span className="text-sm font-semibold text-gray-700">
-                              S/.{" "}
-                              {(
-                                (form.watch(`details.${index}.quantity`) || 0) *
-                                (form.watch(`details.${index}.unit_cost`) || 0)
-                              ).toFixed(2)}
-                            </span>
-                          </div>
-                        </div>
-                      </>
-                    )}
 
-                    {/* Botón eliminar */}
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 shrink-0 text-red-600 hover:text-red-700 hover:bg-red-50"
-                      onClick={() => remove(index)}
-                      disabled={mode === "update"}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                        {selectedMovementType ===
+                          AP_MASTER_POST_VENTA.TYPE_ADJUSTMENT_IN && (
+                          <>
+                            <div className="lg:w-32">
+                              <FormInput
+                                control={form.control}
+                                name={`details.${index}.unit_cost`}
+                                label="Costo Unitario"
+                                placeholder="Costo Unitario"
+                                disabled={mode === "update"}
+                                type="number"
+                              />
+                            </div>
+                            <div className="col-span-2 lg:col-span-1 lg:w-32">
+                              <FormLabel className="lg:text-center">
+                                Costo Total
+                              </FormLabel>
+                              <div className="h-9 flex items-center justify-center bg-gray-100 border border-gray-200 rounded-md px-3 mt-2">
+                                <span className="text-sm font-semibold text-gray-700">
+                                  S/.{" "}
+                                  {(
+                                    Number(
+                                      form.watch(`details.${index}.quantity`) ||
+                                        0
+                                    ) *
+                                    Number(
+                                      form.watch(
+                                        `details.${index}.unit_cost`
+                                      ) || 0
+                                    )
+                                  ).toFixed(2)}
+                                </span>
+                              </div>
+                            </div>
+                          </>
+                        )}
+                      </div>
+
+                      {/* Botón eliminar - solo visible en desktop */}
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="hidden lg:flex h-8 w-8 shrink-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                        onClick={() => remove(index)}
+                        disabled={mode === "update"}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
                 );
               })}

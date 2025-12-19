@@ -20,10 +20,10 @@ export function useGetWorkOrder(props: getWorkOrderProps) {
   });
 }
 
-export function useGetAllWorkOrder(props: getWorkOrderProps) {
+export function useGetAllWorkOrder(params?: Record<string, any>) {
   return useQuery({
-    queryKey: [QUERY_KEY, "all", props],
-    queryFn: () => getAllWorkOrder(props),
+    queryKey: [QUERY_KEY, "all", params],
+    queryFn: () => getAllWorkOrder({ params }),
   });
 }
 

@@ -54,6 +54,7 @@ export const useWarehousesByCompany = ({
   empresa_id,
   type_operation_id,
   only_physical = 0,
+  enabled = true,
 }: {
   my?: number;
   is_received?: number;
@@ -61,6 +62,7 @@ export const useWarehousesByCompany = ({
   empresa_id?: number;
   type_operation_id?: number;
   only_physical?: number;
+  enabled?: boolean;
 }) => {
   return useQuery<WarehouseResource[]>({
     queryKey: [
@@ -85,7 +87,7 @@ export const useWarehousesByCompany = ({
         },
       }),
     refetchOnWindowFocus: false,
-    enabled: !!ap_class_article_id,
+    enabled: enabled,
   });
 };
 

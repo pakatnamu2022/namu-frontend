@@ -182,6 +182,9 @@ import UpdateBrandPage from "./app/ap/configuraciones/vehiculos/marcas/actualiza
 import ModelsVnPage from "./app/ap/configuraciones/vehiculos/modelos-vn/page.tsx";
 import AddModelsVnPage from "./app/ap/configuraciones/vehiculos/modelos-vn/agregar/page.tsx";
 import UpdateModelsVnPage from "./app/ap/configuraciones/vehiculos/modelos-vn/actualizar/[id]/page.tsx";
+import ModelsVnPvPage from "./app/ap/post-venta/taller/modelos-vn-pv/page.tsx";
+import AddModelsVnPvPage from "./app/ap/post-venta/taller/modelos-vn-pv/agregar/page.tsx";
+import UpdateModelsVnPvPage from "./app/ap/post-venta/taller/modelos-vn-pv/actualizar/[id]/page.tsx";
 import TypeVehicleOriginPage from "./app/ap/configuraciones/vehiculos/origen-vehiculo/page.tsx";
 import BodyTypePage from "./app/ap/configuraciones/vehiculos/tipos-carroceria/page.tsx";
 import FuelTypePage from "./app/ap/configuraciones/vehiculos/tipos-combustible/page.tsx";
@@ -260,6 +263,9 @@ import WorkOrderPage from "./app/ap/post-venta/taller/orden-trabajo/page.tsx";
 import AddWorkOrderPage from "./app/ap/post-venta/taller/orden-trabajo/agregar/page.tsx";
 import UpdateWorkOrderPage from "./app/ap/post-venta/taller/orden-trabajo/actualizar/[id]/page.tsx";
 import ManageWorkOrderPage from "./app/ap/post-venta/taller/orden-trabajo/gestionar/[id]/page.tsx";
+import WorkOrderPlanningPage from "./app/ap/post-venta/taller/planificacion-orden-trabajo/page.tsx";
+import AddWorkOrderPlanningPage from "./app/ap/post-venta/taller/planificacion-orden-trabajo/agregar/page.tsx";
+import AssignedWorkPage from "./app/ap/post-venta/taller/trabajos-asignados/page.tsx";
 import RequestPartsPage from "./app/ap/post-venta/taller/orden-trabajo/[id]/solicitar-repuestos/page.tsx";
 import VehicleInspectionPage from "./app/ap/post-venta/taller/orden-trabajo/[workOrderId]/inspeccion/page.tsx";
 import RolePage from "./app/gp/gestion-del-sistema/roles/page.tsx";
@@ -974,7 +980,6 @@ function App() {
             >
               {/* Dashboard Principal */}
               <Route index element={<ModulePage />} />
-
               {/* Gestión de Productos */}
               <Route
                 path="gestion-de-productos/categorias-producto"
@@ -1088,14 +1093,14 @@ function App() {
               />
               {/* Taller */}
               <Route path="taller/lavado-vehiculo" element={<CardWashPage />} />
-              <Route path="taller/modelos-vn-pv" element={<ModelsVnPage />} />
+              <Route path="taller/modelos-vn-pv" element={<ModelsVnPvPage />} />
               <Route
                 path="taller/modelos-vn-pv/agregar"
-                element={<AddModelsVnPage />}
+                element={<AddModelsVnPvPage />}
               />
               <Route
                 path="taller/modelos-vn-pv/actualizar/:id"
-                element={<UpdateModelsVnPage />}
+                element={<UpdateModelsVnPvPage />}
               />
               <Route
                 path="taller/citas"
@@ -1133,7 +1138,6 @@ function App() {
                 path="taller/solicitud-compra/actualizar/:id"
                 element={<UpdatePurchaseRequestPVPage />}
               />
-
               <Route
                 path="taller/clientes-post-venta"
                 element={<CustomersPvPage />}
@@ -1158,7 +1162,6 @@ function App() {
                 path="taller/clientes-post-venta/establecimientos/:id/actualizar/:establishmentId"
                 element={<UpdateCustomerPvEstablishmentPage />}
               />
-
               <Route
                 path="taller/vehiculos-post-venta"
                 element={<VehiclesPostVentaPage />}
@@ -1195,6 +1198,18 @@ function App() {
               <Route
                 path="taller/orden-trabajo/:workOrderId/inspeccion"
                 element={<VehicleInspectionPage />}
+              />
+              <Route
+                path="taller/planificacion-orden-trabajo"
+                element={<WorkOrderPlanningPage />}
+              />
+              <Route
+                path="taller/planificacion-orden-trabajo/agregar"
+                element={<AddWorkOrderPlanningPage />}
+              />
+              <Route
+                path="taller/trabajos-asignados"
+                element={<AssignedWorkPage />}
               />
             </Route>
 
@@ -1286,10 +1301,7 @@ function App() {
                 />
 
                 {/* Administración de Tipos de Gasto */}
-                <Route
-                  path="tipo-gasto"
-                  element={<ExpenseTypePage />}
-                />
+                <Route path="tipo-gasto" element={<ExpenseTypePage />} />
 
                 {/* Administración de Convenios de Hoteles */}
                 <Route

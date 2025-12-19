@@ -42,7 +42,8 @@ import { SUNAT_CONCEPTS_TYPE } from "@/features/gp/maestro-general/conceptos-sun
 import { ValidationIndicator } from "@/shared/components/ValidationIndicator";
 import { DocumentValidationStatus } from "@/shared/components/DocumentValidationStatus";
 import { useLicenseValidation } from "@/shared/hooks/useDocumentValidation";
-import { useAllProduct } from "@/features/ap/post-venta/gestion-productos/productos/lib/product.hook";
+import { useProduct } from "@/features/ap/post-venta/gestion-productos/productos/lib/product.hook";
+import { ProductResource } from "@/features/ap/post-venta/gestion-productos/productos/lib/product.interface";
 import { Card } from "@/components/ui/card";
 import {
   EMPRESA_AP,
@@ -64,6 +65,7 @@ interface ProductTransferFormProps {
   isSubmitting?: boolean;
   mode?: "create" | "update";
   onCancel?: () => void;
+  transferData?: any;
 }
 
 export const ProductTransferForm = ({
@@ -71,6 +73,7 @@ export const ProductTransferForm = ({
   onSubmit,
   isSubmitting = false,
   mode = "create",
+  transferData,
 }: ProductTransferFormProps) => {
   const { ABSOLUTE_ROUTE } = PRODUCT_TRANSFER;
   const router = useNavigate();
@@ -136,10 +139,8 @@ export const ProductTransferForm = ({
       only_physical: 1,
     });
 
-  // Obtener productos
-  const { data: products = [], isLoading: isLoadingProducts } = useAllProduct({
-    warehouse_id: form.watch("warehouse_origin_id") || undefined,
-  });
+  // Obtener productos solo en modo create
+  // En modo update, los productos se muestran desde transferData
 
   const { data: typesPerson = [], isLoading: isLoadingTypesPerson } =
     useAllTypeClient();
@@ -678,18 +679,33 @@ export const ProductTransferForm = ({
                   {isProducto ? (
                     /* Campos para PRODUCTO */
                     <div className="grid gap-3 grid-cols-1 md:grid-cols-3">
-                      <FormSelect
-                        name={`details.${index}.product_id`}
-                        label="Producto *"
-                        placeholder="Selecciona"
-                        options={products.map((product) => ({
-                          label: `${product.name} (${product.code})`,
-                          value: product.id.toString(),
-                        }))}
-                        control={form.control}
-                        strictFilter={true}
-                        disabled={isLoadingProducts || mode === "update"}
-                      />
+                      {mode === "update" ? (
+                        // Modo edición: Mostrar nombre del producto (solo lectura)
+                        <div className="space-y-1">
+                          <FormLabel>Producto *</FormLabel>
+                          <div className="h-auto min-h-10 w-full rounded-md border border-input bg-muted/50 px-3 py-2 text-sm flex items-center">
+                            <span className="font-medium text-sm truncate">
+                              {transferData?.details?.[index]?.product?.name ||
+                                "Producto no disponible"}
+                            </span>
+                          </div>
+                        </div>
+                      ) : (
+                        // Modo creación: Selector asíncrono
+                        <FormSelectAsync
+                          name={`details.${index}.product_id`}
+                          label="Producto *"
+                          placeholder="Buscar producto..."
+                          control={form.control}
+                          useQueryHook={useProduct}
+                          mapOptionFn={(product: ProductResource) => ({
+                            value: product.id.toString(),
+                            label: `${product.name} (${product.code})`,
+                          })}
+                          perPage={10}
+                          debounceMs={500}
+                        />
+                      )}
 
                       <FormField
                         control={form.control}

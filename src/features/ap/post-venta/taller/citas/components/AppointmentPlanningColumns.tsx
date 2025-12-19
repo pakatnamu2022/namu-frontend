@@ -1,6 +1,6 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-import { Pencil, Download, Calendar, Clock } from "lucide-react";
+import { Pencil, Download, Calendar, Clock, FileText } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { AppointmentPlanningResource } from "../lib/appointmentPlanning.interface";
 import { format } from "date-fns";
@@ -8,6 +8,7 @@ import { es } from "date-fns/locale";
 import { downloadAppointmentPlanningPdf } from "../lib/appointmentPlanning.actions";
 import { errorToast } from "@/core/core.function";
 import { Badge } from "@/components/ui/badge";
+import { Link } from "react-router-dom";
 
 export type AppointmentPlanningColumns = ColumnDef<AppointmentPlanningResource>;
 
@@ -148,6 +149,20 @@ export const appointmentPlanningColumns = ({
 
       return (
         <div className="flex items-center gap-2">
+          {!is_taken && (
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-7"
+              tooltip="Crear Orden de Trabajo"
+              asChild
+            >
+              <Link to="/ap/post-venta/taller/orden-trabajo/agregar?fromAppointment=true">
+                <FileText className="size-5" />
+              </Link>
+            </Button>
+          )}
+
           <Button
             variant="outline"
             size="icon"

@@ -55,6 +55,7 @@ interface Props {
 }
 
 // Componente para manejar la carga de imagen
+// eslint-disable-next-line react-refresh/only-export-components
 const ImagePreview = ({ fileUrl }: { fileUrl: string }) => {
   const [isLoading, setIsLoading] = useState(true);
 
@@ -238,33 +239,16 @@ export const shipmentsReceptionsColumns = ({
     cell: ({ row }) => {
       const isReceived = row.getValue("is_received") as boolean;
 
-      // Configuración de estados
-      const receptionConfig = {
-        received: {
-          label: "Recepcionado",
-          icon: <CheckCircle2 className="size-3" />,
-          className:
-            "bg-emerald-100 text-emerald-700 hover:bg-emerald-200 border-emerald-300",
-        },
-        pending: {
-          label: "Pendiente",
-          icon: <XCircle className="size-3" />,
-          className:
-            "bg-gray-100 text-gray-700 hover:bg-gray-200 border-gray-300",
-        },
-      };
-
-      const config = isReceived
-        ? receptionConfig.received
-        : receptionConfig.pending;
-
-      return (
-        <div
-          className={`inline-flex items-center gap-1.5 w-fit px-2.5 py-1 rounded-full text-xs font-medium border transition-colors ${config.className}`}
-        >
-          {config.icon}
-          <span>{config.label}</span>
-        </div>
+      return isReceived ? (
+        <Badge variant="green">
+          <CheckCircle2 className="size-3" />
+          Recepcionado
+        </Badge>
+      ) : (
+        <Badge variant="blue">
+          <XCircle className="size-3" />
+          Pendiente
+        </Badge>
       );
     },
   },
@@ -314,63 +298,40 @@ export const shipmentsReceptionsColumns = ({
       const aceptadaPorSunat = row.original.aceptada_por_sunat;
       const WAITING_TIME_HOURS = 5;
 
-      // Configuración de estados con estilos modernos
-      const statusConfig = {
-        accepted: {
-          label: "Aceptado",
-          icon: <CheckCircle2 className="size-3" />,
-          className:
-            "bg-emerald-100 text-emerald-700 hover:bg-emerald-200 border-emerald-300",
-        },
-        rejected: {
-          label: "Rechazado",
-          icon: <XCircle className="size-3" />,
-          className: "bg-red-100 text-red-700 hover:bg-red-200 border-red-300",
-        },
-        pending: {
-          label: "En espera",
-          icon: <CheckCircle2 className="size-3" />,
-          className:
-            "bg-blue-100 text-blue-700 hover:bg-blue-200 border-blue-300",
-        },
-        notSent: {
-          label: "No enviado",
-          icon: <XCircle className="size-3" />,
-          className:
-            "bg-gray-100 text-gray-600 hover:bg-gray-200 border-gray-300",
-        },
-      };
-
       if (sentAt) {
         const sentDate = new Date(sentAt);
         const now = new Date();
         const hoursDiff =
           (now.getTime() - sentDate.getTime()) / (1000 * 60 * 60);
 
-        // Determinar estado
-        let status: keyof typeof statusConfig;
+        // Determinar estado y variante
+        let variant: "green" | "destructive" | "blue";
+        let label: string;
+        let icon: React.ReactNode;
 
         if (aceptadaPorSunat === true) {
-          status = "accepted";
+          variant = "green";
+          label = "Aceptado";
+          icon = <CheckCircle2 className="size-3" />;
         } else if (
           aceptadaPorSunat === false &&
           hoursDiff > WAITING_TIME_HOURS
         ) {
-          status = "rejected";
+          variant = "destructive";
+          label = "Rechazado";
+          icon = <XCircle className="size-3" />;
         } else {
-          status = "pending";
+          variant = "blue";
+          label = "En espera";
+          icon = <CheckCircle2 className="size-3" />;
         }
-
-        const config = statusConfig[status];
 
         return (
           <div className="flex flex-col gap-1">
-            <div
-              className={`inline-flex items-center gap-1.5 w-fit px-2.5 py-1 rounded-full text-xs font-medium border transition-colors ${config.className}`}
-            >
-              {config.icon}
-              <span>{config.label}</span>
-            </div>
+            <Badge variant={variant}>
+              {icon}
+              {label}
+            </Badge>
             <span className="text-xs text-muted-foreground">
               {format(sentDate, "dd/MM/yyyy HH:mm", { locale: es })}
             </span>
@@ -378,14 +339,11 @@ export const shipmentsReceptionsColumns = ({
         );
       }
 
-      const config = statusConfig.notSent;
       return (
-        <div
-          className={`inline-flex items-center gap-1.5 w-fit px-2.5 py-1 rounded-full text-xs font-medium border transition-colors ${config.className}`}
-        >
-          {config.icon}
-          <span>{config.label}</span>
-        </div>
+        <Badge variant="gray">
+          <XCircle className="size-3" />
+          No enviado
+        </Badge>
       );
     },
   },
@@ -450,6 +408,7 @@ export const shipmentsReceptionsColumns = ({
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
       const router = useNavigate();
       const {
         id,
@@ -460,7 +419,7 @@ export const shipmentsReceptionsColumns = ({
         transfer_reason_id,
         status,
       } = row.original;
-      const { ROUTE_UPDATE, ABSOLUTE_ROUTE} = SHIPMENTS_RECEPTIONS;
+      const { ROUTE_UPDATE, ABSOLUTE_ROUTE } = SHIPMENTS_RECEPTIONS;
       const isSent = !!sent_at;
       const isGuiaRemision = document_type === "GUIA_REMISION";
       const isPurchase =

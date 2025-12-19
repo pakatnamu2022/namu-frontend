@@ -38,7 +38,8 @@ import {
   useAllWarehouse,
   useWarehouseById,
 } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
-import { useAllProduct } from "@/features/ap/post-venta/gestion-productos/productos/lib/product.hook";
+import { useProduct } from "@/features/ap/post-venta/gestion-productos/productos/lib/product.hook";
+import { ProductResource } from "@/features/ap/post-venta/gestion-productos/productos/lib/product.interface";
 import { Textarea } from "@/components/ui/textarea";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { PAYMENT_TERMS_OPTIONS } from "../lib/purchaseOrderProducts.constants";
@@ -108,9 +109,6 @@ export const PurchaseOrderProductsForm = ({
       is_physical_warehouse: 1,
       sede_id: form.watch("sede_id") || undefined,
     });
-  const { data: products = [], isLoading: isLoadingProducts } = useAllProduct({
-    warehouse_id: form.watch("warehouse_id") || undefined,
-  });
   const { data: currencyTypes = [], isLoading: isLoadingCurrencyTypes } =
     useAllCurrencyTypes();
 
@@ -284,12 +282,16 @@ export const PurchaseOrderProductsForm = ({
               })}
               perPage={10}
               debounceMs={500}
-              defaultOption={{
-                value: PurchaseOrderProductsData!.supplier_id.toString(),
-                label: `${
-                  PurchaseOrderProductsData!.supplier_num_doc || "S/N"
-                } | ${PurchaseOrderProductsData!.supplier || "S/N"}`,
-              }}
+              defaultOption={
+                PurchaseOrderProductsData?.supplier_id
+                  ? {
+                      value: PurchaseOrderProductsData.supplier_id.toString(),
+                      label: `${
+                        PurchaseOrderProductsData.supplier_num_doc || "S/N"
+                      } | ${PurchaseOrderProductsData.supplier || "S/N"}`,
+                    }
+                  : undefined
+              }
             ></FormSelectAsync>
 
             <FormField
@@ -515,43 +517,35 @@ export const PurchaseOrderProductsForm = ({
                           </TableCell>
                           <TableCell className="align-middle p-1.5">
                             <div className="space-y-1">
-                              <FormSelect
-                                name={`items.${index}.product_id`}
-                                placeholder="Selecciona producto"
-                                options={products
-                                  .filter((product) => {
-                                    // Filtrar productos ya seleccionados en otros items
-                                    const selectedProductIds = watchedItems
-                                      ?.map((item, idx) =>
-                                        idx !== index ? item?.product_id : null
-                                      )
-                                      .filter(Boolean);
-                                    return !selectedProductIds?.includes(
-                                      product.id.toString()
-                                    );
-                                  })
-                                  .map((product) => ({
-                                    label: () => (
-                                      <div className="flex items-center justify-between gap-2 py-1">
-                                        <div className="flex items-center gap-2 flex-1 min-w-0">
-                                          <span className="font-medium text-sm truncate">
-                                            {product.name}
-                                          </span>
-                                          <span className="text-xs text-primary bg-blue-50 px-2 py-0.5 rounded-full whitespace-nowrap">
-                                            {product.unit_measurement_name ||
-                                              "Sin unidad"}
-                                          </span>
-                                        </div>
-                                        <span className="text-xs font-mono text-muted-foreground bg-muted px-2 py-0.5 rounded whitespace-nowrap">
-                                          {product.code}
-                                        </span>
-                                      </div>
-                                    ),
+                              {mode === "update" ? (
+                                // Modo edición: Mostrar nombre del producto (solo lectura)
+                                <div className="h-auto min-h-10 w-full rounded-md border border-input bg-muted/50 px-3 py-2 text-sm flex items-center">
+                                  <span className="font-medium text-sm truncate">
+                                    {PurchaseOrderProductsData?.items?.[index]
+                                      ?.product_name ||
+                                      "Producto no disponible"}
+                                  </span>
+                                </div>
+                              ) : (
+                                // Modo creación: Selector asíncrono
+                                <FormSelectAsync
+                                  name={`items.${index}.product_id`}
+                                  placeholder="Buscar producto..."
+                                  control={form.control}
+                                  useQueryHook={useProduct}
+                                  mapOptionFn={(product: ProductResource) => ({
                                     value: product.id.toString(),
-                                  }))}
-                                control={form.control}
-                                disabled={isLoadingProducts}
-                              />
+                                    label: `${product.name} - ${
+                                      product.code
+                                    } - ${
+                                      product.unit_measurement_name ||
+                                      "Sin unidad"
+                                    }`,
+                                  })}
+                                  perPage={10}
+                                  debounceMs={500}
+                                />
+                              )}
                             </div>
                           </TableCell>
                           <TableCell className="align-middle p-1.5 text-center">
@@ -668,6 +662,7 @@ export const PurchaseOrderProductsForm = ({
                               variant="ghost"
                               size="sm"
                               onClick={() => remove(index)}
+                              disabled={mode === "update"}
                               className="text-destructive hover:text-destructive hover:bg-destructive/10"
                             >
                               <Trash2 className="h-4 w-4" />
@@ -686,6 +681,7 @@ export const PurchaseOrderProductsForm = ({
                 variant="outline"
                 onClick={handleAddItem}
                 className="w-full"
+                disabled={mode === "update"}
               >
                 <Plus className="mr-2 h-4 w-4" />
                 Agregar Producto

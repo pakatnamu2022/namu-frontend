@@ -34,7 +34,10 @@ export function PurchaseOrderProductsViewSheet({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-full sm:max-w-4xl overflow-y-auto">
+      <SheetContent
+        side="right"
+        className="w-full sm:max-w-4xl overflow-y-auto"
+      >
         <SheetHeader>
           <SheetTitle>Detalles de Orden de Compra</SheetTitle>
         </SheetHeader>
@@ -246,6 +249,18 @@ export function PurchaseOrderProductsViewSheet({
               </p>
             </div>
           </div>
+
+          {/* Notas */}
+          {data.notes && (
+            <div className="p-4 border rounded-lg bg-blue-50/50">
+              <h3 className="font-semibold text-sm mb-2 text-blue-900">
+                Notas
+              </h3>
+              <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                {data.notes}
+              </p>
+            </div>
+          )}
         </div>
       </SheetContent>
     </Sheet>

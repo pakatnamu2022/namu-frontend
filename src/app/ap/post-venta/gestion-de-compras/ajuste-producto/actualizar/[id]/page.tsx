@@ -104,6 +104,7 @@ export default function UpdateAdjustmentsProductPage() {
         isSubmitting={isPending}
         mode="update"
         onCancel={() => router(ABSOLUTE_ROUTE)}
+        AdjustmentData={adjustment}
       />
     </FormWrapper>
   );

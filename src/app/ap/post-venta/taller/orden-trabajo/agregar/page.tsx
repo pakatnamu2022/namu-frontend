@@ -1,6 +1,6 @@
 "use client";
 
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import { useMutation } from "@tanstack/react-query";
 import {
@@ -19,8 +19,11 @@ import { notFound } from "@/shared/hooks/useNotFound";
 
 export default function AddWorkOrderPage() {
   const router = useNavigate();
+  const [searchParams] = useSearchParams();
   const { currentView, checkRouteExists } = useCurrentModule();
   const { ROUTE, MODEL, ABSOLUTE_ROUTE } = WORKER_ORDER;
+
+  const fromAppointment = searchParams.get("fromAppointment") === "true";
 
   const { mutate, isPending } = useMutation({
     mutationFn: storeWorkOrder,
@@ -57,6 +60,7 @@ export default function AddWorkOrderPage() {
           estimated_delivery_date: "",
           diagnosis_date: "",
           observations: "",
+          has_appointment: fromAppointment,
         }}
         onSubmit={handleSubmit}
         isSubmitting={isPending}

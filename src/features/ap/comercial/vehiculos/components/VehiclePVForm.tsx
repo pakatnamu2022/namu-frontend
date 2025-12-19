@@ -42,6 +42,7 @@ import { useCustomers } from "../../clientes/lib/customers.hook";
 import { CUSTOMERS_PV } from "../../clientes/lib/customers.constants";
 import { CustomersResource } from "../../clientes/lib/customers.interface";
 import { VehicleResource } from "../lib/vehicles.interface";
+import { MODELS_VN_POSTVENTA } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.constanst";
 
 interface VehiclePVFormProps {
   defaultValues: Partial<VehicleSchema>;
@@ -268,7 +269,20 @@ export const VehiclePVForm = ({
                   }
                 : undefined
             }
-          />
+          >
+            <Button
+              type="button"
+              variant="outline"
+              size="icon-lg"
+              className="aspect-square"
+              onClick={() =>
+                window.open(MODELS_VN_POSTVENTA.ROUTE_ADD, "_blank")
+              }
+              tooltip="Agregar nuevo modelo"
+            >
+              <ExternalLink className="h-4 w-4" />
+            </Button>
+          </FormSelectAsync>
 
           <FormSelect
             name="vehicle_color_id"
