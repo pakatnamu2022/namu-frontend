@@ -6,7 +6,7 @@ import { useState } from "react";
 import TitleComponent from "@/shared/components/TitleComponent";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { Button } from "@/components/ui/button";
-import { Plus, Edit, CircleX, NotebookText } from "lucide-react";
+import { Plus, Edit, CircleX, NotebookText, FileText } from "lucide-react";
 import { errorToast } from "@/core/core.function";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -34,9 +34,11 @@ import { AGENDA } from "@/features/ap/comercial/agenda/lib/agenda.constants";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { useInvalidateQuery } from "@/core/core.hook";
 import { Textarea } from "@/components/ui/textarea";
+import { PURCHASE_REQUEST_QUOTE } from "@/features/ap/comercial/solicitudes-cotizaciones/lib/purchaseRequestQuote.constants";
 
 const { ABSOLUTE_ROUTE, QUERY_KEY } = OPPORTUNITIES;
 const { ABSOLUTE_ROUTE: AGENDA_ABSOLUTE_ROUTE } = AGENDA;
+const { ROUTE_ADD: PURCHASE_REQUEST_QUOTE_ROUTE_ADD } = PURCHASE_REQUEST_QUOTE;
 
 export default function OpportunityDetailPage() {
   const params = useParams();
@@ -168,6 +170,13 @@ export default function OpportunityDetailPage() {
               <CircleX className="size-4" />
               Cerrar Oportunidad
             </Button>
+
+            <Link to={`${PURCHASE_REQUEST_QUOTE_ROUTE_ADD}?opportunity_id=${opportunity.id}`}>
+              <Button variant="default" size="sm">
+                <FileText className="size-4" />
+                Generar Solicitud
+              </Button>
+            </Link>
 
             <Link to={`${ABSOLUTE_ROUTE}/actualizar/${opportunity.id}`}>
               <Button variant="outline" size="sm">

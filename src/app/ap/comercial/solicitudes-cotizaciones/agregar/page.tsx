@@ -1,6 +1,6 @@
 "use client";
 
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import { useMutation } from "@tanstack/react-query";
 import {
@@ -19,6 +19,7 @@ import { notFound } from "@/shared/hooks/useNotFound";
 
 export default function AddPurchaseRequestQuotePage() {
   const router = useNavigate();
+  const [searchParams] = useSearchParams();
   const { currentView, checkRouteExists } = useCurrentModule();
   const { ROUTE, MODEL, ABSOLUTE_ROUTE } = PURCHASE_REQUEST_QUOTE;
 
@@ -40,6 +41,9 @@ export default function AddPurchaseRequestQuotePage() {
   if (!checkRouteExists(ROUTE)) notFound();
   if (!currentView) notFound();
 
+  // Obtener el opportunity_id de los parámetros de la URL
+  const opportunityIdFromUrl = searchParams.get("opportunity_id") || "";
+
   return (
     <FormWrapper>
       <TitleFormComponent
@@ -52,7 +56,7 @@ export default function AddPurchaseRequestQuotePage() {
           sede_id: "",
           type_document: "COTIZACION",
           warranty: "",
-          opportunity_id: "",
+          opportunity_id: opportunityIdFromUrl,
           comment: "",
           holder_id: "",
           with_vin: false,
