@@ -1011,7 +1011,6 @@ export const PurchaseRequestQuoteForm = ({
             clients={clients}
             modelsVn={modelsVn}
             vehiclesVn={vehiclesVn}
-            currencyTypes={currencyTypes}
             vehicleColors={color}
             withVinWatch={withVinWatch}
             vehicleVnWatch={vehicleVnWatch}
