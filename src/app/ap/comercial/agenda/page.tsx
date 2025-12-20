@@ -1,7 +1,6 @@
 "use client";
 
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
-import { useState } from "react";
 import TitleComponent from "@/shared/components/TitleComponent";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import type { CalendarDayData } from "@/shared/components/CalendarGrid";
@@ -24,7 +23,7 @@ import { notFound } from "@/shared/hooks/useNotFound";
 
 export default function AgendaPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
-  const { selectedAdvisorId, setSelectedAdvisorId } =
+  const { selectedAdvisorId, setSelectedAdvisorId, selectedDate, setSelectedDate } =
     useCommercialFiltersStore();
   const { ROUTE } = AGENDA;
   const permissions = useModulePermissions(ROUTE);
@@ -36,10 +35,6 @@ export default function AgendaPage() {
 
   const dateFrom = firstDay.toISOString().split("T")[0];
   const dateTo = lastDay.toISOString().split("T")[0];
-
-  const [selectedDate, setSelectedDate] = useState<string | null>(
-    new Date().toISOString().split("T")[0]
-  );
 
   const { data, isLoading } = useMyAgenda({
     worker_id: selectedAdvisorId,
@@ -85,6 +80,8 @@ export default function AgendaPage() {
           permissions={permissions}
           selectedAdvisorId={selectedAdvisorId}
           setSelectedAdvisorId={setSelectedAdvisorId}
+          selectedDate={selectedDate}
+          setSelectedDate={setSelectedDate}
           workers={workers}
         />
       </HeaderTableWrapper>
@@ -93,6 +90,7 @@ export default function AgendaPage() {
         <AgendaCalendarCard
           agendaMap={agendaMap}
           selectedDate={selectedDate}
+          setSelectedDate={setSelectedDate}
           onDayClick={handleDayClick}
         />
         <AgendaDayDetails selectedDayData={selectedDayData} />

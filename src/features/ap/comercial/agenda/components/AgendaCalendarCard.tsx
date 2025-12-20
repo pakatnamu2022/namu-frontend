@@ -10,19 +10,57 @@ import {
   CalendarHeader,
   CalendarBody,
   type CalendarDayData,
+  useCalendarMonth,
+  useCalendarYear,
 } from "@/shared/components/CalendarGrid";
 import CalendarDay from "./CalendarDay";
+import { useEffect } from "react";
 
 interface AgendaCalendarCardProps {
   agendaMap: Map<string, any>;
   selectedDate: string | null;
   onDayClick: (dayData: CalendarDayData) => void;
+  setSelectedDate: (date: string | null) => void;
+}
+
+function CalendarSync({ selectedDate, setSelectedDate }: { selectedDate: string | null; setSelectedDate: (date: string | null) => void }) {
+  const [month, setMonth] = useCalendarMonth();
+  const [year, setYear] = useCalendarYear();
+
+  // Sync calendar atoms with store when selectedDate changes externally
+  useEffect(() => {
+    if (selectedDate) {
+      const date = new Date(selectedDate);
+      const newMonth = date.getMonth();
+      const newYear = date.getFullYear();
+
+      if (month !== newMonth) {
+        setMonth(newMonth as any);
+      }
+      if (year !== newYear) {
+        setYear(newYear);
+      }
+    }
+  }, [selectedDate, month, year, setMonth, setYear]);
+
+  // Sync store with calendar atoms when calendar changes
+  useEffect(() => {
+    const newDate = new Date(year, month, 1);
+    const dateStr = newDate.toISOString().split("T")[0];
+
+    if (dateStr !== selectedDate) {
+      setSelectedDate(dateStr);
+    }
+  }, [month, year, selectedDate, setSelectedDate]);
+
+  return null;
 }
 
 export default function AgendaCalendarCard({
   agendaMap,
   selectedDate,
   onDayClick,
+  setSelectedDate,
 }: AgendaCalendarCardProps) {
   return (
     <div className="lg:col-span-2 flex flex-col gap-4">
@@ -32,6 +70,7 @@ export default function AgendaCalendarCard({
           startDay={1}
           className="w-full border rounded-lg bg-background"
         >
+          <CalendarSync selectedDate={selectedDate} setSelectedDate={setSelectedDate} />
           <CalendarDate>
             <CalendarDatePicker>
               <CalendarMonthPicker className="w-fit text-xs sm:text-sm font-bold text-primary" />

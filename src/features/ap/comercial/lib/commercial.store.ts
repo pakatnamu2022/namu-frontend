@@ -3,7 +3,9 @@ import { persist } from "zustand/middleware";
 
 interface CommercialFiltersState {
   selectedAdvisorId?: number;
+  selectedDate: string | null;
   setSelectedAdvisorId: (advisorId: number | undefined) => void;
+  setSelectedDate: (date: string | null) => void;
   clearFilters: () => void;
 }
 
@@ -15,8 +17,13 @@ export const useCommercialFiltersStore = create<CommercialFiltersState>()(
   persist(
     (set) => ({
       selectedAdvisorId: undefined,
+      selectedDate: new Date().toISOString().split("T")[0],
       setSelectedAdvisorId: (advisorId) => set({ selectedAdvisorId: advisorId }),
-      clearFilters: () => set({ selectedAdvisorId: undefined }),
+      setSelectedDate: (date) => set({ selectedDate: date }),
+      clearFilters: () => set({
+        selectedAdvisorId: undefined,
+        selectedDate: new Date().toISOString().split("T")[0]
+      }),
     }),
     {
       name: "commercial-filters-storage", // localStorage key
