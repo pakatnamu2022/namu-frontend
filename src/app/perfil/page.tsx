@@ -23,6 +23,7 @@ import {
   Users,
   ShieldCheck,
 } from "lucide-react";
+import PageWrapper from "@/shared/components/PageWrapper";
 
 export default function ProfilePage() {
   const { user } = useAuthStore();
@@ -41,7 +42,7 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="space-y-4 sm:space-y-6 w-full max-w-7xl mx-auto p-3 sm:p-4 md:p-6">
+    <PageWrapper>
       {/* Header con información del usuario */}
       <Card className="col-span-full">
         <CardContent className="pt-4 sm:pt-6">
@@ -71,7 +72,9 @@ export default function ProfilePage() {
                 </div>
                 <div className="flex items-center justify-center sm:justify-start gap-2">
                   <Mail className="w-4 h-4 shrink-0" />
-                  <span className="truncate">{userComplete.personal_email}</span>
+                  <span className="truncate">
+                    {userComplete.personal_email}
+                  </span>
                 </div>
               </div>
             </div>
@@ -407,7 +410,9 @@ export default function ProfilePage() {
                   {userComplete.cv_last_update && (
                     <p className="text-xs sm:text-sm text-muted-foreground flex items-center gap-1">
                       <Clock className="w-3 h-3 shrink-0" />
-                      <span className="truncate">Última actualización: {userComplete.cv_last_update}</span>
+                      <span className="truncate">
+                        Última actualización: {userComplete.cv_last_update}
+                      </span>
                     </p>
                   )}
                 </div>
@@ -421,7 +426,7 @@ export default function ProfilePage() {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </PageWrapper>
   );
 }
 
@@ -443,7 +448,9 @@ function InfoItem({
       </p>
       <div className="flex items-center gap-2 min-w-0">
         {icon && <span className="shrink-0">{icon}</span>}
-        <p className="text-sm font-medium text-foreground wrap-break-word min-w-0">{value}</p>
+        <p className="text-sm font-medium text-foreground wrap-break-word min-w-0">
+          {value}
+        </p>
       </div>
     </div>
   );
