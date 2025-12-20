@@ -4,7 +4,6 @@ import {
   Form,
   FormField,
   FormItem,
-  FormLabel,
   FormControl,
   FormMessage,
 } from "@/components/ui/form";
@@ -16,14 +15,14 @@ import {
   vehicleInspectionSchemaCreate,
   vehicleInspectionSchemaUpdate,
 } from "../lib/vehicleInspection.schema";
-import { Textarea } from "@/components/ui/textarea";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import VehicleInspectionChecklist from "./VehicleInspectionChecklist";
 import VehicleDamageMarker from "./VehicleDamageMarker";
 import { CHECKLIST_ITEMS } from "../lib/vehicleInspection.constants";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
-import { Input } from "@/components/ui/input";
+import { FormInput } from "@/shared/components/FormInput";
+import { FormInputText } from "@/shared/components/FormInputText";
 
 interface VehicleInspectionFormProps {
   defaultValues: Partial<VehicleInspectionSchema>;
@@ -102,18 +101,11 @@ export const VehicleInspectionForm = ({
             disabled={true}
           />
 
-          <FormField
-            control={form.control}
+          <FormInput
             name="mileage"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Kilometraje</FormLabel>
-                <FormControl>
-                  <Input type="number" placeholder="Ej: 50000" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Kilometraje"
+            placeholder="Ingrese el kilometraje"
+            control={form.control}
           />
 
           <FormSelect
@@ -165,23 +157,11 @@ export const VehicleInspectionForm = ({
           bgColor="bg-gray-50"
           cols={{ sm: 1 }}
         >
-          <FormField
-            control={form.control}
+          <FormInputText
             name="general_observations"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Observaciones</FormLabel>
-                <FormControl>
-                  <Textarea
-                    placeholder="Ingrese observaciones generales de la inspección..."
-                    rows={4}
-                    {...field}
-                    value={field.value || ""}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Observaciones"
+            placeholder="Ingrese observaciones generales de la inspección..."
+            control={form.control}
           />
         </GroupFormSection>
 
