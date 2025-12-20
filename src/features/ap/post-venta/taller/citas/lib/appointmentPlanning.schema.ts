@@ -22,9 +22,11 @@ export const appointmentPlanningSchemaCreate = z.object({
   }),
   num_doc_client: z
     .string()
-    .max(8)
     .refine((value) => value.trim() !== "", {
       message: "Número de documento es requerido",
+    })
+    .refine((value) => value.length === 8 || value.length === 11, {
+      message: "Debe ingresar 8 dígitos (DNI) o 11 dígitos (RUC)",
     }),
   full_name_client: z
     .string()

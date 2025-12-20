@@ -40,7 +40,10 @@ import { VEHICLES_PV } from "@/features/ap/comercial/vehiculos/lib/vehicles.cons
 import { AppointmentPlanningResource } from "../lib/appointmentPlanning.interface";
 import { DocumentValidationStatus } from "@/shared/components/DocumentValidationStatus";
 import { ValidationIndicator } from "@/shared/components/ValidationIndicator";
-import { useDniValidation } from "@/shared/hooks/useDocumentValidation";
+import {
+  useDniValidation,
+  useRucValidation,
+} from "@/shared/hooks/useDocumentValidation";
 
 interface AppointmentPlanningFormProps {
   defaultValues: Partial<AppointmentPlanningSchema>;
@@ -98,15 +101,36 @@ export const AppointmentPlanningForm = ({
   const watchVehicleId = form.watch("ap_vehicle_id");
   const watchCustomer = form.watch("num_doc_client");
 
+  // Detectar el tipo de documento basado en la longitud
+  const isDni = watchCustomer?.length === 8;
+  const isRuc = watchCustomer?.length === 11;
+
+  // Validación DNI (8 dígitos)
   const {
-    data: customerData,
-    isLoading: isCustomerLoading,
-    error: customerError,
+    data: dniData,
+    isLoading: isDniLoading,
+    error: dniError,
   } = useDniValidation(
     watchCustomer,
-    !isFirstLoad && !!watchCustomer && watchCustomer.length === 8,
+    !isFirstLoad && !!watchCustomer && isDni,
     true
   );
+
+  // Validación RUC (11 dígitos)
+  const {
+    data: rucData,
+    isLoading: isRucLoading,
+    error: rucError,
+  } = useRucValidation(
+    watchCustomer,
+    !isFirstLoad && !!watchCustomer && isRuc,
+    true
+  );
+
+  // Datos consolidados
+  const customerData = dniData || rucData;
+  const customerError = dniError || rucError;
+  const isCustomerLoading = isDniLoading || isRucLoading;
 
   // Effect para cargar datos del cliente cuando se selecciona un vehículo
   useEffect(() => {
@@ -135,17 +159,25 @@ export const AppointmentPlanningForm = ({
     }
   }, [watchVehicleId, vehicles, form]);
 
-  // UseEffect específico para conyuge:
+  // UseEffect para autocompletar datos del cliente
   useEffect(() => {
     if (isFirstLoad) return;
 
     if (customerData?.success && customerData.data) {
-      const repInfo = customerData.data;
-      form.setValue("full_name_client", repInfo.names || "");
+      // Si es DNI (persona natural)
+      if (dniData?.success && dniData.data) {
+        const clientInfo = dniData.data;
+        form.setValue("full_name_client", clientInfo.names || "");
+      }
+      // Si es RUC (persona jurídica)
+      else if (rucData?.success && rucData.data) {
+        const clientInfo = rucData.data;
+        form.setValue("full_name_client", clientInfo.business_name || "");
+      }
     } else if (customerData && !customerData.success) {
       form.setValue("full_name_client", "");
     }
-  }, [customerData, form]);
+  }, [customerData, dniData, rucData, form, isFirstLoad]);
 
   // Deshabilitar campos de cliente si se encontró información
   const shouldDisableCustomerFields = Boolean(
@@ -246,11 +278,11 @@ export const AppointmentPlanningForm = ({
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="flex items-center gap-2 relative">
-                  Cliente DNI
+                  Cliente DNI/RUC
                   <DocumentValidationStatus
                     shouldValidate={true}
                     documentNumber={watchCustomer || ""}
-                    expectedDigits={8}
+                    expectedDigits={isDni ? 8 : isRuc ? 11 : 0}
                     isValidating={isCustomerLoading}
                     leftPosition="right-0"
                   />
@@ -258,9 +290,9 @@ export const AppointmentPlanningForm = ({
                 <FormControl>
                   <div className="relative">
                     <Input
-                      placeholder="Número de documento"
+                      placeholder="8 dígitos (DNI) o 11 dígitos (RUC)"
                       {...field}
-                      maxLength={8}
+                      maxLength={11}
                       type="number"
                     />
                     <ValidationIndicator
