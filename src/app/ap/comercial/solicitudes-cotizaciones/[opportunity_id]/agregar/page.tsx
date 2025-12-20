@@ -1,6 +1,6 @@
 "use client";
 
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import { useMutation } from "@tanstack/react-query";
 import {
@@ -16,12 +16,20 @@ import { storePurchaseRequestQuote } from "@/features/ap/comercial/solicitudes-c
 import { PurchaseRequestQuoteSchema } from "@/features/ap/comercial/solicitudes-cotizaciones/lib/purchaseRequestQuote.schema";
 import { PurchaseRequestQuoteForm } from "@/features/ap/comercial/solicitudes-cotizaciones/components/PurchaseRequestQuoteForm";
 import { notFound } from "@/shared/hooks/useNotFound";
+import { useOpportunity } from "@/features/ap/comercial/oportunidades/lib/opportunities.hook";
+import FormSkeleton from "@/shared/components/FormSkeleton";
 
 export default function AddPurchaseRequestQuotePage() {
   const router = useNavigate();
-  const [searchParams] = useSearchParams();
+  const params = useParams();
   const { currentView, checkRouteExists } = useCurrentModule();
   const { ROUTE, MODEL, ABSOLUTE_ROUTE } = PURCHASE_REQUEST_QUOTE;
+
+  const opportunityId = Number(params.opportunity_id);
+
+  // Obtener los datos de la oportunidad
+  const { data: opportunity, isLoading: isLoadingOpportunity } =
+    useOpportunity(opportunityId);
 
   const { mutate, isPending } = useMutation({
     mutationFn: storePurchaseRequestQuote,
@@ -38,11 +46,15 @@ export default function AddPurchaseRequestQuotePage() {
   const handleSubmit = (data: PurchaseRequestQuoteSchema) => {
     mutate(data);
   };
+
   if (!checkRouteExists(ROUTE)) notFound();
   if (!currentView) notFound();
 
-  // Obtener el opportunity_id de los parámetros de la URL
-  const opportunityIdFromUrl = searchParams.get("opportunity_id") || "";
+  if (isLoadingOpportunity) return <FormSkeleton />;
+  if (!opportunity) {
+    errorToast("No se encontró la oportunidad");
+    return notFound();
+  }
 
   return (
     <FormWrapper>
@@ -56,7 +68,7 @@ export default function AddPurchaseRequestQuotePage() {
           sede_id: "",
           type_document: "COTIZACION",
           warranty: "",
-          opportunity_id: opportunityIdFromUrl,
+          opportunity_id: opportunityId.toString(),
           comment: "",
           holder_id: "",
           with_vin: false,
@@ -69,6 +81,7 @@ export default function AddPurchaseRequestQuotePage() {
         onSubmit={handleSubmit}
         isSubmitting={isPending}
         mode="create"
+        opportunity={opportunity}
       />
     </FormWrapper>
   );

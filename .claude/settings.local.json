@@ -21,7 +21,8 @@
       "Bash(Select-Object -First 10)",
       "Bash(npm run lint:*)",
       "Bash(npx eslint:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(del \"c:\\\\Users\\\\david\\\\Documents\\\\data\\\\front\\\\namu-frontend\\\\src\\\\app\\\\ap\\\\comercial\\\\solicitudes-cotizaciones\\\\agregar\\\\page.tsx\")"
     ],
     "deny": [],
     "ask": []

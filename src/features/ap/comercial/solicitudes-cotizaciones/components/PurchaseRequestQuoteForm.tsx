@@ -40,12 +40,15 @@ import {
 } from "../../vehiculos/lib/vehicles.hook";
 import { PURCHASE_REQUEST_QUOTE } from "../lib/purchaseRequestQuote.constants";
 import { PurchaseOrderAccessoriesCard } from "./PurchaseOrderAccessoriesCard";
+import { OpportunityInfoCard } from "./OpportunityInfoCard";
+import { OpportunityResource } from "../../oportunidades/lib/opportunities.interface";
 
 interface PurchaseRequestQuoteFormProps {
   defaultValues: Partial<PurchaseRequestQuoteSchema>;
   onSubmit: (data: any) => void;
   isSubmitting?: boolean;
   mode?: "create" | "update";
+  opportunity?: OpportunityResource;
 }
 
 const typeDocOptions = [
@@ -64,6 +67,7 @@ export const PurchaseRequestQuoteForm = ({
   onSubmit,
   isSubmitting = false,
   mode = "create",
+  opportunity,
 }: PurchaseRequestQuoteFormProps) => {
   const { ABSOLUTE_ROUTE } = PURCHASE_REQUEST_QUOTE;
   const router = useNavigate();
@@ -93,7 +97,9 @@ export const PurchaseRequestQuoteForm = ({
   const { data: mySedes = [], isLoading: isLoadingMySedes } = useMySedes({
     company: EMPRESA_AP.id,
   });
-  const { data: opportunities = [], isLoading: isLoadingOpportunities } =
+  // Solo cargar oportunidades si NO viene la prop opportunity
+  const shouldFetchOpportunities = !opportunity;
+  const { data: opportunitiesData = [], isLoading: isLoadingOpportunities } =
     useMyOpportunities({
       has_purchase_request_quote: 0,
       opportunity_id:
@@ -101,6 +107,9 @@ export const PurchaseRequestQuoteForm = ({
           ? Number(defaultValues.opportunity_id)
           : undefined,
     });
+
+  // Usar un array vacío si no debemos cargar oportunidades (cuando viene la prop opportunity)
+  const opportunities = shouldFetchOpportunities ? opportunitiesData : [];
   const { data: clients = [], isLoading: isLoadingClients } = useAllCustomers();
   const { data: modelsVn = [], isLoading: isLoadingModelsVn } = useAllModelsVn({
     family_id: selectedFamilyId,
@@ -371,8 +380,18 @@ export const PurchaseRequestQuoteForm = ({
     }
   }, [copyClientToHolder, opportunityWatch]);
 
-  // Effect para actualizar family_id cuando cambia la oportunidad seleccionada
+  // Effect para actualizar family_id cuando cambia la oportunidad seleccionada o viene la prop opportunity
   useEffect(() => {
+    // Si viene la prop opportunity directamente, usar su family_id
+    if (opportunity && opportunity.family_id) {
+      setSelectedFamilyId(opportunity.family_id);
+      if (!hasInitializedFamilyIdRef.current) {
+        hasInitializedFamilyIdRef.current = true;
+      }
+      return;
+    }
+
+    // Si no, usar la lógica normal de selección desde el formulario
     if (opportunityWatch && opportunities.length > 0) {
       const selectedOpportunity = opportunities.find(
         (opp) => opp.id.toString() === opportunityWatch
@@ -400,11 +419,11 @@ export const PurchaseRequestQuoteForm = ({
           hasInitializedFamilyIdRef.current = true;
         }
       }
-    } else if (!opportunityWatch) {
+    } else if (!opportunityWatch && !opportunity) {
       setSelectedFamilyId(undefined);
       hasInitializedFamilyIdRef.current = false;
     }
-  }, [opportunityWatch, isInitialLoad, selectedFamilyId]);
+  }, [opportunityWatch, isInitialLoad, selectedFamilyId, opportunity]);
 
   // Effect para sincronizar la moneda de facturación seleccionada
   useEffect(() => {
@@ -625,19 +644,31 @@ export const PurchaseRequestQuoteForm = ({
                 options={typeDocOptions}
                 control={form.control}
               />
-              <FormSelect
-                name="opportunity_id"
-                label="Oportunidad"
-                placeholder="Selecciona una oportunidad"
-                options={opportunities.map((item) => ({
-                  label: item.client.full_name,
-                  description:
-                    item.family.brand + " - " + item.family.description,
-                  value: item.id.toString(),
-                }))}
-                control={form.control}
-                strictFilter={true}
-              />
+
+              {/* Solo mostrar el selector de oportunidad si NO viene la prop opportunity */}
+              {!opportunity && (
+                <FormSelect
+                  name="opportunity_id"
+                  label="Oportunidad"
+                  placeholder="Selecciona una oportunidad"
+                  options={opportunities.map((item) => ({
+                    label: item.client.full_name,
+                    description:
+                      item.family.brand + " - " + item.family.description,
+                    value: item.id.toString(),
+                  }))}
+                  control={form.control}
+                  strictFilter={true}
+                />
+              )}
+
+              {/* Mostrar la tarjeta de información de oportunidad cuando viene la prop */}
+              {opportunity && (
+                <div className="col-span-full">
+                  <OpportunityInfoCard opportunity={opportunity} />
+                </div>
+              )}
+
               <div className="relative">
                 <FormSelect
                   name="holder_id"

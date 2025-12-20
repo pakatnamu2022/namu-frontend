@@ -171,7 +171,7 @@ export default function OpportunityDetailPage() {
               Cerrar Oportunidad
             </Button>
 
-            <Link to={`${PURCHASE_REQUEST_QUOTE_ROUTE_ADD}?opportunity_id=${opportunity.id}`}>
+            <Link to={`${PURCHASE_REQUEST_QUOTE_ROUTE_ADD.replace(':opportunity_id', opportunity.id.toString())}`}>
               <Button variant="default" size="sm">
                 <FileText className="size-4" />
                 Generar Solicitud
