@@ -146,10 +146,12 @@ export const AppointmentPlanningForm = ({
       // Si el vehículo tiene cliente (owner), autocompletar los campos
       if (vehicle?.owner && vehicle.owner !== null) {
         const client = vehicle.owner;
+        form.setValue("num_doc_client", client.num_doc || "");
         form.setValue("full_name_client", client.full_name || "");
         form.setValue("email_client", client.email || "");
         form.setValue("phone_client", client.phone || "");
       } else {
+        form.setValue("num_doc_client", "");
         form.setValue("full_name_client", "");
         form.setValue("email_client", "");
         form.setValue("phone_client", "");

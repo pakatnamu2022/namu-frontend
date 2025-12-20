@@ -74,7 +74,8 @@ interface WorkerTimelineProps {
     workerId: number,
     hours: number,
     workOrderId: number,
-    description: string
+    description: string,
+    groupNumber: number
   ) => void;
   onEstimatedHoursChange?: (hours: number) => void;
   fullPage?: boolean;
@@ -380,7 +381,8 @@ export function WorkerTimeline({
       selectedTime &&
       onTimeSelect &&
       selectedWorkOrderId &&
-      selectedItemId !== null
+      selectedItemId !== null &&
+      activeGroup !== null
     ) {
       // Obtener la descripción del item seleccionado
       const selectedItem = filteredItems.find(
@@ -393,7 +395,8 @@ export function WorkerTimeline({
         selectedTime.workerId,
         estimatedHours,
         Number(selectedWorkOrderId),
-        description
+        description,
+        activeGroup
       );
 
       // Limpiar selecciones
@@ -411,7 +414,7 @@ export function WorkerTimeline({
   };
 
   const canConfirm =
-    selectedTime && selectedWorkOrderId && selectedItemId !== null;
+    selectedTime && selectedWorkOrderId && selectedItemId !== null && activeGroup !== null;
 
   const timeMarkers = [
     { time: "8:00", position: 0 },

@@ -13,6 +13,7 @@ export const workOrderPlanningSchema = z.object({
   planned_start_datetime: z
     .string()
     .min(1, "La fecha y hora de inicio es requerida"),
+  group_number: z.number().int().positive("El número de grupo debe ser un número positivo"),
 });
 
 export const startSessionSchema = z.object({
@@ -33,8 +34,9 @@ export const exceptionalCaseSchema = z.object({
   work_order_id: requiredStringId("La orden de trabajo es requerida"),
   worker_id: requiredStringId("El operario es requerido"),
   description: requiredText("La descripción", 3, 500),
-  estimated_hours: z.string().min(1, "La fecha es requerida"),
+  estimated_hours: z.string().min(1, "La duración es requerida"),
   planned_start_datetime: z.string().min(1, "La hora de inicio es requerida"),
+  group_number: z.number().int().positive("El número de grupo debe ser un número positivo"),
 });
 
 export type WorkOrderPlanningFormValues = z.infer<

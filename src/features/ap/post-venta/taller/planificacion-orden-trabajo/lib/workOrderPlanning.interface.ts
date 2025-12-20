@@ -46,6 +46,7 @@ export interface WorkOrderPlanningRequest {
   description: string;
   estimated_hours: number;
   planned_start_datetime: string;
+  group_number: number;
   type?: string; // "external" para casos excepcionales
 }
 

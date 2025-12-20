@@ -35,7 +35,8 @@ export default function CreatePlanningPage() {
     workerId: number,
     hours: number,
     workOrderId: number,
-    description: string
+    description: string,
+    groupNumber: number
   ) => {
     try {
       // Formatear fecha/hora en formato local sin conversión a UTC
@@ -55,6 +56,7 @@ export default function CreatePlanningPage() {
         description: description,
         estimated_hours: hours,
         planned_start_datetime: formatLocalDatetime(startDatetime),
+        group_number: groupNumber,
       };
 
       await createMutation.mutateAsync(requestData);
