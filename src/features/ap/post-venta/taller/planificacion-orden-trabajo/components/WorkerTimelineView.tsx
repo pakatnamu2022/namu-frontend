@@ -14,6 +14,7 @@ interface WorkerTimelineViewProps {
   onPlanningClick?: (planning: WorkOrderPlanningResource) => void;
   onBack: () => void;
   sedeId?: string;
+  onRefresh?: () => void;
 }
 
 export function WorkerTimelineView({
@@ -22,6 +23,7 @@ export function WorkerTimelineView({
   onPlanningClick,
   onBack,
   sedeId,
+  onRefresh,
 }: WorkerTimelineViewProps) {
   return (
     <Card>
@@ -49,6 +51,7 @@ export function WorkerTimelineView({
           onPlanningClick={onPlanningClick}
           fullPage={true}
           sedeId={sedeId}
+          onRefresh={onRefresh}
         />
       </CardContent>
     </Card>

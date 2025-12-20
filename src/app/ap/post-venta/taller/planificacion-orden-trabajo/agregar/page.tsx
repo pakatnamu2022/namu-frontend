@@ -102,6 +102,7 @@ export default function CreatePlanningPage() {
           onEstimatedHoursChange={setEstimatedHours}
           fullPage={true}
           sedeId={selectedSedeId || undefined}
+          onRefresh={refetch}
         />
       </div>
     </FormWrapper>

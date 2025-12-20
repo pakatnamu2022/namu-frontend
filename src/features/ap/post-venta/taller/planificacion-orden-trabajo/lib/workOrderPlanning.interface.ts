@@ -23,6 +23,7 @@ export interface WorkOrderPlanningResource {
   has_active_session: boolean;
   sessions_count: number;
   sessions?: WorkOrderPlanningSessionResource[];
+  type?: string; // "internal" o "external" para casos excepcionales
   created_at: string;
   updated_at: string;
 }
@@ -120,4 +121,29 @@ export interface WorkOrderMock {
   correlative: string;
   vehicle_plate: string;
   customer_name: string;
+}
+
+// Consolidated Planning Interfaces
+export interface ConsolidatedWorker {
+  worker_id: number;
+  worker_name: string;
+  estimated_hours: number;
+  actual_hours: number;
+  status: PlanningStatus;
+  planned_start_datetime: string | null;
+  planned_end_datetime: string | null;
+  actual_start_datetime: string | null;
+  actual_end_datetime: string | null;
+}
+
+export interface ConsolidatedPlanning {
+  group_number: number;
+  description: string;
+  total_estimated_hours: number;
+  total_actual_hours: number;
+  remaining_hours: number;
+  progress_percentage: number;
+  status: PlanningStatus;
+  workers_count: number;
+  workers: ConsolidatedWorker[];
 }

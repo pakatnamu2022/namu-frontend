@@ -43,7 +43,7 @@ import {
 } from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.constant";
 import { EMPRESA_AP } from "@/core/core.constants";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
-import { Building2 } from "lucide-react";
+import { Building2, RefreshCw } from "lucide-react";
 import { useGetWorkOrder } from "../../orden-trabajo/lib/workOrder.hook";
 import {
   Popover,
@@ -80,6 +80,7 @@ interface WorkerTimelineProps {
   onEstimatedHoursChange?: (hours: number) => void;
   fullPage?: boolean;
   sedeId?: string;
+  onRefresh?: () => void;
 }
 
 export function WorkerTimeline({
@@ -94,6 +95,7 @@ export function WorkerTimeline({
   onEstimatedHoursChange,
   fullPage = false,
   sedeId,
+  onRefresh,
 }: WorkerTimelineProps) {
   const [selectedTime, setSelectedTime] = useState<{
     time: Date;
@@ -432,7 +434,7 @@ export function WorkerTimeline({
 
   const timelineContent = (
     <div className="space-y-6">
-      {/* Sede y Botón Caso Excepcional */}
+      {/* Sede y Botones */}
       <div className="flex justify-between items-center gap-4">
         {selectedSede && (
           <Badge
@@ -443,14 +445,25 @@ export function WorkerTimeline({
             <span className="font-medium">{selectedSede.description}</span>
           </Badge>
         )}
-        <Button
-          variant="outline"
-          onClick={() => setIsExceptionalCaseOpen(true)}
-          className="gap-2 ml-auto"
-        >
-          <Clock className="h-4 w-4" />
-          Caso Excepcional
-        </Button>
+        <div className="flex gap-2 ml-auto">
+          <Button
+            variant="outline"
+            onClick={onRefresh}
+            className="gap-2"
+            disabled={!onRefresh}
+          >
+            <RefreshCw className="h-4 w-4" />
+            Actualizar
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => setIsExceptionalCaseOpen(true)}
+            className="gap-2"
+          >
+            <Clock className="h-4 w-4" />
+            Caso Excepcional
+          </Button>
+        </div>
       </div>
 
       {selectionMode && onEstimatedHoursChange && (
@@ -724,10 +737,14 @@ export function WorkerTimeline({
         </div>
       )}
 
-      <div className="flex items-center gap-6 p-4 bg-gray-50 rounded-lg">
+      <div className="flex items-center gap-6 p-4 bg-gray-50 rounded-lg flex-wrap">
         <div className="flex items-center gap-2">
           <div className="w-4 h-4 bg-blue-200 border-2 border-blue-500 rounded"></div>
           <span className="text-sm">Planificado</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-4 h-4 bg-amber-200 border-2 border-amber-500 rounded"></div>
+          <span className="text-sm">Caso Excepcional</span>
         </div>
         <div className="flex items-center gap-2">
           <div className="w-4 h-4 bg-green-500 rounded"></div>
@@ -809,11 +826,16 @@ export function WorkerTimeline({
                 ))}
 
                 {/* Barras de planificación */}
-                {plannings.map((planning) => {
+                {plannings.map((planning, index) => {
                   const startPos = calculatePosition(
                     planning.planned_start_datetime!
                   );
                   const width = calculateWidth(planning);
+                  const isExternal = planning.type === "external";
+
+                  // Verificar si el planning anterior era interno y este es externo para agregar espacio
+                  const previousPlanning = index > 0 ? plannings[index - 1] : null;
+                  const needsTopMargin = isExternal && previousPlanning?.type !== "external";
 
                   return (
                     <TooltipProvider key={planning.id}>
@@ -824,19 +846,23 @@ export function WorkerTimeline({
                             style={{
                               left: `${startPos}%`,
                               width: `${width}%`,
-                              top: "50%",
+                              top: needsTopMargin ? "calc(50% + 8px)" : "50%",
                               transform: "translateY(-50%)",
                             }}
                             onClick={() => onPlanningClick?.(planning)}
                           >
-                            {/* Barra única - color según estado */}
+                            {/* Barra única - color según estado o tipo */}
                             <div
                               className={`h-5 rounded border-2 ${
-                                PLANNING_STATUS_COLORS[planning.status].border
+                                isExternal
+                                  ? "border-amber-500 bg-amber-200"
+                                  : PLANNING_STATUS_COLORS[planning.status].border
                               } ${
-                                planning.actual_start_datetime
+                                !isExternal && planning.actual_start_datetime
                                   ? PLANNING_STATUS_COLORS[planning.status].bg
-                                  : "bg-blue-200 opacity-50"
+                                  : !isExternal
+                                  ? "bg-blue-200 opacity-50"
+                                  : ""
                               }`}
                             ></div>
 
@@ -846,6 +872,11 @@ export function WorkerTimeline({
                                 <span className="text-[10px] font-medium truncate text-gray-900">
                                   {planning.work_order_correlative}
                                 </span>
+                                {isExternal && (
+                                  <Badge className="text-[8px] px-1 py-0 h-3 bg-amber-600 text-white">
+                                    EXT
+                                  </Badge>
+                                )}
                                 {getEfficiencyIcon(planning)}
                               </div>
                             </div>
@@ -856,8 +887,15 @@ export function WorkerTimeline({
                           className="max-w-xs bg-gray-50 text-black border border-gray-400"
                         >
                           <div className="space-y-1">
-                            <div className="font-semibold">
-                              {planning.work_order_correlative}
+                            <div className="flex items-center gap-2">
+                              <div className="font-semibold">
+                                {planning.work_order_correlative}
+                              </div>
+                              {planning.type === "external" && (
+                                <Badge className="text-[10px] bg-amber-600 text-white">
+                                  Caso Excepcional
+                                </Badge>
+                              )}
                             </div>
                             <div className="text-sm">
                               {planning.description}
