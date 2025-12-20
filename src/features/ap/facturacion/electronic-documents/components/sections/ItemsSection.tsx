@@ -394,7 +394,7 @@ export function ItemsSection({
               <FormInput
                 name="item-price"
                 label="Precio Unitario (Con IGV)"
-                placeholder="Ej: 590.00"
+                placeholder="Ej: 580.00"
                 type="number"
                 min="0"
                 step="0.01"
