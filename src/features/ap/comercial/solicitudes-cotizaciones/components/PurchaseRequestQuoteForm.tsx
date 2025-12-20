@@ -268,7 +268,14 @@ export const PurchaseRequestQuoteForm = ({
       // Disparar validación del campo with_vin cuando cambian los valores
       form.trigger("with_vin");
     }
-  }, [withVinWatch, vehicleVnWatch, modelVnWatch, vehicleColorWatch, isInitialLoad, form]);
+  }, [
+    withVinWatch,
+    vehicleVnWatch,
+    modelVnWatch,
+    vehicleColorWatch,
+    isInitialLoad,
+    form,
+  ]);
 
   // Effect para actualizar el precio cuando cambia el modelo (solo si no es carga inicial y es modo create)
   useEffect(() => {
@@ -367,18 +374,27 @@ export const PurchaseRequestQuoteForm = ({
 
     // Solo ejecutar si NO estamos en el proceso de inicialización
     if (hasInitializedCheckboxRef.current || mode === "create") {
-      if (copyClientToHolder && opportunityWatch) {
-        const selectedOpportunity = opportunities.find(
-          (opp) => opp.id.toString() === opportunityWatch
-        );
-        if (selectedOpportunity) {
-          form.setValue("holder_id", selectedOpportunity.client.id.toString());
+      if (copyClientToHolder) {
+        // Primero intentar usar la prop opportunity si está disponible
+        if (opportunity) {
+          form.setValue("holder_id", opportunity.client.id.toString());
+        } else if (opportunityWatch) {
+          // Si no hay prop, buscar en el array de oportunidades
+          const selectedOpportunity = opportunities.find(
+            (opp) => opp.id.toString() === opportunityWatch
+          );
+          if (selectedOpportunity) {
+            form.setValue(
+              "holder_id",
+              selectedOpportunity.client.id.toString()
+            );
+          }
         }
       } else if (!copyClientToHolder) {
         form.setValue("holder_id", "");
       }
     }
-  }, [copyClientToHolder, opportunityWatch]);
+  }, [copyClientToHolder, opportunityWatch, opportunity]);
 
   // Effect para actualizar family_id cuando cambia la oportunidad seleccionada o viene la prop opportunity
   useEffect(() => {
@@ -617,6 +633,13 @@ export const PurchaseRequestQuoteForm = ({
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Columna izquierda: Formulario (3 cols) */}
           <div className="lg:col-span-2 space-y-6">
+            {/* Mostrar la tarjeta de información de oportunidad cuando viene la prop */}
+            {opportunity && (
+              <div className="col-span-full">
+                <OpportunityInfoCard opportunity={opportunity} />
+              </div>
+            )}
+
             {/*Seccion Información General*/}
             <GroupFormSection
               title="Información General"
@@ -662,13 +685,6 @@ export const PurchaseRequestQuoteForm = ({
                 />
               )}
 
-              {/* Mostrar la tarjeta de información de oportunidad cuando viene la prop */}
-              {opportunity && (
-                <div className="col-span-full">
-                  <OpportunityInfoCard opportunity={opportunity} />
-                </div>
-              )}
-
               <div className="relative">
                 <FormSelect
                   name="holder_id"
@@ -698,6 +714,18 @@ export const PurchaseRequestQuoteForm = ({
                   </label>
                 </div>
               </div>
+
+              <FormSelect
+                name="doc_type_currency_id"
+                label="Moneda de Facturación"
+                placeholder="Selecciona la moneda"
+                options={currencyTypes.map((item) => ({
+                  label: `${item.name} (${item.symbol})`,
+                  value: item.id.toString(),
+                }))}
+                control={form.control}
+                strictFilter={true}
+              />
             </GroupFormSection>
 
             {/*Seccion Información de Vehiculo*/}
