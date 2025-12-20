@@ -320,6 +320,26 @@ export function ElectronicDocumentDetailSheet({
                     </Badge>
                   </div>
                 )}
+              {document.condiciones_de_pago && (
+                <div>
+                  <p className="text-xs text-muted-foreground">
+                    Condiciones de Pago
+                  </p>
+                  <p className="text-sm font-medium">
+                    {document.condiciones_de_pago}
+                  </p>
+                </div>
+              )}
+              {document.medio_de_pago && (
+                <div>
+                  <p className="text-xs text-muted-foreground">
+                    Medio de Pago
+                  </p>
+                  <p className="text-sm font-medium">
+                    {document.medio_de_pago}
+                  </p>
+                </div>
+              )}
             </div>
           </div>
 

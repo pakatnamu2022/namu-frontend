@@ -23,12 +23,13 @@ interface FormInputProps
   name: string;
   description?: string;
   label?: string | React.ReactNode;
-  control: Control<any>;
+  control?: Control<any>;
   tooltip?: string | React.ReactNode;
   children?: React.ReactNode;
   required?: boolean;
   addonStart?: React.ReactNode;
   addonEnd?: React.ReactNode;
+  error?: string;
 }
 
 export function FormInput({
@@ -42,20 +43,108 @@ export function FormInput({
   className,
   addonStart,
   addonEnd,
+  error,
+  value,
+  onChange,
   ...inputProps
 }: FormInputProps) {
+  const isNumberType = inputProps.type === "number";
+
+  // Si no hay control, funcionar como input controlado estándar
+  if (!control) {
+    const handleStandaloneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (onChange) {
+        if (isNumberType) {
+          const val = e.target.value;
+          // Crear un evento sintético con el valor numérico
+          const syntheticEvent = {
+            ...e,
+            target: {
+              ...e.target,
+              value: val === "" ? "" : Number(val),
+            },
+          } as React.ChangeEvent<HTMLInputElement>;
+          onChange(syntheticEvent);
+        } else {
+          onChange(e);
+        }
+      }
+    };
+
+    return (
+      <div className="flex flex-col justify-between">
+        {label && (
+          <label className="flex justify-start items-center text-xs md:text-sm mb-1 font-medium">
+            {label}
+            {required && <RequiredField />}
+            {tooltip && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Badge
+                    variant="tertiary"
+                    className="ml-2 p-0 aspect-square w-4 h-4 text-center justify-center"
+                  >
+                    ?
+                  </Badge>
+                </TooltipTrigger>
+                <TooltipContent>{tooltip}</TooltipContent>
+              </Tooltip>
+            )}
+          </label>
+        )}
+        <div className="flex flex-col gap-2 items-center">
+          <div className="relative w-full">
+            {addonStart && (
+              <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center justify-center text-muted-foreground pointer-events-none z-10">
+                {addonStart}
+              </div>
+            )}
+            <Input
+              name={name}
+              className={cn(
+                "h-8 md:h-10 text-xs md:text-sm",
+                addonStart && "pl-10",
+                addonEnd && "pr-10",
+                className
+              )}
+              {...inputProps}
+              onChange={handleStandaloneChange}
+              value={value ?? ""}
+            />
+            {addonEnd && (
+              <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center justify-center text-muted-foreground pointer-events-none z-10">
+                {addonEnd}
+              </div>
+            )}
+          </div>
+          {children}
+        </div>
+
+        {description && (
+          <p className="text-xs text-muted-foreground mt-1">
+            {description}
+          </p>
+        )}
+        {error && (
+          <p className="text-xs font-medium text-destructive mt-1">
+            {error}
+          </p>
+        )}
+      </div>
+    );
+  }
+
+  // Si hay control, funcionar como FormField (comportamiento original)
   return (
     <FormField
       control={control}
       name={name}
       render={({ field }) => {
-        const isNumberType = inputProps.type === "number";
-
         const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
           if (isNumberType) {
-            const value = e.target.value;
+            const val = e.target.value;
             // Permitir string vacío temporalmente
-            field.onChange(value === "" ? "" : Number(value));
+            field.onChange(val === "" ? "" : Number(val));
           } else {
             field.onChange(e);
           }

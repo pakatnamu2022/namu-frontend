@@ -494,22 +494,18 @@ MODELO: ${vehicle?.model?.version || ``}
                 SUNAT_TYPE_INVOICES_ID.NOTA_CREDITO
             ) {
               total_gravada += item.subtotal;
-              total_igv += item.igv;
               total_anticipo += -item.subtotal;
             } else {
               total_gravada += -item.subtotal;
-              total_igv += -item.igv;
               total_anticipo += item.subtotal;
             }
           } else {
             total_gravada += -item.subtotal;
-            total_igv += -item.igv;
             total_anticipo += item.subtotal;
           }
         } else {
           // Gravado normal
           total_gravada += item.subtotal;
-          total_igv += item.igv;
         }
       } else if (igvType?.code_nubefact === "20") {
         if (item.anticipo_regularizacion) {
@@ -535,6 +531,9 @@ MODELO: ${vehicle?.model?.version || ``}
         total_gratuita += item.subtotal;
       }
     });
+
+    // Calcular IGV sobre la base imponible neta (después de restar anticipos)
+    total_igv = total_gravada * (porcentaje_de_igv / 100);
 
     const total = total_gravada + total_inafecta + total_exonerada + total_igv;
 
