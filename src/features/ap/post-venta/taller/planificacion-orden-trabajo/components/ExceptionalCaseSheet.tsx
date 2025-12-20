@@ -240,6 +240,7 @@ export function ExceptionalCaseSheet({
         estimated_hours: Number(data.estimated_hours),
         planned_start_datetime: data.planned_start_datetime,
         group_number: data.group_number,
+        type: "external", // Marcador para casos excepcionales
       });
 
       toast.success("Planificación excepcional creada correctamente");
