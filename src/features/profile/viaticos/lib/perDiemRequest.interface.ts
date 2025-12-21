@@ -1,5 +1,5 @@
 import { type Links, type Meta } from "@/shared/lib/pagination.interface.ts";
-import { PerDiemCategoryResource } from "../../categoria-viaticos/lib/perDiemCategory.interface";
+import { PerDiemCategoryResource } from "../../../gp/gestionhumana/viaticos/categoria-viaticos/lib/perDiemCategory.interface";
 
 export interface PerDiemRequestResponse {
   data: PerDiemRequestResource[];
@@ -140,4 +140,9 @@ export interface PerDiemRequestRequest {
 
 export interface getPerDiemRequestProps {
   params?: Record<string, any>;
+}
+
+export interface ReviewPerDiemRequestRequest {
+  status: "approved" | "rejected";
+  comments?: string;
 }

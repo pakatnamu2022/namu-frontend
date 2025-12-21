@@ -1,7 +1,5 @@
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { findPerDiemRequestById } from "@/features/gp/gestionhumana/viaticos/solicitud-viaticos/lib/perDiemRequest.actions";
-import { PER_DIEM_REQUEST } from "@/features/gp/gestionhumana/viaticos/solicitud-viaticos/lib/perDiemRequest.constants";
 import {
   Card,
   CardContent,
@@ -22,11 +20,13 @@ import {
   XCircle,
   Clock,
   ArrowLeft,
+  User,
 } from "lucide-react";
-import ExpensesTable from "@/features/gp/gestionhumana/viaticos/solicitud-viaticos/components/ExpensesTable";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import PerDiemRequestActions2 from "@/features/gp/gestionhumana/viaticos/solicitud-viaticos/components/PerDiemRequestActions2";
+import { PER_DIEM_REQUEST } from "@/features/profile/viaticos/lib/perDiemRequest.constants";
+import { findPerDiemRequestById } from "@/features/profile/viaticos/lib/perDiemRequest.actions";
+import ExpensesTable from "@/features/profile/viaticos/components/ExpensesTable";
 
 export default function PerDiemRequestDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -186,6 +186,20 @@ export default function PerDiemRequestDetailPage() {
               </p>
             </div>
           </div>
+
+          <div className="flex items-start gap-3">
+            <User className="h-5 w-5 text-muted-foreground mt-0.5" />
+            <div>
+              <p className="text-sm font-medium">Revisado por</p>
+              <p className="text-sm text-muted-foreground">
+                {request.approvals && request.approvals.length > 0
+                  ? request.approvals
+                      .map((approval) => approval.approver)
+                      .join(", ")
+                  : "No asignado"}
+              </p>
+            </div>
+          </div>
         </CardContent>
       </Card>
 
@@ -246,7 +260,7 @@ export default function PerDiemRequestDetailPage() {
                 Lista de todos los gastos de esta solicitud
               </CardDescription>
             </div>
-            <PerDiemRequestActions2 requestId={request.id} />
+            {/* <PerDiemRequestActions requestId={request.id} /> */}
           </div>
         </CardHeader>
         <CardContent>

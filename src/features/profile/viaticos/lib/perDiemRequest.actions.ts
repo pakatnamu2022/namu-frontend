@@ -7,6 +7,7 @@ import {
   PerDiemRequestRequest,
   PerDiemRequestResource,
   PerDiemRequestResponse,
+  ReviewPerDiemRequestRequest,
 } from "./perDiemRequest.interface";
 
 const { ENDPOINT } = PER_DIEM_REQUEST;
@@ -120,4 +121,28 @@ export async function deleteExpense(
     `${ENDPOINT}/${requestId}/expenses/${expenseId}`
   );
   return data;
+}
+
+export async function getPendingApprovals({
+  params,
+}: getPerDiemRequestProps): Promise<PerDiemRequestResponse> {
+  const config: AxiosRequestConfig = {
+    params,
+  };
+  const { data } = await api.get<PerDiemRequestResponse>(
+    `${ENDPOINT}/pending-approvals`,
+    config
+  );
+  return data;
+}
+
+export async function reviewPerDiemRequest(
+  id: number,
+  reviewData: ReviewPerDiemRequestRequest
+): Promise<PerDiemRequestResource> {
+  const response = await api.post<PerDiemRequestResource>(
+    `${ENDPOINT}/${id}/review`,
+    reviewData
+  );
+  return response.data;
 }

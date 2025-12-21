@@ -10,17 +10,17 @@ import {
   SUCCESS_MESSAGE,
   successToast,
 } from "@/core/core.function";
-import { PerDiemRequestForm } from "@/features/gp/gestionhumana/viaticos/solicitud-viaticos/components/PerDiemRequestForm";
+import { PerDiemRequestForm } from "@/features/profile/viaticos/components/PerDiemRequestForm";
 import {
   updatePerDiemRequest,
   findPerDiemRequestById,
-} from "@/features/gp/gestionhumana/viaticos/solicitud-viaticos/lib/perDiemRequest.actions";
-import { PER_DIEM_REQUEST } from "@/features/gp/gestionhumana/viaticos/solicitud-viaticos/lib/perDiemRequest.constants";
+} from "@/features/profile/viaticos/lib/perDiemRequest.actions";
+import { PER_DIEM_REQUEST } from "@/features/profile/viaticos/lib/perDiemRequest.constants";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { PerDiemRequestSchemaUpdate } from "@/features/gp/gestionhumana/viaticos/solicitud-viaticos/lib/perDiemRequest.schema";
+import { PerDiemRequestSchemaUpdate } from "@/features/profile/viaticos/lib/perDiemRequest.schema";
 import FormWrapper from "@/shared/components/FormWrapper";
-import { PerDiemRequestResource } from "@/features/gp/gestionhumana/viaticos/solicitud-viaticos/lib/perDiemRequest.interface";
+import { PerDiemRequestResource } from "@/features/profile/viaticos/lib/perDiemRequest.interface";
 
 export default function UpdatePerDiemRequestPage() {
   const { id } = useParams();
@@ -76,14 +76,6 @@ export default function UpdatePerDiemRequestPage() {
       purpose: data.purpose,
       notes: data.notes || "",
       status: data.status,
-      paid: data.paid,
-      payment_date: data.payment_date ? new Date(data.payment_date) : "",
-      settled: data.settled,
-      settlement_date: data.settlement_date
-        ? new Date(data.settlement_date)
-        : "",
-      total_spent: data.total_spent,
-      balance_to_return: data.balance_to_return,
     };
   }
 

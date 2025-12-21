@@ -4,6 +4,7 @@ import { PER_DIEM_REQUEST } from "./perDiemRequest.constants";
 import {
   findPerDiemRequestById,
   getAllPerDiemRequest,
+  getPendingApprovals,
   getPerDiemRequest,
 } from "./perDiemRequest.actions";
 
@@ -28,5 +29,12 @@ export function useFindPerDiemRequestById(id: number) {
     queryKey: [QUERY_KEY, id],
     queryFn: () => findPerDiemRequestById(id),
     enabled: !!id,
+  });
+}
+
+export function useGetPendingApprovals(props: getPerDiemRequestProps) {
+  return useQuery({
+    queryKey: [QUERY_KEY, "pending-approvals", props],
+    queryFn: () => getPendingApprovals(props),
   });
 }
