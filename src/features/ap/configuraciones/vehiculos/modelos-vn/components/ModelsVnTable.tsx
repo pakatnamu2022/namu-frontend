@@ -9,7 +9,7 @@ interface Props {
   isLoading?: boolean;
 }
 
-export default function VehicleCategoryTable({
+export default function ModelsVnTable({
   columns,
   data,
   children,
