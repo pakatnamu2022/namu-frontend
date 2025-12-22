@@ -48,10 +48,6 @@ export const apBankColumns = ({
     header: "CCI",
   },
   {
-    accessorKey: "description",
-    header: "Descripción",
-  },
-  {
     accessorKey: "currency",
     header: "Moneda",
   },

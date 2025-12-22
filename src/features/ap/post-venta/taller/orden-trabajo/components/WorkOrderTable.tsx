@@ -32,7 +32,7 @@ export default function WorkOrderTable({
           actual_delivery_date: false,
           is_guarantee: true,
           is_recall: true,
-          is_invoiced: true,
+          is_invoiced: false,
         }}
       >
         {children}

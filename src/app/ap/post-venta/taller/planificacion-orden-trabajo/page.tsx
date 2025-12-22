@@ -14,25 +14,16 @@ import {
   List,
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  useCreateWorkOrderPlanning,
-  useGetWorkOrderPlanning,
-} from "@/features/ap/post-venta/taller/planificacion-orden-trabajo/lib/workOrderPlanning.hook";
+import { useGetWorkOrderPlanning } from "@/features/ap/post-venta/taller/planificacion-orden-trabajo/lib/workOrderPlanning.hook";
 import { DashboardStats } from "@/features/ap/post-venta/taller/planificacion-orden-trabajo/components/DashboardStats";
 import { WorkerPerformanceChart } from "@/features/ap/post-venta/taller/planificacion-orden-trabajo/components/WorkerPerformanceChart";
 import { StatusDistributionChart } from "@/features/ap/post-venta/taller/planificacion-orden-trabajo/components/StatusDistributionChart";
 import { PlanningCalendar } from "@/features/ap/post-venta/taller/planificacion-orden-trabajo/components/PlanningCalendar";
 import { planningColumns } from "@/features/ap/post-venta/taller/planificacion-orden-trabajo/components/PlanningColumns";
-import { PlanningForm } from "@/features/ap/post-venta/taller/planificacion-orden-trabajo/components/PlanningForm";
-import { PlanningDetail } from "@/features/ap/post-venta/taller/planificacion-orden-trabajo/components/PlanningDetail";
-import { WorkOrderPlanningFormValues } from "@/features/ap/post-venta/taller/planificacion-orden-trabajo/lib/workOrderPlanning.schema";
 import { WorkOrderPlanningResource } from "@/features/ap/post-venta/taller/planificacion-orden-trabajo/lib/workOrderPlanning.interface";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { WORK_ORDER_PLANNING } from "@/features/ap/post-venta/taller/planificacion-orden-trabajo/lib/workOrderPlanning.constants";
-import { successToast } from "@/core/core.function";
 import { Card } from "@/components/ui/card";
-import GeneralSheet from "@/shared/components/GeneralSheet";
-import { useIsTablet } from "@/hooks/use-mobile";
 import PlanningTable from "@/features/ap/post-venta/taller/planificacion-orden-trabajo/components/PlanningTable";
 import DataTablePagination from "@/shared/components/DataTablePagination";
 import { DEFAULT_PER_PAGE, EMPRESA_AP } from "@/core/core.constants";
@@ -42,12 +33,14 @@ import {
   STATUS_WORKER,
 } from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.constant";
 import PlanningOptions from "@/features/ap/post-venta/taller/planificacion-orden-trabajo/components/PlanningOptions";
+import { AssignedWorkDetail } from "@/features/ap/post-venta/taller/trabajos-asignados/components/AssignedWorkDetail";
+import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
+import { SearchableSelect } from "@/shared/components/SearchableSelect";
 
 export default function PlanningPage() {
-  const isTablet = useIsTablet();
   const navigate = useNavigate();
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
-  const [openCreateDialog, setOpenCreateDialog] = useState(false);
+  //const [openCreateDialog, setOpenCreateDialog] = useState(false);
   const [selectedPlanning, setSelectedPlanning] =
     useState<WorkOrderPlanningResource | null>(null);
   const [openDetailDialog, setOpenDetailDialog] = useState(false);
@@ -58,13 +51,19 @@ export default function PlanningPage() {
   const [search, setSearch] = useState("");
   const [workerId, setWorkerId] = useState<string>("");
 
+  // Estado persistente para sede
+  const [sedeId, setSedeId] = useState<string>(() => {
+    const stored = localStorage.getItem("planningPage_selectedSedeId");
+    return stored || "";
+  });
+
   const { ROUTE } = WORK_ORDER_PLANNING;
 
   // Reiniciar página cuando cambian los filtros
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setPage(1);
-  }, [search, per_page, workerId]);
+  }, [search, per_page, workerId, sedeId]);
 
   // Obtener trabajadores para el filtro
   const { data: workers = [], isLoading: isLoadingWorkers } = useAllWorkers({
@@ -73,75 +72,33 @@ export default function PlanningPage() {
     sede$empresa_id: EMPRESA_AP.id,
   });
 
-  const { data, isLoading, refetch } = useGetWorkOrderPlanning({
+  const { data, isLoading } = useGetWorkOrderPlanning({
     page,
     search,
     per_page,
     worker_id: workerId,
+    ...(sedeId && { sede_id: sedeId }),
   });
-  const createMutation = useCreateWorkOrderPlanning();
-
-  const handleCreatePlanning = async (
-    formData: WorkOrderPlanningFormValues
-  ) => {
-    try {
-      const requestData = {
-        work_order_id: Number(formData.work_order_id),
-        worker_id: Number(formData.worker_id),
-        description: formData.description,
-        estimated_hours: Number(formData.estimated_hours),
-      };
-
-      await createMutation.mutateAsync(requestData);
-      successToast("Planificación creada exitosamente");
-      setOpenCreateDialog(false);
-    } catch (error) {
-      console.error("Error al crear planificación:", error);
-    }
-  };
 
   const handleViewPlanning = (planning: WorkOrderPlanningResource) => {
     setSelectedPlanning(planning);
     setOpenDetailDialog(true);
   };
 
-  const handleStartSession = (notes?: string) => {
-    if (!selectedPlanning) return;
-    console.log("Iniciar sesión:", { planningId: selectedPlanning.id, notes });
-    successToast("Sesión iniciada");
-    refetch();
-    setOpenDetailDialog(false);
-  };
-
-  const handlePauseWork = (reason?: string) => {
-    if (!selectedPlanning) return;
-    console.log("Pausar trabajo:", { planningId: selectedPlanning.id, reason });
-    successToast("Trabajo pausado");
-    refetch();
-    setOpenDetailDialog(false);
-  };
-
-  const handleCompleteWork = () => {
-    if (!selectedPlanning) return;
-    console.log("Completar trabajo:", { planningId: selectedPlanning.id });
-    successToast("Trabajo completado");
-    refetch();
-    setOpenDetailDialog(false);
-  };
-
-  const handleCancelPlanning = () => {
-    if (!selectedPlanning) return;
-    console.log("Cancelar planificación:", { planningId: selectedPlanning.id });
-    successToast("Planificación cancelada");
-    refetch();
-    setOpenDetailDialog(false);
-  };
+  const { data: mySedes = [], isLoading: isLoadingMySedes } = useMySedes({
+    company: EMPRESA_AP.id,
+  });
 
   const handleOpenCreatePlanning = () => {
     navigate("/ap/post-venta/taller/planificacion-orden-trabajo/agregar");
   };
 
-  if (isLoadingModule) return <PageSkeleton />;
+  const handleSedeChange = (value: string) => {
+    setSedeId(value);
+    localStorage.setItem("planningPage_selectedSedeId", value);
+  };
+
+  if (isLoadingModule || isLoadingMySedes) return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
   if (!currentView) notFound();
 
@@ -155,10 +112,23 @@ export default function PlanningPage() {
           subtitle="Gestión de planificación de órdenes de trabajo con sesiones"
           icon={currentView.icon}
         />
-        <Button onClick={handleOpenCreatePlanning}>
-          <Plus className="h-4 w-4 mr-2" />
-          Nueva Planificación
-        </Button>
+        <div className="flex items-center gap-2 ml-auto">
+          <SearchableSelect
+            options={mySedes.map((item) => ({
+              value: item.id.toString(),
+              label: item.abreviatura,
+            }))}
+            value={sedeId}
+            onChange={handleSedeChange}
+            placeholder="Filtrar por sede"
+            className="min-w-72"
+            classNameOption="text-xs"
+          />
+          <Button onClick={handleOpenCreatePlanning}>
+            <Plus className="h-4 w-4 mr-2" />
+            Nueva Planificación
+          </Button>
+        </div>
       </HeaderTableWrapper>
 
       <Tabs defaultValue="dashboard" className="w-full">
@@ -189,6 +159,7 @@ export default function PlanningPage() {
           <PlanningCalendar
             data={plannings}
             onPlanningClick={handleViewPlanning}
+            sedeId={sedeId}
           />
         </TabsContent>
 
@@ -219,29 +190,11 @@ export default function PlanningPage() {
         </TabsContent>
       </Tabs>
 
-      {/* Add GeneralSheet */}
-      <GeneralSheet
-        open={openCreateDialog}
-        onClose={() => setOpenCreateDialog(false)}
-        title="Agregar Nuevo Trabajo"
-        type={isTablet ? "tablet" : "default"}
-        className="sm:max-w-2xl"
-      >
-        <PlanningForm
-          onSubmit={handleCreatePlanning}
-          isLoading={createMutation.isPending}
-        />
-      </GeneralSheet>
-
       {/* Dialog para ver detalle y gestionar sesiones */}
-      <PlanningDetail
+      <AssignedWorkDetail
         planning={selectedPlanning}
         open={openDetailDialog}
         onClose={() => setOpenDetailDialog(false)}
-        onStart={handleStartSession}
-        onPause={handlePauseWork}
-        onComplete={handleCompleteWork}
-        onCancel={handleCancelPlanning}
       />
     </div>
   );

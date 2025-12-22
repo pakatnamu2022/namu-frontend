@@ -13,54 +13,31 @@ import {
   useGetWorkOrderPlanning,
 } from "@/features/ap/post-venta/taller/planificacion-orden-trabajo/lib/workOrderPlanning.hook";
 import { WorkerTimeline } from "@/features/ap/post-venta/taller/planificacion-orden-trabajo/components/WorkerTimeline";
-import { PlanningMiniForm } from "@/features/ap/post-venta/taller/planificacion-orden-trabajo/components/PlanningMiniForm";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { WORK_ORDER_PLANNING } from "@/features/ap/post-venta/taller/planificacion-orden-trabajo/lib/workOrderPlanning.constants";
 import { successToast } from "@/core/core.function";
 import FormWrapper from "@/shared/components/FormWrapper";
-import { useAllWorkers } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
-import {
-  POSITION_TYPE,
-  STATUS_WORKER,
-} from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.constant";
-import { EMPRESA_AP } from "@/core/core.constants";
 
 export default function CreatePlanningPage() {
   const navigate = useNavigate();
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [estimatedHours, setEstimatedHours] = useState(2);
-  const [selectedTimeSlot, setSelectedTimeSlot] = useState<{
-    startDatetime: Date;
-    workerId: number;
-    hours: number;
-  } | null>(null);
-  const [showMiniForm, setShowMiniForm] = useState(false);
+  const selectedSedeId = localStorage.getItem("planningPage_selectedSedeId");
 
   const { ROUTE } = WORK_ORDER_PLANNING;
   const { data, refetch } = useGetWorkOrderPlanning();
   const createMutation = useCreateWorkOrderPlanning();
 
-  // Obtener trabajadores
-  const { data: workers = [] } = useAllWorkers({
-    cargo_id: POSITION_TYPE.OPERATORS,
-    status_id: STATUS_WORKER.ACTIVE,
-    sede$empresa_id: EMPRESA_AP.id,
-  });
-
   const plannings = data?.data || [];
 
-  const handleTimeSelect = (
+  const handleTimeSelect = async (
     startDatetime: Date,
     workerId: number,
-    hours: number
+    hours: number,
+    workOrderId: number,
+    description: string,
+    groupNumber: number
   ) => {
-    setSelectedTimeSlot({ startDatetime, workerId, hours });
-    setShowMiniForm(true);
-  };
-
-  const handleMiniFormSubmit = async (formData: any) => {
-    if (!selectedTimeSlot) return;
-
     try {
       // Formatear fecha/hora en formato local sin conversión a UTC
       const formatLocalDatetime = (date: Date): string => {
@@ -74,13 +51,12 @@ export default function CreatePlanningPage() {
       };
 
       const requestData = {
-        work_order_id: Number(formData.work_order_id),
-        worker_id: selectedTimeSlot.workerId,
-        description: formData.description,
-        estimated_hours: selectedTimeSlot.hours,
-        planned_start_datetime: formatLocalDatetime(
-          selectedTimeSlot.startDatetime
-        ),
+        work_order_id: workOrderId,
+        worker_id: workerId,
+        description: description,
+        estimated_hours: hours,
+        planned_start_datetime: formatLocalDatetime(startDatetime),
+        group_number: groupNumber,
       };
 
       await createMutation.mutateAsync(requestData);
@@ -88,10 +64,6 @@ export default function CreatePlanningPage() {
 
       // Refrescar datos para mostrar la nueva planificación en el timeline
       await refetch();
-
-      // Cerrar modal y limpiar selección
-      setShowMiniForm(false);
-      setSelectedTimeSlot(null);
     } catch (error) {
       console.error("Error al crear planificación:", error);
     }
@@ -114,57 +86,24 @@ export default function CreatePlanningPage() {
           </Button>
           <TitleComponent
             title="Nueva Planificación"
-            subtitle="Selecciona el horario disponible para asignar el trabajo"
+            subtitle="Selecciona la orden de trabajo, horario y descripciones para asignar el trabajo"
             icon={currentView.icon}
           />
         </div>
       </HeaderTableWrapper>
 
       <div className="w-full">
-        {/* Timeline ocupa 2/3 del espacio */}
-        <div className="lg:col-span-2">
-          <WorkerTimeline
-            selectedDate={new Date()}
-            data={plannings}
-            selectionMode={true}
-            estimatedHours={estimatedHours}
-            onTimeSelect={handleTimeSelect}
-            onEstimatedHoursChange={setEstimatedHours}
-            fullPage={true}
-          />
-        </div>
-
-        {/* Mini formulario ocupa 1/3 del espacio */}
-        <div className="lg:col-span-1">
-          <PlanningMiniForm
-            open={showMiniForm}
-            onOpenChange={setShowMiniForm}
-            onSubmit={handleMiniFormSubmit}
-            isLoading={createMutation.isPending}
-            selectedWorkerName={
-              selectedTimeSlot
-                ? (() => {
-                    const worker = workers.find(
-                      (w) => w.id === selectedTimeSlot.workerId
-                    );
-                    return worker ? `${worker.name}` : undefined;
-                  })()
-                : undefined
-            }
-            selectedTime={
-              selectedTimeSlot
-                ? `${selectedTimeSlot.startDatetime.toLocaleTimeString(
-                    "es-ES",
-                    {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    }
-                  )}`
-                : undefined
-            }
-            estimatedHours={selectedTimeSlot?.hours}
-          />
-        </div>
+        <WorkerTimeline
+          selectedDate={new Date()}
+          data={plannings}
+          selectionMode={true}
+          estimatedHours={estimatedHours}
+          onTimeSelect={handleTimeSelect}
+          onEstimatedHoursChange={setEstimatedHours}
+          fullPage={true}
+          sedeId={selectedSedeId || undefined}
+          onRefresh={refetch}
+        />
       </div>
     </FormWrapper>
   );

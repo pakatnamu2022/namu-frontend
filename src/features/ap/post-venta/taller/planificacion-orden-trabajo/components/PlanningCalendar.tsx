@@ -29,11 +29,15 @@ import {
 interface PlanningCalendarProps {
   data: WorkOrderPlanningResource[];
   onPlanningClick?: (planning: WorkOrderPlanningResource) => void;
+  sedeId?: string;
+  onRefresh?: () => void;
 }
 
 export function PlanningCalendar({
   data,
   onPlanningClick,
+  sedeId,
+  onRefresh,
 }: PlanningCalendarProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDayForTimeline, setSelectedDayForTimeline] =
@@ -84,6 +88,8 @@ export function PlanningCalendar({
         data={data}
         onPlanningClick={onPlanningClick}
         onBack={handleBackToCalendar}
+        sedeId={sedeId}
+        onRefresh={onRefresh}
       />
     );
   }

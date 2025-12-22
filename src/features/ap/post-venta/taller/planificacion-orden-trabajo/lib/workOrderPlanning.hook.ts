@@ -160,3 +160,15 @@ export function useGetSessions(id: number) {
     enabled: !!id,
   });
 }
+
+// Hook para obtener planificación consolidada por orden de trabajo
+export function useGetConsolidatedPlanning(workOrderId: number) {
+  return useQuery({
+    queryKey: [QUERY_KEY, "consolidated", workOrderId],
+    queryFn: async () => {
+      const { getConsolidatedPlanning } = await import("./workOrderPlanning.actions");
+      return getConsolidatedPlanning(workOrderId);
+    },
+    enabled: !!workOrderId,
+  });
+}

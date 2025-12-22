@@ -28,6 +28,8 @@ export const workOrderSchemaCreate = z
     items: z.array(workOrderItemSchema).optional(),
     is_guarantee: z.boolean().default(true),
     is_recall: z.boolean().default(true),
+    description_recall: z.string().max(500).optional(),
+    type_recall: z.enum(["ROJO", "AMARILLO", "VERDE"]).optional(),
   })
   .refine(
     (data) => {

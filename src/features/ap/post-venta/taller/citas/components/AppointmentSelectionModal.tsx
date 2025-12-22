@@ -16,6 +16,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { errorToast } from "@/core/core.function";
+import SearchInput from "@/shared/components/SearchInput";
 
 interface AppointmentSelectionModalProps {
   open: boolean;
@@ -31,6 +32,7 @@ export const AppointmentSelectionModal = ({
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const currentDate = new Date();
+  const [search, setSearch] = useState("");
   const [dateFrom, setDateFrom] = useState<Date | undefined>(currentDate);
   const [dateTo, setDateTo] = useState<Date | undefined>(currentDate);
 
@@ -53,6 +55,7 @@ export const AppointmentSelectionModal = ({
     page,
     per_page,
     is_taken: 0,
+    search,
     date_appointment:
       dateFrom && dateTo
         ? [formatDate(dateFrom), formatDate(dateTo)]
@@ -128,7 +131,13 @@ export const AppointmentSelectionModal = ({
 
         <div className="flex-1 overflow-auto space-y-3 sm:space-y-4">
           {/* Filtros */}
-          <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-end gap-2 flex-wrap">
+            <SearchInput
+              value={search}
+              onChange={setSearch}
+              placeholder="Buscar placa o cliente..."
+              label="Buscar"
+            />
             <DatePicker
               value={dateFrom}
               onChange={setDateFrom}

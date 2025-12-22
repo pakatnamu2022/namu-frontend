@@ -2,27 +2,21 @@
 
 import type { ColumnDef } from "@tanstack/react-table";
 import { PerDiemRequestResource } from "../lib/perDiemRequest.interface";
-import { Button } from "@/components/ui/button";
-import { Pencil } from "lucide-react";
-import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Check, X } from "lucide-react";
 
-export type PerDiemRequestColumns = ColumnDef<PerDiemRequestResource>;
+export type PendingApprovalsColumns = ColumnDef<PerDiemRequestResource>;
 
 interface Props {
-  onDelete: (id: number) => void;
-  onUpdate: (id: number) => void;
-  permissions: {
-    canUpdate: boolean;
-    canDelete: boolean;
-  };
+  onApprove: (id: number) => void;
+  onReject: (id: number) => void;
 }
 
-export const perDiemRequestColumns = ({
-  onUpdate,
-  onDelete,
-  permissions,
-}: Props): PerDiemRequestColumns[] => [
+export const pendingApprovalsColumns = ({
+  onApprove,
+  onReject,
+}: Props): PendingApprovalsColumns[] => [
   {
     accessorKey: "code",
     header: "Código",
@@ -32,7 +26,7 @@ export const perDiemRequestColumns = ({
     },
   },
   {
-    accessorKey: "employee_id",
+    accessorKey: "employee",
     header: "Empleado",
     cell: ({ getValue }) => {
       const value = getValue() as string;
@@ -76,6 +70,22 @@ export const perDiemRequestColumns = ({
     },
   },
   {
+    accessorKey: "destination",
+    header: "Destino",
+    cell: ({ getValue }) => {
+      const value = getValue() as string;
+      return value && <p>{value}</p>;
+    },
+  },
+  {
+    accessorKey: "purpose",
+    header: "Propósito",
+    cell: ({ getValue }) => {
+      const value = getValue() as string;
+      return value && <p className="max-w-xs truncate">{value}</p>;
+    },
+  },
+  {
     accessorKey: "total_budget",
     header: "Presupuesto Total",
     cell: ({ getValue }) => {
@@ -113,42 +123,41 @@ export const perDiemRequestColumns = ({
     },
   },
   {
-    accessorKey: "paid",
-    header: "Pagado",
-    cell: ({ getValue }) => {
-      const value = getValue() as boolean;
-      return (
-        <Badge
-          variant={value ? "default" : "secondary"}
-          className="capitalize w-16 flex items-center justify-center"
-        >
-          {value ? "Sí" : "No"}
-        </Badge>
-      );
-    },
-  },
-  {
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
-      const { id } = row.original;
+      const { id, status } = row.original;
+
+      console.log("Row status:", status); // Debug: verificar el valor del status
+
+      // Solo mostrar botones si está pendiente
+      if (status !== "pending") {
+        return <p className="text-sm text-muted-foreground">-</p>;
+      }
 
       return (
         <div className="flex items-center gap-2">
-          {permissions.canUpdate && (
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-7"
-              onClick={() => onUpdate(id)}
-            >
-              <Pencil className="size-5" />
-            </Button>
-          )}
+          {/* Aprobar */}
+          <Button
+            variant="default"
+            size="icon"
+            className="size-7"
+            onClick={() => onApprove(id)}
+            tooltip="Aprobar solicitud"
+          >
+            <Check className="size-4" />
+          </Button>
 
-          {permissions.canDelete && (
-            <DeleteButton onClick={() => onDelete(id)} />
-          )}
+          {/* Rechazar */}
+          <Button
+            variant="destructive"
+            size="icon"
+            className="size-7"
+            onClick={() => onReject(id)}
+            tooltip="Rechazar solicitud"
+          >
+            <X className="size-4" />
+          </Button>
         </div>
       );
     },
