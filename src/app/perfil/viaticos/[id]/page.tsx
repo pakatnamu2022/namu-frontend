@@ -3,11 +3,13 @@
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, Plus } from "lucide-react";
+import { ArrowLeft, Plus, FileDown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { PER_DIEM_REQUEST } from "@/features/profile/viaticos/lib/perDiemRequest.constants";
-import { findPerDiemRequestById } from "@/features/profile/viaticos/lib/perDiemRequest.actions";
+import { findPerDiemRequestById, downloadSettlementPdf } from "@/features/profile/viaticos/lib/perDiemRequest.actions";
+import { useState } from "react";
+import { toast } from "sonner";
 import TitleComponent from "@/shared/components/TitleComponent";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import {
@@ -21,12 +23,28 @@ import FormWrapper from "@/shared/components/FormWrapper";
 export default function PerDiemRequestDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const [isDownloading, setIsDownloading] = useState(false);
 
   const { data: request, isLoading } = useQuery({
     queryKey: [PER_DIEM_REQUEST.QUERY_KEY, id],
     queryFn: () => findPerDiemRequestById(Number(id)),
     enabled: !!id,
   });
+
+  const handleDownloadPdf = async () => {
+    if (!id) return;
+
+    try {
+      setIsDownloading(true);
+      await downloadSettlementPdf(Number(id));
+      toast.success("PDF descargado correctamente");
+    } catch (error) {
+      toast.error("Error al descargar el PDF");
+      console.error("Error downloading PDF:", error);
+    } finally {
+      setIsDownloading(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -74,6 +92,16 @@ export default function PerDiemRequestDetailPage() {
           </div>
           <div className="flex items-center gap-2">
             <RequestStatusBadge status={request.status} />
+            <Button
+              onClick={handleDownloadPdf}
+              size="sm"
+              variant="outline"
+              className="gap-2"
+              disabled={isDownloading}
+            >
+              <FileDown className="h-4 w-4" />
+              {isDownloading ? "Descargando..." : "Exportar PDF"}
+            </Button>
             <Button
               onClick={() => navigate(`/perfil/viaticos/${id}/gastos/agregar`)}
               size="sm"
