@@ -293,7 +293,6 @@ import UpdatePerDiemRequestPage from "./app/perfil/viaticos/actualizar/[id]/page
 import ApprovePerDiemRequestPage from "./app/perfil/viaticos/aprobar/page.tsx";
 import PerDiemRequestDetailPage from "./app/perfil/viaticos/[id]/page.tsx";
 import AddExpensePage from "./app/perfil/viaticos/[id]/gastos/agregar/page.tsx";
-import AddHotelReservationPage from "./app/perfil/viaticos/[id]/reserva-hotel/agregar/page.tsx";
 import UpdatePositionPage from "./app/gp/gestion-humana/configuraciones/posiciones/actualizar/[id]/page";
 import UpdateHierarchicalCategoryPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/categorias-jerarquicas/actualizar/[id]/page";
 import SedePage from "./app/gp/maestro-general/sede/page.tsx";
@@ -463,10 +462,6 @@ function App() {
               <Route
                 path="viaticos/:id/gastos/agregar"
                 element={<AddExpensePage />}
-              />
-              <Route
-                path="viaticos/:id/reserva-hotel/agregar"
-                element={<AddHotelReservationPage />}
               />
             </Route>
 

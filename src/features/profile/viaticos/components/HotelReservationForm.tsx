@@ -19,15 +19,11 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Loader, Upload } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { ActiveHotelAgreement } from "../lib/hotelReservation.interface";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
+import { DateTimePickerForm } from "@/shared/components/DateTimePickerForm";
+import { FormSelect } from "@/shared/components/FormSelect";
+import { Option } from "@/core/core.interface";
 
 interface HotelReservationFormProps {
   defaultValues?: Partial<HotelReservationSchema>;
@@ -50,6 +46,33 @@ export const HotelReservationForm = ({
 }: HotelReservationFormProps) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
+  // Convertir las fechas del viático a Date para validación
+  const tripStartDate = useMemo(() => {
+    if (!perDiemStartDate) return undefined;
+    return new Date(perDiemStartDate);
+  }, [perDiemStartDate]);
+
+  const tripEndDate = useMemo(() => {
+    if (!perDiemEndDate) return undefined;
+    return new Date(perDiemEndDate);
+  }, [perDiemEndDate]);
+
+  // Convertir hotelAgreements a opciones para FormSelect
+  const hotelAgreementOptions: Option[] = useMemo(() => {
+    const options: Option[] = [
+      { value: "none", label: "Sin convenio" }
+    ];
+
+    hotelAgreements.forEach((agreement) => {
+      options.push({
+        value: agreement.id.toString(),
+        label: `${agreement.name} - ${agreement.city} (S/ ${agreement.corporate_rate})`,
+      });
+    });
+
+    return options;
+  }, [hotelAgreements]);
+
   const form = useForm<HotelReservationSchema>({
     resolver: zodResolver(hotelReservationSchema) as any,
     defaultValues: {
@@ -66,43 +89,48 @@ export const HotelReservationForm = ({
     mode: "onChange",
   });
 
-  // Autocompletar campos cuando se selecciona un convenio
-  const handleHotelAgreementChange = (value: string) => {
-    if (value === "none") {
-      form.setValue("hotel_agreement_id", null);
-      form.setValue("hotel_name", "");
-      form.setValue("address", "");
-      form.setValue("phone", "");
-      return;
-    }
-
-    const agreementId = parseInt(value);
-    const agreement = hotelAgreements.find((a) => a.id === agreementId);
-
-    if (agreement) {
-      form.setValue("hotel_agreement_id", agreement.id);
-      form.setValue("hotel_name", agreement.name);
-      form.setValue("address", agreement.address);
-      form.setValue("phone", agreement.phone);
-
-      // Sugerir el costo basado en la tarifa corporativa y las noches
-      const checkin = new Date(form.getValues("checkin_date"));
-      const checkout = new Date(form.getValues("checkout_date"));
-      if (checkin && checkout) {
-        const nights = Math.ceil(
-          (checkout.getTime() - checkin.getTime()) / (1000 * 60 * 60 * 24)
-        );
-        const corporateRate = parseFloat(agreement.corporate_rate);
-        if (!isNaN(corporateRate) && nights > 0) {
-          form.setValue("total_cost", corporateRate * nights);
-        }
-      }
-    }
-  };
-
-  // Actualizar costo total cuando cambian las fechas
+  // Actualizar costo total y campos cuando cambian las fechas o el convenio
   useEffect(() => {
     const subscription = form.watch((value, { name }) => {
+      // Autocompletar campos cuando se selecciona un convenio
+      if (name === "hotel_agreement_id") {
+        const agreementValue = value.hotel_agreement_id;
+
+        if (!agreementValue || (typeof agreementValue === "string" && agreementValue === "none")) {
+          form.setValue("hotel_name", "");
+          form.setValue("address", "");
+          form.setValue("phone", "");
+          return;
+        }
+
+        const agreementId = typeof agreementValue === "string"
+          ? parseInt(agreementValue)
+          : agreementValue;
+        const agreement = hotelAgreements.find((a) => a.id === agreementId);
+
+        if (agreement) {
+          form.setValue("hotel_name", agreement.name);
+          form.setValue("address", agreement.address);
+          form.setValue("phone", agreement.phone);
+
+          // Sugerir el costo basado en la tarifa corporativa y las noches
+          const checkin = form.getValues("checkin_date");
+          const checkout = form.getValues("checkout_date");
+          if (checkin && checkout) {
+            const checkinDate = new Date(checkin);
+            const checkoutDate = new Date(checkout);
+            const nights = Math.ceil(
+              (checkoutDate.getTime() - checkinDate.getTime()) / (1000 * 60 * 60 * 24)
+            );
+            const corporateRate = parseFloat(agreement.corporate_rate);
+            if (!isNaN(corporateRate) && nights > 0) {
+              form.setValue("total_cost", corporateRate * nights);
+            }
+          }
+        }
+      }
+
+      // Actualizar costo total cuando cambian las fechas
       if (name === "checkin_date" || name === "checkout_date") {
         const checkin = value.checkin_date;
         const checkout = value.checkout_date;
@@ -142,37 +170,13 @@ export const HotelReservationForm = ({
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 w-full">
         {/* Selector de Convenio */}
-        <FormField
+        <FormSelect
           control={form.control}
           name="hotel_agreement_id"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Convenio de Hotel (Opcional)</FormLabel>
-              <Select
-                onValueChange={handleHotelAgreementChange}
-                value={field.value?.toString() || "none"}
-              >
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecciona un convenio" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="none">Sin convenio</SelectItem>
-                  {hotelAgreements.map((agreement) => (
-                    <SelectItem key={agreement.id} value={agreement.id.toString()}>
-                      {agreement.name} - {agreement.city} (S/{" "}
-                      {agreement.corporate_rate})
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormDescription>
-                Selecciona un convenio para autocompletar los datos del hotel
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
+          label="Convenio de Hotel (Opcional)"
+          placeholder="Selecciona un convenio"
+          options={hotelAgreementOptions}
+          description="Selecciona un convenio para autocompletar los datos del hotel"
         />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -225,57 +229,39 @@ export const HotelReservationForm = ({
           )}
         />
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Check-in */}
-          <FormField
+          <DateTimePickerForm
             control={form.control}
             name="checkin_date"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Check-in</FormLabel>
-                <FormControl>
-                  <Input
-                    type="datetime-local"
-                    {...field}
-                    value={
-                      field.value
-                        ? typeof field.value === "string"
-                          ? field.value.slice(0, 16)
-                          : new Date(field.value).toISOString().slice(0, 16)
-                        : ""
-                    }
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Fecha y Hora de Check-in"
+            placeholder="Selecciona fecha y hora de entrada"
+            minDate={tripStartDate}
+            maxDate={tripEndDate}
+            description={`Rango permitido: ${
+              tripStartDate
+                ? new Date(tripStartDate).toLocaleDateString("es-PE")
+                : "N/A"
+            } - ${
+              tripEndDate
+                ? new Date(tripEndDate).toLocaleDateString("es-PE")
+                : "N/A"
+            }`}
           />
 
           {/* Check-out */}
-          <FormField
+          <DateTimePickerForm
             control={form.control}
             name="checkout_date"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Check-out</FormLabel>
-                <FormControl>
-                  <Input
-                    type="datetime-local"
-                    {...field}
-                    value={
-                      field.value
-                        ? typeof field.value === "string"
-                          ? field.value.slice(0, 16)
-                          : new Date(field.value).toISOString().slice(0, 16)
-                        : ""
-                    }
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Fecha y Hora de Check-out"
+            placeholder="Selecciona fecha y hora de salida"
+            minDate={tripStartDate}
+            maxDate={tripEndDate}
+            description={`Debe ser posterior al check-in y dentro del periodo del viaje`}
           />
+        </div>
 
+        <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
           {/* Costo Total */}
           <FormField
             control={form.control}
@@ -301,21 +287,27 @@ export const HotelReservationForm = ({
         <FormField
           control={form.control}
           name="receipt_file"
-          render={({ field }) => (
+          render={() => (
             <FormItem>
-              <FormLabel>Comprobante (Opcional)</FormLabel>
+              <FormLabel>
+                Comprobante <span className="text-red-500">*</span>
+              </FormLabel>
               <FormControl>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-col gap-2">
                   <Input
                     type="file"
                     accept=".pdf,.jpg,.jpeg,.png"
                     onChange={handleFileChange}
                     className="cursor-pointer"
+                    required
                   />
                   {selectedFile && (
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-2 text-sm text-green-600">
                       <Upload className="h-4 w-4" />
-                      {selectedFile.name}
+                      <span className="font-medium">{selectedFile.name}</span>
+                      <span className="text-muted-foreground">
+                        ({(selectedFile.size / 1024).toFixed(2)} KB)
+                      </span>
                     </div>
                   )}
                 </div>
@@ -355,10 +347,7 @@ export const HotelReservationForm = ({
             </Button>
           )}
 
-          <Button
-            type="submit"
-            disabled={isSubmitting || !form.formState.isValid}
-          >
+          <Button type="submit" disabled={isSubmitting}>
             <Loader
               className={`mr-2 h-4 w-4 animate-spin ${
                 !isSubmitting ? "hidden" : ""

@@ -6,7 +6,7 @@ export interface HotelReservationRequest {
   checkin_date: string | Date;
   checkout_date: string | Date;
   total_cost: number;
-  receipt_file?: File;
+  receipt_file: File;
   notes?: string;
 }
 

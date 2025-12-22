@@ -54,7 +54,33 @@ export const hotelReservationSchema = z
       .refine((val) => val >= 0, {
         message: "Costo total debe ser mayor o igual a 0",
       }),
-    receipt_file: z.instanceof(File).optional().nullable(),
+    receipt_file: z
+      .instanceof(File, {
+        message: "El comprobante es requerido",
+      })
+      .refine((file) => file && file.size > 0, {
+        message: "Debes adjuntar un comprobante",
+      })
+      .refine(
+        (file) => {
+          const validTypes = [
+            "application/pdf",
+            "image/jpeg",
+            "image/jpg",
+            "image/png",
+          ];
+          return file && validTypes.includes(file.type);
+        },
+        {
+          message: "El archivo debe ser PDF, JPG, JPEG o PNG",
+        }
+      )
+      .refine(
+        (file) => file && file.size <= 10 * 1024 * 1024,
+        {
+          message: "El archivo no debe superar los 10MB",
+        }
+      ),
     notes: z.string().max(1000).optional().default(""),
   })
   .refine(

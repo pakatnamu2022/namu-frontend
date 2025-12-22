@@ -21,7 +21,7 @@ export function PerDiemRequestRowActions({
     request.status === "approved" || request.status === "in_progress";
 
   const handleAddHotelReservation = () => {
-    navigate(`/perfil/viaticos/${request.id}/reserva-hotel/agregar`);
+    navigate(`/gp/gestion-humana/viaticos/solicitud-viaticos/${request.id}/reserva-hotel/agregar`);
   };
 
   return (

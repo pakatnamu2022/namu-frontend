@@ -62,10 +62,8 @@ export async function createHotelReservation(
   formData.append("checkin_date", checkinDate.toISOString());
   formData.append("checkout_date", checkoutDate.toISOString());
 
-  // Agregar archivo si existe
-  if (requestData.receipt_file) {
-    formData.append("receipt_file", requestData.receipt_file);
-  }
+  // Agregar archivo (obligatorio)
+  formData.append("receipt_file", requestData.receipt_file);
 
   // Agregar notas si existen
   if (requestData.notes) {
