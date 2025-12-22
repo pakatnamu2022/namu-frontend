@@ -230,12 +230,20 @@ export default function GeneralInfoSection({
       >
         <User className="h-5 w-5 text-muted-foreground mt-0.5 shrink-0" />
         <div className="flex-1">
-          <p className="text-sm font-medium mb-2">Aprobadores</p>
+          <p className="text-sm font-medium mb-2">Aprovaciones</p>
           {request.approvals && request.approvals.length > 0 ? (
             <div className="flex flex-wrap gap-2">
               {request.approvals.map((approval, index) => (
-                <Badge key={index} variant="secondary" className="text-xs">
-                  {typeof approval.approver || "Sin nombre"}
+                <Badge
+                  key={index}
+                  variant="outline"
+                  className="text-xs flex flex-col items-start"
+                >
+                  <p>{approval.approver?.full_name || "Sin nombre"}</p>
+                  {/* <p className="text-muted-foreground">{approval.status}</p> */}
+                  <p className="text-muted-foreground font-light">
+                    {approval.approved_at.split("T")[0]}
+                  </p>
                 </Badge>
               ))}
             </div>
