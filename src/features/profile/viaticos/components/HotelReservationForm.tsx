@@ -299,7 +299,6 @@ export const HotelReservationForm = ({
                     accept=".pdf,.jpg,.jpeg,.png"
                     onChange={handleFileChange}
                     className="cursor-pointer"
-                    required
                   />
                   {selectedFile && (
                     <div className="flex items-center gap-2 text-sm text-green-600">

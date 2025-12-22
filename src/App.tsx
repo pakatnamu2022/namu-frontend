@@ -286,6 +286,9 @@ import HotelAgreementPage from "./app/gp/gestion-humana/viaticos/convenios-hotel
 import AddHotelAgreementPage from "./app/gp/gestion-humana/viaticos/convenios-hoteles/agregar/page.tsx";
 import UpdateHotelAgreementPage from "./app/gp/gestion-humana/viaticos/convenios-hoteles/actualizar/[id]/page.tsx";
 import ExpenseTypePage from "./app/gp/gestion-humana/viaticos/tipo-gasto/page.tsx";
+import PerDiemRatePage from "./app/gp/gestion-humana/viaticos/tarifa/page.tsx";
+import AddPerDiemRatePage from "./app/gp/gestion-humana/viaticos/tarifa/agregar/page.tsx";
+import UpdatePerDiemRatePage from "./app/gp/gestion-humana/viaticos/tarifa/actualizar/[id]/page.tsx";
 import PerDiemRequestPage from "./app/gp/gestion-humana/viaticos/solicitud-viaticos/page.tsx";
 import AddAdminHotelReservationPage from "./app/gp/gestion-humana/viaticos/solicitud-viaticos/[id]/reserva-hotel/agregar/page.tsx";
 import AddPerDiemRequestPage from "./app/perfil/viaticos/agregar/page.tsx";
@@ -1327,6 +1330,17 @@ function App() {
 
                 {/* Administración de Tipos de Gasto */}
                 <Route path="tipo-gasto" element={<ExpenseTypePage />} />
+
+                {/* Administración de Tarifas de Viáticos */}
+                <Route path="tarifa" element={<PerDiemRatePage />} />
+                <Route
+                  path="tarifa/agregar"
+                  element={<AddPerDiemRatePage />}
+                />
+                <Route
+                  path="tarifa/actualizar/:id"
+                  element={<UpdatePerDiemRatePage />}
+                />
 
                 {/* Administración de Convenios de Hoteles */}
                 <Route

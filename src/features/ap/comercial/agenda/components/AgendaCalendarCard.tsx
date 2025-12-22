@@ -23,7 +23,12 @@ interface AgendaCalendarCardProps {
   setSelectedDate: (date: string | null) => void;
 }
 
-function CalendarSync({ selectedDate, setSelectedDate }: { selectedDate: string | null; setSelectedDate: (date: string | null) => void }) {
+function CalendarSync({
+  selectedDate,
+}: {
+  selectedDate: string | null;
+  setSelectedDate: (date: string | null) => void;
+}) {
   const [month, setMonth] = useCalendarMonth();
   const [year, setYear] = useCalendarYear();
 
@@ -59,7 +64,10 @@ export default function AgendaCalendarCard({
           startDay={1}
           className="w-full border rounded-lg bg-background"
         >
-          <CalendarSync selectedDate={selectedDate} setSelectedDate={setSelectedDate} />
+          <CalendarSync
+            selectedDate={selectedDate}
+            setSelectedDate={setSelectedDate}
+          />
           <CalendarDate>
             <CalendarDatePicker>
               <CalendarMonthPicker className="w-fit text-xs sm:text-sm font-bold text-primary" />
