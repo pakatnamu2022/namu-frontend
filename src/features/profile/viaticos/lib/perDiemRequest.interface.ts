@@ -18,47 +18,6 @@ interface Budget {
   deleted_at: null;
 }
 
-interface Expense {
-  id: number;
-  expense_date: string;
-  concept: string;
-  receipt_amount: number;
-  company_amount: number;
-  employee_amount: number;
-  receipt_type: string;
-  receipt_number: null | string;
-  receipt_path: null | string;
-  notes: null | string;
-  validated: boolean;
-  validated_at: null | string;
-  rejected: boolean;
-  rejected_at: null;
-  rejection_reason: null;
-  expense_type: Expensetype;
-  validated_by: null | string;
-  rejected_by: null;
-}
-
-interface Expensetype {
-  id: number;
-  code: string;
-  name: string;
-  full_name: string;
-  description: string;
-  requires_receipt: boolean;
-  active: boolean;
-  order: number;
-  parent: Parent | null;
-  created_at: string;
-  updated_at: string;
-}
-
-interface Parent {
-  id: number;
-  code: string;
-  name: string;
-}
-
 interface Hotelreservation {
   id: number;
   hotel_name: string;
@@ -189,7 +148,7 @@ export interface PerDiemRequestResource {
   policy: string;
   approvals?: Approval[];
   hotel_reservation?: Hotelreservation;
-  expenses?: Expense[];
+  expenses?: ExpenseResource[];
   budgets?: Budget[];
 }
 
