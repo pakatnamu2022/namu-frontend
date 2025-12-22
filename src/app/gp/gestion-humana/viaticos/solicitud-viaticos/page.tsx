@@ -21,6 +21,7 @@ import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { PER_DIEM_REQUEST } from "@/features/profile/viaticos/lib/perDiemRequest.constants";
 import { notFound } from "@/shared/hooks/useNotFound";
+import PerDiemRequestDetailSheet from "@/features/profile/viaticos/components/PerDiemRequestDetailSheet";
 
 export default function PerDiemRequestPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -29,6 +30,7 @@ export default function PerDiemRequestPage() {
   const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const { MODEL, ROUTE } = PER_DIEM_REQUEST;
+  const [detailId, setDetailId] = useState<number | null>(null);
 
   useEffect(() => {
     setPage(1);
@@ -71,7 +73,9 @@ export default function PerDiemRequestPage() {
       </HeaderTableWrapper>
       <PerDiemRequestTable
         isLoading={isLoading}
-        columns={perDiemRequestColumns()}
+        columns={perDiemRequestColumns({
+          onViewDetail: setDetailId,
+        })}
         data={data?.data || []}
       >
         <PerDiemRequestOptions search={search} setSearch={setSearch} />
@@ -84,6 +88,12 @@ export default function PerDiemRequestPage() {
           onConfirm={handleDelete}
         />
       )}
+
+      <PerDiemRequestDetailSheet
+        requestId={detailId}
+        open={detailId !== null}
+        onOpenChange={(open) => !open && setDetailId(null)}
+      />
 
       <DataTablePagination
         page={page}

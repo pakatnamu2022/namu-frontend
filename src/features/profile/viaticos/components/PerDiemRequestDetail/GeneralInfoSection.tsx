@@ -242,7 +242,7 @@ export default function GeneralInfoSection({
                   <p>{approval.approver?.full_name || "Sin nombre"}</p>
                   {/* <p className="text-muted-foreground">{approval.status}</p> */}
                   <p className="text-muted-foreground font-light">
-                    {approval.approved_at.split("T")[0]}
+                    {approval.approved_at?.split("T")[0]}
                   </p>
                 </Badge>
               ))}

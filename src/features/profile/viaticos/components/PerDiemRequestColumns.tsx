@@ -7,7 +7,13 @@ import { PerDiemRequestRowActions } from "./PerDiemRequestRowActions";
 
 export type PerDiemRequestColumns = ColumnDef<PerDiemRequestResource>;
 
-export const perDiemRequestColumns = (): PerDiemRequestColumns[] => [
+interface Props {
+  onViewDetail: (id: number) => void;
+}
+
+export const perDiemRequestColumns = ({
+  onViewDetail,
+}: Props): PerDiemRequestColumns[] => [
   {
     accessorKey: "code",
     header: "Código",
@@ -123,7 +129,12 @@ export const perDiemRequestColumns = (): PerDiemRequestColumns[] => [
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
-      return <PerDiemRequestRowActions request={row.original} />;
+      return (
+        <PerDiemRequestRowActions
+          onViewDetail={onViewDetail}
+          request={row.original}
+        />
+      );
     },
   },
 ];

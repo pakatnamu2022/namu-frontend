@@ -287,6 +287,7 @@ import AddHotelAgreementPage from "./app/gp/gestion-humana/viaticos/convenios-ho
 import UpdateHotelAgreementPage from "./app/gp/gestion-humana/viaticos/convenios-hoteles/actualizar/[id]/page.tsx";
 import ExpenseTypePage from "./app/gp/gestion-humana/viaticos/tipo-gasto/page.tsx";
 import PerDiemRequestPage from "./app/gp/gestion-humana/viaticos/solicitud-viaticos/page.tsx";
+import AddAdminHotelReservationPage from "./app/gp/gestion-humana/viaticos/solicitud-viaticos/[id]/reserva-hotel/agregar/page.tsx";
 import AddPerDiemRequestPage from "./app/perfil/viaticos/agregar/page.tsx";
 import UpdatePerDiemRequestPage from "./app/perfil/viaticos/actualizar/[id]/page.tsx";
 import ApprovePerDiemRequestPage from "./app/perfil/viaticos/aprobar/page.tsx";
