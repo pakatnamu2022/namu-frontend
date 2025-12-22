@@ -13,6 +13,7 @@ import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { PER_DIEM_REQUEST } from "@/features/profile/viaticos/lib/perDiemRequest.constants";
 import { ReviewDialog } from "@/features/profile/viaticos/components/ReviewDialog";
+import PerDiemRequestDetailSheet from "@/features/profile/viaticos/components/PerDiemRequestDetailSheet";
 
 export default function ApprovePerDiemRequestPage() {
   const [page, setPage] = useState(1);
@@ -23,6 +24,7 @@ export default function ApprovePerDiemRequestPage() {
     "approved" | "rejected" | null
   >(null);
   const [comments, setComments] = useState("");
+  const [detailId, setDetailId] = useState<number | null>(null);
   const { MODEL } = PER_DIEM_REQUEST;
 
   useEffect(() => {
@@ -87,6 +89,7 @@ export default function ApprovePerDiemRequestPage() {
         columns={pendingApprovalsColumns({
           onApprove: handleApprove,
           onReject: handleReject,
+          onViewDetail: setDetailId,
         })}
         data={data?.data || []}
       >
@@ -104,6 +107,12 @@ export default function ApprovePerDiemRequestPage() {
           setReviewAction(null);
           setComments("");
         }}
+      />
+
+      <PerDiemRequestDetailSheet
+        requestId={detailId}
+        open={detailId !== null}
+        onOpenChange={(open) => !open && setDetailId(null)}
       />
 
       <DataTablePagination
