@@ -97,12 +97,11 @@ export async function storeExpense(
 }
 
 export async function updateExpense(
-  requestId: number,
   expenseId: number,
   expenseData: FormData
 ): Promise<any> {
   const response = await api.post(
-    `${ENDPOINT}/${requestId}/expenses/${expenseId}`,
+    `gp/gestion-humana/viaticos/per-diem-expenses/${expenseId}`,
     expenseData,
     {
       headers: {

@@ -3,8 +3,9 @@
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 import { PER_DIEM_REQUEST } from "@/features/profile/viaticos/lib/perDiemRequest.constants";
 import { findPerDiemRequestById } from "@/features/profile/viaticos/lib/perDiemRequest.actions";
 import TitleComponent from "@/shared/components/TitleComponent";
@@ -73,6 +74,14 @@ export default function PerDiemRequestDetailPage() {
           </div>
           <div className="flex items-center gap-2">
             <RequestStatusBadge status={request.status} />
+            <Button
+              onClick={() => navigate(`/perfil/viaticos/${id}/gastos/agregar`)}
+              size="sm"
+              className="gap-2"
+            >
+              <Plus className="h-4 w-4" />
+              Nuevo Gasto
+            </Button>
           </div>
         </HeaderTableWrapper>
 
