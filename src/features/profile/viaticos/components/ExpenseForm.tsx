@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Loader, Upload, FileText } from "lucide-react";
+import { Loader, Upload, FileText, AlertCircle, CheckCircle2 } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { useState, useEffect } from "react";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
@@ -22,8 +22,12 @@ import { FormSelect } from "@/shared/components/FormSelect";
 import { FormInput } from "@/shared/components/FormInput";
 import { Option } from "@/core/core.interface";
 import { useActiveExpenseTypes } from "@/features/gp/gestionhumana/viaticos/tipo-gasto/lib/expenseType.hook";
+import { getRemainingBudget } from "../lib/perDiemExpense.actions";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { format } from "date-fns";
 
 interface ExpenseFormProps {
+  requestId: number;
   defaultValues?: Partial<ExpenseSchema>;
   onSubmit: (data: ExpenseSchema) => void;
   isSubmitting?: boolean;
@@ -32,6 +36,7 @@ interface ExpenseFormProps {
 }
 
 export default function ExpenseForm({
+  requestId,
   defaultValues,
   onSubmit,
   isSubmitting = false,
@@ -39,6 +44,13 @@ export default function ExpenseForm({
   mode = "create",
 }: ExpenseFormProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [remainingBudget, setRemainingBudget] = useState<number | null>(null);
+  const [isLoadingBudget, setIsLoadingBudget] = useState(false);
+  const [budgetInfo, setBudgetInfo] = useState<{
+    daily_amount: string;
+    total_spent_on_date: number;
+    is_over_budget: boolean;
+  } | null>(null);
 
   // Obtener tipos de gasto activos del backend
   const { data: expenseTypes, isLoading: isLoadingExpenseTypes } =
@@ -59,6 +71,8 @@ export default function ExpenseForm({
   const receiptAmount = form.watch("receipt_amount");
   const companyAmount = form.watch("company_amount");
   const receiptType = form.watch("receipt_type");
+  const expenseDate = form.watch("expense_date");
+  const expenseTypeId = form.watch("expense_type_id");
 
   // Auto-calculate employee amount
   const handleAmountChange = (
@@ -75,6 +89,41 @@ export default function ExpenseForm({
       form.setValue("receipt_number", "");
     }
   }, [receiptType, form]);
+
+  // Consultar presupuesto restante cuando cambien la fecha y el tipo de gasto
+  useEffect(() => {
+    const fetchRemainingBudget = async () => {
+      if (expenseDate && expenseTypeId) {
+        setIsLoadingBudget(true);
+        try {
+          const formattedDate = format(expenseDate, "yyyy-MM-dd");
+          const response = await getRemainingBudget(
+            requestId,
+            formattedDate,
+            parseInt(expenseTypeId)
+          );
+
+          setRemainingBudget(response.data.remaining_budget);
+          setBudgetInfo({
+            daily_amount: response.data.daily_amount,
+            total_spent_on_date: response.data.total_spent_on_date,
+            is_over_budget: response.data.is_over_budget,
+          });
+        } catch (error) {
+          console.error("Error al obtener presupuesto restante:", error);
+          setRemainingBudget(null);
+          setBudgetInfo(null);
+        } finally {
+          setIsLoadingBudget(false);
+        }
+      } else {
+        setRemainingBudget(null);
+        setBudgetInfo(null);
+      }
+    };
+
+    fetchRemainingBudget();
+  }, [expenseDate, expenseTypeId, requestId]);
 
   // Convertir los tipos de gasto a opciones para el select
   const expenseTypeOptions: Option[] =
@@ -118,6 +167,65 @@ export default function ExpenseForm({
               isLoadingOptions={isLoadingExpenseTypes}
             />
           </div>
+
+          {/* Información de Presupuesto Restante */}
+          {expenseDate && expenseTypeId && (
+            <div className="mt-4">
+              {isLoadingBudget ? (
+                <Alert>
+                  <Loader className="h-4 w-4 animate-spin" />
+                  <AlertTitle>Consultando presupuesto...</AlertTitle>
+                  <AlertDescription>
+                    Obteniendo información del presupuesto disponible
+                  </AlertDescription>
+                </Alert>
+              ) : remainingBudget !== null && budgetInfo ? (
+                <Alert
+                  variant={budgetInfo.is_over_budget ? "destructive" : "default"}
+                  className={
+                    !budgetInfo.is_over_budget
+                      ? "border-green-500 bg-green-50 text-green-900"
+                      : ""
+                  }
+                >
+                  {budgetInfo.is_over_budget ? (
+                    <AlertCircle className="h-4 w-4" />
+                  ) : (
+                    <CheckCircle2 className="h-4 w-4 text-green-600" />
+                  )}
+                  <AlertTitle>
+                    {budgetInfo.is_over_budget
+                      ? "⚠️ Presupuesto Excedido"
+                      : "Presupuesto Disponible"}
+                  </AlertTitle>
+                  <AlertDescription>
+                    <div className="space-y-1 text-xs sm:text-sm">
+                      <div className="flex justify-between">
+                        <span className="font-medium">Monto Diario:</span>
+                        <span>S/ {budgetInfo.daily_amount}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="font-medium">Gastado en esta fecha:</span>
+                        <span>S/ {budgetInfo.total_spent_on_date.toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between border-t pt-1 mt-1">
+                        <span className="font-bold">Presupuesto Restante:</span>
+                        <span
+                          className={`font-bold ${
+                            budgetInfo.is_over_budget
+                              ? "text-red-600"
+                              : "text-green-600"
+                          }`}
+                        >
+                          S/ {remainingBudget.toFixed(2)}
+                        </span>
+                      </div>
+                    </div>
+                  </AlertDescription>
+                </Alert>
+              ) : null}
+            </div>
+          )}
 
           {/* Montos */}
           <div className="pt-4 border-t">

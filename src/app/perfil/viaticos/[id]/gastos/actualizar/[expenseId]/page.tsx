@@ -75,6 +75,7 @@ export default function UpdateExpensePage() {
         icon="Receipt"
       />
       <ExpenseForm
+        requestId={Number(id)}
         defaultValues={{
           expense_date: expense.expense_date as any,
           expense_type_id: expense.expense_type.id.toString(),

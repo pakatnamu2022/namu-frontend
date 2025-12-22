@@ -35,6 +35,7 @@ export default function AddExpensePage() {
         icon="Receipt"
       />
       <ExpenseForm
+        requestId={Number(id)}
         onSubmit={handleSubmit}
         isSubmitting={isPending}
         mode="create"

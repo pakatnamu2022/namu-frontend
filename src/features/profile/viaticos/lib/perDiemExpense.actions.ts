@@ -1,7 +1,7 @@
 import { api } from "@/core/api";
 import { GeneralResponse } from "@/shared/lib/response.interface";
 import { PER_DIEM_EXPENSE } from "./perDiemExpense.constants";
-import { PerDiemExpenseResource } from "./perDiemExpense.interface";
+import { PerDiemExpenseResource, RemainingBudgetResponse } from "./perDiemExpense.interface";
 
 const { ENDPOINT } = PER_DIEM_EXPENSE;
 
@@ -63,6 +63,26 @@ export async function findPerDiemExpenseById(
 ): Promise<PerDiemExpenseResource> {
   const response = await api.get<PerDiemExpenseResource>(
     `${ENDPOINT}/${expenseId}`
+  );
+  return response.data;
+}
+
+/**
+ * Obtener el presupuesto restante para un tipo de gasto en una fecha específica
+ */
+export async function getRemainingBudget(
+  requestId: number,
+  date: string,
+  expenseTypeId: number
+): Promise<RemainingBudgetResponse> {
+  const response = await api.get<RemainingBudgetResponse>(
+    `gp/gestion-humana/viaticos/per-diem-requests/${requestId}/remaining-budget`,
+    {
+      params: {
+        date,
+        expense_type_id: expenseTypeId,
+      },
+    }
   );
   return response.data;
 }
