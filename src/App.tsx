@@ -1352,6 +1352,10 @@ function App() {
                   path="solicitud-viaticos"
                   element={<PerDiemRequestPage />}
                 />
+                <Route
+                  path="solicitud-viaticos/:id/reserva-hotel/agregar"
+                  element={<AddAdminHotelReservationPage />}
+                />
               </Route>
 
               {/* Configuraciones */}
