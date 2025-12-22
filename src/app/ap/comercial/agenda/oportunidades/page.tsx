@@ -37,7 +37,6 @@ import { MANAGE_LEADS } from "@/features/ap/comercial/gestionar-leads/lib/manage
 import { useInvalidateQuery } from "@/core/core.hook";
 import { useCommercialFiltersStore } from "@/features/ap/comercial/lib/commercial.store";
 import {
-  useAllWorkers,
   useMyConsultants,
 } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
 import {
@@ -48,7 +47,6 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import {
-  POSITION_TYPE,
   STATUS_WORKER,
 } from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.constant";
 import { EMPRESA_AP } from "@/core/core.constants";

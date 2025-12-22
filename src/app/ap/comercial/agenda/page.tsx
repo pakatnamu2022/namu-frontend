@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo, useEffect } from "react";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import TitleComponent from "@/shared/components/TitleComponent";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
@@ -10,12 +11,8 @@ import AgendaCalendarCard from "@/features/ap/comercial/agenda/components/Agenda
 import AgendaDayDetails from "@/features/ap/comercial/agenda/components/AgendaDayDetails";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { useCommercialFiltersStore } from "@/features/ap/comercial/lib/commercial.store";
-import {
-  useMyConsultants,
-} from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
-import {
-  STATUS_WORKER,
-} from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.constant";
+import { useMyConsultants } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
+import { STATUS_WORKER } from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.constant";
 import { EMPRESA_AP } from "@/core/core.constants";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { AGENDA } from "@/features/ap/comercial/agenda/lib/agenda.constants";
@@ -23,18 +20,35 @@ import { notFound } from "@/shared/hooks/useNotFound";
 
 export default function AgendaPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
-  const { selectedAdvisorId, setSelectedAdvisorId, selectedDate, setSelectedDate } =
-    useCommercialFiltersStore();
+  const {
+    selectedAdvisorId,
+    setSelectedAdvisorId,
+    selectedDate,
+    setSelectedDate,
+  } = useCommercialFiltersStore();
   const { ROUTE } = AGENDA;
   const permissions = useModulePermissions(ROUTE);
 
-  // Get current month range
-  const now = new Date();
-  const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
-  const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+  // Ensure selectedDate is initialized to current date if not set
+  useEffect(() => {
+    if (!selectedDate) {
+      setSelectedDate(new Date().toISOString().split("T")[0]);
+    }
+  }, [selectedDate, setSelectedDate]);
 
-  const dateFrom = firstDay.toISOString().split("T")[0];
-  const dateTo = lastDay.toISOString().split("T")[0];
+  // Get current month range - memoized to prevent infinite re-renders
+  const { dateFrom, dateTo, currentYear, currentMonth } = useMemo(() => {
+    const now = new Date();
+    const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+    const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
+    return {
+      dateFrom: firstDay.toISOString().split("T")[0],
+      dateTo: lastDay.toISOString().split("T")[0],
+      currentYear: now.getFullYear(),
+      currentMonth: now.getMonth() + 1,
+    };
+  }, []);
 
   const { data, isLoading } = useMyAgenda({
     worker_id: selectedAdvisorId,
@@ -49,12 +63,15 @@ export default function AgendaPage() {
     ? agendaData.find((item) => item.date === selectedDate)
     : undefined;
 
-  const { data: workers = [], isLoading: isLoadingWorkers } = useMyConsultants({
+  // Memoize consultants params to prevent infinite re-renders
+  const consultantsParams = useMemo(() => ({
     status_id: STATUS_WORKER.ACTIVE,
     sede$empresa_id: EMPRESA_AP.id,
-    year: selectedDate ? selectedDate.split("-")[0] : now.getFullYear(),
-    month: selectedDate ? selectedDate.split("-")[1] : now.getMonth() + 1,
-  });
+    year: Number(selectedDate ? selectedDate.split("-")[0] : currentYear),
+    month: Number(selectedDate ? selectedDate.split("-")[1] : currentMonth),
+  }), [selectedDate, currentYear, currentMonth]);
+
+  const { data: workers = [], isLoading: isLoadingWorkers } = useMyConsultants(consultantsParams);
 
   // Create a map for quick lookup
   const agendaMap = new Map(agendaData.map((item) => [item.date, item]));
@@ -80,8 +97,6 @@ export default function AgendaPage() {
           permissions={permissions}
           selectedAdvisorId={selectedAdvisorId}
           setSelectedAdvisorId={setSelectedAdvisorId}
-          selectedDate={selectedDate}
-          setSelectedDate={setSelectedDate}
           workers={workers}
         />
       </HeaderTableWrapper>

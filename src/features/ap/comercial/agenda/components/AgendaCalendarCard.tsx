@@ -27,31 +27,20 @@ function CalendarSync({ selectedDate, setSelectedDate }: { selectedDate: string 
   const [month, setMonth] = useCalendarMonth();
   const [year, setYear] = useCalendarYear();
 
-  // Sync calendar atoms with store when selectedDate changes externally
+  // Sync calendar view to match selected date when selectedDate changes externally
   useEffect(() => {
     if (selectedDate) {
       const date = new Date(selectedDate);
       const newMonth = date.getMonth();
       const newYear = date.getFullYear();
 
-      if (month !== newMonth) {
+      // Only update calendar view if it doesn't match the selected date
+      if (month !== newMonth || year !== newYear) {
         setMonth(newMonth as any);
-      }
-      if (year !== newYear) {
         setYear(newYear);
       }
     }
   }, [selectedDate, month, year, setMonth, setYear]);
-
-  // Sync store with calendar atoms when calendar changes
-  useEffect(() => {
-    const newDate = new Date(year, month, 1);
-    const dateStr = newDate.toISOString().split("T")[0];
-
-    if (dateStr !== selectedDate) {
-      setSelectedDate(dateStr);
-    }
-  }, [month, year, selectedDate, setSelectedDate]);
 
   return null;
 }

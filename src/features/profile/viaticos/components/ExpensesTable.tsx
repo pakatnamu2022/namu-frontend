@@ -149,5 +149,5 @@ export default function ExpensesTable({ expenses }: ExpensesTableProps) {
     },
   ];
 
-  return <DataTable columns={columns} data={expenses} />;
+  return <DataTable columns={columns} data={expenses} variant="ghost" />;
 }

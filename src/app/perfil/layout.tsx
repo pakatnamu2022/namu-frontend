@@ -11,8 +11,6 @@ import { ProfileCard } from "@/features/users/components/profile-card";
 import Header from "@/shared/components/header";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
-
-  
   return (
     <SidebarProvider
       style={
@@ -23,12 +21,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       }
     >
       <SidebarLeft />
-      <SidebarInset className="bg-linear-to-br from-slate-50 to-blue-50/30">
+      <SidebarInset className="bg-linear-to-br from-slate-50 to-blue-50/30 dark:from-background dark:to-background">
         <Header />
         <div className="flex gap-8 w-full h-[calc(100vh-3.5rem)] overflow-auto">
-          <div className="p-3 w-full">
-            {children}
-          </div>
+          <div className="p-3 w-full">{children}</div>
         </div>
       </SidebarInset>
     </SidebarProvider>
