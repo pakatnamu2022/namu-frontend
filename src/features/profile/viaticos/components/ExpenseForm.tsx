@@ -37,7 +37,8 @@ export default function ExpenseForm({
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   // Obtener tipos de gasto activos del backend
-  const { data: expenseTypes, isLoading: isLoadingExpenseTypes } = useActiveExpenseTypes();
+  const { data: expenseTypes, isLoading: isLoadingExpenseTypes } =
+    useActiveExpenseTypes();
 
   const form = useForm<ExpenseSchema>({
     resolver: zodResolver(expenseSchema),
@@ -55,7 +56,10 @@ export default function ExpenseForm({
   const receiptType = form.watch("receipt_type");
 
   // Auto-calculate employee amount
-  const handleAmountChange = (newReceiptAmount: number, newCompanyAmount: number) => {
+  const handleAmountChange = (
+    newReceiptAmount: number,
+    newCompanyAmount: number
+  ) => {
     const employeeAmount = newReceiptAmount - newCompanyAmount;
     form.setValue("employee_amount", Math.max(0, employeeAmount));
   };
@@ -68,11 +72,12 @@ export default function ExpenseForm({
   }, [receiptType, form]);
 
   // Convertir los tipos de gasto a opciones para el select
-  const expenseTypeOptions: Option[] = expenseTypes?.map((type) => ({
-    value: type.id.toString(),
-    label: type.name,
-    description: type.parent ? type.parent.name : undefined,
-  })) || [];
+  const expenseTypeOptions: Option[] =
+    expenseTypes?.map((type) => ({
+      value: type.id.toString(),
+      label: type.name,
+      description: type.parent ? type.parent.name : undefined,
+    })) || [];
 
   const receiptTypeOptions: Option[] = [
     { value: "invoice", label: "Factura" },
@@ -82,7 +87,10 @@ export default function ExpenseForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 sm:space-y-6">
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="space-y-4 sm:space-y-6"
+      >
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <DatePickerFormField
             control={form.control}
@@ -194,7 +202,9 @@ export default function ExpenseForm({
           name="receipt_file"
           render={({ field: { onChange, ...field } }) => (
             <FormItem>
-              <FormLabel className="text-xs md:text-sm">Archivo del Comprobante</FormLabel>
+              <FormLabel className="text-xs md:text-sm">
+                Archivo del Comprobante
+              </FormLabel>
               <FormControl>
                 <div className="space-y-2">
                   <div className="relative">
@@ -217,7 +227,9 @@ export default function ExpenseForm({
                   {selectedFile && (
                     <div className="flex items-center gap-2 p-2 sm:p-3 bg-muted rounded-md">
                       <FileText className="h-4 w-4 shrink-0 text-primary" />
-                      <span className="text-xs sm:text-sm truncate flex-1">{selectedFile.name}</span>
+                      <span className="text-xs sm:text-sm truncate flex-1">
+                        {selectedFile.name}
+                      </span>
                       <span className="text-xs text-muted-foreground shrink-0">
                         {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
                       </span>
@@ -238,7 +250,9 @@ export default function ExpenseForm({
           name="notes"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-xs md:text-sm">Notas (Opcional)</FormLabel>
+              <FormLabel className="text-xs md:text-sm">
+                Notas (Opcional)
+              </FormLabel>
               <FormControl>
                 <Textarea
                   placeholder="Observaciones adicionales..."

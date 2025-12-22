@@ -286,9 +286,14 @@ import HotelAgreementPage from "./app/gp/gestion-humana/viaticos/convenios-hotel
 import AddHotelAgreementPage from "./app/gp/gestion-humana/viaticos/convenios-hoteles/agregar/page.tsx";
 import UpdateHotelAgreementPage from "./app/gp/gestion-humana/viaticos/convenios-hoteles/actualizar/[id]/page.tsx";
 import ExpenseTypePage from "./app/gp/gestion-humana/viaticos/tipo-gasto/page.tsx";
+import PerDiemRatePage from "./app/gp/gestion-humana/viaticos/tarifa/page.tsx";
+import AddPerDiemRatePage from "./app/gp/gestion-humana/viaticos/tarifa/agregar/page.tsx";
+import UpdatePerDiemRatePage from "./app/gp/gestion-humana/viaticos/tarifa/actualizar/[id]/page.tsx";
 import PerDiemRequestPage from "./app/gp/gestion-humana/viaticos/solicitud-viaticos/page.tsx";
-import AddPerDiemRequestPage from "./app/gp/gestion-humana/viaticos/solicitud-viaticos/agregar/page.tsx";
-import UpdatePerDiemRequestPage from "./app/gp/gestion-humana/viaticos/solicitud-viaticos/actualizar/[id]/page.tsx";
+import AddPerDiemRequestPage from "./app/perfil/viaticos/agregar/page.tsx";
+import UpdatePerDiemRequestPage from "./app/perfil/viaticos/actualizar/[id]/page.tsx";
+import ApprovePerDiemRequestPage from "./app/perfil/viaticos/aprobar/page.tsx";
+import PerDiemRequestDetailPage from "./app/perfil/viaticos/[id]/page.tsx";
 import UpdatePositionPage from "./app/gp/gestion-humana/configuraciones/posiciones/actualizar/[id]/page";
 import UpdateHierarchicalCategoryPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/categorias-jerarquicas/actualizar/[id]/page";
 import SedePage from "./app/gp/maestro-general/sede/page.tsx";
@@ -304,7 +309,6 @@ import CompanyModuleSubmodulePage from "./app/[company]/[module]/[submodule]/pag
 import ProfilePage from "./app/perfil/page.tsx";
 import UserPage from "./app/gp/gestion-del-sistema/usuarios/page.tsx";
 import MyPerDiemPage from "./app/perfil/viaticos/page.tsx";
-import PerDiemRequestDetailPage from "./app/perfil/viaticos/[id]/page.tsx";
 
 // ============================================================================
 // PROTECTED ROUTE COMPONENT
@@ -440,6 +444,18 @@ function App() {
               <Route path="mi-desempeno" element={<MyPerformance />} />
               <Route path="vacaciones" element={<VacationPage />} />
               <Route path="viaticos" element={<MyPerDiemPage />} />
+              <Route
+                path="viaticos/agregar"
+                element={<AddPerDiemRequestPage />}
+              />
+              <Route
+                path="viaticos/actualizar/:id"
+                element={<UpdatePerDiemRequestPage />}
+              />
+              <Route
+                path="viaticos/aprobar"
+                element={<ApprovePerDiemRequestPage />}
+              />
               <Route
                 path="viaticos/:id"
                 element={<PerDiemRequestDetailPage />}
@@ -1303,6 +1319,17 @@ function App() {
                 {/* Administración de Tipos de Gasto */}
                 <Route path="tipo-gasto" element={<ExpenseTypePage />} />
 
+                {/* Administración de Tarifas de Viáticos */}
+                <Route path="tarifa" element={<PerDiemRatePage />} />
+                <Route
+                  path="tarifa/agregar"
+                  element={<AddPerDiemRatePage />}
+                />
+                <Route
+                  path="tarifa/actualizar/:id"
+                  element={<UpdatePerDiemRatePage />}
+                />
+
                 {/* Administración de Convenios de Hoteles */}
                 <Route
                   path="convenios-hoteles"
@@ -1321,14 +1348,6 @@ function App() {
                 <Route
                   path="solicitud-viaticos"
                   element={<PerDiemRequestPage />}
-                />
-                <Route
-                  path="solicitud-viaticos/agregar"
-                  element={<AddPerDiemRequestPage />}
-                />
-                <Route
-                  path="solicitud-viaticos/actualizar/:id"
-                  element={<UpdatePerDiemRequestPage />}
                 />
               </Route>
 

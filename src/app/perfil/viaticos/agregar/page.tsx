@@ -1,7 +1,5 @@
 "use client";
 
-import PageSkeleton from "@/shared/components/PageSkeleton";
-import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import {
   ERROR_MESSAGE,
@@ -9,19 +7,17 @@ import {
   SUCCESS_MESSAGE,
   successToast,
 } from "@/core/core.function";
-import { PerDiemRequestForm } from "@/features/gp/gestionhumana/viaticos/solicitud-viaticos/components/PerDiemRequestForm";
-import { storePerDiemRequest } from "@/features/gp/gestionhumana/viaticos/solicitud-viaticos/lib/perDiemRequest.actions";
-import { PER_DIEM_REQUEST } from "@/features/gp/gestionhumana/viaticos/solicitud-viaticos/lib/perDiemRequest.constants";
-import { notFound } from "@/shared/hooks/useNotFound";
+import { PerDiemRequestForm } from "@/features/profile/viaticos/components/PerDiemRequestForm";
+import { storePerDiemRequest } from "@/features/profile/viaticos/lib/perDiemRequest.actions";
+import { PER_DIEM_REQUEST } from "@/features/profile/viaticos/lib/perDiemRequest.constants";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import FormWrapper from "@/shared/components/FormWrapper";
 import { useNavigate } from "react-router-dom";
 
 export default function AddPerDiemRequestPage() {
-  const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const router = useNavigate();
   const queryClient = useQueryClient();
-  const { MODEL, ROUTE, ABSOLUTE_ROUTE, QUERY_KEY } = PER_DIEM_REQUEST;
+  const { MODEL, ABSOLUTE_ROUTE, QUERY_KEY } = PER_DIEM_REQUEST;
 
   const { mutate, isPending } = useMutation({
     mutationFn: storePerDiemRequest,
@@ -46,22 +42,16 @@ export default function AddPerDiemRequestPage() {
     router(ABSOLUTE_ROUTE!);
   };
 
-  if (isLoadingModule) return <PageSkeleton />;
-  if (!checkRouteExists(ROUTE)) notFound();
-  if (!currentView) notFound();
-
   return (
     <FormWrapper>
       <TitleFormComponent
-        title={currentView.descripcion}
+        title="Agregar Solicitud de Viáticos"
         mode="create"
-        icon={currentView.icon}
+        icon="Plane"
       />
       <PerDiemRequestForm
         defaultValues={{
-          employee_id: "",
           company_id: "",
-          per_diem_category_id: "",
           start_date: "",
           end_date: "",
           purpose: "",

@@ -3,8 +3,8 @@
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import ActionsWrapper from "@/shared/components/ActionsWrapper";
-import { PER_DIEM_REQUEST } from "../lib/perDiemRequest.constants";
 import { useNavigate } from "react-router-dom";
+import { PER_DIEM_RATE } from "../lib/perDiemRate.constants";
 
 interface Props {
   permissions: {
@@ -12,9 +12,9 @@ interface Props {
   };
 }
 
-export default function PerDiemRequestActions({ permissions }: Props) {
+export default function PerDiemRateActions({ permissions }: Props) {
   const router = useNavigate();
-  const { ROUTE_ADD } = PER_DIEM_REQUEST;
+  const { ROUTE_ADD } = PER_DIEM_RATE;
 
   if (!permissions.canCreate) {
     return null;
@@ -22,13 +22,8 @@ export default function PerDiemRequestActions({ permissions }: Props) {
 
   return (
     <ActionsWrapper>
-      <Button
-        size="sm"
-        variant="outline"
-        className="ml-auto"
-        onClick={() => router(ROUTE_ADD!)}
-      >
-        <Plus className="size-4 mr-2" /> Agregar Solicitud
+      <Button size="sm" className="ml-auto" onClick={() => router(ROUTE_ADD!)}>
+        <Plus className="size-4 mr-2" /> Agregar Tarifa
       </Button>
     </ActionsWrapper>
   );

@@ -45,6 +45,7 @@ import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { WORKER_ORDER } from "../lib/workOrder.constants";
 import { AppointmentSelectionModal } from "../../citas/components/AppointmentSelectionModal";
 import { FormSwitch } from "@/shared/components/FormSwitch";
+import { FormInput } from "@/shared/components/FormInput";
 
 const getGroupColor = (groupNumber: number) => {
   return GROUP_COLORS[groupNumber] || DEFAULT_GROUP_COLOR;
@@ -56,6 +57,13 @@ interface WorkOrderFormProps {
   isSubmitting?: boolean;
   mode?: "create" | "update";
 }
+
+// Tipo Recall
+const typeRecall = [
+  { label: "Rojo", value: "ROJO" },
+  { label: "Amarillo", value: "AMARILLO" },
+  { label: "Verde", value: "VERDE" },
+];
 
 export const WorkOrderForm = ({
   defaultValues,
@@ -521,12 +529,34 @@ export const WorkOrderForm = ({
             text={form.watch("is_guarantee") ? "Sí" : "No"}
             control={form.control}
           />
+        </GroupFormSection>
 
+        <GroupFormSection
+          title="Recall"
+          icon={Building}
+          iconColor="text-gray-800"
+          bgColor="bg-gray-50"
+          cols={{ sm: 2 }}
+        >
           <FormSwitch
             name="is_recall"
             label="Recall"
             text={form.watch("is_recall") ? "Sí" : "No"}
             control={form.control}
+          />
+          <FormInput
+            name="description_recall"
+            label="Descripción Recall"
+            placeholder="Ingrese el detalle del recall"
+            control={form.control}
+          />
+          <FormSelect
+            name="type_recall"
+            label="Tipo Recall"
+            placeholder="Seleccione tipo"
+            options={typeRecall}
+            control={form.control}
+            strictFilter={true}
           />
         </GroupFormSection>
 
