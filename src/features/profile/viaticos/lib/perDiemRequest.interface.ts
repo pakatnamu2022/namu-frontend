@@ -76,16 +76,6 @@ interface Hotelreservation {
   updated_at: string;
 }
 
-interface Approval {
-  id: number;
-  per_diem_request_id: number;
-  approver_id: number;
-  approver: string;
-  status: string;
-  comments: string;
-  approved_at: string;
-}
-
 interface Category {
   id: number;
   name: string;
@@ -118,9 +108,57 @@ interface Position {
   area: Area;
 }
 
+interface Approval {
+  id: number;
+  per_diem_request_id: number;
+  approver_id: number;
+  approver: Boss;
+  status: string;
+  comments: string;
+  approved_at: string;
+}
+
+interface Category {
+  id: number;
+  name: string;
+  description: string;
+  active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+interface District {
+  id: number;
+  name: string;
+  zone: string;
+}
+
+interface Employee {
+  id: number;
+  full_name: string;
+  position: Position;
+  boss: Boss;
+}
+
+interface Boss {
+  id: number;
+  full_name: string;
+  position: Position2;
+}
+
+interface Position2 {
+  name: string;
+}
+
+interface Position {
+  id: number;
+  name: string;
+  area: Area;
+}
+
 interface Area {
   id: number;
-  name: null;
+  name: string;
 }
 
 export interface PerDiemRequestResource {
