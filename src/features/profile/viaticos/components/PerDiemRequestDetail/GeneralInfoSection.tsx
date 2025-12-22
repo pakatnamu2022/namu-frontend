@@ -176,14 +176,14 @@ export default function GeneralInfoSection({
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <div>
+                {/* <div>
                   <p className="text-xs text-muted-foreground mb-0.5">
                     Costo Total
                   </p>
                   <p className="text-sm font-medium">
                     S/ {request.hotel_reservation.total_cost.toFixed(2)}
                   </p>
-                </div>
+                </div> */}
                 {request.hotel_reservation.penalty > 0 && (
                   <div>
                     <p className="text-xs text-muted-foreground mb-0.5">
@@ -203,7 +203,7 @@ export default function GeneralInfoSection({
                 </div>
               )}
 
-              <div className="flex items-center gap-2 pt-2 border-t">
+              {/* <div className="flex items-center gap-2 pt-2 border-t">
                 <div
                   className={`px-2 py-1 rounded-md text-xs font-medium ${
                     request.hotel_reservation.attended
@@ -215,7 +215,7 @@ export default function GeneralInfoSection({
                     ? "Asistido"
                     : "Pendiente de asistir"}
                 </div>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>

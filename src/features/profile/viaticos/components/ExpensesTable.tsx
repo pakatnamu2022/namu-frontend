@@ -55,7 +55,7 @@ export default function ExpensesTable({ expenses }: ExpensesTableProps) {
     },
     {
       accessorKey: "receipt_amount",
-      header: "Monto Comprobante",
+      header: "Comprobante",
       cell: ({ row }) => {
         const amount = row.getValue("receipt_amount") as number;
         return <div className="text-right">S/ {amount.toFixed(2)}</div>;
@@ -63,7 +63,7 @@ export default function ExpensesTable({ expenses }: ExpensesTableProps) {
     },
     {
       accessorKey: "company_amount",
-      header: "Monto Empresa",
+      header: "Empresa",
       cell: ({ row }) => {
         const amount = row.getValue("company_amount") as number;
         return <div className="text-right">S/ {amount.toFixed(2)}</div>;
@@ -71,7 +71,7 @@ export default function ExpensesTable({ expenses }: ExpensesTableProps) {
     },
     {
       accessorKey: "employee_amount",
-      header: "Monto Empleado",
+      header: "Empleado",
       cell: ({ row }) => {
         const amount = row.getValue("employee_amount") as number;
         return <div className="text-right">S/ {amount.toFixed(2)}</div>;

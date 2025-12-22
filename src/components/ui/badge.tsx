@@ -4,6 +4,26 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./tooltip";
 
+export type BadgeVariants =
+  | "default"
+  | "secondary"
+  | "tertiary"
+  | "destructive"
+  | "outline"
+  | "ghost"
+  | "orange"
+  | "green"
+  | "blue"
+  | "red"
+  | "yellow"
+  | "purple"
+  | "pink"
+  | "indigo"
+  | "teal"
+  | "cyan"
+  | "gray"
+  | "amber";
+
 const badgeVariants = cva(
   "inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-hidden focus:ring-2 focus:ring-ring focus:ring-offset-2",
   {
