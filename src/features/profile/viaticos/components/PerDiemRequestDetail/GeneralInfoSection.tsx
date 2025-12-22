@@ -44,7 +44,11 @@ export default function GeneralInfoSection({
         <User className="h-5 w-5 text-muted-foreground mt-0.5 shrink-0" />
         <div>
           <p className="text-sm font-medium">Empleado</p>
-          <p className="text-sm text-muted-foreground">{request.employee}</p>
+          <p className="text-sm text-muted-foreground">
+            {typeof request.employee === "string"
+              ? request.employee
+              : request.employee?.full_name || "Sin nombre"}
+          </p>
         </div>
       </div>
 
@@ -80,7 +84,9 @@ export default function GeneralInfoSection({
         <MapPin className="h-5 w-5 text-muted-foreground mt-0.5 shrink-0" />
         <div>
           <p className="text-sm font-medium">Destino</p>
-          <p className="text-sm text-muted-foreground">{request.destination}</p>
+          <p className="text-sm text-muted-foreground">
+            {request.district.name}
+          </p>
         </div>
       </div>
 
@@ -89,7 +95,9 @@ export default function GeneralInfoSection({
         <Building2 className="h-5 w-5 text-muted-foreground mt-0.5 shrink-0" />
         <div>
           <p className="text-sm font-medium">Empresa</p>
-          <p className="text-sm text-muted-foreground">{request.company}</p>
+          <p className="text-sm text-muted-foreground">
+            {request.company.name}
+          </p>
         </div>
       </div>
 
@@ -104,7 +112,7 @@ export default function GeneralInfoSection({
 
       {/* Separador sutil */}
       {(request.hotel_reservation ||
-        request.approvals?.length > 0 ||
+        (request.approvals && request.approvals.length > 0) ||
         request.notes) && <div className="md:col-span-2 border-t pt-3 -mt-1" />}
 
       {/* Reserva de Hotel */}
@@ -113,10 +121,67 @@ export default function GeneralInfoSection({
           <Hotel className="h-5 w-5 text-muted-foreground mt-0.5 shrink-0" />
           <div className="flex-1">
             <p className="text-sm font-medium mb-2">Reserva de Hotel</p>
-            <div className="bg-muted/50 rounded-md p-2.5 space-y-1">
-              <p className="text-xs text-muted-foreground">
-                Se incluye reserva de hotel en esta solicitud
-              </p>
+            <div className="bg-muted/50 rounded-md p-3 space-y-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <p className="text-xs text-muted-foreground mb-0.5">Hotel</p>
+                  <p className="text-sm font-medium">{request.hotel_reservation.hotel_name}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground mb-0.5">Teléfono</p>
+                  <p className="text-sm">{request.hotel_reservation.phone}</p>
+                </div>
+              </div>
+
+              <div>
+                <p className="text-xs text-muted-foreground mb-0.5">Dirección</p>
+                <p className="text-sm">{request.hotel_reservation.address}</p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div>
+                  <p className="text-xs text-muted-foreground mb-0.5">Check-in</p>
+                  <p className="text-sm">{format(new Date(request.hotel_reservation.checkin_date), "dd/MM/yyyy")}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground mb-0.5">Check-out</p>
+                  <p className="text-sm">{format(new Date(request.hotel_reservation.checkout_date), "dd/MM/yyyy")}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground mb-0.5">Noches</p>
+                  <p className="text-sm font-medium">{request.hotel_reservation.nights_count}</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <p className="text-xs text-muted-foreground mb-0.5">Costo Total</p>
+                  <p className="text-sm font-medium">S/ {request.hotel_reservation.total_cost.toFixed(2)}</p>
+                </div>
+                {request.hotel_reservation.penalty > 0 && (
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-0.5">Penalidad</p>
+                    <p className="text-sm font-medium text-red-600">S/ {request.hotel_reservation.penalty.toFixed(2)}</p>
+                  </div>
+                )}
+              </div>
+
+              {request.hotel_reservation.notes && (
+                <div>
+                  <p className="text-xs text-muted-foreground mb-0.5">Notas</p>
+                  <p className="text-sm">{request.hotel_reservation.notes}</p>
+                </div>
+              )}
+
+              <div className="flex items-center gap-2 pt-2 border-t">
+                <div className={`px-2 py-1 rounded-md text-xs font-medium ${
+                  request.hotel_reservation.attended
+                    ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                    : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
+                }`}>
+                  {request.hotel_reservation.attended ? 'Asistido' : 'Pendiente de asistir'}
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -136,7 +201,9 @@ export default function GeneralInfoSection({
             <div className="flex flex-wrap gap-2">
               {request.approvals.map((approval, index) => (
                 <Badge key={index} variant="secondary" className="text-xs">
-                  {approval.approver}
+                  {typeof approval.approver === "string"
+                    ? approval.approver
+                    : approval.approver || "Sin nombre"}
                 </Badge>
               ))}
             </div>
