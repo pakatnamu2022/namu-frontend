@@ -31,9 +31,16 @@ export function ProfileCard({ variant = "sidebar" }: ProfileCardProps) {
 
   const { user } = useAuthStore();
 
+  // Solo cargar evaluaciones pendientes si estamos en la página de equipo o perfil principal
+  const currentPath = window.location.pathname;
+  const shouldLoadEvaluations =
+    (currentPath.includes("/perfil/equipo") || currentPath === "/perfil") &&
+    !!user?.partner_id &&
+    user.subordinates > 0;
+
   const { data } = useEvaluationsByPersonToEvaluate(
     user?.partner_id,
-    !!user?.partner_id && user.subordinates > 0
+    shouldLoadEvaluations
   );
 
   const UserMenuOptions: {

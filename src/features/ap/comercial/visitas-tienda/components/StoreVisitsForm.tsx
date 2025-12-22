@@ -369,7 +369,7 @@ export const StoreVisitsForm = ({
               <FormItem>
                 <FormLabel>Email</FormLabel>
                 <FormControl>
-                  <Input placeholder="Ej: namu@gmail.com" {...field} />
+                  <Input placeholder="Ej: example@gmail.com" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

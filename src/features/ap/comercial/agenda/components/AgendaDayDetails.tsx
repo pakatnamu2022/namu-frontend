@@ -61,7 +61,7 @@ export default function AgendaDayDetails({
         ) : (
           <div className="relative">
             {/* Timeline line */}
-            <div className="absolute left-[19px] top-0 bottom-0 w-[2px] bg-border" />
+            <div className="absolute left-[19px] top-0 bottom-0 w-0.5 bg-border" />
 
             <div className="space-y-6">
               {selectedDayData.actions

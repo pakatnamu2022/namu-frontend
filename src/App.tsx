@@ -65,7 +65,7 @@ import AddStoreVisitsPage from "./app/ap/comercial/visitas-tienda/agregar/page";
 import UpdateStoreVisitsPage from "./app/ap/comercial/visitas-tienda/actualizar/[id]/page";
 import ManageLeadsPage from "./app/ap/comercial/gestionar-leads/page";
 import PurchaseRequestQuotePage from "./app/ap/comercial/solicitudes-cotizaciones/page";
-import AddPurchaseRequestQuotePage from "./app/ap/comercial/solicitudes-cotizaciones/agregar/page";
+import AddPurchaseRequestQuotePage from "./app/ap/comercial/solicitudes-cotizaciones/[opportunity_id]/agregar/page";
 import UpdatePurchaseRequestQuotePage from "./app/ap/comercial/solicitudes-cotizaciones/actualizar/[id]/page";
 import DashboardStoreVisitsPage from "./app/ap/comercial/dashboard-visitas-leads/page";
 import ReasonsRejectionPage from "./app/ap/comercial/motivos-descarte/page";
@@ -287,8 +287,12 @@ import AddHotelAgreementPage from "./app/gp/gestion-humana/viaticos/convenios-ho
 import UpdateHotelAgreementPage from "./app/gp/gestion-humana/viaticos/convenios-hoteles/actualizar/[id]/page.tsx";
 import ExpenseTypePage from "./app/gp/gestion-humana/viaticos/tipo-gasto/page.tsx";
 import PerDiemRequestPage from "./app/gp/gestion-humana/viaticos/solicitud-viaticos/page.tsx";
-import AddPerDiemRequestPage from "./app/gp/gestion-humana/viaticos/solicitud-viaticos/agregar/page.tsx";
-import UpdatePerDiemRequestPage from "./app/gp/gestion-humana/viaticos/solicitud-viaticos/actualizar/[id]/page.tsx";
+import AddAdminHotelReservationPage from "./app/gp/gestion-humana/viaticos/solicitud-viaticos/[id]/reserva-hotel/agregar/page.tsx";
+import AddPerDiemRequestPage from "./app/perfil/viaticos/agregar/page.tsx";
+import UpdatePerDiemRequestPage from "./app/perfil/viaticos/actualizar/[id]/page.tsx";
+import ApprovePerDiemRequestPage from "./app/perfil/viaticos/aprobar/page.tsx";
+import PerDiemRequestDetailPage from "./app/perfil/viaticos/[id]/page.tsx";
+import AddExpensePage from "./app/perfil/viaticos/[id]/gastos/agregar/page.tsx";
 import UpdatePositionPage from "./app/gp/gestion-humana/configuraciones/posiciones/actualizar/[id]/page";
 import UpdateHierarchicalCategoryPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/categorias-jerarquicas/actualizar/[id]/page";
 import SedePage from "./app/gp/maestro-general/sede/page.tsx";
@@ -304,7 +308,6 @@ import CompanyModuleSubmodulePage from "./app/[company]/[module]/[submodule]/pag
 import ProfilePage from "./app/perfil/page.tsx";
 import UserPage from "./app/gp/gestion-del-sistema/usuarios/page.tsx";
 import MyPerDiemPage from "./app/perfil/viaticos/page.tsx";
-import PerDiemRequestDetailPage from "./app/perfil/viaticos/[id]/page.tsx";
 
 // ============================================================================
 // PROTECTED ROUTE COMPONENT
@@ -441,8 +444,24 @@ function App() {
               <Route path="vacaciones" element={<VacationPage />} />
               <Route path="viaticos" element={<MyPerDiemPage />} />
               <Route
+                path="viaticos/agregar"
+                element={<AddPerDiemRequestPage />}
+              />
+              <Route
+                path="viaticos/actualizar/:id"
+                element={<UpdatePerDiemRequestPage />}
+              />
+              <Route
+                path="viaticos/aprobar"
+                element={<ApprovePerDiemRequestPage />}
+              />
+              <Route
                 path="viaticos/:id"
                 element={<PerDiemRequestDetailPage />}
+              />
+              <Route
+                path="viaticos/:id/gastos/agregar"
+                element={<AddExpensePage />}
               />
             </Route>
 
@@ -601,12 +620,18 @@ function App() {
               <Route path="gestionar-leads" element={<ManageLeadsPage />} />
 
               {/* Solicitudes Cotizaciones */}
-              {RouterCrud(
-                "solicitudes-cotizaciones",
-                <PurchaseRequestQuotePage />,
-                <AddPurchaseRequestQuotePage />,
-                <UpdatePurchaseRequestQuotePage />
-              )}
+              <Route
+                path="solicitudes-cotizaciones"
+                element={<PurchaseRequestQuotePage />}
+              />
+              <Route
+                path="solicitudes-cotizaciones/:opportunity_id/agregar"
+                element={<AddPurchaseRequestQuotePage />}
+              />
+              <Route
+                path="solicitudes-cotizaciones/actualizar/:id"
+                element={<UpdatePurchaseRequestQuotePage />}
+              />
 
               {/* Dashboard Entregas */}
               <Route
@@ -1323,12 +1348,8 @@ function App() {
                   element={<PerDiemRequestPage />}
                 />
                 <Route
-                  path="solicitud-viaticos/agregar"
-                  element={<AddPerDiemRequestPage />}
-                />
-                <Route
-                  path="solicitud-viaticos/actualizar/:id"
-                  element={<UpdatePerDiemRequestPage />}
+                  path="solicitud-viaticos/:id/reserva-hotel/agregar"
+                  element={<AddAdminHotelReservationPage />}
                 />
               </Route>
 

@@ -80,12 +80,22 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
   },
   logout: async () => {
-    await logout();
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    localStorage.removeItem("permissions");
+    // Call API logout FIRST with active token
+    try {
+      await logout();
+    } catch (error) {
+      // If logout fails (401, network, etc.), still proceed with local cleanup
+      console.log("Logout API call failed:", error);
+    }
+
+    // Then remove token and clear state
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      localStorage.removeItem("permissions");
+    }
+
     set({
-      isAuthenticated: false,
       user: undefined,
       token: undefined,
       isHydrated: true,
@@ -94,6 +104,28 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     });
   },
   authenticate: async () => {
+    // Check if token exists before making API call
+    const token =
+      typeof window !== "undefined" ? localStorage.getItem("token") : null;
+
+    if (!token) {
+      // No token, clear auth state
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("user");
+        localStorage.removeItem("permissions");
+      }
+      set({
+        user: undefined,
+        token: undefined,
+        isAuthenticated: false,
+        isHydrated: true,
+        permissions: [],
+        permissionsModules: {},
+      });
+      return;
+    }
+
+    // Token exists, proceed with authentication
     const { user, permissions } = await authenticate();
     if (user) {
       localStorage.setItem("user", JSON.stringify(user));

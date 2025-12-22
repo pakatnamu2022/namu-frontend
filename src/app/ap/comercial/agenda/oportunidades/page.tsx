@@ -36,7 +36,9 @@ import { discardLead } from "@/features/ap/comercial/gestionar-leads/lib/manageL
 import { MANAGE_LEADS } from "@/features/ap/comercial/gestionar-leads/lib/manageLeads.constants";
 import { useInvalidateQuery } from "@/core/core.hook";
 import { useCommercialFiltersStore } from "@/features/ap/comercial/lib/commercial.store";
-import { useAllWorkers } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
+import {
+  useMyConsultants,
+} from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
 import {
   Carousel,
   CarouselContent,
@@ -45,7 +47,6 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import {
-  POSITION_TYPE,
   STATUS_WORKER,
 } from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.constant";
 import { EMPRESA_AP } from "@/core/core.constants";
@@ -58,27 +59,38 @@ export default function OpportunitiesKanbanPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const { ROUTE } = AGENDA;
   const { QUERY_KEY, MODEL } = MANAGE_LEADS;
-  const { selectedAdvisorId, setSelectedAdvisorId } =
+  const { selectedAdvisorId, setSelectedAdvisorId, selectedDate, setSelectedDate } =
     useCommercialFiltersStore();
   const [carouselApi, setCarouselApi] = useState<CarouselApi>();
   const [searchTerm, setSearchTerm] = useState("");
   const permissions = useModulePermissions(ROUTE);
 
+  const now = new Date();
+
   // Check if user has permission to view all users' opportunities
   const canViewAdvisors = permissions.canViewAdvisors || false;
 
-  // Load advisors only if user has permission
-  const { data: workers = [], isLoading: isLoadingWorkers } = useAllWorkers({
-    cargo_id: POSITION_TYPE.CONSULTANT,
+  // Get month range from selectedDate (same logic as agenda page)
+  const selectedDateObj = selectedDate ? new Date(selectedDate) : now;
+  const firstDay = new Date(selectedDateObj.getFullYear(), selectedDateObj.getMonth(), 1);
+  const lastDay = new Date(selectedDateObj.getFullYear(), selectedDateObj.getMonth() + 1, 0);
+
+  const dateFrom = firstDay.toISOString().split("T")[0];
+  const dateTo = lastDay.toISOString().split("T")[0];
+
+  // Load advisors only if user has permission - filters by active period (year/month)
+  const { data: workers = [], isLoading: isLoadingWorkers } = useMyConsultants({
     status_id: STATUS_WORKER.ACTIVE,
     sede$empresa_id: EMPRESA_AP.id,
+    year: selectedDate ? Number(selectedDate.split("-")[0]) : now.getFullYear(),
+    month: selectedDate ? Number(selectedDate.split("-")[1]) : now.getMonth() + 1,
   });
 
-  // Build query params based on permission
+  // Build query params based on permission and date range
   const opportunitiesParams =
     canViewAdvisors && selectedAdvisorId
-      ? { worker_id: selectedAdvisorId }
-      : {};
+      ? { worker_id: selectedAdvisorId, date_from: dateFrom, date_to: dateTo }
+      : { date_from: dateFrom, date_to: dateTo };
 
   const { data: opportunities = [], isLoading } =
     useMyOpportunities(opportunitiesParams);
@@ -265,6 +277,8 @@ export default function OpportunitiesKanbanPage() {
             canViewAllUsers={canViewAdvisors}
             selectedAdvisorId={selectedAdvisorId}
             setSelectedAdvisorId={setSelectedAdvisorId}
+            selectedDate={selectedDate}
+            setSelectedDate={setSelectedDate}
             workers={workers}
           />
         </div>

@@ -19,9 +19,10 @@ export default function ProfileHeader() {
   const push = useNavigate();
   const { setTheme } = useTheme();
 
-  const handleLogout = () => {
-    useAuthStore.getState().logout();
-    push("/");
+  const handleLogout = async () => {
+    await useAuthStore.getState().logout();
+    // Force full page reload to clear all state
+    window.location.href = "/";
   };
 
   const handleProfileClick = () => {

@@ -162,7 +162,7 @@ export const SedeForm = ({
               <FormItem>
                 <FormLabel>Cod. Dynamic</FormLabel>
                 <FormControl>
-                  <Input placeholder="Ej: NAMU" {...field} />
+                  <Input placeholder="Ej: TP1" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -175,7 +175,7 @@ export const SedeForm = ({
               <FormItem>
                 <FormLabel>Establecimiento</FormLabel>
                 <FormControl>
-                  <Input placeholder="Ej: NAMU" {...field} />
+                  <Input placeholder="Ej: Transportes Pakatnamú" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

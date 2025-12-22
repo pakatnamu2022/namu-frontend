@@ -5,7 +5,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
-import { FormSelect } from "@/shared/components/FormSelect";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { CustomersResource } from "../../clientes/lib/customers.interface";
 import { ModelsVnResource } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.interface";
@@ -20,7 +19,6 @@ interface PurchaseRequestQuoteSummaryProps {
   clients: CustomersResource[];
   modelsVn: ModelsVnResource[];
   vehiclesVn: VehicleResourceWithCosts[];
-  currencyTypes: CurrencyTypesResource[];
   vehicleColors: VehicleColorResource[];
   withVinWatch: boolean | undefined;
   vehicleVnWatch: string | undefined;
@@ -55,7 +53,6 @@ export function PurchaseRequestQuoteSummary({
   clients,
   modelsVn,
   vehiclesVn,
-  currencyTypes,
   vehicleColors,
   withVinWatch,
   vehicleVnWatch,
@@ -220,45 +217,30 @@ export function PurchaseRequestQuoteSummary({
 
           <Separator className="bg-muted-foreground/20" />
 
-          {/* Moneda de Facturación */}
-          <div className="space-y-3">
-            <FormSelect
-              name="doc_type_currency_id"
-              label="Moneda de Facturación"
-              placeholder="Selecciona la moneda"
-              options={currencyTypes.map((item) => ({
-                label: `${item.name} (${item.symbol})`,
-                value: item.id.toString(),
-              }))}
-              control={form.control}
-              strictFilter={true}
-            />
-
-            {/* Total a Facturar */}
-            <div className="p-3 rounded-lg bg-primary/10 border border-primary/30">
-              <div className="flex justify-between items-center">
-                <span className="text-base font-semibold text-primary">
-                  Total a Facturar
-                </span>
-                <span className="text-xl font-bold text-primary">
-                  {selectedInvoiceCurrency?.symbol ||
-                    vehicleCurrency.symbol}{" "}
-                  {finalTotal.toLocaleString("es-PE", {
-                    minimumFractionDigits: 2,
-                  })}
-                </span>
-              </div>
-              {invoiceCurrencyId &&
-                Number(invoiceCurrencyId) !==
-                  vehicleCurrency.currencyId && (
-                  <p className="text-xs text-primary mt-1">
-                    T.C.:{" "}
-                    {Number(
-                      getExchangeRate(Number(invoiceCurrencyId))
-                    ).toFixed(3)}
-                  </p>
-                )}
+          {/* Total a Facturar */}
+          <div className="p-3 rounded-lg bg-primary/10 border border-primary/30">
+            <div className="flex justify-between items-center">
+              <span className="text-base font-semibold text-primary">
+                Total a Facturar
+              </span>
+              <span className="text-xl font-bold text-primary">
+                {selectedInvoiceCurrency?.symbol ||
+                  vehicleCurrency.symbol}{" "}
+                {finalTotal.toLocaleString("es-PE", {
+                  minimumFractionDigits: 2,
+                })}
+              </span>
             </div>
+            {invoiceCurrencyId &&
+              Number(invoiceCurrencyId) !==
+                vehicleCurrency.currencyId && (
+                <p className="text-xs text-primary mt-1">
+                  T.C.:{" "}
+                  {Number(
+                    getExchangeRate(Number(invoiceCurrencyId))
+                  ).toFixed(3)}
+                </p>
+              )}
           </div>
 
           <Separator className="bg-muted-foreground/20" />

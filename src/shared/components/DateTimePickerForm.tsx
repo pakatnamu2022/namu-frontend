@@ -22,6 +22,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Matcher } from "react-day-picker";
 
 interface DateTimePickerFormProps<T extends FieldValues> {
   control: Control<T>;
@@ -31,6 +32,9 @@ interface DateTimePickerFormProps<T extends FieldValues> {
   description?: string;
   disabled?: boolean;
   dateFormat?: string;
+  disabledRange?: Matcher | Matcher[];
+  minDate?: Date;
+  maxDate?: Date;
 }
 
 export function DateTimePickerForm<T extends FieldValues>({
@@ -41,6 +45,9 @@ export function DateTimePickerForm<T extends FieldValues>({
   description,
   disabled = false,
   dateFormat = "dd/MM/yyyy hh:mm aa",
+  disabledRange,
+  minDate,
+  maxDate,
 }: DateTimePickerFormProps<T>) {
   const {
     field,
@@ -104,8 +111,28 @@ export function DateTimePickerForm<T extends FieldValues>({
     field.onChange(newDate.toISOString());
   };
 
-  // Max date is now (prevent future dates)
-  const maxDate = new Date();
+  // Build disabled matcher
+  const buildDisabledMatcher = (): Matcher | Matcher[] | undefined => {
+    const matchers: Matcher[] = [];
+
+    if (disabledRange) {
+      if (Array.isArray(disabledRange)) {
+        matchers.push(...disabledRange);
+      } else {
+        matchers.push(disabledRange);
+      }
+    }
+
+    if (minDate) {
+      matchers.push({ before: minDate });
+    }
+
+    if (maxDate) {
+      matchers.push({ after: maxDate });
+    }
+
+    return matchers.length > 0 ? matchers : undefined;
+  };
 
   // Set default value to current time if no value is set
   React.useEffect(() => {
@@ -143,7 +170,7 @@ export function DateTimePickerForm<T extends FieldValues>({
                 mode="single"
                 selected={selectedDate}
                 onSelect={handleDateSelect}
-                disabled={{ after: maxDate }}
+                disabled={buildDisabledMatcher()}
                 initialFocus
                 locale={es}
               />

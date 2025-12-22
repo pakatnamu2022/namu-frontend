@@ -12,28 +12,25 @@ import {
   SUCCESS_MESSAGE,
   successToast,
 } from "@/core/core.function";
-import PerDiemRequestActions from "@/features/gp/gestionhumana/viaticos/solicitud-viaticos/components/PerDiemRequestActions";
-import PerDiemRequestTable from "@/features/gp/gestionhumana/viaticos/solicitud-viaticos/components/PerDiemRequestTable";
-import { perDiemRequestColumns } from "@/features/gp/gestionhumana/viaticos/solicitud-viaticos/components/PerDiemRequestColumns";
-import PerDiemRequestOptions from "@/features/gp/gestionhumana/viaticos/solicitud-viaticos/components/PerDiemRequestOptions";
-import { useGetPerDiemRequest } from "@/features/gp/gestionhumana/viaticos/solicitud-viaticos/lib/perDiemRequest.hook";
-import { deletePerDiemRequest } from "@/features/gp/gestionhumana/viaticos/solicitud-viaticos/lib/perDiemRequest.actions";
+import PerDiemRequestTable from "@/features/profile/viaticos/components/PerDiemRequestTable";
+import { perDiemRequestColumns } from "@/features/profile/viaticos/components/PerDiemRequestColumns";
+import PerDiemRequestOptions from "@/features/profile/viaticos/components/PerDiemRequestOptions";
+import { useGetPerDiemRequest } from "@/features/profile/viaticos/lib/perDiemRequest.hook";
+import { deletePerDiemRequest } from "@/features/profile/viaticos/lib/perDiemRequest.actions";
 import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
-import { PER_DIEM_REQUEST } from "@/features/gp/gestionhumana/viaticos/solicitud-viaticos/lib/perDiemRequest.constants";
-import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
+import { PER_DIEM_REQUEST } from "@/features/profile/viaticos/lib/perDiemRequest.constants";
 import { notFound } from "@/shared/hooks/useNotFound";
-import { useNavigate } from "react-router-dom";
+import PerDiemRequestDetailSheet from "@/features/profile/viaticos/components/PerDiemRequestDetailSheet";
 
 export default function PerDiemRequestPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
-  const router = useNavigate();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
-  const { MODEL, ROUTE, ROUTE_UPDATE } = PER_DIEM_REQUEST;
-  const permissions = useModulePermissions(ROUTE);
+  const { MODEL, ROUTE } = PER_DIEM_REQUEST;
+  const [detailId, setDetailId] = useState<number | null>(null);
 
   useEffect(() => {
     setPage(1);
@@ -46,10 +43,6 @@ export default function PerDiemRequestPage() {
       per_page,
     },
   });
-
-  const handleUpdate = (id: number) => {
-    router(`${ROUTE_UPDATE}/${id}`);
-  };
 
   const handleDelete = async () => {
     if (!deleteId) return;
@@ -77,14 +70,11 @@ export default function PerDiemRequestPage() {
           subtitle={"Solicitudes de Viáticos"}
           icon={currentView.icon}
         />
-        <PerDiemRequestActions permissions={permissions} />
       </HeaderTableWrapper>
       <PerDiemRequestTable
         isLoading={isLoading}
         columns={perDiemRequestColumns({
-          onDelete: setDeleteId,
-          onUpdate: handleUpdate,
-          permissions,
+          onViewDetail: setDetailId,
         })}
         data={data?.data || []}
       >
@@ -98,6 +88,12 @@ export default function PerDiemRequestPage() {
           onConfirm={handleDelete}
         />
       )}
+
+      <PerDiemRequestDetailSheet
+        requestId={detailId}
+        open={detailId !== null}
+        onOpenChange={(open) => !open && setDetailId(null)}
+      />
 
       <DataTablePagination
         page={page}
