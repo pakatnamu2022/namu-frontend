@@ -128,7 +128,7 @@ export default function MyPerDiemPage() {
               <CardContent className="space-y-2">
                 <div>
                   <p className="text-sm text-muted-foreground">Destino</p>
-                  <p className="font-medium">{request.destination}</p>
+                  <p className="font-medium">{request.district.name}</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Propósito</p>
