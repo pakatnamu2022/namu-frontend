@@ -101,7 +101,7 @@ export const DistrictForm = ({
               <FormItem>
                 <FormLabel>Distrito</FormLabel>
                 <FormControl>
-                  <Input placeholder="Ej: Namu" {...field} />
+                  <Input placeholder="Ej: Chiclayo" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

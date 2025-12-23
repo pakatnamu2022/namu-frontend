@@ -4,18 +4,20 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { PerDiemRequestResource } from "../lib/perDiemRequest.interface";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Check, X } from "lucide-react";
+import { Check, X, Eye } from "lucide-react";
 
 export type PendingApprovalsColumns = ColumnDef<PerDiemRequestResource>;
 
 interface Props {
   onApprove: (id: number) => void;
   onReject: (id: number) => void;
+  onViewDetail: (id: number) => void;
 }
 
 export const pendingApprovalsColumns = ({
   onApprove,
   onReject,
+  onViewDetail,
 }: Props): PendingApprovalsColumns[] => [
   {
     accessorKey: "code",
@@ -26,7 +28,7 @@ export const pendingApprovalsColumns = ({
     },
   },
   {
-    accessorKey: "employee",
+    accessorKey: "employee.full_name",
     header: "Empleado",
     cell: ({ getValue }) => {
       const value = getValue() as string;
@@ -82,7 +84,7 @@ export const pendingApprovalsColumns = ({
     header: "Propósito",
     cell: ({ getValue }) => {
       const value = getValue() as string;
-      return value && <p className="max-w-xs truncate">{value}</p>;
+      return value && <p className="max-w-xs text-wrap">{value}</p>;
     },
   },
   {
@@ -128,36 +130,45 @@ export const pendingApprovalsColumns = ({
     cell: ({ row }) => {
       const { id, status } = row.original;
 
-      console.log("Row status:", status); // Debug: verificar el valor del status
-
-      // Solo mostrar botones si está pendiente
-      if (status !== "pending") {
-        return <p className="text-sm text-muted-foreground">-</p>;
-      }
-
       return (
         <div className="flex items-center gap-2">
-          {/* Aprobar */}
+          {/* Ver Detalle */}
           <Button
-            variant="default"
+            variant="outline"
             size="icon"
             className="size-7"
-            onClick={() => onApprove(id)}
-            tooltip="Aprobar solicitud"
+            onClick={() => onViewDetail(id)}
+            tooltip="Ver detalle"
           >
-            <Check className="size-4" />
+            <Eye className="size-4" />
           </Button>
 
-          {/* Rechazar */}
-          <Button
-            variant="destructive"
-            size="icon"
-            className="size-7"
-            onClick={() => onReject(id)}
-            tooltip="Rechazar solicitud"
-          >
-            <X className="size-4" />
-          </Button>
+          {/* Solo mostrar botones de aprobación si está pendiente */}
+          {status === "pending" && (
+            <>
+              {/* Aprobar */}
+              <Button
+                variant="default"
+                size="icon"
+                className="size-7"
+                onClick={() => onApprove(id)}
+                tooltip="Aprobar solicitud"
+              >
+                <Check className="size-4" />
+              </Button>
+
+              {/* Rechazar */}
+              <Button
+                variant="destructive"
+                size="icon"
+                className="size-7"
+                onClick={() => onReject(id)}
+                tooltip="Rechazar solicitud"
+              >
+                <X className="size-4" />
+              </Button>
+            </>
+          )}
         </div>
       );
     },

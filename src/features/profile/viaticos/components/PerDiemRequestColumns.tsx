@@ -2,11 +2,18 @@
 
 import type { ColumnDef } from "@tanstack/react-table";
 import { PerDiemRequestResource } from "../lib/perDiemRequest.interface";
-import { Badge } from "@/components/ui/badge";
+import { Badge, BadgeVariants } from "@/components/ui/badge";
+import { PerDiemRequestRowActions } from "./PerDiemRequestRowActions";
 
 export type PerDiemRequestColumns = ColumnDef<PerDiemRequestResource>;
 
-export const perDiemRequestColumns = (): PerDiemRequestColumns[] => [
+interface Props {
+  onViewDetail: (id: number) => void;
+}
+
+export const perDiemRequestColumns = ({
+  onViewDetail,
+}: Props): PerDiemRequestColumns[] => [
   {
     accessorKey: "code",
     header: "Código",
@@ -16,7 +23,7 @@ export const perDiemRequestColumns = (): PerDiemRequestColumns[] => [
     },
   },
   {
-    accessorKey: "employee_id",
+    accessorKey: "employee.full_name",
     header: "Empleado",
     cell: ({ getValue }) => {
       const value = getValue() as string;
@@ -65,9 +72,9 @@ export const perDiemRequestColumns = (): PerDiemRequestColumns[] => [
     cell: ({ getValue }) => {
       const value = getValue() as number;
       return (
-        <p className="text-right font-semibold">
+        <Badge variant="outline" className="text-right font-semibold">
           S/ {value?.toFixed(2) || "0.00"}
-        </p>
+        </Badge>
       );
     },
   },
@@ -76,23 +83,30 @@ export const perDiemRequestColumns = (): PerDiemRequestColumns[] => [
     header: "Estado",
     cell: ({ getValue }) => {
       const value = getValue() as string;
-      const statusMap: Record<string, { label: string; variant: any }> = {
-        pending: { label: "Pendiente", variant: "secondary" },
-        approved: { label: "Aprobado", variant: "default" },
-        rejected: { label: "Rechazado", variant: "destructive" },
-        completed: { label: "Completado", variant: "outline" },
+      const statusMap: Record<
+        string,
+        { label: string; variant: BadgeVariants }
+      > = {
+        pending: { label: "Pendiente", variant: "blue" },
+        approved: { label: "Aprobado", variant: "purple" },
+        rejected: { label: "Rechazado", variant: "red" },
+        completed: { label: "Completado", variant: "green" },
+        pending_settlement: {
+          label: "Liquidación Pendiente",
+          variant: "indigo",
+        },
+        in_progress: { label: "En Progreso", variant: "orange" },
       };
       const status = statusMap[value] || {
         label: value,
         variant: "secondary",
       };
       return (
-        <Badge
-          variant={status.variant}
-          className="capitalize w-24 flex items-center justify-center"
-        >
-          {status.label}
-        </Badge>
+        <div className="text-wrap! w-fit mx-auto">
+          <Badge className="w-fit" variant={status.variant}>
+            {status.label}
+          </Badge>
+        </div>
       );
     },
   },
@@ -108,6 +122,18 @@ export const perDiemRequestColumns = (): PerDiemRequestColumns[] => [
         >
           {value ? "Sí" : "No"}
         </Badge>
+      );
+    },
+  },
+  {
+    id: "actions",
+    header: "Acciones",
+    cell: ({ row }) => {
+      return (
+        <PerDiemRequestRowActions
+          onViewDetail={onViewDetail}
+          request={row.original}
+        />
       );
     },
   },

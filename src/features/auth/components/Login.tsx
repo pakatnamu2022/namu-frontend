@@ -72,11 +72,16 @@ export function Login({ className, ...props }: React.ComponentProps<"div">) {
             >
               <div className="flex flex-col gap-6">
                 <div className="flex flex-col items-center text-center gap-2">
-                  <div className="bg-background relative h-16 aspect-[3]">
+                  <div className="relative h-16 aspect-[3]">
                     <img
                       src={CONSTANTS.LOGO}
                       alt="Image"
-                      className="absolute inset-0 h-full w-full object-contain dark:brightness-[0.2] dark:grayscale"
+                      className="absolute inset-0 h-full w-full object-contain dark:hidden"
+                    />
+                    <img
+                      src={CONSTANTS.LOGO_WHITE}
+                      alt="Image"
+                      className="absolute inset-0 h-full w-full object-contain hidden dark:block"
                     />
                   </div>
                   <p className="text-muted-foreground text-balance">
@@ -166,13 +171,13 @@ export function Login({ className, ...props }: React.ComponentProps<"div">) {
             <img
               src={LOGIN.FONDO}
               alt="Image"
-              className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
+              className="absolute inset-0 h-full w-full object-cover"
             />
           </div>
         </CardContent>
       </Card>
       <div className="text-muted-foreground hover:[a]:*:text-primary text-center text-xs text-balance [a]:*:underline [a]:*:underline-offset-4 pb-4">
-        © {new Date().getFullYear()} Namú. Todos los derechos reservados.
+        © {new Date().getFullYear()} Siam. Todos los derechos reservados.
       </div>
     </div>
   );

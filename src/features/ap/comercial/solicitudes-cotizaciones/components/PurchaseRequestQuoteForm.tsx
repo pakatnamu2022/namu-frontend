@@ -17,6 +17,7 @@ import { useNavigate } from "react-router-dom";
 import { Building2, Gift, PackagePlus } from "lucide-react";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { FormSwitch } from "@/shared/components/FormSwitch";
+import { FormInput } from "@/shared/components/FormInput";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { PurchaseRequestQuoteSummary } from "./PurchaseRequestQuoteSummary";
 import { useMyOpportunities } from "../../oportunidades/lib/opportunities.hook";
@@ -40,12 +41,15 @@ import {
 } from "../../vehiculos/lib/vehicles.hook";
 import { PURCHASE_REQUEST_QUOTE } from "../lib/purchaseRequestQuote.constants";
 import { PurchaseOrderAccessoriesCard } from "./PurchaseOrderAccessoriesCard";
+import { OpportunityInfoCard } from "./OpportunityInfoCard";
+import { OpportunityResource } from "../../oportunidades/lib/opportunities.interface";
 
 interface PurchaseRequestQuoteFormProps {
   defaultValues: Partial<PurchaseRequestQuoteSchema>;
   onSubmit: (data: any) => void;
   isSubmitting?: boolean;
   mode?: "create" | "update";
+  opportunity?: OpportunityResource;
 }
 
 const typeDocOptions = [
@@ -64,6 +68,7 @@ export const PurchaseRequestQuoteForm = ({
   onSubmit,
   isSubmitting = false,
   mode = "create",
+  opportunity,
 }: PurchaseRequestQuoteFormProps) => {
   const { ABSOLUTE_ROUTE } = PURCHASE_REQUEST_QUOTE;
   const router = useNavigate();
@@ -93,7 +98,9 @@ export const PurchaseRequestQuoteForm = ({
   const { data: mySedes = [], isLoading: isLoadingMySedes } = useMySedes({
     company: EMPRESA_AP.id,
   });
-  const { data: opportunities = [], isLoading: isLoadingOpportunities } =
+  // Solo cargar oportunidades si NO viene la prop opportunity
+  const shouldFetchOpportunities = !opportunity;
+  const { data: opportunitiesData = [], isLoading: isLoadingOpportunities } =
     useMyOpportunities({
       has_purchase_request_quote: 0,
       opportunity_id:
@@ -101,6 +108,9 @@ export const PurchaseRequestQuoteForm = ({
           ? Number(defaultValues.opportunity_id)
           : undefined,
     });
+
+  // Usar un array vacío si no debemos cargar oportunidades (cuando viene la prop opportunity)
+  const opportunities = shouldFetchOpportunities ? opportunitiesData : [];
   const { data: clients = [], isLoading: isLoadingClients } = useAllCustomers();
   const { data: modelsVn = [], isLoading: isLoadingModelsVn } = useAllModelsVn({
     family_id: selectedFamilyId,
@@ -259,7 +269,14 @@ export const PurchaseRequestQuoteForm = ({
       // Disparar validación del campo with_vin cuando cambian los valores
       form.trigger("with_vin");
     }
-  }, [withVinWatch, vehicleVnWatch, modelVnWatch, vehicleColorWatch, isInitialLoad, form]);
+  }, [
+    withVinWatch,
+    vehicleVnWatch,
+    modelVnWatch,
+    vehicleColorWatch,
+    isInitialLoad,
+    form,
+  ]);
 
   // Effect para actualizar el precio cuando cambia el modelo (solo si no es carga inicial y es modo create)
   useEffect(() => {
@@ -358,21 +375,40 @@ export const PurchaseRequestQuoteForm = ({
 
     // Solo ejecutar si NO estamos en el proceso de inicialización
     if (hasInitializedCheckboxRef.current || mode === "create") {
-      if (copyClientToHolder && opportunityWatch) {
-        const selectedOpportunity = opportunities.find(
-          (opp) => opp.id.toString() === opportunityWatch
-        );
-        if (selectedOpportunity) {
-          form.setValue("holder_id", selectedOpportunity.client.id.toString());
+      if (copyClientToHolder) {
+        // Primero intentar usar la prop opportunity si está disponible
+        if (opportunity) {
+          form.setValue("holder_id", opportunity.client.id.toString());
+        } else if (opportunityWatch) {
+          // Si no hay prop, buscar en el array de oportunidades
+          const selectedOpportunity = opportunities.find(
+            (opp) => opp.id.toString() === opportunityWatch
+          );
+          if (selectedOpportunity) {
+            form.setValue(
+              "holder_id",
+              selectedOpportunity.client.id.toString()
+            );
+          }
         }
       } else if (!copyClientToHolder) {
         form.setValue("holder_id", "");
       }
     }
-  }, [copyClientToHolder, opportunityWatch]);
+  }, [copyClientToHolder, opportunityWatch, opportunity]);
 
-  // Effect para actualizar family_id cuando cambia la oportunidad seleccionada
+  // Effect para actualizar family_id cuando cambia la oportunidad seleccionada o viene la prop opportunity
   useEffect(() => {
+    // Si viene la prop opportunity directamente, usar su family_id
+    if (opportunity && opportunity.family_id) {
+      setSelectedFamilyId(opportunity.family_id);
+      if (!hasInitializedFamilyIdRef.current) {
+        hasInitializedFamilyIdRef.current = true;
+      }
+      return;
+    }
+
+    // Si no, usar la lógica normal de selección desde el formulario
     if (opportunityWatch && opportunities.length > 0) {
       const selectedOpportunity = opportunities.find(
         (opp) => opp.id.toString() === opportunityWatch
@@ -400,11 +436,11 @@ export const PurchaseRequestQuoteForm = ({
           hasInitializedFamilyIdRef.current = true;
         }
       }
-    } else if (!opportunityWatch) {
+    } else if (!opportunityWatch && !opportunity) {
       setSelectedFamilyId(undefined);
       hasInitializedFamilyIdRef.current = false;
     }
-  }, [opportunityWatch, isInitialLoad, selectedFamilyId]);
+  }, [opportunityWatch, isInitialLoad, selectedFamilyId, opportunity]);
 
   // Effect para sincronizar la moneda de facturación seleccionada
   useEffect(() => {
@@ -598,6 +634,13 @@ export const PurchaseRequestQuoteForm = ({
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Columna izquierda: Formulario (3 cols) */}
           <div className="lg:col-span-2 space-y-6">
+            {/* Mostrar la tarjeta de información de oportunidad cuando viene la prop */}
+            {opportunity && (
+              <div className="col-span-full">
+                <OpportunityInfoCard opportunity={opportunity} />
+              </div>
+            )}
+
             {/*Seccion Información General*/}
             <GroupFormSection
               title="Información General"
@@ -625,19 +668,24 @@ export const PurchaseRequestQuoteForm = ({
                 options={typeDocOptions}
                 control={form.control}
               />
-              <FormSelect
-                name="opportunity_id"
-                label="Oportunidad"
-                placeholder="Selecciona una oportunidad"
-                options={opportunities.map((item) => ({
-                  label: item.client.full_name,
-                  description:
-                    item.family.brand + " - " + item.family.description,
-                  value: item.id.toString(),
-                }))}
-                control={form.control}
-                strictFilter={true}
-              />
+
+              {/* Solo mostrar el selector de oportunidad si NO viene la prop opportunity */}
+              {!opportunity && (
+                <FormSelect
+                  name="opportunity_id"
+                  label="Oportunidad"
+                  placeholder="Selecciona una oportunidad"
+                  options={opportunities.map((item) => ({
+                    label: item.client.full_name,
+                    description:
+                      item.family.brand + " - " + item.family.description,
+                    value: item.id.toString(),
+                  }))}
+                  control={form.control}
+                  strictFilter={true}
+                />
+              )}
+
               <div className="relative">
                 <FormSelect
                   name="holder_id"
@@ -667,6 +715,18 @@ export const PurchaseRequestQuoteForm = ({
                   </label>
                 </div>
               </div>
+
+              <FormSelect
+                name="doc_type_currency_id"
+                label="Moneda de Facturación"
+                placeholder="Selecciona la moneda"
+                options={currencyTypes.map((item) => ({
+                  label: `${item.name} (${item.symbol})`,
+                  value: item.id.toString(),
+                }))}
+                control={form.control}
+                strictFilter={true}
+              />
             </GroupFormSection>
 
             {/*Seccion Información de Vehiculo*/}
@@ -750,151 +810,143 @@ export const PurchaseRequestQuoteForm = ({
                 </>
               )}
 
-              <FormField
+              <FormInput
                 control={form.control}
                 name="sale_price"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="flex items-center gap-2 relative">
-                      Precio Venta
-                      <div className="absolute left-36 text-primary whitespace-nowrap bg-blue-50 px-2 rounded">
-                        {originalPrice > 0 && !withVinWatch && (
-                          <span className="text-xs text-primary bg-blue-50 px-1 rounded">
-                            Original: {currencySymbol}{" "}
-                            {originalPrice.toLocaleString("es-PE", {
-                              minimumFractionDigits: 2,
-                              maximumFractionDigits: 2,
-                            })}
+                label={
+                  <div className="flex items-center gap-2 relative">
+                    Precio Venta
+                    <div className="absolute left-36 text-primary whitespace-nowrap bg-blue-50 px-2 rounded">
+                      {originalPrice > 0 && !withVinWatch && (
+                        <span className="text-xs text-primary bg-blue-50 px-1 rounded">
+                          Original: {currencySymbol}{" "}
+                          {originalPrice.toLocaleString("es-PE", {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })}
+                        </span>
+                      )}
+                      {originalPrice === 0 &&
+                        !withVinWatch &&
+                        modelVnWatch && (
+                          <span className="text-xs text-orange-600 bg-orange-50 px-1 rounded">
+                            ⚠️ Modelo sin precio configurado
                           </span>
                         )}
-                        {originalPrice === 0 &&
-                          !withVinWatch &&
-                          modelVnWatch && (
-                            <span className="text-xs text-orange-600 bg-orange-50 px-1 rounded">
-                              ⚠️ Modelo sin precio configurado
-                            </span>
-                          )}
-                      </div>
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        type="text"
-                        placeholder="Ingrese precio de venta"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-
-                    {/* Mostrar información adicional según el modo */}
-                    {withVinWatch && vehicleVnWatch && (
-                      <div className="mt-2 space-y-1">
-                        {billedCost > 0 ? (
-                          <>
-                            <div className="text-xs text-gray-600 bg-gray-50 px-2 py-1 rounded">
-                              <span className="font-medium">
-                                Costo Facturado:
-                              </span>{" "}
-                              {currencySymbol}{" "}
-                              {billedCost.toLocaleString("es-PE", {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2,
-                              })}
-                            </div>
-                            {margin.amount !== 0 && (
-                              <div
-                                className={`text-xs px-2 py-1 rounded ${
-                                  margin.amount > 0
-                                    ? "text-green-700 bg-green-50"
-                                    : "text-red-700 bg-red-50"
-                                }`}
-                              >
-                                <span className="font-medium">Margen:</span>{" "}
-                                {currencySymbol}{" "}
-                                {margin.amount.toLocaleString("es-PE", {
-                                  minimumFractionDigits: 2,
-                                  maximumFractionDigits: 2,
-                                })}{" "}
-                                ({margin.percentage > 0 ? "+" : ""}
-                                {margin.percentage.toFixed(2)}%)
-                              </div>
-                            )}
-                          </>
-                        ) : (
-                          <div className="text-xs text-orange-600 bg-orange-50 px-2 py-1 rounded">
-                            ⚠️ Este vehículo no tiene costo de compra
-                            registrado. Revisar el registro del vehículo.
+                    </div>
+                  </div>
+                }
+                type="text"
+                placeholder="Ingrese precio de venta"
+              >
+                {/* Mostrar información adicional según el modo */}
+                {withVinWatch && vehicleVnWatch && (
+                  <div className="mt-2 space-y-1 w-full">
+                    {billedCost > 0 ? (
+                      <>
+                        <div className="text-xs text-gray-600 bg-gray-50 px-2 py-1 rounded">
+                          <span className="font-medium">
+                            Costo Facturado:
+                          </span>{" "}
+                          {currencySymbol}{" "}
+                          {billedCost.toLocaleString("es-PE", {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })}
+                        </div>
+                        {margin.amount !== 0 && (
+                          <div
+                            className={`text-xs px-2 py-1 rounded ${
+                              margin.amount > 0
+                                ? "text-green-700 bg-green-50"
+                                : "text-red-700 bg-red-50"
+                            }`}
+                          >
+                            <span className="font-medium">Margen:</span>{" "}
+                            {currencySymbol}{" "}
+                            {margin.amount.toLocaleString("es-PE", {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            })}{" "}
+                            ({margin.percentage > 0 ? "+" : ""}
+                            {margin.percentage.toFixed(2)}%)
                           </div>
                         )}
-                        {parseFloat(salePriceWatch || "0") === 0 && (
-                          <div className="text-xs text-red-600 bg-red-50 px-2 py-1 rounded font-medium">
-                            {!selectedModel ? (
-                              <>
-                                ⚠️ <strong>Precio de venta en 0:</strong> No se
-                                pudo cargar la información del modelo de este
-                                vehículo. Verifique que el vehículo pertenezca a
-                                la familia de la oportunidad seleccionada.
-                              </>
-                            ) : originalPrice === 0 ? (
-                              <>
-                                ⚠️ <strong>Precio de venta en 0:</strong> El
-                                modelo <strong>"{selectedModel.code}"</strong>{" "}
-                                (ID: {selectedModel.id}) de este vehículo no
-                                tiene precio de venta configurado. Ir a
-                                Configuraciones → Modelos VN para agregarlo.
-                              </>
-                            ) : (
-                              <>
-                                ⚠️ <strong>Precio de venta en 0:</strong> Se
-                                estableció manualmente, pero el modelo tiene
-                                configurado {currencySymbol}{" "}
-                                {originalPrice.toLocaleString("es-PE", {
-                                  minimumFractionDigits: 2,
-                                })}
-                                . Verifique si esto es correcto.
-                              </>
-                            )}
-                          </div>
+                      </>
+                    ) : (
+                      <div className="text-xs text-orange-600 bg-orange-50 px-2 py-1 rounded">
+                        ⚠️ Este vehículo no tiene costo de compra
+                        registrado. Revisar el registro del vehículo.
+                      </div>
+                    )}
+                    {parseFloat(salePriceWatch || "0") === 0 && (
+                      <div className="text-xs text-red-600 bg-red-50 px-2 py-1 rounded font-medium">
+                        {!selectedModel ? (
+                          <>
+                            ⚠️ <strong>Precio de venta en 0:</strong> No se
+                            pudo cargar la información del modelo de este
+                            vehículo. Verifique que el vehículo pertenezca a
+                            la familia de la oportunidad seleccionada.
+                          </>
+                        ) : originalPrice === 0 ? (
+                          <>
+                            ⚠️ <strong>Precio de venta en 0:</strong> El
+                            modelo <strong>"{selectedModel.code}"</strong>{" "}
+                            (ID: {selectedModel.id}) de este vehículo no
+                            tiene precio de venta configurado. Ir a
+                            Configuraciones → Modelos VN para agregarlo.
+                          </>
+                        ) : (
+                          <>
+                            ⚠️ <strong>Precio de venta en 0:</strong> Se
+                            estableció manualmente, pero el modelo tiene
+                            configurado {currencySymbol}{" "}
+                            {originalPrice.toLocaleString("es-PE", {
+                              minimumFractionDigits: 2,
+                            })}
+                            . Verifique si esto es correcto.
+                          </>
                         )}
                       </div>
                     )}
-
-                    {/* Mostrar diagnóstico cuando NO hay VIN y el precio es 0 */}
-                    {!withVinWatch &&
-                      modelVnWatch &&
-                      parseFloat(salePriceWatch || "0") === 0 && (
-                        <div className="mt-2">
-                          <div className="text-xs text-red-600 bg-red-50 px-2 py-1 rounded font-medium">
-                            {!selectedModel ? (
-                              <>
-                                ⚠️ <strong>Precio de venta en 0:</strong> No se
-                                pudo cargar la información del modelo
-                                seleccionado.
-                              </>
-                            ) : originalPrice === 0 ? (
-                              <>
-                                ⚠️ <strong>Precio de venta en 0:</strong> El
-                                modelo <strong>"{selectedModel.code}"</strong>{" "}
-                                (ID: {selectedModel.id}) no tiene precio de
-                                venta configurado. Ir a Configuraciones →
-                                Modelos VN para agregarlo.
-                              </>
-                            ) : (
-                              <>
-                                ⚠️ <strong>Precio de venta en 0:</strong> Se
-                                estableció manualmente, pero el modelo tiene
-                                configurado {currencySymbol}{" "}
-                                {originalPrice.toLocaleString("es-PE", {
-                                  minimumFractionDigits: 2,
-                                })}
-                                . Verifique si esto es correcto.
-                              </>
-                            )}
-                          </div>
-                        </div>
-                      )}
-                  </FormItem>
+                  </div>
                 )}
-              />
+
+                {/* Mostrar diagnóstico cuando NO hay VIN y el precio es 0 */}
+                {!withVinWatch &&
+                  modelVnWatch &&
+                  parseFloat(salePriceWatch || "0") === 0 && (
+                    <div className="mt-2 w-full">
+                      <div className="text-xs text-red-600 bg-red-50 px-2 py-1 rounded font-medium">
+                        {!selectedModel ? (
+                          <>
+                            ⚠️ <strong>Precio de venta en 0:</strong> No se
+                            pudo cargar la información del modelo
+                            seleccionado.
+                          </>
+                        ) : originalPrice === 0 ? (
+                          <>
+                            ⚠️ <strong>Precio de venta en 0:</strong> El
+                            modelo <strong>"{selectedModel.code}"</strong>{" "}
+                            (ID: {selectedModel.id}) no tiene precio de
+                            venta configurado. Ir a Configuraciones →
+                            Modelos VN para agregarlo.
+                          </>
+                        ) : (
+                          <>
+                            ⚠️ <strong>Precio de venta en 0:</strong> Se
+                            estableció manualmente, pero el modelo tiene
+                            configurado {currencySymbol}{" "}
+                            {originalPrice.toLocaleString("es-PE", {
+                              minimumFractionDigits: 2,
+                            })}
+                            . Verifique si esto es correcto.
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  )}
+              </FormInput>
 
               <FormField
                 control={form.control}
@@ -952,7 +1004,6 @@ export const PurchaseRequestQuoteForm = ({
             clients={clients}
             modelsVn={modelsVn}
             vehiclesVn={vehiclesVn}
-            currencyTypes={currencyTypes}
             vehicleColors={color}
             withVinWatch={withVinWatch}
             vehicleVnWatch={vehicleVnWatch}

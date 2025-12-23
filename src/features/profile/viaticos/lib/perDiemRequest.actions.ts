@@ -97,12 +97,11 @@ export async function storeExpense(
 }
 
 export async function updateExpense(
-  requestId: number,
   expenseId: number,
   expenseData: FormData
 ): Promise<any> {
   const response = await api.post(
-    `${ENDPOINT}/${requestId}/expenses/${expenseId}`,
+    `gp/gestion-humana/viaticos/per-diem-expenses/${expenseId}`,
     expenseData,
     {
       headers: {
@@ -145,4 +144,19 @@ export async function reviewPerDiemRequest(
     reviewData
   );
   return response.data;
+}
+
+export async function downloadSettlementPdf(id: number): Promise<void> {
+  const response = await api.get(`${ENDPOINT}/${id}/settlement-pdf`, {
+    responseType: "blob",
+  });
+
+  const url = window.URL.createObjectURL(new Blob([response.data]));
+  const link = document.createElement("a");
+  link.href = url;
+  link.setAttribute("download", `liquidacion-viaticos-${id}.pdf`);
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.URL.revokeObjectURL(url);
 }

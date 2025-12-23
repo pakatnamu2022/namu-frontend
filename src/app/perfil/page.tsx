@@ -23,6 +23,7 @@ import {
   Users,
   ShieldCheck,
 } from "lucide-react";
+import PageWrapper from "@/shared/components/PageWrapper";
 
 export default function ProfilePage() {
   const { user } = useAuthStore();
@@ -41,37 +42,39 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="space-y-6 w-full p-6">
+    <PageWrapper>
       {/* Header con información del usuario */}
       <Card className="col-span-full">
-        <CardContent className="pt-6">
-          <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
-            <Avatar className="w-24 h-24 border-4 border-primary/10">
-              <AvatarFallback className="text-2xl font-bold bg-primary/10 text-primary">
+        <CardContent className="pt-4 sm:pt-6">
+          <div className="flex flex-col sm:flex-row items-center sm:items-start md:items-center gap-4 sm:gap-6">
+            <Avatar className="w-20 h-20 sm:w-24 sm:h-24 border-4 border-primary/10 shrink-0">
+              <AvatarFallback className="text-xl sm:text-2xl font-bold bg-primary/10 text-primary">
                 {getInitials(userComplete.name)}
               </AvatarFallback>
             </Avatar>
-            <div className="flex-1 space-y-2">
-              <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4">
-                <h1 className="text-3xl font-bold text-primary">
+            <div className="flex-1 space-y-2 sm:space-y-3 text-center sm:text-left w-full">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 md:gap-4">
+                <h1 className="text-2xl sm:text-3xl font-bold text-primary wrap-break-word">
                   {userComplete.name}
                 </h1>
-                <Badge variant="secondary" className="w-fit">
+                <Badge variant="secondary" className="w-fit mx-auto sm:mx-0">
                   {userComplete.position}
                 </Badge>
               </div>
-              <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
-                <div className="flex items-center gap-2">
-                  <Building2 className="w-4 h-4" />
-                  <span>{userComplete.company}</span>
+              <div className="flex flex-col sm:flex-row sm:flex-wrap gap-2 sm:gap-4 text-xs sm:text-sm text-muted-foreground">
+                <div className="flex items-center justify-center sm:justify-start gap-2">
+                  <Building2 className="w-4 h-4 shrink-0" />
+                  <span className="truncate">{userComplete.company}</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <MapPin className="w-4 h-4" />
-                  <span>{userComplete.branch}</span>
+                <div className="flex items-center justify-center sm:justify-start gap-2">
+                  <MapPin className="w-4 h-4 shrink-0" />
+                  <span className="truncate">{userComplete.branch}</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Mail className="w-4 h-4" />
-                  <span>{userComplete.personal_email}</span>
+                <div className="flex items-center justify-center sm:justify-start gap-2">
+                  <Mail className="w-4 h-4 shrink-0" />
+                  <span className="truncate">
+                    {userComplete.personal_email}
+                  </span>
                 </div>
               </div>
             </div>
@@ -79,17 +82,17 @@ export default function ProfilePage() {
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 w-full">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 w-full">
         {/* Información de Contacto */}
         <Card className="lg:col-span-6">
-          <CardHeader>
-            <CardTitle className="text-primary flex items-center gap-2">
-              <Mail className="w-5 h-5" />
+          <CardHeader className="pb-3 sm:pb-6">
+            <CardTitle className="text-primary flex items-center gap-2 text-base sm:text-lg">
+              <Mail className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
               Información de Contacto
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <CardContent className="space-y-3 sm:space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <InfoItem
                 label="Correo Personal"
                 value={userComplete.personal_email}
@@ -134,14 +137,14 @@ export default function ProfilePage() {
 
         {/* Información Laboral */}
         <Card className="lg:col-span-6">
-          <CardHeader>
-            <CardTitle className="text-primary flex items-center gap-2">
-              <Briefcase className="w-5 h-5" />
+          <CardHeader className="pb-3 sm:pb-6">
+            <CardTitle className="text-primary flex items-center gap-2 text-base sm:text-lg">
+              <Briefcase className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
               Información Laboral
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <CardContent className="space-y-3 sm:space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <InfoItem
                 label="ID de Empleado"
                 value={userComplete.id}
@@ -178,14 +181,14 @@ export default function ProfilePage() {
 
         {/* Información Personal */}
         <Card className="lg:col-span-6">
-          <CardHeader>
-            <CardTitle className="text-primary flex items-center gap-2">
-              <User className="w-5 h-5" />
+          <CardHeader className="pb-3 sm:pb-6">
+            <CardTitle className="text-primary flex items-center gap-2 text-base sm:text-lg">
+              <User className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
               Información Personal
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <InfoItem
                 label="Fecha de Nacimiento"
                 value={userComplete.birth_date}
@@ -222,14 +225,14 @@ export default function ProfilePage() {
 
         {/* Documentos y Licencias */}
         <Card className="lg:col-span-6">
-          <CardHeader>
-            <CardTitle className="text-primary flex items-center gap-2">
-              <IdCard className="w-5 h-5" />
+          <CardHeader className="pb-3 sm:pb-6">
+            <CardTitle className="text-primary flex items-center gap-2 text-base sm:text-lg">
+              <IdCard className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
               Documentos y Licencias
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <InfoItem
                 label="Documento de Identidad"
                 value={userComplete.document}
@@ -266,21 +269,21 @@ export default function ProfilePage() {
 
         {/* Educación */}
         <Card className="lg:col-span-12">
-          <CardHeader>
-            <CardTitle className="text-primary flex items-center gap-2">
-              <GraduationCap className="w-5 h-5" />
+          <CardHeader className="pb-3 sm:pb-6">
+            <CardTitle className="text-primary flex items-center gap-2 text-base sm:text-lg">
+              <GraduationCap className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
               Formación Académica
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {/* Educación Primaria */}
-              <div className="space-y-3">
-                <h3 className="font-semibold text-sm text-primary flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-primary" />
+              <div className="space-y-2 sm:space-y-3">
+                <h3 className="font-semibold text-sm sm:text-base text-primary flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-primary shrink-0" />
                   Educación Primaria
                 </h3>
-                <div className="space-y-2 pl-4 border-l-2 border-primary/20">
+                <div className="space-y-2 pl-3 sm:pl-4 border-l-2 border-primary/20">
                   {userComplete.primary_school &&
                     userComplete.primary_school !== "NULL" && (
                       <InfoItem
@@ -300,12 +303,12 @@ export default function ProfilePage() {
               </div>
 
               {/* Educación Secundaria */}
-              <div className="space-y-3">
-                <h3 className="font-semibold text-sm text-primary flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-primary" />
+              <div className="space-y-2 sm:space-y-3">
+                <h3 className="font-semibold text-sm sm:text-base text-primary flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-primary shrink-0" />
                   Educación Secundaria
                 </h3>
-                <div className="space-y-2 pl-4 border-l-2 border-primary/20">
+                <div className="space-y-2 pl-3 sm:pl-4 border-l-2 border-primary/20">
                   {userComplete.secondary_school &&
                     userComplete.secondary_school !== "NULL" && (
                       <InfoItem
@@ -324,12 +327,12 @@ export default function ProfilePage() {
               </div>
 
               {/* Educación Superior */}
-              <div className="space-y-3">
-                <h3 className="font-semibold text-sm text-primary flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-primary" />
+              <div className="space-y-2 sm:space-y-3">
+                <h3 className="font-semibold text-sm sm:text-base text-primary flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-primary shrink-0" />
                   Educación Superior
                 </h3>
-                <div className="space-y-2 pl-4 border-l-2 border-primary/20">
+                <div className="space-y-2 pl-3 sm:pl-4 border-l-2 border-primary/20">
                   {userComplete.technical_university &&
                     userComplete.technical_university !== "NULL" && (
                       <InfoItem
@@ -388,32 +391,34 @@ export default function ProfilePage() {
 
         {/* Curriculum Vitae */}
         <Card className="lg:col-span-12">
-          <CardHeader>
-            <CardTitle className="text-primary flex items-center gap-2">
-              <FileText className="w-5 h-5" />
+          <CardHeader className="pb-3 sm:pb-6">
+            <CardTitle className="text-primary flex items-center gap-2 text-base sm:text-lg">
+              <FileText className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
               Curriculum Vitae
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
-              <div className="flex items-center gap-3">
-                <div className="p-3 bg-primary/10 rounded-lg">
-                  <FileText className="w-6 h-6 text-primary" />
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 p-3 sm:p-4 bg-muted/50 rounded-lg">
+              <div className="flex items-center gap-3 w-full sm:w-auto">
+                <div className="p-2 sm:p-3 bg-primary/10 rounded-lg shrink-0">
+                  <FileText className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
                 </div>
-                <div>
-                  <p className="font-medium">
+                <div className="min-w-0 flex-1">
+                  <p className="font-medium text-sm sm:text-base truncate">
                     {userComplete.cv_file || "No se ha subido ningún archivo"}
                   </p>
                   {userComplete.cv_last_update && (
-                    <p className="text-sm text-muted-foreground flex items-center gap-1">
-                      <Clock className="w-3 h-3" />
-                      Última actualización: {userComplete.cv_last_update}
+                    <p className="text-xs sm:text-sm text-muted-foreground flex items-center gap-1">
+                      <Clock className="w-3 h-3 shrink-0" />
+                      <span className="truncate">
+                        Última actualización: {userComplete.cv_last_update}
+                      </span>
                     </p>
                   )}
                 </div>
               </div>
               {userComplete.cv_file && (
-                <Badge variant="outline" className="text-xs">
+                <Badge variant="outline" className="text-xs shrink-0 w-fit">
                   Disponible
                 </Badge>
               )}
@@ -421,7 +426,7 @@ export default function ProfilePage() {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </PageWrapper>
   );
 }
 
@@ -437,13 +442,15 @@ function InfoItem({
 }) {
   if (!value) return null;
   return (
-    <div className="space-y-1">
+    <div className="space-y-1 min-w-0">
       <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
         {label}
       </p>
-      <div className="flex items-center gap-2">
-        {icon}
-        <p className="text-sm font-medium text-foreground">{value}</p>
+      <div className="flex items-center gap-2 min-w-0">
+        {icon && <span className="shrink-0">{icon}</span>}
+        <p className="text-sm font-medium text-foreground wrap-break-word min-w-0">
+          {value}
+        </p>
       </div>
     </div>
   );

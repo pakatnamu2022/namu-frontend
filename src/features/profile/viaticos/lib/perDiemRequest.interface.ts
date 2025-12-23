@@ -1,10 +1,123 @@
 import { type Links, type Meta } from "@/shared/lib/pagination.interface.ts";
-import { PerDiemCategoryResource } from "../../../gp/gestionhumana/viaticos/categoria-viaticos/lib/perDiemCategory.interface";
 
 export interface PerDiemRequestResponse {
   data: PerDiemRequestResource[];
   links: Links;
   meta: Meta;
+}
+
+interface Budget {
+  id: number;
+  per_diem_request_id: number;
+  expense_type_id: number;
+  daily_amount: string;
+  days: number;
+  total: string;
+  created_at: string;
+  updated_at: string;
+  deleted_at: null;
+}
+
+interface Hotelreservation {
+  id: number;
+  hotel_name: string;
+  address: string;
+  phone: string;
+  checkin_date: string;
+  checkout_date: string;
+  nights_count: number;
+  total_cost: number;
+  receipt_path: string;
+  notes: string;
+  attended: boolean;
+  penalty: number;
+  created_at: string;
+  updated_at: string;
+}
+
+interface Category {
+  id: number;
+  name: string;
+  description: string;
+  active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+interface District {
+  id: number;
+  name: string;
+  zone: string;
+}
+
+interface Company {
+  id: number;
+  name: string;
+}
+
+interface Employee {
+  id: number;
+  full_name: string;
+  position: Position;
+}
+
+interface Position {
+  id: number;
+  name: string;
+  area: Area;
+}
+
+interface Approval {
+  id: number;
+  per_diem_request_id: number;
+  approver_id: number;
+  approver: Boss;
+  status: string;
+  comments: string;
+  approved_at: string;
+}
+
+interface Category {
+  id: number;
+  name: string;
+  description: string;
+  active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+interface District {
+  id: number;
+  name: string;
+  zone: string;
+}
+
+interface Employee {
+  id: number;
+  full_name: string;
+  position: Position;
+  boss: Boss;
+}
+
+interface Boss {
+  id: number;
+  full_name: string;
+  position: Position2;
+}
+
+interface Position2 {
+  name: string;
+}
+
+interface Position {
+  id: number;
+  name: string;
+  area: Area;
+}
+
+interface Area {
+  id: number;
+  name: string;
 }
 
 export interface PerDiemRequestResource {
@@ -16,8 +129,6 @@ export interface PerDiemRequestResource {
   days_count: number;
   purpose: string;
   final_result: string;
-  destination: string;
-  cost_center: null;
   total_budget: number;
   cash_amount: number;
   transfer_amount: number;
@@ -30,13 +141,20 @@ export interface PerDiemRequestResource {
   balance_to_return: number;
   notes: null;
   days_without_settlement: number;
-  employee: string;
-  company: string;
-  category: PerDiemCategoryResource;
+  employee: Employee;
+  company: Company;
+  district: District;
+  category: Category;
   policy: string;
-  approvals: ApprovalResource[];
-  hotel_reservation: HotelReservationResource;
-  expenses: ExpenseResource[];
+  approvals?: Approval[];
+  hotel_reservation?: Hotelreservation;
+  expenses?: ExpenseResource[];
+  budgets?: Budget[];
+}
+
+interface Company {
+  id: number;
+  name: string;
 }
 
 export interface ExpenseResource {
@@ -49,11 +167,11 @@ export interface ExpenseResource {
   receipt_type: string;
   receipt_number: string;
   receipt_path: string;
-  notes: null | string;
+  notes?: string;
   validated: boolean;
-  validated_at: null | string;
+  validated_at?: string;
   expense_type: ExpenseType;
-  validated_by: ValidatedBy | null;
+  validated_by: ValidatedBy;
   created_at: string;
   updated_at: string;
 }
@@ -67,11 +185,11 @@ export interface ExpenseType {
   requires_receipt: boolean;
   active: boolean;
   order: number;
-  parent: {
+  parent?: {
     id: number;
     code: string;
     name: string;
-  } | null;
+  };
   created_at: string;
   updated_at: string;
 }
@@ -92,34 +210,6 @@ export interface ExpenseRequest {
   receipt_file?: File;
   notes?: string;
   expense_type_id: number;
-}
-
-interface HotelReservationResource {
-  id: number;
-  hotel_name: string;
-  address: string;
-  phone: string;
-  checkin_date: string;
-  checkout_date: string;
-  nights_count: number;
-  total_cost: number;
-  receipt_path: string;
-  notes: string;
-  attended: boolean;
-  penalty: number;
-  created_at: string;
-  updated_at: string;
-}
-
-interface ApprovalResource {
-  id: number;
-  per_diem_request_id: number;
-  approver_id: number;
-  approver_type: number;
-  approver: null;
-  status: string;
-  comments: string;
-  approved_at: string;
 }
 
 export interface PerDiemRequestRequest {

@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { BriefcaseBusiness } from "lucide-react";
 import ActionsWrapper from "@/shared/components/ActionsWrapper";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { OPPORTUNITIES } from "../../oportunidades/lib/opportunities.constants";
 import { SearchableSelect } from "@/shared/components/SearchableSelect";
 import { WorkerResource } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.interface";
@@ -29,6 +29,7 @@ export default function AgendaActions({
   const handleOpportunities = () => {
     push(ABSOLUTE_ROUTE!);
   };
+
   return (
     <ActionsWrapper>
       {permissions.canViewAdvisors && (
