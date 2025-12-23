@@ -43,7 +43,7 @@ export default function StoreVisitsPage() {
   }, [search, per_page, conditionFilter]);
 
   const formatDate = (date: Date | undefined) => {
-    return date ? date.toISOString().split("T")[0] : undefined;
+    return date ? date.toLocaleDateString("en-CA") : undefined; // formato: YYYY-MM-DD
   };
 
   const { data, isLoading, refetch } = useStoreVisits({

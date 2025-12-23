@@ -247,6 +247,7 @@ import UpdateAppointmentPlanningPage from "./app/ap/post-venta/taller/citas/actu
 import OrderQuotationPage from "./app/ap/post-venta/taller/cotizacion/page.tsx";
 import AddOrderQuotationPage from "./app/ap/post-venta/taller/cotizacion/agregar/page.tsx";
 import UpdateOrderQuotationPage from "./app/ap/post-venta/taller/cotizacion/actualizar/[id]/page.tsx";
+import ManageOrderQuotationPage from "./app/ap/post-venta/taller/cotizacion/gestionar/[id]/page.tsx";
 import PurchaseRequestPVPage from "./app/ap/post-venta/taller/solicitud-compra/page.tsx";
 import AddPurchaseRequestPVPage from "./app/ap/post-venta/taller/solicitud-compra/agregar/page.tsx";
 import UpdatePurchaseRequestPVPage from "./app/ap/post-venta/taller/solicitud-compra/actualizar/[id]/page.tsx";
@@ -1155,6 +1156,10 @@ function App() {
                 element={<UpdateOrderQuotationPage />}
               />
               <Route
+                path="taller/cotizacion/gestionar/:id"
+                element={<ManageOrderQuotationPage />}
+              />
+              <Route
                 path="taller/solicitud-compra"
                 element={<PurchaseRequestPVPage />}
               />
@@ -1333,10 +1338,7 @@ function App() {
 
                 {/* Administración de Tarifas de Viáticos */}
                 <Route path="tarifa" element={<PerDiemRatePage />} />
-                <Route
-                  path="tarifa/agregar"
-                  element={<AddPerDiemRatePage />}
-                />
+                <Route path="tarifa/agregar" element={<AddPerDiemRatePage />} />
                 <Route
                   path="tarifa/actualizar/:id"
                   element={<UpdatePerDiemRatePage />}

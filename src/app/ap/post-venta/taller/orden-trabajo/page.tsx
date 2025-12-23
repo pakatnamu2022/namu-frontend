@@ -31,7 +31,7 @@ export default function WorkOrderPage() {
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
-  const { MODEL, ROUTE, ABSOLUTE_ROUTE } = WORKER_ORDER;
+  const { MODEL, ROUTE, ABSOLUTE_ROUTE, ROUTE_UPDATE } = WORKER_ORDER;
   const permissions = useModulePermissions(ROUTE);
   const router = useNavigate();
   const currentDate = new Date();
@@ -40,7 +40,7 @@ export default function WorkOrderPage() {
   const [dateTo, setDateTo] = useState<Date | undefined>(currentDate);
 
   const formatDate = (date: Date | undefined) => {
-    return date ? date.toISOString().split("T")[0] : undefined;
+    return date ? date.toLocaleDateString("en-CA") : undefined; // formato: YYYY-MM-DD
   };
 
   useEffect(() => {
@@ -79,6 +79,10 @@ export default function WorkOrderPage() {
     }
   };
 
+  const handleUpdate = (id: number) => {
+    router(`${ROUTE_UPDATE}/${id}`);
+  };
+
   const handleManage = (id: number) => {
     router(`${ABSOLUTE_ROUTE}/gestionar/${id}`);
   };
@@ -110,6 +114,7 @@ export default function WorkOrderPage() {
         isLoading={isLoading}
         columns={workOrderColumns({
           onDelete: setDeleteId,
+          onUpdate: handleUpdate,
           onManage: handleManage,
           onInspect: handleInspect,
           onRequestParts: handleRequestParts,

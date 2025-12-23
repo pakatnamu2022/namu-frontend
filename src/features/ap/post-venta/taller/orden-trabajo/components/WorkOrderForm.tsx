@@ -20,6 +20,7 @@ import {
   Trash2,
   List,
   Search,
+  CarFront,
 } from "lucide-react";
 import {
   WorkOrderSchema,
@@ -533,7 +534,7 @@ export const WorkOrderForm = ({
 
         <GroupFormSection
           title="Recall"
-          icon={Building}
+          icon={CarFront}
           iconColor="text-gray-800"
           bgColor="bg-gray-50"
           cols={{ sm: 2 }}
