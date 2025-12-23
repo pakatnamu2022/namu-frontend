@@ -43,7 +43,7 @@ import SupplierEstablishmentsListPage from "./app/ap/comercial/proveedores/estab
 import AddSupplierEstablishmentPage from "./app/ap/comercial/proveedores/establecimientos/[id]/agregar/page";
 import UpdateSupplierEstablishmentPage from "./app/ap/comercial/proveedores/establecimientos/[id]/actualizar/[establishmentId]/page";
 import ElectronicDocumentsPage from "./app/ap/comercial/electronic-documents/page";
-import AddElectronicDocumentPage from "./app/ap/comercial/electronic-documents/agregar/page";
+import AddElectronicDocumentPage from "./app/ap/comercial/electronic-documents/agregar/page.tsx";
 import UpdateElectronicDocumentPage from "./app/ap/comercial/electronic-documents/actualizar/[id]/page";
 import AddCreditNotePage from "./app/ap/comercial/electronic-documents/[id]/credit-note/page";
 import UpdateCreditNotePage from "./app/ap/comercial/electronic-documents/[id]/credit-note/actualizar/[credit]/page";
@@ -311,6 +311,7 @@ import CompanyModuleSubmodulePage from "./app/[company]/[module]/[submodule]/pag
 import ProfilePage from "./app/perfil/page.tsx";
 import UserPage from "./app/gp/gestion-del-sistema/usuarios/page.tsx";
 import MyPerDiemPage from "./app/perfil/viaticos/page.tsx";
+import AddGeneralElectronicDocumentPage from "./app/ap/comercial/electronic-documents/agregar-otros/page.tsx";
 
 // ============================================================================
 // PROTECTED ROUTE COMPONENT
@@ -547,6 +548,11 @@ function App() {
                 <AddElectronicDocumentPage />,
                 <UpdateElectronicDocumentPage />
               )}
+
+              <Route
+                path="comprobantes-venta/agregar-otros"
+                element={<AddGeneralElectronicDocumentPage />}
+              />
 
               {/* Credit Note */}
               <Route
@@ -1333,10 +1339,7 @@ function App() {
 
                 {/* Administración de Tarifas de Viáticos */}
                 <Route path="tarifa" element={<PerDiemRatePage />} />
-                <Route
-                  path="tarifa/agregar"
-                  element={<AddPerDiemRatePage />}
-                />
+                <Route path="tarifa/agregar" element={<AddPerDiemRatePage />} />
                 <Route
                   path="tarifa/actualizar/:id"
                   element={<UpdatePerDiemRatePage />}

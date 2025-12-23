@@ -24,7 +24,7 @@ export default function AddHotelReservationPage() {
   const { data: hotelAgreements = [], isLoading: isLoadingAgreements } =
     useGetAllHotelAgreement({
       params: {
-        city: perDiemRequest?.district.name,
+        city: perDiemRequest?.district?.name,
       },
     });
 

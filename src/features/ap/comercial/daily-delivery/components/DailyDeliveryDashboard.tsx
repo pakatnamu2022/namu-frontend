@@ -14,11 +14,14 @@ import HierarchyTree from "./HierarchyTree";
 import BrandReport from "./BrandReport";
 import AvancePorSede from "./AvancePorSede";
 import { DateRangePickerFilter } from "@/shared/components/DateRangePickerFilter";
+import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
+import { cn } from "@/lib/utils";
 
 export default function DailyDeliveryDashboard() {
   const [dateFrom, setDateFrom] = useState<Date | undefined>(new Date());
   const [dateTo, setDateTo] = useState<Date | undefined>(new Date());
   const [activeTab, setActiveTab] = useState("hierarchy");
+  const { canViewBranches } = useModulePermissions("dashboard-entregas");
 
   const formattedDateFrom = dateFrom ? format(dateFrom, "yyyy-MM-dd") : "";
   const formattedDateTo = dateTo ? format(dateTo, "yyyy-MM-dd") : "";
@@ -116,10 +119,17 @@ export default function DailyDeliveryDashboard() {
             onValueChange={setActiveTab}
             className="w-full"
           >
-            <TabsList className="grid w-full max-w-2xl grid-cols-3">
+            <TabsList
+              className={cn(
+                "grid w-full max-w-2xl",
+                canViewBranches ? "grid-cols-3" : "grid-cols-2"
+              )}
+            >
               <TabsTrigger value="hierarchy">Por Jerarquía</TabsTrigger>
               <TabsTrigger value="brands">Por Marcas</TabsTrigger>
-              <TabsTrigger value="avance">Avance por Sede</TabsTrigger>
+              {canViewBranches && (
+                <TabsTrigger value="avance">Avance por Sede</TabsTrigger>
+              )}
             </TabsList>
 
             <TabsContent value="hierarchy" className="mt-4">
