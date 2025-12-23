@@ -3,16 +3,7 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetFooter,
-} from "@/components/ui/sheet";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -23,23 +14,25 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { DollarSign, Check, X } from "lucide-react";
+import { Form } from "@/components/ui/form";
+import { Check, X, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
-import {
-  invoiceSchemaCreate,
-  type InvoiceSchema,
-} from "../lib/invoice.schema";
+import { invoiceSchemaCreate, type InvoiceSchema } from "../lib/invoice.schema";
+import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
+import { useCustomers } from "@/features/ap/comercial/clientes/lib/customers.hook";
+import { CustomersResource } from "@/features/ap/comercial/clientes/lib/customers.interface";
+import { CUSTOMERS_PV } from "@/features/ap/comercial/clientes/lib/customers.constants";
+import GeneralSheet from "@/shared/components/GeneralSheet";
+import { useIsTablet } from "@/hooks/use-mobile";
+import { FormInputText } from "@/shared/components/FormInputText";
+import { FormInput } from "@/shared/components/FormInput";
+import { useMutation } from "@tanstack/react-query";
+import { storeElectronicDocument } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.actions";
+import type { ElectronicDocumentSchema } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.schema";
 
 export interface InvoiceFormData {
   groupNumber: number;
+  customer_id: string;
   clientName: string;
   description: string;
   amount: number;
@@ -61,6 +54,7 @@ export default function InvoiceForm({
   onFormDataChange,
   onSubmit,
 }: InvoiceFormProps) {
+  const isTablet = useIsTablet();
   const [showConfirmation, setShowConfirmation] = useState(false);
 
   const form = useForm<InvoiceSchema>({
@@ -71,6 +65,22 @@ export default function InvoiceForm({
   const { watch } = form;
   const watchedAmount = watch("amount");
   const watchedTaxRate = watch("taxRate");
+
+  // Mutación para crear documento electrónico
+  const createInvoiceMutation = useMutation({
+    mutationFn: (data: ElectronicDocumentSchema) =>
+      storeElectronicDocument(data),
+    onSuccess: () => {
+      toast.success("Factura creada exitosamente");
+      setShowConfirmation(false);
+      onSubmit();
+      onClose();
+    },
+    onError: (error: any) => {
+      toast.error(error?.message || "Error al crear la factura");
+      console.error("Error creando factura:", error);
+    },
+  });
 
   // Sincronizar el formulario con formData cuando cambia
   useEffect(() => {
@@ -92,157 +102,174 @@ export default function InvoiceForm({
   };
 
   const handleConfirm = () => {
-    onSubmit();
-    setShowConfirmation(false);
-    toast.success("Factura creada exitosamente");
+    const formValues = form.getValues();
+
+    // Preparar datos para el documento electrónico
+    const electronicDocumentData: ElectronicDocumentSchema = {
+      // Tipo de documento y serie (valores temporales, ajustar según API)
+      sunat_concept_document_type_id: "1", // Factura
+      serie: "1", // Serie temporal
+
+      // Tipo de operación
+      sunat_concept_transaction_type_id: "1", // Venta interna
+
+      // Origen del documento
+      origin_module: "posventa",
+      is_advance_payment: false,
+
+      // Cliente
+      client_id: formValues.customer_id,
+
+      // Fechas
+      fecha_de_emision: new Date().toISOString().split("T")[0],
+
+      // Moneda
+      sunat_concept_currency_id: "1", // PEN - Soles
+
+      // Totales
+      total_gravada: formValues.amount,
+      total_igv: calculateTaxAmount(),
+      total: calculateTotalAmount(),
+
+      // Condiciones de pago
+      condiciones_de_pago: "CONTADO",
+      medio_de_pago: "EFECTIVO",
+
+      // Configuración
+      enviar_automaticamente_a_la_sunat: false,
+      enviar_automaticamente_al_cliente: false,
+
+      // Items (crear un item con la descripción)
+      items: [
+        {
+          unidad_de_medida: "NIU", // Unidad
+          descripcion: formValues.description,
+          cantidad: 1,
+          valor_unitario: formValues.amount,
+          precio_unitario: formValues.amount + calculateTaxAmount(),
+          subtotal: formValues.amount,
+          sunat_concept_igv_type_id: 10, // Gravado - Operación Onerosa
+          igv: calculateTaxAmount(),
+          total: calculateTotalAmount(),
+          account_plan_id: "1", // Plan contable temporal
+        },
+      ],
+    };
+
+    createInvoiceMutation.mutate(electronicDocumentData);
   };
 
   return (
     <>
       {/* Sheet para crear factura */}
-      <Sheet open={isOpen} onOpenChange={onClose}>
-        <SheetContent side="bottom">
-          <SheetHeader>
-            <SheetTitle className="flex items-center gap-2">
-              <DollarSign className="h-5 w-5" />
-              Crear Factura - Grupo {formData.groupNumber}
-            </SheetTitle>
-          </SheetHeader>
+      <GeneralSheet
+        open={isOpen}
+        onClose={onClose}
+        title={`Crear Factura - Grupo ${formData.groupNumber}`}
+        type={isTablet ? "tablet" : "default"}
+        className="sm:max-w-2xl"
+      >
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(handleFormSubmit)}
+            className="space-y-4 px-4"
+          >
+            <div className="grid gap-4">
+              {/* Cliente */}
+              <FormSelectAsync
+                placeholder="Seleccionar cliente"
+                control={form.control}
+                label={"Cliente"}
+                name="customer_id"
+                useQueryHook={useCustomers}
+                mapOptionFn={(item: CustomersResource) => ({
+                  value: item.id.toString(),
+                  label: `${item.full_name}`,
+                })}
+                perPage={10}
+                debounceMs={500}
+              >
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon-lg"
+                  className="aspect-square"
+                  onClick={() => window.open(CUSTOMERS_PV.ROUTE_ADD, "_blank")}
+                  tooltip="Agregar nuevo cliente"
+                >
+                  <ExternalLink className="h-4 w-4" />
+                </Button>
+              </FormSelectAsync>
 
-          <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(handleFormSubmit)}
-              className="space-y-4 mt-6"
-            >
-              <div className="grid gap-4">
-                {/* Cliente */}
-                <FormField
+              {/* Descripción */}
+              <FormInputText
+                control={form.control}
+                name="description"
+                label="Descripción de la Factura"
+                placeholder="Detalle de los servicios facturados..."
+              />
+
+              {/* Monto y Tax */}
+              <div className="grid grid-cols-2 gap-4">
+                <FormInput
                   control={form.control}
-                  name="clientName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Cliente / Nombre de Facturación</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Nombre completo del cliente"
-                          {...field}
-                        />
-                      </FormControl>
-                      <p className="text-xs text-gray-500">
-                        Puede ser diferente al titular del vehículo
-                      </p>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                  name="amount"
+                  label="Subtotal (S/)"
+                  placeholder="0.00"
+                  type="number"
+                  step="0.01"
+                  min={0}
                 />
 
-                {/* Descripción */}
-                <FormField
+                <FormInput
                   control={form.control}
-                  name="description"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Descripción de la Factura</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder="Detalle de los servicios facturados..."
-                          rows={3}
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                  name="taxRate"
+                  label="Tasa de IGV (%)"
+                  placeholder="0.00"
+                  type="number"
+                  step="0.01"
+                  min={0}
                 />
-
-                {/* Monto y Tax */}
-                <div className="grid grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="amount"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Subtotal (S/)</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            step="0.01"
-                            min="0"
-                            placeholder="0.00"
-                            {...field}
-                            onChange={(e) =>
-                              field.onChange(parseFloat(e.target.value) || 0)
-                            }
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="taxRate"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Tasa de IGV (%)</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            step="0.01"
-                            min="0"
-                            max="100"
-                            {...field}
-                            onChange={(e) =>
-                              field.onChange(parseFloat(e.target.value) || 0)
-                            }
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                {/* Resumen de montos */}
-                <div className="bg-gray-50 p-4 rounded-lg space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Subtotal:</span>
-                    <span className="font-semibold">
-                      S/ {(watchedAmount || 0).toFixed(2)}
-                    </span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">
-                      IGV ({watchedTaxRate || 0}%):
-                    </span>
-                    <span className="font-semibold">
-                      S/ {calculateTaxAmount().toFixed(2)}
-                    </span>
-                  </div>
-                  <div className="flex justify-between text-lg border-t pt-2">
-                    <span className="font-semibold">Total:</span>
-                    <span className="font-bold text-green-600">
-                      S/ {calculateTotalAmount().toFixed(2)}
-                    </span>
-                  </div>
-                </div>
               </div>
 
-              <SheetFooter>
-                <Button type="button" variant="outline" onClick={onClose}>
-                  <X className="h-4 w-4 mr-2" />
-                  Cancelar
-                </Button>
-                <Button type="submit">
-                  <Check className="h-4 w-4 mr-2" />
-                  Crear Factura
-                </Button>
-              </SheetFooter>
-            </form>
-          </Form>
-        </SheetContent>
-      </Sheet>
+              {/* Resumen de montos */}
+              <div className="bg-gray-50 p-4 rounded-lg space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Subtotal:</span>
+                  <span className="font-semibold">
+                    S/ {(watchedAmount || 0).toFixed(2)}
+                  </span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">
+                    IGV ({watchedTaxRate || 0}%):
+                  </span>
+                  <span className="font-semibold">
+                    S/ {calculateTaxAmount().toFixed(2)}
+                  </span>
+                </div>
+                <div className="flex justify-between text-lg border-t pt-2">
+                  <span className="font-semibold">Total:</span>
+                  <span className="font-bold text-green-600">
+                    S/ {calculateTotalAmount().toFixed(2)}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-4">
+              <Button type="button" variant="outline" onClick={onClose}>
+                <X className="h-4 w-4 mr-2" />
+                Cancelar
+              </Button>
+              <Button type="submit">
+                <Check className="h-4 w-4 mr-2" />
+                Crear Factura
+              </Button>
+            </div>
+          </form>
+        </Form>
+      </GeneralSheet>
 
       {/* Confirmación */}
       <AlertDialog open={showConfirmation} onOpenChange={setShowConfirmation}>
@@ -256,12 +283,15 @@ export default function InvoiceForm({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogCancel disabled={createInvoiceMutation.isPending}>
+              Cancelar
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleConfirm}
+              disabled={createInvoiceMutation.isPending}
               className="bg-green-600 hover:bg-green-700"
             >
-              Confirmar
+              {createInvoiceMutation.isPending ? "Creando..." : "Confirmar"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

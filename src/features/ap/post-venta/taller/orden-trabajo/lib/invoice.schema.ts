@@ -1,7 +1,9 @@
+import { requiredStringId } from "@/shared/lib/global.schema";
 import { z } from "zod";
 
 const invoiceBaseObject = z.object({
   groupNumber: z.number().min(1, "El número de grupo es requerido"),
+  customer_id: requiredStringId("Cliente es requerido"),
   clientName: z
     .string()
     .min(3, "El nombre del cliente debe tener al menos 3 caracteres")

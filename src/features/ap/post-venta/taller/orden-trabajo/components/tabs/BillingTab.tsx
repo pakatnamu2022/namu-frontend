@@ -5,12 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-  FileText,
-  Loader2,
-  Plus,
-  Receipt,
-} from "lucide-react";
+import { FileText, Loader2, Plus, Receipt } from "lucide-react";
 import { toast } from "sonner";
 import { findWorkOrderById } from "../../lib/workOrder.actions";
 import {
@@ -52,6 +47,7 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
   const [invoices, setInvoices] = useState(MOCK_INVOICES);
   const [formData, setFormData] = useState<InvoiceFormData>({
     groupNumber: 0,
+    customer_id: "",
     clientName: "",
     description: "",
     amount: 0,
@@ -96,6 +92,7 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
 
     setFormData({
       groupNumber: selectedGroupNumber,
+      customer_id: "",
       clientName: "",
       description: `Factura por servicios del Grupo ${selectedGroupNumber}`,
       amount: 0,
@@ -123,6 +120,7 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
     setIsSheetOpen(false);
     setFormData({
       groupNumber: 0,
+      customer_id: "",
       clientName: "",
       description: "",
       amount: 0,
