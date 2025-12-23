@@ -171,7 +171,7 @@ export const WorkOrderForm = ({
 
   // Limpiar appointment_planning_id cuando has_appointment es false
   useEffect(() => {
-    if (!watchedHasAppointment) {
+    if (!watchedHasAppointment && mode === "create") {
       form.setValue("appointment_planning_id", "");
       form.setValue("vehicle_id", "");
       form.setValue("sede_id", "");
@@ -372,129 +372,133 @@ export const WorkOrderForm = ({
         )}
 
         {/* Items de Servicio */}
-        <GroupFormSection
-          title="Trabajos"
-          icon={List}
-          iconColor="text-primary"
-          bgColor="bg-blue-50"
-          cols={{ sm: 1 }}
-        >
-          <div className="space-y-4">
-            {fields.map((field, index) => {
-              const groupNumber =
-                form.watch(`items.${index}.group_number`) || 1;
-              const colors = getGroupColor(groupNumber);
+        {mode === "create" && (
+          <GroupFormSection
+            title="Trabajos"
+            icon={List}
+            iconColor="text-primary"
+            bgColor="bg-blue-50"
+            cols={{ sm: 1 }}
+          >
+            <div className="space-y-4">
+              {fields.map((field, index) => {
+                const groupNumber =
+                  form.watch(`items.${index}.group_number`) || 1;
+                const colors = getGroupColor(groupNumber);
 
-              return (
-                <Card
-                  key={field.id}
-                  className="p-4 border-2 border-gray-200 bg-white hover:border-gray-300"
-                >
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-2">
-                      <Badge
-                        className="text-white"
-                        style={{
-                          backgroundColor: colors.badge,
-                        }}
-                      >
-                        Grupo {groupNumber}
-                      </Badge>
-                      <h5 className="font-semibold text-gray-700">
-                        Trabajo #{index + 1}
-                      </h5>
-                    </div>
-                    {fields.length > 1 && (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => remove(index)}
-                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    )}
-                  </div>
-
-                  <div className="grid grid-cols-1 gap-4">
-                    {/* Fila 1: Grupo y Tipo de Planificación */}
-                    <div className="grid grid-cols-12 gap-4">
-                      <div className="col-span-2">
-                        <FormField
-                          control={form.control}
-                          name={`items.${index}.group_number`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-xs">Grupo</FormLabel>
-                              <FormControl>
-                                <Input
-                                  type="number"
-                                  min="1"
-                                  max="20"
-                                  className={`text-center h-10 ${colors.input}`}
-                                  {...field}
-                                  onChange={(e) =>
-                                    field.onChange(parseInt(e.target.value))
-                                  }
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
+                return (
+                  <Card
+                    key={field.id}
+                    className="p-4 border-2 border-gray-200 bg-white hover:border-gray-300"
+                  >
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-2">
+                        <Badge
+                          className="text-white"
+                          style={{
+                            backgroundColor: colors.badge,
+                          }}
+                        >
+                          Grupo {groupNumber}
+                        </Badge>
+                        <h5 className="font-semibold text-gray-700">
+                          Trabajo #{index + 1}
+                        </h5>
                       </div>
-
-                      <div className="col-span-10">
-                        <FormSelect
-                          name={`items.${index}.type_planning_id`}
-                          label="Tipo de Planificación"
-                          placeholder="Seleccione tipo"
-                          options={typesPlanning.map((item) => ({
-                            label: item.description,
-                            value: item.id.toString(),
-                          }))}
-                          control={form.control}
-                          strictFilter={true}
-                        />
-                      </div>
-                    </div>
-
-                    {/* Fila 2: Descripción */}
-                    <FormField
-                      control={form.control}
-                      name={`items.${index}.description`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-xs">Descripción</FormLabel>
-                          <FormControl>
-                            <Textarea
-                              placeholder="Ingrese la descripción del servicio..."
-                              rows={2}
-                              className="resize-none"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
+                      {fields.length > 1 && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => remove(index)}
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
                       )}
-                    />
-                  </div>
-                </Card>
-              );
-            })}
+                    </div>
 
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleAddItem}
-              className="w-full"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Agregar Trabajo
-            </Button>
-          </div>
-        </GroupFormSection>
+                    <div className="grid grid-cols-1 gap-4">
+                      {/* Fila 1: Grupo y Tipo de Planificación */}
+                      <div className="grid grid-cols-12 gap-4">
+                        <div className="col-span-2">
+                          <FormField
+                            control={form.control}
+                            name={`items.${index}.group_number`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-xs">Grupo</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    type="number"
+                                    min="1"
+                                    max="20"
+                                    className={`text-center h-10 ${colors.input}`}
+                                    {...field}
+                                    onChange={(e) =>
+                                      field.onChange(parseInt(e.target.value))
+                                    }
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+
+                        <div className="col-span-10">
+                          <FormSelect
+                            name={`items.${index}.type_planning_id`}
+                            label="Tipo de Planificación"
+                            placeholder="Seleccione tipo"
+                            options={typesPlanning.map((item) => ({
+                              label: item.description,
+                              value: item.id.toString(),
+                            }))}
+                            control={form.control}
+                            strictFilter={true}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Fila 2: Descripción */}
+                      <FormField
+                        control={form.control}
+                        name={`items.${index}.description`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-xs">
+                              Descripción
+                            </FormLabel>
+                            <FormControl>
+                              <Textarea
+                                placeholder="Ingrese la descripción del servicio..."
+                                rows={2}
+                                className="resize-none"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </Card>
+                );
+              })}
+
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleAddItem}
+                className="w-full"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Agregar Trabajo
+              </Button>
+            </div>
+          </GroupFormSection>
+        )}
 
         {/* Fechas */}
         <GroupFormSection

@@ -5,33 +5,10 @@ import { useQuery } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetFooter,
-} from "@/components/ui/sheet";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import {
   FileText,
   Loader2,
-  DollarSign,
   Plus,
-  Check,
-  X,
   Receipt,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -43,6 +20,7 @@ import {
 import { WorkOrderItemResource } from "../../../orden-trabajo-item/lib/workOrderItem.interface";
 import GroupSelector from "../GroupSelector";
 import { useWorkOrderContext } from "../../contexts/WorkOrderContext";
+import InvoiceForm, { InvoiceFormData } from "../InvoiceForm";
 
 const getGroupColor = (groupNumber: number) => {
   return GROUP_COLORS[groupNumber] || DEFAULT_GROUP_COLOR;
@@ -68,19 +46,10 @@ const MOCK_INVOICES = [
   },
 ];
 
-interface InvoiceFormData {
-  groupNumber: number;
-  clientName: string;
-  description: string;
-  amount: number;
-  taxRate: number;
-}
-
 export default function BillingTab({ workOrderId }: BillingTabProps) {
   const { selectedGroupNumber, setSelectedGroupNumber } = useWorkOrderContext();
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [invoices, setInvoices] = useState(MOCK_INVOICES);
-  const [showConfirmation, setShowConfirmation] = useState(false);
   const [formData, setFormData] = useState<InvoiceFormData>({
     groupNumber: 0,
     clientName: "",
@@ -135,11 +104,6 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
     setIsSheetOpen(true);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setShowConfirmation(true);
-  };
-
   const handleConfirmInvoice = () => {
     // Simular creación de factura
     const newInvoice = {
@@ -156,9 +120,7 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
     };
 
     setInvoices([...invoices, newInvoice]);
-    toast.success("Factura creada exitosamente");
     setIsSheetOpen(false);
-    setShowConfirmation(false);
     setFormData({
       groupNumber: 0,
       clientName: "",
@@ -170,14 +132,6 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
 
   const getGroupInvoices = (groupNumber: number) => {
     return invoices.filter((inv) => inv.groupNumber === groupNumber);
-  };
-
-  const calculateTaxAmount = () => {
-    return (formData.amount * formData.taxRate) / 100;
-  };
-
-  const calculateTotalAmount = () => {
-    return formData.amount + calculateTaxAmount();
   };
 
   if (isLoading) {
@@ -359,158 +313,14 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
         </Card>
       )}
 
-      {/* Sheet para crear factura */}
-      <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-        <SheetContent side="bottom">
-          <SheetHeader>
-            <SheetTitle className="flex items-center gap-2">
-              <DollarSign className="h-5 w-5" />
-              Crear Factura - Grupo {formData.groupNumber}
-            </SheetTitle>
-          </SheetHeader>
-
-          <form onSubmit={handleSubmit} className="space-y-4 mt-6">
-            <div className="grid gap-4">
-              {/* Cliente */}
-              <div>
-                <Label htmlFor="clientName">
-                  Cliente / Nombre de Facturación
-                </Label>
-                <Input
-                  id="clientName"
-                  value={formData.clientName}
-                  onChange={(e) =>
-                    setFormData({ ...formData, clientName: e.target.value })
-                  }
-                  placeholder="Nombre completo del cliente"
-                  required
-                />
-                <p className="text-xs text-gray-500 mt-1">
-                  Puede ser diferente al titular del vehículo
-                </p>
-              </div>
-
-              {/* Descripción */}
-              <div>
-                <Label htmlFor="description">Descripción de la Factura</Label>
-                <Textarea
-                  id="description"
-                  value={formData.description}
-                  onChange={(e) =>
-                    setFormData({ ...formData, description: e.target.value })
-                  }
-                  placeholder="Detalle de los servicios facturados..."
-                  rows={3}
-                  required
-                />
-              </div>
-
-              {/* Monto y Tax */}
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="amount">Subtotal (S/)</Label>
-                  <Input
-                    id="amount"
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    value={formData.amount || ""}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        amount: parseFloat(e.target.value) || 0,
-                      })
-                    }
-                    placeholder="0.00"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="taxRate">Tasa de IGV (%)</Label>
-                  <Input
-                    id="taxRate"
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    max="100"
-                    value={formData.taxRate || ""}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        taxRate: parseFloat(e.target.value) || 0,
-                      })
-                    }
-                    required
-                  />
-                </div>
-              </div>
-
-              {/* Resumen de montos */}
-              <div className="bg-gray-50 p-4 rounded-lg space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Subtotal:</span>
-                  <span className="font-semibold">
-                    S/ {formData.amount.toFixed(2)}
-                  </span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">
-                    IGV ({formData.taxRate}%):
-                  </span>
-                  <span className="font-semibold">
-                    S/ {calculateTaxAmount().toFixed(2)}
-                  </span>
-                </div>
-                <div className="flex justify-between text-lg border-t pt-2">
-                  <span className="font-semibold">Total:</span>
-                  <span className="font-bold text-green-600">
-                    S/ {calculateTotalAmount().toFixed(2)}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <SheetFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setIsSheetOpen(false)}
-              >
-                <X className="h-4 w-4 mr-2" />
-                Cancelar
-              </Button>
-              <Button type="submit">
-                <Check className="h-4 w-4 mr-2" />
-                Crear Factura
-              </Button>
-            </SheetFooter>
-          </form>
-        </SheetContent>
-      </Sheet>
-
-      {/* Confirmación */}
-      <AlertDialog open={showConfirmation} onOpenChange={setShowConfirmation}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>¿Confirmar creación de factura?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Se creará una factura para el Grupo {formData.groupNumber} por un
-              total de S/ {calculateTotalAmount().toFixed(2)} a nombre de{" "}
-              {formData.clientName}.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleConfirmInvoice}
-              className="bg-green-600 hover:bg-green-700"
-            >
-              Confirmar
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      {/* Formulario de factura */}
+      <InvoiceForm
+        isOpen={isSheetOpen}
+        onClose={() => setIsSheetOpen(false)}
+        formData={formData}
+        onFormDataChange={setFormData}
+        onSubmit={handleConfirmInvoice}
+      />
     </div>
   );
 }
