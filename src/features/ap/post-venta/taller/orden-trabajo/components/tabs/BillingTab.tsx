@@ -197,183 +197,167 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
     : DEFAULT_GROUP_COLOR;
 
   return (
-    <div className="grid grid-cols-12 gap-6">
-      {/* Selector de grupos a la izquierda */}
-      <div className="col-span-12 lg:col-span-3">
-        <GroupSelector
-          items={items}
-          selectedGroupNumber={selectedGroupNumber}
-          onSelectGroup={setSelectedGroupNumber}
-        />
-      </div>
+    <div className="space-y-6">
+      {/* Selector de grupos en la parte superior */}
+      <GroupSelector
+        items={items}
+        selectedGroupNumber={selectedGroupNumber}
+        onSelectGroup={setSelectedGroupNumber}
+      />
 
       {/* Contenido principal */}
-      <div className="col-span-12 lg:col-span-9">
-        <div className="grid gap-6">
-          {/* Header */}
+      {/* Header */}
+      <Card className="p-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-lg font-semibold flex items-center gap-2">
+              <Receipt className="h-5 w-5" />
+              Facturación de Servicios
+              {selectedGroupNumber && (
+                <Badge
+                  className="text-white ml-2"
+                  style={{ backgroundColor: colors.badge }}
+                >
+                  Grupo {selectedGroupNumber}
+                </Badge>
+              )}
+            </h3>
+            <p className="text-sm text-gray-600 mt-1">
+              Gestiona las facturas para este grupo
+            </p>
+          </div>
+          <div className="text-right">
+            <p className="text-sm text-gray-600">Total Facturado</p>
+            <p className="text-2xl font-bold text-green-600">
+              S/{" "}
+              {invoices
+                .reduce((sum, inv) => sum + inv.totalAmount, 0)
+                .toFixed(2)}
+            </p>
+          </div>
+        </div>
+      </Card>
+
+      {/* Contenido del grupo seleccionado */}
+      {selectedGroupNumber ? (
+        <>
+          {/* Items del grupo */}
           <Card className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-lg font-semibold flex items-center gap-2">
-                  <Receipt className="h-5 w-5" />
-                  Facturación de Servicios
-                  {selectedGroupNumber && (
+            <div className="flex items-center justify-between mb-4">
+              <h4 className="font-semibold text-gray-900">
+                Trabajos del Grupo {selectedGroupNumber}
+              </h4>
+              <span className="text-sm text-gray-600">
+                {selectedGroupItems.length} trabajo(s)
+              </span>
+            </div>
+
+            <div className="space-y-2">
+              {selectedGroupItems.map((item, idx) => (
+                <div
+                  key={item.id}
+                  className="flex items-start gap-2 p-3 bg-gray-50 rounded-lg text-sm"
+                >
+                  <div className="shrink-0 w-6 h-6 rounded-full bg-white border-2 flex items-center justify-center text-xs font-semibold">
+                    {idx + 1}
+                  </div>
+                  <div className="flex-1">
                     <Badge
-                      className="text-white ml-2"
-                      style={{ backgroundColor: colors.badge }}
+                      variant="outline"
+                      className="text-xs mr-2 border-gray-300"
                     >
-                      Grupo {selectedGroupNumber}
+                      {item.type_planning_name}
                     </Badge>
-                  )}
-                </h3>
-                <p className="text-sm text-gray-600 mt-1">
-                  Gestiona las facturas para este grupo
-                </p>
-              </div>
-              <div className="text-right">
-                <p className="text-sm text-gray-600">Total Facturado</p>
-                <p className="text-2xl font-bold text-green-600">
-                  S/{" "}
-                  {invoices
-                    .reduce((sum, inv) => sum + inv.totalAmount, 0)
-                    .toFixed(2)}
-                </p>
-              </div>
+                    <span className="text-gray-700">{item.description}</span>
+                  </div>
+                </div>
+              ))}
             </div>
           </Card>
 
-          {/* Contenido del grupo seleccionado */}
-          {selectedGroupNumber ? (
-            <>
-              {/* Items del grupo */}
-              <Card className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h4 className="font-semibold text-gray-900">
-                    Trabajos del Grupo {selectedGroupNumber}
-                  </h4>
-                  <span className="text-sm text-gray-600">
-                    {selectedGroupItems.length} trabajo(s)
-                  </span>
-                </div>
+          {/* Facturas del grupo */}
+          <Card className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h4 className="font-semibold text-gray-900">Facturas Emitidas</h4>
+              <Button onClick={handleCreateInvoice}>
+                <Plus className="h-4 w-4 mr-2" />
+                Nueva Factura
+              </Button>
+            </div>
 
-                <div className="space-y-2">
-                  {selectedGroupItems.map((item, idx) => (
-                    <div
-                      key={item.id}
-                      className="flex items-start gap-2 p-3 bg-gray-50 rounded-lg text-sm"
-                    >
-                      <div className="shrink-0 w-6 h-6 rounded-full bg-white border-2 flex items-center justify-center text-xs font-semibold">
-                        {idx + 1}
-                      </div>
-                      <div className="flex-1">
-                        <Badge
-                          variant="outline"
-                          className="text-xs mr-2 border-gray-300"
-                        >
-                          {item.type_planning_name}
-                        </Badge>
-                        <span className="text-gray-700">
-                          {item.description}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </Card>
-
-              {/* Facturas del grupo */}
-              <Card className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h4 className="font-semibold text-gray-900">
-                    Facturas Emitidas
-                  </h4>
-                  <Button onClick={handleCreateInvoice}>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Nueva Factura
-                  </Button>
-                </div>
-
-                {selectedGroupInvoices.length === 0 ? (
-                  <div className="text-center py-8">
-                    <FileText className="h-12 w-12 text-gray-400 mx-auto mb-3" />
-                    <p className="text-sm text-gray-600 mb-1">
-                      No hay facturas para este grupo
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      Crea la primera factura para este grupo
-                    </p>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {selectedGroupInvoices.map((invoice) => (
-                      <div
-                        key={invoice.id}
-                        className="border rounded-lg p-4 bg-white hover:shadow-md transition-shadow"
-                      >
-                        <div className="flex items-start justify-between mb-3">
-                          <div>
-                            <p className="font-semibold text-gray-900">
-                              {invoice.invoiceNumber}
-                            </p>
-                            <p className="text-sm text-gray-600">
-                              {invoice.date}
-                            </p>
-                          </div>
-                          <Badge
-                            variant={
-                              invoice.status === "paid"
-                                ? "default"
-                                : "secondary"
-                            }
-                            className={
-                              invoice.status === "paid"
-                                ? "bg-green-600"
-                                : "bg-yellow-600"
-                            }
-                          >
-                            {invoice.status === "paid" ? "Pagada" : "Pendiente"}
-                          </Badge>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-3 text-sm">
-                          <div>
-                            <p className="text-gray-600">Cliente</p>
-                            <p className="font-medium">{invoice.clientName}</p>
-                          </div>
-                          <div>
-                            <p className="text-gray-600">Total</p>
-                            <p className="font-bold text-green-600">
-                              S/ {invoice.totalAmount.toFixed(2)}
-                            </p>
-                          </div>
-                          <div className="col-span-2">
-                            <p className="text-gray-600">Descripción</p>
-                            <p className="text-gray-700">
-                              {invoice.description}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </Card>
-            </>
-          ) : (
-            <Card className="p-12">
-              <div className="flex flex-col items-center justify-center text-center">
-                <Receipt className="h-16 w-16 text-gray-400 mb-4" />
-                <h3 className="text-lg font-semibold text-gray-700 mb-2">
-                  Selecciona un grupo
-                </h3>
-                <p className="text-gray-500">
-                  Elige un grupo de la izquierda para gestionar sus facturas
+            {selectedGroupInvoices.length === 0 ? (
+              <div className="text-center py-8">
+                <FileText className="h-12 w-12 text-gray-400 mx-auto mb-3" />
+                <p className="text-sm text-gray-600 mb-1">
+                  No hay facturas para este grupo
+                </p>
+                <p className="text-xs text-gray-500">
+                  Crea la primera factura para este grupo
                 </p>
               </div>
-            </Card>
-          )}
-        </div>
-      </div>
+            ) : (
+              <div className="space-y-4">
+                {selectedGroupInvoices.map((invoice) => (
+                  <div
+                    key={invoice.id}
+                    className="border rounded-lg p-4 bg-white hover:shadow-md transition-shadow"
+                  >
+                    <div className="flex items-start justify-between mb-3">
+                      <div>
+                        <p className="font-semibold text-gray-900">
+                          {invoice.invoiceNumber}
+                        </p>
+                        <p className="text-sm text-gray-600">{invoice.date}</p>
+                      </div>
+                      <Badge
+                        variant={
+                          invoice.status === "paid" ? "default" : "secondary"
+                        }
+                        className={
+                          invoice.status === "paid"
+                            ? "bg-green-600"
+                            : "bg-yellow-600"
+                        }
+                      >
+                        {invoice.status === "paid" ? "Pagada" : "Pendiente"}
+                      </Badge>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3 text-sm">
+                      <div>
+                        <p className="text-gray-600">Cliente</p>
+                        <p className="font-medium">{invoice.clientName}</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-600">Total</p>
+                        <p className="font-bold text-green-600">
+                          S/ {invoice.totalAmount.toFixed(2)}
+                        </p>
+                      </div>
+                      <div className="col-span-2">
+                        <p className="text-gray-600">Descripción</p>
+                        <p className="text-gray-700">{invoice.description}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </Card>
+        </>
+      ) : (
+        <Card className="p-12">
+          <div className="flex flex-col items-center justify-center text-center">
+            <Receipt className="h-16 w-16 text-gray-400 mb-4" />
+            <h3 className="text-lg font-semibold text-gray-700 mb-2">
+              Selecciona un grupo
+            </h3>
+            <p className="text-gray-500">
+              Elige un grupo de la izquierda para gestionar sus facturas
+            </p>
+          </div>
+        </Card>
+      )}
 
       {/* Sheet para crear factura */}
       <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>

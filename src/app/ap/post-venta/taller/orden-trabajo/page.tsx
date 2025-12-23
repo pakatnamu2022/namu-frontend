@@ -91,10 +91,6 @@ export default function WorkOrderPage() {
     router(`${ABSOLUTE_ROUTE}/${id}/inspeccion`);
   };
 
-  const handleRequestParts = (id: number) => {
-    router(`${ABSOLUTE_ROUTE}/${id}/solicitar-repuestos`);
-  };
-
   if (isLoadingModule) return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
   if (!currentView) notFound();
@@ -117,7 +113,6 @@ export default function WorkOrderPage() {
           onUpdate: handleUpdate,
           onManage: handleManage,
           onInspect: handleInspect,
-          onRequestParts: handleRequestParts,
           permissions,
         })}
         data={data?.data || []}

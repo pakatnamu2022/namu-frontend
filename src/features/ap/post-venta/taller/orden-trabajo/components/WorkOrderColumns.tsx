@@ -1,6 +1,6 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-import { Settings, ClipboardCheck, Package, Pencil } from "lucide-react";
+import { Settings, ClipboardCheck, Pencil } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { WorkOrderResource } from "../lib/workOrder.interface";
 import { format } from "date-fns";
@@ -14,7 +14,6 @@ interface Props {
   onUpdate: (id: number) => void;
   onManage: (id: number) => void;
   onInspect: (id: number) => void;
-  onRequestParts: (id: number) => void;
   permissions: {
     canUpdate: boolean;
     canDelete: boolean;
@@ -26,7 +25,6 @@ export const workOrderColumns = ({
   onUpdate,
   onManage,
   onInspect,
-  onRequestParts,
   permissions,
 }: Props): WorkOrderColumns[] => [
   {
@@ -185,7 +183,7 @@ export const workOrderColumns = ({
             <Download className="size-5" />
           </Button> */}
 
-          <Button
+          {/* <Button
             variant="outline"
             size="icon"
             className="size-7"
@@ -193,7 +191,7 @@ export const workOrderColumns = ({
             tooltip="Solicitar Repuestos"
           >
             <Package className="size-5" />
-          </Button>
+          </Button> */}
 
           {permissions.canUpdate && (
             <Button

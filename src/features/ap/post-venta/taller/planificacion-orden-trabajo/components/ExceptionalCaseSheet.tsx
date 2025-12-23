@@ -54,6 +54,7 @@ import { cn } from "@/lib/utils";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
+import { DateTimePickerForm } from "@/shared/components/DateTimePickerForm";
 
 interface ExceptionalCaseSheetProps {
   open: boolean;
@@ -515,7 +516,14 @@ export function ExceptionalCaseSheet({
           />
 
           {/* Fecha y Hora de Inicio con validación */}
-          <FormField
+          <DateTimePickerForm
+            name="planned_start_datetime"
+            label="Fecha y Hora de Inicio"
+            control={form.control}
+            placeholder="Seleccione fecha y hora"
+          />
+
+          {/* <FormField
             control={form.control}
             name="planned_start_datetime"
             render={({ field }) => (
@@ -550,7 +558,7 @@ export function ExceptionalCaseSheet({
                 </p>
               </FormItem>
             )}
-          />
+          /> */}
 
           {/* Duración */}
           <FormField

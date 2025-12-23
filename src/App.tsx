@@ -267,7 +267,6 @@ import ManageWorkOrderPage from "./app/ap/post-venta/taller/orden-trabajo/gestio
 import WorkOrderPlanningPage from "./app/ap/post-venta/taller/planificacion-orden-trabajo/page.tsx";
 import AddWorkOrderPlanningPage from "./app/ap/post-venta/taller/planificacion-orden-trabajo/agregar/page.tsx";
 import AssignedWorkPage from "./app/ap/post-venta/taller/trabajos-asignados/page.tsx";
-import RequestPartsPage from "./app/ap/post-venta/taller/orden-trabajo/[id]/solicitar-repuestos/page.tsx";
 import VehicleInspectionPage from "./app/ap/post-venta/taller/orden-trabajo/[workOrderId]/inspeccion/page.tsx";
 import RolePage from "./app/gp/gestion-del-sistema/roles/page.tsx";
 import PermissionPage from "./app/gp/gestion-del-sistema/roles/permisos/[id]/page.tsx";
@@ -1223,10 +1222,6 @@ function App() {
               <Route
                 path="taller/orden-trabajo/gestionar/:id"
                 element={<ManageWorkOrderPage />}
-              />
-              <Route
-                path="taller/orden-trabajo/:id/solicitar-repuestos"
-                element={<RequestPartsPage />}
               />
               <Route
                 path="taller/orden-trabajo/:workOrderId/inspeccion"
