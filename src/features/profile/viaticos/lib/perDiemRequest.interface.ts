@@ -18,7 +18,7 @@ interface Budget {
   deleted_at: null;
 }
 
-interface Hotelreservation {
+export interface HotelReservation {
   id: number;
   hotel_name: string;
   address: string;
@@ -147,7 +147,7 @@ export interface PerDiemRequestResource {
   category: Category;
   policy: string;
   approvals?: Approval[];
-  hotel_reservation?: Hotelreservation;
+  hotel_reservation?: HotelReservation;
   expenses?: ExpenseResource[];
   budgets?: Budget[];
 }

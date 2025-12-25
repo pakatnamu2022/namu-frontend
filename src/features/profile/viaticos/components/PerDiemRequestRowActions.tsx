@@ -1,7 +1,6 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Eye, Hotel } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { PerDiemRequestResource } from "../lib/perDiemRequest.interface";
@@ -21,7 +20,9 @@ export function PerDiemRequestRowActions({
     request.status === "approved" || request.status === "in_progress";
 
   const handleAddHotelReservation = () => {
-    navigate(`/gp/gestion-humana/viaticos/solicitud-viaticos/${request.id}/reserva-hotel/agregar`);
+    navigate(
+      `/gp/gestion-humana/viaticos/solicitud-viaticos/${request.id}/reserva-hotel/agregar`
+    );
   };
 
   return (
@@ -44,12 +45,6 @@ export function PerDiemRequestRowActions({
         >
           <Hotel className="h-4 w-4" />
         </Button>
-      )}
-      {hasHotelReservation && (
-        <Badge variant="green" className="text-xs">
-          <Hotel className="h-3 w-3 mr-1" />
-          Reserva creada
-        </Badge>
       )}
     </div>
   );
