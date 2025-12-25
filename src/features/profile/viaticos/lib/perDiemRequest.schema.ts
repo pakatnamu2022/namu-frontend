@@ -20,6 +20,8 @@ export const perDiemRequestSchemaCreate = z.object({
     }),
   notes: z.string().max(500).optional().default(""),
   district_id: requiredStringId("El distrito es requerido"),
+  with_active: z.boolean().default(false), // para saber si va con un activo de la empresa
+  with_request: z.boolean().default(false), // para saber si solicita presupuesto o va rendir gastos
 });
 
 export const perDiemRequestSchemaUpdate = z.object({
@@ -42,6 +44,8 @@ export const perDiemRequestSchemaUpdate = z.object({
   notes: z.string().max(500).optional().default(""),
   status: z.string().max(50).optional(),
   district_id: requiredStringId("El distrito es requerido"),
+  with_active: z.boolean().default(false), // para saber si va con un activo de la empresa
+  with_request: z.boolean().default(false), // para saber si solicita presupuesto o va rendir gastos
 });
 
 export type PerDiemRequestSchema = z.infer<typeof perDiemRequestSchemaCreate>;

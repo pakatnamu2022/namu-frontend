@@ -7,18 +7,19 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import {
   ArrowLeft,
-  FileText,
+  Wrench,
   Calendar,
   ClipboardCheck,
   FolderOpen,
   Receipt,
   UserCog,
   Package,
+  FileText,
 } from "lucide-react";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { findWorkOrderById } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.actions";
 import { WORKER_ORDER } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.constants";
-import GeneralInformationTab from "@/features/ap/post-venta/taller/orden-trabajo/components/tabs/GeneralInformationTab";
+import LaborTab from "@/features/ap/post-venta/taller/orden-trabajo/components/tabs/LaborTab";
 import AppointmentTab from "@/features/ap/post-venta/taller/orden-trabajo/components/tabs/AppointmentTab";
 import ReceptionTab from "@/features/ap/post-venta/taller/orden-trabajo/components/tabs/ReceptionTab";
 import OpeningTab from "@/features/ap/post-venta/taller/orden-trabajo/components/tabs/OpeningTab";
@@ -32,7 +33,7 @@ export default function ManageWorkOrderPage() {
   const params = useParams();
   const router = useNavigate();
   const id = Number(params.id);
-  const [activeTab, setActiveTab] = useState("general");
+  const [activeTab, setActiveTab] = useState("appointment");
 
   const { ABSOLUTE_ROUTE } = WORKER_ORDER;
 
@@ -78,7 +79,21 @@ export default function ManageWorkOrderPage() {
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-4">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() =>
+                  router(
+                    `/ap/post-venta/taller/orden-trabajo/gestionar/${id}/informacion-general`
+                  )
+                }
+                className="gap-2"
+              >
+                <FileText className="h-4 w-4" />
+                <span className="hidden sm:inline">Información General</span>
+                <span className="sm:hidden">Info</span>
+              </Button>
               <div className="text-right">
                 <p className="text-sm text-gray-600">Estado</p>
                 <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
@@ -99,14 +114,6 @@ export default function ManageWorkOrderPage() {
             <div className="overflow-x-auto overflow-y-hidden scrollbar-hide -mx-6 px-6">
               <TabsList className="inline-flex w-auto min-w-full lg:w-full lg:grid lg:grid-cols-8 gap-1">
                 <TabsTrigger
-                  value="general"
-                  className="flex items-center gap-2 whitespace-nowrap"
-                >
-                  <FileText className="h-4 w-4 shrink-0" />
-                  <span className="hidden md:inline">Información General</span>
-                  <span className="md:hidden">General</span>
-                </TabsTrigger>
-                <TabsTrigger
                   value="appointment"
                   className="flex items-center gap-2 whitespace-nowrap"
                 >
@@ -126,6 +133,14 @@ export default function ManageWorkOrderPage() {
                 >
                   <FolderOpen className="h-4 w-4 shrink-0" />
                   <span>Apertura</span>
+                </TabsTrigger>
+                <TabsTrigger
+                  value="labor"
+                  className="flex items-center gap-2 whitespace-nowrap"
+                >
+                  <Wrench className="h-4 w-4 shrink-0" />
+                  <span className="hidden md:inline">Mano de Obra</span>
+                  <span className="md:hidden">M. Obra</span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="billing"
@@ -153,8 +168,8 @@ export default function ManageWorkOrderPage() {
             </div>
 
             <div className="mt-6">
-              <TabsContent value="general" className="space-y-4">
-                <GeneralInformationTab workOrder={workOrder} />
+              <TabsContent value="labor" className="space-y-4">
+                <LaborTab workOrderId={workOrder.id} />
               </TabsContent>
 
               <TabsContent value="appointment" className="space-y-4">

@@ -29,9 +29,11 @@ import {
   productDetailSchema,
   ProductDetailSchema,
 } from "../lib/proformaDetails.schema";
-import { FormSelect } from "@/shared/components/FormSelect";
-import FormSkeleton from "@/shared/components/FormSkeleton";
-import { useAllProduct } from "@/features/ap/post-venta/gestion-productos/productos/lib/product.hook";
+import {
+  useProduct,
+  useProductById,
+} from "@/features/ap/post-venta/gestion-productos/productos/lib/product.hook";
+import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 
 interface ProductDetailsSectionProps {
   quotationId: number;
@@ -49,8 +51,6 @@ export default function ProductDetailsSection({
   onDelete,
 }: ProductDetailsSectionProps) {
   const [isSaving, setIsSaving] = useState(false);
-
-  const { data: products = [], isLoading: isLoadingProducts } = useAllProduct();
 
   const form = useForm({
     resolver: zodResolver(productDetailSchema),
@@ -70,22 +70,17 @@ export default function ProductDetailsSection({
 
   const selectedProductId = form.watch("product_id");
 
-  useEffect(() => {
-    if (selectedProductId && products.length > 0) {
-      const product = products.find(
-        (item) => item.id === Number(selectedProductId)
-      );
-      if (product) {
-        form.setValue("description", product.name);
-        form.setValue("unit_price", Number(product.sale_price) || 0);
-        form.setValue("unit_measure", "UND");
-      }
-    }
-  }, [selectedProductId, products]);
+  // Obtener datos del producto seleccionado
+  const { data: productData } = useProductById(Number(selectedProductId) || 0);
 
-  if (isLoadingProducts) {
-    return <FormSkeleton />;
-  }
+  // Llenar automáticamente los campos cuando se selecciona un producto
+  useEffect(() => {
+    if (productData) {
+      form.setValue("description", productData.name || "");
+      form.setValue("unit_measure", productData.unit_measurement_name || "UND");
+      form.setValue("unit_price", Number(productData.sale_price) || 0);
+    }
+  }, [productData, form]);
 
   const onSubmit = async (data: ProductDetailSchema) => {
     try {
@@ -140,17 +135,18 @@ export default function ProductDetailsSection({
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           {/* Producto selector - ancho completo */}
-          <FormSelect
+          <FormSelectAsync
             name="product_id"
             label="Repuesto"
             placeholder="Seleccione un repuesto"
-            options={products.map((product) => ({
+            control={form.control}
+            useQueryHook={useProduct}
+            mapOptionFn={(product) => ({
               label: product.name,
               value: product.id.toString(),
-            }))}
-            control={form.control}
-            disabled={isLoadingProducts}
-            strictFilter={true}
+            })}
+            perPage={10}
+            debounceMs={500}
           />
 
           {/* Campos de entrada en una sola línea */}

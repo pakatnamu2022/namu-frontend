@@ -32,6 +32,8 @@ export interface WorkOrderResource {
   is_invoiced: boolean;
   is_guarantee: boolean;
   is_recall: boolean;
+  description_recall: string | null;
+  type_recall: "ROJO" | "AMARILLO" | "VERDE" | null;
   is_inspection_completed: boolean;
   vehicle_inspection: VehicleInspectionResource | null;
   items: WorkOrderItemResource[];

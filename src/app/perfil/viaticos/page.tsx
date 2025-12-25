@@ -148,6 +148,36 @@ export default function MyPerDiemPage() {
                     </p>
                   </div>
                 </div>
+                <div className="flex flex-col gap-1.5 pt-2 border-t">
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`text-xs ${
+                        request.with_active
+                          ? "text-green-600"
+                          : "text-muted-foreground"
+                      }`}
+                    >
+                      {request.with_active ? "✓" : "✗"}
+                    </span>
+                    <p className="text-xs text-muted-foreground">
+                      Activo de empresa
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`text-xs ${
+                        request.with_request
+                          ? "text-green-600"
+                          : "text-muted-foreground"
+                      }`}
+                    >
+                      {request.with_request ? "✓" : "✗"}
+                    </span>
+                    <p className="text-xs text-muted-foreground">
+                      Solicita presupuesto
+                    </p>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           ))}
