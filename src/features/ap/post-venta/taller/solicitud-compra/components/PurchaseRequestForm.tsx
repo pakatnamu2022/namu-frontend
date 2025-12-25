@@ -107,9 +107,7 @@ export default function PurchaseRequestForm({
   }, [selectedWarehouseId]);
 
   useEffect(() => {
-    if (hasAppointment) {
-      loadQuotations();
-    } else {
+    if (!hasAppointment) {
       form.setValue("ap_order_quotation_id", "");
     }
   }, [hasAppointment]);
@@ -336,7 +334,10 @@ export default function PurchaseRequestForm({
                           type="button"
                           variant="outline"
                           className="w-full justify-start"
-                          onClick={() => setIsQuotationModalOpen(true)}
+                          onClick={() => {
+                            loadQuotations();
+                            setIsQuotationModalOpen(true);
+                          }}
                           disabled={isLoadingQuotations}
                         >
                           <Search className="h-4 w-4 mr-2" />

@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { PLANNING_TYPE_LABELS } from "../../planificacion-orden-trabajo/lib/workOrderPlanning.constants";
 
 interface AssignedWorkColumnsProps {
   onView?: (planning: WorkOrderPlanningResource) => void;
@@ -135,6 +136,18 @@ export const assignedWorkColumns = ({
             {hours === null ? "-" : `${hours}h`}
           </span>
         </div>
+      );
+    },
+  },
+  {
+    accessorKey: "type",
+    header: "Tipo",
+    cell: ({ row }) => {
+      const type = row.original.type;
+      return (
+        <span className="text-sm">
+          {type ? PLANNING_TYPE_LABELS[type] || type : "-"}
+        </span>
       );
     },
   },

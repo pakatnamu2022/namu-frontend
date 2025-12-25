@@ -14,7 +14,11 @@ import {
   List,
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useGetWorkOrderPlanning } from "@/features/ap/post-venta/taller/planificacion-orden-trabajo/lib/workOrderPlanning.hook";
+import {
+  useGetWorkOrderPlanning,
+  useUpdateWorkOrderPlanning,
+  useDeleteWorkOrderPlanning,
+} from "@/features/ap/post-venta/taller/planificacion-orden-trabajo/lib/workOrderPlanning.hook";
 import { DashboardStats } from "@/features/ap/post-venta/taller/planificacion-orden-trabajo/components/DashboardStats";
 import { WorkerPerformanceChart } from "@/features/ap/post-venta/taller/planificacion-orden-trabajo/components/WorkerPerformanceChart";
 import { StatusDistributionChart } from "@/features/ap/post-venta/taller/planificacion-orden-trabajo/components/StatusDistributionChart";
@@ -36,6 +40,14 @@ import PlanningOptions from "@/features/ap/post-venta/taller/planificacion-orden
 import { AssignedWorkDetail } from "@/features/ap/post-venta/taller/trabajos-asignados/components/AssignedWorkDetail";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import { SearchableSelect } from "@/shared/components/SearchableSelect";
+import { EditPlanningModal } from "@/features/ap/post-venta/taller/planificacion-orden-trabajo/components/EditPlanningModal";
+import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
+import {
+  ERROR_MESSAGE,
+  errorToast,
+  SUCCESS_MESSAGE,
+  successToast,
+} from "@/core/core.function";
 
 export default function PlanningPage() {
   const navigate = useNavigate();
@@ -44,6 +56,8 @@ export default function PlanningPage() {
   const [selectedPlanning, setSelectedPlanning] =
     useState<WorkOrderPlanningResource | null>(null);
   const [openDetailDialog, setOpenDetailDialog] = useState(false);
+  const [openEditDialog, setOpenEditDialog] = useState(false);
+  const [deleteId, setDeleteId] = useState<number | null>(null);
 
   // Estados para paginación y filtros
   const [page, setPage] = useState(1);
@@ -57,7 +71,7 @@ export default function PlanningPage() {
     return stored || "";
   });
 
-  const { ROUTE } = WORK_ORDER_PLANNING;
+  const { ROUTE, MODEL, ABSOLUTE_ROUTE } = WORK_ORDER_PLANNING;
 
   // Reiniciar página cuando cambian los filtros
   useEffect(() => {
@@ -80,9 +94,44 @@ export default function PlanningPage() {
     ...(sedeId && { sede_id: sedeId }),
   });
 
+  const updateMutation = useUpdateWorkOrderPlanning();
+  const deleteMutation = useDeleteWorkOrderPlanning();
+
   const handleViewPlanning = (planning: WorkOrderPlanningResource) => {
     setSelectedPlanning(planning);
     setOpenDetailDialog(true);
+  };
+
+  const handleEditPlanning = (planning: WorkOrderPlanningResource) => {
+    setSelectedPlanning(planning);
+    setOpenEditDialog(true);
+  };
+
+  const handleDeletePlanning = (id: number) => {
+    setDeleteId(id);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (deleteId === null) return;
+
+    try {
+      await deleteMutation.mutateAsync(deleteId);
+      successToast(SUCCESS_MESSAGE(MODEL, "delete"));
+      setDeleteId(null);
+    } catch {
+      errorToast(ERROR_MESSAGE(MODEL, "delete"));
+    }
+  };
+
+  const handleUpdatePlanning = async (id: number, data: any) => {
+    try {
+      await updateMutation.mutateAsync({ id, data });
+      successToast(SUCCESS_MESSAGE(MODEL, "update"));
+      setOpenEditDialog(false);
+      setSelectedPlanning(null);
+    } catch {
+      errorToast(ERROR_MESSAGE(MODEL, "update"));
+    }
   };
 
   const { data: mySedes = [], isLoading: isLoadingMySedes } = useMySedes({
@@ -90,7 +139,7 @@ export default function PlanningPage() {
   });
 
   const handleOpenCreatePlanning = () => {
-    navigate("/ap/post-venta/taller/planificacion-orden-trabajo/agregar");
+    navigate(`${ABSOLUTE_ROUTE}/agregar`);
   };
 
   const handleSedeChange = (value: string) => {
@@ -166,7 +215,15 @@ export default function PlanningPage() {
         <TabsContent value="list" className="space-y-6">
           <Card className="p-6">
             <PlanningTable
-              columns={planningColumns({ onView: handleViewPlanning })}
+              columns={planningColumns({
+                onView: handleViewPlanning,
+                onEdit: handleEditPlanning,
+                onDelete: handleDeletePlanning,
+                permissions: {
+                  canEdit: true,
+                  canDelete: true,
+                },
+              })}
               data={plannings}
               isLoading={isLoading || isLoadingWorkers}
             >
@@ -196,6 +253,24 @@ export default function PlanningPage() {
         open={openDetailDialog}
         onClose={() => setOpenDetailDialog(false)}
       />
+
+      {/* Modal de edición */}
+      <EditPlanningModal
+        open={openEditDialog}
+        onOpenChange={setOpenEditDialog}
+        planning={selectedPlanning}
+        onSubmit={handleUpdatePlanning}
+        isSubmitting={updateMutation.isPending}
+      />
+
+      {/* Dialog de confirmación de eliminación */}
+      {deleteId !== null && (
+        <SimpleDeleteDialog
+          open={true}
+          onOpenChange={(open) => !open && setDeleteId(null)}
+          onConfirm={handleConfirmDelete}
+        />
+      )}
     </div>
   );
 }

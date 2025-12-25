@@ -15,10 +15,7 @@ import {
   PauseWorkRequest,
   WorkOrderPlanningResponse,
 } from "./workOrderPlanning.interface";
-import {
-  MOCK_PLANNING_DATA,
-  WORK_ORDER_PLANNING,
-} from "./workOrderPlanning.constants";
+import { WORK_ORDER_PLANNING } from "./workOrderPlanning.constants";
 
 const { QUERY_KEY } = WORK_ORDER_PLANNING;
 
@@ -29,24 +26,6 @@ export const useGetWorkOrderPlanning = (params?: Record<string, any>) => {
     refetchOnWindowFocus: false,
   });
 };
-
-// Hook para obtener una planificación por ID
-export function useGetWorkOrderPlanningById(id: number) {
-  return useQuery({
-    queryKey: [QUERY_KEY, id],
-    queryFn: () => {
-      // Usar datos mockeados
-      const planning = MOCK_PLANNING_DATA.find((p) => p.id === id);
-      if (!planning) {
-        throw new Error("Planning not found");
-      }
-      return Promise.resolve(planning);
-      // Para conectar con la API real, descomentar:
-      // return getWorkOrderPlanningById(id);
-    },
-    enabled: !!id,
-  });
-}
 
 // Hook para crear planificación
 export function useCreateWorkOrderPlanning() {
@@ -146,27 +125,14 @@ export function useCancelPlanning() {
   });
 }
 
-// Hook para obtener sesiones
-export function useGetSessions(id: number) {
-  return useQuery({
-    queryKey: [QUERY_KEY, id, "sessions"],
-    queryFn: () => {
-      // Usar datos mockeados
-      const planning = MOCK_PLANNING_DATA.find((p) => p.id === id);
-      return Promise.resolve(planning?.sessions || []);
-      // Para conectar con la API real, descomentar:
-      // return getSessions(id);
-    },
-    enabled: !!id,
-  });
-}
-
 // Hook para obtener planificación consolidada por orden de trabajo
 export function useGetConsolidatedPlanning(workOrderId: number) {
   return useQuery({
     queryKey: [QUERY_KEY, "consolidated", workOrderId],
     queryFn: async () => {
-      const { getConsolidatedPlanning } = await import("./workOrderPlanning.actions");
+      const { getConsolidatedPlanning } = await import(
+        "./workOrderPlanning.actions"
+      );
       return getConsolidatedPlanning(workOrderId);
     },
     enabled: !!workOrderId,
