@@ -65,13 +65,3 @@ export async function deleteWorkOrderParts(
   const { data } = await api.delete<GeneralResponse>(`${ENDPOINT}/${id}`);
   return data;
 }
-
-export async function confirmWorkOrderParts(
-  id: number
-): Promise<GeneralResponse> {
-  const { data } = await api.post<GeneralResponse>(
-    `${ENDPOINT}/${id}/confirm-delivery`,
-    {}
-  );
-  return data;
-}
