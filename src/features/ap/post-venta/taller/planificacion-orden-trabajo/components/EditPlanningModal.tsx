@@ -82,9 +82,9 @@ export function EditPlanningModal({
     }
   }, [planning, open, form]);
 
-  const handleSubmit = (data: EditPlanningFormData): void => {
+  const handleSubmit = (data: any): void => {
     if (planning) {
-      onSubmit(planning.id, data);
+      onSubmit(planning.id, data as EditPlanningFormData);
     }
   };
 
