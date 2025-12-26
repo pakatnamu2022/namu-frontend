@@ -113,7 +113,9 @@ export function WorkerTimeline({
   const [searchWorkOrder, setSearchWorkOrder] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [pageWorkOrder, setPageWorkOrder] = useState(1);
-  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(
+    undefined
+  );
 
   // Obtener sedes disponibles
   const { data: mySedes = [] } = useMySedes({
@@ -121,15 +123,19 @@ export function WorkerTimeline({
   });
 
   // Obtener órdenes de trabajo con búsqueda
-  const { data: workOrdersData, isLoading: isLoadingWorkOrders } = useGetWorkOrder({
-    params: {
-      search: debouncedSearch,
-      page: pageWorkOrder,
-      per_page: 20,
-    },
-  });
+  const { data: workOrdersData, isLoading: isLoadingWorkOrders } =
+    useGetWorkOrder({
+      params: {
+        search: debouncedSearch,
+        page: pageWorkOrder,
+        per_page: 20,
+      },
+    });
 
-  const workOrders = useMemo(() => workOrdersData?.data || [], [workOrdersData?.data]);
+  const workOrders = useMemo(
+    () => workOrdersData?.data || [],
+    [workOrdersData?.data]
+  );
 
   // Debounce para búsqueda
   useEffect(() => {
@@ -416,7 +422,10 @@ export function WorkerTimeline({
   };
 
   const canConfirm =
-    selectedTime && selectedWorkOrderId && selectedItemId !== null && activeGroup !== null;
+    selectedTime &&
+    selectedWorkOrderId &&
+    selectedItemId !== null &&
+    activeGroup !== null;
 
   const timeMarkers = [
     { time: "8:00", position: 0 },
@@ -502,7 +511,10 @@ export function WorkerTimeline({
               >
                 Orden de Trabajo
               </Label>
-              <Popover open={openWorkOrderSelect} onOpenChange={setOpenWorkOrderSelect}>
+              <Popover
+                open={openWorkOrderSelect}
+                onOpenChange={setOpenWorkOrderSelect}
+              >
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
@@ -515,10 +527,14 @@ export function WorkerTimeline({
                         <Badge variant="outline" className="font-mono text-xs">
                           #{selectedWorkOrder?.correlative}
                         </Badge>
-                        <span className="text-sm">{selectedWorkOrder?.vehicle_plate}</span>
+                        <span className="text-sm">
+                          {selectedWorkOrder?.vehicle_plate}
+                        </span>
                       </div>
                     ) : (
-                      <span className="text-muted-foreground">Buscar OT...</span>
+                      <span className="text-muted-foreground">
+                        Buscar OT...
+                      </span>
                     )}
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                   </Button>
@@ -536,7 +552,9 @@ export function WorkerTimeline({
                           <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
                         </div>
                       ) : workOrders.length === 0 ? (
-                        <CommandEmpty>No se encontraron órdenes de trabajo.</CommandEmpty>
+                        <CommandEmpty>
+                          No se encontraron órdenes de trabajo.
+                        </CommandEmpty>
                       ) : (
                         workOrders.map((wo) => (
                           <CommandItem
@@ -559,10 +577,15 @@ export function WorkerTimeline({
                               )}
                             />
                             <div className="flex items-center gap-2">
-                              <Badge variant="outline" className="font-mono text-xs">
+                              <Badge
+                                variant="outline"
+                                className="font-mono text-xs"
+                              >
                                 #{wo.correlative}
                               </Badge>
-                              <span className="text-sm">{wo.vehicle_plate}</span>
+                              <span className="text-sm">
+                                {wo.vehicle_plate}
+                              </span>
                             </div>
                           </CommandItem>
                         ))
@@ -834,8 +857,10 @@ export function WorkerTimeline({
                   const isExternal = planning.type === "external";
 
                   // Verificar si el planning anterior era interno y este es externo para agregar espacio
-                  const previousPlanning = index > 0 ? plannings[index - 1] : null;
-                  const needsTopMargin = isExternal && previousPlanning?.type !== "external";
+                  const previousPlanning =
+                    index > 0 ? plannings[index - 1] : null;
+                  const needsTopMargin =
+                    isExternal && previousPlanning?.type !== "external";
 
                   return (
                     <TooltipProvider key={planning.id}>
@@ -856,7 +881,8 @@ export function WorkerTimeline({
                               className={`h-5 rounded border-2 ${
                                 isExternal
                                   ? "border-amber-500 bg-amber-200"
-                                  : PLANNING_STATUS_COLORS[planning.status].border
+                                  : PLANNING_STATUS_COLORS[planning.status]
+                                      .border
                               } ${
                                 !isExternal && planning.actual_start_datetime
                                   ? PLANNING_STATUS_COLORS[planning.status].bg

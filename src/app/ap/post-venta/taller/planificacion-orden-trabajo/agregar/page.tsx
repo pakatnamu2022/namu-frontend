@@ -15,7 +15,7 @@ import {
 import { WorkerTimeline } from "@/features/ap/post-venta/taller/planificacion-orden-trabajo/components/WorkerTimeline";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { WORK_ORDER_PLANNING } from "@/features/ap/post-venta/taller/planificacion-orden-trabajo/lib/workOrderPlanning.constants";
-import { successToast } from "@/core/core.function";
+import { errorToast, successToast } from "@/core/core.function";
 import FormWrapper from "@/shared/components/FormWrapper";
 
 export default function CreatePlanningPage() {
@@ -64,8 +64,9 @@ export default function CreatePlanningPage() {
 
       // Refrescar datos para mostrar la nueva planificación en el timeline
       await refetch();
-    } catch (error) {
-      console.error("Error al crear planificación:", error);
+    } catch (error: any) {
+      const mjsError = error?.response?.data?.message || "Error desconocido";
+      errorToast(mjsError);
     }
   };
 

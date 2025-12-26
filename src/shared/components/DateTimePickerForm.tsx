@@ -219,25 +219,23 @@ export function DateTimePickerForm<T extends FieldValues>({
                 </ScrollArea>
                 <ScrollArea className="w-64 sm:w-auto">
                   <div className="flex sm:flex-col p-2">
-                    {Array.from({ length: 12 }, (_, i) => i * 5).map(
-                      (minute) => (
-                        <Button
-                          key={minute}
-                          size="icon"
-                          variant={
-                            selectedDate && selectedDate.getMinutes() === minute
-                              ? "default"
-                              : "ghost"
-                          }
-                          className="sm:w-full shrink-0 aspect-square"
-                          onClick={() =>
-                            handleTimeChange("minute", minute.toString())
-                          }
-                        >
-                          {minute.toString().padStart(2, "0")}
-                        </Button>
-                      )
-                    )}
+                    {Array.from({ length: 60 }, (_, i) => i).map((minute) => (
+                      <Button
+                        key={minute}
+                        size="icon"
+                        variant={
+                          selectedDate && selectedDate.getMinutes() === minute
+                            ? "default"
+                            : "ghost"
+                        }
+                        className="sm:w-full shrink-0 aspect-square"
+                        onClick={() =>
+                          handleTimeChange("minute", minute.toString())
+                        }
+                      >
+                        {minute.toString().padStart(2, "0")}
+                      </Button>
+                    ))}
                   </div>
                   <ScrollBar orientation="horizontal" className="sm:hidden" />
                 </ScrollArea>

@@ -86,7 +86,7 @@ export default function PlanningPage() {
     sede$empresa_id: EMPRESA_AP.id,
   });
 
-  const { data, isLoading } = useGetWorkOrderPlanning({
+  const { data, isLoading, refetch } = useGetWorkOrderPlanning({
     page,
     search,
     per_page,
@@ -129,8 +129,9 @@ export default function PlanningPage() {
       successToast(SUCCESS_MESSAGE(MODEL, "update"));
       setOpenEditDialog(false);
       setSelectedPlanning(null);
-    } catch {
-      errorToast(ERROR_MESSAGE(MODEL, "update"));
+    } catch (error: any) {
+      const mjsError = error?.response?.data?.message || "Error desconocido";
+      errorToast(mjsError);
     }
   };
 
@@ -209,6 +210,7 @@ export default function PlanningPage() {
             data={plannings}
             onPlanningClick={handleViewPlanning}
             sedeId={sedeId}
+            onRefresh={refetch}
           />
         </TabsContent>
 
