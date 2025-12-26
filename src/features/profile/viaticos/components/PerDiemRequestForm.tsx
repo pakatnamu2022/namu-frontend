@@ -142,8 +142,10 @@ export const PerDiemRequestForm = ({
 
           <FormSwitch
             name="with_request"
-            label="¿Solicita presupuesto o rinde gastos al final?"
-            text={form.watch("with_request") ? "Sí" : "No"}
+            label="¿Solicito viáticos o rinde gastos al final?"
+            text={
+              form.watch("with_request") ? "Solicito viáticos" : "Rinde gastos"
+            }
             control={form.control}
           />
         </div>

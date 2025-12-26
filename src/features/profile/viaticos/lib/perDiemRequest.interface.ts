@@ -1,3 +1,4 @@
+import { ExpenseTypeResource } from "@/features/gp/gestionhumana/viaticos/tipo-gasto/lib/expenseType.interface";
 import { type Links, type Meta } from "@/shared/lib/pagination.interface.ts";
 
 export interface PerDiemRequestResponse {
@@ -9,13 +10,10 @@ export interface PerDiemRequestResponse {
 interface Budget {
   id: number;
   per_diem_request_id: number;
-  expense_type_id: number;
-  daily_amount: string;
+  expense_type: ExpenseTypeResource;
+  daily_amount: number;
   days: number;
-  total: string;
-  created_at: string;
-  updated_at: string;
-  deleted_at: null;
+  total: number;
 }
 
 export interface HotelReservation {

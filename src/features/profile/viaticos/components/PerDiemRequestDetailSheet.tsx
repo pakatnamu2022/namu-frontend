@@ -13,6 +13,7 @@ import {
   GeneralInfoSection,
   FinancialSummarySection,
   RequestStatusBadge,
+  BudgetSection,
 } from "@/features/profile/viaticos/components/PerDiemRequestDetail";
 
 interface Props {
@@ -56,6 +57,9 @@ export default function PerDiemRequestDetailSheet({
             <div className="mt-6 space-y-6">
               {/* Información General */}
               <GeneralInfoSection request={request} />
+
+              {/* Detalle de Presupuesto */}
+              <BudgetSection request={request} />
 
               {/* Resumen Financiero */}
               <FinancialSummarySection request={request} />
