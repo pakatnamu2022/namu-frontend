@@ -11,6 +11,8 @@ import {
   Hotel,
   CheckCircle2,
   XCircle,
+  Car,
+  Wallet,
 } from "lucide-react";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import type { PerDiemRequestResource } from "../../lib/perDiemRequest.interface";
@@ -138,6 +140,38 @@ export default function GeneralInfoSection({
           >
             {request.with_request ? "Solicita Viáticos" : "Rinde Gastos"}
           </Badge>
+        </div>
+      </div>
+
+      {/* Movilidad - Activo de Empresa */}
+      <div className="flex items-start gap-3">
+        <Car className="h-5 w-5 text-muted-foreground mt-0.5 shrink-0" />
+        <div>
+          <p className="text-sm font-medium">Movilidad</p>
+          <div className="flex items-center gap-2">
+            <Badge
+              variant={request.with_active ? "default" : "outline"}
+              className="text-xs"
+            >
+              {request.with_active ? "Activo de empresa" : "Sin activo"}
+            </Badge>
+          </div>
+        </div>
+      </div>
+
+      {/* Presupuesto */}
+      <div className="flex items-start gap-3">
+        <Wallet className="h-5 w-5 text-muted-foreground mt-0.5 shrink-0" />
+        <div>
+          <p className="text-sm font-medium">Tipo de Solicitud</p>
+          <div className="flex items-center gap-2">
+            <Badge
+              variant={request.with_request ? "default" : "outline"}
+              className="text-xs"
+            >
+              {request.with_request ? "Solicita presupuesto" : "Rinde gastos"}
+            </Badge>
+          </div>
         </div>
       </div>
 

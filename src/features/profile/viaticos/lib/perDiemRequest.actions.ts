@@ -170,21 +170,20 @@ export async function confirmPerDiemRequest(
   return response.data;
 }
 
-export async function uploadDepositFile(
-  id: number,
-  file: File
-): Promise<PerDiemRequestResource> {
-  const formData = new FormData();
-  formData.append("voucher", file);
-
-  const response = await api.post<PerDiemRequestResource>(
-    `${ENDPOINT}/${id}/agregar-deposito`,
-    formData,
-    {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    }
+export async function validateExpense(
+  expenseId: number
+): Promise<GeneralResponse> {
+  const { data } = await api.post<GeneralResponse>(
+    `gp/gestion-humana/viaticos/per-diem-expenses/${expenseId}/validate`
   );
-  return response.data;
+  return data;
+}
+
+export async function rejectExpense(
+  expenseId: number
+): Promise<GeneralResponse> {
+  const { data } = await api.post<GeneralResponse>(
+    `gp/gestion-humana/viaticos/per-diem-expenses/${expenseId}/reject`
+  );
+  return data;
 }
