@@ -102,7 +102,7 @@ export default function ExpenseForm({
 
   const receiptTypeOptions: Option[] = [
     { value: "invoice", label: "Factura" },
-    // { value: "ticket", label: "Boleta" },
+    { value: "ticket", label: "Boleta" },
     { value: "no_receipt", label: "Sin Comprobante" },
   ];
 
@@ -166,7 +166,6 @@ export default function ExpenseForm({
               options={receiptTypeOptions}
               control={form.control}
               required
-              disabled
             />
 
             {(receiptType === "invoice" || receiptType === "ticket") && (
