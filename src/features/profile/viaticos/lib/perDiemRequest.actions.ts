@@ -169,3 +169,22 @@ export async function confirmPerDiemRequest(
   );
   return response.data;
 }
+
+export async function uploadDepositFile(
+  id: number,
+  file: File
+): Promise<PerDiemRequestResource> {
+  const formData = new FormData();
+  formData.append("voucher", file);
+
+  const response = await api.post<PerDiemRequestResource>(
+    `${ENDPOINT}/${id}/agregar-deposito`,
+    formData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }
+  );
+  return response.data;
+}

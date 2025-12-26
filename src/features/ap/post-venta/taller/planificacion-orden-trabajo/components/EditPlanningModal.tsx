@@ -3,6 +3,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -18,7 +19,9 @@ import { parseISO } from "date-fns";
 
 // Schema solo para los campos editables
 const editPlanningSchema = z.object({
-  planned_start_datetime: z.string().min(1, "La fecha y hora de inicio es requerida"),
+  planned_start_datetime: z
+    .string()
+    .min(1, "La fecha y hora de inicio es requerida"),
   estimated_hours: z
     .union([z.string(), z.number()])
     .transform((val) => String(val))
@@ -49,70 +52,40 @@ export function EditPlanningModal({
   onSubmit,
   isSubmitting = false,
 }: EditPlanningModalProps) {
-  const form = useForm<EditPlanningFormData>({
+  const form = useForm({
     resolver: zodResolver(editPlanningSchema),
     defaultValues: {
-      planned_start_datetime: planning?.planned_start_datetime || "",
-      estimated_hours: planning?.estimated_hours?.toString() || "",
+      planned_start_datetime: "",
+      estimated_hours: "",
     },
   });
 
   // Actualizar valores cuando cambia el planning
-  if (planning && open) {
-    const currentDateTime = form.getValues("planned_start_datetime");
-    const currentHours = form.getValues("estimated_hours");
+  useEffect(() => {
+    if (planning && open) {
+      // Convertir la fecha ISO a formato local datetime (YYYY-MM-DDTHH:mm)
+      let formattedDateTime = "";
+      if (planning.planned_start_datetime) {
+        const date = parseISO(planning.planned_start_datetime);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        const hours = String(date.getHours()).padStart(2, "0");
+        const minutes = String(date.getMinutes()).padStart(2, "0");
+        formattedDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+      }
 
-    // Convertir la fecha ISO a formato local datetime (YYYY-MM-DDTHH:mm)
-    let formattedDateTime = planning.planned_start_datetime;
-    if (formattedDateTime) {
-      const date = parseISO(formattedDateTime);
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, "0");
-      const day = String(date.getDate()).padStart(2, "0");
-      const hours = String(date.getHours()).padStart(2, "0");
-      const minutes = String(date.getMinutes()).padStart(2, "0");
-      formattedDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+      form.reset({
+        planned_start_datetime: formattedDateTime,
+        estimated_hours: planning.estimated_hours?.toString() || "",
+      });
     }
+  }, [planning, open, form]);
 
-    if (currentDateTime !== formattedDateTime) {
-      form.setValue("planned_start_datetime", formattedDateTime);
-    }
-    if (currentHours !== planning.estimated_hours?.toString()) {
-      form.setValue("estimated_hours", planning.estimated_hours?.toString() || "");
-    }
-  }
-
-  const handleSubmit = (data: EditPlanningFormData) => {
+  const handleSubmit = (data: EditPlanningFormData): void => {
     if (planning) {
       onSubmit(planning.id, data);
     }
-  };
-
-  const validateWorkingHours = (datetime: string): boolean => {
-    if (!datetime) return false;
-
-    const date = new Date(datetime);
-    const hour = date.getHours();
-    const minute = date.getMinutes();
-    const timeInMinutes = hour * 60 + minute;
-
-    // 8:00 AM = 480 min, 1:00 PM = 780 min, 2:24 PM = 864 min, 6:00 PM = 1080 min
-    const start = 8 * 60; // 8:00 AM
-    const lunchStart = 13 * 60; // 1:00 PM
-    const lunchEnd = 14 * 60 + 24; // 2:24 PM
-    const end = 18 * 60; // 6:00 PM
-
-    // Verificar que esté dentro del rango permitido
-    if (timeInMinutes < start || timeInMinutes > end) {
-      return false;
-    }
-
-    // Verificar que no esté en horario de almuerzo
-    if (timeInMinutes >= lunchStart && timeInMinutes <= lunchEnd) {
-      return false;
-    }
-
-    return true;
   };
 
   return (
@@ -123,7 +96,10 @@ export function EditPlanningModal({
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+          <form
+            onSubmit={form.handleSubmit(handleSubmit)}
+            className="space-y-4"
+          >
             {/* Fecha y Hora de Inicio con validación */}
             <DateTimePickerForm
               name="planned_start_datetime"

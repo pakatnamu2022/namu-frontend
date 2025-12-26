@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Eye, Hotel, CheckCircle } from "lucide-react";
+import { Eye, Hotel, CheckCircle, Upload } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { PerDiemRequestResource } from "../lib/perDiemRequest.interface";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
@@ -10,6 +10,7 @@ import { confirmPerDiemRequest } from "../lib/perDiemRequest.actions";
 import { toast } from "sonner";
 import { PER_DIEM_REQUEST } from "../lib/perDiemRequest.constants";
 import { useState } from "react";
+import { UploadDepositDialog } from "./UploadDepositDialog";
 
 interface PerDiemRequestRowActionsProps {
   request: PerDiemRequestResource;
@@ -25,12 +26,14 @@ export function PerDiemRequestRowActions({
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
+  const [isUploadDepositOpen, setIsUploadDepositOpen] = useState(false);
 
   const hasHotelReservation = !!request.hotel_reservation;
   const isApproved =
     request.status === "approved" || request.status === "in_progress";
   const isOnlyApproved = request.status === "approved";
   const hotel = request.hotel_reservation?.hotel_name;
+  const withRequest = request.with_request;
 
   const confirmMutation = useMutation({
     mutationFn: (requestId: number) => confirmPerDiemRequest(requestId),
@@ -69,57 +72,76 @@ export function PerDiemRequestRowActions({
   };
 
   return (
-    <div className="flex items-center gap-2 justify-center">
-      <Button
-        variant="outline"
-        size="icon-xs"
-        onClick={() => onViewDetail(request.id)}
-        tooltip="Ver detalle"
-      >
-        <Eye className="size-4" />
-      </Button>
+    <>
+      <div className="flex items-center gap-2 justify-center">
+        <Button
+          variant="outline"
+          size="icon-xs"
+          onClick={() => onViewDetail(request.id)}
+          tooltip="Ver detalle"
+        >
+          <Eye className="size-4" />
+        </Button>
 
-      {isOnlyApproved && (
-        <ConfirmationDialog
-          trigger={
-            <Button
-              variant="default"
-              size="icon-xs"
-              tooltip="Confirmar solicitud"
-              disabled={confirmMutation.isPending}
-            >
-              <CheckCircle className="size-4" />
-            </Button>
+        {isOnlyApproved && (
+          <ConfirmationDialog
+            trigger={
+              <Button
+                variant="default"
+                size="icon-xs"
+                tooltip="Confirmar solicitud"
+                disabled={confirmMutation.isPending}
+              >
+                <CheckCircle className="size-4" />
+              </Button>
+            }
+            title="¿Confirmar solicitud de viáticos?"
+            description="Esta acción cambiará el estado de la solicitud a 'En Progreso' y podrás comenzar a registrar gastos. ¿Deseas continuar?"
+            confirmText="Sí, confirmar"
+            cancelText="Cancelar"
+            onConfirm={handleConfirmRequest}
+            variant="default"
+            icon="info"
+            open={isConfirmDialogOpen}
+            onOpenChange={setIsConfirmDialogOpen}
+          />
+        )}
+
+        {withRequest && (
+          <Button
+            variant="outline"
+            size="icon-xs"
+            onClick={() => setIsUploadDepositOpen(true)}
+            tooltip="Subir archivo de depósito"
+          >
+            <Upload className="size-4" />
+          </Button>
+        )}
+
+        <Button
+          variant={hasHotelReservation ? "default" : "outline"}
+          size="icon-xs"
+          onClick={
+            isApproved
+              ? hasHotelReservation
+                ? handleSeeReservation
+                : handleAddHotelReservation
+              : undefined
           }
-          title="¿Confirmar solicitud de viáticos?"
-          description="Esta acción cambiará el estado de la solicitud a 'En Progreso' y podrás comenzar a registrar gastos. ¿Deseas continuar?"
-          confirmText="Sí, confirmar"
-          cancelText="Cancelar"
-          onConfirm={handleConfirmRequest}
-          variant="default"
-          icon="info"
-          open={isConfirmDialogOpen}
-          onOpenChange={setIsConfirmDialogOpen}
-        />
-      )}
+          tooltip={
+            hasHotelReservation ? `Hotel: ${hotel}` : "Agregar reserva de hotel"
+          }
+          disabled={!isApproved}
+        >
+          <Hotel className="size-4" />
+        </Button>
+      </div>
 
-      <Button
-        variant={hasHotelReservation ? "default" : "outline"}
-        size="icon-xs"
-        onClick={
-          isApproved
-            ? hasHotelReservation
-              ? handleSeeReservation
-              : handleAddHotelReservation
-            : undefined
-        }
-        tooltip={
-          hasHotelReservation ? `Hotel: ${hotel}` : "Agregar reserva de hotel"
-        }
-        disabled={!isApproved}
-      >
-        <Hotel className="size-4" />
-      </Button>
-    </div>
+      <UploadDepositDialog
+        open={isUploadDepositOpen}
+        onOpenChange={setIsUploadDepositOpen}
+        request={request}
+      />
+    </>
   );
 }
