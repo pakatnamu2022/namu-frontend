@@ -1,14 +1,9 @@
 "use client";
 
 import type { ColumnDef } from "@tanstack/react-table";
-import {
-  HotelReservation,
-  PerDiemRequestResource,
-} from "../lib/perDiemRequest.interface";
+import { PerDiemRequestResource } from "../lib/perDiemRequest.interface";
 import { Badge, BadgeVariants } from "@/components/ui/badge";
 import { PerDiemRequestRowActions } from "./PerDiemRequestRowActions";
-import { Building, CheckCircle2, XCircle } from "lucide-react";
-import { Button } from "@/components/ui/button";
 
 export type PerDiemRequestColumns = ColumnDef<PerDiemRequestResource>;
 
@@ -58,7 +53,7 @@ export const perDiemRequestColumns = ({
       return (
         <p className="text-xs text-end">
           {startDate} - {endDate}{" "}
-          <Badge size="xs" variant={"tertiary"}>
+          <Badge size="square" variant={"tertiary"}>
             {row.original.days_count}
           </Badge>
         </p>
@@ -73,6 +68,22 @@ export const perDiemRequestColumns = ({
       return (
         <div className="flex justify-end">
           <Badge variant="outline" className="text-end font-semibold">
+            S/ {value?.toFixed(2) || "0.00"}
+          </Badge>
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "total_spent",
+    header: "Gasto",
+    cell: ({ row }) => {
+      const value = row.original.total_spent as number;
+      const isExceeded = value > row.original.total_budget;
+      const variant: BadgeVariants = isExceeded ? "destructive" : "blue";
+      return (
+        <div className="flex justify-end">
+          <Badge variant={variant} className="text-end font-semibold">
             S/ {value?.toFixed(2) || "0.00"}
           </Badge>
         </div>
@@ -111,53 +122,7 @@ export const perDiemRequestColumns = ({
       );
     },
   },
-  {
-    accessorKey: "paid",
-    header: "Pagado",
-    cell: ({ getValue }) => {
-      const value = getValue() as boolean;
-      return (
-        <div className="flex justify-center">
-          <Button
-            variant="ghost"
-            size={"icon-sm"}
-            tooltip={value ? "Pagado" : "Pendiente"}
-          >
-            {value ? (
-              <CheckCircle2 className="h-5 w-5 text-green-600" />
-            ) : (
-              <XCircle className="h-5 w-5 text-gray-400" />
-            )}
-          </Button>
-        </div>
-      );
-    },
-  },
-  {
-    accessorKey: "hotel_reservation",
-    header: "Reserva",
-    cell: ({ getValue }) => {
-      const hotelReservation = getValue() as HotelReservation | undefined;
-      const hasHotelReservation = !!hotelReservation;
-      return (
-        <div className="flex justify-center">
-          <Button
-            variant="ghost"
-            size={"icon-sm"}
-            tooltip={
-              hasHotelReservation ? hotelReservation.hotel_name : "Sin reserva"
-            }
-          >
-            {hasHotelReservation ? (
-              <Building className="h-5 w-5 text-green-600" />
-            ) : (
-              <XCircle className="h-5 w-5 text-gray-400" />
-            )}
-          </Button>
-        </div>
-      );
-    },
-  },
+
   {
     id: "actions",
     header: "Acciones",
