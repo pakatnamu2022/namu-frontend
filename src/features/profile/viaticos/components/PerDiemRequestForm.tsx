@@ -20,6 +20,7 @@ import { useUserCompanies } from "@/features/gp/gestionsistema/usuarios/lib/user
 import { useAllDistrict } from "@/features/gp/gestionsistema/ubicaciones/lib/location.hook";
 import { useAllCompanies } from "@/features/gp/gestionsistema/empresa/lib/company.hook";
 import { FormInputText } from "@/shared/components/FormInputText";
+import { FormSwitch } from "@/shared/components/FormSwitch";
 
 interface PerDiemRequestFormProps {
   defaultValues: Partial<PerDiemRequestSchema | PerDiemRequestSchemaUpdate>;
@@ -147,6 +148,20 @@ export const PerDiemRequestForm = ({
                 ? new Date(form.watch("start_date"))
                 : new Date(),
             }}
+          />
+
+          <FormSwitch
+            name="with_active"
+            label="¿Movilidad sera un Activo de la empresa?"
+            text={form.watch("with_active") ? "Sí" : "No"}
+            control={form.control}
+          />
+
+          <FormSwitch
+            name="with_request"
+            label="¿Solicita presupuesto o rinde gastos al final?"
+            text={form.watch("with_request") ? "Sí" : "No"}
+            control={form.control}
           />
         </div>
 

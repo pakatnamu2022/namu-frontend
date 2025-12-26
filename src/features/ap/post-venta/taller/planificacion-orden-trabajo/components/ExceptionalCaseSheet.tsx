@@ -54,6 +54,8 @@ import { cn } from "@/lib/utils";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
+import { DateTimePickerForm } from "@/shared/components/DateTimePickerForm";
+import { FormInput } from "@/shared/components/FormInput";
 
 interface ExceptionalCaseSheetProps {
   open: boolean;
@@ -515,66 +517,22 @@ export function ExceptionalCaseSheet({
           />
 
           {/* Fecha y Hora de Inicio con validación */}
-          <FormField
-            control={form.control}
+          <DateTimePickerForm
             name="planned_start_datetime"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Fecha y Hora de Inicio</FormLabel>
-                <FormControl>
-                  <Input
-                    type="datetime-local"
-                    {...field}
-                    onChange={(e) => {
-                      field.onChange(e);
-                      // Validar en tiempo real
-                      if (
-                        e.target.value &&
-                        !validateWorkingHours(e.target.value)
-                      ) {
-                        form.setError("planned_start_datetime", {
-                          type: "manual",
-                          message:
-                            "El horario debe estar entre 8:00 AM y 6:00 PM, excluyendo el almuerzo (1:00 PM - 2:24 PM)",
-                        });
-                      } else {
-                        form.clearErrors("planned_start_datetime");
-                      }
-                    }}
-                  />
-                </FormControl>
-                <FormMessage />
-                <p className="text-xs text-muted-foreground">
-                  Horario permitido: 8:00 AM - 6:00 PM (excluyendo 1:00 PM -
-                  2:24 PM)
-                </p>
-              </FormItem>
-            )}
+            label="Fecha y Hora de Inicio"
+            control={form.control}
+            placeholder="Seleccione fecha y hora"
+            description="Horario permitido: 8:00 AM - 6:00 PM (excluyendo 1:00 PM - 2:24 PM)"
           />
 
           {/* Duración */}
-          <FormField
-            control={form.control}
+          <FormInput
             name="estimated_hours"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Duración del Trabajo (horas)</FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    min="0.5"
-                    step="0.5"
-                    placeholder="Ej: 2.5"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-                <p className="text-xs text-muted-foreground">
-                  Ingrese la duración real del trabajo en horas (puede usar
-                  decimales)
-                </p>
-              </FormItem>
-            )}
+            label="Duración del Trabajo (horas)"
+            placeholder="Ej: 2.5"
+            control={form.control}
+            type="text"
+            description="Ingrese la duración real del trabajo en horas (puede usar decimales)"
           />
 
           {/* Botones */}

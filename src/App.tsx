@@ -247,6 +247,7 @@ import UpdateAppointmentPlanningPage from "./app/ap/post-venta/taller/citas/actu
 import OrderQuotationPage from "./app/ap/post-venta/taller/cotizacion/page.tsx";
 import AddOrderQuotationPage from "./app/ap/post-venta/taller/cotizacion/agregar/page.tsx";
 import UpdateOrderQuotationPage from "./app/ap/post-venta/taller/cotizacion/actualizar/[id]/page.tsx";
+import ManageOrderQuotationPage from "./app/ap/post-venta/taller/cotizacion/gestionar/[id]/page.tsx";
 import PurchaseRequestPVPage from "./app/ap/post-venta/taller/solicitud-compra/page.tsx";
 import AddPurchaseRequestPVPage from "./app/ap/post-venta/taller/solicitud-compra/agregar/page.tsx";
 import UpdatePurchaseRequestPVPage from "./app/ap/post-venta/taller/solicitud-compra/actualizar/[id]/page.tsx";
@@ -263,10 +264,10 @@ import WorkOrderPage from "./app/ap/post-venta/taller/orden-trabajo/page.tsx";
 import AddWorkOrderPage from "./app/ap/post-venta/taller/orden-trabajo/agregar/page.tsx";
 import UpdateWorkOrderPage from "./app/ap/post-venta/taller/orden-trabajo/actualizar/[id]/page.tsx";
 import ManageWorkOrderPage from "./app/ap/post-venta/taller/orden-trabajo/gestionar/[id]/page.tsx";
+import GeneralInformationPage from "./app/ap/post-venta/taller/orden-trabajo/gestionar/[id]/informacion-general/page.tsx";
 import WorkOrderPlanningPage from "./app/ap/post-venta/taller/planificacion-orden-trabajo/page.tsx";
 import AddWorkOrderPlanningPage from "./app/ap/post-venta/taller/planificacion-orden-trabajo/agregar/page.tsx";
 import AssignedWorkPage from "./app/ap/post-venta/taller/trabajos-asignados/page.tsx";
-import RequestPartsPage from "./app/ap/post-venta/taller/orden-trabajo/[id]/solicitar-repuestos/page.tsx";
 import VehicleInspectionPage from "./app/ap/post-venta/taller/orden-trabajo/[workOrderId]/inspeccion/page.tsx";
 import RolePage from "./app/gp/gestion-del-sistema/roles/page.tsx";
 import PermissionPage from "./app/gp/gestion-del-sistema/roles/permisos/[id]/page.tsx";
@@ -1161,6 +1162,10 @@ function App() {
                 element={<UpdateOrderQuotationPage />}
               />
               <Route
+                path="taller/cotizacion/gestionar/:id"
+                element={<ManageOrderQuotationPage />}
+              />
+              <Route
                 path="taller/solicitud-compra"
                 element={<PurchaseRequestPVPage />}
               />
@@ -1226,8 +1231,8 @@ function App() {
                 element={<ManageWorkOrderPage />}
               />
               <Route
-                path="taller/orden-trabajo/:id/solicitar-repuestos"
-                element={<RequestPartsPage />}
+                path="taller/orden-trabajo/gestionar/:id/informacion-general"
+                element={<GeneralInformationPage />}
               />
               <Route
                 path="taller/orden-trabajo/:workOrderId/inspeccion"

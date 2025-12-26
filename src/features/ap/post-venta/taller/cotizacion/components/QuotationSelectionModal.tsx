@@ -35,7 +35,7 @@ export const QuotationSelectionModal = ({
   const [dateTo, setDateTo] = useState<Date | undefined>(currentDate);
 
   const formatDate = (date: Date | undefined) => {
-    return date ? date.toISOString().split("T")[0] : undefined;
+    return date ? date.toLocaleDateString("en-CA") : undefined; // formato: YYYY-MM-DD
   };
 
   useEffect(() => {

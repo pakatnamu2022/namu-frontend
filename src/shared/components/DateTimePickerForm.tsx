@@ -77,7 +77,13 @@ export function DateTimePickerForm<T extends FieldValues>({
         selectedDate.setHours(now.getHours());
         selectedDate.setMinutes(now.getMinutes());
       }
-      field.onChange(selectedDate.toISOString());
+      // Format as local datetime string (YYYY-MM-DDTHH:mm)
+      const year = selectedDate.getFullYear();
+      const month = String(selectedDate.getMonth() + 1).padStart(2, "0");
+      const day = String(selectedDate.getDate()).padStart(2, "0");
+      const hours = String(selectedDate.getHours()).padStart(2, "0");
+      const minutes = String(selectedDate.getMinutes()).padStart(2, "0");
+      field.onChange(`${year}-${month}-${day}T${hours}:${minutes}`);
     }
   };
 
@@ -108,7 +114,13 @@ export function DateTimePickerForm<T extends FieldValues>({
       }
     }
 
-    field.onChange(newDate.toISOString());
+    // Format as local datetime string (YYYY-MM-DDTHH:mm)
+    const year = newDate.getFullYear();
+    const month = String(newDate.getMonth() + 1).padStart(2, "0");
+    const day = String(newDate.getDate()).padStart(2, "0");
+    const hours = String(newDate.getHours()).padStart(2, "0");
+    const minutes = String(newDate.getMinutes()).padStart(2, "0");
+    field.onChange(`${year}-${month}-${day}T${hours}:${minutes}`);
   };
 
   // Build disabled matcher
@@ -138,7 +150,13 @@ export function DateTimePickerForm<T extends FieldValues>({
   React.useEffect(() => {
     if (!field.value) {
       const now = new Date();
-      field.onChange(now.toISOString());
+      // Format as local datetime string (YYYY-MM-DDTHH:mm)
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, "0");
+      const day = String(now.getDate()).padStart(2, "0");
+      const hours = String(now.getHours()).padStart(2, "0");
+      const minutes = String(now.getMinutes()).padStart(2, "0");
+      field.onChange(`${year}-${month}-${day}T${hours}:${minutes}`);
     }
   }, []);
 

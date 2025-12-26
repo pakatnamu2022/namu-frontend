@@ -1,6 +1,6 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-import { Settings, ClipboardCheck, Package } from "lucide-react";
+import { Settings, ClipboardCheck, Pencil } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { WorkOrderResource } from "../lib/workOrder.interface";
 import { format } from "date-fns";
@@ -11,9 +11,9 @@ export type WorkOrderColumns = ColumnDef<WorkOrderResource>;
 
 interface Props {
   onDelete: (id: number) => void;
+  onUpdate: (id: number) => void;
   onManage: (id: number) => void;
   onInspect: (id: number) => void;
-  onRequestParts: (id: number) => void;
   permissions: {
     canUpdate: boolean;
     canDelete: boolean;
@@ -21,10 +21,10 @@ interface Props {
 }
 
 export const workOrderColumns = ({
-  onManage,
   onDelete,
+  onUpdate,
+  onManage,
   onInspect,
-  onRequestParts,
   permissions,
 }: Props): WorkOrderColumns[] => [
   {
@@ -183,7 +183,7 @@ export const workOrderColumns = ({
             <Download className="size-5" />
           </Button> */}
 
-          <Button
+          {/* <Button
             variant="outline"
             size="icon"
             className="size-7"
@@ -191,7 +191,19 @@ export const workOrderColumns = ({
             tooltip="Solicitar Repuestos"
           >
             <Package className="size-5" />
-          </Button>
+          </Button> */}
+
+          {permissions.canUpdate && (
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-7"
+              tooltip="Editar"
+              onClick={() => onUpdate(id)}
+            >
+              <Pencil className="size-5" />
+            </Button>
+          )}
 
           {permissions.canDelete && (
             <DeleteButton onClick={() => onDelete(id)} />

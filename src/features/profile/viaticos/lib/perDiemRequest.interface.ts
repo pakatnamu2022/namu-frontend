@@ -141,6 +141,8 @@ export interface PerDiemRequestResource {
   balance_to_return: number;
   notes: null;
   days_without_settlement: number;
+  with_active: boolean;
+  with_request: boolean;
   employee: Employee;
   company: Company;
   district: District;

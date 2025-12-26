@@ -31,7 +31,7 @@ export default function OrderQuotationPage() {
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
-  const { MODEL, ROUTE, ROUTE_UPDATE } = ORDER_QUOTATION;
+  const { MODEL, ROUTE, ROUTE_UPDATE, ABSOLUTE_ROUTE } = ORDER_QUOTATION;
   const permissions = useModulePermissions(ROUTE);
   const router = useNavigate();
   const currentDate = new Date();
@@ -40,7 +40,7 @@ export default function OrderQuotationPage() {
   const [dateTo, setDateTo] = useState<Date | undefined>(currentDate);
 
   const formatDate = (date: Date | undefined) => {
-    return date ? date.toISOString().split("T")[0] : undefined;
+    return date ? date.toLocaleDateString("en-CA") : undefined; // formato: YYYY-MM-DD
   };
 
   useEffect(() => {
@@ -82,7 +82,7 @@ export default function OrderQuotationPage() {
   };
 
   const handleManage = (id: number) => {
-    router(`${ORDER_QUOTATION.ABSOLUTE_ROUTE}/gestionar/${id}`);
+    router(`${ABSOLUTE_ROUTE}/gestionar/${id}`);
   };
 
   if (isLoadingModule) return <PageSkeleton />;

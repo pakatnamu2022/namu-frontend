@@ -59,6 +59,7 @@ export default function UpdateWorkOrderPage() {
     data: WorkOrderResource
   ): Partial<WorkOrderSchema> {
     return {
+      has_appointment: !!data.appointment_planning_id,
       appointment_planning_id: data.appointment_planning_id
         ? String(data.appointment_planning_id)
         : "",
@@ -70,6 +71,14 @@ export default function UpdateWorkOrderPage() {
         : "",
       diagnosis_date: data.diagnosis_date ? new Date(data.diagnosis_date) : "",
       observations: data.observations || "",
+      is_guarantee: data.is_guarantee ?? false,
+      is_recall: data.is_recall ?? false,
+      description_recall: data.description_recall || undefined,
+      type_recall: data.type_recall as
+        | "ROJO"
+        | "AMARILLO"
+        | "VERDE"
+        | undefined,
     };
   }
 

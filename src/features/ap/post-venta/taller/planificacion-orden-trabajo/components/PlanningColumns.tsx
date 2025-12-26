@@ -6,20 +6,31 @@ import {
   WorkOrderPlanningResource,
   PLANNING_STATUS_LABELS,
 } from "../lib/workOrderPlanning.interface";
+import { PLANNING_TYPE_LABELS } from "../lib/workOrderPlanning.constants";
 import { format, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
 import { Clock, Calendar, User, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Eye } from "lucide-react";
+import { Eye, Pencil } from "lucide-react";
+import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 
 export type WorkOrderPlanningColumns = ColumnDef<WorkOrderPlanningResource>;
 
 interface PlanningColumnsProps {
   onView?: (planning: WorkOrderPlanningResource) => void;
+  onEdit?: (planning: WorkOrderPlanningResource) => void;
+  onDelete?: (id: number) => void;
+  permissions?: {
+    canEdit: boolean;
+    canDelete: boolean;
+  };
 }
 
 export const planningColumns = ({
   onView,
+  onEdit,
+  onDelete,
+  permissions = { canEdit: false, canDelete: false },
 }: PlanningColumnsProps = {}): ColumnDef<WorkOrderPlanningResource>[] => [
   {
     accessorKey: "work_order_correlative",
@@ -116,6 +127,18 @@ export const planningColumns = ({
     },
   },
   {
+    accessorKey: "type",
+    header: "Tipo",
+    cell: ({ row }) => {
+      const type = row.original.type;
+      return (
+        <span className="text-sm">
+          {type ? PLANNING_TYPE_LABELS[type] || type : "-"}
+        </span>
+      );
+    },
+  },
+  {
     accessorKey: "status",
     header: "Estado",
     cell: ({ row }) => {
@@ -142,13 +165,27 @@ export const planningColumns = ({
     header: "Acciones",
     cell: ({ row }) => {
       return (
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => onView?.(row.original)}
-        >
-          <Eye className="h-4 w-4" />
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onView?.(row.original)}
+          >
+            <Eye className="h-4 w-4" />
+          </Button>
+          {permissions.canEdit && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onEdit?.(row.original)}
+            >
+              <Pencil className="h-4 w-4" />
+            </Button>
+          )}
+          {permissions.canDelete && (
+            <DeleteButton onClick={() => onDelete?.(row.original.id)} />
+          )}
+        </div>
       );
     },
   },
