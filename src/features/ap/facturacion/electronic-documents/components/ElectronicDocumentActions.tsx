@@ -1,11 +1,18 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Plus, RefreshCw } from "lucide-react";
+import { FilePlus, Files, Plus, RefreshCw } from "lucide-react";
 import ActionsWrapper from "@/shared/components/ActionsWrapper";
 import { useNavigate } from "react-router-dom";
 import { ELECTRONIC_DOCUMENT } from "../lib/electronicDocument.constants";
 import { cn } from "@/lib/utils";
+
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface ElectronicDocumentActionsProps {
   onRefresh: () => void;
@@ -33,10 +40,24 @@ export default function ElectronicDocumentActions({
       </Button>
 
       {permissions.canCreate && (
-        <Button size="sm" onClick={() => router(ROUTE_ADD!)}>
-          <Plus className="size-4 mr-2" />
-          Nuevo Documento
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button size="sm">
+              <Plus className="size-4 mr-2" />
+              Nuevo Comprobante
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-56" align="start">
+            <DropdownMenuItem onClick={() => router(ROUTE_ADD)}>
+              <FilePlus className="size-4 mr-2" />
+              Venta Vehiculo
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => router(`${ROUTE_ADD}-otros`)}>
+              <Files className="size-4 mr-2" />
+              Otras Ventas
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       )}
     </ActionsWrapper>
   );

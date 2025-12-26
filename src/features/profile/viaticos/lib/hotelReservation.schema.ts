@@ -75,17 +75,18 @@ export const hotelReservationSchema = z
           message: "El archivo debe ser PDF, JPG, JPEG o PNG",
         }
       )
-      .refine(
-        (file) => file && file.size <= 10 * 1024 * 1024,
-        {
-          message: "El archivo no debe superar los 10MB",
-        }
-      ),
+      .refine((file) => file && file.size <= 10 * 1024 * 1024, {
+        message: "El archivo no debe superar los 10MB",
+      })
+      .optional(),
     notes: z.string().max(1000).optional().default(""),
   })
   .refine(
     (data) => {
-      if (typeof data.checkin_date === "string" && typeof data.checkout_date === "string") {
+      if (
+        typeof data.checkin_date === "string" &&
+        typeof data.checkout_date === "string"
+      ) {
         const checkin = new Date(data.checkin_date);
         const checkout = new Date(data.checkout_date);
         return checkout > checkin;
@@ -93,7 +94,8 @@ export const hotelReservationSchema = z
       return true;
     },
     {
-      message: "La fecha de check-out debe ser posterior a la fecha de check-in",
+      message:
+        "La fecha de check-out debe ser posterior a la fecha de check-in",
       path: ["checkout_date"],
     }
   );

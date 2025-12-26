@@ -15,9 +15,8 @@ export interface ExpenseTypeResource {
   requires_receipt: boolean;
   active: boolean;
   order: number;
-  parent: ExpenseTypeParent | null;
-  created_at: string;
-  updated_at: string;
+  parent?: ExpenseTypeParent;
+  children_count?: number;
 }
 
 export interface ExpenseTypeParent {

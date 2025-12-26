@@ -9,8 +9,8 @@ import {
   FileText,
   CalendarClock,
   Hotel,
-  Car,
-  Wallet,
+  CheckCircle2,
+  XCircle,
 } from "lucide-react";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import type { PerDiemRequestResource } from "../../lib/perDiemRequest.interface";
@@ -103,35 +103,41 @@ export default function GeneralInfoSection({
         </div>
       </div>
 
-      {/* Movilidad - Activo de Empresa */}
+      {/* Con Activo */}
       <div className="flex items-start gap-3">
-        <Car className="h-5 w-5 text-muted-foreground mt-0.5 shrink-0" />
+        {request.with_active ? (
+          <CheckCircle2 className="h-5 w-5 text-green-600 mt-0.5 shrink-0" />
+        ) : (
+          <XCircle className="h-5 w-5 text-muted-foreground mt-0.5 shrink-0" />
+        )}
         <div>
           <p className="text-sm font-medium">Movilidad</p>
-          <div className="flex items-center gap-2">
-            <Badge
-              variant={request.with_active ? "default" : "outline"}
-              className="text-xs"
-            >
-              {request.with_active ? "Activo de empresa" : "Sin activo"}
-            </Badge>
-          </div>
+          <Badge
+            variant={request.with_active ? "default" : "secondary"}
+            className="text-xs"
+          >
+            {request.with_active
+              ? "Con activo de la empresa"
+              : "Movilidad externa"}
+          </Badge>
         </div>
       </div>
 
-      {/* Presupuesto */}
+      {/* Con Solicitud */}
       <div className="flex items-start gap-3">
-        <Wallet className="h-5 w-5 text-muted-foreground mt-0.5 shrink-0" />
+        {request.with_request ? (
+          <CheckCircle2 className="h-5 w-5 text-green-600 mt-0.5 shrink-0" />
+        ) : (
+          <XCircle className="h-5 w-5 text-muted-foreground mt-0.5 shrink-0" />
+        )}
         <div>
-          <p className="text-sm font-medium">Tipo de Solicitud</p>
-          <div className="flex items-center gap-2">
-            <Badge
-              variant={request.with_request ? "default" : "outline"}
-              className="text-xs"
-            >
-              {request.with_request ? "Solicita presupuesto" : "Rinde gastos"}
-            </Badge>
-          </div>
+          <p className="text-sm font-medium">Modo</p>
+          <Badge
+            variant={request.with_request ? "default" : "secondary"}
+            className="text-xs"
+          >
+            {request.with_request ? "Solicita Viáticos" : "Rinde Gastos"}
+          </Badge>
         </div>
       </div>
 

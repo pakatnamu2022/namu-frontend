@@ -5,7 +5,6 @@ import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import {
   Car,
   FileText,
-  Calculator,
   Package,
   Warehouse,
   Info,
@@ -280,7 +279,7 @@ export default function VehiclePurchaseOrderDetailView({
       )}
 
       {/* Resumen Financiero */}
-      <GroupFormSection
+      {/* <GroupFormSection
         title="Resumen Financiero"
         icon={Calculator}
         cols={{ sm: 1, md: 2 }}
@@ -345,7 +344,7 @@ export default function VehiclePurchaseOrderDetailView({
             </span>
           </div>
         </div>
-      </GroupFormSection>
+      </GroupFormSection> */}
 
       {/* Información de Almacén */}
       <GroupFormSection

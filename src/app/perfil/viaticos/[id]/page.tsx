@@ -3,22 +3,27 @@
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, Plus, FileDown } from "lucide-react";
+import { Plus, FileDown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { PER_DIEM_REQUEST } from "@/features/profile/viaticos/lib/perDiemRequest.constants";
-import { findPerDiemRequestById, downloadSettlementPdf } from "@/features/profile/viaticos/lib/perDiemRequest.actions";
+import {
+  PER_DIEM_REQUEST,
+  PER_DIEM_STATUS,
+} from "@/features/profile/viaticos/lib/perDiemRequest.constants";
+import {
+  findPerDiemRequestById,
+  downloadSettlementPdf,
+} from "@/features/profile/viaticos/lib/perDiemRequest.actions";
 import { useState } from "react";
 import { toast } from "sonner";
 import TitleComponent from "@/shared/components/TitleComponent";
-import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import {
   GeneralInfoSection,
-  FinancialSummarySection,
   ExpensesSection,
   RequestStatusBadge,
 } from "@/features/profile/viaticos/components/PerDiemRequestDetail";
 import FormWrapper from "@/shared/components/FormWrapper";
+import BackButton from "@/shared/components/BackButton";
 
 export default function PerDiemRequestDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -75,15 +80,9 @@ export default function PerDiemRequestDetailPage() {
     <FormWrapper>
       <div className="space-y-6">
         {/* Header */}
-        <HeaderTableWrapper>
+        <FormWrapper>
           <div className="flex items-center gap-3">
-            <button
-              onClick={() => navigate("/perfil/viaticos")}
-              className="p-2 hover:bg-muted rounded-md transition-colors"
-              aria-label="Volver"
-            >
-              <ArrowLeft className="h-5 w-5 text-muted-foreground" />
-            </button>
+            <BackButton route="/perfil/viaticos" size="icon" name="" />
             <TitleComponent
               title={request.code}
               subtitle="Detalle de Solicitud de Viáticos"
@@ -102,28 +101,33 @@ export default function PerDiemRequestDetailPage() {
               <FileDown className="h-4 w-4" />
               {isDownloading ? "Descargando..." : "Exportar PDF"}
             </Button>
-            <Button
-              onClick={() => navigate(`/perfil/viaticos/${id}/gastos/agregar`)}
-              size="sm"
-              className="gap-2"
-            >
-              <Plus className="h-4 w-4" />
-              Nuevo Gasto
-            </Button>
+
+            {request.status === PER_DIEM_STATUS.IN_PROGRESS && (
+              <Button
+                onClick={() =>
+                  navigate(`/perfil/viaticos/${id}/gastos/agregar`)
+                }
+                size="sm"
+                className="gap-2"
+              >
+                <Plus className="h-4 w-4" />
+                Nuevo Gasto
+              </Button>
+            )}
           </div>
-        </HeaderTableWrapper>
+        </FormWrapper>
 
         {/* Grid para Información General y Resumen Financiero */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">
           {/* Información General - 2/3 */}
           <div className="lg:col-span-2 h-full">
             <GeneralInfoSection request={request} />
           </div>
 
           {/* Resumen Financiero - 1/3 */}
-          <div className="lg:col-span-1 h-full">
+          {/* <div className="lg:col-span-1 h-full">
             <FinancialSummarySection request={request} />
-          </div>
+          </div> */}
         </div>
 
         {/* Gastos Registrados */}

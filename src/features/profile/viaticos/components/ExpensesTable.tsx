@@ -49,35 +49,6 @@ export default function ExpensesTable({ expenses }: ExpensesTableProps) {
       },
     },
     {
-      accessorKey: "concept",
-      header: "Concepto",
-      cell: ({ row }) => row.getValue("concept"),
-    },
-    {
-      accessorKey: "receipt_amount",
-      header: "Comprobante",
-      cell: ({ row }) => {
-        const amount = row.getValue("receipt_amount") as number;
-        return <div className="text-right">S/ {amount.toFixed(2)}</div>;
-      },
-    },
-    {
-      accessorKey: "company_amount",
-      header: "Empresa",
-      cell: ({ row }) => {
-        const amount = row.getValue("company_amount") as number;
-        return <div className="text-right">S/ {amount.toFixed(2)}</div>;
-      },
-    },
-    {
-      accessorKey: "employee_amount",
-      header: "Empleado",
-      cell: ({ row }) => {
-        const amount = row.getValue("employee_amount") as number;
-        return <div className="text-right">S/ {amount.toFixed(2)}</div>;
-      },
-    },
-    {
       accessorKey: "receipt_type",
       header: "Comprobante",
       cell: ({ row }) => {
@@ -92,6 +63,14 @@ export default function ExpensesTable({ expenses }: ExpensesTableProps) {
             </span>
           </div>
         );
+      },
+    },
+    {
+      accessorKey: "receipt_amount",
+      header: "Monto",
+      cell: ({ row }) => {
+        const amount = row.getValue("receipt_amount") as number;
+        return <div className="text-right">S/ {amount.toFixed(2)}</div>;
       },
     },
     {

@@ -26,6 +26,7 @@ export default function AgendaPage() {
     selectedDate,
     setSelectedDate,
   } = useCommercialFiltersStore();
+
   const { ROUTE } = AGENDA;
   const permissions = useModulePermissions(ROUTE);
 
@@ -64,14 +65,18 @@ export default function AgendaPage() {
     : undefined;
 
   // Memoize consultants params to prevent infinite re-renders
-  const consultantsParams = useMemo(() => ({
-    status_id: STATUS_WORKER.ACTIVE,
-    sede$empresa_id: EMPRESA_AP.id,
-    year: Number(selectedDate ? selectedDate.split("-")[0] : currentYear),
-    month: Number(selectedDate ? selectedDate.split("-")[1] : currentMonth),
-  }), [selectedDate, currentYear, currentMonth]);
+  const consultantsParams = useMemo(
+    () => ({
+      status_id: STATUS_WORKER.ACTIVE,
+      sede$empresa_id: EMPRESA_AP.id,
+      year: Number(selectedDate ? selectedDate.split("-")[0] : currentYear),
+      month: Number(selectedDate ? selectedDate.split("-")[1] : currentMonth),
+    }),
+    [selectedDate, currentYear, currentMonth]
+  );
 
-  const { data: workers = [], isLoading: isLoadingWorkers } = useMyConsultants(consultantsParams);
+  const { data: workers = [], isLoading: isLoadingWorkers } =
+    useMyConsultants(consultantsParams);
 
   // Create a map for quick lookup
   const agendaMap = new Map(agendaData.map((item) => [item.date, item]));

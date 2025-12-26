@@ -92,6 +92,12 @@ export const PERMISSION_ACTIONS: PermissionAction[] = [
     icon: "Users",
     description: "Permite ver información de asesores asignados",
   },
+  {
+    value: "viewBranches",
+    label: "Ver Por Sedes",
+    icon: "Building",
+    description: "Permite ver información por sedes",
+  },
 ];
 
 /**
@@ -137,5 +143,6 @@ export function useModulePermissions(moduleCode: string) {
     canSend: hasModulePermission("send"),
     canDuplicate: hasModulePermission("duplicate"),
     canViewAdvisors: hasModulePermission("viewAdvisors"),
+    canViewBranches: hasModulePermission("viewBranches"),
   };
 }

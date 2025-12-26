@@ -27,54 +27,66 @@ export const perDiemRequestColumns = ({
     header: "Empleado",
     cell: ({ getValue }) => {
       const value = getValue() as string;
-      return value && <p>{value}</p>;
+      return value && <p className="text-wrap text-xs">{value}</p>;
     },
   },
   {
-    accessorKey: "start_date",
-    header: "Fecha Inicio",
-    cell: ({ getValue }) => {
-      const value = getValue() as string;
-      if (!value) return "-";
-      const date = new Date(value);
-      return date.toLocaleDateString("es-PE", {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-      });
-    },
-  },
-  {
-    accessorKey: "end_date",
-    header: "Fecha Fin",
-    cell: ({ getValue }) => {
-      const value = getValue() as string;
-      if (!value) return "-";
-      const date = new Date(value);
-      return date.toLocaleDateString("es-PE", {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-      });
-    },
-  },
-  {
-    accessorKey: "days_count",
-    header: "Días",
-    cell: ({ getValue }) => {
-      const value = getValue() as number;
-      return <p className="text-center">{value || 0}</p>;
+    accessorKey: "dates",
+    header: "Fechas",
+    cell: ({ row }) => {
+      const startDate = new Date(row.original.start_date).toLocaleDateString(
+        "es-PE",
+        {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+        }
+      );
+      const endDate = new Date(row.original.end_date).toLocaleDateString(
+        "es-PE",
+        {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+        }
+      );
+      return (
+        <p className="text-xs text-end">
+          {startDate} - {endDate}{" "}
+          <Badge size="square" variant={"tertiary"}>
+            {row.original.days_count}
+          </Badge>
+        </p>
+      );
     },
   },
   {
     accessorKey: "total_budget",
-    header: "Presupuesto Total",
+    header: "Presupuesto",
     cell: ({ getValue }) => {
       const value = getValue() as number;
       return (
-        <Badge variant="outline" className="text-right font-semibold">
-          S/ {value?.toFixed(2) || "0.00"}
-        </Badge>
+        <div className="flex justify-end">
+          <Badge variant="outline" className="text-end font-semibold">
+            S/ {value?.toFixed(2) || "0.00"}
+          </Badge>
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "total_spent",
+    header: "Gasto",
+    cell: ({ row }) => {
+      const value = row.original.total_spent as number;
+      const isExceeded = value > row.original.total_budget;
+      const variant: BadgeVariants = isExceeded ? "destructive" : "blue";
+      return (
+        <div className="flex justify-end">
+          <Badge variant={variant} className="text-end font-semibold">
+            S/ {value?.toFixed(2) || "0.00"}
+          </Badge>
+        </div>
       );
     },
   },
@@ -102,7 +114,7 @@ export const perDiemRequestColumns = ({
         variant: "secondary",
       };
       return (
-        <div className="text-wrap! w-fit mx-auto">
+        <div className="w-fit mx-auto">
           <Badge className="w-fit" variant={status.variant}>
             {status.label}
           </Badge>
@@ -110,21 +122,7 @@ export const perDiemRequestColumns = ({
       );
     },
   },
-  {
-    accessorKey: "paid",
-    header: "Pagado",
-    cell: ({ getValue }) => {
-      const value = getValue() as boolean;
-      return (
-        <Badge
-          variant={value ? "default" : "secondary"}
-          className="capitalize w-16 flex items-center justify-center"
-        >
-          {value ? "Sí" : "No"}
-        </Badge>
-      );
-    },
-  },
+
   {
     id: "actions",
     header: "Acciones",
