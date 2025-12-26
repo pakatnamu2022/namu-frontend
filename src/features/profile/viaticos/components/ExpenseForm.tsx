@@ -83,10 +83,12 @@ export default function ExpenseForm({
     }
   }, [expenseTypeId, expenseTypes, form]);
 
-  // Limpiar número de comprobante cuando el tipo es "Sin Comprobante"
+  // Limpiar número de comprobante y archivo cuando el tipo es "Sin Comprobante"
   useEffect(() => {
     if (receiptType === "no_receipt") {
       form.setValue("receipt_number", "");
+      form.setValue("receipt_file", undefined);
+      setSelectedFile(null);
     }
   }, [receiptType, form]);
 
@@ -180,60 +182,62 @@ export default function ExpenseForm({
           </div>
 
           {/* Archivo del Comprobante */}
-          <div>
-            <FormField
-              control={form.control}
-              name="receipt_file"
-              render={({ field: { onChange, ...field } }) => (
-                <FormItem>
-                  <FormLabel className="text-xs md:text-sm">
-                    Archivo del Comprobante{" "}
-                    {mode === "create" && (
-                      <span className="text-destructive">*</span>
-                    )}
-                  </FormLabel>
-                  <FormControl>
-                    <div className="space-y-2">
-                      <div className="relative">
-                        <Input
-                          type="file"
-                          accept="application/pdf,image/*"
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) {
-                              setSelectedFile(file);
-                              onChange(file);
-                            }
-                          }}
-                          className="pl-10 h-8 md:h-10 text-xs md:text-sm"
-                          {...field}
-                          value={undefined}
-                          required={mode === "create"}
-                        />
-                        <Upload className="absolute left-3 top-1/2 transform -translate-y-1/2 h-3 w-3 md:h-4 md:w-4 text-muted-foreground" />
-                      </div>
-                      {selectedFile && (
-                        <div className="flex items-center gap-2 p-2 sm:p-3 bg-muted rounded-md">
-                          <FileText className="h-4 w-4 shrink-0 text-primary" />
-                          <span className="text-xs sm:text-sm truncate flex-1">
-                            {selectedFile.name}
-                          </span>
-                          <span className="text-xs text-muted-foreground shrink-0">
-                            {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
-                          </span>
-                        </div>
+          {receiptType !== "no_receipt" && (
+            <div>
+              <FormField
+                control={form.control}
+                name="receipt_file"
+                render={({ field: { onChange, ...field } }) => (
+                  <FormItem>
+                    <FormLabel className="text-xs md:text-sm">
+                      Archivo del Comprobante{" "}
+                      {mode === "create" && (
+                        <span className="text-destructive">*</span>
                       )}
-                    </div>
-                  </FormControl>
-                  <FormDescription className="text-xs">
-                    {mode === "create" ? "Requerido." : "Opcional."} Tamaño
-                    máximo: 5MB. Archivos PDF o imágenes.
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
+                    </FormLabel>
+                    <FormControl>
+                      <div className="space-y-2">
+                        <div className="relative">
+                          <Input
+                            type="file"
+                            accept="application/pdf,image/*"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                setSelectedFile(file);
+                                onChange(file);
+                              }
+                            }}
+                            className="pl-10 h-8 md:h-10 text-xs md:text-sm"
+                            {...field}
+                            value={undefined}
+                            required={mode === "create"}
+                          />
+                          <Upload className="absolute left-3 top-1/2 transform -translate-y-1/2 h-3 w-3 md:h-4 md:w-4 text-muted-foreground" />
+                        </div>
+                        {selectedFile && (
+                          <div className="flex items-center gap-2 p-2 sm:p-3 bg-muted rounded-md">
+                            <FileText className="h-4 w-4 shrink-0 text-primary" />
+                            <span className="text-xs sm:text-sm truncate flex-1">
+                              {selectedFile.name}
+                            </span>
+                            <span className="text-xs text-muted-foreground shrink-0">
+                              {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </FormControl>
+                    <FormDescription className="text-xs">
+                      {mode === "create" ? "Requerido." : "Opcional."} Tamaño
+                      máximo: 5MB. Archivos PDF o imágenes.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+          )}
 
           {/* Notas */}
           <div>
