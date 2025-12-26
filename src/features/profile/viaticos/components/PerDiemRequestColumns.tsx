@@ -9,10 +9,12 @@ export type PerDiemRequestColumns = ColumnDef<PerDiemRequestResource>;
 
 interface Props {
   onViewDetail: (id: number) => void;
+  onViewHotelReservation?: (requestId: number) => void;
 }
 
 export const perDiemRequestColumns = ({
   onViewDetail,
+  onViewHotelReservation,
 }: Props): PerDiemRequestColumns[] => [
   {
     accessorKey: "code",
@@ -130,6 +132,7 @@ export const perDiemRequestColumns = ({
       return (
         <PerDiemRequestRowActions
           onViewDetail={onViewDetail}
+          onViewHotelReservation={onViewHotelReservation}
           request={row.original}
         />
       );

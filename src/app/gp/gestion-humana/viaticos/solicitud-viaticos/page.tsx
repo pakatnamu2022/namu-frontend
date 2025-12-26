@@ -22,6 +22,7 @@ import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { PER_DIEM_REQUEST } from "@/features/profile/viaticos/lib/perDiemRequest.constants";
 import { notFound } from "@/shared/hooks/useNotFound";
 import PerDiemRequestDetailSheet from "@/features/profile/viaticos/components/PerDiemRequestDetailSheet";
+import HotelReservationDetailSheet from "@/features/profile/viaticos/components/HotelReservationDetailSheet";
 
 export default function PerDiemRequestPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -31,6 +32,9 @@ export default function PerDiemRequestPage() {
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const { MODEL, ROUTE } = PER_DIEM_REQUEST;
   const [detailId, setDetailId] = useState<number | null>(null);
+  const [hotelReservationRequestId, setHotelReservationRequestId] = useState<
+    number | null
+  >(null);
 
   useEffect(() => {
     setPage(1);
@@ -75,6 +79,7 @@ export default function PerDiemRequestPage() {
         isLoading={isLoading}
         columns={perDiemRequestColumns({
           onViewDetail: setDetailId,
+          onViewHotelReservation: setHotelReservationRequestId,
         })}
         data={data?.data || []}
       >
@@ -93,6 +98,15 @@ export default function PerDiemRequestPage() {
         requestId={detailId}
         open={detailId !== null}
         onOpenChange={(open) => !open && setDetailId(null)}
+      />
+
+      <HotelReservationDetailSheet
+        hotelReservation={
+          data?.data?.find((req) => req.id === hotelReservationRequestId)
+            ?.hotel_reservation || null
+        }
+        open={hotelReservationRequestId !== null}
+        onOpenChange={(open) => !open && setHotelReservationRequestId(null)}
       />
 
       <DataTablePagination
