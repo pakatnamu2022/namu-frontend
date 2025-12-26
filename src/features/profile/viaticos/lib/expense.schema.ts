@@ -17,9 +17,11 @@ export const expenseSchema = z
       })
       .min(1, "El tipo de comprobante es requerido"),
     receipt_number: z.string().optional(),
-    receipt_file: z.instanceof(File, {
-      message: "El archivo del comprobante es requerido",
-    }),
+    receipt_file: z
+      .instanceof(File, {
+        message: "El archivo del comprobante es requerido",
+      })
+      .optional(),
     notes: z.string().optional(),
     expense_type_id: requiredStringId("El tipo de gasto es requerido"),
   })
@@ -38,6 +40,20 @@ export const expenseSchema = z
       message:
         "El número de comprobante es requerido cuando el tipo es factura o boleta",
       path: ["receipt_number"],
+    }
+  )
+  .refine(
+    (data) => {
+      // El archivo es requerido solo cuando es factura (receipt_type === "invoice")
+      if (data.receipt_type === "invoice" && !data.receipt_file) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message:
+        "El archivo del comprobante es requerido cuando el tipo es factura",
+      path: ["receipt_file"],
     }
   );
 

@@ -51,11 +51,7 @@ export default function AddExpensePage() {
 
   return (
     <FormWrapper>
-      <TitleFormComponent
-        title="Agregar Gasto"
-        mode="create"
-        icon="Receipt"
-      />
+      <TitleFormComponent title="Agregar Gasto" mode="create" icon="Receipt" />
       <ExpenseForm
         requestId={Number(id)}
         onSubmit={handleSubmit}

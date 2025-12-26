@@ -61,6 +61,27 @@ export default function ExpenseForm({
   });
 
   const receiptType = form.watch("receipt_type");
+  const expenseTypeId = form.watch("expense_type_id");
+
+  // Establecer el tipo de comprobante según el requires_receipt del tipo de gasto
+  useEffect(() => {
+    if (expenseTypeId && expenseTypes) {
+      const selectedExpenseType = expenseTypes.find(
+        (type) => type.id.toString() === expenseTypeId
+      );
+
+      if (selectedExpenseType) {
+        const newReceiptType = selectedExpenseType.requires_receipt
+          ? "invoice"
+          : "no_receipt";
+
+        // Solo actualizar si el valor actual es diferente
+        if (form.getValues("receipt_type") !== newReceiptType) {
+          form.setValue("receipt_type", newReceiptType);
+        }
+      }
+    }
+  }, [expenseTypeId, expenseTypes, form]);
 
   // Limpiar número de comprobante cuando el tipo es "Sin Comprobante"
   useEffect(() => {
@@ -139,10 +160,11 @@ export default function ExpenseForm({
               name="receipt_type"
               label="Tipo de Comprobante"
               placeholder="Selecciona un tipo"
-              description="Tipo de comprobante presentado"
+              description="Se establece automáticamente según el tipo de gasto"
               options={receiptTypeOptions}
               control={form.control}
               required
+              disabled
             />
 
             {(receiptType === "invoice" || receiptType === "ticket") && (
@@ -166,7 +188,9 @@ export default function ExpenseForm({
                 <FormItem>
                   <FormLabel className="text-xs md:text-sm">
                     Archivo del Comprobante{" "}
-                    <span className="text-destructive">*</span>
+                    {mode === "create" && (
+                      <span className="text-destructive">*</span>
+                    )}
                   </FormLabel>
                   <FormControl>
                     <div className="space-y-2">
@@ -184,7 +208,7 @@ export default function ExpenseForm({
                           className="pl-10 h-8 md:h-10 text-xs md:text-sm"
                           {...field}
                           value={undefined}
-                          required
+                          required={mode === "create"}
                         />
                         <Upload className="absolute left-3 top-1/2 transform -translate-y-1/2 h-3 w-3 md:h-4 md:w-4 text-muted-foreground" />
                       </div>
@@ -202,7 +226,8 @@ export default function ExpenseForm({
                     </div>
                   </FormControl>
                   <FormDescription className="text-xs">
-                    Requerido. Tamaño máximo: 5MB. Archivos PDF o imágenes.
+                    {mode === "create" ? "Requerido." : "Opcional."} Tamaño
+                    máximo: 5MB. Archivos PDF o imágenes.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
