@@ -5,9 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { FileDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  PER_DIEM_REQUEST,
-} from "@/features/profile/viaticos/lib/perDiemRequest.constants";
+import { PER_DIEM_REQUEST } from "@/features/profile/viaticos/lib/perDiemRequest.constants";
 import {
   findPerDiemRequestById,
   downloadSettlementPdf,
@@ -20,6 +18,7 @@ import {
   RequestStatusBadge,
   BudgetSection,
   FinancialSummarySection,
+  DepositVoucherSection,
 } from "@/features/profile/viaticos/components/PerDiemRequestDetail";
 import FormWrapper from "@/shared/components/FormWrapper";
 import BackButton from "@/shared/components/BackButton";
@@ -122,6 +121,9 @@ export default function PerDiemRequestDetailAdminPage() {
 
         {/* Detalle de Presupuesto */}
         <BudgetSection request={request} />
+
+        {/* Comprobante de Depósito */}
+        <DepositVoucherSection request={request} />
 
         {/* Resumen Financiero */}
         <FinancialSummarySection request={request} />

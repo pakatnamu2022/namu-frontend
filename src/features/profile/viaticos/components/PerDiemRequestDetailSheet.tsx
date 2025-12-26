@@ -14,6 +14,7 @@ import {
   FinancialSummarySection,
   RequestStatusBadge,
   BudgetSection,
+  DepositVoucherSection,
 } from "@/features/profile/viaticos/components/PerDiemRequestDetail";
 
 interface Props {
@@ -60,6 +61,9 @@ export default function PerDiemRequestDetailSheet({
 
               {/* Detalle de Presupuesto */}
               <BudgetSection request={request} />
+
+              {/* Comprobante de Depósito */}
+              <DepositVoucherSection request={request} />
 
               {/* Resumen Financiero */}
               <FinancialSummarySection request={request} />
