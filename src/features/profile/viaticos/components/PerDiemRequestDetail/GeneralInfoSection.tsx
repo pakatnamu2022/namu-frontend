@@ -9,6 +9,8 @@ import {
   FileText,
   CalendarClock,
   Hotel,
+  CheckCircle2,
+  XCircle,
   Car,
   Wallet,
 } from "lucide-react";
@@ -100,6 +102,44 @@ export default function GeneralInfoSection({
           <p className="text-sm text-muted-foreground">
             {request.company.name}
           </p>
+        </div>
+      </div>
+
+      {/* Con Activo */}
+      <div className="flex items-start gap-3">
+        {request.with_active ? (
+          <CheckCircle2 className="h-5 w-5 text-green-600 mt-0.5 shrink-0" />
+        ) : (
+          <XCircle className="h-5 w-5 text-muted-foreground mt-0.5 shrink-0" />
+        )}
+        <div>
+          <p className="text-sm font-medium">Movilidad</p>
+          <Badge
+            variant={request.with_active ? "default" : "secondary"}
+            className="text-xs"
+          >
+            {request.with_active
+              ? "Con activo de la empresa"
+              : "Movilidad externa"}
+          </Badge>
+        </div>
+      </div>
+
+      {/* Con Solicitud */}
+      <div className="flex items-start gap-3">
+        {request.with_request ? (
+          <CheckCircle2 className="h-5 w-5 text-green-600 mt-0.5 shrink-0" />
+        ) : (
+          <XCircle className="h-5 w-5 text-muted-foreground mt-0.5 shrink-0" />
+        )}
+        <div>
+          <p className="text-sm font-medium">Modo</p>
+          <Badge
+            variant={request.with_request ? "default" : "secondary"}
+            className="text-xs"
+          >
+            {request.with_request ? "Solicita Viáticos" : "Rinde Gastos"}
+          </Badge>
         </div>
       </div>
 

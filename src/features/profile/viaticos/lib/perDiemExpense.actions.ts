@@ -2,6 +2,7 @@ import { api } from "@/core/api";
 import { GeneralResponse } from "@/shared/lib/response.interface";
 import { PER_DIEM_EXPENSE } from "./perDiemExpense.constants";
 import { PerDiemExpenseResource, RemainingBudgetResponse } from "./perDiemExpense.interface";
+import { ExpenseTypeResource } from "@/features/gp/gestionhumana/viaticos/tipo-gasto/lib/expenseType.interface";
 
 const { ENDPOINT } = PER_DIEM_EXPENSE;
 
@@ -83,6 +84,18 @@ export async function getRemainingBudget(
         expense_type_id: expenseTypeId,
       },
     }
+  );
+  return response.data;
+}
+
+/**
+ * Obtener los tipos de gasto disponibles para una solicitud de viáticos
+ */
+export async function getAvailableExpenseTypes(
+  requestId: number
+): Promise<ExpenseTypeResource[]> {
+  const response = await api.get<ExpenseTypeResource[]>(
+    `gp/gestion-humana/viaticos/per-diem-requests/${requestId}/available-expense-types`
   );
   return response.data;
 }

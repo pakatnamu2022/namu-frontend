@@ -73,7 +73,7 @@ export default function AgendaCalendarCard({
               <CalendarMonthPicker className="w-fit text-xs sm:text-sm font-bold text-primary" />
               <CalendarYearPicker
                 className="w-fit text-xs sm:text-sm font-bold text-primary"
-                start={2020}
+                start={2024}
                 end={2030}
               />
             </CalendarDatePicker>

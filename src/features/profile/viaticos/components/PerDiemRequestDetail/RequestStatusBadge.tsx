@@ -55,9 +55,12 @@ export default function RequestStatusBadge({
   };
 
   return (
-    <Badge variant={config.variant} className="flex items-center gap-1 w-fit">
+    <Badge
+      variant={config.variant}
+      className="flex! items-center gap-1 w-fit"
+    >
       {config.icon}
-      {config.label}
+      <p className="line-clamp-1">{config.label}</p>
     </Badge>
   );
 }

@@ -13,10 +13,7 @@ export function expenseSchemaToFormData(data: ExpenseSchema): FormData {
 
   formData.append("expense_date", expenseDate);
   formData.append("expense_type_id", data.expense_type_id);
-  formData.append("concept", data.concept);
   formData.append("receipt_amount", data.receipt_amount.toString());
-  formData.append("company_amount", data.company_amount.toString());
-  formData.append("employee_amount", data.employee_amount.toString());
   formData.append("receipt_type", data.receipt_type);
 
   if (data.receipt_number) {

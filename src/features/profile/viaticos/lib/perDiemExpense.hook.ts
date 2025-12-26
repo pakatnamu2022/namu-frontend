@@ -6,6 +6,7 @@ import {
   updatePerDiemExpense,
   deletePerDiemExpense,
   findPerDiemExpenseById,
+  getAvailableExpenseTypes,
 } from "./perDiemExpense.actions";
 import {
   ERROR_MESSAGE,
@@ -117,5 +118,16 @@ export function useDeletePerDiemExpense(
       errorToast(ERROR_MESSAGE(MODEL, "delete", msg));
       options?.onError?.(error);
     },
+  });
+}
+
+/**
+ * Hook para obtener los tipos de gasto disponibles para una solicitud de viáticos
+ */
+export function useAvailableExpenseTypes(requestId: number) {
+  return useQuery({
+    queryKey: [PER_DIEM_REQUEST.QUERY_KEY, requestId, "available-expense-types"],
+    queryFn: () => getAvailableExpenseTypes(requestId),
+    enabled: !!requestId,
   });
 }

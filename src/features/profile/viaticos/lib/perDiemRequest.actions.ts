@@ -160,3 +160,30 @@ export async function downloadSettlementPdf(id: number): Promise<void> {
   link.remove();
   window.URL.revokeObjectURL(url);
 }
+
+export async function confirmPerDiemRequest(
+  id: number
+): Promise<PerDiemRequestResource> {
+  const response = await api.post<PerDiemRequestResource>(
+    `${ENDPOINT}/${id}/confirm`
+  );
+  return response.data;
+}
+
+export async function validateExpense(
+  expenseId: number
+): Promise<GeneralResponse> {
+  const { data } = await api.post<GeneralResponse>(
+    `gp/gestion-humana/viaticos/per-diem-expenses/${expenseId}/validate`
+  );
+  return data;
+}
+
+export async function rejectExpense(
+  expenseId: number
+): Promise<GeneralResponse> {
+  const { data } = await api.post<GeneralResponse>(
+    `gp/gestion-humana/viaticos/per-diem-expenses/${expenseId}/reject`
+  );
+  return data;
+}

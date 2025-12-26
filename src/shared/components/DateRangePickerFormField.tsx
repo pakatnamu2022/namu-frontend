@@ -3,7 +3,7 @@
 import * as React from "react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { type DateRange } from "react-day-picker";
+import { Matcher, type DateRange } from "react-day-picker";
 import { CalendarIcon } from "lucide-react";
 import { Control, FieldValues, Path } from "react-hook-form";
 
@@ -40,7 +40,7 @@ interface DateRangePickerFormFieldProps<T extends FieldValues> {
   description?: string;
   tooltip?: string | React.ReactNode;
   dateFormat?: string;
-  disabled?: { before?: Date; after?: Date };
+  disabled?: Matcher;
   required?: boolean;
   size?: "sm" | "default" | "lg";
 }
@@ -54,6 +54,7 @@ export function DateRangePickerFormField<T extends FieldValues>({
   description,
   tooltip,
   dateFormat = "dd/MM/yyyy",
+  disabled,
   required = false,
   size = "lg",
 }: DateRangePickerFormFieldProps<T>) {
@@ -136,6 +137,7 @@ export function DateRangePickerFormField<T extends FieldValues>({
                         fieldFrom.onChange(range?.from ?? "");
                         fieldTo.onChange(range?.to ?? "");
                       }}
+                      disabled={disabled}
                       className="rounded-md border"
                     />
                   </PopoverContent>

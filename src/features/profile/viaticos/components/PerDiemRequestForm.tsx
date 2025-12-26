@@ -12,7 +12,7 @@ import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
 import { useEffect } from "react";
-import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
+import { DateRangePickerFormField } from "@/shared/components/DateRangePickerFormField";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { useGetAllPerDiemCategory } from "../../../gp/gestionhumana/viaticos/categoria-viaticos/lib/perDiemCategory.hook";
@@ -120,33 +120,16 @@ export const PerDiemRequestForm = ({
             control={form.control}
           />
 
-          <DatePickerFormField
+          <DateRangePickerFormField
             control={form.control}
-            name="start_date"
-            label="Fecha de Inicio"
-            placeholder="Selecciona una fecha"
+            nameFrom="start_date"
+            nameTo="end_date"
+            label="Rango de Fechas"
+            placeholder="Selecciona el rango de fechas"
             dateFormat="dd/MM/yyyy"
-            captionLayout="dropdown"
-            disabledRange={{
-              before: (() => {
-                const date = new Date();
-                date.setDate(date.getDate() + 21);
-                return date;
-              })(),
-            }}
-          />
-
-          <DatePickerFormField
-            control={form.control}
-            name="end_date"
-            label="Fecha de Fin"
-            placeholder="Selecciona una fecha"
-            dateFormat="dd/MM/yyyy"
-            captionLayout="dropdown"
-            disabledRange={{
-              before: form.watch("start_date")
-                ? new Date(form.watch("start_date"))
-                : new Date(),
+            required
+            disabled={{
+              before: new Date(Date.now() + 21 * 24 * 60 * 60 * 1000),
             }}
           />
 
@@ -159,8 +142,10 @@ export const PerDiemRequestForm = ({
 
           <FormSwitch
             name="with_request"
-            label="¿Solicita presupuesto o rinde gastos al final?"
-            text={form.watch("with_request") ? "Sí" : "No"}
+            label="¿Solicito viáticos o rinde gastos al final?"
+            text={
+              form.watch("with_request") ? "Solicito viáticos" : "Rinde gastos"
+            }
             control={form.control}
           />
         </div>

@@ -3,12 +3,10 @@
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, FileDown } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { FileDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   PER_DIEM_REQUEST,
-  PER_DIEM_STATUS,
 } from "@/features/profile/viaticos/lib/perDiemRequest.constants";
 import {
   findPerDiemRequestById,
@@ -19,18 +17,25 @@ import { toast } from "sonner";
 import TitleComponent from "@/shared/components/TitleComponent";
 import {
   GeneralInfoSection,
-  ExpensesSection,
   RequestStatusBadge,
+  BudgetSection,
+  FinancialSummarySection,
 } from "@/features/profile/viaticos/components/PerDiemRequestDetail";
 import FormWrapper from "@/shared/components/FormWrapper";
 import BackButton from "@/shared/components/BackButton";
+import { GroupFormSection } from "@/shared/components/GroupFormSection";
+import { Receipt } from "lucide-react";
+import ExpensesTable from "@/features/profile/viaticos/components/ExpensesTable";
 
-export default function PerDiemRequestDetailPage() {
+export default function PerDiemRequestDetailAdminPage() {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
   const [isDownloading, setIsDownloading] = useState(false);
 
-  const { data: request, isLoading } = useQuery({
+  const {
+    data: request,
+    isLoading,
+    refetch,
+  } = useQuery({
     queryKey: [PER_DIEM_REQUEST.QUERY_KEY, id],
     queryFn: () => findPerDiemRequestById(Number(id)),
     enabled: !!id,
@@ -49,6 +54,10 @@ export default function PerDiemRequestDetailPage() {
     } finally {
       setIsDownloading(false);
     }
+  };
+
+  const handleActionComplete = () => {
+    refetch();
   };
 
   if (isLoading) {
@@ -82,7 +91,11 @@ export default function PerDiemRequestDetailPage() {
         {/* Header */}
         <FormWrapper>
           <div className="flex items-center gap-3">
-            <BackButton route="/perfil/viaticos" size="icon" name="" />
+            <BackButton
+              route="/gp/gestion-humana/viaticos/solicitud-viaticos"
+              size="icon"
+              name=""
+            />
             <TitleComponent
               title={request.code}
               subtitle="Detalle de Solicitud de Viáticos"
@@ -101,37 +114,31 @@ export default function PerDiemRequestDetailPage() {
               <FileDown className="h-4 w-4" />
               {isDownloading ? "Descargando..." : "Exportar PDF"}
             </Button>
-
-            {request.status === PER_DIEM_STATUS.IN_PROGRESS && (
-              <Button
-                onClick={() =>
-                  navigate(`/perfil/viaticos/${id}/gastos/agregar`)
-                }
-                size="sm"
-                className="gap-2"
-              >
-                <Plus className="h-4 w-4" />
-                Nuevo Gasto
-              </Button>
-            )}
           </div>
         </FormWrapper>
 
-        {/* Grid para Información General y Resumen Financiero */}
-        <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">
-          {/* Información General - 2/3 */}
-          <div className="lg:col-span-2 h-full">
-            <GeneralInfoSection request={request} />
+        {/* Información General */}
+        <GeneralInfoSection request={request} />
+
+        {/* Detalle de Presupuesto */}
+        <BudgetSection request={request} />
+
+        {/* Resumen Financiero */}
+        <FinancialSummarySection request={request} />
+
+        {/* Gastos Registrados con acciones de validación */}
+        <GroupFormSection
+          title="Gastos Registrados"
+          icon={Receipt}
+          cols={{ sm: 1 }}
+        >
+          <div className="md:col-span-1">
+            <ExpensesTable
+              expenses={request.expenses || []}
+              onActionComplete={handleActionComplete}
+            />
           </div>
-
-          {/* Resumen Financiero - 1/3 */}
-          {/* <div className="lg:col-span-1 h-full">
-            <FinancialSummarySection request={request} />
-          </div> */}
-        </div>
-
-        {/* Gastos Registrados */}
-        <ExpensesSection request={request} />
+        </GroupFormSection>
       </div>
     </FormWrapper>
   );
