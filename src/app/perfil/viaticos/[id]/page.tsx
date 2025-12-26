@@ -13,6 +13,8 @@ import {
 import {
   findPerDiemRequestById,
   downloadSettlementPdf,
+  downloadExpenseDetailPdf,
+  downloadMobilityPayrollPdf,
 } from "@/features/profile/viaticos/lib/perDiemRequest.actions";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -29,6 +31,10 @@ export default function PerDiemRequestDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [isDownloading, setIsDownloading] = useState(false);
+  const [isDownloadingExpenseDetail, setIsDownloadingExpenseDetail] =
+    useState(false);
+  const [isDownloadingMobilityPayroll, setIsDownloadingMobilityPayroll] =
+    useState(false);
 
   const { data: request, isLoading } = useQuery({
     queryKey: [PER_DIEM_REQUEST.QUERY_KEY, id],
@@ -48,6 +54,35 @@ export default function PerDiemRequestDetailPage() {
       console.error("Error downloading PDF:", error);
     } finally {
       setIsDownloading(false);
+    }
+  };
+
+  const handleDownloadExpenseDetailPdf = async () => {
+    if (!id) return;
+
+    try {
+      setIsDownloadingExpenseDetail(true);
+      await downloadExpenseDetailPdf(Number(id));
+      toast.success("PDF de detalle de gastos descargado correctamente");
+    } catch (error) {
+      toast.error("Error al descargar el PDF de detalle de gastos");
+      console.error("Error downloading expense detail PDF:", error);
+    } finally {
+      setIsDownloadingExpenseDetail(false);
+    }
+  };
+
+  const handleDownloandMobilityPayrollPdf = async () => {
+    if (!id) return;
+    try {
+      setIsDownloadingMobilityPayroll(true);
+      await downloadMobilityPayrollPdf(Number(id));
+      toast.success("PDF de planilla de movilidad descargado correctamente");
+    } catch (error) {
+      toast.error("Error al descargar el PDF de planilla de movilidad");
+      console.error("Error downloading mobility payroll PDF:", error);
+    } finally {
+      setIsDownloadingMobilityPayroll(false);
     }
   };
 
@@ -100,6 +135,32 @@ export default function PerDiemRequestDetailPage() {
             >
               <FileDown className="h-4 w-4" />
               {isDownloading ? "Descargando..." : "Exportar PDF"}
+            </Button>
+
+            <Button
+              onClick={handleDownloadExpenseDetailPdf}
+              size="sm"
+              variant="outline"
+              className="gap-2"
+              disabled={isDownloadingExpenseDetail}
+            >
+              <FileDown className="h-4 w-4" />
+              {isDownloadingExpenseDetail
+                ? "Descargando..."
+                : "Detalle de Gastos"}
+            </Button>
+
+            <Button
+              onClick={handleDownloandMobilityPayrollPdf}
+              size="sm"
+              variant="outline"
+              className="gap-2"
+              disabled={isDownloadingMobilityPayroll}
+            >
+              <FileDown className="h-4 w-4" />
+              {isDownloadingMobilityPayroll
+                ? "Descargando..."
+                : "Planilla de Movilidad"}
             </Button>
 
             {request.status === PER_DIEM_STATUS.IN_PROGRESS && (

@@ -128,7 +128,6 @@ export const perDiemRequestColumns = ({
       );
     },
   },
-
   {
     id: "actions",
     header: "Acciones",
