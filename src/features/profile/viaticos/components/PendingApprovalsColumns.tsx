@@ -72,7 +72,7 @@ export const pendingApprovalsColumns = ({
     },
   },
   {
-    accessorKey: "destination",
+    accessorKey: "district.name",
     header: "Destino",
     cell: ({ getValue }) => {
       const value = getValue() as string;

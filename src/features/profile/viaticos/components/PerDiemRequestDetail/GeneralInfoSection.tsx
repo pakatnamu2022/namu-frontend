@@ -304,7 +304,7 @@ export default function GeneralInfoSection({
       >
         <User className="h-5 w-5 text-muted-foreground mt-0.5 shrink-0" />
         <div className="flex-1">
-          <p className="text-sm font-medium mb-2">Aprovaciones</p>
+          <p className="text-sm font-medium mb-2">Aprobaciones</p>
           {request.approvals && request.approvals.length > 0 ? (
             <div className="flex flex-wrap gap-2">
               {request.approvals.map((approval, index) => (
