@@ -1,12 +1,15 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Eye, Hotel, CheckCircle, Upload } from "lucide-react";
+import { Eye, Hotel, CheckCircle, Upload, Car } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { PerDiemRequestResource } from "../lib/perDiemRequest.interface";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { confirmPerDiemRequest } from "../lib/perDiemRequest.actions";
+import {
+  confirmPerDiemRequest,
+  generateMobilityPayroll,
+} from "../lib/perDiemRequest.actions";
 import { toast } from "sonner";
 import { PER_DIEM_REQUEST } from "../lib/perDiemRequest.constants";
 import { useState } from "react";
@@ -51,8 +54,28 @@ export function PerDiemRequestRowActions({
     },
   });
 
+  const generateMobilityPayrollMutation = useMutation({
+    mutationFn: (requestId: number) => generateMobilityPayroll(requestId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [PER_DIEM_REQUEST.QUERY_KEY],
+      });
+      toast.success("Planilla de gastos de movilidad generada exitosamente");
+    },
+    onError: (error: any) => {
+      toast.error(
+        error?.response?.data?.message ||
+          "Error al generar la planilla de movilidad"
+      );
+    },
+  });
+
   const handleConfirmRequest = () => {
     confirmMutation.mutate(request.id);
+  };
+
+  const handleGenerateMobilityPayroll = () => {
+    generateMobilityPayrollMutation.mutate(request.id);
   };
 
   const handleAddHotelReservation = () => {
@@ -81,6 +104,16 @@ export function PerDiemRequestRowActions({
           tooltip="Ver detalle"
         >
           <Eye className="size-4" />
+        </Button>
+
+        <Button
+          variant="outline"
+          size="icon-xs"
+          onClick={handleGenerateMobilityPayroll}
+          tooltip="Generar Planilla de Gastos de Movilidad"
+          disabled={generateMobilityPayrollMutation.isPending}
+        >
+          <Car className="size-4" />
         </Button>
 
         {isOnlyApproved && (
