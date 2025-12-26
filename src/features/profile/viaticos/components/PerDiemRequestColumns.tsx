@@ -68,11 +68,7 @@ export const perDiemRequestColumns = ({
     cell: ({ getValue }) => {
       const value = getValue() as number;
       return (
-        <div className="flex justify-end">
-          <Badge variant="outline" className="text-end font-semibold">
-            S/ {value?.toFixed(2) || "0.00"}
-          </Badge>
-        </div>
+        <div className="flex justify-end">S/ {value?.toFixed(2) || "0.00"}</div>
       );
     },
   },
@@ -81,12 +77,20 @@ export const perDiemRequestColumns = ({
     header: "Gasto",
     cell: ({ row }) => {
       const value = row.original.total_spent as number;
-      const isExceeded = value > row.original.total_budget;
-      const variant: BadgeVariants = isExceeded ? "destructive" : "blue";
       return (
-        <div className="flex justify-end">
-          <Badge variant={variant} className="text-end font-semibold">
-            S/ {value?.toFixed(2) || "0.00"}
+        <div className="flex justify-end">S/ {value?.toFixed(2) || "0.00"}</div>
+      );
+    },
+  },
+  {
+    accessorKey: "with_request",
+    header: "Con Solicitud",
+    cell: ({ getValue }) => {
+      const value = getValue() as boolean;
+      return (
+        <div className="w-fit mx-auto">
+          <Badge variant={value ? "default" : "secondary"} className="w-fit">
+            {value ? "Sí" : "No"}
           </Badge>
         </div>
       );
