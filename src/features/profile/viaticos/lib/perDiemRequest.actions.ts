@@ -169,3 +169,21 @@ export async function confirmPerDiemRequest(
   );
   return response.data;
 }
+
+export async function validateExpense(
+  expenseId: number
+): Promise<GeneralResponse> {
+  const { data } = await api.post<GeneralResponse>(
+    `gp/gestion-humana/viaticos/per-diem-expenses/${expenseId}/validate`
+  );
+  return data;
+}
+
+export async function rejectExpense(
+  expenseId: number
+): Promise<GeneralResponse> {
+  const { data } = await api.post<GeneralResponse>(
+    `gp/gestion-humana/viaticos/per-diem-expenses/${expenseId}/reject`
+  );
+  return data;
+}

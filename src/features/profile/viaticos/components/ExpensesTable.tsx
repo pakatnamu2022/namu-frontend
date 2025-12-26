@@ -6,14 +6,18 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { CheckCircle2, XCircle, FileText } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { CheckCircle2, XCircle } from "lucide-react";
+import ExpenseRowActions from "./ExpenseRowActions";
 
 interface ExpensesTableProps {
   expenses: ExpenseResource[];
+  onActionComplete?: () => void;
 }
 
-export default function ExpensesTable({ expenses }: ExpensesTableProps) {
+export default function ExpensesTable({
+  expenses,
+  onActionComplete,
+}: ExpensesTableProps) {
   const columns: ColumnDef<ExpenseResource>[] = [
     {
       accessorKey: "expense_date",
@@ -112,17 +116,10 @@ export default function ExpensesTable({ expenses }: ExpensesTableProps) {
       cell: ({ row }) => {
         const expense = row.original;
         return (
-          <>
-            {expense.receipt_path && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => window.open(expense.receipt_path, "_blank")}
-              >
-                <FileText className="h-4 w-4" />
-              </Button>
-            )}
-          </>
+          <ExpenseRowActions
+            expense={expense}
+            onActionComplete={onActionComplete}
+          />
         );
       },
     },
