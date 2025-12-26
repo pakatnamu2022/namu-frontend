@@ -160,3 +160,12 @@ export async function downloadSettlementPdf(id: number): Promise<void> {
   link.remove();
   window.URL.revokeObjectURL(url);
 }
+
+export async function confirmPerDiemRequest(
+  id: number
+): Promise<PerDiemRequestResource> {
+  const response = await api.post<PerDiemRequestResource>(
+    `${ENDPOINT}/${id}/confirm`
+  );
+  return response.data;
+}
