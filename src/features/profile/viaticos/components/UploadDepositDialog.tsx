@@ -68,9 +68,19 @@ export function UploadDepositDialog({
     onOpenChange(false);
   };
 
+  const handleOpenChange = (newOpen: boolean) => {
+    // Solo permitir cerrar si no está subiendo y el usuario lo hace explícitamente
+    if (!newOpen && !uploadMutation.isPending) {
+      handleClose();
+    }
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogContent
+        className="max-w-md"
+        onInteractOutside={(e) => e.preventDefault()}
+      >
         <DialogHeader>
           <DialogTitle>Subir Archivo de Depósito</DialogTitle>
         </DialogHeader>
