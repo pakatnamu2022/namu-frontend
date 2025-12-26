@@ -67,6 +67,13 @@ export default function UpdateExpensePage() {
     );
   }
 
+  const startDate = perDiemRequest?.start_date
+    ? new Date(perDiemRequest.start_date)
+    : undefined;
+  const endDate = perDiemRequest?.end_date
+    ? new Date(perDiemRequest.end_date)
+    : undefined;
+
   return (
     <FormWrapper>
       <TitleFormComponent
@@ -79,10 +86,7 @@ export default function UpdateExpensePage() {
         defaultValues={{
           expense_date: expense.expense_date as any,
           expense_type_id: expense.expense_type.id.toString(),
-          concept: expense.concept,
           receipt_amount: expense.receipt_amount,
-          company_amount: expense.company_amount,
-          employee_amount: expense.employee_amount,
           receipt_type: expense.receipt_type as any,
           receipt_number: expense.receipt_number || "",
           notes: expense.notes || "",
@@ -91,6 +95,8 @@ export default function UpdateExpensePage() {
         isSubmitting={isPending}
         mode="update"
         onCancel={handleCancel}
+        startDate={startDate}
+        endDate={endDate}
       />
     </FormWrapper>
   );
