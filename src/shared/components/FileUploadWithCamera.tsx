@@ -1,6 +1,6 @@
 import { useRef, useMemo } from "react";
 import { Button } from "@/components/ui/button";
-import { Upload, Camera, X } from "lucide-react";
+import { Upload, Camera, X, FileText } from "lucide-react";
 import { Label } from "@/components/ui/label";
 
 interface FileUploadWithCameraProps {
@@ -12,6 +12,7 @@ interface FileUploadWithCameraProps {
   disabled?: boolean;
   className?: string;
   showPreview?: boolean;
+  showFileInfo?: boolean;
 }
 
 export function FileUploadWithCamera({
@@ -23,6 +24,7 @@ export function FileUploadWithCamera({
   disabled = false,
   className = "",
   showPreview = true,
+  showFileInfo = true,
 }: FileUploadWithCameraProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
@@ -88,40 +90,53 @@ export function FileUploadWithCamera({
   return (
     <div className={className}>
       {label && <Label>{label}</Label>}
-      <div className="mt-2">
+      <div className="mt-2 space-y-2">
         {previewUrl && showPreview ? (
-          <div className="relative">
-            {isPdfFile(previewUrl) ? (
-              <div className="w-full h-64 rounded border-2 border-gray-200 bg-gray-50 flex items-center justify-center">
-                <div className="text-center">
-                  <Upload className="h-12 w-12 mx-auto text-muted-foreground mb-2" />
-                  <p className="text-sm text-muted-foreground">
-                    Archivo PDF seleccionado
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {value?.name}
-                  </p>
+          <>
+            <div className="relative">
+              {isPdfFile(previewUrl) ? (
+                <div className="w-full h-64 rounded border-2 border-gray-200 bg-gray-50 flex items-center justify-center">
+                  <div className="text-center">
+                    <Upload className="h-12 w-12 mx-auto text-muted-foreground mb-2" />
+                    <p className="text-sm text-muted-foreground">
+                      Archivo PDF seleccionado
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {value?.name}
+                    </p>
+                  </div>
                 </div>
+              ) : (
+                <img
+                  src={previewUrl}
+                  alt="Vista previa"
+                  className="w-full h-64 object-contain rounded border-2 border-gray-200 bg-gray-50"
+                />
+              )}
+              <Button
+                size="sm"
+                variant="destructive"
+                className="absolute top-2 right-2"
+                onClick={handleRemoveFile}
+                disabled={disabled}
+                type="button"
+              >
+                <X className="h-4 w-4 mr-1" />
+                Eliminar
+              </Button>
+            </div>
+            {showFileInfo && value && (
+              <div className="flex items-center gap-2 p-2 sm:p-3 bg-muted rounded-md">
+                <FileText className="h-4 w-4 shrink-0 text-primary" />
+                <span className="text-xs sm:text-sm truncate flex-1">
+                  {value.name}
+                </span>
+                <span className="text-xs text-muted-foreground shrink-0">
+                  {(value.size / 1024 / 1024).toFixed(2)} MB
+                </span>
               </div>
-            ) : (
-              <img
-                src={previewUrl}
-                alt="Vista previa"
-                className="w-full h-64 object-contain rounded border-2 border-gray-200 bg-gray-50"
-              />
             )}
-            <Button
-              size="sm"
-              variant="destructive"
-              className="absolute top-2 right-2"
-              onClick={handleRemoveFile}
-              disabled={disabled}
-              type="button"
-            >
-              <X className="h-4 w-4 mr-1" />
-              Eliminar
-            </Button>
-          </div>
+          </>
         ) : (
           <div className="space-y-3">
             {/* Input oculto para subir archivo */}

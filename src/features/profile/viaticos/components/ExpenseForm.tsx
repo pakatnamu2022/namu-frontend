@@ -12,9 +12,8 @@ import {
   FormMessage,
   FormDescription,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Loader, Upload, FileText } from "lucide-react";
+import { Loader } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { useState, useEffect } from "react";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
@@ -22,6 +21,7 @@ import { FormSelect } from "@/shared/components/FormSelect";
 import { FormInput } from "@/shared/components/FormInput";
 import { Option } from "@/core/core.interface";
 import { useAvailableExpenseTypes } from "../lib/perDiemExpense.hook";
+import { FileUploadWithCamera } from "@/shared/components/FileUploadWithCamera";
 
 interface ExpenseFormProps {
   requestId: number;
@@ -45,6 +45,7 @@ export default function ExpenseForm({
   endDate,
 }: ExpenseFormProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string>("");
 
   // Obtener tipos de gasto disponibles para esta solicitud de viáticos
   const { data: expenseTypes, isLoading: isLoadingExpenseTypes } =
@@ -89,6 +90,7 @@ export default function ExpenseForm({
       form.setValue("receipt_number", "");
       form.setValue("receipt_file", undefined);
       setSelectedFile(null);
+      setPreviewUrl("");
     }
   }, [receiptType, form]);
 
@@ -186,46 +188,24 @@ export default function ExpenseForm({
               <FormField
                 control={form.control}
                 name="receipt_file"
-                render={({ field: { onChange, ...field } }) => (
+                render={({ field: { onChange } }) => (
                   <FormItem>
-                    <FormLabel className="text-xs md:text-sm">
-                      Archivo del Comprobante{" "}
-                      {mode === "create" && (
-                        <span className="text-destructive">*</span>
-                      )}
-                    </FormLabel>
                     <FormControl>
-                      <div className="space-y-2">
-                        <div className="relative">
-                          <Input
-                            type="file"
-                            accept="application/pdf,image/*"
-                            onChange={(e) => {
-                              const file = e.target.files?.[0];
-                              if (file) {
-                                setSelectedFile(file);
-                                onChange(file);
-                              }
-                            }}
-                            className="pl-10 h-8 md:h-10 text-xs md:text-sm"
-                            {...field}
-                            value={undefined}
-                            required={mode === "create"}
-                          />
-                          <Upload className="absolute left-3 top-1/2 transform -translate-y-1/2 h-3 w-3 md:h-4 md:w-4 text-muted-foreground" />
-                        </div>
-                        {selectedFile && (
-                          <div className="flex items-center gap-2 p-2 sm:p-3 bg-muted rounded-md">
-                            <FileText className="h-4 w-4 shrink-0 text-primary" />
-                            <span className="text-xs sm:text-sm truncate flex-1">
-                              {selectedFile.name}
-                            </span>
-                            <span className="text-xs text-muted-foreground shrink-0">
-                              {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
-                            </span>
-                          </div>
-                        )}
-                      </div>
+                      <FileUploadWithCamera
+                        label={`Archivo del Comprobante${
+                          mode === "create" ? " *" : ""
+                        }`}
+                        accept="application/pdf,image/*"
+                        value={selectedFile}
+                        previewUrl={previewUrl}
+                        onChange={(file, url) => {
+                          setSelectedFile(file);
+                          setPreviewUrl(url);
+                          onChange(file);
+                        }}
+                        showPreview={true}
+                        showFileInfo={true}
+                      />
                     </FormControl>
                     <FormDescription className="text-xs">
                       {mode === "create" ? "Requerido." : "Opcional."} Tamaño
