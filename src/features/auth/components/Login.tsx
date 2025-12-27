@@ -19,7 +19,7 @@ import { errorToast, successToast } from "@/core/core.function";
 import { useNavigate } from "react-router-dom";
 import { LOGIN } from "@/constants/login";
 import { useState } from "react";
-import { LoaderCircle } from "lucide-react";
+import { LoaderCircle, Eye, EyeOff } from "lucide-react";
 import { CONSTANTS } from "@/core/core.constants";
 
 const formSchema = z.object({
@@ -31,6 +31,7 @@ export function Login({ className, ...props }: React.ComponentProps<"div">) {
   const links = CONSTANTS.EMPRESAS;
 
   const [isLogging, setIsLogging] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -114,13 +115,32 @@ export function Login({ className, ...props }: React.ComponentProps<"div">) {
                       <FormItem>
                         <FormLabel className="text-base">Contraseña</FormLabel>
                         <FormControl>
-                          <Input
-                            id="password"
-                            type="password"
-                            placeholder="Contraseña"
-                            required
-                            {...field}
-                          />
+                          <div className="relative">
+                            <Input
+                              id="password"
+                              type={showPassword ? "text" : "password"}
+                              placeholder="Contraseña"
+                              required
+                              {...field}
+                              className="pr-10"
+                            />
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                              onClick={() => setShowPassword(!showPassword)}
+                            >
+                              {showPassword ? (
+                                <EyeOff className="h-4 w-4 text-muted-foreground" />
+                              ) : (
+                                <Eye className="h-4 w-4 text-muted-foreground" />
+                              )}
+                              <span className="sr-only">
+                                {showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                              </span>
+                            </Button>
+                          </div>
                         </FormControl>
                       </FormItem>
                     )}
