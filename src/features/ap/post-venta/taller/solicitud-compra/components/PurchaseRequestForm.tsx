@@ -51,9 +51,24 @@ export default function PurchaseRequestForm({
   mode = "create",
   onCancel,
 }: PurchaseRequestFormProps) {
-  const [details, setDetails] = useState<PurchaseRequestDetailSchema[]>(
-    defaultValues.details || []
-  );
+  const [details, setDetails] = useState<PurchaseRequestDetailSchema[]>(() => {
+    // Transformar los detalles del backend al formato esperado
+    if (defaultValues.details && defaultValues.details.length > 0) {
+      const transformed = defaultValues.details.map((detail: any) => ({
+        product_id: detail.product_id?.toString() || "",
+        product_name: detail.product?.name || "",
+        quantity: Number(detail.quantity) || 1,
+        notes: detail.notes || "",
+      }));
+      console.log("🔄 Transformando detalles en edición:", {
+        original: defaultValues.details,
+        transformed,
+      });
+      return transformed;
+    }
+    console.log("📝 Modo creación - sin detalles");
+    return [];
+  });
   const [quotations, setQuotations] = useState<OrderQuotationResource[]>([]);
   const [isLoadingQuotations, setIsLoadingQuotations] = useState(false);
   const [isQuotationModalOpen, setIsQuotationModalOpen] = useState(false);
@@ -75,8 +90,9 @@ export default function PurchaseRequestForm({
       requested_date: new Date(),
       observations: "",
       has_appointment: false,
-      details: [],
       ...defaultValues,
+      // Usar los details ya transformados
+      details: details,
     },
     mode: "onChange",
   });
@@ -258,6 +274,9 @@ export default function PurchaseRequestForm({
       2
     )}`;
   };
+
+  console.log("🎯 RENDER - Estado details:", details);
+  console.log("🎯 RENDER - details.length:", details.length);
 
   return (
     <Form {...form}>
@@ -471,83 +490,20 @@ export default function PurchaseRequestForm({
 
                     {/* Items */}
                     <div className="divide-y">
-                      {details.map((detail, index) => (
-                        <div key={index}>
-                          {/* Vista Desktop */}
-                          <div className="hidden md:grid grid-cols-12 gap-3 px-4 py-3 hover:bg-gray-50 transition-colors items-center">
-                            <div className="col-span-5">
-                              <p className="text-sm font-medium text-gray-900 truncate">
-                                {detail.product_name ||
-                                  `Producto #${detail.product_id}`}
-                              </p>
-                            </div>
-
-                            <div className="col-span-2">
-                              <Input
-                                type="number"
-                                min="0.01"
-                                step="0.01"
-                                value={detail.quantity}
-                                onChange={(e) =>
-                                  handleUpdateQuantity(
-                                    index,
-                                    Number(e.target.value)
-                                  )
-                                }
-                                className="h-9 text-sm"
-                              />
-                            </div>
-
-                            <div className="col-span-4">
-                              <Input
-                                type="text"
-                                value={detail.notes || ""}
-                                onChange={(e) =>
-                                  handleUpdateNotes(index, e.target.value)
-                                }
-                                placeholder="Notas opcionales..."
-                                className="h-9 text-sm"
-                              />
-                            </div>
-
-                            <div className="col-span-1 flex justify-end">
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
-                                onClick={() => handleRemoveProduct(index)}
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </div>
-
-                          {/* Vista Mobile */}
-                          <div className="md:hidden px-4 py-3 space-y-3">
-                            <div className="flex justify-between items-start gap-2">
-                              <div className="flex-1 min-w-0">
+                      {details.map((detail, index) => {
+                        console.log(`📦 Producto ${index}:`, detail);
+                        return (
+                          <div key={index}>
+                            {/* Vista Desktop */}
+                            <div className="hidden md:grid grid-cols-12 gap-3 px-4 py-3 hover:bg-gray-50 transition-colors items-center">
+                              <div className="col-span-5">
                                 <p className="text-sm font-medium text-gray-900 truncate">
                                   {detail.product_name ||
                                     `Producto #${detail.product_id}`}
                                 </p>
                               </div>
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50 shrink-0"
-                                onClick={() => handleRemoveProduct(index)}
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </div>
 
-                            <div className="space-y-2">
-                              <div>
-                                <label className="text-xs font-medium text-gray-700 mb-1 block">
-                                  Cantidad
-                                </label>
+                              <div className="col-span-2">
                                 <Input
                                   type="number"
                                   min="0.01"
@@ -559,14 +515,11 @@ export default function PurchaseRequestForm({
                                       Number(e.target.value)
                                     )
                                   }
-                                  className="h-9 text-sm w-full"
+                                  className="h-9 text-sm"
                                 />
                               </div>
 
-                              <div>
-                                <label className="text-xs font-medium text-gray-700 mb-1 block">
-                                  Notas
-                                </label>
+                              <div className="col-span-4">
                                 <Input
                                   type="text"
                                   value={detail.notes || ""}
@@ -574,13 +527,82 @@ export default function PurchaseRequestForm({
                                     handleUpdateNotes(index, e.target.value)
                                   }
                                   placeholder="Notas opcionales..."
-                                  className="h-9 text-sm w-full"
+                                  className="h-9 text-sm"
                                 />
+                              </div>
+
+                              <div className="col-span-1 flex justify-end">
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
+                                  onClick={() => handleRemoveProduct(index)}
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </div>
+
+                            {/* Vista Mobile */}
+                            <div className="md:hidden px-4 py-3 space-y-3">
+                              <div className="flex justify-between items-start gap-2">
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-sm font-medium text-gray-900 truncate">
+                                    {detail.product_name ||
+                                      `Producto #${detail.product_id}`}
+                                  </p>
+                                </div>
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50 shrink-0"
+                                  onClick={() => handleRemoveProduct(index)}
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
+
+                              <div className="space-y-2">
+                                <div>
+                                  <label className="text-xs font-medium text-gray-700 mb-1 block">
+                                    Cantidad
+                                  </label>
+                                  <Input
+                                    type="number"
+                                    min="0.01"
+                                    step="0.01"
+                                    value={detail.quantity}
+                                    onChange={(e) =>
+                                      handleUpdateQuantity(
+                                        index,
+                                        Number(e.target.value)
+                                      )
+                                    }
+                                    className="h-9 text-sm w-full"
+                                  />
+                                </div>
+
+                                <div>
+                                  <label className="text-xs font-medium text-gray-700 mb-1 block">
+                                    Notas
+                                  </label>
+                                  <Input
+                                    type="text"
+                                    value={detail.notes || ""}
+                                    onChange={(e) =>
+                                      handleUpdateNotes(index, e.target.value)
+                                    }
+                                    placeholder="Notas opcionales..."
+                                    className="h-9 text-sm w-full"
+                                  />
+                                </div>
                               </div>
                             </div>
                           </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   </div>
                 )}
