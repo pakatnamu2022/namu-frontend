@@ -13,7 +13,6 @@ import {
 import { toast } from "sonner";
 import { PER_DIEM_REQUEST } from "../lib/perDiemRequest.constants";
 import { useState } from "react";
-import { UploadDepositDialog } from "./UploadDepositDialog";
 
 interface PerDiemRequestRowActionsProps {
   request: PerDiemRequestResource;
@@ -29,7 +28,6 @@ export function PerDiemRequestRowActions({
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
-  const [isUploadDepositOpen, setIsUploadDepositOpen] = useState(false);
 
   const hasHotelReservation = !!request.hotel_reservation;
   const isApproved =
@@ -144,7 +142,11 @@ export function PerDiemRequestRowActions({
           <Button
             variant="outline"
             size="icon-xs"
-            onClick={() => setIsUploadDepositOpen(true)}
+            onClick={() =>
+              navigate(
+                `/gp/gestion-humana/viaticos/solicitud-viaticos/${request.id}/deposito`
+              )
+            }
             tooltip="Subir archivo de depósito"
           >
             <Upload className="size-4" />
@@ -169,12 +171,6 @@ export function PerDiemRequestRowActions({
           <Hotel className="size-4" />
         </Button>
       </div>
-
-      <UploadDepositDialog
-        open={isUploadDepositOpen}
-        onOpenChange={setIsUploadDepositOpen}
-        request={request}
-      />
     </>
   );
 }
