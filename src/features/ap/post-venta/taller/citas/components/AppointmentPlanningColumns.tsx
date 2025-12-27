@@ -33,22 +33,27 @@ export const appointmentPlanningColumns = ({
       const value = getValue() as string;
       return value && <p className="font-semibold">{value}</p>;
     },
+    enableSorting: false,
   },
   {
     accessorKey: "sede_name",
     header: "Sede",
+    enableSorting: false,
   },
   {
     accessorKey: "plate",
     header: "Placa",
+    enableSorting: false,
   },
   {
     accessorKey: "email_client",
     header: "Email",
+    enableSorting: false,
   },
   {
     accessorKey: "phone_client",
     header: "Teléfono",
+    enableSorting: false,
   },
   {
     id: "appointment_datetime",
@@ -83,6 +88,7 @@ export const appointmentPlanningColumns = ({
         return date;
       }
     },
+    enableSorting: false,
   },
   {
     id: "delivery_datetime",
@@ -117,6 +123,7 @@ export const appointmentPlanningColumns = ({
         return date;
       }
     },
+    enableSorting: false,
   },
   {
     accessorKey: "is_taken",
@@ -132,6 +139,7 @@ export const appointmentPlanningColumns = ({
         </Badge>
       );
     },
+    enableSorting: false,
   },
   {
     id: "actions",

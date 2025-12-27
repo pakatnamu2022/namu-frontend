@@ -6,15 +6,14 @@ export const purchaseRequestDetailSchema = z.object({
   product_id: requiredStringId("Producto es requerido"),
   quantity: z.number().min(0.01, "La cantidad debe ser mayor a 0"),
   notes: z.string().optional(),
+  product_name: z.string().optional(), // Solo para UI
 });
 
 export const purchaseRequestSchemaCreate = z.object({
   ap_order_quotation_id: z.string().optional(),
-  purchase_order_id: z.string().optional(),
   warehouse_id: requiredStringId("Almacén es requerido"),
   requested_date: z.union([z.literal(""), z.date()]),
-  observations: z.string().min(0).max(500).optional(),
-  status: z.enum(["pending", "approved", "rejected"]).optional(),
+  observations: z.string().optional(),
   has_appointment: z.boolean().optional(),
   details: z
     .array(purchaseRequestDetailSchema)

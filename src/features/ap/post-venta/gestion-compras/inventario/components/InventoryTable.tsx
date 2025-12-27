@@ -1,12 +1,16 @@
 import { DataTable } from "@/shared/components/DataTable";
 import { InventoryResource } from "../lib/inventory.interface";
 import { InventoryColumns } from "./InventoryColumns";
+import type { SortingState, OnChangeFn } from "@tanstack/react-table";
 
 interface Props {
   columns: InventoryColumns[];
   data: InventoryResource[];
   children?: React.ReactNode;
   isLoading?: boolean;
+  sorting?: SortingState;
+  onSortingChange?: OnChangeFn<SortingState>;
+  manualSorting?: boolean;
 }
 
 export default function InventoryTable({
@@ -14,6 +18,9 @@ export default function InventoryTable({
   data,
   children,
   isLoading,
+  sorting,
+  onSortingChange,
+  manualSorting,
 }: Props) {
   return (
     <div className="border-none text-muted-foreground max-w-full">
@@ -21,6 +28,9 @@ export default function InventoryTable({
         columns={columns}
         data={data}
         isLoading={isLoading}
+        sorting={sorting}
+        onSortingChange={onSortingChange}
+        manualSorting={manualSorting}
         initialColumnVisibility={{
           quantity: true,
           available_quantity: false,
