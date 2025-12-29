@@ -10,7 +10,7 @@ import PerDiemRequestOptions from "@/features/profile/viaticos/components/PerDie
 import { useGetPendingSettlements } from "@/features/profile/viaticos/lib/perDiemRequest.hook";
 import {
   approveSettlement,
-  rejectSettlement
+  rejectSettlement,
 } from "@/features/profile/viaticos/lib/perDiemRequest.actions";
 import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";

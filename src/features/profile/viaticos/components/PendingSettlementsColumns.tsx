@@ -98,7 +98,11 @@ export const pendingSettlementsColumns = ({
       const value = getValue() as number;
       const isNegative = value < 0;
       return (
-        <p className={`text-right font-semibold ${isNegative ? 'text-red-600' : 'text-green-600'}`}>
+        <p
+          className={`text-right font-semibold ${
+            isNegative ? "text-red-600" : "text-green-600"
+          }`}
+        >
           S/ {Math.abs(value || 0).toFixed(2)}
         </p>
       );
