@@ -10,6 +10,7 @@ import {
   Hotel,
   Clock,
   TrendingUp,
+  XCircle,
 } from "lucide-react";
 
 interface PerDiemRequest {
@@ -70,6 +71,11 @@ const getStatusConfig = (status: string) => {
       label: "En Progreso",
       variant: "default",
       icon: <TrendingUp className="w-3 h-3" />,
+    },
+    cancelled: {
+      label: "Cancelada",
+      variant: "destructive",
+      icon: <XCircle className="w-3 h-3" />,
     },
   };
 

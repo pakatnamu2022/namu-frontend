@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { FormInput } from "@/shared/components/FormInput";
@@ -23,6 +23,7 @@ import { FileUploadWithCamera } from "@/shared/components/FileUploadWithCamera";
 import { useRucValidation } from "@/shared/hooks/useDocumentValidation";
 import { Building2, CheckCircle2, XCircle, Loader2 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { errorToast } from "@/core/core.function";
 import { FormInputText } from "@/shared/components/FormInputText";
 import { TYPE_EXPENSE_LOCAL_MOBILITY } from "../lib/perDiemExpense.constants";
 
@@ -50,9 +51,10 @@ export default function ExpenseForm({
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>("");
   const [isFirstLoad, setIsFirstLoad] = useState(true);
+  const hasShownExpenseTypeError = useRef(false);
 
   // Obtener tipos de gasto disponibles para esta solicitud de viáticos
-  const { data: expenseTypes, isLoading: isLoadingExpenseTypes } =
+  const { data: expenseTypes, isLoading: isLoadingExpenseTypes, error: expenseTypesError } =
     useAvailableExpenseTypes(requestId);
 
   const form = useForm<ExpenseSchema>({
@@ -90,6 +92,16 @@ export default function ExpenseForm({
       setIsFirstLoad(false);
     }
   }, [rucValue, isFirstLoad]);
+
+  // Mostrar toast cuando hay error al cargar tipos de gasto
+  useEffect(() => {
+    if (expenseTypesError && !hasShownExpenseTypeError.current) {
+      hasShownExpenseTypeError.current = true;
+      const errorMessage = (expenseTypesError as any)?.response?.data?.message ||
+                          "No se pudieron cargar los tipos de gasto disponibles. Por favor, intente nuevamente.";
+      errorToast("Error al cargar tipos de gasto", errorMessage);
+    }
+  }, [expenseTypesError]);
 
   // Establecer el tipo de comprobante según el requires_receipt del tipo de gasto
   useEffect(() => {

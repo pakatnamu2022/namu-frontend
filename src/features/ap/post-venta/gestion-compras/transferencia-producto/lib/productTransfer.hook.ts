@@ -13,7 +13,6 @@ import {
   storeProductTransfer,
   updateProductTransfer,
 } from "./productTransfer.actions";
-import { toast } from "sonner";
 import {
   sendShippingGuideToNubefact,
   queryShippingGuideFromNubefact,
@@ -82,10 +81,10 @@ export const useDeleteProductTransfer = () => {
     mutationFn: (id: number) => deleteProductTransfer(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
-      toast.success("Transferencia de producto eliminada exitosamente");
+      successToast("Transferencia de producto eliminada exitosamente");
     },
     onError: (error: any) => {
-      toast.error(
+      errorToast(
         error?.response?.data?.message ||
           "Error al eliminar la transferencia de producto"
       );

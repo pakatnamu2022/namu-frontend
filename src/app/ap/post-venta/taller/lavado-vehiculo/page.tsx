@@ -19,6 +19,7 @@ import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { cardWashColumns } from "@/features/ap/comercial/entrega-vehiculo/components/CardWashColumns";
 import { toast } from "sonner";
 import { notFound } from "@/shared/hooks/useNotFound";
+import { errorToast, successToast } from "@/core/core.function";
 
 export default function CardWashPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -47,9 +48,9 @@ export default function CardWashPage() {
         id,
         data: { status_wash: "completed" },
       });
-      toast.success("Lavado confirmado exitosamente");
+      successToast("Lavado confirmado exitosamente");
     } catch (error) {
-      toast.error("Error al confirmar el lavado");
+      errorToast("Error al confirmar el lavado");
       console.error(error);
     }
   };

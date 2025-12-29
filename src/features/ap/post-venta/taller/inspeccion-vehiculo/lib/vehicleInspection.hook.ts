@@ -1,5 +1,4 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
 import {
   deleteVehicleInspection,
   findVehicleInspectionById,
@@ -15,6 +14,7 @@ import {
   VehicleInspectionRequest,
 } from "./vehicleInspection.interface";
 import { VEHICLE_INSPECTION } from "./vehicleInspection.constants";
+import { errorToast, successToast } from "@/core/core.function";
 
 const { QUERY_KEY, MODEL } = VEHICLE_INSPECTION;
 
@@ -56,13 +56,13 @@ export function useStoreVehicleInspection() {
       storeVehicleInspection(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
-      toast.success(`${MODEL.name} registrad${MODEL.gender ? "a" : "o"}`);
+      successToast(`${MODEL.name} registrad${MODEL.gender ? "a" : "o"}`);
     },
     onError: (error: any) => {
       const errorMessage =
         error?.response?.data?.message ||
         `Error al registrar ${MODEL.gender ? "la" : "el"} ${MODEL.name.toLowerCase()}`;
-      toast.error(errorMessage);
+      errorToast(errorMessage);
     },
   });
 }
@@ -76,13 +76,13 @@ export function useUpdateVehicleInspection() {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY, variables.id] });
-      toast.success(`${MODEL.name} actualizad${MODEL.gender ? "a" : "o"}`);
+      successToast(`${MODEL.name} actualizad${MODEL.gender ? "a" : "o"}`);
     },
     onError: (error: any) => {
       const errorMessage =
         error?.response?.data?.message ||
         `Error al actualizar ${MODEL.gender ? "la" : "el"} ${MODEL.name.toLowerCase()}`;
-      toast.error(errorMessage);
+      errorToast(errorMessage);
     },
   });
 }
@@ -94,13 +94,13 @@ export function useDeleteVehicleInspection() {
     mutationFn: (id: number) => deleteVehicleInspection(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
-      toast.success(`${MODEL.name} eliminad${MODEL.gender ? "a" : "o"}`);
+      successToast(`${MODEL.name} eliminad${MODEL.gender ? "a" : "o"}`);
     },
     onError: (error: any) => {
       const errorMessage =
         error?.response?.data?.message ||
         `Error al eliminar ${MODEL.gender ? "la" : "el"} ${MODEL.name.toLowerCase()}`;
-      toast.error(errorMessage);
+      errorToast(errorMessage);
     },
   });
 }
@@ -111,7 +111,7 @@ export function useUploadInspectionPhoto() {
     onError: (error: any) => {
       const errorMessage =
         error?.response?.data?.message || "Error al subir la foto";
-      toast.error(errorMessage);
+      errorToast(errorMessage);
     },
   });
 }

@@ -10,9 +10,9 @@ import {
   confirmPerDiemRequest,
   generateMobilityPayroll,
 } from "../lib/perDiemRequest.actions";
-import { toast } from "sonner";
 import { PER_DIEM_REQUEST } from "../lib/perDiemRequest.constants";
 import { useState } from "react";
+import { errorToast, successToast } from "@/core/core.function";
 
 interface PerDiemRequestRowActionsProps {
   request: PerDiemRequestResource;
@@ -35,6 +35,7 @@ export function PerDiemRequestRowActions({
   const isOnlyApproved = request.status === "approved";
   const hotel = request.hotel_reservation?.hotel_name;
   const withRequest = request.with_request;
+  const isCancelled = request.status === "cancelled";
 
   const confirmMutation = useMutation({
     mutationFn: (requestId: number) => confirmPerDiemRequest(requestId),
@@ -42,11 +43,11 @@ export function PerDiemRequestRowActions({
       queryClient.invalidateQueries({
         queryKey: [PER_DIEM_REQUEST.QUERY_KEY],
       });
-      toast.success("Solicitud confirmada y pasada a en progreso");
+      successToast("Solicitud confirmada y pasada a en progreso");
       setIsConfirmDialogOpen(false);
     },
     onError: (error: any) => {
-      toast.error(
+      errorToast(
         error?.response?.data?.message || "Error al confirmar la solicitud"
       );
     },
@@ -58,10 +59,10 @@ export function PerDiemRequestRowActions({
       queryClient.invalidateQueries({
         queryKey: [PER_DIEM_REQUEST.QUERY_KEY],
       });
-      toast.success("Planilla de gastos de movilidad generada exitosamente");
+      successToast("Planilla de gastos de movilidad generada exitosamente");
     },
     onError: (error: any) => {
-      toast.error(
+      errorToast(
         error?.response?.data?.message ||
           "Error al generar la planilla de movilidad"
       );
@@ -92,6 +93,20 @@ export function PerDiemRequestRowActions({
     }
   };
 
+  if (isCancelled)
+    return (
+      <div className="flex items-center gap-2 justify-center">
+        <Button
+          variant="outline"
+          size="icon-xs"
+          onClick={() => onViewDetail(request.id)}
+          tooltip="Ver detalle"
+        >
+          <Eye className="size-4" />
+        </Button>
+      </div>
+    );
+
   return (
     <>
       <div className="flex items-center gap-2 justify-center">
@@ -114,7 +129,7 @@ export function PerDiemRequestRowActions({
           <Car className="size-4" />
         </Button>
 
-        {isOnlyApproved && (
+        {isOnlyApproved && request.with_request && request.paid && (
           <ConfirmationDialog
             trigger={
               <Button

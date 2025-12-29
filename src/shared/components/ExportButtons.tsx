@@ -7,8 +7,8 @@ import {
   TooltipContent,
 } from "@/components/ui/tooltip";
 import { api } from "@/core/api";
+import { errorToast, successToast } from "@/core/core.function";
 import { Sheet, FileText } from "lucide-react";
-import { toast } from "sonner";
 
 interface ExportButtonsProps {
   excelEndpoint?: string;
@@ -42,10 +42,10 @@ export default function ExportButtons({
       link.remove();
       window.URL.revokeObjectURL(url);
 
-      toast.success("Excel descargado exitosamente");
+      successToast("Excel descargado exitosamente");
     } catch (error) {
       console.error("Error al descargar Excel:", error);
-      toast.error("Error al descargar el archivo Excel");
+      errorToast("Error al descargar el archivo Excel");
     }
   };
 
@@ -66,10 +66,10 @@ export default function ExportButtons({
       link.remove();
       window.URL.revokeObjectURL(url);
 
-      toast.success("PDF descargado exitosamente");
+      successToast("PDF descargado exitosamente");
     } catch (error) {
       console.error("Error al descargar PDF:", error);
-      toast.error("Error al descargar el archivo PDF");
+      errorToast("Error al descargar el archivo PDF");
     }
   };
 

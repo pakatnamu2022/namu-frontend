@@ -5,6 +5,7 @@ import { Plus, ClipboardCheck } from "lucide-react";
 import ActionsWrapper from "@/shared/components/ActionsWrapper";
 import { PER_DIEM_REQUEST } from "../lib/perDiemRequest.constants";
 import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "@/features/auth/lib/auth.store";
 
 interface Props {
   permissions: {
@@ -15,6 +16,7 @@ interface Props {
 
 export default function PerDiemRequestActions({ permissions }: Props) {
   const router = useNavigate();
+  const { user } = useAuthStore();
   const { ROUTE_ADD, ABSOLUTE_ROUTE } = PER_DIEM_REQUEST;
 
   if (!permissions.canCreate && !permissions.canApprove) {
@@ -23,7 +25,7 @@ export default function PerDiemRequestActions({ permissions }: Props) {
 
   return (
     <ActionsWrapper>
-      {permissions.canApprove && (
+      {permissions.canApprove && user.subordinates > 0 && (
         <Button
           size="sm"
           variant="outline"

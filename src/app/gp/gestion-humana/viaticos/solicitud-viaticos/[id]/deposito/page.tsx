@@ -6,7 +6,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
-import { toast } from "sonner";
 import TitleComponent from "@/shared/components/TitleComponent";
 import FormWrapper from "@/shared/components/FormWrapper";
 import BackButton from "@/shared/components/BackButton";
@@ -16,6 +15,7 @@ import {
   uploadDepositFile,
 } from "@/features/profile/viaticos/lib/perDiemRequest.actions";
 import { PER_DIEM_REQUEST } from "@/features/profile/viaticos/lib/perDiemRequest.constants";
+import { errorToast, successToast } from "@/core/core.function";
 
 export default function UploadDepositPage() {
   const { id } = useParams<{ id: string }>();
@@ -36,11 +36,11 @@ export default function UploadDepositPage() {
       queryClient.invalidateQueries({
         queryKey: [PER_DIEM_REQUEST.QUERY_KEY],
       });
-      toast.success("Archivo de depósito subido correctamente");
+      successToast("Archivo de depósito subido correctamente");
       navigate(`/gp/gestion-humana/viaticos/solicitud-viaticos`);
     },
     onError: (error: any) => {
-      toast.error(
+      errorToast(
         error?.response?.data?.message ||
           "Error al subir el archivo de depósito"
       );

@@ -129,5 +129,6 @@ export function useAvailableExpenseTypes(requestId: number) {
     queryKey: [PER_DIEM_REQUEST.QUERY_KEY, requestId, "available-expense-types"],
     queryFn: () => getAvailableExpenseTypes(requestId),
     enabled: !!requestId,
+    retry: false,
   });
 }

@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import { errorToast } from "@/core/core.function";
 
 interface AnnulDocumentDialogProps {
   onConfirm: (reason: string) => void;
@@ -36,7 +37,7 @@ export function AnnulDocumentDialog({
         await onPreCancel();
         setOpen(true);
       } catch (error: any) {
-        toast.error(
+        errorToast(
           error.response?.data?.message ||
             error.message ||
             "Documento no encontrado en Dynamics"

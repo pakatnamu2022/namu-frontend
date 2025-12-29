@@ -8,7 +8,6 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { FileText, Loader2, Plus, Receipt } from "lucide-react";
-import { toast } from "sonner";
 import { findWorkOrderById } from "../../lib/workOrder.actions";
 import {
   DEFAULT_GROUP_COLOR,
@@ -27,6 +26,7 @@ import { useAuthorizedSeries } from "@/features/ap/configuraciones/maestros-gene
 import { storeElectronicDocument } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.actions";
 import type { ElectronicDocumentSchema } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.schema";
 import InvoiceForm from "../InvoiceForm";
+import { errorToast, successToast } from "@/core/core.function";
 
 const getGroupColor = (groupNumber: number) => {
   return GROUP_COLORS[groupNumber] || DEFAULT_GROUP_COLOR;
@@ -66,7 +66,7 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
   const { data: currencyTypes = [] } = useAllSunatConcepts({ type: "02" });
 
   const form = useForm<InvoiceSchema>({
-    resolver: zodResolver(invoiceSchemaCreate),
+    resolver: zodResolver(invoiceSchemaCreate) as any,
     defaultValues: {
       groupNumber: 0,
       customer_id: "",
@@ -151,20 +151,20 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
     mutationFn: (data: ElectronicDocumentSchema) =>
       storeElectronicDocument(data),
     onSuccess: () => {
-      toast.success("Factura creada exitosamente");
+      successToast("Factura creada exitosamente");
       setShowForm(false);
       form.reset();
       // TODO: Refrescar lista de facturas
     },
     onError: (error: any) => {
-      toast.error(error?.message || "Error al crear la factura");
+      errorToast(error?.message || "Error al crear la factura");
       console.error("Error creando factura:", error);
     },
   });
 
   const handleCreateInvoice = () => {
     if (!selectedGroupNumber) {
-      toast.error("Selecciona un grupo primero");
+      errorToast("Selecciona un grupo primero");
       return;
     }
 
