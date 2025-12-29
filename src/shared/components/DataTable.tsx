@@ -6,6 +6,8 @@ import {
   getCoreRowModel,
   useReactTable,
   type ColumnDef,
+  SortingState,
+  OnChangeFn,
 } from "@tanstack/react-table";
 
 import {
@@ -23,6 +25,8 @@ import DataTableColumnFilter from "./DataTableColumnFilter";
 import FormSkeleton from "./FormSkeleton";
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
+import { ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const dataTableVariants = cva("hidden md:block w-full", {
   variants: {
@@ -93,6 +97,9 @@ interface DataTableProps<TData, TValue>
   isVisibleColumnFilter?: boolean;
   mobileCardRender?: (row: TData, index: number) => React.ReactNode;
   className?: string;
+  sorting?: SortingState;
+  onSortingChange?: OnChangeFn<SortingState>;
+  manualSorting?: boolean;
 }
 
 export function DataTable<TData, TValue>({
@@ -105,6 +112,9 @@ export function DataTable<TData, TValue>({
   mobileCardRender,
   className,
   variant,
+  sorting,
+  onSortingChange,
+  manualSorting = false,
 }: DataTableProps<TData, TValue>) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
@@ -115,9 +125,14 @@ export function DataTable<TData, TValue>({
     data,
     columns,
     manualPagination: true,
+    manualSorting,
+    enableSorting: true,
+    enableSortingRemoval: true,
+    enableMultiSort: false,
     state: {
       columnFilters,
       columnVisibility,
+      ...(sorting !== undefined && { sorting }),
       pagination: {
         pageIndex: 0,
         pageSize: 10,
@@ -126,6 +141,7 @@ export function DataTable<TData, TValue>({
     getCoreRowModel: getCoreRowModel(),
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
+    ...(onSortingChange && { onSortingChange }),
   });
 
   return (
@@ -144,12 +160,33 @@ export function DataTable<TData, TValue>({
                 <TableRow key={headerGroup.id} className="text-nowrap h-10">
                   {headerGroup.headers.map((header) => (
                     <TableHead key={header.id} className="h-10">
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
+                      {header.isPlaceholder ? null : header.column.getCanSort() ? (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="-ml-3 h-8 data-[state=open]:bg-accent"
+                          onClick={header.column.getToggleSortingHandler()}
+                        >
+                          <span>
+                            {flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                          </span>
+                          {header.column.getIsSorted() === "asc" ? (
+                            <ArrowUp className="ml-2 h-4 w-4" />
+                          ) : header.column.getIsSorted() === "desc" ? (
+                            <ArrowDown className="ml-2 h-4 w-4" />
+                          ) : (
+                            <ArrowUpDown className="ml-2 h-4 w-4" />
                           )}
+                        </Button>
+                      ) : (
+                        flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )
+                      )}
                     </TableHead>
                   ))}
                 </TableRow>

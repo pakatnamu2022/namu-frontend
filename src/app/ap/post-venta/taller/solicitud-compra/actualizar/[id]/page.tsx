@@ -70,6 +70,9 @@ export default function UpdatePurchaseRequestPVPage() {
         : undefined,
       warehouse_id: String(data.warehouse_id),
       observations: data.observations || "",
+      requested_date: data.requested_date ? new Date(data.requested_date) : new Date(),
+      has_appointment: !!data.ap_order_quotation_id,
+      details: data.details || [],
     };
   }
 

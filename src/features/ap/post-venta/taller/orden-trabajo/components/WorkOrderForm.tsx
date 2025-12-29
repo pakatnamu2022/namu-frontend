@@ -30,7 +30,6 @@ import {
 import { FormSelect } from "@/shared/components/FormSelect";
 import { useAllVehicles } from "@/features/ap/comercial/vehiculos/lib/vehicles.hook";
 import FormSkeleton from "@/shared/components/FormSkeleton";
-import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { Card } from "@/components/ui/card";
@@ -47,6 +46,7 @@ import { WORKER_ORDER } from "../lib/workOrder.constants";
 import { AppointmentSelectionModal } from "../../citas/components/AppointmentSelectionModal";
 import { FormSwitch } from "@/shared/components/FormSwitch";
 import { FormInput } from "@/shared/components/FormInput";
+import { FormInputText } from "@/shared/components/FormInputText";
 
 const getGroupColor = (groupNumber: number) => {
   return GROUP_COLORS[groupNumber] || DEFAULT_GROUP_COLOR;
@@ -462,25 +462,11 @@ export const WorkOrderForm = ({
                       </div>
 
                       {/* Fila 2: Descripción */}
-                      <FormField
-                        control={form.control}
+                      <FormInputText
                         name={`items.${index}.description`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-xs">
-                              Descripción
-                            </FormLabel>
-                            <FormControl>
-                              <Textarea
-                                placeholder="Ingrese la descripción del servicio..."
-                                rows={2}
-                                className="resize-none"
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
+                        label="Descripción del Trabajo"
+                        placeholder="Ingrese la descripción del trabajo..."
+                        control={form.control}
                       />
                     </div>
                   </Card>
@@ -573,23 +559,11 @@ export const WorkOrderForm = ({
           bgColor="bg-gray-50"
           cols={{ sm: 1 }}
         >
-          <FormField
-            control={form.control}
+          <FormInputText
             name="observations"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Observaciones</FormLabel>
-                <FormControl>
-                  <Textarea
-                    placeholder="Ingrese observaciones adicionales..."
-                    rows={4}
-                    {...field}
-                    value={field.value || ""}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Observaciones"
+            placeholder="Ingrese observaciones adicionales..."
+            control={form.control}
           />
         </GroupFormSection>
 

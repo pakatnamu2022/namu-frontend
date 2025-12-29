@@ -20,6 +20,7 @@ import InventoryTable from "@/features/ap/post-venta/gestion-compras/inventario/
 import { inventoryColumns } from "@/features/ap/post-venta/gestion-compras/inventario/components/InventoryColumns";
 import InventoryActions from "@/features/ap/post-venta/gestion-compras/inventario/components/InventoryActions";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
+import type { SortingState } from "@tanstack/react-table";
 
 export default function InventoryPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -27,6 +28,7 @@ export default function InventoryPage() {
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
   const [warehouseId, setWarehouseId] = useState<string>("");
+  const [sorting, setSorting] = useState<SortingState>([]);
   const { ROUTE } = INVENTORY;
   const permissions = useModulePermissions(ROUTE);
 
@@ -51,7 +53,15 @@ export default function InventoryPage() {
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setPage(1);
-  }, [search, per_page, warehouseId]);
+  }, [search, per_page, warehouseId, sorting]);
+
+  // Extraer order_by_stock del sorting state
+  const orderByStock =
+    sorting.length > 0 && sorting[0].id === "quantity"
+      ? sorting[0].desc
+        ? "desc"
+        : "asc"
+      : undefined;
 
   const { data, isLoading } = useInventory(
     {
@@ -59,6 +69,7 @@ export default function InventoryPage() {
       search,
       per_page,
       warehouse_id: warehouseId,
+      ...(orderByStock && { order_by_stock: orderByStock }),
     },
     {
       enabled: !!warehouseId,
@@ -109,6 +120,9 @@ export default function InventoryPage() {
         isLoading={isLoading}
         columns={inventoryColumns()}
         data={data?.data || []}
+        sorting={sorting}
+        onSortingChange={setSorting}
+        manualSorting={true}
       >
         <InventoryOptions
           search={search}

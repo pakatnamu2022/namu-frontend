@@ -4,12 +4,11 @@ import { z } from "zod";
 const invoiceBaseObject = z.object({
   groupNumber: z.number().min(1, "El número de grupo es requerido"),
   customer_id: requiredStringId("Cliente es requerido"),
-  clientName: z
-    .string()
-    .min(3, "El nombre del cliente debe tener al menos 3 caracteres")
-    .refine((value) => value.trim() !== "", {
-      message: "El nombre del cliente es requerido",
-    }),
+  sunat_concept_document_type_id: requiredStringId("Tipo de comprobante es requerido"),
+  sunat_concept_currency_id: requiredStringId("Moneda es requerida"),
+  fecha_de_emision: z.string().min(1, "Fecha de emisión es requerida"),
+  serie: requiredStringId("Serie es requerida"),
+  is_advance_payment: z.boolean().default(false),
   description: z
     .string()
     .min(10, "La descripción debe tener al menos 10 caracteres")

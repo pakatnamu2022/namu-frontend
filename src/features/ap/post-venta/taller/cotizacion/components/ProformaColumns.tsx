@@ -33,6 +33,7 @@ export const orderQuotationColumns = ({
       const value = getValue() as string;
       return value && <p className="font-semibold">{value}</p>;
     },
+    enableSorting: false,
   },
   {
     accessorKey: "quotation_date",
@@ -46,6 +47,7 @@ export const orderQuotationColumns = ({
         return date;
       }
     },
+    enableSorting: false,
   },
   {
     accessorKey: "expiration_date",
@@ -59,10 +61,12 @@ export const orderQuotationColumns = ({
         return date;
       }
     },
+    enableSorting: false,
   },
   {
     accessorKey: "vehicle.plate",
     header: "Placa",
+    enableSorting: false,
   },
   {
     accessorKey: "total_amount",
@@ -71,10 +75,12 @@ export const orderQuotationColumns = ({
       const amount = getValue() as number;
       return `S/. ${Number(amount || 0).toFixed(2)}`;
     },
+    enableSorting: false,
   },
   {
     accessorKey: "observations",
     header: "Observaciones",
+    enableSorting: false,
   },
   {
     id: "actions",
