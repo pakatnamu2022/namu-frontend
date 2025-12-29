@@ -116,65 +116,78 @@ export default function PerDiemRequestDetailPage() {
       <div className="space-y-6">
         {/* Header */}
         <FormWrapper>
-          <div className="flex items-center gap-3">
-            <BackButton route="/perfil/viaticos" size="icon" name="" />
-            <TitleComponent
-              title={request.code}
-              subtitle="Detalle de Solicitud de Viáticos"
-              icon="FileText"
-            />
-          </div>
-          <div className="flex items-center gap-2">
-            <RequestStatusBadge status={request.status} />
-            <Button
-              onClick={handleDownloadPdf}
-              size="sm"
-              variant="outline"
-              className="gap-2"
-              disabled={isDownloading}
-            >
-              <FileDown className="h-4 w-4" />
-              {isDownloading ? "Descargando..." : "Exportar PDF"}
-            </Button>
+          <div className="flex flex-col gap-4">
+            {/* Título y Badge */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <BackButton route="/perfil/viaticos" size="icon" name="" />
+                <TitleComponent
+                  title={request.code}
+                  subtitle="Detalle de Solicitud de Viáticos"
+                  icon="FileText"
+                />
+              </div>
+              <RequestStatusBadge status={request.status} />
+            </div>
 
-            <Button
-              onClick={handleDownloadExpenseDetailPdf}
-              size="sm"
-              variant="outline"
-              className="gap-2"
-              disabled={isDownloadingExpenseDetail}
-            >
-              <FileDown className="h-4 w-4" />
-              {isDownloadingExpenseDetail
-                ? "Descargando..."
-                : "Detalle de Gastos"}
-            </Button>
-
-            <Button
-              onClick={handleDownloandMobilityPayrollPdf}
-              size="sm"
-              variant="outline"
-              className="gap-2"
-              disabled={isDownloadingMobilityPayroll}
-            >
-              <FileDown className="h-4 w-4" />
-              {isDownloadingMobilityPayroll
-                ? "Descargando..."
-                : "Planilla de Movilidad"}
-            </Button>
-
-            {request.status === PER_DIEM_STATUS.IN_PROGRESS && (
+            {/* Botones de acción */}
+            <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
               <Button
-                onClick={() =>
-                  navigate(`/perfil/viaticos/${id}/gastos/agregar`)
-                }
+                onClick={handleDownloadPdf}
                 size="sm"
-                className="gap-2"
+                variant="outline"
+                className="gap-2 w-full sm:w-auto"
+                disabled={isDownloading}
               >
-                <Plus className="h-4 w-4" />
-                Nuevo Gasto
+                <FileDown className="h-4 w-4 shrink-0" />
+                <span className="truncate">
+                  {isDownloading ? "Descargando..." : "Exportar PDF"}
+                </span>
               </Button>
-            )}
+
+              <Button
+                onClick={handleDownloadExpenseDetailPdf}
+                size="sm"
+                variant="outline"
+                className="gap-2 w-full sm:w-auto"
+                disabled={isDownloadingExpenseDetail}
+              >
+                <FileDown className="h-4 w-4 shrink-0" />
+                <span className="truncate">
+                  {isDownloadingExpenseDetail
+                    ? "Descargando..."
+                    : "Detalle de Gastos"}
+                </span>
+              </Button>
+
+              <Button
+                onClick={handleDownloandMobilityPayrollPdf}
+                size="sm"
+                variant="outline"
+                className="gap-2 w-full sm:w-auto"
+                disabled={isDownloadingMobilityPayroll}
+              >
+                <FileDown className="h-4 w-4 shrink-0" />
+                <span className="truncate">
+                  {isDownloadingMobilityPayroll
+                    ? "Descargando..."
+                    : "Planilla de Movilidad"}
+                </span>
+              </Button>
+
+              {request.status === PER_DIEM_STATUS.IN_PROGRESS && (
+                <Button
+                  onClick={() =>
+                    navigate(`/perfil/viaticos/${id}/gastos/agregar`)
+                  }
+                  size="sm"
+                  className="gap-2 w-full sm:w-auto"
+                >
+                  <Plus className="h-4 w-4 shrink-0" />
+                  <span className="truncate">Nuevo Gasto</span>
+                </Button>
+              )}
+            </div>
           </div>
         </FormWrapper>
 

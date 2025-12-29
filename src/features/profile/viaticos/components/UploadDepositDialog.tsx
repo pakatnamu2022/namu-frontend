@@ -1,6 +1,5 @@
-import { useState, useRef, useMemo } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import {
   Dialog,
   DialogContent,
@@ -8,12 +7,13 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Upload, Camera, X, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { PerDiemRequestResource } from "../lib/perDiemRequest.interface";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { uploadDepositFile } from "../lib/perDiemRequest.actions";
 import { toast } from "sonner";
 import { PER_DIEM_REQUEST } from "../lib/perDiemRequest.constants";
+import { FileUploadWithCamera } from "@/shared/components/FileUploadWithCamera";
 
 interface UploadDepositDialogProps {
   open: boolean;
@@ -28,7 +28,6 @@ export function UploadDepositDialog({
 }: UploadDepositDialogProps) {
   const [previewUrl, setPreviewUrl] = useState<string>("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const queryClient = useQueryClient();
 
   // Mutation para subir el archivo
@@ -49,39 +48,9 @@ export function UploadDepositDialog({
     },
   });
 
-  // Detectar si es dispositivo móvil con cámara
-  const isMobile = useMemo(() => {
-    if (typeof window === "undefined") return false;
-    const userAgent = navigator.userAgent || "";
-    const mobile =
-      /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(
-        userAgent.toLowerCase()
-      );
-    const hasMediaDevices = !!(
-      navigator.mediaDevices && navigator.mediaDevices.getUserMedia
-    );
-    return mobile && hasMediaDevices;
-  }, []);
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      // Crear previsualización local
-      const localPreviewUrl = URL.createObjectURL(file);
-      setPreviewUrl(localPreviewUrl);
-      setSelectedFile(file);
-    }
-  };
-
-  const handleRemoveFile = () => {
-    if (previewUrl) {
-      URL.revokeObjectURL(previewUrl);
-    }
-    setPreviewUrl("");
-    setSelectedFile(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
+  const handleFileChange = (file: File | null, url: string) => {
+    setSelectedFile(file);
+    setPreviewUrl(url);
   };
 
   const handleSave = () => {
@@ -91,13 +60,27 @@ export function UploadDepositDialog({
   };
 
   const handleClose = () => {
-    handleRemoveFile();
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+    }
+    setPreviewUrl("");
+    setSelectedFile(null);
     onOpenChange(false);
   };
 
+  const handleOpenChange = (newOpen: boolean) => {
+    // Solo permitir cerrar si no está subiendo y el usuario lo hace explícitamente
+    if (!newOpen && !uploadMutation.isPending) {
+      handleClose();
+    }
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogContent
+        className="max-w-md"
+        onInteractOutside={(e) => e.preventDefault()}
+      >
         <DialogHeader>
           <DialogTitle>Subir Archivo de Depósito</DialogTitle>
         </DialogHeader>
@@ -115,67 +98,15 @@ export function UploadDepositDialog({
             </p>
           </div>
 
-          <div>
-            <Label>Archivo de Depósito</Label>
-            <div className="mt-2">
-              {previewUrl ? (
-                <div className="relative">
-                  <img
-                    src={previewUrl}
-                    alt="Vista previa del depósito"
-                    className="w-full h-64 object-contain rounded border-2 border-gray-200 bg-gray-50"
-                  />
-                  <Button
-                    size="sm"
-                    variant="destructive"
-                    className="absolute top-2 right-2"
-                    onClick={handleRemoveFile}
-                  >
-                    <X className="h-4 w-4 mr-1" />
-                    Eliminar
-                  </Button>
-                </div>
-              ) : (
-                <>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*,application/pdf"
-                    capture={isMobile ? "environment" : undefined}
-                    className="hidden"
-                    onChange={handleFileChange}
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => fileInputRef.current?.click()}
-                    className="w-full h-32 border-2 border-dashed"
-                  >
-                    <div className="flex flex-col items-center gap-2">
-                      {isMobile ? (
-                        <>
-                          <Camera className="h-8 w-8 text-muted-foreground" />
-                          <span className="text-sm font-medium">
-                            Tomar Foto
-                          </span>
-                        </>
-                      ) : (
-                        <>
-                          <Upload className="h-8 w-8 text-muted-foreground" />
-                          <span className="text-sm font-medium">
-                            Subir Archivo
-                          </span>
-                        </>
-                      )}
-                      <span className="text-xs text-muted-foreground">
-                        JPG, PNG o PDF
-                      </span>
-                    </div>
-                  </Button>
-                </>
-              )}
-            </div>
-          </div>
+          <FileUploadWithCamera
+            label="Archivo de Depósito"
+            accept="image/*,application/pdf"
+            value={selectedFile}
+            previewUrl={previewUrl}
+            onChange={handleFileChange}
+            disabled={uploadMutation.isPending}
+            showPreview={true}
+          />
         </div>
 
         <DialogFooter>
