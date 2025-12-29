@@ -14,6 +14,8 @@ import {
 import { PER_DIEM_REQUEST } from "../lib/perDiemRequest.constants";
 import { useState } from "react";
 import { errorToast, successToast } from "@/core/core.function";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 
 interface PerDiemRequestRowActionsProps {
   request: PerDiemRequestResource;
@@ -73,14 +75,18 @@ export function PerDiemRequestRowActions({
     },
   });
 
+  const [settlementComments, setSettlementComments] = useState("");
+
   const completeSettlementMutation = useMutation({
-    mutationFn: (requestId: number) => completeSettlement(requestId),
+    mutationFn: ({ requestId, comments }: { requestId: number; comments?: string }) =>
+      completeSettlement(requestId, comments),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: [PER_DIEM_REQUEST.QUERY_KEY],
       });
       successToast("Liquidación completada exitosamente");
       setIsCompleteSettlementDialogOpen(false);
+      setSettlementComments("");
     },
     onError: (error: any) => {
       errorToast(
@@ -98,7 +104,10 @@ export function PerDiemRequestRowActions({
   };
 
   const handleCompleteSettlement = () => {
-    completeSettlementMutation.mutate(request.id);
+    completeSettlementMutation.mutate({
+      requestId: request.id,
+      comments: settlementComments || undefined
+    });
   };
 
   const handleAddHotelReservation = () => {
@@ -231,7 +240,22 @@ export function PerDiemRequestRowActions({
             icon="info"
             open={isCompleteSettlementDialogOpen}
             onOpenChange={setIsCompleteSettlementDialogOpen}
-          />
+            confirmDisabled={completeSettlementMutation.isPending}
+          >
+            <div className="space-y-2">
+              <Label htmlFor="settlement-comments">
+                Comentarios (Opcional)
+              </Label>
+              <Textarea
+                id="settlement-comments"
+                placeholder="Ingrese sus comentarios aquí..."
+                value={settlementComments}
+                onChange={(e) => setSettlementComments(e.target.value)}
+                rows={4}
+                disabled={completeSettlementMutation.isPending}
+              />
+            </div>
+          </ConfirmationDialog>
         )}
       </div>
     </>

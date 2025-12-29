@@ -330,10 +330,12 @@ export async function getPendingSettlements({
 }
 
 export async function completeSettlement(
-  id: number
+  id: number,
+  comments?: string
 ): Promise<PerDiemRequestResource> {
   const response = await api.post<PerDiemRequestResource>(
-    `${ENDPOINT}/${id}/complete-settlement`
+    `${ENDPOINT}/${id}/complete-settlement`,
+    { comments }
   );
   return response.data;
 }

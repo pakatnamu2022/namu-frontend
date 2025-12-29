@@ -6,7 +6,6 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Loader2, Trash2 } from "lucide-react";
-import { toast } from "sonner";
 import { findWorkOrderById } from "../../lib/workOrder.actions";
 import {
   DEFAULT_GROUP_COLOR,
