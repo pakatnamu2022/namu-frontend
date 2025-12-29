@@ -1,9 +1,9 @@
 "use client";
 
 import { useParams } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, FileDown } from "lucide-react";
+import { Plus, FileDown, XCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,6 +15,7 @@ import {
   downloadSettlementPdf,
   downloadExpenseDetailPdf,
   downloadMobilityPayrollPdf,
+  cancelPerDiemRequest,
 } from "@/features/profile/viaticos/lib/perDiemRequest.actions";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -26,20 +27,46 @@ import {
 } from "@/features/profile/viaticos/components/PerDiemRequestDetail";
 import FormWrapper from "@/shared/components/FormWrapper";
 import BackButton from "@/shared/components/BackButton";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export default function PerDiemRequestDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [isDownloading, setIsDownloading] = useState(false);
   const [isDownloadingExpenseDetail, setIsDownloadingExpenseDetail] =
     useState(false);
   const [isDownloadingMobilityPayroll, setIsDownloadingMobilityPayroll] =
     useState(false);
+  const [showCancelDialog, setShowCancelDialog] = useState(false);
 
   const { data: request, isLoading } = useQuery({
     queryKey: [PER_DIEM_REQUEST.QUERY_KEY, id],
     queryFn: () => findPerDiemRequestById(Number(id)),
     enabled: !!id,
+  });
+
+  const cancelMutation = useMutation({
+    mutationFn: (requestId: number) => cancelPerDiemRequest(requestId),
+    onSuccess: () => {
+      toast.success("Solicitud cancelada correctamente");
+      queryClient.invalidateQueries({
+        queryKey: [PER_DIEM_REQUEST.QUERY_KEY, id],
+      });
+      setShowCancelDialog(false);
+    },
+    onError: () => {
+      toast.error("Error al cancelar la solicitud");
+    },
   });
 
   const handleDownloadPdf = async () => {
@@ -84,6 +111,27 @@ export default function PerDiemRequestDetailPage() {
     } finally {
       setIsDownloadingMobilityPayroll(false);
     }
+  };
+
+  const handleCancelRequest = () => {
+    if (!id) return;
+    cancelMutation.mutate(Number(id));
+  };
+
+  // Verificar si se puede cancelar la solicitud
+  const canCancelRequest = () => {
+    if (!request) return false;
+
+    // No se puede cancelar si ya está en progreso
+    if (request.status === PER_DIEM_STATUS.IN_PROGRESS) return false;
+
+    // No se puede cancelar si ya tiene una reserva de hotel
+    if (request.hotel_reservation) return false;
+
+    // Solo se puede cancelar si está aprobada
+    if (request.status === PER_DIEM_STATUS.APPROVED) return true;
+
+    return false;
   };
 
   if (isLoading) {
@@ -187,9 +235,49 @@ export default function PerDiemRequestDetailPage() {
                   <span className="truncate">Nuevo Gasto</span>
                 </Button>
               )}
+
+              {canCancelRequest() && (
+                <Button
+                  onClick={() => setShowCancelDialog(true)}
+                  size="sm"
+                  variant="destructive"
+                  className="gap-2 w-full sm:w-auto"
+                  disabled={cancelMutation.isPending}
+                >
+                  <XCircle className="h-4 w-4 shrink-0" />
+                  <span className="truncate">
+                    {cancelMutation.isPending
+                      ? "Cancelando..."
+                      : "Cancelar Solicitud"}
+                  </span>
+                </Button>
+              )}
             </div>
           </div>
         </FormWrapper>
+
+        {/* Diálogo de confirmación de cancelación */}
+        <AlertDialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>¿Cancelar solicitud de viático?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Esta acción cancelará la solicitud de viático{" "}
+                <strong>{request.code}</strong>. Esta acción no se puede
+                deshacer.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>No, mantener</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleCancelRequest}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                Sí, cancelar solicitud
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
 
         {/* Grid para Información General y Resumen Financiero */}
         <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">

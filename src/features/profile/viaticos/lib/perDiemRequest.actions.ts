@@ -245,3 +245,12 @@ export async function uploadDepositFile(
   );
   return response.data;
 }
+
+export async function cancelPerDiemRequest(
+  id: number
+): Promise<PerDiemRequestResource> {
+  const response = await api.post<PerDiemRequestResource>(
+    `${ENDPOINT}/${id}/cancel`
+  );
+  return response.data;
+}
