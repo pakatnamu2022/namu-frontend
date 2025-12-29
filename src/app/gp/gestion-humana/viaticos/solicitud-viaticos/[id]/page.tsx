@@ -9,6 +9,7 @@ import { PER_DIEM_REQUEST } from "@/features/profile/viaticos/lib/perDiemRequest
 import {
   findPerDiemRequestById,
   downloadSettlementPdf,
+  downloadMobilityPayrollPdf,
 } from "@/features/profile/viaticos/lib/perDiemRequest.actions";
 import { useState } from "react";
 import TitleComponent from "@/shared/components/TitleComponent";
@@ -40,6 +41,9 @@ export default function PerDiemRequestDetailAdminPage() {
     enabled: !!id,
   });
 
+  const [isDownloadingMobilityPayroll, setIsDownloadingMobilityPayroll] =
+    useState(false);
+
   const handleDownloadPdf = async () => {
     if (!id) return;
 
@@ -52,6 +56,23 @@ export default function PerDiemRequestDetailAdminPage() {
       console.error("Error downloading PDF:", error);
     } finally {
       setIsDownloading(false);
+    }
+  };
+
+  const handleDownloandMobilityPayrollPdf = async () => {
+    if (!id) return;
+    try {
+      setIsDownloadingMobilityPayroll(true);
+      await downloadMobilityPayrollPdf(Number(id));
+      successToast("PDF de planilla de movilidad descargado correctamente");
+    } catch (error: any) {
+      errorToast(
+        error.response.data.message ??
+          "Error al descargar el PDF de planilla de movilidad"
+      );
+      console.error("Error downloading mobility payroll PDF:", error);
+    } finally {
+      setIsDownloadingMobilityPayroll(false);
     }
   };
 
@@ -89,20 +110,23 @@ export default function PerDiemRequestDetailAdminPage() {
       <div className="space-y-6">
         {/* Header */}
         <FormWrapper>
-          <div className="flex items-center gap-3">
-            <BackButton
-              route="/gp/gestion-humana/viaticos/solicitud-viaticos"
-              size="icon"
-              name=""
-            />
-            <TitleComponent
-              title={request.code}
-              subtitle="Detalle de Solicitud de Viáticos"
-              icon="FileText"
-            />
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <BackButton
+                route="/gp/gestion-humana/viaticos/solicitud-viaticos"
+                size="icon"
+                name=""
+              />
+              <TitleComponent
+                title={request.code}
+                subtitle="Detalle de Solicitud de Viáticos"
+                icon="FileText"
+              />
+            </div>
+
+            <RequestStatusBadge status={request.status} />
           </div>
           <div className="flex items-center gap-2">
-            <RequestStatusBadge status={request.status} />
             <Button
               onClick={handleDownloadPdf}
               size="sm"
@@ -112,6 +136,20 @@ export default function PerDiemRequestDetailAdminPage() {
             >
               <FileDown className="h-4 w-4" />
               {isDownloading ? "Descargando..." : "Detalle de Gastos"}
+            </Button>
+            <Button
+              onClick={handleDownloandMobilityPayrollPdf}
+              size="sm"
+              variant="outline"
+              className="gap-2 w-full sm:w-auto"
+              disabled={isDownloadingMobilityPayroll}
+            >
+              <FileDown className="h-4 w-4 shrink-0" />
+              <span className="truncate">
+                {isDownloadingMobilityPayroll
+                  ? "Descargando..."
+                  : "Planilla de Movilidad"}
+              </span>
             </Button>
           </div>
         </FormWrapper>

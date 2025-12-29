@@ -81,21 +81,6 @@ export default function PerDiemRequestDetailPage() {
     }
   };
 
-  const handleDownloadExpenseDetailPdf = async () => {
-    if (!id) return;
-
-    try {
-      setIsDownloadingExpenseDetail(true);
-      await downloadExpenseDetailPdf(Number(id));
-      successToast("PDF de detalle de gastos descargado correctamente");
-    } catch (error) {
-      errorToast("Error al descargar el PDF de detalle de gastos");
-      console.error("Error downloading expense detail PDF:", error);
-    } finally {
-      setIsDownloadingExpenseDetail(false);
-    }
-  };
-
   const handleDownloandMobilityPayrollPdf = async () => {
     if (!id) return;
     try {
