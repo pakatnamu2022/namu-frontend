@@ -18,7 +18,6 @@ import {
   cancelPerDiemRequest,
 } from "@/features/profile/viaticos/lib/perDiemRequest.actions";
 import { useState } from "react";
-import { toast } from "sonner";
 import TitleComponent from "@/shared/components/TitleComponent";
 import {
   GeneralInfoSection,
@@ -37,6 +36,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { errorToast, successToast } from "@/core/core.function";
 
 export default function PerDiemRequestDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -58,14 +58,14 @@ export default function PerDiemRequestDetailPage() {
   const cancelMutation = useMutation({
     mutationFn: (requestId: number) => cancelPerDiemRequest(requestId),
     onSuccess: () => {
-      toast.success("Solicitud cancelada correctamente");
+      successToast("Solicitud cancelada correctamente");
       queryClient.invalidateQueries({
         queryKey: [PER_DIEM_REQUEST.QUERY_KEY, id],
       });
       setShowCancelDialog(false);
     },
     onError: () => {
-      toast.error("Error al cancelar la solicitud");
+      errorToast("Error al cancelar la solicitud");
     },
   });
 
@@ -75,9 +75,9 @@ export default function PerDiemRequestDetailPage() {
     try {
       setIsDownloading(true);
       await downloadSettlementPdf(Number(id));
-      toast.success("PDF descargado correctamente");
+      successToast("PDF descargado correctamente");
     } catch (error) {
-      toast.error("Error al descargar el PDF");
+      errorToast("Error al descargar el PDF");
       console.error("Error downloading PDF:", error);
     } finally {
       setIsDownloading(false);
@@ -90,9 +90,9 @@ export default function PerDiemRequestDetailPage() {
     try {
       setIsDownloadingExpenseDetail(true);
       await downloadExpenseDetailPdf(Number(id));
-      toast.success("PDF de detalle de gastos descargado correctamente");
+      successToast("PDF de detalle de gastos descargado correctamente");
     } catch (error) {
-      toast.error("Error al descargar el PDF de detalle de gastos");
+      errorToast("Error al descargar el PDF de detalle de gastos");
       console.error("Error downloading expense detail PDF:", error);
     } finally {
       setIsDownloadingExpenseDetail(false);
@@ -104,9 +104,12 @@ export default function PerDiemRequestDetailPage() {
     try {
       setIsDownloadingMobilityPayroll(true);
       await downloadMobilityPayrollPdf(Number(id));
-      toast.success("PDF de planilla de movilidad descargado correctamente");
-    } catch (error) {
-      toast.error("Error al descargar el PDF de planilla de movilidad");
+      successToast("PDF de planilla de movilidad descargado correctamente");
+    } catch (error: any) {
+      errorToast(
+        error.response.data.message ??
+          "Error al descargar el PDF de planilla de movilidad"
+      );
       console.error("Error downloading mobility payroll PDF:", error);
     } finally {
       setIsDownloadingMobilityPayroll(false);
@@ -260,7 +263,9 @@ export default function PerDiemRequestDetailPage() {
         <AlertDialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>¿Cancelar solicitud de viático?</AlertDialogTitle>
+              <AlertDialogTitle>
+                ¿Cancelar solicitud de viático?
+              </AlertDialogTitle>
               <AlertDialogDescription>
                 Esta acción cancelará la solicitud de viático{" "}
                 <strong>{request.code}</strong>. Esta acción no se puede

@@ -11,7 +11,6 @@ import {
   downloadSettlementPdf,
 } from "@/features/profile/viaticos/lib/perDiemRequest.actions";
 import { useState } from "react";
-import { toast } from "sonner";
 import TitleComponent from "@/shared/components/TitleComponent";
 import {
   GeneralInfoSection,
@@ -25,6 +24,7 @@ import BackButton from "@/shared/components/BackButton";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { Receipt } from "lucide-react";
 import ExpensesTable from "@/features/profile/viaticos/components/ExpensesTable";
+import { errorToast, successToast } from "@/core/core.function";
 
 export default function PerDiemRequestDetailAdminPage() {
   const { id } = useParams<{ id: string }>();
@@ -46,9 +46,9 @@ export default function PerDiemRequestDetailAdminPage() {
     try {
       setIsDownloading(true);
       await downloadSettlementPdf(Number(id));
-      toast.success("PDF descargado correctamente");
+      successToast("PDF descargado correctamente");
     } catch (error) {
-      toast.error("Error al descargar el PDF");
+      errorToast("Error al descargar el PDF");
       console.error("Error downloading PDF:", error);
     } finally {
       setIsDownloading(false);

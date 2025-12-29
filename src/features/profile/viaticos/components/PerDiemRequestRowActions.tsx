@@ -13,6 +13,7 @@ import {
 import { toast } from "sonner";
 import { PER_DIEM_REQUEST } from "../lib/perDiemRequest.constants";
 import { useState } from "react";
+import { errorToast, successToast } from "@/core/core.function";
 
 interface PerDiemRequestRowActionsProps {
   request: PerDiemRequestResource;
@@ -42,11 +43,11 @@ export function PerDiemRequestRowActions({
       queryClient.invalidateQueries({
         queryKey: [PER_DIEM_REQUEST.QUERY_KEY],
       });
-      toast.success("Solicitud confirmada y pasada a en progreso");
+      successToast("Solicitud confirmada y pasada a en progreso");
       setIsConfirmDialogOpen(false);
     },
     onError: (error: any) => {
-      toast.error(
+      errorToast(
         error?.response?.data?.message || "Error al confirmar la solicitud"
       );
     },
@@ -58,10 +59,10 @@ export function PerDiemRequestRowActions({
       queryClient.invalidateQueries({
         queryKey: [PER_DIEM_REQUEST.QUERY_KEY],
       });
-      toast.success("Planilla de gastos de movilidad generada exitosamente");
+      successToast("Planilla de gastos de movilidad generada exitosamente");
     },
     onError: (error: any) => {
-      toast.error(
+      errorToast(
         error?.response?.data?.message ||
           "Error al generar la planilla de movilidad"
       );
@@ -114,7 +115,7 @@ export function PerDiemRequestRowActions({
           <Car className="size-4" />
         </Button>
 
-        {isOnlyApproved && (
+        {isOnlyApproved && request.with_request && request.paid && (
           <ConfirmationDialog
             trigger={
               <Button

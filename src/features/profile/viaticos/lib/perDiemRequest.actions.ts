@@ -147,48 +147,78 @@ export async function reviewPerDiemRequest(
 }
 
 export async function downloadSettlementPdf(id: number): Promise<void> {
-  const response = await api.get(`${ENDPOINT}/${id}/settlement-pdf`, {
-    responseType: "blob",
-  });
+  try {
+    const response = await api.get(`${ENDPOINT}/${id}/settlement-pdf`, {
+      responseType: "blob",
+    });
 
-  const url = window.URL.createObjectURL(new Blob([response.data]));
-  const link = document.createElement("a");
-  link.href = url;
-  link.setAttribute("download", `liquidacion-viaticos-${id}.pdf`);
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-  window.URL.revokeObjectURL(url);
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `liquidacion-viaticos-${id}.pdf`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  } catch (error: any) {
+    // Si el error es un blob, convertirlo a JSON
+    if (error.response?.data instanceof Blob) {
+      const text = await error.response.data.text();
+      const errorData = JSON.parse(text);
+      throw { ...error, response: { ...error.response, data: errorData } };
+    }
+    throw error;
+  }
 }
 
 export async function downloadExpenseDetailPdf(id: number): Promise<void> {
-  const response = await api.get(`${ENDPOINT}/${id}/expense-detail-pdf`, {
-    responseType: "blob",
-  });
+  try {
+    const response = await api.get(`${ENDPOINT}/${id}/expense-detail-pdf`, {
+      responseType: "blob",
+    });
 
-  const url = window.URL.createObjectURL(new Blob([response.data]));
-  const link = document.createElement("a");
-  link.href = url;
-  link.setAttribute("download", `detalle-gastos-viaticos-${id}.pdf`);
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-  window.URL.revokeObjectURL(url);
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `detalle-gastos-viaticos-${id}.pdf`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  } catch (error: any) {
+    // Si el error es un blob, convertirlo a JSON
+    if (error.response?.data instanceof Blob) {
+      const text = await error.response.data.text();
+      const errorData = JSON.parse(text);
+      throw { ...error, response: { ...error.response, data: errorData } };
+    }
+    throw error;
+  }
 }
 
 export async function downloadMobilityPayrollPdf(id: number): Promise<void> {
-  const response = await api.get(`${ENDPOINT}/${id}/mobility-payroll-pdf`, {
-    responseType: "blob",
-  });
+  try {
+    const response = await api.get(`${ENDPOINT}/${id}/mobility-payroll-pdf`, {
+      responseType: "blob",
+    });
 
-  const url = window.URL.createObjectURL(new Blob([response.data]));
-  const link = document.createElement("a");
-  link.href = url;
-  link.setAttribute("download", `planilla-movilidad-viaticos-${id}.pdf`);
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-  window.URL.revokeObjectURL(url);
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `planilla-movilidad-viaticos-${id}.pdf`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  } catch (error: any) {
+    // Si el error es un blob, convertirlo a JSON
+    if (error.response?.data instanceof Blob) {
+      const text = await error.response.data.text();
+      const errorData = JSON.parse(text);
+      throw { ...error, response: { ...error.response, data: errorData } };
+    }
+    throw error;
+  }
 }
 
 export async function generateMobilityPayroll(

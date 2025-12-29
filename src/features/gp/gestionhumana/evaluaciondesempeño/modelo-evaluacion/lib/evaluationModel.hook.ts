@@ -1,5 +1,4 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
 import {
   deleteEvaluationModel,
   findEvaluationModelById,
@@ -11,6 +10,7 @@ import {
 import { EVALUATION_MODEL } from "./evaluationModel.constants";
 import type { getEvaluationModelsProps } from "./evaluationModel.interface";
 import { useNavigate } from "react-router-dom";
+import { errorToast, successToast } from "@/core/core.function";
 
 const { QUERY_KEY, ABSOLUTE_ROUTE, MODEL } = EVALUATION_MODEL;
 
@@ -44,14 +44,14 @@ export function useStoreEvaluationModel() {
     mutationFn: storeEvaluationModel,
     onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
-      toast.success(response.message || `${MODEL.name} creado correctamente`);
+      successToast(response.message || `${MODEL.name} creado correctamente`);
       router(ABSOLUTE_ROUTE);
     },
     onError: (error: any) => {
       const message =
         error?.response?.data?.message ||
         `Error al crear ${MODEL.name.toLowerCase()}`;
-      toast.error(message);
+      errorToast(message);
     },
   });
 }
@@ -64,7 +64,7 @@ export function useUpdateEvaluationModel(id: string) {
     mutationFn: (data: any) => updateEvaluationModel(id, data),
     onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
-      toast.success(
+      successToast(
         response.message || `${MODEL.name} actualizado correctamente`
       );
       router(ABSOLUTE_ROUTE);
@@ -73,7 +73,7 @@ export function useUpdateEvaluationModel(id: string) {
       const message =
         error?.response?.data?.message ||
         `Error al actualizar ${MODEL.name.toLowerCase()}`;
-      toast.error(message);
+      errorToast(message);
     },
   });
 }
@@ -85,7 +85,7 @@ export function useDeleteEvaluationModel() {
     mutationFn: deleteEvaluationModel,
     onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
-      toast.success(
+      successToast(
         response.message || `${MODEL.name} eliminado correctamente`
       );
     },
@@ -93,7 +93,7 @@ export function useDeleteEvaluationModel() {
       const message =
         error?.response?.data?.message ||
         `Error al eliminar ${MODEL.name.toLowerCase()}`;
-      toast.error(message);
+      errorToast(message);
     },
   });
 }
