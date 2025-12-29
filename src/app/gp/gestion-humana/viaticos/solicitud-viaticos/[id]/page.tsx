@@ -111,7 +111,7 @@ export default function PerDiemRequestDetailAdminPage() {
               disabled={isDownloading}
             >
               <FileDown className="h-4 w-4" />
-              {isDownloading ? "Descargando..." : "Exportar PDF"}
+              {isDownloading ? "Descargando..." : "Detalle de Gastos"}
             </Button>
           </div>
         </FormWrapper>

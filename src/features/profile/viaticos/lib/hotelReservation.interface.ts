@@ -8,6 +8,7 @@ export interface HotelReservationRequest {
   total_cost: number;
   receipt_file: File;
   notes?: string;
+  document_number?: string;
 }
 
 export interface HotelReservationResponse {

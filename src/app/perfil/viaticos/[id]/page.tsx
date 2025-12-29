@@ -13,7 +13,6 @@ import {
 import {
   findPerDiemRequestById,
   downloadSettlementPdf,
-  downloadExpenseDetailPdf,
   downloadMobilityPayrollPdf,
   cancelPerDiemRequest,
 } from "@/features/profile/viaticos/lib/perDiemRequest.actions";
@@ -43,8 +42,6 @@ export default function PerDiemRequestDetailPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [isDownloading, setIsDownloading] = useState(false);
-  const [isDownloadingExpenseDetail, setIsDownloadingExpenseDetail] =
-    useState(false);
   const [isDownloadingMobilityPayroll, setIsDownloadingMobilityPayroll] =
     useState(false);
   const [showCancelDialog, setShowCancelDialog] = useState(false);
@@ -192,22 +189,7 @@ export default function PerDiemRequestDetailPage() {
               >
                 <FileDown className="h-4 w-4 shrink-0" />
                 <span className="truncate">
-                  {isDownloading ? "Descargando..." : "Exportar PDF"}
-                </span>
-              </Button>
-
-              <Button
-                onClick={handleDownloadExpenseDetailPdf}
-                size="sm"
-                variant="outline"
-                className="gap-2 w-full sm:w-auto"
-                disabled={isDownloadingExpenseDetail}
-              >
-                <FileDown className="h-4 w-4 shrink-0" />
-                <span className="truncate">
-                  {isDownloadingExpenseDetail
-                    ? "Descargando..."
-                    : "Detalle de Gastos"}
+                  {isDownloading ? "Descargando..." : "Detalle de Gastos"}
                 </span>
               </Button>
 

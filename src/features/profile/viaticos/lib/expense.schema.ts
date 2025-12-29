@@ -1,5 +1,6 @@
 import { requiredStringId } from "@/shared/lib/global.schema";
 import { z } from "zod";
+import { TYPE_EXPENSE_LOCAL_MOBILITY } from "./perDiemExpense.constants";
 
 export const expenseSchema = z
   .object({
@@ -82,6 +83,22 @@ export const expenseSchema = z
       message:
         "El archivo del comprobante es requerido cuando el tipo es factura",
       path: ["receipt_file"],
+    }
+  )
+  .refine(
+    (data) => {
+      // Las notas son requeridas cuando el tipo de gasto es TYPE_EXPENSE_LOCAL_MOBILITY (Movilidad Local)
+      if (
+        data.expense_type_id === TYPE_EXPENSE_LOCAL_MOBILITY &&
+        (!data.notes || data.notes.trim() === "")
+      ) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: "Las notas son requeridas para gastos de Movilidad Local",
+      path: ["notes"],
     }
   );
 
