@@ -142,6 +142,7 @@ export interface PerDiemRequestResource {
   with_active: boolean;
   with_request: boolean;
   deposit_voucher_url?: string;
+  mobility_payroll_generated: boolean;
   employee: Employee;
   company: Company;
   district: District;
