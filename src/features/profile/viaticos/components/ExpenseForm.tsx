@@ -7,14 +7,12 @@ import {
   Form,
   FormField,
   FormItem,
-  FormLabel,
   FormControl,
   FormMessage,
   FormDescription,
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
-import { Textarea } from "@/components/ui/textarea";
 import { useState, useEffect } from "react";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 import { FormSelect } from "@/shared/components/FormSelect";
@@ -25,6 +23,8 @@ import { FileUploadWithCamera } from "@/shared/components/FileUploadWithCamera";
 import { useRucValidation } from "@/shared/hooks/useDocumentValidation";
 import { Building2, CheckCircle2, XCircle, Loader2 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { FormInputText } from "@/shared/components/FormInputText";
+import { TYPE_EXPENSE_LOCAL_MOBILITY } from "../lib/perDiemExpense.constants";
 
 interface ExpenseFormProps {
   requestId: number;
@@ -246,52 +246,59 @@ export default function ExpenseForm({
           </div>
 
           {/* Indicador de validación y datos del proveedor */}
-          {rucValue && rucValue.length === 11 && (receiptType === "invoice" || receiptType === "ticket") && (
-            <div className="mt-2">
-              {isRucLoading && (
-                <Alert className="border-blue-200 bg-blue-50">
-                  <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
-                  <AlertDescription className="ml-2 text-xs text-blue-700">
-                    Validando RUC...
-                  </AlertDescription>
-                </Alert>
-              )}
+          {rucValue &&
+            rucValue.length === 11 &&
+            (receiptType === "invoice" || receiptType === "ticket") && (
+              <div className="mt-2">
+                {isRucLoading && (
+                  <Alert className="border-blue-200 bg-blue-50">
+                    <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
+                    <AlertDescription className="ml-2 text-xs text-blue-700">
+                      Validando RUC...
+                    </AlertDescription>
+                  </Alert>
+                )}
 
-              {!isRucLoading && rucError && (
-                <Alert className="border-red-200 bg-red-50">
-                  <XCircle className="h-4 w-4 text-red-600" />
-                  <AlertDescription className="ml-2 text-xs text-red-700">
-                    RUC no válido. Ingrese un RUC registrado en SUNAT.
-                  </AlertDescription>
-                </Alert>
-              )}
+                {!isRucLoading && rucError && (
+                  <Alert className="border-red-200 bg-red-50">
+                    <XCircle className="h-4 w-4 text-red-600" />
+                    <AlertDescription className="ml-2 text-xs text-red-700">
+                      RUC no válido. Ingrese un RUC registrado en SUNAT.
+                    </AlertDescription>
+                  </Alert>
+                )}
 
-              {!isRucLoading && rucData?.success === true && rucData?.data?.valid === true && (
-                <Alert className="border-green-200 bg-green-50">
-                  <CheckCircle2 className="h-4 w-4 text-green-600" />
-                  <AlertDescription className="ml-2">
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <Building2 className="h-3.5 w-3.5 text-green-600" />
-                        <span className="text-xs font-semibold text-green-900">
-                          {rucData.data.business_name}
-                        </span>
-                      </div>
-                      <div className="text-xs text-green-700">
-                        <span className="font-medium">Estado:</span> {rucData.data.status} •
-                        <span className="font-medium ml-1">Condición:</span> {rucData.data.condition}
-                      </div>
-                      {rucData.data.address && (
-                        <div className="text-xs text-green-700">
-                          <span className="font-medium">Dirección:</span> {rucData.data.address}
+                {!isRucLoading &&
+                  rucData?.success === true &&
+                  rucData?.data?.valid === true && (
+                    <Alert className="border-green-200 bg-green-50">
+                      <CheckCircle2 className="h-4 w-4 text-green-600" />
+                      <AlertDescription className="ml-2">
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <Building2 className="h-3.5 w-3.5 text-green-600" />
+                            <span className="text-xs font-semibold text-green-900">
+                              {rucData.data.business_name}
+                            </span>
+                          </div>
+                          <div className="text-xs text-green-700">
+                            <span className="font-medium">Estado:</span>{" "}
+                            {rucData.data.status} •
+                            <span className="font-medium ml-1">Condición:</span>{" "}
+                            {rucData.data.condition}
+                          </div>
+                          {rucData.data.address && (
+                            <div className="text-xs text-green-700">
+                              <span className="font-medium">Dirección:</span>{" "}
+                              {rucData.data.address}
+                            </div>
+                          )}
                         </div>
-                      )}
-                    </div>
-                  </AlertDescription>
-                </Alert>
-              )}
-            </div>
-          )}
+                      </AlertDescription>
+                    </Alert>
+                  )}
+              </div>
+            )}
 
           {/* Archivo del Comprobante */}
           {receiptType !== "no_receipt" && (
@@ -331,25 +338,16 @@ export default function ExpenseForm({
 
           {/* Notas */}
           <div>
-            <FormField
-              control={form.control}
+            <FormInputText
               name="notes"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-xs md:text-sm">
-                    Notas (Opcional)
-                  </FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Observaciones adicionales..."
-                      className="resize-none min-h-20 text-xs md:text-sm"
-                      rows={3}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              label={
+                expenseTypeId === TYPE_EXPENSE_LOCAL_MOBILITY
+                  ? "Notas *"
+                  : "Notas (Opcional)"
+              }
+              placeholder="Observaciones adicionales..."
+              control={form.control}
+              rows={3}
             />
           </div>
         </div>

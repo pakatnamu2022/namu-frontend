@@ -13,7 +13,6 @@ import {
 import {
   findPerDiemRequestById,
   downloadSettlementPdf,
-  downloadExpenseDetailPdf,
   downloadMobilityPayrollPdf,
 } from "@/features/profile/viaticos/lib/perDiemRequest.actions";
 import { useState } from "react";
@@ -31,8 +30,6 @@ export default function PerDiemRequestDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [isDownloading, setIsDownloading] = useState(false);
-  const [isDownloadingExpenseDetail, setIsDownloadingExpenseDetail] =
-    useState(false);
   const [isDownloadingMobilityPayroll, setIsDownloadingMobilityPayroll] =
     useState(false);
 
@@ -54,21 +51,6 @@ export default function PerDiemRequestDetailPage() {
       console.error("Error downloading PDF:", error);
     } finally {
       setIsDownloading(false);
-    }
-  };
-
-  const handleDownloadExpenseDetailPdf = async () => {
-    if (!id) return;
-
-    try {
-      setIsDownloadingExpenseDetail(true);
-      await downloadExpenseDetailPdf(Number(id));
-      toast.success("PDF de detalle de gastos descargado correctamente");
-    } catch (error) {
-      toast.error("Error al descargar el PDF de detalle de gastos");
-      console.error("Error downloading expense detail PDF:", error);
-    } finally {
-      setIsDownloadingExpenseDetail(false);
     }
   };
 
@@ -141,22 +123,7 @@ export default function PerDiemRequestDetailPage() {
               >
                 <FileDown className="h-4 w-4 shrink-0" />
                 <span className="truncate">
-                  {isDownloading ? "Descargando..." : "Exportar PDF"}
-                </span>
-              </Button>
-
-              <Button
-                onClick={handleDownloadExpenseDetailPdf}
-                size="sm"
-                variant="outline"
-                className="gap-2 w-full sm:w-auto"
-                disabled={isDownloadingExpenseDetail}
-              >
-                <FileDown className="h-4 w-4 shrink-0" />
-                <span className="truncate">
-                  {isDownloadingExpenseDetail
-                    ? "Descargando..."
-                    : "Detalle de Gastos"}
+                  {isDownloading ? "Descargando..." : "Detalle de Gastos"}
                 </span>
               </Button>
 

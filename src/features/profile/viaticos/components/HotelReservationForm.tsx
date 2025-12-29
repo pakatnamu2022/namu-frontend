@@ -18,12 +18,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Loader, Upload } from "lucide-react";
-import { Textarea } from "@/components/ui/textarea";
 import { ActiveHotelAgreement } from "../lib/hotelReservation.interface";
 import { useEffect, useState, useMemo } from "react";
 import { DateTimePickerForm } from "@/shared/components/DateTimePickerForm";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { Option } from "@/core/core.interface";
+import { FormInput } from "@/shared/components/FormInput";
+import { FormInputText } from "@/shared/components/FormInputText";
 
 interface HotelReservationFormProps {
   defaultValues?: Partial<HotelReservationSchema>;
@@ -59,9 +60,7 @@ export const HotelReservationForm = ({
 
   // Convertir hotelAgreements a opciones para FormSelect
   const hotelAgreementOptions: Option[] = useMemo(() => {
-    const options: Option[] = [
-      { value: "none", label: "Sin convenio" }
-    ];
+    const options: Option[] = [];
 
     hotelAgreements.forEach((agreement) => {
       options.push({
@@ -96,16 +95,20 @@ export const HotelReservationForm = ({
       if (name === "hotel_agreement_id") {
         const agreementValue = value.hotel_agreement_id;
 
-        if (!agreementValue || (typeof agreementValue === "string" && agreementValue === "none")) {
+        if (
+          !agreementValue ||
+          (typeof agreementValue === "string" && agreementValue === "none")
+        ) {
           form.setValue("hotel_name", "");
           form.setValue("address", "");
           form.setValue("phone", "");
           return;
         }
 
-        const agreementId = typeof agreementValue === "string"
-          ? parseInt(agreementValue)
-          : agreementValue;
+        const agreementId =
+          typeof agreementValue === "string"
+            ? parseInt(agreementValue)
+            : agreementValue;
         const agreement = hotelAgreements.find((a) => a.id === agreementId);
 
         if (agreement) {
@@ -120,7 +123,8 @@ export const HotelReservationForm = ({
             const checkinDate = new Date(checkin);
             const checkoutDate = new Date(checkout);
             const nights = Math.ceil(
-              (checkoutDate.getTime() - checkinDate.getTime()) / (1000 * 60 * 60 * 24)
+              (checkoutDate.getTime() - checkinDate.getTime()) /
+                (1000 * 60 * 60 * 24)
             );
             const corporateRate = parseFloat(agreement.corporate_rate);
             if (!isNaN(corporateRate) && nights > 0) {
@@ -181,52 +185,28 @@ export const HotelReservationForm = ({
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Nombre del Hotel */}
-          <FormField
+          <FormInput
             control={form.control}
             name="hotel_name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Nombre del Hotel</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: Hotel Costa del Sol" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Nombre del Hotel"
+            placeholder="Ej: Hotel Costa del Sol"
           />
 
           {/* Teléfono */}
-          <FormField
+          <FormInput
             control={form.control}
             name="phone"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Teléfono</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: (01) 123-4567" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Teléfono"
+            placeholder="Ej: (01) 123-4567"
           />
         </div>
 
         {/* Dirección */}
-        <FormField
+        <FormInput
           control={form.control}
           name="address"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Dirección</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="Ej: Av. Principal 123, Distrito"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          label="Dirección"
+          placeholder="Ej: Av. Principal 123, Distrito"
         />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -261,25 +241,20 @@ export const HotelReservationForm = ({
           />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Costo Total */}
-          <FormField
+          <FormInput
             control={form.control}
             name="total_cost"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Costo Total (S/)</FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    step="0.01"
-                    placeholder="0.00"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Costo Total (S/)"
+            placeholder="0.00"
+          />
+          {/* Nro del Documento */}
+          <FormInput
+            control={form.control}
+            name="document_number"
+            label="Nro del Documento"
+            placeholder="Ej: F001-123456"
           />
         </div>
 
@@ -320,23 +295,11 @@ export const HotelReservationForm = ({
         />
 
         {/* Notas */}
-        <FormField
+        <FormInputText
           control={form.control}
           name="notes"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Notas (Opcional)</FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder="Observaciones adicionales sobre la reserva..."
-                  className="resize-none"
-                  rows={3}
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          label="Notas (Opcional)"
+          placeholder="Observaciones adicionales sobre la reserva..."
         />
 
         <div className="flex gap-4 w-full justify-end pt-4 border-t">
@@ -346,7 +309,10 @@ export const HotelReservationForm = ({
             </Button>
           )}
 
-          <Button type="submit" disabled={isSubmitting}>
+          <Button
+            type="submit"
+            disabled={isSubmitting || !form.formState.isValid}
+          >
             <Loader
               className={`mr-2 h-4 w-4 animate-spin ${
                 !isSubmitting ? "hidden" : ""

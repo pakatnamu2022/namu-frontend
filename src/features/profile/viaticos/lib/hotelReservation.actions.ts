@@ -38,7 +38,10 @@ export async function createHotelReservation(
   const formData = new FormData();
 
   // Agregar campos básicos
-  if (requestData.hotel_agreement_id !== null && requestData.hotel_agreement_id !== undefined) {
+  if (
+    requestData.hotel_agreement_id !== null &&
+    requestData.hotel_agreement_id !== undefined
+  ) {
     formData.append(
       "hotel_agreement_id",
       requestData.hotel_agreement_id.toString()
@@ -48,6 +51,11 @@ export async function createHotelReservation(
   formData.append("address", requestData.address);
   formData.append("phone", requestData.phone);
   formData.append("total_cost", requestData.total_cost.toString());
+
+  // Agregar document_number si existen
+  if (requestData.document_number) {
+    formData.append("document_number", requestData.document_number);
+  }
 
   // Convertir fechas a formato ISO con hora
   const checkinDate =

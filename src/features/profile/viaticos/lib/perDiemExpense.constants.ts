@@ -16,3 +16,5 @@ export const PER_DIEM_EXPENSE: ModelComplete<any> = {
   ROUTE_ADD: `/profile/viaticos/${ROUTE}/add`,
   ROUTE_UPDATE: `/profile/viaticos/${ROUTE}/update`,
 };
+
+export const TYPE_EXPENSE_LOCAL_MOBILITY = "7";
