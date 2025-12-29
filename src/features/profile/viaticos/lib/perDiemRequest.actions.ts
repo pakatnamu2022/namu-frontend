@@ -284,3 +284,56 @@ export async function cancelPerDiemRequest(
   );
   return response.data;
 }
+
+export async function startSettlement(
+  id: number
+): Promise<PerDiemRequestResource> {
+  const response = await api.post<PerDiemRequestResource>(
+    `${ENDPOINT}/${id}/start-settlement`
+  );
+  return response.data;
+}
+
+export async function approveSettlement(
+  id: number,
+  comments?: string
+): Promise<PerDiemRequestResource> {
+  const response = await api.post<PerDiemRequestResource>(
+    `${ENDPOINT}/${id}/approve-settlement`,
+    { comments }
+  );
+  return response.data;
+}
+
+export async function rejectSettlement(
+  id: number,
+  rejection_reason: string
+): Promise<PerDiemRequestResource> {
+  const response = await api.post<PerDiemRequestResource>(
+    `${ENDPOINT}/${id}/reject-settlement`,
+    { rejection_reason }
+  );
+  return response.data;
+}
+
+export async function getPendingSettlements({
+  params,
+}: getPerDiemRequestProps): Promise<PerDiemRequestResponse> {
+  const config: AxiosRequestConfig = {
+    params,
+  };
+  const { data } = await api.get<PerDiemRequestResponse>(
+    `${ENDPOINT}/pending-settlements`,
+    config
+  );
+  return data;
+}
+
+export async function completeSettlement(
+  id: number
+): Promise<PerDiemRequestResource> {
+  const response = await api.post<PerDiemRequestResource>(
+    `${ENDPOINT}/${id}/complete-settlement`
+  );
+  return response.data;
+}

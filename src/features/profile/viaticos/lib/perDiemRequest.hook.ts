@@ -5,6 +5,7 @@ import {
   findPerDiemRequestById,
   getAllPerDiemRequest,
   getPendingApprovals,
+  getPendingSettlements,
   getPerDiemRequest,
 } from "./perDiemRequest.actions";
 
@@ -36,5 +37,12 @@ export function useGetPendingApprovals(props: getPerDiemRequestProps) {
   return useQuery({
     queryKey: [QUERY_KEY, "pending-approvals", props],
     queryFn: () => getPendingApprovals(props),
+  });
+}
+
+export function useGetPendingSettlements(props: getPerDiemRequestProps) {
+  return useQuery({
+    queryKey: [QUERY_KEY, "pending-settlements", props],
+    queryFn: () => getPendingSettlements(props),
   });
 }

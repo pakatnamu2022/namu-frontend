@@ -3,7 +3,7 @@
 import { useParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, FileDown, XCircle } from "lucide-react";
+import { Plus, FileDown, XCircle, FileCheck } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,6 +15,7 @@ import {
   downloadSettlementPdf,
   downloadMobilityPayrollPdf,
   cancelPerDiemRequest,
+  startSettlement,
 } from "@/features/profile/viaticos/lib/perDiemRequest.actions";
 import { useState } from "react";
 import TitleComponent from "@/shared/components/TitleComponent";
@@ -45,6 +46,8 @@ export default function PerDiemRequestDetailPage() {
   const [isDownloadingMobilityPayroll, setIsDownloadingMobilityPayroll] =
     useState(false);
   const [showCancelDialog, setShowCancelDialog] = useState(false);
+  const [showStartSettlementDialog, setShowStartSettlementDialog] =
+    useState(false);
 
   const { data: request, isLoading } = useQuery({
     queryKey: [PER_DIEM_REQUEST.QUERY_KEY, id],
@@ -63,6 +66,22 @@ export default function PerDiemRequestDetailPage() {
     },
     onError: () => {
       errorToast("Error al cancelar la solicitud");
+    },
+  });
+
+  const startSettlementMutation = useMutation({
+    mutationFn: (requestId: number) => startSettlement(requestId),
+    onSuccess: () => {
+      successToast("Proceso de liquidación iniciado correctamente");
+      queryClient.invalidateQueries({
+        queryKey: [PER_DIEM_REQUEST.QUERY_KEY, id],
+      });
+      setShowStartSettlementDialog(false);
+    },
+    onError: (error: any) => {
+      errorToast(
+        error?.response?.data?.message ?? "Error al iniciar la liquidación"
+      );
     },
   });
 
@@ -101,6 +120,11 @@ export default function PerDiemRequestDetailPage() {
   const handleCancelRequest = () => {
     if (!id) return;
     cancelMutation.mutate(Number(id));
+  };
+
+  const handleStartSettlement = () => {
+    if (!id) return;
+    startSettlementMutation.mutate(Number(id));
   };
 
   // Verificar si se puede cancelar la solicitud
@@ -194,16 +218,32 @@ export default function PerDiemRequestDetailPage() {
               </Button>
 
               {request.status === PER_DIEM_STATUS.IN_PROGRESS && (
-                <Button
-                  onClick={() =>
-                    navigate(`/perfil/viaticos/${id}/gastos/agregar`)
-                  }
-                  size="sm"
-                  className="gap-2 w-full sm:w-auto"
-                >
-                  <Plus className="h-4 w-4 shrink-0" />
-                  <span className="truncate">Nuevo Gasto</span>
-                </Button>
+                <>
+                  <Button
+                    onClick={() =>
+                      navigate(`/perfil/viaticos/${id}/gastos/agregar`)
+                    }
+                    size="sm"
+                    className="gap-2 w-full sm:w-auto"
+                  >
+                    <Plus className="h-4 w-4 shrink-0" />
+                    <span className="truncate">Nuevo Gasto</span>
+                  </Button>
+                  <Button
+                    onClick={() => setShowStartSettlementDialog(true)}
+                    size="sm"
+                    variant="default"
+                    className="gap-2 w-full sm:w-auto"
+                    disabled={startSettlementMutation.isPending}
+                  >
+                    <FileCheck className="h-4 w-4 shrink-0" />
+                    <span className="truncate">
+                      {startSettlementMutation.isPending
+                        ? "Iniciando..."
+                        : "Iniciar Liquidación"}
+                    </span>
+                  </Button>
+                </>
               )}
 
               {canCancelRequest() && (
@@ -246,6 +286,31 @@ export default function PerDiemRequestDetailPage() {
                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               >
                 Sí, cancelar solicitud
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
+        {/* Diálogo de confirmación de iniciar liquidación */}
+        <AlertDialog
+          open={showStartSettlementDialog}
+          onOpenChange={setShowStartSettlementDialog}
+        >
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>
+                ¿Iniciar proceso de liquidación?
+              </AlertDialogTitle>
+              <AlertDialogDescription>
+                Esta acción iniciará el proceso de liquidación para la solicitud
+                de viático <strong>{request.code}</strong>. Una vez iniciado, el
+                jefe deberá aprobar la liquidación.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+              <AlertDialogAction onClick={handleStartSettlement}>
+                Sí, iniciar liquidación
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>

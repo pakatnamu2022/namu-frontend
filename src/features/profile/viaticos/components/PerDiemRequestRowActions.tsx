@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Eye, Hotel, CheckCircle, Upload, Car } from "lucide-react";
+import { Eye, Hotel, CheckCircle, Upload, Car, FileCheck2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { PerDiemRequestResource } from "../lib/perDiemRequest.interface";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
@@ -9,6 +9,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   confirmPerDiemRequest,
   generateMobilityPayroll,
+  completeSettlement,
 } from "../lib/perDiemRequest.actions";
 import { PER_DIEM_REQUEST } from "../lib/perDiemRequest.constants";
 import { useState } from "react";
@@ -28,6 +29,8 @@ export function PerDiemRequestRowActions({
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
+  const [isCompleteSettlementDialogOpen, setIsCompleteSettlementDialogOpen] =
+    useState(false);
 
   const hasHotelReservation = !!request.hotel_reservation;
   const isApproved =
@@ -36,6 +39,7 @@ export function PerDiemRequestRowActions({
   const hotel = request.hotel_reservation?.hotel_name;
   const withRequest = request.with_request;
   const isCancelled = request.status === "cancelled";
+  const canCompleteSettlement = request.settlement_status === "approved_by_boss";
 
   const confirmMutation = useMutation({
     mutationFn: (requestId: number) => confirmPerDiemRequest(requestId),
@@ -69,12 +73,32 @@ export function PerDiemRequestRowActions({
     },
   });
 
+  const completeSettlementMutation = useMutation({
+    mutationFn: (requestId: number) => completeSettlement(requestId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [PER_DIEM_REQUEST.QUERY_KEY],
+      });
+      successToast("Liquidación completada exitosamente");
+      setIsCompleteSettlementDialogOpen(false);
+    },
+    onError: (error: any) => {
+      errorToast(
+        error?.response?.data?.message || "Error al completar la liquidación"
+      );
+    },
+  });
+
   const handleConfirmRequest = () => {
     confirmMutation.mutate(request.id);
   };
 
   const handleGenerateMobilityPayroll = () => {
     generateMobilityPayrollMutation.mutate(request.id);
+  };
+
+  const handleCompleteSettlement = () => {
+    completeSettlementMutation.mutate(request.id);
   };
 
   const handleAddHotelReservation = () => {
@@ -185,6 +209,30 @@ export function PerDiemRequestRowActions({
         >
           <Hotel className="size-4" />
         </Button>
+
+        {canCompleteSettlement && (
+          <ConfirmationDialog
+            trigger={
+              <Button
+                variant="default"
+                size="icon-xs"
+                tooltip="Completar liquidación"
+                disabled={completeSettlementMutation.isPending}
+              >
+                <FileCheck2 className="size-4" />
+              </Button>
+            }
+            title="¿Completar liquidación?"
+            description="Esta acción completará el proceso de liquidación. El jefe ya aprobó la liquidación. ¿Deseas continuar?"
+            confirmText="Sí, completar"
+            cancelText="Cancelar"
+            onConfirm={handleCompleteSettlement}
+            variant="default"
+            icon="info"
+            open={isCompleteSettlementDialogOpen}
+            onOpenChange={setIsCompleteSettlementDialogOpen}
+          />
+        )}
       </div>
     </>
   );
