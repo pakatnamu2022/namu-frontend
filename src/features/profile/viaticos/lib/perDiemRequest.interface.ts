@@ -169,12 +169,16 @@ export interface ExpenseResource {
   receipt_number: string;
   receipt_path: string;
   notes?: string;
+  business_name: string;
+  ruc: null;
+  is_company_expense: boolean;
   validated: boolean;
   validated_at?: string;
+  rejected: boolean;
+  rejected_at: null;
+  rejection_reason: null;
   expense_type: ExpenseType;
   validated_by: ValidatedBy;
-  created_at: string;
-  updated_at: string;
 }
 
 export interface ExpenseType {

@@ -1,13 +1,6 @@
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
-import {
   Hotel,
   MapPin,
   Phone,
@@ -19,6 +12,7 @@ import {
   Receipt,
 } from "lucide-react";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
+import GeneralSheet from "@/shared/components/GeneralSheet";
 import type { HotelReservation } from "@/features/profile/viaticos/lib/perDiemRequest.interface";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -51,28 +45,25 @@ export default function HotelReservationDetailSheet({
   };
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-full sm:max-w-3xl overflow-y-auto">
-        <SheetHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <SheetTitle className="text-2xl flex items-center gap-2">
-                <Hotel className="h-6 w-6" />
-                Reserva de Hotel
-              </SheetTitle>
-              <SheetDescription>
-                Detalles completos de la reserva hotelera
-              </SheetDescription>
-            </div>
-            {hotelReservation.attended && (
-              <Badge variant="default" className="gap-1">
-                Asistido
-              </Badge>
-            )}
+    <GeneralSheet
+      open={open}
+      onClose={() => onOpenChange(false)}
+      title="Reserva de Hotel"
+      subtitle="Detalles completos de la reserva hotelera"
+      icon="Hotel"
+      size="3xl"
+      className="overflow-y-auto"
+    >
+      <div className="space-y-6">
+        {hotelReservation.attended && (
+          <div className="flex justify-end">
+            <Badge variant="default" className="gap-1">
+              Asistido
+            </Badge>
           </div>
-        </SheetHeader>
+        )}
 
-        <div className="mt-6 space-y-6">
+        <div className="space-y-6">
           {/* Información del Hotel */}
           <GroupFormSection
             title="Información del Hotel"
@@ -308,7 +299,7 @@ export default function HotelReservationDetailSheet({
             </p>
           </div>
         </div>
-      </SheetContent>
-    </Sheet>
+      </div>
+    </GeneralSheet>
   );
 }

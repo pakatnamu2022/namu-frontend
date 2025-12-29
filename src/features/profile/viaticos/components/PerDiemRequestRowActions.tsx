@@ -35,6 +35,7 @@ export function PerDiemRequestRowActions({
   const isOnlyApproved = request.status === "approved";
   const hotel = request.hotel_reservation?.hotel_name;
   const withRequest = request.with_request;
+  const isCancelled = request.status === "cancelled";
 
   const confirmMutation = useMutation({
     mutationFn: (requestId: number) => confirmPerDiemRequest(requestId),
@@ -91,6 +92,20 @@ export function PerDiemRequestRowActions({
       );
     }
   };
+
+  if (isCancelled)
+    return (
+      <div className="flex items-center gap-2 justify-center">
+        <Button
+          variant="outline"
+          size="icon-xs"
+          onClick={() => onViewDetail(request.id)}
+          tooltip="Ver detalle"
+        >
+          <Eye className="size-4" />
+        </Button>
+      </div>
+    );
 
   return (
     <>

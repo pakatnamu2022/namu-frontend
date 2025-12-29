@@ -26,12 +26,9 @@ export const hotelReservationSchema = z
       .refine((value) => value.trim() !== "", {
         message: "Dirección es requerida",
       }),
-    phone: z
-      .string()
-      .max(20)
-      .refine((value) => value.trim() !== "", {
-        message: "Teléfono es requerido",
-      }),
+    phone: z.string().refine((value) => value.trim() !== "", {
+      message: "Teléfono es requerido",
+    }),
     checkin_date: z
       .union([z.string(), z.date()])
       .refine((value) => value !== "", {

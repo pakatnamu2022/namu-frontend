@@ -80,6 +80,8 @@ export default function PerDiemRequestDetailAdminPage() {
     refetch();
   };
 
+  const isCancelled = request?.status === "cancelled";
+
   if (isLoading) {
     return (
       <FormWrapper>
@@ -126,32 +128,35 @@ export default function PerDiemRequestDetailAdminPage() {
 
             <RequestStatusBadge status={request.status} />
           </div>
-          <div className="flex items-center gap-2">
-            <Button
-              onClick={handleDownloadPdf}
-              size="sm"
-              variant="outline"
-              className="gap-2"
-              disabled={isDownloading}
-            >
-              <FileDown className="h-4 w-4" />
-              {isDownloading ? "Descargando..." : "Detalle de Gastos"}
-            </Button>
-            <Button
-              onClick={handleDownloandMobilityPayrollPdf}
-              size="sm"
-              variant="outline"
-              className="gap-2 w-full sm:w-auto"
-              disabled={isDownloadingMobilityPayroll}
-            >
-              <FileDown className="h-4 w-4 shrink-0" />
-              <span className="truncate">
-                {isDownloadingMobilityPayroll
-                  ? "Descargando..."
-                  : "Planilla de Movilidad"}
-              </span>
-            </Button>
-          </div>
+
+          {!isCancelled && (
+            <div className="flex items-center gap-2">
+              <Button
+                onClick={handleDownloadPdf}
+                size="sm"
+                variant="outline"
+                className="gap-2"
+                disabled={isDownloading}
+              >
+                <FileDown className="h-4 w-4" />
+                {isDownloading ? "Descargando..." : "Detalle de Gastos"}
+              </Button>
+              <Button
+                onClick={handleDownloandMobilityPayrollPdf}
+                size="sm"
+                variant="outline"
+                className="gap-2 w-full sm:w-auto"
+                disabled={isDownloadingMobilityPayroll}
+              >
+                <FileDown className="h-4 w-4 shrink-0" />
+                <span className="truncate">
+                  {isDownloadingMobilityPayroll
+                    ? "Descargando..."
+                    : "Planilla de Movilidad"}
+                </span>
+              </Button>
+            </div>
+          )}
         </FormWrapper>
 
         {/* Información General */}

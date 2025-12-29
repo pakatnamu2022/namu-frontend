@@ -309,10 +309,7 @@ export const HotelReservationForm = ({
             </Button>
           )}
 
-          <Button
-            type="submit"
-            disabled={isSubmitting || !form.formState.isValid}
-          >
+          <Button type="submit" disabled={isSubmitting}>
             <Loader
               className={`mr-2 h-4 w-4 animate-spin ${
                 !isSubmitting ? "hidden" : ""
