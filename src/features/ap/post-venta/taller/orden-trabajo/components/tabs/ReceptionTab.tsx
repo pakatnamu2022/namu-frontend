@@ -20,8 +20,8 @@ import {
   findVehicleInspectionByWorkOrderId,
   downloadVehicleInspectionPdf,
 } from "@/features/ap/post-venta/taller/inspeccion-vehiculo/lib/vehicleInspection.actions";
-import { toast } from "sonner";
 import { useState } from "react";
+import { errorToast, successToast } from "@/core/core.function";
 
 interface ReceptionTabProps {
   workOrderId: number;
@@ -46,10 +46,10 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
     try {
       setIsDownloading(true);
       await downloadVehicleInspectionPdf(inspection.id);
-      toast.success("PDF descargado exitosamente");
+      successToast("PDF descargado exitosamente");
     } catch (error) {
       console.error("Error al descargar PDF:", error);
-      toast.error("Error al descargar el PDF de la inspección");
+      errorToast("Error al descargar el PDF de la inspección");
     } finally {
       setIsDownloading(false);
     }

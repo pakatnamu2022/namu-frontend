@@ -178,6 +178,7 @@ export function ElectronicDocumentForm({
   // Limpiar campos cuando se deselecciona la cotización
   useEffect(() => {
     if (!selectedQuotationId) {
+      // eslint-disable-next-line react-hooks/immutability
       resetData();
     }
   }, [selectedQuotationId, form]);

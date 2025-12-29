@@ -1,5 +1,4 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
 import { WORKER_ORDER_LABOUR } from "./workOrderLabour.constants";
 import { WorkOrderLabourRequest, getWorkOrderLabourProps } from "./workOrderLabour.interface";
 import {
@@ -9,7 +8,7 @@ import {
   storeWorkOrderLabour,
   deleteWorkOrderLabour,
 } from "./workOrderLabour.actions";
-import { successToast, SUCCESS_MESSAGE } from "@/core/core.function";
+import { successToast, SUCCESS_MESSAGE, errorToast } from "@/core/core.function";
 
 const { QUERY_KEY, MODEL } = WORKER_ORDER_LABOUR;
 
@@ -53,7 +52,7 @@ export function useStoreWorkOrderLabour() {
         `Error al registrar ${
           MODEL.gender ? "la" : "el"
         } ${MODEL.name.toLowerCase()}`;
-      toast.error(errorMessage);
+      errorToast(errorMessage);
     },
   });
 }
@@ -66,7 +65,7 @@ export function useDeleteWorkOrderLabour() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
       queryClient.invalidateQueries({ queryKey: ["workOrder"] });
-      toast.success(`${MODEL.name} eliminad${MODEL.gender ? "a" : "o"} correctamente`);
+      successToast(`${MODEL.name} eliminad${MODEL.gender ? "a" : "o"} correctamente`);
     },
     onError: (error: any) => {
       const errorMessage =
@@ -74,7 +73,7 @@ export function useDeleteWorkOrderLabour() {
         `Error al eliminar ${
           MODEL.gender ? "la" : "el"
         } ${MODEL.name.toLowerCase()}`;
-      toast.error(errorMessage);
+      errorToast(errorMessage);
     },
   });
 }

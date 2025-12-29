@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Eye, Hotel, CheckCircle, Upload, Car } from "lucide-react";
+import { Eye, Hotel, CheckCircle, Upload, Car, FileCheck2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { PerDiemRequestResource } from "../lib/perDiemRequest.interface";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
@@ -9,11 +9,13 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   confirmPerDiemRequest,
   generateMobilityPayroll,
+  completeSettlement,
 } from "../lib/perDiemRequest.actions";
-import { toast } from "sonner";
 import { PER_DIEM_REQUEST } from "../lib/perDiemRequest.constants";
 import { useState } from "react";
-import { UploadDepositDialog } from "./UploadDepositDialog";
+import { errorToast, successToast } from "@/core/core.function";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 
 interface PerDiemRequestRowActionsProps {
   request: PerDiemRequestResource;
@@ -29,7 +31,8 @@ export function PerDiemRequestRowActions({
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
-  const [isUploadDepositOpen, setIsUploadDepositOpen] = useState(false);
+  const [isCompleteSettlementDialogOpen, setIsCompleteSettlementDialogOpen] =
+    useState(false);
 
   const hasHotelReservation = !!request.hotel_reservation;
   const isApproved =
@@ -37,6 +40,8 @@ export function PerDiemRequestRowActions({
   const isOnlyApproved = request.status === "approved";
   const hotel = request.hotel_reservation?.hotel_name;
   const withRequest = request.with_request;
+  const isCancelled = request.status === "cancelled";
+  const canCompleteSettlement = request.settlement_status === "approved_by_boss";
 
   const confirmMutation = useMutation({
     mutationFn: (requestId: number) => confirmPerDiemRequest(requestId),
@@ -44,11 +49,11 @@ export function PerDiemRequestRowActions({
       queryClient.invalidateQueries({
         queryKey: [PER_DIEM_REQUEST.QUERY_KEY],
       });
-      toast.success("Solicitud confirmada y pasada a en progreso");
+      successToast("Solicitud confirmada y pasada a en progreso");
       setIsConfirmDialogOpen(false);
     },
     onError: (error: any) => {
-      toast.error(
+      errorToast(
         error?.response?.data?.message || "Error al confirmar la solicitud"
       );
     },
@@ -60,12 +65,32 @@ export function PerDiemRequestRowActions({
       queryClient.invalidateQueries({
         queryKey: [PER_DIEM_REQUEST.QUERY_KEY],
       });
-      toast.success("Planilla de gastos de movilidad generada exitosamente");
+      successToast("Planilla de gastos de movilidad generada exitosamente");
     },
     onError: (error: any) => {
-      toast.error(
+      errorToast(
         error?.response?.data?.message ||
           "Error al generar la planilla de movilidad"
+      );
+    },
+  });
+
+  const [settlementComments, setSettlementComments] = useState("");
+
+  const completeSettlementMutation = useMutation({
+    mutationFn: ({ requestId, comments }: { requestId: number; comments?: string }) =>
+      completeSettlement(requestId, comments),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [PER_DIEM_REQUEST.QUERY_KEY],
+      });
+      successToast("Liquidación completada exitosamente");
+      setIsCompleteSettlementDialogOpen(false);
+      setSettlementComments("");
+    },
+    onError: (error: any) => {
+      errorToast(
+        error?.response?.data?.message || "Error al completar la liquidación"
       );
     },
   });
@@ -76,6 +101,13 @@ export function PerDiemRequestRowActions({
 
   const handleGenerateMobilityPayroll = () => {
     generateMobilityPayrollMutation.mutate(request.id);
+  };
+
+  const handleCompleteSettlement = () => {
+    completeSettlementMutation.mutate({
+      requestId: request.id,
+      comments: settlementComments || undefined
+    });
   };
 
   const handleAddHotelReservation = () => {
@@ -94,6 +126,20 @@ export function PerDiemRequestRowActions({
     }
   };
 
+  if (isCancelled)
+    return (
+      <div className="flex items-center gap-2 justify-center">
+        <Button
+          variant="outline"
+          size="icon-xs"
+          onClick={() => onViewDetail(request.id)}
+          tooltip="Ver detalle"
+        >
+          <Eye className="size-4" />
+        </Button>
+      </div>
+    );
+
   return (
     <>
       <div className="flex items-center gap-2 justify-center">
@@ -106,17 +152,19 @@ export function PerDiemRequestRowActions({
           <Eye className="size-4" />
         </Button>
 
-        <Button
-          variant="outline"
-          size="icon-xs"
-          onClick={handleGenerateMobilityPayroll}
-          tooltip="Generar Planilla de Gastos de Movilidad"
-          disabled={generateMobilityPayrollMutation.isPending}
-        >
-          <Car className="size-4" />
-        </Button>
+        {!request.mobility_payroll_generated && (
+          <Button
+            variant="outline"
+            size="icon-xs"
+            onClick={handleGenerateMobilityPayroll}
+            tooltip="Generar Planilla de Gastos de Movilidad"
+            disabled={generateMobilityPayrollMutation.isPending}
+          >
+            <Car className="size-4" />
+          </Button>
+        )}
 
-        {isOnlyApproved && (
+        {isOnlyApproved && request.with_request && request.paid && (
           <ConfirmationDialog
             trigger={
               <Button
@@ -144,7 +192,11 @@ export function PerDiemRequestRowActions({
           <Button
             variant="outline"
             size="icon-xs"
-            onClick={() => setIsUploadDepositOpen(true)}
+            onClick={() =>
+              navigate(
+                `/gp/gestion-humana/viaticos/solicitud-viaticos/${request.id}/deposito`
+              )
+            }
             tooltip="Subir archivo de depósito"
           >
             <Upload className="size-4" />
@@ -168,13 +220,46 @@ export function PerDiemRequestRowActions({
         >
           <Hotel className="size-4" />
         </Button>
-      </div>
 
-      <UploadDepositDialog
-        open={isUploadDepositOpen}
-        onOpenChange={setIsUploadDepositOpen}
-        request={request}
-      />
+        {canCompleteSettlement && (
+          <ConfirmationDialog
+            trigger={
+              <Button
+                variant="default"
+                size="icon-xs"
+                tooltip="Completar liquidación"
+                disabled={completeSettlementMutation.isPending}
+              >
+                <FileCheck2 className="size-4" />
+              </Button>
+            }
+            title="¿Completar liquidación?"
+            description="Esta acción completará el proceso de liquidación. El jefe ya aprobó la liquidación. ¿Deseas continuar?"
+            confirmText="Sí, completar"
+            cancelText="Cancelar"
+            onConfirm={handleCompleteSettlement}
+            variant="default"
+            icon="info"
+            open={isCompleteSettlementDialogOpen}
+            onOpenChange={setIsCompleteSettlementDialogOpen}
+            confirmDisabled={completeSettlementMutation.isPending}
+          >
+            <div className="space-y-2">
+              <Label htmlFor="settlement-comments">
+                Comentarios (Opcional)
+              </Label>
+              <Textarea
+                id="settlement-comments"
+                placeholder="Ingrese sus comentarios aquí..."
+                value={settlementComments}
+                onChange={(e) => setSettlementComments(e.target.value)}
+                rows={4}
+                disabled={completeSettlementMutation.isPending}
+              />
+            </div>
+          </ConfirmationDialog>
+        )}
+      </div>
     </>
   );
 }

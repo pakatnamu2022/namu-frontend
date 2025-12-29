@@ -1,5 +1,6 @@
 import { requiredStringId } from "@/shared/lib/global.schema";
 import { z } from "zod";
+import { TYPE_EXPENSE_LOCAL_MOBILITY } from "./perDiemExpense.constants";
 
 export const expenseSchema = z
   .object({
@@ -17,6 +18,18 @@ export const expenseSchema = z
       })
       .min(1, "El tipo de comprobante es requerido"),
     receipt_number: z.string().optional(),
+    ruc: z
+      .string()
+      .optional()
+      .refine(
+        (val) => {
+          if (!val) return true;
+          return /^\d+$/.test(val) && val.length <= 20;
+        },
+        {
+          message: "El RUC debe contener solo números y máximo 20 dígitos",
+        }
+      ),
     receipt_file: z
       .instanceof(File, {
         message: "El archivo del comprobante es requerido",
@@ -44,6 +57,22 @@ export const expenseSchema = z
   )
   .refine(
     (data) => {
+      // El RUC es requerido solo para factura o boleta
+      if (
+        (data.receipt_type === "invoice" || data.receipt_type === "ticket") &&
+        (!data.ruc || data.ruc.trim() === "")
+      ) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: "El RUC es requerido cuando el tipo es factura o boleta",
+      path: ["ruc"],
+    }
+  )
+  .refine(
+    (data) => {
       // El archivo es requerido solo cuando es factura (receipt_type === "invoice")
       if (data.receipt_type === "invoice" && !data.receipt_file) {
         return false;
@@ -54,6 +83,22 @@ export const expenseSchema = z
       message:
         "El archivo del comprobante es requerido cuando el tipo es factura",
       path: ["receipt_file"],
+    }
+  )
+  .refine(
+    (data) => {
+      // Las notas son requeridas cuando el tipo de gasto es TYPE_EXPENSE_LOCAL_MOBILITY (Movilidad Local)
+      if (
+        data.expense_type_id === TYPE_EXPENSE_LOCAL_MOBILITY &&
+        (!data.notes || data.notes.trim() === "")
+      ) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: "Las notas son requeridas para gastos de Movilidad Local",
+      path: ["notes"],
     }
   );
 

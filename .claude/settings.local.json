@@ -27,7 +27,8 @@
       "Bash(if not exist \"e:\\\\pakatnamu\\\\namu-frontend\\\\src\\\\app\\\\perfil\\\\viaticos\\\\[id]\\\\gastos\\\\agregar\" mkdir \"e:\\\\pakatnamu\\\\namu-frontend\\\\src\\\\app\\\\perfil\\\\viaticos\\\\[id]\\\\gastos\\\\agregar\")",
       "Bash(if not exist \"e:\\\\pakatnamu\\\\namu-frontend\\\\src\\\\app\\\\perfil\\\\viaticos\\\\[id]\\\\gastos\\\\actualizar\\\\[expenseId]\" mkdir \"e:\\\\pakatnamu\\\\namu-frontend\\\\src\\\\app\\\\perfil\\\\viaticos\\\\[id]\\\\gastos\\\\actualizar\\\\[expenseId]\")",
       "Bash(if not exist \"c:\\\\Users\\\\david\\\\Documents\\\\data\\\\front\\\\namu-frontend\\\\src\\\\app\\\\perfil\\\\viaticos\\\\[id]\\\\reserva-hotel\" mkdir \"c:\\\\Users\\\\david\\\\Documents\\\\data\\\\front\\\\namu-frontend\\\\src\\\\app\\\\perfil\\\\viaticos\\\\[id]\\\\reserva-hotel\")",
-      "Bash(if not exist \"c:\\\\Users\\\\david\\\\Documents\\\\data\\\\front\\\\namu-frontend\\\\src\\\\app\\\\perfil\\\\viaticos\\\\[id]\\\\reserva-hotel\\\\agregar\" mkdir \"c:\\\\Users\\\\david\\\\Documents\\\\data\\\\front\\\\namu-frontend\\\\src\\\\app\\\\perfil\\\\viaticos\\\\[id]\\\\reserva-hotel\\\\agregar\")"
+      "Bash(if not exist \"c:\\\\Users\\\\david\\\\Documents\\\\data\\\\front\\\\namu-frontend\\\\src\\\\app\\\\perfil\\\\viaticos\\\\[id]\\\\reserva-hotel\\\\agregar\" mkdir \"c:\\\\Users\\\\david\\\\Documents\\\\data\\\\front\\\\namu-frontend\\\\src\\\\app\\\\perfil\\\\viaticos\\\\[id]\\\\reserva-hotel\\\\agregar\")",
+      "Bash(if not exist \"c:\\\\Users\\\\david\\\\Documents\\\\data\\\\front\\\\namu-frontend\\\\src\\\\app\\\\perfil\\\\viaticos\\\\aprobar-liquidaciones\" mkdir \"c:\\\\Users\\\\david\\\\Documents\\\\data\\\\front\\\\namu-frontend\\\\src\\\\app\\\\perfil\\\\viaticos\\\\aprobar-liquidaciones\")"
     ],
     "deny": [],
     "ask": []

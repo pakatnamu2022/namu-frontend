@@ -1,5 +1,4 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
 import { OPERATOR_WORKER_ORDER } from "./operatorWorkOrder.constants";
 import {
   getOperatorWorkOrderProps,
@@ -83,7 +82,7 @@ export function useUpdateOperatorWorkOrder() {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY, variables.id] });
-      toast.success(`${MODEL.name} actualizad${MODEL.gender ? "a" : "o"}`);
+      successToast(`${MODEL.name} actualizad${MODEL.gender ? "a" : "o"}`);
     },
     onError: (error: any) => {
       const errorMessage =
@@ -91,7 +90,7 @@ export function useUpdateOperatorWorkOrder() {
         `Error al actualizar ${
           MODEL.gender ? "la" : "el"
         } ${MODEL.name.toLowerCase()}`;
-      toast.error(errorMessage);
+      errorToast(errorMessage);
     },
   });
 }

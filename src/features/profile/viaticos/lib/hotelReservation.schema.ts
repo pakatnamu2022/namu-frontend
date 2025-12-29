@@ -26,12 +26,9 @@ export const hotelReservationSchema = z
       .refine((value) => value.trim() !== "", {
         message: "Dirección es requerida",
       }),
-    phone: z
-      .string()
-      .max(20)
-      .refine((value) => value.trim() !== "", {
-        message: "Teléfono es requerido",
-      }),
+    phone: z.string().refine((value) => value.trim() !== "", {
+      message: "Teléfono es requerido",
+    }),
     checkin_date: z
       .union([z.string(), z.date()])
       .refine((value) => value !== "", {
@@ -53,6 +50,12 @@ export const hotelReservationSchema = z
       })
       .refine((val) => val >= 0, {
         message: "Costo total debe ser mayor o igual a 0",
+      }),
+    document_number: z
+      .string()
+      .max(255)
+      .refine((value) => value.trim() !== "", {
+        message: "Nro del Documento es requerido",
       }),
     receipt_file: z
       .instanceof(File, {
@@ -77,8 +80,7 @@ export const hotelReservationSchema = z
       )
       .refine((file) => file && file.size <= 10 * 1024 * 1024, {
         message: "El archivo no debe superar los 10MB",
-      })
-      .optional(),
+      }),
     notes: z.string().max(1000).optional().default(""),
   })
   .refine(

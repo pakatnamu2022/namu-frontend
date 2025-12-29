@@ -7,21 +7,25 @@ import {
   Form,
   FormField,
   FormItem,
-  FormLabel,
   FormControl,
   FormMessage,
   FormDescription,
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
-import { Textarea } from "@/components/ui/textarea";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { FormInput } from "@/shared/components/FormInput";
 import { Option } from "@/core/core.interface";
 import { useAvailableExpenseTypes } from "../lib/perDiemExpense.hook";
 import { FileUploadWithCamera } from "@/shared/components/FileUploadWithCamera";
+import { useRucValidation } from "@/shared/hooks/useDocumentValidation";
+import { Building2, CheckCircle2, XCircle, Loader2 } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { errorToast } from "@/core/core.function";
+import { FormInputText } from "@/shared/components/FormInputText";
+import { TYPE_EXPENSE_LOCAL_MOBILITY } from "../lib/perDiemExpense.constants";
 
 interface ExpenseFormProps {
   requestId: number;
@@ -46,9 +50,11 @@ export default function ExpenseForm({
 }: ExpenseFormProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>("");
+  const [isFirstLoad, setIsFirstLoad] = useState(true);
+  const hasShownExpenseTypeError = useRef(false);
 
   // Obtener tipos de gasto disponibles para esta solicitud de viáticos
-  const { data: expenseTypes, isLoading: isLoadingExpenseTypes } =
+  const { data: expenseTypes, isLoading: isLoadingExpenseTypes, error: expenseTypesError } =
     useAvailableExpenseTypes(requestId);
 
   const form = useForm<ExpenseSchema>({
@@ -63,6 +69,39 @@ export default function ExpenseForm({
 
   const receiptType = form.watch("receipt_type");
   const expenseTypeId = form.watch("expense_type_id");
+  const rucValue = form.watch("ruc");
+
+  // Validación de RUC cuando el campo tiene 11 dígitos (RUC peruano estándar)
+  const shouldValidateRuc = Boolean(
+    !isFirstLoad &&
+      rucValue &&
+      rucValue.length === 11 &&
+      /^\d+$/.test(rucValue) &&
+      (receiptType === "invoice" || receiptType === "ticket")
+  );
+
+  const {
+    data: rucData,
+    isLoading: isRucLoading,
+    error: rucError,
+  } = useRucValidation(rucValue, shouldValidateRuc, false);
+
+  // Marcar como no es primera carga después del primer cambio
+  useEffect(() => {
+    if (rucValue && isFirstLoad) {
+      setIsFirstLoad(false);
+    }
+  }, [rucValue, isFirstLoad]);
+
+  // Mostrar toast cuando hay error al cargar tipos de gasto
+  useEffect(() => {
+    if (expenseTypesError && !hasShownExpenseTypeError.current) {
+      hasShownExpenseTypeError.current = true;
+      const errorMessage = (expenseTypesError as any)?.response?.data?.message ||
+                          "No se pudieron cargar los tipos de gasto disponibles. Por favor, intente nuevamente.";
+      errorToast("Error al cargar tipos de gasto", errorMessage);
+    }
+  }, [expenseTypesError]);
 
   // Establecer el tipo de comprobante según el requires_receipt del tipo de gasto
   useEffect(() => {
@@ -84,10 +123,11 @@ export default function ExpenseForm({
     }
   }, [expenseTypeId, expenseTypes, form]);
 
-  // Limpiar número de comprobante y archivo cuando el tipo es "Sin Comprobante"
+  // Limpiar número de comprobante, RUC y archivo cuando el tipo es "Sin Comprobante"
   useEffect(() => {
     if (receiptType === "no_receipt") {
       form.setValue("receipt_number", "");
+      form.setValue("ruc", "");
       form.setValue("receipt_file", undefined);
       setSelectedFile(null);
       setPreviewUrl("");
@@ -113,6 +153,26 @@ export default function ExpenseForm({
     if (!startDate || !endDate) return false;
     return date < startDate || date > endDate;
   };
+
+  // Verificar si el RUC es válido antes de permitir envío
+  const isRucValid = () => {
+    // Si no se requiere RUC, es válido
+    if (receiptType === "no_receipt") return true;
+
+    // Si no hay RUC ingresado, el schema lo validará
+    if (!rucValue || rucValue.trim() === "") return true;
+
+    // Si hay RUC y tiene 11 dígitos, debe estar validado exitosamente
+    if (rucValue.length === 11) {
+      // Verificar que success sea true y que data exista y sea válido
+      return rucData?.success === true && rucData?.data?.valid === true;
+    }
+
+    // Si tiene menos de 11 dígitos, aún no es válido
+    return false;
+  };
+
+  const canSubmit = form.formState.isValid && isRucValid() && !isRucLoading;
 
   return (
     <Form {...form}>
@@ -180,7 +240,77 @@ export default function ExpenseForm({
                 required
               />
             )}
+
+            {(receiptType === "invoice" || receiptType === "ticket") && (
+              <FormInput
+                name="ruc"
+                label="RUC del Proveedor"
+                placeholder="20123456789"
+                description="RUC de 11 dígitos del proveedor"
+                control={form.control}
+                required
+                maxLength={20}
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+              />
+            )}
           </div>
+
+          {/* Indicador de validación y datos del proveedor */}
+          {rucValue &&
+            rucValue.length === 11 &&
+            (receiptType === "invoice" || receiptType === "ticket") && (
+              <div className="mt-2">
+                {isRucLoading && (
+                  <Alert className="border-blue-200 bg-blue-50">
+                    <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
+                    <AlertDescription className="ml-2 text-xs text-blue-700">
+                      Validando RUC...
+                    </AlertDescription>
+                  </Alert>
+                )}
+
+                {!isRucLoading && rucError && (
+                  <Alert className="border-red-200 bg-red-50">
+                    <XCircle className="h-4 w-4 text-red-600" />
+                    <AlertDescription className="ml-2 text-xs text-red-700">
+                      RUC no válido. Ingrese un RUC registrado en SUNAT.
+                    </AlertDescription>
+                  </Alert>
+                )}
+
+                {!isRucLoading &&
+                  rucData?.success === true &&
+                  rucData?.data?.valid === true && (
+                    <Alert className="border-green-200 bg-green-50">
+                      <CheckCircle2 className="h-4 w-4 text-green-600" />
+                      <AlertDescription className="ml-2">
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <Building2 className="h-3.5 w-3.5 text-green-600" />
+                            <span className="text-xs font-semibold text-green-900">
+                              {rucData.data.business_name}
+                            </span>
+                          </div>
+                          <div className="text-xs text-green-700">
+                            <span className="font-medium">Estado:</span>{" "}
+                            {rucData.data.status} •
+                            <span className="font-medium ml-1">Condición:</span>{" "}
+                            {rucData.data.condition}
+                          </div>
+                          {rucData.data.address && (
+                            <div className="text-xs text-green-700">
+                              <span className="font-medium">Dirección:</span>{" "}
+                              {rucData.data.address}
+                            </div>
+                          )}
+                        </div>
+                      </AlertDescription>
+                    </Alert>
+                  )}
+              </div>
+            )}
 
           {/* Archivo del Comprobante */}
           {receiptType !== "no_receipt" && (
@@ -220,25 +350,17 @@ export default function ExpenseForm({
 
           {/* Notas */}
           <div>
-            <FormField
-              control={form.control}
+            <FormInputText
               name="notes"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-xs md:text-sm">
-                    Notas (Opcional)
-                  </FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Observaciones adicionales..."
-                      className="resize-none min-h-20 text-xs md:text-sm"
-                      rows={3}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              label={
+                expenseTypeId === TYPE_EXPENSE_LOCAL_MOBILITY
+                  ? "Notas"
+                  : "Notas (Opcional)"
+              }
+              placeholder="Observaciones adicionales..."
+              control={form.control}
+              rows={3}
+              required={expenseTypeId === TYPE_EXPENSE_LOCAL_MOBILITY}
             />
           </div>
         </div>
@@ -255,7 +377,7 @@ export default function ExpenseForm({
 
           <Button
             type="submit"
-            disabled={isSubmitting || !form.formState.isValid}
+            disabled={isSubmitting || !canSubmit}
             className="w-full sm:w-auto"
           >
             <Loader

@@ -17,7 +17,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
   PurchaseRequestSchema,
   purchaseRequestSchemaCreate,
@@ -26,13 +25,16 @@ import {
 } from "../lib/purchaseRequest.schema";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 import { FormSelect } from "@/shared/components/FormSelect";
+import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { useAllWarehouse } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
-import { getInventory } from "@/features/ap/post-venta/gestion-compras/inventario/lib/inventory.actions";
+import { useInventory } from "@/features/ap/post-venta/gestion-compras/inventario/lib/inventory.hook";
 import { InventoryResource } from "@/features/ap/post-venta/gestion-compras/inventario/lib/inventory.interface";
 import { getAllOrderQuotations } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.actions";
 import { OrderQuotationResource } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.interface";
 import { QuotationSelectionModal } from "../../cotizacion/components/QuotationSelectionModal";
+import { errorToast } from "@/core/core.function";
+import { FormInputText } from "@/shared/components/FormInputText";
 
 interface PurchaseRequestFormProps {
   defaultValues: Partial<PurchaseRequestSchema>;
@@ -49,16 +51,28 @@ export default function PurchaseRequestForm({
   mode = "create",
   onCancel,
 }: PurchaseRequestFormProps) {
-  const [details, setDetails] = useState<PurchaseRequestDetailSchema[]>(
-    defaultValues.details || []
-  );
-  const [inventoryProducts, setInventoryProducts] = useState<
-    InventoryResource[]
-  >([]);
-  const [isLoadingProducts, setIsLoadingProducts] = useState(false);
+  const [details, setDetails] = useState<PurchaseRequestDetailSchema[]>(() => {
+    // Transformar los detalles del backend al formato esperado
+    if (defaultValues.details && defaultValues.details.length > 0) {
+      const transformed = defaultValues.details.map((detail: any) => ({
+        product_id: detail.product_id?.toString() || "",
+        product_name: detail.product?.name || "",
+        quantity: Number(detail.quantity) || 1,
+        notes: detail.notes || "",
+      }));
+      console.log("🔄 Transformando detalles en edición:", {
+        original: defaultValues.details,
+        transformed,
+      });
+      return transformed;
+    }
+    console.log("📝 Modo creación - sin detalles");
+    return [];
+  });
   const [quotations, setQuotations] = useState<OrderQuotationResource[]>([]);
   const [isLoadingQuotations, setIsLoadingQuotations] = useState(false);
   const [isQuotationModalOpen, setIsQuotationModalOpen] = useState(false);
+  const [selectedProductName, setSelectedProductName] = useState<string>("");
 
   const { data: warehouses = [], isLoading: isLoadingWarehouses } =
     useAllWarehouse({
@@ -75,10 +89,10 @@ export default function PurchaseRequestForm({
       warehouse_id: "",
       requested_date: new Date(),
       observations: "",
-      status: "pending",
       has_appointment: false,
-      details: [],
       ...defaultValues,
+      // Usar los details ya transformados
+      details: details,
     },
     mode: "onChange",
   });
@@ -87,24 +101,47 @@ export default function PurchaseRequestForm({
   const hasAppointment = form.watch("has_appointment");
   const selectedQuotationId = form.watch("ap_order_quotation_id");
 
-  // Formulario temporal para agregar productos
-  const tempForm = useForm({
+  // Formulario separado para selección de productos
+  const productSelectorForm = useForm({
     defaultValues: {
-      temp_product_id: "",
+      product_id: "",
     },
   });
 
+  const selectedProductId = productSelectorForm.watch("product_id");
+
+  // Hook para obtener los productos del inventario
+  const { data: inventoryData } = useInventory(
+    {
+      warehouse_id: selectedWarehouseId,
+      all: true,
+    },
+    {
+      enabled: !!selectedWarehouseId,
+    }
+  );
+
+  // useEffect para actualizar el nombre del producto seleccionado
+  useEffect(() => {
+    if (selectedProductId && inventoryData?.data) {
+      const selectedProduct = inventoryData.data.find(
+        (inventory) => inventory.product_id.toString() === selectedProductId
+      );
+      if (selectedProduct) {
+        setSelectedProductName(selectedProduct.product.name);
+      }
+    } else {
+      setSelectedProductName("");
+    }
+  }, [selectedProductId, inventoryData]);
+
+  // Sincronizar details con el formulario
   useEffect(() => {
     form.setValue("details", details);
+    // Validar inmediatamente después de setear
+    form.trigger("details");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [details]);
-
-  useEffect(() => {
-    if (selectedWarehouseId) {
-      loadInventoryProducts(selectedWarehouseId);
-    } else {
-      setInventoryProducts([]);
-    }
-  }, [selectedWarehouseId]);
 
   useEffect(() => {
     if (!hasAppointment) {
@@ -118,21 +155,6 @@ export default function PurchaseRequestForm({
     }
   }, [selectedQuotationId]);
 
-  const loadInventoryProducts = async (warehouseId: string | number) => {
-    try {
-      setIsLoadingProducts(true);
-      const response = await getInventory({
-        params: { warehouse_id: warehouseId.toString() },
-      });
-      setInventoryProducts(response.data || []);
-    } catch (error) {
-      console.error("Error al cargar los productos:", error);
-      setInventoryProducts([]);
-    } finally {
-      setIsLoadingProducts(false);
-    }
-  };
-
   const loadQuotations = async () => {
     try {
       setIsLoadingQuotations(true);
@@ -140,8 +162,10 @@ export default function PurchaseRequestForm({
         is_take: 0,
       });
       setQuotations(response || []);
-    } catch (error) {
-      console.error("Error al cargar las cotizaciones:", error);
+    } catch (error: any) {
+      const msgError =
+        error?.response?.data?.message || "Error al cargar las cotizaciones.";
+      errorToast(msgError);
       setQuotations([]);
     } finally {
       setIsLoadingQuotations(false);
@@ -149,7 +173,7 @@ export default function PurchaseRequestForm({
   };
 
   const loadQuotationDetails = useCallback(
-    (quotationId: string) => {
+    async (quotationId: string) => {
       const selectedQuotation = quotations.find(
         (q) => q.id.toString() === quotationId
       );
@@ -165,7 +189,8 @@ export default function PurchaseRequestForm({
       const newDetails: PurchaseRequestDetailSchema[] = productDetails.map(
         (detail) => ({
           product_id: detail.product_id.toString(),
-          quantity: detail.quantity,
+          product_name: detail.product_name,
+          quantity: Number(detail.quantity) || 1, // Asegurar que sea number
           notes: "",
         })
       );
@@ -180,39 +205,32 @@ export default function PurchaseRequestForm({
     return <FormSkeleton />;
   }
 
-  const handleAddProduct = () => {
-    const values = tempForm.getValues();
-
-    if (!values.temp_product_id) {
+  const handleAddProduct = (
+    productId: string,
+    productData?: InventoryResource
+  ) => {
+    if (!productId) {
       return;
     }
 
-    const inventoryItem = inventoryProducts.find(
-      (item) => item.product_id === Number(values.temp_product_id)
-    );
-
-    if (!inventoryItem) return;
-
     // Verificar si el producto ya está en la lista
     const productExists = details.some(
-      (detail) => detail.product_id === values.temp_product_id
+      (detail) => detail.product_id === productId
     );
 
     if (productExists) {
-      alert("Este producto ya está en la lista");
+      errorToast("El producto ya ha sido agregado a la solicitud.");
       return;
     }
 
     const newDetail: PurchaseRequestDetailSchema = {
-      product_id: values.temp_product_id,
+      product_id: productId,
+      product_name: productData?.product.name,
       quantity: 1,
       notes: "",
     };
 
     setDetails([...details, newDetail]);
-
-    // Resetear formulario temporal
-    tempForm.reset();
   };
 
   const handleRemoveProduct = (index: number) => {
@@ -237,13 +255,6 @@ export default function PurchaseRequestForm({
     setDetails(updatedDetails);
   };
 
-  const getProductName = (productId: number) => {
-    return (
-      inventoryProducts.find((item) => item.product_id === productId)?.product
-        .name || "N/A"
-    );
-  };
-
   const handleSelectQuotation = (quotationId: string) => {
     form.setValue("ap_order_quotation_id", quotationId);
   };
@@ -263,6 +274,9 @@ export default function PurchaseRequestForm({
       2
     )}`;
   };
+
+  console.log("🎯 RENDER - Estado details:", details);
+  console.log("🎯 RENDER - details.length:", details.length);
 
   return (
     <Form {...form}>
@@ -356,23 +370,11 @@ export default function PurchaseRequestForm({
           )}
 
           <div className="mt-4">
-            <FormField
-              control={form.control}
+            <FormInputText
               name="observations"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Observaciones</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      {...field}
-                      value={field.value ?? ""}
-                      placeholder="Notas adicionales sobre la solicitud..."
-                      rows={3}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              label="Observaciones"
+              placeholder="Notas adicionales sobre la solicitud..."
+              control={form.control}
             />
           </div>
         </Card>
@@ -393,52 +395,70 @@ export default function PurchaseRequestForm({
             </div>
           ) : (
             <>
-              {/* Formulario para agregar productos */}
-              <Form {...tempForm}>
-                <div className="flex flex-col sm:flex-row gap-3 mb-6">
-                  <div className="flex-1">
-                    <FormSelect
-                      name="temp_product_id"
-                      label="Seleccionar Producto"
-                      placeholder={
-                        isLoadingProducts
-                          ? "Cargando productos..."
-                          : "Seleccione un producto para agregar"
-                      }
-                      options={inventoryProducts.map((inventory) => ({
-                        label: () => (
-                          <div className="flex items-center justify-between gap-2 w-full">
-                            <span className="font-medium truncate">
-                              {inventory.product.name}
-                            </span>
-                            <span
-                              className={`text-xs font-semibold px-2 py-0.5 rounded shrink-0 ${
-                                inventory.available_quantity > 0
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-red-100 text-red-700"
-                              }`}
-                            >
-                              Stock: {inventory.available_quantity}
-                            </span>
-                          </div>
-                        ),
-                        value: inventory.product_id.toString(),
-                      }))}
-                      control={tempForm.control}
-                      disabled={isLoadingProducts}
-                    />
+              {/* Selector de productos con búsqueda */}
+              <div className="mb-6">
+                <label className="text-sm font-medium mb-2 block">
+                  Seleccionar Producto
+                </label>
+                <Form {...productSelectorForm}>
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <div className="flex-1">
+                      <FormSelectAsync
+                        name="product_id"
+                        placeholder="Buscar y seleccionar producto para agregar"
+                        control={productSelectorForm.control}
+                        useQueryHook={useInventory}
+                        additionalParams={{
+                          warehouse_id: selectedWarehouseId,
+                        }}
+                        mapOptionFn={(inventory: InventoryResource) => ({
+                          label: () => (
+                            <div className="flex items-center justify-between gap-2 w-full">
+                              <span className="font-medium truncate">
+                                {inventory.product.name}
+                              </span>
+                              <span
+                                className={`text-xs font-semibold px-2 py-0.5 rounded shrink-0 ${
+                                  inventory.available_quantity > 0
+                                    ? "bg-green-100 text-green-700"
+                                    : "bg-red-100 text-red-700"
+                                }`}
+                              >
+                                Stock: {inventory.available_quantity}
+                              </span>
+                            </div>
+                          ),
+                          value: inventory.product_id.toString(),
+                        })}
+                        perPage={15}
+                      />
+                    </div>
+                    <Button
+                      type="button"
+                      onClick={() => {
+                        const productId =
+                          productSelectorForm.getValues("product_id");
+                        if (productId && selectedProductName) {
+                          // Crear objeto InventoryResource simplificado con solo el nombre
+                          const inventoryData: InventoryResource = {
+                            product: {
+                              name: selectedProductName,
+                            },
+                          } as InventoryResource;
+
+                          handleAddProduct(productId, inventoryData);
+                          productSelectorForm.reset();
+                        }
+                      }}
+                      disabled={!productSelectorForm.watch("product_id")}
+                      className="self-end sm:w-auto w-full"
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Agregar
+                    </Button>
                   </div>
-                  <Button
-                    type="button"
-                    onClick={handleAddProduct}
-                    disabled={!tempForm.watch("temp_product_id")}
-                    className="self-end sm:w-auto w-full"
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Agregar
-                  </Button>
-                </div>
-              </Form>
+                </Form>
+              </div>
 
               {/* Lista de Productos */}
               <div className="mt-6">
@@ -470,81 +490,20 @@ export default function PurchaseRequestForm({
 
                     {/* Items */}
                     <div className="divide-y">
-                      {details.map((detail, index) => (
-                        <div key={index}>
-                          {/* Vista Desktop */}
-                          <div className="hidden md:grid grid-cols-12 gap-3 px-4 py-3 hover:bg-gray-50 transition-colors items-center">
-                            <div className="col-span-5">
-                              <p className="text-sm font-medium text-gray-900 truncate">
-                                {getProductName(Number(detail.product_id))}
-                              </p>
-                            </div>
-
-                            <div className="col-span-2">
-                              <Input
-                                type="number"
-                                min="0.01"
-                                step="0.01"
-                                value={detail.quantity}
-                                onChange={(e) =>
-                                  handleUpdateQuantity(
-                                    index,
-                                    Number(e.target.value)
-                                  )
-                                }
-                                className="h-9 text-sm"
-                              />
-                            </div>
-
-                            <div className="col-span-4">
-                              <Input
-                                type="text"
-                                value={detail.notes || ""}
-                                onChange={(e) =>
-                                  handleUpdateNotes(index, e.target.value)
-                                }
-                                placeholder="Notas opcionales..."
-                                className="h-9 text-sm"
-                              />
-                            </div>
-
-                            <div className="col-span-1 flex justify-end">
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
-                                onClick={() => handleRemoveProduct(index)}
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </div>
-
-                          {/* Vista Mobile */}
-                          <div className="md:hidden px-4 py-3 space-y-3">
-                            <div className="flex justify-between items-start gap-2">
-                              <div className="flex-1 min-w-0">
+                      {details.map((detail, index) => {
+                        console.log(`📦 Producto ${index}:`, detail);
+                        return (
+                          <div key={index}>
+                            {/* Vista Desktop */}
+                            <div className="hidden md:grid grid-cols-12 gap-3 px-4 py-3 hover:bg-gray-50 transition-colors items-center">
+                              <div className="col-span-5">
                                 <p className="text-sm font-medium text-gray-900 truncate">
-                                  {getProductName(Number(detail.product_id))}
+                                  {detail.product_name ||
+                                    `Producto #${detail.product_id}`}
                                 </p>
                               </div>
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50 shrink-0"
-                                onClick={() => handleRemoveProduct(index)}
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </div>
 
-                            <div className="space-y-2">
-                              <div>
-                                <label className="text-xs font-medium text-gray-700 mb-1 block">
-                                  Cantidad
-                                </label>
+                              <div className="col-span-2">
                                 <Input
                                   type="number"
                                   min="0.01"
@@ -556,14 +515,11 @@ export default function PurchaseRequestForm({
                                       Number(e.target.value)
                                     )
                                   }
-                                  className="h-9 text-sm w-full"
+                                  className="h-9 text-sm"
                                 />
                               </div>
 
-                              <div>
-                                <label className="text-xs font-medium text-gray-700 mb-1 block">
-                                  Notas
-                                </label>
+                              <div className="col-span-4">
                                 <Input
                                   type="text"
                                   value={detail.notes || ""}
@@ -571,13 +527,82 @@ export default function PurchaseRequestForm({
                                     handleUpdateNotes(index, e.target.value)
                                   }
                                   placeholder="Notas opcionales..."
-                                  className="h-9 text-sm w-full"
+                                  className="h-9 text-sm"
                                 />
+                              </div>
+
+                              <div className="col-span-1 flex justify-end">
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
+                                  onClick={() => handleRemoveProduct(index)}
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </div>
+
+                            {/* Vista Mobile */}
+                            <div className="md:hidden px-4 py-3 space-y-3">
+                              <div className="flex justify-between items-start gap-2">
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-sm font-medium text-gray-900 truncate">
+                                    {detail.product_name ||
+                                      `Producto #${detail.product_id}`}
+                                  </p>
+                                </div>
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50 shrink-0"
+                                  onClick={() => handleRemoveProduct(index)}
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
+
+                              <div className="space-y-2">
+                                <div>
+                                  <label className="text-xs font-medium text-gray-700 mb-1 block">
+                                    Cantidad
+                                  </label>
+                                  <Input
+                                    type="number"
+                                    min="0.01"
+                                    step="0.01"
+                                    value={detail.quantity}
+                                    onChange={(e) =>
+                                      handleUpdateQuantity(
+                                        index,
+                                        Number(e.target.value)
+                                      )
+                                    }
+                                    className="h-9 text-sm w-full"
+                                  />
+                                </div>
+
+                                <div>
+                                  <label className="text-xs font-medium text-gray-700 mb-1 block">
+                                    Notas
+                                  </label>
+                                  <Input
+                                    type="text"
+                                    value={detail.notes || ""}
+                                    onChange={(e) =>
+                                      handleUpdateNotes(index, e.target.value)
+                                    }
+                                    placeholder="Notas opcionales..."
+                                    className="h-9 text-sm w-full"
+                                  />
+                                </div>
                               </div>
                             </div>
                           </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   </div>
                 )}
@@ -592,7 +617,12 @@ export default function PurchaseRequestForm({
           <Button type="button" variant="outline" onClick={onCancel}>
             Cancelar
           </Button>
-          <Button type="submit" disabled={isSubmitting || details.length === 0}>
+          <Button
+            type="submit"
+            disabled={
+              isSubmitting || details.length === 0 || !form.formState.isValid
+            }
+          >
             {isSubmitting
               ? "Guardando..."
               : mode === "create"

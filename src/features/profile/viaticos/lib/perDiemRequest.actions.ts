@@ -146,22 +146,24 @@ export async function reviewPerDiemRequest(
   return response.data;
 }
 
-export async function downloadSettlementPdf(id: number): Promise<void> {
-  const response = await api.get(`${ENDPOINT}/${id}/settlement-pdf`, {
+export async function downloadExpenseTotalPdf(id: number): Promise<void> {
+  const response = await api.get(`${ENDPOINT}/${id}/expense-total-pdf`, {
     responseType: "blob",
   });
 
   const url = window.URL.createObjectURL(new Blob([response.data]));
   const link = document.createElement("a");
   link.href = url;
-  link.setAttribute("download", `liquidacion-viaticos-${id}.pdf`);
+  link.setAttribute("download", `detalle-gastos-total-${id}.pdf`);
   document.body.appendChild(link);
   link.click();
   link.remove();
   window.URL.revokeObjectURL(url);
 }
 
-export async function downloadExpenseDetailPdf(id: number): Promise<void> {
+export async function downloadContributorExpenseDetailsPdf(
+  id: number
+): Promise<void> {
   const response = await api.get(`${ENDPOINT}/${id}/expense-detail-pdf`, {
     responseType: "blob",
   });
@@ -169,7 +171,7 @@ export async function downloadExpenseDetailPdf(id: number): Promise<void> {
   const url = window.URL.createObjectURL(new Blob([response.data]));
   const link = document.createElement("a");
   link.href = url;
-  link.setAttribute("download", `detalle-gastos-viaticos-${id}.pdf`);
+  link.setAttribute("download", `detalle-gastos-por-colaborador-${id}.pdf`);
   document.body.appendChild(link);
   link.click();
   link.remove();
@@ -177,18 +179,28 @@ export async function downloadExpenseDetailPdf(id: number): Promise<void> {
 }
 
 export async function downloadMobilityPayrollPdf(id: number): Promise<void> {
-  const response = await api.get(`${ENDPOINT}/${id}/mobility-payroll-pdf`, {
-    responseType: "blob",
-  });
+  try {
+    const response = await api.get(`${ENDPOINT}/${id}/mobility-payroll-pdf`, {
+      responseType: "blob",
+    });
 
-  const url = window.URL.createObjectURL(new Blob([response.data]));
-  const link = document.createElement("a");
-  link.href = url;
-  link.setAttribute("download", `planilla-movilidad-viaticos-${id}.pdf`);
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-  window.URL.revokeObjectURL(url);
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `planilla-movilidad-viaticos-${id}.pdf`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  } catch (error: any) {
+    // Si el error es un blob, convertirlo a JSON
+    if (error.response?.data instanceof Blob) {
+      const text = await error.response.data.text();
+      const errorData = JSON.parse(text);
+      throw { ...error, response: { ...error.response, data: errorData } };
+    }
+    throw error;
+  }
 }
 
 export async function generateMobilityPayroll(
@@ -242,6 +254,70 @@ export async function uploadDepositFile(
         "Content-Type": "multipart/form-data",
       },
     }
+  );
+  return response.data;
+}
+
+export async function cancelPerDiemRequest(
+  id: number
+): Promise<PerDiemRequestResource> {
+  const response = await api.post<PerDiemRequestResource>(
+    `${ENDPOINT}/${id}/cancel`
+  );
+  return response.data;
+}
+
+export async function startSettlement(
+  id: number
+): Promise<PerDiemRequestResource> {
+  const response = await api.post<PerDiemRequestResource>(
+    `${ENDPOINT}/${id}/start-settlement`
+  );
+  return response.data;
+}
+
+export async function approveSettlement(
+  id: number,
+  comments?: string
+): Promise<PerDiemRequestResource> {
+  const response = await api.post<PerDiemRequestResource>(
+    `${ENDPOINT}/${id}/approve-settlement`,
+    { comments }
+  );
+  return response.data;
+}
+
+export async function rejectSettlement(
+  id: number,
+  rejection_reason: string
+): Promise<PerDiemRequestResource> {
+  const response = await api.post<PerDiemRequestResource>(
+    `${ENDPOINT}/${id}/reject-settlement`,
+    { rejection_reason }
+  );
+  return response.data;
+}
+
+export async function getPendingSettlements({
+  params,
+}: getPerDiemRequestProps): Promise<PerDiemRequestResponse> {
+  const config: AxiosRequestConfig = {
+    params,
+  };
+  const { data } = await api.get<PerDiemRequestResponse>(
+    `${ENDPOINT}/pending-settlements`,
+    config
+  );
+  return data;
+}
+
+export async function completeSettlement(
+  id: number,
+  comments?: string
+): Promise<PerDiemRequestResource> {
+  const response = await api.post<PerDiemRequestResource>(
+    `${ENDPOINT}/${id}/complete-settlement`,
+    { comments }
   );
   return response.data;
 }

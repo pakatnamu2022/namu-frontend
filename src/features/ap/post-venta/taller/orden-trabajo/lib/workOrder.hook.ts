@@ -1,5 +1,4 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
 import {
   deleteWorkOrder,
   findWorkOrderById,
@@ -10,6 +9,7 @@ import {
 } from "./workOrder.actions";
 import { getWorkOrderProps, WorkOrderRequest } from "./workOrder.interface";
 import { WORKER_ORDER } from "./workOrder.constants";
+import { errorToast, successToast } from "@/core/core.function";
 
 const { QUERY_KEY, MODEL } = WORKER_ORDER;
 
@@ -42,7 +42,7 @@ export function useStoreWorkOrder() {
     mutationFn: (data: WorkOrderRequest) => storeWorkOrder(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
-      toast.success(`${MODEL.name} registrad${MODEL.gender ? "a" : "o"}`);
+      successToast(`${MODEL.name} registrad${MODEL.gender ? "a" : "o"}`);
     },
     onError: (error: any) => {
       const errorMessage =
@@ -50,7 +50,7 @@ export function useStoreWorkOrder() {
         `Error al registrar ${
           MODEL.gender ? "la" : "el"
         } ${MODEL.name.toLowerCase()}`;
-      toast.error(errorMessage);
+      errorToast(errorMessage);
     },
   });
 }
@@ -62,7 +62,7 @@ export function useDeleteWorkOrder() {
     mutationFn: (id: number) => deleteWorkOrder(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
-      toast.success(`${MODEL.name} eliminad${MODEL.gender ? "a" : "o"}`);
+      successToast(`${MODEL.name} eliminad${MODEL.gender ? "a" : "o"}`);
     },
     onError: (error: any) => {
       const errorMessage =
@@ -70,7 +70,7 @@ export function useDeleteWorkOrder() {
         `Error al eliminar ${
           MODEL.gender ? "la" : "el"
         } ${MODEL.name.toLowerCase()}`;
-      toast.error(errorMessage);
+      errorToast(errorMessage);
     },
   });
 }
@@ -79,12 +79,12 @@ export function useDownloadWorkOrderPdf() {
   return useMutation({
     mutationFn: (id: number) => downloadWorkOrderPdf(id),
     onSuccess: () => {
-      toast.success("PDF descargado correctamente");
+      successToast("PDF descargado correctamente");
     },
     onError: (error: any) => {
       const errorMessage =
         error?.response?.data?.message || "Error al descargar el PDF";
-      toast.error(errorMessage);
+      errorToast(errorMessage);
     },
   });
 }

@@ -14,26 +14,32 @@ export const inventoryColumns = (): InventoryColumns[] => [
   {
     accessorKey: "product.code",
     header: "Código",
+    enableSorting: false,
   },
   {
     accessorKey: "product.name",
     header: "Producto",
+    enableSorting: false,
   },
   {
     accessorKey: "product.brand_name",
     header: "Marca",
+    enableSorting: false,
   },
   {
     accessorKey: "product.category_name",
     header: "Categoría",
+    enableSorting: false,
   },
   {
     accessorKey: "warehouse.dyn_code",
     header: "Almacén",
+    enableSorting: false,
   },
   {
     accessorKey: "quantity",
     header: "Stock Total",
+    enableSorting: true,
     cell: ({ getValue }) => {
       const value = getValue() as number;
       return value?.toFixed(2) || "0.00";
@@ -42,6 +48,7 @@ export const inventoryColumns = (): InventoryColumns[] => [
   {
     accessorKey: "available_quantity",
     header: "Stock Disponible",
+    enableSorting: false,
     cell: ({ getValue }) => {
       const value = getValue() as number;
       return value?.toFixed(2) || "0.00";
@@ -50,6 +57,7 @@ export const inventoryColumns = (): InventoryColumns[] => [
   {
     accessorKey: "reserved_quantity",
     header: "Stock Reservado",
+    enableSorting: false,
     cell: ({ getValue }) => {
       const value = getValue() as number;
       return value?.toFixed(2) || "0.00";
@@ -58,6 +66,7 @@ export const inventoryColumns = (): InventoryColumns[] => [
   {
     accessorKey: "quantity_in_transit",
     header: "En Tránsito",
+    enableSorting: false,
     cell: ({ getValue }) => {
       const value = getValue() as number;
       return value?.toFixed(2) || "0.00";
@@ -66,6 +75,7 @@ export const inventoryColumns = (): InventoryColumns[] => [
   {
     accessorKey: "quantity_pending_credit_note",
     header: "Pendiente Nota de Crédito",
+    enableSorting: false,
     cell: ({ getValue }) => {
       const value = getValue() as number;
       return value?.toFixed(2) || "0.00";
@@ -74,6 +84,7 @@ export const inventoryColumns = (): InventoryColumns[] => [
   {
     accessorKey: "minimum_stock",
     header: "Stock Mínimo",
+    enableSorting: false,
     cell: ({ getValue }) => {
       const value = getValue() as number;
       return value?.toFixed(2) || "0.00";
@@ -82,6 +93,7 @@ export const inventoryColumns = (): InventoryColumns[] => [
   {
     accessorKey: "maximum_stock",
     header: "Stock Máximo",
+    enableSorting: false,
     cell: ({ getValue }) => {
       const value = getValue() as number;
       return value?.toFixed(2) || "0.00";
@@ -90,6 +102,7 @@ export const inventoryColumns = (): InventoryColumns[] => [
   {
     accessorKey: "stock_status",
     header: "Estado",
+    enableSorting: false,
     cell: ({ row }) => {
       const status = row.original.stock_status;
       const isLowStock = row.original.is_low_stock;
@@ -130,6 +143,7 @@ export const inventoryColumns = (): InventoryColumns[] => [
   {
     accessorKey: "last_movement_date",
     header: "Último Movimiento",
+    enableSorting: false,
     cell: ({ getValue }) => {
       const date = getValue() as string;
       if (!date) return "-";
@@ -143,6 +157,7 @@ export const inventoryColumns = (): InventoryColumns[] => [
   {
     id: "actions",
     header: "Acciones",
+    enableSorting: false,
     cell: ({ row }) => {
       const productId = row.original.product_id;
       const warehouseId = row.original.warehouse_id;

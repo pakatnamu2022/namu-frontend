@@ -15,7 +15,13 @@ export default function ExpensesSection({ request }: ExpensesSectionProps) {
       cols={{ sm: 1 }}
     >
       <div className="md:col-span-1">
-        <ExpensesTable expenses={request.expenses || []} />
+        <ExpensesTable
+          expenses={
+            request.expenses?.filter(
+              (expense) => !expense.is_company_expense
+            ) || []
+          }
+        />
       </div>
     </GroupFormSection>
   );

@@ -1,10 +1,11 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Plus, ClipboardCheck } from "lucide-react";
+import { Plus, ClipboardCheck, FileText } from "lucide-react";
 import ActionsWrapper from "@/shared/components/ActionsWrapper";
 import { PER_DIEM_REQUEST } from "../lib/perDiemRequest.constants";
 import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "@/features/auth/lib/auth.store";
 
 interface Props {
   permissions: {
@@ -15,6 +16,7 @@ interface Props {
 
 export default function PerDiemRequestActions({ permissions }: Props) {
   const router = useNavigate();
+  const { user } = useAuthStore();
   const { ROUTE_ADD, ABSOLUTE_ROUTE } = PER_DIEM_REQUEST;
 
   if (!permissions.canCreate && !permissions.canApprove) {
@@ -23,14 +25,23 @@ export default function PerDiemRequestActions({ permissions }: Props) {
 
   return (
     <ActionsWrapper>
-      {permissions.canApprove && (
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={() => router(`${ABSOLUTE_ROUTE}/aprobar`)}
-        >
-          <ClipboardCheck className="size-4 mr-2" /> Revisar Solicitudes
-        </Button>
+      {permissions.canApprove && user.subordinates > 0 && (
+        <>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => router(`${ABSOLUTE_ROUTE}/aprobar`)}
+          >
+            <ClipboardCheck className="size-4 mr-2" /> Revisar Solicitudes
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => router(`${ABSOLUTE_ROUTE}/aprobar-liquidaciones`)}
+          >
+            <FileText className="size-4 mr-2" /> Aprobar Liquidaciones
+          </Button>
+        </>
       )}
       {permissions.canCreate && (
         <Button

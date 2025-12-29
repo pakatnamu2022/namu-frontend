@@ -135,6 +135,7 @@ export interface PerDiemRequestResource {
   payment_method: string;
   settled: boolean;
   settlement_date: null;
+  settlement_status?: string;
   total_spent: number;
   balance_to_return: number;
   notes: null;
@@ -142,6 +143,7 @@ export interface PerDiemRequestResource {
   with_active: boolean;
   with_request: boolean;
   deposit_voucher_url?: string;
+  mobility_payroll_generated: boolean;
   employee: Employee;
   company: Company;
   district: District;
@@ -169,12 +171,16 @@ export interface ExpenseResource {
   receipt_number: string;
   receipt_path: string;
   notes?: string;
+  business_name: string;
+  ruc: null;
+  is_company_expense: boolean;
   validated: boolean;
   validated_at?: string;
+  rejected: boolean;
+  rejected_at: null;
+  rejection_reason: null;
   expense_type: ExpenseType;
   validated_by: ValidatedBy;
-  created_at: string;
-  updated_at: string;
 }
 
 export interface ExpenseType {

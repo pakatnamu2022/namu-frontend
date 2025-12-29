@@ -6,7 +6,6 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Loader2, Trash2 } from "lucide-react";
-import { toast } from "sonner";
 import { findWorkOrderById } from "../../lib/workOrder.actions";
 import {
   DEFAULT_GROUP_COLOR,
@@ -18,7 +17,7 @@ import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
 import { useIsTablet } from "@/hooks/use-mobile";
 import GeneralSheet from "@/shared/components/GeneralSheet";
 import { WORKER_ORDER_ITEM } from "../../../orden-trabajo-item/lib/workOrderItem.constants";
-import { SUCCESS_MESSAGE, successToast } from "@/core/core.function";
+import { errorToast, SUCCESS_MESSAGE, successToast } from "@/core/core.function";
 
 const getGroupColor = (groupNumber: number) => {
   return GROUP_COLORS[groupNumber] || DEFAULT_GROUP_COLOR;
@@ -50,7 +49,7 @@ export default function OpeningTab({ workOrderId }: OpeningTabProps) {
       setItemToDelete(null);
     },
     onError: () => {
-      toast.error("Error al eliminar el item");
+      errorToast("Error al eliminar el item");
     },
   });
 

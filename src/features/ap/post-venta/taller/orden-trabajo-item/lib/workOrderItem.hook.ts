@@ -1,5 +1,4 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
 import { WORKER_ORDER_ITEM } from "./workOrderItem.constants";
 import {
   getWorkOrderItemProps,
@@ -12,7 +11,7 @@ import {
   storeWorkOrderItem,
   updateWorkOrderItem,
 } from "./workOrderItem.actions";
-import { SUCCESS_MESSAGE, successToast } from "@/core/core.function";
+import { errorToast, SUCCESS_MESSAGE, successToast } from "@/core/core.function";
 
 const { QUERY_KEY, MODEL } = WORKER_ORDER_ITEM;
 
@@ -56,7 +55,7 @@ export function useStoreWorkOrderItem() {
         `Error al registrar ${
           MODEL.gender ? "la" : "el"
         } ${MODEL.name.toLowerCase()}`;
-      toast.error(errorMessage);
+      errorToast(errorMessage);
     },
   });
 }
@@ -70,7 +69,7 @@ export function useUpdateWorkOrderItem() {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY, variables.id] });
-      toast.success(`${MODEL.name} actualizad${MODEL.gender ? "a" : "o"}`);
+      successToast(`${MODEL.name} actualizad${MODEL.gender ? "a" : "o"}`);
     },
     onError: (error: any) => {
       const errorMessage =
@@ -78,7 +77,7 @@ export function useUpdateWorkOrderItem() {
         `Error al actualizar ${
           MODEL.gender ? "la" : "el"
         } ${MODEL.name.toLowerCase()}`;
-      toast.error(errorMessage);
+      errorToast(errorMessage);
     },
   });
 }

@@ -46,6 +46,11 @@ export default function RequestStatusBadge({
       variant: "default",
       icon: <Clock className="h-3 w-3" />,
     },
+    cancelled: {
+      label: "Cancelada",
+      variant: "destructive",
+      icon: <XCircle className="h-3 w-3" />,
+    },
   };
 
   const config = statusConfig[status] || {
@@ -55,10 +60,7 @@ export default function RequestStatusBadge({
   };
 
   return (
-    <Badge
-      variant={config.variant}
-      className="flex! items-center gap-1 w-fit"
-    >
+    <Badge variant={config.variant} className="flex! items-center gap-1 w-fit">
       {config.icon}
       <p className="line-clamp-1">{config.label}</p>
     </Badge>

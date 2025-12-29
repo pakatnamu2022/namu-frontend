@@ -7,10 +7,10 @@ import { HotelReservationForm } from "@/features/profile/viaticos/components/Hot
 import { HotelReservationSchema } from "@/features/profile/viaticos/lib/hotelReservation.schema";
 import { useMutation } from "@tanstack/react-query";
 import { createHotelReservation } from "@/features/profile/viaticos/lib/hotelReservation.actions";
-import { toast } from "sonner";
 import { useFindPerDiemRequestById } from "@/features/profile/viaticos/lib/perDiemRequest.hook";
 import { Loader } from "lucide-react";
 import { useGetAllHotelAgreement } from "@/features/gp/gestionhumana/viaticos/convenios-hoteles/lib/hotelAgreement.hook";
+import { errorToast, successToast } from "@/core/core.function";
 
 export default function AddHotelReservationPage() {
   const { id } = useParams<{ id: string }>();
@@ -46,16 +46,17 @@ export default function AddHotelReservationPage() {
         total_cost: data.total_cost,
         receipt_file: data.receipt_file,
         notes: data.notes || "",
+        document_number: data.document_number,
       });
     },
     onSuccess: () => {
-      toast.success("Reserva de hotel creada exitosamente");
+      successToast("Reserva de hotel creada exitosamente");
       navigate("/gp/gestion-humana/viaticos/solicitud-viaticos");
     },
     onError: (error: any) => {
       const errorMessage =
         error?.response?.data?.message || "Error al crear la reserva de hotel";
-      toast.error(errorMessage);
+      errorToast(errorMessage);
     },
   });
 

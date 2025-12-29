@@ -88,7 +88,7 @@ export const useDeleteShipmentsReceptions = () => {
     mutationFn: (id: number) => deleteShipmentsReceptions(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
-      toast.success("Guía de remisión eliminada exitosamente");
+      successToast("Guía de remisión eliminada exitosamente");
     },
     onError: (error: any) => {
       toast.error(
@@ -122,7 +122,7 @@ export const useUpdateReceptionChecklist = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [CHECKLIST_QUERY_KEY] });
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
-      toast.success("Checklist de recepción actualizado exitosamente");
+      successToast("Checklist de recepción actualizado exitosamente");
     },
     onError: (error: any) => {
       toast.error(
@@ -140,7 +140,7 @@ export const useDeleteReceptionChecklist = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [CHECKLIST_QUERY_KEY] });
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
-      toast.success("Checklist de recepción eliminado exitosamente");
+      successToast("Checklist de recepción eliminado exitosamente");
     },
     onError: (error: any) => {
       toast.error(

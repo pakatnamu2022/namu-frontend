@@ -52,6 +52,7 @@ interface FormSelectAsyncProps {
     search?: string;
     page?: number;
     per_page?: number;
+    [key: string]: any;
   }) => {
     data?: { data: any[]; meta?: { last_page?: number } };
     isLoading: boolean;
@@ -61,6 +62,7 @@ interface FormSelectAsyncProps {
   perPage?: number;
   debounceMs?: number;
   defaultOption?: Option; // Opción inicial para mostrar cuando se edita
+  additionalParams?: Record<string, any>; // Parámetros adicionales para el hook
 }
 
 export function FormSelectAsync({
@@ -82,6 +84,7 @@ export function FormSelectAsync({
   perPage = 10,
   debounceMs = 500,
   defaultOption,
+  additionalParams = {},
 }: FormSelectAsyncProps) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -103,6 +106,7 @@ export function FormSelectAsync({
     search: debouncedSearch,
     page,
     per_page: perPage,
+    ...additionalParams,
   });
 
   // Debounce para el search

@@ -23,7 +23,6 @@ import {
 } from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.constant";
 import { EMPRESA_AP } from "@/core/core.constants";
 import { useCreateWorkOrderPlanning } from "../lib/workOrderPlanning.hook";
-import { toast } from "sonner";
 import {
   exceptionalCaseSchema,
   ExceptionalCaseFormValues,
@@ -56,6 +55,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { DateTimePickerForm } from "@/shared/components/DateTimePickerForm";
 import { FormInput } from "@/shared/components/FormInput";
+import { errorToast, successToast } from "@/core/core.function";
 
 interface ExceptionalCaseSheetProps {
   open: boolean;
@@ -228,7 +228,7 @@ export function ExceptionalCaseSheet({
   const handleFormSubmit = async (data: ExceptionalCaseFormValues) => {
     // Validar horario permitido
     if (!validateWorkingHours(data.planned_start_datetime)) {
-      toast.error(
+      errorToast(
         "El horario seleccionado no está permitido. El horario de trabajo es de 8:00 AM a 6:00 PM, excluyendo el almuerzo (1:00 PM - 2:24 PM)."
       );
       return;
@@ -245,12 +245,12 @@ export function ExceptionalCaseSheet({
         type: "external", // Marcador para casos excepcionales
       });
 
-      toast.success("Planificación excepcional creada correctamente");
+      successToast("Planificación excepcional creada correctamente");
 
       // Limpiar formulario y cerrar
       handleClose();
     } catch (error: any) {
-      toast.error(
+      errorToast(
         error?.response?.data?.message ||
           "Error al crear la planificación excepcional"
       );
