@@ -65,14 +65,18 @@ export default function UpdatePurchaseRequestPVPage() {
       ap_order_quotation_id: data.ap_order_quotation_id
         ? String(data.ap_order_quotation_id)
         : undefined,
-      purchase_order_id: data.purchase_order_id
-        ? String(data.purchase_order_id)
-        : undefined,
       warehouse_id: String(data.warehouse_id),
       observations: data.observations || "",
-      requested_date: data.requested_date ? new Date(data.requested_date) : new Date(),
+      requested_date: data.requested_date
+        ? new Date(data.requested_date)
+        : new Date(),
       has_appointment: !!data.ap_order_quotation_id,
-      details: data.details || [],
+      details: (data.details || []).map((detail) => ({
+        product_id: String(detail.product_id),
+        quantity: detail.quantity,
+        notes: detail.notes || undefined,
+        product_name: detail.product_name,
+      })),
     };
   }
 

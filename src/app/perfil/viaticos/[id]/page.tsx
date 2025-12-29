@@ -12,10 +12,10 @@ import {
 } from "@/features/profile/viaticos/lib/perDiemRequest.constants";
 import {
   findPerDiemRequestById,
-  downloadSettlementPdf,
   downloadMobilityPayrollPdf,
   cancelPerDiemRequest,
   startSettlement,
+  downloadContributorExpenseDetailsPdf,
 } from "@/features/profile/viaticos/lib/perDiemRequest.actions";
 import { useState } from "react";
 import TitleComponent from "@/shared/components/TitleComponent";
@@ -90,11 +90,12 @@ export default function PerDiemRequestDetailPage() {
 
     try {
       setIsDownloading(true);
-      await downloadSettlementPdf(Number(id));
-      successToast("PDF descargado correctamente");
-    } catch (error) {
-      errorToast("Error al descargar el PDF");
-      console.error("Error downloading PDF:", error);
+      await downloadContributorExpenseDetailsPdf(Number(id));
+      successToast("Detalle de Gastos descargado correctamente");
+    } catch (error: any) {
+      const msjError =
+        error.response?.data?.message || "Error al descargar el PDF";
+      errorToast(msjError);
     } finally {
       setIsDownloading(false);
     }
@@ -107,11 +108,10 @@ export default function PerDiemRequestDetailPage() {
       await downloadMobilityPayrollPdf(Number(id));
       successToast("PDF de planilla de movilidad descargado correctamente");
     } catch (error: any) {
-      errorToast(
-        error.response.data.message ??
-          "Error al descargar el PDF de planilla de movilidad"
-      );
-      console.error("Error downloading mobility payroll PDF:", error);
+      const msjError =
+        error.response?.data?.message ||
+        "No se ha generado la planilla de movilidad";
+      errorToast(msjError);
     } finally {
       setIsDownloadingMobilityPayroll(false);
     }

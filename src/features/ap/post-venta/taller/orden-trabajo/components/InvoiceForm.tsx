@@ -20,7 +20,7 @@ import { AssignSalesSeriesResource } from "@/features/ap/configuraciones/maestro
 import { CustomersResource } from "@/features/ap/comercial/clientes/lib/customers.interface";
 
 interface InvoiceFormProps {
-  form: UseFormReturn<InvoiceSchema>;
+  form: UseFormReturn<InvoiceSchema, any, any>;
   onSubmit: (data: InvoiceSchema) => void;
   onCancel: () => void;
   isPending: boolean;

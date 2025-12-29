@@ -76,11 +76,7 @@ export default function UpdateExpensePage() {
 
   return (
     <FormWrapper>
-      <TitleFormComponent
-        title="Actualizar Gasto"
-        mode="edit"
-        icon="Receipt"
-      />
+      <TitleFormComponent title="Actualizar Gasto" mode="edit" icon="Receipt" />
       <ExpenseForm
         requestId={Number(id)}
         defaultValues={{

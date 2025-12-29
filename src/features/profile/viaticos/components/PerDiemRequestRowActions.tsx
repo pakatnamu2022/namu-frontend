@@ -152,15 +152,17 @@ export function PerDiemRequestRowActions({
           <Eye className="size-4" />
         </Button>
 
-        <Button
-          variant="outline"
-          size="icon-xs"
-          onClick={handleGenerateMobilityPayroll}
-          tooltip="Generar Planilla de Gastos de Movilidad"
-          disabled={generateMobilityPayrollMutation.isPending}
-        >
-          <Car className="size-4" />
-        </Button>
+        {!request.mobility_payroll_generated && (
+          <Button
+            variant="outline"
+            size="icon-xs"
+            onClick={handleGenerateMobilityPayroll}
+            tooltip="Generar Planilla de Gastos de Movilidad"
+            disabled={generateMobilityPayrollMutation.isPending}
+          >
+            <Car className="size-4" />
+          </Button>
+        )}
 
         {isOnlyApproved && request.with_request && request.paid && (
           <ConfirmationDialog

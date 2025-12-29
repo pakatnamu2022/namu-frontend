@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { PER_DIEM_REQUEST } from "@/features/profile/viaticos/lib/perDiemRequest.constants";
 import {
   findPerDiemRequestById,
-  downloadSettlementPdf,
+  downloadExpenseTotalPdf,
   downloadMobilityPayrollPdf,
 } from "@/features/profile/viaticos/lib/perDiemRequest.actions";
 import { useState } from "react";
@@ -49,7 +49,7 @@ export default function PerDiemRequestDetailAdminPage() {
 
     try {
       setIsDownloading(true);
-      await downloadSettlementPdf(Number(id));
+      await downloadExpenseTotalPdf(Number(id));
       successToast("PDF descargado correctamente");
     } catch (error) {
       errorToast("Error al descargar el PDF");
