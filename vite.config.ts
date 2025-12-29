@@ -14,6 +14,6 @@ export default defineConfig({
   preview: {
     port: 4173,
     host: true,
-    allowedHosts: ["namu.grupopakatnamu.com", "localhost", "127.0.0.1"],
+    allowedHosts: ["siam.grupopakatnamu.com", "localhost", "127.0.0.1"],
   },
 });
