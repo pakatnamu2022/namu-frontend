@@ -17,6 +17,18 @@ export const expenseSchema = z
       })
       .min(1, "El tipo de comprobante es requerido"),
     receipt_number: z.string().optional(),
+    ruc: z
+      .string()
+      .optional()
+      .refine(
+        (val) => {
+          if (!val) return true;
+          return /^\d+$/.test(val) && val.length <= 20;
+        },
+        {
+          message: "El RUC debe contener solo números y máximo 20 dígitos",
+        }
+      ),
     receipt_file: z
       .instanceof(File, {
         message: "El archivo del comprobante es requerido",
@@ -40,6 +52,22 @@ export const expenseSchema = z
       message:
         "El número de comprobante es requerido cuando el tipo es factura o boleta",
       path: ["receipt_number"],
+    }
+  )
+  .refine(
+    (data) => {
+      // El RUC es requerido solo para factura o boleta
+      if (
+        (data.receipt_type === "invoice" || data.receipt_type === "ticket") &&
+        (!data.ruc || data.ruc.trim() === "")
+      ) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: "El RUC es requerido cuando el tipo es factura o boleta",
+      path: ["ruc"],
     }
   )
   .refine(
