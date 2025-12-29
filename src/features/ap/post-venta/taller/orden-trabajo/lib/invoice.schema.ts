@@ -8,7 +8,7 @@ const invoiceBaseObject = z.object({
   sunat_concept_currency_id: requiredStringId("Moneda es requerida"),
   fecha_de_emision: z.string().min(1, "Fecha de emisión es requerida"),
   serie: requiredStringId("Serie es requerida"),
-  is_advance_payment: z.boolean().default(false),
+  is_advance_payment: z.boolean(),
   description: z
     .string()
     .min(10, "La descripción debe tener al menos 10 caracteres")

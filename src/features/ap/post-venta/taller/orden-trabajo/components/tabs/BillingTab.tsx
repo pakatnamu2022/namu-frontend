@@ -171,6 +171,11 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
     form.reset({
       groupNumber: selectedGroupNumber,
       customer_id: "",
+      sunat_concept_document_type_id: "",
+      sunat_concept_currency_id: "1",
+      fecha_de_emision: new Date().toISOString().split("T")[0],
+      serie: "",
+      is_advance_payment: false,
       description: `Factura por servicios del Grupo ${selectedGroupNumber}`,
       amount: 0,
       taxRate: 18,

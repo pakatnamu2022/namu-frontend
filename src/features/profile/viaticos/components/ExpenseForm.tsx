@@ -342,12 +342,13 @@ export default function ExpenseForm({
               name="notes"
               label={
                 expenseTypeId === TYPE_EXPENSE_LOCAL_MOBILITY
-                  ? "Notas *"
+                  ? "Notas"
                   : "Notas (Opcional)"
               }
               placeholder="Observaciones adicionales..."
               control={form.control}
               rows={3}
+              required={expenseTypeId === TYPE_EXPENSE_LOCAL_MOBILITY}
             />
           </div>
         </div>

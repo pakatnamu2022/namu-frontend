@@ -12,11 +12,10 @@ import {
 } from "@/features/profile/viaticos/lib/perDiemRequest.constants";
 import {
   findPerDiemRequestById,
-  downloadSettlementPdf,
   downloadMobilityPayrollPdf,
+  downloadContributorExpenseDetailsPdf,
 } from "@/features/profile/viaticos/lib/perDiemRequest.actions";
 import { useState } from "react";
-import { toast } from "sonner";
 import TitleComponent from "@/shared/components/TitleComponent";
 import {
   GeneralInfoSection,
@@ -25,6 +24,7 @@ import {
 } from "@/features/profile/viaticos/components/PerDiemRequestDetail";
 import FormWrapper from "@/shared/components/FormWrapper";
 import BackButton from "@/shared/components/BackButton";
+import { errorToast, successToast } from "@/core/core.function";
 
 export default function PerDiemRequestDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -44,11 +44,12 @@ export default function PerDiemRequestDetailPage() {
 
     try {
       setIsDownloading(true);
-      await downloadSettlementPdf(Number(id));
-      toast.success("PDF descargado correctamente");
-    } catch (error) {
-      toast.error("Error al descargar el PDF");
-      console.error("Error downloading PDF:", error);
+      await downloadContributorExpenseDetailsPdf(Number(id));
+      successToast("Detalle de Gastos descargado correctamente");
+    } catch (error: any) {
+      const msjError =
+        error.response?.data?.message || "Error al descargar el PDF";
+      errorToast(msjError);
     } finally {
       setIsDownloading(false);
     }
@@ -59,10 +60,12 @@ export default function PerDiemRequestDetailPage() {
     try {
       setIsDownloadingMobilityPayroll(true);
       await downloadMobilityPayrollPdf(Number(id));
-      toast.success("PDF de planilla de movilidad descargado correctamente");
-    } catch (error) {
-      toast.error("Error al descargar el PDF de planilla de movilidad");
-      console.error("Error downloading mobility payroll PDF:", error);
+      successToast("PDF de planilla de movilidad descargado correctamente");
+    } catch (error: any) {
+      const msjError =
+        error.response?.data?.message ||
+        "No se ha generado la planilla de movilidad";
+      errorToast(msjError);
     } finally {
       setIsDownloadingMobilityPayroll(false);
     }
