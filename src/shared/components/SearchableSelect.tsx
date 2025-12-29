@@ -41,6 +41,7 @@ interface SearchableSelectProps {
   label?: string;
   disabled?: boolean;
   buttonSize?: "icon" | "sm" | "lg" | "default" | "xs" | "icon-sm" | "icon-lg";
+  showSearch?: boolean;
 }
 
 export function SearchableSelect({
@@ -57,6 +58,7 @@ export function SearchableSelect({
   label,
   disabled = false,
   buttonSize = "sm",
+  showSearch = true,
 }: SearchableSelectProps) {
   const [open, setOpen] = React.useState(false);
   const [searchValue, setSearchValue] = React.useState("");
@@ -111,12 +113,14 @@ export function SearchableSelect({
 
   const commandContent = (
     <Command shouldFilter={false} className="md:max-h-72 overflow-hidden">
-      <CommandInput
-        className="border-none focus:ring-0"
-        placeholder="Buscar..."
-        value={searchValue}
-        onValueChange={setSearchValue}
-      />
+      {showSearch && (
+        <CommandInput
+          className="border-none focus:ring-0"
+          placeholder="Buscar..."
+          value={searchValue}
+          onValueChange={setSearchValue}
+        />
+      )}
       <CommandList className="md:max-h-60 overflow-y-auto">
         <CommandEmpty className="py-4 text-center text-sm">
           No hay resultados.
