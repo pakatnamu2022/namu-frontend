@@ -41,7 +41,8 @@ export function PerDiemRequestRowActions({
   const hotel = request.hotel_reservation?.hotel_name;
   const withRequest = request.with_request;
   const isCancelled = request.status === "cancelled";
-  const canCompleteSettlement = request.settlement_status === "approved_by_boss";
+  const canCompleteSettlement =
+    request.settlement_status === "approved_by_boss";
 
   const confirmMutation = useMutation({
     mutationFn: (requestId: number) => confirmPerDiemRequest(requestId),
@@ -78,8 +79,13 @@ export function PerDiemRequestRowActions({
   const [settlementComments, setSettlementComments] = useState("");
 
   const completeSettlementMutation = useMutation({
-    mutationFn: ({ requestId, comments }: { requestId: number; comments?: string }) =>
-      completeSettlement(requestId, comments),
+    mutationFn: ({
+      requestId,
+      comments,
+    }: {
+      requestId: number;
+      comments?: string;
+    }) => completeSettlement(requestId, comments),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: [PER_DIEM_REQUEST.QUERY_KEY],
@@ -106,7 +112,7 @@ export function PerDiemRequestRowActions({
   const handleCompleteSettlement = () => {
     completeSettlementMutation.mutate({
       requestId: request.id,
-      comments: settlementComments || undefined
+      comments: settlementComments || undefined,
     });
   };
 
@@ -150,6 +156,24 @@ export function PerDiemRequestRowActions({
           tooltip="Ver detalle"
         >
           <Eye className="size-4" />
+        </Button>
+
+        <Button
+          variant={hasHotelReservation ? "default" : "outline"}
+          size="icon-xs"
+          onClick={
+            isApproved
+              ? hasHotelReservation
+                ? handleSeeReservation
+                : handleAddHotelReservation
+              : undefined
+          }
+          tooltip={
+            hasHotelReservation ? `Hotel: ${hotel}` : "Agregar reserva de hotel"
+          }
+          disabled={!isApproved}
+        >
+          <Hotel className="size-4" />
         </Button>
 
         {!request.mobility_payroll_generated && (
@@ -202,24 +226,6 @@ export function PerDiemRequestRowActions({
             <Upload className="size-4" />
           </Button>
         )}
-
-        <Button
-          variant={hasHotelReservation ? "default" : "outline"}
-          size="icon-xs"
-          onClick={
-            isApproved
-              ? hasHotelReservation
-                ? handleSeeReservation
-                : handleAddHotelReservation
-              : undefined
-          }
-          tooltip={
-            hasHotelReservation ? `Hotel: ${hotel}` : "Agregar reserva de hotel"
-          }
-          disabled={!isApproved}
-        >
-          <Hotel className="size-4" />
-        </Button>
 
         {canCompleteSettlement && (
           <ConfirmationDialog
