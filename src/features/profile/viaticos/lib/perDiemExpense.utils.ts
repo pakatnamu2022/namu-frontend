@@ -20,6 +20,10 @@ export function expenseSchemaToFormData(data: ExpenseSchema): FormData {
     formData.append("receipt_number", data.receipt_number);
   }
 
+  if (data.ruc) {
+    formData.append("ruc", data.ruc);
+  }
+
   if (data.receipt_file) {
     formData.append("receipt_file", data.receipt_file);
   }
