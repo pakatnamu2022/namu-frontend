@@ -158,23 +158,27 @@ export function PerDiemRequestRowActions({
           <Eye className="size-4" />
         </Button>
 
-        <Button
-          variant={hasHotelReservation ? "default" : "outline"}
-          size="icon-xs"
-          onClick={
-            isApproved
-              ? hasHotelReservation
-                ? handleSeeReservation
-                : handleAddHotelReservation
-              : undefined
-          }
-          tooltip={
-            hasHotelReservation ? `Hotel: ${hotel}` : "Agregar reserva de hotel"
-          }
-          disabled={!isApproved}
-        >
-          <Hotel className="size-4" />
-        </Button>
+        {request.days_count > 1 && (
+          <Button
+            variant={hasHotelReservation ? "default" : "outline"}
+            size="icon-xs"
+            onClick={
+              isApproved
+                ? hasHotelReservation
+                  ? handleSeeReservation
+                  : handleAddHotelReservation
+                : undefined
+            }
+            tooltip={
+              hasHotelReservation
+                ? `Hotel: ${hotel}`
+                : "Agregar reserva de hotel"
+            }
+            disabled={!isApproved}
+          >
+            <Hotel className="size-4" />
+          </Button>
+        )}
 
         {!request.mobility_payroll_generated && (
           <Button
@@ -188,7 +192,7 @@ export function PerDiemRequestRowActions({
           </Button>
         )}
 
-        {isOnlyApproved && request.with_request && request.paid && (
+        {isOnlyApproved && request.days_count === 1 && (
           <ConfirmationDialog
             trigger={
               <Button
@@ -226,7 +230,6 @@ export function PerDiemRequestRowActions({
             <Upload className="size-4" />
           </Button>
         )}
-
         {canCompleteSettlement && (
           <ConfirmationDialog
             trigger={
