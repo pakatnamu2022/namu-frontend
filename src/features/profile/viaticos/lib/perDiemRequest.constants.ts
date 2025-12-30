@@ -43,3 +43,10 @@ export const PER_DIEM_STATUS = {
   PENDING_SETTLEMENT: "pending_settlement",
   IN_PROGRESS: "in_progress",
 } as const;
+
+export const PER_DIEM_SETTLEMENT_STATUS = {
+  PENDING: "pending",
+  APPROVED: "approved",
+  REJECTED: "rejected",
+  COMPLETED: "completed",
+} as const;
