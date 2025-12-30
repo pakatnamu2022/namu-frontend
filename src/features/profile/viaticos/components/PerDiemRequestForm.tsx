@@ -21,6 +21,7 @@ import { useAllDistrict } from "@/features/gp/gestionsistema/ubicaciones/lib/loc
 import { useAllCompanies } from "@/features/gp/gestionsistema/empresa/lib/company.hook";
 import { FormInputText } from "@/shared/components/FormInputText";
 import { FormSwitch } from "@/shared/components/FormSwitch";
+import { useAuthStore } from "@/features/auth/lib/auth.store";
 
 interface PerDiemRequestFormProps {
   defaultValues: Partial<PerDiemRequestSchema | PerDiemRequestSchemaUpdate>;
@@ -48,6 +49,7 @@ export const PerDiemRequestForm = ({
   mode = "create",
   onCancel,
 }: PerDiemRequestFormProps) => {
+  const { user } = useAuthStore();
   const form = useForm<PerDiemRequestSchema | PerDiemRequestSchemaUpdate>({
     resolver: zodResolver(
       mode === "create"
@@ -90,6 +92,14 @@ export const PerDiemRequestForm = ({
     }
   }, [myCompanies, form]);
 
+  // Si el usuario NO es de GP, automáticamente asignar su empresa en "Empresa Brinda Servicio"
+  useEffect(() => {
+    const companyId = form.watch("company_id");
+    if (user.empresa !== "GP" && companyId) {
+      form.setValue("company_service_id", companyId);
+    }
+  }, [form.watch("company_id"), user.empresa, form]);
+
   if (isLoadingMyCompanies || isLoadingDistricts || isLoadingCompanies)
     return <FormSkeleton />;
 
@@ -121,6 +131,7 @@ export const PerDiemRequestForm = ({
                 value: item.id.toString(),
               }))}
             control={form.control}
+            disabled={user.empresa !== "GP"}
           />
 
           <DateRangePickerFormField
@@ -142,15 +153,6 @@ export const PerDiemRequestForm = ({
             text={form.watch("with_active") ? "Sí" : "No"}
             control={form.control}
           />
-
-          {/* <FormSwitch
-            name="with_request"
-            label="¿Solicito viáticos o rinde gastos al final?"
-            text={
-              form.watch("with_request") ? "Solicito viáticos" : "Rinde gastos"
-            }
-            control={form.control}
-          /> */}
         </div>
 
         <FormSelect

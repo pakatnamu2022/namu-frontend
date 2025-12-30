@@ -10,11 +10,6 @@ interface DepositVoucherSectionProps {
 export default function DepositVoucherSection({
   request,
 }: DepositVoucherSectionProps) {
-  // Solo mostrar si with_request es true
-  if (!request.with_request) {
-    return null;
-  }
-
   const getFileExtension = (path: string) => {
     return path.split(".").pop()?.toLowerCase();
   };
