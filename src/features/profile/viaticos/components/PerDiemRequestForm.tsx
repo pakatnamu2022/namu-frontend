@@ -58,6 +58,7 @@ export const PerDiemRequestForm = ({
     ) as any,
     defaultValues: {
       ...defaultValues,
+      with_request: defaultValues.with_request ?? false,
     },
     mode: "onChange",
   });
@@ -85,7 +86,9 @@ export const PerDiemRequestForm = ({
   // Seleccionar automáticamente la empresa si solo hay una
   useEffect(() => {
     if (myCompanies.length === 1 && !form.getValues("company_id")) {
-      form.setValue("company_id", myCompanies[0].id.toString());
+      const companyId = myCompanies[0].id.toString();
+      form.setValue("company_id", companyId);
+      form.setValue("company_service_id", companyId);
     }
   }, [myCompanies, form]);
 

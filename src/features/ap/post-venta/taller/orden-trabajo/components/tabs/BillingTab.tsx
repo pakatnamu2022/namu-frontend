@@ -27,6 +27,7 @@ import { storeElectronicDocument } from "@/features/ap/facturacion/electronic-do
 import type { ElectronicDocumentSchema } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.schema";
 import InvoiceForm from "../InvoiceForm";
 import { errorToast, successToast } from "@/core/core.function";
+import { SUNAT_CONCEPTS_TYPE } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
 
 const getGroupColor = (groupNumber: number) => {
   return GROUP_COLORS[groupNumber] || DEFAULT_GROUP_COLOR;
@@ -60,10 +61,14 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
     useAllCustomers();
 
   // Obtener tipos de documento (Factura, Boleta, etc.)
-  const { data: documentTypes = [] } = useAllSunatConcepts({ type: "01" });
+  const { data: documentTypes = [] } = useAllSunatConcepts({
+    type: [SUNAT_CONCEPTS_TYPE.TYPE_DOCUMENT],
+  });
 
   // Obtener tipos de moneda
-  const { data: currencyTypes = [] } = useAllSunatConcepts({ type: "02" });
+  const { data: currencyTypes = [] } = useAllSunatConcepts({
+    type: [SUNAT_CONCEPTS_TYPE.BILLING_CURRENCY],
+  });
 
   const form = useForm<InvoiceSchema>({
     resolver: zodResolver(invoiceSchemaCreate) as any,
@@ -105,12 +110,12 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
 
     // Si el cliente tiene RUC (810), solo mostrar Factura (id: 29)
     if (Number(documentTypeId) === 810) {
-      return type.id === 29;
+      return type.id === 4;
     }
 
     // Si el cliente tiene Cédula (809), solo mostrar el tipo con id 30
     if (Number(documentTypeId) === 809) {
-      return type.id === 30;
+      return type.id === 2;
     }
 
     return true;
@@ -158,7 +163,6 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
     },
     onError: (error: any) => {
       errorToast(error?.message || "Error al crear la factura");
-      console.error("Error creando factura:", error);
     },
   });
 

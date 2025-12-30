@@ -1,14 +1,13 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Eye, Hotel, CheckCircle, Upload, Car, FileCheck2 } from "lucide-react";
+import { Eye, Hotel, CheckCircle, Upload, FileCheck2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { PerDiemRequestResource } from "../lib/perDiemRequest.interface";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   confirmPerDiemRequest,
-  generateMobilityPayroll,
   completeSettlement,
 } from "../lib/perDiemRequest.actions";
 import { PER_DIEM_REQUEST } from "../lib/perDiemRequest.constants";
@@ -60,22 +59,6 @@ export function PerDiemRequestRowActions({
     },
   });
 
-  const generateMobilityPayrollMutation = useMutation({
-    mutationFn: (requestId: number) => generateMobilityPayroll(requestId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: [PER_DIEM_REQUEST.QUERY_KEY],
-      });
-      successToast("Planilla de gastos de movilidad generada exitosamente");
-    },
-    onError: (error: any) => {
-      errorToast(
-        error?.response?.data?.message ||
-          "Error al generar la planilla de movilidad"
-      );
-    },
-  });
-
   const [settlementComments, setSettlementComments] = useState("");
 
   const completeSettlementMutation = useMutation({
@@ -103,10 +86,6 @@ export function PerDiemRequestRowActions({
 
   const handleConfirmRequest = () => {
     confirmMutation.mutate(request.id);
-  };
-
-  const handleGenerateMobilityPayroll = () => {
-    generateMobilityPayrollMutation.mutate(request.id);
   };
 
   const handleCompleteSettlement = () => {
@@ -181,19 +160,7 @@ export function PerDiemRequestRowActions({
           </Button>
         )}
 
-        {!request.mobility_payroll_generated && module === "contabilidad" && (
-          <Button
-            variant="outline"
-            size="icon-xs"
-            onClick={handleGenerateMobilityPayroll}
-            tooltip="Generar Planilla de Gastos de Movilidad"
-            disabled={generateMobilityPayrollMutation.isPending}
-          >
-            <Car className="size-4" />
-          </Button>
-        )}
-
-        {isOnlyApproved && request.days_count === 1 && module === "gh" && (
+        {isOnlyApproved && request.days_count === 1 && (
           <ConfirmationDialog
             trigger={
               <Button

@@ -19,6 +19,9 @@ export default function ApprovePerDiemRequestPage() {
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
+  const [approvalStatus, setApprovalStatus] = useState<
+    "pending" | "approved" | "all"
+  >("pending");
   const [reviewId, setReviewId] = useState<number | null>(null);
   const [reviewAction, setReviewAction] = useState<
     "approved" | "rejected" | null
@@ -29,13 +32,14 @@ export default function ApprovePerDiemRequestPage() {
 
   useEffect(() => {
     setPage(1);
-  }, [search, per_page]);
+  }, [search, per_page, approvalStatus]);
 
   const { data, isLoading, refetch } = useGetPendingApprovals({
     params: {
       page,
       search,
       per_page,
+      approval_status: approvalStatus,
     },
   });
 
@@ -93,7 +97,12 @@ export default function ApprovePerDiemRequestPage() {
         })}
         data={data?.data || []}
       >
-        <PerDiemRequestOptions search={search} setSearch={setSearch} />
+        <PerDiemRequestOptions
+          search={search}
+          setSearch={setSearch}
+          approvalStatus={approvalStatus}
+          setApprovalStatus={setApprovalStatus}
+        />
       </PerDiemRequestTable>
 
       <ReviewDialog
