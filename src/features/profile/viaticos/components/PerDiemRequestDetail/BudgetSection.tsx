@@ -14,18 +14,6 @@ export default function BudgetSection({ request }: BudgetSectionProps) {
     return null;
   }
 
-  // Calcular gastos por tipo de presupuesto (excluyendo gastos de empresa)
-  const getSpentByExpenseType = (expenseTypeId: number) => {
-    if (!request.expenses) return 0;
-    return request.expenses
-      .filter(
-        (expense) =>
-          expense.expense_type.id === expenseTypeId &&
-          !expense.is_company_expense
-      )
-      .reduce((sum, expense) => sum + expense.employee_amount, 0);
-  };
-
   return (
     <GroupFormSection
       title="Detalle de Presupuesto"
@@ -36,7 +24,7 @@ export default function BudgetSection({ request }: BudgetSectionProps) {
     >
       <div className="border rounded-md divide-y">
         {budgets.map((budget) => {
-          const spent = getSpentByExpenseType(budget.expense_type.id);
+          const spent = budget.spent;
           const remaining = budget.total - spent;
           const spentPercentage = (spent / budget.total) * 100;
 
