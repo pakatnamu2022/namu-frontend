@@ -1,7 +1,14 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Eye, Hotel, CheckCircle, Upload, FileCheck2 } from "lucide-react";
+import {
+  Eye,
+  Hotel,
+  CheckCircle,
+  Upload,
+  FileCheck2,
+  Download,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { PerDiemRequestResource } from "../lib/perDiemRequest.interface";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
@@ -9,6 +16,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   confirmPerDiemRequest,
   completeSettlement,
+  expenseTotalWithEvidencePdf,
 } from "../lib/perDiemRequest.actions";
 import { PER_DIEM_REQUEST } from "../lib/perDiemRequest.constants";
 import { useState } from "react";
@@ -112,6 +120,15 @@ export function PerDiemRequestRowActions({
     }
   };
 
+  const handleDownloadPdf = async () => {
+    try {
+      await expenseTotalWithEvidencePdf(request.id);
+      successToast("PDF descargado correctamente");
+    } catch (error: any) {
+      errorToast(error?.response?.data?.message || "");
+    }
+  };
+
   if (isCancelled)
     return (
       <div className="flex items-center gap-2 justify-center">
@@ -137,6 +154,18 @@ export function PerDiemRequestRowActions({
         >
           <Eye className="size-4" />
         </Button>
+
+        {request.settled && module === "contabilidad" && (
+          <Button
+            variant="outline"
+            size="icon"
+            className="size-7"
+            onClick={handleDownloadPdf}
+            tooltip="PDF"
+          >
+            <Download className="size-5" />
+          </Button>
+        )}
 
         {request.days_count > 1 && module === "gh" && (
           <Button

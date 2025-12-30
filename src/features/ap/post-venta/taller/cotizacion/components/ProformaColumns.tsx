@@ -2,7 +2,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { Pencil, Download, Settings } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
-import { errorToast } from "@/core/core.function";
+import { errorToast, successToast } from "@/core/core.function";
 import { OrderQuotationResource } from "../lib/proforma.interface";
 import { downloadOrderQuotationPdf } from "../lib/proforma.actions";
 import { format } from "date-fns";
@@ -84,7 +84,7 @@ export const orderQuotationColumns = ({
     enableSorting: false,
   },
   {
-    accessorKey: "is_taken",
+    accessorKey: "is_take",
     header: "Tomada",
     cell: ({ getValue }) => {
       const value = getValue() as boolean;
@@ -108,6 +108,7 @@ export const orderQuotationColumns = ({
       const handleDownloadPdf = async () => {
         try {
           await downloadOrderQuotationPdf(id);
+          successToast("PDF descargado correctamente");
         } catch {
           errorToast("Error al descargar el PDF");
         }
