@@ -2,14 +2,8 @@
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-} from "@/components/ui/form";
+import { Form } from "@/components/ui/form";
+import { FormInput } from "@/shared/components/FormInput";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Link } from "react-router-dom";
@@ -43,14 +37,8 @@ export function Login({ className, ...props }: React.ComponentProps<"div">) {
   const { login } = useAuthStore();
   const push = useNavigate();
 
-  const onLogin = async () => {
-    setIsLogging(true);
-    await onSubmit(form.getValues()).catch(() => {
-      setIsLogging(false);
-    });
-  };
-
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    setIsLogging(true);
     await login(values)
       .then(() => {
         successToast("Inicio de sesión exitoso");
@@ -58,7 +46,9 @@ export function Login({ className, ...props }: React.ComponentProps<"div">) {
       })
       .catch((error: any) => {
         errorToast(error?.response?.data?.message ?? "Error al iniciar sesión");
-        throw error;
+      })
+      .finally(() => {
+        setIsLogging(false);
       });
   };
 
@@ -69,7 +59,7 @@ export function Login({ className, ...props }: React.ComponentProps<"div">) {
           <Form {...form}>
             <form
               className="p-6 md:p-10"
-              onSubmit={form.handleSubmit(() => {})}
+              onSubmit={form.handleSubmit(onSubmit)}
             >
               <div className="flex flex-col gap-6">
                 <div className="flex flex-col items-center text-center gap-2">
@@ -90,65 +80,46 @@ export function Login({ className, ...props }: React.ComponentProps<"div">) {
                   </p>
                 </div>
                 <div className="flex flex-col py-6 gap-6">
-                  <FormField
-                    control={form.control}
+                  <FormInput
                     name="username"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-base">Usuario</FormLabel>
-                        <FormControl>
-                          <Input
-                            id="username"
-                            type="text"
-                            placeholder="Usuario"
-                            required
-                            {...field}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
+                    label="Usuario"
                     control={form.control}
+                    type="text"
+                    placeholder="Usuario"
+                    required
+                    className="h-10"
+                  />
+                  <FormInput
                     name="password"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-base">Contraseña</FormLabel>
-                        <FormControl>
-                          <div className="relative">
-                            <Input
-                              id="password"
-                              type={showPassword ? "text" : "password"}
-                              placeholder="Contraseña"
-                              required
-                              {...field}
-                              className="pr-10"
-                            />
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="icon"
-                              className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
-                              onClick={() => setShowPassword(!showPassword)}
-                            >
-                              {showPassword ? (
-                                <EyeOff className="h-4 w-4 text-muted-foreground" />
-                              ) : (
-                                <Eye className="h-4 w-4 text-muted-foreground" />
-                              )}
-                              <span className="sr-only">
-                                {showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
-                              </span>
-                            </Button>
-                          </div>
-                        </FormControl>
-                      </FormItem>
-                    )}
+                    label="Contraseña"
+                    control={form.control}
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Contraseña"
+                    required
+                    className="h-10 pr-10"
+                    addonEnd={
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="absolute right-0 top-0 h-full px-3 hover:bg-transparent pointer-events-auto"
+                        onClick={() => setShowPassword(!showPassword)}
+                        tabIndex={-1}
+                      >
+                        {showPassword ? (
+                          <EyeOff className="h-4 w-4 text-muted-foreground" />
+                        ) : (
+                          <Eye className="h-4 w-4 text-muted-foreground" />
+                        )}
+                        <span className="sr-only">
+                          {showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                        </span>
+                      </Button>
+                    }
                   />
                   <Button
-                    type="button"
+                    type="submit"
                     disabled={isLogging}
-                    onClick={onLogin}
                     className="w-full"
                   >
                     <LoaderCircle

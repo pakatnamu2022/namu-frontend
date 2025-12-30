@@ -9,7 +9,7 @@ import { PER_DIEM_REQUEST } from "@/features/profile/viaticos/lib/perDiemRequest
 import {
   findPerDiemRequestById,
   downloadExpenseTotalPdf,
-  generateMobilityPayrollPdf,
+  downloadMobilityPayrollPdf,
 } from "@/features/profile/viaticos/lib/perDiemRequest.actions";
 import { useState } from "react";
 import TitleComponent from "@/shared/components/TitleComponent";
@@ -27,7 +27,7 @@ import { Receipt } from "lucide-react";
 import ExpensesTable from "@/features/profile/viaticos/components/ExpensesTable";
 import { errorToast, successToast } from "@/core/core.function";
 
-export default function PerDiemRequestDetailAdminPage() {
+export default function PerDiemRequestDetailAdminAPPage() {
   const { id } = useParams<{ id: string }>();
   const [isDownloading, setIsDownloading] = useState(false);
 
@@ -63,13 +63,14 @@ export default function PerDiemRequestDetailAdminPage() {
     if (!id) return;
     try {
       setIsDownloadingMobilityPayroll(true);
-      await generateMobilityPayrollPdf(Number(id));
+      await downloadMobilityPayrollPdf(Number(id));
       successToast("PDF de planilla de movilidad descargado correctamente");
     } catch (error: any) {
       errorToast(
         error.response.data.message ??
           "Error al descargar el PDF de planilla de movilidad"
       );
+      console.error("Error downloading mobility payroll PDF:", error);
     } finally {
       setIsDownloadingMobilityPayroll(false);
     }
@@ -114,7 +115,7 @@ export default function PerDiemRequestDetailAdminPage() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="flex items-center gap-3">
               <BackButton
-                route="/gp/gestion-humana/viaticos/solicitud-viaticos"
+                route="/ap/contabilidad/viaticos-ap"
                 size="icon"
                 name=""
               />
@@ -151,7 +152,7 @@ export default function PerDiemRequestDetailAdminPage() {
                 <span className="truncate">
                   {isDownloadingMobilityPayroll
                     ? "Descargando..."
-                    : "Generar Planilla de Movilidad"}
+                    : "Planilla de Movilidad"}
                 </span>
               </Button>
             </div>
@@ -180,7 +181,7 @@ export default function PerDiemRequestDetailAdminPage() {
             <ExpensesTable
               expenses={request.expenses || []}
               onActionComplete={handleActionComplete}
-              module="gh"
+              module="contabilidad"
             />
           </div>
         </GroupFormSection>

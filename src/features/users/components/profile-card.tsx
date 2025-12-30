@@ -20,7 +20,7 @@ import { es } from "date-fns/locale";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ReactNode } from "react";
 import { useEvaluationsByPersonToEvaluate } from "../../gp/gestionhumana/evaluaciondesempeño/evaluation-person/lib/evaluationPerson.hook";
-import { SidebarMenuButton } from "@/components/ui/sidebar";
+import { SidebarMenuButton, useSidebar } from "@/components/ui/sidebar";
 
 interface ProfileCardProps {
   variant?: "sidebar" | "header";
@@ -29,6 +29,7 @@ interface ProfileCardProps {
 export function ProfileCard({ variant = "sidebar" }: ProfileCardProps) {
   const router = useNavigate();
 
+  const { setOpenMobile, isMobile } = useSidebar();
   const { user } = useAuthStore();
 
   // Solo cargar evaluaciones pendientes si estamos en la página de equipo o perfil principal
@@ -136,6 +137,9 @@ export function ProfileCard({ variant = "sidebar" }: ProfileCardProps) {
 
   const handleProfileClick = (value: string) => {
     router(`/perfil/${value}`);
+    if (isMobile) {
+      setOpenMobile(false);
+    }
   };
 
   if (variant === "header") {

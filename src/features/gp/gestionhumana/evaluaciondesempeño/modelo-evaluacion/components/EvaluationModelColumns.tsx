@@ -26,7 +26,6 @@ export const evaluationModelColumns: ColumnDef<EvaluationModelResource>[] = [
         </div>
       );
     },
-    enableSorting: false,
   },
   {
     accessorKey: "leadership_weight",
@@ -94,7 +93,6 @@ export const evaluationModelColumns: ColumnDef<EvaluationModelResource>[] = [
         </div>
       );
     },
-    enableSorting: false,
   },
   {
     id: "actions",
