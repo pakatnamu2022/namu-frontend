@@ -97,7 +97,7 @@ export default function PerDiemRequestDetailSheet({
     >
       <div className="flex justify-between items-center w-full">
         {/* Botones de descarga */}
-        <div className="flex flex-col sm:flex-row gap-2 w-full">
+        <div className="flex flex-col sm:flex-row gap-2">
           <Button
             onClick={handleDownloadPdf}
             size="sm"
@@ -137,7 +137,7 @@ export default function PerDiemRequestDetailSheet({
         <BudgetSection request={request} />
 
         {/* Comprobante de Depósito */}
-        <DepositVoucherSection request={request} />
+        {request.settled && <DepositVoucherSection request={request} />}
 
         {/* Resumen Financiero */}
         <FinancialSummarySection request={request} />

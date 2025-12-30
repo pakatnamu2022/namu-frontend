@@ -79,7 +79,10 @@ const GeneralSheet: React.FC<GeneralSheetProps> = ({
   {
     return type === "default" ? (
       <Sheet open={open} onOpenChange={(v) => !v && onClose()} modal={modal}>
-        <SheetContent side={side} className={cn(sizes[size], className)}>
+        <SheetContent
+          side={side}
+          className={cn(sizes[size], className, "overflow-y-auto")}
+        >
           <SheetHeader>
             <div className="flex items-center gap-2">
               {icon && IconComponent && (
@@ -101,7 +104,9 @@ const GeneralSheet: React.FC<GeneralSheetProps> = ({
       </Sheet>
     ) : (
       <Drawer open={open} onOpenChange={(v) => !v && onClose()} modal={modal}>
-        <DrawerContent className={cn(sizes[size], className, "px-0 pb-4")}>
+        <DrawerContent
+          className={cn(sizes[size], className, "px-0 pb-4 overflow-y-auto")}
+        >
           <DrawerHeader>
             <div className="flex items-center gap-2">
               {icon && IconComponent && (

@@ -166,7 +166,7 @@ export default function PerDiemRequestDetailAdminAPPage() {
         <BudgetSection request={request} />
 
         {/* Comprobante de Depósito */}
-        <DepositVoucherSection request={request} />
+        {request.settled && <DepositVoucherSection request={request} />}
 
         {/* Resumen Financiero */}
         <FinancialSummarySection request={request} />
