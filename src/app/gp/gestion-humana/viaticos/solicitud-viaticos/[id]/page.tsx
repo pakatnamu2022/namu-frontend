@@ -23,13 +23,15 @@ import {
 import FormWrapper from "@/shared/components/FormWrapper";
 import BackButton from "@/shared/components/BackButton";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
-import { Receipt } from "lucide-react";
+import { Receipt, Plane } from "lucide-react";
 import ExpensesTable from "@/features/profile/viaticos/components/ExpensesTable";
 import { errorToast, successToast } from "@/core/core.function";
+import AddFlightTicketModal from "@/features/profile/viaticos/components/AddFlightTicketModal";
 
 export default function PerDiemRequestDetailAdminPage() {
   const { id } = useParams<{ id: string }>();
   const [isDownloading, setIsDownloading] = useState(false);
+  const [isAddFlightTicketModalOpen, setIsAddFlightTicketModalOpen] = useState(false);
 
   const {
     data: request,
