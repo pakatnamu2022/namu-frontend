@@ -9,7 +9,7 @@ import { PER_DIEM_REQUEST } from "@/features/profile/viaticos/lib/perDiemRequest
 import {
   findPerDiemRequestById,
   downloadExpenseTotalPdf,
-  downloadMobilityPayrollPdf,
+  generateMobilityPayrollPdf,
 } from "@/features/profile/viaticos/lib/perDiemRequest.actions";
 import { useState } from "react";
 import TitleComponent from "@/shared/components/TitleComponent";
@@ -63,14 +63,13 @@ export default function PerDiemRequestDetailAdminPage() {
     if (!id) return;
     try {
       setIsDownloadingMobilityPayroll(true);
-      await downloadMobilityPayrollPdf(Number(id));
+      await generateMobilityPayrollPdf(Number(id));
       successToast("PDF de planilla de movilidad descargado correctamente");
     } catch (error: any) {
       errorToast(
         error.response.data.message ??
           "Error al descargar el PDF de planilla de movilidad"
       );
-      console.error("Error downloading mobility payroll PDF:", error);
     } finally {
       setIsDownloadingMobilityPayroll(false);
     }
@@ -152,7 +151,7 @@ export default function PerDiemRequestDetailAdminPage() {
                 <span className="truncate">
                   {isDownloadingMobilityPayroll
                     ? "Descargando..."
-                    : "Planilla de Movilidad"}
+                    : "Generar Planilla de Movilidad"}
                 </span>
               </Button>
             </div>

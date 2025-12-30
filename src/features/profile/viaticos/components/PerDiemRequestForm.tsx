@@ -56,6 +56,7 @@ export const PerDiemRequestForm = ({
     ) as any,
     defaultValues: {
       ...defaultValues,
+      with_request: defaultValues.with_request ?? false,
     },
     mode: "onChange",
   });
@@ -142,14 +143,14 @@ export const PerDiemRequestForm = ({
             control={form.control}
           />
 
-          <FormSwitch
+          {/* <FormSwitch
             name="with_request"
             label="¿Solicito viáticos o rinde gastos al final?"
             text={
               form.watch("with_request") ? "Solicito viáticos" : "Rinde gastos"
             }
             control={form.control}
-          />
+          /> */}
         </div>
 
         <FormSelect
