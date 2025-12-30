@@ -20,12 +20,14 @@ interface PerDiemRequestRowActionsProps {
   request: PerDiemRequestResource;
   onViewDetail: (id: number) => void;
   onViewHotelReservation?: (requestId: number) => void;
+  module: "gh" | "contabilidad";
 }
 
 export function PerDiemRequestRowActions({
   request,
   onViewDetail,
   onViewHotelReservation,
+  module = "gh",
 }: PerDiemRequestRowActionsProps) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -38,10 +40,8 @@ export function PerDiemRequestRowActions({
     request.status === "approved" || request.status === "in_progress";
   const isOnlyApproved = request.status === "approved";
   const hotel = request.hotel_reservation?.hotel_name;
-  const withRequest = request.with_request;
   const isCancelled = request.status === "cancelled";
-  const canCompleteSettlement =
-    request.settlement_status === "approved_by_boss";
+  const canCompleteSettlement = request.settlement_status === "approved";
 
   const confirmMutation = useMutation({
     mutationFn: (requestId: number) => confirmPerDiemRequest(requestId),
@@ -95,19 +95,20 @@ export function PerDiemRequestRowActions({
     });
   };
 
+  const prefix =
+    module === "gh"
+      ? "/gp/gestion-humana/viaticos/solicitud-viaticos"
+      : "/ap/contabilidad/viaticos-ap";
+
   const handleAddHotelReservation = () => {
-    navigate(
-      `/gp/gestion-humana/viaticos/solicitud-viaticos/${request.id}/reserva-hotel/agregar`
-    );
+    navigate(`${prefix}/${request.id}/reserva-hotel/agregar`);
   };
 
   const handleSeeReservation = () => {
     if (onViewHotelReservation) {
       onViewHotelReservation(request.id);
     } else {
-      navigate(
-        `/gp/gestion-humana/viaticos/solicitud-viaticos/${request.id}/reserva-hotel/detalle`
-      );
+      navigate(`${prefix}/${request.id}/reserva-hotel/detalle`);
     }
   };
 
@@ -137,7 +138,7 @@ export function PerDiemRequestRowActions({
           <Eye className="size-4" />
         </Button>
 
-        {request.days_count > 1 && (
+        {request.days_count > 1 && module === "gh" && (
           <Button
             variant={hasHotelReservation ? "default" : "outline"}
             size="icon-xs"
@@ -183,21 +184,23 @@ export function PerDiemRequestRowActions({
           />
         )}
 
-        {withRequest && (
-          <Button
-            variant="outline"
-            size="icon-xs"
-            onClick={() =>
-              navigate(
-                `/gp/gestion-humana/viaticos/solicitud-viaticos/${request.id}/deposito`
-              )
-            }
-            tooltip="Subir archivo de depósito"
-          >
-            <Upload className="size-4" />
-          </Button>
-        )}
-        {canCompleteSettlement && (
+        {module === "contabilidad" &&
+          request.settlement_status === "approved" &&
+          request.end_date &&
+          new Date(
+            new Date(request.end_date).getTime() + 3 * 24 * 60 * 60 * 1000
+          ) <= new Date() && (
+            <Button
+              variant="outline"
+              size="icon-xs"
+              onClick={() => navigate(`${prefix}/${request.id}/deposito`)}
+              tooltip="Subir archivo de depósito"
+            >
+              <Upload className="size-4" />
+            </Button>
+          )}
+
+        {canCompleteSettlement && module === "contabilidad" && (
           <ConfirmationDialog
             trigger={
               <Button

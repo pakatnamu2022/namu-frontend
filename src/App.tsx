@@ -316,6 +316,8 @@ import ProfilePage from "./app/perfil/page.tsx";
 import UserPage from "./app/gp/gestion-del-sistema/usuarios/page.tsx";
 import MyPerDiemPage from "./app/perfil/viaticos/page.tsx";
 import AddGeneralElectronicDocumentPage from "./app/ap/comercial/electronic-documents/agregar-otros/page.tsx";
+import PerDiemRequestAPPage from "./app/ap/contabilidad/solicitud-viaticos/page.tsx";
+import PerDiemRequestDetailAdminAPPage from "./app/ap/contabilidad/solicitud-viaticos/[id]/page.tsx";
 
 // ============================================================================
 // PROTECTED ROUTE COMPONENT
@@ -1005,6 +1007,35 @@ function App() {
                 element={<ApGoalSellOutInSummaryPage />}
               />
               <Route path="ventas/tiendas" element={<ShopPage />} />
+            </Route>
+
+            {/* ======================================================== */}
+            {/* AP - CONTABILIDAD */}
+            {/* ======================================================== */}
+            <Route
+              path="/ap/contabilidad"
+              element={
+                <Suspense fallback={<LoadingFallback />}>
+                  <GPGestionHumanaLayout>
+                    <Outlet />
+                  </GPGestionHumanaLayout>
+                </Suspense>
+              }
+            >
+              {/* Administración de Solicitud de Viaticos */}
+              <Route path="viaticos-ap" element={<PerDiemRequestAPPage />} />
+              <Route
+                path="viaticos-ap/:id"
+                element={<PerDiemRequestDetailAdminAPPage />}
+              />
+              <Route
+                path="viaticos-ap/:id/reserva-hotel/agregar"
+                element={<AddAdminHotelReservationPage />}
+              />
+              <Route
+                path="viaticos-ap/:id/deposito"
+                element={<UploadDepositPage />}
+              />
             </Route>
 
             {/* ======================================================== */}

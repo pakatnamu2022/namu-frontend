@@ -2,6 +2,7 @@ import { type ModelComplete } from "@/core/core.interface.ts";
 import { PerDiemPolicyResource } from "../../../gp/gestionhumana/viaticos/politica-viaticos/lib/perDiemPolicy.interface";
 
 const ROUTE = "viaticos";
+const ROUTE_AP = "viaticos-ap";
 const ABSOLUTE_ROUTE = `/perfil/${ROUTE}`;
 
 export const PER_DIEM_REQUEST: ModelComplete<PerDiemPolicyResource> = {
@@ -19,6 +20,21 @@ export const PER_DIEM_REQUEST: ModelComplete<PerDiemPolicyResource> = {
   ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/actualizar`,
 };
 
+export const PER_DIEM_REQUEST_AP: ModelComplete<PerDiemPolicyResource> = {
+  MODEL: {
+    name: "Solicitud de Viáticos",
+    plural: "Solicitudes de Viáticos",
+    gender: true,
+  },
+  ICON: "ContactRound",
+  ENDPOINT: "gp/gestion-humana/viaticos/per-diem-requests",
+  QUERY_KEY: "perDiemRequests",
+  ROUTE: ROUTE_AP,
+  ABSOLUTE_ROUTE,
+  ROUTE_ADD: `${ABSOLUTE_ROUTE}/agregar`,
+  ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/actualizar`,
+};
+
 export const PER_DIEM_STATUS = {
   PENDING: "pending",
   APPROVED: "approved",
@@ -26,4 +42,11 @@ export const PER_DIEM_STATUS = {
   PAID: "paid",
   PENDING_SETTLEMENT: "pending_settlement",
   IN_PROGRESS: "in_progress",
+} as const;
+
+export const PER_DIEM_SETTLEMENT_STATUS = {
+  PENDING: "pending",
+  APPROVED: "approved",
+  REJECTED: "rejected",
+  COMPLETED: "completed",
 } as const;

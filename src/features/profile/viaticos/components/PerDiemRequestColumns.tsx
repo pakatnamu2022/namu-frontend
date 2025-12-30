@@ -10,11 +10,13 @@ export type PerDiemRequestColumns = ColumnDef<PerDiemRequestResource>;
 interface Props {
   onViewDetail: (id: number) => void;
   onViewHotelReservation?: (requestId: number) => void;
+  module: "gh" | "contabilidad";
 }
 
 export const perDiemRequestColumns = ({
   onViewDetail,
   onViewHotelReservation,
+  module,
 }: Props): PerDiemRequestColumns[] => [
   {
     accessorKey: "code",
@@ -63,6 +65,14 @@ export const perDiemRequestColumns = ({
     },
   },
   {
+    accessorKey: "district.name",
+    header: "Destino",
+    cell: ({ getValue }) => {
+      const value = getValue() as string;
+      return value && <p>{value}</p>;
+    },
+  },
+  {
     accessorKey: "total_budget",
     header: "Presupuesto",
     cell: ({ getValue }) => {
@@ -79,20 +89,6 @@ export const perDiemRequestColumns = ({
       const value = row.original.total_spent as number;
       return (
         <div className="flex justify-end">S/ {value?.toFixed(2) || "0.00"}</div>
-      );
-    },
-  },
-  {
-    accessorKey: "with_request",
-    header: "Con Solicitud",
-    cell: ({ getValue }) => {
-      const value = getValue() as boolean;
-      return (
-        <div className="w-fit mx-auto">
-          <Badge variant={value ? "default" : "secondary"} className="w-fit">
-            {value ? "Sí" : "No"}
-          </Badge>
-        </div>
       );
     },
   },
@@ -121,7 +117,7 @@ export const perDiemRequestColumns = ({
         variant: "secondary",
       };
       return (
-        <div className="w-fit mx-auto">
+        <div className="w-fit">
           <Badge className="w-fit" variant={status.variant}>
             {status.label}
           </Badge>
@@ -138,6 +134,7 @@ export const perDiemRequestColumns = ({
           onViewDetail={onViewDetail}
           onViewHotelReservation={onViewHotelReservation}
           request={row.original}
+          module={module}
         />
       );
     },
