@@ -65,6 +65,14 @@ export const perDiemRequestColumns = ({
     },
   },
   {
+    accessorKey: "district.name",
+    header: "Destino",
+    cell: ({ getValue }) => {
+      const value = getValue() as string;
+      return value && <p>{value}</p>;
+    },
+  },
+  {
     accessorKey: "total_budget",
     header: "Presupuesto",
     cell: ({ getValue }) => {
@@ -109,7 +117,7 @@ export const perDiemRequestColumns = ({
         variant: "secondary",
       };
       return (
-        <div className="w-fit mx-auto">
+        <div className="w-fit">
           <Badge className="w-fit" variant={status.variant}>
             {status.label}
           </Badge>

@@ -32,43 +32,37 @@ export const pendingSettlementsColumns = ({
     header: "Empleado",
     cell: ({ getValue }) => {
       const value = getValue() as string;
-      return value && <p>{value}</p>;
+      return value && <p className="text-wrap">{value}</p>;
     },
   },
   {
-    accessorKey: "start_date",
-    header: "Fecha Inicio",
-    cell: ({ getValue }) => {
-      const value = getValue() as string;
-      if (!value) return "-";
-      const date = new Date(value);
-      return date.toLocaleDateString("es-PE", {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-      });
-    },
-  },
-  {
-    accessorKey: "end_date",
-    header: "Fecha Fin",
-    cell: ({ getValue }) => {
-      const value = getValue() as string;
-      if (!value) return "-";
-      const date = new Date(value);
-      return date.toLocaleDateString("es-PE", {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-      });
-    },
-  },
-  {
-    accessorKey: "days_count",
-    header: "Días",
-    cell: ({ getValue }) => {
-      const value = getValue() as number;
-      return <p className="text-center">{value || 0}</p>;
+    accessorKey: "dates",
+    header: "Fechas",
+    cell: ({ row }) => {
+      const startDate = new Date(row.original.start_date).toLocaleDateString(
+        "es-PE",
+        {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+        }
+      );
+      const endDate = new Date(row.original.end_date).toLocaleDateString(
+        "es-PE",
+        {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+        }
+      );
+      return (
+        <p className="text-end">
+          {startDate} - {endDate}{" "}
+          <Badge size="square" variant={"tertiary"}>
+            {row.original.days_count}
+          </Badge>
+        </p>
+      );
     },
   },
   {
@@ -76,7 +70,7 @@ export const pendingSettlementsColumns = ({
     header: "Destino",
     cell: ({ getValue }) => {
       const value = getValue() as string;
-      return value && <p>{value}</p>;
+      return value && <Badge variant="outline">{value}</Badge>;
     },
   },
   {
@@ -123,12 +117,11 @@ export const pendingSettlementsColumns = ({
         variant: "secondary",
       };
       return (
-        <Badge
-          variant={status.variant}
-          className="capitalize w-auto flex items-center justify-center"
-        >
-          {status.label}
-        </Badge>
+        <div className="w-fit">
+          <Badge className="w-fit" variant={status.variant}>
+            {status.label}
+          </Badge>
+        </div>
       );
     },
   },
