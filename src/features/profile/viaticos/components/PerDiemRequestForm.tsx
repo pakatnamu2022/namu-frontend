@@ -131,7 +131,7 @@ export const PerDiemRequestForm = ({
                 value: item.id.toString(),
               }))}
             control={form.control}
-            disabled={user.empresa !== "GP" || myCompanies.length === 1}
+            disabled={user.empresa !== "GP"}
           />
 
           <DateRangePickerFormField

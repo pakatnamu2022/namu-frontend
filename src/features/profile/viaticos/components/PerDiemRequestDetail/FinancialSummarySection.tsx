@@ -16,7 +16,15 @@ interface FinancialSummarySectionProps {
 export default function FinancialSummarySection({
   request,
 }: FinancialSummarySectionProps) {
-  const spentPercentage = (request.total_spent / request.total_budget) * 100;
+  // Calcular el total gastado excluyendo gastos de empresa (is_company_expense)
+  const totalSpent = request.expenses
+    ? request.expenses
+        .filter((expense) => !expense.is_company_expense)
+        .reduce((sum, expense) => sum + expense.employee_amount, 0)
+    : 0;
+
+  const balanceToReturn = request.total_budget - totalSpent;
+  const spentPercentage = (totalSpent / request.total_budget) * 100;
 
   return (
     <GroupFormSection
@@ -46,7 +54,7 @@ export default function FinancialSummarySection({
             <p className="text-xs text-muted-foreground">Total Gastado</p>
           </div>
           <p className="text-xl font-semibold mb-2">
-            S/ {request.total_spent.toFixed(2)}
+            S/ {totalSpent.toFixed(2)}
           </p>
           <div className="space-y-1">
             <span className="text-xs text-muted-foreground">
@@ -75,7 +83,7 @@ export default function FinancialSummarySection({
             <p className="text-xs text-muted-foreground">Por Devolver</p>
           </div>
           <p className="text-xl font-semibold text-green-600 dark:text-green-500">
-            S/ {request.balance_to_return.toFixed(2)}
+            S/ {balanceToReturn.toFixed(2)}
           </p>
         </div>
       </div>
