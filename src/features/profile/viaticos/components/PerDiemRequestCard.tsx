@@ -1,3 +1,4 @@
+import React from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge, BadgeVariants } from "@/components/ui/badge";
 import { format } from "date-fns";
@@ -44,42 +45,66 @@ const getStatusConfig = (status: PerDiemRequestStatus) => {
       label: string;
       variant: BadgeVariants;
       icon: React.ReactNode;
+      IconComponent: React.ComponentType<{ className?: string }>;
+      iconBgColor: string;
+      iconColor: string;
     }
   > = {
     pending: {
       label: "Pendiente",
       variant: "outline",
       icon: <Clock className="w-3 h-3 animate-pulse" />,
+      IconComponent: Clock,
+      iconBgColor: "bg-gray-100 dark:bg-gray-800",
+      iconColor: "text-gray-600 dark:text-gray-400",
     },
     approved: {
       label: "Aprobada",
       variant: "teal",
       icon: <CheckCircle2 className="w-3 h-3" />,
+      IconComponent: CheckCircle2,
+      iconBgColor: "bg-teal-100 dark:bg-teal-950",
+      iconColor: "text-teal-600 dark:text-teal-400",
     },
     rejected: {
       label: "Rechazada",
       variant: "red",
       icon: <XCircle className="w-3 h-3" />,
+      IconComponent: XCircle,
+      iconBgColor: "bg-red-100 dark:bg-red-950",
+      iconColor: "text-red-600 dark:text-red-400",
     },
     pending_settlement: {
       label: "Pendiente de Liquidación",
       variant: "indigo",
       icon: <FileText className="w-3 h-3 animate-pulse" />,
+      IconComponent: FileText,
+      iconBgColor: "bg-indigo-100 dark:bg-indigo-950",
+      iconColor: "text-indigo-600 dark:text-indigo-400",
     },
     in_progress: {
       label: "En Progreso",
       variant: "orange",
       icon: <Plane className="w-3 h-3" />,
+      IconComponent: Plane,
+      iconBgColor: "bg-orange-100 dark:bg-orange-950",
+      iconColor: "text-orange-600 dark:text-orange-400",
     },
     cancelled: {
       label: "Cancelada",
       variant: "secondary",
       icon: <CircleDashed className="w-3 h-3" />,
+      IconComponent: CircleDashed,
+      iconBgColor: "bg-gray-100 dark:bg-gray-800",
+      iconColor: "text-gray-600 dark:text-gray-400",
     },
     settled: {
       label: "Liquidada",
       variant: "blue",
       icon: <FileCheck className="w-3 h-3" />,
+      IconComponent: FileCheck,
+      iconBgColor: "bg-blue-100 dark:bg-blue-950",
+      iconColor: "text-blue-600 dark:text-blue-400",
     },
   };
 
@@ -88,6 +113,9 @@ const getStatusConfig = (status: PerDiemRequestStatus) => {
       label: status,
       variant: "outline" as const,
       icon: <Clock className="w-3 h-3" />,
+      IconComponent: Clock,
+      iconBgColor: "bg-gray-100 dark:bg-gray-800",
+      iconColor: "text-gray-600 dark:text-gray-400",
     }
   );
 };
@@ -99,17 +127,28 @@ export default function PerDiemRequestCard({
   const statusConfig = getStatusConfig(request.status);
   const spentPercentage = (request.total_spent / request.total_budget) * 100;
 
+  const StatusIcon = statusConfig.IconComponent;
+
   return (
     <Card
       className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-[1.01] group"
       onClick={onClick}
     >
       <CardHeader className="pb-3 space-y-2.5">
-        {/* Código y Badge de Estado */}
+        {/* Código con ícono y Badge de Estado */}
         <div className="flex items-start justify-between gap-2">
-          <h3 className="font-semibold text-base group-hover:text-primary transition-colors">
-            {request.code}
-          </h3>
+          <div className="flex items-center gap-2.5">
+            <div className="relative">
+              <div
+                className={`w-10 h-10 rounded-lg flex items-center justify-center transition-colors ${statusConfig.iconBgColor}`}
+              >
+                <StatusIcon className={`w-5 h-5 ${statusConfig.iconColor}`} />
+              </div>
+            </div>
+            <h3 className="font-bold text-lg group-hover:text-primary transition-colors">
+              {request.code}
+            </h3>
+          </div>
           <Badge
             variant={statusConfig.variant}
             className="flex items-center gap-1 shrink-0"
