@@ -135,7 +135,7 @@ export interface PerDiemRequestResource {
   payment_method: string;
   settled: boolean;
   settlement_date: null;
-  settlement_status?: string;
+  settlement_status?: "submitted" | "approved" | "rejected" | "completed";
   total_spent: number;
   balance_to_return: number;
   notes: null;

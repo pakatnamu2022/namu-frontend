@@ -115,7 +115,6 @@ export const pendingSettlementsColumns = ({
       const value = getValue() as string;
       const statusMap: Record<string, { label: string; variant: any }> = {
         submitted: { label: "Enviada", variant: "secondary" },
-        approved_by_boss: { label: "Aprobada por Jefe", variant: "default" },
         approved: { label: "Aprobada", variant: "outline" },
         rejected: { label: "Rechazada", variant: "destructive" },
       };

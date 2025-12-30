@@ -19,19 +19,19 @@ import { useGetPerDiemRequest } from "@/features/profile/viaticos/lib/perDiemReq
 import { deletePerDiemRequest } from "@/features/profile/viaticos/lib/perDiemRequest.actions";
 import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
-import { PER_DIEM_REQUEST } from "@/features/profile/viaticos/lib/perDiemRequest.constants";
+import { PER_DIEM_REQUEST_AP } from "@/features/profile/viaticos/lib/perDiemRequest.constants";
 import { notFound } from "@/shared/hooks/useNotFound";
 import HotelReservationDetailSheet from "@/features/profile/viaticos/components/HotelReservationDetailSheet";
 import { useNavigate } from "react-router-dom";
 
-export default function PerDiemRequestPage() {
+export default function PerDiemRequestAPPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
-  const { MODEL, ROUTE } = PER_DIEM_REQUEST;
+  const { MODEL, ROUTE } = PER_DIEM_REQUEST_AP;
   const [hotelReservationRequestId, setHotelReservationRequestId] = useState<
     number | null
   >(null);
@@ -79,9 +79,9 @@ export default function PerDiemRequestPage() {
         isLoading={isLoading}
         columns={perDiemRequestColumns({
           onViewDetail: (id) =>
-            navigate(`/gp/gestion-humana/viaticos/solicitud-viaticos/${id}`),
+            navigate(`/ap/contabilidad/viaticos-ap/${id}`),
           onViewHotelReservation: setHotelReservationRequestId,
-          module: "gh",
+          module: "contabilidad",
         })}
         data={data?.data || []}
       >

@@ -10,11 +10,13 @@ export type PerDiemRequestColumns = ColumnDef<PerDiemRequestResource>;
 interface Props {
   onViewDetail: (id: number) => void;
   onViewHotelReservation?: (requestId: number) => void;
+  module: "gh" | "contabilidad";
 }
 
 export const perDiemRequestColumns = ({
   onViewDetail,
   onViewHotelReservation,
+  module,
 }: Props): PerDiemRequestColumns[] => [
   {
     accessorKey: "code",
@@ -83,20 +85,6 @@ export const perDiemRequestColumns = ({
     },
   },
   {
-    accessorKey: "with_request",
-    header: "Con Solicitud",
-    cell: ({ getValue }) => {
-      const value = getValue() as boolean;
-      return (
-        <div className="w-fit mx-auto">
-          <Badge variant={value ? "default" : "secondary"} className="w-fit">
-            {value ? "Sí" : "No"}
-          </Badge>
-        </div>
-      );
-    },
-  },
-  {
     accessorKey: "status",
     header: "Estado",
     cell: ({ getValue }) => {
@@ -138,6 +126,7 @@ export const perDiemRequestColumns = ({
           onViewDetail={onViewDetail}
           onViewHotelReservation={onViewHotelReservation}
           request={row.original}
+          module={module}
         />
       );
     },
