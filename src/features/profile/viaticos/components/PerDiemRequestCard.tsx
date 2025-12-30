@@ -9,8 +9,11 @@ import {
   Wallet,
   Hotel,
   Clock,
-  TrendingUp,
+  CheckCircle2,
   XCircle,
+  CircleDashed,
+  Plane,
+  FileCheck,
 } from "lucide-react";
 import { PerDiemRequestStatus } from "../lib/perDiemRequest.interface";
 
@@ -46,37 +49,37 @@ const getStatusConfig = (status: PerDiemRequestStatus) => {
     pending: {
       label: "Pendiente",
       variant: "outline",
-      icon: <Clock className="w-3 h-3" />,
+      icon: <Clock className="w-3 h-3 animate-pulse" />,
     },
     approved: {
       label: "Aprobada",
       variant: "teal",
-      icon: <TrendingUp className="w-3 h-3" />,
+      icon: <CheckCircle2 className="w-3 h-3" />,
     },
     rejected: {
       label: "Rechazada",
       variant: "red",
-      icon: <TrendingUp className="w-3 h-3" />,
+      icon: <XCircle className="w-3 h-3" />,
     },
     pending_settlement: {
       label: "Pendiente de Liquidación",
       variant: "indigo",
-      icon: <Clock className="w-3 h-3" />,
+      icon: <FileText className="w-3 h-3 animate-pulse" />,
     },
     in_progress: {
       label: "En Progreso",
       variant: "orange",
-      icon: <TrendingUp className="w-3 h-3" />,
+      icon: <Plane className="w-3 h-3" />,
     },
     cancelled: {
       label: "Cancelada",
       variant: "secondary",
-      icon: <XCircle className="w-3 h-3" />,
+      icon: <CircleDashed className="w-3 h-3" />,
     },
     settled: {
       label: "Liquidada",
       variant: "blue",
-      icon: <TrendingUp className="w-3 h-3" />,
+      icon: <FileCheck className="w-3 h-3" />,
     },
   };
 
@@ -94,17 +97,27 @@ export default function PerDiemRequestCard({
   onClick,
 }: PerDiemRequestCardProps) {
   const statusConfig = getStatusConfig(request.status);
+  const spentPercentage = (request.total_spent / request.total_budget) * 100;
 
   return (
     <Card
-      className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-[1.02] group"
+      className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-[1.01] group"
       onClick={onClick}
     >
-      <CardHeader className="pb-3 space-y-2">
-        {/* Código */}
-        <h3 className="font-semibold text-base group-hover:text-primary transition-colors">
-          {request.code}
-        </h3>
+      <CardHeader className="pb-3 space-y-2.5">
+        {/* Código y Badge de Estado */}
+        <div className="flex items-start justify-between gap-2">
+          <h3 className="font-semibold text-base group-hover:text-primary transition-colors">
+            {request.code}
+          </h3>
+          <Badge
+            variant={statusConfig.variant}
+            className="flex items-center gap-1 shrink-0"
+          >
+            {statusConfig.icon}
+            <span>{statusConfig.label}</span>
+          </Badge>
+        </div>
 
         {/* Fechas */}
         <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
@@ -118,32 +131,23 @@ export default function PerDiemRequestCard({
               locale: es,
             })}
           </span>
-        </div>
-
-        {/* Badges de estado y hotel */}
-        <div className="flex flex-wrap gap-1.5">
-          <Badge
-            variant={statusConfig.variant}
-            className="flex items-center gap-1"
-          >
-            {statusConfig.icon}
-            <span>{statusConfig.label}</span>
-          </Badge>
           {request.has_hotel_reservation && (
-            <Badge variant="secondary" className="flex items-center gap-1">
-              <Hotel className="w-3 h-3" />
-              <span className="text-xs">Hotel</span>
-            </Badge>
+            <>
+              <span className="text-muted-foreground/40">•</span>
+              <Hotel className="w-3.5 h-3.5 text-muted-foreground/70" />
+            </>
           )}
         </div>
       </CardHeader>
 
       <CardContent className="space-y-3">
         {/* Destino */}
-        <div className="flex items-start gap-2">
-          <MapPin className="w-4 h-4 text-muted-foreground mt-0.5 shrink-0" />
+        <div className="flex items-start gap-2.5">
+          <div className="mt-0.5">
+            <MapPin className="w-4 h-4 text-muted-foreground shrink-0" />
+          </div>
           <div className="flex-1 min-w-0">
-            <p className="text-xs text-muted-foreground">Destino</p>
+            <p className="text-xs text-muted-foreground mb-0.5">Destino</p>
             <p className="font-medium text-sm truncate">
               {request.district.name}
             </p>
@@ -151,23 +155,52 @@ export default function PerDiemRequestCard({
         </div>
 
         {/* Propósito */}
-        <div className="flex items-start gap-2">
-          <FileText className="w-4 h-4 text-muted-foreground mt-0.5 shrink-0" />
+        <div className="flex items-start gap-2.5">
+          <div className="mt-0.5">
+            <FileText className="w-4 h-4 text-muted-foreground shrink-0" />
+          </div>
           <div className="flex-1 min-w-0">
-            <p className="text-xs text-muted-foreground">Propósito</p>
-            <p className="text-sm line-clamp-2">{request.purpose}</p>
+            <p className="text-xs text-muted-foreground mb-0.5">Propósito</p>
+            <p className="text-sm line-clamp-2 leading-snug">
+              {request.purpose}
+            </p>
           </div>
         </div>
 
-        {/* Gastos */}
-        <div className="pt-2 border-t">
-          <div className="flex items-center gap-1.5">
-            <Wallet className="w-3.5 h-3.5 text-muted-foreground" />
-            <p className="text-xs text-muted-foreground">Gastado</p>
+        {/* Gastos con barra de progreso */}
+        <div className="pt-2.5 border-t space-y-1.5">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1.5">
+              <Wallet className="w-3.5 h-3.5 text-muted-foreground" />
+              <p className="text-xs text-muted-foreground">Gastado</p>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {spentPercentage.toFixed(0)}%
+            </p>
           </div>
-          <p className="font-semibold text-sm mt-1">
-            S/ {request.total_spent.toFixed(2)}
-          </p>
+
+          <div className="flex items-baseline justify-between">
+            <p className="font-semibold text-sm">
+              S/ {request.total_spent.toFixed(2)}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              de S/ {request.total_budget.toFixed(2)}
+            </p>
+          </div>
+
+          {/* Barra de progreso sutil */}
+          <div className="h-1 bg-muted rounded-full overflow-hidden">
+            <div
+              className={`h-full transition-all duration-300 rounded-full ${
+                spentPercentage > 95
+                  ? "bg-destructive"
+                  : spentPercentage > 85
+                  ? "bg-muted-foreground/60"
+                  : "bg-muted-foreground/40"
+              }`}
+              style={{ width: `${Math.min(spentPercentage, 100)}%` }}
+            />
+          </div>
         </div>
       </CardContent>
     </Card>
