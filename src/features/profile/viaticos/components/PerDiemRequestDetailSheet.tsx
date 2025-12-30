@@ -140,7 +140,7 @@ export default function PerDiemRequestDetailSheet({
         {request.settled && <DepositVoucherSection request={request} />}
 
         {/* Resumen Financiero */}
-        <FinancialSummarySection request={request} />
+        <FinancialSummarySection request={request} mode="sheet" />
       </div>
     </GeneralSheet>
   );

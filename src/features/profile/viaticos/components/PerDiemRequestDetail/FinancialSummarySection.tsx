@@ -5,10 +5,12 @@ import { cn } from "@/lib/utils";
 
 interface FinancialSummarySectionProps {
   request: PerDiemRequestResource;
+  mode?: "sheet" | "page";
 }
 
 export default function FinancialSummarySection({
   request,
+  mode = "page",
 }: FinancialSummarySectionProps) {
   // Calcular gastos de la empresa (is_company_expense = true)
   // Estos NO tienen límite, solo se muestran como información
@@ -47,7 +49,9 @@ export default function FinancialSummarySection({
       className="h-full"
     >
       {/* Grid de Cards - Horizontal en desktop, vertical en mobile */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className={
+        cn("grid grid-cols-1 md:grid-cols-2 gap-4", mode === "sheet" ? "lg:grid-cols-2" : "lg:grid-cols-4")
+      }>
         {/* Presupuesto Total */}
         <div className="border rounded-md p-4">
           <div className="flex items-center gap-2 mb-2">
