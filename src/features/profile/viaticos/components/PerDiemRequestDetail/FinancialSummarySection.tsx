@@ -44,6 +44,9 @@ export default function FinancialSummarySection({
   // Total general (empresa + colaborador)
   const totalGeneral = totalSpentByCompany + totalSpentByEmployee;
 
+  // Por devolver = Presupuesto Total - Gastos del Colaborador
+  const balanceToReturn = request.total_budget - totalSpentByEmployee;
+
   return (
     <GroupFormSection
       title="Resumen Financiero"
@@ -135,8 +138,14 @@ export default function FinancialSummarySection({
             <TrendingDown className="h-4 w-4 text-muted-foreground" />
             <p className="text-xs text-muted-foreground">Por Devolver</p>
           </div>
-          <p className="text-xl font-semibold text-green-600 dark:text-green-500">
-            S/ {request.balance_to_return.toFixed(2)}
+          <p
+            className={`text-xl font-semibold ${
+              balanceToReturn >= 0
+                ? "text-green-600 dark:text-green-500"
+                : "text-red-600 dark:text-red-500"
+            }`}
+          >
+            S/ {balanceToReturn.toFixed(2)}
           </p>
         </div>
       </div>
