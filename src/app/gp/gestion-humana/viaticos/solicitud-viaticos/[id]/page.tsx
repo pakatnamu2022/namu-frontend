@@ -31,7 +31,8 @@ import AddFlightTicketModal from "@/features/profile/viaticos/components/AddFlig
 export default function PerDiemRequestDetailAdminPage() {
   const { id } = useParams<{ id: string }>();
   const [isDownloading, setIsDownloading] = useState(false);
-  const [isAddFlightTicketModalOpen, setIsAddFlightTicketModalOpen] = useState(false);
+  const [isAddFlightTicketModalOpen, setIsAddFlightTicketModalOpen] =
+    useState(false);
 
   const {
     data: request,
@@ -187,11 +188,12 @@ export default function PerDiemRequestDetailAdminPage() {
                 variant="outline"
                 className="gap-2"
                 disabled={
-                  (request.expenses?.filter((e) =>
-                    e.expense_type?.code?.toLowerCase().includes('boleto') ||
-                    e.expense_type?.code?.toLowerCase().includes('aereo') ||
-                    e.expense_type?.name?.toLowerCase().includes('boleto') ||
-                    e.expense_type?.name?.toLowerCase().includes('aéreo')
+                  (request.expenses?.filter(
+                    (e) =>
+                      e.expense_type?.code?.toLowerCase().includes("boleto") ||
+                      e.expense_type?.code?.toLowerCase().includes("aereo") ||
+                      e.expense_type?.name?.toLowerCase().includes("boleto") ||
+                      e.expense_type?.name?.toLowerCase().includes("aéreo")
                   ).length || 0) >= 2
                 }
               >
@@ -217,14 +219,17 @@ export default function PerDiemRequestDetailAdminPage() {
             open={isAddFlightTicketModalOpen}
             onOpenChange={setIsAddFlightTicketModalOpen}
             onSuccess={handleActionComplete}
-            startDate={request.start_date ? new Date(request.start_date) : undefined}
+            startDate={
+              request.start_date ? new Date(request.start_date) : undefined
+            }
             endDate={request.end_date ? new Date(request.end_date) : undefined}
             currentExpensesCount={
-              request.expenses?.filter((e) =>
-                e.expense_type?.code?.toLowerCase().includes('boleto') ||
-                e.expense_type?.code?.toLowerCase().includes('aereo') ||
-                e.expense_type?.name?.toLowerCase().includes('boleto') ||
-                e.expense_type?.name?.toLowerCase().includes('aéreo')
+              request.expenses?.filter(
+                (e) =>
+                  e.expense_type?.code?.toLowerCase().includes("boleto") ||
+                  e.expense_type?.code?.toLowerCase().includes("aereo") ||
+                  e.expense_type?.name?.toLowerCase().includes("boleto") ||
+                  e.expense_type?.name?.toLowerCase().includes("aéreo")
               ).length || 0
             }
           />

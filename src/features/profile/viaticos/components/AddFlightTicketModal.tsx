@@ -10,7 +10,10 @@ import { Button } from "@/components/ui/button";
 import { Plane, X } from "lucide-react";
 import FlightTicketExpenseForm from "./FlightTicketExpenseForm";
 import { ExpenseSchema } from "../lib/expense.schema";
-import { useCreatePerDiemExpense, useFlightTicketExpenseTypes } from "../lib/perDiemExpense.hook";
+import {
+  useCreatePerDiemExpense,
+  useFlightTicketExpenseTypes,
+} from "../lib/perDiemExpense.hook";
 import { expenseSchemaToFormData } from "../lib/perDiemExpense.utils";
 import { errorToast } from "@/core/core.function";
 
@@ -33,7 +36,8 @@ export default function AddFlightTicketModal({
   endDate,
   currentExpensesCount,
 }: AddFlightTicketModalProps) {
-  const { data: flightTicketTypes, isLoading: isLoadingTypes } = useFlightTicketExpenseTypes(requestId);
+  const { data: flightTicketTypes, isLoading: isLoadingTypes } =
+    useFlightTicketExpenseTypes(requestId);
 
   const { mutate, isPending } = useCreatePerDiemExpense(requestId, {
     onSuccess: () => {
@@ -76,7 +80,8 @@ export default function AddFlightTicketModal({
             </Button>
           </div>
           <p className="text-sm text-muted-foreground">
-            Puedes agregar hasta 2 pasajes aéreos ({currentExpensesCount}/2 agregados)
+            Puedes agregar hasta 2 pasajes aéreos ({currentExpensesCount}/2
+            agregados)
           </p>
         </DialogHeader>
 
@@ -86,11 +91,11 @@ export default function AddFlightTicketModal({
           </div>
         ) : !flightTicketTypes || flightTicketTypes.length === 0 ? (
           <div className="py-8 text-center text-muted-foreground">
-            No hay tipos de gasto de boletos aéreos disponibles para esta solicitud.
+            No hay tipos de gasto de boletos aéreos disponibles para esta
+            solicitud.
           </div>
         ) : (
           <FlightTicketExpenseForm
-            requestId={requestId}
             flightTicketTypes={flightTicketTypes}
             onSubmit={handleSubmit}
             isSubmitting={isPending}

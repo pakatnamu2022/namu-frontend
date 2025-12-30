@@ -111,6 +111,7 @@ export const perDiemRequestColumns = ({
         },
         in_progress: { label: "En Progreso", variant: "orange" },
         cancelled: { label: "Cancelado", variant: "gray" },
+        settled: { label: "Liquidado", variant: "green" },
       };
       const status = statusMap[value] || {
         label: value,

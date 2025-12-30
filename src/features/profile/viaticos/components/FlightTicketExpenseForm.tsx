@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { FormInput } from "@/shared/components/FormInput";
@@ -22,12 +22,10 @@ import { FileUploadWithCamera } from "@/shared/components/FileUploadWithCamera";
 import { useRucValidation } from "@/shared/hooks/useDocumentValidation";
 import { Building2, CheckCircle2, XCircle, Loader2 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { errorToast } from "@/core/core.function";
 import { FormInputText } from "@/shared/components/FormInputText";
 import { ExpenseTypeResource } from "@/features/gp/gestionhumana/viaticos/tipo-gasto/lib/expenseType.interface";
 
 interface FlightTicketExpenseFormProps {
-  requestId: number;
   flightTicketTypes: ExpenseTypeResource[];
   onSubmit: (data: ExpenseSchema) => void;
   isSubmitting?: boolean;
@@ -37,7 +35,6 @@ interface FlightTicketExpenseFormProps {
 }
 
 export default function FlightTicketExpenseForm({
-  requestId,
   flightTicketTypes,
   onSubmit,
   isSubmitting = false,
