@@ -23,6 +23,16 @@ export const usePurchaseRequests = (params?: Record<string, any>) => {
   });
 };
 
+export const usePurchaseRequestsDetailsPending = (
+  params?: Record<string, any>
+) => {
+  return useQuery<PurchaseRequestResponse>({
+    queryKey: [QUERY_KEY, params, "pending-details"],
+    queryFn: () => getPurchaseRequests({ params }),
+    refetchOnWindowFocus: false,
+  });
+};
+
 export const useAllPurchaseRequests = (params?: Record<string, any>) => {
   return useQuery({
     queryKey: [QUERY_KEY, "all", params],

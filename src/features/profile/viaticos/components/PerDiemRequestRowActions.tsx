@@ -8,6 +8,7 @@ import {
   Upload,
   FileCheck2,
   Download,
+  Loader2,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { PerDiemRequestResource } from "../lib/perDiemRequest.interface";
@@ -42,6 +43,7 @@ export function PerDiemRequestRowActions({
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
   const [isCompleteSettlementDialogOpen, setIsCompleteSettlementDialogOpen] =
     useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   const hasHotelReservation = !!request.hotel_reservation;
   const isApproved =
@@ -122,10 +124,13 @@ export function PerDiemRequestRowActions({
 
   const handleDownloadPdf = async () => {
     try {
+      setIsDownloading(true);
       await expenseTotalWithEvidencePdf(request.id);
       successToast("PDF descargado correctamente");
     } catch (error: any) {
       errorToast(error?.response?.data?.message || "");
+    } finally {
+      setIsDownloading(false);
     }
   };
 
@@ -161,9 +166,14 @@ export function PerDiemRequestRowActions({
             size="icon"
             className="size-7"
             onClick={handleDownloadPdf}
-            tooltip="PDF"
+            tooltip={isDownloading ? "Generando PDF..." : "Descargar PDF"}
+            disabled={isDownloading}
           >
-            <Download className="size-5" />
+            {isDownloading ? (
+              <Loader2 className="size-5 animate-spin" />
+            ) : (
+              <Download className="size-5" />
+            )}
           </Button>
         )}
 

@@ -21,6 +21,19 @@ export async function getPurchaseRequests({
   return data;
 }
 
+export async function getPurchaseRequestsDetailsPending({
+  params,
+}: getPurchaseRequestProps): Promise<PurchaseRequestResponse> {
+  const config: AxiosRequestConfig = {
+    params,
+  };
+  const { data } = await api.get<PurchaseRequestResponse>(
+    `${ENDPOINT}/pending-details`,
+    config
+  );
+  return data;
+}
+
 export async function getAllPurchaseRequests({
   params,
 }: getPurchaseRequestProps): Promise<PurchaseRequestResource[]> {
