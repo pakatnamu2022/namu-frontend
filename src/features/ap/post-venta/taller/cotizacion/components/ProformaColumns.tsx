@@ -7,6 +7,7 @@ import { OrderQuotationResource } from "../lib/proforma.interface";
 import { downloadOrderQuotationPdf } from "../lib/proforma.actions";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
+import { Badge } from "@/components/ui/badge";
 
 export type OrderQuotationColumns = ColumnDef<OrderQuotationResource>;
 
@@ -80,6 +81,22 @@ export const orderQuotationColumns = ({
   {
     accessorKey: "observations",
     header: "Observaciones",
+    enableSorting: false,
+  },
+  {
+    accessorKey: "is_taken",
+    header: "Tomada",
+    cell: ({ getValue }) => {
+      const value = getValue() as boolean;
+      return (
+        <Badge
+          variant={value ? "default" : "secondary"}
+          className="capitalize w-8 flex items-center justify-center"
+        >
+          {value ? "Sí" : "No"}
+        </Badge>
+      );
+    },
     enableSorting: false,
   },
   {
