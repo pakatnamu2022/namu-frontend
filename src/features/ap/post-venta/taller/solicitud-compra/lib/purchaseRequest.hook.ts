@@ -4,6 +4,7 @@ import {
   getPurchaseRequests,
   deletePurchaseRequest,
   getAllPurchaseRequests,
+  getPurchaseRequestsDetailsPending,
 } from "./purchaseRequest.actions";
 import {
   errorToast,
@@ -28,7 +29,7 @@ export const usePurchaseRequestsDetailsPending = (
 ) => {
   return useQuery<PurchaseRequestResponse>({
     queryKey: [QUERY_KEY, params, "pending-details"],
-    queryFn: () => getPurchaseRequests({ params }),
+    queryFn: () => getPurchaseRequestsDetailsPending({ params }),
     refetchOnWindowFocus: false,
   });
 };
