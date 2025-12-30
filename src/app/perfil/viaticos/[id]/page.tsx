@@ -217,7 +217,7 @@ export default function PerDiemRequestDetailPage() {
                 </span>
               </Button>
 
-              {!request.settlement_status && (
+              {request.status === "in_progress" && (
                 <>
                   <Button
                     onClick={() =>

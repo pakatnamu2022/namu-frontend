@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Badge, BadgeVariants } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import {
@@ -12,13 +12,14 @@ import {
   TrendingUp,
   XCircle,
 } from "lucide-react";
+import { PerDiemRequestStatus } from "../lib/perDiemRequest.interface";
 
 interface PerDiemRequest {
   id: number;
   code: string;
   start_date: string | Date;
   end_date: string | Date;
-  status: string;
+  status: PerDiemRequestStatus;
   district: {
     name: string;
   };
@@ -33,12 +34,12 @@ interface PerDiemRequestCardProps {
   onClick?: () => void;
 }
 
-const getStatusConfig = (status: string) => {
+const getStatusConfig = (status: PerDiemRequestStatus) => {
   const statusConfig: Record<
-    string,
+    PerDiemRequestStatus,
     {
       label: string;
-      variant: "default" | "secondary" | "destructive" | "outline";
+      variant: BadgeVariants;
       icon: React.ReactNode;
     }
   > = {
@@ -49,33 +50,33 @@ const getStatusConfig = (status: string) => {
     },
     approved: {
       label: "Aprobada",
-      variant: "default",
+      variant: "teal",
       icon: <TrendingUp className="w-3 h-3" />,
     },
     rejected: {
       label: "Rechazada",
-      variant: "destructive",
+      variant: "red",
       icon: <TrendingUp className="w-3 h-3" />,
-    },
-    paid: {
-      label: "Pagada",
-      variant: "secondary",
-      icon: <Wallet className="w-3 h-3" />,
     },
     pending_settlement: {
       label: "Pendiente de Liquidación",
-      variant: "outline",
+      variant: "indigo",
       icon: <Clock className="w-3 h-3" />,
     },
     in_progress: {
       label: "En Progreso",
-      variant: "default",
+      variant: "orange",
       icon: <TrendingUp className="w-3 h-3" />,
     },
     cancelled: {
       label: "Cancelada",
-      variant: "destructive",
+      variant: "secondary",
       icon: <XCircle className="w-3 h-3" />,
+    },
+    settled: {
+      label: "Liquidada",
+      variant: "blue",
+      icon: <TrendingUp className="w-3 h-3" />,
     },
   };
 

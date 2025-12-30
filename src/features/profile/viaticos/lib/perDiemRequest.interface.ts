@@ -118,10 +118,19 @@ interface Area {
   name: string;
 }
 
+export type PerDiemRequestStatus =
+  | "pending"
+  | "in_progress"
+  | "pending_settlement"
+  | "cancelled"
+  | "approved"
+  | "rejected"
+  | "settled";
+
 export interface PerDiemRequestResource {
   id: number;
   code: string;
-  status: string;
+  status: PerDiemRequestStatus;
   start_date: string | Date;
   end_date: string | Date;
   days_count: number;
