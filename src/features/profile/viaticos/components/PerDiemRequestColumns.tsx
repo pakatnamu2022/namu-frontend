@@ -55,12 +55,12 @@ export const perDiemRequestColumns = ({
         }
       );
       return (
-        <p className="text-xs text-end">
+        <div className="text-xs text-end">
           {startDate} - {endDate}{" "}
           <Badge size="square" variant={"tertiary"}>
             {row.original.days_count}
           </Badge>
-        </p>
+        </div>
       );
     },
   },
