@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -9,7 +8,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Plane, X } from "lucide-react";
-import ExpenseForm from "./ExpenseForm";
+import FlightTicketExpenseForm from "./FlightTicketExpenseForm";
 import { ExpenseSchema } from "../lib/expense.schema";
 import { useCreatePerDiemExpense, useFlightTicketExpenseTypes } from "../lib/perDiemExpense.hook";
 import { expenseSchemaToFormData } from "../lib/perDiemExpense.utils";
@@ -34,8 +33,6 @@ export default function AddFlightTicketModal({
   endDate,
   currentExpensesCount,
 }: AddFlightTicketModalProps) {
-  const [selectedExpenseTypeId, setSelectedExpenseTypeId] = useState<string | null>(null);
-
   const { data: flightTicketTypes, isLoading: isLoadingTypes } = useFlightTicketExpenseTypes(requestId);
 
   const { mutate, isPending } = useCreatePerDiemExpense(requestId, {
@@ -92,11 +89,11 @@ export default function AddFlightTicketModal({
             No hay tipos de gasto de boletos aéreos disponibles para esta solicitud.
           </div>
         ) : (
-          <ExpenseForm
+          <FlightTicketExpenseForm
             requestId={requestId}
+            flightTicketTypes={flightTicketTypes}
             onSubmit={handleSubmit}
             isSubmitting={isPending}
-            mode="create"
             onCancel={handleCancel}
             startDate={startDate}
             endDate={endDate}

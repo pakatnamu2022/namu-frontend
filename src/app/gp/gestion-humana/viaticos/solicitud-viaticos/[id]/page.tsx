@@ -178,6 +178,29 @@ export default function PerDiemRequestDetailAdminPage() {
           icon={Receipt}
           cols={{ sm: 1 }}
         >
+          {/* Botón para agregar pasajes aéreos si with_active es false */}
+          {!request.with_active && (
+            <div className="mb-4 flex justify-end">
+              <Button
+                onClick={() => setIsAddFlightTicketModalOpen(true)}
+                size="sm"
+                variant="outline"
+                className="gap-2"
+                disabled={
+                  (request.expenses?.filter((e) =>
+                    e.expense_type?.code?.toLowerCase().includes('boleto') ||
+                    e.expense_type?.code?.toLowerCase().includes('aereo') ||
+                    e.expense_type?.name?.toLowerCase().includes('boleto') ||
+                    e.expense_type?.name?.toLowerCase().includes('aéreo')
+                  ).length || 0) >= 2
+                }
+              >
+                <Plane className="h-4 w-4" />
+                Agregar Pasaje Aéreo
+              </Button>
+            </div>
+          )}
+
           <div className="md:col-span-1">
             <ExpensesTable
               expenses={request.expenses || []}
@@ -186,6 +209,26 @@ export default function PerDiemRequestDetailAdminPage() {
             />
           </div>
         </GroupFormSection>
+
+        {/* Modal para agregar pasajes aéreos */}
+        {!request.with_active && (
+          <AddFlightTicketModal
+            requestId={Number(id)}
+            open={isAddFlightTicketModalOpen}
+            onOpenChange={setIsAddFlightTicketModalOpen}
+            onSuccess={handleActionComplete}
+            startDate={request.start_date ? new Date(request.start_date) : undefined}
+            endDate={request.end_date ? new Date(request.end_date) : undefined}
+            currentExpensesCount={
+              request.expenses?.filter((e) =>
+                e.expense_type?.code?.toLowerCase().includes('boleto') ||
+                e.expense_type?.code?.toLowerCase().includes('aereo') ||
+                e.expense_type?.name?.toLowerCase().includes('boleto') ||
+                e.expense_type?.name?.toLowerCase().includes('aéreo')
+              ).length || 0
+            }
+          />
+        )}
       </div>
     </FormWrapper>
   );
