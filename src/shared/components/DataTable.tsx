@@ -25,6 +25,8 @@ import DataTableColumnFilter from "./DataTableColumnFilter";
 import FormSkeleton from "./FormSkeleton";
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
+import { ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const dataTableVariants = cva("hidden md:block w-full", {
   variants: {
@@ -98,8 +100,6 @@ interface DataTableProps<TData, TValue>
   sorting?: SortingState;
   onSortingChange?: OnChangeFn<SortingState>;
   manualSorting?: boolean;
-  showMobileHeaders?: boolean;
-  enableSorting?: boolean;
 }
 
 export function DataTable<TData, TValue>({
@@ -115,8 +115,6 @@ export function DataTable<TData, TValue>({
   sorting,
   onSortingChange,
   manualSorting = false,
-  showMobileHeaders = false,
-  enableSorting = false,
 }: DataTableProps<TData, TValue>) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
@@ -128,7 +126,7 @@ export function DataTable<TData, TValue>({
     columns,
     manualPagination: true,
     manualSorting,
-    enableSorting,
+    enableSorting: true,
     enableSortingRemoval: true,
     enableMultiSort: false,
     state: {
@@ -162,12 +160,33 @@ export function DataTable<TData, TValue>({
                 <TableRow key={headerGroup.id} className="text-nowrap h-10">
                   {headerGroup.headers.map((header) => (
                     <TableHead key={header.id} className="h-10">
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
+                      {header.isPlaceholder ? null : header.column.getCanSort() ? (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="-ml-3 h-8 data-[state=open]:bg-accent"
+                          onClick={header.column.getToggleSortingHandler()}
+                        >
+                          <span>
+                            {flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                          </span>
+                          {header.column.getIsSorted() === "asc" ? (
+                            <ArrowUp className="ml-2 h-4 w-4" />
+                          ) : header.column.getIsSorted() === "desc" ? (
+                            <ArrowDown className="ml-2 h-4 w-4" />
+                          ) : (
+                            <ArrowUpDown className="ml-2 h-4 w-4" />
                           )}
+                        </Button>
+                      ) : (
+                        flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )
+                      )}
                     </TableHead>
                   ))}
                 </TableRow>
@@ -247,17 +266,6 @@ export function DataTable<TData, TValue>({
                 <CardContent className="p-4">
                   <div className="grid grid-cols-1 gap-2">
                     {contentCells.map((cell) => {
-                      if (!showMobileHeaders) {
-                        return (
-                          <div key={cell.id} className="text-xs text-foreground">
-                            {flexRender(
-                              cell.column.columnDef.cell,
-                              cell.getContext()
-                            )}
-                          </div>
-                        );
-                      }
-
                       const header = cell.column.columnDef.header;
                       const headerText =
                         typeof header === "string"
