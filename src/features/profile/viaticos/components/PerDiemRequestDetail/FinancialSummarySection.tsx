@@ -113,6 +113,22 @@ export default function FinancialSummarySection({
           </div>
         </div>
 
+        {/* Total General */}
+        <div className="p-3 bg-muted/30">
+          <div className="flex items-center gap-2 mb-1">
+            <Wallet className="h-4 w-4 text-muted-foreground" />
+            <p className="text-xs text-muted-foreground font-medium">
+              Total General
+            </p>
+          </div>
+          <p className="text-xl font-semibold">
+            S/ {totalGeneral.toFixed(2)}
+          </p>
+          <p className="text-xs text-muted-foreground mt-1">
+            Empresa + Colaborador
+          </p>
+        </div>
+
         {/* Por Devolver */}
         <div className="p-3">
           <div className="flex items-center gap-2 mb-1">
