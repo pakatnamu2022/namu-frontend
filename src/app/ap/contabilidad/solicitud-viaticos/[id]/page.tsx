@@ -181,6 +181,7 @@ export default function PerDiemRequestDetailAdminAPPage() {
             <ExpensesTable
               expenses={request.expenses || []}
               onActionComplete={handleActionComplete}
+              module="contabilidad"
             />
           </div>
         </GroupFormSection>

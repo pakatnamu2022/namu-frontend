@@ -180,6 +180,7 @@ export default function PerDiemRequestDetailAdminPage() {
             <ExpensesTable
               expenses={request.expenses || []}
               onActionComplete={handleActionComplete}
+              module="gh"
             />
           </div>
         </GroupFormSection>
