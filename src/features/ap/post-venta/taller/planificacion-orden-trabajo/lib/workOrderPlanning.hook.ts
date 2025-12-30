@@ -8,6 +8,7 @@ import {
   cancelPlanning,
   storeWorkOrderPlanning,
   getWorkOrderPlanning,
+  getConsolidatedPlanning,
 } from "./workOrderPlanning.actions";
 import {
   WorkOrderPlanningRequest,
@@ -129,12 +130,7 @@ export function useCancelPlanning() {
 export function useGetConsolidatedPlanning(workOrderId: number) {
   return useQuery({
     queryKey: [QUERY_KEY, "consolidated", workOrderId],
-    queryFn: async () => {
-      const { getConsolidatedPlanning } = await import(
-        "./workOrderPlanning.actions"
-      );
-      return getConsolidatedPlanning(workOrderId);
-    },
+    queryFn: () => getConsolidatedPlanning(workOrderId),
     enabled: !!workOrderId,
   });
 }
