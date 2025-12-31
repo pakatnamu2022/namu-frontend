@@ -108,10 +108,10 @@ export default function PerDiemRequestDetailPage() {
       await downloadMobilityPayrollPdf(Number(id));
       successToast("PDF de planilla de movilidad descargado correctamente");
     } catch (error: any) {
-      const msjError =
+      errorToast(
         error.response?.data?.message ||
-        "No se ha generado la planilla de movilidad";
-      errorToast(msjError);
+          "Error al descargar el PDF de planilla de movilidad"
+      );
     } finally {
       setIsDownloadingMobilityPayroll(false);
     }
@@ -217,7 +217,7 @@ export default function PerDiemRequestDetailPage() {
                 </span>
               </Button>
 
-              {request.status === PER_DIEM_STATUS.IN_PROGRESS && (
+              {request.status === "in_progress" && (
                 <>
                   <Button
                     onClick={() =>

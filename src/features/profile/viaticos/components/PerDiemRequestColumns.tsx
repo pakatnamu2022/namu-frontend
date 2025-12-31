@@ -10,11 +10,13 @@ export type PerDiemRequestColumns = ColumnDef<PerDiemRequestResource>;
 interface Props {
   onViewDetail: (id: number) => void;
   onViewHotelReservation?: (requestId: number) => void;
+  module: "gh" | "contabilidad";
 }
 
 export const perDiemRequestColumns = ({
   onViewDetail,
   onViewHotelReservation,
+  module,
 }: Props): PerDiemRequestColumns[] => [
   {
     accessorKey: "code",
@@ -53,13 +55,21 @@ export const perDiemRequestColumns = ({
         }
       );
       return (
-        <p className="text-xs text-end">
+        <div className="text-xs text-end">
           {startDate} - {endDate}{" "}
           <Badge size="square" variant={"tertiary"}>
             {row.original.days_count}
           </Badge>
-        </p>
+        </div>
       );
+    },
+  },
+  {
+    accessorKey: "district.name",
+    header: "Destino",
+    cell: ({ getValue }) => {
+      const value = getValue() as string;
+      return value && <p>{value}</p>;
     },
   },
   {
@@ -83,20 +93,6 @@ export const perDiemRequestColumns = ({
     },
   },
   {
-    accessorKey: "with_request",
-    header: "Con Solicitud",
-    cell: ({ getValue }) => {
-      const value = getValue() as boolean;
-      return (
-        <div className="w-fit mx-auto">
-          <Badge variant={value ? "default" : "secondary"} className="w-fit">
-            {value ? "Sí" : "No"}
-          </Badge>
-        </div>
-      );
-    },
-  },
-  {
     accessorKey: "status",
     header: "Estado",
     cell: ({ getValue }) => {
@@ -115,13 +111,14 @@ export const perDiemRequestColumns = ({
         },
         in_progress: { label: "En Progreso", variant: "orange" },
         cancelled: { label: "Cancelado", variant: "gray" },
+        settled: { label: "Liquidado", variant: "green" },
       };
       const status = statusMap[value] || {
         label: value,
         variant: "secondary",
       };
       return (
-        <div className="w-fit mx-auto">
+        <div className="w-fit">
           <Badge className="w-fit" variant={status.variant}>
             {status.label}
           </Badge>
@@ -138,6 +135,7 @@ export const perDiemRequestColumns = ({
           onViewDetail={onViewDetail}
           onViewHotelReservation={onViewHotelReservation}
           request={row.original}
+          module={module}
         />
       );
     },

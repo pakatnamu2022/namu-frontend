@@ -60,13 +60,8 @@ export default function PurchaseRequestForm({
         quantity: Number(detail.quantity) || 1,
         notes: detail.notes || "",
       }));
-      console.log("🔄 Transformando detalles en edición:", {
-        original: defaultValues.details,
-        transformed,
-      });
       return transformed;
     }
-    console.log("📝 Modo creación - sin detalles");
     return [];
   });
   const [quotations, setQuotations] = useState<OrderQuotationResource[]>([]);
@@ -274,9 +269,6 @@ export default function PurchaseRequestForm({
       2
     )}`;
   };
-
-  console.log("🎯 RENDER - Estado details:", details);
-  console.log("🎯 RENDER - details.length:", details.length);
 
   return (
     <Form {...form}>
@@ -491,7 +483,6 @@ export default function PurchaseRequestForm({
                     {/* Items */}
                     <div className="divide-y">
                       {details.map((detail, index) => {
-                        console.log(`📦 Producto ${index}:`, detail);
                         return (
                           <div key={index}>
                             {/* Vista Desktop */}

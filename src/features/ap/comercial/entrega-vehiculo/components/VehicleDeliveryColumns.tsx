@@ -63,13 +63,13 @@ export const vehicleDeliveryColumns = ({
   },
   {
     accessorKey: "scheduled_delivery_date",
-    header: "Fecha Entrega Programada",
+    header: "Fecha y Hora Entrega",
     cell: ({ getValue }) => {
       const value = getValue() as string | Date;
       if (!value) return "-";
       try {
         const date = typeof value === "string" ? new Date(value) : value;
-        return format(date, "dd/MM/yyyy", { locale: es });
+        return format(date, "dd/MM/yyyy HH:mm", { locale: es });
       } catch {
         return "-";
       }
@@ -77,13 +77,13 @@ export const vehicleDeliveryColumns = ({
   },
   {
     accessorKey: "wash_date",
-    header: "Fecha Lavado",
+    header: "Fecha y Hora Lavado",
     cell: ({ getValue }) => {
       const value = getValue() as string | Date;
       if (!value) return "-";
       try {
         const date = typeof value === "string" ? new Date(value) : value;
-        return format(date, "dd/MM/yyyy", { locale: es });
+        return format(date, "dd/MM/yyyy HH:mm", { locale: es });
       } catch {
         return "-";
       }

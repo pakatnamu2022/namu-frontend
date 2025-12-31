@@ -21,6 +21,7 @@ export default function ExpensesSection({ request }: ExpensesSectionProps) {
               (expense) => !expense.is_company_expense
             ) || []
           }
+          module="profile"
         />
       </div>
     </GroupFormSection>

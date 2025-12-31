@@ -14,6 +14,7 @@ interface Budget {
   daily_amount: number;
   days: number;
   total: number;
+  spent: number;
 }
 
 export interface HotelReservation {
@@ -118,10 +119,19 @@ interface Area {
   name: string;
 }
 
+export type PerDiemRequestStatus =
+  | "pending"
+  | "in_progress"
+  | "pending_settlement"
+  | "cancelled"
+  | "approved"
+  | "rejected"
+  | "settled";
+
 export interface PerDiemRequestResource {
   id: number;
   code: string;
-  status: string;
+  status: PerDiemRequestStatus;
   start_date: string | Date;
   end_date: string | Date;
   days_count: number;
@@ -135,7 +145,7 @@ export interface PerDiemRequestResource {
   payment_method: string;
   settled: boolean;
   settlement_date: null;
-  settlement_status?: string;
+  settlement_status?: "submitted" | "approved" | "rejected" | "completed";
   total_spent: number;
   balance_to_return: number;
   notes: null;

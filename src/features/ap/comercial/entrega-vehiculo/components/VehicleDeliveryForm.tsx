@@ -20,6 +20,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
+import { DateTimePickerForm } from "@/shared/components/DateTimePickerForm";
 import { FormSelect } from "@/shared/components/FormSelect";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { CM_COMERCIAL_ID, EMPRESA_AP } from "@/core/core.constants";
@@ -197,21 +198,21 @@ export const VehicleDeliveryForm = ({
           />
 
           {/* Scheduled Delivery Date */}
-          <DatePickerFormField
+          <DateTimePickerForm
             control={form.control}
             name="scheduled_delivery_date"
-            label="Fecha de Entrega Programada"
-            placeholder="Selecciona la fecha de entrega"
-            disabledRange={{ before: new Date() }}
+            label="Fecha y Hora de Entrega Programada"
+            placeholder="Selecciona la fecha y hora de entrega"
+            minDate={new Date()}
           />
 
           {/* Wash Date */}
-          <DatePickerFormField
+          <DateTimePickerForm
             control={form.control}
             name="wash_date"
-            label="Fecha de Lavado"
-            placeholder="Selecciona la fecha de lavado"
-            disabledRange={{ before: new Date() }}
+            label="Fecha y Hora de Lavado"
+            placeholder="Selecciona la fecha y hora de lavado"
+            minDate={new Date()}
           />
         </div>
 

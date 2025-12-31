@@ -34,6 +34,7 @@ import { useActivePerformanceEvaluation } from "@/features/gp/gestionhumana/eval
 import {
   updateEvaluationPerson,
   updateEvaluationPersonCompetence,
+  getEvaluationPersonResultByPersonAndEvaluation,
 } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/lib/evaluationPerson.actions";
 import EvaluationSummaryCard from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/components/EvaluationSummaryCard";
 import EvaluationPersonObjectiveTable from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/components/EvaluationPersonObjetiveTable";
@@ -64,13 +65,9 @@ export default function NamuPerformancePage() {
   } = useQuery({
     queryKey: [QUERY_KEY, personId, selectedEvaluationId],
     queryFn: () =>
-      import(
-        "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/lib/evaluationPerson.actions"
-      ).then((m) =>
-        m.getEvaluationPersonResultByPersonAndEvaluation(
-          personId,
-          selectedEvaluationId
-        )
+      getEvaluationPersonResultByPersonAndEvaluation(
+        personId,
+        selectedEvaluationId
       ),
     enabled: !!selectedEvaluationId && !!personId,
     refetchOnWindowFocus: false,

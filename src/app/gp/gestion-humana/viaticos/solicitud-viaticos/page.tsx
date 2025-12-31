@@ -79,10 +79,9 @@ export default function PerDiemRequestPage() {
         isLoading={isLoading}
         columns={perDiemRequestColumns({
           onViewDetail: (id) =>
-            navigate(
-              `/gp/gestion-humana/viaticos/solicitud-viaticos/${id}`
-            ),
+            navigate(`/gp/gestion-humana/viaticos/solicitud-viaticos/${id}`),
           onViewHotelReservation: setHotelReservationRequestId,
+          module: "gh",
         })}
         data={data?.data || []}
       >

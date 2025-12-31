@@ -28,6 +28,7 @@ export default function VehiclePurchaseOrderTable({
           invoice_series: false,
           invoice_number: false,
           receipt_dynamics: false,
+          subtotal: true,
           total: true,
           warehouse: true,
           sede: false,

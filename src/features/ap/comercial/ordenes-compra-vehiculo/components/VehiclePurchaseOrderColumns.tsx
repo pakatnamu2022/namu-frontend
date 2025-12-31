@@ -101,6 +101,19 @@ export const vehiclePurchaseOrderColumns = ({
     header: "Factura",
   },
   {
+    accessorKey: "subtotal",
+    header: "Subtotal",
+    cell: ({ row }) => {
+      const subtotal = row.original.subtotal;
+      const currency = row.original.currency_code || "";
+      return (
+        <p className="font-medium">
+          {currency} {Number(subtotal).toFixed(2)}
+        </p>
+      );
+    },
+  },
+  {
     accessorKey: "total",
     header: "Total",
     cell: ({ row }) => {

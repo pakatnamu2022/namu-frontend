@@ -1,15 +1,23 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Eye, Hotel, CheckCircle, Upload, Car, FileCheck2 } from "lucide-react";
+import {
+  Eye,
+  Hotel,
+  CheckCircle,
+  Upload,
+  FileCheck2,
+  Download,
+  Loader2,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { PerDiemRequestResource } from "../lib/perDiemRequest.interface";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   confirmPerDiemRequest,
-  generateMobilityPayroll,
   completeSettlement,
+  expenseTotalWithEvidencePdf,
 } from "../lib/perDiemRequest.actions";
 import { PER_DIEM_REQUEST } from "../lib/perDiemRequest.constants";
 import { useState } from "react";
@@ -21,28 +29,29 @@ interface PerDiemRequestRowActionsProps {
   request: PerDiemRequestResource;
   onViewDetail: (id: number) => void;
   onViewHotelReservation?: (requestId: number) => void;
+  module: "gh" | "contabilidad";
 }
 
 export function PerDiemRequestRowActions({
   request,
   onViewDetail,
   onViewHotelReservation,
+  module = "gh",
 }: PerDiemRequestRowActionsProps) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
   const [isCompleteSettlementDialogOpen, setIsCompleteSettlementDialogOpen] =
     useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   const hasHotelReservation = !!request.hotel_reservation;
   const isApproved =
     request.status === "approved" || request.status === "in_progress";
   const isOnlyApproved = request.status === "approved";
   const hotel = request.hotel_reservation?.hotel_name;
-  const withRequest = request.with_request;
   const isCancelled = request.status === "cancelled";
-  const canCompleteSettlement =
-    request.settlement_status === "approved_by_boss";
+  const canCompleteSettlement = request.settlement_status === "approved";
 
   const confirmMutation = useMutation({
     mutationFn: (requestId: number) => confirmPerDiemRequest(requestId),
@@ -56,22 +65,6 @@ export function PerDiemRequestRowActions({
     onError: (error: any) => {
       errorToast(
         error?.response?.data?.message || "Error al confirmar la solicitud"
-      );
-    },
-  });
-
-  const generateMobilityPayrollMutation = useMutation({
-    mutationFn: (requestId: number) => generateMobilityPayroll(requestId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: [PER_DIEM_REQUEST.QUERY_KEY],
-      });
-      successToast("Planilla de gastos de movilidad generada exitosamente");
-    },
-    onError: (error: any) => {
-      errorToast(
-        error?.response?.data?.message ||
-          "Error al generar la planilla de movilidad"
       );
     },
   });
@@ -105,10 +98,6 @@ export function PerDiemRequestRowActions({
     confirmMutation.mutate(request.id);
   };
 
-  const handleGenerateMobilityPayroll = () => {
-    generateMobilityPayrollMutation.mutate(request.id);
-  };
-
   const handleCompleteSettlement = () => {
     completeSettlementMutation.mutate({
       requestId: request.id,
@@ -116,19 +105,32 @@ export function PerDiemRequestRowActions({
     });
   };
 
+  const prefix =
+    module === "gh"
+      ? "/gp/gestion-humana/viaticos/solicitud-viaticos"
+      : "/ap/contabilidad/viaticos-ap";
+
   const handleAddHotelReservation = () => {
-    navigate(
-      `/gp/gestion-humana/viaticos/solicitud-viaticos/${request.id}/reserva-hotel/agregar`
-    );
+    navigate(`${prefix}/${request.id}/reserva-hotel/agregar`);
   };
 
   const handleSeeReservation = () => {
     if (onViewHotelReservation) {
       onViewHotelReservation(request.id);
     } else {
-      navigate(
-        `/gp/gestion-humana/viaticos/solicitud-viaticos/${request.id}/reserva-hotel/detalle`
-      );
+      navigate(`${prefix}/${request.id}/reserva-hotel/detalle`);
+    }
+  };
+
+  const handleDownloadPdf = async () => {
+    try {
+      setIsDownloading(true);
+      await expenseTotalWithEvidencePdf(request.id);
+      successToast("PDF descargado correctamente");
+    } catch (error: any) {
+      errorToast(error?.response?.data?.message || "");
+    } finally {
+      setIsDownloading(false);
     }
   };
 
@@ -158,7 +160,24 @@ export function PerDiemRequestRowActions({
           <Eye className="size-4" />
         </Button>
 
-        {request.days_count > 1 && (
+        {request.settled && module === "contabilidad" && (
+          <Button
+            variant="outline"
+            size="icon"
+            className="size-7"
+            onClick={handleDownloadPdf}
+            tooltip={isDownloading ? "Generando PDF..." : "Descargar PDF"}
+            disabled={isDownloading}
+          >
+            {isDownloading ? (
+              <Loader2 className="size-5 animate-spin" />
+            ) : (
+              <Download className="size-5" />
+            )}
+          </Button>
+        )}
+
+        {request.days_count > 1 && module === "gh" && (
           <Button
             variant={hasHotelReservation ? "default" : "outline"}
             size="icon-xs"
@@ -177,18 +196,6 @@ export function PerDiemRequestRowActions({
             disabled={!isApproved}
           >
             <Hotel className="size-4" />
-          </Button>
-        )}
-
-        {!request.mobility_payroll_generated && (
-          <Button
-            variant="outline"
-            size="icon-xs"
-            onClick={handleGenerateMobilityPayroll}
-            tooltip="Generar Planilla de Gastos de Movilidad"
-            disabled={generateMobilityPayrollMutation.isPending}
-          >
-            <Car className="size-4" />
           </Button>
         )}
 
@@ -216,21 +223,23 @@ export function PerDiemRequestRowActions({
           />
         )}
 
-        {withRequest && (
-          <Button
-            variant="outline"
-            size="icon-xs"
-            onClick={() =>
-              navigate(
-                `/gp/gestion-humana/viaticos/solicitud-viaticos/${request.id}/deposito`
-              )
-            }
-            tooltip="Subir archivo de depósito"
-          >
-            <Upload className="size-4" />
-          </Button>
-        )}
-        {canCompleteSettlement && (
+        {module === "contabilidad" &&
+          request.settlement_status === "approved" &&
+          request.end_date &&
+          new Date(
+            new Date(request.end_date).getTime() + 3 * 24 * 60 * 60 * 1000
+          ) <= new Date() && (
+            <Button
+              variant="outline"
+              size="icon-xs"
+              onClick={() => navigate(`${prefix}/${request.id}/deposito`)}
+              tooltip="Subir archivo de depósito"
+            >
+              <Upload className="size-4" />
+            </Button>
+          )}
+
+        {canCompleteSettlement && module === "contabilidad" && (
           <ConfirmationDialog
             trigger={
               <Button

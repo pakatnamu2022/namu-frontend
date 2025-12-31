@@ -39,7 +39,11 @@ export default function ShippingGuidePage(): JSX.Element {
   if (!vehicleDelivery) notFound();
 
   const shippingGuide = vehicleDelivery.shipping_guide;
-  const canEdit = !shippingGuide?.aceptada_por_sunat;
+  const isSent = Boolean(
+    vehicleDelivery?.sent_at &&
+    (vehicleDelivery?.aceptada_por_sunat || vehicleDelivery?.status_dynamic)
+  );
+  const canEdit = !shippingGuide?.aceptada_por_sunat && !isSent;
 
   const handleSubmit = async (data: ShippingGuideSchema) => {
     try {
@@ -261,7 +265,7 @@ export default function ShippingGuidePage(): JSX.Element {
               <Card className="border-yellow-500 bg-yellow-50">
                 <CardContent className="pt-6">
                   <p className="text-sm text-yellow-800">
-                    Esta guía de remisión ya ha sido aceptada por SUNAT y no
+                    Esta guía de remisión ya ha sido {vehicleDelivery.aceptada_por_sunat ? "aceptada por SUNAT" : "enviada a Dynamic"} y no
                     puede ser editada.
                   </p>
                 </CardContent>
@@ -279,7 +283,7 @@ export default function ShippingGuidePage(): JSX.Element {
             <CardDescription>
               {shippingGuide
                 ? canEdit
-                  ? "Puedes actualizar los datos mientras no esté aceptada por SUNAT"
+                  ? "Puedes actualizar los datos mientras no esté aceptada por SUNAT o enviada a Dynamic"
                   : "Información del conductor registrada"
                 : "Complete los datos del conductor para generar la guía de remisión"}
             </CardDescription>

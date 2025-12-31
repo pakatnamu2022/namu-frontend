@@ -12,11 +12,13 @@ import ExpenseRowActions from "./ExpenseRowActions";
 interface ExpensesTableProps {
   expenses: ExpenseResource[];
   onActionComplete?: () => void;
+  module: "gh" | "contabilidad" | "profile";
 }
 
 export default function ExpensesTable({
   expenses,
   onActionComplete,
+  module,
 }: ExpensesTableProps) {
   const columns: ColumnDef<ExpenseResource>[] = [
     {
@@ -71,10 +73,36 @@ export default function ExpensesTable({
     },
     {
       accessorKey: "receipt_amount",
-      header: "Monto",
+      header: "$ Factura",
       cell: ({ row }) => {
         const amount = row.getValue("receipt_amount") as number;
-        return <div className="text-right">S/ {amount.toFixed(2)}</div>;
+        return (
+          <div className="text-right font-medium">S/ {amount.toFixed(2)}</div>
+        );
+      },
+    },
+    {
+      accessorKey: "employee_amount",
+      header: "$ Colaborador",
+      cell: ({ row }) => {
+        const amount = row.getValue("employee_amount") as number;
+        return (
+          <div className="text-right font-medium text-orange-600 dark:text-orange-500">
+            S/ {amount.toFixed(2)}
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: "company_amount",
+      header: "$ Empresa",
+      cell: ({ row }) => {
+        const amount = row.getValue("company_amount") as number;
+        return (
+          <div className="text-right font-medium text-blue-600 dark:text-blue-500">
+            S/ {amount.toFixed(2)}
+          </div>
+        );
       },
     },
     {
@@ -119,6 +147,7 @@ export default function ExpensesTable({
           <ExpenseRowActions
             expense={expense}
             onActionComplete={onActionComplete}
+            module={module}
           />
         );
       },
