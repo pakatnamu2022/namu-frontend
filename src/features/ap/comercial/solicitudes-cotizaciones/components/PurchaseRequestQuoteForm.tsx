@@ -43,6 +43,7 @@ import { PURCHASE_REQUEST_QUOTE } from "../lib/purchaseRequestQuote.constants";
 import { PurchaseOrderAccessoriesCard } from "./PurchaseOrderAccessoriesCard";
 import { OpportunityInfoCard } from "./OpportunityInfoCard";
 import { OpportunityResource } from "../../oportunidades/lib/opportunities.interface";
+import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 
 interface PurchaseRequestQuoteFormProps {
   defaultValues: Partial<PurchaseRequestQuoteSchema>;
@@ -70,7 +71,7 @@ export const PurchaseRequestQuoteForm = ({
   mode = "create",
   opportunity,
 }: PurchaseRequestQuoteFormProps) => {
-  const { ABSOLUTE_ROUTE } = PURCHASE_REQUEST_QUOTE;
+  const { ABSOLUTE_ROUTE, ROUTE } = PURCHASE_REQUEST_QUOTE;
   const router = useNavigate();
   const form = useForm({
     resolver: zodResolver(
@@ -83,6 +84,7 @@ export const PurchaseRequestQuoteForm = ({
     },
     mode: "onChange",
   });
+  const { canAssign } = useModulePermissions(ROUTE);
 
   // Estados
   const [copyClientToHolder, setCopyClientToHolder] = useState(false);
@@ -738,13 +740,14 @@ export const PurchaseRequestQuoteForm = ({
               cols={{ sm: 1, md: 2 }}
             >
               {/* Switch para seleccionar Con VIN o Sin VIN */}
-              <FormSwitch
-                control={form.control}
-                name="with_vin"
-                label="Modo de Selección de Vehículo"
-                text={withVinWatch ? "Con VIN" : "Sin VIN"}
-              />
-
+              {canAssign && (
+                <FormSwitch
+                  control={form.control}
+                  name="with_vin"
+                  label="Modo de Selección de Vehículo"
+                  text={withVinWatch ? "Con VIN" : "Sin VIN"}
+                />
+              )}
               {/* Mostrar campo de Vehículo VN cuando with_vin es true */}
               {withVinWatch && (
                 <FormSelect
@@ -826,13 +829,11 @@ export const PurchaseRequestQuoteForm = ({
                           })}
                         </span>
                       )}
-                      {originalPrice === 0 &&
-                        !withVinWatch &&
-                        modelVnWatch && (
-                          <span className="text-xs text-orange-600 bg-orange-50 px-1 rounded">
-                            ⚠️ Modelo sin precio configurado
-                          </span>
-                        )}
+                      {originalPrice === 0 && !withVinWatch && modelVnWatch && (
+                        <span className="text-xs text-orange-600 bg-orange-50 px-1 rounded">
+                          ⚠️ Modelo sin precio configurado
+                        </span>
+                      )}
                     </div>
                   </div>
                 }
@@ -845,9 +846,7 @@ export const PurchaseRequestQuoteForm = ({
                     {billedCost > 0 ? (
                       <>
                         <div className="text-xs text-gray-600 bg-gray-50 px-2 py-1 rounded">
-                          <span className="font-medium">
-                            Costo Facturado:
-                          </span>{" "}
+                          <span className="font-medium">Costo Facturado:</span>{" "}
                           {currencySymbol}{" "}
                           {billedCost.toLocaleString("es-PE", {
                             minimumFractionDigits: 2,
@@ -875,26 +874,26 @@ export const PurchaseRequestQuoteForm = ({
                       </>
                     ) : (
                       <div className="text-xs text-orange-600 bg-orange-50 px-2 py-1 rounded">
-                        ⚠️ Este vehículo no tiene costo de compra
-                        registrado. Revisar el registro del vehículo.
+                        ⚠️ Este vehículo no tiene costo de compra registrado.
+                        Revisar el registro del vehículo.
                       </div>
                     )}
                     {parseFloat(salePriceWatch || "0") === 0 && (
                       <div className="text-xs text-red-600 bg-red-50 px-2 py-1 rounded font-medium">
                         {!selectedModel ? (
                           <>
-                            ⚠️ <strong>Precio de venta en 0:</strong> No se
-                            pudo cargar la información del modelo de este
-                            vehículo. Verifique que el vehículo pertenezca a
-                            la familia de la oportunidad seleccionada.
+                            ⚠️ <strong>Precio de venta en 0:</strong> No se pudo
+                            cargar la información del modelo de este vehículo.
+                            Verifique que el vehículo pertenezca a la familia de
+                            la oportunidad seleccionada.
                           </>
                         ) : originalPrice === 0 ? (
                           <>
-                            ⚠️ <strong>Precio de venta en 0:</strong> El
-                            modelo <strong>"{selectedModel.code}"</strong>{" "}
-                            (ID: {selectedModel.id}) de este vehículo no
-                            tiene precio de venta configurado. Ir a
-                            Configuraciones → Modelos VN para agregarlo.
+                            ⚠️ <strong>Precio de venta en 0:</strong> El modelo{" "}
+                            <strong>"{selectedModel.code}"</strong> (ID:{" "}
+                            {selectedModel.id}) de este vehículo no tiene precio
+                            de venta configurado. Ir a Configuraciones → Modelos
+                            VN para agregarlo.
                           </>
                         ) : (
                           <>
@@ -920,17 +919,16 @@ export const PurchaseRequestQuoteForm = ({
                       <div className="text-xs text-red-600 bg-red-50 px-2 py-1 rounded font-medium">
                         {!selectedModel ? (
                           <>
-                            ⚠️ <strong>Precio de venta en 0:</strong> No se
-                            pudo cargar la información del modelo
-                            seleccionado.
+                            ⚠️ <strong>Precio de venta en 0:</strong> No se pudo
+                            cargar la información del modelo seleccionado.
                           </>
                         ) : originalPrice === 0 ? (
                           <>
-                            ⚠️ <strong>Precio de venta en 0:</strong> El
-                            modelo <strong>"{selectedModel.code}"</strong>{" "}
-                            (ID: {selectedModel.id}) no tiene precio de
-                            venta configurado. Ir a Configuraciones →
-                            Modelos VN para agregarlo.
+                            ⚠️ <strong>Precio de venta en 0:</strong> El modelo{" "}
+                            <strong>"{selectedModel.code}"</strong> (ID:{" "}
+                            {selectedModel.id}) no tiene precio de venta
+                            configurado. Ir a Configuraciones → Modelos VN para
+                            agregarlo.
                           </>
                         ) : (
                           <>

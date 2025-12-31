@@ -102,7 +102,7 @@ export const PERMISSION_ACTIONS: PermissionAction[] = [
     value: "assign",
     label: "Asignar",
     icon: "Link",
-    description: "Permite asignar vehículos a solicitudes",
+    description: "Permite asignar registros o tareas",
   },
 ];
 

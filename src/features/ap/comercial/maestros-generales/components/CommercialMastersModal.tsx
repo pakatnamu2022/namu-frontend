@@ -14,6 +14,7 @@ import {
   successToast,
 } from "@/core/core.function";
 import { COMMERCIAL_MASTERS } from "../lib/commercialMasters.constants";
+import FormSkeleton from "@/shared/components/FormSkeleton";
 
 interface CommercialMastersModalProps {
   id?: number;
@@ -28,10 +29,17 @@ export default function CommercialMastersModal({
   onClose,
   mode,
 }: CommercialMastersModalProps) {
-  const { data: master } = useCommercialMastersById(id || 0);
+  const { MODEL, EMPTY } = COMMERCIAL_MASTERS;
+  const {
+    data: master,
+    isLoading: loadingMaster,
+    refetch,
+  } = mode === "create"
+    ? { data: EMPTY, isLoading: false, refetch: () => {} }
+    : useCommercialMastersById(id!);
+
   const createMutation = useCreateCommercialMasters();
   const updateMutation = useUpdateCommercialMasters();
-  const { MODEL } = COMMERCIAL_MASTERS;
 
   const handleSubmit = async (data: CommercialMastersSchema) => {
     try {
@@ -42,6 +50,7 @@ export default function CommercialMastersModal({
         await updateMutation.mutateAsync({ id: id!, body: data });
         successToast(SUCCESS_MESSAGE(MODEL, "update"));
       }
+      await refetch();
       onClose();
     } catch (error: any) {
       errorToast(
@@ -58,6 +67,8 @@ export default function CommercialMastersModal({
       }
     : null;
 
+  const isLoadingAny = loadingMaster || !master;
+
   return (
     <GeneralModal
       open={open}
@@ -67,12 +78,17 @@ export default function CommercialMastersModal({
       size="lg"
       icon="Cog"
     >
-      <CommercialMastersForm
-        onSubmit={handleSubmit}
-        isSubmitting={createMutation.isPending || updateMutation.isPending}
-        defaultValues={mappedMaster || undefined}
-        mode={mode}
-      />
+      {!isLoadingAny && master ? (
+        <CommercialMastersForm
+          onSubmit={handleSubmit}
+          isSubmitting={createMutation.isPending || updateMutation.isPending}
+          defaultValues={mappedMaster || undefined}
+          mode={mode}
+          onCancel={onClose}
+        />
+      ) : (
+        <FormSkeleton />
+      )}
     </GeneralModal>
   );
 }

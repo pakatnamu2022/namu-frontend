@@ -19,6 +19,7 @@ interface CommercialMastersFormProps {
   isSubmitting: boolean;
   defaultValues?: CommercialMastersResource;
   mode: "create" | "update";
+  onCancel?: () => void;
 }
 
 export default function CommercialMastersForm({
@@ -26,6 +27,7 @@ export default function CommercialMastersForm({
   isSubmitting,
   defaultValues,
   mode,
+  onCancel,
 }: CommercialMastersFormProps) {
   const { data: typesData, isLoading: isLoadingTypes } =
     useCommercialMastersTypes();
@@ -85,6 +87,10 @@ export default function CommercialMastersForm({
         )}
 
         <div className="flex justify-end gap-4">
+          <Button type="button" variant="outline" onClick={onCancel}>
+            Cancelar
+          </Button>
+
           <Button
             type="submit"
             disabled={isSubmitting || !form.formState.isValid}
