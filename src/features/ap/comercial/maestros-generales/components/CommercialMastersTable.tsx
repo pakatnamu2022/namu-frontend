@@ -1,5 +1,5 @@
 import { DataTable } from "@/shared/components/DataTable";
-import { ColumnDef } from "@tanstack/react-table";
+import { ColumnDef, OnChangeFn, SortingState } from "@tanstack/react-table";
 import { CommercialMastersResource } from "../lib/commercialMasters.interface";
 
 interface CommercialMastersTableProps {
@@ -7,6 +7,9 @@ interface CommercialMastersTableProps {
   data: CommercialMastersResource[];
   isLoading: boolean;
   children?: React.ReactNode;
+  sorting?: SortingState;
+  onSortingChange?: OnChangeFn<SortingState>;
+  manualSorting?: boolean;
 }
 
 export default function CommercialMastersTable({
@@ -14,13 +17,18 @@ export default function CommercialMastersTable({
   data,
   isLoading,
   children,
+  sorting,
+  onSortingChange,
+  manualSorting,
 }: CommercialMastersTableProps) {
   return (
     <DataTable
+      sorting={sorting}
+      onSortingChange={onSortingChange}
+      manualSorting={manualSorting}
       columns={columns}
       data={data}
       isLoading={isLoading}
-      filterPlaceholder="Buscar por código o descripción..."
     >
       {children}
     </DataTable>

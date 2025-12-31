@@ -2,17 +2,19 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import CommercialMastersModal from "./CommercialMastersModal";
+import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
+import { COMMERCIAL_MASTERS } from "../lib/commercialMasters.constants";
 
 interface CommercialMastersActionsProps {
   permissions: any;
 }
 
-export default function CommercialMastersActions({
-  permissions,
-}: CommercialMastersActionsProps) {
+export default function CommercialMastersActions({}: CommercialMastersActionsProps) {
   const [showCreate, setShowCreate] = useState(false);
+  const { ROUTE } = COMMERCIAL_MASTERS;
+  const { canCreate } = useModulePermissions(ROUTE);
 
-  if (!permissions.canCreate) return null;
+  if (!canCreate) return null;
 
   return (
     <>
@@ -23,7 +25,6 @@ export default function CommercialMastersActions({
 
       {showCreate && (
         <CommercialMastersModal
-          title="Crear Maestro Comercial"
           open={showCreate}
           onClose={() => setShowCreate(false)}
           mode="create"

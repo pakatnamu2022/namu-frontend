@@ -1,9 +1,4 @@
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { GeneralModal } from "@/shared/components/GeneralModal";
 import CommercialMastersForm from "./CommercialMastersForm";
 import {
   useCommercialMastersById,
@@ -11,11 +6,18 @@ import {
   useUpdateCommercialMasters,
 } from "../lib/commercialMasters.hook";
 import { CommercialMastersSchema } from "../lib/commercialMasters.schema";
-import { errorToast, successToast } from "@/core/core.function";
+import {
+  ERROR_MESSAGE,
+  errorToast,
+  SUBTITLE,
+  SUCCESS_MESSAGE,
+  successToast,
+} from "@/core/core.function";
+import { COMMERCIAL_MASTERS } from "../lib/commercialMasters.constants";
+import FormSkeleton from "@/shared/components/FormSkeleton";
 
 interface CommercialMastersModalProps {
   id?: number;
-  title: string;
   open: boolean;
   onClose: () => void;
   mode: "create" | "update";
@@ -23,12 +25,19 @@ interface CommercialMastersModalProps {
 
 export default function CommercialMastersModal({
   id,
-  title,
   open,
   onClose,
   mode,
 }: CommercialMastersModalProps) {
-  const { data: master } = useCommercialMastersById(id || 0);
+  const { MODEL, EMPTY } = COMMERCIAL_MASTERS;
+  const {
+    data: master,
+    isLoading: loadingMaster,
+    refetch,
+  } = mode === "create"
+    ? { data: EMPTY, isLoading: false, refetch: () => {} }
+    : useCommercialMastersById(id!);
+
   const createMutation = useCreateCommercialMasters();
   const updateMutation = useUpdateCommercialMasters();
 
@@ -36,33 +45,50 @@ export default function CommercialMastersModal({
     try {
       if (mode === "create") {
         await createMutation.mutateAsync(data);
-        successToast("Maestro comercial creado exitosamente");
+        successToast(SUCCESS_MESSAGE(MODEL, "create"));
       } else {
         await updateMutation.mutateAsync({ id: id!, body: data });
-        successToast("Maestro comercial actualizado exitosamente");
+        successToast(SUCCESS_MESSAGE(MODEL, "update"));
       }
+      await refetch();
       onClose();
     } catch (error: any) {
       errorToast(
         error?.response?.data?.message ||
-          "Error al guardar el maestro comercial"
+          ERROR_MESSAGE(MODEL, mode === "create" ? "create" : "update")
       );
     }
   };
 
+  const mappedMaster = master
+    ? {
+        ...master,
+        status: Boolean(master.status),
+      }
+    : null;
+
+  const isLoadingAny = loadingMaster || !master;
+
   return (
-    <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
-        </DialogHeader>
+    <GeneralModal
+      open={open}
+      onClose={onClose}
+      title={MODEL.name}
+      subtitle={SUBTITLE(MODEL, mode)}
+      size="lg"
+      icon="Cog"
+    >
+      {!isLoadingAny && master ? (
         <CommercialMastersForm
           onSubmit={handleSubmit}
           isSubmitting={createMutation.isPending || updateMutation.isPending}
-          defaultValues={master}
+          defaultValues={mappedMaster || undefined}
           mode={mode}
+          onCancel={onClose}
         />
-      </DialogContent>
-    </Dialog>
+      ) : (
+        <FormSkeleton />
+      )}
+    </GeneralModal>
   );
 }
