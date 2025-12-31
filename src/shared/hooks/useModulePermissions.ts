@@ -98,6 +98,12 @@ export const PERMISSION_ACTIONS: PermissionAction[] = [
     icon: "Building",
     description: "Permite ver información por sedes",
   },
+  {
+    value: "assign",
+    label: "Asignar",
+    icon: "Link",
+    description: "Permite asignar vehículos a solicitudes",
+  },
 ];
 
 /**
@@ -144,5 +150,6 @@ export function useModulePermissions(moduleCode: string) {
     canDuplicate: hasModulePermission("duplicate"),
     canViewAdvisors: hasModulePermission("viewAdvisors"),
     canViewBranches: hasModulePermission("viewBranches"),
+    canAssign: hasModulePermission("assign"),
   };
 }

@@ -612,7 +612,6 @@ export const BonusDiscountTable = ({
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="FIJO">Fijo</SelectItem>
-                  <SelectItem value="PORCENTAJE">Porcentaje</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -884,7 +883,6 @@ export const BonusDiscountTable = ({
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="FIJO">Fijo</SelectItem>
-                  <SelectItem value="PORCENTAJE">Porcentaje</SelectItem>
                 </SelectContent>
               </Select>
             </div>

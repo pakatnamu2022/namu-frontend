@@ -35,6 +35,7 @@ export default function AssignVehicleModal({
     ap_vehicle_status_id: [2, 5],
     has_purchase_request_quote: 0,
     ap_models_vn_id: quote.ap_models_vn_id,
+    warehouse$sede_id: quote.sede_id,
   });
 
   const assignVehicleMutation = useAssignVehicleToPurchaseRequestQuote();
