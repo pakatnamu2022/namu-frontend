@@ -3,6 +3,7 @@ import { z } from "zod";
 
 export const orderQuotationSchemaCreate = z.object({
   vehicle_id: requiredStringId("Vehículo es requerido"),
+  sede_id: requiredStringId("Sede es requerida"),
   quotation_date: z
     .union([z.literal(""), z.date()])
     .refine((val) => val !== "", {

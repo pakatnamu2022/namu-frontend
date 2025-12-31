@@ -184,7 +184,7 @@ export default function InvoiceForm({
               <GroupFormSection
                 title="Detalle de la Factura"
                 icon={FileText}
-                iconColor="text-blue-600"
+                iconColor="text-primary"
                 bgColor="bg-blue-50"
                 cols={{ sm: 1, md: 2 }}
               >

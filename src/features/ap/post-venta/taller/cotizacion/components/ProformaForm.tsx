@@ -24,6 +24,8 @@ import { FormSelect } from "@/shared/components/FormSelect";
 import { Car, User } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { useState, useEffect } from "react";
+import { EMPRESA_AP } from "@/core/core.constants";
+import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 
 interface OrderQuotationFormProps {
   defaultValues: Partial<OrderQuotationSchema>;
@@ -60,6 +62,10 @@ export default function OrderQuotationForm({
   const { data: vehicles = [], isLoading: isLoadingVehicles } =
     useAllVehicles();
 
+  const { data: mySedes = [], isLoading: isLoadingMySedes } = useMySedes({
+    company: EMPRESA_AP.id,
+  });
+
   useEffect(() => {
     if (vehicleId && vehicles.length > 0) {
       const vehicle = vehicles.find((v) => v.id.toString() === vehicleId);
@@ -80,12 +86,23 @@ export default function OrderQuotationForm({
     }
   }, [quotationDate, form]);
 
-  if (isLoadingVehicles) return <FormSkeleton />;
+  if (isLoadingVehicles || isLoadingMySedes) return <FormSkeleton />;
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <FormSelect
+            name="sede_id"
+            label="Sede"
+            placeholder="Selecciona una sede"
+            options={mySedes.map((item) => ({
+              label: item.abreviatura,
+              value: item.id.toString(),
+            }))}
+            control={form.control}
+          />
+
           <FormSelect
             name="vehicle_id"
             label="Vehículo"

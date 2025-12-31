@@ -61,6 +61,9 @@ export default function ProductDetailsSection({
       description: "",
       quantity: 1,
       unit_measure: "UND",
+      retail_price_external: 0,
+      flete_external: 0,
+      percentage_flete_external: 5,
       unit_price: 0,
       discount: 0,
       total_amount: 0,
@@ -69,6 +72,9 @@ export default function ProductDetailsSection({
   });
 
   const selectedProductId = form.watch("product_id");
+  const retailPriceExternal = form.watch("retail_price_external");
+  const fleteExternal = form.watch("flete_external");
+  const percentageFleteExternal = form.watch("percentage_flete_external");
 
   // Obtener datos del producto seleccionado
   const { data: productData } = useProductById(Number(selectedProductId) || 0);
@@ -78,9 +84,19 @@ export default function ProductDetailsSection({
     if (productData) {
       form.setValue("description", productData.name || "");
       form.setValue("unit_measure", productData.unit_measurement_name || "UND");
-      form.setValue("unit_price", Number(productData.sale_price) || 0);
     }
   }, [productData, form]);
+
+  // Calcular automáticamente el precio unitario
+  // Fórmula: unit_price = (retail_price_external + flete_external) * percentage_flete_external / 100 + retail_price_external
+  useEffect(() => {
+    const retail = retailPriceExternal || 0;
+    const flete = fleteExternal || 0;
+    const percentage = percentageFleteExternal || 5;
+
+    const calculatedUnitPrice = ((retail + flete) * percentage) / 100 + retail;
+    form.setValue("unit_price", calculatedUnitPrice);
+  }, [retailPriceExternal, fleteExternal, percentageFleteExternal, form]);
 
   const onSubmit = async (data: ProductDetailSchema) => {
     try {
@@ -104,6 +120,9 @@ export default function ProductDetailsSection({
         description: "",
         quantity: 1,
         unit_measure: "UND",
+        retail_price_external: 0,
+        flete_external: 0,
+        percentage_flete_external: 5,
         unit_price: 0,
         discount: 0,
         total_amount: 0,
@@ -134,6 +153,14 @@ export default function ProductDetailsSection({
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          {/* Mensaje de margen */}
+          <div className="bg-blue-50 border border-blue-200 rounded-md px-3 py-2">
+            <p className="text-xs text-blue-700">
+              <span className="font-semibold">Margen aplicado:</span>{" "}
+              {percentageFleteExternal || 5}%
+            </p>
+          </div>
+
           {/* Producto selector - ancho completo */}
           <FormSelectAsync
             name="product_id"
@@ -149,9 +176,62 @@ export default function ProductDetailsSection({
             debounceMs={500}
           />
 
-          {/* Campos de entrada en una sola línea */}
+          {/* Primera fila: Precio Externo, Flete */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <FormField
+                control={form.control}
+                name="retail_price_external"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-xs">
+                      Precio Externo (S/.)
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        {...field}
+                        onChange={(e) => field.onChange(Number(e.target.value))}
+                        className="h-9"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div>
+              <FormField
+                control={form.control}
+                name="flete_external"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-xs">
+                      Flete Externo (S/.)
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        {...field}
+                        onChange={(e) => field.onChange(Number(e.target.value))}
+                        className="h-9"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+          </div>
+
+          {/* Segunda fila: Cantidad, Precio Unitario, Observaciones, Botón */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3">
-            <div className="sm:col-span-1 lg:col-span-3">
+            <div className="sm:col-span-1 lg:col-span-2">
               <FormField
                 control={form.control}
                 name="quantity"
@@ -179,7 +259,9 @@ export default function ProductDetailsSection({
                 name="unit_price"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-xs">Precio Unit.</FormLabel>
+                    <FormLabel className="text-xs">
+                      Precio Unit. (Calculado)
+                    </FormLabel>
                     <FormControl>
                       <Input
                         type="number"
@@ -187,7 +269,8 @@ export default function ProductDetailsSection({
                         min="0"
                         {...field}
                         onChange={(e) => field.onChange(Number(e.target.value))}
-                        className="h-9"
+                        className="h-9 bg-gray-50"
+                        disabled
                       />
                     </FormControl>
                     <FormMessage />
@@ -196,30 +279,7 @@ export default function ProductDetailsSection({
               />
             </div>
 
-            <div className="sm:col-span-1 lg:col-span-2">
-              <FormField
-                control={form.control}
-                name="discount"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-xs">Desc. (S/.)</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        {...field}
-                        onChange={(e) => field.onChange(Number(e.target.value))}
-                        className="h-9"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <div className="sm:col-span-1 lg:col-span-3">
+            <div className="sm:col-span-1 lg:col-span-6">
               <FormField
                 control={form.control}
                 name="observations"
@@ -279,9 +339,9 @@ export default function ProductDetailsSection({
               <div className="col-span-4">Repuesto</div>
               <div className="col-span-2 text-center">Cantidad</div>
               <div className="col-span-2 text-right">Precio Unit.</div>
-              <div className="col-span-1 text-right">Desc.</div>
+              {/* <div className="col-span-1 text-right">Desc.</div> */}
               <div className="col-span-2 text-right">Total</div>
-              <div className="col-span-1"></div>
+              <div className="col-span-2 text-right">Acción</div>
             </div>
 
             {/* Items */}
@@ -316,11 +376,11 @@ export default function ProductDetailsSection({
                       </span>
                     </div>
 
-                    <div className="col-span-1 text-right">
+                    {/* <div className="col-span-1 text-right">
                       <span className="text-sm text-orange-600">
                         -{formatCurrency(detail.discount)}
                       </span>
-                    </div>
+                    </div> */}
 
                     <div className="col-span-2 text-right">
                       <span className="text-sm font-bold text-primary">
@@ -328,7 +388,7 @@ export default function ProductDetailsSection({
                       </span>
                     </div>
 
-                    <div className="col-span-1 flex justify-end">
+                    <div className="col-span-2 flex justify-end">
                       <Button
                         variant="ghost"
                         size="icon"
