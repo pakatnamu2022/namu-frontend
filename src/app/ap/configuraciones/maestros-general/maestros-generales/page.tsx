@@ -27,10 +27,10 @@ import CommercialMastersOptions from "@/features/ap/comercial/maestros-generales
 import CommercialMastersModal from "@/features/ap/comercial/maestros-generales/components/CommercialMastersModal";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { notFound } from "@/shared/hooks/useNotFound";
+import { SortingState } from "@tanstack/react-table";
 
 export default function CommercialMastersPage() {
-  const { checkRouteExists, isLoadingModule, currentView } =
-    useCurrentModule();
+  const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
@@ -38,13 +38,20 @@ export default function CommercialMastersPage() {
   const [updateId, setUpdateId] = useState<number | null>(null);
   const { MODEL, ROUTE } = COMMERCIAL_MASTERS;
   const permissions = useModulePermissions(ROUTE);
+  const [sorting, setSorting] = useState<SortingState>([]);
 
   useEffect(() => {
     setPage(1);
-  }, [search, per_page]);
+  }, [search, per_page, sorting]);
 
   const { data, isLoading, refetch } = useCommercialMasters({
-    params: { page, search, per_page },
+    params: {
+      page,
+      search,
+      per_page,
+      sort: sorting.map((s) => s.id).join(","),
+      direction: sorting.map((s) => (s.desc ? "desc" : "asc")).join(","),
+    },
   });
 
   const handleToggleStatus = async (id: number, newStatus: boolean) => {
@@ -95,6 +102,9 @@ export default function CommercialMastersPage() {
           permissions,
         })}
         data={data?.data || []}
+        sorting={sorting}
+        onSortingChange={setSorting}
+        manualSorting={true}
       >
         <CommercialMastersOptions search={search} setSearch={setSearch} />
       </CommercialMastersTable>
@@ -110,7 +120,6 @@ export default function CommercialMastersPage() {
       {updateId !== null && (
         <CommercialMastersModal
           id={updateId}
-          title={"Actualizar Maestro Comercial"}
           open={true}
           onClose={() => setUpdateId(null)}
           mode="update"

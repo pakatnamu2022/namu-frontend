@@ -1,7 +1,9 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { CommercialMastersResource } from "../lib/commercialMasters.interface";
-import { DeleteButton, UpdateButton } from "@/shared/components/ActionButtons";
 import { Switch } from "@/components/ui/switch";
+import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
+import { Button } from "@/components/ui/button";
+import { Pencil } from "lucide-react";
 
 interface CommercialMastersColumnsProps {
   onToggleStatus: (id: number, newStatus: boolean) => void;
@@ -35,6 +37,7 @@ export const commercialMastersColumns = ({
   {
     accessorKey: "status",
     header: "Estado",
+    enableSorting: true,
     cell: ({ row }) => {
       const status = row.original.status ?? true;
       return (
@@ -54,7 +57,14 @@ export const commercialMastersColumns = ({
     cell: ({ row }) => (
       <div className="flex gap-2">
         {permissions.canUpdate && (
-          <UpdateButton onClick={() => onUpdate(row.original.id)} />
+          <Button
+            size="icon-xs"
+            variant="outline"
+            onClick={() => onUpdate(row.original.id)}
+            aria-label="Editar"
+          >
+            <Pencil className="h-4 w-4" />
+          </Button>
         )}
         {permissions.canDelete && (
           <DeleteButton onClick={() => onDelete(row.original.id)} />

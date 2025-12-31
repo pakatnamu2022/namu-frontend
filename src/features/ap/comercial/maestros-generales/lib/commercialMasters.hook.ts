@@ -9,6 +9,7 @@ import {
   createCommercialMasters,
   updateCommercialMasters,
   deleteCommercialMasters,
+  getCommercialMastersTypes,
 } from "./commercialMasters.actions";
 import { COMMERCIAL_MASTERS } from "./commercialMasters.constants";
 
@@ -69,5 +70,13 @@ export const useDeleteCommercialMasters = () => {
         queryKey: [COMMERCIAL_MASTERS.QUERY_KEY],
       });
     },
+  });
+};
+
+export const useCommercialMastersTypes = () => {
+  return useQuery({
+    queryKey: [COMMERCIAL_MASTERS.QUERY_KEY, "types"],
+    queryFn: getCommercialMastersTypes,
+    staleTime: 1000 * 60 * 5, // 5 minutos
   });
 };

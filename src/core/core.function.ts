@@ -53,6 +53,11 @@ export const ERROR_MESSAGE = (
   return `Error al ${ACTIONS[action]} ${gender ? "la" : "el"} ${name}.`;
 };
 
+export const SUBTITLE: ({ name }: ModelInterface, action: Action) => string = (
+  { name },
+  action
+) => `Aquí puedes ${ACTIONS[action]} ${name.toLowerCase()}.`;
+
 function roundTwoDecimalPlacesUp(valor: number): number {
   return Math.ceil(valor * 100) / 100;
 }

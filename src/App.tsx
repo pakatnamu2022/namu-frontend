@@ -318,6 +318,7 @@ import MyPerDiemPage from "./app/perfil/viaticos/page.tsx";
 import AddGeneralElectronicDocumentPage from "./app/ap/comercial/electronic-documents/agregar-otros/page.tsx";
 import PerDiemRequestAPPage from "./app/ap/contabilidad/solicitud-viaticos/page.tsx";
 import PerDiemRequestDetailAdminAPPage from "./app/ap/contabilidad/solicitud-viaticos/[id]/page.tsx";
+import CommercialMastersPage from "./app/ap/configuraciones/maestros-general/maestros-generales/page.tsx";
 
 // ============================================================================
 // PROTECTED ROUTE COMPONENT
@@ -705,6 +706,10 @@ function App() {
               <Route path="maestros-general" element={<ModulePage />} />
 
               {/* Maestros General */}
+              <Route
+                path="maestros-general/maestros-generales"
+                element={<CommercialMastersPage />}
+              />
               <Route
                 path="maestros-general/actividad-economica"
                 element={<EconomicActivityPage />}
