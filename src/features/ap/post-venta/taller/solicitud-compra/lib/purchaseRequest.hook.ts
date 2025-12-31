@@ -12,7 +12,10 @@ import {
   ERROR_MESSAGE,
   SUCCESS_MESSAGE,
 } from "@/core/core.function";
-import { PurchaseRequestResponse } from "./purchaseRequest.interface";
+import {
+  PurchaseRequestDetailResponse,
+  PurchaseRequestResponse,
+} from "./purchaseRequest.interface";
 
 const { QUERY_KEY, MODEL } = PURCHASE_REQUEST;
 
@@ -27,7 +30,7 @@ export const usePurchaseRequests = (params?: Record<string, any>) => {
 export const usePurchaseRequestsDetailsPending = (
   params?: Record<string, any>
 ) => {
-  return useQuery<PurchaseRequestResponse>({
+  return useQuery<PurchaseRequestDetailResponse>({
     queryKey: [QUERY_KEY, params, "pending-details"],
     queryFn: () => getPurchaseRequestsDetailsPending({ params }),
     refetchOnWindowFocus: false,
