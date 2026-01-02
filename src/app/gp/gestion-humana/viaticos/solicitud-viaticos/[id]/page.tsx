@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { FileDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -30,15 +30,12 @@ import AddFlightTicketModal from "@/features/profile/viaticos/components/AddFlig
 
 export default function PerDiemRequestDetailAdminPage() {
   const { id } = useParams<{ id: string }>();
+  const queryClient = useQueryClient();
   const [isDownloading, setIsDownloading] = useState(false);
   const [isAddFlightTicketModalOpen, setIsAddFlightTicketModalOpen] =
     useState(false);
 
-  const {
-    data: request,
-    isLoading,
-    refetch,
-  } = useQuery({
+  const { data: request, isLoading } = useQuery({
     queryKey: [PER_DIEM_REQUEST.QUERY_KEY, id],
     queryFn: () => findPerDiemRequestById(Number(id)),
     enabled: !!id,
@@ -78,8 +75,11 @@ export default function PerDiemRequestDetailAdminPage() {
     }
   };
 
-  const handleActionComplete = () => {
-    refetch();
+  const handleActionComplete = async () => {
+    // Invalidar queries para refrescar los datos
+    await queryClient.invalidateQueries({
+      queryKey: [PER_DIEM_REQUEST.QUERY_KEY, id],
+    });
   };
 
   const isCancelled = request?.status === "cancelled";
@@ -208,6 +208,7 @@ export default function PerDiemRequestDetailAdminPage() {
               expenses={request.expenses || []}
               onActionComplete={handleActionComplete}
               module="gh"
+              requestId={request.id}
             />
           </div>
         </GroupFormSection>

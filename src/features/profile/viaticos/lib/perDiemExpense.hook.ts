@@ -46,6 +46,10 @@ export function useCreatePerDiemExpense(
       storePerDiemExpense(requestId, expenseData),
     onSuccess: async () => {
       successToast(SUCCESS_MESSAGE(MODEL, "create"));
+      // Invalidar tanto la query específica como las generales
+      await queryClient.invalidateQueries({
+        queryKey: [PER_DIEM_REQUEST.QUERY_KEY],
+      });
       await queryClient.invalidateQueries({
         queryKey: [PER_DIEM_REQUEST.QUERY_KEY, requestId],
       });
@@ -77,6 +81,10 @@ export function useUpdatePerDiemExpense(
       updatePerDiemExpense(expenseId, expenseData),
     onSuccess: async () => {
       successToast(SUCCESS_MESSAGE(MODEL, "update"));
+      // Invalidar tanto las queries específicas como las generales
+      await queryClient.invalidateQueries({
+        queryKey: [PER_DIEM_REQUEST.QUERY_KEY],
+      });
       await queryClient.invalidateQueries({
         queryKey: [PER_DIEM_REQUEST.QUERY_KEY, requestId],
       });
@@ -109,9 +117,15 @@ export function useDeletePerDiemExpense(
     mutationFn: (expenseId: number) => deletePerDiemExpense(expenseId),
     onSuccess: async () => {
       successToast(SUCCESS_MESSAGE(MODEL, "delete"));
+      // Invalidar tanto la query específica como las generales
       await queryClient.invalidateQueries({
-        queryKey: [PER_DIEM_REQUEST.QUERY_KEY, requestId],
+        queryKey: [PER_DIEM_REQUEST.QUERY_KEY],
       });
+      if (requestId) {
+        await queryClient.invalidateQueries({
+          queryKey: [PER_DIEM_REQUEST.QUERY_KEY, requestId],
+        });
+      }
       options?.onSuccess?.();
     },
     onError: (error: any) => {

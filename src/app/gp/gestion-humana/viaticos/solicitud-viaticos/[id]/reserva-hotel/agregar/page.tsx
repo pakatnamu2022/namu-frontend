@@ -5,16 +5,18 @@ import FormWrapper from "@/shared/components/FormWrapper";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import { HotelReservationForm } from "@/features/profile/viaticos/components/HotelReservationForm";
 import { HotelReservationSchema } from "@/features/profile/viaticos/lib/hotelReservation.schema";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createHotelReservation } from "@/features/profile/viaticos/lib/hotelReservation.actions";
 import { useFindPerDiemRequestById } from "@/features/profile/viaticos/lib/perDiemRequest.hook";
 import { Loader } from "lucide-react";
 import { useGetAllHotelAgreement } from "@/features/gp/gestionhumana/viaticos/convenios-hoteles/lib/hotelAgreement.hook";
 import { errorToast, successToast } from "@/core/core.function";
+import { PER_DIEM_REQUEST } from "@/features/profile/viaticos/lib/perDiemRequest.constants";
 
 export default function AddHotelReservationPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const requestId = Number(id);
 
   // Obtener datos de la solicitud de viáticos
@@ -49,7 +51,14 @@ export default function AddHotelReservationPage() {
         document_number: data.document_number,
       });
     },
-    onSuccess: () => {
+    onSuccess: async () => {
+      // Invalidar queries para refrescar los datos
+      await queryClient.invalidateQueries({
+        queryKey: [PER_DIEM_REQUEST.QUERY_KEY],
+      });
+      await queryClient.invalidateQueries({
+        queryKey: [PER_DIEM_REQUEST.QUERY_KEY, requestId],
+      });
       successToast("Reserva de hotel creada exitosamente");
       navigate("/gp/gestion-humana/viaticos/solicitud-viaticos");
     },

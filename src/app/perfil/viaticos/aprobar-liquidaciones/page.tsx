@@ -17,6 +17,7 @@ import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { PER_DIEM_REQUEST } from "@/features/profile/viaticos/lib/perDiemRequest.constants";
 import { ReviewDialog } from "@/features/profile/viaticos/components/ReviewDialog";
 import PerDiemRequestDetailSheet from "@/features/profile/viaticos/components/PerDiemRequestDetailSheet";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function ApproveSettlementPage() {
   const [page, setPage] = useState(1);
@@ -29,12 +30,13 @@ export default function ApproveSettlementPage() {
   const [comments, setComments] = useState("");
   const [detailId, setDetailId] = useState<number | null>(null);
   const { MODEL } = PER_DIEM_REQUEST;
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     setPage(1);
   }, [search, per_page]);
 
-  const { data, isLoading, refetch } = useGetPendingSettlements({
+  const { data, isLoading } = useGetPendingSettlements({
     params: {
       page,
       search,
@@ -67,7 +69,13 @@ export default function ApproveSettlementPage() {
         }
         await rejectSettlement(reviewId, comments);
       }
-      await refetch();
+      // Invalidar queries para refrescar los datos
+      await queryClient.invalidateQueries({
+        queryKey: [PER_DIEM_REQUEST.QUERY_KEY],
+      });
+      await queryClient.invalidateQueries({
+        queryKey: [PER_DIEM_REQUEST.QUERY_KEY, reviewId],
+      });
       successToast(
         reviewAction === "approved"
           ? "Liquidación aprobada exitosamente"
