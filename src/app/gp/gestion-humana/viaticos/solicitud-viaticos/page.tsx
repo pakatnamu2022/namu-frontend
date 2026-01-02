@@ -103,6 +103,8 @@ export default function PerDiemRequestPage() {
         }
         open={hotelReservationRequestId !== null}
         onOpenChange={(open) => !open && setHotelReservationRequestId(null)}
+        requestId={hotelReservationRequestId || undefined}
+        module="gh"
       />
 
       <DataTablePagination

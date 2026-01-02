@@ -21,7 +21,7 @@ import { Button } from "@/components/ui/button";
 import { useGetAllHotelAgreement } from "@/features/gp/gestionhumana/viaticos/convenios-hoteles/lib/hotelAgreement.hook";
 import { Loader } from "lucide-react";
 
-export default function UpdateHotelReservationPage() {
+export default function UpdateHotelReservationAPPage() {
   const { id, reservationId } = useParams<{
     id: string;
     reservationId: string;
@@ -78,7 +78,7 @@ export default function UpdateHotelReservationPage() {
           );
           setShowConfirmModal(false);
           setPendingData(null);
-          navigate("/gp/gestion-humana/viaticos/solicitud-viaticos");
+          navigate("/ap/contabilidad/viaticos-ap");
         },
         onError: (error: any) => {
           errorToast(
@@ -97,7 +97,7 @@ export default function UpdateHotelReservationPage() {
   };
 
   const handleCancel = () => {
-    navigate("/gp/gestion-humana/viaticos/solicitud-viaticos");
+    navigate("/ap/contabilidad/viaticos-ap");
   };
 
   const isLoading =
@@ -140,7 +140,7 @@ export default function UpdateHotelReservationPage() {
             checkin_date: new Date(reservation.checkin_date),
             checkout_date: new Date(reservation.checkout_date),
             total_cost: reservation.total_cost,
-            document_number: reservation.expense.receipt_number || "",
+            document_number: "",
             notes: reservation.notes || "",
           }}
           onSubmit={handleSubmit}

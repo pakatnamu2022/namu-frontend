@@ -293,6 +293,8 @@ import UpdatePerDiemRatePage from "./app/gp/gestion-humana/viaticos/tarifa/actua
 import PerDiemRequestPage from "./app/gp/gestion-humana/viaticos/solicitud-viaticos/page.tsx";
 import PerDiemRequestDetailAdminPage from "./app/gp/gestion-humana/viaticos/solicitud-viaticos/[id]/page.tsx";
 import AddAdminHotelReservationPage from "./app/gp/gestion-humana/viaticos/solicitud-viaticos/[id]/reserva-hotel/agregar/page.tsx";
+import UpdateAdminHotelReservationPage from "./app/gp/gestion-humana/viaticos/solicitud-viaticos/[id]/reserva-hotel/actualizar/[reservationId]/page.tsx";
+import UpdateAdminAPHotelReservationPage from "./app/ap/contabilidad/solicitud-viaticos/[id]/reserva-hotel/actualizar/[reservationId]/page.tsx";
 import AddPerDiemRequestPage from "./app/perfil/viaticos/agregar/page.tsx";
 import UpdatePerDiemRequestPage from "./app/perfil/viaticos/actualizar/[id]/page.tsx";
 import ApprovePerDiemRequestPage from "./app/perfil/viaticos/aprobar/page.tsx";
@@ -1043,6 +1045,10 @@ function App() {
                 element={<AddAdminHotelReservationPage />}
               />
               <Route
+                path="viaticos-ap/:id/reserva-hotel/actualizar/:reservationId"
+                element={<UpdateAdminAPHotelReservationPage />}
+              />
+              <Route
                 path="viaticos-ap/:id/deposito"
                 element={<UploadDepositPage />}
               />
@@ -1424,6 +1430,10 @@ function App() {
                 <Route
                   path="solicitud-viaticos/:id/reserva-hotel/agregar"
                   element={<AddAdminHotelReservationPage />}
+                />
+                <Route
+                  path="solicitud-viaticos/:id/reserva-hotel/actualizar/:reservationId"
+                  element={<UpdateAdminHotelReservationPage />}
                 />
                 <Route
                   path="solicitud-viaticos/:id/deposito"

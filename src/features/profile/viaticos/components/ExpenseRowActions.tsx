@@ -11,6 +11,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useNavigate } from "react-router-dom";
 import { useDeletePerDiemExpense } from "../lib/perDiemExpense.hook";
+import { useQueryClient } from "@tanstack/react-query";
+import { PER_DIEM_REQUEST } from "../lib/perDiemRequest.constants";
 
 interface ExpenseRowActionsProps {
   expense: ExpenseResource;
@@ -31,6 +33,7 @@ export default function ExpenseRowActions({
   const [rejectionReason, setRejectionReason] = useState("");
   const { toast } = useToast();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const deleteExpenseMutation = useDeletePerDiemExpense(requestId || 0, {
     onSuccess: () => {
@@ -46,6 +49,12 @@ export default function ExpenseRowActions({
         title: "Gasto validado",
         description: "El gasto ha sido validado exitosamente.",
       });
+      // Invalidar queries para refrescar los datos
+      if (requestId) {
+        await queryClient.invalidateQueries({
+          queryKey: [PER_DIEM_REQUEST.QUERY_KEY, requestId],
+        });
+      }
       onActionComplete?.();
     } catch (error: any) {
       toast({
@@ -77,6 +86,12 @@ export default function ExpenseRowActions({
         title: "Gasto rechazado",
         description: "El gasto ha sido rechazado exitosamente.",
       });
+      // Invalidar queries para refrescar los datos
+      if (requestId) {
+        await queryClient.invalidateQueries({
+          queryKey: [PER_DIEM_REQUEST.QUERY_KEY, requestId],
+        });
+      }
       setRejectionReason("");
       onActionComplete?.();
     } catch (error: any) {
@@ -165,7 +180,7 @@ export default function ExpenseRowActions({
         />
       )}
 
-      {!expense.validated && module === "contabilidad" && (
+      {!expense.validated && !expense.rejected && module === "contabilidad" && (
         <>
           <ConfirmationDialog
             trigger={

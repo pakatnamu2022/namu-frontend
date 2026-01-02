@@ -10,26 +10,45 @@ import {
   FileText,
   AlertCircle,
   Receipt,
+  Pencil,
 } from "lucide-react";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import GeneralSheet from "@/shared/components/GeneralSheet";
-import type { HotelReservation } from "@/features/profile/viaticos/lib/perDiemRequest.interface";
+import type { HotelReservationResource } from "@/features/profile/viaticos/lib/perDiemRequest.interface";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 interface HotelReservationDetailSheetProps {
-  hotelReservation: HotelReservation | null;
+  hotelReservation: HotelReservationResource | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  requestId?: number;
+  module?: "gh" | "contabilidad";
 }
 
 export default function HotelReservationDetailSheet({
   hotelReservation,
   open,
   onOpenChange,
+  requestId,
+  module = "gh",
 }: HotelReservationDetailSheetProps) {
+  const navigate = useNavigate();
+
   if (!hotelReservation) return null;
+
+  const handleEdit = () => {
+    const prefix =
+      module === "gh"
+        ? "/gp/gestion-humana/viaticos/solicitud-viaticos"
+        : "/ap/contabilidad/viaticos-ap";
+    navigate(
+      `${prefix}/${requestId}/reserva-hotel/actualizar/${hotelReservation.id}`
+    );
+  };
 
   const getFileExtension = (path: string) => {
     return path.split(".").pop()?.toLowerCase();
@@ -55,13 +74,26 @@ export default function HotelReservationDetailSheet({
       className="overflow-y-auto"
     >
       <div className="space-y-6">
-        {hotelReservation.attended && (
-          <div className="flex justify-end">
-            <Badge variant="default" className="gap-1">
-              Asistido
-            </Badge>
+        <div className="flex justify-between items-center">
+          <div>
+            {hotelReservation.attended && (
+              <Badge variant="default" className="gap-1">
+                Asistido
+              </Badge>
+            )}
           </div>
-        )}
+          {requestId && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleEdit}
+              className="gap-2"
+            >
+              <Pencil className="h-4 w-4" />
+              Editar Reserva
+            </Button>
+          )}
+        </div>
 
         <div className="space-y-6">
           {/* Información del Hotel */}
@@ -287,15 +319,23 @@ export default function HotelReservationDetailSheet({
           <div className="text-xs text-muted-foreground space-y-1 pt-4 border-t">
             <p>
               Creado:{" "}
-              {format(new Date(hotelReservation.created_at), "dd/MM/yyyy HH:mm", {
-                locale: es,
-              })}
+              {format(
+                new Date(hotelReservation.created_at),
+                "dd/MM/yyyy HH:mm",
+                {
+                  locale: es,
+                }
+              )}
             </p>
             <p>
               Última actualización:{" "}
-              {format(new Date(hotelReservation.updated_at), "dd/MM/yyyy HH:mm", {
-                locale: es,
-              })}
+              {format(
+                new Date(hotelReservation.updated_at),
+                "dd/MM/yyyy HH:mm",
+                {
+                  locale: es,
+                }
+              )}
             </p>
           </div>
         </div>
