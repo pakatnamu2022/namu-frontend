@@ -12,7 +12,7 @@ import { PER_DIEM_REQUEST } from "@/features/profile/viaticos/lib/perDiemRequest
 import {
   findPerDiemRequestById,
   downloadContributorExpenseDetailsPdf,
-  downloadMobilityPayrollPdf,
+  generateMobilityPayrollPdf,
 } from "@/features/profile/viaticos/lib/perDiemRequest.actions";
 import {
   GeneralInfoSection,
@@ -65,7 +65,7 @@ export default function PerDiemRequestDetailSheet({
     if (!requestId) return;
     try {
       setIsDownloadingMobilityPayroll(true);
-      await downloadMobilityPayrollPdf(requestId);
+      await generateMobilityPayrollPdf(requestId);
       successToast("PDF de planilla de movilidad descargado correctamente");
     } catch (error: any) {
       errorToast(

@@ -178,31 +178,6 @@ export async function downloadContributorExpenseDetailsPdf(
   window.URL.revokeObjectURL(url);
 }
 
-export async function downloadMobilityPayrollPdf(id: number): Promise<void> {
-  try {
-    const response = await api.get(`${ENDPOINT}/${id}/mobility-payroll-pdf`, {
-      responseType: "blob",
-    });
-
-    const url = window.URL.createObjectURL(new Blob([response.data]));
-    const link = document.createElement("a");
-    link.href = url;
-    link.setAttribute("download", `planilla-movilidad-viaticos-${id}.pdf`);
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    window.URL.revokeObjectURL(url);
-  } catch (error: any) {
-    // Si el error es un blob, convertirlo a JSON
-    if (error.response?.data instanceof Blob) {
-      const text = await error.response.data.text();
-      const errorData = JSON.parse(text);
-      throw { ...error, response: { ...error.response, data: errorData } };
-    }
-    throw error;
-  }
-}
-
 export async function generateMobilityPayrollPdf(id: number): Promise<void> {
   try {
     const response = await api.get(
