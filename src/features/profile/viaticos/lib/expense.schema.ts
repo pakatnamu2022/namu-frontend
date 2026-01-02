@@ -73,20 +73,6 @@ export const expenseSchema = z
   )
   .refine(
     (data) => {
-      // El archivo es requerido solo cuando es factura (receipt_type === "invoice")
-      if (data.receipt_type === "invoice" && !data.receipt_file) {
-        return false;
-      }
-      return true;
-    },
-    {
-      message:
-        "El archivo del comprobante es requerido cuando el tipo es factura",
-      path: ["receipt_file"],
-    }
-  )
-  .refine(
-    (data) => {
       // Las notas son requeridas cuando el tipo de gasto es TYPE_EXPENSE_LOCAL_MOBILITY (Movilidad Local)
       if (
         data.expense_type_id === TYPE_EXPENSE_LOCAL_MOBILITY &&
