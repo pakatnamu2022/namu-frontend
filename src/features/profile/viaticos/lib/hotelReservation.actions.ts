@@ -113,9 +113,6 @@ export async function updateHotelReservation(
   reservationId: number,
   formData: FormData
 ): Promise<HotelReservationResponse> {
-  // Agregar _method para simular PUT
-  formData.append("_method", "PUT");
-
   const { data } = await api.post<HotelReservationResponse>(
     `gp/gestion-humana/viaticos/hotel-reservations/${reservationId}`,
     formData,
