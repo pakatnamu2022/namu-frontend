@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Form,
@@ -14,7 +15,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
+import { errorToast, successToast } from "@/core/core.function";
 import { Eye, EyeOff, Lock } from "lucide-react";
 import {
   changePasswordSchema,
@@ -24,7 +25,6 @@ import { changePassword } from "@/features/auth/lib/change-password.actions";
 import { useAuthStore } from "@/features/auth/lib/auth.store";
 
 export function ChangePasswordCard() {
-  const [isLoading, setIsLoading] = useState(false);
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -39,22 +39,24 @@ export function ChangePasswordCard() {
     },
   });
 
-  const onSubmit = async (data: ChangePasswordFormData) => {
-    setIsLoading(true);
-    try {
-      await changePassword(data);
-      toast.success("Contraseña cambiada exitosamente");
+  const { mutate, isPending } = useMutation({
+    mutationFn: changePassword,
+    onSuccess: async () => {
+      successToast("Contraseña cambiada exitosamente");
       form.reset();
 
       // Refresh user data to update verified_at
       await authenticate();
-    } catch (error: any) {
-      toast.error(
+    },
+    onError: (error: any) => {
+      errorToast(
         error.response?.data?.message || "Error al cambiar la contraseña"
       );
-    } finally {
-      setIsLoading(false);
-    }
+    },
+  });
+
+  const onSubmit = (data: ChangePasswordFormData) => {
+    mutate(data);
   };
 
   return (
@@ -80,7 +82,7 @@ export function ChangePasswordCard() {
                         <Input
                           type={showCurrentPassword ? "text" : "password"}
                           placeholder="Ingresa tu contraseña actual"
-                          disabled={isLoading}
+                          disabled={isPending}
                           {...field}
                         />
                         <Button
@@ -118,7 +120,7 @@ export function ChangePasswordCard() {
                         <Input
                           type={showNewPassword ? "text" : "password"}
                           placeholder="Ingresa tu nueva contraseña"
-                          disabled={isLoading}
+                          disabled={isPending}
                           {...field}
                         />
                         <Button
@@ -152,7 +154,7 @@ export function ChangePasswordCard() {
                         <Input
                           type={showConfirmPassword ? "text" : "password"}
                           placeholder="Confirma tu nueva contraseña"
-                          disabled={isLoading}
+                          disabled={isPending}
                           {...field}
                         />
                         <Button
@@ -183,12 +185,12 @@ export function ChangePasswordCard() {
                 type="button"
                 variant="outline"
                 onClick={() => form.reset()}
-                disabled={isLoading}
+                disabled={isPending}
               >
                 Limpiar
               </Button>
-              <Button type="submit" disabled={isLoading}>
-                {isLoading ? "Cambiando..." : "Cambiar contraseña"}
+              <Button type="submit" disabled={isPending}>
+                {isPending ? "Cambiando..." : "Cambiar contraseña"}
               </Button>
             </div>
           </form>
