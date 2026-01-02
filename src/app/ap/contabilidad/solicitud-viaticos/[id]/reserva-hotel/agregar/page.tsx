@@ -47,6 +47,7 @@ export default function AddHotelReservationPage() {
         receipt_file: data.receipt_file,
         notes: data.notes || "",
         document_number: data.document_number,
+        ruc: data.ruc,
       });
     },
     onSuccess: () => {
