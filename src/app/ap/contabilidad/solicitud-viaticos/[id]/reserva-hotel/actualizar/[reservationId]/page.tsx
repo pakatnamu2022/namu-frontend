@@ -133,7 +133,7 @@ export default function UpdateHotelReservationAPPage() {
         />
         <HotelReservationForm
           defaultValues={{
-            hotel_agreement_id: reservation.hotel_agreement_id || null,
+            hotel_agreement_id: reservation.hotel_agreement?.id || null,
             hotel_name: reservation.hotel_name,
             address: reservation.address,
             phone: reservation.phone,
