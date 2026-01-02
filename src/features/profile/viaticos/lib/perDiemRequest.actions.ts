@@ -253,10 +253,12 @@ export async function validateExpense(
 }
 
 export async function rejectExpense(
-  expenseId: number
+  expenseId: number,
+  rejection_reason: string
 ): Promise<GeneralResponse> {
   const { data } = await api.post<GeneralResponse>(
-    `gp/gestion-humana/viaticos/per-diem-expenses/${expenseId}/reject`
+    `gp/gestion-humana/viaticos/per-diem-expenses/${expenseId}/reject`,
+    { rejection_reason }
   );
   return data;
 }

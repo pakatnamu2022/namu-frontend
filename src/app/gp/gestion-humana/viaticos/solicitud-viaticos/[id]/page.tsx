@@ -23,7 +23,7 @@ import {
 import FormWrapper from "@/shared/components/FormWrapper";
 import BackButton from "@/shared/components/BackButton";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
-import { Receipt, Plane } from "lucide-react";
+import { Receipt } from "lucide-react";
 import ExpensesTable from "@/features/profile/viaticos/components/ExpensesTable";
 import { errorToast, successToast } from "@/core/core.function";
 import AddFlightTicketModal from "@/features/profile/viaticos/components/AddFlightTicketModal";
@@ -180,7 +180,7 @@ export default function PerDiemRequestDetailAdminPage() {
           cols={{ sm: 1 }}
         >
           {/* Botón para agregar pasajes aéreos si with_active es false */}
-          {!request.with_active && (
+          {/* {!request.with_active && (
             <div className="mb-4 flex justify-end">
               <Button
                 onClick={() => setIsAddFlightTicketModalOpen(true)}
@@ -201,7 +201,7 @@ export default function PerDiemRequestDetailAdminPage() {
                 Agregar Pasaje Aéreo
               </Button>
             </div>
-          )}
+          )} */}
 
           <div className="md:col-span-1">
             <ExpensesTable
