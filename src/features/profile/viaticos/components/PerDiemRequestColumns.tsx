@@ -55,12 +55,12 @@ export const perDiemRequestColumns = ({
         }
       );
       return (
-        <p className="text-xs text-end">
+        <div className="text-xs text-end">
           {startDate} - {endDate}{" "}
           <Badge size="square" variant={"tertiary"}>
             {row.original.days_count}
           </Badge>
-        </p>
+        </div>
       );
     },
   },
@@ -111,6 +111,7 @@ export const perDiemRequestColumns = ({
         },
         in_progress: { label: "En Progreso", variant: "orange" },
         cancelled: { label: "Cancelado", variant: "gray" },
+        settled: { label: "Liquidado", variant: "green" },
       };
       const status = statusMap[value] || {
         label: value,

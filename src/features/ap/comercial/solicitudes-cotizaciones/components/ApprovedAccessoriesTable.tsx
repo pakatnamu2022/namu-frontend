@@ -234,18 +234,6 @@ export const ApprovedAccessoriesTable = ({
   // Definir columnas para DataTable
   const columns: ColumnDef<ApprovedAccessoryRow>[] = [
     {
-      accessorKey: "code",
-      header: "Código",
-      cell: ({ row }) => {
-        const accessory = accessories.find(
-          (acc) => acc.id === row.original.accessory_id
-        );
-        return accessory ? (
-          <p className="font-medium">{accessory.code}</p>
-        ) : null;
-      },
-    },
-    {
       accessorKey: "type",
       header: "Tipo",
       cell: ({ row }) => (
@@ -269,22 +257,13 @@ export const ApprovedAccessoriesTable = ({
         const accessory = accessories.find(
           (acc) => acc.id === row.original.accessory_id
         );
-        return (
-          <div className="text-sm text-wrap">{accessory?.description}</div>
-        );
-      },
-    },
-    {
-      accessorKey: "price",
-      header: "Precio Unit.",
-      cell: ({ row }) => {
-        const accessory = accessories.find(
-          (acc) => acc.id === row.original.accessory_id
-        );
         return accessory ? (
-          <div className="text-right">
-            {accessory.currency_symbol}{" "}
-            <NumberFormat value={Number(accessory.price).toFixed(2)} />
+          <div className="space-y-1">
+            <p className="font-medium text-sm">{accessory.description}</p>
+            <div className="flex gap-3 text-xs text-gray-600">
+              <span>Código: <span className="font-medium text-gray-800">{accessory.code}</span></span>
+              <span>Precio: <span className="font-medium text-gray-800">{accessory.currency_symbol} <NumberFormat value={Number(accessory.price).toFixed(2)} /></span></span>
+            </div>
           </div>
         ) : null;
       },

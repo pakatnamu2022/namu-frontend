@@ -19,6 +19,7 @@ interface Props {
     canUpdate: boolean;
     canApprove: boolean;
     canExport: boolean;
+    canAssign: boolean;
   };
 }
 
@@ -130,7 +131,7 @@ export const purchaseRequestQuoteColumns = ({
       return (
         <div className="flex items-center gap-2">
           {/* Assign Vehicle */}
-          {permissions.canUpdate && !hasVehicle && (
+          {permissions.canAssign && !hasVehicle && (
             <Button
               variant="outline"
               size="icon"
@@ -143,7 +144,7 @@ export const purchaseRequestQuoteColumns = ({
           )}
 
           {/* Unassign Vehicle */}
-          {permissions.canUpdate && hasVehicle && (
+          {permissions.canAssign && hasVehicle && (
             <Button
               variant="outline"
               size="icon"

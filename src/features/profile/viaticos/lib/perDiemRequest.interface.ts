@@ -14,6 +14,7 @@ interface Budget {
   daily_amount: number;
   days: number;
   total: number;
+  spent: number;
 }
 
 export interface HotelReservation {

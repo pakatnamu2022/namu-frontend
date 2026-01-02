@@ -160,22 +160,24 @@ export function PerDiemRequestRowActions({
           <Eye className="size-4" />
         </Button>
 
-        {request.settled && module === "contabilidad" && (
-          <Button
-            variant="outline"
-            size="icon"
-            className="size-7"
-            onClick={handleDownloadPdf}
-            tooltip={isDownloading ? "Generando PDF..." : "Descargar PDF"}
-            disabled={isDownloading}
-          >
-            {isDownloading ? (
-              <Loader2 className="size-5 animate-spin" />
-            ) : (
-              <Download className="size-5" />
-            )}
-          </Button>
-        )}
+        {request.settled &&
+          request.status === "settled" &&
+          module === "contabilidad" && (
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-7"
+              onClick={handleDownloadPdf}
+              tooltip={isDownloading ? "Generando PDF..." : "Descargar PDF"}
+              disabled={isDownloading}
+            >
+              {isDownloading ? (
+                <Loader2 className="size-5 animate-spin" />
+              ) : (
+                <Download className="size-5" />
+              )}
+            </Button>
+          )}
 
         {request.days_count > 1 && module === "gh" && (
           <Button

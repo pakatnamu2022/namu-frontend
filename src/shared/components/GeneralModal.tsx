@@ -84,12 +84,19 @@ export function GeneralModal({
           className={`w-[95vw] rounded-xl overflow-auto ${maxWidth}`}
           onInteractOutside={(e) => e.preventDefault()}
         >
-          <DialogHeader>
-            {title && <DialogTitle>{title}</DialogTitle>}
-            <DialogDescription className="text-muted-foreground text-sm">
-              {subtitle}
-            </DialogDescription>
-          </DialogHeader>
+          <div className="flex items-center gap-2">
+            {icon && IconComponent && (
+              <div className="mr-2 bg-primary text-primary-foreground rounded-md p-2">
+                <IconComponent className="size-5" />
+              </div>
+            )}
+            <DialogHeader className="gap-1">
+              {title && <DialogTitle>{title}</DialogTitle>}
+              <DialogDescription className="text-muted-foreground text-sm">
+                {subtitle}
+              </DialogDescription>
+            </DialogHeader>
+          </div>
           <div>{children}</div>
         </DialogContent>
       </Dialog>

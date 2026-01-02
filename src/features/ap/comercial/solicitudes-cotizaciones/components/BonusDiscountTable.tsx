@@ -598,25 +598,7 @@ export const BonusDiscountTable = ({
             )}
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="text-sm font-medium mb-1 block">Tipo</label>
-              <Select
-                value={newRow.isPercentage ? "PORCENTAJE" : "FIJO"}
-                onValueChange={(value) =>
-                  setNewRow({ ...newRow, isPercentage: value === "PORCENTAJE" })
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecciona tipo" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="FIJO">Fijo</SelectItem>
-                  <SelectItem value="PORCENTAJE">Porcentaje</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
+          <div className="grid grid-cols-1 gap-3">
             <div>
               <label className="text-sm font-medium mb-1 block">Valor</label>
               <Input
@@ -867,28 +849,7 @@ export const BonusDiscountTable = ({
             )}
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="text-sm font-medium mb-1 block">Tipo</label>
-              <Select
-                value={editForm.isPercentage ? "PORCENTAJE" : "FIJO"}
-                onValueChange={(value) =>
-                  setEditForm({
-                    ...editForm,
-                    isPercentage: value === "PORCENTAJE",
-                  })
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecciona tipo" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="FIJO">Fijo</SelectItem>
-                  <SelectItem value="PORCENTAJE">Porcentaje</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
+          <div className="grid grid-cols-1 gap-3">
             <div>
               <label className="text-sm font-medium mb-1 block">Valor</label>
               <Input

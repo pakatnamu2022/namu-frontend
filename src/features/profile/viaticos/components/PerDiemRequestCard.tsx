@@ -16,25 +16,13 @@ import {
   Plane,
   FileCheck,
 } from "lucide-react";
-import { PerDiemRequestStatus } from "../lib/perDiemRequest.interface";
-
-interface PerDiemRequest {
-  id: number;
-  code: string;
-  start_date: string | Date;
-  end_date: string | Date;
-  status: PerDiemRequestStatus;
-  district: {
-    name: string;
-  };
-  purpose: string;
-  total_budget: number;
-  total_spent: number;
-  has_hotel_reservation?: boolean;
-}
+import {
+  PerDiemRequestResource,
+  PerDiemRequestStatus,
+} from "../lib/perDiemRequest.interface";
 
 interface PerDiemRequestCardProps {
-  request: PerDiemRequest;
+  request: PerDiemRequestResource;
   onClick?: () => void;
 }
 
@@ -125,7 +113,17 @@ export default function PerDiemRequestCard({
   onClick,
 }: PerDiemRequestCardProps) {
   const statusConfig = getStatusConfig(request.status);
-  const spentPercentage = (request.total_spent / request.total_budget) * 100;
+
+  const employeeExpenses = request.expenses
+    ? request.expenses.filter((expense) => !expense.is_company_expense)
+    : [];
+
+  const totalSpentByEmployee = employeeExpenses.reduce(
+    (sum, expense) => sum + expense.company_amount,
+    0
+  );
+
+  const spentPercentage = (totalSpentByEmployee / request.total_budget) * 100;
 
   const StatusIcon = statusConfig.IconComponent;
 
@@ -170,7 +168,7 @@ export default function PerDiemRequestCard({
               locale: es,
             })}
           </span>
-          {request.has_hotel_reservation && (
+          {request.hotel_reservation && (
             <>
               <span className="text-muted-foreground/40">•</span>
               <Hotel className="w-3.5 h-3.5 text-muted-foreground/70" />

@@ -99,3 +99,15 @@ export async function getAvailableExpenseTypes(
   );
   return response.data;
 }
+
+/**
+ * Obtener los tipos de gasto de boletos aéreos disponibles cuando with_active es false
+ */
+export async function getFlightTicketExpenseTypes(
+  requestId: number
+): Promise<ExpenseTypeResource[]> {
+  const response = await api.get<ExpenseTypeResource[]>(
+    `gp/gestion-humana/viaticos/per-diem-requests/${requestId}/flight-ticket-expense-types`
+  );
+  return response.data;
+}

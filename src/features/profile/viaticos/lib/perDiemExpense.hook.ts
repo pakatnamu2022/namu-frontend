@@ -7,6 +7,7 @@ import {
   deletePerDiemExpense,
   findPerDiemExpenseById,
   getAvailableExpenseTypes,
+  getFlightTicketExpenseTypes,
 } from "./perDiemExpense.actions";
 import {
   ERROR_MESSAGE,
@@ -126,8 +127,28 @@ export function useDeletePerDiemExpense(
  */
 export function useAvailableExpenseTypes(requestId: number) {
   return useQuery({
-    queryKey: [PER_DIEM_REQUEST.QUERY_KEY, requestId, "available-expense-types"],
+    queryKey: [
+      PER_DIEM_REQUEST.QUERY_KEY,
+      requestId,
+      "available-expense-types",
+    ],
     queryFn: () => getAvailableExpenseTypes(requestId),
+    enabled: !!requestId,
+    retry: false,
+  });
+}
+
+/**
+ * Hook para obtener los tipos de gasto de boletos aéreos
+ */
+export function useFlightTicketExpenseTypes(requestId: number) {
+  return useQuery({
+    queryKey: [
+      PER_DIEM_REQUEST.QUERY_KEY,
+      requestId,
+      "flight-ticket-expense-types",
+    ],
+    queryFn: () => getFlightTicketExpenseTypes(requestId),
     enabled: !!requestId,
     retry: false,
   });
