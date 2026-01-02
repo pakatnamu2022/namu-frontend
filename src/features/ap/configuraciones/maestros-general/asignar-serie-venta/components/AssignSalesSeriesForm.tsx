@@ -133,6 +133,7 @@ export const AssignSalesSeriesForm = ({
             options={[
               { label: "VENTA", value: "SALE" },
               { label: "COMPRA", value: "PURCHASE" },
+              { label: "OTROS", value: "OTHERS" },
             ]}
             control={form.control}
           />
