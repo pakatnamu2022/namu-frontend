@@ -47,6 +47,7 @@ export async function createHotelReservation(
       requestData.hotel_agreement_id.toString()
     );
   }
+  formData.append("ruc", requestData.ruc);
   formData.append("hotel_name", requestData.hotel_name);
   formData.append("address", requestData.address);
   formData.append("phone", requestData.phone);

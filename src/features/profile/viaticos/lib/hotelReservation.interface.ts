@@ -1,5 +1,6 @@
 export interface HotelReservationRequest {
   hotel_agreement_id: number | null;
+  ruc: string;
   hotel_name: string;
   address: string;
   phone: string;
