@@ -15,7 +15,7 @@ import { PerDiemRequestResource } from "../lib/perDiemRequest.interface";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
-  confirmPerDiemRequest,
+  confirmProgressPerDiemRequest,
   completeSettlement,
   expenseTotalWithEvidencePdf,
 } from "../lib/perDiemRequest.actions";
@@ -48,18 +48,18 @@ export function PerDiemRequestRowActions({
   const hasHotelReservation = !!request.hotel_reservation;
   const isApproved =
     request.status === "approved" || request.status === "in_progress";
-  const isOnlyApproved = request.status === "approved";
+  const isPendingSettlement = request.status === "pending_settlement";
   const hotel = request.hotel_reservation?.hotel_name;
   const isCancelled = request.status === "cancelled";
   const canCompleteSettlement = request.settlement_status === "approved";
 
   const confirmMutation = useMutation({
-    mutationFn: (requestId: number) => confirmPerDiemRequest(requestId),
+    mutationFn: (requestId: number) => confirmProgressPerDiemRequest(requestId),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: [PER_DIEM_REQUEST.QUERY_KEY],
       });
-      successToast("Solicitud confirmada y pasada a en progreso ");
+      successToast("Solicitud pasada a en progreso ");
       setIsConfirmDialogOpen(false);
     },
     onError: (error: any) => {
@@ -201,21 +201,21 @@ export function PerDiemRequestRowActions({
           </Button>
         )}
 
-        {isOnlyApproved && request.days_count === 1 && (
+        {isPendingSettlement && module === "contabilidad" && (
           <ConfirmationDialog
             trigger={
               <Button
                 variant="default"
                 size="icon-xs"
-                tooltip="Confirmar solicitud"
+                tooltip="Poner en progreso"
                 disabled={confirmMutation.isPending}
               >
                 <CheckCircle className="size-4" />
               </Button>
             }
-            title="¿Confirmar solicitud de viáticos?"
-            description="Esta acción cambiará el estado de la solicitud a 'En Progreso' y podrás comenzar a registrar gastos. ¿Deseas continuar?"
-            confirmText="Sí, confirmar"
+            title="¿Poner solicitud en progreso?"
+            description="Esta acción cambiará el estado de la solicitud de 'Liquidación Pendiente' a 'En Progreso'. ¿Deseas continuar?"
+            confirmText="Sí, continuar"
             cancelText="Cancelar"
             onConfirm={handleConfirmRequest}
             variant="default"
