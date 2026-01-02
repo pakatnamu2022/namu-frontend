@@ -64,7 +64,7 @@ export function PerDiemRequestRowActions({
     },
     onError: (error: any) => {
       errorToast(
-        error?.response?.data?.message || "Error al confirmar la solicitud"
+        error?.response?.data?.message || "Error al confirmar la solicitud "
       );
     },
   });
