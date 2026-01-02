@@ -9,6 +9,7 @@ import {
   PauseWorkRequest,
   getWorkOrderPlanningProps,
   ConsolidatedPlanning,
+  ConsolidatedWorker,
 } from "./workOrderPlanning.interface";
 import { WORK_ORDER_PLANNING } from "./workOrderPlanning.constants";
 
@@ -132,5 +133,15 @@ export async function getConsolidatedPlanning(
   const response = await api.get<ConsolidatedPlanning[]>(
     `${ENDPOINT}/consolidated/${workOrderId}`
   );
+  return response.data;
+}
+
+export async function getConsolidatedWorkers(
+  workOrderId: number
+): Promise<ConsolidatedWorker[]> {
+  const response = await api.get<ConsolidatedWorker[]>(
+    `${ENDPOINT}/workers/${workOrderId}`
+  );
+  console.log(response.data);
   return response.data;
 }

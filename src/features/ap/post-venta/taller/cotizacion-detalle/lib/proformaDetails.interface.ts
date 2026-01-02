@@ -14,6 +14,9 @@ export interface OrderQuotationDetailsResource {
   description: string;
   quantity: string | number;
   unit_measure: string;
+  retail_price_external?: string | number;
+  flete_external?: string | number;
+  percentage_flete_external?: string | number;
   unit_price: string | number;
   discount: string | number;
   total_amount: string | number;
@@ -27,6 +30,9 @@ export interface OrderQuotationDetailsRequest {
   description: string;
   quantity: number;
   unit_measure: string;
+  retail_price_external?: number;
+  flete_external?: number;
+  percentage_flete_external?: number;
   unit_price: number;
   discount: number;
   total_amount: number;

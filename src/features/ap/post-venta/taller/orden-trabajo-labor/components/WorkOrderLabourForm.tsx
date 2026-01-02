@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
@@ -19,15 +20,19 @@ import {
   workOrderLabourSchema,
   WorkOrderLabourFormValues,
 } from "../lib/workOrderLabour.schema";
+import { useGetConsolidatedWorkers } from "../../planificacion-orden-trabajo/lib/workOrderPlanning.hook";
+import { FormSelect } from "@/shared/components/FormSelect";
 
 interface WorkOrderLabourFormProps {
   workOrderId: number;
+  groupNumber: number;
   onSuccess: () => void;
   onCancel: () => void;
 }
 
 export default function WorkOrderLabourForm({
   workOrderId,
+  groupNumber,
   onSuccess,
   onCancel,
 }: WorkOrderLabourFormProps) {
@@ -40,8 +45,21 @@ export default function WorkOrderLabourForm({
       time_spent: "",
       hourly_rate: "",
       work_order_id: workOrderId.toString(),
+      group_number: groupNumber,
     },
   });
+
+  const {
+    data: consolidatedWorkers = [],
+    isLoading: isLoadingConsolidatedWorkers,
+  } = useGetConsolidatedWorkers(workOrderId);
+
+  // Auto-seleccionar el operario si solo hay uno disponible
+  useEffect(() => {
+    if (consolidatedWorkers.length === 1) {
+      form.setValue("worker_id", consolidatedWorkers[0].worker_id.toString());
+    }
+  }, [consolidatedWorkers, form]);
 
   const onSubmit = (data: WorkOrderLabourFormValues) => {
     const payload: WorkOrderLabourRequest = {
@@ -49,6 +67,8 @@ export default function WorkOrderLabourForm({
       time_spent: data.time_spent,
       hourly_rate: data.hourly_rate,
       work_order_id: data.work_order_id,
+      worker_id: Number(data.worker_id),
+      group_number: data.group_number,
     };
 
     storeMutation.mutate(payload, {
@@ -88,11 +108,7 @@ export default function WorkOrderLabourForm({
               <FormItem>
                 <FormLabel>Tiempo Empleado (horas)</FormLabel>
                 <FormControl>
-                  <Input
-                    {...field}
-                    type="text"
-                    placeholder="Ej: 2.5"
-                  />
+                  <Input {...field} type="text" placeholder="Ej: 2.5" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -106,15 +122,24 @@ export default function WorkOrderLabourForm({
               <FormItem>
                 <FormLabel>Tarifa por Hora (S/)</FormLabel>
                 <FormControl>
-                  <Input
-                    {...field}
-                    type="text"
-                    placeholder="Ej: 50.00"
-                  />
+                  <Input {...field} type="text" placeholder="Ej: 50.00" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
+          />
+
+          <FormSelect
+            name="worker_id"
+            label="Operario"
+            placeholder="Seleccione un operario"
+            options={consolidatedWorkers.map((item) => ({
+              label: item.worker_name,
+              value: item.worker_id.toString(),
+            }))}
+            control={form.control}
+            strictFilter={true}
+            disabled={isLoadingConsolidatedWorkers}
           />
         </div>
 

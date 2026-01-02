@@ -1,14 +1,22 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { WORKER_ORDER_LABOUR } from "./workOrderLabour.constants";
-import { WorkOrderLabourRequest, getWorkOrderLabourProps } from "./workOrderLabour.interface";
+import {
+  WorkOrderLabourRequest,
+  getWorkOrderLabourProps,
+} from "./workOrderLabour.interface";
 import {
   findWorkOrderLabourById,
   getAllWorkOrderLabour,
   getWorkOrderLabour,
   storeWorkOrderLabour,
+  updateWorkOrderLabour,
   deleteWorkOrderLabour,
 } from "./workOrderLabour.actions";
-import { successToast, SUCCESS_MESSAGE, errorToast } from "@/core/core.function";
+import {
+  successToast,
+  SUCCESS_MESSAGE,
+  errorToast,
+} from "@/core/core.function";
 
 const { QUERY_KEY, MODEL } = WORKER_ORDER_LABOUR;
 
@@ -57,6 +65,30 @@ export function useStoreWorkOrderLabour() {
   });
 }
 
+export function useUpdateWorkOrderLabour() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, data }: { id: number; data: WorkOrderLabourRequest }) =>
+      updateWorkOrderLabour(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
+      queryClient.invalidateQueries({ queryKey: ["workOrder"] });
+      successToast(
+        `${MODEL.name} actualizad${MODEL.gender ? "a" : "o"} correctamente`
+      );
+    },
+    onError: (error: any) => {
+      const errorMessage =
+        error?.response?.data?.message ||
+        `Error al actualizar ${
+          MODEL.gender ? "la" : "el"
+        } ${MODEL.name.toLowerCase()}`;
+      errorToast(errorMessage);
+    },
+  });
+}
+
 export function useDeleteWorkOrderLabour() {
   const queryClient = useQueryClient();
 
@@ -65,7 +97,9 @@ export function useDeleteWorkOrderLabour() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
       queryClient.invalidateQueries({ queryKey: ["workOrder"] });
-      successToast(`${MODEL.name} eliminad${MODEL.gender ? "a" : "o"} correctamente`);
+      successToast(
+        `${MODEL.name} eliminad${MODEL.gender ? "a" : "o"} correctamente`
+      );
     },
     onError: (error: any) => {
       const errorMessage =

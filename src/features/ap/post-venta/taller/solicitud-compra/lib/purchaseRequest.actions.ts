@@ -3,6 +3,7 @@ import { api } from "@/core/api";
 import { GeneralResponse } from "@/shared/lib/response.interface";
 import {
   getPurchaseRequestProps,
+  PurchaseRequestDetailResponse,
   PurchaseRequestRequest,
   PurchaseRequestResource,
   PurchaseRequestResponse,
@@ -23,11 +24,11 @@ export async function getPurchaseRequests({
 
 export async function getPurchaseRequestsDetailsPending({
   params,
-}: getPurchaseRequestProps): Promise<PurchaseRequestResponse> {
+}: getPurchaseRequestProps): Promise<PurchaseRequestDetailResponse> {
   const config: AxiosRequestConfig = {
     params,
   };
-  const { data } = await api.get<PurchaseRequestResponse>(
+  const { data } = await api.get<PurchaseRequestDetailResponse>(
     `${ENDPOINT}/pending-details`,
     config
   );
@@ -76,5 +77,14 @@ export async function deletePurchaseRequest(
   id: number
 ): Promise<GeneralResponse> {
   const { data } = await api.delete<GeneralResponse>(`${ENDPOINT}/${id}`);
+  return data;
+}
+
+export async function rejectPurchaseRequestDetail(
+  id: number
+): Promise<GeneralResponse> {
+  const { data } = await api.patch<GeneralResponse>(
+    `${ENDPOINT}/details/${id}/reject`
+  );
   return data;
 }
