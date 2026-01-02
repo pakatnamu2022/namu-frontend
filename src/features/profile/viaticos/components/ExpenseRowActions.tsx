@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { CheckCircle, XCircle, FileText, Loader2, Pencil } from "lucide-react";
+import { CheckCircle, XCircle, FileText, Loader2, Pencil, Trash2 } from "lucide-react";
 import { ExpenseResource } from "../lib/perDiemRequest.interface";
 import { useState } from "react";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useNavigate } from "react-router-dom";
+import { useDeletePerDiemExpense } from "../lib/perDiemExpense.hook";
 
 interface ExpenseRowActionsProps {
   expense: ExpenseResource;
@@ -30,6 +31,12 @@ export default function ExpenseRowActions({
   const [rejectionReason, setRejectionReason] = useState("");
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  const deleteExpenseMutation = useDeletePerDiemExpense(requestId || 0, {
+    onSuccess: () => {
+      onActionComplete?.();
+    },
+  });
 
   const handleValidate = async () => {
     try {
@@ -91,7 +98,16 @@ export default function ExpenseRowActions({
     }
   };
 
+  const handleDelete = async () => {
+    try {
+      await deleteExpenseMutation.mutateAsync(expense.id);
+    } catch (error) {
+      // El error ya está manejado por el hook
+    }
+  };
+
   const canEdit = module === "profile" && requestStatus === "in_progress";
+  const canDelete = module === "profile" && requestStatus === "in_progress";
 
   return (
     <div className="flex items-center gap-1">
@@ -115,6 +131,38 @@ export default function ExpenseRowActions({
         >
           <Pencil className="h-4 w-4" />
         </Button>
+      )}
+
+      {canDelete && (
+        <ConfirmationDialog
+          trigger={
+            <Button
+              variant="outline"
+              size="icon-xs"
+              className="text-destructive hover:bg-red-50"
+              disabled={deleteExpenseMutation.isPending}
+              title="Eliminar Gasto"
+            >
+              {deleteExpenseMutation.isPending ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Trash2 className="h-4 w-4" />
+              )}
+            </Button>
+          }
+          title="¿Eliminar este gasto?"
+          description={`Estás a punto de eliminar el gasto de S/ ${expense.receipt_amount.toFixed(
+            2
+          )} por ${
+            expense.expense_type?.name
+          }. Esta acción no se puede deshacer.`}
+          confirmText="Eliminar Gasto"
+          cancelText="Cancelar"
+          onConfirm={handleDelete}
+          variant="destructive"
+          icon="danger"
+          confirmDisabled={deleteExpenseMutation.isPending}
+        />
       )}
 
       {!expense.validated && module === "contabilidad" && (
