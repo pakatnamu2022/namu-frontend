@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams, useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import FormWrapper from "@/shared/components/FormWrapper";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
@@ -21,6 +21,7 @@ import { Button } from "@/components/ui/button";
 export default function UpdateExpensePage() {
   const { id, expenseId } = useParams<{ id: string; expenseId: string }>();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [pendingData, setPendingData] = useState<ExpenseSchema | null>(null);
 
@@ -40,12 +41,7 @@ export default function UpdateExpensePage() {
 
   const { mutate, isPending } = useUpdatePerDiemExpense(
     Number(expenseId),
-    Number(id),
-    {
-      onSuccess: () => {
-        navigate(`/perfil/viaticos/${id}`);
-      },
-    }
+    Number(id)
   );
 
   const handleSubmit = (data: ExpenseSchema) => {
@@ -56,9 +52,32 @@ export default function UpdateExpensePage() {
   const handleConfirmUpdate = () => {
     if (pendingData) {
       const formData = expenseSchemaToFormData(pendingData);
-      mutate(formData);
-      setShowConfirmModal(false);
-      setPendingData(null);
+      mutate(formData, {
+        onSuccess: () => {
+          // Invalidar queries para refrescar los datos
+          queryClient.invalidateQueries({
+            queryKey: [PER_DIEM_REQUEST.QUERY_KEY, id],
+          });
+          queryClient.invalidateQueries({
+            queryKey: [PER_DIEM_EXPENSE.QUERY_KEY, expenseId],
+          });
+
+          successToast(
+            "Gasto actualizado",
+            "El gasto ha sido actualizado exitosamente."
+          );
+          setShowConfirmModal(false);
+          setPendingData(null);
+          navigate(`/perfil/viaticos/${id}`);
+        },
+        onError: (error: any) => {
+          errorToast(
+            "Error al actualizar",
+            error.response?.data?.message ||
+              "No se pudo actualizar el gasto. Inténtalo de nuevo."
+          );
+        },
+      });
     }
   };
 
