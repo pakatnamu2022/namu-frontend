@@ -82,7 +82,8 @@ export const hotelReservationSchema = z
       )
       .refine((file) => file && file.size <= 10 * 1024 * 1024, {
         message: "El archivo no debe superar los 10MB",
-      }),
+      })
+      .optional(),
     notes: z.string().max(1000).optional().default(""),
   })
   .refine(

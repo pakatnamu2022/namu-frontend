@@ -4,9 +4,9 @@ import { api } from "@/core/api";
 import type { AxiosRequestConfig } from "axios";
 import {
   HotelReservationRequest,
-  HotelReservationResponse,
   ActiveHotelAgreement,
 } from "./hotelReservation.interface";
+import { HotelReservationResource } from "./perDiemRequest.interface";
 
 /**
  * Obtiene los convenios de hotel activos
@@ -34,7 +34,7 @@ export async function getActiveHotelAgreements(): Promise<
 export async function createHotelReservation(
   requestId: number,
   requestData: HotelReservationRequest
-): Promise<HotelReservationResponse> {
+): Promise<HotelReservationResource> {
   const formData = new FormData();
 
   // Agregar campos básicos
@@ -79,8 +79,43 @@ export async function createHotelReservation(
     formData.append("notes", requestData.notes);
   }
 
-  const { data } = await api.post<HotelReservationResponse>(
+  const { data } = await api.post<HotelReservationResource>(
     `gp/gestion-humana/viaticos/per-diem-requests/${requestId}/hotel-reservation`,
+    formData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }
+  );
+
+  return data;
+}
+
+/**
+ * Obtiene una reserva de hotel por su ID
+ * @param reservationId - ID de la reserva
+ */
+export async function findHotelReservationById(
+  reservationId: number
+): Promise<HotelReservationResource> {
+  const { data } = await api.get<HotelReservationResource>(
+    `gp/gestion-humana/viaticos/hotel-reservations/${reservationId}`
+  );
+  return data;
+}
+
+/**
+ * Actualiza una reserva de hotel existente
+ * @param reservationId - ID de la reserva a actualizar
+ * @param formData - FormData con los datos actualizados
+ */
+export async function updateHotelReservation(
+  reservationId: number,
+  formData: FormData
+): Promise<HotelReservationResource> {
+  const { data } = await api.post<HotelReservationResource>(
+    `gp/gestion-humana/viaticos/hotel-reservations/${reservationId}`,
     formData,
     {
       headers: {

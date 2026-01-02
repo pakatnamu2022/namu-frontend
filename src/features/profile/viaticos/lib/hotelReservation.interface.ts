@@ -12,25 +12,6 @@ export interface HotelReservationRequest {
   document_number?: string;
 }
 
-export interface HotelReservationResponse {
-  id: number;
-  per_diem_request_id: number;
-  hotel_agreement_id: number | null;
-  hotel_name: string;
-  address: string;
-  phone: string;
-  checkin_date: string;
-  checkout_date: string;
-  nights_count: number;
-  total_cost: number;
-  receipt_path: string;
-  notes: string;
-  attended: boolean;
-  penalty: number;
-  created_at: string;
-  updated_at: string;
-}
-
 export interface ActiveHotelAgreement {
   id: number;
   city: string;

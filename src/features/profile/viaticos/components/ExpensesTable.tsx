@@ -130,6 +130,20 @@ export default function ExpensesTable({
                   )}
                 </div>
               </>
+            ) : expense.rejected ? (
+              <>
+                <XCircle className="h-4 w-4 text-red-600" />
+                <div className="flex flex-col">
+                  <span className="text-xs font-medium text-red-600">
+                    Rechazado
+                  </span>
+                  {expense.validated_by && (
+                    <span className="text-xs text-muted-foreground">
+                      {expense.validated_by.name}
+                    </span>
+                  )}
+                </div>
+              </>
             ) : (
               <>
                 <XCircle className="h-4 w-4 text-amber-600" />
