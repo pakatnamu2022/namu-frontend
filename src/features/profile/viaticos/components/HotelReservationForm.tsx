@@ -183,6 +183,14 @@ export const HotelReservationForm = ({
           description="Selecciona un convenio para autocompletar los datos del hotel"
         />
 
+        {/* Dirección */}
+        <FormInput
+          control={form.control}
+          name="ruc"
+          label="RUC del Hotel"
+          placeholder="Ej: 20512345678"
+        />
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Nombre del Hotel */}
           <FormInput

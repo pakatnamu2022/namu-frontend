@@ -1,3 +1,4 @@
+import { requiredText } from "@/shared/lib/global.schema";
 import { z } from "zod";
 
 export const hotelReservationSchema = z
@@ -14,6 +15,7 @@ export const hotelReservationSchema = z
       })
       .nullable()
       .optional(),
+    ruc: requiredText("RUC del Hotel es requerido", 11, 11),
     hotel_name: z
       .string()
       .max(255)
