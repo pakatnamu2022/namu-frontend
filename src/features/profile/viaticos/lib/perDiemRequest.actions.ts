@@ -243,6 +243,15 @@ export async function confirmPerDiemRequest(
   return response.data;
 }
 
+export async function confirmProgressPerDiemRequest(
+  id: number
+): Promise<PerDiemRequestResource> {
+  const response = await api.post<PerDiemRequestResource>(
+    `${ENDPOINT}/${id}/confirm-progress`
+  );
+  return response.data;
+}
+
 export async function validateExpense(
   expenseId: number
 ): Promise<GeneralResponse> {
