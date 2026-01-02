@@ -11,17 +11,16 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { DateRangePickerFormField } from "@/shared/components/DateRangePickerFormField";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { useGetAllPerDiemCategory } from "../../../gp/gestionhumana/viaticos/categoria-viaticos/lib/perDiemCategory.hook";
 import { useUserCompanies } from "@/features/gp/gestionsistema/usuarios/lib/user.hook";
 import { useAllDistrict } from "@/features/gp/gestionsistema/ubicaciones/lib/location.hook";
-import { useAllCompanies } from "@/features/gp/gestionsistema/empresa/lib/company.hook";
 import { FormInputText } from "@/shared/components/FormInputText";
 import { FormSwitch } from "@/shared/components/FormSwitch";
-import { useAuthStore } from "@/features/auth/lib/auth.store";
+import { useAllSedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 
 interface PerDiemRequestFormProps {
   defaultValues: Partial<PerDiemRequestSchema | PerDiemRequestSchemaUpdate>;
@@ -49,7 +48,6 @@ export const PerDiemRequestForm = ({
   mode = "create",
   onCancel,
 }: PerDiemRequestFormProps) => {
-  const { user } = useAuthStore();
   const form = useForm<PerDiemRequestSchema | PerDiemRequestSchemaUpdate>({
     resolver: zodResolver(
       mode === "create"
@@ -65,12 +63,32 @@ export const PerDiemRequestForm = ({
   useGetAllPerDiemCategory();
   const { data: myCompanies = [], isLoading: isLoadingMyCompanies } =
     useUserCompanies();
-  const { data: companies = [], isLoading: isLoadingCompanies } =
-    useAllCompanies();
   const { data: districts = [], isLoading: isLoadingDistricts } =
     useAllDistrict({
       id: districtDestinationIds,
     });
+  const { data: sedes = [], isLoading: isLoadingSedes } = useAllSedes();
+
+  console.log("sedes", sedes);
+
+  // Observar el valor de company_id
+  const companyId = form.watch("company_id");
+
+  // Filtrar sedes según la empresa seleccionada
+  const filteredSedes = useMemo(() => {
+    // Si no hay company_id seleccionado (null o ""), no mostrar ninguna sede
+    if (!companyId || companyId === "") {
+      return [];
+    }
+
+    // Si company_id es "4", mostrar todas las sedes
+    if (companyId === "4") {
+      return sedes;
+    }
+
+    // En cualquier otro caso, filtrar por empresa_id
+    return sedes.filter((sede) => sede.empresa_id?.toString() === companyId);
+  }, [companyId, sedes]);
 
   useEffect(() => {
     if (mode === "update" && Object.keys(defaultValues).length > 0) {
@@ -88,19 +106,25 @@ export const PerDiemRequestForm = ({
     if (myCompanies.length === 1 && !form.getValues("company_id")) {
       const companyId = myCompanies[0].id.toString();
       form.setValue("company_id", companyId);
-      form.setValue("company_service_id", companyId);
     }
   }, [myCompanies, form]);
 
-  // Si el usuario NO es de GP, automáticamente asignar su empresa en "Empresa Brinda Servicio"
+  // Limpiar sede_service_id cuando cambie company_id
   useEffect(() => {
-    const companyId = form.watch("company_id");
-    if (user.empresa !== "GP" && companyId) {
-      form.setValue("company_service_id", companyId);
+    const currentSedeId = form.getValues("sede_service_id");
+    // Si hay una sede seleccionada, verificar si aún está en la lista filtrada
+    if (currentSedeId) {
+      const sedeExists = filteredSedes.some(
+        (sede) => sede.id.toString() === currentSedeId
+      );
+      // Si la sede no existe en la lista filtrada, limpiar el valor
+      if (!sedeExists) {
+        form.setValue("sede_service_id", "");
+      }
     }
-  }, [form.watch("company_id"), user.empresa, form]);
+  }, [companyId, filteredSedes, form]);
 
-  if (isLoadingMyCompanies || isLoadingDistricts || isLoadingCompanies)
+  if (isLoadingMyCompanies || isLoadingDistricts || isLoadingSedes)
     return <FormSkeleton />;
 
   return (
@@ -121,17 +145,16 @@ export const PerDiemRequestForm = ({
           />
 
           <FormSelect
-            name="company_service_id"
-            label="Empresa Brinda Servicio"
-            placeholder="Selecciona una empresa"
-            options={companies
-              .filter((item) => item?.id && item?.name)
+            name="sede_service_id"
+            label="Sede Brinda Servicio"
+            placeholder="Selecciona una sede"
+            options={filteredSedes
+              .filter((item) => item?.id && item?.abreviatura)
               .map((item) => ({
-                label: item.name,
+                label: item.abreviatura,
                 value: item.id.toString(),
               }))}
             control={form.control}
-            disabled={user.empresa !== "GP"}
           />
 
           <DateRangePickerFormField

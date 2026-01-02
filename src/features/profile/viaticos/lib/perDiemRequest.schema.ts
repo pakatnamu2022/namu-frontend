@@ -3,9 +3,7 @@ import { z } from "zod";
 
 export const perDiemRequestSchemaCreate = z.object({
   company_id: requiredStringId("La empresa es requerida"),
-  company_service_id: requiredStringId(
-    "El servicio de la empresa es requerido"
-  ),
+  sede_service_id: requiredStringId("El servicio de la sede es requerido"),
   start_date: z.union([z.literal(""), z.date()], {
     message: "La fecha de inicio es requerida",
   }),
@@ -26,9 +24,7 @@ export const perDiemRequestSchemaCreate = z.object({
 
 export const perDiemRequestSchemaUpdate = z.object({
   company_id: requiredStringId("La empresa es requerida"),
-  company_service_id: requiredStringId(
-    "El servicio de la empresa es requerido"
-  ),
+  sede_service_id: requiredStringId("El servicio de la sede es requerido"),
   start_date: z.union([z.literal(""), z.date()], {
     message: "La fecha de inicio es requerida",
   }),
