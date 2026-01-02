@@ -8,16 +8,37 @@ export interface PerDiemExpenseResource {
   company_amount: number;
   employee_amount: number;
   receipt_type: "invoice" | "ticket" | "no_receipt";
-  receipt_number: string | null;
-  receipt_file_url: string | null;
-  notes: string | null;
-  created_at: string;
-  updated_at: string;
-  expense_type?: {
+  receipt_number?: string;
+  receipt_path?: string;
+  notes?: string;
+  business_name?: string;
+  ruc?: string;
+  is_company_expense: boolean;
+  validated: boolean;
+  validated_at?: string;
+  rejected: boolean;
+  rejected_at?: string;
+  rejection_reason?: string;
+  expense_type: ExpenseType;
+  rejected_by?: number;
+  validated_by?: number;
+}
+
+interface ExpenseType {
+  id: number;
+  code: string;
+  name: string;
+  full_name: string;
+  description: string;
+  requires_receipt: boolean;
+  active: boolean;
+  order: number;
+  parent?: {
     id: number;
+    code: string;
     name: string;
-    description: string | null;
   };
+  children_count?: number;
 }
 
 export interface PerDiemExpenseRequest {
@@ -34,7 +55,11 @@ export interface PerDiemExpenseRequest {
 }
 
 export interface PerDiemExpenseFormData extends FormData {
-  append(name: keyof PerDiemExpenseRequest, value: string | Blob, fileName?: string): void;
+  append(
+    name: keyof PerDiemExpenseRequest,
+    value: string | Blob,
+    fileName?: string
+  ): void;
 }
 
 export interface RemainingBudgetResponse {

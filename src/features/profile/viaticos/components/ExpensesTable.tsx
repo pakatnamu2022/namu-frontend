@@ -13,12 +13,16 @@ interface ExpensesTableProps {
   expenses: ExpenseResource[];
   onActionComplete?: () => void;
   module: "gh" | "contabilidad" | "profile";
+  requestId?: number;
+  requestStatus?: string;
 }
 
 export default function ExpensesTable({
   expenses,
   onActionComplete,
   module,
+  requestId,
+  requestStatus,
 }: ExpensesTableProps) {
   const columns: ColumnDef<ExpenseResource>[] = [
     {
@@ -148,6 +152,8 @@ export default function ExpensesTable({
             expense={expense}
             onActionComplete={onActionComplete}
             module={module}
+            requestId={requestId}
+            requestStatus={requestStatus}
           />
         );
       },

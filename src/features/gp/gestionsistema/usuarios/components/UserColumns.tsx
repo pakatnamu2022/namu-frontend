@@ -3,7 +3,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { UserResource } from "../lib/user.interface";
 import { Button } from "@/components/ui/button";
-import { Building2 } from "lucide-react";
+import { Building2, KeyRound } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -13,9 +13,11 @@ export type UserColumns = ColumnDef<UserResource>;
 export const userColumns = ({
   onDelete,
   onManageSedes,
+  onResetPassword,
 }: {
   onDelete: (id: number) => void;
   onManageSedes?: (user: UserResource) => void;
+  onResetPassword?: (id: number) => void;
 }): UserColumns[] => [
   {
     id: "userInfo",
@@ -130,6 +132,19 @@ export const userColumns = ({
               tooltip="Gestionar Sedes"
             >
               <Building2 className="size-5" />
+            </Button>
+          )}
+
+          {/* Restablecer Contraseña */}
+          {onResetPassword && (
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-7"
+              onClick={() => onResetPassword(id)}
+              tooltip="Restablecer Contraseña"
+            >
+              <KeyRound className="size-5" />
             </Button>
           )}
 

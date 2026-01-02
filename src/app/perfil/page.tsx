@@ -1,11 +1,14 @@
 "use client";
 
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useAuthStore } from "@/features/auth/lib/auth.store";
 import { useUserComplete } from "@/features/gp/gestionsistema/usuarios/lib/user.hook";
+import { ChangePasswordModal } from "@/features/auth/components/ChangePasswordModal";
 import {
   Building2,
   Clock,
@@ -22,12 +25,14 @@ import {
   Heart,
   Users,
   ShieldCheck,
+  Lock,
 } from "lucide-react";
 import PageWrapper from "@/shared/components/PageWrapper";
 
 export default function ProfilePage() {
   const { user } = useAuthStore();
   const { data: userComplete } = useUserComplete(user.id);
+  const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
 
   if (!userComplete) return null;
 
@@ -53,13 +58,24 @@ export default function ProfilePage() {
               </AvatarFallback>
             </Avatar>
             <div className="flex-1 space-y-2 sm:space-y-3 text-center sm:text-left w-full">
-              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 md:gap-4">
-                <h1 className="text-2xl sm:text-3xl font-bold text-primary wrap-break-word">
-                  {userComplete.name}
-                </h1>
-                <Badge variant="secondary" className="w-fit mx-auto sm:mx-0">
-                  {userComplete.position}
-                </Badge>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 md:gap-4">
+                  <h1 className="text-2xl sm:text-3xl font-bold text-primary wrap-break-word">
+                    {userComplete.name}
+                  </h1>
+                  <Badge variant="secondary" className="w-fit mx-auto sm:mx-0">
+                    {userComplete.position}
+                  </Badge>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowChangePasswordModal(true)}
+                  className="gap-2 w-fit mx-auto sm:mx-0"
+                >
+                  <Lock className="h-4 w-4" />
+                  Cambiar contraseña
+                </Button>
               </div>
               <div className="flex flex-col sm:flex-row sm:flex-wrap gap-2 sm:gap-4 text-xs sm:text-sm text-muted-foreground">
                 <div className="flex items-center justify-center sm:justify-start gap-2">
@@ -81,6 +97,13 @@ export default function ProfilePage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Modal de cambio de contraseña */}
+      <ChangePasswordModal
+        open={showChangePasswordModal}
+        onClose={() => setShowChangePasswordModal(false)}
+        isForced={false}
+      />
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 w-full">
         {/* Información de Contacto */}
