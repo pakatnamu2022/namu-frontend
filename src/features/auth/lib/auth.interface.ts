@@ -35,6 +35,7 @@ export interface AuthResponseUser {
   fecha_ingreso: string;
   role: string;
   subordinates: number;
+  verified_at: string | null;
 }
 
 export interface AuthResponsePerson {

@@ -22,6 +22,8 @@ export default function ExpensesSection({ request }: ExpensesSectionProps) {
             ) || []
           }
           module="profile"
+          requestId={request.id}
+          requestStatus={request.status}
         />
       </div>
     </GroupFormSection>

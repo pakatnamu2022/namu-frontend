@@ -36,6 +36,7 @@ interface ExpenseFormProps {
   mode?: "create" | "update";
   startDate?: Date;
   endDate?: Date;
+  existingFileUrl?: string;
 }
 
 export default function ExpenseForm({
@@ -47,9 +48,10 @@ export default function ExpenseForm({
   mode = "create",
   startDate,
   endDate,
+  existingFileUrl,
 }: ExpenseFormProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string>("");
+  const [previewUrl, setPreviewUrl] = useState<string>(existingFileUrl || "");
   const [isFirstLoad, setIsFirstLoad] = useState(true);
   const hasShownExpenseTypeError = useRef(false);
 

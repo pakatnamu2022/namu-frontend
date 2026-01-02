@@ -93,6 +93,7 @@ export default function UpdateExpensePage() {
         onCancel={handleCancel}
         startDate={startDate}
         endDate={endDate}
+        existingFileUrl={expense.receipt_path}
       />
     </FormWrapper>
   );

@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { useAuthStore } from "@/features/auth/lib/auth.store";
 import { useUserComplete } from "@/features/gp/gestionsistema/usuarios/lib/user.hook";
+import { ChangePasswordCard } from "@/features/profile/components/ChangePasswordCard";
 import {
   Building2,
   Clock,
@@ -425,6 +426,9 @@ export default function ProfilePage() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Cambiar Contraseña */}
+        <ChangePasswordCard />
       </div>
     </PageWrapper>
   );
