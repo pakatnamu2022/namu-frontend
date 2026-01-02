@@ -36,6 +36,7 @@ interface ExpenseFormProps {
   mode?: "create" | "update";
   startDate?: Date;
   endDate?: Date;
+  existingFileUrl?: string;
 }
 
 export default function ExpenseForm({
@@ -47,18 +48,42 @@ export default function ExpenseForm({
   mode = "create",
   startDate,
   endDate,
+  existingFileUrl,
 }: ExpenseFormProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string>("");
+  const [previewUrl, setPreviewUrl] = useState<string>(existingFileUrl || "");
   const [isFirstLoad, setIsFirstLoad] = useState(true);
   const hasShownExpenseTypeError = useRef(false);
 
   // Obtener tipos de gasto disponibles para esta solicitud de viáticos
-  const { data: expenseTypes, isLoading: isLoadingExpenseTypes, error: expenseTypesError } =
-    useAvailableExpenseTypes(requestId);
+  const {
+    data: expenseTypes,
+    isLoading: isLoadingExpenseTypes,
+    error: expenseTypesError,
+  } = useAvailableExpenseTypes(requestId);
+
+  // Crear schema dinámico basado en el modo
+  const dynamicSchema = expenseSchema.refine(
+    (data) => {
+      // En modo update con archivo existente, el archivo NO es requerido
+      if (mode === "update" && existingFileUrl) {
+        return true;
+      }
+      // En modo create, el archivo es requerido solo cuando es factura
+      if (data.receipt_type === "invoice" && !data.receipt_file) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message:
+        "El archivo del comprobante es requerido cuando el tipo es factura",
+      path: ["receipt_file"],
+    }
+  );
 
   const form = useForm<ExpenseSchema>({
-    resolver: zodResolver(expenseSchema),
+    resolver: zodResolver(dynamicSchema),
     defaultValues: {
       receipt_amount: 0,
       receipt_type: "invoice",
@@ -97,8 +122,9 @@ export default function ExpenseForm({
   useEffect(() => {
     if (expenseTypesError && !hasShownExpenseTypeError.current) {
       hasShownExpenseTypeError.current = true;
-      const errorMessage = (expenseTypesError as any)?.response?.data?.message ||
-                          "No se pudieron cargar los tipos de gasto disponibles. Por favor, intente nuevamente.";
+      const errorMessage =
+        (expenseTypesError as any)?.response?.data?.message ||
+        "No se pudieron cargar los tipos de gasto disponibles. Por favor, intente nuevamente.";
       errorToast("Error al cargar tipos de gasto", errorMessage);
     }
   }, [expenseTypesError]);
@@ -364,6 +390,13 @@ export default function ExpenseForm({
             />
           </div>
         </div>
+
+        {/* <pre>
+          <code>
+            {JSON.stringify(form.getValues(), null, 2)}
+            {JSON.stringify(form.formState.errors, null, 2)}
+          </code>
+        </pre> */}
 
         <div className="flex flex-col-reverse sm:flex-row gap-3 sm:gap-4 w-full sm:justify-end pt-4">
           <Button

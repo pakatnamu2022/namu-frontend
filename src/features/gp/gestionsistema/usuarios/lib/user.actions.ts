@@ -93,3 +93,10 @@ export async function storeUserSedes(
   );
   return data;
 }
+
+export async function resetPassword(userId: number): Promise<GeneralResponse> {
+  const { data } = await api.post<GeneralResponse>("/reset-password", {
+    user_id: userId,
+  });
+  return data;
+}

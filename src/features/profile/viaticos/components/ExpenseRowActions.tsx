@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { CheckCircle, XCircle, FileText, Loader2 } from "lucide-react";
+import { CheckCircle, XCircle, FileText, Loader2, Pencil } from "lucide-react";
 import { ExpenseResource } from "../lib/perDiemRequest.interface";
 import { useState } from "react";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
@@ -9,21 +9,27 @@ import { validateExpense, rejectExpense } from "../lib/perDiemRequest.actions";
 import { useToast } from "@/hooks/use-toast";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { useNavigate } from "react-router-dom";
 
 interface ExpenseRowActionsProps {
   expense: ExpenseResource;
   onActionComplete?: () => void;
   module: "gh" | "contabilidad" | "profile";
+  requestId?: number;
+  requestStatus?: string;
 }
 
 export default function ExpenseRowActions({
   expense,
   onActionComplete,
   module,
+  requestId,
+  requestStatus,
 }: ExpenseRowActionsProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [rejectionReason, setRejectionReason] = useState("");
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleValidate = async () => {
     try {
@@ -79,17 +85,35 @@ export default function ExpenseRowActions({
     }
   };
 
+  const handleEdit = () => {
+    if (requestId) {
+      navigate(`/perfil/viaticos/${requestId}/gastos/actualizar/${expense.id}`);
+    }
+  };
+
+  const canEdit = module === "profile" && requestStatus === "in_progress";
+
   return (
     <div className="flex items-center gap-1">
       {expense.receipt_path && (
         <Button
-          variant="ghost"
-          size="icon"
-          className="h-8 w-8"
+          variant="outline"
+          size="icon-xs"
           onClick={() => window.open(expense.receipt_path, "_blank")}
           title="Ver Comprobante"
         >
           <FileText className="h-4 w-4" />
+        </Button>
+      )}
+
+      {canEdit && (
+        <Button
+          variant="outline"
+          size="icon-xs"
+          onClick={handleEdit}
+          title="Editar Gasto"
+        >
+          <Pencil className="h-4 w-4" />
         </Button>
       )}
 
@@ -98,9 +122,9 @@ export default function ExpenseRowActions({
           <ConfirmationDialog
             trigger={
               <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-50"
+                variant="outline"
+                size="icon-xs"
+                className="text-green-600 hover:text-green-700 hover:bg-green-50"
                 disabled={isLoading}
                 title="Validar Gasto"
               >
@@ -128,9 +152,9 @@ export default function ExpenseRowActions({
           <ConfirmationDialog
             trigger={
               <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 text-destructive hover:bg-red-50"
+                variant="outline"
+                size="icon-xs"
+                className="text-destructive hover:bg-red-50"
                 disabled={isLoading}
                 title="Rechazar Gasto"
               >
