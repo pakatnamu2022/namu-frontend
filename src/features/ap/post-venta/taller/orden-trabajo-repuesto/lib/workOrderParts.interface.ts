@@ -104,4 +104,6 @@ export interface StoreBulkFromQuotationRequest {
   quotation_id: number;
   work_order_id: number;
   warehouse_id: number;
+  group_number: number;
+  quotation_detail_ids: number[];
 }
