@@ -4,9 +4,9 @@ import { api } from "@/core/api";
 import type { AxiosRequestConfig } from "axios";
 import {
   HotelReservationRequest,
-  HotelReservationResponse,
   ActiveHotelAgreement,
 } from "./hotelReservation.interface";
+import { HotelReservationResource } from "./perDiemRequest.interface";
 
 /**
  * Obtiene los convenios de hotel activos
@@ -34,7 +34,7 @@ export async function getActiveHotelAgreements(): Promise<
 export async function createHotelReservation(
   requestId: number,
   requestData: HotelReservationRequest
-): Promise<HotelReservationResponse> {
+): Promise<HotelReservationResource> {
   const formData = new FormData();
 
   // Agregar campos básicos
@@ -78,7 +78,7 @@ export async function createHotelReservation(
     formData.append("notes", requestData.notes);
   }
 
-  const { data } = await api.post<HotelReservationResponse>(
+  const { data } = await api.post<HotelReservationResource>(
     `gp/gestion-humana/viaticos/per-diem-requests/${requestId}/hotel-reservation`,
     formData,
     {
@@ -97,8 +97,8 @@ export async function createHotelReservation(
  */
 export async function findHotelReservationById(
   reservationId: number
-): Promise<HotelReservationResponse> {
-  const { data } = await api.get<HotelReservationResponse>(
+): Promise<HotelReservationResource> {
+  const { data } = await api.get<HotelReservationResource>(
     `gp/gestion-humana/viaticos/hotel-reservations/${reservationId}`
   );
   return data;
@@ -112,8 +112,8 @@ export async function findHotelReservationById(
 export async function updateHotelReservation(
   reservationId: number,
   formData: FormData
-): Promise<HotelReservationResponse> {
-  const { data } = await api.post<HotelReservationResponse>(
+): Promise<HotelReservationResource> {
+  const { data } = await api.post<HotelReservationResource>(
     `gp/gestion-humana/viaticos/hotel-reservations/${reservationId}`,
     formData,
     {

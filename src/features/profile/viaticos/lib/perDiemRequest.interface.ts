@@ -1,3 +1,4 @@
+import { HotelAgreementResource } from "@/features/gp/gestionhumana/viaticos/convenios-hoteles/lib/hotelAgreement.interface";
 import { ExpenseTypeResource } from "@/features/gp/gestionhumana/viaticos/tipo-gasto/lib/expenseType.interface";
 import { type Links, type Meta } from "@/shared/lib/pagination.interface.ts";
 
@@ -17,7 +18,7 @@ interface Budget {
   spent: number;
 }
 
-export interface HotelReservation {
+export interface HotelReservationResource {
   id: number;
   hotel_name: string;
   address: string;
@@ -27,9 +28,11 @@ export interface HotelReservation {
   nights_count: number;
   total_cost: number;
   receipt_path: string;
-  notes: string;
+  notes?: string;
   attended: boolean;
   penalty: number;
+  hotel_agreement: HotelAgreementResource;
+  expense: ExpenseResource;
   created_at: string;
   updated_at: string;
 }
@@ -160,7 +163,7 @@ export interface PerDiemRequestResource {
   category: Category;
   policy: string;
   approvals?: Approval[];
-  hotel_reservation?: HotelReservation;
+  hotel_reservation?: HotelReservationResource;
   expenses?: ExpenseResource[];
   budgets?: Budget[];
 }
