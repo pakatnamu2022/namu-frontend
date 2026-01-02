@@ -24,6 +24,12 @@ export interface PurchaseRequestResource {
   details?: PurchaseRequestDetailResource[];
 }
 
+export interface PurchaseRequestDetailResponse {
+  data: PurchaseRequestDetailResource[];
+  links: Links;
+  meta: Meta;
+}
+
 export interface PurchaseRequestDetailResource {
   id: number;
   ap_purchase_request_id: number;
@@ -34,6 +40,9 @@ export interface PurchaseRequestDetailResource {
   requested_delivery_date: string | null;
   created_at: string;
   updated_at: string;
+  product_code?: string;
+  request_number?: string;
+  requested_name?: string;
 }
 
 export interface PurchaseRequestRequest {

@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
-import { Package, Loader2, Plus, Trash2 } from "lucide-react";
+import { Package, Loader2, Plus } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Table,
   TableBody,
@@ -14,16 +15,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
 import {
   Select,
   SelectContent,
@@ -31,30 +22,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
 import {
-  deleteWorkOrderParts,
   getAllWorkOrderParts,
-  storeWorkOrderParts,
+  getQuotationByVehicle,
+  storeBulkFromQuotation,
+  updateWorkOrderParts,
 } from "@/features/ap/post-venta/taller/orden-trabajo-repuesto/lib/workOrderParts.actions";
-import {
-  workOrderPartsSchema,
-  type WorkOrderPartsFormData,
-} from "@/features/ap/post-venta/taller/orden-trabajo-repuesto/lib/workOrderParts.schema";
-import {
-  ERROR_MESSAGE,
-  errorToast,
-  SUCCESS_MESSAGE,
-  successToast,
-} from "@/core/core.function";
+import { errorToast, successToast } from "@/core/core.function";
 import { useAllWarehouse } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
-import { useEffect, useMemo } from "react";
 import GroupSelector from "../GroupSelector";
 import { useWorkOrderContext } from "../../contexts/WorkOrderContext";
 import { findWorkOrderById } from "../../lib/workOrder.actions";
-import { ProductSelectAsync } from "@/features/ap/post-venta/taller/orden-trabajo-repuesto/components/ProductSelectAsync";
-import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
-import { WORKER_ORDER_PARTS } from "../../../orden-trabajo-repuesto/lib/workOrderParts.constants";
 
 interface PartsTabProps {
   workOrderId: number;
@@ -62,10 +40,10 @@ interface PartsTabProps {
 
 export default function PartsTab({ workOrderId }: PartsTabProps) {
   const queryClient = useQueryClient();
-  const [showForm, setShowForm] = useState(false);
   const { selectedGroupNumber, setSelectedGroupNumber } = useWorkOrderContext();
-  const [deleteId, setDeleteId] = useState<number | null>(null);
-  const { MODEL } = WORKER_ORDER_PARTS;
+  const [selectedWarehouseForBulk, setSelectedWarehouseForBulk] =
+    useState<string>("");
+  const [selectedProductIds, setSelectedProductIds] = useState<number[]>([]);
 
   const { data: parts = [], isLoading } = useQuery({
     queryKey: ["workOrderParts", workOrderId],
@@ -82,6 +60,13 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
 
   const items = useMemo(() => workOrder?.items || [], [workOrder?.items]);
 
+  // Obtener cotización por vehículo
+  const { data: quotation, isLoading: isLoadingQuotation } = useQuery({
+    queryKey: ["quotationByVehicle", workOrder?.vehicle_id],
+    queryFn: () => getQuotationByVehicle(Number(workOrder?.vehicle_id)),
+    enabled: !!workOrder?.vehicle_id,
+  });
+
   // Auto-seleccionar el primer grupo si no hay ninguno seleccionado
   useEffect(() => {
     if (items.length > 0 && selectedGroupNumber === null) {
@@ -95,74 +80,103 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
       is_physical_warehouse: 1,
     });
 
-  const form = useForm<WorkOrderPartsFormData>({
-    resolver: zodResolver(workOrderPartsSchema),
-    defaultValues: {
-      group_number: 1,
-      warehouse_id: "",
-      product_id: "",
-      quantity_used: 1,
-    },
-  });
-
-  const selectedWarehouseId = form.watch("warehouse_id");
-
-  // Actualizar el grupo cuando cambie selectedGroupNumber
-  useEffect(() => {
-    if (selectedGroupNumber) {
-      form.setValue("group_number", selectedGroupNumber);
-    }
-  }, [selectedGroupNumber, form]);
-
-  const storeMutation = useMutation({
-    mutationFn: (data: WorkOrderPartsFormData) =>
-      storeWorkOrderParts({
-        id: 0,
+  const storeBulkMutation = useMutation({
+    mutationFn: (params: { warehouseId: number; groupNumber: number }) =>
+      storeBulkFromQuotation({
+        quotation_id: quotation?.id || 0,
         work_order_id: workOrderId,
-        group_number: data.group_number,
-        warehouse_id: data.warehouse_id,
-        product_id: data.product_id,
-        quantity_used: data.quantity_used,
+        warehouse_id: params.warehouseId,
+        group_number: params.groupNumber,
+        quotation_detail_ids: selectedProductIds,
       }),
     onSuccess: () => {
-      successToast("Repuesto agregado exitosamente");
+      successToast("Repuestos insertados exitosamente desde la cotización");
       queryClient.invalidateQueries({
         queryKey: ["workOrderParts", workOrderId],
       });
-      form.reset();
-      setShowForm(false);
+      queryClient.invalidateQueries({
+        queryKey: ["quotationByVehicle", workOrder?.vehicle_id],
+      });
+      setSelectedWarehouseForBulk("");
+      setSelectedProductIds([]);
     },
     onError: (error: any) => {
       const msg = error?.response?.data?.message || "";
-      errorToast(msg || "Error al agregar el repuesto");
+      errorToast(msg || "Error al insertar los repuestos desde la cotización");
     },
   });
 
-  const handleSubmit = (data: WorkOrderPartsFormData) => {
-    storeMutation.mutate(data);
+  const handleToggleProduct = (productId: number) => {
+    setSelectedProductIds((prev) =>
+      prev.includes(productId)
+        ? prev.filter((id) => id !== productId)
+        : [...prev, productId]
+    );
   };
 
-  const handleDelete = async () => {
-    if (!deleteId) return;
-    try {
-      await deleteWorkOrderParts(deleteId);
+  const handleToggleAll = () => {
+    if (quotation?.details) {
+      if (selectedProductIds.length === quotation.details.length) {
+        setSelectedProductIds([]);
+      } else {
+        setSelectedProductIds(quotation.details.map((d) => d.id));
+      }
+    }
+  };
+
+  const updateGroupMutation = useMutation({
+    mutationFn: ({
+      partId,
+      newGroupNumber,
+      part,
+    }: {
+      partId: number;
+      newGroupNumber: number;
+      part: any;
+    }) =>
+      updateWorkOrderParts(partId, {
+        id: part.id,
+        work_order_id: workOrderId,
+        group_number: newGroupNumber,
+        warehouse_id: part.warehouse_id,
+        product_id: part.product_id,
+        quantity_used: part.quantity_used,
+      }),
+    onSuccess: () => {
+      successToast("Grupo actualizado exitosamente");
       queryClient.invalidateQueries({
         queryKey: ["workOrderParts", workOrderId],
       });
-      successToast(SUCCESS_MESSAGE(MODEL, "delete"));
-    } catch (error: any) {
+    },
+    onError: (error: any) => {
       const msg = error?.response?.data?.message || "";
-      errorToast(ERROR_MESSAGE(MODEL, "delete", msg));
-    } finally {
-      setDeleteId(null);
-    }
+      errorToast(msg || "Error al actualizar el grupo");
+    },
+  });
+
+  const handleGroupChange = (part: any, newGroupNumber: number) => {
+    updateGroupMutation.mutate({
+      partId: part.id,
+      newGroupNumber,
+      part,
+    });
   };
+
+  // Obtener los números de grupos únicos disponibles
+  const availableGroups = useMemo(() => {
+    return Array.from(new Set(items.map((item) => item.group_number))).sort();
+  }, [items]);
 
   const filteredParts = parts.filter(
     (part) => part.group_number === selectedGroupNumber
   );
 
-  if (isLoading || isLoadingWarehouses || isLoadingWorkOrder) {
+  if (
+    isLoading ||
+    isLoadingWarehouses ||
+    isLoadingWorkOrder ||
+    isLoadingQuotation
+  ) {
     return (
       <div className="flex items-center justify-center py-12">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -179,137 +193,158 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
         onSelectGroup={setSelectedGroupNumber}
       />
 
-      {/* Formulario para agregar repuestos */}
-      {!showForm ? (
+      {/* Mostrar cotización si existe */}
+      {quotation && quotation.details && quotation.details.length > 0 ? (
         <Card className="p-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Package className="h-6 w-6 text-primary" />
-              <div>
-                <h3 className="text-lg font-semibold">
-                  Repuestos - Grupo {selectedGroupNumber}
-                </h3>
-                <p className="text-sm text-gray-600">
-                  {filteredParts.length} repuesto
-                  {filteredParts.length !== 1 ? "s" : ""}
-                </p>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Package className="h-6 w-6 text-primary" />
+                <div>
+                  <h3 className="text-lg font-semibold">
+                    Cotización: {quotation.quotation_number}
+                  </h3>
+                  <p className="text-sm text-gray-600">
+                    {quotation.details.length} producto
+                    {quotation.details.length !== 1 ? "s" : ""}
+                  </p>
+                </div>
               </div>
-            </div>
-            <Button onClick={() => setShowForm(true)} className="gap-2">
-              <Plus className="h-4 w-4" />
-              Agregar Repuesto
-            </Button>
-          </div>
-        </Card>
-      ) : (
-        <Card className="p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <Package className="h-6 w-6 text-primary" />
-              <h3 className="text-lg font-semibold">
-                Agregar Repuesto - Grupo {selectedGroupNumber}
-              </h3>
-            </div>
-          </div>
-
-          <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(handleSubmit)}
-              className="space-y-4"
-            >
-              <input
-                type="hidden"
-                {...form.register("group_number")}
-                value={selectedGroupNumber ?? 1}
-              />
-
-              <FormField
-                control={form.control}
-                name="warehouse_id"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Almacén</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleccione un almacén" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {warehouses.map((warehouse) => (
-                          <SelectItem
-                            key={warehouse.id}
-                            value={warehouse.id.toString()}
-                          >
-                            {warehouse.description}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <ProductSelectAsync
-                control={form.control}
-                warehouseId={selectedWarehouseId}
-                disabled={!selectedWarehouseId}
-              />
-
-              <FormField
-                control={form.control}
-                name="quantity_used"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Cantidad</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        placeholder="Cantidad"
-                        {...field}
-                        onChange={(e) => field.onChange(Number(e.target.value))}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <div className="flex gap-4 justify-end">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => {
-                    form.reset();
-                    setShowForm(false);
-                  }}
+              <div className="flex gap-2">
+                <Select
+                  value={selectedWarehouseForBulk}
+                  onValueChange={setSelectedWarehouseForBulk}
                 >
-                  Cancelar
-                </Button>
+                  <SelectTrigger className="w-[200px]">
+                    <SelectValue placeholder="Seleccione almacén" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {warehouses.map((warehouse) => (
+                      <SelectItem
+                        key={warehouse.id}
+                        value={warehouse.id.toString()}
+                      >
+                        {warehouse.description}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <Button
-                  type="submit"
-                  disabled={storeMutation.isPending}
+                  onClick={() => {
+                    if (!selectedWarehouseForBulk) {
+                      errorToast("Debe seleccionar un almacén");
+                      return;
+                    }
+                    if (selectedProductIds.length === 0) {
+                      errorToast("Debe seleccionar al menos un producto");
+                      return;
+                    }
+                    if (!selectedGroupNumber) {
+                      errorToast("Debe seleccionar un grupo");
+                      return;
+                    }
+                    storeBulkMutation.mutate({
+                      warehouseId: Number(selectedWarehouseForBulk),
+                      groupNumber: selectedGroupNumber,
+                    });
+                  }}
+                  disabled={
+                    storeBulkMutation.isPending ||
+                    selectedProductIds.length === 0
+                  }
                   className="gap-2"
                 >
-                  {storeMutation.isPending ? (
+                  {storeBulkMutation.isPending ? (
                     <>
                       <Loader2 className="h-4 w-4 animate-spin" />
-                      Guardando...
+                      Insertando...
                     </>
                   ) : (
                     <>
                       <Plus className="h-4 w-4" />
-                      Agregar
+                      Insertar al Grupo {selectedGroupNumber} (
+                      {selectedProductIds.length})
                     </>
                   )}
                 </Button>
               </div>
-            </form>
-          </Form>
+            </div>
+
+            {/* Tabla de productos de la cotización */}
+            <div className="border rounded-lg overflow-hidden">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-12">
+                      <Checkbox
+                        checked={
+                          quotation.details.length > 0 &&
+                          selectedProductIds.length === quotation.details.length
+                        }
+                        onCheckedChange={handleToggleAll}
+                      />
+                    </TableHead>
+                    <TableHead>Producto</TableHead>
+                    <TableHead>Código</TableHead>
+                    <TableHead className="text-center">Cantidad</TableHead>
+                    <TableHead>Unidad</TableHead>
+                    <TableHead className="text-right">Precio Unit.</TableHead>
+                    <TableHead className="text-right">Total</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {quotation.details.map((detail) => (
+                    <TableRow key={detail.id}>
+                      <TableCell>
+                        <Checkbox
+                          checked={selectedProductIds.includes(detail.id)}
+                          onCheckedChange={() => handleToggleProduct(detail.id)}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <p className="font-medium">{detail.description}</p>
+                      </TableCell>
+                      <TableCell>
+                        <p className="text-sm text-gray-600">
+                          {detail.product.code}
+                        </p>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <Badge variant="outline" className="font-semibold">
+                          {detail.quantity}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <p className="text-sm">{detail.unit_measure}</p>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <p className="text-sm">
+                          S/. {Number(detail.unit_price).toFixed(2)}
+                        </p>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <p className="text-sm font-semibold">
+                          S/. {Number(detail.total_amount).toFixed(2)}
+                        </p>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </div>
+        </Card>
+      ) : (
+        <Card className="p-12">
+          <div className="text-center">
+            <Package className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              No hay cotización disponible
+            </h3>
+            <p className="text-sm text-gray-600">
+              Este vehículo no tiene una cotización asociada
+            </p>
+          </div>
         </Card>
       )}
 
@@ -336,7 +371,7 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
                   <TableHead>Almacén</TableHead>
                   <TableHead>Registrado por</TableHead>
                   <TableHead className="text-center">Cantidad</TableHead>
-                  <TableHead className="text-center">Acción</TableHead>
+                  <TableHead className="text-center">Grupo</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -363,10 +398,26 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
                       </Badge>
                     </TableCell>
                     <TableCell className="text-center">
-                      <Trash2
-                        className="h-5 w-5 text-red-500 cursor-pointer"
-                        onClick={() => setDeleteId(part.id)}
-                      />
+                      <Select
+                        value={part.group_number.toString()}
+                        onValueChange={(value) =>
+                          handleGroupChange(part, Number(value))
+                        }
+                      >
+                        <SelectTrigger className="w-[120px] mx-auto">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {availableGroups.map((groupNumber) => (
+                            <SelectItem
+                              key={groupNumber}
+                              value={groupNumber.toString()}
+                            >
+                              Grupo {groupNumber}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -374,13 +425,6 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
             </Table>
           </div>
         </Card>
-      )}
-      {deleteId !== null && (
-        <SimpleDeleteDialog
-          open={true}
-          onOpenChange={(open) => !open && setDeleteId(null)}
-          onConfirm={handleDelete}
-        />
       )}
     </div>
   );

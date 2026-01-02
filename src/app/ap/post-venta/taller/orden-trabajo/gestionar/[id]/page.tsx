@@ -135,12 +135,26 @@ export default function ManageWorkOrderPage() {
                   <span>Apertura</span>
                 </TabsTrigger>
                 <TabsTrigger
+                  value="operators"
+                  className="flex items-center gap-2 whitespace-nowrap"
+                >
+                  <UserCog className="h-4 w-4 shrink-0" />
+                  <span>Operarios</span>
+                </TabsTrigger>
+                <TabsTrigger
                   value="labor"
                   className="flex items-center gap-2 whitespace-nowrap"
                 >
                   <Wrench className="h-4 w-4 shrink-0" />
                   <span className="hidden md:inline">Mano de Obra</span>
                   <span className="md:hidden">M. Obra</span>
+                </TabsTrigger>
+                <TabsTrigger
+                  value="parts"
+                  className="flex items-center gap-2 whitespace-nowrap"
+                >
+                  <Package className="h-4 w-4 shrink-0" />
+                  <span>Repuestos</span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="billing"
@@ -150,28 +164,10 @@ export default function ManageWorkOrderPage() {
                   <span className="hidden sm:inline">Facturación</span>
                   <span className="sm:hidden">Factura</span>
                 </TabsTrigger>
-                <TabsTrigger
-                  value="operators"
-                  className="flex items-center gap-2 whitespace-nowrap"
-                >
-                  <UserCog className="h-4 w-4 shrink-0" />
-                  <span>Operarios</span>
-                </TabsTrigger>
-                <TabsTrigger
-                  value="parts"
-                  className="flex items-center gap-2 whitespace-nowrap"
-                >
-                  <Package className="h-4 w-4 shrink-0" />
-                  <span>Repuestos</span>
-                </TabsTrigger>
               </TabsList>
             </div>
 
             <div className="mt-6">
-              <TabsContent value="labor" className="space-y-4">
-                <LaborTab workOrderId={workOrder.id} />
-              </TabsContent>
-
               <TabsContent value="appointment" className="space-y-4">
                 <AppointmentTab workOrderId={workOrder.id} />
               </TabsContent>
@@ -184,16 +180,20 @@ export default function ManageWorkOrderPage() {
                 <OpeningTab workOrderId={workOrder.id} />
               </TabsContent>
 
-              <TabsContent value="billing" className="space-y-4">
-                <BillingTab workOrderId={workOrder.id} />
-              </TabsContent>
-
               <TabsContent value="operators" className="space-y-4">
                 <OperatorsTab workOrderId={workOrder.id} />
               </TabsContent>
 
+              <TabsContent value="labor" className="space-y-4">
+                <LaborTab workOrderId={workOrder.id} />
+              </TabsContent>
+
               <TabsContent value="parts" className="space-y-4">
                 <PartsTab workOrderId={workOrder.id} />
+              </TabsContent>
+
+              <TabsContent value="billing" className="space-y-4">
+                <BillingTab workOrderId={workOrder.id} />
               </TabsContent>
             </div>
           </Tabs>

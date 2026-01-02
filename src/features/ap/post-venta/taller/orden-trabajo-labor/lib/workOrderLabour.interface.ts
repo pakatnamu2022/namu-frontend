@@ -14,6 +14,8 @@ export interface WorkOrderLabourResource {
   total_cost: string;
   worker_id: string;
   work_order_id: string;
+  worker_full_name: string;
+  group_number: number;
 }
 
 export interface WorkOrderLabourRequest {
@@ -21,6 +23,8 @@ export interface WorkOrderLabourRequest {
   time_spent: string;
   hourly_rate: string;
   work_order_id: string;
+  worker_id: number;
+  group_number: number;
 }
 
 export interface getWorkOrderLabourProps {

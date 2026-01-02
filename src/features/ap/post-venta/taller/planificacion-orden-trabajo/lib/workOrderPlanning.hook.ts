@@ -8,6 +8,7 @@ import {
   cancelPlanning,
   storeWorkOrderPlanning,
   getWorkOrderPlanning,
+  getConsolidatedWorkers,
   getConsolidatedPlanning,
 } from "./workOrderPlanning.actions";
 import {
@@ -130,7 +131,20 @@ export function useCancelPlanning() {
 export function useGetConsolidatedPlanning(workOrderId: number) {
   return useQuery({
     queryKey: [QUERY_KEY, "consolidated", workOrderId],
-    queryFn: () => getConsolidatedPlanning(workOrderId),
+    queryFn: async () => {
+      return getConsolidatedPlanning(workOrderId);
+    },
+    enabled: !!workOrderId,
+  });
+}
+
+// Hook para obtener trabajadores consolido por orden de trabajo
+export function useGetConsolidatedWorkers(workOrderId: number) {
+  return useQuery({
+    queryKey: [QUERY_KEY, "workers", workOrderId],
+    queryFn: async () => {
+      return getConsolidatedWorkers(workOrderId);
+    },
     enabled: !!workOrderId,
   });
 }
