@@ -91,3 +91,38 @@ export async function createHotelReservation(
 
   return data;
 }
+
+/**
+ * Obtiene una reserva de hotel por su ID
+ * @param reservationId - ID de la reserva
+ */
+export async function findHotelReservationById(
+  reservationId: number
+): Promise<HotelReservationResponse> {
+  const { data } = await api.get<HotelReservationResponse>(
+    `gp/gestion-humana/viaticos/hotel-reservations/${reservationId}`
+  );
+  return data;
+}
+
+/**
+ * Actualiza una reserva de hotel existente
+ * @param reservationId - ID de la reserva a actualizar
+ * @param formData - FormData con los datos actualizados
+ */
+export async function updateHotelReservation(
+  reservationId: number,
+  formData: FormData
+): Promise<HotelReservationResponse> {
+  const { data } = await api.post<HotelReservationResponse>(
+    `gp/gestion-humana/viaticos/hotel-reservations/${reservationId}`,
+    formData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }
+  );
+
+  return data;
+}

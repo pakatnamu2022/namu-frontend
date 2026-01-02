@@ -34,6 +34,8 @@ interface HotelReservationFormProps {
   hotelAgreements: ActiveHotelAgreement[];
   perDiemStartDate?: string | Date;
   perDiemEndDate?: string | Date;
+  mode?: "create" | "update";
+  existingFileUrl?: string;
 }
 
 export const HotelReservationForm = ({
@@ -44,6 +46,8 @@ export const HotelReservationForm = ({
   hotelAgreements,
   perDiemStartDate,
   perDiemEndDate,
+  mode = "create",
+  existingFileUrl,
 }: HotelReservationFormProps) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
@@ -273,7 +277,13 @@ export const HotelReservationForm = ({
           render={() => (
             <FormItem>
               <FormLabel>
-                Comprobante <span className="text-red-500">*</span>
+                Comprobante{" "}
+                {mode === "create" && <span className="text-red-500">*</span>}
+                {mode === "update" && (
+                  <span className="text-muted-foreground text-sm">
+                    (Opcional - dejar en blanco para mantener el actual)
+                  </span>
+                )}
               </FormLabel>
               <FormControl>
                 <div className="flex flex-col gap-2">
@@ -290,6 +300,19 @@ export const HotelReservationForm = ({
                       <span className="text-muted-foreground">
                         ({(selectedFile.size / 1024).toFixed(2)} KB)
                       </span>
+                    </div>
+                  )}
+                  {!selectedFile && existingFileUrl && mode === "update" && (
+                    <div className="text-sm text-muted-foreground">
+                      Archivo actual:{" "}
+                      <a
+                        href={existingFileUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary hover:underline"
+                      >
+                        Ver comprobante
+                      </a>
                     </div>
                   )}
                 </div>
@@ -323,7 +346,11 @@ export const HotelReservationForm = ({
                 !isSubmitting ? "hidden" : ""
               }`}
             />
-            {isSubmitting ? "Guardando..." : "Crear Reserva"}
+            {isSubmitting
+              ? "Guardando..."
+              : mode === "update"
+              ? "Actualizar Reserva"
+              : "Crear Reserva"}
           </Button>
         </div>
       </form>
