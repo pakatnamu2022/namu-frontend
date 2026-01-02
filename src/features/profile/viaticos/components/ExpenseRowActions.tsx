@@ -7,6 +7,8 @@ import { useState } from "react";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { validateExpense, rejectExpense } from "../lib/perDiemRequest.actions";
 import { useToast } from "@/hooks/use-toast";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 
 interface ExpenseRowActionsProps {
   expense: ExpenseResource;
@@ -20,6 +22,7 @@ export default function ExpenseRowActions({
   module,
 }: ExpenseRowActionsProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const [rejectionReason, setRejectionReason] = useState("");
   const { toast } = useToast();
 
   const handleValidate = async () => {
@@ -45,13 +48,23 @@ export default function ExpenseRowActions({
   };
 
   const handleReject = async () => {
+    if (!rejectionReason.trim()) {
+      toast({
+        title: "Error",
+        description: "Debes ingresar un motivo de rechazo.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       setIsLoading(true);
-      await rejectExpense(expense.id);
+      await rejectExpense(expense.id, rejectionReason);
       toast({
         title: "Gasto rechazado",
         description: "El gasto ha sido rechazado exitosamente.",
       });
+      setRejectionReason("");
       onActionComplete?.();
     } catch (error: any) {
       toast({
@@ -139,8 +152,22 @@ export default function ExpenseRowActions({
             onConfirm={handleReject}
             variant="destructive"
             icon="danger"
-            confirmDisabled={isLoading}
-          />
+            confirmDisabled={isLoading || !rejectionReason.trim()}
+          >
+            <div className="space-y-2">
+              <Label htmlFor="rejection-reason" className="text-sm font-medium">
+                Motivo del rechazo *
+              </Label>
+              <Textarea
+                id="rejection-reason"
+                placeholder="Explica por qué se rechaza este gasto..."
+                value={rejectionReason}
+                onChange={(e) => setRejectionReason(e.target.value)}
+                className="min-h-[100px]"
+                disabled={isLoading}
+              />
+            </div>
+          </ConfirmationDialog>
         </>
       )}
     </div>

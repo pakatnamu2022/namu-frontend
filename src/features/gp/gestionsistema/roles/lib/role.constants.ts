@@ -6,8 +6,8 @@ const ABSOLUTE_ROUTE = `/gp/gestion-del-sistema/${ROUTE}`;
 
 export const ROLE: ModelComplete<RoleResource> = {
   MODEL: {
-    name: "roles",
-    plural: "roles",
+    name: "Rol",
+    plural: "Roles",
     gender: false,
   },
   ROUTE,
