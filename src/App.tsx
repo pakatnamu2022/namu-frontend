@@ -8,7 +8,7 @@ import {
 import { useAuthStore } from "./features/auth/lib/auth.store";
 import DashboardSkeleton from "./shared/components/DashboardSkeleton";
 import { AuthInitializer } from "./shared/components/AuthInitializer";
-import { FC, JSX, Suspense } from "react";
+import { FC, JSX, Suspense, lazy } from "react";
 import ModulePerformanceEvaluationPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/page";
 import HierarchicalCategoryPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/categorias-jerarquicas/page";
 import AddHierarchicalCategoryPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/categorias-jerarquicas/agregar/page";
@@ -322,6 +322,13 @@ import AddGeneralElectronicDocumentPage from "./app/ap/comercial/electronic-docu
 import PerDiemRequestAPPage from "./app/ap/contabilidad/solicitud-viaticos/page.tsx";
 import PerDiemRequestDetailAdminAPPage from "./app/ap/contabilidad/solicitud-viaticos/[id]/page.tsx";
 import CommercialMastersPage from "./app/ap/configuraciones/maestros-general/maestros-generales/page.tsx";
+
+
+// ============================================================================
+// TP - COMERCIAL
+// ============================================================================
+const ControlTravelPage = lazy(() => import("./app/tp/comercial-tp/control-viajes/page"));
+
 
 // ============================================================================
 // PROTECTED ROUTE COMPONENT
@@ -1593,6 +1600,25 @@ function App() {
                 <AddEquipmentPage />,
                 <UpdateEquipmentPage />
               )}
+            </Route>
+
+             {/* ======================================================== */}
+            {/* TP - COMERCIAL */}
+            {/* ======================================================== */}
+            
+            <Route
+              path="/tp/comercial-tp"
+              element={
+                <Suspense fallback={<LoadingFallback />}>
+                  <TPComercialLayout>
+                    <Outlet/>
+                  </TPComercialLayout>
+                </Suspense>
+
+              }
+            >
+              <Route path="control-viajes" element={<ControlTravelPage />} />
+
             </Route>
 
             {/* ======================================================== */}
