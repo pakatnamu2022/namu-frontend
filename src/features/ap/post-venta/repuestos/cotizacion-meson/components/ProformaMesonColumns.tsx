@@ -1,30 +1,32 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-import { Pencil, Download } from "lucide-react";
+import { Pencil, Download, Settings } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { errorToast, successToast } from "@/core/core.function";
-import { OrderQuotationResource } from "../lib/proforma.interface";
-import { downloadOrderQuotationPdf } from "../lib/proforma.actions";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge";
+import { OrderQuotationResource } from "../../../taller/cotizacion/lib/proforma.interface";
+import { downloadOrderQuotationPdf } from "../../../taller/cotizacion/lib/proforma.actions";
 
-export type OrderQuotationColumns = ColumnDef<OrderQuotationResource>;
+export type OrderQuotationMesonColumns = ColumnDef<OrderQuotationResource>;
 
 interface Props {
   onDelete: (id: number) => void;
   onUpdate: (id: number) => void;
+  onManage: (id: number) => void;
   permissions: {
     canUpdate: boolean;
     canDelete: boolean;
   };
 }
 
-export const orderQuotationColumns = ({
+export const orderQuotationMesonColumns = ({
   onUpdate,
   onDelete,
+  onManage,
   permissions,
-}: Props): OrderQuotationColumns[] => [
+}: Props): OrderQuotationMesonColumns[] => [
   {
     accessorKey: "quotation_number",
     header: "Número de Cotización",
@@ -114,6 +116,16 @@ export const orderQuotationColumns = ({
 
       return (
         <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="icon"
+            className="size-7"
+            onClick={() => onManage(id)}
+            tooltip="Gestionar"
+          >
+            <Settings className="size-5" />
+          </Button>
+
           <Button
             variant="outline"
             size="icon"

@@ -34,9 +34,13 @@ import {
   useProductById,
 } from "@/features/ap/post-venta/gestion-productos/productos/lib/product.hook";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
+import { api } from "@/core/api";
+import { format } from "date-fns";
+import { CURRENCY_TYPE_IDS } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.constants";
 
 interface ProductDetailsSectionProps {
   quotationId: number;
+  quotationDate: string;
   details: OrderQuotationDetailsResource[];
   isLoadingDetails: boolean;
   onRefresh: () => Promise<void>;
@@ -45,12 +49,15 @@ interface ProductDetailsSectionProps {
 
 export default function ProductDetailsSection({
   quotationId,
+  quotationDate,
   details,
   isLoadingDetails,
   onRefresh,
   onDelete,
 }: ProductDetailsSectionProps) {
   const [isSaving, setIsSaving] = useState(false);
+  const [exchangeRate, setExchangeRate] = useState<number | null>(null);
+  const [isLoadingExchangeRate, setIsLoadingExchangeRate] = useState(false);
 
   const form = useForm({
     resolver: zodResolver(productDetailSchema),
@@ -62,8 +69,8 @@ export default function ProductDetailsSection({
       quantity: 1,
       unit_measure: "UND",
       retail_price_external: 0,
-      flete_external: 0,
-      percentage_flete_external: 5,
+      freight_commission: 1.05,
+      exchange_rate: 0,
       unit_price: 0,
       discount: 0,
       total_amount: 0,
@@ -73,8 +80,7 @@ export default function ProductDetailsSection({
 
   const selectedProductId = form.watch("product_id");
   const retailPriceExternal = form.watch("retail_price_external");
-  const fleteExternal = form.watch("flete_external");
-  const percentageFleteExternal = form.watch("percentage_flete_external");
+  const comisionFlete = form.watch("freight_commission");
 
   // Obtener datos del producto seleccionado
   const { data: productData } = useProductById(Number(selectedProductId) || 0);
@@ -87,16 +93,44 @@ export default function ProductDetailsSection({
     }
   }, [productData, form]);
 
+  // Consultar tipo de cambio cuando se monta el componente
+  useEffect(() => {
+    const fetchExchangeRate = async () => {
+      setIsLoadingExchangeRate(true);
+      try {
+        const formattedDate = format(new Date(quotationDate), "yyyy-MM-dd");
+        const response = await api.get(
+          `/gp/mg/exchange-rate/by-date-and-currency?to_currency_id=${CURRENCY_TYPE_IDS.DOLLARS}&date=${formattedDate}`
+        );
+
+        if (response.data?.data?.rate) {
+          const rate = parseFloat(response.data.data.rate);
+          setExchangeRate(rate);
+          form.setValue("exchange_rate", rate);
+        }
+      } catch (error) {
+        console.error("Error al obtener tipo de cambio:", error);
+        setExchangeRate(null);
+        form.setValue("exchange_rate", 0);
+      } finally {
+        setIsLoadingExchangeRate(false);
+      }
+    };
+
+    fetchExchangeRate();
+  }, [quotationDate, form]);
+
   // Calcular automáticamente el precio unitario
-  // Fórmula: unit_price = (retail_price_external + flete_external) * percentage_flete_external / 100 + retail_price_external
+  // Fórmula: unit_price = retail_price_external * freight_commission * tipo_cambio (redondeado a 2 decimales)
   useEffect(() => {
     const retail = retailPriceExternal || 0;
-    const flete = fleteExternal || 0;
-    const percentage = percentageFleteExternal || 5;
+    const comision = comisionFlete || 1.05;
+    const tipoCambio = exchangeRate || 1;
 
-    const calculatedUnitPrice = ((retail + flete) * percentage) / 100 + retail;
+    const calculatedUnitPrice =
+      Math.round(retail * comision * tipoCambio * 100) / 100;
     form.setValue("unit_price", calculatedUnitPrice);
-  }, [retailPriceExternal, fleteExternal, percentageFleteExternal, form]);
+  }, [retailPriceExternal, comisionFlete, exchangeRate, form]);
 
   const onSubmit = async (data: ProductDetailSchema) => {
     try {
@@ -121,8 +155,8 @@ export default function ProductDetailsSection({
         quantity: 1,
         unit_measure: "UND",
         retail_price_external: 0,
-        flete_external: 0,
-        percentage_flete_external: 5,
+        freight_commission: 1.05,
+        exchange_rate: exchangeRate || 0,
         unit_price: 0,
         discount: 0,
         total_amount: 0,
@@ -153,64 +187,56 @@ export default function ProductDetailsSection({
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          {/* Mensaje de margen */}
-          <div className="bg-blue-50 border border-blue-200 rounded-md px-3 py-2">
-            <p className="text-xs text-blue-700">
-              <span className="font-semibold">Margen aplicado:</span>{" "}
-              {percentageFleteExternal || 5}%
+          {/* Mensaje de tipo de cambio y comisión */}
+          <div className="bg-blue-50 border border-blue-200 rounded-md px-3 py-2 space-y-1">
+            <p className="text-xs text-primary">
+              <span className="font-semibold">Comisión de flete:</span>{" "}
+              {comisionFlete || 1.05}
             </p>
+            {isLoadingExchangeRate ? (
+              <p className="text-xs text-primary">
+                <span className="font-semibold">Tipo de cambio:</span>{" "}
+                Cargando...
+              </p>
+            ) : exchangeRate ? (
+              <p className="text-xs text-primary">
+                <span className="font-semibold">Tipo de cambio:</span> S/.{" "}
+                {exchangeRate.toFixed(4)}
+              </p>
+            ) : (
+              <p className="text-xs text-red-600">
+                <span className="font-semibold">Tipo de cambio:</span> No
+                disponible
+              </p>
+            )}
           </div>
 
-          {/* Producto selector - ancho completo */}
-          <FormSelectAsync
-            name="product_id"
-            label="Repuesto"
-            placeholder="Seleccione un repuesto"
-            control={form.control}
-            useQueryHook={useProduct}
-            mapOptionFn={(product) => ({
-              label: product.name,
-              value: product.id.toString(),
-            })}
-            perPage={10}
-            debounceMs={500}
-          />
+          {/* Primera fila: Repuesto y Precio Externo */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+            <div className="lg:col-span-2">
+              <FormSelectAsync
+                name="product_id"
+                label="Repuesto"
+                placeholder="Seleccione un repuesto"
+                control={form.control}
+                useQueryHook={useProduct}
+                mapOptionFn={(product) => ({
+                  label: product.name,
+                  value: product.id.toString(),
+                })}
+                perPage={10}
+                debounceMs={500}
+              />
+            </div>
 
-          {/* Primera fila: Precio Externo, Flete */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
+            <div className="lg:col-span-1">
               <FormField
                 control={form.control}
                 name="retail_price_external"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-xs">
-                      Precio Externo (S/.)
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        {...field}
-                        onChange={(e) => field.onChange(Number(e.target.value))}
-                        className="h-9"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <div>
-              <FormField
-                control={form.control}
-                name="flete_external"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-xs">
-                      Flete Externo (S/.)
+                      Precio Externo ($)
                     </FormLabel>
                     <FormControl>
                       <Input

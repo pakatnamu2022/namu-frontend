@@ -123,11 +123,6 @@ export const VALIDATABLE_DOCUMENT = {
   },
 };
 
-export const AREA_ID = {
-  COMERCIAL: "826",
-  POSTVENTA: "825",
-};
-
 export const TIPO_LEADS = {
   VISITA: "VISITA",
   LEADS: "LEADS",

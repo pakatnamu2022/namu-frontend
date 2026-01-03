@@ -17,22 +17,22 @@ import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { useNavigate } from "react-router-dom";
-import { ORDER_QUOTATION } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.constants";
-import OrderQuotationActions from "@/features/ap/post-venta/taller/cotizacion/components/ProformaActions";
+import { ORDER_QUOTATION_MESON } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.constants";
 import { orderQuotationColumns } from "@/features/ap/post-venta/taller/cotizacion/components/ProformaColumns";
-import OrderQuotationTable from "@/features/ap/post-venta/taller/cotizacion/components/ProformaTable";
-import OrderQuotationOptions from "@/features/ap/post-venta/taller/cotizacion/components/ProformaOptions";
 import { deleteOrderQuotation } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.actions";
 import { useOrderQuotations } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.hook";
 import { AREA_PM_ID } from "@/features/ap/lib/ap.constants";
+import OrderQuotationMesonTable from "@/features/ap/post-venta/repuestos/cotizacion-meson/components/ProformaMesonTable";
+import OrderQuotationMesonActions from "@/features/ap/post-venta/repuestos/cotizacion-meson/components/ProformaMesonActions";
+import OrderQuotationMesonOptions from "@/features/ap/post-venta/repuestos/cotizacion-meson/components/ProformaMesonOptions";
 
-export default function OrderQuotationPage() {
+export default function OrderQuotationMesonPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
-  const { MODEL, ROUTE, ROUTE_UPDATE, ABSOLUTE_ROUTE } = ORDER_QUOTATION;
+  const { MODEL, ROUTE, ROUTE_UPDATE } = ORDER_QUOTATION_MESON;
   const permissions = useModulePermissions(ROUTE);
   const router = useNavigate();
   const currentDate = new Date();
@@ -62,7 +62,7 @@ export default function OrderQuotationPage() {
       dateFrom && dateTo
         ? [formatDate(dateFrom), formatDate(dateTo)]
         : undefined,
-    area_id: AREA_PM_ID.TALLER,
+    area_id: AREA_PM_ID.MESON,
   });
 
   const handleDelete = async () => {
@@ -83,10 +83,6 @@ export default function OrderQuotationPage() {
     router(`${ROUTE_UPDATE}/${id}`);
   };
 
-  const handleManage = (id: number) => {
-    router(`${ABSOLUTE_ROUTE}/gestionar/${id}`);
-  };
-
   if (isLoadingModule) return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
   if (!currentView) notFound();
@@ -99,20 +95,19 @@ export default function OrderQuotationPage() {
           subtitle={currentView.descripcion}
           icon={currentView.icon}
         />
-        <OrderQuotationActions permissions={permissions} />
+        <OrderQuotationMesonActions permissions={permissions} />
       </HeaderTableWrapper>
 
-      <OrderQuotationTable
+      <OrderQuotationMesonTable
         isLoading={isLoading}
         columns={orderQuotationColumns({
           onDelete: setDeleteId,
           onUpdate: handleUpdate,
-          onManage: handleManage,
           permissions,
         })}
         data={data?.data || []}
       >
-        <OrderQuotationOptions
+        <OrderQuotationMesonOptions
           search={search}
           setSearch={setSearch}
           dateFrom={dateFrom}
@@ -120,7 +115,7 @@ export default function OrderQuotationPage() {
           dateTo={dateTo}
           setDateTo={setDateTo}
         />
-      </OrderQuotationTable>
+      </OrderQuotationMesonTable>
 
       <DataTablePagination
         page={page}

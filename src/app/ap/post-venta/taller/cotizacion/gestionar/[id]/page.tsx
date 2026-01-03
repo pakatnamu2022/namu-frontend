@@ -282,6 +282,7 @@ export default function ManageQuotationPage() {
         isLoadingDetails={isLoadingDetails}
         onRefresh={loadDetails}
         onDelete={handleDelete}
+        quotationDate={quotation.quotation_date}
       />
     </div>
   );
