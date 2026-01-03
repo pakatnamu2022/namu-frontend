@@ -272,7 +272,6 @@ export function CreditNoteForm({
                 placeholder="Seleccione fecha"
                 description="Seleccione la fecha de emisión de la nota de crédito"
                 disabledRange={{
-                  before: new Date(),
                   after: new Date(),
                 }}
               />
