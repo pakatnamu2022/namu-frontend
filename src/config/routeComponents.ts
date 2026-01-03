@@ -1,4 +1,4 @@
-import { ComponentType } from 'react';
+import {lazy, ComponentType } from 'react';
 
 /**
  * Diccionario de componentes de rutas dinámicas
@@ -189,6 +189,19 @@ export const routeComponents: Record<string, RouteComponent> = {
   // 'ap/configuraciones/vehiculos/tipos-pedido-proveedor': lazy(() => import('@/app/ap/configuraciones/vehiculos/tipos-pedido-proveedor/page')),
   // 'ap/configuraciones/vehiculos/tipos-producto': lazy(() => import('@/app/ap/configuraciones/vehiculos/tipos-producto/page')),
   // 'ap/configuraciones/vehiculos/tipos-vehiculo': lazy(() => import('@/app/ap/configuraciones/vehiculos/tipos-vehiculo/page')),
+   
+  
+  // ======================================================
+  // TP (Transportes Pakatnamú)
+  // ======================================================
+  
+  "tp/comercial-tp/control-viajes" : lazy(
+    
+    () => import("@/app/tp/comercial-tp/control-viajes/page")
+
+  ),
+
+
 };
 
 /**
