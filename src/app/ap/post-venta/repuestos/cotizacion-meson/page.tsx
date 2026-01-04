@@ -18,13 +18,13 @@ import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { useNavigate } from "react-router-dom";
 import { ORDER_QUOTATION_MESON } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.constants";
-import { orderQuotationColumns } from "@/features/ap/post-venta/taller/cotizacion/components/ProformaColumns";
 import { deleteOrderQuotation } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.actions";
 import { useOrderQuotations } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.hook";
 import { AREA_PM_ID } from "@/features/ap/lib/ap.constants";
 import OrderQuotationMesonTable from "@/features/ap/post-venta/repuestos/cotizacion-meson/components/ProformaMesonTable";
 import OrderQuotationMesonActions from "@/features/ap/post-venta/repuestos/cotizacion-meson/components/ProformaMesonActions";
 import OrderQuotationMesonOptions from "@/features/ap/post-venta/repuestos/cotizacion-meson/components/ProformaMesonOptions";
+import { orderQuotationMesonColumns } from "@/features/ap/post-venta/repuestos/cotizacion-meson/components/ProformaMesonColumns";
 
 export default function OrderQuotationMesonPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -32,7 +32,7 @@ export default function OrderQuotationMesonPage() {
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
-  const { MODEL, ROUTE, ROUTE_UPDATE } = ORDER_QUOTATION_MESON;
+  const { MODEL, ROUTE, ROUTE_UPDATE, ABSOLUTE_ROUTE } = ORDER_QUOTATION_MESON;
   const permissions = useModulePermissions(ROUTE);
   const router = useNavigate();
   const currentDate = new Date();
@@ -83,6 +83,10 @@ export default function OrderQuotationMesonPage() {
     router(`${ROUTE_UPDATE}/${id}`);
   };
 
+  const handleBilling = (id: number) => {
+    router(`${ABSOLUTE_ROUTE}/facturar/${id}`);
+  };
+
   if (isLoadingModule) return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
   if (!currentView) notFound();
@@ -100,9 +104,10 @@ export default function OrderQuotationMesonPage() {
 
       <OrderQuotationMesonTable
         isLoading={isLoading}
-        columns={orderQuotationColumns({
+        columns={orderQuotationMesonColumns({
           onDelete: setDeleteId,
           onUpdate: handleUpdate,
+          onBilling: handleBilling,
           permissions,
         })}
         data={data?.data || []}

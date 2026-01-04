@@ -128,7 +128,7 @@ export default function ManageQuotationPage() {
       {/* Header */}
       <div className="flex items-center gap-4">
         <Button
-          variant="ghost"
+          variant="outline"
           size="icon"
           onClick={() => navigate(ORDER_QUOTATION.ABSOLUTE_ROUTE)}
         >

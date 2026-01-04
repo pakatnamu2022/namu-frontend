@@ -1,6 +1,6 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-import { Pencil, Download } from "lucide-react";
+import { Pencil, Download, Settings } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { errorToast, successToast } from "@/core/core.function";
 import { OrderQuotationResource } from "../lib/proforma.interface";
@@ -14,6 +14,7 @@ export type OrderQuotationColumns = ColumnDef<OrderQuotationResource>;
 interface Props {
   onDelete: (id: number) => void;
   onUpdate: (id: number) => void;
+  onManage: (id: number) => void;
   permissions: {
     canUpdate: boolean;
     canDelete: boolean;
@@ -22,6 +23,7 @@ interface Props {
 
 export const orderQuotationColumns = ({
   onUpdate,
+  onManage,
   onDelete,
   permissions,
 }: Props): OrderQuotationColumns[] => [
@@ -114,6 +116,16 @@ export const orderQuotationColumns = ({
 
       return (
         <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="icon"
+            className="size-7"
+            onClick={() => onManage(id)}
+            tooltip="Gestionar"
+          >
+            <Settings className="size-5" />
+          </Button>
+
           <Button
             variant="outline"
             size="icon"

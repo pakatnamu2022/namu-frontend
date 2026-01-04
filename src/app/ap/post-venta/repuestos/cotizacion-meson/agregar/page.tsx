@@ -6,7 +6,6 @@ import TitleComponent from "@/shared/components/TitleComponent";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { useNavigate } from "react-router-dom";
 import { ORDER_QUOTATION_MESON } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.constants";
-import { Card } from "@/components/ui/card";
 import ProformaMesonForm from "@/features/ap/post-venta/repuestos/cotizacion-meson/components/ProformaMesonForm";
 import { QuotationMesonWithProductsSchema } from "@/features/ap/post-venta/repuestos/cotizacion-meson/lib/quotationMeson.schema";
 import { storeOrderQuotationWithProducts } from "@/features/ap/post-venta/repuestos/cotizacion-meson/lib/quotationMeson.actions";
@@ -53,14 +52,12 @@ export default function AddOrderQuotationMesonPage() {
         subtitle={`Crear una nueva ${MODEL.name.toLowerCase()} con repuestos`}
         icon={currentView.icon}
       />
-      <Card className="p-6">
-        <ProformaMesonForm
-          onSubmit={handleSubmit}
-          isSubmitting={isSubmitting}
-          mode="create"
-          onCancel={handleCancel}
-        />
-      </Card>
+      <ProformaMesonForm
+        onSubmit={handleSubmit}
+        isSubmitting={isSubmitting}
+        mode="create"
+        onCancel={handleCancel}
+      />
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-import { Pencil, Download, Settings } from "lucide-react";
+import { Pencil, Download, Receipt } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { errorToast, successToast } from "@/core/core.function";
 import { format } from "date-fns";
@@ -14,7 +14,7 @@ export type OrderQuotationMesonColumns = ColumnDef<OrderQuotationResource>;
 interface Props {
   onDelete: (id: number) => void;
   onUpdate: (id: number) => void;
-  onManage: (id: number) => void;
+  onBilling: (id: number) => void;
   permissions: {
     canUpdate: boolean;
     canDelete: boolean;
@@ -24,7 +24,7 @@ interface Props {
 export const orderQuotationMesonColumns = ({
   onUpdate,
   onDelete,
-  onManage,
+  onBilling,
   permissions,
 }: Props): OrderQuotationMesonColumns[] => [
   {
@@ -120,21 +120,23 @@ export const orderQuotationMesonColumns = ({
             variant="outline"
             size="icon"
             className="size-7"
-            onClick={() => onManage(id)}
-            tooltip="Gestionar"
-          >
-            <Settings className="size-5" />
-          </Button>
-
-          <Button
-            variant="outline"
-            size="icon"
-            className="size-7"
             onClick={handleDownloadPdf}
             tooltip="PDF"
           >
             <Download className="size-5" />
           </Button>
+
+          {
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-7"
+              tooltip="Facturar"
+              onClick={() => onBilling(id)}
+            >
+              <Receipt className="size-5" />
+            </Button>
+          }
 
           {permissions.canUpdate && (
             <Button
