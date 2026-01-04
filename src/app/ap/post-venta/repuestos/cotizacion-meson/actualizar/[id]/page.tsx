@@ -6,7 +6,6 @@ import TitleComponent from "@/shared/components/TitleComponent";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { useNavigate, useParams } from "react-router-dom";
 import { ORDER_QUOTATION_MESON } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.constants";
-import { Card } from "@/components/ui/card";
 import ProformaMesonForm from "@/features/ap/post-venta/repuestos/cotizacion-meson/components/ProformaMesonForm";
 import { QuotationMesonWithProductsSchema } from "@/features/ap/post-venta/repuestos/cotizacion-meson/lib/quotationMeson.schema";
 import { updateOrderQuotationWithProducts } from "@/features/ap/post-venta/repuestos/cotizacion-meson/lib/quotationMeson.actions";
@@ -18,13 +17,15 @@ import {
 } from "@/core/core.function";
 import { useState } from "react";
 import { useOrderQuotationById } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.hook";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function UpdateOrderQuotationMesonPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
-  const { MODEL, ROUTE, ABSOLUTE_ROUTE } = ORDER_QUOTATION_MESON;
+  const { MODEL, ROUTE, ABSOLUTE_ROUTE, QUERY_KEY } = ORDER_QUOTATION_MESON;
   const router = useNavigate();
   const { id } = useParams();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const queryClient = useQueryClient();
 
   const { data: quotation, isLoading: isLoadingQuotation } =
     useOrderQuotationById(Number(id));
@@ -34,6 +35,11 @@ export default function UpdateOrderQuotationMesonPage() {
       setIsSubmitting(true);
 
       await updateOrderQuotationWithProducts(Number(id), data);
+
+      // Invalidar la caché para refrescar los datos
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY, Number(id)] });
+
       successToast(SUCCESS_MESSAGE(MODEL, "update"));
       router(ABSOLUTE_ROUTE);
     } catch (error: any) {
@@ -70,15 +76,15 @@ export default function UpdateOrderQuotationMesonPage() {
         .map((detail) => ({
           product_id: detail.product_id?.toString() || "",
           description: detail.description || "",
-          quantity: detail.quantity || 0,
+          quantity: Number(detail.quantity) || 0,
           unit_measure: detail.unit_measure || "",
-          unit_price: detail.unit_price || 0,
-          discount: detail.discount || 0,
-          total_amount: detail.total_amount || 0,
+          unit_price: Number(detail.unit_price) || 0,
+          discount: Number(detail.discount) || 0,
+          total_amount: Number(detail.total_amount) || 0,
           observations: detail.observations || "",
-          retail_price_external: detail.retail_price_external || 0,
-          exchange_rate: detail.exchange_rate || 0,
-          freight_commission: detail.freight_commission || 1.05,
+          retail_price_external: Number(detail.retail_price_external) || 0,
+          exchange_rate: Number(detail.exchange_rate) || 0,
+          freight_commission: Number(detail.freight_commission) || 1.05,
         })) || [],
   };
 
@@ -90,15 +96,13 @@ export default function UpdateOrderQuotationMesonPage() {
         icon={currentView.icon}
       />
 
-      <Card className="p-6">
-        <ProformaMesonForm
-          defaultValues={defaultValues}
-          onSubmit={handleSubmit}
-          isSubmitting={isSubmitting}
-          mode="update"
-          onCancel={handleCancel}
-        />
-      </Card>
+      <ProformaMesonForm
+        defaultValues={defaultValues}
+        onSubmit={handleSubmit}
+        isSubmitting={isSubmitting}
+        mode="update"
+        onCancel={handleCancel}
+      />
     </div>
   );
 }

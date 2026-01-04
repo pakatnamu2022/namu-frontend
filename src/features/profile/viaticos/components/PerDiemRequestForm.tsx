@@ -69,8 +69,6 @@ export const PerDiemRequestForm = ({
     });
   const { data: sedes = [], isLoading: isLoadingSedes } = useAllSedes();
 
-  console.log("sedes", sedes);
-
   // Observar el valor de company_id
   const companyId = form.watch("company_id");
 
