@@ -20,7 +20,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
 import { FormSelect } from "@/shared/components/FormSelect";
-import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
+import { useAllSedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import {
   EMPRESA_AP,
   TIPO_LEADS,
@@ -79,7 +79,7 @@ export const StoreVisitsForm = ({
   const selectedBrandId = form.watch("vehicle_brand_id");
 
   // Consultas para selects
-  const { data: sedes = [], isLoading: isLoadingSedes } = useMySedes({
+  const { data: sedes = [], isLoading: isLoadingSedes } = useAllSedes({
     empresa_id: EMPRESA_AP.id,
   });
   const { data: documentTypes = [], isLoading: isLoadingTypesDocument } =
