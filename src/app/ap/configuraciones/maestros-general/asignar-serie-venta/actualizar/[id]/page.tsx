@@ -67,6 +67,7 @@ export default function UpdateAssignSalesSeriesPage() {
       type_operation_id: String(data.type_operation_id),
       sede_id: String(data.sede_id),
       type: data.type,
+      is_advance: Boolean(data.is_advance),
     };
   }
 

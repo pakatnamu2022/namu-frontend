@@ -54,6 +54,21 @@ export const assignSalesSeriesColumns = ({
     header: "Tipo",
   },
   {
+    accessorKey: "is_advance",
+    header: "¿Es para Anticipo?",
+    cell: ({ getValue }) => {
+      const value = getValue() as boolean;
+      return (
+        <Badge
+          variant={value ? "default" : "secondary"}
+          className="capitalize w-8 flex items-center justify-center"
+        >
+          {value ? "Si" : "No"}
+        </Badge>
+      );
+    },
+  },
+  {
     accessorKey: "status",
     header: "Estado",
     cell: ({ getValue }) => {

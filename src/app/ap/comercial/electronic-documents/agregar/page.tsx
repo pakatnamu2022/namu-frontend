@@ -5,6 +5,7 @@ import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMemo } from "react";
 import {
   ERROR_MESSAGE,
   errorToast,
@@ -27,36 +28,88 @@ export default function AddElectronicDocumentPage() {
   const router = useNavigate();
   const { currentView, checkRouteExists, isLoadingModule } = useCurrentModule();
 
-  // Fetch all SunatConcepts
-  const { data: documentTypes, isLoading: isLoadingDocTypes } =
-    useAllSunatConcepts({ type: [SUNAT_CONCEPTS_TYPE.BILLING_DOCUMENT_TYPE] });
-
-  const { data: transactionTypes, isLoading: isLoadingTransTypes } =
+  // Fetch all SunatConcepts in a single query
+  const { data: sunatConcepts = [], isLoading: isLoadingSunatConcepts } =
     useAllSunatConcepts({
-      type: [SUNAT_CONCEPTS_TYPE.BILLING_TRANSACTION_TYPE],
+      type: [
+        SUNAT_CONCEPTS_TYPE.BILLING_DOCUMENT_TYPE,
+        SUNAT_CONCEPTS_TYPE.BILLING_TRANSACTION_TYPE,
+        SUNAT_CONCEPTS_TYPE.TYPE_DOCUMENT,
+        SUNAT_CONCEPTS_TYPE.BILLING_CURRENCY,
+        SUNAT_CONCEPTS_TYPE.BILLING_IGV_TYPE,
+        SUNAT_CONCEPTS_TYPE.BILLING_DETRACTION_TYPE,
+        SUNAT_CONCEPTS_TYPE.BILLING_CREDIT_NOTE_TYPE,
+        SUNAT_CONCEPTS_TYPE.BILLING_DEBIT_NOTE_TYPE,
+      ],
     });
 
-  const { data: identityDocumentTypes, isLoading: isLoadingIdTypes } =
-    useAllSunatConcepts({ type: [SUNAT_CONCEPTS_TYPE.TYPE_DOCUMENT] });
+  // Filter concepts by type locally
+  const documentTypes = useMemo(
+    () =>
+      sunatConcepts.filter(
+        (concept) => concept.type === SUNAT_CONCEPTS_TYPE.BILLING_DOCUMENT_TYPE
+      ),
+    [sunatConcepts]
+  );
 
-  const { data: currencyTypes, isLoading: isLoadingCurrencies } =
-    useAllSunatConcepts({ type: [SUNAT_CONCEPTS_TYPE.BILLING_CURRENCY] });
+  const transactionTypes = useMemo(
+    () =>
+      sunatConcepts.filter(
+        (concept) =>
+          concept.type === SUNAT_CONCEPTS_TYPE.BILLING_TRANSACTION_TYPE
+      ),
+    [sunatConcepts]
+  );
 
-  const { data: igvTypes, isLoading: isLoadingIgvTypes } = useAllSunatConcepts({
-    type: [SUNAT_CONCEPTS_TYPE.BILLING_IGV_TYPE],
-  });
+  const identityDocumentTypes = useMemo(
+    () =>
+      sunatConcepts.filter(
+        (concept) => concept.type === SUNAT_CONCEPTS_TYPE.TYPE_DOCUMENT
+      ),
+    [sunatConcepts]
+  );
 
-  const { data: detractionTypes } = useAllSunatConcepts({
-    type: [SUNAT_CONCEPTS_TYPE.BILLING_DETRACTION_TYPE],
-  });
+  const currencyTypes = useMemo(
+    () =>
+      sunatConcepts.filter(
+        (concept) => concept.type === SUNAT_CONCEPTS_TYPE.BILLING_CURRENCY
+      ),
+    [sunatConcepts]
+  );
 
-  const { data: creditNoteTypes } = useAllSunatConcepts({
-    type: [SUNAT_CONCEPTS_TYPE.BILLING_CREDIT_NOTE_TYPE],
-  });
+  const igvTypes = useMemo(
+    () =>
+      sunatConcepts.filter(
+        (concept) => concept.type === SUNAT_CONCEPTS_TYPE.BILLING_IGV_TYPE
+      ),
+    [sunatConcepts]
+  );
 
-  const { data: debitNoteTypes } = useAllSunatConcepts({
-    type: [SUNAT_CONCEPTS_TYPE.BILLING_DEBIT_NOTE_TYPE],
-  });
+  const detractionTypes = useMemo(
+    () =>
+      sunatConcepts.filter(
+        (concept) =>
+          concept.type === SUNAT_CONCEPTS_TYPE.BILLING_DETRACTION_TYPE
+      ),
+    [sunatConcepts]
+  );
+
+  const creditNoteTypes = useMemo(
+    () =>
+      sunatConcepts.filter(
+        (concept) =>
+          concept.type === SUNAT_CONCEPTS_TYPE.BILLING_CREDIT_NOTE_TYPE
+      ),
+    [sunatConcepts]
+  );
+
+  const debitNoteTypes = useMemo(
+    () =>
+      sunatConcepts.filter(
+        (concept) => concept.type === SUNAT_CONCEPTS_TYPE.BILLING_DEBIT_NOTE_TYPE
+      ),
+    [sunatConcepts]
+  );
 
   const form = useForm<ElectronicDocumentSchema>({
     resolver: zodResolver(ElectronicDocumentSchema as any),
@@ -104,14 +157,7 @@ export default function AddElectronicDocumentPage() {
   if (!checkRouteExists(ROUTE)) notFound();
   if (!currentView) notFound();
 
-  const isLoadingData =
-    isLoadingDocTypes ||
-    isLoadingTransTypes ||
-    isLoadingIdTypes ||
-    isLoadingCurrencies ||
-    isLoadingIgvTypes;
-
-  if (isLoadingData) {
+  if (isLoadingSunatConcepts) {
     return <FormSkeleton />;
   }
 

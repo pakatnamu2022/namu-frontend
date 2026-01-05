@@ -43,7 +43,7 @@ export default function BillOrderQuotationPage() {
       serie: "",
       numero: "",
       sunat_concept_transaction_type_id: "",
-      client_id: "",
+      client_id: quotation?.vehicle?.owner?.id?.toString() || "",
       fecha_de_emision: new Date().toISOString().split("T")[0],
       sunat_concept_currency_id: "",
       tipo_de_cambio: 1,
@@ -76,7 +76,27 @@ export default function BillOrderQuotationPage() {
   });
 
   const onSubmit = (data: ElectronicDocumentSchemaType) => {
-    mutate(data);
+    // Convertir fecha_de_emision al formato correcto YYYY-MM-DD
+    let fechaFormateada = data.fecha_de_emision;
+    const fechaValue = data.fecha_de_emision as any;
+
+    if (fechaValue instanceof Date) {
+      // Si es un objeto Date, convertir a ISO y extraer la fecha
+      fechaFormateada = fechaValue.toISOString().split("T")[0];
+    } else if (typeof fechaValue === "string") {
+      // Si es un string, intentar parsearlo y convertirlo
+      const fecha = new Date(fechaValue);
+      if (!isNaN(fecha.getTime())) {
+        fechaFormateada = fecha.toISOString().split("T")[0];
+      }
+    }
+
+    const formattedData = {
+      ...data,
+      fecha_de_emision: fechaFormateada,
+    };
+
+    mutate(formattedData);
   };
 
   const handleGoBack = () => {
