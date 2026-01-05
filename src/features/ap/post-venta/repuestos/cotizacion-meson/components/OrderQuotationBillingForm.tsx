@@ -58,7 +58,7 @@ export function OrderQuotationBillingForm({
     concept_type: "tipo_documento_identidad",
   });
   const { data: currencyTypes = [] } = useAllSunatConcepts({
-    concept_type: "BILLING_CURRENCY",
+    type: ["BILLING_CURRENCY"],
   });
   const { data: igvTypes = [] } = useAllSunatConcepts({
     concept_type: "tipo_afectacion_igv",

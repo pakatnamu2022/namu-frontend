@@ -35,6 +35,7 @@ export const quotationMesonWithProductsSchemaCreate = z.object({
   area_id: requiredStringId("Área es requerida"),
   vehicle_id: requiredStringId("Vehículo es requerido"),
   sede_id: requiredStringId("Sede es requerida"),
+  currency_id: requiredStringId("Moneda es requerida"),
   quotation_date: z
     .union([
       z.literal(""),
