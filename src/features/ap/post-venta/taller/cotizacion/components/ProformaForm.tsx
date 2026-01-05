@@ -26,6 +26,7 @@ import { Card } from "@/components/ui/card";
 import { useState, useEffect } from "react";
 import { EMPRESA_AP } from "@/core/core.constants";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
+import { AREA_PM_ID } from "@/features/ap/lib/ap.constants";
 
 interface OrderQuotationFormProps {
   defaultValues: Partial<OrderQuotationSchema>;
@@ -52,6 +53,7 @@ export default function OrderQuotationForm({
     ),
     defaultValues: {
       ...defaultValues,
+      area_id: AREA_PM_ID.TALLER,
     },
     mode: "onChange",
   });

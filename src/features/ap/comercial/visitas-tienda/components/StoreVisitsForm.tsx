@@ -22,7 +22,6 @@ import { Loader } from "lucide-react";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { useAllSedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import {
-  AREA_ID,
   EMPRESA_AP,
   TIPO_LEADS,
   VALIDATABLE_DOCUMENT,
@@ -42,6 +41,7 @@ import {
   useAllWorkersBySedeAndBrand,
 } from "@/features/ap/configuraciones/ventas/asignar-marca/lib/assignBrandConsultant.hook";
 import { STORE_VISITS } from "../lib/storeVisits.constants";
+import { AREA_CM_ID } from "@/features/ap/lib/ap.constants";
 
 interface StoreVisitsFormProps {
   defaultValues: Partial<StoreVisitsSchema>;
@@ -63,7 +63,7 @@ export const StoreVisitsForm = ({
     ),
     defaultValues: {
       ...defaultValues,
-      area_id: AREA_ID.COMERCIAL,
+      area_id: AREA_CM_ID.COMERCIAL,
       type: TIPO_LEADS.VISITA,
       campaign: TIPO_LEADS.VISITA,
     },

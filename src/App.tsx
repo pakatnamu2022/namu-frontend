@@ -240,6 +240,10 @@ import AddReceptionProductPage from "./app/ap/post-venta/gestion-de-compras/orde
 import ApprovedAccesoriesPage from "./app/ap/post-venta/repuestos/accesorios-homologados/page.tsx";
 import AddApprovedAccesoriesPage from "./app/ap/post-venta/repuestos/accesorios-homologados/agregar/page.tsx";
 import UpdateApprovedAccesoriesPage from "./app/ap/post-venta/repuestos/accesorios-homologados/actualizar/[id]/page.tsx";
+import OrderQuotationMesonPage from "./app/ap/post-venta/repuestos/cotizacion-meson/page.tsx";
+import AddOrderQuotationMesonPage from "./app/ap/post-venta/repuestos/cotizacion-meson/agregar/page.tsx";
+import UpdateOrderQuotationMesonPage from "./app/ap/post-venta/repuestos/cotizacion-meson/actualizar/[id]/page.tsx";
+import BillOrderQuotationMesonPage from "./app/ap/post-venta/repuestos/cotizacion-meson/facturar/[id]/page.tsx";
 import CardWashPage from "./app/ap/post-venta/taller/lavado-vehiculo/page.tsx";
 import AppointmentPlanningPage from "./app/ap/post-venta/taller/citas/page.tsx";
 import AddAppointmentPlanningPage from "./app/ap/post-venta/taller/citas/agregar/page.tsx";
@@ -1179,6 +1183,22 @@ function App() {
               <Route
                 path="repuestos/accesorios-homologados/actualizar/:id"
                 element={<UpdateApprovedAccesoriesPage />}
+              />
+              <Route
+                path="repuestos/cotizacion-meson"
+                element={<OrderQuotationMesonPage />}
+              />
+              <Route
+                path="repuestos/cotizacion-meson/agregar"
+                element={<AddOrderQuotationMesonPage />}
+              />
+              <Route
+                path="repuestos/cotizacion-meson/actualizar/:id"
+                element={<UpdateOrderQuotationMesonPage />}
+              />
+              <Route
+                path="repuestos/cotizacion-meson/facturar/:id"
+                element={<BillOrderQuotationMesonPage />}
               />
               {/* Taller */}
               <Route path="taller/lavado-vehiculo" element={<CardWashPage />} />
