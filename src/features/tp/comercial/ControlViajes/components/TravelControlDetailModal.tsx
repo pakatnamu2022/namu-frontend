@@ -122,8 +122,7 @@ export function TravelControlDetailModal({
         operating_system: deviceInfo.operatingSystem,
         browser: deviceInfo.browser,
         device_model: deviceInfo.deviceModel,
-        notes: `${photoType === 'start' ? 'Inicio': 'Fin'} de ruta capturado desde la app`,
-        guardarBase64: true 
+        notes: `${photoType === 'start' ? 'Inicio': 'Fin'} de ruta capturado desde la app`
       };
 
       const result = await uploadPhoto(
