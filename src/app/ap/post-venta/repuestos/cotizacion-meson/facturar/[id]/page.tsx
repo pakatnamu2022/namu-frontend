@@ -34,7 +34,7 @@ export default function BillOrderQuotationPage() {
     useOrderQuotationById(quotationId);
 
   const form = useForm<ElectronicDocumentSchemaType>({
-    resolver: zodResolver(ElectronicDocumentSchema),
+    resolver: zodResolver(ElectronicDocumentSchema) as any,
     defaultValues: {
       origin_module: "posventa",
       origin_entity_type: "order_quotation",

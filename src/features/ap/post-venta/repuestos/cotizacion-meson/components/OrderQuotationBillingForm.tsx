@@ -20,11 +20,11 @@ import {
 import { OrderQuotationDocumentInfoSection } from "./OrderQuotationDocumentInfoSection";
 import { ItemsSection } from "@/features/ap/facturacion/electronic-documents/components/sections/ItemsSection";
 import { AdditionalConfigSection } from "@/features/ap/facturacion/electronic-documents/components/sections/AdditionalConfigSection";
-import { SummarySection } from "@/features/ap/facturacion/electronic-documents/components/sections/SummarySection";
 import { useAllCustomers } from "@/features/ap/comercial/clientes/lib/customers.hook";
 import { useAllApBank } from "@/features/ap/configuraciones/maestros-general/chequeras/lib/apBank.hook";
 import { OrderQuotationResource } from "../../../taller/cotizacion/lib/proforma.interface";
-import { QuotationFinancialInfo } from "@/features/ap/facturacion/electronic-documents/components/sections/QuotationFinancialInfo";
+import { OrderQuotationFinancialInfo } from "./OrderQuotationFinancialInfo";
+import { OrderQuotationSummarySection } from "./OrderQuotationSummarySection";
 import { useAllSunatConcepts } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.hook";
 
 interface OrderQuotationBillingFormProps {
@@ -58,7 +58,7 @@ export function OrderQuotationBillingForm({
     concept_type: "tipo_documento_identidad",
   });
   const { data: currencyTypes = [] } = useAllSunatConcepts({
-    concept_type: "tipo_moneda",
+    concept_type: "BILLING_CURRENCY",
   });
   const { data: igvTypes = [] } = useAllSunatConcepts({
     concept_type: "tipo_afectacion_igv",
@@ -172,7 +172,7 @@ export function OrderQuotationBillingForm({
         const quotationItems: ElectronicDocumentItemSchema[] =
           quotation.details.map((detail) => {
             const cantidad = detail.quantity || 1;
-            const precio_con_igv = detail.total_price || 0;
+            const precio_con_igv = detail.total_amount || 0;
 
             // Calcular precio unitario con IGV
             const precio_unitario = precio_con_igv / cantidad;
@@ -342,13 +342,6 @@ export function OrderQuotationBillingForm({
       ? "$"
       : "";
 
-  // Crear objeto de cotización simulada compatible con QuotationFinancialInfo
-  const quotationForFinancialInfo = {
-    ...quotation,
-    doc_sale_price: quotation.total_amount,
-    doc_type_currency_id: "PEN", // Mock data
-  };
-
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -357,8 +350,8 @@ export function OrderQuotationBillingForm({
           <div className="lg:col-span-2 space-y-6">
             {/* Información Financiera de la Cotización */}
             {quotation && (
-              <QuotationFinancialInfo
-                quotation={quotationForFinancialInfo}
+              <OrderQuotationFinancialInfo
+                quotation={quotation}
                 advances={[]}
                 currencySymbol={currencySymbol}
               />
@@ -394,7 +387,7 @@ export function OrderQuotationBillingForm({
           </div>
 
           {/* Resumen tipo Recibo - 1/3 del ancho */}
-          <SummarySection
+          <OrderQuotationSummarySection
             form={form}
             documentTypes={documentTypes}
             identityDocumentTypes={identityDocumentTypes}
@@ -405,7 +398,7 @@ export function OrderQuotationBillingForm({
             isEdit={isEdit}
             isPending={isPending}
             isAdvancePayment={isAdvancePayment}
-            quotation={quotationForFinancialInfo}
+            quotation={quotation}
             advancePayments={[]}
           />
         </div>
