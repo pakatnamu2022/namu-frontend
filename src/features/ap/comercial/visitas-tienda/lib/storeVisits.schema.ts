@@ -16,7 +16,6 @@ export const storeVisitsBaseObject = z.object({
     .optional()
     .or(z.literal("")),
   email: z
-    .string()
     .email("Email opcional inválido")
     .optional()
     .or(z.literal("")),

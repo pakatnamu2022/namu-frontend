@@ -1,5 +1,6 @@
 import { VehicleResource } from "@/features/ap/comercial/vehiculos/lib/vehicles.interface";
 import { type Links, type Meta } from "@/shared/lib/pagination.interface.ts";
+import { OrderQuotationDetailsResource } from "../../cotizacion-detalle/lib/proformaDetails.interface";
 
 export interface OrderQuotationResponse {
   data: OrderQuotationResource[];
@@ -19,26 +20,13 @@ export interface OrderQuotationResource {
   total_amount: number;
   validity_days: number | null;
   quotation_date: string;
-  expiration_date: string | null;
+  expiration_date: string;
   observations: string | null;
-  details: OrderQuotationDetail[];
+  details: OrderQuotationDetailsResource[];
   created_at: string;
   updated_at: string;
-}
-
-export interface OrderQuotationDetail {
-  id: number;
-  order_quotation_id: number;
-  item_type: string; // PRODUCT | LABOR
-  product_id: number;
-  product_name: string;
-  description: string;
-  quantity: number;
-  unit_measure: string;
-  unit_price: number;
-  discount: number;
-  total_amount: number;
-  observations?: string;
+  area_id: number | null;
+  sede_id: number | null;
 }
 
 export interface OrderQuotationRequest {

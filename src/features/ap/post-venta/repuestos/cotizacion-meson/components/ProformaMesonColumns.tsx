@@ -1,32 +1,32 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-import { Pencil, Download, Settings } from "lucide-react";
+import { Pencil, Download, Receipt } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { errorToast, successToast } from "@/core/core.function";
-import { OrderQuotationResource } from "../lib/proforma.interface";
-import { downloadOrderQuotationPdf } from "../lib/proforma.actions";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge";
+import { OrderQuotationResource } from "../../../taller/cotizacion/lib/proforma.interface";
+import { downloadOrderQuotationPdf } from "../../../taller/cotizacion/lib/proforma.actions";
 
-export type OrderQuotationColumns = ColumnDef<OrderQuotationResource>;
+export type OrderQuotationMesonColumns = ColumnDef<OrderQuotationResource>;
 
 interface Props {
   onDelete: (id: number) => void;
   onUpdate: (id: number) => void;
-  onManage: (id: number) => void;
+  onBilling: (id: number) => void;
   permissions: {
     canUpdate: boolean;
     canDelete: boolean;
   };
 }
 
-export const orderQuotationColumns = ({
+export const orderQuotationMesonColumns = ({
   onUpdate,
-  onManage,
   onDelete,
+  onBilling,
   permissions,
-}: Props): OrderQuotationColumns[] => [
+}: Props): OrderQuotationMesonColumns[] => [
   {
     accessorKey: "quotation_number",
     header: "Número de Cotización",
@@ -120,21 +120,23 @@ export const orderQuotationColumns = ({
             variant="outline"
             size="icon"
             className="size-7"
-            onClick={() => onManage(id)}
-            tooltip="Gestionar"
-          >
-            <Settings className="size-5" />
-          </Button>
-
-          <Button
-            variant="outline"
-            size="icon"
-            className="size-7"
             onClick={handleDownloadPdf}
             tooltip="PDF"
           >
             <Download className="size-5" />
           </Button>
+
+          {
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-7"
+              tooltip="Facturar"
+              onClick={() => onBilling(id)}
+            >
+              <Receipt className="size-5" />
+            </Button>
+          }
 
           {permissions.canUpdate && (
             <Button

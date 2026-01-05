@@ -68,11 +68,12 @@ export async function deleteWorkOrderParts(
   return data;
 }
 
-export async function getQuotationByVehicle(vehicleId: number): Promise<QuotationByVehicleResponse> {
+export async function getQuotationByVehicle(
+  vehicleId: number
+): Promise<QuotationByVehicleResponse> {
   const { data } = await api.get<QuotationByVehicleResponse>(
     `${ENDPOINT}/quotation-by-vehicle/${vehicleId}`
   );
-  console.log("Cotización con productos por vehículo:", data);
   return data;
 }
 
