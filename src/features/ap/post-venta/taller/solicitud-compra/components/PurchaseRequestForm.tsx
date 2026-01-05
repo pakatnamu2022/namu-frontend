@@ -183,8 +183,8 @@ export default function PurchaseRequestForm({
       // Mapear a PurchaseRequestDetailSchema
       const newDetails: PurchaseRequestDetailSchema[] = productDetails.map(
         (detail) => ({
-          product_id: detail.product_id.toString(),
-          product_name: detail.product_name,
+          product_id: detail.product_id!.toString(),
+          product_name: detail.description,
           quantity: Number(detail.quantity) || 1, // Asegurar que sea number
           notes: "",
         })
