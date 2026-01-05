@@ -16,6 +16,8 @@ export interface UserResource {
   position: string;
   empresa: string;
   sede: string;
+  sede_id: number;
+  shop_id: number;
   fecha_ingreso: string;
   role?: string;
 }
