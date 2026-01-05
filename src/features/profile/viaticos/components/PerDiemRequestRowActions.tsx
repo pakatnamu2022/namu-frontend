@@ -59,7 +59,7 @@ export function PerDiemRequestRowActions({
       queryClient.invalidateQueries({
         queryKey: [PER_DIEM_REQUEST.QUERY_KEY],
       });
-      successToast("Solicitud pasada a en progreso");
+      successToast("Solicitud pasada a en progreso ");
       setIsConfirmDialogOpen(false);
     },
     onError: (error: any) => {
