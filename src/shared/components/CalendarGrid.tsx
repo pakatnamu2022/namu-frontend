@@ -490,6 +490,7 @@ export const CalendarDatePagination = ({
 }: CalendarDatePaginationProps) => {
   const [month, setMonth] = useCalendarMonth();
   const [year, setYear] = useCalendarYear();
+  
   const handlePreviousMonth = useCallback(() => {
     if (month === 0) {
       setMonth(11);
@@ -498,6 +499,7 @@ export const CalendarDatePagination = ({
       setMonth((month - 1) as CalendarState["month"]);
     }
   }, [month, year, setMonth, setYear]);
+
   const handleNextMonth = useCallback(() => {
     if (month === 11) {
       setMonth(0);
@@ -506,6 +508,7 @@ export const CalendarDatePagination = ({
       setMonth((month + 1) as CalendarState["month"]);
     }
   }, [month, year, setMonth, setYear]);
+
   return (
     <div className={cn("flex items-center gap-2", className)}>
       <Button onClick={handlePreviousMonth} size="icon" variant="ghost">
