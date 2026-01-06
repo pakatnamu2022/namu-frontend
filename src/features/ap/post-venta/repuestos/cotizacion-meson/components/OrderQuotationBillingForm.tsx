@@ -26,6 +26,7 @@ import { OrderQuotationResource } from "../../../taller/cotizacion/lib/proforma.
 import { OrderQuotationFinancialInfo } from "./OrderQuotationFinancialInfo";
 import { OrderQuotationSummarySection } from "./OrderQuotationSummarySection";
 import { useAllSunatConcepts } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.hook";
+import { SUNAT_CONCEPTS_TYPE } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
 
 interface OrderQuotationBillingFormProps {
   form: UseFormReturn<ElectronicDocumentSchema>;
@@ -46,25 +47,53 @@ export function OrderQuotationBillingForm({
   const lastLoadedQuotationId = useRef<number | null>(null);
   const lastLoadedAdvancePaymentState = useRef<boolean | null>(null);
   const processedAdvancePaymentsForQuotationKey = useRef<string | null>(null);
+  const currencyAlreadySet = useRef<boolean>(false);
 
-  // Obtener conceptos SUNAT
-  const { data: documentTypes = [] } = useAllSunatConcepts({
-    concept_type: "tipo_comprobante",
-  });
-  const { data: transactionTypes = [] } = useAllSunatConcepts({
-    concept_type: "tipo_operacion",
-  });
-  const { data: identityDocumentTypes = [] } = useAllSunatConcepts({
-    concept_type: "tipo_documento_identidad",
-  });
-  const { data: currencyTypes = [] } = useAllSunatConcepts({
-    concept_type: "BILLING_CURRENCY",
-  });
-  const { data: igvTypes = [] } = useAllSunatConcepts({
-    concept_type: "tipo_afectacion_igv",
+  // Obtener todos los conceptos SUNAT necesarios en una sola consulta
+  const { data: sunatConcepts = [] } = useAllSunatConcepts({
+    type: [
+      SUNAT_CONCEPTS_TYPE.BILLING_DOCUMENT_TYPE,
+      SUNAT_CONCEPTS_TYPE.BILLING_TRANSACTION_TYPE,
+      SUNAT_CONCEPTS_TYPE.BILLING_CURRENCY,
+      SUNAT_CONCEPTS_TYPE.BILLING_IGV_TYPE,
+    ],
   });
 
-  const items = useMemo(() => form.watch("items") || [], [form]);
+  // Filtrar los conceptos por tipo
+  const documentTypes = useMemo(
+    () =>
+      sunatConcepts.filter(
+        (concept) => concept.type === SUNAT_CONCEPTS_TYPE.BILLING_DOCUMENT_TYPE
+      ),
+    [sunatConcepts]
+  );
+
+  const transactionTypes = useMemo(
+    () =>
+      sunatConcepts.filter(
+        (concept) =>
+          concept.type === SUNAT_CONCEPTS_TYPE.BILLING_TRANSACTION_TYPE
+      ),
+    [sunatConcepts]
+  );
+
+  const currencyTypes = useMemo(
+    () =>
+      sunatConcepts.filter(
+        (concept) => concept.type === SUNAT_CONCEPTS_TYPE.BILLING_CURRENCY
+      ),
+    [sunatConcepts]
+  );
+
+  const igvTypes = useMemo(
+    () =>
+      sunatConcepts.filter(
+        (concept) => concept.type === SUNAT_CONCEPTS_TYPE.BILLING_IGV_TYPE
+      ),
+    [sunatConcepts]
+  );
+
+  const items = form.watch("items") || [];
 
   // OBJECTS
   const selectedCurrency = currencyTypes.find(
@@ -110,8 +139,9 @@ export function OrderQuotationBillingForm({
 
   // Cambiar tipo de operación según si es anticipo o no
   useEffect(() => {
+    if (transactionTypes.length === 0) return;
+
     const currentValue = form.getValues("sunat_concept_transaction_type_id");
-    processedAdvancePaymentsForQuotationKey.current = null;
 
     if (isAdvancePayment) {
       // Anticipo: code_nubefact "04" - Venta Interna - Anticipos
@@ -121,7 +151,8 @@ export function OrderQuotationBillingForm({
       if (anticipoType && currentValue !== anticipoType.id.toString()) {
         form.setValue(
           "sunat_concept_transaction_type_id",
-          anticipoType.id.toString()
+          anticipoType.id.toString(),
+          { shouldValidate: false }
         );
       }
     } else {
@@ -132,7 +163,8 @@ export function OrderQuotationBillingForm({
       if (normalType && currentValue !== normalType.id.toString()) {
         form.setValue(
           "sunat_concept_transaction_type_id",
-          normalType.id.toString()
+          normalType.id.toString(),
+          { shouldValidate: false }
         );
       }
     }
@@ -140,38 +172,108 @@ export function OrderQuotationBillingForm({
 
   // Efecto para cargar datos de la cotización
   useEffect(() => {
-    if (quotation && quotation.id !== lastLoadedQuotationId.current) {
+    // Esperar a que currencyTypes esté cargado antes de procesar
+    if (!quotation || currencyTypes.length === 0) return;
+
+    if (quotation.id !== lastLoadedQuotationId.current) {
       lastLoadedQuotationId.current = quotation.id;
+      currencyAlreadySet.current = false; // Reset cuando cambia la cotización
 
-      // Asignar cliente desde el owner del vehículo de la cotización
-      if (quotation.vehicle?.owner?.id) {
-        form.setValue("client_id", quotation.vehicle.owner.id.toString());
-      }
+      // NOTA: El cliente se setea en OrderQuotationDocumentInfoSection
+      // a través de defaultCustomer para evitar race conditions con FormSelectAsync
 
-      // Moneda - por defecto PEN (Soles)
-      const penCurrency = currencyTypes.find((c) => c.iso_code === "PEN");
-      if (penCurrency) {
-        form.setValue("sunat_concept_currency_id", penCurrency.id.toString());
+      // Mapear moneda de la cotización con la moneda de SUNAT usando el tribute_code
+      if (quotation.currency?.id && !currencyAlreadySet.current) {
+        const matchedCurrency = currencyTypes.find(
+          (c) => c.tribute_code === String(quotation.currency.id)
+        );
+
+        if (matchedCurrency) {
+          form.setValue(
+            "sunat_concept_currency_id",
+            matchedCurrency.id.toString(),
+            { shouldValidate: false }
+          );
+          currencyAlreadySet.current = true;
+        }
+      } else if (!currencyAlreadySet.current) {
+        // Fallback: Moneda por defecto PEN (Soles)
+        const penCurrency = currencyTypes.find((c) => c.iso_code === "PEN");
+        if (penCurrency) {
+          form.setValue(
+            "sunat_concept_currency_id",
+            penCurrency.id.toString(),
+            { shouldValidate: false }
+          );
+          currencyAlreadySet.current = true;
+        }
       }
     }
-  }, [quotation, form, currencyTypes]);
+  }, [quotation?.id, currencyTypes, form]);
 
   // Efecto para cargar items cuando cambia la cotización o isAdvancePayment
   useEffect(() => {
     if (
-      quotation &&
-      (quotation.id !== lastLoadedQuotationId.current ||
-        isAdvancePayment !== lastLoadedAdvancePaymentState.current)
+      !quotation ||
+      igvTypes.length === 0 ||
+      (quotation.id === lastLoadedQuotationId.current &&
+        isAdvancePayment === lastLoadedAdvancePaymentState.current)
     ) {
-      form.setValue("items", []);
-      lastLoadedAdvancePaymentState.current = isAdvancePayment;
-      processedAdvancePaymentsForQuotationKey.current = null;
+      return;
+    }
 
-      // Crear items desde los detalles de la cotización
-      if (quotation.details && quotation.details.length > 0) {
+    lastLoadedAdvancePaymentState.current = isAdvancePayment;
+    processedAdvancePaymentsForQuotationKey.current = null;
+
+    // Crear items desde los detalles de la cotización
+    if (quotation.details && quotation.details.length > 0) {
+      if (isAdvancePayment) {
+        // CONSOLIDAR ITEMS EN UNO SOLO PARA ANTICIPO
+        // Concatenar los nombres de todos los productos
+        const productNames = quotation.details
+          .map((detail) => detail.description || "SERVICIO DE TALLER")
+          .join(", ");
+
+        // Calcular el total consolidado
+        let totalConsolidado = 0;
+        quotation.details.forEach((detail) => {
+          totalConsolidado += detail.total_amount || 0;
+        });
+
+        // Crear un solo item consolidado
+        const precio_unitario = totalConsolidado;
+        const valor_unitario =
+          precio_unitario / (1 + porcentaje_de_igv / 100);
+
+        const subtotal = valor_unitario;
+        const igvAmount = subtotal * (porcentaje_de_igv / 100);
+
+        const quotationItems: ElectronicDocumentItemSchema[] = [
+          {
+            account_plan_id: QUOTATION_ACCOUNT_PLAN_IDS.ADVANCE_PAYMENT,
+            unidad_de_medida: "NIU",
+            codigo: quotation.id?.toString(),
+            descripcion: `ANTICIPO POR ${productNames}`,
+            cantidad: 1,
+            valor_unitario: valor_unitario,
+            precio_unitario: precio_unitario,
+            subtotal: subtotal,
+            sunat_concept_igv_type_id:
+              igvTypes.find(
+                (t) => t.code_nubefact === NUBEFACT_CODES.GRAVADA_ONEROSA
+              )?.id || 0,
+            igv: igvAmount,
+            total: subtotal + igvAmount,
+          },
+        ];
+
+        form.setValue("is_advance_payment", true, { shouldValidate: false });
+        form.setValue("items", quotationItems, { shouldValidate: false });
+      } else {
+        // ITEMS NORMALES (SIN CONSOLIDAR)
         const quotationItems: ElectronicDocumentItemSchema[] =
           quotation.details.map((detail) => {
-            const cantidad = detail.quantity || 1;
+            const cantidad = Number(detail.quantity) || 1;
             const precio_con_igv = detail.total_amount || 0;
 
             // Calcular precio unitario con IGV
@@ -182,17 +284,11 @@ export function OrderQuotationBillingForm({
             const subtotal = valor_unitario * cantidad;
             const igvAmount = subtotal * (porcentaje_de_igv / 100);
 
-            const itemDescription = isAdvancePayment
-              ? `ANTICIPO DE CLIENTE - ${detail.description || ""}`
-              : detail.description || "SERVICIO DE TALLER";
-
             return {
-              account_plan_id: isAdvancePayment
-                ? QUOTATION_ACCOUNT_PLAN_IDS.ADVANCE_PAYMENT
-                : QUOTATION_ACCOUNT_PLAN_IDS.FULL_SALE,
+              account_plan_id: QUOTATION_ACCOUNT_PLAN_IDS.FULL_SALE,
               unidad_de_medida: "NIU",
               codigo: detail.id?.toString(),
-              descripcion: itemDescription,
+              descripcion: detail.description || "SERVICIO DE TALLER",
               cantidad: cantidad,
               valor_unitario: valor_unitario,
               precio_unitario: precio_unitario,
@@ -206,17 +302,20 @@ export function OrderQuotationBillingForm({
             };
           });
 
-        if (isAdvancePayment) {
-          form.setValue("is_advance_payment", true);
-        }
-
-        form.setValue("items", quotationItems);
+        form.setValue("items", quotationItems, { shouldValidate: false });
       }
     }
-  }, [quotation, form, igvTypes, porcentaje_de_igv, isAdvancePayment]);
+  }, [
+    quotation?.id,
+    quotation?.details,
+    igvTypes,
+    porcentaje_de_igv,
+    isAdvancePayment,
+    form,
+  ]);
 
   // Calcular totales
-  const calcularTotales = () => {
+  const totales = useMemo(() => {
     let total_gravada = 0;
     let total_inafecta = 0;
     let total_exonerada = 0;
@@ -273,42 +372,28 @@ export function OrderQuotationBillingForm({
       total_anticipo,
       total,
     };
-  };
-
-  const totales = calcularTotales();
+  }, [items, igvTypes, porcentaje_de_igv]);
 
   // Actualizar form values cuando cambien los cálculos
   useEffect(() => {
-    const current = form.getValues();
-    if (
-      current.total_gravada !== totales.total_gravada ||
-      current.total_inafecta !== totales.total_inafecta ||
-      current.total_exonerada !== totales.total_exonerada ||
-      current.total_igv !== totales.total_igv ||
-      current.total_gratuita !== totales.total_gratuita ||
-      current.total_anticipo !== totales.total_anticipo ||
-      current.total !== totales.total
-    ) {
-      form.setValue("total_gravada", totales.total_gravada);
-      form.setValue("total_inafecta", totales.total_inafecta);
-      form.setValue("total_exonerada", totales.total_exonerada);
-      form.setValue("total_igv", totales.total_igv);
-      form.setValue("total_gratuita", totales.total_gratuita);
-      form.setValue("total_anticipo", totales.total_anticipo);
-      form.setValue("total", totales.total);
-    }
-  }, [
-    items,
-    porcentaje_de_igv,
-    form,
-    totales.total_gravada,
-    totales.total_inafecta,
-    totales.total_exonerada,
-    totales.total_igv,
-    totales.total_gratuita,
-    totales.total_anticipo,
-    totales.total,
-  ]);
+    form.setValue("total_gravada", totales.total_gravada, {
+      shouldValidate: false,
+    });
+    form.setValue("total_inafecta", totales.total_inafecta, {
+      shouldValidate: false,
+    });
+    form.setValue("total_exonerada", totales.total_exonerada, {
+      shouldValidate: false,
+    });
+    form.setValue("total_igv", totales.total_igv, { shouldValidate: false });
+    form.setValue("total_gratuita", totales.total_gratuita, {
+      shouldValidate: false,
+    });
+    form.setValue("total_anticipo", totales.total_anticipo, {
+      shouldValidate: false,
+    });
+    form.setValue("total", totales.total, { shouldValidate: false });
+  }, [totales, form]);
 
   const series = form.watch("serie");
 
@@ -325,15 +410,13 @@ export function OrderQuotationBillingForm({
 
   useEffect(() => {
     if (isEdit) {
-      form.setValue("numero", form.getValues("numero"));
       return;
     }
-    const currentNumber = form.getValues("numero");
     const newNumber = nextNumber?.number || "";
-    if (currentNumber !== newNumber) {
-      form.setValue("numero", newNumber);
+    if (newNumber && form.getValues("numero") !== newNumber) {
+      form.setValue("numero", newNumber, { shouldValidate: false });
     }
-  }, [nextNumber, form, isEdit]);
+  }, [nextNumber?.number, form, isEdit]);
 
   const currencySymbol =
     selectedCurrency?.iso_code === "PEN"
@@ -379,18 +462,16 @@ export function OrderQuotationBillingForm({
               maxAdvanceAmount={
                 isAdvancePayment ? Math.max(pendingBalance, 0) : undefined
               }
-              isFromQuotation={true}
+              isFromQuotation={false}
             />
 
             {/* Configuración Adicional */}
             <AdditionalConfigSection form={form} checkbooks={checkbooks} />
           </div>
-
           {/* Resumen tipo Recibo - 1/3 del ancho */}
           <OrderQuotationSummarySection
             form={form}
             documentTypes={documentTypes}
-            identityDocumentTypes={identityDocumentTypes}
             authorizedSeries={authorizedSeries}
             currencySymbol={currencySymbol}
             totales={totales}

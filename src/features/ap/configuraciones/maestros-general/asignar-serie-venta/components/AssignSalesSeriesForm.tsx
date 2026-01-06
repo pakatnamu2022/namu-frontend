@@ -24,6 +24,7 @@ import FormSkeleton from "@/shared/components/FormSkeleton";
 import { useAllVoucherTypes } from "../../tipos-comprobante/lib/voucherTypes.hook";
 import { useAllTypesOperation } from "../../tipos-operacion/lib/typesOperation.hook";
 import { ASSIGN_SALES_SERIES } from "../lib/assignSalesSeries.constants";
+import { FormSwitch } from "@/shared/components/FormSwitch";
 
 interface AssignSalesSeriesFormProps {
   defaultValues: Partial<AssignSalesSeriesSchema>;
@@ -77,7 +78,7 @@ export const AssignSalesSeriesForm = ({
               <FormItem>
                 <FormLabel>Serie</FormLabel>
                 <FormControl>
-                  <Input placeholder="Ej: BV75" {...field} />
+                  <Input placeholder="Ej: BV75" {...field} maxLength={4} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -135,6 +136,13 @@ export const AssignSalesSeriesForm = ({
               { label: "COMPRA", value: "PURCHASE" },
               { label: "OTROS", value: "OTHERS" },
             ]}
+            control={form.control}
+          />
+          <FormSwitch
+            name="is_advance"
+            label="¿Es para un anticipo?"
+            text={form.watch("is_advance") ? "Sí, es para anticipo" : "No"}
+            description="Indica si esta serie se utilizará para documentos de anticipo"
             control={form.control}
           />
         </div>

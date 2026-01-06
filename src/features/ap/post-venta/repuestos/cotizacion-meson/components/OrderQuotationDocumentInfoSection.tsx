@@ -18,12 +18,10 @@ import { Input } from "@/components/ui/input";
 import { ElectronicDocumentSchema } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.schema";
 import { SunatConceptsResource } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.interface";
 import { AssignSalesSeriesResource } from "@/features/ap/configuraciones/maestros-general/asignar-serie-venta/lib/assignSalesSeries.interface";
-import {
-  useAllCustomers,
-  useCustomers,
-} from "@/features/ap/comercial/clientes/lib/customers.hook";
+import { useCustomers } from "@/features/ap/comercial/clientes/lib/customers.hook";
 import { CustomersResource } from "@/features/ap/comercial/clientes/lib/customers.interface";
 import { useMemo } from "react";
+import { SUNAT_TYPE_INVOICES_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
 
 interface OrderQuotationDocumentInfoSectionProps {
   form: UseFormReturn<ElectronicDocumentSchema>;
@@ -46,8 +44,6 @@ export function OrderQuotationDocumentInfoSection({
   isFromQuotation = false,
   defaultCustomer,
 }: OrderQuotationDocumentInfoSectionProps) {
-  const { data: customers = [], isLoading } = useAllCustomers();
-
   // Crear defaultOption desde defaultCustomer si existe
   const defaultOption = useMemo(() => {
     if (defaultCustomer) {
@@ -61,11 +57,29 @@ export function OrderQuotationDocumentInfoSection({
     return undefined;
   }, [defaultCustomer]);
 
-  // Obtener el cliente seleccionado
+  // Filtrar series según is_advance_payment
+  const filteredSeries = useMemo(() => {
+    if (isAdvancePayment) {
+      // Si es anticipo, mostrar solo series con is_advance: true
+      return authorizedSeries.filter((series) => series.is_advance === true);
+    }
+    // Si no es anticipo, mostrar todas las series
+    return authorizedSeries;
+  }, [authorizedSeries, isAdvancePayment]);
+
+  // Obtener el cliente seleccionado (usar defaultCustomer directamente)
   const clientId = form.watch("client_id");
-  const selectedCustomer = customers.find(
-    (customer) => customer.id.toString() === clientId
-  );
+  const selectedCustomer =
+    clientId === defaultCustomer?.id.toString() ? defaultCustomer : undefined;
+
+  // Setear el cliente por defecto cuando se monta el componente
+  useEffect(() => {
+    if (defaultCustomer && !clientId) {
+      form.setValue("client_id", defaultCustomer.id.toString(), {
+        shouldValidate: false,
+      });
+    }
+  }, [defaultCustomer, clientId, form]);
 
   // Filtrar tipos de documento según el document_type_id del cliente
   const filteredDocumentTypes = documentTypes.filter((type) => {
@@ -75,12 +89,12 @@ export function OrderQuotationDocumentInfoSection({
 
     // Si el cliente tiene RUC (810), solo mostrar Factura (id: 29)
     if (Number(documentTypeId) === 810) {
-      return type.id === 29;
+      return type.id === SUNAT_TYPE_INVOICES_ID.FACTURA;
     }
 
     // Si el cliente tiene Cédula (809), solo mostrar el tipo con id 30
     if (Number(documentTypeId) === 809) {
-      return type.id === 30;
+      return type.id === SUNAT_TYPE_INVOICES_ID.BOLETA;
     }
 
     // Para otros tipos de documento, mostrar todos
@@ -109,6 +123,23 @@ export function OrderQuotationDocumentInfoSection({
     }
   }, [selectedCustomer, filteredDocumentTypes, form]);
 
+  // Validar y limpiar serie cuando cambia isAdvancePayment
+  useEffect(() => {
+    const currentSerieId = form.getValues("serie");
+
+    // Si hay una serie seleccionada, verificar si sigue siendo válida
+    if (currentSerieId) {
+      const isValid = filteredSeries.some(
+        (series) => series.id.toString() === currentSerieId
+      );
+
+      // Si la serie actual no es válida, limpiarla
+      if (!isValid) {
+        form.setValue("serie", "");
+      }
+    }
+  }, [isAdvancePayment, filteredSeries, form]);
+
   return (
     <GroupFormSection
       title="Información del Documento"
@@ -121,9 +152,7 @@ export function OrderQuotationDocumentInfoSection({
         <FormSelectAsync
           name="client_id"
           label="Cliente *"
-          placeholder={
-            isLoading ? "Cargando clientes..." : "Seleccionar cliente"
-          }
+          placeholder="Seleccionar cliente"
           control={form.control}
           useQueryHook={useCustomers}
           mapOptionFn={(customer) => ({
@@ -149,9 +178,10 @@ export function OrderQuotationDocumentInfoSection({
           value: type.id.toString(),
           label: type.description,
         }))}
-        label="Tipo de Comprobante *"
+        label="Tipo de Comprobante"
         description="Seleccione el tipo de comprobante electrónico"
         placeholder="Seleccionar tipo de comprobante"
+        required
       />
 
       {/* Switch de Anticipo */}
@@ -177,14 +207,10 @@ export function OrderQuotationDocumentInfoSection({
           value: type.id.toString(),
           label: type.description,
         }))}
-        label="Moneda *"
-        description={
-          isFromQuotation
-            ? "Moneda asignada desde la cotización"
-            : "Seleccione la moneda del documento"
-        }
+        label="Moneda"
+        description="Seleccione la moneda del documento"
         placeholder="Seleccionar moneda"
-        disabled={isFromQuotation}
+        required
       />
 
       <DatePickerFormField
@@ -202,13 +228,18 @@ export function OrderQuotationDocumentInfoSection({
       <FormSelect
         control={form.control}
         name="serie"
-        options={authorizedSeries.map((series) => ({
+        options={filteredSeries.map((series) => ({
           value: series.id.toString(),
           label: `${series.series} - ${series.sede || ""}`,
         }))}
-        label="Serie *"
-        description="Series autorizadas para su usuario"
+        label="Serie"
+        description={
+          isAdvancePayment
+            ? "Series autorizadas para anticipos"
+            : "Series autorizadas para su usuario"
+        }
         placeholder="Seleccionar serie"
+        required
       />
 
       <FormField
