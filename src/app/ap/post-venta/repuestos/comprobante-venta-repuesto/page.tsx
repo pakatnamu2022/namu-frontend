@@ -15,20 +15,20 @@ import {
 } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.actions";
 import ElectronicDocumentTable from "@/features/ap/facturacion/electronic-documents/components/ElectronicDocumentTable";
 import { electronicDocumentColumns } from "@/features/ap/facturacion/electronic-documents/components/ElectronicDocumentColumns";
-import ElectronicDocumentOptions from "@/features/ap/facturacion/electronic-documents/components/ElectronicDocumentOptions";
 import { ElectronicDocumentDetailSheet } from "@/features/ap/facturacion/electronic-documents/components/ElectronicDocumentDetailSheet";
 import { ElectronicDocumentResource } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.interface";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
-import { ELECTRONIC_DOCUMENT } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.constants";
+import { ELECTRONIC_DOCUMENT_REPUESTOS } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.constants";
 import { useElectronicDocuments } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.hook";
 import { useAllSunatConcepts } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.hook";
 import { SUNAT_CONCEPTS_TYPE } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
-import ElectronicDocumentActions from "@/features/ap/facturacion/electronic-documents/components/ElectronicDocumentActions";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { notFound } from "@/shared/hooks/useNotFound";
+import SalesReceiptsActions from "@/features/ap/post-venta/comprobante-venta/components/SalesReceiptsActions";
+import SalesReceiptsOptions from "@/features/ap/post-venta/comprobante-venta/components/SalesReceiptsOptions";
 
-export default function ElectronicDocumentsPage() {
-  const { ROUTE } = ELECTRONIC_DOCUMENT;
+export default function SalesReceiptsRepuestoPage() {
+  const { ROUTE } = ELECTRONIC_DOCUMENT_REPUESTOS;
   const permissions = useModulePermissions(ROUTE);
   const queryClient = useQueryClient();
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -36,7 +36,6 @@ export default function ElectronicDocumentsPage() {
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
-  const [moduleFilter, setModuleFilter] = useState("");
   const [documentTypeFilter, setDocumentTypeFilter] = useState("");
   const [selectedDocument, setSelectedDocument] =
     useState<ElectronicDocumentResource | null>(null);
@@ -45,14 +44,14 @@ export default function ElectronicDocumentsPage() {
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setPage(1);
-  }, [search, per_page, statusFilter, moduleFilter, documentTypeFilter]);
+  }, [search, per_page, statusFilter, documentTypeFilter]);
 
   const { data, isLoading, isFetching, refetch } = useElectronicDocuments({
     page,
     per_page,
     search,
     status: statusFilter,
-    origin_module: moduleFilter,
+    origin_module: "posventa",
     sunat_concept_document_type_id: documentTypeFilter
       ? parseInt(documentTypeFilter)
       : undefined,
@@ -132,12 +131,9 @@ export default function ElectronicDocumentsPage() {
           subtitle="Gestión de Documentos Electrónicos (Facturas, Boletas, NC, ND)"
           icon={currentView.icon}
         />
-        <ElectronicDocumentActions
+        <SalesReceiptsActions
           onRefresh={handleRefresh}
           isLoading={isFetching && !isLoading}
-          permissions={{
-            canCreate: permissions.canCreate || false,
-          }}
         />
       </HeaderTableWrapper>
 
@@ -162,13 +158,11 @@ export default function ElectronicDocumentsPage() {
         })}
         data={data?.data || []}
       >
-        <ElectronicDocumentOptions
+        <SalesReceiptsOptions
           search={search}
           setSearch={setSearch}
           statusFilter={statusFilter}
           setStatusFilter={setStatusFilter}
-          moduleFilter={moduleFilter}
-          setModuleFilter={setModuleFilter}
           documentTypeFilter={documentTypeFilter}
           setDocumentTypeFilter={setDocumentTypeFilter}
           documentTypes={documentTypes || []}

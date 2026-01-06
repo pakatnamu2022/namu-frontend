@@ -149,8 +149,7 @@ export function OrderQuotationSummarySection({
               IGV: {porcentaje_de_igv}%
             </p>
             <p className="text-xs text-muted-foreground">
-              El porcentaje de IGV se calcula automáticamente según la
-              clasificación tributaria del cliente seleccionado
+              Las cotizaciones ya incluyen IGV en los precios de los repuestos.
             </p>
           </div>
 
@@ -168,12 +167,13 @@ export function OrderQuotationSummarySection({
                 </p>
               ) : (
                 items.map((item, index) => {
-                  // Si es anticipo de regularización, mostrar en negativo
-                  const displayTotal = item.anticipo_regularizacion
-                    ? -item.total
-                    : item.total;
+                  // Si es anticipo de regularización, determinar si debe mostrarse en negativo
+                  const isAdvanceRegularization = item.anticipo_regularizacion;
+
+                  // Verificar si el anticipo referenciado NO es una nota de crédito
+                  // (las notas de crédito ya son negativas, así que no las marcamos como negativas)
                   const isNegative =
-                    item.anticipo_regularizacion &&
+                    isAdvanceRegularization &&
                     advancePayments.find(
                       (ap) => ap.id === Number(item.reference_document_id)
                     )?.sunat_concept_document_type_id !==
@@ -210,7 +210,7 @@ export function OrderQuotationSummarySection({
                       >
                         {isNegative ? "- " : ""}
                         {currencySymbol}{" "}
-                        {Math.abs(displayTotal).toLocaleString("es-PE", {
+                        {Math.abs(item.total).toLocaleString("es-PE", {
                           minimumFractionDigits: 2,
                         })}
                       </p>
@@ -293,7 +293,9 @@ export function OrderQuotationSummarySection({
               type="submit"
               className="w-full"
               size="lg"
-              disabled={isPending || !form.formState.isValid}
+              disabled={
+                isPending || !form.formState.isValid || totales.total <= 0
+              }
             >
               {form.watch("enviar_automaticamente_a_la_sunat") ? (
                 <Send className="size-4 mr-2" />
@@ -308,6 +310,11 @@ export function OrderQuotationSummarySection({
                 ? "Guardar y Enviar a SUNAT"
                 : "Guardar Documento"}
             </Button>
+            {totales.total <= 0 && (
+              <p className="text-xs text-center text-destructive font-medium">
+                El total debe ser mayor a 0 para guardar el documento
+              </p>
+            )}
             <Button
               type="button"
               variant="outline"

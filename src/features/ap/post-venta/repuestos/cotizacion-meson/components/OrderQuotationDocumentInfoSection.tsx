@@ -211,6 +211,7 @@ export function OrderQuotationDocumentInfoSection({
         description="Seleccione la moneda del documento"
         placeholder="Seleccionar moneda"
         required
+        disabled={isFromQuotation}
       />
 
       <DatePickerFormField
