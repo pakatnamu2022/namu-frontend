@@ -334,7 +334,8 @@ export function PerDiemRequestRowActions({
           <ConfirmationDialog
             trigger={
               <Button
-                variant="default"
+                variant="outline"
+                color="blue"
                 size="icon-xs"
                 tooltip="Completar liquidación"
                 disabled={completeSettlementMutation.isPending}
@@ -401,8 +402,8 @@ export function PerDiemRequestRowActions({
                       { value: "created", label: "Solicitud creada" },
                       { value: "approved", label: "Solicitud aprobada" },
                       { value: "in_progress", label: "Solicitud en progreso" },
-                      { value: "settlement", label: "Liquidación aprobada" },
-                      { value: "settled", label: "Solicitud liquidada" },
+                      { value: "settlement", label: "Inicio de Liquidación" },
+                      { value: "settled", label: "Liquidada" },
                       { value: "cancelled", label: "Solicitud cancelada" },
                     ]}
                   />
