@@ -1,9 +1,13 @@
 "use client";
 
 import type { ColumnDef } from "@tanstack/react-table";
-import { PerDiemRequestResource } from "../lib/perDiemRequest.interface";
-import { Badge, BadgeVariants } from "@/components/ui/badge";
+import {
+  PerDiemRequestResource,
+  PerDiemRequestStatus,
+} from "../lib/perDiemRequest.interface";
+import { Badge } from "@/components/ui/badge";
 import { PerDiemRequestRowActions } from "./PerDiemRequestRowActions";
+import { RequestStatusBadge } from "./PerDiemRequestDetail";
 
 export type PerDiemRequestColumns = ColumnDef<PerDiemRequestResource>;
 
@@ -96,32 +100,11 @@ export const perDiemRequestColumns = ({
     accessorKey: "status",
     header: "Estado",
     cell: ({ getValue }) => {
-      const value = getValue() as string;
-      const statusMap: Record<
-        string,
-        { label: string; variant: BadgeVariants }
-      > = {
-        pending: { label: "Pendiente", variant: "blue" },
-        approved: { label: "Aprobado", variant: "purple" },
-        rejected: { label: "Rechazado", variant: "red" },
-        completed: { label: "Completado", variant: "green" },
-        pending_settlement: {
-          label: "Liquidación Pendiente",
-          variant: "indigo",
-        },
-        in_progress: { label: "En Progreso", variant: "orange" },
-        cancelled: { label: "Cancelado", variant: "gray" },
-        settled: { label: "Liquidado", variant: "green" },
-      };
-      const status = statusMap[value] || {
-        label: value,
-        variant: "secondary",
-      };
+      const value = getValue() as PerDiemRequestStatus;
+
       return (
         <div className="w-fit">
-          <Badge className="w-fit" variant={status.variant}>
-            {status.label}
-          </Badge>
+          <RequestStatusBadge status={value} />
         </div>
       );
     },

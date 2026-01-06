@@ -9,6 +9,7 @@ import {
   FileCheck2,
   Download,
   Loader2,
+  RotateCcwSquare,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { PerDiemRequestResource } from "../lib/perDiemRequest.interface";
@@ -52,6 +53,7 @@ export function PerDiemRequestRowActions({
   const hotel = request.hotel_reservation?.hotel_name;
   const isCancelled = request.status === "cancelled";
   const canCompleteSettlement = request.settlement_status === "approved";
+  const isOnlyApproved = request.status === "approved";
 
   const confirmMutation = useMutation({
     mutationFn: (requestId: number) => confirmProgressPerDiemRequest(requestId),
@@ -59,7 +61,7 @@ export function PerDiemRequestRowActions({
       queryClient.invalidateQueries({
         queryKey: [PER_DIEM_REQUEST.QUERY_KEY],
       });
-      successToast("Solicitud pasada a en progreso");
+      successToast("Solicitud en progreso");
       setIsConfirmDialogOpen(false);
     },
     onError: (error: any) => {
@@ -210,12 +212,36 @@ export function PerDiemRequestRowActions({
                 tooltip="Poner en progreso"
                 disabled={confirmMutation.isPending}
               >
-                <CheckCircle className="size-4" />
+                <RotateCcwSquare className="size-4" />
               </Button>
             }
             title="¿Poner solicitud en progreso?"
             description="Esta acción cambiará el estado de la solicitud de 'Liquidación Pendiente' a 'En Progreso'. ¿Deseas continuar?"
             confirmText="Sí, continuar"
+            cancelText="Cancelar"
+            onConfirm={handleConfirmRequest}
+            variant="default"
+            icon="info"
+            open={isConfirmDialogOpen}
+            onOpenChange={setIsConfirmDialogOpen}
+          />
+        )}
+
+        {isOnlyApproved && request.days_count === 1 && (
+          <ConfirmationDialog
+            trigger={
+              <Button
+                variant="default"
+                size="icon-xs"
+                tooltip="Confirmar solicitud"
+                disabled={confirmMutation.isPending}
+              >
+                <CheckCircle className="size-4" />
+              </Button>
+            }
+            title="¿Confirmar solicitud de viáticos?"
+            description="Esta acción cambiará el estado de la solicitud a 'En Progreso' y podrás comenzar a registrar gastos. ¿Deseas continuar?"
+            confirmText="Sí, confirmar"
             cancelText="Cancelar"
             onConfirm={handleConfirmRequest}
             variant="default"
