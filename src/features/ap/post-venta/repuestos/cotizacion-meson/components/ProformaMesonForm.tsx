@@ -37,16 +37,19 @@ import { api } from "@/core/api";
 import { format } from "date-fns";
 import { CURRENCY_TYPE_IDS } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.constants";
 import { Badge } from "@/components/ui/badge";
+import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.hook";
 
 // Componente auxiliar para manejar cada item de producto
 function ProductDetailItem({
   index,
   form,
   onRemove,
+  selectedCurrency,
 }: {
   index: number;
   form: any;
   onRemove: () => void;
+  selectedCurrency: any;
 }) {
   const productId = form.watch(`details.${index}.product_id`);
   const { data: productData } = useProductById(Number(productId) || 0);
@@ -282,7 +285,9 @@ function ProductDetailItem({
             name={`details.${index}.unit_price`}
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-xs">P. Unit.</FormLabel>
+                <FormLabel className="text-xs">
+                  P. Unit. ({selectedCurrency?.symbol || "S/."})
+                </FormLabel>
                 <FormControl>
                   <Input
                     type="number"
@@ -302,7 +307,9 @@ function ProductDetailItem({
             name={`details.${index}.total_amount`}
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-xs">Total</FormLabel>
+                <FormLabel className="text-xs">
+                  Total ({selectedCurrency?.symbol || "S/."})
+                </FormLabel>
                 <FormControl>
                   <Input
                     type="number"
@@ -358,6 +365,7 @@ export default function ProformaMesonForm({
   const [selectedVehicle, setSelectedVehicle] = useState<any>(null);
   const [exchangeRate, setExchangeRate] = useState<number | null>(null);
   const [isLoadingExchangeRate, setIsLoadingExchangeRate] = useState(false);
+  const [selectedCurrency, setSelectedCurrency] = useState<any>(null);
 
   const form = useForm<QuotationMesonWithProductsSchema>({
     resolver: zodResolver(
@@ -369,6 +377,7 @@ export default function ProformaMesonForm({
       area_id: AREA_PM_ID.MESON,
       vehicle_id: "",
       sede_id: "",
+      currency_id: "",
       quotation_date: "",
       expiration_date: "",
       observations: "",
@@ -385,6 +394,7 @@ export default function ProformaMesonForm({
 
   const quotationDate = form.watch("quotation_date");
   const vehicleId = form.watch("vehicle_id");
+  const currencyId = form.watch("currency_id");
 
   const { data: vehicles = [], isLoading: isLoadingVehicles } =
     useAllVehicles();
@@ -392,6 +402,8 @@ export default function ProformaMesonForm({
   const { data: mySedes = [], isLoading: isLoadingMySedes } = useMySedes({
     company: EMPRESA_AP.id,
   });
+
+  const { data: currencyTypes = [] } = useAllCurrencyTypes();
 
   // Actualizar vehículo seleccionado
   useEffect(() => {
@@ -402,6 +414,18 @@ export default function ProformaMesonForm({
       setSelectedVehicle(null);
     }
   }, [vehicleId, vehicles]);
+
+  // Actualizar moneda seleccionada
+  useEffect(() => {
+    if (currencyId && currencyTypes.length > 0) {
+      const currency = currencyTypes.find(
+        (c) => c.id.toString() === currencyId
+      );
+      setSelectedCurrency(currency || null);
+    } else {
+      setSelectedCurrency(null);
+    }
+  }, [currencyId, currencyTypes]);
 
   // Actualizar fecha de vencimiento automáticamente
   useEffect(() => {
@@ -462,7 +486,11 @@ export default function ProformaMesonForm({
     const detail = form.watch(`details.${index}`);
     const retail = detail?.retail_price_external || 0;
     const commission = detail?.freight_commission || 1.05;
-    const rate = exchangeRate || 1;
+
+    // Si la moneda seleccionada es USD (id: 1), no aplicar tipo de cambio
+    // Si es PEN (id: 3), aplicar el tipo de cambio
+    const isUSD = selectedCurrency?.code === "USD";
+    const rate = isUSD ? 1 : exchangeRate || 1;
 
     return Math.round(retail * commission * rate * 100) / 100;
   };
@@ -493,10 +521,11 @@ export default function ProformaMesonForm({
         form.setValue(`details.${index}.total_amount`, calculatedTotal);
       }
     });
-  }, [watchAllFields, exchangeRate]);
+  }, [watchAllFields, exchangeRate, selectedCurrency]);
 
   const formatCurrency = (amount: number) => {
-    return `S/. ${amount.toFixed(2)}`;
+    const symbol = selectedCurrency?.symbol || "S/.";
+    return `${symbol} ${amount.toFixed(2)}`;
   };
 
   const getTotalGeneral = () => {
@@ -525,6 +554,19 @@ export default function ProformaMesonForm({
                 value: item.id.toString(),
               }))}
               control={form.control}
+              required
+            />
+
+            <FormSelect
+              control={form.control}
+              name="currency_id"
+              options={currencyTypes.map((type) => ({
+                value: type.id.toString(),
+                label: type.name,
+              }))}
+              label="Moneda"
+              placeholder="Seleccionar moneda"
+              required
             />
 
             <FormSelect
@@ -538,6 +580,7 @@ export default function ProformaMesonForm({
                 value: item.id.toString(),
               }))}
               control={form.control}
+              required
             />
 
             <DatePickerFormField
@@ -725,8 +768,12 @@ export default function ProformaMesonForm({
                 <div className="col-span-3">Repuesto</div>
                 <div className="col-span-1 text-center">Cant.</div>
                 <div className="col-span-2 text-center">P. Ext. ($)</div>
-                <div className="col-span-2 text-center">P. Unit.</div>
-                <div className="col-span-2 text-center">Total</div>
+                <div className="col-span-2 text-center">
+                  P. Unit. ({selectedCurrency?.symbol || "S/."})
+                </div>
+                <div className="col-span-2 text-center">
+                  Total ({selectedCurrency?.symbol || "S/."})
+                </div>
                 <div className="col-span-1 text-center">Acción</div>
               </div>
 
@@ -738,6 +785,7 @@ export default function ProformaMesonForm({
                     index={index}
                     form={form}
                     onRemove={() => remove(index)}
+                    selectedCurrency={selectedCurrency}
                   />
                 ))}
               </div>

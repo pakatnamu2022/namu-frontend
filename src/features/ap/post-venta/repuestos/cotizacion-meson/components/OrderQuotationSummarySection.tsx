@@ -15,7 +15,6 @@ import { SUNAT_TYPE_INVOICES_ID } from "@/features/gp/maestro-general/conceptos-
 interface OrderQuotationSummarySectionProps {
   form: UseFormReturn<ElectronicDocumentSchema>;
   documentTypes: SunatConceptsResource[];
-  identityDocumentTypes: SunatConceptsResource[];
   authorizedSeries: AssignSalesSeriesResource[];
   currencySymbol: string;
   totales: {

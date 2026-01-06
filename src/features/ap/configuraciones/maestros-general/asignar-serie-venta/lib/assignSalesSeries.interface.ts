@@ -18,6 +18,7 @@ export interface AssignSalesSeriesResource {
   type_operation?: string;
   status: boolean;
   type: "SALE" | "PURCHASE";
+  is_advance: boolean;
 }
 
 export interface AssignSalesSeriesRequest {
