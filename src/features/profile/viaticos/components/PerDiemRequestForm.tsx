@@ -17,10 +17,10 @@ import FormSkeleton from "@/shared/components/FormSkeleton";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { useGetAllPerDiemCategory } from "../../../gp/gestionhumana/viaticos/categoria-viaticos/lib/perDiemCategory.hook";
 import { useUserCompanies } from "@/features/gp/gestionsistema/usuarios/lib/user.hook";
-import { useAllDistrict } from "@/features/gp/gestionsistema/ubicaciones/lib/location.hook";
 import { FormInputText } from "@/shared/components/FormInputText";
 import { FormSwitch } from "@/shared/components/FormSwitch";
 import { useAllSedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
+import { useAuthStore } from "@/features/auth/lib/auth.store";
 
 interface PerDiemRequestFormProps {
   defaultValues: Partial<PerDiemRequestSchema | PerDiemRequestSchemaUpdate>;
@@ -29,17 +29,6 @@ interface PerDiemRequestFormProps {
   mode?: "create" | "update";
   onCancel?: () => void;
 }
-
-const districtDestinationIds = [
-  "1300",
-  "1295",
-  "1286",
-  "1549",
-  "1227",
-  "558",
-  "1827",
-  "631",
-]; // IDs de departamentos para destino
 
 export const PerDiemRequestForm = ({
   defaultValues,
@@ -63,11 +52,9 @@ export const PerDiemRequestForm = ({
   useGetAllPerDiemCategory();
   const { data: myCompanies = [], isLoading: isLoadingMyCompanies } =
     useUserCompanies();
-  const { data: districts = [], isLoading: isLoadingDistricts } =
-    useAllDistrict({
-      id: districtDestinationIds,
-    });
+
   const { data: sedes = [], isLoading: isLoadingSedes } = useAllSedes();
+  const user = useAuthStore((state) => state.user);
 
   // Observar el valor de company_id
   const companyId = form.watch("company_id");
@@ -122,8 +109,7 @@ export const PerDiemRequestForm = ({
     }
   }, [companyId, filteredSedes, form]);
 
-  if (isLoadingMyCompanies || isLoadingDistricts || isLoadingSedes)
-    return <FormSkeleton />;
+  if (isLoadingMyCompanies || isLoadingSedes) return <FormSkeleton />;
 
   return (
     <Form {...form}>
@@ -147,7 +133,13 @@ export const PerDiemRequestForm = ({
             label="Sede Brinda Servicio"
             placeholder="Selecciona una sede"
             options={filteredSedes
-              .filter((item) => item?.id && item?.abreviatura)
+              .filter(
+                (item) =>
+                  item?.id &&
+                  item?.abreviatura &&
+                  item.id !== (user as any)?.sede_id &&
+                  item.id !== (user as any)?.shop_id
+              )
               .map((item) => ({
                 label: item.abreviatura,
                 value: item.id.toString(),
@@ -175,18 +167,6 @@ export const PerDiemRequestForm = ({
             control={form.control}
           />
         </div>
-
-        <FormSelect
-          name="district_id"
-          label="Destino"
-          placeholder="Selecciona un distrito"
-          options={districts.map((item) => ({
-            label: item.name + " - " + item.ubigeo,
-            value: item.id.toString(),
-          }))}
-          control={form.control}
-          strictFilter={true}
-        />
 
         <FormInputText
           name="purpose"

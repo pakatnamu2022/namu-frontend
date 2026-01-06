@@ -15,7 +15,7 @@ import "@fontsource/poppins/800.css";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
+    <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
       <ReactQueryProvider>
         <App />
         <Toaster />
