@@ -183,7 +183,7 @@ export function TravelControlDetailModal({
       const userAgent = navigator.userAgent;
       const deviceInfo = parseUserAgent(userAgent);
 
-      const metadata = {
+       const metadata = {
         latitude: location?.latitude,
         longitude: location?.longitude,
         userAgent: userAgent,
