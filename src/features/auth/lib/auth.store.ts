@@ -1,11 +1,8 @@
 import { create } from "zustand";
-import type {
-  AuthRequest,
-  AuthResponseUser,
-  ModulePermissions,
-} from "./auth.interface";
+import type { AuthRequest, ModulePermissions } from "./auth.interface";
 import { authenticate, login, logout } from "./auth.actions";
 import type { ViewsResponseOpcionesMenu } from "../../views/lib/views.interface";
+import { UserResource } from "@/features/gp/gestionsistema/usuarios/lib/user.interface";
 
 const getInitialToken = () => {
   if (typeof window !== "undefined") {
@@ -17,7 +14,7 @@ const getInitialToken = () => {
 interface AuthState {
   token?: string;
   isAuthenticated: boolean;
-  user: AuthResponseUser;
+  user: UserResource;
   isHydrated: boolean;
   permissions?: ViewsResponseOpcionesMenu[]; // Access tree for navigation
   permissionsModules?: ModulePermissions; // Module permissions { "module.action": true }
@@ -31,7 +28,7 @@ interface AuthState {
 export const useAuthStore = create<AuthState>((set, get) => ({
   token: "",
   isAuthenticated: !!getInitialToken(),
-  user: {} as AuthResponseUser,
+  user: {} as UserResource,
   permissions: [],
   permissionsModules: [], // Initialize as empty array (backend sends array)
   isHydrated: false,

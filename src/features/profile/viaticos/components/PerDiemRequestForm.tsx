@@ -115,18 +115,20 @@ export const PerDiemRequestForm = ({
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 w-full">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormSelect
-            name="company_id"
-            label="Mi Empresa"
-            placeholder="Selecciona una empresa"
-            options={myCompanies
-              .filter((item) => item?.id && item?.name)
-              .map((item) => ({
-                label: item.name,
-                value: item.id.toString(),
-              }))}
-            control={form.control}
-          />
+          <div className={myCompanies.length <= 1 ? "hidden" : ""}>
+            <FormSelect
+              name="company_id"
+              label="Mi Empresa"
+              placeholder="Selecciona una empresa"
+              options={myCompanies
+                .filter((item) => item?.id && item?.name)
+                .map((item) => ({
+                  label: item.name,
+                  value: item.id.toString(),
+                }))}
+              control={form.control}
+            />
+          </div>
 
           <FormSelect
             name="sede_service_id"
@@ -135,13 +137,11 @@ export const PerDiemRequestForm = ({
             options={filteredSedes
               .filter(
                 (item) =>
-                  item?.id &&
-                  item?.abreviatura &&
-                  item.id !== (user as any)?.sede_id &&
-                  item.id !== (user as any)?.shop_id
+                  item?.id && item?.abreviatura && item.id !== user?.sede_id
+                // && item?.shop_id !== user?.shop_id
               )
               .map((item) => ({
-                label: item.abreviatura,
+                label: item.abreviatura.replace(/_/g, " "),
                 value: item.id.toString(),
               }))}
             control={form.control}

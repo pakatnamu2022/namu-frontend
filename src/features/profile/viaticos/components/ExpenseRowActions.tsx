@@ -1,7 +1,14 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { CheckCircle, XCircle, FileText, Loader2, Pencil, Trash2 } from "lucide-react";
+import {
+  CheckCircle,
+  XCircle,
+  FileText,
+  Loader2,
+  Pencil,
+  Trash2,
+} from "lucide-react";
 import { ExpenseResource } from "../lib/perDiemRequest.interface";
 import { useState } from "react";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
@@ -35,6 +42,8 @@ export default function ExpenseRowActions({
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
+  const { ABSOLUTE_ROUTE: PER_DIEM_REQUEST_ROUTE, QUERY_KEY } =
+    PER_DIEM_REQUEST;
   const deleteExpenseMutation = useDeletePerDiemExpense(requestId || 0, {
     onSuccess: () => {
       onActionComplete?.();
@@ -52,7 +61,7 @@ export default function ExpenseRowActions({
       // Invalidar queries para refrescar los datos
       if (requestId) {
         await queryClient.invalidateQueries({
-          queryKey: [PER_DIEM_REQUEST.QUERY_KEY, requestId],
+          queryKey: [QUERY_KEY, requestId],
         });
       }
       onActionComplete?.();
@@ -89,7 +98,7 @@ export default function ExpenseRowActions({
       // Invalidar queries para refrescar los datos
       if (requestId) {
         await queryClient.invalidateQueries({
-          queryKey: [PER_DIEM_REQUEST.QUERY_KEY, requestId],
+          queryKey: [QUERY_KEY, requestId],
         });
       }
       setRejectionReason("");
@@ -109,7 +118,9 @@ export default function ExpenseRowActions({
 
   const handleEdit = () => {
     if (requestId) {
-      navigate(`/perfil/viaticos/${requestId}/gastos/actualizar/${expense.id}`);
+      navigate(
+        `${PER_DIEM_REQUEST_ROUTE}/${requestId}/gastos/actualizar/${expense.id}`
+      );
     }
   };
 

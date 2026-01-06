@@ -1,112 +1,15 @@
-import React from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Badge, BadgeVariants } from "@/components/ui/badge";
+import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import {
-  Calendar,
-  MapPin,
-  FileText,
-  Wallet,
-  Hotel,
-  Clock,
-  CheckCircle2,
-  XCircle,
-  CircleDashed,
-  Plane,
-  FileCheck,
-} from "lucide-react";
-import {
-  PerDiemRequestResource,
-  PerDiemRequestStatus,
-} from "../lib/perDiemRequest.interface";
+import { Calendar, MapPin, FileText, Wallet, Hotel } from "lucide-react";
+import { PerDiemRequestResource } from "../lib/perDiemRequest.interface";
+import { getStatusConfig } from "../lib/perDiemRequest.function";
 
 interface PerDiemRequestCardProps {
   request: PerDiemRequestResource;
   onClick?: () => void;
 }
-
-const getStatusConfig = (status: PerDiemRequestStatus) => {
-  const statusConfig: Record<
-    PerDiemRequestStatus,
-    {
-      label: string;
-      variant: BadgeVariants;
-      icon: React.ReactNode;
-      IconComponent: React.ComponentType<{ className?: string }>;
-      iconBgColor: string;
-      iconColor: string;
-    }
-  > = {
-    pending: {
-      label: "Pendiente",
-      variant: "outline",
-      icon: <Clock className="w-3 h-3 animate-pulse" />,
-      IconComponent: Clock,
-      iconBgColor: "bg-gray-100 dark:bg-gray-800",
-      iconColor: "text-gray-600 dark:text-gray-400",
-    },
-    approved: {
-      label: "Aprobada",
-      variant: "teal",
-      icon: <CheckCircle2 className="w-3 h-3" />,
-      IconComponent: CheckCircle2,
-      iconBgColor: "bg-teal-100 dark:bg-teal-950",
-      iconColor: "text-teal-600 dark:text-teal-400",
-    },
-    rejected: {
-      label: "Rechazada",
-      variant: "red",
-      icon: <XCircle className="w-3 h-3" />,
-      IconComponent: XCircle,
-      iconBgColor: "bg-red-100 dark:bg-red-950",
-      iconColor: "text-red-600 dark:text-red-400",
-    },
-    pending_settlement: {
-      label: "Pendiente de Liquidación",
-      variant: "indigo",
-      icon: <FileText className="w-3 h-3 animate-pulse" />,
-      IconComponent: FileText,
-      iconBgColor: "bg-indigo-100 dark:bg-indigo-950",
-      iconColor: "text-indigo-600 dark:text-indigo-400",
-    },
-    in_progress: {
-      label: "En Progreso",
-      variant: "orange",
-      icon: <Plane className="w-3 h-3" />,
-      IconComponent: Plane,
-      iconBgColor: "bg-orange-100 dark:bg-orange-950",
-      iconColor: "text-orange-600 dark:text-orange-400",
-    },
-    cancelled: {
-      label: "Cancelada",
-      variant: "secondary",
-      icon: <CircleDashed className="w-3 h-3" />,
-      IconComponent: CircleDashed,
-      iconBgColor: "bg-gray-100 dark:bg-gray-800",
-      iconColor: "text-gray-600 dark:text-gray-400",
-    },
-    settled: {
-      label: "Liquidada",
-      variant: "blue",
-      icon: <FileCheck className="w-3 h-3" />,
-      IconComponent: FileCheck,
-      iconBgColor: "bg-blue-100 dark:bg-blue-950",
-      iconColor: "text-blue-600 dark:text-blue-400",
-    },
-  };
-
-  return (
-    statusConfig[status] || {
-      label: status,
-      variant: "outline" as const,
-      icon: <Clock className="w-3 h-3" />,
-      IconComponent: Clock,
-      iconBgColor: "bg-gray-100 dark:bg-gray-800",
-      iconColor: "text-gray-600 dark:text-gray-400",
-    }
-  );
-};
 
 export default function PerDiemRequestCard({
   request,
@@ -151,7 +54,7 @@ export default function PerDiemRequestCard({
             variant={statusConfig.variant}
             className="flex items-center gap-1 shrink-0"
           >
-            {statusConfig.icon}
+            <StatusIcon className={`w-3 h-3`} />
             <span>{statusConfig.label}</span>
           </Badge>
         </div>

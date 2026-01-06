@@ -327,6 +327,7 @@ import AddGeneralElectronicDocumentPage from "./app/ap/comercial/electronic-docu
 import PerDiemRequestAPPage from "./app/ap/contabilidad/solicitud-viaticos/page.tsx";
 import PerDiemRequestDetailAdminAPPage from "./app/ap/contabilidad/solicitud-viaticos/[id]/page.tsx";
 import CommercialMastersPage from "./app/ap/configuraciones/maestros-general/maestros-generales/page.tsx";
+import { PER_DIEM_REQUEST } from "./features/profile/viaticos/lib/perDiemRequest.constants.ts";
 
 // ============================================================================
 // PROTECTED ROUTE COMPONENT
@@ -367,6 +368,8 @@ const RouterCrud = (
     </>
   );
 };
+
+const { ROUTE: PER_DIEM_REQUEST_ROUTE } = PER_DIEM_REQUEST;
 
 // ============================================================================
 // APP COMPONENT
@@ -461,33 +464,36 @@ function App() {
               />
               <Route path="mi-desempeno" element={<MyPerformance />} />
               <Route path="vacaciones" element={<VacationPage />} />
-              <Route path="viaticos" element={<MyPerDiemPage />} />
               <Route
-                path="viaticos/agregar"
+                path={PER_DIEM_REQUEST_ROUTE}
+                element={<MyPerDiemPage />}
+              />
+              <Route
+                path={`${PER_DIEM_REQUEST_ROUTE}/agregar`}
                 element={<AddPerDiemRequestPage />}
               />
               <Route
-                path="viaticos/actualizar/:id"
+                path={`${PER_DIEM_REQUEST_ROUTE}/actualizar/:id`}
                 element={<UpdatePerDiemRequestPage />}
               />
               <Route
-                path="viaticos/aprobar"
+                path={`${PER_DIEM_REQUEST_ROUTE}/aprobar`}
                 element={<ApprovePerDiemRequestPage />}
               />
               <Route
-                path="viaticos/aprobar-liquidaciones"
+                path={`${PER_DIEM_REQUEST_ROUTE}/aprobar-liquidaciones`}
                 element={<ApproveSettlementPage />}
               />
               <Route
-                path="viaticos/:id"
+                path={`${PER_DIEM_REQUEST_ROUTE}/:id`}
                 element={<PerDiemRequestDetailPage />}
               />
               <Route
-                path="viaticos/:id/gastos/agregar"
+                path={`${PER_DIEM_REQUEST_ROUTE}/:id/gastos/agregar`}
                 element={<AddExpensePage />}
               />
               <Route
-                path="viaticos/:id/gastos/actualizar/:expenseId"
+                path={`${PER_DIEM_REQUEST_ROUTE}/:id/gastos/actualizar/:expenseId`}
                 element={<UpdateExpensePage />}
               />
             </Route>
@@ -1445,23 +1451,23 @@ function App() {
 
                 {/* Administración de Solicitud de Viaticos */}
                 <Route
-                  path="solicitud-viaticos"
+                  path={PER_DIEM_REQUEST_ROUTE}
                   element={<PerDiemRequestPage />}
                 />
                 <Route
-                  path="solicitud-viaticos/:id"
+                  path={`${PER_DIEM_REQUEST_ROUTE}/:id`}
                   element={<PerDiemRequestDetailAdminPage />}
                 />
                 <Route
-                  path="solicitud-viaticos/:id/reserva-hotel/agregar"
+                  path={`${PER_DIEM_REQUEST_ROUTE}/:id/reserva-hotel/agregar`}
                   element={<AddAdminHotelReservationPage />}
                 />
                 <Route
-                  path="solicitud-viaticos/:id/reserva-hotel/actualizar/:reservationId"
+                  path={`${PER_DIEM_REQUEST_ROUTE}/:id/reserva-hotel/actualizar/:reservationId`}
                   element={<UpdateAdminHotelReservationPage />}
                 />
                 <Route
-                  path="solicitud-viaticos/:id/deposito"
+                  path={`${PER_DIEM_REQUEST_ROUTE}/:id/deposito`}
                   element={<UploadDepositPage />}
                 />
               </Route>
