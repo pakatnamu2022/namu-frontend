@@ -2,7 +2,6 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ApiResponse, GetTripsProps, TravelControlResource, TravelControlResponse, TripStatus } from '@/features/tp/comercial/ControlViajes/lib/travelControl.interface';
 import { changeStatus, endRoute, getAvailableStatuses, getDriverRegistries, getLastMileage, getTravels, registerFuel, startRoute, validateMileage} from './travelControl.actions';
 import { TRAVEL_CONTROL } from '../controlViajesType/travelControl.constants';
-import { useState } from 'react';
 
 const { QUERY_KEY } = TRAVEL_CONTROL;
 
@@ -129,90 +128,6 @@ export const useChangeStatus = () => {
             queryClient.invalidateQueries({ queryKey: [QUERY_KEY, 'detail', variables.id] });
         },
     });
-};
-
-export const useTravelActions = () => {
-    
-    const startRouteMutation = useStartRoute();
-    const endRouteMutation = useEndRoute();
-    const registerFuelMutation = useRegisterFuel();
-    const changeStatusMutation = useChangeStatus();
-    const queryClient = useQueryClient();
-
-    const invalidateAllTravelQueries = () => {
-        queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
-    };
-    
-    return {
-        startRoute: startRouteMutation.mutateAsync,
-        endRoute: endRouteMutation.mutateAsync,
-        registerFuel: registerFuelMutation.mutateAsync,
-        changeStatus: changeStatusMutation.mutateAsync,
-        isStartingRoute: startRouteMutation.isPending,
-        isEndingRoute: endRouteMutation.isPending,
-        isRegisteringFuel: registerFuelMutation.isPending,
-        isChangingStatus: changeStatusMutation.isPending,
-        startRouteError: startRouteMutation.error,
-        endRouteError: endRouteMutation.error,
-        registerFuelError: registerFuelMutation.error,
-        changeStatusError: changeStatusMutation.error,
-        invalidateAllTravelQueries,
-        refetchTravels: () => queryClient.invalidateQueries({ queryKey: [QUERY_KEY] })
-    };
-};
-
-export const useTravelsPagination = (
-    initialPage: number = 1,
-    initialPerPage: number = 15
-) => {
-    const [page, setPage] = useState(initialPage);
-    const [perPage, setPerPage] = useState(initialPerPage);
-    
-    const { data, isLoading, error } = useTravels({ page, per_page: perPage });
-    
-    const totalPages = data?.meta?.last_page || 1;
-    const totalItems = data?.meta?.total || 0;
-    
-    const goToPage = (newPage: number) => {
-        if (newPage >= 1 && newPage <= totalPages) {
-            setPage(newPage);
-        }
-    };
-    
-    const nextPage = () => {
-        if (page < totalPages) {
-            setPage(page + 1);
-        }
-    };
-    
-    const prevPage = () => {
-        if (page > 1) {
-            setPage(page - 1);
-        }
-    };
-    
-    const changePerPage = (newPerPage: number) => {
-        setPerPage(newPerPage);
-        setPage(1); 
-    };
-    
-    return {
-        data: data?.data || [],
-        isLoading,
-        error,
-        page,
-        perPage,
-        totalPages,
-        totalItems,
-        setPage,
-        setPerPage,
-        goToPage,
-        nextPage,
-        prevPage,
-        changePerPage,
-        hasNextPage: page < totalPages,
-        hasPrevPage: page > 1
-    };
 };
 
 

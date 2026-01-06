@@ -1,15 +1,16 @@
+import { requiredStringId } from "@/shared/lib/global.schema";
 import { z } from "zod";
 
 const ControlTravelStatusEnum = z.enum(["pending", "in_progress", "completed", "fuel_pending"]);
 const FuelTypeEnum = z.enum(["diesel", "gasoline", "gas"]);
 
 const driverSchema = z.object({
-  id: z.string().min(1, "Selecciona un conductor"),
+  id: requiredStringId("Selecciona un conductor"),
   name: z.string().min(1, "Nombre del conductor es requerido"),
 });
 
 const additionalDriverSchema = z.object({
-  id: z.string().min(1, "ID del conductor adicional requerido"),
+  id: requiredStringId("ID del conductor adicional requerido"),
   name: z.string().min(1, "Nombre del conductor adicional requerido"),
 });
 
@@ -134,11 +135,11 @@ export const ControlTravelSchemaCreate = ControlTravelBaseSchema.superRefine((da
 });
 
 export const ControlTravelSchemaUpdate = ControlTravelBaseSchema.partial().extend({
-  id: z.string().min(1, "ID del viaje es requerido"),
+  id: requiredStringId("ID del viaje es requerido"),
 });
 
 export const ControlTravelFuelSchema = z.object({
-  ControlViajesId: z.string().min(1, "ID del viaje es requerido"),
+  ControlViajesId: requiredStringId("ID del viaje es requerido"),
   fuelGallons: z.number()
     .min(0.1, "Debe ingresar al menos 0.1 galones")
     .max(1000, "No puede exceder 1000 galones"),
@@ -162,7 +163,7 @@ export const ControlTravelFuelSchema = z.object({
 });
 
 export const ControlTravelStatusSchema = z.object({
-  ControlViajesId: z.string().min(1, "ID del viaje es requerido"),
+  ControlViajesId: requiredStringId("ID del viaje es requerido"),
   status: ControlTravelStatusEnum,
   statusReason: z.string()
     .max(500, "La razón no puede exceder 500 caracteres")
@@ -170,6 +171,163 @@ export const ControlTravelStatusSchema = z.object({
     .or(z.literal("")),
 });
 
+export const createTravelControlModalSchema = (options?: {
+  lastMileage?: number | null;
+  tripInitialKm?: number | null;
+}) => {
+  return z.object({
+    initialKm: z.string()
+      .min(1, "El Kilometraje inicial es requerido")
+      .refine((val) => !isNaN(parseFloat(val)) && parseFloat(val) >= 0, {
+        message: "Debe ser un número mayor o igual a 0"
+      }),
+    
+    finalKm: z.string()
+      .min(1, "El Kilometraje final es requerido")
+      .refine((val) => !isNaN(parseFloat(val)) && parseFloat(val) >= 0, {
+        message: "Debe ser un número mayor o igual a 0"
+      }),
+    
+    tonnage: z.string()
+      .optional()
+      .transform((val) => val?.trim() || "")
+      .refine((val) => !val || (!isNaN(parseFloat(val)) && parseFloat(val) >= 0 && parseFloat(val) <= 100), {
+        message: "Debe ser entre 0 y 100 toneladas"
+      }),
+    
+    factorKm: z.string()
+      .min(1, "El factor KM es requerido")
+      .refine((val) => !isNaN(parseFloat(val)) && parseFloat(val) >= 0.1 && parseFloat(val) <= 10, {
+        message: "Debe ser entre 0.1 y 10"
+      }),
+    
+    fuelGallons: z.string()
+      .optional()
+      .refine((val) => !val || (!isNaN(parseFloat(val)) && parseFloat(val) >= 0.1 && parseFloat(val) <= 1000), {
+        message: "Debe ser entre 0.1 y 1000 galones"
+      }),
+    
+    fuelAmount: z.string()
+      .optional()
+      .refine((val) => !val || (!isNaN(parseFloat(val)) && parseFloat(val) >= 0.1), {
+        message: "Debe ser mayor a 0"
+      }),
+    
+    documentNumber: z.string()
+      .max(20, "No puede exceder 20 caracteres")
+      .optional(),
+    
+    vatNumber: z.string()
+      .max(11, "El RUC debe tener máximo 11 caracteres")
+      .optional(),
+  })
+  .superRefine((data, ctx) => {
+    // Validación 1: initialKm >= lastMileage (si lastMileage existe)
+    if (options?.lastMileage !== undefined && options.lastMileage !== null) {
+      const initial = parseFloat(data.initialKm);
+      if (!isNaN(initial) && initial < options.lastMileage) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `Debe ser mayor o igual al último registro del vehículo (${options.lastMileage} km)`,
+          path: ["initialKm"],
+        });
+      }
+    }
+    
+    // Validación 2: finalKm > initialKm (si tenemos el initialKm del viaje)
+    const final = parseFloat(data.finalKm);
+    const initialFromTrip = options?.tripInitialKm ?? parseFloat(data.initialKm);
+    
+    if (!isNaN(final) && !isNaN(initialFromTrip) && final <= initialFromTrip) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: `Debe ser mayor al kilometraje inicial (${initialFromTrip} km)`,
+        path: ["finalKm"],
+      });
+    }
+    
+  });
+};
+
+export const TravelControlModalSchema = z.object({
+  initialKm: z.string()
+    .min(1, "El Kilometraje inicial es requerido")
+    .refine((val) => !isNaN(parseFloat(val)) && parseFloat(val) >= 0, {
+      message: "Debe ser un número mayor o igual a 0"
+    }),
+  finalKm: z.string()
+    .min(1, "El Kilometraje final es requerido")
+    .refine((val) => !isNaN(parseFloat(val)) && parseFloat(val) >= 0, {
+      message: "Debe ser un número mayor o igual a 0"
+    }),
+  tonnage: z.string()
+    .optional()
+    .refine((val) => !val || (!isNaN(parseFloat(val)) && parseFloat(val) >= 0 && parseFloat(val) <= 100), {
+      message: "Debe ser entre 0 y 100 toneladas"
+    }),
+  factorKm: z.string()
+    .min(1, "El factor KM es requerido")
+    .refine((val) => !isNaN(parseFloat(val)) && parseFloat(val) >= 0.1 && parseFloat(val) <= 10, {
+      message: "Debe ser entre 0.1 y 10"
+    }),
+  fuelGallons: z.string()
+    .optional()
+    .refine((val) => !val || (!isNaN(parseFloat(val)) && parseFloat(val) >= 0.1 && parseFloat(val) <= 1000), {
+      message: "Debe ser entre 0.1 y 1000 galones"
+    }),
+  fuelAmount: z.string()
+    .optional()
+    .refine((val) => !val || (!isNaN(parseFloat(val)) && parseFloat(val) >= 0.1), {
+      message: "Debe ser mayor a 0"
+    }),
+  documentNumber: z.string()
+    .max(20, "No puede exceder 20 caracteres")
+    .optional(),
+  vatNumber: z.string()
+    .max(11, "El RUC debe tener máximo 11 caracteres")
+    .optional(),
+});
+
+export const TravelControlModalBaseSchema = z.object({
+  initialKm: z.string()
+    .min(1, "El Kilometraje inicial es requerido")
+    .refine((val) => !isNaN(parseFloat(val)) && parseFloat(val) >= 0, {
+      message: "Debe ser un número mayor o igual a 0"
+    }),
+  finalKm: z.string()
+    .min(1, "El Kilometraje final es requerido")
+    .refine((val) => !isNaN(parseFloat(val)) && parseFloat(val) >= 0, {
+      message: "Debe ser un número mayor o igual a 0"
+    }),
+  tonnage: z.string()
+    .optional()
+    .refine((val) => !val || (!isNaN(parseFloat(val)) && parseFloat(val) >= 0 && parseFloat(val) <= 100), {
+      message: "Debe ser entre 0 y 100 toneladas"
+    }),
+  factorKm: z.string()
+    .min(1, "El factor KM es requerido")
+    .refine((val) => !isNaN(parseFloat(val)) && parseFloat(val) >= 0.1 && parseFloat(val) <= 10, {
+      message: "Debe ser entre 0.1 y 10"
+    }),
+  fuelGallons: z.string()
+    .optional()
+    .refine((val) => !val || (!isNaN(parseFloat(val)) && parseFloat(val) >= 0.1 && parseFloat(val) <= 1000), {
+      message: "Debe ser entre 0.1 y 1000 galones"
+    }),
+  fuelAmount: z.string()
+    .optional()
+    .refine((val) => !val || (!isNaN(parseFloat(val)) && parseFloat(val) >= 0.1), {
+      message: "Debe ser mayor a 0"
+    }),
+  documentNumber: z.string()
+    .max(20, "No puede exceder 20 caracteres")
+    .optional(),
+  vatNumber: z.string()
+    .max(11, "El RUC debe tener máximo 11 caracteres")
+    .optional(),
+});
+
+export type TravelControlModalData = z.infer<typeof TravelControlModalBaseSchema>;
 export type ControlTravelSchema = z.infer<typeof ControlTravelSchemaCreate>;
 export type ControlTravelUpdateSchema = z.infer<typeof ControlTravelSchemaUpdate>;
 export type ControlTravelFuelSchema = z.infer<typeof ControlTravelFuelSchema>;

@@ -52,12 +52,6 @@ export default function ControlTravelPage() {
     handleSearchOrStatusChange();
   }, [handleSearchOrStatusChange]);
 
-  useEffect(()=>{
-    if(search !== "" || status !== "all"){
-      setPage(1);
-    }
-  }, [search, status]);
-
 
   if (isLoadingModule) return <PageSkeleton />;
   if(!checkRouteExists("control-viajes")) notFound();

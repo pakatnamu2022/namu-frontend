@@ -8,7 +8,7 @@ import {
 import { useAuthStore } from "./features/auth/lib/auth.store";
 import DashboardSkeleton from "./shared/components/DashboardSkeleton";
 import { AuthInitializer } from "./shared/components/AuthInitializer";
-import { FC, JSX, Suspense, lazy } from "react";
+import { FC, JSX, Suspense} from "react";
 import ModulePerformanceEvaluationPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/page";
 import HierarchicalCategoryPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/categorias-jerarquicas/page";
 import AddHierarchicalCategoryPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/categorias-jerarquicas/agregar/page";
@@ -113,6 +113,7 @@ import GPGestionSistemaLayout from "./app/gp/gestion-del-sistema/layout";
 import GPGestionHumanaLayout from "./app/gp/gestion-humana/layout";
 import GPMaestroGeneralLayout from "./app/gp/maestro-general/layout";
 import GPTicsLayout from "./app/gp/tics/layout";
+import TPComercialLayout from "./app/tp/comercial-tp/layout";
 
 // ============================================================================
 // ROOT & PUBLIC PAGES
@@ -322,12 +323,7 @@ import AddGeneralElectronicDocumentPage from "./app/ap/comercial/electronic-docu
 import PerDiemRequestAPPage from "./app/ap/contabilidad/solicitud-viaticos/page.tsx";
 import PerDiemRequestDetailAdminAPPage from "./app/ap/contabilidad/solicitud-viaticos/[id]/page.tsx";
 import CommercialMastersPage from "./app/ap/configuraciones/maestros-general/maestros-generales/page.tsx";
-
-
-// ============================================================================
-// TP - COMERCIAL
-// ============================================================================
-const ControlTravelPage = lazy(() => import("./app/tp/comercial-tp/control-viajes/page"));
+import ControlTravelPage from "./app/tp/comercial-tp/control-viajes/page.tsx";
 
 
 // ============================================================================

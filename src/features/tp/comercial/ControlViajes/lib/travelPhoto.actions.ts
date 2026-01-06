@@ -97,7 +97,7 @@ export async function uploadPhoto(
     }
 }
 
-function parseUserAgent(userAgent: string): {
+export function parseUserAgent(userAgent: string): {
     operatingSystem: string;
     browser: string;
     device_model: string;
