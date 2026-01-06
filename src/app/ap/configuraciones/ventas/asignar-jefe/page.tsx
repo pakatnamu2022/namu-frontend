@@ -13,18 +13,13 @@ import AssignmentLeadershipTable from "@/features/ap/configuraciones/ventas/asig
 import { assignmentLeadershipColumns } from "@/features/ap/configuraciones/ventas/asignar-jefe/components/AssignmentLeadershipColumns";
 import AssignmentLeadershipOptions from "@/features/ap/configuraciones/ventas/asignar-jefe/components/AssignmentLeadershipOptions";
 import { ASSIGNMENT_LEADERSHIP } from "@/features/ap/configuraciones/ventas/asignar-jefe/lib/assignmentLeadership.constants";
-import {
-  errorToast,
-  generateYear,
-  successToast,
-} from "@/core/core.function";
+import { errorToast, generateYear, successToast } from "@/core/core.function";
 import { updateAssignmentLeadership } from "@/features/ap/configuraciones/ventas/asignar-jefe/lib/assignmentLeadership.actions";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { notFound } from "@/shared/hooks/useNotFound";
 
-
 export default function AssignmentLeadershipPage() {
-    const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
+  const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const currentYear = new Date().getFullYear().toString();
   const currentMonth = (new Date().getMonth() + 1).toString().padStart(2, "0");
   const [page, setPage] = useState(1);
