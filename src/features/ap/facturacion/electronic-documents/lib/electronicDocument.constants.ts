@@ -1,6 +1,7 @@
 import { type ModelComplete } from "@/core/core.interface";
 import { ElectronicDocumentResource } from "./electronicDocument.interface";
 
+// RUTAS PARA COMERCIAL
 const ROUTE = "comprobantes-venta";
 const ABSOLUTE_ROUTE = `/ap/comercial/${ROUTE}`;
 
@@ -18,6 +19,45 @@ export const ELECTRONIC_DOCUMENT: ModelComplete<ElectronicDocumentResource> = {
   ROUTE_ADD: `${ABSOLUTE_ROUTE}/agregar`,
   ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/actualizar`,
 };
+
+// RUTA PARA REPUESTOS - POST VENTA
+const ROUTE_REPUESTOS = "comprobante-venta-repuesto";
+const ABSOLUTE_ROUTE_REPUESTOS = `/ap/post-venta/repuestos/${ROUTE_REPUESTOS}`;
+
+export const ELECTRONIC_DOCUMENT_REPUESTOS: ModelComplete<ElectronicDocumentResource> =
+  {
+    MODEL: {
+      name: "Comprobante de Venta Repuesto",
+      plural: "Comprobantes de Venta Repuestos",
+      gender: false,
+    },
+    ICON: "FileText",
+    ENDPOINT: "/ap/facturacion/electronic-documents",
+    QUERY_KEY: "electronic-documents-repuestos",
+    ROUTE: ROUTE_REPUESTOS,
+    ABSOLUTE_ROUTE: ABSOLUTE_ROUTE_REPUESTOS,
+    ROUTE_ADD: `${ABSOLUTE_ROUTE_REPUESTOS}/agregar`,
+    ROUTE_UPDATE: `${ABSOLUTE_ROUTE_REPUESTOS}/actualizar`,
+  };
+
+// RUTA PARA TALLER - POST VENTA
+const ROUTE_TALLER = "comprobante-venta-taller";
+const ABSOLUTE_ROUTE_TALLER = `/ap/post-venta/taller/${ROUTE_TALLER}`;
+export const ELECTRONIC_DOCUMENT_TALLER: ModelComplete<ElectronicDocumentResource> =
+  {
+    MODEL: {
+      name: "Comprobante de Venta Taller",
+      plural: "Comprobantes de Venta Taller",
+      gender: false,
+    },
+    ICON: "FileText",
+    ENDPOINT: "/ap/facturacion/electronic-documents",
+    QUERY_KEY: "electronic-documents-taller",
+    ROUTE: ROUTE_TALLER,
+    ABSOLUTE_ROUTE: ABSOLUTE_ROUTE_TALLER,
+    ROUTE_ADD: `${ABSOLUTE_ROUTE_TALLER}/agregar`,
+    ROUTE_UPDATE: `${ABSOLUTE_ROUTE_TALLER}/actualizar`,
+  };
 
 export const ORIGIN_MODULES = [
   { value: "comercial", label: "Comercial" },

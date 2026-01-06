@@ -13,10 +13,7 @@ import {
   QUOTATION_ACCOUNT_PLAN_IDS,
 } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.constants";
 import { useAuthorizedSeries } from "@/features/ap/configuraciones/maestros-general/asignar-serie-usuario/lib/userSeriesAssignment.hook";
-import {
-  useNextCorrelativeElectronicDocument,
-  useAdvancePaymentsByQuotation,
-} from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.hook";
+import { useNextCorrelativeElectronicDocument } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.hook";
 import { OrderQuotationDocumentInfoSection } from "./OrderQuotationDocumentInfoSection";
 import { ItemsSection } from "@/features/ap/facturacion/electronic-documents/components/sections/ItemsSection";
 import { AdditionalConfigSection } from "@/features/ap/facturacion/electronic-documents/components/sections/AdditionalConfigSection";
@@ -128,13 +125,10 @@ export function OrderQuotationBillingForm({
   const porcentaje_de_igv =
     selectedCustomer?.tax_class_type_igv || DEFAULT_IGV_PERCENTAGE;
 
-  // Obtener anticipos previos (simulado, puede que no haya anticipos para cotizaciones de taller)
-  const { data: advancePaymentsResponse } = useAdvancePaymentsByQuotation(null); // No hay cotización de comercial vinculada
-
-  // Calcular el saldo pendiente
+  // Calcular el saldo pendiente usando los anticipos de la cotización
   const quotationPrice = quotation ? quotation.total_amount : 0;
-  const totalAdvancesAmount = advancePaymentsResponse
-    ? advancePaymentsResponse.total_amount || 0
+  const totalAdvancesAmount = quotation?.advances
+    ? quotation.advances.reduce((sum, advance) => sum + (advance.total || 0), 0)
     : 0;
   const pendingBalance = quotationPrice - totalAdvancesAmount;
 
@@ -267,15 +261,17 @@ export function OrderQuotationBillingForm({
         const quotationItems: ElectronicDocumentItemSchema[] =
           quotation.details.map((detail) => {
             const cantidad = Number(detail.quantity) || 1;
-            const precio_con_igv = detail.total_amount || 0;
+            // IMPORTANTE: Convertir a número porque puede venir como string desde la API
+            const total_con_igv = Number(detail.total_amount) || 0;
 
-            // Calcular precio unitario con IGV
-            const precio_unitario = precio_con_igv / cantidad;
+            // El total_amount YA incluye IGV, así que usamos ese valor directamente
+            const precio_unitario = total_con_igv / cantidad;
             const valor_unitario =
               precio_unitario / (1 + porcentaje_de_igv / 100);
 
             const subtotal = valor_unitario * cantidad;
             const igvAmount = subtotal * (porcentaje_de_igv / 100);
+            const total = total_con_igv; // Usar el total original que ya incluye IGV
 
             return {
               account_plan_id: QUOTATION_ACCOUNT_PLAN_IDS.FULL_SALE,
@@ -291,9 +287,49 @@ export function OrderQuotationBillingForm({
                   (t) => t.code_nubefact === NUBEFACT_CODES.GRAVADA_ONEROSA
                 )?.id || 0,
               igv: igvAmount,
-              total: subtotal + igvAmount,
+              total: total,
             };
           });
+
+        // AGREGAR ITEMS DE REGULARIZACIÓN DE ANTICIPOS (si existen anticipos previos)
+        if (quotation.advances && quotation.advances.length > 0) {
+          quotation.advances.forEach((advance) => {
+            // Calcular los valores base del anticipo para restar
+            // IMPORTANTE: Convertir a número porque puede venir como string desde la API
+            const total_con_igv = Number(advance.total) || 0;
+            const precio_unitario = total_con_igv; // El anticipo es cantidad 1
+            const valor_unitario =
+              precio_unitario / (1 + porcentaje_de_igv / 100);
+            const subtotal = valor_unitario;
+            const igvAmount = subtotal * (porcentaje_de_igv / 100);
+
+            // Crear item de regularización en NEGATIVO
+            quotationItems.push({
+              account_plan_id: QUOTATION_ACCOUNT_PLAN_IDS.ADVANCE_PAYMENT,
+              unidad_de_medida: "ZZ",
+              codigo: advance.id?.toString(),
+              descripcion: `ANTICIPO: ${advance.serie}-${advance.numero} DEL ${
+                advance.fecha_de_emision
+                  ? new Date(advance.fecha_de_emision).toLocaleDateString(
+                      "es-PE"
+                    )
+                  : ""
+              }`,
+              cantidad: 1,
+              valor_unitario: valor_unitario,
+              precio_unitario: precio_unitario,
+              subtotal: subtotal,
+              sunat_concept_igv_type_id:
+                igvTypes.find(
+                  (t) => t.code_nubefact === NUBEFACT_CODES.GRAVADA_ONEROSA
+                )?.id || 0,
+              igv: igvAmount,
+              total: total_con_igv,
+              anticipo_regularizacion: true,
+              reference_document_id: advance.id?.toString(),
+            });
+          });
+        }
 
         form.setValue("items", quotationItems, { shouldValidate: false });
       }
@@ -301,16 +337,18 @@ export function OrderQuotationBillingForm({
   }, [
     quotation?.id,
     quotation?.details,
+    quotation?.advances,
     igvTypes,
     porcentaje_de_igv,
     isAdvancePayment,
     form,
   ]);
 
+  // Observar items para re-calcular totales cuando cambien
+  const items = form.watch("items") || [];
+
   // Calcular totales
   const totales = useMemo(() => {
-    const items = form.watch("items") || [];
-
     let total_gravada = 0;
     let total_inafecta = 0;
     let total_exonerada = 0;
@@ -367,7 +405,7 @@ export function OrderQuotationBillingForm({
       total_anticipo,
       total,
     };
-  }, [form, igvTypes, porcentaje_de_igv]);
+  }, [items, igvTypes, porcentaje_de_igv]);
 
   // Actualizar form values cuando cambien los cálculos
   useEffect(() => {
@@ -475,7 +513,7 @@ export function OrderQuotationBillingForm({
             isPending={isPending}
             isAdvancePayment={isAdvancePayment}
             quotation={quotation}
-            advancePayments={[]}
+            advancePayments={quotation?.advances || []}
           />
         </div>
       </form>
