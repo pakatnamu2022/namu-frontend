@@ -1440,7 +1440,7 @@ function App() {
 
                 {/* Administración de Solicitud de Viaticos */}
                 <Route
-                  path="solicitud-viaticos"
+                  path={"solicitud-viaticos"}
                   element={<PerDiemRequestPage />}
                 />
                 <Route

@@ -15,12 +15,16 @@ interface Props {
   onViewDetail: (id: number) => void;
   onViewHotelReservation?: (requestId: number) => void;
   module: "gh" | "contabilidad";
+  permissions?: {
+    canSend?: boolean;
+  };
 }
 
 export const perDiemRequestColumns = ({
   onViewDetail,
   onViewHotelReservation,
   module,
+  permissions: { canSend = false } = {},
 }: Props): PerDiemRequestColumns[] => [
   {
     accessorKey: "code",
@@ -119,6 +123,9 @@ export const perDiemRequestColumns = ({
           onViewHotelReservation={onViewHotelReservation}
           request={row.original}
           module={module}
+          permissions={{
+            canSend: canSend,
+          }}
         />
       );
     },

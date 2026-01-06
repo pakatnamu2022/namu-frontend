@@ -10,6 +10,7 @@ import {
   Download,
   Loader2,
   RotateCcwSquare,
+  MailPlus,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { PerDiemRequestResource } from "../lib/perDiemRequest.interface";
@@ -19,18 +20,29 @@ import {
   confirmProgressPerDiemRequest,
   completeSettlement,
   expenseTotalWithEvidencePdf,
+  resendPerDiemRequestEmails,
 } from "../lib/perDiemRequest.actions";
 import { PER_DIEM_REQUEST } from "../lib/perDiemRequest.constants";
 import { useState } from "react";
 import { errorToast, successToast } from "@/core/core.function";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Checkbox } from "@/components/ui/checkbox";
+import { SearchableSelect } from "@/shared/components/SearchableSelect";
 
 interface PerDiemRequestRowActionsProps {
   request: PerDiemRequestResource;
   onViewDetail: (id: number) => void;
   onViewHotelReservation?: (requestId: number) => void;
   module: "gh" | "contabilidad";
+  permissions?: {
+    canSend?: boolean;
+  };
 }
 
 export function PerDiemRequestRowActions({
@@ -38,6 +50,7 @@ export function PerDiemRequestRowActions({
   onViewDetail,
   onViewHotelReservation,
   module = "gh",
+  permissions,
 }: PerDiemRequestRowActionsProps) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -45,6 +58,12 @@ export function PerDiemRequestRowActions({
   const [isCompleteSettlementDialogOpen, setIsCompleteSettlementDialogOpen] =
     useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
+  const [isResendEmailPopoverOpen, setIsResendEmailPopoverOpen] =
+    useState(false);
+  const [emailType, setEmailType] = useState<string>("in_progress");
+  const [sendToEmployee, setSendToEmployee] = useState(true);
+  const [sendToB, setSendToBoss] = useState(false);
+  const [sendToAccounting, setSendToAccounting] = useState(false);
 
   const hasHotelReservation = !!request.hotel_reservation;
   const isApproved =
@@ -96,6 +115,33 @@ export function PerDiemRequestRowActions({
     },
   });
 
+  const resendEmailMutation = useMutation({
+    mutationFn: ({
+      requestId,
+      data,
+    }: {
+      requestId: number;
+      data: {
+        email_type: string;
+        send_to_employee: boolean;
+        send_to_boss: boolean;
+        send_to_accounting: boolean;
+      };
+    }) => resendPerDiemRequestEmails(requestId, data),
+    onSuccess: () => {
+      successToast("Emails reenviados exitosamente");
+      setIsResendEmailPopoverOpen(false);
+      // Reset form
+      setEmailType("in_progress");
+      setSendToEmployee(true);
+      setSendToBoss(false);
+      setSendToAccounting(false);
+    },
+    onError: (error: any) => {
+      errorToast(error?.response?.data?.message || "Error al reenviar emails");
+    },
+  });
+
   const handleConfirmRequest = () => {
     confirmMutation.mutate(request.id);
   };
@@ -104,6 +150,23 @@ export function PerDiemRequestRowActions({
     completeSettlementMutation.mutate({
       requestId: request.id,
       comments: settlementComments || undefined,
+    });
+  };
+
+  const handleResendEmails = () => {
+    if (!sendToEmployee && !sendToB && !sendToAccounting) {
+      errorToast("Debe seleccionar al menos un destinatario");
+      return;
+    }
+
+    resendEmailMutation.mutate({
+      requestId: request.id,
+      data: {
+        email_type: emailType,
+        send_to_employee: sendToEmployee,
+        send_to_boss: sendToB,
+        send_to_accounting: sendToAccounting,
+      },
     });
   };
 
@@ -304,6 +367,124 @@ export function PerDiemRequestRowActions({
               />
             </div>
           </ConfirmationDialog>
+        )}
+
+        {permissions?.canSend && module === "gh" && (
+          <Popover
+            open={isResendEmailPopoverOpen}
+            onOpenChange={setIsResendEmailPopoverOpen}
+          >
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon-xs"
+                tooltip="Reenviar emails"
+                disabled={resendEmailMutation.isPending}
+              >
+                <MailPlus className="size-4" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-80 p-4 h-auto max-h-max" align="end">
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <h4 className="font-medium leading-none">Reenviar Emails</h4>
+                  <p className="text-xs text-muted-foreground">
+                    Seleccione el tipo de email y los destinatarios
+                  </p>
+                </div>
+
+                <div className="space-y-3">
+                  <SearchableSelect
+                    onChange={setEmailType}
+                    value={emailType}
+                    options={[
+                      { value: "created", label: "Solicitud creada" },
+                      { value: "approved", label: "Solicitud aprobada" },
+                      { value: "in_progress", label: "Solicitud en progreso" },
+                      { value: "settlement", label: "Liquidación aprobada" },
+                      { value: "settled", label: "Solicitud liquidada" },
+                      { value: "cancelled", label: "Solicitud cancelada" },
+                    ]}
+                  />
+
+                  <div className="space-y-3 px-2">
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="send-to-employee"
+                        checked={sendToEmployee}
+                        onCheckedChange={(checked) =>
+                          setSendToEmployee(checked as boolean)
+                        }
+                      />
+                      <label
+                        htmlFor="send-to-employee"
+                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                      >
+                        Enviar al colaborador
+                      </label>
+                    </div>
+
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="send-to-boss"
+                        checked={sendToB}
+                        onCheckedChange={(checked) =>
+                          setSendToBoss(checked as boolean)
+                        }
+                      />
+                      <label
+                        htmlFor="send-to-boss"
+                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                      >
+                        Enviar al jefe
+                      </label>
+                    </div>
+
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="send-to-accounting"
+                        checked={sendToAccounting}
+                        onCheckedChange={(checked) =>
+                          setSendToAccounting(checked as boolean)
+                        }
+                      />
+                      <label
+                        htmlFor="send-to-accounting"
+                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                      >
+                        Enviar a contabilidad
+                      </label>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end gap-2 pt-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setIsResendEmailPopoverOpen(false)}
+                      disabled={resendEmailMutation.isPending}
+                    >
+                      Cancelar
+                    </Button>
+                    <Button
+                      size="sm"
+                      onClick={handleResendEmails}
+                      disabled={resendEmailMutation.isPending}
+                    >
+                      {resendEmailMutation.isPending ? (
+                        <>
+                          <Loader2 className="size-4 mr-2 animate-spin" />
+                          Enviando...
+                        </>
+                      ) : (
+                        "Enviar"
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
         )}
       </div>
     </>
