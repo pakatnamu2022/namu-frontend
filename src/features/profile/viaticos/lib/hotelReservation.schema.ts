@@ -1,4 +1,4 @@
-import { phoneSchemaRequired, requiredText } from "@/shared/lib/global.schema";
+import { requiredText } from "@/shared/lib/global.schema";
 import { z } from "zod";
 
 export const hotelReservationSchema = z
