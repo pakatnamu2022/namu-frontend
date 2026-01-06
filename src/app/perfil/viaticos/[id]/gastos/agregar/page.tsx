@@ -9,17 +9,20 @@ import { useCreatePerDiemExpense } from "@/features/profile/viaticos/lib/perDiem
 import { expenseSchemaToFormData } from "@/features/profile/viaticos/lib/perDiemExpense.utils";
 import { useFindPerDiemRequestById } from "@/features/profile/viaticos/lib/perDiemRequest.hook";
 import { Loader } from "lucide-react";
+import { PER_DIEM_REQUEST } from "@/features/profile/viaticos/lib/perDiemRequest.constants";
 
 export default function AddExpensePage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+
+  const { ABSOLUTE_ROUTE: PER_DIEM_REQUEST_ROUTE } = PER_DIEM_REQUEST;
 
   const { data: perDiemRequest, isLoading: isLoadingRequest } =
     useFindPerDiemRequestById(Number(id));
 
   const { mutate, isPending } = useCreatePerDiemExpense(Number(id), {
     onSuccess: () => {
-      navigate(`/perfil/viaticos/${id}`);
+      navigate(`${PER_DIEM_REQUEST_ROUTE}/${id}`);
     },
   });
 
@@ -29,7 +32,7 @@ export default function AddExpensePage() {
   };
 
   const handleCancel = () => {
-    navigate(`/perfil/viaticos/${id}`);
+    navigate(`${PER_DIEM_REQUEST_ROUTE}/${id}`);
   };
 
   if (isLoadingRequest) {

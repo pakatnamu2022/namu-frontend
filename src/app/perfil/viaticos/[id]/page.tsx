@@ -40,8 +40,10 @@ export default function PerDiemRequestDetailPage() {
   const [showStartSettlementDialog, setShowStartSettlementDialog] =
     useState(false);
 
+  const { ABSOLUTE_ROUTE: PER_DIEM_REQUEST_ROUTE, QUERY_KEY } =
+    PER_DIEM_REQUEST;
   const { data: request, isLoading } = useQuery({
-    queryKey: [PER_DIEM_REQUEST.QUERY_KEY, id],
+    queryKey: [QUERY_KEY, id],
     queryFn: () => findPerDiemRequestById(Number(id)),
     enabled: !!id,
   });
@@ -51,7 +53,7 @@ export default function PerDiemRequestDetailPage() {
     onSuccess: () => {
       successToast("Solicitud cancelada correctamente");
       queryClient.invalidateQueries({
-        queryKey: [PER_DIEM_REQUEST.QUERY_KEY, id],
+        queryKey: [QUERY_KEY, id],
       });
       setShowCancelDialog(false);
     },
@@ -65,7 +67,7 @@ export default function PerDiemRequestDetailPage() {
     onSuccess: () => {
       successToast("Proceso de liquidación iniciado correctamente");
       queryClient.invalidateQueries({
-        queryKey: [PER_DIEM_REQUEST.QUERY_KEY, id],
+        queryKey: [QUERY_KEY, id],
       });
       setShowStartSettlementDialog(false);
     },
@@ -168,7 +170,11 @@ export default function PerDiemRequestDetailPage() {
             {/* Título y Badge */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div className="flex items-center gap-3">
-                <BackButton route="/perfil/viaticos" size="icon" name="" />
+                <BackButton
+                  route={PER_DIEM_REQUEST_ROUTE}
+                  size="icon"
+                  name=""
+                />
                 <TitleComponent
                   title={request.code}
                   subtitle="Detalle de Solicitud de Viáticos"
@@ -212,7 +218,7 @@ export default function PerDiemRequestDetailPage() {
                 <>
                   <Button
                     onClick={() =>
-                      navigate(`/perfil/viaticos/${id}/gastos/agregar`)
+                      navigate(`${PER_DIEM_REQUEST_ROUTE}/${id}/gastos/agregar`)
                     }
                     size="sm"
                     className="gap-2 w-full sm:w-auto"
