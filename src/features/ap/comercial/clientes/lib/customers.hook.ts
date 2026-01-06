@@ -33,6 +33,7 @@ export const useCustomersById = (id: number) => {
     queryKey: [QUERY_KEY, id],
     queryFn: () => findCustomersById(id),
     refetchOnWindowFocus: false,
+    enabled: id > 0,
   });
 };
 

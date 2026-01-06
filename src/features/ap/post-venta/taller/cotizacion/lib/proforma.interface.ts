@@ -2,6 +2,7 @@ import { VehicleResource } from "@/features/ap/comercial/vehiculos/lib/vehicles.
 import { type Links, type Meta } from "@/shared/lib/pagination.interface.ts";
 import { OrderQuotationDetailsResource } from "../../cotizacion-detalle/lib/proformaDetails.interface";
 import { CurrencyTypesResource } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.interface";
+import { ElectronicDocumentResource } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.interface";
 
 export interface OrderQuotationResponse {
   data: OrderQuotationResource[];
@@ -24,6 +25,7 @@ export interface OrderQuotationResource {
   expiration_date: string;
   observations: string | null;
   details: OrderQuotationDetailsResource[];
+  advances: ElectronicDocumentResource[];
   currency_id: number;
   currency: CurrencyTypesResource;
   created_at: string;
