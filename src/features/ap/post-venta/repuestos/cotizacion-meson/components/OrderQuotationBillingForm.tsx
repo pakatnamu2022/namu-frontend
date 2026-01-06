@@ -20,7 +20,7 @@ import {
 import { OrderQuotationDocumentInfoSection } from "./OrderQuotationDocumentInfoSection";
 import { ItemsSection } from "@/features/ap/facturacion/electronic-documents/components/sections/ItemsSection";
 import { AdditionalConfigSection } from "@/features/ap/facturacion/electronic-documents/components/sections/AdditionalConfigSection";
-import { useAllCustomers } from "@/features/ap/comercial/clientes/lib/customers.hook";
+import { useCustomersById } from "@/features/ap/comercial/clientes/lib/customers.hook";
 import { useAllApBank } from "@/features/ap/configuraciones/maestros-general/chequeras/lib/apBank.hook";
 import { OrderQuotationResource } from "../../../taller/cotizacion/lib/proforma.interface";
 import { OrderQuotationFinancialInfo } from "./OrderQuotationFinancialInfo";
@@ -93,8 +93,6 @@ export function OrderQuotationBillingForm({
     [sunatConcepts]
   );
 
-  const items = form.watch("items") || [];
-
   // OBJECTS
   const selectedCurrency = currencyTypes.find(
     (c) => c.id === Number(form.watch("sunat_concept_currency_id"))
@@ -117,11 +115,14 @@ export function OrderQuotationBillingForm({
     (s) => s.id.toString() === selectedSeriesId
   );
 
-  // Obtener todos los clientes para calcular el IGV
-  const { data: customers = [] } = useAllCustomers();
-  const selectedCustomer = customers.find(
-    (customer) => customer.id.toString() === clientId
+  // Obtener el cliente seleccionado solo por ID (eficiente, sin traer 2000+ clientes)
+  // Si el usuario cambia el cliente, se trae solo ese cliente específico
+  const { data: selectedCustomerFromApi } = useCustomersById(
+    clientId ? Number(clientId) : 0
   );
+
+  // Usar el cliente de la API si existe, sino usar el owner de la cotización como fallback
+  const selectedCustomer = selectedCustomerFromApi || quotation?.vehicle?.owner;
 
   // Calcular porcentaje de IGV desde el cliente seleccionado
   const porcentaje_de_igv =
@@ -179,6 +180,11 @@ export function OrderQuotationBillingForm({
       lastLoadedQuotationId.current = quotation.id;
       currencyAlreadySet.current = false; // Reset cuando cambia la cotización
 
+      // Setear el ID de la cotización de orden (order_quotation_id)
+      form.setValue("order_quotation_id", quotation.id.toString(), {
+        shouldValidate: false,
+      });
+
       // NOTA: El cliente se setea en OrderQuotationDocumentInfoSection
       // a través de defaultCustomer para evitar race conditions con FormSelectAsync
 
@@ -234,20 +240,7 @@ export function OrderQuotationBillingForm({
           .map((detail) => detail.description || "SERVICIO DE TALLER")
           .join(", ");
 
-        // Calcular el total consolidado
-        let totalConsolidado = 0;
-        quotation.details.forEach((detail) => {
-          totalConsolidado += detail.total_amount || 0;
-        });
-
-        // Crear un solo item consolidado
-        const precio_unitario = totalConsolidado;
-        const valor_unitario =
-          precio_unitario / (1 + porcentaje_de_igv / 100);
-
-        const subtotal = valor_unitario;
-        const igvAmount = subtotal * (porcentaje_de_igv / 100);
-
+        // Crear un solo item consolidado con valores en 0 para que el usuario los edite
         const quotationItems: ElectronicDocumentItemSchema[] = [
           {
             account_plan_id: QUOTATION_ACCOUNT_PLAN_IDS.ADVANCE_PAYMENT,
@@ -255,15 +248,15 @@ export function OrderQuotationBillingForm({
             codigo: quotation.id?.toString(),
             descripcion: `ANTICIPO POR ${productNames}`,
             cantidad: 1,
-            valor_unitario: valor_unitario,
-            precio_unitario: precio_unitario,
-            subtotal: subtotal,
+            valor_unitario: 0,
+            precio_unitario: 0,
+            subtotal: 0,
             sunat_concept_igv_type_id:
               igvTypes.find(
                 (t) => t.code_nubefact === NUBEFACT_CODES.GRAVADA_ONEROSA
               )?.id || 0,
-            igv: igvAmount,
-            total: subtotal + igvAmount,
+            igv: 0,
+            total: 0,
           },
         ];
 
@@ -316,6 +309,8 @@ export function OrderQuotationBillingForm({
 
   // Calcular totales
   const totales = useMemo(() => {
+    const items = form.watch("items") || [];
+
     let total_gravada = 0;
     let total_inafecta = 0;
     let total_exonerada = 0;
@@ -372,7 +367,7 @@ export function OrderQuotationBillingForm({
       total_anticipo,
       total,
     };
-  }, [items, igvTypes, porcentaje_de_igv]);
+  }, [form, igvTypes, porcentaje_de_igv]);
 
   // Actualizar form values cuando cambien los cálculos
   useEffect(() => {
@@ -435,7 +430,7 @@ export function OrderQuotationBillingForm({
             {quotation && (
               <OrderQuotationFinancialInfo
                 quotation={quotation}
-                advances={[]}
+                advances={quotation.advances}
                 currencySymbol={currencySymbol}
               />
             )}

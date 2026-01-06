@@ -8,7 +8,7 @@ import { ElectronicDocumentSchema } from "@/features/ap/facturacion/electronic-d
 import { SunatConceptsResource } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.interface";
 import { OrderQuotationResource } from "../../../taller/cotizacion/lib/proforma.interface";
 import { AssignSalesSeriesResource } from "@/features/ap/configuraciones/maestros-general/asignar-serie-venta/lib/assignSalesSeries.interface";
-import { useAllCustomers } from "@/features/ap/comercial/clientes/lib/customers.hook";
+import { useCustomersById } from "@/features/ap/comercial/clientes/lib/customers.hook";
 import { ElectronicDocumentResource } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.interface";
 import { SUNAT_TYPE_INVOICES_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
 
@@ -52,10 +52,13 @@ export function OrderQuotationSummarySection({
   const series = form.watch("serie");
   const clientId = form.watch("client_id");
 
-  const { data: customers = [] } = useAllCustomers();
-  const selectedCustomer = customers.find(
-    (customer) => customer.id.toString() === clientId
+  // Obtener el cliente seleccionado solo por ID (eficiente, sin traer 2000+ clientes)
+  const { data: selectedCustomerFromApi } = useCustomersById(
+    clientId ? Number(clientId) : 0
   );
+
+  // Usar el cliente de la API si existe, sino usar el owner de la cotización como fallback
+  const selectedCustomer = selectedCustomerFromApi || quotation?.vehicle?.owner;
 
   return (
     <div className="lg:col-span-1 lg:row-start-1 lg:col-start-3 h-full">
