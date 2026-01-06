@@ -163,9 +163,9 @@ export const PerDiemRequestForm = ({
             placeholder="Selecciona el rango de fechas"
             dateFormat="dd/MM/yyyy"
             required
-            disabled={{
-              before: new Date(Date.now() + 21 * 24 * 60 * 60 * 1000),
-            }}
+            // disabled={{
+            //   before: new Date(Date.now() + 21 * 24 * 60 * 60 * 1000),
+            // }}
           />
 
           <FormSwitch
