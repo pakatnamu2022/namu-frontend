@@ -182,6 +182,9 @@ function CalendarDayButton({
     if (modifiers.focused) ref.current?.focus();
   }, [modifiers.focused]);
 
+  // Omit 'color' from props to avoid type conflicts with Button's color prop
+  const { color, ...buttonProps } = props as typeof props & { color?: string };
+
   return (
     <Button
       ref={ref}
@@ -202,7 +205,7 @@ function CalendarDayButton({
         defaultClassNames.day,
         className
       )}
-      {...props}
+      {...buttonProps}
     />
   );
 }
