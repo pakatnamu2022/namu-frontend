@@ -60,6 +60,23 @@ export function OrderQuotationSummarySection({
   // Usar el cliente de la API si existe, sino usar el owner de la cotización como fallback
   const selectedCustomer = selectedCustomerFromApi || quotation?.vehicle?.owner;
 
+  // Verificar si hay anticipos reales (is_advance_payment = true)
+  // Si solo hay "advances" con is_advance_payment = false, son ventas internas completas, NO anticipos
+  const hasRealAdvancePayments = advancePayments.some(
+    (advance) => advance.is_advance_payment === true
+  );
+
+  // Calcular el saldo pendiente para determinar si ya está completado
+  const quotationTotal = quotation?.total_amount || 0;
+  const totalPaid = advancePayments.reduce((sum, advance) => {
+    return sum + (Number(advance.total) || 0);
+  }, 0);
+  const pendingBalance = quotationTotal - totalPaid;
+
+  // Si el saldo está completado (<=0) y NO hay anticipos reales, no se puede facturar nada más
+  const isCompletedWithoutAdvances =
+    pendingBalance <= 0 && !hasRealAdvancePayments;
+
   return (
     <div className="lg:col-span-1 lg:row-start-1 lg:col-start-3 h-full">
       <Card className="h-full sticky top-6 bg-linear-to-br from-primary/5 via-background to-muted/20 border-primary/20">
@@ -278,10 +295,14 @@ export function OrderQuotationSummarySection({
               </span>
               <span className="text-xl font-bold text-primary">
                 {currencySymbol}{" "}
-                {/* Calcular el total real a cobrar (resta anticipos automáticamente) */}
-                {totales.total.toLocaleString("es-PE", {
-                  minimumFractionDigits: 2,
-                })}
+                {/* Si está completado sin anticipos, mostrar 0. Caso contrario, mostrar total calculado */}
+                {isCompletedWithoutAdvances
+                  ? (0).toLocaleString("es-PE", {
+                      minimumFractionDigits: 2,
+                    })
+                  : totales.total.toLocaleString("es-PE", {
+                      minimumFractionDigits: 2,
+                    })}
               </span>
             </div>
           </div>
@@ -294,7 +315,10 @@ export function OrderQuotationSummarySection({
               className="w-full"
               size="lg"
               disabled={
-                isPending || !form.formState.isValid || totales.total <= 0
+                isPending ||
+                !form.formState.isValid ||
+                isCompletedWithoutAdvances ||
+                (totales.total <= 0 && !hasRealAdvancePayments)
               }
             >
               {form.watch("enviar_automaticamente_a_la_sunat") ? (
@@ -310,11 +334,19 @@ export function OrderQuotationSummarySection({
                 ? "Guardar y Enviar a SUNAT"
                 : "Guardar Documento"}
             </Button>
-            {totales.total <= 0 && (
+            {isCompletedWithoutAdvances && (
               <p className="text-xs text-center text-destructive font-medium">
-                El total debe ser mayor a 0 para guardar el documento
+                Esta cotización ya está completamente facturada. No se puede
+                crear más documentos.
               </p>
             )}
+            {!isCompletedWithoutAdvances &&
+              totales.total <= 0 &&
+              !hasRealAdvancePayments && (
+                <p className="text-xs text-center text-destructive font-medium">
+                  El total debe ser mayor a 0 para guardar el documento
+                </p>
+              )}
             <Button
               type="button"
               variant="outline"

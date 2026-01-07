@@ -155,6 +155,7 @@ export default function SalesReceiptsRepuestoPage() {
             canCreateCreditNote,
             canCreateDebitNote,
           },
+          module: "REPUESTOS",
         })}
         data={data?.data || []}
       >
