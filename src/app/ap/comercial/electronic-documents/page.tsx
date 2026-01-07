@@ -159,6 +159,7 @@ export default function ElectronicDocumentsPage() {
             canCreateCreditNote,
             canCreateDebitNote,
           },
+          module: "COMERCIAL",
         })}
         data={data?.data || []}
       >

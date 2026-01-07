@@ -25,6 +25,7 @@ import OrderQuotationMesonTable from "@/features/ap/post-venta/repuestos/cotizac
 import OrderQuotationMesonActions from "@/features/ap/post-venta/repuestos/cotizacion-meson/components/ProformaMesonActions";
 import OrderQuotationMesonOptions from "@/features/ap/post-venta/repuestos/cotizacion-meson/components/ProformaMesonOptions";
 import { orderQuotationMesonColumns } from "@/features/ap/post-venta/repuestos/cotizacion-meson/components/ProformaMesonColumns";
+import { OrderQuotationBillingSheet } from "@/features/ap/post-venta/repuestos/cotizacion-meson/components/OrderQuotationBillingSheet";
 
 export default function OrderQuotationMesonPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -32,6 +33,8 @@ export default function OrderQuotationMesonPage() {
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [selectedOrderQuotationId, setSelectedOrderQuotationId] = useState<number | null>(null);
+  const [isBillingSheetOpen, setIsBillingSheetOpen] = useState(false);
   const { MODEL, ROUTE, ROUTE_UPDATE, ABSOLUTE_ROUTE } = ORDER_QUOTATION_MESON;
   const permissions = useModulePermissions(ROUTE);
   const router = useNavigate();
@@ -87,6 +90,16 @@ export default function OrderQuotationMesonPage() {
     router(`${ABSOLUTE_ROUTE}/facturar/${id}`);
   };
 
+  const handleViewBilling = (orderQuotation: { id: number }) => {
+    setSelectedOrderQuotationId(orderQuotation.id);
+    setIsBillingSheetOpen(true);
+  };
+
+  const handleCloseBillingSheet = () => {
+    setIsBillingSheetOpen(false);
+    setSelectedOrderQuotationId(null);
+  };
+
   if (isLoadingModule) return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
   if (!currentView) notFound();
@@ -108,6 +121,8 @@ export default function OrderQuotationMesonPage() {
           onDelete: setDeleteId,
           onUpdate: handleUpdate,
           onBilling: handleBilling,
+          onViewBilling: handleViewBilling,
+          onRefresh: refetch,
           permissions,
         })}
         data={data?.data || []}
@@ -138,6 +153,12 @@ export default function OrderQuotationMesonPage() {
           onConfirm={handleDelete}
         />
       )}
+
+      <OrderQuotationBillingSheet
+        orderQuotationId={selectedOrderQuotationId}
+        open={isBillingSheetOpen}
+        onClose={handleCloseBillingSheet}
+      />
     </div>
   );
 }

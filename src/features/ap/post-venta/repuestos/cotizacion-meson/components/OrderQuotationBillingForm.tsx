@@ -125,7 +125,8 @@ export function OrderQuotationBillingForm({
   const porcentaje_de_igv =
     selectedCustomer?.tax_class_type_igv || DEFAULT_IGV_PERCENTAGE;
 
-  // Calcular el saldo pendiente usando los anticipos de la cotización
+  // Calcular el saldo pendiente usando TODOS los pagos previos
+  // Esto incluye tanto anticipos (is_advance_payment = true) como ventas internas completas (is_advance_payment = false)
   const quotationPrice = quotation ? quotation.total_amount : 0;
   const totalAdvancesAmount = quotation?.advances
     ? quotation.advances.reduce((sum, advance) => sum + (advance.total || 0), 0)
@@ -151,19 +152,38 @@ export function OrderQuotationBillingForm({
         );
       }
     } else {
-      // Normal: code_nubefact "01" - Venta Interna
-      const normalType = transactionTypes.find(
-        (type) => type.code_nubefact === "01"
+      // Verificar si hay anticipos previos en la cotización
+      const hasAdvances = quotation?.advances?.some(
+        (advance) => advance.is_advance_payment === true
       );
-      if (normalType && currentValue !== normalType.id.toString()) {
-        form.setValue(
-          "sunat_concept_transaction_type_id",
-          normalType.id.toString(),
-          { shouldValidate: false }
+
+      if (hasAdvances) {
+        // Venta final con anticipos: code_nubefact "04" - Venta Interna - Anticipos (ID 36)
+        const anticipoType = transactionTypes.find(
+          (type) => type.code_nubefact === "04"
         );
+        if (anticipoType && currentValue !== anticipoType.id.toString()) {
+          form.setValue(
+            "sunat_concept_transaction_type_id",
+            anticipoType.id.toString(),
+            { shouldValidate: false }
+          );
+        }
+      } else {
+        // Venta completa sin anticipos: code_nubefact "01" - Venta Interna (ID 33)
+        const normalType = transactionTypes.find(
+          (type) => type.code_nubefact === "01"
+        );
+        if (normalType && currentValue !== normalType.id.toString()) {
+          form.setValue(
+            "sunat_concept_transaction_type_id",
+            normalType.id.toString(),
+            { shouldValidate: false }
+          );
+        }
       }
     }
-  }, [isAdvancePayment, transactionTypes, form]);
+  }, [isAdvancePayment, transactionTypes, quotation?.advances, form]);
 
   // Efecto para cargar datos de la cotización
   useEffect(() => {
@@ -254,6 +274,9 @@ export function OrderQuotationBillingForm({
           },
         ];
 
+        // NO AGREGAR ANTICIPOS PREVIOS EN MODO ANTICIPO
+        // Los anticipos solo se deben mostrar cuando es una venta final (isAdvancePayment = false)
+
         form.setValue("is_advance_payment", true, { shouldValidate: false });
         form.setValue("items", quotationItems, { shouldValidate: false });
       } else {
@@ -291,44 +314,50 @@ export function OrderQuotationBillingForm({
             };
           });
 
-        // AGREGAR ITEMS DE REGULARIZACIÓN DE ANTICIPOS (si existen anticipos previos)
+        // AGREGAR ITEMS DE REGULARIZACIÓN DE ANTICIPOS (solo anticipos reales con is_advance_payment = true)
         if (quotation.advances && quotation.advances.length > 0) {
-          quotation.advances.forEach((advance) => {
-            // Calcular los valores base del anticipo para restar
-            // IMPORTANTE: Convertir a número porque puede venir como string desde la API
-            const total_con_igv = Number(advance.total) || 0;
-            const precio_unitario = total_con_igv; // El anticipo es cantidad 1
-            const valor_unitario =
-              precio_unitario / (1 + porcentaje_de_igv / 100);
-            const subtotal = valor_unitario;
-            const igvAmount = subtotal * (porcentaje_de_igv / 100);
+          quotation.advances
+            .filter((advance) => advance.is_advance_payment === true)
+            .forEach((advance) => {
+              // Calcular los valores base del anticipo para restar
+              // IMPORTANTE: Convertir a número porque puede venir como string desde la API
+              const total_con_igv = Number(advance.total) || 0;
+              const precio_unitario = total_con_igv; // El anticipo es cantidad 1
+              const valor_unitario =
+                precio_unitario / (1 + porcentaje_de_igv / 100);
+              const subtotal = valor_unitario;
+              const igvAmount = subtotal * (porcentaje_de_igv / 100);
 
-            // Crear item de regularización en NEGATIVO
-            quotationItems.push({
-              account_plan_id: QUOTATION_ACCOUNT_PLAN_IDS.ADVANCE_PAYMENT,
-              unidad_de_medida: "ZZ",
-              codigo: advance.id?.toString(),
-              descripcion: `ANTICIPO: ${advance.serie}-${advance.numero} DEL ${
-                advance.fecha_de_emision
-                  ? new Date(advance.fecha_de_emision).toLocaleDateString(
-                      "es-PE"
-                    )
-                  : ""
-              }`,
-              cantidad: 1,
-              valor_unitario: valor_unitario,
-              precio_unitario: precio_unitario,
-              subtotal: subtotal,
-              sunat_concept_igv_type_id:
-                igvTypes.find(
-                  (t) => t.code_nubefact === NUBEFACT_CODES.GRAVADA_ONEROSA
-                )?.id || 0,
-              igv: igvAmount,
-              total: total_con_igv,
-              anticipo_regularizacion: true,
-              reference_document_id: advance.id?.toString(),
+              // Crear item de regularización en NEGATIVO
+              quotationItems.push({
+                account_plan_id: QUOTATION_ACCOUNT_PLAN_IDS.ADVANCE_PAYMENT,
+                unidad_de_medida: "ZZ",
+                codigo: advance.id?.toString(),
+                descripcion: `ANTICIPO: ${advance.serie}-${
+                  advance.numero
+                } DEL ${
+                  advance.fecha_de_emision
+                    ? new Date(advance.fecha_de_emision).toLocaleDateString(
+                        "es-PE"
+                      )
+                    : ""
+                }`,
+                cantidad: 1,
+                valor_unitario: valor_unitario,
+                precio_unitario: precio_unitario,
+                subtotal: subtotal,
+                sunat_concept_igv_type_id:
+                  igvTypes.find(
+                    (t) => t.code_nubefact === NUBEFACT_CODES.GRAVADA_ONEROSA
+                  )?.id || 0,
+                igv: igvAmount,
+                total: total_con_igv,
+                anticipo_regularizacion: true,
+                anticipo_documento_serie: advance.serie,
+                anticipo_documento_numero: advance.numero,
+                reference_document_id: advance.id?.toString(),
+              });
             });
-          });
         }
 
         form.setValue("items", quotationItems, { shouldValidate: false });

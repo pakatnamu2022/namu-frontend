@@ -32,6 +32,9 @@ export interface OrderQuotationResource {
   updated_at: string;
   area_id: number | null;
   sede_id: number | null;
+  has_invoice_generated: boolean;
+  is_fully_paid: boolean;
+  output_generation_warehouse: boolean;
 }
 
 export interface OrderQuotationRequest {
