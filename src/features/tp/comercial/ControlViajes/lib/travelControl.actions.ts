@@ -21,13 +21,7 @@ export async function getTravels({
     
     if (search) queryParams.search = search;
     if (status && status !== 'all') {
-        const statusmap: Record<TripStatus, number> = {
-            'pending': 1,
-            'in_progress': 3,
-            'fuel_pending': 8,
-            'completed': 9
-        };
-        queryParams.status = statusmap[status];
+         queryParams.status = status;
     }
 
     const config: AxiosRequestConfig = {
