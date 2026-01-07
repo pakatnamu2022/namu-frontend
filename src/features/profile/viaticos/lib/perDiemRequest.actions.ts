@@ -354,3 +354,19 @@ export async function completeSettlement(
   );
   return response.data;
 }
+
+export async function resendPerDiemRequestEmails(
+  id: number,
+  data: {
+    email_type: string;
+    send_to_employee: boolean;
+    send_to_boss: boolean;
+    send_to_accounting: boolean;
+  }
+): Promise<GeneralResponse> {
+  const response = await api.post<GeneralResponse>(
+    `${ENDPOINT}/${id}/resend-emails`,
+    data
+  );
+  return response.data;
+}

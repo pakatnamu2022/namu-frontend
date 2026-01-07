@@ -122,6 +122,12 @@ interface Area {
   name: string;
 }
 
+export type PerDiemSettlementStatus =
+  | "submitted"
+  | "approved"
+  | "rejected"
+  | "completed";
+
 export type PerDiemRequestStatus =
   | "pending"
   | "in_progress"
@@ -147,11 +153,11 @@ export interface PerDiemRequestResource {
   payment_date: string | Date;
   payment_method: string;
   settled: boolean;
-  settlement_date: null;
-  settlement_status?: "submitted" | "approved" | "rejected" | "completed";
+  settlement_date?: string;
+  settlement_status?: PerDiemSettlementStatus;
   total_spent: number;
   balance_to_return: number;
-  notes: null;
+  notes?: string;
   days_without_settlement: number;
   with_active: boolean;
   with_request: boolean;

@@ -8,7 +8,6 @@ import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import ExpenseForm from "@/features/profile/viaticos/components/ExpenseForm";
 import { ExpenseSchema } from "@/features/profile/viaticos/lib/expense.schema";
 import { PER_DIEM_REQUEST } from "@/features/profile/viaticos/lib/perDiemRequest.constants";
-import { PER_DIEM_EXPENSE } from "@/features/profile/viaticos/lib/perDiemExpense.constants";
 import { findPerDiemRequestById } from "@/features/profile/viaticos/lib/perDiemRequest.actions";
 import { findPerDiemExpenseById } from "@/features/profile/viaticos/lib/perDiemExpense.actions";
 import { useUpdatePerDiemExpense } from "@/features/profile/viaticos/lib/perDiemExpense.hook";
@@ -17,6 +16,7 @@ import FormSkeleton from "@/shared/components/FormSkeleton";
 import { GeneralModal } from "@/shared/components/GeneralModal";
 import { Button } from "@/components/ui/button";
 import { errorToast, successToast } from "@/core/core.function";
+import { PER_DIEM_EXPENSE } from "@/features/profile/viaticos/lib/perDiemExpense.constants";
 
 export default function UpdateExpensePage() {
   const { id, expenseId } = useParams<{ id: string; expenseId: string }>();
@@ -24,6 +24,9 @@ export default function UpdateExpensePage() {
   const queryClient = useQueryClient();
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [pendingData, setPendingData] = useState<ExpenseSchema | null>(null);
+
+  const { ABSOLUTE_ROUTE: PER_DIEM_REQUEST_ROUTE } = PER_DIEM_REQUEST;
+  const { QUERY_KEY } = PER_DIEM_EXPENSE;
 
   // Obtener los datos de la solicitud de viáticos para las fechas
   const { data: perDiemRequest, isLoading: isLoadingRequest } = useQuery({
@@ -34,7 +37,7 @@ export default function UpdateExpensePage() {
 
   // Obtener el gasto específico por su ID
   const { data: expense, isLoading: isLoadingExpense } = useQuery({
-    queryKey: [PER_DIEM_EXPENSE.QUERY_KEY, expenseId],
+    queryKey: [QUERY_KEY, expenseId],
     queryFn: () => findPerDiemExpenseById(Number(expenseId)),
     enabled: !!expenseId,
   });
@@ -56,10 +59,10 @@ export default function UpdateExpensePage() {
         onSuccess: () => {
           // Invalidar queries para refrescar los datos
           queryClient.invalidateQueries({
-            queryKey: [PER_DIEM_REQUEST.QUERY_KEY, id],
+            queryKey: [QUERY_KEY, id],
           });
           queryClient.invalidateQueries({
-            queryKey: [PER_DIEM_EXPENSE.QUERY_KEY, expenseId],
+            queryKey: [QUERY_KEY, expenseId],
           });
 
           successToast(
@@ -68,7 +71,7 @@ export default function UpdateExpensePage() {
           );
           setShowConfirmModal(false);
           setPendingData(null);
-          navigate(`/perfil/viaticos/${id}`);
+          navigate(`${PER_DIEM_REQUEST_ROUTE}/${id}`);
         },
         onError: (error: any) => {
           errorToast(
@@ -87,7 +90,7 @@ export default function UpdateExpensePage() {
   };
 
   const handleCancel = () => {
-    navigate(`/perfil/viaticos/${id}`);
+    navigate(`${PER_DIEM_REQUEST_ROUTE}/${id}`);
   };
 
   const isLoading = isLoadingRequest || isLoadingExpense;
