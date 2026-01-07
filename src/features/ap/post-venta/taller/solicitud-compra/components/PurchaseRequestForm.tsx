@@ -27,7 +27,7 @@ import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import FormSkeleton from "@/shared/components/FormSkeleton";
-import { useAllWarehouse } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
+import { useWarehousesByCompany } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
 import { useInventory } from "@/features/ap/post-venta/gestion-compras/inventario/lib/inventory.hook";
 import { InventoryResource } from "@/features/ap/post-venta/gestion-compras/inventario/lib/inventory.interface";
 import { getAllOrderQuotations } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.actions";
@@ -35,6 +35,7 @@ import { OrderQuotationResource } from "@/features/ap/post-venta/taller/cotizaci
 import { QuotationSelectionModal } from "../../cotizacion/components/QuotationSelectionModal";
 import { errorToast } from "@/core/core.function";
 import { FormInputText } from "@/shared/components/FormInputText";
+import { CM_POSTVENTA_ID, EMPRESA_AP } from "@/core/core.constants";
 
 interface PurchaseRequestFormProps {
   defaultValues: Partial<PurchaseRequestSchema>;
@@ -69,9 +70,14 @@ export default function PurchaseRequestForm({
   const [isQuotationModalOpen, setIsQuotationModalOpen] = useState(false);
   const [selectedProductName, setSelectedProductName] = useState<string>("");
 
+  // Obtener mis almacenes físicos de postventa
   const { data: warehouses = [], isLoading: isLoadingWarehouses } =
-    useAllWarehouse({
-      is_physical_warehouse: 1,
+    useWarehousesByCompany({
+      my: 1,
+      is_received: 1,
+      empresa_id: EMPRESA_AP.id,
+      type_operation_id: CM_POSTVENTA_ID,
+      only_physical: 1,
     });
 
   const form = useForm({
@@ -164,7 +170,10 @@ export default function PurchaseRequestForm({
   }, []);
 
   const loadQuotationDetails = useCallback(
-    async (quotationId: string, quotationsToSearch?: OrderQuotationResource[]) => {
+    async (
+      quotationId: string,
+      quotationsToSearch?: OrderQuotationResource[]
+    ) => {
       // Usar quotationsToSearch si se proporciona, sino usar el estado quotations
       const quotationsArray = quotationsToSearch || quotations;
 
