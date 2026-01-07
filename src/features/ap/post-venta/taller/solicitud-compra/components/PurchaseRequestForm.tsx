@@ -144,32 +144,31 @@ export default function PurchaseRequestForm({
     }
   }, [hasAppointment]);
 
-  useEffect(() => {
-    if (selectedQuotationId) {
-      loadQuotationDetails(selectedQuotationId);
-    }
-  }, [selectedQuotationId]);
-
-  const loadQuotations = async () => {
+  const loadQuotations = useCallback(async () => {
     try {
       setIsLoadingQuotations(true);
       const response = await getAllOrderQuotations({
         is_take: 0,
       });
       setQuotations(response || []);
+      return response || [];
     } catch (error: any) {
       const msgError =
         error?.response?.data?.message || "Error al cargar las cotizaciones.";
       errorToast(msgError);
       setQuotations([]);
+      return [];
     } finally {
       setIsLoadingQuotations(false);
     }
-  };
+  }, []);
 
   const loadQuotationDetails = useCallback(
-    async (quotationId: string) => {
-      const selectedQuotation = quotations.find(
+    async (quotationId: string, quotationsToSearch?: OrderQuotationResource[]) => {
+      // Usar quotationsToSearch si se proporciona, sino usar el estado quotations
+      const quotationsArray = quotationsToSearch || quotations;
+
+      const selectedQuotation = quotationsArray.find(
         (q) => q.id.toString() === quotationId
       );
 
@@ -195,6 +194,20 @@ export default function PurchaseRequestForm({
     },
     [quotations]
   );
+
+  useEffect(() => {
+    if (selectedQuotationId) {
+      // Si quotations está vacío, cargarlas primero
+      if (quotations.length === 0) {
+        loadQuotations().then((loadedQuotations) => {
+          loadQuotationDetails(selectedQuotationId, loadedQuotations);
+        });
+      } else {
+        loadQuotationDetails(selectedQuotationId);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedQuotationId]);
 
   if (isLoadingWarehouses) {
     return <FormSkeleton />;

@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { FileText, Loader2, Plus, Receipt } from "lucide-react";
 import { findWorkOrderById } from "../../lib/workOrder.actions";
+import { useGetPaymentSummary } from "../../lib/workOrder.hook";
 import {
   DEFAULT_GROUP_COLOR,
   GROUP_COLORS,
@@ -37,25 +38,13 @@ interface BillingTabProps {
   workOrderId: number;
 }
 
-// Mock data para facturas existentes
-const MOCK_INVOICES = [
-  {
-    id: 1,
-    invoiceNumber: "F001-00123",
-    groupNumber: 1,
-    description: "Servicios de mantenimiento preventivo",
-    amount: 850.0,
-    taxAmount: 153.0,
-    totalAmount: 1003.0,
-    date: "2024-12-01",
-    status: "paid",
-  },
-];
-
 export default function BillingTab({ workOrderId }: BillingTabProps) {
   const { selectedGroupNumber, setSelectedGroupNumber } = useWorkOrderContext();
   const [showForm, setShowForm] = useState(false);
-  const [invoices] = useState(MOCK_INVOICES);
+
+  // Obtener resumen de pago del grupo seleccionado
+  const { data: paymentSummary, isLoading: isLoadingPaymentSummary } =
+    useGetPaymentSummary(workOrderId, selectedGroupNumber || undefined);
 
   const { data: customers = [], isLoading: isLoadingCustomers } =
     useAllCustomers();
@@ -237,11 +226,7 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
     form.reset();
   };
 
-  const getGroupInvoices = (groupNumber: number) => {
-    return invoices.filter((inv) => inv.groupNumber === groupNumber);
-  };
-
-  if (isLoading) {
+  if (isLoading || isLoadingPaymentSummary) {
     return (
       <div className="flex items-center justify-center py-12">
         <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
@@ -250,9 +235,9 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
     );
   }
 
-  const selectedGroupInvoices = selectedGroupNumber
-    ? getGroupInvoices(selectedGroupNumber)
-    : [];
+  // Obtener facturas de adelanto (advances) del resumen de pago
+  const advances = paymentSummary?.advances || [];
+
   const colors = selectedGroupNumber
     ? getGroupColor(selectedGroupNumber)
     : DEFAULT_GROUP_COLOR;
@@ -288,12 +273,11 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
             </p>
           </div>
           <div className="text-right">
-            <p className="text-sm text-gray-600">Total Facturado</p>
+            <p className="text-sm text-gray-600">Total a Pagar</p>
             <p className="text-2xl font-bold text-green-600">
               S/{" "}
-              {invoices
-                .reduce((sum, inv) => sum + inv.totalAmount, 0)
-                .toFixed(2)}
+              {paymentSummary?.payment_summary?.total_amount?.toFixed(2) ||
+                "0.00"}
             </p>
           </div>
         </div>
@@ -336,6 +320,65 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
             </div>
           </Card>
 
+          {/* Resumen de Costos */}
+          {paymentSummary && (
+            <Card className="p-6">
+              <h4 className="font-semibold text-gray-900 mb-4">
+                Resumen de Costos
+              </h4>
+              <div className="space-y-3">
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Costo de Mano de Obra:</span>
+                  <span className="font-semibold">
+                    S/ {paymentSummary.payment_summary.labour_cost.toFixed(2)}
+                  </span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Costo de Repuestos:</span>
+                  <span className="font-semibold">
+                    S/ {paymentSummary.payment_summary.parts_cost.toFixed(2)}
+                  </span>
+                </div>
+                <div className="flex justify-between text-sm pt-2 border-t">
+                  <span className="text-gray-600">Subtotal:</span>
+                  <span className="font-semibold">
+                    S/ {paymentSummary.payment_summary.subtotal.toFixed(2)}
+                  </span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Descuento:</span>
+                  <span className="font-semibold text-red-600">
+                    - S/ {paymentSummary.payment_summary.discount_amount.toFixed(2)}
+                  </span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">IGV (18%):</span>
+                  <span className="font-semibold">
+                    S/ {paymentSummary.payment_summary.tax_amount.toFixed(2)}
+                  </span>
+                </div>
+                <div className="flex justify-between text-base font-bold pt-2 border-t">
+                  <span>Total a Pagar:</span>
+                  <span className="text-green-600">
+                    S/ {paymentSummary.payment_summary.total_amount.toFixed(2)}
+                  </span>
+                </div>
+                <div className="flex justify-between text-sm pt-2 border-t">
+                  <span className="text-gray-600">Total de Adelantos:</span>
+                  <span className="font-semibold text-blue-600">
+                    S/ {paymentSummary.payment_summary.total_advances.toFixed(2)}
+                  </span>
+                </div>
+                <div className="flex justify-between text-base font-bold pt-2 border-t">
+                  <span>Saldo Restante:</span>
+                  <span className="text-orange-600">
+                    S/ {paymentSummary.payment_summary.remaining_balance.toFixed(2)}
+                  </span>
+                </div>
+              </div>
+            </Card>
+          )}
+
           {/* Formulario para crear factura */}
           {showForm ? (
             <InvoiceForm
@@ -364,7 +407,7 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
                 </Button>
               </div>
 
-              {selectedGroupInvoices.length === 0 ? (
+              {advances.length === 0 ? (
                 <div className="text-center py-8">
                   <FileText className="h-12 w-12 text-gray-400 mx-auto mb-3" />
                   <p className="text-sm text-gray-600 mb-1">
@@ -376,47 +419,56 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {selectedGroupInvoices.map((invoice) => (
+                  {advances.map((advance) => (
                     <div
-                      key={invoice.id}
+                      key={advance.id}
                       className="border rounded-lg p-4 bg-white hover:shadow-md transition-shadow"
                     >
                       <div className="flex items-start justify-between mb-3">
                         <div>
                           <p className="font-semibold text-gray-900">
-                            {invoice.invoiceNumber}
+                            {advance.full_number}
                           </p>
                           <p className="text-sm text-gray-600">
-                            {invoice.date}
+                            {advance.fecha_de_emision}
                           </p>
                         </div>
                         <Badge
                           variant={
-                            invoice.status === "paid" ? "default" : "secondary"
+                            advance.sunat_responsecode === "0"
+                              ? "default"
+                              : "secondary"
                           }
                           className={
-                            invoice.status === "paid"
+                            advance.sunat_responsecode === "0"
                               ? "bg-green-600"
                               : "bg-yellow-600"
                           }
                         >
-                          {invoice.status === "paid" ? "Pagada" : "Pendiente"}
+                          {advance.sunat_responsecode === "0"
+                            ? "Aceptado"
+                            : "Pendiente"}
                         </Badge>
                       </div>
 
                       <div className="grid grid-cols-2 gap-3 text-sm">
                         <div>
                           <p className="text-gray-600">Cliente</p>
+                          <p className="text-gray-700">
+                            {advance.cliente_denominacion}
+                          </p>
                         </div>
                         <div>
                           <p className="text-gray-600">Total</p>
                           <p className="font-bold text-green-600">
-                            S/ {invoice.totalAmount.toFixed(2)}
+                            S/ {Number(advance.total).toFixed(2)}
                           </p>
                         </div>
                         <div className="col-span-2">
-                          <p className="text-gray-600">Descripción</p>
-                          <p className="text-gray-700">{invoice.description}</p>
+                          <p className="text-gray-600">Tipo de Documento</p>
+                          <p className="text-gray-700">
+                            {advance.document_type?.description}
+                          </p>
                         </div>
                       </div>
                     </div>

@@ -17,7 +17,7 @@ import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { useNavigate } from "react-router-dom";
-import { PURCHASE_REQUEST } from "@/features/ap/post-venta/taller/solicitud-compra/lib/purchaseRequest.constants";
+import { PURCHASE_REQUEST_REPUESTOS } from "@/features/ap/post-venta/taller/solicitud-compra/lib/purchaseRequest.constants";
 import PurchaseRequestActions from "@/features/ap/post-venta/taller/solicitud-compra/components/PurchaseRequestActions";
 import { purchaseRequestColumns } from "@/features/ap/post-venta/taller/solicitud-compra/components/PurchaseRequestColumns";
 import PurchaseRequestTable from "@/features/ap/post-venta/taller/solicitud-compra/components/PurchaseRequestTable";
@@ -25,13 +25,13 @@ import PurchaseRequestOptions from "@/features/ap/post-venta/taller/solicitud-co
 import { deletePurchaseRequest } from "@/features/ap/post-venta/taller/solicitud-compra/lib/purchaseRequest.actions";
 import { usePurchaseRequests } from "@/features/ap/post-venta/taller/solicitud-compra/lib/purchaseRequest.hook";
 
-export default function PurchaseRequestPVPage() {
+export default function PurchaseRequestRepuestoPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
-  const { MODEL, ROUTE, ROUTE_UPDATE } = PURCHASE_REQUEST;
+  const { MODEL, ROUTE, ROUTE_UPDATE } = PURCHASE_REQUEST_REPUESTOS;
   const permissions = useModulePermissions(ROUTE);
   const router = useNavigate();
   const currentDate = new Date();
@@ -93,7 +93,7 @@ export default function PurchaseRequestPVPage() {
           subtitle={currentView.descripcion}
           icon={currentView.icon}
         />
-        <PurchaseRequestActions permissions={permissions} module="TALLER" />
+        <PurchaseRequestActions permissions={permissions} module="REPUESTO" />
       </HeaderTableWrapper>
 
       <PurchaseRequestTable
