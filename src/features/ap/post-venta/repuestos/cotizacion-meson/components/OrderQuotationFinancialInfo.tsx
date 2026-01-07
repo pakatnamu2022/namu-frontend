@@ -19,7 +19,8 @@ export function OrderQuotationFinancialInfo({
   // Calcular total de la cotización desde OrderQuotationResource
   const quotationTotal = quotation.total_amount || 0;
 
-  // Calcular total de anticipos previos
+  // Calcular total de TODOS los pagos previos (para mostrar en el progreso)
+  // Esto incluye tanto anticipos (is_advance_payment = true) como ventas internas completas (is_advance_payment = false)
   const totalAdvances = advances.reduce((sum, advance) => {
     if (
       advance.sunat_concept_document_type_id ===
@@ -107,11 +108,11 @@ export function OrderQuotationFinancialInfo({
           </div>
         </div>
 
-        {/* Lista de Anticipos */}
+        {/* Lista de Pagos */}
         {advances.length > 0 && (
           <div className="space-y-2 pt-4 border-t">
             <p className="text-xs font-medium text-muted-foreground">
-              Anticipos aplicados
+              Pagos aplicados
             </p>
             <div className="space-y-1">
               {advances.map((advance) => (
