@@ -63,7 +63,6 @@ export function TravelControlDetailModal({
 
   const {
     control,
-    handleSubmit,
     formState: { errors, isSubmitting: formSubmitting },
     reset,
     setValue,
@@ -120,6 +119,22 @@ export function TravelControlDetailModal({
 
     const formData = getValues();
     await handleStartRoute(formData);
+  }
+
+  const handleSavingFuel = async () => {
+    const isValid = await triggerValidation("factorKm");
+
+    if(!isValid){
+      toast({
+            title: 'Error de validación',
+            description: errors.factorKm?.message || 'Por favor, corrige el factor KM',
+            variant: 'destructive'
+          });
+          return;
+    }
+
+    const formData = getValues();
+    await handleSaveFuel(formData);
   }
 
   const handleFinalizeRoute = async () => {
@@ -183,7 +198,7 @@ export function TravelControlDetailModal({
       const userAgent = navigator.userAgent;
       const deviceInfo = parseUserAgent(userAgent);
 
-       const metadata = {
+      const metadata = {
         latitude: location?.latitude,
         longitude: location?.longitude,
         userAgent: userAgent,
@@ -269,34 +284,6 @@ export function TravelControlDetailModal({
       setEndPhotoData(null);
     }
   }, [open, reset]);
-
-  // const validateFinalKm = (value: string): boolean => {
-  //   if (!value.trim()) {
-  //     setIsFinalKmValid(true);
-  //     setFinalKmError("");
-  //     return true;
-  //   }
-    
-  //   const final = parseFloat(value);
-  //   const initial = localTrip?.initialKm || 0;
-    
-  //   if (isNaN(final)) {
-  //     setIsFinalKmValid(false);
-  //     setFinalKmError("Debe ser un número válido");
-  //     return false;
-  //   }
-    
-  //   if (final <= initial) {
-  //     const errorMsg = `Debe ser mayor al km inicial (${initial} km)`;
-  //     setIsFinalKmValid(false);
-  //     setFinalKmError(errorMsg);
-  //     return false;
-  //   }
-    
-  //   setIsFinalKmValid(true);
-  //   setFinalKmError("");
-  //   return true;
-  // };
 
   const setStartPhotoWithUpload = async (photoUrl: string) => {
     setStartPhoto(photoUrl);
@@ -441,6 +428,9 @@ export function TravelControlDetailModal({
   };
 
   const handleSaveFuel = async (data:TravelControlModalData) => {
+    console.log("DATOS DEL FORMULARIO PARA COMBUSTIBLE:", data);
+    console.log("LOCAL TRIP:", localTrip);
+    
     if(!localTrip) {
       toast({
         title: 'Error',
@@ -455,7 +445,7 @@ export function TravelControlDetailModal({
         id: localTrip.id,
         kmFactor: parseFloat(data.factorKm),
         notes: "Combustible registrado",
-        documentNumber: data.documentNumber,
+        documentNumber: data.documentNumber || `SIN-${Date.now()}`,
         vatNumber: data.vatNumber || undefined
       });
 
@@ -523,7 +513,6 @@ export function TravelControlDetailModal({
                   !errors.finalKm &&
                   (!tonnageValue || tonnageValue.trim() === "" || !errors.tonnage) && 
                   !!endPhoto;
-  const canSaveFuel = localTrip?.status === 'fuel_pending' && factorKmValue && isComercial && !isRegisteringFuel;
 
   if (!localTrip) {
     return <>{trigger}</>;
@@ -748,7 +737,7 @@ export function TravelControlDetailModal({
                             <CheckCircle className="h-4 w-4 text-green-600 shrink-0 mt-0.5" />
                             <div>
                               <p className="text-sm text-green-700">
-                                ✓ Correcto: {final - initial} km recorridos
+                                Correcto: {final - initial} km recorridos
                               </p>
                               <p className="text-xs text-green-600 mt-1">
                                 Desde {initial} km hasta {final} km
@@ -798,7 +787,6 @@ export function TravelControlDetailModal({
 
                   <Button
                     onClick={() => handleFinalizeRoute()}
-                    //disabled={!canEnd || isUploadingPhoto || !!errors.finalKm || !!errors.tonnage || !isFinalKmValid}
                     disabled={!canEnd || isUploadingPhoto || isEndingRoute}
                     className="w-full bg-blue-600 hover:bg-blue-700"
                   >
@@ -900,7 +888,6 @@ export function TravelControlDetailModal({
                   Registro de Combustible
                 </h3>
 
-                <form onSubmit={handleSubmit(handleSaveFuel)} className="space-y-4">
                   <FormInput
                     control={control}
                     name="factorKm"
@@ -923,8 +910,8 @@ export function TravelControlDetailModal({
                   )}
 
                   <Button
-                    type="submit"
-                    disabled={!canSaveFuel || !!errors.factorKm }
+                    onClick={() => handleSavingFuel()}
+                    disabled={!factorKmValue || !!errors.factorKm  || isRegisteringFuel}
                     className="w-full bg-orange-600 hover:bg-orange-700"
                   >
                     {isRegisteringFuel ? (
@@ -939,7 +926,6 @@ export function TravelControlDetailModal({
                       </>
                     )}
                   </Button>
-                </form>
               </div>
             )}
             
