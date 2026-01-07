@@ -16,6 +16,7 @@ import { EvaluationResource } from "../../evaluaciones/lib/evaluation.interface"
 import { parse } from "date-fns";
 import { Link } from "react-router-dom";
 import { EVALUATION_PERSON } from "../../evaluation-person/lib/evaluationPerson.constans";
+import TitleComponent from "@/shared/components/TitleComponent";
 
 interface EvaluationHeaderProps {
   evaluationData: EvaluationResource;
@@ -50,13 +51,13 @@ export const EvaluationHeader: React.FC<EvaluationHeaderProps> = ({
   const getStatusIcon = (status: number): React.ReactElement => {
     switch (status) {
       case 1:
-        return <Clock className="h-4 w-4" />;
+        return <Clock className="h-3.5 w-3.5" />;
       case 2:
-        return <CheckCircle2 className="h-4 w-4" />;
+        return <CheckCircle2 className="h-3.5 w-3.5" />;
       case 3:
-        return <AlertCircle className="h-4 w-4" />;
+        return <AlertCircle className="h-3.5 w-3.5" />;
       default:
-        return <Activity className="h-4 w-4" />;
+        return <Activity className="h-3.5 w-3.5" />;
     }
   };
 
@@ -95,27 +96,16 @@ export const EvaluationHeader: React.FC<EvaluationHeaderProps> = ({
         {/* Información Principal */}
         <div className="space-y-3">
           <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-            <h1 className="text-2xl xl:text-3xl font-semibold text-foreground">
-              {evaluationData.name}
-            </h1>
-            <Badge
-              variant={getStatusVariant(evaluationData.status)}
-              className="w-fit px-3 text-sm font-medium"
-            >
+            <TitleComponent
+              title={evaluationData.name}
+              subtitle={`${evaluationData.typeEvaluationName} • ${evaluationData.period}`}
+              icon="BarChart3"
+              isTruncate={false}
+            />
+            <Badge variant={getStatusVariant(evaluationData.status)} size="sm">
               {getStatusIcon(evaluationData.status)}
               <span className="ml-2">{evaluationData.statusName}</span>
             </Badge>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-            <div className="flex items-center gap-2">
-              <BarChart3 className="h-4 w-4" />
-              <span>{evaluationData.typeEvaluationName}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Calendar className="h-4 w-4" />
-              <span>{evaluationData.period}</span>
-            </div>
           </div>
         </div>
 

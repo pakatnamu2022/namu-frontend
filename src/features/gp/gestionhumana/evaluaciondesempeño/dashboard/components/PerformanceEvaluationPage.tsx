@@ -12,6 +12,7 @@ import { FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { EVALUATION } from "../../evaluaciones/lib/evaluation.constans";
+import PageWrapper from "@/shared/components/PageWrapper";
 
 // Tipos de datos
 interface ProgressStats {
@@ -86,7 +87,7 @@ export default function PerformanceEvaluationPage({ id }: { id?: number }) {
   const progressStats: ProgressStats = evaluationData.progress_stats!;
 
   return (
-    <div className="min-h-screen bg-background xl:p-6">
+    <PageWrapper>
       <div className="max-w-7xl mx-auto space-y-6">
         <EvaluationHeader
           onRefresh={evaluationQuery.refetch}
@@ -113,6 +114,6 @@ export default function PerformanceEvaluationPage({ id }: { id?: number }) {
           /> */}
         </div>
       </div>
-    </div>
+    </PageWrapper>
   );
 }

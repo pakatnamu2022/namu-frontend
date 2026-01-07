@@ -4,7 +4,13 @@ import { useState } from "react";
 import { CheckCircle2, Clock, LucideIcon, Users, XCircle } from "lucide-react";
 import { ProgressStats } from "../../evaluaciones/lib/evaluation.interface";
 import { Card, CardContent } from "@/components/ui/card";
-import PersonResultsSheet from "./PersonResultsSheet";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import PersonResultsAccordion from "./PersonResultsAccordion";
 import { usePersonResultsByType } from "../lib/usePersonResults";
 
 interface KPIItem {
@@ -73,28 +79,26 @@ export const KPICards: React.FC<KPICardsProps> = ({
   const handleCardClick = (
     type: "total" | "completed" | "in_progress" | "not_started"
   ) => {
-    setSelectedCardType(type);
+    setSelectedCardType(selectedCardType === type ? null : type);
   };
 
-  const handleCloseSheet = () => {
-    setSelectedCardType(null);
-  };
-
-  const getSheetTitle = () => {
-    if (!selectedCardType) return "";
-    const kpi = kpis.find((k) => k.type === selectedCardType);
+  const getAccordionTitle = (type: "total" | "completed" | "in_progress" | "not_started") => {
+    const kpi = kpis.find((k) => k.type === type);
     return `${kpi?.label} (${kpi?.value})`;
   };
 
   return (
-    <>
+    <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {kpis.map((kpi: KPIItem, index: number) => {
           const IconComponent = kpi.icon;
+          const isSelected = selectedCardType === kpi.type;
           return (
             <Card
               key={index}
-              className="hover:shadow-md transition-shadow cursor-pointer"
+              className={`hover:shadow-md transition-all cursor-pointer ${
+                isSelected ? "ring-2 ring-primary shadow-md" : ""
+              }`}
               onClick={() => handleCardClick(kpi.type)}
             >
               <CardContent className="p-6">
@@ -115,14 +119,22 @@ export const KPICards: React.FC<KPICardsProps> = ({
         })}
       </div>
 
-      <PersonResultsSheet
-        open={selectedCardType !== null}
-        onClose={handleCloseSheet}
-        title={getSheetTitle()}
-        data={personResults}
-        isLoading={isLoading}
-        error={error}
-      />
-    </>
+      {selectedCardType && (
+        <Accordion type="single" collapsible value={selectedCardType}>
+          <AccordionItem value={selectedCardType}>
+            <AccordionTrigger className="text-lg font-semibold">
+              {getAccordionTitle(selectedCardType)}
+            </AccordionTrigger>
+            <AccordionContent>
+              <PersonResultsAccordion
+                data={personResults}
+                isLoading={isLoading}
+                error={error}
+              />
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+      )}
+    </div>
   );
 };
