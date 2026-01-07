@@ -108,7 +108,7 @@ export const orderQuotationMesonColumns = ({
 
       const handleDownloadPdf = async () => {
         try {
-          await downloadOrderQuotationPdf(id);
+          await downloadOrderQuotationPdf(id, false);
           successToast("PDF descargado correctamente");
         } catch {
           errorToast("Error al descargar el PDF");
