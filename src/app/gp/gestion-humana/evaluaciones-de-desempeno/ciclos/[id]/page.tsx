@@ -22,6 +22,7 @@ import CycleCategoryDetailForm, {
 import { useAllCategoriesWithBosses } from "@/features/gp/gestionhumana/evaluaciondesempeño/categorias-jerarquicas/lib/hierarchicalCategory.hook";
 import {
   useCategoriesInCycle,
+  useChiefsInCycle,
   useCycle,
   useCycleDetails,
   usePersonsInCycle,
@@ -44,6 +45,7 @@ export default function CyclePersonDetailPage() {
   const [personId, setPersonId] = useState<string | null>(null);
   const [positionId, setPositionId] = useState<string | null>(null);
   const [categoryId, setCategoryId] = useState<string | null>(null);
+  const [chiefDni, setChiefDni] = useState<string | null>(null);
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [openAssign, setOpenAssign] = useState(false);
 
@@ -61,6 +63,7 @@ export default function CyclePersonDetailPage() {
     person_id: personId,
     position_id: positionId,
     category_id: categoryId,
+    chief_id: chiefDni,
     per_page,
   });
 
@@ -87,6 +90,11 @@ export default function CyclePersonDetailPage() {
     isLoading: isLoadingCategoriesCycle,
     refetch: refetchCategoriesCycle,
   } = useCategoriesInCycle(idCycle);
+
+  const {
+    data: chiefs = [],
+    isLoading: isLoadingChiefs,
+  } = useChiefsInCycle(idCycle);
 
   const handleAssign = async (data: CycleCategoryDetailFormType) => {
     if (!id) return;
@@ -135,7 +143,8 @@ export default function CyclePersonDetailPage() {
     isLoadingPersons ||
     isLoadingCategories ||
     isLoadingPositions ||
-    isLoadingCategoriesCycle
+    isLoadingCategoriesCycle ||
+    isLoadingChiefs
   )
     return <PageSkeleton />;
   if (!checkRouteExists("ciclos")) notFound();
@@ -180,6 +189,9 @@ export default function CyclePersonDetailPage() {
           categories={categoriesCycle}
           categoryId={categoryId}
           setCategoryId={setCategoryId}
+          chiefs={chiefs}
+          chiefDni={chiefDni}
+          setChiefDni={setChiefDni}
         />
       </CyclePersonDetailTable>
 

@@ -18,6 +18,9 @@ export default function CyclePersonDetailOptions({
   categories = [],
   categoryId,
   setCategoryId,
+  chiefs = [],
+  chiefDni,
+  setChiefDni,
 }: {
   search: string;
   setSearch: (value: string) => void;
@@ -30,6 +33,9 @@ export default function CyclePersonDetailOptions({
   categories: RootObject[];
   categoryId: string | null;
   setCategoryId: (value: string | null) => void;
+  chiefs: WorkerResource[];
+  chiefDni: string | null;
+  setChiefDni: (value: string | null) => void;
 }) {
   return (
     <div className="flex items-center gap-2 flex-wrap">
@@ -68,6 +74,16 @@ export default function CyclePersonDetailOptions({
         value={categoryId?.toString() || ""}
         onChange={setCategoryId}
         placeholder="Seleccionar Categoría"
+        classNameOption="text-xs"
+      />
+      <SearchableSelect
+        options={chiefs.map((chief) => ({
+          value: chief.id.toString(),
+          label: chief.name,
+        }))}
+        value={chiefDni || ""}
+        onChange={setChiefDni}
+        placeholder="Seleccionar Jefe"
         classNameOption="text-xs"
       />
     </div>
