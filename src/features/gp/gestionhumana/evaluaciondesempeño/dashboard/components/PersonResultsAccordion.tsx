@@ -58,9 +58,11 @@ const PersonResultsAccordion: React.FC<PersonResultsAccordionProps> = ({
     if (!searchQuery.trim()) return data;
 
     const query = searchQuery.toLowerCase();
-    return data.filter((person) =>
-      person.person.name.toLowerCase().includes(query) ||
-      (person.person.position && person.person.position.toLowerCase().includes(query))
+    return data.filter(
+      (person) =>
+        person.person.name.toLowerCase().includes(query) ||
+        (person.person.position &&
+          person.person.position.toLowerCase().includes(query))
     );
   }, [data, searchQuery]);
 
@@ -263,7 +265,10 @@ const PersonResultsAccordion: React.FC<PersonResultsAccordionProps> = ({
         <div className="text-sm text-muted-foreground">
           {filteredData.length} persona{filteredData.length !== 1 ? "s" : ""}{" "}
           encontrada{filteredData.length !== 1 ? "s" : ""}
-          {searchQuery && ` (filtrado de ${data.length} total${data.length !== 1 ? "es" : ""})`}
+          {searchQuery &&
+            ` (filtrado de ${data.length} total${
+              data.length !== 1 ? "es" : ""
+            })`}
         </div>
         <div className="relative w-full sm:w-64">
           <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />

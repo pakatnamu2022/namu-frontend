@@ -62,10 +62,13 @@ export default function GeneralMastersModal({
 
   const mappedMaster = master
     ? {
-        ...master,
+        code: master.code,
+        description: master.description,
+        type: master.type,
+        value: master.value,
         status: Boolean(master.status),
       }
-    : null;
+    : undefined;
 
   const isLoadingAny = loadingMaster || !master;
 
@@ -82,7 +85,7 @@ export default function GeneralMastersModal({
         <GeneralMastersForm
           onSubmit={handleSubmit}
           isSubmitting={createMutation.isPending || updateMutation.isPending}
-          defaultValues={mappedMaster || undefined}
+          defaultValues={mappedMaster}
           mode={mode}
           onCancel={onClose}
         />

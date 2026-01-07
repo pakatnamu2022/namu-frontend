@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const generalMastersSchemaCreate = z.object({
+const generalMastersSchemaBase = z.object({
   code: z
     .string()
     .max(50)
@@ -20,12 +20,16 @@ export const generalMastersSchemaCreate = z.object({
       message: "Tipo es requerido",
     }),
   value: z.string().max(255).optional(),
-  status: z.boolean().optional().default(true),
+  status: z.boolean().optional(),
 });
 
-export const generalMastersSchemaUpdate =
-  generalMastersSchemaCreate.partial();
+export const generalMastersSchemaCreate = generalMastersSchemaBase.transform(
+  (data) => ({
+    ...data,
+    status: data.status ?? true,
+  })
+);
 
-export type GeneralMastersSchema = z.infer<
-  typeof generalMastersSchemaCreate
->;
+export const generalMastersSchemaUpdate = generalMastersSchemaBase.partial();
+
+export type GeneralMastersSchema = z.infer<typeof generalMastersSchemaBase>;

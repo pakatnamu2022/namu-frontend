@@ -7,7 +7,6 @@ import {
   generalMastersSchemaCreate,
   GeneralMastersSchema,
 } from "../lib/generalMasters.schema";
-import { GeneralMastersResource } from "../lib/generalMasters.interface";
 import { FormInput } from "@/shared/components/FormInput";
 import { FormSwitch } from "@/shared/components/FormSwitch";
 import { FormSelect } from "@/shared/components/FormSelect";
@@ -17,7 +16,7 @@ import { useMemo } from "react";
 interface GeneralMastersFormProps {
   onSubmit: (data: GeneralMastersSchema) => void;
   isSubmitting: boolean;
-  defaultValues?: GeneralMastersResource;
+  defaultValues?: GeneralMastersSchema;
   mode: "create" | "update";
   onCancel?: () => void;
 }
