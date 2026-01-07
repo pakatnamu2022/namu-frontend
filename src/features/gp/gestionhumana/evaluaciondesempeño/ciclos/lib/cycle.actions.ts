@@ -96,6 +96,13 @@ export async function getCategoriesInCycle(id: string): Promise<RootObject[]> {
   return data;
 }
 
+export async function getChiefsInCycle(id: string): Promise<WorkerResource[]> {
+  const { data } = await api.get<WorkerResource[]>(
+    `/gp/gh/performanceEvaluation/cycle/${id}/chiefs`
+  );
+  return data;
+}
+
 export async function storeCycle(data: any): Promise<CycleResponse> {
   const response = await api.post<CycleResponse>(ENDPOINT, data);
   return response.data;

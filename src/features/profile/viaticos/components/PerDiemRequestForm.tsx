@@ -7,7 +7,7 @@ import {
   perDiemRequestSchemaCreate,
   perDiemRequestSchemaUpdate,
 } from "../lib/perDiemRequest.schema";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { zodResolver } from "@hookform/resolvers/zod";  
 import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
@@ -20,7 +20,6 @@ import { useUserCompanies } from "@/features/gp/gestionsistema/usuarios/lib/user
 import { FormInputText } from "@/shared/components/FormInputText";
 import { FormSwitch } from "@/shared/components/FormSwitch";
 import { useAllSedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
-import { useAuthStore } from "@/features/auth/lib/auth.store";
 
 interface PerDiemRequestFormProps {
   defaultValues: Partial<PerDiemRequestSchema | PerDiemRequestSchemaUpdate>;
@@ -37,7 +36,7 @@ export const PerDiemRequestForm = ({
   mode = "create",
   onCancel,
 }: PerDiemRequestFormProps) => {
-  const MIN_DAYS = 20;
+  const MIN_DAYS = 18;
   const form = useForm<PerDiemRequestSchema | PerDiemRequestSchemaUpdate>({
     resolver: zodResolver(
       mode === "create"
@@ -55,7 +54,6 @@ export const PerDiemRequestForm = ({
     useUserCompanies();
 
   const { data: sedes = [], isLoading: isLoadingSedes } = useAllSedes();
-  const user = useAuthStore((state) => state.user);
 
   // Observar el valor de company_id
   const companyId = form.watch("company_id");
@@ -137,8 +135,8 @@ export const PerDiemRequestForm = ({
             placeholder="Selecciona una sede"
             options={filteredSedes
               .filter(
-                (item) =>
-                  item?.id && item?.abreviatura && item.id !== user?.sede_id
+                (item) => item?.id && item?.abreviatura
+                // && item.id !== user?.sede_id
                 // && item?.shop_id !== user?.shop_id
               )
               .map((item) => ({

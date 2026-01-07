@@ -92,6 +92,15 @@ export async function getPositionsInEvaluation(
   return data;
 }
 
+export async function getBossesInEvaluation(
+  id: string
+): Promise<WorkerResource[]> {
+  const { data } = await api.get<WorkerResource[]>(
+    `/gp/gh/performanceEvaluation/personResult/evaluation/${id}/bosses`
+  );
+  return data;
+}
+
 export async function getCategoriesInEvaluation(
   id: string
 ): Promise<HierarchicalCategoryResource[]> {

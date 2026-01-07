@@ -330,6 +330,7 @@ import AddGeneralElectronicDocumentPage from "./app/ap/comercial/electronic-docu
 import PerDiemRequestAPPage from "./app/ap/contabilidad/solicitud-viaticos/page.tsx";
 import PerDiemRequestDetailAdminAPPage from "./app/ap/contabilidad/solicitud-viaticos/[id]/page.tsx";
 import CommercialMastersPage from "./app/ap/configuraciones/maestros-general/maestros-generales/page.tsx";
+import GeneralMastersPage from "./app/gp/maestros-generales/page.tsx";
 import { PER_DIEM_REQUEST } from "./features/profile/viaticos/lib/perDiemRequest.constants.ts";
 
 // ============================================================================
@@ -1613,6 +1614,7 @@ function App() {
               {/* Dashboard Principal */}
               <Route index element={<ModulePage />} />
 
+              <Route path="maestros-generales" element={<GeneralMastersPage />} />
               <Route path="sede" element={<SedePage />} />
               <Route path="sede/agregar" element={<AddSedePage />} />
               <Route path="sede/actualizar/:id" element={<UpdateSedePage />} />

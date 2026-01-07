@@ -4,6 +4,7 @@ import {
   findCycleById,
   getAllCycle,
   getCategoriesInCycle,
+  getChiefsInCycle,
   getCycle,
   getCyclePersonDetails,
   getPersonsInCycle,
@@ -65,6 +66,14 @@ export const useCategoriesInCycle = (idCycle: number) => {
   return useQuery({
     queryKey: ["cycle", idCycle, "categories"],
     queryFn: () => getCategoriesInCycle(idCycle.toString()),
+    refetchOnWindowFocus: false,
+  });
+};
+
+export const useChiefsInCycle = (idCycle: number) => {
+  return useQuery({
+    queryKey: ["cycle", idCycle, "chiefs"],
+    queryFn: () => getChiefsInCycle(idCycle.toString()),
     refetchOnWindowFocus: false,
   });
 };

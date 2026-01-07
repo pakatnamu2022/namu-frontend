@@ -14,6 +14,9 @@ export default function EvaluationPersonOptions({
   positions = [],
   positionId,
   setPositionId,
+  bosses = [],
+  bossDni,
+  setBossDni,
 }: {
   search: string;
   setSearch: (value: string) => void;
@@ -23,6 +26,9 @@ export default function EvaluationPersonOptions({
   positions: PositionResource[];
   positionId: string | null;
   setPositionId: (value: string | null) => void;
+  bosses: WorkerResource[];
+  bossDni: string | null;
+  setBossDni: (value: string | null) => void;
 }) {
   return (
     <div className="flex items-center gap-2 flex-wrap">
@@ -50,6 +56,16 @@ export default function EvaluationPersonOptions({
         value={positionId?.toString() || ""}
         onChange={setPositionId}
         placeholder="Seleccionar Posición"
+        classNameOption="text-xs"
+      />
+      <SearchableSelect
+        options={bosses.map((boss) => ({
+          value: boss.document,
+          label: boss.name,
+        }))}
+        value={bossDni || ""}
+        onChange={setBossDni}
+        placeholder="Seleccionar Jefe"
         classNameOption="text-xs"
       />
     </div>

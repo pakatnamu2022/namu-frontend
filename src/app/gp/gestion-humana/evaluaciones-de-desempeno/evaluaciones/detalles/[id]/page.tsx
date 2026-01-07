@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { EVALUATION } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluaciones/lib/evaluation.constans";
 import {
+  useBossesInEvaluation,
   useEvaluation,
   usePersonsInEvaluation,
   usePositionsInEvaluation,
@@ -42,6 +43,7 @@ export default function EvaluationDetailPage() {
   const [search, setSearch] = useState("");
   const [personId, setPersonId] = useState<string | null>(null);
   const [positionId, setPositionId] = useState<string | null>(null);
+  const [bossDni, setBossDni] = useState<string | null>(null);
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [selectedWorker, setSelectedWorker] = useState<WorkerResource | null>(
     null
@@ -63,6 +65,7 @@ export default function EvaluationDetailPage() {
     search,
     person_id: personId,
     person$cargo_id: positionId,
+    boss_dni: bossDni,
     per_page,
   });
 
@@ -71,6 +74,9 @@ export default function EvaluationDetailPage() {
 
   const { data: positions = [], isLoading: isLoadingPositions } =
     usePositionsInEvaluation(idEvaluation);
+
+  const { data: bosses = [], isLoading: isLoadingBosses } =
+    useBossesInEvaluation(idEvaluation);
 
   const handleDelete = async () => {
     if (!deleteId) return;
@@ -125,7 +131,12 @@ export default function EvaluationDetailPage() {
     }
   };
 
-  if (isLoadingModule || isLoadingPersons || isLoadingPositions)
+  if (
+    isLoadingModule ||
+    isLoadingPersons ||
+    isLoadingPositions ||
+    isLoadingBosses
+  )
     return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
   if (!currentView) notFound();
@@ -168,6 +179,9 @@ export default function EvaluationDetailPage() {
           positions={positions}
           positionId={positionId}
           setPositionId={setPositionId}
+          bosses={bosses}
+          bossDni={bossDni}
+          setBossDni={setBossDni}
         />
       </EvaluationPersonTable>
 
