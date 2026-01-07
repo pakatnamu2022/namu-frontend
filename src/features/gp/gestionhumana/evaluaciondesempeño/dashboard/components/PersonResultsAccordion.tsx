@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { ExternalLink } from "lucide-react";
+import { ColumnDef } from "@tanstack/react-table";
+import { DataTable } from "@/shared/components/DataTable";
 import { EvaluationPersonResultResource } from "../../evaluation-person/lib/evaluationPerson.interface";
-import FormSkeleton from "@/shared/components/FormSkeleton";
 
 export interface PersonResultsAccordionProps {
   data: EvaluationPersonResultResource[];
@@ -18,12 +19,6 @@ const PersonResultsAccordion: React.FC<PersonResultsAccordionProps> = ({
   error,
 }) => {
   const router = useNavigate();
-
-  const handlePersonClick = (personResult: EvaluationPersonResultResource) => {
-    router(
-      `/gp/gestion-humana/evaluaciones-de-desempeno/evaluaciones/detalles/${personResult.evaluation_id}/${personResult.person_id}`
-    );
-  };
 
   const getProgressColor = (percentage: number) => {
     if (percentage >= 80) return "bg-primary";
@@ -54,86 +49,109 @@ const PersonResultsAccordion: React.FC<PersonResultsAccordionProps> = ({
     );
   };
 
-  const renderPersonCard = (personResult: EvaluationPersonResultResource) => (
-    <div
-      key={personResult.id}
-      className="border rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer bg-white"
-      onClick={() => handlePersonClick(personResult)}
-    >
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-3">
+  const columns = useMemo<ColumnDef<EvaluationPersonResultResource>[]>(
+    () => [
+      {
+        accessorKey: "person.name",
+        header: "Persona",
+        cell: ({ row }) => (
           <div>
-            <h3 className="font-semibold text-sm">
-              {personResult.person.name}
-            </h3>
-            <p className="text-xs text-muted-foreground">
-              {personResult.person.position || "Sin cargo"}
-            </p>
-          </div>
-        </div>
-        {getStatusBadge(personResult)}
-      </div>
-
-      <div className="space-y-3">
-        <div>
-          <div className="flex justify-between items-center mb-1">
-            <span className="text-xs font-medium">Progreso</span>
-            <span className="text-xs text-muted-foreground">
-              {Number(personResult.total_progress.completion_rate.toFixed(2)) *
-                100}
-              %
-            </span>
-          </div>
-          <Progress
-            value={
-              Number(personResult.total_progress.completion_rate.toFixed(2)) *
-              100
-            }
-            className="h-2"
-            indicatorClassName={getProgressColor(
-              personResult.total_progress.completion_rate * 100
-            )}
-          />
-        </div>
-
-        {personResult.hasObjectives && (
-          <div>
-            <div className="flex justify-between items-center mb-1">
-              <span className="text-xs font-medium">Objetivos</span>
-              <span className="text-xs text-muted-foreground">
-                {personResult.objectivesPercentage.toFixed(0)}%
-              </span>
+            <div className="font-medium text-sm">
+              {row.original.person.name}
             </div>
-            <Progress
-              value={personResult.objectivesPercentage}
-              className="h-2"
-              indicatorClassName={getProgressColor(
-                personResult.objectivesPercentage
-              )}
-            />
+            <div className="text-xs text-muted-foreground">
+              {row.original.person.position || "Sin cargo"}
+            </div>
           </div>
-        )}
-
-        <div className="flex justify-between items-center pt-2 border-t">
-          <span className="text-sm font-medium">Resultado Final</span>
-          <div className="flex items-center gap-2">
+        ),
+      },
+      {
+        accessorKey: "status",
+        header: "Estado",
+        cell: ({ row }) => getStatusBadge(row.original),
+        enableSorting: false,
+      },
+      {
+        accessorKey: "total_progress.completion_rate",
+        header: "Progreso Total",
+        cell: ({ row }) => {
+          const percentage =
+            Number(
+              row.original.total_progress.completion_rate.toFixed(2)
+            ) * 100;
+          return (
+            <div className="space-y-1 min-w-[180px]">
+              <div className="flex justify-between items-center">
+                <span className="text-xs font-medium">Progreso</span>
+                <span className="text-xs text-muted-foreground">
+                  {percentage}%
+                </span>
+              </div>
+              <Progress
+                value={percentage}
+                className="h-2"
+                indicatorClassName={getProgressColor(percentage)}
+              />
+            </div>
+          );
+        },
+      },
+      {
+        accessorKey: "objectivesPercentage",
+        header: "Objetivos",
+        cell: ({ row }) => {
+          if (!row.original.hasObjectives) {
+            return <span className="text-xs text-muted-foreground">N/A</span>;
+          }
+          const percentage = row.original.objectivesPercentage;
+          return (
+            <div className="space-y-1 min-w-[180px]">
+              <div className="flex justify-between items-center">
+                <span className="text-xs font-medium">Objetivos</span>
+                <span className="text-xs text-muted-foreground">
+                  {percentage.toFixed(0)}%
+                </span>
+              </div>
+              <Progress
+                value={percentage}
+                className="h-2"
+                indicatorClassName={getProgressColor(percentage)}
+              />
+            </div>
+          );
+        },
+      },
+      {
+        accessorKey: "result",
+        header: "Resultado",
+        cell: ({ row }) => (
+          <div className="text-center">
             <span className="text-sm font-semibold">
-              {personResult.result ? personResult.result.toFixed(1) : "0.0"}
+              {row.original.result ? row.original.result.toFixed(1) : "0.0"}
             </span>
+          </div>
+        ),
+      },
+      {
+        id: "actions",
+        header: "",
+        cell: ({ row }) => (
+          <div
+            className="cursor-pointer"
+            onClick={() => {
+              router(
+                `/gp/gestion-humana/evaluaciones-de-desempeno/evaluaciones/detalles/${row.original.evaluation_id}/${row.original.person_id}`
+              );
+            }}
+          >
             <ExternalLink className="w-4 h-4 text-muted-foreground" />
           </div>
-        </div>
-      </div>
-    </div>
+        ),
+        enableSorting: false,
+      },
+    ],
+    [router]
   );
-
-  if (isLoading) {
-    return (
-      <div className="py-4">
-        <FormSkeleton />
-      </div>
-    );
-  }
 
   if (error) {
     return (
@@ -144,22 +162,21 @@ const PersonResultsAccordion: React.FC<PersonResultsAccordionProps> = ({
     );
   }
 
-  if (!data || data.length === 0) {
-    return (
-      <div className="text-center py-8">
-        <p className="text-muted-foreground">No se encontraron personas</p>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-4 py-4">
       <div className="text-sm text-muted-foreground">
         {data.length} persona{data.length !== 1 ? "s" : ""} encontrada
         {data.length !== 1 ? "s" : ""}
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[600px] overflow-y-auto pr-2">
-        {data.map(renderPersonCard)}
+      <div className="max-h-[600px] overflow-y-auto">
+        <DataTable
+          columns={columns}
+          data={data}
+          isLoading={isLoading}
+          variant="outline"
+          isVisibleColumnFilter={false}
+          className="block w-full"
+        />
       </div>
     </div>
   );

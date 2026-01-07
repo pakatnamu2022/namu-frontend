@@ -82,14 +82,16 @@ export const KPICards: React.FC<KPICardsProps> = ({
     setSelectedCardType(selectedCardType === type ? null : type);
   };
 
-  const getAccordionTitle = (type: "total" | "completed" | "in_progress" | "not_started") => {
+  const getAccordionTitle = (
+    type: "total" | "completed" | "in_progress" | "not_started"
+  ) => {
     const kpi = kpis.find((k) => k.type === type);
     return `${kpi?.label} (${kpi?.value})`;
   };
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="flex flex-col justify-between gap-2 h-full">
         {kpis.map((kpi: KPIItem, index: number) => {
           const IconComponent = kpi.icon;
           const isSelected = selectedCardType === kpi.type;
@@ -101,7 +103,7 @@ export const KPICards: React.FC<KPICardsProps> = ({
               }`}
               onClick={() => handleCardClick(kpi.type)}
             >
-              <CardContent className="p-6">
+              <CardContent className="p-4 px-6">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className={`text-sm font-medium ${kpi.labelColor}`}>

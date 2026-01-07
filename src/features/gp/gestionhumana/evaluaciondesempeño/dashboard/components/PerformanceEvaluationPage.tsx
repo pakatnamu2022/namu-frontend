@@ -96,12 +96,16 @@ export default function PerformanceEvaluationPage({ id }: { id?: number }) {
           onDownloadReport={handleDownloadReport}
         />
 
-        <ProgressChart progressStats={progressStats} />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="md:col-span-2">
+            <ProgressChart progressStats={progressStats} />
+          </div>
 
-        <KPICards
-          progressStats={progressStats}
-          evaluationId={evaluationData.id}
-        />
+          <KPICards
+            progressStats={progressStats}
+            evaluationId={evaluationData.id}
+          />
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <ParticipationChart progressStats={progressStats} />
