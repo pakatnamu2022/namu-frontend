@@ -163,7 +163,7 @@ export const ParticipationChart: React.FC<ParticipationChartProps> = ({
       <CardContent className="flex flex-col h-full">
         <div className="flex flex-row items-center justify-between h-full">
           {/* Gráfico de pie */}
-          <div className="flex-shrink-0">
+          <div className="shrink-0">
             <ChartContainer
               id={id}
               config={chartConfig}
@@ -261,7 +261,7 @@ export const ParticipationChart: React.FC<ParticipationChartProps> = ({
                 >
                   <div className="flex items-center gap-3">
                     <div
-                      className="w-4 h-4 rounded-sm flex-shrink-0"
+                      className="w-4 h-4 rounded-sm shrink-0"
                       style={{ backgroundColor: `var(--color-${item.status})` }}
                     />
                     <span className="text-sm font-medium text-left">

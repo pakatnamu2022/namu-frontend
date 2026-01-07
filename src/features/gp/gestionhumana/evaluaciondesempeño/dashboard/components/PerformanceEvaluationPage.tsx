@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { EvaluationHeader } from "./EvaluationHeader";
 import { ProgressChart } from "./ProgressChart";
 import { KPICards } from "./KPICards";
@@ -13,6 +14,15 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { EVALUATION } from "../../evaluaciones/lib/evaluation.constans";
 import PageWrapper from "@/shared/components/PageWrapper";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import PersonResultsAccordion from "./PersonResultsAccordion";
+import { usePersonResultsByType } from "../lib/usePersonResults";
+import { KPICardType, getKPITitle } from "../lib/kpi.utils";
 
 // Tipos de datos
 interface ProgressStats {
@@ -27,11 +37,30 @@ interface ProgressStats {
 // Componente Principal
 export default function PerformanceEvaluationPage({ id }: { id?: number }) {
   const { ABSOLUTE_ROUTE } = EVALUATION;
-  // Use the appropriate hook based on whether id is provided
-  const evaluationQuery = id
-    ? useEvaluation(id)
-    : useActivePerformanceEvaluation();
+  const [selectedCardType, setSelectedCardType] = useState<KPICardType | null>(
+    null
+  );
+
+  // Always call hooks unconditionally
+  const evaluationByIdQuery = useEvaluation(id || 0);
+  const activeEvaluationQuery = useActivePerformanceEvaluation();
+
+  // Use the appropriate data based on whether id is provided
+  const evaluationQuery = id ? evaluationByIdQuery : activeEvaluationQuery;
   const evaluationData = evaluationQuery.data;
+
+  const {
+    data: personResults = [],
+    isLoading: isLoadingPersons,
+    error: personsError,
+  } = usePersonResultsByType(
+    evaluationData?.id || 0,
+    selectedCardType || "total"
+  );
+
+  const handleCardClick = (type: KPICardType) => {
+    setSelectedCardType(selectedCardType === type ? null : type);
+  };
 
   if (evaluationQuery.isLoading) {
     return <FormSkeleton />;
@@ -103,9 +132,27 @@ export default function PerformanceEvaluationPage({ id }: { id?: number }) {
 
           <KPICards
             progressStats={progressStats}
-            evaluationId={evaluationData.id}
+            selectedCardType={selectedCardType}
+            onCardClick={handleCardClick}
           />
         </div>
+
+        {selectedCardType && (
+          <Accordion type="single" collapsible value={selectedCardType}>
+            <AccordionItem value={selectedCardType}>
+              <AccordionTrigger className="text-lg font-semibold">
+                {getKPITitle(selectedCardType, progressStats)}
+              </AccordionTrigger>
+              <AccordionContent>
+                <PersonResultsAccordion
+                  data={personResults}
+                  isLoading={isLoadingPersons}
+                  error={personsError}
+                />
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <ParticipationChart progressStats={progressStats} />
