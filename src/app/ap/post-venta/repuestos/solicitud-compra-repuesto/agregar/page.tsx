@@ -12,19 +12,18 @@ import {
 import FormWrapper from "@/shared/components/FormWrapper";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import { notFound } from "@/shared/hooks/useNotFound";
-import { ORDER_QUOTATION } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.constants";
-import OrderQuotationForm from "@/features/ap/post-venta/taller/cotizacion/components/ProformaForm";
-import { storeOrderQuotation } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.actions";
-import { OrderQuotationSchema } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.schema";
-import { CURRENCY_TYPE_IDS } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.constants";
+import { PURCHASE_REQUEST_REPUESTOS } from "@/features/ap/post-venta/taller/solicitud-compra/lib/purchaseRequest.constants";
+import PurchaseRequestForm from "@/features/ap/post-venta/taller/solicitud-compra/components/PurchaseRequestForm";
+import { storePurchaseRequest } from "@/features/ap/post-venta/taller/solicitud-compra/lib/purchaseRequest.actions";
+import { PurchaseRequestSchema } from "@/features/ap/post-venta/taller/solicitud-compra/lib/purchaseRequest.schema";
 
-export default function AddOrderQuotationPage() {
+export default function AddPurchaseRequestRepuestoPage() {
   const router = useNavigate();
   const { currentView, checkRouteExists } = useCurrentModule();
-  const { ROUTE, MODEL, ABSOLUTE_ROUTE } = ORDER_QUOTATION;
+  const { ROUTE, MODEL, ABSOLUTE_ROUTE } = PURCHASE_REQUEST_REPUESTOS;
 
   const { mutate, isPending } = useMutation({
-    mutationFn: storeOrderQuotation,
+    mutationFn: storePurchaseRequest,
     onSuccess: () => {
       successToast(SUCCESS_MESSAGE(MODEL, "create"));
       router(ABSOLUTE_ROUTE!);
@@ -35,7 +34,7 @@ export default function AddOrderQuotationPage() {
     },
   });
 
-  const handleSubmit = (data: OrderQuotationSchema) => {
+  const handleSubmit = (data: PurchaseRequestSchema) => {
     mutate(data);
   };
 
@@ -49,14 +48,10 @@ export default function AddOrderQuotationPage() {
         mode="create"
         icon={currentView.icon}
       />
-      <OrderQuotationForm
+      <PurchaseRequestForm
         defaultValues={{
-          vehicle_id: "",
-          quotation_date: "",
-          expiration_date: "",
+          requested_date: "",
           observations: "",
-          sede_id: "",
-          currency_id: CURRENCY_TYPE_IDS.SOLES,
         }}
         onSubmit={handleSubmit}
         isSubmitting={isPending}

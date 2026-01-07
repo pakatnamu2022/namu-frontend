@@ -6,6 +6,7 @@ import {
   getWorkOrder,
   storeWorkOrder,
   downloadWorkOrderPdf,
+  getPaymentSummary,
 } from "./workOrder.actions";
 import { getWorkOrderProps, WorkOrderRequest } from "./workOrder.interface";
 import { WORKER_ORDER } from "./workOrder.constants";
@@ -86,5 +87,16 @@ export function useDownloadWorkOrderPdf() {
         error?.response?.data?.message || "Error al descargar el PDF";
       errorToast(errorMessage);
     },
+  });
+}
+
+export function useGetPaymentSummary(
+  workOrderId: number,
+  groupNumber?: number
+) {
+  return useQuery({
+    queryKey: [QUERY_KEY, "payment-summary", workOrderId, groupNumber],
+    queryFn: () => getPaymentSummary(workOrderId, groupNumber),
+    enabled: !!workOrderId,
   });
 }

@@ -245,6 +245,9 @@ import AddOrderQuotationMesonPage from "./app/ap/post-venta/repuestos/cotizacion
 import UpdateOrderQuotationMesonPage from "./app/ap/post-venta/repuestos/cotizacion-meson/actualizar/[id]/page.tsx";
 import BillOrderQuotationMesonPage from "./app/ap/post-venta/repuestos/cotizacion-meson/facturar/[id]/page.tsx";
 import SalesReceiptsRepuestoPage from "./app/ap/post-venta/repuestos/comprobante-venta-repuesto/page.tsx";
+import PurchaseRequestRepuestoPage from "./app/ap/post-venta/repuestos/solicitud-compra-repuesto/page.tsx";
+import AddPurchaseRequestRepuestoPage from "./app/ap/post-venta/repuestos/solicitud-compra-repuesto/agregar/page.tsx";
+import UpdatePurchaseRequestRepuestoPage from "./app/ap/post-venta/repuestos/solicitud-compra-repuesto/actualizar/[id]/page.tsx";
 import CardWashPage from "./app/ap/post-venta/taller/lavado-vehiculo/page.tsx";
 import AppointmentPlanningPage from "./app/ap/post-venta/taller/citas/page.tsx";
 import AddAppointmentPlanningPage from "./app/ap/post-venta/taller/citas/agregar/page.tsx";
@@ -1210,6 +1213,18 @@ function App() {
               <Route
                 path="repuestos/comprobante-venta-repuesto"
                 element={<SalesReceiptsRepuestoPage />}
+              />
+              <Route
+                path="repuestos/solicitud-compra-repuesto"
+                element={<PurchaseRequestRepuestoPage />}
+              />
+              <Route
+                path="repuestos/solicitud-compra-repuesto/agregar"
+                element={<AddPurchaseRequestRepuestoPage />}
+              />
+              <Route
+                path="repuestos/solicitud-compra-repuesto/actualizar/:id"
+                element={<UpdatePurchaseRequestRepuestoPage />}
               />
               {/* Taller */}
               <Route path="taller/lavado-vehiculo" element={<CardWashPage />} />

@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { FileText } from "lucide-react";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
@@ -44,6 +44,11 @@ export function OrderQuotationDocumentInfoSection({
   isFromQuotation = false,
   defaultCustomer,
 }: OrderQuotationDocumentInfoSectionProps) {
+  // Estado para almacenar el cliente seleccionado
+  const [selectedCustomer, setSelectedCustomer] = useState<
+    CustomersResource | undefined
+  >(defaultCustomer);
+
   // Crear defaultOption desde defaultCustomer si existe
   const defaultOption = useMemo(() => {
     if (defaultCustomer) {
@@ -62,15 +67,14 @@ export function OrderQuotationDocumentInfoSection({
     if (isAdvancePayment) {
       // Si es anticipo, mostrar solo series con is_advance: true
       return authorizedSeries.filter((series) => series.is_advance === true);
+    } else {
+      // Si no es anticipo, mostrar solo series con is_advance: false
+      return authorizedSeries.filter((series) => series.is_advance === false);
     }
-    // Si no es anticipo, mostrar todas las series
-    return authorizedSeries;
   }, [authorizedSeries, isAdvancePayment]);
 
-  // Obtener el cliente seleccionado (usar defaultCustomer directamente)
+  // Observar cambios en el cliente
   const clientId = form.watch("client_id");
-  const selectedCustomer =
-    clientId === defaultCustomer?.id.toString() ? defaultCustomer : undefined;
 
   // Setear el cliente por defecto cuando se monta el componente
   useEffect(() => {
@@ -168,6 +172,14 @@ export function OrderQuotationDocumentInfoSection({
           debounceMs={500}
           disabled={isEdit}
           defaultOption={defaultOption}
+          onValueChange={(_, customer) => {
+            // Actualizar el estado con el cliente seleccionado
+            if (customer) {
+              setSelectedCustomer(customer as CustomersResource);
+            } else {
+              setSelectedCustomer(undefined);
+            }
+          }}
         />
       </div>
 

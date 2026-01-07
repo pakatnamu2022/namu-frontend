@@ -12,6 +12,7 @@ export const orderQuotationSchemaCreate = z.object({
   expiration_date: z.union([z.literal(""), z.date()]),
   observations: z.string().min(0).max(500).optional(),
   area_id: optionalStringId("Área es requerido"),
+  currency_id: requiredStringId("Moneda es requerida"),
 });
 
 export const orderQuotationSchemaUpdate = orderQuotationSchemaCreate.partial();

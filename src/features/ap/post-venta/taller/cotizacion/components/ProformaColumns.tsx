@@ -107,7 +107,7 @@ export const orderQuotationColumns = ({
 
       const handleDownloadPdf = async () => {
         try {
-          await downloadOrderQuotationPdf(id);
+          await downloadOrderQuotationPdf(id, true);
           successToast("PDF descargado correctamente");
         } catch {
           errorToast("Error al descargar el PDF");

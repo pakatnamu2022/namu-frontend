@@ -66,6 +66,9 @@ export default function UpdateOrderQuotationPage() {
         ? new Date(data.expiration_date)
         : "",
       observations: data.observations || "",
+      sede_id: data.sede_id ? String(data.sede_id) : "",
+      area_id: data.area_id ? String(data.area_id) : "",
+      currency_id: data.currency_id ? String(data.currency_id) : "",
     };
   }
 
