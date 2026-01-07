@@ -275,12 +275,18 @@ export default function GeneralInfoSection({
               {request.approvals.map((approval, index) => (
                 <Badge
                   key={index}
-                  variant="outline"
+                  variant={
+                    approval.status === "approved"
+                      ? "green"
+                      : approval.status === "rejected"
+                      ? "red"
+                      : "outline"
+                  }
                   className="text-xs flex flex-col items-start"
                 >
                   <p>{approval.approver?.full_name || "Sin nombre"}</p>
-                  {/* <p className="text-muted-foreground">{approval.status}</p> */}
-                  <p className="text-muted-foreground font-light">
+                  <p className="text-muted-foreground">{approval.comments}</p>
+                  <p className="text-muted-foreground font-light text-xs!">
                     {approval.approved_at?.split("T")[0]}
                   </p>
                 </Badge>

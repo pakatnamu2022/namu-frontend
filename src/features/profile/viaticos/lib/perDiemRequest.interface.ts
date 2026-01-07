@@ -74,7 +74,7 @@ interface Approval {
   per_diem_request_id: number;
   approver_id: number;
   approver: Boss;
-  status: string;
+  status: "approved" | "rejected" | "pending";
   comments: string;
   approved_at: string;
 }
