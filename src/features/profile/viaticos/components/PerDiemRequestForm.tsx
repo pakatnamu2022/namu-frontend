@@ -37,6 +37,7 @@ export const PerDiemRequestForm = ({
   mode = "create",
   onCancel,
 }: PerDiemRequestFormProps) => {
+  const MIN_DAYS = 20;
   const form = useForm<PerDiemRequestSchema | PerDiemRequestSchemaUpdate>({
     resolver: zodResolver(
       mode === "create"
@@ -156,7 +157,7 @@ export const PerDiemRequestForm = ({
             dateFormat="dd/MM/yyyy"
             required
             disabled={{
-              before: new Date(Date.now() + 21 * 24 * 60 * 60 * 1000),
+              before: new Date(Date.now() + MIN_DAYS * 24 * 60 * 60 * 1000),
             }}
           />
 
