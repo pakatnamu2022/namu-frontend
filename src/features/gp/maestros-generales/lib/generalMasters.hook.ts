@@ -10,12 +10,11 @@ import {
   updateGeneralMasters,
   deleteGeneralMasters,
   getGeneralMastersTypes,
+  getGeneralMasterByCode,
 } from "./generalMasters.actions";
 import { GENERAL_MASTERS } from "./generalMasters.constants";
 
-export const useGeneralMasters = ({
-  params,
-}: getGeneralMastersProps = {}) => {
+export const useGeneralMasters = ({ params }: getGeneralMastersProps = {}) => {
   return useQuery({
     queryKey: [GENERAL_MASTERS.QUERY_KEY, params],
     queryFn: () => getGeneralMasters({ params }),
@@ -33,8 +32,7 @@ export const useGeneralMastersById = (id: number) => {
 export const useCreateGeneralMasters = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (body: GeneralMastersRequest) =>
-      createGeneralMasters(body),
+    mutationFn: (body: GeneralMastersRequest) => createGeneralMasters(body),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: [GENERAL_MASTERS.QUERY_KEY],
@@ -78,5 +76,13 @@ export const useGeneralMastersTypes = () => {
     queryKey: [GENERAL_MASTERS.QUERY_KEY, "types"],
     queryFn: getGeneralMastersTypes,
     staleTime: 1000 * 60 * 5, // 5 minutos
+  });
+};
+
+export const useGeneralMasterByCode = (code: string) => {
+  return useQuery({
+    queryKey: [GENERAL_MASTERS.QUERY_KEY, "code", code],
+    queryFn: () => getGeneralMasterByCode(code),
+    enabled: !!code,
   });
 };

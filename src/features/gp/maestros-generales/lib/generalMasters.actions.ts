@@ -50,3 +50,18 @@ export const getGeneralMastersTypes = async (): Promise<{
   const { data } = await api.get(`${GENERAL_MASTERS.ENDPOINT}/types`);
   return data;
 };
+
+export const getGeneralMasterByCode = async (
+  code: string
+): Promise<GeneralMastersResource> => {
+  const { data } = await api.get<GeneralMastersResource[]>(
+    GENERAL_MASTERS.ENDPOINT,
+    {
+      params: {
+        all: "true",
+        code,
+      },
+    }
+  );
+  return data[0];
+};

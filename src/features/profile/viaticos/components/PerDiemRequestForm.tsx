@@ -20,6 +20,7 @@ import { useUserCompanies } from "@/features/gp/gestionsistema/usuarios/lib/user
 import { FormInputText } from "@/shared/components/FormInputText";
 import { FormSwitch } from "@/shared/components/FormSwitch";
 import { useAllSedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
+import { useGeneralMasterByCode } from "@/features/gp/maestros-generales/lib/generalMasters.hook";
 
 interface PerDiemRequestFormProps {
   defaultValues: Partial<PerDiemRequestSchema | PerDiemRequestSchemaUpdate>;
@@ -36,7 +37,8 @@ export const PerDiemRequestForm = ({
   mode = "create",
   onCancel,
 }: PerDiemRequestFormProps) => {
-  const MIN_DAYS = 18;
+  const { data: minDaysData } = useGeneralMasterByCode("PER_DIEM_MIN_DAYS");
+  const MIN_DAYS = minDaysData?.value ? parseInt(minDaysData.value) : 18;
   const previousCompanyIdRef = useRef<string | undefined>(undefined);
   const [isFormLoaded, setIsFormLoaded] = useState(false);
 
