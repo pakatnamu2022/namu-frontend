@@ -32,7 +32,8 @@ export function ProfileCard({ variant = "sidebar" }: ProfileCardProps) {
   const router = useNavigate();
   const { ROUTE: PER_DIEM_REQUEST_ROUTE } = PER_DIEM_REQUEST;
 
-  const { setOpenMobile, isMobile } = useSidebar();
+  const sidebar = variant === "sidebar" ? useSidebar() : { setOpenMobile: () => {}, isMobile: false };
+  const { setOpenMobile, isMobile } = sidebar;
   const { user } = useAuthStore();
 
   // Solo cargar evaluaciones pendientes si estamos en la página de equipo o perfil principal

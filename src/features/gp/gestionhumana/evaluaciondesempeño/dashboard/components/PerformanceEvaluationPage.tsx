@@ -3,7 +3,6 @@ import { EvaluationHeader } from "./EvaluationHeader";
 import { ProgressChart } from "./ProgressChart";
 import { KPICards } from "./KPICards";
 import { ParticipationChart } from "./ParticipationChart";
-// import { ConfigurationCard } from "./ConfigurationCard";
 import { useActivePerformanceEvaluation } from "../lib/performance-evaluation.hook";
 import { exportEvaluationReport } from "../../evaluation-person/lib/evaluationPerson.actions";
 import FormSkeleton from "@/shared/components/FormSkeleton";
@@ -42,7 +41,7 @@ export default function PerformanceEvaluationPage({ id }: { id?: number }) {
   );
 
   // Always call hooks unconditionally
-  const evaluationByIdQuery = useEvaluation(id || 0);
+  const evaluationByIdQuery = useEvaluation(id);
   const activeEvaluationQuery = useActivePerformanceEvaluation();
 
   // Use the appropriate data based on whether id is provided

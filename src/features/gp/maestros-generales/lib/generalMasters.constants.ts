@@ -9,7 +9,7 @@ export const GENERAL_MASTERS: ModelComplete<GeneralMastersResource> = {
   MODEL: {
     name: "Maestro General",
     plural: "Maestros Generales",
-    gender: true,
+    gender: false,
   },
   ICON: "Database",
   ENDPOINT: GENERAL_MASTERS_ENDPOINT,

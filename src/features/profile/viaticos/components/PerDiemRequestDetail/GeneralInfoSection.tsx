@@ -11,12 +11,12 @@ import {
   Hotel,
   CheckCircle2,
   XCircle,
-  Car,
 } from "lucide-react";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import type { PerDiemRequestResource } from "../../lib/perDiemRequest.interface";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import RequestStatusBadge from "./RequestStatusBadge";
 
 interface GeneralInfoSectionProps {
   request: PerDiemRequestResource;
@@ -32,13 +32,16 @@ export default function GeneralInfoSection({
       cols={{ sm: 1, md: 2 }}
       gap="gap-3 md:gap-4"
       className="h-full"
+      headerExtra={<RequestStatusBadge status={request.status} />}
     >
       {/* Código de Solicitud */}
       <div className="flex items-start gap-3">
         <FileText className="h-5 w-5 text-muted-foreground mt-0.5 shrink-0" />
         <div>
-          <p className="text-sm font-medium">Código</p>
-          <p className="text-sm font-semibold text-primary">{request.code}</p>
+          <p className="text-xs md:text-sm font-medium">Código</p>
+          <p className="text-xs md:text-sm font-semibold text-primary">
+            {request.code}
+          </p>
         </div>
       </div>
 
@@ -46,8 +49,8 @@ export default function GeneralInfoSection({
       <div className="flex items-start gap-3">
         <User className="h-5 w-5 text-muted-foreground mt-0.5 shrink-0" />
         <div>
-          <p className="text-sm font-medium">Empleado</p>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-xs md:text-sm font-medium">Empleado</p>
+          <p className="text-xs md:text-sm text-muted-foreground">
             {typeof request.employee === "string"
               ? request.employee
               : request.employee?.full_name || "Sin nombre"}
@@ -62,7 +65,9 @@ export default function GeneralInfoSection({
       <div className="flex items-start gap-3 md:col-span-2 -mt-3">
         <Calendar className="h-5 w-5 text-muted-foreground mt-0.5 shrink-0" />
         <div className="flex-1">
-          <p className="text-sm font-medium mb-1">Periodo del Viático</p>
+          <p className="text-xs md:text-sm font-medium mb-1">
+            Periodo del Viático
+          </p>
           <div className="flex flex-wrap items-center gap-2">
             <Badge variant="outline" className="text-xs">
               <CalendarClock className="h-3 w-3 mr-1" />
@@ -86,8 +91,8 @@ export default function GeneralInfoSection({
       <div className="flex items-start gap-3">
         <MapPin className="h-5 w-5 text-muted-foreground mt-0.5 shrink-0" />
         <div>
-          <p className="text-sm font-medium">Destino</p>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-xs md:text-sm font-medium">Destino</p>
+          <p className="text-xs md:text-sm text-muted-foreground">
             {request.district.name}
           </p>
         </div>
@@ -97,8 +102,8 @@ export default function GeneralInfoSection({
       <div className="flex items-start gap-3">
         <Building2 className="h-5 w-5 text-muted-foreground mt-0.5 shrink-0" />
         <div>
-          <p className="text-sm font-medium">Empresa</p>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-xs md:text-sm font-medium">Empresa</p>
+          <p className="text-xs md:text-sm text-muted-foreground">
             {request.company.name}
           </p>
         </div>
@@ -107,14 +112,13 @@ export default function GeneralInfoSection({
       {/* Con Activo */}
       <div className="flex items-start gap-3">
         {request.with_active ? (
-          <CheckCircle2 className="h-5 w-5 text-green-600 mt-0.5 shrink-0" />
+          <CheckCircle2 className="h-5 w-5 text-blue-600 mt-0.5 shrink-0" />
         ) : (
           <XCircle className="h-5 w-5 text-muted-foreground mt-0.5 shrink-0" />
         )}
         <div>
-          <p className="text-sm font-medium">Movilidad</p>
           <Badge
-            variant={request.with_active ? "default" : "secondary"}
+            variant={request.with_active ? "blue" : "gray"}
             className="text-xs"
           >
             {request.with_active
@@ -124,28 +128,14 @@ export default function GeneralInfoSection({
         </div>
       </div>
 
-      {/* Movilidad - Activo de Empresa */}
-      <div className="flex items-start gap-3">
-        <Car className="h-5 w-5 text-muted-foreground mt-0.5 shrink-0" />
-        <div>
-          <p className="text-sm font-medium">Movilidad</p>
-          <div className="flex items-center gap-2">
-            <Badge
-              variant={request.with_active ? "default" : "outline"}
-              className="text-xs"
-            >
-              {request.with_active ? "Activo de empresa" : "Sin activo"}
-            </Badge>
-          </div>
-        </div>
-      </div>
-
       {/* Propósito */}
       <div className="flex items-start gap-3 md:col-span-2">
         <Target className="h-5 w-5 text-muted-foreground mt-0.5 shrink-0" />
         <div className="flex-1">
-          <p className="text-sm font-medium">Propósito del Viaje</p>
-          <p className="text-sm text-muted-foreground">{request.purpose}</p>
+          <p className="text-xs md:text-sm font-medium">Propósito del Viaje</p>
+          <p className="text-xs md:text-sm text-muted-foreground">
+            {request.purpose}
+          </p>
         </div>
       </div>
 
@@ -159,12 +149,14 @@ export default function GeneralInfoSection({
         <div className="flex items-start gap-3 md:col-span-2 -mt-3">
           <Hotel className="h-5 w-5 text-muted-foreground mt-0.5 shrink-0" />
           <div className="flex-1">
-            <p className="text-sm font-medium mb-2">Reserva de Hotel</p>
+            <p className="text-xs md:text-sm font-medium mb-2">
+              Reserva de Hotel
+            </p>
             <div className="bg-muted/50 rounded-md p-3 space-y-3">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
                   <p className="text-xs text-muted-foreground mb-0.5">Hotel</p>
-                  <p className="text-sm font-medium">
+                  <p className="text-xs md:text-sm font-medium">
                     {request.hotel_reservation.hotel_name}
                   </p>
                 </div>
@@ -172,7 +164,9 @@ export default function GeneralInfoSection({
                   <p className="text-xs text-muted-foreground mb-0.5">
                     Teléfono
                   </p>
-                  <p className="text-sm">{request.hotel_reservation.phone}</p>
+                  <p className="text-xs md:text-sm">
+                    {request.hotel_reservation.phone}
+                  </p>
                 </div>
               </div>
 
@@ -180,7 +174,9 @@ export default function GeneralInfoSection({
                 <p className="text-xs text-muted-foreground mb-0.5">
                   Dirección
                 </p>
-                <p className="text-sm">{request.hotel_reservation.address}</p>
+                <p className="text-xs md:text-sm">
+                  {request.hotel_reservation.address}
+                </p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -188,7 +184,7 @@ export default function GeneralInfoSection({
                   <p className="text-xs text-muted-foreground mb-0.5">
                     Check-in
                   </p>
-                  <p className="text-sm">
+                  <p className="text-xs md:text-sm">
                     {format(
                       new Date(request.hotel_reservation.checkin_date),
                       "dd/MM/yyyy"
@@ -199,7 +195,7 @@ export default function GeneralInfoSection({
                   <p className="text-xs text-muted-foreground mb-0.5">
                     Check-out
                   </p>
-                  <p className="text-sm">
+                  <p className="text-xs md:text-sm">
                     {format(
                       new Date(request.hotel_reservation.checkout_date),
                       "dd/MM/yyyy"
@@ -208,7 +204,7 @@ export default function GeneralInfoSection({
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground mb-0.5">Noches</p>
-                  <p className="text-sm font-medium">
+                  <p className="text-xs md:text-sm font-medium">
                     {request.hotel_reservation.nights_count}
                   </p>
                 </div>
@@ -219,7 +215,7 @@ export default function GeneralInfoSection({
                   <p className="text-xs text-muted-foreground mb-0.5">
                     Costo Total
                   </p>
-                  <p className="text-sm font-medium">
+                  <p className="text-xs md:text-sm font-medium">
                     S/ {request.hotel_reservation.total_cost.toFixed(2)}
                   </p>
                 </div> */}
@@ -228,7 +224,7 @@ export default function GeneralInfoSection({
                     <p className="text-xs text-muted-foreground mb-0.5">
                       Penalidad
                     </p>
-                    <p className="text-sm font-medium text-red-600">
+                    <p className="text-xs md:text-sm font-medium text-red-600">
                       S/ {request.hotel_reservation.penalty.toFixed(2)}
                     </p>
                   </div>
@@ -238,7 +234,9 @@ export default function GeneralInfoSection({
               {request.hotel_reservation.notes && (
                 <div>
                   <p className="text-xs text-muted-foreground mb-0.5">Notas</p>
-                  <p className="text-sm">{request.hotel_reservation.notes}</p>
+                  <p className="text-xs md:text-sm">
+                    {request.hotel_reservation.notes}
+                  </p>
                 </div>
               )}
 
@@ -269,7 +267,7 @@ export default function GeneralInfoSection({
       >
         <User className="h-5 w-5 text-muted-foreground mt-0.5 shrink-0" />
         <div className="flex-1">
-          <p className="text-sm font-medium mb-2">Aprobaciones</p>
+          <p className="text-xs md:text-sm font-medium mb-2">Aprobaciones</p>
           {request.approvals && request.approvals.length > 0 ? (
             <div className="flex flex-wrap gap-2">
               {request.approvals.map((approval, index) => (
@@ -293,7 +291,9 @@ export default function GeneralInfoSection({
               ))}
             </div>
           ) : (
-            <p className="text-sm text-muted-foreground">No asignado</p>
+            <p className="text-xs md:text-sm text-muted-foreground">
+              No asignado
+            </p>
           )}
         </div>
       </div>
@@ -303,8 +303,10 @@ export default function GeneralInfoSection({
         <div className="flex items-start gap-3 md:col-span-2">
           <FileText className="h-5 w-5 text-muted-foreground mt-0.5 shrink-0" />
           <div className="flex-1">
-            <p className="text-sm font-medium">Notas</p>
-            <p className="text-sm text-muted-foreground">{request.notes}</p>
+            <p className="text-xs md:text-sm font-medium">Notas</p>
+            <p className="text-xs md:text-sm text-muted-foreground">
+              {request.notes}
+            </p>
           </div>
         </div>
       )}

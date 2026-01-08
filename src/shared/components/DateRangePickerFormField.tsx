@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";
 import RequiredField from "./RequiredField";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface DateRangePickerFormFieldProps<T extends FieldValues> {
   control: Control<T>;
@@ -56,9 +57,10 @@ export function DateRangePickerFormField<T extends FieldValues>({
   dateFormat = "dd/MM/yyyy",
   disabled,
   required = false,
-  size = "lg",
+  size,
 }: DateRangePickerFormFieldProps<T>) {
   const [open, setOpen] = React.useState(false);
+  const isMobile = useIsMobile();
 
   return (
     <FormField
@@ -111,7 +113,7 @@ export function DateRangePickerFormField<T extends FieldValues>({
                   <PopoverTrigger asChild>
                     <FormControl>
                       <Button
-                        size={size}
+                        size={size ? size : isMobile ? "sm" : "lg"}
                         variant="outline"
                         className={cn(
                           "w-full justify-start text-left font-normal",

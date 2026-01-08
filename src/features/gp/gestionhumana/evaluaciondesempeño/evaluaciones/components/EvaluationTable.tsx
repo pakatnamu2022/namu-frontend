@@ -25,6 +25,9 @@ export default function EvaluationTable({
           competenceParameter: false,
           objectiveParameter: false,
           finalParameter: false,
+          cycle: false,
+          send_opened_email: false,
+          send_closed_email: false,
         }}
       >
         {children}
