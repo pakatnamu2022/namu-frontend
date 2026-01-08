@@ -7,11 +7,11 @@ import {
   perDiemRequestSchemaCreate,
   perDiemRequestSchemaUpdate,
 } from "../lib/perDiemRequest.schema";
-import { zodResolver } from "@hookform/resolvers/zod";  
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { DateRangePickerFormField } from "@/shared/components/DateRangePickerFormField";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { FormSelect } from "@/shared/components/FormSelect";
@@ -37,6 +37,9 @@ export const PerDiemRequestForm = ({
   onCancel,
 }: PerDiemRequestFormProps) => {
   const MIN_DAYS = 18;
+  const previousCompanyIdRef = useRef<string | undefined>(undefined);
+  const [isFormLoaded, setIsFormLoaded] = useState(false);
+
   const form = useForm<PerDiemRequestSchema | PerDiemRequestSchemaUpdate>({
     resolver: zodResolver(
       mode === "create"
@@ -81,7 +84,12 @@ export const PerDiemRequestForm = ({
       });
       setTimeout(() => {
         form.trigger();
-      }, 0);
+        // Marcar que la carga inicial ha terminado y guardar el company_id inicial
+        setIsFormLoaded(true);
+        previousCompanyIdRef.current = form.getValues("company_id");
+      }, 100);
+    } else if (mode === "create") {
+      setIsFormLoaded(true);
     }
   }, [defaultValues, mode, form]);
 
@@ -95,18 +103,36 @@ export const PerDiemRequestForm = ({
 
   // Limpiar sede_service_id cuando cambie company_id
   useEffect(() => {
+    // No ejecutar hasta que el formulario esté completamente cargado
+    if (!isFormLoaded) {
+      return;
+    }
+
+    // Si el company_id cambió realmente (no es la primera vez que se establece)
+    const hasCompanyIdChanged =
+      previousCompanyIdRef.current !== undefined &&
+      previousCompanyIdRef.current !== companyId;
+
+    if (!hasCompanyIdChanged) {
+      // Actualizar la referencia para futuras comparaciones
+      previousCompanyIdRef.current = companyId;
+      return;
+    }
+
+    // Solo limpiar si el company_id cambió de verdad
     const currentSedeId = form.getValues("sede_service_id");
-    // Si hay una sede seleccionada, verificar si aún está en la lista filtrada
     if (currentSedeId) {
       const sedeExists = filteredSedes.some(
         (sede) => sede.id.toString() === currentSedeId
       );
-      // Si la sede no existe en la lista filtrada, limpiar el valor
       if (!sedeExists) {
         form.setValue("sede_service_id", "");
       }
     }
-  }, [companyId, filteredSedes, form]);
+
+    // Actualizar la referencia
+    previousCompanyIdRef.current = companyId;
+  }, [companyId, filteredSedes, form, isFormLoaded]);
 
   if (isLoadingMyCompanies || isLoadingSedes) return <FormSkeleton />;
 

@@ -3,7 +3,7 @@
 import { useParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, FileDown, XCircle, FileCheck } from "lucide-react";
+import { Plus, FileDown, XCircle, FileCheck, Edit } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,7 +22,6 @@ import TitleComponent from "@/shared/components/TitleComponent";
 import {
   GeneralInfoSection,
   ExpensesSection,
-  RequestStatusBadge,
 } from "@/features/profile/viaticos/components/PerDiemRequestDetail";
 import FormWrapper from "@/shared/components/FormWrapper";
 import BackButton from "@/shared/components/BackButton";
@@ -181,108 +180,124 @@ export default function PerDiemRequestDetailPage() {
                   icon="FileText"
                 />
               </div>
-              <RequestStatusBadge status={request.status} />
-            </div>
 
-            {/* Botones de acción */}
-            <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-              <Button
-                onClick={handleDownloadPdf}
-                size="sm"
-                variant="outline"
-                className="gap-2 w-full sm:w-auto"
-                disabled={isDownloading}
-              >
-                <FileDown className="h-4 w-4 shrink-0" />
-                <span className="truncate">
-                  {isDownloading ? "Descargando..." : "Detalle de Gastos"}
-                </span>
-              </Button>
+              {/* Botones de acción */}
+              <div className="flex flex-col sm:flex-row sm:justify-end gap-2 w-full sm:w-auto">
+                <Button
+                  onClick={handleDownloadPdf}
+                  size="sm"
+                  variant="outline"
+                  className="gap-2 w-full sm:w-auto"
+                  disabled={isDownloading}
+                >
+                  <FileDown className="h-4 w-4 shrink-0" />
+                  <span className="truncate">
+                    {isDownloading ? "Descargando..." : "Detalle de Gastos"}
+                  </span>
+                </Button>
 
-              <Button
-                onClick={handleDownloandMobilityPayrollPdf}
-                size="sm"
-                variant="outline"
-                className="gap-2 w-full sm:w-auto"
-                disabled={isDownloadingMobilityPayroll}
-              >
-                <FileDown className="h-4 w-4 shrink-0" />
-                <span className="truncate">
-                  {isDownloadingMobilityPayroll
-                    ? "Descargando..."
-                    : "Planilla de Movilidad"}
-                </span>
-              </Button>
+                <Button
+                  onClick={handleDownloandMobilityPayrollPdf}
+                  size="sm"
+                  variant="outline"
+                  className="gap-2 w-full sm:w-auto"
+                  disabled={isDownloadingMobilityPayroll}
+                >
+                  <FileDown className="h-4 w-4 shrink-0" />
+                  <span className="truncate">
+                    {isDownloadingMobilityPayroll
+                      ? "Descargando..."
+                      : "Planilla de Movilidad"}
+                  </span>
+                </Button>
 
-              {request.status === "in_progress" && (
-                <>
-                  <Button
-                    onClick={() =>
-                      navigate(`${PER_DIEM_REQUEST_ROUTE}/${id}/gastos/agregar`)
-                    }
-                    size="sm"
-                    className="gap-2 w-full sm:w-auto"
-                  >
-                    <Plus className="h-4 w-4 shrink-0" />
-                    <span className="truncate">Nuevo Gasto</span>
-                  </Button>
+                {request.status === "in_progress" && (
+                  <>
+                    <Button
+                      onClick={() =>
+                        navigate(
+                          `${PER_DIEM_REQUEST_ROUTE}/${id}/gastos/agregar`
+                        )
+                      }
+                      size="sm"
+                      className="gap-2 w-full sm:w-auto"
+                    >
+                      <Plus className="h-4 w-4 shrink-0" />
+                      <span className="truncate">Nuevo Gasto</span>
+                    </Button>
+                    <ConfirmationDialog
+                      trigger={
+                        <Button
+                          size="sm"
+                          variant="default"
+                          className="gap-2 w-full sm:w-auto"
+                          disabled={startSettlementMutation.isPending}
+                        >
+                          <FileCheck className="h-4 w-4 shrink-0" />
+                          <span className="truncate">
+                            {startSettlementMutation.isPending
+                              ? "Iniciando..."
+                              : "Iniciar Liquidación"}
+                          </span>
+                        </Button>
+                      }
+                      title="¿Iniciar proceso de liquidación?"
+                      description={`Esta acción iniciará el proceso de liquidación para la solicitud de viático ${request.code}. Una vez iniciado, el jefe deberá aprobar la liquidación.`}
+                      confirmText="Sí, iniciar liquidación"
+                      cancelText="Cancelar"
+                      onConfirm={handleStartSettlement}
+                      variant="default"
+                      icon="info"
+                      open={showStartSettlementDialog}
+                      onOpenChange={setShowStartSettlementDialog}
+                    />
+                  </>
+                )}
+
+                {canCancelRequest() && (
                   <ConfirmationDialog
                     trigger={
                       <Button
                         size="sm"
-                        variant="default"
+                        variant="destructive"
                         className="gap-2 w-full sm:w-auto"
-                        disabled={startSettlementMutation.isPending}
+                        disabled={cancelMutation.isPending}
                       >
-                        <FileCheck className="h-4 w-4 shrink-0" />
+                        <XCircle className="h-4 w-4 shrink-0" />
                         <span className="truncate">
-                          {startSettlementMutation.isPending
-                            ? "Iniciando..."
-                            : "Iniciar Liquidación"}
+                          {cancelMutation.isPending
+                            ? "Cancelando..."
+                            : "Cancelar Solicitud"}
                         </span>
                       </Button>
                     }
-                    title="¿Iniciar proceso de liquidación?"
-                    description={`Esta acción iniciará el proceso de liquidación para la solicitud de viático ${request.code}. Una vez iniciado, el jefe deberá aprobar la liquidación.`}
-                    confirmText="Sí, iniciar liquidación"
-                    cancelText="Cancelar"
-                    onConfirm={handleStartSettlement}
-                    variant="default"
-                    icon="info"
-                    open={showStartSettlementDialog}
-                    onOpenChange={setShowStartSettlementDialog}
+                    title="¿Cancelar solicitud de viático?"
+                    description={`Esta acción cancelará la solicitud de viático ${request.code}. Esta acción no se puede deshacer.`}
+                    confirmText="Sí, cancelar solicitud"
+                    cancelText="No, mantener"
+                    onConfirm={handleCancelRequest}
+                    variant="destructive"
+                    icon="danger"
+                    open={showCancelDialog}
+                    onOpenChange={setShowCancelDialog}
                   />
-                </>
-              )}
+                )}
 
-              {canCancelRequest() && (
-                <ConfirmationDialog
-                  trigger={
-                    <Button
-                      size="sm"
-                      variant="destructive"
-                      className="gap-2 w-full sm:w-auto"
-                      disabled={cancelMutation.isPending}
-                    >
-                      <XCircle className="h-4 w-4 shrink-0" />
-                      <span className="truncate">
-                        {cancelMutation.isPending
-                          ? "Cancelando..."
-                          : "Cancelar Solicitud"}
-                      </span>
-                    </Button>
-                  }
-                  title="¿Cancelar solicitud de viático?"
-                  description={`Esta acción cancelará la solicitud de viático ${request.code}. Esta acción no se puede deshacer.`}
-                  confirmText="Sí, cancelar solicitud"
-                  cancelText="No, mantener"
-                  onConfirm={handleCancelRequest}
-                  variant="destructive"
-                  icon="danger"
-                  open={showCancelDialog}
-                  onOpenChange={setShowCancelDialog}
-                />
-              )}
+                {request.status === PER_DIEM_STATUS.PENDING && (
+                  <Button
+                    onClick={() =>
+                      navigate(`/perfil/solicitud-viaticos/actualizar/${id}`)
+                    }
+                    size="sm"
+                    variant="outline"
+                    color="primary"
+                    className="gap-2 w-full sm:w-auto"
+                  >
+                    <Edit className="h-4 w-4 shrink-0" />
+                    <span className="truncate">Editar Solicitud</span>
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
         </FormWrapper>

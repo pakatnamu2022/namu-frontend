@@ -17,6 +17,7 @@ import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import type { PerDiemRequestResource } from "../../lib/perDiemRequest.interface";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import RequestStatusBadge from "./RequestStatusBadge";
 
 interface GeneralInfoSectionProps {
   request: PerDiemRequestResource;
@@ -32,6 +33,7 @@ export default function GeneralInfoSection({
       cols={{ sm: 1, md: 2 }}
       gap="gap-3 md:gap-4"
       className="h-full"
+      headerExtra={<RequestStatusBadge status={request.status} />}
     >
       {/* Código de Solicitud */}
       <div className="flex items-start gap-3">
