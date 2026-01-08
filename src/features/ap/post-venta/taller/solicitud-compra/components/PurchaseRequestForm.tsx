@@ -68,7 +68,6 @@ export default function PurchaseRequestForm({
   const [quotations, setQuotations] = useState<OrderQuotationResource[]>([]);
   const [isLoadingQuotations, setIsLoadingQuotations] = useState(false);
   const [isQuotationModalOpen, setIsQuotationModalOpen] = useState(false);
-  const [selectedProductName, setSelectedProductName] = useState<string>("");
 
   // Obtener mis almacenes físicos de postventa
   const { data: warehouses = [], isLoading: isLoadingWarehouses } =
@@ -102,39 +101,10 @@ export default function PurchaseRequestForm({
   const hasAppointment = form.watch("has_appointment");
   const selectedQuotationId = form.watch("ap_order_quotation_id");
 
-  // Formulario separado para selección de productos
-  const productSelectorForm = useForm({
-    defaultValues: {
-      product_id: "",
-    },
-  });
-
-  const selectedProductId = productSelectorForm.watch("product_id");
-
-  // Hook para obtener los productos del inventario
-  const { data: inventoryData } = useInventory(
-    {
-      warehouse_id: selectedWarehouseId,
-      all: true,
-    },
-    {
-      enabled: !!selectedWarehouseId,
-    }
-  );
-
-  // useEffect para actualizar el nombre del producto seleccionado
-  useEffect(() => {
-    if (selectedProductId && inventoryData?.data) {
-      const selectedProduct = inventoryData.data.find(
-        (inventory) => inventory.product_id.toString() === selectedProductId
-      );
-      if (selectedProduct) {
-        setSelectedProductName(selectedProduct.product.name);
-      }
-    } else {
-      setSelectedProductName("");
-    }
-  }, [selectedProductId, inventoryData]);
+  // Estado local para el selector temporal de productos
+  const [tempProductId, setTempProductId] = useState<string>("");
+  const [tempProductData, setTempProductData] =
+    useState<InventoryResource | null>(null);
 
   // Sincronizar details con el formulario
   useEffect(() => {
@@ -414,64 +384,64 @@ export default function PurchaseRequestForm({
                 <label className="text-sm font-medium mb-2 block">
                   Seleccionar Producto
                 </label>
-                <Form {...productSelectorForm}>
-                  <div className="flex flex-col sm:flex-row gap-3">
-                    <div className="flex-1">
-                      <FormSelectAsync
-                        name="product_id"
-                        placeholder="Buscar y seleccionar producto para agregar"
-                        control={productSelectorForm.control}
-                        useQueryHook={useInventory}
-                        additionalParams={{
-                          warehouse_id: selectedWarehouseId,
-                        }}
-                        mapOptionFn={(inventory: InventoryResource) => ({
-                          label: () => (
-                            <div className="flex items-center justify-between gap-2 w-full">
-                              <span className="font-medium truncate">
-                                {inventory.product.name}
-                              </span>
-                              <span
-                                className={`text-xs font-semibold px-2 py-0.5 rounded shrink-0 ${
-                                  inventory.available_quantity > 0
-                                    ? "bg-green-100 text-green-700"
-                                    : "bg-red-100 text-red-700"
-                                }`}
-                              >
-                                Stock: {inventory.available_quantity}
-                              </span>
-                            </div>
-                          ),
-                          value: inventory.product_id.toString(),
-                        })}
-                        perPage={15}
-                      />
-                    </div>
-                    <Button
-                      type="button"
-                      onClick={() => {
-                        const productId =
-                          productSelectorForm.getValues("product_id");
-                        if (productId && selectedProductName) {
-                          // Crear objeto InventoryResource simplificado con solo el nombre
-                          const inventoryData: InventoryResource = {
-                            product: {
-                              name: selectedProductName,
-                            },
-                          } as InventoryResource;
-
-                          handleAddProduct(productId, inventoryData);
-                          productSelectorForm.reset();
-                        }
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <div className="flex-1">
+                    <FormSelectAsync
+                      name="temp_product_selector"
+                      placeholder="Buscar y seleccionar producto para agregar"
+                      control={form.control}
+                      useQueryHook={useInventory}
+                      additionalParams={{
+                        warehouse_id: selectedWarehouseId,
                       }}
-                      disabled={!productSelectorForm.watch("product_id")}
-                      className="self-end sm:w-auto w-full"
-                    >
-                      <Plus className="h-4 w-4 mr-2" />
-                      Agregar
-                    </Button>
+                      mapOptionFn={(inventory: InventoryResource) => ({
+                        label: () => (
+                          <div className="flex items-center justify-between gap-2 w-full">
+                            <span className="font-medium truncate">
+                              {inventory.product_name}
+                            </span>
+                            <span
+                              className={`text-xs font-semibold px-2 py-0.5 rounded shrink-0 ${
+                                inventory.available_quantity > 0
+                                  ? "bg-green-100 text-green-700"
+                                  : "bg-red-100 text-red-700"
+                              }`}
+                            >
+                              Stock: {inventory.available_quantity}
+                            </span>
+                          </div>
+                        ),
+                        value: inventory.product_id.toString(),
+                      })}
+                      perPage={10}
+                      onValueChange={(value, item) => {
+                        setTempProductId(value);
+                        setTempProductData(item || null);
+                      }}
+                    />
                   </div>
-                </Form>
+                  <Button
+                    type="button"
+                    onClick={() => {
+                      if (tempProductId && tempProductData) {
+                        const inventoryResource: InventoryResource = {
+                          product: {
+                            name: tempProductData.product_name,
+                          },
+                        } as InventoryResource;
+                        handleAddProduct(tempProductId, inventoryResource);
+                        setTempProductId("");
+                        setTempProductData(null);
+                        form.setValue("temp_product_selector" as any, "");
+                      }
+                    }}
+                    disabled={!tempProductId}
+                    className="self-end sm:w-auto w-full"
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Agregar
+                  </Button>
+                </div>
               </div>
 
               {/* Lista de Productos */}

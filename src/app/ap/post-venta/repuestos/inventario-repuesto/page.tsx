@@ -15,7 +15,7 @@ import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { notFound } from "@/shared/hooks/useNotFound";
 import InventoryOptions from "@/features/ap/post-venta/gestion-compras/inventario/components/InventoryOptions";
 import { useWarehousesByCompany } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
-import { INVENTORY } from "@/features/ap/post-venta/gestion-compras/inventario/lib/inventory.constants";
+import { INVENTORY_REPUESTOS } from "@/features/ap/post-venta/gestion-compras/inventario/lib/inventory.constants";
 import { useInventory } from "@/features/ap/post-venta/gestion-compras/inventario/lib/inventory.hook";
 import InventoryTable from "@/features/ap/post-venta/gestion-compras/inventario/components/InventoryTable";
 import { inventoryColumns } from "@/features/ap/post-venta/gestion-compras/inventario/components/InventoryColumns";
@@ -23,7 +23,7 @@ import InventoryActions from "@/features/ap/post-venta/gestion-compras/inventari
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import type { SortingState } from "@tanstack/react-table";
 
-export default function InventoryPage() {
+export default function InventoryRepuestoPage() {
   const router = useNavigate();
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
@@ -31,7 +31,7 @@ export default function InventoryPage() {
   const [search, setSearch] = useState("");
   const [warehouseId, setWarehouseId] = useState<string>("");
   const [sorting, setSorting] = useState<SortingState>([]);
-  const { ROUTE, ABSOLUTE_ROUTE } = INVENTORY;
+  const { ROUTE, ABSOLUTE_ROUTE } = INVENTORY_REPUESTOS;
   const permissions = useModulePermissions(ROUTE);
 
   // Obtener mis almacenes físicos de postventa
@@ -71,8 +71,7 @@ export default function InventoryPage() {
       search,
       per_page,
       warehouse_id: warehouseId,
-      sort: "quantity",
-      ...(orderByStock && { direction: orderByStock }),
+      ...(orderByStock && { order_by_stock: orderByStock }),
     },
     {
       enabled: !!warehouseId,

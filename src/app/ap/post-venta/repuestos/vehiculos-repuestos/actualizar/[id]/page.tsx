@@ -13,7 +13,7 @@ import {
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import FormWrapper from "@/shared/components/FormWrapper";
-import { VEHICLES_PV } from "@/features/ap/comercial/vehiculos/lib/vehicles.constants";
+import { VEHICLES_RP } from "@/features/ap/comercial/vehiculos/lib/vehicles.constants";
 import { updateVehicle } from "@/features/ap/comercial/vehiculos/lib/vehicles.actions";
 import { VehiclePVForm } from "@/features/ap/comercial/vehiculos/components/VehiclePVForm";
 import { VehicleResource } from "@/features/ap/comercial/vehiculos/lib/vehicles.interface";
@@ -21,12 +21,12 @@ import { VehicleSchema } from "@/features/ap/comercial/vehiculos/lib/vehicles.sc
 import { notFound } from "@/shared/hooks/useNotFound";
 import { useVehicleById } from "@/features/ap/comercial/vehiculos/lib/vehicles.hook";
 
-export default function UpdateVehiclePVPage() {
+export default function UpdateVehicleRepuestoPage() {
   const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();
   const { currentView, checkRouteExists } = useCurrentModule();
-  const { ROUTE, QUERY_KEY, MODEL, ABSOLUTE_ROUTE } = VEHICLES_PV;
+  const { ROUTE, QUERY_KEY, MODEL, ABSOLUTE_ROUTE } = VEHICLES_RP;
 
   const { data: vehicle, isLoading: loadingVehicle } = useVehicleById(
     Number(id)

@@ -248,6 +248,14 @@ import SalesReceiptsRepuestoPage from "./app/ap/post-venta/repuestos/comprobante
 import PurchaseRequestRepuestoPage from "./app/ap/post-venta/repuestos/solicitud-compra-repuesto/page.tsx";
 import AddPurchaseRequestRepuestoPage from "./app/ap/post-venta/repuestos/solicitud-compra-repuesto/agregar/page.tsx";
 import UpdatePurchaseRequestRepuestoPage from "./app/ap/post-venta/repuestos/solicitud-compra-repuesto/actualizar/[id]/page.tsx";
+import VehiclesRepuestosPage from "./app/ap/post-venta/repuestos/vehiculos-repuestos/page.tsx";
+import AddVehiclesRepuestosPage from "./app/ap/post-venta/repuestos/vehiculos-repuestos/agregar/page.tsx";
+import UpdateVehiclesRepuestosPage from "./app/ap/post-venta/repuestos/vehiculos-repuestos/actualizar/[id]/page.tsx";
+import ProductRepuestoPage from "./app/ap/post-venta/repuestos/producto-repuesto/page.tsx";
+import AddProductRepuestoPage from "./app/ap/post-venta/repuestos/producto-repuesto/agregar/page.tsx";
+import UpdateProductRepuestoPage from "./app/ap/post-venta/repuestos/producto-repuesto/actualizar/[id]/page.tsx";
+import InventoryRepuestoPage from "./app/ap/post-venta/repuestos/inventario-repuesto/page.tsx";
+import ProductRepuestoKardexPage from "./app/ap/post-venta/repuestos/inventario-repuesto/movimientos/[productId]/[warehouseId]/page.tsx";
 import CardWashPage from "./app/ap/post-venta/taller/lavado-vehiculo/page.tsx";
 import AppointmentPlanningPage from "./app/ap/post-venta/taller/citas/page.tsx";
 import AddAppointmentPlanningPage from "./app/ap/post-venta/taller/citas/agregar/page.tsx";
@@ -1225,6 +1233,38 @@ function App() {
               <Route
                 path="repuestos/solicitud-compra-repuesto/actualizar/:id"
                 element={<UpdatePurchaseRequestRepuestoPage />}
+              />
+              <Route
+                path="repuestos/vehiculos-repuestos"
+                element={<VehiclesRepuestosPage />}
+              />
+              <Route
+                path="repuestos/vehiculos-repuestos/agregar"
+                element={<AddVehiclesRepuestosPage />}
+              />
+              <Route
+                path="repuestos/vehiculos-repuestos/actualizar/:id"
+                element={<UpdateVehiclesRepuestosPage />}
+              />
+              <Route
+                path="repuestos/producto-repuesto"
+                element={<ProductRepuestoPage />}
+              />
+              <Route
+                path="repuestos/producto-repuesto/agregar"
+                element={<AddProductRepuestoPage />}
+              />
+              <Route
+                path="repuestos/producto-repuesto/actualizar/:id"
+                element={<UpdateProductRepuestoPage />}
+              />
+              <Route
+                path="repuestos/inventario-repuesto"
+                element={<InventoryRepuestoPage />}
+              />
+              <Route
+                path="repuestos/inventario-repuesto/movimientos/:productId/:warehouseId"
+                element={<ProductRepuestoKardexPage />}
               />
               {/* Taller */}
               <Route path="taller/lavado-vehiculo" element={<CardWashPage />} />

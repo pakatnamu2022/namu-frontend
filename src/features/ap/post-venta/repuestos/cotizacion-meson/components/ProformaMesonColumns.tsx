@@ -2,12 +2,18 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { Pencil, Download, Receipt, Eye, PackageOpen } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { errorToast, successToast } from "@/core/core.function";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge";
 import { OrderQuotationResource } from "../../../taller/cotizacion/lib/proforma.interface";
-import { downloadOrderQuotationPdf } from "../../../taller/cotizacion/lib/proforma.actions";
+import { downloadOrderQuotationRepuestoPdf } from "../../../taller/cotizacion/lib/proforma.actions";
 import { SimpleConfirmDialog } from "@/shared/components/SimpleConfirmDialog";
 import { useState } from "react";
 import { createSaleFromQuotation } from "../../../gestion-compras/inventario/lib/inventory.actions";
@@ -122,10 +128,14 @@ export const orderQuotationMesonColumns = ({
       // eslint-disable-next-line react-hooks/rules-of-hooks
       const [isLoading, setIsLoading] = useState(false);
 
-      const handleDownloadPdf = async () => {
+      const handleDownloadPdf = async (withCode: boolean) => {
         try {
-          await downloadOrderQuotationPdf(id, false);
-          successToast("PDF descargado correctamente");
+          await downloadOrderQuotationRepuestoPdf(id, withCode);
+          successToast(
+            `PDF descargado correctamente ${
+              withCode ? "con código" : "sin código"
+            }`
+          );
         } catch {
           errorToast("Error al descargar el PDF");
         }
@@ -161,15 +171,28 @@ export const orderQuotationMesonColumns = ({
               <Eye className="size-5" />
             </Button>
 
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-7"
-              onClick={handleDownloadPdf}
-              tooltip="PDF"
-            >
-              <Download className="size-5" />
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="size-7"
+                  tooltip="Descargar PDF"
+                >
+                  <Download className="size-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => handleDownloadPdf(true)}>
+                  <Download className="size-4 mr-2" />
+                  PDF con código
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleDownloadPdf(false)}>
+                  <Download className="size-4 mr-2" />
+                  PDF sin código
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
 
             {!is_fully_paid && (
               <Button

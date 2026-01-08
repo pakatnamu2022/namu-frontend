@@ -10,16 +10,16 @@ import {
   successToast,
 } from "@/core/core.function";
 import FormWrapper from "@/shared/components/FormWrapper";
-import { VEHICLES_PV } from "@/features/ap/comercial/vehiculos/lib/vehicles.constants";
+import { VEHICLES_RP } from "@/features/ap/comercial/vehiculos/lib/vehicles.constants";
 import { storeVehicle } from "@/features/ap/comercial/vehiculos/lib/vehicles.actions";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import { VehiclePVForm } from "@/features/ap/comercial/vehiculos/components/VehiclePVForm";
 import { notFound } from "@/shared/hooks/useNotFound";
 
-export default function AddVehiclePVPage() {
+export default function AddVehicleRepuestoPage() {
   const router = useNavigate();
   const { currentView, checkRouteExists } = useCurrentModule();
-  const { ROUTE, MODEL, ABSOLUTE_ROUTE } = VEHICLES_PV;
+  const { ROUTE, MODEL, ABSOLUTE_ROUTE } = VEHICLES_RP;
 
   const { mutate, isPending } = useMutation({
     mutationFn: storeVehicle,

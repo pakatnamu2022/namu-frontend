@@ -9,7 +9,7 @@ import { DEFAULT_PER_PAGE } from "@/core/core.constants.ts";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper.tsx";
 import { notFound } from "@/shared/hooks/useNotFound.ts";
 import { useParams, Link } from "react-router-dom";
-import { INVENTORY } from "@/features/ap/post-venta/gestion-compras/inventario/lib/inventory.constants.ts";
+import { INVENTORY_REPUESTOS } from "@/features/ap/post-venta/gestion-compras/inventario/lib/inventory.constants.ts";
 import InventoryMovementsTable from "@/features/ap/post-venta/gestion-compras/inventario/components/InventoryMovementsTable.tsx";
 import { inventoryMovementsColumns } from "@/features/ap/post-venta/gestion-compras/inventario/components/InventoryMovementsColumns.tsx";
 import InventoryMovementsOptions from "@/features/ap/post-venta/gestion-compras/inventario/components/InventoryMovementsOptions.tsx";
@@ -19,14 +19,14 @@ import BackButton from "@/shared/components/BackButton.tsx";
 import { errorToast } from "@/core/core.function";
 import { useInventoryMovements } from "@/features/ap/post-venta/gestion-compras/inventario/lib/inventory.hook";
 
-export default function ProductKardexPage() {
+export default function ProductRepuestoKardexPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
   const [dateFrom, setDateFrom] = useState<Date | undefined>(undefined);
   const [dateTo, setDateTo] = useState<Date | undefined>(undefined);
-  const { ROUTE, ABSOLUTE_ROUTE } = INVENTORY;
+  const { ROUTE, ABSOLUTE_ROUTE } = INVENTORY_REPUESTOS;
   const params = useParams();
 
   const productId = parseInt(params.productId as string);
@@ -73,7 +73,7 @@ export default function ProductKardexPage() {
           <p className="text-lg font-semibold text-destructive">
             Error: Parámetros inválidos
           </p>
-          <Link to={`${ABSOLUTE_ROUTE}`}>
+          <Link to={`${ABSOLUTE_ROUTE}/inventario`}>
             <Button variant="outline" className="mt-4">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Volver

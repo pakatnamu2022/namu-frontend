@@ -42,8 +42,6 @@ import { SUNAT_CONCEPTS_TYPE } from "@/features/gp/maestro-general/conceptos-sun
 import { ValidationIndicator } from "@/shared/components/ValidationIndicator";
 import { DocumentValidationStatus } from "@/shared/components/DocumentValidationStatus";
 import { useLicenseValidation } from "@/shared/hooks/useDocumentValidation";
-import { useProduct } from "@/features/ap/post-venta/gestion-productos/productos/lib/product.hook";
-import { ProductResource } from "@/features/ap/post-venta/gestion-productos/productos/lib/product.interface";
 import { Card } from "@/components/ui/card";
 import {
   EMPRESA_AP,
@@ -58,6 +56,8 @@ import { useAuthorizedSeries } from "@/features/ap/configuraciones/maestros-gene
 import { useAllTypeClient } from "@/features/ap/configuraciones/maestros-general/tipos-persona/lib/typeClient.hook";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import { SuppliersResource } from "@/features/ap/comercial/proveedores/lib/suppliers.interface";
+import { useInventory } from "../../inventario/lib/inventory.hook";
+import { InventoryResource } from "../../inventario/lib/inventory.interface";
 
 interface ProductTransferFormProps {
   defaultValues: Partial<ProductTransferSchema>;
@@ -98,6 +98,7 @@ export const ProductTransferForm = ({
   const conductorDni = form.watch("driver_doc");
   const typePersonId = form.watch("type_person_id");
   const transferType = form.watch("item_type");
+  const selectedWarehouseId = form.watch("warehouse_origin_id");
   const prevTransferTypeRef = useRef(transferType);
 
   // Determinar si es persona natural o jurídica
@@ -697,11 +698,29 @@ export const ProductTransferForm = ({
                           label="Producto *"
                           placeholder="Buscar producto..."
                           control={form.control}
-                          useQueryHook={useProduct}
-                          mapOptionFn={(product: ProductResource) => ({
-                            value: product.id.toString(),
-                            label: `${product.name} (${product.code})`,
+                          useQueryHook={useInventory}
+                          mapOptionFn={(inventory: InventoryResource) => ({
+                            label: () => (
+                              <div className="flex items-center justify-between gap-2 w-full">
+                                <span className="font-medium truncate">
+                                  {inventory.product_name}
+                                </span>
+                                <span
+                                  className={`text-xs font-semibold px-2 py-0.5 rounded shrink-0 ${
+                                    inventory.available_quantity > 0
+                                      ? "bg-green-100 text-green-700"
+                                      : "bg-red-100 text-red-700"
+                                  }`}
+                                >
+                                  Stock: {inventory.available_quantity}
+                                </span>
+                              </div>
+                            ),
+                            value: inventory.product_id.toString(),
                           })}
+                          additionalParams={{
+                            warehouse_id: selectedWarehouseId,
+                          }}
                           perPage={10}
                           debounceMs={500}
                         />

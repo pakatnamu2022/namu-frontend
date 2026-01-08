@@ -20,18 +20,18 @@ import { vehicleColumns } from "@/features/ap/comercial/vehiculos/components/Veh
 import VehicleTable from "@/features/ap/comercial/vehiculos/components/VehicleTable";
 import VehicleOptions from "@/features/ap/comercial/vehiculos/components/VehicleOptions";
 import { notFound } from "@/shared/hooks/useNotFound";
-import { VEHICLES_PV } from "@/features/ap/comercial/vehiculos/lib/vehicles.constants";
+import { VEHICLES_RP } from "@/features/ap/comercial/vehiculos/lib/vehicles.constants";
 import { useNavigate } from "react-router-dom";
 import { useVehicles } from "@/features/ap/comercial/vehiculos/lib/vehicles.hook";
 
-export default function VehiclesPostVentaPage() {
+export default function VehiclesRepuestoPage() {
   const router = useNavigate();
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
-  const { MODEL, ROUTE, ROUTE_UPDATE } = VEHICLES_PV;
+  const { MODEL, ROUTE, ROUTE_UPDATE } = VEHICLES_RP;
 
   useEffect(() => {
     setPage(1);
@@ -69,7 +69,7 @@ export default function VehiclesPostVentaPage() {
           subtitle={"Gestión de vehículos"}
           icon={currentView.icon}
         />
-        <VehicleActionsPV module="TALLER" />
+        <VehicleActionsPV module="REPUESTOS" />
       </HeaderTableWrapper>
       <VehicleTable
         isLoading={isLoading}

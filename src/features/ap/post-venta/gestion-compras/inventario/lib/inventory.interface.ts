@@ -85,7 +85,9 @@ export interface InventoryWarehouse {
 export interface InventoryResource {
   id: number;
   product_id: number;
+  product_name: string;
   warehouse_id: number;
+  warehouse_name: string;
   quantity: number;
   quantity_in_transit: number;
   quantity_pending_credit_note: number;
@@ -101,6 +103,36 @@ export interface InventoryResource {
   warehouse: InventoryWarehouse;
   created_at: string;
   updated_at: string;
+}
+
+export interface StockByProductIdsResponse {
+  success: boolean;
+  data: ProductStock[];
+}
+
+interface ProductStock {
+  product_id: number;
+  product_name: string | null;
+  product_code: string | null;
+  warehouses: WarehouseStock[];
+  total_quantity: number;
+  total_quantity_in_transit: number;
+  total_available_quantity: number;
+}
+
+interface WarehouseStock {
+  warehouse_id: number;
+  warehouse_name: string;
+  quantity: number;
+  quantity_in_transit: number;
+  reserved_quantity: number;
+  available_quantity: number;
+  minimum_stock: number;
+  maximum_stock: number;
+  stock_status: "NORMAL" | "LOW_STOCK" | "OUT_OF_STOCK" | "OVER_STOCK";
+  is_low_stock: boolean;
+  is_out_of_stock: boolean;
+  last_movement_date: string;
 }
 
 export interface InventoryResponse {

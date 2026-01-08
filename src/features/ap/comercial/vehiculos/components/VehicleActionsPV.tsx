@@ -4,10 +4,16 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import ActionsWrapper from "@/shared/components/ActionsWrapper";
 import { useNavigate } from "react-router-dom";
-import { VEHICLES_PV } from "../lib/vehicles.constants";
+import { VEHICLES_PV, VEHICLES_RP } from "../lib/vehicles.constants";
 
-export default function VehicleActionsPV() {
+interface Props {
+  module: "TALLER" | "REPUESTOS";
+}
+
+export default function VehicleActionsPV({ module }: Props) {
   const router = useNavigate();
+  const ROUTE_ADD =
+    module === "TALLER" ? VEHICLES_PV.ROUTE_ADD : VEHICLES_RP.ROUTE_ADD;
 
   return (
     <ActionsWrapper>
@@ -15,7 +21,7 @@ export default function VehicleActionsPV() {
         size="sm"
         variant="outline"
         className="ml-auto"
-        onClick={() => router(VEHICLES_PV.ROUTE_ADD)}
+        onClick={() => router(ROUTE_ADD)}
       >
         <Plus className="size-4 mr-2" /> Agregar Vehículo
       </Button>

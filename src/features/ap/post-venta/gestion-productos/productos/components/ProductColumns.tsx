@@ -4,18 +4,17 @@ import { Button } from "@/components/ui/button";
 import { Eye, Pencil, RefreshCw } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { Badge } from "@/components/ui/badge";
-import { Link } from "react-router-dom";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
 } from "@/components/ui/select";
-import { PRODUCT } from "../lib/product.constants";
 
 export type ProductColumns = ColumnDef<ProductResource>;
 
 interface Props {
+  onUpdate?: (id: number) => void;
   onDelete: (id: number) => void;
   onStatusChange: (id: number, newStatus: string) => void;
   onView: (id: number) => void;
@@ -26,6 +25,7 @@ interface Props {
 }
 
 export const productColumns = ({
+  onUpdate,
   onDelete,
   onStatusChange,
   onView,
@@ -173,7 +173,6 @@ export const productColumns = ({
     header: "Acciones",
     cell: ({ row }) => {
       const { id, status } = row.original;
-      const { ROUTE_UPDATE } = PRODUCT;
 
       return (
         <div className="flex items-center gap-2">
@@ -232,11 +231,15 @@ export const productColumns = ({
 
           {/* Edit */}
           {permissions.canUpdate && (
-            <Link to={`${ROUTE_UPDATE}/${id}`}>
-              <Button variant="outline" size="icon" className="size-7">
-                <Pencil className="size-5" />
-              </Button>
-            </Link>
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-7"
+              tooltip="Editar Vehículo"
+              onClick={() => onUpdate!(id)}
+            >
+              <Pencil className="size-4" />
+            </Button>
           )}
 
           {/* Delete */}

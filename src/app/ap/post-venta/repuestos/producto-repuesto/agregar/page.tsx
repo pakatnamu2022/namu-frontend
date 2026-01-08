@@ -9,20 +9,21 @@ import {
   SUCCESS_MESSAGE,
   successToast,
 } from "@/core/core.function";
-import FormWrapper from "@/shared/components/FormWrapper";
-import { VEHICLES_PV } from "@/features/ap/comercial/vehiculos/lib/vehicles.constants";
-import { storeVehicle } from "@/features/ap/comercial/vehiculos/lib/vehicles.actions";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
-import { VehiclePVForm } from "@/features/ap/comercial/vehiculos/components/VehiclePVForm";
+import FormWrapper from "@/shared/components/FormWrapper";
+import { PRODUCT_REPUESTOS } from "@/features/ap/post-venta/gestion-productos/productos/lib/product.constants";
+import { storeProduct } from "@/features/ap/post-venta/gestion-productos/productos/lib/product.actions";
+import { ProductSchema } from "@/features/ap/post-venta/gestion-productos/productos/lib/product.schema";
+import { ProductForm } from "@/features/ap/post-venta/gestion-productos/productos/components/ProductForm";
 import { notFound } from "@/shared/hooks/useNotFound";
 
-export default function AddVehiclePVPage() {
+export default function AddProductRepuestoPage() {
   const router = useNavigate();
   const { currentView, checkRouteExists } = useCurrentModule();
-  const { ROUTE, MODEL, ABSOLUTE_ROUTE } = VEHICLES_PV;
+  const { ROUTE, MODEL, ABSOLUTE_ROUTE } = PRODUCT_REPUESTOS;
 
   const { mutate, isPending } = useMutation({
-    mutationFn: storeVehicle,
+    mutationFn: storeProduct,
     onSuccess: () => {
       successToast(SUCCESS_MESSAGE(MODEL, "create"));
       router(ABSOLUTE_ROUTE!);
@@ -33,7 +34,7 @@ export default function AddVehiclePVPage() {
     },
   });
 
-  const handleSubmit = (data: any) => {
+  const handleSubmit = (data: ProductSchema) => {
     mutate(data);
   };
 
@@ -47,19 +48,16 @@ export default function AddVehiclePVPage() {
         mode="create"
         icon={currentView.icon}
       />
-      <VehiclePVForm
+      <ProductForm
         defaultValues={{
-          vin: "",
-          plate: "",
-          year: new Date().getFullYear(),
-          engine_number: "",
-          ap_models_vn_id: "",
-          vehicle_color_id: "",
-          engine_type_id: "",
-          warehouse_physical_id: "",
-          type_operation_id: "",
-          sede_id: "",
-          customer_id: "",
+          code: "",
+          name: "",
+          description: "",
+          brand_id: "",
+          product_category_id: "",
+          unit_measurement_id: "",
+          cost_price: 0,
+          sale_price: 0,
         }}
         onSubmit={handleSubmit}
         isSubmitting={isPending}
