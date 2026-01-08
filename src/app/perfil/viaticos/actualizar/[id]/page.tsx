@@ -1,7 +1,6 @@
 "use client";
 
 import { useNavigate, useParams } from "react-router-dom";
-import PageSkeleton from "@/shared/components/PageSkeleton";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import {
   ERROR_MESSAGE,
@@ -20,6 +19,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { PerDiemRequestSchemaUpdate } from "@/features/profile/viaticos/lib/perDiemRequest.schema";
 import FormWrapper from "@/shared/components/FormWrapper";
 import { PerDiemRequestResource } from "@/features/profile/viaticos/lib/perDiemRequest.interface";
+import FormSkeleton from "@/shared/components/FormSkeleton";
 
 export default function UpdatePerDiemRequestPage() {
   const { id } = useParams();
@@ -49,7 +49,7 @@ export default function UpdatePerDiemRequestPage() {
       await queryClient.invalidateQueries({
         queryKey: [QUERY_KEY, Number(id)],
       });
-      router(ABSOLUTE_ROUTE!);
+      navigate();
     },
     onError: (error: any) => {
       const msg = error?.response?.data?.message || "";
@@ -61,8 +61,12 @@ export default function UpdatePerDiemRequestPage() {
     mutate(data);
   };
 
-  const handleCancel = () => {
+  const navigate = () => {
     router(ABSOLUTE_ROUTE! + `/${id}`);
+  };
+
+  const handleCancel = () => {
+    navigate();
   };
 
   function mapPerDiemRequestToForm(
@@ -76,10 +80,11 @@ export default function UpdatePerDiemRequestPage() {
       purpose: data.purpose,
       notes: data.notes || "",
       status: data.status,
+      with_active: data.with_active,
     };
   }
 
-  if (loadingPerDiemRequest) return <PageSkeleton />;
+  if (loadingPerDiemRequest) return <FormSkeleton />;
   if (error || !perDiemRequest) notFound();
 
   return (

@@ -9,7 +9,7 @@ import {
 } from "../lib/generalMasters.schema";
 import { FormInput } from "@/shared/components/FormInput";
 import { FormSwitch } from "@/shared/components/FormSwitch";
-import { FormSelect } from "@/shared/components/FormSelect";
+import { FormCombobox } from "@/shared/components/FormCombobox";
 import { useGeneralMastersTypes } from "../lib/generalMasters.hook";
 import { useMemo } from "react";
 
@@ -67,14 +67,15 @@ export default function GeneralMastersForm({
           placeholder="Ingrese la descripción"
         />
 
-        <FormSelect
+        <FormCombobox
           control={form.control}
           name="type"
           label="Tipo"
-          placeholder="Seleccione el tipo"
+          placeholder="Seleccione o escriba un tipo"
           options={typeOptions}
           isLoadingOptions={isLoadingTypes}
           required
+          allowCreate={true}
         />
 
         <FormInput
