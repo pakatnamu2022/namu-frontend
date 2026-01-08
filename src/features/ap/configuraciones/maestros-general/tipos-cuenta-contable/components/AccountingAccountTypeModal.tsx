@@ -16,7 +16,7 @@ import { GeneralModal } from "@/shared/components/GeneralModal";
 import { AccountingAccountTypeForm } from "./AccountingAccountTypeForm";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { ACCOUNTING_ACCOUNT_TYPE } from "../lib/accountingAccountType.constants";
-import { AP_MASTER_COMERCIAL } from "../../../../lib/ap.constants";
+import { AP_MASTER_TYPE } from "../../../../comercial/ap-master/lib/apMaster.constants";
 
 interface Props {
   id?: number;
@@ -48,7 +48,7 @@ export default function AccountingAccountTypeModal({
   ): Partial<AccountingAccountTypeSchema> {
     return {
       description: data.description,
-      type: AP_MASTER_COMERCIAL.ACCOUNTING_ACCOUNT_TYPE,
+      type: AP_MASTER_TYPE.ACCOUNTING_ACCOUNT_TYPE,
     };
   }
 

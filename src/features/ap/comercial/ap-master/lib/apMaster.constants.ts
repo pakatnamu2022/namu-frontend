@@ -1,7 +1,32 @@
-// CONSTANTES PARA MAESTROS COMERCIALES
-export const COMMERCIAL_MASTERS_ENDPOINT = "/ap/commercialMasters";
+import { type ModelComplete } from "@/core/core.interface";
+import { ApMastersResource } from "./apMasters.interface";
 
-export const AP_MASTER_COMERCIAL = {
+const ROUTE = "maestros-generales";
+const ABSOLUTE_ROUTE = `/ap/comercial/${ROUTE}`;
+
+export const AP_MASTERS: ModelComplete<ApMastersResource> = {
+  MODEL: {
+    name: "Ap Maestro",
+    plural: "Ap Maestros",
+    gender: true,
+  },
+  ICON: "Database",
+  ENDPOINT: "/ap/apMasters",
+  QUERY_KEY: "apMastersGenerales",
+  ROUTE,
+  ABSOLUTE_ROUTE,
+  ROUTE_ADD: `${ABSOLUTE_ROUTE}/agregar`,
+  ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/actualizar`,
+  EMPTY: {
+    id: 0,
+    code: "",
+    description: "",
+    type: "",
+    status: true,
+  },
+};
+
+export const AP_MASTER_TYPE = {
   VEHICLE_CATEGORY: "CATEGORIA_VEHICULO",
   VEHICLE_COLOR: "COLOR_VEHICULO",
   GROUP_BRANDS: "GRUPO_MARCAS",
@@ -28,23 +53,18 @@ export const AP_MASTER_COMERCIAL = {
   PERSON_SEGMENT: "SEGMENTO_PERSONA",
   INCOME_SECTOR: "SECTOR_INGRESO",
   REASONS_REJECTION: "MOTIVOS_DESCARTE",
-};
-
-export const AREA_CM_ID = {
-  COMERCIAL: "826",
-  POSTVENTA: "825",
-};
-
-// CONSTANTES PARA MAESTROS DE POST VENTA
-export const POSTVENTA_MASTERS_ENDPOINT = "/ap/postVentaMasters";
-
-export const AP_MASTER_POST_VENTA = {
+  // TYPES POST VENTA
   PRODUCT_CATEGORY: "CATEGORIA_PRODUCTO",
   TYPE_ADJUSTMENT_IN: "ADJUSTMENT_IN",
   TYPE_ADJUSTMENT_OUT: "ADJUSTMENT_OUT",
   TRANSFER_OUT: "TRANSFER_OUT",
   TYPE_PLANNING: "TIPO_PLANIFICACION",
   TYPE_OPERACTION_APPOINTMENT: "TIPO_OPERACION",
+};
+
+export const AREA_CM_ID = {
+  COMERCIAL: "826",
+  POSTVENTA: "825",
 };
 
 export const AREA_PM_ID = {

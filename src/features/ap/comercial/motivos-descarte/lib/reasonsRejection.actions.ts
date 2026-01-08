@@ -8,7 +8,7 @@ import {
   ReasonsRejectionResource,
   ReasonsRejectionResponse,
 } from "./reasonsRejection.interface";
-import { AP_MASTER_COMERCIAL } from "../../../lib/ap.constants";
+import { AP_MASTER_TYPE } from "../../ap-master/lib/apMaster.constants";
 
 const { ENDPOINT } = REASONS_REJECTION;
 
@@ -19,7 +19,7 @@ export async function getAllReasonsRejection({
     params: {
       all: true, // Assuming you want to fetch all periods
       ...params,
-      type: AP_MASTER_COMERCIAL.REASONS_REJECTION,
+      type: AP_MASTER_TYPE.REASONS_REJECTION,
       status: STATUS_ACTIVE,
     },
   };
@@ -33,7 +33,7 @@ export async function getReasonsRejection({
   const config: AxiosRequestConfig = {
     params: {
       ...params,
-      type: AP_MASTER_COMERCIAL.REASONS_REJECTION,
+      type: AP_MASTER_TYPE.REASONS_REJECTION,
     },
   };
   const { data } = await api.get<ReasonsRejectionResponse>(ENDPOINT, config);

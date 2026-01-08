@@ -8,7 +8,7 @@ import { api } from "@/core/api";
 import { GeneralResponse } from "@/shared/lib/response.interface";
 import { STATUS_ACTIVE } from "@/core/core.constants";
 import { TYPE_TRANSMISSION } from "./gearShiftType.constants";
-import { AP_MASTER_COMERCIAL } from "@/features/ap/lib/ap.constants";
+import { AP_MASTER_TYPE } from "@/features/ap/comercial/ap-master/lib/apMaster.constants";
 
 const { ENDPOINT } = TYPE_TRANSMISSION;
 
@@ -18,7 +18,7 @@ export async function getGearShiftType({
   const config: AxiosRequestConfig = {
     params: {
       ...params,
-      type: AP_MASTER_COMERCIAL.TRANSMISION_VEHICLE,
+      type: AP_MASTER_TYPE.TRANSMISION_VEHICLE,
     },
   };
   const { data } = await api.get<GearShiftTypeResponse>(ENDPOINT, config);
@@ -32,7 +32,7 @@ export async function getAllGearShiftType({
     params: {
       all: true, // Assuming you want to fetch all periods
       ...params,
-      type: AP_MASTER_COMERCIAL.TRANSMISION_VEHICLE,
+      type: AP_MASTER_TYPE.TRANSMISION_VEHICLE,
       status: STATUS_ACTIVE,
     },
   };

@@ -13,7 +13,7 @@ import FormSkeleton from "@/shared/components/FormSkeleton";
 import { GeneralModal } from "@/shared/components/GeneralModal";
 import { BankForm } from "./BankForm";
 import { BANK } from "../lib/bank.constants";
-import { AP_MASTER_COMERCIAL } from "../../../../lib/ap.constants";
+import { AP_MASTER_TYPE } from "../../../../comercial/ap-master/lib/apMaster.constants";
 
 interface Props {
   id?: number;
@@ -38,7 +38,7 @@ export default function BankModal({ id, open, onClose, title, mode }: Props) {
     return {
       code: data.code,
       description: data.description,
-      type: AP_MASTER_COMERCIAL.BANK,
+      type: AP_MASTER_TYPE.BANK,
     };
   }
 

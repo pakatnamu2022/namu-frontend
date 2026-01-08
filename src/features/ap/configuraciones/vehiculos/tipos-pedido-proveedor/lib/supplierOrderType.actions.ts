@@ -8,7 +8,7 @@ import { api } from "@/core/api";
 import { GeneralResponse } from "@/shared/lib/response.interface";
 import { STATUS_ACTIVE } from "@/core/core.constants";
 import { SUPPLIER_ORDER_TYPE } from "./supplierOrderType.constants";
-import { AP_MASTER_COMERCIAL } from "@/features/ap/lib/ap.constants";
+import { AP_MASTER_TYPE } from "@/features/ap/comercial/ap-master/lib/apMaster.constants";
 
 const { ENDPOINT } = SUPPLIER_ORDER_TYPE;
 
@@ -18,7 +18,7 @@ export async function getSupplierOrderType({
   const config: AxiosRequestConfig = {
     params: {
       ...params,
-      type: AP_MASTER_COMERCIAL.SUPPLIER_ORDER_TYPE,
+      type: AP_MASTER_TYPE.SUPPLIER_ORDER_TYPE,
     },
   };
   const { data } = await api.get<SupplierOrderTypeResponse>(ENDPOINT, config);
@@ -31,7 +31,7 @@ export async function getAllSupplierOrderType({
   const config: AxiosRequestConfig = {
     params: {
       all: true, // Assuming you want to fetch all periods
-      type: AP_MASTER_COMERCIAL.SUPPLIER_ORDER_TYPE,
+      type: AP_MASTER_TYPE.SUPPLIER_ORDER_TYPE,
       ...params,
       status: STATUS_ACTIVE,
     },

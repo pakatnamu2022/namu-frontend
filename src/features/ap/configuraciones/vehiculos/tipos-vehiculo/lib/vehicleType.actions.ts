@@ -8,7 +8,7 @@ import { api } from "@/core/api";
 import { GeneralResponse } from "@/shared/lib/response.interface";
 import { STATUS_ACTIVE } from "@/core/core.constants";
 import { VEHICLE_TYPE } from "./vehicleType.constants";
-import { AP_MASTER_COMERCIAL } from "@/features/ap/lib/ap.constants";
+import { AP_MASTER_TYPE } from "@/features/ap/comercial/ap-master/lib/apMaster.constants";
 
 const { ENDPOINT } = VEHICLE_TYPE;
 
@@ -18,7 +18,7 @@ export async function getVehicleType({
   const config: AxiosRequestConfig = {
     params: {
       ...params,
-      type: AP_MASTER_COMERCIAL.VEHICLE_TYPE,
+      type: AP_MASTER_TYPE.VEHICLE_TYPE,
     },
   };
   const { data } = await api.get<VehicleTypeResponse>(ENDPOINT, config);
@@ -32,7 +32,7 @@ export async function getAllVehicleType({
     params: {
       all: true, // Assuming you want to fetch all periods
       ...params,
-      type: AP_MASTER_COMERCIAL.VEHICLE_TYPE,
+      type: AP_MASTER_TYPE.VEHICLE_TYPE,
       status: STATUS_ACTIVE,
     },
   };

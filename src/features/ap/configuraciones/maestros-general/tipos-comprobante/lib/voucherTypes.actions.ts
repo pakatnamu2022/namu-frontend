@@ -8,7 +8,7 @@ import {
   VoucherTypesResource,
   VoucherTypesResponse,
 } from "./voucherTypes.interface";
-import { AP_MASTER_COMERCIAL } from "../../../../lib/ap.constants";
+import { AP_MASTER_TYPE } from "../../../../comercial/ap-master/lib/apMaster.constants";
 
 const { ENDPOINT } = VOUCHER_TYPE;
 
@@ -18,7 +18,7 @@ export async function getVoucherTypes({
   const config: AxiosRequestConfig = {
     params: {
       ...params,
-      type: AP_MASTER_COMERCIAL.VOUCHER_TYPE,
+      type: AP_MASTER_TYPE.VOUCHER_TYPE,
     },
   };
   const { data } = await api.get<VoucherTypesResponse>(ENDPOINT, config);
@@ -32,7 +32,7 @@ export async function getAllVoucherTypes({
     params: {
       all: true, // Assuming you want to fetch all periods
       ...params,
-      type: AP_MASTER_COMERCIAL.VOUCHER_TYPE,
+      type: AP_MASTER_TYPE.VOUCHER_TYPE,
       status: STATUS_ACTIVE,
     },
   };

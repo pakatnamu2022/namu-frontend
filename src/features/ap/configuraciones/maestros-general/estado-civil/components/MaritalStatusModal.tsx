@@ -16,7 +16,7 @@ import {
 import { GeneralModal } from "@/shared/components/GeneralModal";
 import { MaritalStatusForm } from "./MaritalStatusForm";
 import FormSkeleton from "@/shared/components/FormSkeleton";
-import { AP_MASTER_COMERCIAL } from "../../../../lib/ap.constants";
+import { AP_MASTER_TYPE } from "../../../../comercial/ap-master/lib/apMaster.constants";
 
 interface Props {
   id?: number;
@@ -48,7 +48,7 @@ export default function MaritalStatusModal({
   ): Partial<MaritalStatusSchema> {
     return {
       description: data.description,
-      type: AP_MASTER_COMERCIAL.MARITAL_STATUS,
+      type: AP_MASTER_TYPE.MARITAL_STATUS,
     };
   }
 

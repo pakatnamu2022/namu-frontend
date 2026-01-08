@@ -5,9 +5,9 @@ import { STATUS_ACTIVE } from "@/core/core.constants";
 import { SHOP } from "./shop.constants";
 import { getShopProps, ShopResource, ShopResponse } from "./shop.interface";
 import {
-  AP_MASTER_COMERCIAL,
-  COMMERCIAL_MASTERS_ENDPOINT,
-} from "@/features/ap/lib/ap.constants";
+  AP_MASTER_TYPE,
+  AP_MASTERS,
+} from "@/features/ap/comercial/ap-master/lib/apMaster.constants";
 
 const { ENDPOINT } = SHOP;
 
@@ -15,7 +15,7 @@ export async function getShop({ params }: getShopProps): Promise<ShopResponse> {
   const config: AxiosRequestConfig = {
     params: {
       ...params,
-      type: AP_MASTER_COMERCIAL.SHOP,
+      type: AP_MASTER_TYPE.SHOP,
     },
   };
   const { data } = await api.get<ShopResponse>(ENDPOINT, config);
@@ -29,14 +29,11 @@ export async function getAllShop({
     params: {
       all: true, // Assuming you want to fetch all periods
       ...params,
-      type: AP_MASTER_COMERCIAL.SHOP,
+      type: AP_MASTER_TYPE.SHOP,
       status: STATUS_ACTIVE,
     },
   };
-  const { data } = await api.get<ShopResource[]>(
-    COMMERCIAL_MASTERS_ENDPOINT,
-    config
-  );
+  const { data } = await api.get<ShopResource[]>(AP_MASTERS.ENDPOINT, config);
   return data;
 }
 

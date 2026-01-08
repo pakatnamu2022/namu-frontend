@@ -1,6 +1,6 @@
 import { type ModelComplete } from "@/core/core.interface";
 import { ProductTypeResource } from "./productType.interface";
-import { COMMERCIAL_MASTERS_ENDPOINT } from "@/features/ap/lib/ap.constants";
+import { AP_MASTERS } from "@/features/ap/comercial/ap-master/lib/apMaster.constants";
 
 const ROUTE = "tipos-producto";
 const ABSOLUTE_ROUTE = `/ap/configuraciones/vehiculos/${ROUTE}`;
@@ -12,7 +12,7 @@ export const PRODUCT_TYPE: ModelComplete<ProductTypeResource> = {
     gender: true,
   },
   ICON: "ContactRound",
-  ENDPOINT: COMMERCIAL_MASTERS_ENDPOINT,
+  ENDPOINT: AP_MASTERS.ENDPOINT,
   QUERY_KEY: "productType",
   ROUTE,
   ABSOLUTE_ROUTE,

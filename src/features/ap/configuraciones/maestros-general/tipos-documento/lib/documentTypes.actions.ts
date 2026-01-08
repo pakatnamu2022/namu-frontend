@@ -8,7 +8,7 @@ import {
   DocumentTypeResponse,
   getDocumentTypeProps,
 } from "./documentTypes.interface";
-import { AP_MASTER_COMERCIAL } from "../../../../lib/ap.constants";
+import { AP_MASTER_TYPE } from "../../../../comercial/ap-master/lib/apMaster.constants";
 
 const { ENDPOINT } = DOCUMENT_TYPE;
 
@@ -18,7 +18,7 @@ export async function getDocumentType({
   const config: AxiosRequestConfig = {
     params: {
       ...params,
-      type: AP_MASTER_COMERCIAL.DOCUMENT_TYPE,
+      type: AP_MASTER_TYPE.DOCUMENT_TYPE,
     },
   };
   const { data } = await api.get<DocumentTypeResponse>(ENDPOINT, config);
@@ -32,7 +32,7 @@ export async function getAllDocumentType({
     params: {
       all: true, // Assuming you want to fetch all periods
       ...params,
-      type: AP_MASTER_COMERCIAL.DOCUMENT_TYPE,
+      type: AP_MASTER_TYPE.DOCUMENT_TYPE,
       status: STATUS_ACTIVE,
     },
   };

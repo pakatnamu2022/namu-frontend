@@ -7,7 +7,7 @@ import {
   ReasonsAdjustmentResource,
   ReasonsAdjustmentResponse,
 } from "./reasonsAdjustment.interface.ts";
-import { AP_MASTER_POST_VENTA } from "@/features/ap/lib/ap.constants.ts";
+import { AP_MASTER_TYPE } from "@/features/ap/comercial/ap-master/lib/apMaster.constants.ts";
 import { REASONS_ADJUSTMENT } from "./reasonsAdjustment.constants.ts";
 
 const { ENDPOINT } = REASONS_ADJUSTMENT;
@@ -19,8 +19,8 @@ export async function getReasonsAdjustment({
     params: {
       ...params,
       type: [
-        AP_MASTER_POST_VENTA.TYPE_ADJUSTMENT_IN,
-        AP_MASTER_POST_VENTA.TYPE_ADJUSTMENT_OUT,
+        AP_MASTER_TYPE.TYPE_ADJUSTMENT_IN,
+        AP_MASTER_TYPE.TYPE_ADJUSTMENT_OUT,
       ],
     },
   };
@@ -36,8 +36,8 @@ export async function getAllReasonsAdjustment({
       all: true, // Assuming you want to fetch all periods
       ...params,
       type: [
-        AP_MASTER_POST_VENTA.TYPE_ADJUSTMENT_IN,
-        AP_MASTER_POST_VENTA.TYPE_ADJUSTMENT_OUT,
+        AP_MASTER_TYPE.TYPE_ADJUSTMENT_IN,
+        AP_MASTER_TYPE.TYPE_ADJUSTMENT_OUT,
       ],
       status: STATUS_ACTIVE,
     },

@@ -16,7 +16,7 @@ import {
   updateDocumentType,
 } from "../lib/documentTypes.actions";
 import { DocumentTypeForm } from "./DocumentTypesForm";
-import { AP_MASTER_COMERCIAL } from "../../../../lib/ap.constants";
+import { AP_MASTER_TYPE } from "../../../../comercial/ap-master/lib/apMaster.constants";
 
 interface Props {
   id?: number;
@@ -49,7 +49,7 @@ export default function DocumentTypeModal({
     return {
       code: data.code,
       description: data.description,
-      type: AP_MASTER_COMERCIAL.DOCUMENT_TYPE,
+      type: AP_MASTER_TYPE.DOCUMENT_TYPE,
     };
   }
 

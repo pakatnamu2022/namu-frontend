@@ -8,7 +8,7 @@ import { api } from "@/core/api";
 import { GeneralResponse } from "@/shared/lib/response.interface";
 import { STATUS_ACTIVE } from "@/core/core.constants";
 import { VEHICLE_COLOR } from "./vehicleColor.constants";
-import { AP_MASTER_COMERCIAL } from "@/features/ap/lib/ap.constants";
+import { AP_MASTER_TYPE } from "@/features/ap/comercial/ap-master/lib/apMaster.constants";
 
 const { ENDPOINT } = VEHICLE_COLOR;
 
@@ -18,7 +18,7 @@ export async function getVehicleColor({
   const config: AxiosRequestConfig = {
     params: {
       ...params,
-      type: AP_MASTER_COMERCIAL.VEHICLE_COLOR,
+      type: AP_MASTER_TYPE.VEHICLE_COLOR,
     },
   };
   const { data } = await api.get<VehicleColorResponse>(ENDPOINT, config);
@@ -31,7 +31,7 @@ export async function getAllVehicleColor({
   const config: AxiosRequestConfig = {
     params: {
       all: true, // Assuming you want to fetch all periods
-      type: AP_MASTER_COMERCIAL.VEHICLE_COLOR,
+      type: AP_MASTER_TYPE.VEHICLE_COLOR,
       ...params,
       status: STATUS_ACTIVE,
     },

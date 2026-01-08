@@ -2,7 +2,7 @@ import type { AxiosRequestConfig } from "axios";
 import { api } from "@/core/api.ts";
 import { GeneralResponse } from "@/shared/lib/response.interface.ts";
 import { STATUS_ACTIVE } from "@/core/core.constants.ts";
-import { AP_MASTER_POST_VENTA } from "@/features/ap/lib/ap.constants.ts";
+import { AP_MASTER_TYPE } from "@/features/ap/comercial/ap-master/lib/apMaster.constants.ts";
 import { TYPE_PLANNING } from "./typesPlanning.constants.ts";
 import {
   getTypesPlanningProps,
@@ -18,7 +18,7 @@ export async function getTypesPlanning({
   const config: AxiosRequestConfig = {
     params: {
       ...params,
-      type: [AP_MASTER_POST_VENTA.TYPE_PLANNING],
+      type: [AP_MASTER_TYPE.TYPE_PLANNING],
     },
   };
   const { data } = await api.get<TypesPlanningResponse>(ENDPOINT, config);
@@ -32,7 +32,7 @@ export async function getAllTypesPlanning({
     params: {
       all: true, // Assuming you want to fetch all periods
       ...params,
-      type: [AP_MASTER_POST_VENTA.TYPE_PLANNING],
+      type: [AP_MASTER_TYPE.TYPE_PLANNING],
       status: STATUS_ACTIVE,
     },
   };

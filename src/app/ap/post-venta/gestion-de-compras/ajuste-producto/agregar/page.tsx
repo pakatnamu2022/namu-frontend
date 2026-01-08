@@ -16,7 +16,7 @@ import { storeAdjustmentsProduct } from "@/features/ap/post-venta/gestion-compra
 import { AdjustmentSchema } from "@/features/ap/post-venta/gestion-compras/ajuste-producto/lib/adjustmentsProduct.schema";
 import { AdjustmentsProductForm } from "@/features/ap/post-venta/gestion-compras/ajuste-producto/components/AdjustmentsProductForm";
 import { ADJUSTMENT } from "@/features/ap/post-venta/gestion-compras/ajuste-producto/lib/adjustmentsProduct.constants";
-import { AP_MASTER_POST_VENTA } from "@/features/ap/lib/ap.constants";
+import { AP_MASTER_TYPE } from "@/features/ap/comercial/ap-master/lib/apMaster.constants";
 
 export default function AddAdjustmentsProductPage() {
   const router = useNavigate();
@@ -51,7 +51,7 @@ export default function AddAdjustmentsProductPage() {
       />
       <AdjustmentsProductForm
         defaultValues={{
-          movement_type: AP_MASTER_POST_VENTA.TYPE_ADJUSTMENT_IN,
+          movement_type: AP_MASTER_TYPE.TYPE_ADJUSTMENT_IN,
           reason_in_out_id: "",
           warehouse_id: "",
           movement_date: "",

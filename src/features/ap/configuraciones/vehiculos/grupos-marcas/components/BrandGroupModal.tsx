@@ -13,7 +13,7 @@ import { GeneralModal } from "@/shared/components/GeneralModal";
 import { useBrandGroupById } from "../lib/brandGroup.hook";
 import { BrandGroupForm } from "./BrandGroupForm";
 import FormSkeleton from "@/shared/components/FormSkeleton";
-import { AP_MASTER_COMERCIAL } from "@/features/ap/lib/ap.constants";
+import { AP_MASTER_TYPE } from "@/features/ap/comercial/ap-master/lib/apMaster.constants";
 
 interface Props {
   id?: number;
@@ -43,7 +43,7 @@ export default function BrandGroupModal({
   function mapRoleToForm(data: BrandGroupResource): Partial<BrandGroupSchema> {
     return {
       description: data.description,
-      type: AP_MASTER_COMERCIAL.GROUP_BRANDS,
+      type: AP_MASTER_TYPE.GROUP_BRANDS,
     };
   }
 

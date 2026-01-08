@@ -13,7 +13,7 @@ import { TypeGenderResource } from "../lib/typesGender.interface";
 import { TypeGenderSchema } from "../lib/typesGender.schema";
 import { storeTypeGender, updateTypeGender } from "../lib/typesGender.actions";
 import { TypeGenderForm } from "./TypesGenderForm";
-import { AP_MASTER_COMERCIAL } from "../../../../lib/ap.constants";
+import { AP_MASTER_TYPE } from "../../../../comercial/ap-master/lib/apMaster.constants";
 
 interface Props {
   id?: number;
@@ -45,7 +45,7 @@ export default function TypeGenderModal({
   ): Partial<TypeGenderSchema> {
     return {
       description: data.description,
-      type: AP_MASTER_COMERCIAL.TYPE_GENDER,
+      type: AP_MASTER_TYPE.TYPE_GENDER,
     };
   }
 

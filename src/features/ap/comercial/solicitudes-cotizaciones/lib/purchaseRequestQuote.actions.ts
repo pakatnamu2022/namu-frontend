@@ -9,7 +9,7 @@ import {
   PurchaseRequestQuoteResource,
   PurchaseRequestQuoteResponse,
 } from "./purchaseRequestQuote.interface";
-import { COMMERCIAL_MASTERS_ENDPOINT } from "../../../lib/ap.constants";
+import { AP_MASTERS } from "../../ap-master/lib/apMaster.constants";
 
 const { ENDPOINT } = PURCHASE_REQUEST_QUOTE;
 
@@ -57,7 +57,7 @@ export async function getAllConceptDiscountBond({
     },
   };
   const { data } = await api.get<ConceptDiscountBondResource[]>(
-    COMMERCIAL_MASTERS_ENDPOINT,
+    AP_MASTERS.ENDPOINT,
     config
   );
   return data;

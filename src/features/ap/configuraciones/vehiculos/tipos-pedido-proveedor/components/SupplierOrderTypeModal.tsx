@@ -16,7 +16,7 @@ import { GeneralModal } from "@/shared/components/GeneralModal";
 import { SupplierOrderTypeForm } from "./SupplierOrderTypeForm";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { SUPPLIER_ORDER_TYPE } from "../lib/supplierOrderType.constants";
-import { AP_MASTER_COMERCIAL } from "@/features/ap/lib/ap.constants";
+import { AP_MASTER_TYPE } from "@/features/ap/comercial/ap-master/lib/apMaster.constants";
 
 interface Props {
   id?: number;
@@ -53,7 +53,7 @@ export default function SupplierOrderTypeModal({
     return {
       code: data.code,
       description: data.description,
-      type: AP_MASTER_COMERCIAL.SUPPLIER_ORDER_TYPE,
+      type: AP_MASTER_TYPE.SUPPLIER_ORDER_TYPE,
     };
   }
 

@@ -13,7 +13,7 @@ import { GeneralModal } from "@/shared/components/GeneralModal";
 import { ShopForm } from "./ShopForm";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { SHOP } from "../lib/shop.constants";
-import { AP_MASTER_COMERCIAL } from "@/features/ap/lib/ap.constants";
+import { AP_MASTER_TYPE } from "@/features/ap/comercial/ap-master/lib/apMaster.constants";
 
 interface Props {
   id?: number;
@@ -37,7 +37,7 @@ export default function ShopModal({ id, open, onClose, title, mode }: Props) {
   function mapRoleToForm(data: ShopResource): Partial<ShopSchema> {
     return {
       description: data.description,
-      type: AP_MASTER_COMERCIAL.SHOP,
+      type: AP_MASTER_TYPE.SHOP,
       sedes: data.sedes.map((sede) => ({
         id: sede.id,
         abreviatura: sede.abreviatura,

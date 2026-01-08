@@ -7,7 +7,7 @@ import {
 } from "./incomeSector.interface";
 import { STATUS_ACTIVE } from "@/core/core.constants";
 import { INCOME_SECTOR } from "./incomeSector.constants";
-import { AP_MASTER_COMERCIAL } from "../../../lib/ap.constants";
+import { AP_MASTER_TYPE } from "../../ap-master/lib/apMaster.constants";
 
 const { ENDPOINT } = INCOME_SECTOR;
 
@@ -17,7 +17,7 @@ export async function getIncomeSector({
   const config: AxiosRequestConfig = {
     params: {
       ...params,
-      type: AP_MASTER_COMERCIAL.INCOME_SECTOR,
+      type: AP_MASTER_TYPE.INCOME_SECTOR,
     },
   };
   const { data } = await api.get<IncomeSectorResponse>(ENDPOINT, config);
@@ -31,7 +31,7 @@ export async function getAllIncomeSector({
     params: {
       all: true, // Assuming you want to fetch all periods
       ...params,
-      type: AP_MASTER_COMERCIAL.INCOME_SECTOR,
+      type: AP_MASTER_TYPE.INCOME_SECTOR,
       status: STATUS_ACTIVE,
     },
   };

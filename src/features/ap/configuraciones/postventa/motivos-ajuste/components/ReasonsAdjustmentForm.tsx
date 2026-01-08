@@ -16,7 +16,7 @@ import {
   reasonsAdjustmentSchemaCreate,
   reasonsAdjustmentSchemaUpdate,
 } from "@/features/ap/configuraciones/postventa/motivos-ajuste/lib/reasonsAdjustment.schema.ts";
-import { AP_MASTER_POST_VENTA } from "@/features/ap/lib/ap.constants.ts";
+import { AP_MASTER_TYPE } from "@/features/ap/comercial/ap-master/lib/apMaster.constants";
 import { FormSelect } from "@/shared/components/FormSelect.tsx";
 
 interface ReasonsAdjustmentFormProps {
@@ -30,11 +30,11 @@ interface ReasonsAdjustmentFormProps {
 const reasonsAjustmentSelectOptions = [
   {
     label: "Ajuste de Ingreso",
-    value: AP_MASTER_POST_VENTA.TYPE_ADJUSTMENT_IN,
+    value: AP_MASTER_TYPE.TYPE_ADJUSTMENT_IN,
   },
   {
     label: "Ajuste de Salida",
-    value: AP_MASTER_POST_VENTA.TYPE_ADJUSTMENT_OUT,
+    value: AP_MASTER_TYPE.TYPE_ADJUSTMENT_OUT,
   },
 ];
 

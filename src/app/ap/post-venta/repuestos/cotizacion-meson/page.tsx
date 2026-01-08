@@ -20,7 +20,7 @@ import { useNavigate } from "react-router-dom";
 import { ORDER_QUOTATION_MESON } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.constants";
 import { deleteOrderQuotation } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.actions";
 import { useOrderQuotations } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.hook";
-import { AREA_PM_ID } from "@/features/ap/lib/ap.constants";
+import { AREA_PM_ID } from "@/features/ap/comercial/ap-master/lib/apMaster.constants";
 import OrderQuotationMesonTable from "@/features/ap/post-venta/repuestos/cotizacion-meson/components/ProformaMesonTable";
 import OrderQuotationMesonActions from "@/features/ap/post-venta/repuestos/cotizacion-meson/components/ProformaMesonActions";
 import OrderQuotationMesonOptions from "@/features/ap/post-venta/repuestos/cotizacion-meson/components/ProformaMesonOptions";
@@ -33,7 +33,9 @@ export default function OrderQuotationMesonPage() {
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
-  const [selectedOrderQuotationId, setSelectedOrderQuotationId] = useState<number | null>(null);
+  const [selectedOrderQuotationId, setSelectedOrderQuotationId] = useState<
+    number | null
+  >(null);
   const [isBillingSheetOpen, setIsBillingSheetOpen] = useState(false);
   const { MODEL, ROUTE, ROUTE_UPDATE, ABSOLUTE_ROUTE } = ORDER_QUOTATION_MESON;
   const permissions = useModulePermissions(ROUTE);

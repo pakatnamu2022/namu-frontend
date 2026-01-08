@@ -9,13 +9,13 @@ import {
 } from "./opportunities.interface";
 import { OPPORTUNITIES, OPPORTUNITY_ACTIONS } from "./opportunities.constants";
 import { api } from "@/core/api";
-import { COMMERCIAL_MASTERS_ENDPOINT } from "../../../lib/ap.constants";
 import { OpportunityActionResource } from "./opportunityAction.interface";
 import {
   OpportunityActionSchema,
   OpportunitySchema,
 } from "./opportunities.schema";
 import { ParamsProps } from "@/core/core.interface";
+import { AP_MASTERS } from "../../ap-master/lib/apMaster.constants";
 
 const { ENDPOINT } = OPPORTUNITIES;
 const { ENDPOINT: ACTIONS_ENDPOINT } = OPPORTUNITY_ACTIONS;
@@ -161,7 +161,7 @@ export const deleteOpportunityAction = async (id: number): Promise<void> => {
 export const getCommercialMasters = async ({
   params,
 }: ParamsProps): Promise<CommercialMastersResponse> => {
-  const response = await api.get(COMMERCIAL_MASTERS_ENDPOINT, {
+  const response = await api.get(AP_MASTERS.ENDPOINT, {
     params,
   });
   return response.data;

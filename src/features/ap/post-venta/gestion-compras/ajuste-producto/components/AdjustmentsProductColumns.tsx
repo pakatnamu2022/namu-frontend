@@ -6,7 +6,7 @@ import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { ADJUSTMENT } from "../lib/adjustmentsProduct.constants";
 import { AdjustmentsProductListItem } from "../lib/adjustmentsProduct.interface";
 import { Badge } from "@/components/ui/badge";
-import { AP_MASTER_POST_VENTA } from "@/features/ap/lib/ap.constants";
+import { AP_MASTER_TYPE } from "@/features/ap/comercial/ap-master/lib/apMaster.constants";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 
@@ -64,15 +64,11 @@ export const adjustmentsProductColumns = ({
       return (
         <Badge
           variant={
-            value == AP_MASTER_POST_VENTA.TYPE_ADJUSTMENT_IN
-              ? "default"
-              : "secondary"
+            value == AP_MASTER_TYPE.TYPE_ADJUSTMENT_IN ? "default" : "secondary"
           }
           className="capitalize w-20 flex items-center justify-center"
         >
-          {value == AP_MASTER_POST_VENTA.TYPE_ADJUSTMENT_IN
-            ? "INGRESO"
-            : "SALIDA"}
+          {value == AP_MASTER_TYPE.TYPE_ADJUSTMENT_IN ? "INGRESO" : "SALIDA"}
         </Badge>
       );
     },

@@ -16,7 +16,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { AP_MASTER_POST_VENTA } from "@/features/ap/lib/ap.constants";
+import { AP_MASTER_TYPE } from "@/features/ap/comercial/ap-master/lib/apMaster.constants";
 import { Loader2 } from "lucide-react";
 
 interface AdjustmentsProductDetailSheetProps {
@@ -62,15 +62,13 @@ export function AdjustmentsProductDetailSheet({
                 <p className="text-xs text-muted-foreground">Tipo Movimiento</p>
                 <Badge
                   variant={
-                    data.movement_type ===
-                    AP_MASTER_POST_VENTA.TYPE_ADJUSTMENT_IN
+                    data.movement_type === AP_MASTER_TYPE.TYPE_ADJUSTMENT_IN
                       ? "default"
                       : "secondary"
                   }
                   className="capitalize w-20 flex items-center justify-center"
                 >
-                  {data.movement_type ===
-                  AP_MASTER_POST_VENTA.TYPE_ADJUSTMENT_IN
+                  {data.movement_type === AP_MASTER_TYPE.TYPE_ADJUSTMENT_IN
                     ? "INGRESO"
                     : "SALIDA"}
                 </Badge>

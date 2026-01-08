@@ -1,11 +1,9 @@
 import { GeneralModal } from "@/shared/components/GeneralModal";
-import CommercialMastersForm from "./CommercialMastersForm";
 import {
-  useCommercialMastersById,
-  useCreateCommercialMasters,
-  useUpdateCommercialMasters,
-} from "../lib/commercialMasters.hook";
-import { CommercialMastersSchema } from "../lib/commercialMasters.schema";
+  useApMastersById,
+  useCreateApMasters,
+  useUpdateApMasters,
+} from "../lib/apMasters.hook";
 import {
   ERROR_MESSAGE,
   errorToast,
@@ -13,35 +11,38 @@ import {
   SUCCESS_MESSAGE,
   successToast,
 } from "@/core/core.function";
-import { COMMERCIAL_MASTERS } from "../lib/commercialMasters.constants";
 import FormSkeleton from "@/shared/components/FormSkeleton";
+import { AP_MASTERS } from "../lib/apMaster.constants";
+import ApMastersForm from "./ApMastersForm";
+import { ApMastersSchema } from "../lib/apMasters.schema";
 
-interface CommercialMastersModalProps {
+interface ApMastersModalProps {
   id?: number;
   open: boolean;
   onClose: () => void;
   mode: "create" | "update";
 }
 
-export default function CommercialMastersModal({
+export default function ApMastersModal({
   id,
   open,
   onClose,
   mode,
-}: CommercialMastersModalProps) {
-  const { MODEL, EMPTY } = COMMERCIAL_MASTERS;
+}: ApMastersModalProps) {
+  const { MODEL, EMPTY } = AP_MASTERS;
   const {
     data: master,
     isLoading: loadingMaster,
     refetch,
   } = mode === "create"
     ? { data: EMPTY, isLoading: false, refetch: () => {} }
-    : useCommercialMastersById(id!);
+    : // eslint-disable-next-line react-hooks/rules-of-hooks
+      useApMastersById(id!);
 
-  const createMutation = useCreateCommercialMasters();
-  const updateMutation = useUpdateCommercialMasters();
+  const createMutation = useCreateApMasters();
+  const updateMutation = useUpdateApMasters();
 
-  const handleSubmit = async (data: CommercialMastersSchema) => {
+  const handleSubmit = async (data: ApMastersSchema) => {
     try {
       if (mode === "create") {
         await createMutation.mutateAsync(data);
@@ -79,7 +80,7 @@ export default function CommercialMastersModal({
       icon="Cog"
     >
       {!isLoadingAny && master ? (
-        <CommercialMastersForm
+        <ApMastersForm
           onSubmit={handleSubmit}
           isSubmitting={createMutation.isPending || updateMutation.isPending}
           defaultValues={mappedMaster || undefined}

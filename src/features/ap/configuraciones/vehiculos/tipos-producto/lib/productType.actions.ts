@@ -7,7 +7,7 @@ import {
 import { api } from "@/core/api";
 import { GeneralResponse } from "@/shared/lib/response.interface";
 import { PRODUCT_TYPE } from "./productType.constants";
-import { AP_MASTER_COMERCIAL } from "@/features/ap/lib/ap.constants";
+import { AP_MASTER_TYPE } from "@/features/ap/comercial/ap-master/lib/apMaster.constants";
 
 const { ENDPOINT } = PRODUCT_TYPE;
 
@@ -17,7 +17,7 @@ export async function getProductType({
   const config: AxiosRequestConfig = {
     params: {
       ...params,
-      type: AP_MASTER_COMERCIAL.PRODUCT_TYPE,
+      type: AP_MASTER_TYPE.PRODUCT_TYPE,
     },
   };
   const { data } = await api.get<ProductTypeResponse>(ENDPOINT, config);

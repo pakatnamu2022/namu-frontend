@@ -2,7 +2,7 @@ import type { AxiosRequestConfig } from "axios";
 import { api } from "@/core/api.ts";
 import { GeneralResponse } from "@/shared/lib/response.interface.ts";
 import { STATUS_ACTIVE } from "@/core/core.constants.ts";
-import { AP_MASTER_POST_VENTA } from "@/features/ap/lib/ap.constants.ts";
+import { AP_MASTER_TYPE } from "@/features/ap/comercial/ap-master/lib/apMaster.constants.ts";
 import {
   getTypesOperationsAppointmentProps,
   TypesOperationsAppointmentResource,
@@ -18,7 +18,7 @@ export async function getTypesOperationsAppointment({
   const config: AxiosRequestConfig = {
     params: {
       ...params,
-      type: [AP_MASTER_POST_VENTA.TYPE_OPERACTION_APPOINTMENT],
+      type: [AP_MASTER_TYPE.TYPE_OPERACTION_APPOINTMENT],
     },
   };
   const { data } = await api.get<TypesOperationsAppointmentResponse>(
@@ -37,7 +37,7 @@ export async function getAllTypesOperationsAppointment({
     params: {
       all: true, // Assuming you want to fetch all periods
       ...params,
-      type: [AP_MASTER_POST_VENTA.TYPE_OPERACTION_APPOINTMENT],
+      type: [AP_MASTER_TYPE.TYPE_OPERACTION_APPOINTMENT],
       status: STATUS_ACTIVE,
     },
   };

@@ -1,4 +1,4 @@
-import { AP_MASTER_POST_VENTA } from "@/features/ap/lib/ap.constants";
+import { AP_MASTER_TYPE } from "@/features/ap/comercial/ap-master/lib/apMaster.constants";
 import { requiredStringId } from "@/shared/lib/global.schema.ts";
 import { z } from "zod";
 
@@ -26,10 +26,7 @@ const adjustmentDetailSchema = z.object({
 
 const adjustmentSchemaBase = z.object({
   movement_type: z.enum(
-    [
-      AP_MASTER_POST_VENTA.TYPE_ADJUSTMENT_IN,
-      AP_MASTER_POST_VENTA.TYPE_ADJUSTMENT_OUT,
-    ],
+    [AP_MASTER_TYPE.TYPE_ADJUSTMENT_IN, AP_MASTER_TYPE.TYPE_ADJUSTMENT_OUT],
     {
       message: "Tipo de movimiento inválido",
     }

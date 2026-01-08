@@ -8,7 +8,7 @@ import {
   TypesOperationResource,
   TypesOperationResponse,
 } from "./typesOperation.interface";
-import { AP_MASTER_COMERCIAL } from "../../../../lib/ap.constants";
+import { AP_MASTER_TYPE } from "../../../../comercial/ap-master/lib/apMaster.constants";
 
 const { ENDPOINT } = TYPES_OPERATION;
 
@@ -18,7 +18,7 @@ export async function getTypesOperation({
   const config: AxiosRequestConfig = {
     params: {
       ...params,
-      type: AP_MASTER_COMERCIAL.TYPE_OPERATION,
+      type: AP_MASTER_TYPE.TYPE_OPERATION,
     },
   };
   const { data } = await api.get<TypesOperationResponse>(ENDPOINT, config);
@@ -32,7 +32,7 @@ export async function getAllTypesOperation({
     params: {
       all: true, // Assuming you want to fetch all periods
       ...params,
-      type: AP_MASTER_COMERCIAL.TYPE_OPERATION,
+      type: AP_MASTER_TYPE.TYPE_OPERATION,
       status: STATUS_ACTIVE,
     },
   };

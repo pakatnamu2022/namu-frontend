@@ -1,6 +1,6 @@
 import { type ModelComplete } from "@/core/core.interface";
 import { TypeClientResource } from "./typeClient.interface";
-import { COMMERCIAL_MASTERS_ENDPOINT } from "../../../../lib/ap.constants";
+import { AP_MASTERS } from "@/features/ap/comercial/ap-master/lib/apMaster.constants";
 
 const ROUTE = "tipos-persona";
 const ABSOLUTE_ROUTE = `/ap/configuraciones/maestros-general/${ROUTE}`;
@@ -12,7 +12,7 @@ export const TYPE_PERSON: ModelComplete<TypeClientResource> = {
     gender: true,
   },
   ICON: "ContactRound",
-  ENDPOINT: COMMERCIAL_MASTERS_ENDPOINT,
+  ENDPOINT: AP_MASTERS.ENDPOINT,
   QUERY_KEY: "typePerson",
   ROUTE,
   ABSOLUTE_ROUTE,

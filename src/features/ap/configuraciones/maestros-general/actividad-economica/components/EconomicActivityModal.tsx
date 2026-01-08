@@ -16,7 +16,7 @@ import { GeneralModal } from "@/shared/components/GeneralModal";
 import { EconomicActivityForm } from "./EconomicActivityForm";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { ECONOMIC_ACTIVITY } from "../lib/economicActivity.constants";
-import { AP_MASTER_COMERCIAL } from "../../../../lib/ap.constants";
+import { AP_MASTER_TYPE } from "../../../../comercial/ap-master/lib/apMaster.constants";
 
 interface Props {
   id?: number;
@@ -49,7 +49,7 @@ export default function EconomicActivityModal({
   ): Partial<EconomicActivitySchema> {
     return {
       description: data.description,
-      type: AP_MASTER_COMERCIAL.ECONOMIC_ACTIVITY,
+      type: AP_MASTER_TYPE.ECONOMIC_ACTIVITY,
     };
   }
 

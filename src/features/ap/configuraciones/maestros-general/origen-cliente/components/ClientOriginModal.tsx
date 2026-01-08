@@ -16,7 +16,7 @@ import {
 import { GeneralModal } from "@/shared/components/GeneralModal";
 import { ClientOriginForm } from "./ClientOriginForm";
 import FormSkeleton from "@/shared/components/FormSkeleton";
-import { AP_MASTER_COMERCIAL } from "../../../../lib/ap.constants";
+import { AP_MASTER_TYPE } from "../../../../comercial/ap-master/lib/apMaster.constants";
 
 interface Props {
   id?: number;
@@ -48,7 +48,7 @@ export default function ClientOriginModal({
   ): Partial<ClientOriginSchema> {
     return {
       description: data.description,
-      type: AP_MASTER_COMERCIAL.CLIENT_ORIGIN,
+      type: AP_MASTER_TYPE.CLIENT_ORIGIN,
     };
   }
 

@@ -14,29 +14,29 @@ import {
 } from "@/core/core.function";
 import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
-import { COMMERCIAL_MASTERS } from "@/features/ap/comercial/maestros-generales/lib/commercialMasters.constants";
-import { useCommercialMasters } from "@/features/ap/comercial/maestros-generales/lib/commercialMasters.hook";
+import { useApMasters } from "@/features/ap/comercial/ap-master/lib/apMasters.hook";
 import {
-  deleteCommercialMasters,
-  updateCommercialMasters,
-} from "@/features/ap/comercial/maestros-generales/lib/commercialMasters.actions";
-import CommercialMastersActions from "@/features/ap/comercial/maestros-generales/components/CommercialMastersActions";
-import { commercialMastersColumns } from "@/features/ap/comercial/maestros-generales/components/CommercialMastersColumns";
-import CommercialMastersTable from "@/features/ap/comercial/maestros-generales/components/CommercialMastersTable";
-import CommercialMastersOptions from "@/features/ap/comercial/maestros-generales/components/CommercialMastersOptions";
-import CommercialMastersModal from "@/features/ap/comercial/maestros-generales/components/CommercialMastersModal";
+  deleteApMasters,
+  updateApMasters,
+} from "@/features/ap/comercial/ap-master/lib/apMasters.actions";
+import ApMastersActions from "@/features/ap/comercial/ap-master/components/ApMastersActions";
+import { commercialMastersColumns } from "@/features/ap/comercial/ap-master/components/ApMastersColumns";
+import ApMastersTable from "@/features/ap/comercial/ap-master/components/ApMastersTable";
+import ApMastersOptions from "@/features/ap/comercial/ap-master/components/ApMastersOptions";
+import ApMastersModal from "@/features/ap/comercial/ap-master/components/ApMastersModal";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { SortingState } from "@tanstack/react-table";
+import { AP_MASTERS } from "@/features/ap/comercial/ap-master/lib/apMaster.constants";
 
-export default function CommercialMastersPage() {
+export default function ApMastersPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [updateId, setUpdateId] = useState<number | null>(null);
-  const { MODEL, ROUTE } = COMMERCIAL_MASTERS;
+  const { MODEL, ROUTE } = AP_MASTERS;
   const permissions = useModulePermissions(ROUTE);
   const [sorting, setSorting] = useState<SortingState>([]);
 
@@ -44,7 +44,7 @@ export default function CommercialMastersPage() {
     setPage(1);
   }, [search, per_page, sorting]);
 
-  const { data, isLoading, refetch } = useCommercialMasters({
+  const { data, isLoading, refetch } = useApMasters({
     params: {
       page,
       search,
@@ -56,7 +56,7 @@ export default function CommercialMastersPage() {
 
   const handleToggleStatus = async (id: number, newStatus: boolean) => {
     try {
-      await updateCommercialMasters(id, { status: newStatus });
+      await updateApMasters(id, { status: newStatus });
       await refetch();
       successToast("Estado actualizado correctamente.");
     } catch {
@@ -67,7 +67,7 @@ export default function CommercialMastersPage() {
   const handleDelete = async () => {
     if (!deleteId) return;
     try {
-      await deleteCommercialMasters(deleteId);
+      await deleteApMasters(deleteId);
       await refetch();
       successToast(SUCCESS_MESSAGE(MODEL, "delete"));
     } catch (error: any) {
@@ -90,10 +90,10 @@ export default function CommercialMastersPage() {
           subtitle={"Gestión de maestros comerciales generales"}
           icon={currentView.icon}
         />
-        <CommercialMastersActions permissions={permissions} />
+        <ApMastersActions permissions={permissions} />
       </HeaderTableWrapper>
 
-      <CommercialMastersTable
+      <ApMastersTable
         isLoading={isLoading}
         columns={commercialMastersColumns({
           onToggleStatus: handleToggleStatus,
@@ -106,8 +106,8 @@ export default function CommercialMastersPage() {
         onSortingChange={setSorting}
         manualSorting={true}
       >
-        <CommercialMastersOptions search={search} setSearch={setSearch} />
-      </CommercialMastersTable>
+        <ApMastersOptions search={search} setSearch={setSearch} />
+      </ApMastersTable>
 
       {deleteId !== null && (
         <SimpleDeleteDialog
@@ -118,7 +118,7 @@ export default function CommercialMastersPage() {
       )}
 
       {updateId !== null && (
-        <CommercialMastersModal
+        <ApMastersModal
           id={updateId}
           open={true}
           onClose={() => setUpdateId(null)}

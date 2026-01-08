@@ -15,7 +15,7 @@ import {
 import { GeneralModal } from "@/shared/components/GeneralModal.tsx";
 import FormSkeleton from "@/shared/components/FormSkeleton.tsx";
 import { TypesPlanningForm } from "./TypesPlanningForm.tsx";
-import { AP_MASTER_POST_VENTA } from "@/features/ap/lib/ap.constants.ts";
+import { AP_MASTER_TYPE } from "@/features/ap/comercial/ap-master/lib/apMaster.constants.ts";
 import { TYPE_PLANNING } from "../lib/typesPlanning.constants.ts";
 
 interface Props {
@@ -50,7 +50,7 @@ export default function TypesPlanningModal({
     return {
       code: data.code,
       description: data.description,
-      type: AP_MASTER_POST_VENTA.TYPE_PLANNING,
+      type: AP_MASTER_TYPE.TYPE_PLANNING,
     };
   }
 

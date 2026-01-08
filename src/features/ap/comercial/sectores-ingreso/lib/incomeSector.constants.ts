@@ -1,6 +1,6 @@
 import { type ModelComplete } from "@/core/core.interface";
-import { COMMERCIAL_MASTERS_ENDPOINT } from "@/features/ap/lib/ap.constants";
 import { IncomeSectorResource } from "./incomeSector.interface";
+import { AP_MASTERS } from "../../ap-master/lib/apMaster.constants";
 
 const ROUTE = "categorias";
 const ABSOLUTE_ROUTE = `/ap/comercial/sectores-ingreso/${ROUTE}`;
@@ -12,7 +12,7 @@ export const INCOME_SECTOR: ModelComplete<IncomeSectorResource> = {
     gender: true,
   },
   ICON: "ContactRound",
-  ENDPOINT: COMMERCIAL_MASTERS_ENDPOINT,
+  ENDPOINT: AP_MASTERS.ENDPOINT,
   QUERY_KEY: "commercialMasters",
   ROUTE,
   ABSOLUTE_ROUTE,

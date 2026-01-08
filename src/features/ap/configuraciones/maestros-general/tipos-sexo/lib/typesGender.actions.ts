@@ -8,7 +8,7 @@ import {
   TypeGenderResource,
   TypeGenderResponse,
 } from "./typesGender.interface";
-import { AP_MASTER_COMERCIAL } from "../../../../lib/ap.constants";
+import { AP_MASTER_TYPE } from "../../../../comercial/ap-master/lib/apMaster.constants";
 
 const { ENDPOINT } = TYPE_GENDER;
 
@@ -18,7 +18,7 @@ export async function getTypeGender({
   const config: AxiosRequestConfig = {
     params: {
       ...params,
-      type: AP_MASTER_COMERCIAL.TYPE_GENDER,
+      type: AP_MASTER_TYPE.TYPE_GENDER,
     },
   };
   const { data } = await api.get<TypeGenderResponse>(ENDPOINT, config);
@@ -32,7 +32,7 @@ export async function getAllTypeGender({
     params: {
       all: true, // Assuming you want to fetch all periods
       ...params,
-      type: AP_MASTER_COMERCIAL.TYPE_GENDER,
+      type: AP_MASTER_TYPE.TYPE_GENDER,
       status: STATUS_ACTIVE,
     },
   };

@@ -16,7 +16,7 @@ import {
 } from "@/core/core.function";
 import { CategoryChecklistForm } from "./CategoryChecklistForm";
 import { CATEGORY_CHECKLIST } from "../lib/categoryChecklist.constants";
-import { AP_MASTER_COMERCIAL } from "@/features/ap/lib/ap.constants";
+import { AP_MASTER_TYPE } from "@/features/ap/comercial/ap-master/lib/apMaster.constants";
 
 interface Props {
   id?: number;
@@ -48,7 +48,7 @@ export default function CategoryChecklistModal({
   ): Partial<CategoryChecklistSchema> {
     return {
       description: data.description,
-      type: AP_MASTER_COMERCIAL.CATEGORIA_CHECKLIST,
+      type: AP_MASTER_TYPE.CATEGORIA_CHECKLIST,
     };
   }
 

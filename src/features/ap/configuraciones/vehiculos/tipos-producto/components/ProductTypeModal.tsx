@@ -16,7 +16,7 @@ import { GeneralModal } from "@/shared/components/GeneralModal";
 import { ProductTypeForm } from "./ProductTypeForm";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { PRODUCT_TYPE } from "../lib/productType.constants";
-import { AP_MASTER_COMERCIAL } from "@/features/ap/lib/ap.constants";
+import { AP_MASTER_TYPE } from "@/features/ap/comercial/ap-master/lib/apMaster.constants";
 
 interface Props {
   id?: number;
@@ -49,7 +49,7 @@ export default function ProductTypeModal({
     return {
       code: data.code,
       description: data.description,
-      type: AP_MASTER_COMERCIAL.PRODUCT_TYPE,
+      type: AP_MASTER_TYPE.PRODUCT_TYPE,
     };
   }
 

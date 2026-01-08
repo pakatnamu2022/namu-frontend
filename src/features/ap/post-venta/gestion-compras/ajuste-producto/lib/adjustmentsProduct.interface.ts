@@ -1,11 +1,11 @@
-import { AP_MASTER_POST_VENTA } from "@/features/ap/lib/ap.constants";
+import { AP_MASTER_TYPE } from "@/features/ap/comercial/ap-master/lib/apMaster.constants";
 import { type Links, type Meta } from "@/shared/lib/pagination.interface.ts";
 import { ProductResource } from "../../../gestion-productos/productos/lib/product.interface";
 import { WarehouseResource } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.interface";
 
 export type MovementType =
-  | typeof AP_MASTER_POST_VENTA.TYPE_ADJUSTMENT_IN
-  | typeof AP_MASTER_POST_VENTA.TYPE_ADJUSTMENT_OUT;
+  | typeof AP_MASTER_TYPE.TYPE_ADJUSTMENT_IN
+  | typeof AP_MASTER_TYPE.TYPE_ADJUSTMENT_OUT;
 
 export interface AdjustmentsProductDetailResource {
   id: number;
