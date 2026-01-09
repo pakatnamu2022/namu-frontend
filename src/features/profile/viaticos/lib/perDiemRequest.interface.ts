@@ -141,8 +141,8 @@ export interface PerDiemRequestResource {
   id: number;
   code: string;
   status: PerDiemRequestStatus;
-  start_date: string | Date;
-  end_date: string | Date;
+  start_date: string;
+  end_date: string;
   days_count: number;
   purpose: string;
   final_result: string;
@@ -167,6 +167,7 @@ export interface PerDiemRequestResource {
   company: Company;
   district: District;
   category: Category;
+  sede_service: SedeService;
   policy: string;
   approvals?: Approval[];
   hotel_reservation?: HotelReservationResource;
@@ -175,6 +176,11 @@ export interface PerDiemRequestResource {
 }
 
 interface Company {
+  id: number;
+  name: string;
+}
+
+interface SedeService {
   id: number;
   name: string;
 }

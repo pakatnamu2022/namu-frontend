@@ -113,6 +113,7 @@ import GPGestionSistemaLayout from "./app/gp/gestion-del-sistema/layout";
 import GPGestionHumanaLayout from "./app/gp/gestion-humana/layout";
 import GPMaestroGeneralLayout from "./app/gp/maestro-general/layout";
 import GPTicsLayout from "./app/gp/tics/layout";
+import TPComercialLayout from "./app/tp/comercial-tp/layout";
 
 // ============================================================================
 // ROOT & PUBLIC PAGES
@@ -339,6 +340,8 @@ import AddGeneralElectronicDocumentPage from "./app/ap/comercial/electronic-docu
 import PerDiemRequestAPPage from "./app/ap/contabilidad/solicitud-viaticos/page.tsx";
 import PerDiemRequestDetailAdminAPPage from "./app/ap/contabilidad/solicitud-viaticos/[id]/page.tsx";
 import CommercialMastersPage from "./app/ap/configuraciones/maestros-general/maestros-generales/page.tsx";
+import ControlTravelPage from "./app/tp/comercial-tp/control-viajes/page.tsx";
+
 import GeneralMastersPage from "./app/gp/maestros-generales/page.tsx";
 import { PER_DIEM_REQUEST } from "./features/profile/viaticos/lib/perDiemRequest.constants.ts";
 
@@ -1689,6 +1692,23 @@ function App() {
                 <AddEquipmentPage />,
                 <UpdateEquipmentPage />
               )}
+            </Route>
+
+            {/* ======================================================== */}
+            {/* TP - COMERCIAL */}
+            {/* ======================================================== */}
+
+            <Route
+              path="/tp/comercial"
+              element={
+                <Suspense fallback={<LoadingFallback />}>
+                  <TPComercialLayout>
+                    <Outlet />
+                  </TPComercialLayout>
+                </Suspense>
+              }
+            >
+              <Route path="control-viajes" element={<ControlTravelPage />} />
             </Route>
 
             {/* ======================================================== */}

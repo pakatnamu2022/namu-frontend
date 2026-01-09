@@ -123,7 +123,7 @@ const GeneralSheet: React.FC<GeneralSheetProps> = ({
             </div>
             <DrawerClose onClick={onClose} />
           </DrawerHeader>
-          <div className="mt-4 h-full max-h-[calc(100vh-20rem)] overflow-auto">
+          <div className="mt-4 p-2 h-full max-h-[calc(100vh-20rem)] overflow-auto">
             {children}
           </div>
         </DrawerContent>

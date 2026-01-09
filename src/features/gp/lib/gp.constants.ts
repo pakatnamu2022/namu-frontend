@@ -1,5 +1,5 @@
 // CONSTANTES PARA MAESTROS GENERALES
-export const GENERAL_MASTERS_ENDPOINT = "/gp/generalMasters";
+export const GENERAL_MASTERS_ENDPOINT = "/gp/mg/generalMaster";
 
 export const GP_MASTER_GENERAL = {
   PER_DIEM_MIN_DAYS: "PER_DIEM_MIN_DAYS",

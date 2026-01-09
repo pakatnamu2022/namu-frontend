@@ -19,6 +19,7 @@ import EmptyState from "./EmptyState";
 import ExpandableTableRow from "./ExpandableTableRow";
 import EvaluationHeader from "./EvaluationHeader";
 import EvaluationFooter from "./EvaluationFooter";
+import FormSkeleton from "@/shared/components/FormSkeleton";
 
 interface Props {
   evaluationPersonResult?: EvaluationPersonResultResource;
@@ -42,7 +43,7 @@ export default function EvaluationPersonObjectiveTable({
   const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set());
 
   if (!evaluationPersonResult) {
-    return <TableSkeleton />;
+    return <FormSkeleton />;
   }
 
   // Early return si no hay datos
