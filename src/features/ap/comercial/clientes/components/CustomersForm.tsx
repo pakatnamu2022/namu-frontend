@@ -48,6 +48,7 @@ import { useAllEconomicActivity } from "@/features/ap/configuraciones/maestros-g
 import { DocumentValidationStatus } from "../../../../../shared/components/DocumentValidationStatus";
 import { ValidationIndicator } from "../../../../../shared/components/ValidationIndicator";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
+import { CompanyStatusBadges } from "@/shared/components/CompanyStatusBadges";
 import { useNavigate } from "react-router-dom";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { CUSTOMERS } from "../lib/customers.constants";
@@ -680,47 +681,11 @@ export const CustomersForm = ({
                   label={
                     <div className="flex items-center justify-between gap-2 w-full">
                       <span>Razón Social</span>
-                      {/* Indicadores de Estado y Condición */}
-                      {isJuridica &&
-                        (companyStatus !== "-" || companyCondition !== "-") && (
-                          <div className="right-0 top-0 flex gap-2">
-                            {/* Estado */}
-                            <div
-                              className={`px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${
-                                companyStatus === "ACTIVO"
-                                  ? "bg-green-100 text-green-800 border border-green-200"
-                                  : "bg-red-100 text-red-800 border border-red-200"
-                              }`}
-                            >
-                              <div
-                                className={`w-2 h-2 rounded-full ${
-                                  companyStatus === "ACTIVO"
-                                    ? "bg-green-500"
-                                    : "bg-red-500"
-                                }`}
-                              ></div>
-                              Estado: {companyStatus}
-                            </div>
-
-                            {/* Condición */}
-                            <div
-                              className={`px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${
-                                companyCondition === "HABIDO"
-                                  ? "bg-green-100 text-green-800 border border-green-200"
-                                  : "bg-yellow-100 text-yellow-800 border border-yellow-200"
-                              }`}
-                            >
-                              <div
-                                className={`w-2 h-2 rounded-full ${
-                                  companyCondition === "HABIDO"
-                                    ? "bg-green-500"
-                                    : "bg-yellow-500"
-                                }`}
-                              ></div>
-                              Condición: {companyCondition}
-                            </div>
-                          </div>
-                        )}
+                      <CompanyStatusBadges
+                        status={companyStatus}
+                        condition={companyCondition}
+                        show={isJuridica}
+                      />
                     </div>
                   }
                   placeholder="Ingrese razón social"
@@ -1191,6 +1156,11 @@ export const CustomersForm = ({
             />
           </GroupFormSection>
         )}
+
+        <pre>
+          <code>{JSON.stringify(form.getValues(), null, 2)}</code>
+        </pre>
+
         <div className="flex gap-4 w-full justify-end">
           <ConfirmationDialog
             trigger={
