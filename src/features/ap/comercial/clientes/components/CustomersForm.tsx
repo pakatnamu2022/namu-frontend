@@ -270,6 +270,19 @@ export const CustomersForm = ({
     true
   );
 
+  // Hook para buscar distrito por ubigeo cuando se valida RUC
+  const ubigeoFromRuc = rucData?.data?.ubigeo?.[2] || "";
+  const { data: districtByUbigeo, isLoading: isLoadingDistrictByUbigeo } =
+    useDistricts({
+      search: ubigeoFromRuc,
+      per_page: 1,
+    });
+
+  // Estado para la opción por defecto del distrito
+  const [districtDefaultOption, setDistrictDefaultOption] = useState<
+    { label: string; value: string } | undefined
+  >(undefined);
+
   // Datos consolidados
   const validationData = dniData || rucData;
   const validationError = dniError || rucError;
@@ -336,6 +349,8 @@ export const CustomersForm = ({
       form.setValue("first_name", "");
       form.setValue("paternal_surname", "");
       form.setValue("maternal_surname", "");
+      // Limpiar distrito cuando cambia tipo de persona
+      setDistrictDefaultOption(undefined);
     }
     if (typePersonWatch === BUSINESS_PARTNERS.TYPE_PERSON_JURIDICA_ID) {
       form.setValue("document_type_id", BUSINESS_PARTNERS.TYPE_DOCUMENT_RUC_ID);
@@ -422,6 +437,8 @@ export const CustomersForm = ({
         setCompanyCondition("-");
         form.setValue("company_status", "", { shouldValidate: true });
         form.setValue("company_condition", "", { shouldValidate: true });
+        // Limpiar distrito cuando hay error
+        setDistrictDefaultOption(undefined);
       } else {
         form.setValue("first_name", "", { shouldValidate: true });
         form.setValue("middle_name", "", { shouldValidate: true });
@@ -499,6 +516,26 @@ export const CustomersForm = ({
       form.setValue("restriction", "NO DEFINIDO");
     }
   }, [conductorDniData, form]);
+
+  // UseEffect específico para setear distrito automáticamente desde ubigeo del RUC:
+  useEffect(() => {
+    if (isFirstLoad || isLoadingDistrictByUbigeo) return;
+
+    if (districtByUbigeo?.data && districtByUbigeo.data.length > 0) {
+      const firstDistrict = districtByUbigeo.data[0];
+
+      // Setear el valor en el formulario
+      form.setValue("district_id", firstDistrict.id.toString(), {
+        shouldValidate: true,
+      });
+
+      // Setear la opción por defecto para el FormSelectAsync
+      setDistrictDefaultOption({
+        label: `${firstDistrict.name} - ${firstDistrict.province} - ${firstDistrict.ubigeo}`,
+        value: firstDistrict.id.toString(),
+      });
+    }
+  }, [districtByUbigeo, form, isFirstLoad, isLoadingDistrictByUbigeo]);
 
   // Agregar este useEffect después de los otros useEffect existentes
   useEffect(() => {
@@ -845,6 +882,7 @@ export const CustomersForm = ({
 
           <div className="col-span-1 md:col-span-2">
             <FormSelectAsync
+              key={districtDefaultOption?.value || "district-select"}
               name="district_id"
               label="Ubigeo"
               placeholder="Selecciona ubigeo"
@@ -856,7 +894,8 @@ export const CustomersForm = ({
               })}
               perPage={10}
               debounceMs={500}
-              disabled={shouldDisableMainFields && !isRucNatural && isJuridica}
+              disabled={!!districtDefaultOption}
+              defaultOption={districtDefaultOption}
             />
           </div>
 
@@ -1156,10 +1195,6 @@ export const CustomersForm = ({
             />
           </GroupFormSection>
         )}
-
-        <pre>
-          <code>{JSON.stringify(form.getValues(), null, 2)}</code>
-        </pre>
 
         <div className="flex gap-4 w-full justify-end">
           <ConfirmationDialog
