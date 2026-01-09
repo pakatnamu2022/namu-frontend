@@ -3,14 +3,27 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, Clock, Play, Fuel, Pencil, Eye, Truck, MapPin, User} from "lucide-react";
-import { TravelControlColumnsProps, TravelControlResource } from "../lib/travelControl.interface";
+import {
+  CheckCircle,
+  Clock,
+  Play,
+  Fuel,
+  Pencil,
+  Eye,
+  Truck,
+  MapPin,
+  User,
+} from "lucide-react";
+import {
+  TravelControlColumnsProps,
+  TravelControlResource,
+} from "../lib/travelControl.interface";
 import { TravelControlDetailModal } from "./TravelControlDetailModal";
 
 export type TravelControlColumns = ColumnDef<TravelControlResource>;
 
 export const TravelControlColumns = ({
-  onStatusChange
+  onStatusChange,
 }: TravelControlColumnsProps): TravelControlColumns[] => [
   {
     accessorKey: "tripNumber",
@@ -63,43 +76,43 @@ export const TravelControlColumns = ({
     header: "Estado",
     cell: ({ getValue }) => {
       const value = getValue() as TravelControlResource["status"];
-      
+
       if (value === "pending") {
         return (
-          <Badge variant="outline" className="capitalize gap-2">
-            <Clock className="size-4 text-amber-500" />
+          <Badge variant="amber" className="capitalize gap-2">
+            <Clock className="size-4" />
             Pendiente
           </Badge>
         );
       }
-      
+
       if (value === "in_progress") {
         return (
-          <Badge variant="outline" className="capitalize gap-2">
-            <Play className="size-4 text-green-500" />
+          <Badge variant="blue" className="capitalize gap-2">
+            <Play className="size-4" />
             En Ruta
           </Badge>
         );
       }
-      
+
       if (value === "completed") {
         return (
-          <Badge variant="outline" className="capitalize gap-2">
-            <CheckCircle className="size-4 text-blue-500" />
+          <Badge variant="green" className="capitalize gap-2">
+            <CheckCircle className="size-4" />
             Completado
           </Badge>
         );
       }
-      
+
       if (value === "fuel_pending") {
         return (
-          <Badge variant="outline" className="capitalize gap-2">
-            <Fuel className="size-4 text-orange-500" />
+          <Badge variant="orange" className="capitalize gap-2">
+            <Fuel className="size-4" />
             Combustible
           </Badge>
         );
       }
-      
+
       return <Badge variant="outline">Desconocido</Badge>;
     },
   },
@@ -175,12 +188,6 @@ export const TravelControlColumns = ({
             >
               <Pencil className="size-4" />
             </Button>
-          )}
-          {status === "completed" && (
-            <div className="flex items-center text-xs text-muted-foreground ml-2">
-              <CheckCircle className="size-4 mr-1 text-green-600" />
-              <span>Completado</span>
-            </div>
           )}
         </div>
       );

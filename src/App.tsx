@@ -8,7 +8,7 @@ import {
 import { useAuthStore } from "./features/auth/lib/auth.store";
 import DashboardSkeleton from "./shared/components/DashboardSkeleton";
 import { AuthInitializer } from "./shared/components/AuthInitializer";
-import { FC, JSX, Suspense} from "react";
+import { FC, JSX, Suspense } from "react";
 import ModulePerformanceEvaluationPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/page";
 import HierarchicalCategoryPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/categorias-jerarquicas/page";
 import AddHierarchicalCategoryPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/categorias-jerarquicas/agregar/page";
@@ -1617,7 +1617,10 @@ function App() {
               {/* Dashboard Principal */}
               <Route index element={<ModulePage />} />
 
-              <Route path="maestros-generales" element={<GeneralMastersPage />} />
+              <Route
+                path="maestros-generales"
+                element={<GeneralMastersPage />}
+              />
               <Route path="sede" element={<SedePage />} />
               <Route path="sede/agregar" element={<AddSedePage />} />
               <Route path="sede/actualizar/:id" element={<UpdateSedePage />} />
@@ -1646,23 +1649,21 @@ function App() {
               )}
             </Route>
 
-             {/* ======================================================== */}
+            {/* ======================================================== */}
             {/* TP - COMERCIAL */}
             {/* ======================================================== */}
-            
+
             <Route
-              path="/tp/comercial-tp"
+              path="/tp/comercial"
               element={
                 <Suspense fallback={<LoadingFallback />}>
                   <TPComercialLayout>
-                    <Outlet/>
+                    <Outlet />
                   </TPComercialLayout>
                 </Suspense>
-
               }
             >
               <Route path="control-viajes" element={<ControlTravelPage />} />
-
             </Route>
 
             {/* ======================================================== */}
