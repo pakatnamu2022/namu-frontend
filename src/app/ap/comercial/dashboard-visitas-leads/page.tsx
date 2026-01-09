@@ -1,26 +1,15 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { RefreshCcw, CalendarIcon } from "lucide-react";
-import { ButtonGroup } from "@/components/ui/button-group";
 import { format } from "date-fns";
-import { es } from "date-fns/locale";
 import { cn } from "@/lib/utils";
-import { useNavigate } from "react-router-dom";
-import { Calendar } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import DashboardOverviewCards from "@/features/ap/comercial/dashboard-visitas-leads/components/DashboardOverviewCards";
 import DashboardSedeTable from "@/features/ap/comercial/dashboard-visitas-leads/components/DashboardSedeTable";
 import DashboardChartsSection from "@/features/ap/comercial/dashboard-visitas-leads/components/DashboardChartsSection";
 import DashboardUserIndicators from "@/features/ap/comercial/dashboard-visitas-leads/components/DashboardUserIndicators";
 import DashboardCampaignChart from "@/features/ap/comercial/dashboard-visitas-leads/components/DashboardCampaignChart";
 import DashboardActions from "@/features/ap/comercial/dashboard-visitas-leads/components/DashboardActions";
+import DashboardFilters from "@/features/ap/comercial/dashboard-visitas-leads/components/DashboardFilters";
 import {
   getIndicatorsByDateTotalRange,
   getIndicatorsBySede,
@@ -169,105 +158,24 @@ export default function DashboardStoreVisitsPage() {
         subtitle="Indicadores y métricas de rendimiento"
         icon={currentView?.icon}
       >
-        <DashboardActions
-          dateFrom={dateFrom}
-          dateTo={dateTo}
-          dashboardType={dashboardType}
-        />
+        <div className="flex flex-col md:flex-row gap-4 items-end">
+          <DashboardActions
+            dateFrom={dateFrom}
+            dateTo={dateTo}
+            dashboardType={dashboardType}
+          />
+          <DashboardFilters
+            dashboardType={dashboardType}
+            dateFrom={dateFrom}
+            dateTo={dateTo}
+            onDashboardTypeChange={setDashboardType}
+            onDateChange={(from, to) => {
+              setDateFrom(from);
+              setDateTo(to);
+            }}
+          />
+        </div>
       </TitleComponent>
-
-      {/* Filters */}
-      <Card>
-        <CardContent className="pt-6">
-          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-end">
-            {/* Type ButtonGroup */}
-            <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium">Tipo de Dashboard</label>
-              <ButtonGroup>
-                <Button
-                  variant={dashboardType === "LEADS" ? "default" : "outline"}
-                  onClick={() => setDashboardType("LEADS")}
-                >
-                  Leads
-                </Button>
-                <Button
-                  variant={dashboardType === "VISITA" ? "default" : "outline"}
-                  onClick={() => setDashboardType("VISITA")}
-                >
-                  Visitas
-                </Button>
-              </ButtonGroup>
-            </div>
-
-            {/* Date Filters */}
-            <div className="flex flex-col sm:flex-row gap-4 flex-1">
-              {/* Fecha Desde */}
-              <div className="flex-1">
-                <label className="text-sm font-medium mb-2 block">
-                  Fecha Desde
-                </label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        "w-full justify-start text-left font-normal",
-                        !dateFrom && "text-muted-foreground"
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {dateFrom
-                        ? format(dateFrom, "PPP", { locale: es })
-                        : "Selecciona fecha"}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={dateFrom}
-                      onSelect={setDateFrom}
-                      disabled={(date) => (dateTo ? date > dateTo : false)}
-                      locale={es}
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
-
-              {/* Fecha Hasta */}
-              <div className="flex-1">
-                <label className="text-sm font-medium mb-2 block">
-                  Fecha Hasta
-                </label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        "w-full justify-start text-left font-normal",
-                        !dateTo && "text-muted-foreground"
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {dateTo
-                        ? format(dateTo, "PPP", { locale: es })
-                        : "Selecciona fecha"}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={dateTo}
-                      onSelect={setDateTo}
-                      disabled={(date) => (dateFrom ? date < dateFrom : false)}
-                      locale={es}
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
 
       {/* Dashboard Content */}
       {isLoading ? (
