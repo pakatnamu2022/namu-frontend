@@ -26,6 +26,7 @@ export const TravelControlColumns = ({
   onStatusChange,
 }: TravelControlColumnsProps): TravelControlColumns[] => [
   {
+    enableSorting: false,
     accessorKey: "tripNumber",
     header: "N° Viaje",
     cell: ({ getValue }) => (
@@ -36,6 +37,7 @@ export const TravelControlColumns = ({
     ),
   },
   {
+    enableSorting: false,
     accessorKey: "plate",
     header: "Placa",
     cell: ({ getValue }) => (
@@ -45,6 +47,7 @@ export const TravelControlColumns = ({
     ),
   },
   {
+    enableSorting: false,
     accessorKey: "driver.name",
     header: "Conductor",
     cell: ({ row }) => {
@@ -58,6 +61,7 @@ export const TravelControlColumns = ({
     },
   },
   {
+    enableSorting: false,
     accessorKey: "route",
     header: "Ruta",
     cell: ({ getValue }) => (
@@ -68,10 +72,12 @@ export const TravelControlColumns = ({
     ),
   },
   {
+    enableSorting: false,
     accessorKey: "client",
     header: "Cliente",
   },
   {
+    enableSorting: false,
     accessorKey: "status",
     header: "Estado",
     cell: ({ getValue }) => {
@@ -117,6 +123,7 @@ export const TravelControlColumns = ({
     },
   },
   {
+    enableSorting: false,
     accessorKey: "totalKm",
     header: "Km",
     cell: ({ getValue }) => {
@@ -129,6 +136,7 @@ export const TravelControlColumns = ({
     },
   },
   {
+    enableSorting: false,
     accessorKey: "totalHours",
     header: "Horas",
     cell: ({ getValue }) => {
@@ -141,6 +149,7 @@ export const TravelControlColumns = ({
     },
   },
   {
+    enableSorting: false,
     accessorKey: "tonnage",
     header: "Toneladas",
     cell: ({ getValue }) => {
@@ -154,6 +163,7 @@ export const TravelControlColumns = ({
   },
   {
     id: "actions",
+    enableSorting: false,
     header: "Acciones",
     cell: ({ row }) => {
       const trip = row.original;
