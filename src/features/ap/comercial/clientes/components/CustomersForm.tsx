@@ -11,6 +11,8 @@ import {
   Heart,
   Scale,
   Info,
+  Check,
+  X,
 } from "lucide-react";
 import {
   CustomersSchema,
@@ -50,6 +52,7 @@ import { useNavigate } from "react-router-dom";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { CUSTOMERS } from "../lib/customers.constants";
 import { FormInput } from "@/shared/components/FormInput";
+import { Badge } from "@/components/ui/badge";
 
 interface CustomersFormProps {
   defaultValues: Partial<CustomersSchema>;
@@ -581,18 +584,18 @@ export const CustomersForm = ({
           cols={{ sm: 2, md: 3 }}
           headerExtra={
             notificationMessage && (
-              <div
-                className={`px-2 py-1 rounded-md flex items-center gap-2 text-sm sm:text-base ${
+              <Badge
+                variant={
                   businessPartnerType === TYPE_BUSINESS_PARTNERS.PROVEEDOR
-                    ? "bg-blue-100 text-primary border border-blue-200"
-                    : "bg-red-100 text-secondary border border-red-200"
-                }`}
+                    ? "blue"
+                    : "red"
+                }
+                icon={Info}
               >
-                <Info className="size-4 shrink-0" />
                 <span className="text-xs font-medium">
                   {notificationMessage}
                 </span>
-              </div>
+              </Badge>
             )
           }
         >
@@ -654,13 +657,13 @@ export const CustomersForm = ({
                     <div className="animate-spin h-4 w-4 border-2 border-amber-500 border-t-transparent rounded-full" />
                   )}
                   {validationData?.success && validationData.data && (
-                    <div className="text-green-500">✓</div>
+                    <Check className="text-green-500" />
                   )}
                   {(validationError ||
                     (validationData &&
                       !validationData.data &&
                       validationData?.source !== "database")) && (
-                    <div className="text-red-500">✗</div>
+                    <X className="text-red-500" />
                   )}
                 </div>
               )
@@ -680,7 +683,7 @@ export const CustomersForm = ({
                       {/* Indicadores de Estado y Condición */}
                       {isJuridica &&
                         (companyStatus !== "-" || companyCondition !== "-") && (
-                          <div className="absolute right-0 top-0 flex gap-2">
+                          <div className="right-0 top-0 flex gap-2">
                             {/* Estado */}
                             <div
                               className={`px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${
@@ -989,7 +992,7 @@ export const CustomersForm = ({
               iconColor="text-purple-600"
               bgColor="bg-purple-50"
               cols={{ sm: 2, md: 3 }}
-              className="mt-8"
+              className="mt-8 md:col-span-3"
             >
               <FormInput
                 control={form.control}
@@ -1006,7 +1009,7 @@ export const CustomersForm = ({
                     />
                   </div>
                 }
-                type="number"
+                type="string"
                 placeholder="Número de documento"
                 maxLength={8}
                 addonEnd={

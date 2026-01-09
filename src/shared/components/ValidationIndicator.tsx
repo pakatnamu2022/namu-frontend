@@ -1,3 +1,5 @@
+import { Check, X } from "lucide-react";
+
 interface ValidationIndicatorProps {
   isValidating: boolean;
   isValid?: boolean;
@@ -18,8 +20,8 @@ export function ValidationIndicator({
       {isValidating && (
         <div className="animate-spin h-4 w-4 border-2 border-amber-500 border-t-transparent rounded-full" />
       )}
-      {isValid && <div className="text-green-500">✓</div>}
-      {hasError && <div className="text-red-500">✗</div>}
+      {isValid && <Check className="text-green-500" />}
+      {hasError && <X className="text-red-500" />}
     </div>
   );
 }
