@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { RefreshCcw, ArrowLeft, CalendarIcon } from "lucide-react";
+import { RefreshCcw, CalendarIcon } from "lucide-react";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
@@ -40,10 +40,12 @@ import {
   IndicatorsByCampaign,
 } from "@/features/ap/comercial/dashboard-visitas-leads/lib/dashboard.interface";
 import { errorToast, successToast } from "@/core/core.function";
+import TitleComponent from "@/shared/components/TitleComponent";
+import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
+import FormSkeleton from "@/shared/components/FormSkeleton";
 
 export default function DashboardStoreVisitsPage() {
-  const router = useNavigate();
-
+  const { isLoadingModule, currentView } = useCurrentModule();
   const [dateFrom, setDateFrom] = useState<Date | undefined>(undefined);
   const [dateTo, setDateTo] = useState<Date | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(false);
@@ -154,35 +156,25 @@ export default function DashboardStoreVisitsPage() {
     }
   }, [dateFrom, dateTo, dashboardType]);
 
+  if (isLoadingModule) return <FormSkeleton />;
+
   return (
     <div className="container mx-auto p-4 space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div className="flex items-center gap-3">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => router(-1)}
-            className="shrink-0"
-          >
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
-              Dashboard de{" "}
-              {dashboardType === "LEADS" ? "Leads" : "Visitas a Tienda"}
-            </h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              Indicadores y métricas de rendimiento
-            </p>
-          </div>
-        </div>
+
+      <TitleComponent
+        title={`Dashboard de ${
+          dashboardType === "LEADS" ? "Leads" : "Visitas a Tienda"
+        }`}
+        subtitle="Indicadores y métricas de rendimiento"
+        icon={currentView?.icon}
+      >
         <DashboardActions
           dateFrom={dateFrom}
           dateTo={dateTo}
           dashboardType={dashboardType}
         />
-      </div>
+      </TitleComponent>
 
       {/* Filters */}
       <Card>
@@ -279,9 +271,7 @@ export default function DashboardStoreVisitsPage() {
 
       {/* Dashboard Content */}
       {isLoading ? (
-        <div className="flex items-center justify-center py-12">
-          <RefreshCcw className="h-8 w-8 animate-spin text-muted-foreground" />
-        </div>
+        <FormSkeleton />
       ) : (
         <div className="space-y-6">
           {/* Overview Cards */}

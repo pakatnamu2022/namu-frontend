@@ -23,7 +23,7 @@ export default function TitleComponent({
     : null;
 
   return (
-    <div className="flex flex-row gap-4 items-center md:items-center w-full md:w-fit">
+    <div className="flex flex-row gap-4 items-center md:items-center md:justify-between w-full">
       <div className={`flex items-center gap-4 ${className}`}>
         {IconComponent && (
           <div className="text-white bg-primary rounded-md p-2">
