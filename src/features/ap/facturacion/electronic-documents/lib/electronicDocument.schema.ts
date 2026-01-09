@@ -58,7 +58,8 @@ export const ElectronicDocumentSchema = z
     }),
     origin_entity_type: z.string().optional(),
     origin_entity_id: optionalStringId("Entidad de origen inválida"),
-    purchase_request_quote_id: z.string().optional(), // ID de cotización vinculada
+    purchase_request_quote_id: z.string().optional(), // ID de cotización vinculada (módulo comercial)
+    order_quotation_id: optionalStringId("ID de cotización de orden inválido"), // ID de cotización de orden (módulo post-venta)
     is_advance_payment: z.boolean().default(false), // Es un pago de anticipo
     ap_vehicle_id: optionalStringId("Vehículo es inválido"), // ID del vehículo vinculado desde la cotización
 

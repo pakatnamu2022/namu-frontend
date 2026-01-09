@@ -1,5 +1,8 @@
 import { VehicleResource } from "@/features/ap/comercial/vehiculos/lib/vehicles.interface";
 import { type Links, type Meta } from "@/shared/lib/pagination.interface.ts";
+import { OrderQuotationDetailsResource } from "../../cotizacion-detalle/lib/proformaDetails.interface";
+import { CurrencyTypesResource } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.interface";
+import { ElectronicDocumentResource } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.interface";
 
 export interface OrderQuotationResponse {
   data: OrderQuotationResource[];
@@ -19,26 +22,19 @@ export interface OrderQuotationResource {
   total_amount: number;
   validity_days: number | null;
   quotation_date: string;
-  expiration_date: string | null;
+  expiration_date: string;
   observations: string | null;
-  details: OrderQuotationDetail[];
+  details: OrderQuotationDetailsResource[];
+  advances: ElectronicDocumentResource[];
+  currency_id: number;
+  currency: CurrencyTypesResource;
   created_at: string;
   updated_at: string;
-}
-
-export interface OrderQuotationDetail {
-  id: number;
-  order_quotation_id: number;
-  item_type: string; // PRODUCT | LABOR
-  product_id: number;
-  product_name: string;
-  description: string;
-  quantity: number;
-  unit_measure: string;
-  unit_price: number;
-  discount: number;
-  total_amount: number;
-  observations?: string;
+  area_id: number | null;
+  sede_id: number | null;
+  has_invoice_generated: boolean;
+  is_fully_paid: boolean;
+  output_generation_warehouse: boolean;
 }
 
 export interface OrderQuotationRequest {

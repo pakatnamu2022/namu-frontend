@@ -15,9 +15,14 @@ interface Props {
   shop: string;
 }
 
-export default function MetaIndicators(props: Props) {
-  const { metaSellIn, metaSellOut, currentTotal, sedeName, brandName, shop } =
-    props;
+export default function MetaIndicators({
+  metaSellIn,
+  metaSellOut,
+  currentTotal,
+  sedeName,
+  brandName,
+  shop,
+}: Props) {
   const progressPercentage =
     metaSellOut > 0 ? (currentTotal / metaSellOut) * 100 : 0;
   const isComplete = currentTotal >= metaSellOut;

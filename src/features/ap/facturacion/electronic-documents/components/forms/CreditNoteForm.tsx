@@ -79,28 +79,55 @@ export function CreditNoteForm({
         creditNote?.enviar_automaticamente_a_la_sunat || false,
       enviar_automaticamente_al_cliente:
         creditNote?.enviar_automaticamente_al_cliente || false,
-      items:
-        (creditNote?.items || originalDocument.items)?.map((item) => ({
-          ap_billing_electronic_document_id:
-            item.ap_billing_electronic_document_id?.toString() || "",
-          reference_document_id: item.reference_document_id?.toString() || "",
-          unidad_de_medida: item.unidad_de_medida,
-          codigo: item.codigo,
-          codigo_producto_sunat: item.codigo_producto_sunat,
-          descripcion: item.descripcion,
-          cantidad: item.cantidad,
-          valor_unitario: Math.abs(item.valor_unitario),
-          precio_unitario: Math.abs(item.precio_unitario),
-          descuento: item.descuento ? Math.abs(item.descuento) : item.descuento,
-          subtotal: Math.abs(item.subtotal),
-          sunat_concept_igv_type_id: item.sunat_concept_igv_type_id,
-          igv: Math.abs(item.igv),
-          total: Math.abs(item.total),
-          account_plan_id: item.account_plan_id,
-          anticipo_regularizacion: item.anticipo_regularizacion,
-          anticipo_documento_serie: item.anticipo_documento_serie,
-          anticipo_documento_numero: item.anticipo_documento_numero,
-        })) || [],
+      items: (() => {
+        // For both new and existing credit notes, only create one item
+        // Take the first NON-ADVANCE item from the original document and use the invoice's total amount
+        const sourceItems = originalDocument.items || [];
+
+        // Sort items to put non-advance items first, then get the first one
+        const sortedItems = [...sourceItems].sort((a, b) => {
+          return a.anticipo_regularizacion === b.anticipo_regularizacion
+            ? 0
+            : a.anticipo_regularizacion
+            ? 1
+            : -1;
+        });
+
+        // Get the first item (which should be a non-advance item after sorting)
+        const firstItem = sortedItems[0];
+
+        if (!firstItem) return [];
+
+        // Use the original document's totals (the actual invoice total)
+        const originalTotal = Math.abs(originalDocument.total);
+        const originalSubtotal = Math.abs(originalDocument.total_gravada || 0);
+        const originalIgv = Math.abs(originalDocument.total_igv || 0);
+
+        return [
+          {
+            ap_billing_electronic_document_id:
+              firstItem.ap_billing_electronic_document_id?.toString() || "",
+            reference_document_id:
+              firstItem.reference_document_id?.toString() || "",
+            unidad_de_medida: firstItem.unidad_de_medida,
+            codigo: firstItem.codigo,
+            codigo_producto_sunat: firstItem.codigo_producto_sunat,
+            descripcion: firstItem.descripcion,
+            cantidad: 1,
+            valor_unitario: originalSubtotal,
+            precio_unitario: originalTotal,
+            descuento: 0,
+            subtotal: originalSubtotal,
+            sunat_concept_igv_type_id: firstItem.sunat_concept_igv_type_id,
+            igv: originalIgv,
+            total: originalTotal,
+            account_plan_id: firstItem.account_plan_id,
+            anticipo_regularizacion: false,
+            anticipo_documento_serie: undefined,
+            anticipo_documento_numero: undefined,
+          },
+        ];
+      })(),
     },
     mode: "onChange",
   });
@@ -110,13 +137,16 @@ export function CreditNoteForm({
   }, [creditNote, form]);
 
   const items =
-    form.watch("items").sort((a, b) => {
-      return a.anticipo_regularizacion === b.anticipo_regularizacion
-        ? 0
-        : a.anticipo_regularizacion
-        ? 1
-        : -1;
-    }) || [];
+    form
+      .watch("items")
+      .sort((a, b) => {
+        return a.anticipo_regularizacion === b.anticipo_regularizacion
+          ? 0
+          : a.anticipo_regularizacion
+          ? 1
+          : -1;
+      })
+      .slice(0, 1) || []; // ONLY TAKE THE FIRST ITEM
   const observaciones = form.watch("observaciones") || "";
   const selectedSeries = form.watch("series");
 
@@ -166,13 +196,6 @@ export function CreditNoteForm({
   const totalSubtotal = items.reduce((sum, item) => sum + item.subtotal, 0);
   const totalIgv = items.reduce((sum, item) => sum + item.igv, 0);
   const totalAmount = items.reduce((sum, item) => sum + item.total, 0);
-  const orderedItems = originalDocument.items?.sort((a, b) => {
-    return a.anticipo_regularizacion === b.anticipo_regularizacion
-      ? 0
-      : a.anticipo_regularizacion
-      ? 1
-      : -1;
-  });
 
   return (
     <Form {...form}>
@@ -272,7 +295,6 @@ export function CreditNoteForm({
                 placeholder="Seleccione fecha"
                 description="Seleccione la fecha de emisión de la nota de crédito"
                 disabledRange={{
-                  before: new Date(),
                   after: new Date(),
                 }}
               />
@@ -346,7 +368,7 @@ export function CreditNoteForm({
             >
               <CreditNoteItemsTable
                 originalDocument={originalDocument}
-                items={orderedItems || []}
+                items={items as any}
               />
               {form.formState.errors.items && (
                 <p className="text-sm text-destructive mt-2">
@@ -517,9 +539,6 @@ export function CreditNoteForm({
             </Card>
           </div>
         </div>
-        <pre>
-          <code>{JSON.stringify(form.getValues(), null, 2)}</code>
-        </pre>
       </form>
     </Form>
   );

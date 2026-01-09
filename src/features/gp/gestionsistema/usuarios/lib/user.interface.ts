@@ -16,8 +16,14 @@ export interface UserResource {
   position: string;
   empresa: string;
   sede: string;
+  sede_id: number;
+  shop_id: number;
   fecha_ingreso: string;
-  role?: string;
+  role: string;
+  role_id: number;
+  subordinates: number;
+  sedes: SedeResource[];
+  verified_at?: string;
 }
 
 export interface UserCompleteResource {

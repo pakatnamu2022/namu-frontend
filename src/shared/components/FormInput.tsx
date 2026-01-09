@@ -112,7 +112,7 @@ export function FormInput({
               value={value ?? ""}
             />
             {addonEnd && (
-              <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center justify-center text-muted-foreground pointer-events-none z-10">
+              <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center justify-center text-muted-foreground z-10">
                 {addonEnd}
               </div>
             )}
@@ -170,13 +170,13 @@ export function FormInput({
               )}
             </FormLabel>
             <div className="flex flex-col gap-2 items-center">
-              <FormControl>
-                <div className="relative w-full">
-                  {addonStart && (
-                    <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center justify-center text-muted-foreground pointer-events-none z-10">
-                      {addonStart}
-                    </div>
-                  )}
+              <div className="relative w-full">
+                {addonStart && (
+                  <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center justify-center text-muted-foreground pointer-events-none z-10">
+                    {addonStart}
+                  </div>
+                )}
+                <FormControl>
                   <Input
                     className={cn(
                       "h-8 md:h-10 text-xs md:text-sm",
@@ -189,13 +189,13 @@ export function FormInput({
                     onChange={handleChange}
                     value={field.value ?? ""}
                   />
-                  {addonEnd && (
-                    <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center justify-center text-muted-foreground pointer-events-none z-10">
-                      {addonEnd}
-                    </div>
-                  )}
-                </div>
-              </FormControl>
+                </FormControl>
+                {addonEnd && (
+                  <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center justify-center text-muted-foreground z-10">
+                    {addonEnd}
+                  </div>
+                )}
+              </div>
               {children}
             </div>
 

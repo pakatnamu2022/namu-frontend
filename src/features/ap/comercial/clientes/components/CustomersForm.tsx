@@ -596,314 +596,228 @@ export const CustomersForm = ({
             )
           }
         >
-              {/* Fila 1: Datos básicos */}
+          {/* Fila 1: Datos básicos */}
+          <FormSelect
+            name="type_person_id"
+            label="Tipo de Persona"
+            placeholder="Selecciona tipo"
+            options={typesPerson.map((item) => ({
+              label: item.description,
+              value: item.id.toString(),
+            }))}
+            control={form.control}
+            strictFilter={true}
+          />
+
+          <FormSelect
+            name="document_type_id"
+            label="Tipo Documento"
+            placeholder="Selecciona tipo"
+            options={filteredDocumentTypes.map((item) => ({
+              label: item.description,
+              value: item.id.toString(),
+            }))}
+            control={form.control}
+            strictFilter={true}
+          />
+
+          <FormInput
+            control={form.control}
+            label={
+              <div className="flex items-center justify-between gap-2 w-full">
+                Núm. Documento
+                <DocumentValidationStatus
+                  shouldValidate={shouldValidate}
+                  documentNumber={documentNumber!}
+                  expectedDigits={expectedDigits}
+                  isValidating={isValidatingDocument}
+                />
+              </div>
+            }
+            name="num_doc"
+            type="text"
+            inputMode="numeric"
+            placeholder={
+              selectedDocumentType
+                ? `Ingrese ${expectedDigits} dígitos`
+                : "Ingrese número"
+            }
+            maxLength={expectedDigits || undefined}
+            onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
+              e.target.value = e.target.value.replace(/\D/g, "");
+            }}
+            addonEnd={
+              shouldValidate &&
+              documentNumber && (
+                <div>
+                  {isValidatingDocument && (
+                    <div className="animate-spin h-4 w-4 border-2 border-amber-500 border-t-transparent rounded-full" />
+                  )}
+                  {validationData?.success && validationData.data && (
+                    <div className="text-green-500">✓</div>
+                  )}
+                  {(validationError ||
+                    (validationData &&
+                      !validationData.data &&
+                      validationData?.source !== "database")) && (
+                    <div className="text-red-500">✗</div>
+                  )}
+                </div>
+              )
+            }
+          />
+
+          {/* Campos para Persona Jurídica */}
+          {isJuridica && (
+            <>
+              <div className="col-span-full">
+                <FormInput
+                  control={form.control}
+                  name="full_name"
+                  label={
+                    <div className="flex items-center justify-between gap-2 w-full">
+                      <span>Razón Social</span>
+                      {/* Indicadores de Estado y Condición */}
+                      {isJuridica &&
+                        (companyStatus !== "-" || companyCondition !== "-") && (
+                          <div className="absolute right-0 top-0 flex gap-2">
+                            {/* Estado */}
+                            <div
+                              className={`px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${
+                                companyStatus === "ACTIVO"
+                                  ? "bg-green-100 text-green-800 border border-green-200"
+                                  : "bg-red-100 text-red-800 border border-red-200"
+                              }`}
+                            >
+                              <div
+                                className={`w-2 h-2 rounded-full ${
+                                  companyStatus === "ACTIVO"
+                                    ? "bg-green-500"
+                                    : "bg-red-500"
+                                }`}
+                              ></div>
+                              Estado: {companyStatus}
+                            </div>
+
+                            {/* Condición */}
+                            <div
+                              className={`px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${
+                                companyCondition === "HABIDO"
+                                  ? "bg-green-100 text-green-800 border border-green-200"
+                                  : "bg-yellow-100 text-yellow-800 border border-yellow-200"
+                              }`}
+                            >
+                              <div
+                                className={`w-2 h-2 rounded-full ${
+                                  companyCondition === "HABIDO"
+                                    ? "bg-green-500"
+                                    : "bg-yellow-500"
+                                }`}
+                              ></div>
+                              Condición: {companyCondition}
+                            </div>
+                          </div>
+                        )}
+                    </div>
+                  }
+                  placeholder="Ingrese razón social"
+                  disabled={shouldDisableMainFields}
+                />
+              </div>
+
+              {/* Campos ocultos para enviar los datos */}
+              <input type="hidden" {...form.register("company_status")} />
+              <input type="hidden" {...form.register("company_condition")} />
+
               <FormSelect
-                name="type_person_id"
-                label="Tipo de Persona"
-                placeholder="Selecciona tipo"
-                options={typesPerson.map((item) => ({
+                name="origin_id"
+                label="Origen"
+                placeholder="Selecciona origen"
+                options={clientOrigins.map((item) => ({
                   label: item.description,
                   value: item.id.toString(),
                 }))}
                 control={form.control}
                 strictFilter={true}
               />
+            </>
+          )}
 
-              <FormSelect
-                name="document_type_id"
-                label="Tipo Documento"
-                placeholder="Selecciona tipo"
-                options={filteredDocumentTypes.map((item) => ({
-                  label: item.description,
-                  value: item.id.toString(),
-                }))}
+          {/* Campos para Persona Natural */}
+          {!isJuridica && (
+            <>
+              <FormInput
                 control={form.control}
-                strictFilter={true}
+                name="first_name"
+                label="Primer Nombre"
+                placeholder="Ingrese primer nombres"
+                disabled={shouldDisableMainFields}
               />
 
               <FormInput
                 control={form.control}
-                label={
-                  <div className="flex items-center justify-between gap-2 w-full">
-                    Núm. Documento
-                    <DocumentValidationStatus
-                      shouldValidate={shouldValidate}
-                      documentNumber={documentNumber!}
-                      expectedDigits={expectedDigits}
-                      isValidating={isValidatingDocument}
-                    />
-                  </div>
-                }
-                name="num_doc"
-                type="text"
-                inputMode="numeric"
-                placeholder={
-                  selectedDocumentType
-                    ? `Ingrese ${expectedDigits} dígitos`
-                    : "Ingrese número"
-                }
-                maxLength={expectedDigits || undefined}
-                onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
-                  e.target.value = e.target.value.replace(/\D/g, "");
-                }}
-                addonEnd={
-                  shouldValidate &&
-                  documentNumber && (
-                    <div>
-                      {isValidatingDocument && (
-                        <div className="animate-spin h-4 w-4 border-2 border-amber-500 border-t-transparent rounded-full" />
-                      )}
-                      {validationData?.success && validationData.data && (
-                        <div className="text-green-500">✓</div>
-                      )}
-                      {(validationError ||
-                        (validationData &&
-                          !validationData.data &&
-                          validationData?.source !== "database")) && (
-                        <div className="text-red-500">✗</div>
-                      )}
-                    </div>
-                  )
-                }
+                name="middle_name"
+                label="Segundo Nombre"
+                placeholder="Ingrese segundo nombres"
+                disabled={shouldDisableMainFields}
               />
 
-              {/* Campos para Persona Jurídica */}
-              {isJuridica && (
-                <>
-                  <div className="col-span-full">
-                    <FormInput
-                      control={form.control}
-                      name="full_name"
-                      label={
-                        <div className="relative">
-                          <span>Razón Social</span>
-                          {/* Indicadores de Estado y Condición */}
-                          {isJuridica &&
-                            (companyStatus !== "-" ||
-                              companyCondition !== "-") && (
-                              <div className="absolute right-0 top-0 flex gap-2">
-                                {/* Estado */}
-                                <div
-                                  className={`px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${
-                                    companyStatus === "ACTIVO"
-                                      ? "bg-green-100 text-green-800 border border-green-200"
-                                      : "bg-red-100 text-red-800 border border-red-200"
-                                  }`}
-                                >
-                                  <div
-                                    className={`w-2 h-2 rounded-full ${
-                                      companyStatus === "ACTIVO"
-                                        ? "bg-green-500"
-                                        : "bg-red-500"
-                                    }`}
-                                  ></div>
-                                  Estado: {companyStatus}
-                                </div>
-
-                                {/* Condición */}
-                                <div
-                                  className={`px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${
-                                    companyCondition === "HABIDO"
-                                      ? "bg-green-100 text-green-800 border border-green-200"
-                                      : "bg-yellow-100 text-yellow-800 border border-yellow-200"
-                                  }`}
-                                >
-                                  <div
-                                    className={`w-2 h-2 rounded-full ${
-                                      companyCondition === "HABIDO"
-                                        ? "bg-green-500"
-                                        : "bg-yellow-500"
-                                    }`}
-                                  ></div>
-                                  Condición: {companyCondition}
-                                </div>
-                              </div>
-                            )}
-                        </div>
-                      }
-                      placeholder="Ingrese razón social"
-                      disabled={shouldDisableMainFields}
-                    />
-                  </div>
-
-                  {/* Campos ocultos para enviar los datos */}
-                  <input type="hidden" {...form.register("company_status")} />
-                  <input
-                    type="hidden"
-                    {...form.register("company_condition")}
-                  />
-
-                  <FormSelect
-                    name="origin_id"
-                    label="Origen"
-                    placeholder="Selecciona origen"
-                    options={clientOrigins.map((item) => ({
-                      label: item.description,
-                      value: item.id.toString(),
-                    }))}
-                    control={form.control}
-                    strictFilter={true}
-                  />
-                </>
-              )}
-
-              {/* Campos para Persona Natural */}
-              {!isJuridica && (
-                <>
-                  <FormInput
-                    control={form.control}
-                    name="first_name"
-                    label="Primer Nombre"
-                    placeholder="Ingrese primer nombres"
-                    disabled={shouldDisableMainFields}
-                  />
-
-                  <FormInput
-                    control={form.control}
-                    name="middle_name"
-                    label="Segundo Nombre"
-                    placeholder="Ingrese segundo nombres"
-                    disabled={shouldDisableMainFields}
-                  />
-
-                  <FormInput
-                    control={form.control}
-                    name="paternal_surname"
-                    label="Apellido Paterno"
-                    placeholder="Apellido paterno"
-                    disabled={shouldDisableMainFields}
-                  />
-
-                  <FormInput
-                    control={form.control}
-                    name="maternal_surname"
-                    label="Apellido Materno"
-                    placeholder="Apellido materno"
-                    disabled={shouldDisableMainFields}
-                  />
-
-                  <div className="col-span-1 md:col-span-2">
-                    <FormInput
-                      control={form.control}
-                      name="full_name"
-                      label="Razón Social"
-                      placeholder="Ingrese razón social"
-                      disabled={true}
-                    />
-                  </div>
-
-                  {!fromOpportunities && (
-                    <DatePickerFormField
-                      control={form.control}
-                      name="birth_date"
-                      label="Fecha de Nacimiento"
-                      placeholder="Selecciona fecha"
-                      captionLayout="dropdown"
-                      endMonth={
-                        new Date(
-                          new Date().getFullYear() - LEGAL_AGE,
-                          new Date().getMonth(),
-                          new Date().getDate()
-                        )
-                      }
-                      disabledRange={{
-                        before: new Date(1900, 0, 1),
-                        after: new Date(
-                          new Date().getFullYear() - LEGAL_AGE,
-                          new Date().getMonth(),
-                          new Date().getDate()
-                        ),
-                      }}
-                    />
-                  )}
-
-                  <FormSelect
-                    name="gender_id"
-                    label="Sexo"
-                    placeholder="Selecciona sexo"
-                    options={typeGenders.map((item) => ({
-                      label: item.description,
-                      value: item.id.toString(),
-                    }))}
-                    control={form.control}
-                    strictFilter={true}
-                  />
-
-                  <FormSelect
-                    name="marital_status_id"
-                    label="Estado Civil"
-                    placeholder="Selecciona estado"
-                    options={typeMaritalStatus.map((item) => ({
-                      label: item.description,
-                      value: item.id.toString(),
-                    }))}
-                    control={form.control}
-                    strictFilter={true}
-                  />
-                </>
-              )}
-
-              <FormSelect
-                name="person_segment_id"
-                label="Segmento"
-                placeholder="Selecciona segmento"
-                options={personSegment.map((item) => ({
-                  label: item.description,
-                  value: item.id.toString(),
-                }))}
+              <FormInput
                 control={form.control}
-                strictFilter={true}
+                name="paternal_surname"
+                label="Apellido Paterno"
+                placeholder="Apellido paterno"
+                disabled={shouldDisableMainFields}
               />
 
-              {!isJuridica && (
-                <>
-                  <FormSelect
-                    name="origin_id"
-                    label="Origen"
-                    placeholder="Selecciona origen"
-                    options={clientOrigins.map((item) => ({
-                      label: item.description,
-                      value: item.id.toString(),
-                    }))}
-                    control={form.control}
-                  />
-                </>
-              )}
-
-              <FormSelect
-                name="nationality"
-                label="Nacionalidad"
-                placeholder="Selecciona nacionalidad"
-                options={nationalityOptions}
+              <FormInput
                 control={form.control}
-                strictFilter={true}
+                name="maternal_surname"
+                label="Apellido Materno"
+                placeholder="Apellido materno"
+                disabled={shouldDisableMainFields}
               />
 
               <div className="col-span-1 md:col-span-2">
-                <FormSelectAsync
-                  name="district_id"
-                  label="Ubigeo"
-                  placeholder="Selecciona ubigeo"
+                <FormInput
                   control={form.control}
-                  useQueryHook={useDistricts}
-                  mapOptionFn={(item) => ({
-                    label:
-                      item.name + " - " + item.province + " - " + item.ubigeo,
-                    value: item.id.toString(),
-                  })}
-                  perPage={10}
-                  debounceMs={500}
-                  disabled={
-                    shouldDisableMainFields && !isRucNatural && isJuridica
-                  }
+                  name="full_name"
+                  label="Razón Social"
+                  placeholder="Ingrese razón social"
+                  disabled={true}
                 />
               </div>
 
+              {!fromOpportunities && (
+                <DatePickerFormField
+                  control={form.control}
+                  name="birth_date"
+                  label="Fecha de Nacimiento"
+                  placeholder="Selecciona fecha"
+                  captionLayout="dropdown"
+                  endMonth={
+                    new Date(
+                      new Date().getFullYear() - LEGAL_AGE,
+                      new Date().getMonth(),
+                      new Date().getDate()
+                    )
+                  }
+                  disabledRange={{
+                    before: new Date(1900, 0, 1),
+                    after: new Date(
+                      new Date().getFullYear() - LEGAL_AGE,
+                      new Date().getMonth(),
+                      new Date().getDate()
+                    ),
+                  }}
+                />
+              )}
+
               <FormSelect
-                name="tax_class_type_id"
-                label="Clase de Impuesto"
-                placeholder="Selecciona clase"
-                options={taxClassType.map((item) => ({
+                name="gender_id"
+                label="Sexo"
+                placeholder="Selecciona sexo"
+                options={typeGenders.map((item) => ({
                   label: item.description,
                   value: item.id.toString(),
                 }))}
@@ -911,33 +825,108 @@ export const CustomersForm = ({
                 strictFilter={true}
               />
 
-              <div className="col-span-1 md:col-span-2 lg:col-span-3">
-                <FormInput
-                  control={form.control}
-                  name="direction"
-                  label="Dirección"
-                  placeholder="Ingrese dirección"
-                  disabled={
-                    shouldDisableMainFields &&
-                    !isRucNatural &&
-                    isJuridica
-                  }
-                />
-              </div>
+              <FormSelect
+                name="marital_status_id"
+                label="Estado Civil"
+                placeholder="Selecciona estado"
+                options={typeMaritalStatus.map((item) => ({
+                  label: item.description,
+                  value: item.id.toString(),
+                }))}
+                control={form.control}
+                strictFilter={true}
+              />
+            </>
+          )}
 
-              <div className="col-span-1 md:col-span-2 lg:col-span-3">
-                <FormSelect
-                  name="activity_economic_id"
-                  label="Actividad Económica"
-                  placeholder="Selecciona actividad"
-                  options={economicActivity.map((item) => ({
-                    label: item.description,
-                    value: item.id.toString(),
-                  }))}
-                  control={form.control}
-                  strictFilter={true}
-                />
-              </div>
+          <FormSelect
+            name="person_segment_id"
+            label="Segmento"
+            placeholder="Selecciona segmento"
+            options={personSegment.map((item) => ({
+              label: item.description,
+              value: item.id.toString(),
+            }))}
+            control={form.control}
+            strictFilter={true}
+          />
+
+          {!isJuridica && (
+            <>
+              <FormSelect
+                name="origin_id"
+                label="Origen"
+                placeholder="Selecciona origen"
+                options={clientOrigins.map((item) => ({
+                  label: item.description,
+                  value: item.id.toString(),
+                }))}
+                control={form.control}
+              />
+            </>
+          )}
+
+          <FormSelect
+            name="nationality"
+            label="Nacionalidad"
+            placeholder="Selecciona nacionalidad"
+            options={nationalityOptions}
+            control={form.control}
+            strictFilter={true}
+          />
+
+          <div className="col-span-1 md:col-span-2">
+            <FormSelectAsync
+              name="district_id"
+              label="Ubigeo"
+              placeholder="Selecciona ubigeo"
+              control={form.control}
+              useQueryHook={useDistricts}
+              mapOptionFn={(item) => ({
+                label: item.name + " - " + item.province + " - " + item.ubigeo,
+                value: item.id.toString(),
+              })}
+              perPage={10}
+              debounceMs={500}
+              disabled={shouldDisableMainFields && !isRucNatural && isJuridica}
+            />
+          </div>
+
+          <FormSelect
+            name="tax_class_type_id"
+            label="Clase de Impuesto"
+            placeholder="Selecciona clase"
+            options={taxClassType.map((item) => ({
+              label: item.description,
+              value: item.id.toString(),
+            }))}
+            control={form.control}
+            strictFilter={true}
+          />
+
+          <div className="col-span-1 md:col-span-2 lg:col-span-3">
+            <FormInput
+              control={form.control}
+              name="direction"
+              label="Dirección"
+              placeholder="Ingrese dirección"
+              disabled={shouldDisableMainFields && !isRucNatural && isJuridica}
+            />
+          </div>
+
+          <div className="col-span-1 md:col-span-2 lg:col-span-3">
+            <FormSelect
+              name="activity_economic_id"
+              label="Actividad Económica"
+              placeholder="Selecciona actividad"
+              options={economicActivity.map((item) => ({
+                label: item.description,
+                value: item.id.toString(),
+              }))}
+              control={form.control}
+              strictFilter={true}
+            />
+          </div>
 
           {/* Sección: Datos del Cónyuge (Solo si está casado) */}
           {!isJuridica && isMarried && !fromOpportunities && (
@@ -971,9 +960,7 @@ export const CustomersForm = ({
                   <ValidationIndicator
                     show={!!conyugeDni}
                     isValidating={isConyugeDniLoading}
-                    isValid={
-                      conyugeDniData?.success && !!conyugeDniData.data
-                    }
+                    isValid={conyugeDniData?.success && !!conyugeDniData.data}
                     hasError={
                       !!conyugeDniError ||
                       (conyugeDniData && !conyugeDniData.success)
@@ -997,72 +984,69 @@ export const CustomersForm = ({
           {/* Sección: Representante Legal (Solo si es Persona Jurídica y NO viene de oportunidades) */}
           {isJuridica && !fromOpportunities && (
             <GroupFormSection
-                title="Representante Legal"
-                icon={Scale}
-                iconColor="text-purple-600"
-                bgColor="bg-purple-50"
-                cols={{ sm: 2, md: 3 }}
-                className="mt-8"
-              >
-                <FormInput
-                  control={form.control}
-                  name="legal_representative_num_doc"
-                  label={
-                    <div className="flex items-center gap-2 relative">
-                      DNI
-                      <DocumentValidationStatus
-                        shouldValidate={true}
-                        documentNumber={legalRepresentativeDni || ""}
-                        expectedDigits={8}
-                        isValidating={isLegalRepDniLoading}
-                        leftPosition="right-0"
-                      />
-                    </div>
-                  }
-                  type="number"
-                  placeholder="Número de documento"
-                  maxLength={8}
-                  addonEnd={
-                    <ValidationIndicator
-                      show={!!legalRepresentativeDni}
+              title="Representante Legal"
+              icon={Scale}
+              iconColor="text-purple-600"
+              bgColor="bg-purple-50"
+              cols={{ sm: 2, md: 3 }}
+              className="mt-8"
+            >
+              <FormInput
+                control={form.control}
+                name="legal_representative_num_doc"
+                label={
+                  <div className="flex items-center gap-2 relative">
+                    DNI
+                    <DocumentValidationStatus
+                      shouldValidate={true}
+                      documentNumber={legalRepresentativeDni || ""}
+                      expectedDigits={8}
                       isValidating={isLegalRepDniLoading}
-                      isValid={
-                        legalRepDniData?.success &&
-                        !!legalRepDniData.data
-                      }
-                      hasError={
-                        !!legalRepDniError ||
-                        (legalRepDniData && !legalRepDniData.success)
-                      }
+                      leftPosition="right-0"
                     />
-                  }
-                />
+                  </div>
+                }
+                type="number"
+                placeholder="Número de documento"
+                maxLength={8}
+                addonEnd={
+                  <ValidationIndicator
+                    show={!!legalRepresentativeDni}
+                    isValidating={isLegalRepDniLoading}
+                    isValid={legalRepDniData?.success && !!legalRepDniData.data}
+                    hasError={
+                      !!legalRepDniError ||
+                      (legalRepDniData && !legalRepDniData.success)
+                    }
+                  />
+                }
+              />
 
-                <FormInput
-                  control={form.control}
-                  name="legal_representative_name"
-                  label="Nombres"
-                  placeholder="Nombres"
-                  disabled={shouldDisableLegalRepFields}
-                />
+              <FormInput
+                control={form.control}
+                name="legal_representative_name"
+                label="Nombres"
+                placeholder="Nombres"
+                disabled={shouldDisableLegalRepFields}
+              />
 
-                <FormInput
-                  control={form.control}
-                  name="legal_representative_paternal_surname"
-                  label="Apellido Paterno"
-                  placeholder="Apellido paterno"
-                  disabled={shouldDisableLegalRepFields}
-                />
+              <FormInput
+                control={form.control}
+                name="legal_representative_paternal_surname"
+                label="Apellido Paterno"
+                placeholder="Apellido paterno"
+                disabled={shouldDisableLegalRepFields}
+              />
 
-                <FormInput
-                  control={form.control}
-                  name="legal_representative_maternal_surname"
-                  label="Apellido Materno"
-                  placeholder="Apellido materno"
-                  disabled={shouldDisableLegalRepFields}
-                />
-              </GroupFormSection>
-            )}
+              <FormInput
+                control={form.control}
+                name="legal_representative_maternal_surname"
+                label="Apellido Materno"
+                placeholder="Apellido materno"
+                disabled={shouldDisableLegalRepFields}
+              />
+            </GroupFormSection>
+          )}
         </GroupFormSection>
 
         {/* GRUPO 2: INFORMACIÓN ADICIONAL */}
@@ -1142,9 +1126,7 @@ export const CustomersForm = ({
                 <ValidationIndicator
                   show={!!conductorDni}
                   isValidating={isConductorDniLoading}
-                  isValid={
-                    conductorDniData?.success && !!conductorDniData.data
-                  }
+                  isValid={conductorDniData?.success && !!conductorDniData.data}
                   hasError={
                     !!conductorDniError ||
                     (conductorDniData && !conductorDniData.success)

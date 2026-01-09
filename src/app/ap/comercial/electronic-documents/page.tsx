@@ -43,6 +43,7 @@ export default function ElectronicDocumentsPage() {
   const [sheetOpen, setSheetOpen] = useState(false);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setPage(1);
   }, [search, per_page, statusFilter, moduleFilter, documentTypeFilter]);
 
@@ -106,13 +107,11 @@ export default function ElectronicDocumentsPage() {
   };
 
   const handlePreCancel = async (id: number) => {
-    try {
-      const result = await preCancelElectronicDocument(id);
-      if (!result.annulled) {
-        throw new Error("El documento no está anulado en Dynamics. No se puede anular en Nubefact.");
-      }
-    } catch (error: any) {
-      throw error;
+    const result = await preCancelElectronicDocument(id);
+    if (!result.annulled) {
+      throw new Error(
+        "El documento no está anulado en Dynamics. No se puede anular en Nubefact."
+      );
     }
   };
 
@@ -160,6 +159,7 @@ export default function ElectronicDocumentsPage() {
             canCreateCreditNote,
             canCreateDebitNote,
           },
+          module: "COMERCIAL",
         })}
         data={data?.data || []}
       >

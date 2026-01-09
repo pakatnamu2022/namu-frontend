@@ -12,7 +12,11 @@ import {
   SUCCESS_MESSAGE,
   successToast,
 } from "@/core/core.function";
-import { DEFAULT_PER_PAGE, TIPO_LEADS } from "@/core/core.constants";
+import {
+  DEFAULT_PER_PAGE,
+  EMPRESA_AP,
+  TIPO_LEADS,
+} from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { MANAGE_LEADS } from "@/features/ap/comercial/gestionar-leads/lib/manageLeads.constants";
 import { useManageLeads } from "@/features/ap/comercial/gestionar-leads/lib/manageLeads.hook";
@@ -26,12 +30,14 @@ import { manageLeadsColumns } from "@/features/ap/comercial/gestionar-leads/comp
 import ManageLeadsOptions from "@/features/ap/comercial/gestionar-leads/components/ManageLeadsOptions";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { notFound } from "@/shared/hooks/useNotFound";
+import { useAllSedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 
 export default function ManageLeadsPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
+  const [sedeId, setSedeId] = useState<string>("");
   const currentDate = new Date();
 
   const [dateFrom, setDateFrom] = useState<Date | undefined>(currentDate);
@@ -62,6 +68,11 @@ export default function ManageLeadsPage() {
     status_num_doc: statusFilter !== "all" ? statusFilter : undefined,
     use: conditionFilter !== "all" ? conditionFilter : undefined,
     sort: "created_at",
+    sede_id: sedeId,
+  });
+
+  const { data: sedes = [] } = useAllSedes({
+    empresa_id: EMPRESA_AP.id,
   });
 
   const handleImportSuccess = () => {
@@ -128,6 +139,9 @@ export default function ManageLeadsPage() {
         <ManageLeadsOptions
           search={search}
           setSearch={setSearch}
+          sedes={sedes}
+          sedeId={sedeId}
+          setSedeId={setSedeId}
           dateFrom={dateFrom}
           setDateFrom={setDateFrom}
           dateTo={dateTo}

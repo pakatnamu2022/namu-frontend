@@ -74,7 +74,7 @@ interface Approval {
   per_diem_request_id: number;
   approver_id: number;
   approver: Boss;
-  status: string;
+  status: "approved" | "rejected" | "pending";
   comments: string;
   approved_at: string;
 }
@@ -122,6 +122,12 @@ interface Area {
   name: string;
 }
 
+export type PerDiemSettlementStatus =
+  | "submitted"
+  | "approved"
+  | "rejected"
+  | "completed";
+
 export type PerDiemRequestStatus =
   | "pending"
   | "in_progress"
@@ -135,8 +141,8 @@ export interface PerDiemRequestResource {
   id: number;
   code: string;
   status: PerDiemRequestStatus;
-  start_date: string | Date;
-  end_date: string | Date;
+  start_date: string;
+  end_date: string;
   days_count: number;
   purpose: string;
   final_result: string;
@@ -147,11 +153,11 @@ export interface PerDiemRequestResource {
   payment_date: string | Date;
   payment_method: string;
   settled: boolean;
-  settlement_date: null;
-  settlement_status?: "submitted" | "approved" | "rejected" | "completed";
+  settlement_date?: string;
+  settlement_status?: PerDiemSettlementStatus;
   total_spent: number;
   balance_to_return: number;
-  notes: null;
+  notes?: string;
   days_without_settlement: number;
   with_active: boolean;
   with_request: boolean;
@@ -161,6 +167,7 @@ export interface PerDiemRequestResource {
   company: Company;
   district: District;
   category: Category;
+  sede_service: SedeService;
   policy: string;
   approvals?: Approval[];
   hotel_reservation?: HotelReservationResource;
@@ -169,6 +176,11 @@ export interface PerDiemRequestResource {
 }
 
 interface Company {
+  id: number;
+  name: string;
+}
+
+interface SedeService {
   id: number;
   name: string;
 }

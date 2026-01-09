@@ -1,10 +1,14 @@
 "use client";
 
 import type { ColumnDef } from "@tanstack/react-table";
-import { PerDiemRequestResource } from "../lib/perDiemRequest.interface";
+import {
+  PerDiemRequestResource,
+  PerDiemSettlementStatus,
+} from "../lib/perDiemRequest.interface";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Check, X, Eye } from "lucide-react";
+import SettlementStatusBadge from "./PerDiemRequestDetail/SettlementStatusBadge";
 
 export type PendingSettlementsColumns = ColumnDef<PerDiemRequestResource>;
 
@@ -106,21 +110,11 @@ export const pendingSettlementsColumns = ({
     accessorKey: "settlement_status",
     header: "Estado Liquidación",
     cell: ({ getValue }) => {
-      const value = getValue() as string;
-      const statusMap: Record<string, { label: string; variant: any }> = {
-        submitted: { label: "Enviada", variant: "secondary" },
-        approved: { label: "Aprobada", variant: "outline" },
-        rejected: { label: "Rechazada", variant: "destructive" },
-      };
-      const status = statusMap[value] || {
-        label: value || "Sin liquidar",
-        variant: "secondary",
-      };
+      const value = getValue() as PerDiemSettlementStatus;
+
       return (
         <div className="w-fit">
-          <Badge className="w-fit" variant={status.variant}>
-            {status.label}
-          </Badge>
+          <SettlementStatusBadge settlementStatus={value} />
         </div>
       );
     },

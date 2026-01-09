@@ -363,67 +363,97 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
         </Card>
       ) : (
         <Card className="p-6">
-          <div className="border rounded-lg overflow-hidden">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Producto</TableHead>
-                  <TableHead>Almacén</TableHead>
-                  <TableHead>Registrado por</TableHead>
-                  <TableHead className="text-center">Cantidad</TableHead>
-                  <TableHead className="text-center">Grupo</TableHead>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Producto</TableHead>
+                <TableHead>Almacén</TableHead>
+                <TableHead>Registrado por</TableHead>
+                <TableHead className="text-center">Cantidad</TableHead>
+                <TableHead className="text-right">Precio Unit.</TableHead>
+                <TableHead className="text-right">Total</TableHead>
+                <TableHead className="text-center">Grupo</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredParts.map((part) => (
+                <TableRow key={part.id}>
+                  <TableCell>
+                    <div>
+                      <p className="font-medium">{part.product_name}</p>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <p className="text-sm text-gray-600">
+                      {part.warehouse_name}
+                    </p>
+                  </TableCell>
+                  <TableCell>
+                    <p className="text-sm text-gray-600">
+                      {part.registered_by_name}
+                    </p>
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <Badge variant="outline" className="font-semibold">
+                      {part.quantity_used}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    S/{" "}
+                    {part.unit_price
+                      ? Number(part.unit_price).toFixed(2)
+                      : "0.00"}
+                  </TableCell>
+                  <TableCell className="text-right font-semibold">
+                    S/{" "}
+                    {part.total_amount
+                      ? Number(part.total_amount).toFixed(2)
+                      : "0.00"}
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <Select
+                      value={part.group_number.toString()}
+                      onValueChange={(value) =>
+                        handleGroupChange(part, Number(value))
+                      }
+                    >
+                      <SelectTrigger className="w-[120px] mx-auto">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {availableGroups.map((groupNumber) => (
+                          <SelectItem
+                            key={groupNumber}
+                            value={groupNumber.toString()}
+                          >
+                            Grupo {groupNumber}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </TableCell>
                 </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredParts.map((part) => (
-                  <TableRow key={part.id}>
-                    <TableCell>
-                      <div>
-                        <p className="font-medium">{part.product_name}</p>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <p className="text-sm text-gray-600">
-                        {part.warehouse_name}
-                      </p>
-                    </TableCell>
-                    <TableCell>
-                      <p className="text-sm text-gray-600">
-                        {part.registered_by_name}
-                      </p>
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <Badge variant="outline" className="font-semibold">
-                        {part.quantity_used}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <Select
-                        value={part.group_number.toString()}
-                        onValueChange={(value) =>
-                          handleGroupChange(part, Number(value))
-                        }
-                      >
-                        <SelectTrigger className="w-[120px] mx-auto">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {availableGroups.map((groupNumber) => (
-                            <SelectItem
-                              key={groupNumber}
-                              value={groupNumber.toString()}
-                            >
-                              Grupo {groupNumber}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+              ))}
+            </TableBody>
+          </Table>
+
+          {/* Total de Repuestos */}
+          {filteredParts.length > 0 && (
+            <div className="flex justify-end mt-4 pt-4 border-t">
+              <div className="text-right">
+                <p className="text-sm text-gray-600">Total de Repuestos:</p>
+                <p className="text-xl font-bold">
+                  S/{" "}
+                  {filteredParts
+                    .reduce(
+                      (acc, part) => acc + parseFloat(part.total_amount || "0"),
+                      0
+                    )
+                    .toFixed(2)}
+                </p>
+              </div>
+            </div>
+          )}
         </Card>
       )}
     </div>

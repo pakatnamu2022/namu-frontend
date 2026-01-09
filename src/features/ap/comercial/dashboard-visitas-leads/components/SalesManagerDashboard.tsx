@@ -1,10 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { useForm } from "react-hook-form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Form } from "@/components/ui/form";
 import { startOfMonth, endOfMonth, subMonths } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
 import { getSalesManagerStats } from "../lib/dashboard.actions";
@@ -12,8 +10,8 @@ import { SalesManagerFilters } from "../lib/dashboard.interface";
 import SalesManagerStatsCards from "./SalesManagerStatsCards";
 import SalesManagerAdvisorTable from "./SalesManagerAdvisorTable";
 import SalesManagerDetailsSheet from "./SalesManagerDetailsSheet";
-import { DateRangePickerFormField } from "@/shared/components/DateRangePickerFormField";
-import { FormSelect } from "@/shared/components/FormSelect";
+import { DateRangePickerFilter } from "@/shared/components/DateRangePickerFilter";
+import { SearchableSelect } from "@/shared/components/SearchableSelect";
 import { useAllWorkers } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
 import {
   POSITION_TYPE,
@@ -33,31 +31,26 @@ const getLastMonthRange = () => {
   };
 };
 
-interface DashboardFormValues {
-  date_from: string;
-  date_to: string;
-  type: "VISITA" | "LEADS";
-  boss_id?: number | null;
-}
-
 export default function SalesManagerDashboard() {
   const ROUTE = "dashboard-equipo-leads";
   const { canViewAdvisors } = useModulePermissions(ROUTE);
 
   const lastMonthRange = getLastMonthRange();
+
+  // Estados para los filtros
+  const [dateFrom, setDateFrom] = useState<Date | undefined>(
+    lastMonthRange.firstDay
+  );
+  const [dateTo, setDateTo] = useState<Date | undefined>(
+    lastMonthRange.lastDay
+  );
+  const [type, setType] = useState<"VISITA" | "LEADS">("LEADS");
+  const [bossId, setBossId] = useState<string>("");
+
   const [selectedAdvisorId, setSelectedAdvisorId] = useState<number | null>(
     null
   );
   const [showDetailsSheet, setShowDetailsSheet] = useState(false);
-
-  const form = useForm<DashboardFormValues>({
-    defaultValues: {
-      date_from: lastMonthRange.firstDay.toISOString().split("T")[0],
-      date_to: lastMonthRange.lastDay.toISOString().split("T")[0],
-      type: "LEADS",
-      boss_id: null,
-    },
-  });
 
   const { data: bosses = [] } = useAllWorkers({
     cargo_id: [...POSITION_TYPE.SALES_MANAGER, ...POSITION_TYPE.SALES_BOSS],
@@ -65,37 +58,37 @@ export default function SalesManagerDashboard() {
     sede$empresa_id: EMPRESA_AP.id,
   });
 
-  // Observar los valores del formulario
-  const filters = form.watch();
-
   // Query para obtener las estadísticas
   const { data: statsData, isLoading } = useQuery({
     queryKey: [
       "salesManagerStats",
-      filters.date_from,
-      filters.date_to,
-      filters.type,
-      filters.boss_id,
+      dateFrom?.toISOString().split("T")[0],
+      dateTo?.toISOString().split("T")[0],
+      type,
+      bossId,
     ],
     queryFn: async () => {
+      if (!dateFrom || !dateTo) return null;
+
       const queryFilters: SalesManagerFilters = {
-        date_from: filters.date_from.split("T")[0],
-        date_to: filters.date_to.split("T")[0],
-        type: filters.type,
-        boss_id: filters.boss_id
-          ? typeof filters.boss_id === "string"
-            ? parseInt(filters.boss_id, 10)
-            : filters.boss_id
-          : undefined,
+        date_from: dateFrom.toISOString().split("T")[0],
+        date_to: dateTo.toISOString().split("T")[0],
+        type,
+        boss_id: bossId ? parseInt(bossId, 10) : undefined,
       };
       return await getSalesManagerStats(queryFilters);
     },
-    enabled: !!(filters.date_from && filters.date_to && filters.type),
+    enabled: !!(dateFrom && dateTo && type),
   });
 
   const handleAdvisorClick = (workerId: number) => {
     setSelectedAdvisorId(workerId);
     setShowDetailsSheet(true);
+  };
+
+  const handleDateChange = (from: Date | undefined, to: Date | undefined) => {
+    setDateFrom(from);
+    setDateTo(to);
   };
 
   return (
@@ -114,45 +107,39 @@ export default function SalesManagerDashboard() {
 
         {/* Filters */}
         <div className="flex items-end gap-3">
-          <Form {...form}>
-            <div className="flex items-end gap-3">
-              {canViewAdvisors && (
-                <FormSelect
-                  options={bosses.map((boss) => ({
-                    label: boss.name,
-                    value: boss.id.toString(),
-                  }))}
-                  control={form.control}
-                  name="boss_id"
-                  placeholder="Jefe"
-                  popoverWidth="w-72"
-                  size="sm"
-                />
-              )}
+          {canViewAdvisors && (
+            <SearchableSelect
+              options={bosses.map((boss) => ({
+                label: boss.name,
+                value: boss.id.toString(),
+              }))}
+              value={bossId}
+              onChange={setBossId}
+              placeholder="Jefe"
+              buttonSize="sm"
+              classNameDiv="min-w-[200px]"
+            />
+          )}
 
-              <DateRangePickerFormField
-                size="sm"
-                control={form.control}
-                nameFrom="date_from"
-                nameTo="date_to"
-                placeholder="Selecciona rango"
-                required
-              />
+          <DateRangePickerFilter
+            dateFrom={dateFrom}
+            dateTo={dateTo}
+            onDateChange={handleDateChange}
+            placeholder="Selecciona rango"
+            className="w-[280px]"
+          />
 
-              <FormSelect
-                options={[
-                  { label: "Visitas", value: "VISITA" },
-                  { label: "Leads", value: "LEADS" },
-                ]}
-                control={form.control}
-                name="type"
-                placeholder="Tipo"
-                popoverWidth="w-40"
-                size="sm"
-                required
-              />
-            </div>
-          </Form>
+          <SearchableSelect
+            options={[
+              { label: "Visitas", value: "VISITA" },
+              { label: "Leads", value: "LEADS" },
+            ]}
+            value={type}
+            onChange={(value) => setType(value as "VISITA" | "LEADS")}
+            placeholder="Tipo"
+            buttonSize="sm"
+            classNameDiv="min-w-[120px]"
+          />
         </div>
       </div>
 
@@ -185,9 +172,7 @@ export default function SalesManagerDashboard() {
               />
 
               <MetricCard
-                title={`Total ${
-                  form.getValues("type") === "VISITA" ? "Visitas" : "Leads"
-                }`}
+                title={`Total ${type === "VISITA" ? "Visitas" : "Leads"}`}
                 value={statsData.data.team_totals.total_visits}
                 subtitle="En el período seleccionado"
                 variant="default"
@@ -235,7 +220,7 @@ export default function SalesManagerDashboard() {
                   </CardHeader>
                   <CardContent>
                     <SalesManagerAdvisorTable
-                      type={form.getValues("type")}
+                      type={type}
                       advisors={statsData.data.by_advisor}
                       onAdvisorClick={handleAdvisorClick}
                     />
@@ -255,14 +240,14 @@ export default function SalesManagerDashboard() {
       )}
 
       {/* Details Sheet */}
-      {showDetailsSheet && (
+      {showDetailsSheet && dateFrom && dateTo && (
         <SalesManagerDetailsSheet
           open={showDetailsSheet}
           onOpenChange={setShowDetailsSheet}
           filters={{
-            date_from: form.getValues("date_from"),
-            date_to: form.getValues("date_to"),
-            type: form.getValues("type"),
+            date_from: dateFrom.toISOString().split("T")[0],
+            date_to: dateTo.toISOString().split("T")[0],
+            type: type,
             worker_id: selectedAdvisorId,
           }}
         />

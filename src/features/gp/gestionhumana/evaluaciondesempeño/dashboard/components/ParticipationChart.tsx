@@ -119,14 +119,14 @@ export const ParticipationChart: React.FC<ParticipationChartProps> = ({
   return (
     <Card data-chart={id} className="flex flex-col h-full">
       <ChartStyle id={id} config={chartConfig} />
-      <CardHeader className="flex-row items-start space-y-0 pb-0">
-        <div className="grid gap-1">
-          <CardTitle>Distribución de Participantes</CardTitle>
+      <CardHeader className="flex-col sm:flex-row items-start space-y-2 sm:space-y-0 pb-4 sm:pb-0">
+        <div className="grid gap-1 flex-1">
+          <CardTitle className="text-primary">Distribución de Participantes</CardTitle>
           <CardDescription>Estado actual de las evaluaciones</CardDescription>
         </div>
         <Select value={activeStatus} onValueChange={setActiveStatus}>
           <SelectTrigger
-            className="ml-auto h-7 w-[140px] rounded-lg pl-2.5"
+            className="w-full sm:w-[140px] sm:ml-auto h-7 rounded-lg pl-2.5"
             aria-label="Seleccionar estado"
           >
             <SelectValue placeholder="Seleccionar estado" />
@@ -160,14 +160,14 @@ export const ParticipationChart: React.FC<ParticipationChartProps> = ({
           </SelectContent>
         </Select>
       </CardHeader>
-      <CardContent className="flex flex-col h-full">
-        <div className="flex flex-row items-center justify-between h-full">
+      <CardContent className="flex flex-col h-full px-4 sm:px-6">
+        <div className="flex flex-col lg:flex-row items-center lg:items-center justify-center lg:justify-between h-full gap-6 lg:gap-8">
           {/* Gráfico de pie */}
-          <div className="flex-shrink-0">
+          <div className="shrink-0 flex items-center justify-center">
             <ChartContainer
               id={id}
               config={chartConfig}
-              className="w-[280px] h-[280px]"
+              className="w-60 h-60 sm:w-[280px] sm:h-[280px]"
             >
               <PieChart>
                 <ChartTooltip
@@ -178,8 +178,8 @@ export const ParticipationChart: React.FC<ParticipationChartProps> = ({
                   data={participationData}
                   dataKey="participants"
                   nameKey="status"
-                  innerRadius={70}
-                  outerRadius={120}
+                  innerRadius={60}
+                  outerRadius={100}
                   strokeWidth={2}
                   activeIndex={activeIndex}
                   activeShape={({
@@ -210,7 +210,7 @@ export const ParticipationChart: React.FC<ParticipationChartProps> = ({
                             <tspan
                               x={viewBox.cx}
                               y={viewBox.cy ?? 0 - 12}
-                              className="fill-foreground text-4xl font-bold"
+                              className="fill-primary text-3xl sm:text-4xl font-bold"
                             >
                               {participationData[
                                 activeIndex
@@ -218,15 +218,15 @@ export const ParticipationChart: React.FC<ParticipationChartProps> = ({
                             </tspan>
                             <tspan
                               x={viewBox.cx}
-                              y={(viewBox.cy || 0) + 22}
-                              className="fill-muted-foreground text-sm"
+                              y={(viewBox.cy || 0) + 20}
+                              className="fill-primary/70 text-xs sm:text-sm"
                             >
                               Participantes
                             </tspan>
                             <tspan
                               x={viewBox.cx}
-                              y={(viewBox.cy || 0) + 38}
-                              className="fill-muted-foreground text-sm font-medium"
+                              y={(viewBox.cy || 0) + 36}
+                              className="fill-primary text-xs sm:text-sm font-medium"
                             >
                               {activePercentage}%
                             </tspan>
@@ -240,8 +240,8 @@ export const ParticipationChart: React.FC<ParticipationChartProps> = ({
             </ChartContainer>
           </div>
 
-          {/* Leyenda lateral */}
-          <div className="flex flex-col gap-6 ml-8 flex-1">
+          {/* Leyenda lateral/inferior */}
+          <div className="flex flex-col gap-4 lg:gap-6 w-full lg:flex-1 lg:ml-0">
             {participationData.map((item, index) => {
               const config =
                 chartConfig[item.status as keyof typeof chartConfig];
@@ -261,16 +261,16 @@ export const ParticipationChart: React.FC<ParticipationChartProps> = ({
                 >
                   <div className="flex items-center gap-3">
                     <div
-                      className="w-4 h-4 rounded-sm flex-shrink-0"
+                      className="w-4 h-4 rounded-sm shrink-0"
                       style={{ backgroundColor: `var(--color-${item.status})` }}
                     />
-                    <span className="text-sm font-medium text-left">
+                    <span className="text-sm font-medium text-left text-primary">
                       {config?.label}
                     </span>
                   </div>
                   <div className="text-right">
-                    <p className="text-xl font-bold">{item.participants}</p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-lg sm:text-xl font-bold text-primary">{item.participants}</p>
+                    <p className="text-xs text-primary/60">
                       {percentage}%
                     </p>
                   </div>

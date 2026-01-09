@@ -18,6 +18,7 @@ import { CustomersForm } from "@/features/ap/comercial/clientes/components/Custo
 import { EMPRESA_AP } from "@/core/core.constants";
 import { OPPORTUNITIES } from "@/features/ap/comercial/oportunidades/lib/opportunities.constants";
 import { notFound } from "@/shared/hooks/useNotFound";
+import { format } from "date-fns";
 
 export default function AddCustomersPage() {
   const router = useNavigate();
@@ -65,7 +66,14 @@ export default function AddCustomersPage() {
   });
 
   const handleSubmit = (data: CustomersSchema) => {
-    mutate(data);
+    const dataFormatted = {
+      ...data,
+      birth_date: data.birth_date
+        ? format(data.birth_date, "yyyy-MM-dd")
+        : undefined,
+    };
+
+    mutate(dataFormatted);
   };
 
   if (!checkRouteExists(ROUTE)) notFound();

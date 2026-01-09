@@ -37,11 +37,7 @@ import {
   updateAssignBrandConsultant,
 } from "../lib/assignBrandConsultant.actions";
 import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
-import {
-  DEFAULT_PER_PAGE,
-  EMPRESA_AP,
-  MONTHS,
-} from "@/core/core.constants";
+import { DEFAULT_PER_PAGE, EMPRESA_AP, MONTHS } from "@/core/core.constants";
 import DataTablePagination from "@/shared/components/DataTablePagination";
 import { ASSIGN_BRAND_CONSULTANT } from "../lib/assignBrandConsultant.constants";
 import { useAllSedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";

@@ -142,6 +142,5 @@ export async function getConsolidatedWorkers(
   const response = await api.get<ConsolidatedWorker[]>(
     `${ENDPOINT}/workers/${workOrderId}`
   );
-  console.log(response.data);
   return response.data;
 }

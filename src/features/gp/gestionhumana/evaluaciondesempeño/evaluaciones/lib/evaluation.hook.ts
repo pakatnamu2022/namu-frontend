@@ -3,6 +3,7 @@ import { EvaluationResource, EvaluationResponse } from "./evaluation.interface";
 import {
   findEvaluationById,
   getAllEvaluations,
+  getBossesInEvaluation,
   getCategoriesInEvaluation,
   getEvaluation,
   getPersonsInEvaluation,
@@ -28,10 +29,11 @@ export const useAllEvaluations = () => {
   });
 };
 
-export const useEvaluation = (id: number) => {
+export const useEvaluation = (id?: number) => {
   return useQuery<EvaluationResource>({
     queryKey: ["evaluationById", id],
-    queryFn: () => findEvaluationById(id.toString()),
+    queryFn: () => findEvaluationById(id?.toString() || ""),
+    enabled: !!id && id > 0,
     refetchOnWindowFocus: false,
   });
 };
@@ -48,6 +50,14 @@ export const usePositionsInEvaluation = (idEvaluation: number) => {
   return useQuery({
     queryKey: ["evaluation", idEvaluation, "positions"],
     queryFn: () => getPositionsInEvaluation(idEvaluation.toString()),
+    refetchOnWindowFocus: false,
+  });
+};
+
+export const useBossesInEvaluation = (idEvaluation: number) => {
+  return useQuery({
+    queryKey: ["evaluation", idEvaluation, "bosses"],
+    queryFn: () => getBossesInEvaluation(idEvaluation.toString()),
     refetchOnWindowFocus: false,
   });
 };

@@ -1,7 +1,7 @@
 import { type ModelComplete } from "@/core/core.interface.ts";
 import { PerDiemPolicyResource } from "../../../gp/gestionhumana/viaticos/politica-viaticos/lib/perDiemPolicy.interface";
 
-const ROUTE = "viaticos";
+const ROUTE = "solicitud-viaticos";
 const ROUTE_AP = "viaticos-ap";
 const ABSOLUTE_ROUTE = `/perfil/${ROUTE}`;
 

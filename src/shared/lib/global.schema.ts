@@ -57,3 +57,21 @@ export const requiredText = (
     .min(minLength, `${object} debe tener al menos ${minLength} caracteres`)
     .max(maxLength, `${object} no puede exceder ${maxLength} caracteres`);
 };
+
+export const phoneSchemaRequired = () =>
+  z
+    .string()
+    .max(9, "El teléfono no puede tener más de 9 caracteres")
+    .refine((val) => !val || /^\d+$/.test(val), {
+      message: "El teléfono solo puede contener números",
+    });
+
+export const phoneSchemaOptional = () =>
+  z
+    .string()
+    .max(9, "El teléfono no puede tener más de 9 caracteres")
+    .refine((val) => !val || /^\d+$/.test(val), {
+      message: "El teléfono solo puede contener números",
+    })
+    .optional()
+    .or(z.literal(""));

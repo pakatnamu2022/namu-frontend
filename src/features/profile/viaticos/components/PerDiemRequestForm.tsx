@@ -11,17 +11,16 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { DateRangePickerFormField } from "@/shared/components/DateRangePickerFormField";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { useGetAllPerDiemCategory } from "../../../gp/gestionhumana/viaticos/categoria-viaticos/lib/perDiemCategory.hook";
 import { useUserCompanies } from "@/features/gp/gestionsistema/usuarios/lib/user.hook";
-import { useAllDistrict } from "@/features/gp/gestionsistema/ubicaciones/lib/location.hook";
-import { useAllCompanies } from "@/features/gp/gestionsistema/empresa/lib/company.hook";
 import { FormInputText } from "@/shared/components/FormInputText";
 import { FormSwitch } from "@/shared/components/FormSwitch";
-import { useAuthStore } from "@/features/auth/lib/auth.store";
+import { useAllSedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
+import { useGeneralMasterByCode } from "@/features/gp/maestros-generales/lib/generalMasters.hook";
 
 interface PerDiemRequestFormProps {
   defaultValues: Partial<PerDiemRequestSchema | PerDiemRequestSchemaUpdate>;
@@ -31,17 +30,6 @@ interface PerDiemRequestFormProps {
   onCancel?: () => void;
 }
 
-const districtDestinationIds = [
-  "1300",
-  "1295",
-  "1286",
-  "1549",
-  "1227",
-  "558",
-  "1827",
-  "631",
-]; // IDs de departamentos para destino
-
 export const PerDiemRequestForm = ({
   defaultValues,
   onSubmit,
@@ -49,7 +37,11 @@ export const PerDiemRequestForm = ({
   mode = "create",
   onCancel,
 }: PerDiemRequestFormProps) => {
-  const { user } = useAuthStore();
+  const { data: minDaysData } = useGeneralMasterByCode("PER_DIEM_MIN_DAYS");
+  const MIN_DAYS = minDaysData?.value ? parseInt(minDaysData.value) : 18;
+  const previousCompanyIdRef = useRef<string | undefined>(undefined);
+  const [isFormLoaded, setIsFormLoaded] = useState(false);
+
   const form = useForm<PerDiemRequestSchema | PerDiemRequestSchemaUpdate>({
     resolver: zodResolver(
       mode === "create"
@@ -65,12 +57,27 @@ export const PerDiemRequestForm = ({
   useGetAllPerDiemCategory();
   const { data: myCompanies = [], isLoading: isLoadingMyCompanies } =
     useUserCompanies();
-  const { data: companies = [], isLoading: isLoadingCompanies } =
-    useAllCompanies();
-  const { data: districts = [], isLoading: isLoadingDistricts } =
-    useAllDistrict({
-      id: districtDestinationIds,
-    });
+
+  const { data: sedes = [], isLoading: isLoadingSedes } = useAllSedes();
+
+  // Observar el valor de company_id
+  const companyId = form.watch("company_id");
+
+  // Filtrar sedes según la empresa seleccionada
+  const filteredSedes = useMemo(() => {
+    // Si no hay company_id seleccionado (null o ""), no mostrar ninguna sede
+    if (!companyId || companyId === "") {
+      return [];
+    }
+
+    // Si company_id es "4", mostrar todas las sedes
+    if (companyId === "4") {
+      return sedes;
+    }
+
+    // En cualquier otro caso, filtrar por empresa_id
+    return sedes.filter((sede) => sede.empresa_id?.toString() === companyId);
+  }, [companyId, sedes]);
 
   useEffect(() => {
     if (mode === "update" && Object.keys(defaultValues).length > 0) {
@@ -79,7 +86,12 @@ export const PerDiemRequestForm = ({
       });
       setTimeout(() => {
         form.trigger();
-      }, 0);
+        // Marcar que la carga inicial ha terminado y guardar el company_id inicial
+        setIsFormLoaded(true);
+        previousCompanyIdRef.current = form.getValues("company_id");
+      }, 100);
+    } else if (mode === "create") {
+      setIsFormLoaded(true);
     }
   }, [defaultValues, mode, form]);
 
@@ -88,50 +100,78 @@ export const PerDiemRequestForm = ({
     if (myCompanies.length === 1 && !form.getValues("company_id")) {
       const companyId = myCompanies[0].id.toString();
       form.setValue("company_id", companyId);
-      form.setValue("company_service_id", companyId);
     }
   }, [myCompanies, form]);
 
-  // Si el usuario NO es de GP, automáticamente asignar su empresa en "Empresa Brinda Servicio"
+  // Limpiar sede_service_id cuando cambie company_id
   useEffect(() => {
-    const companyId = form.watch("company_id");
-    if (user.empresa !== "GP" && companyId) {
-      form.setValue("company_service_id", companyId);
+    // No ejecutar hasta que el formulario esté completamente cargado
+    if (!isFormLoaded) {
+      return;
     }
-  }, [form.watch("company_id"), user.empresa, form]);
 
-  if (isLoadingMyCompanies || isLoadingDistricts || isLoadingCompanies)
-    return <FormSkeleton />;
+    // Si el company_id cambió realmente (no es la primera vez que se establece)
+    const hasCompanyIdChanged =
+      previousCompanyIdRef.current !== undefined &&
+      previousCompanyIdRef.current !== companyId;
+
+    if (!hasCompanyIdChanged) {
+      // Actualizar la referencia para futuras comparaciones
+      previousCompanyIdRef.current = companyId;
+      return;
+    }
+
+    // Solo limpiar si el company_id cambió de verdad
+    const currentSedeId = form.getValues("sede_service_id");
+    if (currentSedeId) {
+      const sedeExists = filteredSedes.some(
+        (sede) => sede.id.toString() === currentSedeId
+      );
+      if (!sedeExists) {
+        form.setValue("sede_service_id", "");
+      }
+    }
+
+    // Actualizar la referencia
+    previousCompanyIdRef.current = companyId;
+  }, [companyId, filteredSedes, form, isFormLoaded]);
+
+  if (isLoadingMyCompanies || isLoadingSedes) return <FormSkeleton />;
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 w-full">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormSelect
-            name="company_id"
-            label="Mi Empresa"
-            placeholder="Selecciona una empresa"
-            options={myCompanies
-              .filter((item) => item?.id && item?.name)
-              .map((item) => ({
-                label: item.name,
-                value: item.id.toString(),
-              }))}
-            control={form.control}
-          />
+          <div className={myCompanies.length <= 1 ? "hidden" : ""}>
+            <FormSelect
+              name="company_id"
+              label="Mi Empresa"
+              placeholder="Selecciona una empresa"
+              options={myCompanies
+                .filter((item) => item?.id && item?.name)
+                .map((item) => ({
+                  label: item.name,
+                  value: item.id.toString(),
+                }))}
+              control={form.control}
+            />
+          </div>
 
           <FormSelect
-            name="company_service_id"
-            label="Empresa Brinda Servicio"
-            placeholder="Selecciona una empresa"
-            options={companies
-              .filter((item) => item?.id && item?.name)
+            name="sede_service_id"
+            label="Sede Brinda Servicio"
+            placeholder="Selecciona una sede"
+            options={filteredSedes
+              .filter(
+                (item) => item?.id && item?.abreviatura
+                // && item.id !== user?.sede_id
+                // && item?.shop_id !== user?.shop_id
+              )
               .map((item) => ({
-                label: item.name,
+                label: item.abreviatura.replace(/_/g, " "),
                 value: item.id.toString(),
               }))}
             control={form.control}
-            disabled={user.empresa !== "GP"}
           />
 
           <DateRangePickerFormField
@@ -143,7 +183,7 @@ export const PerDiemRequestForm = ({
             dateFormat="dd/MM/yyyy"
             required
             disabled={{
-              before: new Date(Date.now() + 21 * 24 * 60 * 60 * 1000),
+              before: new Date(Date.now() + MIN_DAYS * 24 * 60 * 60 * 1000),
             }}
           />
 
@@ -154,18 +194,6 @@ export const PerDiemRequestForm = ({
             control={form.control}
           />
         </div>
-
-        <FormSelect
-          name="district_id"
-          label="Destino"
-          placeholder="Selecciona un distrito"
-          options={districts.map((item) => ({
-            label: item.name + " - " + item.ubigeo,
-            value: item.id.toString(),
-          }))}
-          control={form.control}
-          strictFilter={true}
-        />
 
         <FormInputText
           name="purpose"

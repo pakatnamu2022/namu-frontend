@@ -5,6 +5,7 @@ import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import TitleComponent from "@/shared/components/TitleComponent";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import type { CalendarDayData } from "@/shared/components/CalendarGrid";
+import { useCalendarMonth, useCalendarYear } from "@/shared/components/CalendarGrid";
 import { useMyAgenda } from "@/features/ap/comercial/oportunidades/lib/opportunities.hook";
 import AgendaActions from "@/features/ap/comercial/agenda/components/AgendaActions";
 import AgendaCalendarCard from "@/features/ap/comercial/agenda/components/AgendaCalendarCard";
@@ -17,6 +18,7 @@ import { EMPRESA_AP } from "@/core/core.constants";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { AGENDA } from "@/features/ap/comercial/agenda/lib/agenda.constants";
 import { notFound } from "@/shared/hooks/useNotFound";
+import PageWrapper from "@/shared/components/PageWrapper";
 
 export default function AgendaPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -30,6 +32,10 @@ export default function AgendaPage() {
   const { ROUTE } = AGENDA;
   const permissions = useModulePermissions(ROUTE);
 
+  // Get calendar state from atoms
+  const [calendarMonth] = useCalendarMonth();
+  const [calendarYear] = useCalendarYear();
+
   // Ensure selectedDate is initialized to current date if not set
   useEffect(() => {
     if (!selectedDate) {
@@ -37,19 +43,18 @@ export default function AgendaPage() {
     }
   }, [selectedDate, setSelectedDate]);
 
-  // Get current month range - memoized to prevent infinite re-renders
+  // Get current month range based on calendar state
   const { dateFrom, dateTo, currentYear, currentMonth } = useMemo(() => {
-    const now = new Date();
-    const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
-    const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    const firstDay = new Date(calendarYear, calendarMonth, 1);
+    const lastDay = new Date(calendarYear, calendarMonth + 1, 0);
 
     return {
       dateFrom: firstDay.toISOString().split("T")[0],
       dateTo: lastDay.toISOString().split("T")[0],
-      currentYear: now.getFullYear(),
-      currentMonth: now.getMonth() + 1,
+      currentYear: calendarYear,
+      currentMonth: calendarMonth + 1,
     };
-  }, []);
+  }, [calendarMonth, calendarYear]);
 
   const { data, isLoading } = useMyAgenda({
     worker_id: selectedAdvisorId,
@@ -91,7 +96,7 @@ export default function AgendaPage() {
   if (!currentView) notFound();
 
   return (
-    <div className="space-y-4">
+    <PageWrapper>
       <HeaderTableWrapper>
         <TitleComponent
           title="Mi Agenda Comercial"
@@ -110,11 +115,10 @@ export default function AgendaPage() {
         <AgendaCalendarCard
           agendaMap={agendaMap}
           selectedDate={selectedDate}
-          setSelectedDate={setSelectedDate}
           onDayClick={handleDayClick}
         />
         <AgendaDayDetails selectedDayData={selectedDayData} />
       </div>
-    </div>
+    </PageWrapper>
   );
 }

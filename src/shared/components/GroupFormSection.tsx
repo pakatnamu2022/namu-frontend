@@ -51,7 +51,7 @@ export const GroupFormSection = ({
       )}
     >
       <div className={`${bgColor} px-6 py-2.5 border-b border-muted`}>
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div className="flex flex-row flex-wrap justify-between sm:items-center gap-3">
           <h3
             className={cn(
               "text-sm md:text-base font-semibold flex items-center",

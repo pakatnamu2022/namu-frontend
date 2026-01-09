@@ -15,22 +15,10 @@ export const hotelReservationSchema = z
       })
       .nullable()
       .optional(),
-    ruc: requiredText("RUC del Hotel es requerido", 11, 11),
-    hotel_name: z
-      .string()
-      .max(255)
-      .refine((value) => value.trim() !== "", {
-        message: "Nombre del hotel es requerido",
-      }),
-    address: z
-      .string()
-      .max(255)
-      .refine((value) => value.trim() !== "", {
-        message: "Dirección es requerida",
-      }),
-    phone: z.string().refine((value) => value.trim() !== "", {
-      message: "Teléfono es requerido",
-    }),
+    ruc: requiredText("RUC del Hotel", 11, 11),
+    hotel_name: requiredText("Nombre del Hotel", 1, 255),
+    address: requiredText("Dirección del Hotel", 1, 500),
+    phone: requiredText("Teléfono del Hotel", 1),
     checkin_date: z
       .union([z.string(), z.date()])
       .refine((value) => value !== "", {
@@ -53,12 +41,7 @@ export const hotelReservationSchema = z
       .refine((val) => val >= 0, {
         message: "Costo total debe ser mayor o igual a 0",
       }),
-    document_number: z
-      .string()
-      .max(255)
-      .refine((value) => value.trim() !== "", {
-        message: "Nro del Documento es requerido",
-      }),
+    document_number: requiredText("Número de documento", 1, 100),
     receipt_file: z
       .instanceof(File, {
         message: "El comprobante es requerido",

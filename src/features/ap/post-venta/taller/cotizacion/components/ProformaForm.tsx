@@ -3,15 +3,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Textarea } from "@/components/ui/textarea";
+import { Form } from "@/components/ui/form";
 import {
   OrderQuotationSchema,
   orderQuotationSchemaCreate,
@@ -26,6 +18,9 @@ import { Card } from "@/components/ui/card";
 import { useState, useEffect } from "react";
 import { EMPRESA_AP } from "@/core/core.constants";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
+import { AREA_PM_ID } from "@/features/ap/lib/ap.constants";
+import { FormInputText } from "@/shared/components/FormInputText";
+import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.hook";
 
 interface OrderQuotationFormProps {
   defaultValues: Partial<OrderQuotationSchema>;
@@ -52,6 +47,7 @@ export default function OrderQuotationForm({
     ),
     defaultValues: {
       ...defaultValues,
+      area_id: AREA_PM_ID.TALLER,
     },
     mode: "onChange",
   });
@@ -65,6 +61,9 @@ export default function OrderQuotationForm({
   const { data: mySedes = [], isLoading: isLoadingMySedes } = useMySedes({
     company: EMPRESA_AP.id,
   });
+
+  const { data: currencyTypes = [], isLoading: isLoadingCurrencyTypes } =
+    useAllCurrencyTypes();
 
   useEffect(() => {
     if (vehicleId && vehicles.length > 0) {
@@ -86,12 +85,25 @@ export default function OrderQuotationForm({
     }
   }, [quotationDate, form]);
 
-  if (isLoadingVehicles || isLoadingMySedes) return <FormSkeleton />;
+  if (isLoadingVehicles || isLoadingMySedes || isLoadingCurrencyTypes)
+    return <FormSkeleton />;
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <FormSelect
+            control={form.control}
+            name="currency_id"
+            options={currencyTypes.map((type) => ({
+              value: type.id.toString(),
+              label: type.name,
+            }))}
+            label="Moneda (Cotizar repuestos)"
+            placeholder="Seleccionar moneda"
+            required
+          />
+
           <FormSelect
             name="sede_id"
             label="Sede"
@@ -101,6 +113,7 @@ export default function OrderQuotationForm({
               value: item.id.toString(),
             }))}
             control={form.control}
+            required
           />
 
           <FormSelect
@@ -114,6 +127,7 @@ export default function OrderQuotationForm({
               value: item.id.toString(),
             }))}
             control={form.control}
+            required
           />
 
           <DatePickerFormField
@@ -225,23 +239,12 @@ export default function OrderQuotationForm({
           </div>
         )}
 
-        <FormField
-          control={form.control}
+        <FormInputText
           name="observations"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Observaciones</FormLabel>
-              <FormControl>
-                <Textarea
-                  {...field}
-                  value={field.value ?? ""}
-                  placeholder="Notas adicionales sobre la cotización..."
-                  rows={3}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          label="Observaciones"
+          control={form.control}
+          placeholder="Notas adicionales sobre la cotización..."
+          required
         />
 
         <div className="flex justify-end gap-2 pt-4">

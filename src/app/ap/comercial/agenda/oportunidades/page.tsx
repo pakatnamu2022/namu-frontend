@@ -54,26 +54,28 @@ import { useEffect, useState } from "react";
 import type { CarouselApi } from "@/components/ui/carousel";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { notFound } from "@/shared/hooks/useNotFound";
+import { useCalendarMonth, useCalendarYear } from "@/shared/components/CalendarGrid";
 
 export default function OpportunitiesKanbanPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const { ROUTE } = AGENDA;
   const { QUERY_KEY, MODEL } = MANAGE_LEADS;
-  const { selectedAdvisorId, setSelectedAdvisorId, selectedDate, setSelectedDate } =
+  const { selectedAdvisorId, setSelectedAdvisorId } =
     useCommercialFiltersStore();
   const [carouselApi, setCarouselApi] = useState<CarouselApi>();
   const [searchTerm, setSearchTerm] = useState("");
   const permissions = useModulePermissions(ROUTE);
 
-  const now = new Date();
+  // Get calendar state from atoms
+  const [calendarMonth] = useCalendarMonth();
+  const [calendarYear] = useCalendarYear();
 
   // Check if user has permission to view all users' opportunities
   const canViewAdvisors = permissions.canViewAdvisors || false;
 
-  // Get month range from selectedDate (same logic as agenda page)
-  const selectedDateObj = selectedDate ? new Date(selectedDate) : now;
-  const firstDay = new Date(selectedDateObj.getFullYear(), selectedDateObj.getMonth(), 1);
-  const lastDay = new Date(selectedDateObj.getFullYear(), selectedDateObj.getMonth() + 1, 0);
+  // Get month range based on calendar state
+  const firstDay = new Date(calendarYear, calendarMonth, 1);
+  const lastDay = new Date(calendarYear, calendarMonth + 1, 0);
 
   const dateFrom = firstDay.toISOString().split("T")[0];
   const dateTo = lastDay.toISOString().split("T")[0];
@@ -82,8 +84,8 @@ export default function OpportunitiesKanbanPage() {
   const { data: workers = [], isLoading: isLoadingWorkers } = useMyConsultants({
     status_id: STATUS_WORKER.ACTIVE,
     sede$empresa_id: EMPRESA_AP.id,
-    year: selectedDate ? Number(selectedDate.split("-")[0]) : now.getFullYear(),
-    month: selectedDate ? Number(selectedDate.split("-")[1]) : now.getMonth() + 1,
+    year: calendarYear,
+    month: calendarMonth + 1,
   });
 
   // Build query params based on permission and date range
@@ -277,8 +279,6 @@ export default function OpportunitiesKanbanPage() {
             canViewAllUsers={canViewAdvisors}
             selectedAdvisorId={selectedAdvisorId}
             setSelectedAdvisorId={setSelectedAdvisorId}
-            selectedDate={selectedDate}
-            setSelectedDate={setSelectedDate}
             workers={workers}
           />
         </div>

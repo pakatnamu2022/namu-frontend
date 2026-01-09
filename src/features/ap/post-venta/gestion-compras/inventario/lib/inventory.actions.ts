@@ -76,3 +76,11 @@ export const getInventoryKardex = async ({
   );
   return data;
 };
+
+export async function createSaleFromQuotation(
+  quotationId: number
+): Promise<void> {
+  await api.post(
+    `/ap/postVenta/inventoryMovements/sales/quotation/${quotationId}`
+  );
+}
