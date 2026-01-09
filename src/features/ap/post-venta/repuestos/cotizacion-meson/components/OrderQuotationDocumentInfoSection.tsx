@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { UseFormReturn } from "react-hook-form";
-import { FileText } from "lucide-react";
+import { FileText, AlertCircle, CheckCircle } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
@@ -32,6 +33,7 @@ interface OrderQuotationDocumentInfoSectionProps {
   currencyTypes: SunatConceptsResource[];
   isFromQuotation?: boolean;
   defaultCustomer?: CustomersResource;
+  hasSufficientStock?: boolean;
 }
 
 export function OrderQuotationDocumentInfoSection({
@@ -43,6 +45,7 @@ export function OrderQuotationDocumentInfoSection({
   currencyTypes,
   isFromQuotation = false,
   defaultCustomer,
+  hasSufficientStock = true,
 }: OrderQuotationDocumentInfoSectionProps) {
   // Estado para almacenar el cliente seleccionado
   const [selectedCustomer, setSelectedCustomer] = useState<
@@ -84,6 +87,15 @@ export function OrderQuotationDocumentInfoSection({
       });
     }
   }, [defaultCustomer, clientId, form]);
+
+  // Forzar el switch a true (anticipo) cuando no hay stock suficiente
+  useEffect(() => {
+    if (!hasSufficientStock) {
+      form.setValue("is_advance_payment", true, {
+        shouldValidate: false,
+      });
+    }
+  }, [hasSufficientStock, form]);
 
   // Filtrar tipos de documento según el document_type_id del cliente
   const filteredDocumentTypes = documentTypes.filter((type) => {
@@ -145,139 +157,164 @@ export function OrderQuotationDocumentInfoSection({
   }, [isAdvancePayment, filteredSeries, form]);
 
   return (
-    <GroupFormSection
-      title="Información del Documento"
-      icon={FileText}
-      iconColor="text-primary"
-      bgColor="bg-primary/5"
-      cols={{ sm: 1, md: 3 }}
-    >
-      <div className="md:col-span-3">
-        <FormSelectAsync
-          name="client_id"
-          label="Cliente *"
-          placeholder="Seleccionar cliente"
-          control={form.control}
-          useQueryHook={useCustomers}
-          mapOptionFn={(customer) => ({
-            value: customer.id.toString(),
-            label: `${customer.full_name} - ${customer.num_doc || "S/N"}`,
-          })}
-          description={
-            isFromQuotation
-              ? "Cliente asignado desde la cotización (puede modificarlo si lo desea)"
-              : "Seleccione el cliente"
-          }
-          perPage={10}
-          debounceMs={500}
-          disabled={isEdit}
-          defaultOption={defaultOption}
-          onValueChange={(_, customer) => {
-            // Actualizar el estado con el cliente seleccionado
-            if (customer) {
-              setSelectedCustomer(customer as CustomersResource);
-            } else {
-              setSelectedCustomer(undefined);
+    <>
+      {/* Alerta de Stock */}
+      {isFromQuotation && (
+        <Alert
+          variant={hasSufficientStock ? "info" : "destructive"}
+          className="mb-4"
+        >
+          {hasSufficientStock ? (
+            <CheckCircle className="h-4 w-4" />
+          ) : (
+            <AlertCircle className="h-4 w-4" />
+          )}
+          <AlertDescription>
+            {hasSufficientStock
+              ? "Los repuestos de esta cotización cuentan con stock suficiente. Puede realizar una venta completa o un anticipo."
+              : "Existen repuestos en esta cotización que no cuentan con stock suficiente. Solo se permite generar un anticipo."}
+          </AlertDescription>
+        </Alert>
+      )}
+
+      <GroupFormSection
+        title="Información del Documento"
+        icon={FileText}
+        iconColor="text-primary"
+        bgColor="bg-primary/5"
+        cols={{ sm: 1, md: 3 }}
+      >
+        <div className="md:col-span-3">
+          <FormSelectAsync
+            name="client_id"
+            label="Cliente *"
+            placeholder="Seleccionar cliente"
+            control={form.control}
+            useQueryHook={useCustomers}
+            mapOptionFn={(customer) => ({
+              value: customer.id.toString(),
+              label: `${customer.full_name} - ${customer.num_doc || "S/N"}`,
+            })}
+            description={
+              isFromQuotation
+                ? "Cliente asignado desde la cotización (puede modificarlo si lo desea)"
+                : "Seleccione el cliente"
             }
+            perPage={10}
+            debounceMs={500}
+            disabled={isEdit}
+            defaultOption={defaultOption}
+            onValueChange={(_, customer) => {
+              // Actualizar el estado con el cliente seleccionado
+              if (customer) {
+                setSelectedCustomer(customer as CustomersResource);
+              } else {
+                setSelectedCustomer(undefined);
+              }
+            }}
+          />
+        </div>
+
+        <FormSelect
+          control={form.control}
+          name="sunat_concept_document_type_id"
+          options={filteredDocumentTypes.map((type) => ({
+            value: type.id.toString(),
+            label: type.description,
+          }))}
+          label="Tipo de Comprobante"
+          description="Seleccione el tipo de comprobante electrónico"
+          placeholder="Seleccionar tipo de comprobante"
+          required
+        />
+
+        {/* Switch de Anticipo */}
+        <FormSwitch
+          control={form.control}
+          name="is_advance_payment"
+          label="Tipo de Operación"
+          disabled={true}
+          text={isAdvancePayment ? "Anticipo" : "Venta Interna"}
+          description={
+            !hasSufficientStock
+              ? "Sin stock suficiente: Solo se permite anticipo"
+              : isAdvancePayment
+              ? "Tipo de operación: Venta Interna - Anticipos (código 04)"
+              : "Tipo de operación: Venta Interna (código 01)"
+          }
+        />
+
+        <FormSelect
+          control={form.control}
+          name="sunat_concept_currency_id"
+          options={currencyTypes.map((type) => ({
+            value: type.id.toString(),
+            label: type.description,
+          }))}
+          label="Moneda"
+          description="Seleccione la moneda del documento"
+          placeholder="Seleccionar moneda"
+          required
+          disabled={isFromQuotation}
+        />
+
+        <DatePickerFormField
+          control={form.control}
+          name="fecha_de_emision"
+          label="Fecha de Emisión *"
+          placeholder="Seleccione fecha"
+          description="Seleccione la fecha de emisión del documento"
+          disabledRange={{
+            before: new Date(
+              new Date().getFullYear(),
+              new Date().getMonth(),
+              1
+            ),
+            after: new Date(),
           }}
         />
-      </div>
 
-      <FormSelect
-        control={form.control}
-        name="sunat_concept_document_type_id"
-        options={filteredDocumentTypes.map((type) => ({
-          value: type.id.toString(),
-          label: type.description,
-        }))}
-        label="Tipo de Comprobante"
-        description="Seleccione el tipo de comprobante electrónico"
-        placeholder="Seleccionar tipo de comprobante"
-        required
-      />
+        <FormSelect
+          control={form.control}
+          name="serie"
+          options={filteredSeries.map((series) => ({
+            value: series.id.toString(),
+            label: `${series.series} - ${series.sede || ""}`,
+          }))}
+          label="Serie"
+          description={
+            isAdvancePayment
+              ? "Series autorizadas para anticipos"
+              : "Series autorizadas para su usuario"
+          }
+          placeholder="Seleccionar serie"
+          required
+        />
 
-      {/* Switch de Anticipo */}
-      <FormSwitch
-        control={form.control}
-        name="is_advance_payment"
-        label="Tipo de Operación"
-        disabled={!isFromQuotation}
-        text={isAdvancePayment ? "Anticipo" : "Venta Interna"}
-        description={
-          isFromQuotation
-            ? "Cotización sin vehículo: Solo se permite anticipo"
-            : isAdvancePayment
-            ? "Tipo de operación: Venta Interna - Anticipos (código 04)"
-            : "Tipo de operación: Venta Interna (código 01)"
-        }
-      />
-
-      <FormSelect
-        control={form.control}
-        name="sunat_concept_currency_id"
-        options={currencyTypes.map((type) => ({
-          value: type.id.toString(),
-          label: type.description,
-        }))}
-        label="Moneda"
-        description="Seleccione la moneda del documento"
-        placeholder="Seleccionar moneda"
-        required
-        disabled={isFromQuotation}
-      />
-
-      <DatePickerFormField
-        control={form.control}
-        name="fecha_de_emision"
-        label="Fecha de Emisión *"
-        placeholder="Seleccione fecha"
-        description="Seleccione la fecha de emisión del documento"
-        disabledRange={{
-          before: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
-          after: new Date(),
-        }}
-      />
-
-      <FormSelect
-        control={form.control}
-        name="serie"
-        options={filteredSeries.map((series) => ({
-          value: series.id.toString(),
-          label: `${series.series} - ${series.sede || ""}`,
-        }))}
-        label="Serie"
-        description={
-          isAdvancePayment
-            ? "Series autorizadas para anticipos"
-            : "Series autorizadas para su usuario"
-        }
-        placeholder="Seleccionar serie"
-        required
-      />
-
-      <FormField
-        control={form.control}
-        name="numero"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Número</FormLabel>
-            <FormControl>
-              <Input
-                type="number"
-                placeholder="Auto-generado"
-                disabled
-                {...field}
-              />
-            </FormControl>
-            <FormDescription className="text-xs">
-              {isEdit
-                ? "El correlativo no se puede modificar"
-                : "Se genera automáticamente"}
-            </FormDescription>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-    </GroupFormSection>
+        <FormField
+          control={form.control}
+          name="numero"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Número</FormLabel>
+              <FormControl>
+                <Input
+                  type="number"
+                  placeholder="Auto-generado"
+                  disabled
+                  {...field}
+                />
+              </FormControl>
+              <FormDescription className="text-xs">
+                {isEdit
+                  ? "El correlativo no se puede modificar"
+                  : "Se genera automáticamente"}
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </GroupFormSection>
+    </>
   );
 }

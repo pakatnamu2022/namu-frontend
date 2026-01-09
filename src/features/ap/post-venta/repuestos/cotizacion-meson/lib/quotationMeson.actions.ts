@@ -41,3 +41,18 @@ export async function discardOrderQuotation(
   );
   return response.data;
 }
+
+export interface ConfirmQuotationData {
+  customer_signature: string;
+}
+
+export async function confirmOrderQuotation(
+  id: number,
+  data: ConfirmQuotationData
+): Promise<OrderQuotationResource> {
+  const response = await api.put<OrderQuotationResource>(
+    `${ENDPOINT}/${id}/confirm`,
+    data
+  );
+  return response.data;
+}

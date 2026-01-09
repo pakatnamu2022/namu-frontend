@@ -36,6 +36,8 @@ export interface OrderQuotationResource {
   is_fully_paid: boolean;
   output_generation_warehouse: boolean;
   status: string;
+  customer_signature: string | null;
+  has_sufficient_stock: boolean;
 }
 
 export interface OrderQuotationRequest {

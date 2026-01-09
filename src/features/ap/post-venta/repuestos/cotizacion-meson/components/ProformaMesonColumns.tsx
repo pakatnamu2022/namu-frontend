@@ -191,6 +191,10 @@ export const orderQuotationMesonColumns = ({
 
       const isDiscarded = status === "Descartado";
 
+      const isOpened = status === "Aperturado";
+
+      const isForInvoicing = status === "Por Facturar";
+
       const handleDownloadPdf = async (withCode: boolean) => {
         try {
           await downloadOrderQuotationRepuestoPdf(id, withCode);
@@ -257,7 +261,7 @@ export const orderQuotationMesonColumns = ({
               </DropdownMenuContent>
             </DropdownMenu>
 
-            {!isDiscarded && !is_fully_paid && (
+            {!isDiscarded && !isOpened && !is_fully_paid && (
               <Button
                 variant="outline"
                 size="icon"
@@ -281,7 +285,7 @@ export const orderQuotationMesonColumns = ({
               </Button>
             )}
 
-            {!isDiscarded && !has_invoice_generated && (
+            {!isDiscarded && !isForInvoicing && !has_invoice_generated && (
               <Button
                 variant="outline"
                 size="icon"
@@ -294,6 +298,7 @@ export const orderQuotationMesonColumns = ({
             )}
 
             {!isDiscarded &&
+              !isForInvoicing &&
               permissions.canUpdate &&
               !has_invoice_generated && (
                 <Button
@@ -308,6 +313,7 @@ export const orderQuotationMesonColumns = ({
               )}
 
             {!isDiscarded &&
+              !isForInvoicing &&
               permissions.canDelete &&
               !has_invoice_generated && (
                 <DeleteButton onClick={() => onDelete(id)} />

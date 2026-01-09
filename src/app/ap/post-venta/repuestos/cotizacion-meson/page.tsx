@@ -170,6 +170,7 @@ export default function OrderQuotationMesonPage() {
         orderQuotationId={selectedOrderQuotationId}
         open={isBillingSheetOpen}
         onClose={handleCloseBillingSheet}
+        onRefresh={refetch}
       />
     </div>
   );
