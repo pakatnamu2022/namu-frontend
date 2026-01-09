@@ -1,8 +1,5 @@
 import { BUSINESS_PARTNERS } from "@/core/core.constants";
-import {
-  optionalStringId,
-  requiredStringId,
-} from "@/shared/lib/global.schema";
+import { optionalStringId, requiredStringId } from "@/shared/lib/global.schema";
 import { z } from "zod";
 
 const customersBaseObject = z.object({
@@ -30,10 +27,9 @@ const customersBaseObject = z.object({
   legal_representative_paternal_surname: z.string().optional(),
   legal_representative_maternal_surname: z.string().optional(),
   legal_representative_full_name: z.string().optional(),
-  email: z.string().email("Email inválido"),
+  email: z.email("Email inválido"),
   phone: z.string().regex(/^[0-9]{9}$/, "El teléfono debe tener 9 dígitos"),
   secondary_email: z
-    .string()
     .email("Email opcional inválido")
     .optional()
     .or(z.literal("")),

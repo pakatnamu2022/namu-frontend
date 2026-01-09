@@ -52,10 +52,17 @@ export async function findCustomersById(
 }
 
 export async function findCustomerValidated(
-  id: number
+  id: number,
+  lead_id: number
 ): Promise<CustomersResource> {
+  const config: AxiosRequestConfig = {
+    params: {
+      lead_id,
+    },
+  };
   const response = await api.get<CustomersResource>(
-    `${ENDPOINT}/${id}/validateOpportunity`
+    `${ENDPOINT}/${id}/validateOpportunity`,
+    config
   );
   return response.data;
 }
