@@ -17,7 +17,7 @@ interface FormDebugPanelProps {
  * <FormDebugPanel
  *   form={form}
  *   isSubmitting={isSubmitting}
- *   show={process.env.NODE_ENV === 'development'} // Solo en desarrollo
+ *   show={process.env.NODE_ENV === 'development'} // Solo en desarrollo o le puedes poner True
  * />
  * ```
  */

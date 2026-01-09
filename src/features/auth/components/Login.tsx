@@ -89,34 +89,36 @@ export function Login({ className, ...props }: React.ComponentProps<"div">) {
                     required
                     className="h-10"
                   />
-                  <FormInput
-                    name="password"
-                    label="Contraseña"
-                    control={form.control}
-                    type={showPassword ? "text" : "password"}
-                    placeholder="Contraseña"
-                    required
-                    className="h-10 pr-10"
-                    addonEnd={
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        className="absolute right-0 top-0 h-full px-3 hover:bg-transparent pointer-events-auto"
-                        onClick={() => setShowPassword(!showPassword)}
-                        tabIndex={-1}
-                      >
-                        {showPassword ? (
-                          <EyeOff className="h-4 w-4 text-muted-foreground" />
-                        ) : (
-                          <Eye className="h-4 w-4 text-muted-foreground" />
-                        )}
-                        <span className="sr-only">
-                          {showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
-                        </span>
-                      </Button>
-                    }
-                  />
+                  <div className="flex gap-2 items-end">
+                    <div className="flex-1">
+                      <FormInput
+                        name="password"
+                        label="Contraseña"
+                        control={form.control}
+                        type={showPassword ? "text" : "password"}
+                        placeholder="Contraseña"
+                        required
+                        className="h-10"
+                      />
+                    </div>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="h-10 w-10 shrink-0"
+                      onClick={() => setShowPassword(!showPassword)}
+                      tabIndex={-1}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                      <span className="sr-only">
+                        {showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                      </span>
+                    </Button>
+                  </div>
                   <Button
                     type="submit"
                     disabled={isLogging}

@@ -2,6 +2,7 @@ import { ModelsVnResource } from "@/features/ap/configuraciones/vehiculos/modelo
 import { type Links, type Meta } from "@/shared/lib/pagination.interface.ts";
 import { VehicleInspectionResource } from "../../inspeccion-vehiculo/lib/vehicleInspection.interface";
 import { WorkOrderItemResource } from "../../orden-trabajo-item/lib/workOrderItem.interface";
+import { ElectronicDocumentResource } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.interface";
 
 export interface WorkOrderResponse {
   data: WorkOrderResource[];
@@ -55,6 +56,22 @@ export interface WorkerOrderVehicleResource {
   vin: string;
   model: ModelsVnResource;
   year: string;
+}
+
+export interface WorkOrderPaymentSummary {
+  work_order_id: number;
+  correlative: string;
+  payment_summary: {
+    labour_cost: number;
+    parts_cost: number;
+    subtotal: number;
+    discount_amount: number;
+    tax_amount: number;
+    total_amount: number;
+    total_advances: number;
+    remaining_balance: number;
+  };
+  advances: ElectronicDocumentResource[];
 }
 
 export const GROUP_COLORS: Record<number, { badge: string; input: string }> = {

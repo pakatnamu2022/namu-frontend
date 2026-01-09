@@ -7,14 +7,13 @@ import { useNavigate } from 'react-router-dom';
 import { AGENDA } from "../../agenda/lib/agenda.constants";
 import { SearchableSelect } from "@/shared/components/SearchableSelect";
 import { WorkerResource } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.interface";
+import { useCalendarMonth, useCalendarYear, type CalendarState } from "@/shared/components/CalendarGrid";
 
 interface Props {
   canViewAllUsers: boolean;
   workers: WorkerResource[];
   selectedAdvisorId: number | undefined;
   setSelectedAdvisorId: (id: number | undefined) => void;
-  selectedDate: string | null;
-  setSelectedDate: (date: string | null) => void;
 }
 
 export default function OpportunityActions({
@@ -22,28 +21,24 @@ export default function OpportunityActions({
   workers,
   selectedAdvisorId,
   setSelectedAdvisorId,
-  selectedDate,
-  setSelectedDate,
 }: Props) {
   const push = useNavigate();
   const { ABSOLUTE_ROUTE } = AGENDA;
+
+  // Use calendar atoms instead of selectedDate
+  const [calendarMonth, setCalendarMonth] = useCalendarMonth();
+  const [calendarYear, setCalendarYear] = useCalendarYear();
 
   const handleAgenda = () => {
     push(ABSOLUTE_ROUTE!);
   };
 
-  // Extract year and month from selectedDate
-  const currentYear = selectedDate ? Number(selectedDate.split("-")[0]) : new Date().getFullYear();
-  const currentMonth = selectedDate ? Number(selectedDate.split("-")[1]) : new Date().getMonth() + 1;
-
   const handleYearChange = (year: string) => {
-    const month = currentMonth.toString().padStart(2, "0");
-    setSelectedDate(`${year}-${month}-01`);
+    setCalendarYear(Number(year));
   };
 
   const handleMonthChange = (month: string) => {
-    const monthPadded = month.padStart(2, "0");
-    setSelectedDate(`${currentYear}-${monthPadded}-01`);
+    setCalendarMonth((Number(month) - 1) as CalendarState["month"]);
   };
 
   // Generate years (2020-2030) and months
@@ -71,7 +66,7 @@ export default function OpportunityActions({
     <ActionsWrapper>
       <SearchableSelect
         options={monthOptions}
-        value={currentMonth.toString()}
+        value={(calendarMonth + 1).toString()}
         onChange={handleMonthChange}
         placeholder="Mes"
         className="w-32"
@@ -79,7 +74,7 @@ export default function OpportunityActions({
 
       <SearchableSelect
         options={yearOptions}
-        value={currentYear.toString()}
+        value={calendarYear.toString()}
         onChange={handleYearChange}
         placeholder="Año"
         className="w-24"

@@ -93,7 +93,7 @@ export default function PurchaseRequestPVPage() {
           subtitle={currentView.descripcion}
           icon={currentView.icon}
         />
-        <PurchaseRequestActions permissions={permissions} />
+        <PurchaseRequestActions permissions={permissions} module="TALLER" />
       </HeaderTableWrapper>
 
       <PurchaseRequestTable

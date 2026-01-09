@@ -1,8 +1,8 @@
+import { useState } from "react";
 import { EvaluationHeader } from "./EvaluationHeader";
 import { ProgressChart } from "./ProgressChart";
 import { KPICards } from "./KPICards";
 import { ParticipationChart } from "./ParticipationChart";
-// import { ConfigurationCard } from "./ConfigurationCard";
 import { useActivePerformanceEvaluation } from "../lib/performance-evaluation.hook";
 import { exportEvaluationReport } from "../../evaluation-person/lib/evaluationPerson.actions";
 import FormSkeleton from "@/shared/components/FormSkeleton";
@@ -12,6 +12,16 @@ import { FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { EVALUATION } from "../../evaluaciones/lib/evaluation.constans";
+import PageWrapper from "@/shared/components/PageWrapper";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import PersonResultsAccordion from "./PersonResultsAccordion";
+import { usePersonResultsByType } from "../lib/usePersonResults";
+import { KPICardType, getKPITitle } from "../lib/kpi.utils";
 
 // Tipos de datos
 interface ProgressStats {
@@ -26,11 +36,30 @@ interface ProgressStats {
 // Componente Principal
 export default function PerformanceEvaluationPage({ id }: { id?: number }) {
   const { ABSOLUTE_ROUTE } = EVALUATION;
-  // Use the appropriate hook based on whether id is provided
-  const evaluationQuery = id
-    ? useEvaluation(id)
-    : useActivePerformanceEvaluation();
+  const [selectedCardType, setSelectedCardType] = useState<KPICardType | null>(
+    null
+  );
+
+  // Always call hooks unconditionally
+  const evaluationByIdQuery = useEvaluation(id);
+  const activeEvaluationQuery = useActivePerformanceEvaluation();
+
+  // Use the appropriate data based on whether id is provided
+  const evaluationQuery = id ? evaluationByIdQuery : activeEvaluationQuery;
   const evaluationData = evaluationQuery.data;
+
+  const {
+    data: personResults = [],
+    isLoading: isLoadingPersons,
+    error: personsError,
+  } = usePersonResultsByType(
+    evaluationData?.id || 0,
+    selectedCardType || "total"
+  );
+
+  const handleCardClick = (type: KPICardType) => {
+    setSelectedCardType(selectedCardType === type ? null : type);
+  };
 
   if (evaluationQuery.isLoading) {
     return <FormSkeleton />;
@@ -86,7 +115,7 @@ export default function PerformanceEvaluationPage({ id }: { id?: number }) {
   const progressStats: ProgressStats = evaluationData.progress_stats!;
 
   return (
-    <div className="min-h-screen bg-background xl:p-6">
+    <PageWrapper>
       <div className="max-w-7xl mx-auto space-y-6">
         <EvaluationHeader
           onRefresh={evaluationQuery.refetch}
@@ -95,12 +124,34 @@ export default function PerformanceEvaluationPage({ id }: { id?: number }) {
           onDownloadReport={handleDownloadReport}
         />
 
-        <ProgressChart progressStats={progressStats} />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="md:col-span-2">
+            <ProgressChart progressStats={progressStats} />
+          </div>
 
-        <KPICards
-          progressStats={progressStats}
-          evaluationId={evaluationData.id}
-        />
+          <KPICards
+            progressStats={progressStats}
+            selectedCardType={selectedCardType}
+            onCardClick={handleCardClick}
+          />
+        </div>
+
+        {selectedCardType && (
+          <Accordion type="single" collapsible value={selectedCardType}>
+            <AccordionItem value={selectedCardType}>
+              <AccordionTrigger className="text-lg font-semibold">
+                {getKPITitle(selectedCardType, progressStats)}
+              </AccordionTrigger>
+              <AccordionContent>
+                <PersonResultsAccordion
+                  data={personResults}
+                  isLoading={isLoadingPersons}
+                  error={personsError}
+                />
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <ParticipationChart progressStats={progressStats} />
@@ -113,6 +164,6 @@ export default function PerformanceEvaluationPage({ id }: { id?: number }) {
           /> */}
         </div>
       </div>
-    </div>
+    </PageWrapper>
   );
 }

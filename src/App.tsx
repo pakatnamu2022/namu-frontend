@@ -241,6 +241,14 @@ import AddReceptionProductPage from "./app/ap/post-venta/gestion-de-compras/orde
 import ApprovedAccesoriesPage from "./app/ap/post-venta/repuestos/accesorios-homologados/page.tsx";
 import AddApprovedAccesoriesPage from "./app/ap/post-venta/repuestos/accesorios-homologados/agregar/page.tsx";
 import UpdateApprovedAccesoriesPage from "./app/ap/post-venta/repuestos/accesorios-homologados/actualizar/[id]/page.tsx";
+import OrderQuotationMesonPage from "./app/ap/post-venta/repuestos/cotizacion-meson/page.tsx";
+import AddOrderQuotationMesonPage from "./app/ap/post-venta/repuestos/cotizacion-meson/agregar/page.tsx";
+import UpdateOrderQuotationMesonPage from "./app/ap/post-venta/repuestos/cotizacion-meson/actualizar/[id]/page.tsx";
+import BillOrderQuotationMesonPage from "./app/ap/post-venta/repuestos/cotizacion-meson/facturar/[id]/page.tsx";
+import SalesReceiptsRepuestoPage from "./app/ap/post-venta/repuestos/comprobante-venta-repuesto/page.tsx";
+import PurchaseRequestRepuestoPage from "./app/ap/post-venta/repuestos/solicitud-compra-repuesto/page.tsx";
+import AddPurchaseRequestRepuestoPage from "./app/ap/post-venta/repuestos/solicitud-compra-repuesto/agregar/page.tsx";
+import UpdatePurchaseRequestRepuestoPage from "./app/ap/post-venta/repuestos/solicitud-compra-repuesto/actualizar/[id]/page.tsx";
 import CardWashPage from "./app/ap/post-venta/taller/lavado-vehiculo/page.tsx";
 import AppointmentPlanningPage from "./app/ap/post-venta/taller/citas/page.tsx";
 import AddAppointmentPlanningPage from "./app/ap/post-venta/taller/citas/agregar/page.tsx";
@@ -325,6 +333,8 @@ import PerDiemRequestDetailAdminAPPage from "./app/ap/contabilidad/solicitud-via
 import CommercialMastersPage from "./app/ap/configuraciones/maestros-general/maestros-generales/page.tsx";
 import ControlTravelPage from "./app/tp/comercial-tp/control-viajes/page.tsx";
 
+import GeneralMastersPage from "./app/gp/maestros-generales/page.tsx";
+import { PER_DIEM_REQUEST } from "./features/profile/viaticos/lib/perDiemRequest.constants.ts";
 
 // ============================================================================
 // PROTECTED ROUTE COMPONENT
@@ -365,6 +375,8 @@ const RouterCrud = (
     </>
   );
 };
+
+const { ROUTE: PER_DIEM_REQUEST_ROUTE } = PER_DIEM_REQUEST;
 
 // ============================================================================
 // APP COMPONENT
@@ -459,33 +471,36 @@ function App() {
               />
               <Route path="mi-desempeno" element={<MyPerformance />} />
               <Route path="vacaciones" element={<VacationPage />} />
-              <Route path="viaticos" element={<MyPerDiemPage />} />
               <Route
-                path="viaticos/agregar"
+                path={PER_DIEM_REQUEST_ROUTE}
+                element={<MyPerDiemPage />}
+              />
+              <Route
+                path={`${PER_DIEM_REQUEST_ROUTE}/agregar`}
                 element={<AddPerDiemRequestPage />}
               />
               <Route
-                path="viaticos/actualizar/:id"
+                path={`${PER_DIEM_REQUEST_ROUTE}/actualizar/:id`}
                 element={<UpdatePerDiemRequestPage />}
               />
               <Route
-                path="viaticos/aprobar"
+                path={`${PER_DIEM_REQUEST_ROUTE}/aprobar`}
                 element={<ApprovePerDiemRequestPage />}
               />
               <Route
-                path="viaticos/aprobar-liquidaciones"
+                path={`${PER_DIEM_REQUEST_ROUTE}/aprobar-liquidaciones`}
                 element={<ApproveSettlementPage />}
               />
               <Route
-                path="viaticos/:id"
+                path={`${PER_DIEM_REQUEST_ROUTE}/:id`}
                 element={<PerDiemRequestDetailPage />}
               />
               <Route
-                path="viaticos/:id/gastos/agregar"
+                path={`${PER_DIEM_REQUEST_ROUTE}/:id/gastos/agregar`}
                 element={<AddExpensePage />}
               />
               <Route
-                path="viaticos/:id/gastos/actualizar/:expenseId"
+                path={`${PER_DIEM_REQUEST_ROUTE}/:id/gastos/actualizar/:expenseId`}
                 element={<UpdateExpensePage />}
               />
             </Route>
@@ -1183,6 +1198,38 @@ function App() {
                 path="repuestos/accesorios-homologados/actualizar/:id"
                 element={<UpdateApprovedAccesoriesPage />}
               />
+              <Route
+                path="repuestos/cotizacion-meson"
+                element={<OrderQuotationMesonPage />}
+              />
+              <Route
+                path="repuestos/cotizacion-meson/agregar"
+                element={<AddOrderQuotationMesonPage />}
+              />
+              <Route
+                path="repuestos/cotizacion-meson/actualizar/:id"
+                element={<UpdateOrderQuotationMesonPage />}
+              />
+              <Route
+                path="repuestos/cotizacion-meson/facturar/:id"
+                element={<BillOrderQuotationMesonPage />}
+              />
+              <Route
+                path="repuestos/comprobante-venta-repuesto"
+                element={<SalesReceiptsRepuestoPage />}
+              />
+              <Route
+                path="repuestos/solicitud-compra-repuesto"
+                element={<PurchaseRequestRepuestoPage />}
+              />
+              <Route
+                path="repuestos/solicitud-compra-repuesto/agregar"
+                element={<AddPurchaseRequestRepuestoPage />}
+              />
+              <Route
+                path="repuestos/solicitud-compra-repuesto/actualizar/:id"
+                element={<UpdatePurchaseRequestRepuestoPage />}
+              />
               {/* Taller */}
               <Route path="taller/lavado-vehiculo" element={<CardWashPage />} />
               <Route path="taller/modelos-vn-pv" element={<ModelsVnPvPage />} />
@@ -1423,23 +1470,23 @@ function App() {
 
                 {/* Administración de Solicitud de Viaticos */}
                 <Route
-                  path="solicitud-viaticos"
+                  path={PER_DIEM_REQUEST_ROUTE}
                   element={<PerDiemRequestPage />}
                 />
                 <Route
-                  path="solicitud-viaticos/:id"
+                  path={`${PER_DIEM_REQUEST_ROUTE}/:id`}
                   element={<PerDiemRequestDetailAdminPage />}
                 />
                 <Route
-                  path="solicitud-viaticos/:id/reserva-hotel/agregar"
+                  path={`${PER_DIEM_REQUEST_ROUTE}/:id/reserva-hotel/agregar`}
                   element={<AddAdminHotelReservationPage />}
                 />
                 <Route
-                  path="solicitud-viaticos/:id/reserva-hotel/actualizar/:reservationId"
+                  path={`${PER_DIEM_REQUEST_ROUTE}/:id/reserva-hotel/actualizar/:reservationId`}
                   element={<UpdateAdminHotelReservationPage />}
                 />
                 <Route
-                  path="solicitud-viaticos/:id/deposito"
+                  path={`${PER_DIEM_REQUEST_ROUTE}/:id/deposito`}
                   element={<UploadDepositPage />}
                 />
               </Route>
@@ -1570,6 +1617,7 @@ function App() {
               {/* Dashboard Principal */}
               <Route index element={<ModulePage />} />
 
+              <Route path="maestros-generales" element={<GeneralMastersPage />} />
               <Route path="sede" element={<SedePage />} />
               <Route path="sede/agregar" element={<AddSedePage />} />
               <Route path="sede/actualizar/:id" element={<UpdateSedePage />} />

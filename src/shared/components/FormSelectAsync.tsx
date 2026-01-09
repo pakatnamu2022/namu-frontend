@@ -63,6 +63,7 @@ interface FormSelectAsyncProps {
   debounceMs?: number;
   defaultOption?: Option; // Opción inicial para mostrar cuando se edita
   additionalParams?: Record<string, any>; // Parámetros adicionales para el hook
+  onValueChange?: (value: string, item?: any) => void; // Callback cuando cambia el valor
 }
 
 export function FormSelectAsync({
@@ -85,6 +86,7 @@ export function FormSelectAsync({
   debounceMs = 500,
   defaultOption,
   additionalParams = {},
+  onValueChange,
 }: FormSelectAsyncProps) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -301,6 +303,14 @@ export function FormSelectAsync({
                                     ? ""
                                     : option.value;
                                 field.onChange(newValue);
+                                // Llamar onValueChange si existe, pasando el item completo
+                                if (onValueChange) {
+                                  const selectedItem = data?.data?.find(
+                                    (item) =>
+                                      mapOptionFn(item).value === option.value
+                                  );
+                                  onValueChange(newValue, selectedItem);
+                                }
                                 setOpen(false);
                               }}
                             >

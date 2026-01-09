@@ -16,6 +16,7 @@ import { ORDER_QUOTATION } from "@/features/ap/post-venta/taller/cotizacion/lib/
 import OrderQuotationForm from "@/features/ap/post-venta/taller/cotizacion/components/ProformaForm";
 import { storeOrderQuotation } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.actions";
 import { OrderQuotationSchema } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.schema";
+import { CURRENCY_TYPE_IDS } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.constants";
 
 export default function AddOrderQuotationPage() {
   const router = useNavigate();
@@ -54,6 +55,8 @@ export default function AddOrderQuotationPage() {
           quotation_date: "",
           expiration_date: "",
           observations: "",
+          sede_id: "",
+          currency_id: CURRENCY_TYPE_IDS.SOLES,
         }}
         onSubmit={handleSubmit}
         isSubmitting={isPending}

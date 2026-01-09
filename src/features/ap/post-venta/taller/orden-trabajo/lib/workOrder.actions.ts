@@ -6,6 +6,7 @@ import {
   WorkOrderResource,
   WorkOrderResponse,
   WorkOrderRequest,
+  WorkOrderPaymentSummary,
 } from "./workOrder.interface";
 import { WORKER_ORDER } from "./workOrder.constants";
 
@@ -77,4 +78,18 @@ export async function downloadWorkOrderPdf(id: number): Promise<void> {
 
   link.parentNode?.removeChild(link);
   window.URL.revokeObjectURL(url);
+}
+
+export async function getPaymentSummary(
+  id: number,
+  groupNumber?: number
+): Promise<WorkOrderPaymentSummary> {
+  const config: AxiosRequestConfig = {
+    params: groupNumber ? { group_number: groupNumber } : {},
+  };
+  const { data } = await api.get<WorkOrderPaymentSummary>(
+    `${ENDPOINT}/${id}/payment-summary`,
+    config
+  );
+  return data;
 }

@@ -1,3 +1,4 @@
+import { UserResource } from "@/features/gp/gestionsistema/usuarios/lib/user.interface";
 import type { ViewsResponseOpcionesMenu } from "@/features/views/lib/views.interface";
 
 export interface AuthRequest {
@@ -15,28 +16,11 @@ export interface PermissionsResponse {
 
 export interface AuthResponse {
   access_token: string;
-  user: AuthResponseUser;
+  user: UserResource;
   permissions: PermissionsResponse;
 }
 
 export type AuthResponseWithoutToken = Omit<AuthResponse, "access_token">;
-
-export interface AuthResponseUser {
-  id: number;
-  dni: string;
-  partner_id: number;
-  name: string;
-  username: string;
-  email: string;
-  foto_adjunto: string;
-  position: string;
-  empresa: string;
-  sede: string;
-  fecha_ingreso: string;
-  role: string;
-  subordinates: number;
-  verified_at: string | null;
-}
 
 export interface AuthResponsePerson {
   id: number;

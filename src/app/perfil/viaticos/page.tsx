@@ -15,8 +15,10 @@ import { useMemo } from "react";
 export default function MyPerDiemPage() {
   const navigate = useNavigate();
 
+  const { ABSOLUTE_ROUTE: PER_DIEM_REQUEST_ROUTE, QUERY_KEY } =
+    PER_DIEM_REQUEST;
   const { data, isLoading } = useQuery({
-    queryKey: [PER_DIEM_REQUEST.QUERY_KEY, "my-requests"],
+    queryKey: [QUERY_KEY, "my-requests"],
     queryFn: () => getMyPerDiemRequests({}),
   });
 
@@ -86,7 +88,9 @@ export default function MyPerDiemPage() {
                     <PerDiemRequestCard
                       key={request.id}
                       request={request}
-                      onClick={() => navigate(`/perfil/viaticos/${request.id}`)}
+                      onClick={() =>
+                        navigate(`${PER_DIEM_REQUEST_ROUTE}/${request.id}`)
+                      }
                     />
                   ))}
                 </div>
@@ -110,7 +114,9 @@ export default function MyPerDiemPage() {
                     <PerDiemRequestCard
                       key={request.id}
                       request={request}
-                      onClick={() => navigate(`/perfil/viaticos/${request.id}`)}
+                      onClick={() =>
+                        navigate(`${PER_DIEM_REQUEST_ROUTE}/${request.id}`)
+                      }
                     />
                   ))}
                 </div>

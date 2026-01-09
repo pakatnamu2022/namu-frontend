@@ -23,6 +23,7 @@ import { PER_DIEM_REQUEST } from "@/features/profile/viaticos/lib/perDiemRequest
 import { notFound } from "@/shared/hooks/useNotFound";
 import HotelReservationDetailSheet from "@/features/profile/viaticos/components/HotelReservationDetailSheet";
 import { useNavigate } from "react-router-dom";
+import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 
 export default function PerDiemRequestPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -32,6 +33,7 @@ export default function PerDiemRequestPage() {
   const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const { MODEL, ROUTE } = PER_DIEM_REQUEST;
+  const { canSend } = useModulePermissions(ROUTE);
   const [hotelReservationRequestId, setHotelReservationRequestId] = useState<
     number | null
   >(null);
@@ -62,6 +64,8 @@ export default function PerDiemRequestPage() {
     }
   };
 
+  console.log({ canSend });
+
   if (isLoadingModule) return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
   if (!currentView) notFound();
@@ -82,6 +86,7 @@ export default function PerDiemRequestPage() {
             navigate(`/gp/gestion-humana/viaticos/solicitud-viaticos/${id}`),
           onViewHotelReservation: setHotelReservationRequestId,
           module: "gh",
+          permissions: { canSend: canSend },
         })}
         data={data?.data || []}
       >

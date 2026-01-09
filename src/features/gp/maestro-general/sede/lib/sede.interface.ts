@@ -8,27 +8,28 @@ export interface SedeResponse {
 
 export interface SedeResource {
   id: number;
-  localidad: null | string;
+  localidad?: string;
   suc_abrev: string;
   description: string;
   abreviatura: string;
-  empresa_id: null | number;
-  ruc: null | string;
-  razon_social: null | string;
-  direccion: null | string;
-  distrito: null | string;
-  provincia: null | string;
-  departamento: null | string;
-  web: null | string;
-  email: null | string;
+  empresa_id?: number;
+  ruc?: string;
+  razon_social?: string;
+  direccion?: string;
+  distrito?: string;
+  provincia?: string;
+  departamento?: string;
+  web?: string;
+  email?: string;
   logo: null;
-  ciudad: null | string;
-  info_labores: null | string;
-  dyn_code: null | string;
-  establishment: null | string;
-  district_id: null | number;
-  province_id: null | number;
-  department_id: null | number;
+  ciudad?: string;
+  info_labores?: string;
+  dyn_code?: string;
+  establishment?: string;
+  district_id?: number;
+  province_id?: number;
+  department_id?: number;
+  shop_id?: number;
   status: boolean;
   has_workshop: boolean;
 }

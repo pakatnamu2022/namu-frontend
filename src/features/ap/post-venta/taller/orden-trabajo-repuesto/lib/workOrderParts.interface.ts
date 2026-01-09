@@ -17,6 +17,10 @@ export interface WorkOrderPartsResource {
   quantity_used: number;
   is_delivered: boolean;
   registered_by_name: string;
+  unit_price?: string;
+  subtotal?: string;
+  tax_amount?: string;
+  total_amount?: string;
 }
 
 export interface WorkOrderPartsRequest {

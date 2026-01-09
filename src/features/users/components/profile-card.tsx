@@ -12,6 +12,7 @@ import {
   Users,
   ClipboardList,
   TicketsPlane,
+  Home,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../auth/lib/auth.store";
@@ -21,6 +22,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ReactNode } from "react";
 import { useEvaluationsByPersonToEvaluate } from "../../gp/gestionhumana/evaluaciondesempeño/evaluation-person/lib/evaluationPerson.hook";
 import { SidebarMenuButton, useSidebar } from "@/components/ui/sidebar";
+import { PER_DIEM_REQUEST } from "@/features/profile/viaticos/lib/perDiemRequest.constants";
 
 interface ProfileCardProps {
   variant?: "sidebar" | "header";
@@ -28,8 +30,10 @@ interface ProfileCardProps {
 
 export function ProfileCard({ variant = "sidebar" }: ProfileCardProps) {
   const router = useNavigate();
+  const { ROUTE: PER_DIEM_REQUEST_ROUTE } = PER_DIEM_REQUEST;
 
-  const { setOpenMobile, isMobile } = useSidebar();
+  const sidebar = variant === "sidebar" ? useSidebar() : { setOpenMobile: () => {}, isMobile: false };
+  const { setOpenMobile, isMobile } = sidebar;
   const { user } = useAuthStore();
 
   // Solo cargar evaluaciones pendientes si estamos en la página de equipo o perfil principal
@@ -51,6 +55,13 @@ export function ProfileCard({ variant = "sidebar" }: ProfileCardProps) {
     stats?: number | (() => ReactNode);
     allow: boolean;
   }[] = [
+    {
+      label: "Inicio",
+      route: "/companies",
+      icon: Home,
+      stats: undefined,
+      allow: true,
+    },
     {
       label: "Mi perfil",
       route: "",
@@ -128,7 +139,7 @@ export function ProfileCard({ variant = "sidebar" }: ProfileCardProps) {
     },
     {
       label: "Viaticos",
-      route: "viaticos",
+      route: PER_DIEM_REQUEST_ROUTE,
       icon: TicketsPlane,
       stats: undefined,
       allow: true,
@@ -136,7 +147,8 @@ export function ProfileCard({ variant = "sidebar" }: ProfileCardProps) {
   ];
 
   const handleProfileClick = (value: string) => {
-    router(`/perfil/${value}`);
+    const route = value.startsWith("/") ? value : `/perfil/${value}`;
+    router(route);
     if (isMobile) {
       setOpenMobile(false);
     }

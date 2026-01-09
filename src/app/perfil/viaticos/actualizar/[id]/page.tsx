@@ -1,8 +1,6 @@
 "use client";
 
 import { useNavigate, useParams } from "react-router-dom";
-import PageSkeleton from "@/shared/components/PageSkeleton";
-import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import {
   ERROR_MESSAGE,
@@ -21,13 +19,13 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { PerDiemRequestSchemaUpdate } from "@/features/profile/viaticos/lib/perDiemRequest.schema";
 import FormWrapper from "@/shared/components/FormWrapper";
 import { PerDiemRequestResource } from "@/features/profile/viaticos/lib/perDiemRequest.interface";
+import FormSkeleton from "@/shared/components/FormSkeleton";
 
 export default function UpdatePerDiemRequestPage() {
   const { id } = useParams();
-  const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const router = useNavigate();
   const queryClient = useQueryClient();
-  const { MODEL, ROUTE, ABSOLUTE_ROUTE, QUERY_KEY } = PER_DIEM_REQUEST;
+  const { MODEL, ABSOLUTE_ROUTE, QUERY_KEY } = PER_DIEM_REQUEST;
 
   const {
     data: perDiemRequest,
@@ -51,7 +49,7 @@ export default function UpdatePerDiemRequestPage() {
       await queryClient.invalidateQueries({
         queryKey: [QUERY_KEY, Number(id)],
       });
-      router(ABSOLUTE_ROUTE!);
+      navigate();
     },
     onError: (error: any) => {
       const msg = error?.response?.data?.message || "";
@@ -63,33 +61,38 @@ export default function UpdatePerDiemRequestPage() {
     mutate(data);
   };
 
+  const navigate = () => {
+    router(ABSOLUTE_ROUTE! + `/${id}`);
+  };
+
   const handleCancel = () => {
-    router(ABSOLUTE_ROUTE!);
+    navigate();
   };
 
   function mapPerDiemRequestToForm(
     data: PerDiemRequestResource
   ): Partial<PerDiemRequestSchemaUpdate> {
     return {
+      company_id: data.company.id.toString(),
+      sede_service_id: data.sede_service.id.toString(),
       start_date: data.start_date ? new Date(data.start_date) : "",
       end_date: data.end_date ? new Date(data.end_date) : "",
       purpose: data.purpose,
       notes: data.notes || "",
       status: data.status,
+      with_active: data.with_active,
     };
   }
 
-  if (isLoadingModule || loadingPerDiemRequest) return <PageSkeleton />;
-  if (!checkRouteExists(ROUTE)) notFound();
-  if (!currentView) notFound();
+  if (loadingPerDiemRequest) return <FormSkeleton />;
   if (error || !perDiemRequest) notFound();
 
   return (
     <FormWrapper>
       <TitleFormComponent
-        title={currentView.descripcion}
+        title="Actualizar Solicitud de Viáticos"
         mode="edit"
-        icon={currentView.icon}
+        icon="Plane"
       />
       <PerDiemRequestForm
         defaultValues={mapPerDiemRequestToForm(perDiemRequest)}

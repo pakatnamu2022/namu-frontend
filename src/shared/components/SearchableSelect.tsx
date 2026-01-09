@@ -24,8 +24,8 @@ import {
 import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Option } from "@/core/core.interface";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { Option } from "@/core/core.interface";
 
 interface SearchableSelectProps {
   options: Option[];
@@ -36,7 +36,6 @@ interface SearchableSelectProps {
   className?: string;
   classNameOption?: string;
   classNameDiv?: string;
-  portalContainer?: HTMLElement | null;
   withValue?: boolean;
   label?: string;
   disabled?: boolean;
@@ -53,7 +52,6 @@ export function SearchableSelect({
   className,
   classNameOption,
   classNameDiv,
-  portalContainer,
   withValue = true,
   label,
   disabled = false,
@@ -163,24 +161,24 @@ export function SearchableSelect({
       size={buttonSize}
       disabled={disabled}
       className={cn(
-        "flex md:w-fit w-full items-center justify-between rounded-md border px-3 text-xs md:text-sm",
-        selected && "bg-muted text-muted-foreground",
+        "flex w-full text-muted-foreground items-center justify-between rounded-md border px-3 text-xs md:text-sm overflow-hidden",
+        selected && "bg-muted text-foreground",
         className
       )}
     >
-      <span className="text-nowrap! line-clamp-1">
+      <span className="truncate min-w-0 flex-1 text-left block">
         {selected
           ? typeof selected.label === "function"
             ? selected.label()
             : selected.label
           : placeholder}
       </span>
-      <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
+      <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50 shrink-0" />
     </Button>
   );
 
   return (
-    <div className={cn("flex flex-col gap-2", classNameDiv)}>
+    <div className={cn("flex flex-col gap-2 min-w-0", classNameDiv)}>
       {label && <label className="text-sm font-medium">{label}</label>}
       {isMobile ? (
         <Drawer
@@ -198,9 +196,7 @@ export function SearchableSelect({
               <DrawerTitle>{label || "Seleccionar opción"}</DrawerTitle>
               <DrawerDescription className="hidden" />
             </DrawerHeader>
-            <div className="overflow-hidden">
-              {commandContent}
-            </div>
+            <div className="overflow-hidden">{commandContent}</div>
           </DrawerContent>
         </Drawer>
       ) : (
@@ -215,8 +211,7 @@ export function SearchableSelect({
         >
           <PopoverTrigger asChild>{triggerButton}</PopoverTrigger>
           <PopoverContent
-            container={portalContainer}
-            className="p-0 w-(--radix-popover-trigger-width)!"
+            className="p-0 min-w-(--radix-popover-trigger-width)!"
             onWheel={(e) => e.stopPropagation()}
             onWheelCapture={(e) => e.stopPropagation()}
             onTouchMove={(e) => e.stopPropagation()}

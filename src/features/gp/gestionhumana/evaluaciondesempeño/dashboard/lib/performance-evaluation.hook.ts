@@ -13,6 +13,6 @@ export const useActivePerformanceEvaluation = () => {
         return null;
       }
     },
-    refetchOnWindowFocus: false,
+    refetchOnWindowFocus: true,
   });
 };

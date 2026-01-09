@@ -1,5 +1,12 @@
 "use client";
 
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
 import { Target } from "lucide-react";
 
 interface EmptyStateProps {
@@ -14,14 +21,14 @@ export default function EmptyState({
   icon: Icon = Target,
 }: EmptyStateProps) {
   return (
-    <div className="text-center py-12 border rounded-lg">
-      <div className="flex flex-col items-center gap-3 text-muted-foreground">
-        <Icon className="size-12" />
-        <div>
-          <h3 className="font-medium">{title}</h3>
-          <p className="text-sm">{description}</p>
-        </div>
-      </div>
-    </div>
+    <Empty className="border border-dashed">
+      <EmptyHeader>
+        <EmptyMedia variant="icon">
+          <Icon />
+        </EmptyMedia>
+        <EmptyTitle>{title}</EmptyTitle>
+        <EmptyDescription>{description}</EmptyDescription>
+      </EmptyHeader>
+    </Empty>
   );
 }

@@ -2,8 +2,7 @@
 
 import { useParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, FileDown, XCircle, FileCheck } from "lucide-react";
+import { Plus, FileDown, XCircle, FileCheck, Edit } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,35 +21,30 @@ import TitleComponent from "@/shared/components/TitleComponent";
 import {
   GeneralInfoSection,
   ExpensesSection,
-  RequestStatusBadge,
 } from "@/features/profile/viaticos/components/PerDiemRequestDetail";
 import FormWrapper from "@/shared/components/FormWrapper";
 import BackButton from "@/shared/components/BackButton";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { errorToast, successToast } from "@/core/core.function";
+import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
+import { useIsMobile } from "@/hooks/use-mobile";
+import FormSkeleton from "@/shared/components/FormSkeleton";
 
 export default function PerDiemRequestDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [isDownloading, setIsDownloading] = useState(false);
+  const isMobile = useIsMobile();
   const [isDownloadingMobilityPayroll, setIsDownloadingMobilityPayroll] =
     useState(false);
   const [showCancelDialog, setShowCancelDialog] = useState(false);
   const [showStartSettlementDialog, setShowStartSettlementDialog] =
     useState(false);
 
+  const { ABSOLUTE_ROUTE: PER_DIEM_REQUEST_ROUTE, QUERY_KEY } =
+    PER_DIEM_REQUEST;
   const { data: request, isLoading } = useQuery({
-    queryKey: [PER_DIEM_REQUEST.QUERY_KEY, id],
+    queryKey: [QUERY_KEY, id],
     queryFn: () => findPerDiemRequestById(Number(id)),
     enabled: !!id,
   });
@@ -60,7 +54,7 @@ export default function PerDiemRequestDetailPage() {
     onSuccess: () => {
       successToast("Solicitud cancelada correctamente");
       queryClient.invalidateQueries({
-        queryKey: [PER_DIEM_REQUEST.QUERY_KEY, id],
+        queryKey: [QUERY_KEY, id],
       });
       setShowCancelDialog(false);
     },
@@ -74,7 +68,7 @@ export default function PerDiemRequestDetailPage() {
     onSuccess: () => {
       successToast("Proceso de liquidación iniciado correctamente");
       queryClient.invalidateQueries({
-        queryKey: [PER_DIEM_REQUEST.QUERY_KEY, id],
+        queryKey: [QUERY_KEY, id],
       });
       setShowStartSettlementDialog(false);
     },
@@ -146,14 +140,7 @@ export default function PerDiemRequestDetailPage() {
   if (isLoading) {
     return (
       <FormWrapper>
-        <div className="space-y-6">
-          <Skeleton className="h-10 w-full max-w-md" />
-          <div className="space-y-4">
-            <Skeleton className="h-48 w-full" />
-            <Skeleton className="h-48 w-full" />
-            <Skeleton className="h-96 w-full" />
-          </div>
-        </div>
+        <FormSkeleton />
       </FormWrapper>
     );
   }
@@ -172,33 +159,35 @@ export default function PerDiemRequestDetailPage() {
     <FormWrapper>
       <div className="space-y-6">
         {/* Header */}
-        <FormWrapper>
-          <div className="flex flex-col gap-4">
-            {/* Título y Badge */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div className="flex items-center gap-3">
-                <BackButton route="/perfil/viaticos" size="icon" name="" />
-                <TitleComponent
-                  title={request.code}
-                  subtitle="Detalle de Solicitud de Viáticos"
-                  icon="FileText"
-                />
-              </div>
-              <RequestStatusBadge status={request.status} />
+
+        <div className="flex flex-col gap-4">
+          {/* Título y Badge */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <BackButton route={PER_DIEM_REQUEST_ROUTE} size="icon" name="" />
+              <TitleComponent
+                title={request.code}
+                subtitle="Detalle de Solicitud de Viáticos"
+                icon="FileText"
+              />
             </div>
 
             {/* Botones de acción */}
-            <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+            <div className="flex flex-row sm:justify-end gap-2 w-full sm:w-auto">
               <Button
                 onClick={handleDownloadPdf}
                 size="sm"
                 variant="outline"
-                className="gap-2 w-full sm:w-auto"
+                className="gap-2 w-fit sm:w-auto"
                 disabled={isDownloading}
               >
                 <FileDown className="h-4 w-4 shrink-0" />
                 <span className="truncate">
-                  {isDownloading ? "Descargando..." : "Detalle de Gastos"}
+                  {isDownloading
+                    ? "Descargando..."
+                    : isMobile
+                    ? "Gastos"
+                    : "Detalle de Gastos"}
                 </span>
               </Button>
 
@@ -206,13 +195,15 @@ export default function PerDiemRequestDetailPage() {
                 onClick={handleDownloandMobilityPayrollPdf}
                 size="sm"
                 variant="outline"
-                className="gap-2 w-full sm:w-auto"
+                className="gap-2 w-fit sm:w-auto"
                 disabled={isDownloadingMobilityPayroll}
               >
                 <FileDown className="h-4 w-4 shrink-0" />
                 <span className="truncate">
                   {isDownloadingMobilityPayroll
                     ? "Descargando..."
+                    : isMobile
+                    ? "Movilidad"
                     : "Planilla de Movilidad"}
                 </span>
               </Button>
@@ -221,100 +212,95 @@ export default function PerDiemRequestDetailPage() {
                 <>
                   <Button
                     onClick={() =>
-                      navigate(`/perfil/viaticos/${id}/gastos/agregar`)
+                      navigate(`${PER_DIEM_REQUEST_ROUTE}/${id}/gastos/agregar`)
                     }
                     size="sm"
-                    className="gap-2 w-full sm:w-auto"
+                    className="gap-2 w-fit sm:w-auto"
                   >
                     <Plus className="h-4 w-4 shrink-0" />
-                    <span className="truncate">Nuevo Gasto</span>
-                  </Button>
-                  <Button
-                    onClick={() => setShowStartSettlementDialog(true)}
-                    size="sm"
-                    variant="default"
-                    className="gap-2 w-full sm:w-auto"
-                    disabled={startSettlementMutation.isPending}
-                  >
-                    <FileCheck className="h-4 w-4 shrink-0" />
                     <span className="truncate">
-                      {startSettlementMutation.isPending
-                        ? "Iniciando..."
-                        : "Iniciar Liquidación"}
+                      {isMobile ? "Gasto" : "Nuevo Gasto"}
                     </span>
                   </Button>
+                  <ConfirmationDialog
+                    trigger={
+                      <Button
+                        size="sm"
+                        variant="default"
+                        className="gap-2 w-fit sm:w-auto"
+                        disabled={startSettlementMutation.isPending}
+                      >
+                        <FileCheck className="h-4 w-4 shrink-0" />
+                        <span className="truncate">
+                          {startSettlementMutation.isPending
+                            ? "Iniciando..."
+                            : "Iniciar Liquidación"}
+                        </span>
+                      </Button>
+                    }
+                    title="¿Iniciar proceso de liquidación?"
+                    description={`Esta acción iniciará el proceso de liquidación para la solicitud de viático ${request.code}. Una vez iniciado, el jefe deberá aprobar la liquidación.`}
+                    confirmText="Sí, iniciar liquidación"
+                    cancelText="Cancelar"
+                    onConfirm={handleStartSettlement}
+                    variant="default"
+                    icon="info"
+                    open={showStartSettlementDialog}
+                    onOpenChange={setShowStartSettlementDialog}
+                  />
                 </>
               )}
 
               {canCancelRequest() && (
-                <Button
-                  onClick={() => setShowCancelDialog(true)}
-                  size="sm"
+                <ConfirmationDialog
+                  trigger={
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      className="gap-2 w-fit sm:w-auto"
+                      disabled={cancelMutation.isPending}
+                    >
+                      <XCircle className="h-4 w-4 shrink-0" />
+                      <span className="truncate">
+                        {cancelMutation.isPending
+                          ? "Cancelando..."
+                          : isMobile
+                          ? "Cancelar"
+                          : "Cancelar Solicitud"}
+                      </span>
+                    </Button>
+                  }
+                  title="¿Cancelar solicitud de viático?"
+                  description={`Esta acción cancelará la solicitud de viático ${request.code}. Esta acción no se puede deshacer.`}
+                  confirmText="Sí, cancelar solicitud"
+                  cancelText="No, mantener"
+                  onConfirm={handleCancelRequest}
                   variant="destructive"
-                  className="gap-2 w-full sm:w-auto"
-                  disabled={cancelMutation.isPending}
+                  icon="danger"
+                  open={showCancelDialog}
+                  onOpenChange={setShowCancelDialog}
+                />
+              )}
+
+              {request.status === PER_DIEM_STATUS.PENDING && (
+                <Button
+                  onClick={() =>
+                    navigate(`/perfil/solicitud-viaticos/actualizar/${id}`)
+                  }
+                  size="sm"
+                  variant="outline"
+                  color="primary"
+                  className="gap-2 w-fit sm:w-auto"
                 >
-                  <XCircle className="h-4 w-4 shrink-0" />
+                  <Edit className="h-4 w-4 shrink-0" />
                   <span className="truncate">
-                    {cancelMutation.isPending
-                      ? "Cancelando..."
-                      : "Cancelar Solicitud"}
+                    {isMobile ? "Editar" : "Editar Solicitud"}
                   </span>
                 </Button>
               )}
             </div>
           </div>
-        </FormWrapper>
-
-        {/* Diálogo de confirmación de cancelación */}
-        <AlertDialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>
-                ¿Cancelar solicitud de viático?
-              </AlertDialogTitle>
-              <AlertDialogDescription>
-                Esta acción cancelará la solicitud de viático{" "}
-                <strong>{request.code}</strong>. Esta acción no se puede
-                deshacer.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>No, mantener</AlertDialogCancel>
-              <AlertDialogAction
-                onClick={handleCancelRequest}
-                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-              >
-                Sí, cancelar solicitud
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-
-        {/* Diálogo de confirmación de iniciar liquidación */}
-        <AlertDialog
-          open={showStartSettlementDialog}
-          onOpenChange={setShowStartSettlementDialog}
-        >
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>
-                ¿Iniciar proceso de liquidación?
-              </AlertDialogTitle>
-              <AlertDialogDescription>
-                Esta acción iniciará el proceso de liquidación para la solicitud
-                de viático <strong>{request.code}</strong>. Una vez iniciado, el
-                jefe deberá aprobar la liquidación.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancelar</AlertDialogCancel>
-              <AlertDialogAction onClick={handleStartSettlement}>
-                Sí, iniciar liquidación
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+        </div>
 
         {/* Grid para Información General y Resumen Financiero */}
         <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">
@@ -322,11 +308,6 @@ export default function PerDiemRequestDetailPage() {
           <div className="lg:col-span-2 h-full">
             <GeneralInfoSection request={request} />
           </div>
-
-          {/* Resumen Financiero - 1/3 */}
-          {/* <div className="lg:col-span-1 h-full">
-            <FinancialSummarySection request={request} />
-          </div> */}
         </div>
 
         {/* Gastos Registrados */}

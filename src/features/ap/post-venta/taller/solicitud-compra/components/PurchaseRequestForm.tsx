@@ -27,7 +27,7 @@ import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import FormSkeleton from "@/shared/components/FormSkeleton";
-import { useAllWarehouse } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
+import { useWarehousesByCompany } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
 import { useInventory } from "@/features/ap/post-venta/gestion-compras/inventario/lib/inventory.hook";
 import { InventoryResource } from "@/features/ap/post-venta/gestion-compras/inventario/lib/inventory.interface";
 import { getAllOrderQuotations } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.actions";
@@ -35,6 +35,7 @@ import { OrderQuotationResource } from "@/features/ap/post-venta/taller/cotizaci
 import { QuotationSelectionModal } from "../../cotizacion/components/QuotationSelectionModal";
 import { errorToast } from "@/core/core.function";
 import { FormInputText } from "@/shared/components/FormInputText";
+import { CM_POSTVENTA_ID, EMPRESA_AP } from "@/core/core.constants";
 
 interface PurchaseRequestFormProps {
   defaultValues: Partial<PurchaseRequestSchema>;
@@ -69,9 +70,14 @@ export default function PurchaseRequestForm({
   const [isQuotationModalOpen, setIsQuotationModalOpen] = useState(false);
   const [selectedProductName, setSelectedProductName] = useState<string>("");
 
+  // Obtener mis almacenes físicos de postventa
   const { data: warehouses = [], isLoading: isLoadingWarehouses } =
-    useAllWarehouse({
-      is_physical_warehouse: 1,
+    useWarehousesByCompany({
+      my: 1,
+      is_received: 1,
+      empresa_id: EMPRESA_AP.id,
+      type_operation_id: CM_POSTVENTA_ID,
+      only_physical: 1,
     });
 
   const form = useForm({
@@ -144,32 +150,34 @@ export default function PurchaseRequestForm({
     }
   }, [hasAppointment]);
 
-  useEffect(() => {
-    if (selectedQuotationId) {
-      loadQuotationDetails(selectedQuotationId);
-    }
-  }, [selectedQuotationId]);
-
-  const loadQuotations = async () => {
+  const loadQuotations = useCallback(async () => {
     try {
       setIsLoadingQuotations(true);
       const response = await getAllOrderQuotations({
         is_take: 0,
       });
       setQuotations(response || []);
+      return response || [];
     } catch (error: any) {
       const msgError =
         error?.response?.data?.message || "Error al cargar las cotizaciones.";
       errorToast(msgError);
       setQuotations([]);
+      return [];
     } finally {
       setIsLoadingQuotations(false);
     }
-  };
+  }, []);
 
   const loadQuotationDetails = useCallback(
-    async (quotationId: string) => {
-      const selectedQuotation = quotations.find(
+    async (
+      quotationId: string,
+      quotationsToSearch?: OrderQuotationResource[]
+    ) => {
+      // Usar quotationsToSearch si se proporciona, sino usar el estado quotations
+      const quotationsArray = quotationsToSearch || quotations;
+
+      const selectedQuotation = quotationsArray.find(
         (q) => q.id.toString() === quotationId
       );
 
@@ -183,8 +191,8 @@ export default function PurchaseRequestForm({
       // Mapear a PurchaseRequestDetailSchema
       const newDetails: PurchaseRequestDetailSchema[] = productDetails.map(
         (detail) => ({
-          product_id: detail.product_id.toString(),
-          product_name: detail.product_name,
+          product_id: detail.product_id!.toString(),
+          product_name: detail.description,
           quantity: Number(detail.quantity) || 1, // Asegurar que sea number
           notes: "",
         })
@@ -195,6 +203,20 @@ export default function PurchaseRequestForm({
     },
     [quotations]
   );
+
+  useEffect(() => {
+    if (selectedQuotationId) {
+      // Si quotations está vacío, cargarlas primero
+      if (quotations.length === 0) {
+        loadQuotations().then((loadedQuotations) => {
+          loadQuotationDetails(selectedQuotationId, loadedQuotations);
+        });
+      } else {
+        loadQuotationDetails(selectedQuotationId);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedQuotationId]);
 
   if (isLoadingWarehouses) {
     return <FormSkeleton />;
