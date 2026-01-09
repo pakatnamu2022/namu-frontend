@@ -8,7 +8,6 @@ import DashboardSedeTable from "@/features/ap/comercial/dashboard-visitas-leads/
 import DashboardChartsSection from "@/features/ap/comercial/dashboard-visitas-leads/components/DashboardChartsSection";
 import DashboardUserIndicators from "@/features/ap/comercial/dashboard-visitas-leads/components/DashboardUserIndicators";
 import DashboardCampaignChart from "@/features/ap/comercial/dashboard-visitas-leads/components/DashboardCampaignChart";
-import DashboardActions from "@/features/ap/comercial/dashboard-visitas-leads/components/DashboardActions";
 import DashboardFilters from "@/features/ap/comercial/dashboard-visitas-leads/components/DashboardFilters";
 import {
   getIndicatorsByDateTotalRange,
@@ -32,6 +31,7 @@ import { errorToast, successToast } from "@/core/core.function";
 import TitleComponent from "@/shared/components/TitleComponent";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import FormSkeleton from "@/shared/components/FormSkeleton";
+import PageWrapper from "@/shared/components/PageWrapper";
 
 export default function DashboardStoreVisitsPage() {
   const { isLoadingModule, currentView } = useCurrentModule();
@@ -148,7 +148,7 @@ export default function DashboardStoreVisitsPage() {
   if (isLoadingModule) return <FormSkeleton />;
 
   return (
-    <div className="container mx-auto p-4 space-y-6">
+    <PageWrapper>
       {/* Header */}
 
       <TitleComponent
@@ -158,23 +158,16 @@ export default function DashboardStoreVisitsPage() {
         subtitle="Indicadores y métricas de rendimiento"
         icon={currentView?.icon}
       >
-        <div className="flex flex-col md:flex-row gap-4 items-end">
-          <DashboardActions
-            dateFrom={dateFrom}
-            dateTo={dateTo}
-            dashboardType={dashboardType}
-          />
-          <DashboardFilters
-            dashboardType={dashboardType}
-            dateFrom={dateFrom}
-            dateTo={dateTo}
-            onDashboardTypeChange={setDashboardType}
-            onDateChange={(from, to) => {
-              setDateFrom(from);
-              setDateTo(to);
-            }}
-          />
-        </div>
+        <DashboardFilters
+          dashboardType={dashboardType}
+          dateFrom={dateFrom}
+          dateTo={dateTo}
+          onDashboardTypeChange={setDashboardType}
+          onDateChange={(from, to) => {
+            setDateFrom(from);
+            setDateTo(to);
+          }}
+        />
       </TitleComponent>
 
       {/* Dashboard Content */}
@@ -223,6 +216,6 @@ export default function DashboardStoreVisitsPage() {
           </div>
         </div>
       )}
-    </div>
+    </PageWrapper>
   );
 }
