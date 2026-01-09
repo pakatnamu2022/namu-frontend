@@ -16,7 +16,7 @@ import { GeneralModal } from "@/shared/components/GeneralModal";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { VehicleTypeForm } from "./VehicleTypeForm";
 import { VEHICLE_TYPE } from "../lib/vehicleType.constants";
-import { AP_MASTER_TYPE } from "@/features/ap/comercial/ap-master/lib/apMaster.constants";
+import { AP_MASTER_TYPE } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 interface Props {
   id?: number;

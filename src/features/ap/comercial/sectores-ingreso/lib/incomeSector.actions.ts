@@ -7,7 +7,7 @@ import {
 } from "./incomeSector.interface";
 import { STATUS_ACTIVE } from "@/core/core.constants";
 import { INCOME_SECTOR } from "./incomeSector.constants";
-import { AP_MASTER_TYPE } from "../../ap-master/lib/apMaster.constants";
+import { AP_MASTER_TYPE } from "../../../ap-master/lib/apMaster.constants";
 
 const { ENDPOINT } = INCOME_SECTOR;
 

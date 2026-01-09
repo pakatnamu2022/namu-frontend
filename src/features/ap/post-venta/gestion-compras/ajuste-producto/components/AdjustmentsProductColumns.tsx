@@ -6,7 +6,7 @@ import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { ADJUSTMENT } from "../lib/adjustmentsProduct.constants";
 import { AdjustmentsProductListItem } from "../lib/adjustmentsProduct.interface";
 import { Badge } from "@/components/ui/badge";
-import { AP_MASTER_TYPE } from "@/features/ap/comercial/ap-master/lib/apMaster.constants";
+import { AP_MASTER_TYPE } from "@/features/ap/ap-master/lib/apMaster.constants";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 

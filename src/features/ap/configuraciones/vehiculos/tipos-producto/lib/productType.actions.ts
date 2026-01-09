@@ -7,7 +7,7 @@ import {
 import { api } from "@/core/api";
 import { GeneralResponse } from "@/shared/lib/response.interface";
 import { PRODUCT_TYPE } from "./productType.constants";
-import { AP_MASTER_TYPE } from "@/features/ap/comercial/ap-master/lib/apMaster.constants";
+import { AP_MASTER_TYPE } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 const { ENDPOINT } = PRODUCT_TYPE;
 

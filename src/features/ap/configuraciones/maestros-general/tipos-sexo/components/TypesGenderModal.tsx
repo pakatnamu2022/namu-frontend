@@ -13,7 +13,7 @@ import { TypeGenderResource } from "../lib/typesGender.interface";
 import { TypeGenderSchema } from "../lib/typesGender.schema";
 import { storeTypeGender, updateTypeGender } from "../lib/typesGender.actions";
 import { TypeGenderForm } from "./TypesGenderForm";
-import { AP_MASTER_TYPE } from "../../../../comercial/ap-master/lib/apMaster.constants";
+import { AP_MASTER_TYPE } from "../../../../ap-master/lib/apMaster.constants";
 
 interface Props {
   id?: number;

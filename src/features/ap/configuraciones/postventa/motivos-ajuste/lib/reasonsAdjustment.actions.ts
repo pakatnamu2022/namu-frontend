@@ -7,7 +7,7 @@ import {
   ReasonsAdjustmentResource,
   ReasonsAdjustmentResponse,
 } from "./reasonsAdjustment.interface.ts";
-import { AP_MASTER_TYPE } from "@/features/ap/comercial/ap-master/lib/apMaster.constants.ts";
+import { AP_MASTER_TYPE } from "@/features/ap/ap-master/lib/apMaster.constants.ts";
 import { REASONS_ADJUSTMENT } from "./reasonsAdjustment.constants.ts";
 
 const { ENDPOINT } = REASONS_ADJUSTMENT;

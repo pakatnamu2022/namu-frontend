@@ -16,7 +16,7 @@ import { GeneralModal } from "@/shared/components/GeneralModal";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { ProductCategoryForm } from "./ProductCategoryForm";
 import { PRODUCT_CATEGORY } from "../lib/productCategory.constants";
-import { AP_MASTER_TYPE } from "@/features/ap/comercial/ap-master/lib/apMaster.constants";
+import { AP_MASTER_TYPE } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 interface Props {
   id?: number;

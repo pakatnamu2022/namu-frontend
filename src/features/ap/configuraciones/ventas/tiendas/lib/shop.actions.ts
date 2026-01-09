@@ -7,7 +7,7 @@ import { getShopProps, ShopResource, ShopResponse } from "./shop.interface";
 import {
   AP_MASTER_TYPE,
   AP_MASTERS,
-} from "@/features/ap/comercial/ap-master/lib/apMaster.constants";
+} from "@/features/ap/ap-master/lib/apMaster.constants";
 
 const { ENDPOINT } = SHOP;
 

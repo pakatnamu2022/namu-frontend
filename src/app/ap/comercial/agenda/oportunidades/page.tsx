@@ -35,7 +35,7 @@ import OpportunityActions from "@/features/ap/comercial/oportunidades/components
 import { discardLead } from "@/features/ap/comercial/gestionar-leads/lib/manageLeads.actions";
 import { MANAGE_LEADS } from "@/features/ap/comercial/gestionar-leads/lib/manageLeads.constants";
 import { useInvalidateQuery } from "@/core/core.hook";
-import { useCommercialFiltersStore } from "@/features/ap/comercial/ap-master/lib/commercial.store";
+import { useCommercialFiltersStore } from "@/features/ap/ap-master/lib/commercial.store";
 import { useMyConsultants } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
 import {
   Carousel,

@@ -16,7 +16,7 @@ import {
 import { useVehicleCategoryById } from "../lib/vehicleCategory.hook";
 import { VehicleCategoryForm } from "./VehicleCategoryForm";
 import { VEHICLE_CATEGORY } from "../lib/vehicleCategory.constants";
-import { AP_MASTER_TYPE } from "@/features/ap/comercial/ap-master/lib/apMaster.constants";
+import { AP_MASTER_TYPE } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 interface Props {
   id?: number;

@@ -1,5 +1,5 @@
 import { type ModelComplete } from "@/core/core.interface";
-import { AP_MASTERS } from "@/features/ap/comercial/ap-master/lib/apMaster.constants";
+import { AP_MASTERS } from "@/features/ap/ap-master/lib/apMaster.constants";
 import { ReasonsRejectionResource } from "./reasonsRejection.interface";
 
 const ROUTE = "motivos-descarte";

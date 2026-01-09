@@ -8,7 +8,7 @@ import {
   MaritalStatusResource,
   MaritalStatusResponse,
 } from "./maritalStatus.interface";
-import { AP_MASTER_TYPE } from "../../../../comercial/ap-master/lib/apMaster.constants";
+import { AP_MASTER_TYPE } from "../../../../ap-master/lib/apMaster.constants";
 
 const { ENDPOINT } = MARITAL_STATUS;
 

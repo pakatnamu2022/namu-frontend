@@ -9,7 +9,7 @@ import {
   PurchaseRequestQuoteResource,
   PurchaseRequestQuoteResponse,
 } from "./purchaseRequestQuote.interface";
-import { AP_MASTERS } from "../../ap-master/lib/apMaster.constants";
+import { AP_MASTERS } from "../../../ap-master/lib/apMaster.constants";
 
 const { ENDPOINT } = PURCHASE_REQUEST_QUOTE;
 

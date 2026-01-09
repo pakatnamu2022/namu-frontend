@@ -16,7 +16,7 @@ import { GeneralModal } from "@/shared/components/GeneralModal";
 import { EconomicActivityForm } from "./EconomicActivityForm";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { ECONOMIC_ACTIVITY } from "../lib/economicActivity.constants";
-import { AP_MASTER_TYPE } from "../../../../comercial/ap-master/lib/apMaster.constants";
+import { AP_MASTER_TYPE } from "../../../../ap-master/lib/apMaster.constants";
 
 interface Props {
   id?: number;

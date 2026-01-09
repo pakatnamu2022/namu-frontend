@@ -35,7 +35,7 @@ import { Card } from "@/components/ui/card";
 import { ALL_MOVEMENT_TYPES } from "../lib/adjustmentsProduct.constants";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 import { useAllReasonsAdjustment } from "@/features/ap/configuraciones/postventa/motivos-ajuste/lib/reasonsAdjustment.hook";
-import { AP_MASTER_TYPE } from "@/features/ap/comercial/ap-master/lib/apMaster.constants";
+import { AP_MASTER_TYPE } from "@/features/ap/ap-master/lib/apMaster.constants";
 import { useEffect, useMemo } from "react";
 import { FormInput } from "@/shared/components/FormInput";
 

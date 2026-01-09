@@ -14,7 +14,7 @@ import AgendaActions from "@/features/ap/comercial/agenda/components/AgendaActio
 import AgendaCalendarCard from "@/features/ap/comercial/agenda/components/AgendaCalendarCard";
 import AgendaDayDetails from "@/features/ap/comercial/agenda/components/AgendaDayDetails";
 import FormSkeleton from "@/shared/components/FormSkeleton";
-import { useCommercialFiltersStore } from "@/features/ap/comercial/ap-master/lib/commercial.store";
+import { useCommercialFiltersStore } from "@/features/ap/ap-master/lib/commercial.store";
 import { useMyConsultants } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
 import { STATUS_WORKER } from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.constant";
 import { EMPRESA_AP } from "@/core/core.constants";

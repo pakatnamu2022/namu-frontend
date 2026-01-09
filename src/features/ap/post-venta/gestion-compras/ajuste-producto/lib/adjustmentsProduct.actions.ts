@@ -7,7 +7,7 @@ import {
   AdjustmentsProductResource,
   AdjustmentsProductResponse,
 } from "./adjustmentsProduct.interface.ts";
-import { AP_MASTER_TYPE } from "@/features/ap/comercial/ap-master/lib/apMaster.constants.ts";
+import { AP_MASTER_TYPE } from "@/features/ap/ap-master/lib/apMaster.constants.ts";
 import { ADJUSTMENT } from "./adjustmentsProduct.constants.ts";
 
 const { ENDPOINT } = ADJUSTMENT;

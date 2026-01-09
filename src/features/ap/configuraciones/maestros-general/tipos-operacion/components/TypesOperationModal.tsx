@@ -16,7 +16,7 @@ import { GeneralModal } from "@/shared/components/GeneralModal";
 import { TypesOperationForm } from "./TypesOperationForm";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { TYPES_OPERATION } from "../lib/typesOperation.constants";
-import { AP_MASTER_TYPE } from "../../../../comercial/ap-master/lib/apMaster.constants";
+import { AP_MASTER_TYPE } from "../../../../ap-master/lib/apMaster.constants";
 
 interface Props {
   id?: number;

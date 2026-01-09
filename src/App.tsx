@@ -195,6 +195,7 @@ import TractionTypePage from "./app/ap/configuraciones/vehiculos/tipos-traccion/
 import VehicleTypePage from "./app/ap/configuraciones/vehiculos/tipos-vehiculo/page.tsx";
 import GearShiftTypePage from "./app/ap/configuraciones/vehiculos/transmision-vehiculo/page.tsx";
 import ReasonsAdjustmentPage from "./app/ap/configuraciones/postventa/motivos-ajuste/page.tsx";
+import ReasonDiscardingSparePartPage from "./app/ap/configuraciones/postventa/motivos-descarte-repuesto/page.tsx";
 import TypesOperationsAppointmentPage from "./app/ap/configuraciones/postventa/tipos-operacion-cita/page.tsx";
 import TypesPlanningPage from "./app/ap/configuraciones/postventa/tipos-planificacion/page.tsx";
 import CommercialManagerBrandGroupPage from "./app/ap/configuraciones/ventas/asignar-grupo-marca/page.tsx";
@@ -976,6 +977,10 @@ function App() {
                 element={<ReasonsAdjustmentPage />}
               />
               <Route
+                path="postventa/motivos-descarte-repuesto"
+                element={<ReasonDiscardingSparePartPage />}
+              />
+              <Route
                 path="postventa/tipos-planificacion"
                 element={<TypesPlanningPage />}
               />
@@ -1654,7 +1659,10 @@ function App() {
               {/* Dashboard Principal */}
               <Route index element={<ModulePage />} />
 
-              <Route path="maestros-generales" element={<GeneralMastersPage />} />
+              <Route
+                path="maestros-generales"
+                element={<GeneralMastersPage />}
+              />
               <Route path="sede" element={<SedePage />} />
               <Route path="sede/agregar" element={<AddSedePage />} />
               <Route path="sede/actualizar/:id" element={<UpdateSedePage />} />

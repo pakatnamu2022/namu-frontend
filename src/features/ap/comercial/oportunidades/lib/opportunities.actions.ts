@@ -15,7 +15,7 @@ import {
   OpportunitySchema,
 } from "./opportunities.schema";
 import { ParamsProps } from "@/core/core.interface";
-import { AP_MASTERS } from "../../ap-master/lib/apMaster.constants";
+import { AP_MASTERS } from "../../../ap-master/lib/apMaster.constants";
 
 const { ENDPOINT } = OPPORTUNITIES;
 const { ENDPOINT: ACTIONS_ENDPOINT } = OPPORTUNITY_ACTIONS;

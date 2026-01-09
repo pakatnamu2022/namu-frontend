@@ -16,7 +16,7 @@ import { GeneralModal } from "@/shared/components/GeneralModal";
 import { TractionTypeForm } from "./TractionTypeForm";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { TRACTION_TYPE } from "../lib/tractionType.constants";
-import { AP_MASTER_TYPE } from "@/features/ap/comercial/ap-master/lib/apMaster.constants";
+import { AP_MASTER_TYPE } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 interface Props {
   id?: number;

@@ -2,7 +2,7 @@ import type { AxiosRequestConfig } from "axios";
 import { api } from "@/core/api.ts";
 import { GeneralResponse } from "@/shared/lib/response.interface.ts";
 import { STATUS_ACTIVE } from "@/core/core.constants.ts";
-import { AP_MASTER_TYPE } from "@/features/ap/comercial/ap-master/lib/apMaster.constants.ts";
+import { AP_MASTER_TYPE } from "@/features/ap/ap-master/lib/apMaster.constants.ts";
 import { TYPE_PLANNING } from "./typesPlanning.constants.ts";
 import {
   getTypesPlanningProps,

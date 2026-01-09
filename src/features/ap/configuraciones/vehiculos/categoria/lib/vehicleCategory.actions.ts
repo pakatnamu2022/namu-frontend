@@ -7,7 +7,7 @@ import {
 } from "./vehicleCategory.interface";
 import { GeneralResponse } from "@/shared/lib/response.interface";
 import { VEHICLE_CATEGORY } from "./vehicleCategory.constants";
-import { AP_MASTER_TYPE } from "@/features/ap/comercial/ap-master/lib/apMaster.constants";
+import { AP_MASTER_TYPE } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 const { ENDPOINT } = VEHICLE_CATEGORY;
 

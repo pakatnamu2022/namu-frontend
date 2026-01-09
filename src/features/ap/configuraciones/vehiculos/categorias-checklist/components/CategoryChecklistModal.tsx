@@ -16,7 +16,7 @@ import {
 } from "@/core/core.function";
 import { CategoryChecklistForm } from "./CategoryChecklistForm";
 import { CATEGORY_CHECKLIST } from "../lib/categoryChecklist.constants";
-import { AP_MASTER_TYPE } from "@/features/ap/comercial/ap-master/lib/apMaster.constants";
+import { AP_MASTER_TYPE } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 interface Props {
   id?: number;

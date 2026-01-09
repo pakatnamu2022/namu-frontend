@@ -8,7 +8,7 @@ import {
   ReasonsRejectionResource,
   ReasonsRejectionResponse,
 } from "./reasonsRejection.interface";
-import { AP_MASTER_TYPE } from "../../ap-master/lib/apMaster.constants";
+import { AP_MASTER_TYPE } from "../../../ap-master/lib/apMaster.constants";
 
 const { ENDPOINT } = REASONS_REJECTION;
 

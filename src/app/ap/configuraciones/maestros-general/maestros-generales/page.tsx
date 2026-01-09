@@ -14,20 +14,20 @@ import {
 } from "@/core/core.function";
 import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
-import { useApMasters } from "@/features/ap/comercial/ap-master/lib/apMasters.hook";
+import { useApMasters } from "@/features/ap/ap-master/lib/apMasters.hook";
 import {
   deleteApMasters,
   updateApMasters,
-} from "@/features/ap/comercial/ap-master/lib/apMasters.actions";
-import ApMastersActions from "@/features/ap/comercial/ap-master/components/ApMastersActions";
-import { commercialMastersColumns } from "@/features/ap/comercial/ap-master/components/ApMastersColumns";
-import ApMastersTable from "@/features/ap/comercial/ap-master/components/ApMastersTable";
-import ApMastersOptions from "@/features/ap/comercial/ap-master/components/ApMastersOptions";
-import ApMastersModal from "@/features/ap/comercial/ap-master/components/ApMastersModal";
+} from "@/features/ap/ap-master/lib/apMasters.actions";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { SortingState } from "@tanstack/react-table";
-import { AP_MASTERS } from "@/features/ap/comercial/ap-master/lib/apMaster.constants";
+import { AP_MASTERS } from "@/features/ap/ap-master/lib/apMaster.constants";
+import ApMastersActions from "@/features/ap/ap-master/components/ApMastersActions";
+import { commercialMastersColumns } from "@/features/ap/ap-master/components/ApMastersColumns";
+import ApMastersTable from "@/features/ap/ap-master/components/ApMastersTable";
+import ApMastersOptions from "@/features/ap/ap-master/components/ApMastersOptions";
+import ApMastersModal from "@/features/ap/ap-master/components/ApMastersModal";
 
 export default function ApMastersPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();

@@ -1,6 +1,6 @@
 import { type ModelComplete } from "@/core/core.interface";
 import { IncomeSectorResource } from "./incomeSector.interface";
-import { AP_MASTERS } from "../../ap-master/lib/apMaster.constants";
+import { AP_MASTERS } from "../../../ap-master/lib/apMaster.constants";
 
 const ROUTE = "categorias";
 const ABSOLUTE_ROUTE = `/ap/comercial/sectores-ingreso/${ROUTE}`;

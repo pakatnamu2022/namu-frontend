@@ -16,7 +16,7 @@ import {
   reasonsAdjustmentSchemaCreate,
   reasonsAdjustmentSchemaUpdate,
 } from "@/features/ap/configuraciones/postventa/motivos-ajuste/lib/reasonsAdjustment.schema.ts";
-import { AP_MASTER_TYPE } from "@/features/ap/comercial/ap-master/lib/apMaster.constants";
+import { AP_MASTER_TYPE } from "@/features/ap/ap-master/lib/apMaster.constants";
 import { FormSelect } from "@/shared/components/FormSelect.tsx";
 
 interface ReasonsAdjustmentFormProps {

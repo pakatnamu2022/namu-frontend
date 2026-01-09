@@ -16,7 +16,7 @@ import { GeneralModal } from "@/shared/components/GeneralModal";
 import { AccountingAccountTypeForm } from "./AccountingAccountTypeForm";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { ACCOUNTING_ACCOUNT_TYPE } from "../lib/accountingAccountType.constants";
-import { AP_MASTER_TYPE } from "../../../../comercial/ap-master/lib/apMaster.constants";
+import { AP_MASTER_TYPE } from "../../../../ap-master/lib/apMaster.constants";
 
 interface Props {
   id?: number;

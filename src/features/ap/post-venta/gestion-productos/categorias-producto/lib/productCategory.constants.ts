@@ -1,6 +1,6 @@
 import { type ModelComplete } from "@/core/core.interface";
 import { ProductCategoryResource } from "./productCategory.interface";
-import { AP_MASTERS } from "@/features/ap/comercial/ap-master/lib/apMaster.constants";
+import { AP_MASTERS } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 const ROUTE = "categorias-producto";
 const ABSOLUTE_ROUTE = `/ap/post-venta/gestion-productos/${ROUTE}`;

@@ -1,6 +1,6 @@
 import { type ModelComplete } from "@/core/core.interface";
 import { EngineTypesResource } from "./engineTypes.interface";
-import { AP_MASTERS } from "@/features/ap/comercial/ap-master/lib/apMaster.constants";
+import { AP_MASTERS } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 const ROUTE = "tipos-motor";
 const ABSOLUTE_ROUTE = `/ap/configuraciones/vehiculos/${ROUTE}`;

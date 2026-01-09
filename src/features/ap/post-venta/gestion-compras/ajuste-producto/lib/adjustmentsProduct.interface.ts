@@ -1,4 +1,4 @@
-import { AP_MASTER_TYPE } from "@/features/ap/comercial/ap-master/lib/apMaster.constants";
+import { AP_MASTER_TYPE } from "@/features/ap/ap-master/lib/apMaster.constants";
 import { type Links, type Meta } from "@/shared/lib/pagination.interface.ts";
 import { ProductResource } from "../../../gestion-productos/productos/lib/product.interface";
 import { WarehouseResource } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.interface";

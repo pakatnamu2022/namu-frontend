@@ -13,7 +13,7 @@ import { GeneralModal } from "@/shared/components/GeneralModal";
 import { useBrandGroupById } from "../lib/brandGroup.hook";
 import { BrandGroupForm } from "./BrandGroupForm";
 import FormSkeleton from "@/shared/components/FormSkeleton";
-import { AP_MASTER_TYPE } from "@/features/ap/comercial/ap-master/lib/apMaster.constants";
+import { AP_MASTER_TYPE } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 interface Props {
   id?: number;

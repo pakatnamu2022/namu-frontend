@@ -16,7 +16,7 @@ import {
 import { useReasonsRejectionById } from "../lib/reasonsRejection.hook";
 import { ReasonsRejectionForm } from "./ReasonsRejectionForm";
 import { REASONS_REJECTION } from "../lib/reasonsRejection.constants";
-import { AP_MASTER_TYPE } from "../../ap-master/lib/apMaster.constants";
+import { AP_MASTER_TYPE } from "../../../ap-master/lib/apMaster.constants";
 
 interface Props {
   id?: number;

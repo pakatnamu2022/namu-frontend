@@ -15,7 +15,7 @@ import {
 import { GeneralModal } from "@/shared/components/GeneralModal.tsx";
 import FormSkeleton from "@/shared/components/FormSkeleton.tsx";
 import { TypesOperationsAppointmentForm } from "./TypesOperationsAppointmentForm.tsx";
-import { AP_MASTER_TYPE } from "@/features/ap/comercial/ap-master/lib/apMaster.constants.ts";
+import { AP_MASTER_TYPE } from "@/features/ap/ap-master/lib/apMaster.constants.ts";
 import { TYPE_OPERACTION_APPOINTMENT } from "@/features/ap/configuraciones/postventa/tipos-operacion-cita/lib/typesOperationsAppointment.constants.ts";
 
 interface Props {

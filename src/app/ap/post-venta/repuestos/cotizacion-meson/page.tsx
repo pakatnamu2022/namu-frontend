@@ -12,7 +12,7 @@ import {
   SUCCESS_MESSAGE,
   successToast,
 } from "@/core/core.function";
-import { DEFAULT_PER_PAGE } from "@/core/core.constants";
+import { DEFAULT_PER_PAGE, EMPRESA_AP } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { notFound } from "@/shared/hooks/useNotFound";
@@ -20,12 +20,13 @@ import { useNavigate } from "react-router-dom";
 import { ORDER_QUOTATION_MESON } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.constants";
 import { deleteOrderQuotation } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.actions";
 import { useOrderQuotations } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.hook";
-import { AREA_PM_ID } from "@/features/ap/comercial/ap-master/lib/apMaster.constants";
+import { AREA_PM_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 import OrderQuotationMesonTable from "@/features/ap/post-venta/repuestos/cotizacion-meson/components/ProformaMesonTable";
 import OrderQuotationMesonActions from "@/features/ap/post-venta/repuestos/cotizacion-meson/components/ProformaMesonActions";
 import OrderQuotationMesonOptions from "@/features/ap/post-venta/repuestos/cotizacion-meson/components/ProformaMesonOptions";
 import { orderQuotationMesonColumns } from "@/features/ap/post-venta/repuestos/cotizacion-meson/components/ProformaMesonColumns";
 import { OrderQuotationBillingSheet } from "@/features/ap/post-venta/repuestos/cotizacion-meson/components/OrderQuotationBillingSheet";
+import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 
 export default function OrderQuotationMesonPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -44,6 +45,7 @@ export default function OrderQuotationMesonPage() {
 
   const [dateFrom, setDateFrom] = useState<Date | undefined>(currentDate);
   const [dateTo, setDateTo] = useState<Date | undefined>(currentDate);
+  const [sedeId, setSedeId] = useState<string>("");
 
   const formatDate = (date: Date | undefined) => {
     return date ? date.toLocaleDateString("en-CA") : undefined; // formato: YYYY-MM-DD
@@ -68,6 +70,11 @@ export default function OrderQuotationMesonPage() {
         ? [formatDate(dateFrom), formatDate(dateTo)]
         : undefined,
     area_id: AREA_PM_ID.MESON,
+    sede_id: sedeId,
+  });
+
+  const { data: sedes = [], isLoading: isLoadingSedes } = useMySedes({
+    company: EMPRESA_AP.id,
   });
 
   const handleDelete = async () => {
@@ -102,7 +109,7 @@ export default function OrderQuotationMesonPage() {
     setSelectedOrderQuotationId(null);
   };
 
-  if (isLoadingModule) return <PageSkeleton />;
+  if (isLoadingModule || isLoadingSedes) return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
   if (!currentView) notFound();
 
@@ -132,6 +139,9 @@ export default function OrderQuotationMesonPage() {
         <OrderQuotationMesonOptions
           search={search}
           setSearch={setSearch}
+          sedes={sedes}
+          sedeId={sedeId}
+          setSedeId={setSedeId}
           dateFrom={dateFrom}
           setDateFrom={setDateFrom}
           dateTo={dateTo}

@@ -16,7 +16,7 @@ import { storeAdjustmentsProduct } from "@/features/ap/post-venta/gestion-compra
 import { AdjustmentSchema } from "@/features/ap/post-venta/gestion-compras/ajuste-producto/lib/adjustmentsProduct.schema";
 import { AdjustmentsProductForm } from "@/features/ap/post-venta/gestion-compras/ajuste-producto/components/AdjustmentsProductForm";
 import { ADJUSTMENT } from "@/features/ap/post-venta/gestion-compras/ajuste-producto/lib/adjustmentsProduct.constants";
-import { AP_MASTER_TYPE } from "@/features/ap/comercial/ap-master/lib/apMaster.constants";
+import { AP_MASTER_TYPE } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 export default function AddAdjustmentsProductPage() {
   const router = useNavigate();

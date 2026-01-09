@@ -8,7 +8,7 @@ import {
 import { STATUS_ACTIVE } from "@/core/core.constants";
 import { api } from "@/core/api";
 import { GeneralResponse } from "@/shared/lib/response.interface";
-import { AP_MASTER_TYPE } from "../../../../comercial/ap-master/lib/apMaster.constants";
+import { AP_MASTER_TYPE } from "../../../../ap-master/lib/apMaster.constants";
 
 const { ENDPOINT } = CLIENT_ORIGIN;
 

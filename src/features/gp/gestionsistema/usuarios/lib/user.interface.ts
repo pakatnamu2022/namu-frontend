@@ -22,7 +22,7 @@ export interface UserResource {
   role: string;
   role_id: number;
   subordinates: number;
-  sedes: SedeResource[];
+  sedes: SedeUserResource[];
   verified_at?: string;
 }
 
@@ -100,10 +100,10 @@ export interface UserSedeResource {
   sede_id: string;
   status: string;
   user: UserResource;
-  sede: SedeResource;
+  sede: SedeUserResource;
 }
 
-export interface SedeResource {
+export interface SedeUserResource {
   id: string;
   localidad: string;
   suc_abrev: string;

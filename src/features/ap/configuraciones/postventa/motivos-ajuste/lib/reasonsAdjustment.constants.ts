@@ -1,6 +1,6 @@
 import { type ModelComplete } from "@/core/core.interface.ts";
 import { ReasonsAdjustmentResource } from "./reasonsAdjustment.interface.ts";
-import { AP_MASTERS } from "@/features/ap/comercial/ap-master/lib/apMaster.constants.ts";
+import { AP_MASTERS } from "@/features/ap/ap-master/lib/apMaster.constants.ts";
 
 const ROUTE = "motivos-ajuste";
 const ABSOLUTE_ROUTE = `/ap/configuraciones/postventa/${ROUTE}`;

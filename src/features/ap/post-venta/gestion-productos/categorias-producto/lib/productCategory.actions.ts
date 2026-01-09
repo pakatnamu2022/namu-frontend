@@ -8,7 +8,7 @@ import {
   ProductCategoryResource,
   ProductCategoryResponse,
 } from "./productCategory.interface";
-import { AP_MASTER_TYPE } from "@/features/ap/comercial/ap-master/lib/apMaster.constants";
+import { AP_MASTER_TYPE } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 const { ENDPOINT } = PRODUCT_CATEGORY;
 

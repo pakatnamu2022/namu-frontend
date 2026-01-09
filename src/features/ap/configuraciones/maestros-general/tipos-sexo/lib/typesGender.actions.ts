@@ -8,7 +8,7 @@ import {
   TypeGenderResource,
   TypeGenderResponse,
 } from "./typesGender.interface";
-import { AP_MASTER_TYPE } from "../../../../comercial/ap-master/lib/apMaster.constants";
+import { AP_MASTER_TYPE } from "../../../../ap-master/lib/apMaster.constants";
 
 const { ENDPOINT } = TYPE_GENDER;
 

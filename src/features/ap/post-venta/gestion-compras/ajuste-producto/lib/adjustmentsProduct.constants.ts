@@ -1,6 +1,6 @@
 import { ModelComplete } from "@/core/core.interface";
 import { AdjustmentsProductResource } from "./adjustmentsProduct.interface";
-import { AP_MASTER_TYPE } from "@/features/ap/comercial/ap-master/lib/apMaster.constants";
+import { AP_MASTER_TYPE } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 const ROUTE = "ajuste-producto";
 const ABSOLUTE_ROUTE = `/ap/post-venta/gestion-de-compras/${ROUTE}`;

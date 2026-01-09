@@ -28,7 +28,7 @@ import { Card } from "@/components/ui/card";
 import { useState, useEffect } from "react";
 import { EMPRESA_AP } from "@/core/core.constants";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
-import { AREA_PM_ID } from "@/features/ap/comercial/ap-master/lib/apMaster.constants";
+import { AREA_PM_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import {
   useProduct,

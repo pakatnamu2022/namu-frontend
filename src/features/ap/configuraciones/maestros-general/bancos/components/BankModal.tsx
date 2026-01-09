@@ -13,7 +13,7 @@ import FormSkeleton from "@/shared/components/FormSkeleton";
 import { GeneralModal } from "@/shared/components/GeneralModal";
 import { BankForm } from "./BankForm";
 import { BANK } from "../lib/bank.constants";
-import { AP_MASTER_TYPE } from "../../../../comercial/ap-master/lib/apMaster.constants";
+import { AP_MASTER_TYPE } from "../../../../ap-master/lib/apMaster.constants";
 
 interface Props {
   id?: number;

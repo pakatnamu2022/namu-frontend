@@ -16,7 +16,7 @@ import { GeneralModal } from "@/shared/components/GeneralModal";
 import { GearShiftTypeForm } from "./GearShiftTypeForm";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { TYPE_TRANSMISSION } from "../lib/gearShiftType.constants";
-import { AP_MASTER_TYPE } from "@/features/ap/comercial/ap-master/lib/apMaster.constants";
+import { AP_MASTER_TYPE } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 interface Props {
   id?: number;

@@ -1,6 +1,6 @@
 import { type ModelComplete } from "@/core/core.interface";
 import { TypeVehicleOriginResource } from "./typeVehicleOrigin.interface";
-import { AP_MASTERS } from "@/features/ap/comercial/ap-master/lib/apMaster.constants";
+import { AP_MASTERS } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 const ROUTE = "origen-vehiculo";
 const ABSOLUTE_ROUTE = `/ap/configuration/vehiculos/${ROUTE}`;

@@ -1,6 +1,6 @@
 import { type ModelComplete } from "@/core/core.interface";
 import { BrandGroupResource } from "./brandGroup.interface";
-import { AP_MASTERS } from "@/features/ap/comercial/ap-master/lib/apMaster.constants";
+import { AP_MASTERS } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 const ROUTE = "grupo-marcas";
 const ABSOLUTE_ROUTE = `/ap/configuration/${ROUTE}`;

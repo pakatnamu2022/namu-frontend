@@ -16,7 +16,7 @@ import {
   updateDocumentType,
 } from "../lib/documentTypes.actions";
 import { DocumentTypeForm } from "./DocumentTypesForm";
-import { AP_MASTER_TYPE } from "../../../../comercial/ap-master/lib/apMaster.constants";
+import { AP_MASTER_TYPE } from "../../../../ap-master/lib/apMaster.constants";
 
 interface Props {
   id?: number;

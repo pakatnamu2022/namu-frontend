@@ -1,6 +1,6 @@
 import { type ModelComplete } from "@/core/core.interface";
 import { ClientOriginResource } from "./clientOrigin.interface";
-import { AP_MASTERS } from "@/features/ap/comercial/ap-master/lib/apMaster.constants";
+import { AP_MASTERS } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 const ROUTE = "origen-cliente";
 const ABSOLUTE_ROUTE = `/ap/configuraciones/maestros-general/${ROUTE}`;
