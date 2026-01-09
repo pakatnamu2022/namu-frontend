@@ -48,16 +48,14 @@ import {
   CM_POSTVENTA_ID,
   BUSINESS_PARTNERS,
 } from "@/core/core.constants";
-import {
-  TYPE_OPERATION,
-  TYPE_RECEIPT_SERIES,
-} from "@/features/ap/configuraciones/maestros-general/asignar-serie-venta/lib/assignSalesSeries.constants";
+import { TYPE_RECEIPT_SERIES } from "@/features/ap/configuraciones/maestros-general/asignar-serie-venta/lib/assignSalesSeries.constants";
 import { useAuthorizedSeries } from "@/features/ap/configuraciones/maestros-general/asignar-serie-usuario/lib/userSeriesAssignment.hook";
 import { useAllTypeClient } from "@/features/ap/configuraciones/maestros-general/tipos-persona/lib/typeClient.hook";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import { SuppliersResource } from "@/features/ap/comercial/proveedores/lib/suppliers.interface";
 import { useInventory } from "../../inventario/lib/inventory.hook";
 import { InventoryResource } from "../../inventario/lib/inventory.interface";
+import { TYPES_OPERATION_ID } from "@/features/ap/configuraciones/maestros-general/tipos-operacion/lib/typesOperation.constants";
 
 interface ProductTransferFormProps {
   defaultValues: Partial<ProductTransferSchema>;
@@ -148,7 +146,7 @@ export const ProductTransferForm = ({
 
   const { data: series = [], isLoading: isLoadingSeries } = useAuthorizedSeries(
     {
-      type_operation_id: TYPE_OPERATION.COMERCIAL,
+      type_operation_id: TYPES_OPERATION_ID.COMERCIAL,
       type_receipt_id: TYPE_RECEIPT_SERIES.GUIA_REMISION,
     }
   );

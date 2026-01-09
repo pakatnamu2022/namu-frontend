@@ -43,6 +43,7 @@ import { ASSIGN_BRAND_CONSULTANT } from "../lib/assignBrandConsultant.constants"
 import { useAllSedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import MetaIndicators from "./AssignBrandConsultantMetaIndicator";
 import { useAllWorkersBySede } from "../../asignar-sede/lib/assignCompanyBranch.hook";
+import { TYPES_OPERATION_ID } from "../../../maestros-general/tipos-operacion/lib/typesOperation.constants";
 
 interface AssignBrandConsultantFormProps {
   defaultValues: Partial<AssignBrandConsultantSchema>;
@@ -89,7 +90,9 @@ export const AssignBrandConsultantForm = ({
     brand_id: brandSeleccionada,
   });
 
-  const { data: brands = [], isLoading: isLoadingbrands } = useAllBrands();
+  const { data: brands = [], isLoading: isLoadingbrands } = useAllBrands({
+    type_operation_id: TYPES_OPERATION_ID.COMERCIAL,
+  });
 
   const { data: asesores = [], isLoading: isLoadingAsesores } =
     useAllWorkersBySede(

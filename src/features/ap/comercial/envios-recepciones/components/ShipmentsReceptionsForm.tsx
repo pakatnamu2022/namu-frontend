@@ -50,14 +50,12 @@ import {
   SUNAT_CONCEPTS_ID,
 } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
 import { useAuthorizedSeries } from "@/features/ap/configuraciones/maestros-general/asignar-serie-usuario/lib/userSeriesAssignment.hook";
-import {
-  TYPE_OPERATION,
-  TYPE_RECEIPT_SERIES,
-} from "@/features/ap/configuraciones/maestros-general/asignar-serie-venta/lib/assignSalesSeries.constants";
+import { TYPE_RECEIPT_SERIES } from "@/features/ap/configuraciones/maestros-general/asignar-serie-venta/lib/assignSalesSeries.constants";
 import { ImageUploadField } from "@/shared/components/ImageUploadField";
 import { useWarehousesByCompany } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
 import { useAllClassArticle } from "@/features/ap/configuraciones/maestros-general/clase-articulo/lib/classArticle.hook";
 import { useAllVehicles } from "../../vehiculos/lib/vehicles.hook";
+import { TYPES_OPERATION_ID } from "@/features/ap/configuraciones/maestros-general/tipos-operacion/lib/typesOperation.constants";
 
 interface ShipmentsReceptionsFormProps {
   defaultValues: Partial<ShipmentsReceptionsSchema> & {
@@ -182,7 +180,7 @@ export const ShipmentsReceptionsForm = ({
 
   const { data: series = [], isLoading: isLoadingSeries } = useAuthorizedSeries(
     {
-      type_operation_id: TYPE_OPERATION.COMERCIAL,
+      type_operation_id: TYPES_OPERATION_ID.COMERCIAL,
       type_receipt_id: TYPE_RECEIPT_SERIES.GUIA_REMISION,
     }
   );
@@ -1071,7 +1069,7 @@ export const ShipmentsReceptionsForm = ({
             required={false}
           />
         </div>
-{/* 
+        {/* 
         <pre>
           <code>{JSON.stringify(form.getValues(), null, 2)}</code>
         </pre> */}

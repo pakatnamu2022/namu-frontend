@@ -41,7 +41,8 @@ export default function TypesOperationModal({
     refetch,
   } = mode === "create"
     ? { data: EMPTY, isLoading: false, refetch: () => {} }
-    : useTypesOperationById(id!);
+    : // eslint-disable-next-line react-hooks/rules-of-hooks
+      useTypesOperationById(id!);
 
   function mapTypesOperationToForm(
     data: TypesOperationResource

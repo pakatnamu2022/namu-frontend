@@ -37,8 +37,3 @@ export const TYPE_RECEIPT_SERIES = {
   NOTA_DEBITO: 802,
   GUIA_REMISION: 803,
 };
-
-export const TYPE_OPERATION = {
-  COMERCIAL: 794,
-  POSTVENTA: 804,
-};
