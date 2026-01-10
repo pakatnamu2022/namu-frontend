@@ -131,6 +131,11 @@ export const orderQuotationMesonColumns = ({
     enableSorting: false,
   },
   {
+    accessorKey: "supply_type",
+    header: "Abastecimiento",
+    enableSorting: false,
+  },
+  {
     accessorKey: "is_fully_paid",
     header: "Pagado",
     cell: ({ getValue }) => {

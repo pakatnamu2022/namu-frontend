@@ -74,6 +74,14 @@ export const QuotationSelectionModal = ({
       },
     },
     {
+      accessorKey: "customer",
+      header: "Cliente",
+      cell: ({ getValue }) => {
+        const value = getValue() as string;
+        return value && <p className="font-semibold">{value}</p>;
+      },
+    },
+    {
       accessorKey: "vehicle",
       header: "Vehículo",
       cell: ({ row }) => {
@@ -97,11 +105,9 @@ export const QuotationSelectionModal = ({
         if (!date) return "-";
 
         try {
-          const formattedDate = format(
-            new Date(date + "T00:00:00"),
-            "dd/MM/yyyy",
-            { locale: es }
-          );
+          const formattedDate = format(new Date(date), "dd/MM/yyyy", {
+            locale: es,
+          });
           return (
             <div className="flex items-center gap-1.5 text-sm">
               <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
@@ -167,6 +173,7 @@ export const QuotationSelectionModal = ({
             isLoading={isLoading}
             initialColumnVisibility={{
               quotation_number: true,
+              customer: true,
               vehicle: true,
               quotation_date: true,
               total_amount: true,

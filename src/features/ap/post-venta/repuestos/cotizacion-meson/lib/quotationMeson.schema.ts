@@ -55,6 +55,7 @@ export const quotationMesonWithProductsSchemaCreate = z.object({
       message: "Fecha de cotización es requerida",
     }),
   observations: z.string().min(0).max(500).optional(),
+  supply_type: z.enum(["STOCK", "LIMA", "IMPORTACION"]),
 
   // Array de detalles de productos
   details: z
