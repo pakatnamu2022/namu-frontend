@@ -41,7 +41,9 @@ export default function PerformanceEvaluationPage({ id }: { id?: number }) {
   );
 
   // Always call hooks unconditionally
-  const evaluationByIdQuery = useEvaluation(id);
+  const evaluationByIdQuery = useEvaluation(id, {
+    recalculate: 1,
+  });
   const activeEvaluationQuery = useActivePerformanceEvaluation();
 
   // Use the appropriate data based on whether id is provided
