@@ -87,6 +87,7 @@ export default function UpdateVehiclePVPage() {
         isSubmitting={isPending}
         mode="update"
         vehicleData={vehicle}
+        onCancel={() => router(ABSOLUTE_ROUTE!)}
       />
     </FormWrapper>
   );

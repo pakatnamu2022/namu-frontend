@@ -1,6 +1,6 @@
 import { type ModelComplete } from "@/core/core.interface";
 import { TypeVehicleOriginResource } from "./typeVehicleOrigin.interface";
-import { COMMERCIAL_MASTERS_ENDPOINT } from "@/features/ap/lib/ap.constants";
+import { AP_MASTERS } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 const ROUTE = "origen-vehiculo";
 const ABSOLUTE_ROUTE = `/ap/configuration/vehiculos/${ROUTE}`;
@@ -12,7 +12,7 @@ export const VEHICLE_ORIGIN: ModelComplete<TypeVehicleOriginResource> = {
     gender: true,
   },
   ICON: "ContactRound",
-  ENDPOINT: COMMERCIAL_MASTERS_ENDPOINT,
+  ENDPOINT: AP_MASTERS.ENDPOINT,
   QUERY_KEY: "typeVehicleOrigin",
   ROUTE,
   ABSOLUTE_ROUTE,

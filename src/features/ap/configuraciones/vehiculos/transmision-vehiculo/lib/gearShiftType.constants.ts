@@ -1,6 +1,6 @@
 import { type ModelComplete } from "@/core/core.interface";
 import { GearShiftTypeResource } from "./gearShiftType.interface";
-import { COMMERCIAL_MASTERS_ENDPOINT } from "@/features/ap/lib/ap.constants";
+import { AP_MASTERS } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 const ROUTE = "transmision-vehiculo";
 const ABSOLUTE_ROUTE = `/ap/configuraciones/vehiculos/${ROUTE}`;
@@ -12,7 +12,7 @@ export const TYPE_TRANSMISSION: ModelComplete<GearShiftTypeResource> = {
     gender: true,
   },
   ICON: "ContactRound",
-  ENDPOINT: COMMERCIAL_MASTERS_ENDPOINT,
+  ENDPOINT: AP_MASTERS.ENDPOINT,
   QUERY_KEY: "typeTransmission",
   ROUTE,
   ABSOLUTE_ROUTE,

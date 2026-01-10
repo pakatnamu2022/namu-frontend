@@ -73,7 +73,7 @@ export default function ProductKardexPage() {
           <p className="text-lg font-semibold text-destructive">
             Error: Parámetros inválidos
           </p>
-          <Link to={`${ABSOLUTE_ROUTE}/inventario`}>
+          <Link to={`${ABSOLUTE_ROUTE}`}>
             <Button variant="outline" className="mt-4">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Volver
@@ -102,7 +102,7 @@ export default function ProductKardexPage() {
           icon={currentView.icon}
         />
         <BackButton
-          route={`${ABSOLUTE_ROUTE}/inventario`}
+          route={`${ABSOLUTE_ROUTE}`}
           name={"Inventario"}
           fullname={false}
         />

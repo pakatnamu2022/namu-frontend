@@ -7,7 +7,7 @@ import {
 } from "./vehicleCategory.interface";
 import { GeneralResponse } from "@/shared/lib/response.interface";
 import { VEHICLE_CATEGORY } from "./vehicleCategory.constants";
-import { AP_MASTER_COMERCIAL } from "@/features/ap/lib/ap.constants";
+import { AP_MASTER_TYPE } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 const { ENDPOINT } = VEHICLE_CATEGORY;
 
@@ -17,7 +17,7 @@ export async function getVehicleCategory({
   const config: AxiosRequestConfig = {
     params: {
       ...params,
-      type: AP_MASTER_COMERCIAL.VEHICLE_CATEGORY,
+      type: AP_MASTER_TYPE.VEHICLE_CATEGORY,
     },
   };
   const { data } = await api.get<VehicleCategoryResponse>(ENDPOINT, config);

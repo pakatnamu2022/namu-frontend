@@ -29,7 +29,7 @@ import {
 } from "@/features/ap/post-venta/gestion-productos/productos/lib/product.actions";
 
 export default function ProductPVPage() {
-    const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
+  const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
@@ -90,7 +90,7 @@ export default function ProductPVPage() {
           subtitle={currentView.descripcion}
           icon={currentView.icon}
         />
-        <ProductActions permissions={permissions} />
+        <ProductActions permissions={permissions} module="ALMACEN" />
       </HeaderTableWrapper>
       <ProductTable
         isLoading={isLoading}

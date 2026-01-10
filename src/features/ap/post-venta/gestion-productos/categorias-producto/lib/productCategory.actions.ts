@@ -8,7 +8,7 @@ import {
   ProductCategoryResource,
   ProductCategoryResponse,
 } from "./productCategory.interface";
-import { AP_MASTER_POST_VENTA } from "@/features/ap/lib/ap.constants";
+import { AP_MASTER_TYPE } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 const { ENDPOINT } = PRODUCT_CATEGORY;
 
@@ -18,7 +18,7 @@ export async function getProductCategory({
   const config: AxiosRequestConfig = {
     params: {
       ...params,
-      type: [AP_MASTER_POST_VENTA.PRODUCT_CATEGORY],
+      type: [AP_MASTER_TYPE.PRODUCT_CATEGORY],
     },
   };
   const { data } = await api.get<ProductCategoryResponse>(ENDPOINT, config);
@@ -32,7 +32,7 @@ export async function getAllProductCategory({
     params: {
       all: true, // Assuming you want to fetch all periods
       ...params,
-      type: [AP_MASTER_POST_VENTA.PRODUCT_CATEGORY],
+      type: [AP_MASTER_TYPE.PRODUCT_CATEGORY],
       status: STATUS_ACTIVE,
     },
   };

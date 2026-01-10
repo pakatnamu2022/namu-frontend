@@ -512,6 +512,7 @@ export function OrderQuotationBillingForm({
               currencyTypes={currencyTypes}
               isFromQuotation={true}
               defaultCustomer={quotation.vehicle?.owner}
+              hasSufficientStock={quotation.has_sufficient_stock}
             />
 
             {/* Agregar Items */}
@@ -524,7 +525,7 @@ export function OrderQuotationBillingForm({
               maxAdvanceAmount={
                 isAdvancePayment ? Math.max(pendingBalance, 0) : undefined
               }
-              isFromQuotation={false}
+              isFromQuotation={true}
             />
 
             {/* Configuración Adicional */}

@@ -3,8 +3,8 @@ import { api } from "@/core/api.ts";
 import { INVENTORY } from "./inventory.constants.ts";
 import {
   getInventoryProps,
-  InventoryResource,
   InventoryResponse,
+  StockByProductIdsResponse,
 } from "./inventory.interface.ts";
 import {
   getInventoryKardexProps,
@@ -22,26 +22,7 @@ export async function getInventory({
       ...params,
     },
   };
-  const { data } = await api.get<InventoryResponse>(
-    `${ENDPOINT}/warehouse-stock-with-transit`,
-    config
-  );
-  return data;
-}
-
-export async function getAllInventory({
-  params,
-}: getInventoryProps): Promise<InventoryResource[]> {
-  const config: AxiosRequestConfig = {
-    params: {
-      ...params,
-      all: true,
-    },
-  };
-  const { data } = await api.get<InventoryResource[]>(
-    `${ENDPOINT}/warehouse-stock-with-transit`,
-    config
-  );
+  const { data } = await api.get<InventoryResponse>(ENDPOINT, config);
   return data;
 }
 
@@ -83,4 +64,14 @@ export async function createSaleFromQuotation(
   await api.post(
     `/ap/postVenta/inventoryMovements/sales/quotation/${quotationId}`
   );
+}
+
+export async function getStockByProductIds(
+  productIds: number[]
+): Promise<StockByProductIdsResponse> {
+  const { data } = await api.post<StockByProductIdsResponse>(
+    `${ENDPOINT}/by-product-ids`,
+    { product_ids: productIds }
+  );
+  return data;
 }

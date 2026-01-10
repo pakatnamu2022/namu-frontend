@@ -24,7 +24,7 @@ import OrderQuotationTable from "@/features/ap/post-venta/taller/cotizacion/comp
 import OrderQuotationOptions from "@/features/ap/post-venta/taller/cotizacion/components/ProformaOptions";
 import { deleteOrderQuotation } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.actions";
 import { useOrderQuotations } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.hook";
-import { AREA_PM_ID } from "@/features/ap/lib/ap.constants";
+import { AREA_PM_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 export default function OrderQuotationPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();

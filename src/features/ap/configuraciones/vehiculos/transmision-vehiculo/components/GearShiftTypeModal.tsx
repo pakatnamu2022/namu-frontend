@@ -16,7 +16,7 @@ import { GeneralModal } from "@/shared/components/GeneralModal";
 import { GearShiftTypeForm } from "./GearShiftTypeForm";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { TYPE_TRANSMISSION } from "../lib/gearShiftType.constants";
-import { AP_MASTER_COMERCIAL } from "@/features/ap/lib/ap.constants";
+import { AP_MASTER_TYPE } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 interface Props {
   id?: number;
@@ -49,7 +49,7 @@ export default function GearShiftTypeModal({
     return {
       code: data.code,
       description: data.description,
-      type: AP_MASTER_COMERCIAL.TRANSMISION_VEHICLE,
+      type: AP_MASTER_TYPE.TRANSMISION_VEHICLE,
     };
   }
 

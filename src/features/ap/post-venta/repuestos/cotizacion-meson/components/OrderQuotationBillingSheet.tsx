@@ -17,21 +17,39 @@ import {
   Ban,
   FileText,
   Loader2,
+  PenLine,
 } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { findOrderQuotationById } from "../../../taller/cotizacion/lib/proforma.actions";
 import type { OrderQuotationResource } from "../../../taller/cotizacion/lib/proforma.interface";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormControl,
+  FormMessage,
+} from "@/components/ui/form";
+import { Button } from "@/components/ui/button";
+import { GroupFormSection } from "@/shared/components/GroupFormSection";
+import { SignaturePad } from "../../../taller/inspeccion-vehiculo/components/SignaturePad";
+import { confirmOrderQuotation } from "../lib/quotationMeson.actions";
+import { errorToast, successToast } from "@/core/core.function";
 
 interface OrderQuotationBillingSheetProps {
   orderQuotationId: number | null;
   open: boolean;
   onClose: () => void;
+  onRefresh?: () => void;
 }
 
 export function OrderQuotationBillingSheet({
   orderQuotationId,
   open,
   onClose,
+  onRefresh,
 }: OrderQuotationBillingSheetProps) {
   const { data: orderQuotation, isLoading } = useQuery({
     queryKey: ["orderQuotation", orderQuotationId],
@@ -95,6 +113,7 @@ export function OrderQuotationBillingSheet({
         <BillingSheetContent
           orderQuotation={orderQuotation}
           statusConfig={statusConfig}
+          onRefresh={onRefresh}
         />
       )}
     </GeneralSheet>
@@ -110,16 +129,63 @@ interface BillingSheetContentProps {
     rejected: { label: string; icon: any; className: string };
     cancelled: { label: string; icon: any; className: string };
   };
+  onRefresh?: () => void;
 }
+
+const signatureSchema = z.object({
+  customer_signature: z.string().min(1, "La firma del cliente es requerida"),
+});
+
+type SignatureFormData = z.infer<typeof signatureSchema>;
 
 function BillingSheetContent({
   orderQuotation,
   statusConfig,
+  onRefresh,
 }: BillingSheetContentProps) {
+  const queryClient = useQueryClient();
   const advances = orderQuotation.advances || [];
   const hasAdvances = advances.length > 0;
   const totalAdvances = advances.reduce((sum, doc) => sum + doc.total, 0);
   const currencySymbol = orderQuotation.currency?.symbol || "S/.";
+
+  // Verificar si debe mostrar la sección de firma
+  const shouldShowSignature =
+    orderQuotation.status === "Aperturado" &&
+    !orderQuotation.customer_signature;
+
+  const form = useForm<SignatureFormData>({
+    resolver: zodResolver(signatureSchema),
+    defaultValues: {
+      customer_signature: "",
+    },
+  });
+
+  const confirmMutation = useMutation({
+    mutationFn: (data: SignatureFormData) =>
+      confirmOrderQuotation(orderQuotation.id, data),
+    onSuccess: () => {
+      successToast("Firma registrada exitosamente");
+      queryClient.invalidateQueries({
+        queryKey: ["orderQuotation", orderQuotation.id],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["useOrderQuotations"],
+      });
+      form.reset();
+      onRefresh?.();
+    },
+    onError: (error: any) => {
+      errorToast(
+        error?.response?.data?.message ||
+          "Error al registrar la firma. Intente nuevamente."
+      );
+    },
+  });
+
+  const onSubmitSignature = (data: SignatureFormData) => {
+    confirmMutation.mutate(data);
+  };
 
   return (
     <div className="space-y-6 px-6">
@@ -275,6 +341,7 @@ function BillingSheetContent({
           <Table>
             <TableHeader>
               <TableRow className="bg-muted/50">
+                <TableHead className="text-left">Código</TableHead>
                 <TableHead>Descripción</TableHead>
                 <TableHead className="text-center">Cantidad</TableHead>
                 <TableHead className="text-right">P. Unitario</TableHead>
@@ -284,6 +351,9 @@ function BillingSheetContent({
             <TableBody>
               {orderQuotation.details?.map((detail) => (
                 <TableRow key={detail.id}>
+                  <TableCell>
+                    <div className="text-sm">{detail.product!.code}</div>
+                  </TableCell>
                   <TableCell>
                     <div className="text-sm">{detail.description}</div>
                   </TableCell>
@@ -561,6 +631,62 @@ function BillingSheetContent({
               ))}
             </div>
           </div>
+        </>
+      )}
+
+      {/* Sección de Firma del Cliente */}
+      {shouldShowSignature && (
+        <>
+          <Separator />
+          <Form {...form}>
+            <form
+              onSubmit={form.handleSubmit(onSubmitSignature)}
+              className="space-y-4"
+            >
+              <GroupFormSection
+                title="Firma de Conformidad del Cliente"
+                icon={PenLine}
+                iconColor="text-primary"
+                bgColor="bg-blue-50"
+                cols={{ sm: 1 }}
+              >
+                <FormField
+                  control={form.control}
+                  name="customer_signature"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <SignaturePad
+                          label="Firma del Cliente"
+                          value={field.value}
+                          onChange={field.onChange}
+                          disabled={confirmMutation.isPending}
+                          required
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </GroupFormSection>
+
+              <div className="flex justify-end">
+                <Button
+                  type="submit"
+                  disabled={
+                    confirmMutation.isPending || !form.formState.isValid
+                  }
+                >
+                  {confirmMutation.isPending && (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  )}
+                  {confirmMutation.isPending
+                    ? "Confirmando..."
+                    : "Confirmar Cotización"}
+                </Button>
+              </div>
+            </form>
+          </Form>
         </>
       )}
     </div>

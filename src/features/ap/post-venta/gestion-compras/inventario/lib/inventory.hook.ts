@@ -1,11 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import {
-  getAllInventory,
   getInventory,
   getInventoryKardex,
   getInventoryMovements,
 } from "./inventory.actions";
-import { InventoryResource, InventoryResponse } from "./inventory.interface";
+import { InventoryResponse } from "./inventory.interface";
 import { InventoryMovementResponse } from "./inventoryMovements.interface";
 
 export const useInventory = (
@@ -17,14 +16,6 @@ export const useInventory = (
     queryFn: () => getInventory({ params }),
     refetchOnWindowFocus: false,
     enabled: options?.enabled ?? true,
-  });
-};
-
-export const useAllInventory = (params?: Record<string, any>) => {
-  return useQuery<InventoryResource[]>({
-    queryKey: ["inventory-stock", "all", params],
-    queryFn: () => getAllInventory({ params }),
-    refetchOnWindowFocus: false,
   });
 };
 

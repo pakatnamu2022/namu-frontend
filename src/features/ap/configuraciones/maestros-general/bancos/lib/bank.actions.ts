@@ -4,7 +4,7 @@ import { STATUS_ACTIVE } from "@/core/core.constants";
 import { api } from "@/core/api";
 import { GeneralResponse } from "@/shared/lib/response.interface";
 import { BANK } from "./bank.constants";
-import { AP_MASTER_COMERCIAL } from "../../../../lib/ap.constants";
+import { AP_MASTER_TYPE } from "../../../../ap-master/lib/apMaster.constants";
 
 const { ENDPOINT } = BANK;
 
@@ -12,7 +12,7 @@ export async function getBank({ params }: getBankProps): Promise<BankResponse> {
   const config: AxiosRequestConfig = {
     params: {
       ...params,
-      type: AP_MASTER_COMERCIAL.BANK,
+      type: AP_MASTER_TYPE.BANK,
     },
   };
   const { data } = await api.get<BankResponse>(ENDPOINT, config);
@@ -26,7 +26,7 @@ export async function getAllBank({
     params: {
       all: true, // Assuming you want to fetch all periods
       ...params,
-      type: AP_MASTER_COMERCIAL.BANK,
+      type: AP_MASTER_TYPE.BANK,
       status: STATUS_ACTIVE,
     },
   };

@@ -137,7 +137,7 @@ export async function downloadManageLeadsFile({
   const config: AxiosRequestConfig = {
     params: {
       type: "LEADS",
-      registration_date: params.created_at,
+      created_at: params.created_at,
       ...(isPDF && { format: "pdf" }),
     },
     responseType: "blob",

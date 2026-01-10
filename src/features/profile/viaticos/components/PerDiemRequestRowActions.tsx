@@ -34,6 +34,7 @@ import {
 } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
 import { SearchableSelect } from "@/shared/components/SearchableSelect";
+import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 
 interface PerDiemRequestRowActionsProps {
   request: PerDiemRequestResource;
@@ -52,6 +53,7 @@ export function PerDiemRequestRowActions({
   module = "gh",
   permissions,
 }: PerDiemRequestRowActionsProps) {
+  const { ROUTE } = PER_DIEM_REQUEST;
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
@@ -73,6 +75,7 @@ export function PerDiemRequestRowActions({
   const isCancelled = request.status === "cancelled";
   const canCompleteSettlement = request.settlement_status === "approved";
   const isOnlyApproved = request.status === "approved";
+  const { canAuthorize } = useModulePermissions(ROUTE);
 
   const confirmMutation = useMutation({
     mutationFn: (requestId: number) => confirmProgressPerDiemRequest(requestId),
@@ -290,7 +293,7 @@ export function PerDiemRequestRowActions({
           />
         )}
 
-        {isOnlyApproved && request.days_count === 1 && (
+        {isOnlyApproved && canAuthorize && (
           <ConfirmationDialog
             trigger={
               <Button

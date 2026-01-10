@@ -5,12 +5,16 @@ import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { ArrowRightLeft } from "lucide-react";
-import { Link } from "react-router-dom";
-import { INVENTORY } from "../lib/inventory.constants";
 
 export type InventoryColumns = ColumnDef<InventoryResource>;
 
-export const inventoryColumns = (): InventoryColumns[] => [
+interface Props {
+  onMovements: (id: number, warehouse_id: number) => void;
+}
+
+export const inventoryColumns = ({
+  onMovements,
+}: Props): InventoryColumns[] => [
   {
     accessorKey: "product.code",
     header: "Código",
@@ -161,7 +165,6 @@ export const inventoryColumns = (): InventoryColumns[] => [
     cell: ({ row }) => {
       const productId = row.original.product_id;
       const warehouseId = row.original.warehouse_id;
-      const { ABSOLUTE_ROUTE } = INVENTORY;
 
       return (
         <Button
@@ -169,12 +172,9 @@ export const inventoryColumns = (): InventoryColumns[] => [
           size="icon"
           className="size-7"
           tooltip="Ver Movimientos"
+          onClick={() => onMovements?.(productId, warehouseId)}
         >
-          <Link
-            to={`${ABSOLUTE_ROUTE}/inventario/movimientos/${productId}/${warehouseId}`}
-          >
-            <ArrowRightLeft className="size-5" />
-          </Link>
+          <ArrowRightLeft className="size-5" />
         </Button>
       );
     },

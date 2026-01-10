@@ -1,16 +1,30 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-import { Pencil, Download, Receipt, Eye, PackageOpen } from "lucide-react";
+import {
+  Pencil,
+  Download,
+  Receipt,
+  Eye,
+  PackageOpen,
+  XCircle,
+} from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { errorToast, successToast } from "@/core/core.function";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge";
 import { OrderQuotationResource } from "../../../taller/cotizacion/lib/proforma.interface";
-import { downloadOrderQuotationPdf } from "../../../taller/cotizacion/lib/proforma.actions";
+import { downloadOrderQuotationRepuestoPdf } from "../../../taller/cotizacion/lib/proforma.actions";
 import { SimpleConfirmDialog } from "@/shared/components/SimpleConfirmDialog";
 import { useState } from "react";
 import { createSaleFromQuotation } from "../../../gestion-compras/inventario/lib/inventory.actions";
+import { DiscardQuotationModal } from "./DiscardQuotationModal";
 
 export type OrderQuotationMesonColumns = ColumnDef<OrderQuotationResource>;
 
@@ -72,7 +86,12 @@ export const orderQuotationMesonColumns = ({
     enableSorting: false,
   },
   {
-    accessorKey: "vehicle.plate",
+    accessorKey: "customer",
+    header: "Cliente",
+    enableSorting: false,
+  },
+  {
+    accessorKey: "plate",
     header: "Placa",
     enableSorting: false,
   },
@@ -92,6 +111,26 @@ export const orderQuotationMesonColumns = ({
     enableSorting: false,
   },
   {
+    accessorKey: "discard_reason",
+    header: "Motivo de Descarte",
+    enableSorting: false,
+  },
+  {
+    accessorKey: "discarded_note",
+    header: "Notas de Descarte",
+    enableSorting: false,
+  },
+  {
+    accessorKey: "discarded_by_name",
+    header: "Descartado Por",
+    enableSorting: false,
+  },
+  {
+    accessorKey: "discarded_at",
+    header: "Fecha de Descarte",
+    enableSorting: false,
+  },
+  {
     accessorKey: "is_fully_paid",
     header: "Pagado",
     cell: ({ getValue }) => {
@@ -108,6 +147,31 @@ export const orderQuotationMesonColumns = ({
     enableSorting: false,
   },
   {
+    accessorKey: "status",
+    header: "Estado",
+    cell: ({ getValue }) => {
+      const status = getValue() as string;
+
+      const getStatusBadge = (status: string) => {
+        switch (status) {
+          case "Descartado":
+            return <Badge variant="red">{status}</Badge>;
+          case "Aperturado":
+            return <Badge variant="indigo">{status}</Badge>;
+          case "Por Facturar":
+            return <Badge variant="orange">{status}</Badge>;
+          case "Facturado":
+            return <Badge variant="green">{status}</Badge>;
+          default:
+            return <Badge variant="secondary">{status}</Badge>;
+        }
+      };
+
+      return getStatusBadge(status);
+    },
+    enableSorting: false,
+  },
+  {
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
@@ -116,16 +180,29 @@ export const orderQuotationMesonColumns = ({
         has_invoice_generated,
         is_fully_paid,
         output_generation_warehouse,
+        status,
       } = row.original;
       // eslint-disable-next-line react-hooks/rules-of-hooks
       const [showConfirmDialog, setShowConfirmDialog] = useState(false);
       // eslint-disable-next-line react-hooks/rules-of-hooks
+      const [showDiscardModal, setShowDiscardModal] = useState(false);
+      // eslint-disable-next-line react-hooks/rules-of-hooks
       const [isLoading, setIsLoading] = useState(false);
 
-      const handleDownloadPdf = async () => {
+      const isDiscarded = status === "Descartado";
+
+      const isOpened = status === "Aperturado";
+
+      const isForInvoicing = status === "Por Facturar";
+
+      const handleDownloadPdf = async (withCode: boolean) => {
         try {
-          await downloadOrderQuotationPdf(id, false);
-          successToast("PDF descargado correctamente");
+          await downloadOrderQuotationRepuestoPdf(id, withCode);
+          successToast(
+            `PDF descargado correctamente ${
+              withCode ? "con código" : "sin código"
+            }`
+          );
         } catch {
           errorToast("Error al descargar el PDF");
         }
@@ -161,17 +238,30 @@ export const orderQuotationMesonColumns = ({
               <Eye className="size-5" />
             </Button>
 
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-7"
-              onClick={handleDownloadPdf}
-              tooltip="PDF"
-            >
-              <Download className="size-5" />
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="size-7"
+                  tooltip="Descargar PDF"
+                >
+                  <Download className="size-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => handleDownloadPdf(true)}>
+                  <Download className="size-4 mr-2" />
+                  PDF con código
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleDownloadPdf(false)}>
+                  <Download className="size-4 mr-2" />
+                  PDF sin código
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
 
-            {!is_fully_paid && (
+            {!isDiscarded && !isOpened && !is_fully_paid && (
               <Button
                 variant="outline"
                 size="icon"
@@ -183,7 +273,7 @@ export const orderQuotationMesonColumns = ({
               </Button>
             )}
 
-            {is_fully_paid && !output_generation_warehouse && (
+            {!isDiscarded && is_fully_paid && !output_generation_warehouse && (
               <Button
                 variant="outline"
                 size="icon"
@@ -195,21 +285,39 @@ export const orderQuotationMesonColumns = ({
               </Button>
             )}
 
-            {permissions.canUpdate && !has_invoice_generated && (
+            {!isDiscarded && !isForInvoicing && !has_invoice_generated && (
               <Button
                 variant="outline"
                 size="icon"
-                className="size-7"
-                tooltip="Editar"
-                onClick={() => onUpdate(id)}
+                className="size-7 text-orange-600 hover:text-orange-700 hover:bg-orange-50"
+                tooltip="Descartar Cotización"
+                onClick={() => setShowDiscardModal(true)}
               >
-                <Pencil className="size-5" />
+                <XCircle className="size-5" />
               </Button>
             )}
 
-            {permissions.canDelete && !has_invoice_generated && (
-              <DeleteButton onClick={() => onDelete(id)} />
-            )}
+            {!isDiscarded &&
+              !isForInvoicing &&
+              permissions.canUpdate &&
+              !has_invoice_generated && (
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="size-7"
+                  tooltip="Editar"
+                  onClick={() => onUpdate(id)}
+                >
+                  <Pencil className="size-5" />
+                </Button>
+              )}
+
+            {!isDiscarded &&
+              !isForInvoicing &&
+              permissions.canDelete &&
+              !has_invoice_generated && (
+                <DeleteButton onClick={() => onDelete(id)} />
+              )}
           </div>
 
           <SimpleConfirmDialog
@@ -222,6 +330,13 @@ export const orderQuotationMesonColumns = ({
             cancelText="Cancelar"
             icon="warning"
             isLoading={isLoading}
+          />
+
+          <DiscardQuotationModal
+            open={showDiscardModal}
+            onClose={() => setShowDiscardModal(false)}
+            quotationId={id}
+            onSuccess={onRefresh}
           />
         </>
       );

@@ -5,13 +5,16 @@ import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import TitleComponent from "@/shared/components/TitleComponent";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import type { CalendarDayData } from "@/shared/components/CalendarGrid";
-import { useCalendarMonth, useCalendarYear } from "@/shared/components/CalendarGrid";
+import {
+  useCalendarMonth,
+  useCalendarYear,
+} from "@/shared/components/CalendarGrid";
 import { useMyAgenda } from "@/features/ap/comercial/oportunidades/lib/opportunities.hook";
 import AgendaActions from "@/features/ap/comercial/agenda/components/AgendaActions";
 import AgendaCalendarCard from "@/features/ap/comercial/agenda/components/AgendaCalendarCard";
 import AgendaDayDetails from "@/features/ap/comercial/agenda/components/AgendaDayDetails";
 import FormSkeleton from "@/shared/components/FormSkeleton";
-import { useCommercialFiltersStore } from "@/features/ap/comercial/lib/commercial.store";
+import { useCommercialFiltersStore } from "@/features/ap/ap-master/lib/commercial.store";
 import { useMyConsultants } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
 import { STATUS_WORKER } from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.constant";
 import { EMPRESA_AP } from "@/core/core.constants";

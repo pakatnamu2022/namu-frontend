@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const commercialMastersSchemaCreate = z.object({
+export const apMastersSchemaCreate = z.object({
   code: z
     .string()
     .max(50)
@@ -22,9 +22,6 @@ export const commercialMastersSchemaCreate = z.object({
   status: z.boolean().optional().default(true),
 });
 
-export const commercialMastersSchemaUpdate =
-  commercialMastersSchemaCreate.partial();
+export const apMastersSchemaUpdate = apMastersSchemaCreate.partial();
 
-export type CommercialMastersSchema = z.infer<
-  typeof commercialMastersSchemaCreate
->;
+export type ApMastersSchema = z.infer<typeof apMastersSchemaCreate>;

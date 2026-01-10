@@ -16,7 +16,7 @@ import {
 import { useVehicleCategoryById } from "../lib/vehicleCategory.hook";
 import { VehicleCategoryForm } from "./VehicleCategoryForm";
 import { VEHICLE_CATEGORY } from "../lib/vehicleCategory.constants";
-import { AP_MASTER_COMERCIAL } from "@/features/ap/lib/ap.constants";
+import { AP_MASTER_TYPE } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 interface Props {
   id?: number;
@@ -48,7 +48,7 @@ export default function VehicleCategoryModal({
   ): Partial<VehicleCategorySchema> {
     return {
       description: data.description,
-      type: AP_MASTER_COMERCIAL.VEHICLE_CATEGORY,
+      type: AP_MASTER_TYPE.VEHICLE_CATEGORY,
     };
   }
 

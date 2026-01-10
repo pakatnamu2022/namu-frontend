@@ -16,7 +16,7 @@ import { GeneralModal } from "@/shared/components/GeneralModal";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { ProductCategoryForm } from "./ProductCategoryForm";
 import { PRODUCT_CATEGORY } from "../lib/productCategory.constants";
-import { AP_MASTER_POST_VENTA } from "@/features/ap/lib/ap.constants";
+import { AP_MASTER_TYPE } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 interface Props {
   id?: number;
@@ -50,7 +50,7 @@ export default function ProductCategoryModal({
     return {
       code: data.code,
       description: data.description,
-      type: AP_MASTER_POST_VENTA.PRODUCT_CATEGORY,
+      type: AP_MASTER_TYPE.PRODUCT_CATEGORY,
     };
   }
 

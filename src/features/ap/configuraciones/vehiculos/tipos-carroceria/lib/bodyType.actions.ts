@@ -8,7 +8,7 @@ import { api } from "@/core/api";
 import { GeneralResponse } from "@/shared/lib/response.interface";
 import { STATUS_ACTIVE } from "@/core/core.constants";
 import { BODY_TYPE } from "./bodyType.constants";
-import { AP_MASTER_COMERCIAL } from "@/features/ap/lib/ap.constants";
+import { AP_MASTER_TYPE } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 const { ENDPOINT } = BODY_TYPE;
 
@@ -18,7 +18,7 @@ export async function getBodyType({
   const config: AxiosRequestConfig = {
     params: {
       ...params,
-      type: AP_MASTER_COMERCIAL.BODY_TYPE,
+      type: AP_MASTER_TYPE.BODY_TYPE,
     },
   };
   const { data } = await api.get<BodyTypeResponse>(ENDPOINT, config);
@@ -32,7 +32,7 @@ export async function getAllBodyType({
     params: {
       all: true, // Assuming you want to fetch all periods
       ...params,
-      type: AP_MASTER_COMERCIAL.BODY_TYPE,
+      type: AP_MASTER_TYPE.BODY_TYPE,
       status: STATUS_ACTIVE,
     },
   };

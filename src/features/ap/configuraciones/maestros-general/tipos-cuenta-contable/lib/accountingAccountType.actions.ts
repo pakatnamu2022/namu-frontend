@@ -8,7 +8,7 @@ import { STATUS_ACTIVE } from "@/core/core.constants";
 import { api } from "@/core/api";
 import { GeneralResponse } from "@/shared/lib/response.interface";
 import { ACCOUNTING_ACCOUNT_TYPE } from "./accountingAccountType.constants";
-import { AP_MASTER_COMERCIAL } from "../../../../lib/ap.constants";
+import { AP_MASTER_TYPE } from "../../../../ap-master/lib/apMaster.constants";
 
 const { ENDPOINT } = ACCOUNTING_ACCOUNT_TYPE;
 
@@ -18,7 +18,7 @@ export async function getAccountingAccountType({
   const config: AxiosRequestConfig = {
     params: {
       ...params,
-      type: AP_MASTER_COMERCIAL.ACCOUNTING_ACCOUNT_TYPE,
+      type: AP_MASTER_TYPE.ACCOUNTING_ACCOUNT_TYPE,
     },
   };
   const { data } = await api.get<AccountingAccountTypeResponse>(
@@ -35,7 +35,7 @@ export async function getAllAccountingAccountType({
     params: {
       all: true, // Assuming you want to fetch all periods
       ...params,
-      type: AP_MASTER_COMERCIAL.ACCOUNTING_ACCOUNT_TYPE,
+      type: AP_MASTER_TYPE.ACCOUNTING_ACCOUNT_TYPE,
       status: STATUS_ACTIVE,
     },
   };

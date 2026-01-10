@@ -16,7 +16,7 @@ import { GeneralModal } from "@/shared/components/GeneralModal";
 import { PersonSegmentForm } from "./PersonSegmentForm";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { PERSON_SEGMENT } from "../lib/personSegment.constants";
-import { AP_MASTER_COMERCIAL } from "../../../../lib/ap.constants";
+import { AP_MASTER_TYPE } from "../../../../ap-master/lib/apMaster.constants";
 
 interface Props {
   id?: number;
@@ -48,7 +48,7 @@ export default function PersonSegmentModal({
   ): Partial<PersonSegmentSchema> {
     return {
       description: data.description,
-      type: AP_MASTER_COMERCIAL.PERSON_SEGMENT,
+      type: AP_MASTER_TYPE.PERSON_SEGMENT,
     };
   }
 

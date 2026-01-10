@@ -7,7 +7,7 @@ import {
   AdjustmentsProductResource,
   AdjustmentsProductResponse,
 } from "./adjustmentsProduct.interface.ts";
-import { AP_MASTER_POST_VENTA } from "@/features/ap/lib/ap.constants.ts";
+import { AP_MASTER_TYPE } from "@/features/ap/ap-master/lib/apMaster.constants.ts";
 import { ADJUSTMENT } from "./adjustmentsProduct.constants.ts";
 
 const { ENDPOINT } = ADJUSTMENT;
@@ -19,8 +19,8 @@ export async function getAdjustmentsProduct({
     params: {
       ...params,
       movement_type: [
-        AP_MASTER_POST_VENTA.TYPE_ADJUSTMENT_OUT,
-        AP_MASTER_POST_VENTA.TYPE_ADJUSTMENT_IN,
+        AP_MASTER_TYPE.TYPE_ADJUSTMENT_OUT,
+        AP_MASTER_TYPE.TYPE_ADJUSTMENT_IN,
       ],
     },
   };
@@ -35,8 +35,8 @@ export async function getAllAdjustmentsProduct({
     params: {
       ...params,
       movement_type: [
-        AP_MASTER_POST_VENTA.TYPE_ADJUSTMENT_OUT,
-        AP_MASTER_POST_VENTA.TYPE_ADJUSTMENT_IN,
+        AP_MASTER_TYPE.TYPE_ADJUSTMENT_OUT,
+        AP_MASTER_TYPE.TYPE_ADJUSTMENT_IN,
       ],
       all: true,
     },

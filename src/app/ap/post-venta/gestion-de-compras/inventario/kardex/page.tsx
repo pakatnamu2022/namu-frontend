@@ -43,7 +43,7 @@ export default function InventoryKardexPage() {
           icon={currentView.icon}
         />
         <BackButton
-          route={`${ABSOLUTE_ROUTE}/inventario`}
+          route={`${ABSOLUTE_ROUTE}`}
           name={"Inventario"}
           fullname={false}
         />

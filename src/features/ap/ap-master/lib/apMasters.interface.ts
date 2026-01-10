@@ -1,12 +1,12 @@
 import { type Links, type Meta } from "@/shared/lib/pagination.interface";
 
-export interface CommercialMastersResponse {
-  data: CommercialMastersResource[];
+export interface ApMastersResponse {
+  data: ApMastersResource[];
   links: Links;
   meta: Meta;
 }
 
-export interface CommercialMastersResource {
+export interface ApMastersResource {
   id: number;
   code: string;
   description: string;
@@ -14,13 +14,13 @@ export interface CommercialMastersResource {
   status?: boolean;
 }
 
-export interface CommercialMastersRequest {
+export interface ApMastersRequest {
   code: string;
   description: string;
   type: string;
   status?: boolean;
 }
 
-export interface getCommercialMastersProps {
+export interface getApMastersProps {
   params?: Record<string, any>;
 }

@@ -1,10 +1,10 @@
 import { DataTable } from "@/shared/components/DataTable";
 import { ColumnDef, OnChangeFn, SortingState } from "@tanstack/react-table";
-import { CommercialMastersResource } from "../lib/commercialMasters.interface";
+import { ApMastersResource } from "../lib/apMasters.interface";
 
-interface CommercialMastersTableProps {
-  columns: ColumnDef<CommercialMastersResource>[];
-  data: CommercialMastersResource[];
+interface ApMastersTableProps {
+  columns: ColumnDef<ApMastersResource>[];
+  data: ApMastersResource[];
   isLoading: boolean;
   children?: React.ReactNode;
   sorting?: SortingState;
@@ -12,7 +12,7 @@ interface CommercialMastersTableProps {
   manualSorting?: boolean;
 }
 
-export default function CommercialMastersTable({
+export default function ApMastersTable({
   columns,
   data,
   isLoading,
@@ -20,7 +20,7 @@ export default function CommercialMastersTable({
   sorting,
   onSortingChange,
   manualSorting,
-}: CommercialMastersTableProps) {
+}: ApMastersTableProps) {
   return (
     <DataTable
       sorting={sorting}

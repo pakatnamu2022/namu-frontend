@@ -31,7 +31,7 @@ export default function VehiclesPostVentaPage() {
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
-  const { MODEL, ROUTE } = VEHICLES_PV;
+  const { MODEL, ROUTE, ROUTE_UPDATE } = VEHICLES_PV;
 
   useEffect(() => {
     setPage(1);
@@ -69,13 +69,13 @@ export default function VehiclesPostVentaPage() {
           subtitle={"Gestión de vehículos"}
           icon={currentView.icon}
         />
-        <VehicleActionsPV />
+        <VehicleActionsPV module="TALLER" />
       </HeaderTableWrapper>
       <VehicleTable
         isLoading={isLoading}
         columns={vehicleColumns({
           onDelete: setDeleteId,
-          onUpdate: (id) => router(`${VEHICLES_PV.ROUTE_UPDATE}/${id}`),
+          onUpdate: (id) => router(`${ROUTE_UPDATE}/${id}`),
         })}
         data={data?.data || []}
         initialColumnVisibility={{ plate: true }}
