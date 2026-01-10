@@ -16,6 +16,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { errorToast } from "@/core/core.function";
+import { SUPPLY_TYPE } from "../lib/proforma.constants";
 
 interface QuotationSelectionModalProps {
   open: boolean;
@@ -53,6 +54,7 @@ export const QuotationSelectionModal = ({
     page,
     per_page,
     is_take: 0,
+    supply_type: [SUPPLY_TYPE.LIMA, SUPPLY_TYPE.IMPORTACION],
     quotation_date:
       dateFrom && dateTo
         ? [formatDate(dateFrom), formatDate(dateTo)]

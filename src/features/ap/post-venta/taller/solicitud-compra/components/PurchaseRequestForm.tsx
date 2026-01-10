@@ -37,6 +37,12 @@ import { errorToast } from "@/core/core.function";
 import { FormInputText } from "@/shared/components/FormInputText";
 import { CM_POSTVENTA_ID, EMPRESA_AP } from "@/core/core.constants";
 
+const onSelectSupplyType = [
+  { label: "Stock", value: "STOCK" },
+  { label: "Lima", value: "LIMA" },
+  { label: "Importación", value: "IMPORTACION" },
+];
+
 interface PurchaseRequestFormProps {
   defaultValues: Partial<PurchaseRequestSchema>;
   onSubmit: (data: any) => void;
@@ -163,6 +169,7 @@ export default function PurchaseRequestForm({
         (detail) => ({
           product_id: detail.product_id!.toString(),
           product_name: detail.description,
+          product_code: detail.product?.code || "",
           quantity: Number(detail.quantity) || 1, // Asegurar que sea number
           notes: "",
         })
@@ -170,8 +177,13 @@ export default function PurchaseRequestForm({
 
       // Setear los detalles en la tabla
       setDetails(newDetails);
+
+      // Setear el supply_type si existe en la cotización
+      if (selectedQuotation.supply_type) {
+        form.setValue("supply_type", selectedQuotation.supply_type);
+      }
     },
-    [quotations]
+    [quotations, form]
   );
 
   useEffect(() => {
@@ -213,6 +225,7 @@ export default function PurchaseRequestForm({
     const newDetail: PurchaseRequestDetailSchema = {
       product_id: productId,
       product_name: productData?.product.name,
+      product_code: productData?.product.code || "",
       quantity: 1,
       notes: "",
     };
@@ -268,7 +281,7 @@ export default function PurchaseRequestForm({
         {/* Información General */}
         <Card className="p-6">
           <h3 className="text-lg font-semibold mb-4">Información General</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <FormSelect
               name="warehouse_id"
               label="Almacén"
@@ -289,6 +302,15 @@ export default function PurchaseRequestForm({
               dateFormat="dd/MM/yyyy"
               captionLayout="dropdown"
               disabledRange={{ before: new Date() }}
+            />
+
+            <FormSelect
+              control={form.control}
+              name="supply_type"
+              options={onSelectSupplyType}
+              label="Tipo de Abastecimiento"
+              placeholder="Seleccionar un tipo"
+              required
             />
           </div>
 
@@ -424,12 +446,7 @@ export default function PurchaseRequestForm({
                     type="button"
                     onClick={() => {
                       if (tempProductId && tempProductData) {
-                        const inventoryResource: InventoryResource = {
-                          product: {
-                            name: tempProductData.product_name,
-                          },
-                        } as InventoryResource;
-                        handleAddProduct(tempProductId, inventoryResource);
+                        handleAddProduct(tempProductId, tempProductData);
                         setTempProductId("");
                         setTempProductData(null);
                         form.setValue("temp_product_selector" as any, "");
@@ -466,9 +483,10 @@ export default function PurchaseRequestForm({
                   <div className="border rounded-lg overflow-hidden">
                     {/* Cabecera de tabla - Desktop */}
                     <div className="hidden md:grid grid-cols-12 gap-3 bg-gray-100 px-4 py-2 text-xs font-semibold text-gray-700 border-b">
-                      <div className="col-span-5">Producto</div>
+                      <div className="col-span-2">Código</div>
+                      <div className="col-span-4">Producto</div>
                       <div className="col-span-2">Cantidad</div>
-                      <div className="col-span-4">Notas</div>
+                      <div className="col-span-3">Notas</div>
                       <div className="col-span-1"></div>
                     </div>
 
@@ -479,7 +497,13 @@ export default function PurchaseRequestForm({
                           <div key={index}>
                             {/* Vista Desktop */}
                             <div className="hidden md:grid grid-cols-12 gap-3 px-4 py-3 hover:bg-gray-50 transition-colors items-center">
-                              <div className="col-span-5">
+                              <div className="col-span-2">
+                                <p className="text-sm font-medium text-gray-900 truncate">
+                                  {detail.product_code ||
+                                    `Producto #${detail.product_id}`}
+                                </p>
+                              </div>
+                              <div className="col-span-4">
                                 <p className="text-sm font-medium text-gray-900 truncate">
                                   {detail.product_name ||
                                     `Producto #${detail.product_id}`}
@@ -502,7 +526,7 @@ export default function PurchaseRequestForm({
                                 />
                               </div>
 
-                              <div className="col-span-4">
+                              <div className="col-span-3">
                                 <Input
                                   type="text"
                                   value={detail.notes || ""}

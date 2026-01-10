@@ -35,3 +35,9 @@ export const ORDER_QUOTATION_MESON: ModelComplete<OrderQuotationResource> = {
   ROUTE_ADD: `${ABSOLUTE_ROUTE_MESON}/agregar`,
   ROUTE_UPDATE: `${ABSOLUTE_ROUTE_MESON}/actualizar`,
 };
+
+export const SUPPLY_TYPE = {
+  STOCK: "REPUESTO",
+  LIMA: "LIMA",
+  IMPORTACION: "IMPORTACION",
+};
