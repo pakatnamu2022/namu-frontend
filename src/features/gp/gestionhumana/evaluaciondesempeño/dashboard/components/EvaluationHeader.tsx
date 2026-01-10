@@ -112,7 +112,7 @@ export const EvaluationHeader: React.FC<EvaluationHeaderProps> = ({
         {/* Acciones */}
         <div className="flex flex-col sm:flex-row gap-3">
           <Button
-            variant="tertiary"
+            color="orange"
             size="sm"
             onClick={onRefresh}
             disabled={refetching}
@@ -121,7 +121,7 @@ export const EvaluationHeader: React.FC<EvaluationHeaderProps> = ({
             <RefreshCw
               className={`size-4 ${refetching ? "animate-spin" : ""}`}
             />
-            Actualizar
+            Calibrar
           </Button>
           <Link to={`${ABSOLUTE_ROUTE}/${evaluationData.id}`}>
             <Button variant="outline" size="sm" className="order-2 sm:order-1">

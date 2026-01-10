@@ -29,10 +29,10 @@ export const useAllEvaluations = () => {
   });
 };
 
-export const useEvaluation = (id?: number) => {
+export const useEvaluation = (id?: number, params?: Record<string, any>) => {
   return useQuery<EvaluationResource>({
-    queryKey: ["evaluationById", id],
-    queryFn: () => findEvaluationById(id?.toString() || ""),
+    queryKey: ["evaluationById", id, params],
+    queryFn: () => findEvaluationById(id?.toString() || "", params),
     enabled: !!id && id > 0,
     refetchOnWindowFocus: false,
   });

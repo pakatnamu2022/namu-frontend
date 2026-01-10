@@ -1,4 +1,3 @@
-import * as React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { LucideIcon } from "lucide-react";
@@ -27,7 +26,18 @@ type TailwindColor =
   | "pink"
   | "rose";
 
-type ColorIntensity = "50" | "100" | "200" | "300" | "400" | "500" | "600" | "700" | "800" | "900" | "950";
+type ColorIntensity =
+  | "50"
+  | "100"
+  | "200"
+  | "300"
+  | "400"
+  | "500"
+  | "600"
+  | "700"
+  | "800"
+  | "900"
+  | "950";
 
 export interface DashboardCardProps {
   title: string;
@@ -914,7 +924,10 @@ const colorIconMap: Record<TailwindColor, Record<ColorIntensity, string>> = {
 };
 
 // Mapeo de colores para la barra de progreso
-const colorProgressMap: Record<TailwindColor, Record<ColorIntensity, string>> = {
+const colorProgressMap: Record<
+  TailwindColor,
+  Record<ColorIntensity, string>
+> = {
   slate: {
     "50": "bg-slate-300",
     "100": "bg-slate-400",
@@ -1216,16 +1229,21 @@ export function DashboardCard({
   progressMax = 100,
   className,
 }: DashboardCardProps) {
-  const progressPercentage = progressMax > 0 ? (progressValue / progressMax) * 100 : 0;
+  const progressPercentage =
+    progressMax > 0 ? (progressValue / progressMax) * 100 : 0;
 
-  const bgClass = variant === "default" ? colorBgMap[color][colorIntensity] : "";
-  const textClass = variant === "default" ? colorTextMap[color][colorIntensity] : "";
+  const bgClass =
+    variant === "default" ? colorBgMap[color][colorIntensity] : "";
+  const textClass =
+    variant === "default" ? colorTextMap[color][colorIntensity] : "";
   const iconClass =
     variant === "default"
       ? colorIconMap[color][colorIntensity]
       : `text-${color}-${colorIntensity}`;
   const valueClass =
-    variant === "default" ? colorTextMap[color][colorIntensity] : `text-${color}-${colorIntensity}`;
+    variant === "default"
+      ? colorTextMap[color][colorIntensity]
+      : `text-${color}-${colorIntensity}`;
   const progressBgClass =
     variant === "default"
       ? colorProgressMap[color][colorIntensity]
@@ -1241,7 +1259,12 @@ export function DashboardCard({
       )}
     >
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className={cn("text-sm font-medium", variant === "default" && textClass)}>
+        <CardTitle
+          className={cn(
+            "text-sm font-medium",
+            variant === "default" && textClass
+          )}
+        >
           {title}
         </CardTitle>
         {Icon && <Icon className={cn("h-4 w-4", iconClass)} />}
@@ -1262,11 +1285,16 @@ export function DashboardCard({
           <div
             className={cn(
               "h-2 rounded-full overflow-hidden",
-              variant === "default" ? "bg-black/10 dark:bg-white/10" : "bg-gray-200 dark:bg-gray-800"
+              variant === "default"
+                ? "bg-black/10 dark:bg-white/10"
+                : "bg-gray-200 dark:bg-gray-800"
             )}
           >
             <div
-              className={cn("h-full transition-all duration-500", progressBgClass)}
+              className={cn(
+                "h-full transition-all duration-500",
+                progressBgClass
+              )}
               style={{
                 width: `${progressPercentage.toFixed(1)}%`,
               }}
