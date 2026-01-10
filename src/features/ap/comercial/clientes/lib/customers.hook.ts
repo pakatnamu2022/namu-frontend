@@ -38,11 +38,12 @@ export const useCustomersById = (id: number) => {
 };
 
 export const useCustomerValidated = (
-  id: number
+  id: number,
+  lead_id: number
 ): UseQueryResult<CustomersResource, AxiosError<MessageResponse>> => {
   return useQuery({
-    queryKey: [QUERY_KEY, id],
-    queryFn: () => findCustomerValidated(id),
+    queryKey: [QUERY_KEY, id, lead_id],
+    queryFn: () => findCustomerValidated(id, lead_id),
     refetchOnWindowFocus: false,
     enabled: id > 0,
     retry: (failureCount, error) => {

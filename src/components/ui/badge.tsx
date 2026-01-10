@@ -1,6 +1,6 @@
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
-
+import { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./tooltip";
 
@@ -45,6 +45,7 @@ const badgeVariants = cva(
         green:
           "bg-green-100 text-green-700 border-green-300 dark:bg-green-950 dark:text-green-200 dark:border-green-800",
         blue: "bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-950 dark:text-blue-200 dark:border-blue-800",
+        sky: "bg-sky-100 text-sky-700 border-sky-300 dark:bg-sky-950 dark:text-sky-200 dark:border-sky-800",
         red: "bg-red-100 text-red-700 border-red-300 dark:bg-red-950 dark:text-red-200 dark:border-red-800",
         yellow:
           "bg-yellow-100 text-yellow-700 border-yellow-300 dark:bg-yellow-950 dark:text-yellow-200 dark:border-yellow-800",
@@ -63,7 +64,7 @@ const badgeVariants = cva(
         default: "px-2.5 py-0.5 text-xs",
         sm: "h-fit py-0.25 px-2 text-xs",
         lg: "px-3 py-1 text-sm",
-        xs: "h-fit py-0.5 px-1 text-xs",
+        xs: "h-fit py-0.5 px-1 text-[10px] md:text-xs",
         square:
           "p-0 text-[11px] h-5 w-5 justify-center items-center rounded-full",
       },
@@ -80,6 +81,7 @@ export interface BadgeProps
     VariantProps<typeof badgeVariants> {}
 
 export type BadgeCustomProps = BadgeProps & {
+  icon?: LucideIcon;
   tooltip?: React.ReactNode;
   tooltipVariant?: "default" | "secondary" | "tertiary";
 };
@@ -99,27 +101,37 @@ function Badge({
   className,
   variant,
   size,
+  icon: Icon,
   tooltipVariant,
   tooltip,
+  children,
   ...props
 }: BadgeCustomProps) {
+  const content = (
+    <>
+      {Icon && <Icon className="mr-1 h-3 w-3" />}
+      {children}
+    </>
+  );
+
   return tooltip ? (
     <Tooltip>
       <TooltipTrigger asChild>
         <div
           className={cn(badgeVariants({ variant, size }), className)}
           {...props}
-        />
+        >
+          {content}
+        </div>
       </TooltipTrigger>
       <TooltipContent className={cn(getTooltipVariant(tooltipVariant))}>
         {tooltip}
       </TooltipContent>
     </Tooltip>
   ) : (
-    <div
-      className={cn(badgeVariants({ variant, size }), className)}
-      {...props}
-    />
+    <div className={cn(badgeVariants({ variant, size }), className)} {...props}>
+      {content}
+    </div>
   );
 }
 

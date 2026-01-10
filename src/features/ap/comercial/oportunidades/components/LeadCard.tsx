@@ -3,6 +3,7 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
 import {
   X,
   UserPlus,
@@ -96,10 +97,17 @@ export const LeadCard = ({ lead, onDiscard }: LeadCardProps) => {
             <p className="font-medium text-sm truncate">{lead.phone}</p>
           </div>
 
-          {/* Date */}
-          <div className="flex items-center gap-2">
-            <Calendar className="size-4 text-muted-foreground" />
-            <p className="font-medium text-sm truncate">{lead.created_at}</p>
+          {/* Date with Type Badge */}
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <Calendar className="size-4 text-muted-foreground" />
+              <p className="font-medium text-sm truncate">{lead.created_at}</p>
+            </div>
+            {lead.type && (
+              <Badge variant="outline" className="text-xs">
+                {lead.type}
+              </Badge>
+            )}
           </div>
 
           {/* Action Buttons */}

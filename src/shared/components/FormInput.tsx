@@ -112,7 +112,7 @@ export function FormInput({
               value={value ?? ""}
             />
             {addonEnd && (
-              <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center justify-center text-muted-foreground z-10">
+              <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center justify-center text-muted-foreground z-10">
                 {addonEnd}
               </div>
             )}
@@ -121,14 +121,10 @@ export function FormInput({
         </div>
 
         {description && (
-          <p className="text-xs text-muted-foreground mt-1">
-            {description}
-          </p>
+          <p className="text-xs text-muted-foreground mt-1">{description}</p>
         )}
         {error && (
-          <p className="text-xs font-medium text-destructive mt-1">
-            {error}
-          </p>
+          <p className="text-xs font-medium text-destructive mt-1">{error}</p>
         )}
       </div>
     );
@@ -191,7 +187,7 @@ export function FormInput({
                   />
                 </FormControl>
                 {addonEnd && (
-                  <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center justify-center text-muted-foreground z-10">
+                  <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center justify-center text-muted-foreground z-10">
                     {addonEnd}
                   </div>
                 )}
