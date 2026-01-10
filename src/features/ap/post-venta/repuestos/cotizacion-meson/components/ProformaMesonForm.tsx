@@ -43,6 +43,12 @@ import { getStockByProductIds } from "@/features/ap/post-venta/gestion-compras/i
 import { StockByProductIdsResponse } from "@/features/ap/post-venta/gestion-compras/inventario/lib/inventory.interface";
 import { Warehouse, AlertCircle } from "lucide-react";
 
+const onSelectSupplyType = [
+  { label: "Stock", value: "STOCK" },
+  { label: "Lima", value: "LIMA" },
+  { label: "Importación", value: "IMPORTACION" },
+];
+
 // Componente auxiliar para manejar cada item de producto
 function ProductDetailItem({
   index,
@@ -642,8 +648,7 @@ export default function ProformaMesonForm({
       try {
         const response = await getStockByProductIds(productIds);
         setStockData(response);
-      } catch (error) {
-        console.error("Error al obtener stock de productos:", error);
+      } catch {
         setStockData(null);
       }
     };
@@ -786,6 +791,15 @@ export default function ProformaMesonForm({
               dateFormat="dd/MM/yyyy"
               captionLayout="dropdown"
               disabled={true}
+            />
+
+            <FormSelect
+              control={form.control}
+              name="supply_type"
+              options={onSelectSupplyType}
+              label="Tipo de Abastecimiento"
+              placeholder="Seleccionar un tipo"
+              required
             />
           </div>
 
