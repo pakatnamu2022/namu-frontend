@@ -1,6 +1,6 @@
 import { type ModelComplete } from "@/core/core.interface";
 import { BrandGroupResource } from "./brandGroup.interface";
-import { COMMERCIAL_MASTERS_ENDPOINT } from "@/features/ap/lib/ap.constants";
+import { AP_MASTERS } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 const ROUTE = "grupo-marcas";
 const ABSOLUTE_ROUTE = `/ap/configuration/${ROUTE}`;
@@ -12,7 +12,7 @@ export const BRAND_GROUP: ModelComplete<BrandGroupResource> = {
     gender: true,
   },
   ICON: "ContactRound",
-  ENDPOINT: COMMERCIAL_MASTERS_ENDPOINT,
+  ENDPOINT: AP_MASTERS.ENDPOINT,
   QUERY_KEY: "brandGroup",
   ROUTE,
   ABSOLUTE_ROUTE,

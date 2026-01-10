@@ -28,7 +28,7 @@ import { Card } from "@/components/ui/card";
 export default function ReceptionsProductsPage() {
   const { checkRouteExists, isLoadingModule } = useCurrentModule();
   const [deleteId, setDeleteId] = useState<number | null>(null);
-  const { MODEL, ROUTE_ADD, ROUTE_UPDATE } = RECEPTION;
+  const { MODEL, ROUTE_ADD, ROUTE_UPDATE, ABSOLUTE_ROUTE } = RECEPTION;
   const permissions = useModulePermissions("orden-compra-producto");
   const navigate = useNavigate();
   const { purchaseOrderId } = useParams<{ purchaseOrderId: string }>();
@@ -56,7 +56,7 @@ export default function ReceptionsProductsPage() {
   };
 
   const handleBack = () => {
-    navigate("/ap/post-venta/gestion-de-compras/orden-compra-producto");
+    navigate(ABSOLUTE_ROUTE);
   };
 
   const handleAddReception = () => {
@@ -106,7 +106,10 @@ export default function ReceptionsProductsPage() {
           </div>
           <div>
             <p className="text-sm text-muted-foreground">Total Orden</p>
-            <p className="font-semibold">S/ {purchaseOrder.total.toFixed(2)}</p>
+            <p className="font-semibold">
+              {purchaseOrder.currency_code === "USD" ? "$" : "S/."}
+              {purchaseOrder.total.toFixed(2)}
+            </p>
           </div>
         </div>
       </Card>

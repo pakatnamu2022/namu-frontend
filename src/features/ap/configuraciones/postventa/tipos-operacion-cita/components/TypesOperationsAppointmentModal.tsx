@@ -15,7 +15,7 @@ import {
 import { GeneralModal } from "@/shared/components/GeneralModal.tsx";
 import FormSkeleton from "@/shared/components/FormSkeleton.tsx";
 import { TypesOperationsAppointmentForm } from "./TypesOperationsAppointmentForm.tsx";
-import { AP_MASTER_POST_VENTA } from "@/features/ap/lib/ap.constants.ts";
+import { AP_MASTER_TYPE } from "@/features/ap/ap-master/lib/apMaster.constants.ts";
 import { TYPE_OPERACTION_APPOINTMENT } from "@/features/ap/configuraciones/postventa/tipos-operacion-cita/lib/typesOperationsAppointment.constants.ts";
 
 interface Props {
@@ -50,7 +50,7 @@ export default function TypesOperationsAppointmentModal({
     return {
       code: data.code,
       description: data.description,
-      type: AP_MASTER_POST_VENTA.TYPE_OPERACTION_APPOINTMENT,
+      type: AP_MASTER_TYPE.TYPE_OPERACTION_APPOINTMENT,
     };
   }
 

@@ -1,6 +1,6 @@
 import { type ModelComplete } from "@/core/core.interface.ts";
-import { POSTVENTA_MASTERS_ENDPOINT } from "@/features/ap/lib/ap.constants.ts";
 import { ReasonsAdjustmentResource } from "./reasonsAdjustment.interface.ts";
+import { AP_MASTERS } from "@/features/ap/ap-master/lib/apMaster.constants.ts";
 
 const ROUTE = "motivos-ajuste";
 const ABSOLUTE_ROUTE = `/ap/configuraciones/postventa/${ROUTE}`;
@@ -12,7 +12,7 @@ export const REASONS_ADJUSTMENT: ModelComplete<ReasonsAdjustmentResource> = {
     gender: true,
   },
   ICON: "ContactRound",
-  ENDPOINT: POSTVENTA_MASTERS_ENDPOINT,
+  ENDPOINT: AP_MASTERS.ENDPOINT,
   QUERY_KEY: "reasonsAdjustment",
   ROUTE,
   ABSOLUTE_ROUTE,

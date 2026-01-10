@@ -1,11 +1,11 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { CommercialMastersResource } from "../lib/commercialMasters.interface";
 import { Switch } from "@/components/ui/switch";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
+import { ApMastersResource } from "../lib/apMasters.interface";
 
-interface CommercialMastersColumnsProps {
+interface ApMastersColumnsProps {
   onToggleStatus: (id: number, newStatus: boolean) => void;
   onDelete: (id: number) => void;
   onUpdate: (id: number) => void;
@@ -17,7 +17,7 @@ export const commercialMastersColumns = ({
   onDelete,
   onUpdate,
   permissions,
-}: CommercialMastersColumnsProps): ColumnDef<CommercialMastersResource>[] => [
+}: ApMastersColumnsProps): ColumnDef<ApMastersResource>[] => [
   {
     accessorKey: "id",
     header: "ID",

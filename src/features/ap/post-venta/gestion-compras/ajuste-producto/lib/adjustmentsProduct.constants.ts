@@ -1,6 +1,6 @@
 import { ModelComplete } from "@/core/core.interface";
 import { AdjustmentsProductResource } from "./adjustmentsProduct.interface";
-import { AP_MASTER_POST_VENTA } from "@/features/ap/lib/ap.constants";
+import { AP_MASTER_TYPE } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 const ROUTE = "ajuste-producto";
 const ABSOLUTE_ROUTE = `/ap/post-venta/gestion-de-compras/${ROUTE}`;
@@ -22,11 +22,11 @@ export const ADJUSTMENT: ModelComplete<AdjustmentsProductResource> = {
 
 export const ALL_MOVEMENT_TYPES = [
   {
-    value: AP_MASTER_POST_VENTA.TYPE_ADJUSTMENT_IN,
+    value: AP_MASTER_TYPE.TYPE_ADJUSTMENT_IN,
     label: "Ajuste de Ingreso",
   },
   {
-    value: AP_MASTER_POST_VENTA.TYPE_ADJUSTMENT_OUT,
+    value: AP_MASTER_TYPE.TYPE_ADJUSTMENT_OUT,
     label: "Ajuste de Salida",
   },
 ] as const;

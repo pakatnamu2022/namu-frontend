@@ -26,7 +26,7 @@ export default function InventoryActions({ permissions }: Props) {
         size="sm"
         variant="default"
         className="ml-auto"
-        onClick={() => router(`${ABSOLUTE_ROUTE}/inventario/kardex`)}
+        onClick={() => router(`${ABSOLUTE_ROUTE}/kardex`)}
       >
         <FileBox className="size-4 mr-2" /> Kardex
       </Button>

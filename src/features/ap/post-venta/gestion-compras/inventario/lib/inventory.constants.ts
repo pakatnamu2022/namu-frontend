@@ -1,8 +1,9 @@
 import { ModelComplete } from "@/core/core.interface";
 import { InventoryResource } from "./inventory.interface";
 
-const ROUTE = "ajuste-producto";
-const ABSOLUTE_ROUTE = "/ap/post-venta/gestion-de-compras";
+// INVENTARIO EN ALMACÉN
+const ROUTE = "inventario";
+const ABSOLUTE_ROUTE = `/ap/post-venta/gestion-de-compras/${ROUTE}`;
 
 export const INVENTORY: ModelComplete<InventoryResource> = {
   MODEL: {
@@ -17,6 +18,25 @@ export const INVENTORY: ModelComplete<InventoryResource> = {
   ABSOLUTE_ROUTE,
   ROUTE_ADD: `${ABSOLUTE_ROUTE}/${ROUTE}/agregar`,
   ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/${ROUTE}/actualizar`,
+};
+
+// INVENTARIO REPUESTOS
+const ROUTE_REPUESTOS = "inventario-repuesto";
+const ABSOLUTE_ROUTE_REPUESTOS = `/ap/post-venta/repuestos/${ROUTE_REPUESTOS}`;
+
+export const INVENTORY_REPUESTOS: ModelComplete<InventoryResource> = {
+  MODEL: {
+    name: "Inventario Repuesto",
+    plural: "Inventarios Repuestos",
+    gender: false,
+  },
+  ICON: "PackageCheck",
+  ENDPOINT: "/ap/postVenta/productWarehouseStock",
+  QUERY_KEY: "inventory-repuestos-stocks",
+  ROUTE: ROUTE_REPUESTOS,
+  ABSOLUTE_ROUTE: ABSOLUTE_ROUTE_REPUESTOS,
+  ROUTE_ADD: `${ABSOLUTE_ROUTE_REPUESTOS}/${ROUTE_REPUESTOS}/agregar`,
+  ROUTE_UPDATE: `${ABSOLUTE_ROUTE_REPUESTOS}/${ROUTE_REPUESTOS}/actualizar`,
 };
 
 /**

@@ -1,6 +1,6 @@
 import { type ModelComplete } from "@/core/core.interface";
-import { COMMERCIAL_MASTERS_ENDPOINT } from "@/features/ap/lib/ap.constants";
 import { DocumentTypeResource } from "./documentTypes.interface";
+import { AP_MASTERS } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 const ROUTE = "tipos-documento";
 const ABSOLUTE_ROUTE = `/ap/configuraciones/maestros-general/${ROUTE}`;
@@ -12,7 +12,7 @@ export const DOCUMENT_TYPE: ModelComplete<DocumentTypeResource> = {
     gender: true,
   },
   ICON: "ContactRound",
-  ENDPOINT: COMMERCIAL_MASTERS_ENDPOINT,
+  ENDPOINT: AP_MASTERS.ENDPOINT,
   QUERY_KEY: "documentType",
   ROUTE,
   ABSOLUTE_ROUTE,

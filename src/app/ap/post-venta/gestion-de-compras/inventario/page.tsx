@@ -1,5 +1,6 @@
 "use client";
 
+import { useNavigate } from "react-router-dom";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import { useEffect, useState } from "react";
 import PageSkeleton from "@/shared/components/PageSkeleton";
@@ -23,13 +24,14 @@ import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import type { SortingState } from "@tanstack/react-table";
 
 export default function InventoryPage() {
+  const router = useNavigate();
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
   const [warehouseId, setWarehouseId] = useState<string>("");
   const [sorting, setSorting] = useState<SortingState>([]);
-  const { ROUTE } = INVENTORY;
+  const { ROUTE, ABSOLUTE_ROUTE } = INVENTORY;
   const permissions = useModulePermissions(ROUTE);
 
   // Obtener mis almacenes físicos de postventa
@@ -69,7 +71,8 @@ export default function InventoryPage() {
       search,
       per_page,
       warehouse_id: warehouseId,
-      ...(orderByStock && { order_by_stock: orderByStock }),
+      sort: "quantity",
+      ...(orderByStock && { direction: orderByStock }),
     },
     {
       enabled: !!warehouseId,
@@ -118,7 +121,10 @@ export default function InventoryPage() {
       </HeaderTableWrapper>
       <InventoryTable
         isLoading={isLoading}
-        columns={inventoryColumns()}
+        columns={inventoryColumns({
+          onMovements: (id, warehouse_id) =>
+            router(`${ABSOLUTE_ROUTE}/movimientos/${id}/${warehouse_id}`),
+        })}
         data={data?.data || []}
         sorting={sorting}
         onSortingChange={setSorting}

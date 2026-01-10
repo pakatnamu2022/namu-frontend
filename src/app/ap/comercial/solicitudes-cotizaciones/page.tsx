@@ -16,11 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { AlertTriangle } from "lucide-react";
-import {
-  ERROR_MESSAGE,
-  errorToast,
-  successToast,
-} from "@/core/core.function";
+import { ERROR_MESSAGE, errorToast, successToast } from "@/core/core.function";
 import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { PURCHASE_REQUEST_QUOTE } from "@/features/ap/comercial/solicitudes-cotizaciones/lib/purchaseRequestQuote.constants";
@@ -30,7 +26,6 @@ import {
   downloadPurchaseRequestQuotePdf,
   unassignVehicleFromPurchaseRequestQuote,
 } from "@/features/ap/comercial/solicitudes-cotizaciones/lib/purchaseRequestQuote.actions";
-import PurchaseRequestQuoteActions from "@/features/ap/comercial/solicitudes-cotizaciones/components/PurchaseRequestQuoteActions";
 import PurchaseRequestQuoteTable from "@/features/ap/comercial/solicitudes-cotizaciones/components/PurchaseRequestQuoteTable";
 import { purchaseRequestQuoteColumns } from "@/features/ap/comercial/solicitudes-cotizaciones/components/PurchaseRequestQuoteColumns";
 import PurchaseRequestQuoteOptions from "@/features/ap/comercial/solicitudes-cotizaciones/components/PurchaseRequestQuoteOptions";
@@ -38,9 +33,8 @@ import AssignVehicleModal from "@/features/ap/comercial/solicitudes-cotizaciones
 import { PurchaseRequestQuoteResource } from "@/features/ap/comercial/solicitudes-cotizaciones/lib/purchaseRequestQuote.interface";
 import { notFound } from "@/shared/hooks/useNotFound";
 
-
 export default function PurchaseRequestQuotePage() {
-    const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
+  const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
@@ -114,7 +108,6 @@ export default function PurchaseRequestQuotePage() {
           subtitle={currentView.descripcion}
           icon={currentView.icon}
         />
-        <PurchaseRequestQuoteActions permissions={permissions} />
       </HeaderTableWrapper>
       <PurchaseRequestQuoteTable
         isLoading={isLoading}

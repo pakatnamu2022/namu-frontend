@@ -26,8 +26,6 @@ import { useAllVehicleColor } from "@/features/ap/configuraciones/vehiculos/colo
 import { useAllEngineTypes } from "@/features/ap/configuraciones/vehiculos/tipos-motor/lib/engineTypes.hook";
 import { useWarehouseByModelSede } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
-import { useNavigate } from "react-router-dom";
-import { VEHICLES_PV } from "../lib/vehicles.constants";
 import { CM_POSTVENTA_ID, EMPRESA_AP } from "@/core/core.constants";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import { DocumentValidationStatus } from "@/shared/components/DocumentValidationStatus";
@@ -50,6 +48,7 @@ interface VehiclePVFormProps {
   isSubmitting?: boolean;
   mode?: "create" | "update";
   vehicleData?: VehicleResource; // Datos completos del vehículo cuando se edita
+  onCancel?: () => void;
 }
 
 export const VehiclePVForm = ({
@@ -58,8 +57,8 @@ export const VehiclePVForm = ({
   isSubmitting = false,
   mode = "create",
   vehicleData,
+  onCancel,
 }: VehiclePVFormProps) => {
-  const router = useNavigate();
   const queryClient = useQueryClient();
   const [isColorModalOpen, setIsColorModalOpen] = useState(false);
   const form = useForm({
@@ -373,11 +372,7 @@ export const VehiclePVForm = ({
         </GroupFormSection>
 
         <div className="flex gap-4 w-full justify-end">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => router(VEHICLES_PV.ABSOLUTE_ROUTE)}
-          >
+          <Button type="button" variant="outline" onClick={onCancel}>
             Cancelar
           </Button>
 

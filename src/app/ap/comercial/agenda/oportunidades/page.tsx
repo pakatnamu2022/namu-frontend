@@ -35,10 +35,8 @@ import OpportunityActions from "@/features/ap/comercial/oportunidades/components
 import { discardLead } from "@/features/ap/comercial/gestionar-leads/lib/manageLeads.actions";
 import { MANAGE_LEADS } from "@/features/ap/comercial/gestionar-leads/lib/manageLeads.constants";
 import { useInvalidateQuery } from "@/core/core.hook";
-import { useCommercialFiltersStore } from "@/features/ap/comercial/lib/commercial.store";
-import {
-  useMyConsultants,
-} from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
+import { useCommercialFiltersStore } from "@/features/ap/ap-master/lib/commercial.store";
+import { useMyConsultants } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
 import {
   Carousel,
   CarouselContent,
@@ -46,15 +44,16 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import {
-  STATUS_WORKER,
-} from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.constant";
+import { STATUS_WORKER } from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.constant";
 import { EMPRESA_AP } from "@/core/core.constants";
 import { useEffect, useState } from "react";
 import type { CarouselApi } from "@/components/ui/carousel";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { notFound } from "@/shared/hooks/useNotFound";
-import { useCalendarMonth, useCalendarYear } from "@/shared/components/CalendarGrid";
+import {
+  useCalendarMonth,
+  useCalendarYear,
+} from "@/shared/components/CalendarGrid";
 
 export default function OpportunitiesKanbanPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();

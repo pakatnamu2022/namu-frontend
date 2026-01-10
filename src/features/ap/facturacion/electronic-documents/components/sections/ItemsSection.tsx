@@ -288,7 +288,7 @@ export function ItemsSection({
             type="button"
             onClick={openSheetForNewItem}
             disabled={isAddItemDisabled}
-            className="gap-2"
+            className={isFromQuotation ? "hidden" : "gap-2"}
             size="sm"
           >
             <Plus className="size-4" />

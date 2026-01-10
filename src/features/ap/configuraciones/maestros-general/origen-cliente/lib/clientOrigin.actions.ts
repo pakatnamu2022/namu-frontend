@@ -8,7 +8,7 @@ import {
 import { STATUS_ACTIVE } from "@/core/core.constants";
 import { api } from "@/core/api";
 import { GeneralResponse } from "@/shared/lib/response.interface";
-import { AP_MASTER_COMERCIAL } from "../../../../lib/ap.constants";
+import { AP_MASTER_TYPE } from "../../../../ap-master/lib/apMaster.constants";
 
 const { ENDPOINT } = CLIENT_ORIGIN;
 
@@ -18,7 +18,7 @@ export async function getClientOrigin({
   const config: AxiosRequestConfig = {
     params: {
       ...params,
-      type: AP_MASTER_COMERCIAL.CLIENT_ORIGIN,
+      type: AP_MASTER_TYPE.CLIENT_ORIGIN,
     },
   };
   const { data } = await api.get<ClientOriginResponse>(ENDPOINT, config);
@@ -32,7 +32,7 @@ export async function getAllClientOrigin({
     params: {
       all: true, // Assuming you want to fetch all periods
       ...params,
-      type: AP_MASTER_COMERCIAL.CLIENT_ORIGIN,
+      type: AP_MASTER_TYPE.CLIENT_ORIGIN,
       status: STATUS_ACTIVE,
     },
   };

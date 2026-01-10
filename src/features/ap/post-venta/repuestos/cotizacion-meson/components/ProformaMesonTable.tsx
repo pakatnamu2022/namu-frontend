@@ -22,12 +22,19 @@ export default function OrderQuotationMesonTable({
         data={data}
         isLoading={isLoading}
         initialColumnVisibility={{
-          full_name_client: true,
+          quotation_number: true,
+          quotation_date: true,
+          expiration_date: true,
           plate: true,
-          email_client: false,
-          phone_client: false,
+          customer: true,
+          total_amount: true,
+          observations: false,
+          discard_reason: false,
           date_appointment: true,
-          time_appointment: true,
+          discarded_note: false,
+          discarded_by_name: false,
+          discarded_at: false,
+          status: true,
         }}
       >
         {children}

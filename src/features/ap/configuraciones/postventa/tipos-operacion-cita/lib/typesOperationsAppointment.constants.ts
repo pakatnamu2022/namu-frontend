@@ -1,6 +1,6 @@
 import { type ModelComplete } from "@/core/core.interface.ts";
-import { POSTVENTA_MASTERS_ENDPOINT } from "@/features/ap/lib/ap.constants.ts";
 import { TypesOperationsAppointmentResource } from "./typesOperationsAppointment.interface.ts";
+import { AP_MASTERS } from "@/features/ap/ap-master/lib/apMaster.constants.ts";
 
 const ROUTE = "tipos-operacion-cita";
 const ABSOLUTE_ROUTE = `/ap/configuraciones/postventa/${ROUTE}`;
@@ -13,7 +13,7 @@ export const TYPE_OPERACTION_APPOINTMENT: ModelComplete<TypesOperationsAppointme
       gender: true,
     },
     ICON: "ContactRound",
-    ENDPOINT: POSTVENTA_MASTERS_ENDPOINT,
+    ENDPOINT: AP_MASTERS.ENDPOINT,
     QUERY_KEY: "TypesOperationsAppointment",
     ROUTE,
     ABSOLUTE_ROUTE,

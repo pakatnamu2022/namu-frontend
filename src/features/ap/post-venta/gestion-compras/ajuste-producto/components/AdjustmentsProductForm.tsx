@@ -35,7 +35,7 @@ import { Card } from "@/components/ui/card";
 import { ALL_MOVEMENT_TYPES } from "../lib/adjustmentsProduct.constants";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 import { useAllReasonsAdjustment } from "@/features/ap/configuraciones/postventa/motivos-ajuste/lib/reasonsAdjustment.hook";
-import { AP_MASTER_POST_VENTA } from "@/features/ap/lib/ap.constants";
+import { AP_MASTER_TYPE } from "@/features/ap/ap-master/lib/apMaster.constants";
 import { useEffect, useMemo } from "react";
 import { FormInput } from "@/shared/components/FormInput";
 
@@ -87,10 +87,8 @@ export const AdjustmentsProductForm = ({
     if (!selectedMovementType) return [];
 
     const typeMapping: Record<string, string> = {
-      [AP_MASTER_POST_VENTA.TYPE_ADJUSTMENT_IN]:
-        AP_MASTER_POST_VENTA.TYPE_ADJUSTMENT_IN,
-      [AP_MASTER_POST_VENTA.TYPE_ADJUSTMENT_OUT]:
-        AP_MASTER_POST_VENTA.TYPE_ADJUSTMENT_OUT,
+      [AP_MASTER_TYPE.TYPE_ADJUSTMENT_IN]: AP_MASTER_TYPE.TYPE_ADJUSTMENT_IN,
+      [AP_MASTER_TYPE.TYPE_ADJUSTMENT_OUT]: AP_MASTER_TYPE.TYPE_ADJUSTMENT_OUT,
     };
 
     const targetType = typeMapping[selectedMovementType];
@@ -101,7 +99,7 @@ export const AdjustmentsProductForm = ({
 
   // Limpiar unit_cost cuando el tipo de movimiento cambia a SALIDA
   useEffect(() => {
-    if (selectedMovementType === AP_MASTER_POST_VENTA.TYPE_ADJUSTMENT_OUT) {
+    if (selectedMovementType === AP_MASTER_TYPE.TYPE_ADJUSTMENT_OUT) {
       const currentDetails = form.getValues("details");
       const updatedDetails = currentDetails!.map((detail) => ({
         ...detail,
@@ -297,7 +295,7 @@ export const AdjustmentsProductForm = ({
                         </div>
 
                         {selectedMovementType ===
-                          AP_MASTER_POST_VENTA.TYPE_ADJUSTMENT_IN && (
+                          AP_MASTER_TYPE.TYPE_ADJUSTMENT_IN && (
                           <>
                             <div className="lg:w-32">
                               <FormInput

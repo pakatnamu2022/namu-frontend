@@ -16,7 +16,7 @@ import {
 import { useReasonsRejectionById } from "../lib/reasonsRejection.hook";
 import { ReasonsRejectionForm } from "./ReasonsRejectionForm";
 import { REASONS_REJECTION } from "../lib/reasonsRejection.constants";
-import { AP_MASTER_COMERCIAL } from "../../../lib/ap.constants";
+import { AP_MASTER_TYPE } from "../../../ap-master/lib/apMaster.constants";
 
 interface Props {
   id?: number;
@@ -48,7 +48,7 @@ export default function ReasonsRejectionModal({
   ): Partial<ReasonsRejectionSchema> {
     return {
       description: data.description,
-      type: AP_MASTER_COMERCIAL.REASONS_REJECTION,
+      type: AP_MASTER_TYPE.REASONS_REJECTION,
     };
   }
 

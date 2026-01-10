@@ -8,7 +8,7 @@ import {
   MaritalStatusResource,
   MaritalStatusResponse,
 } from "./maritalStatus.interface";
-import { AP_MASTER_COMERCIAL } from "../../../../lib/ap.constants";
+import { AP_MASTER_TYPE } from "../../../../ap-master/lib/apMaster.constants";
 
 const { ENDPOINT } = MARITAL_STATUS;
 
@@ -18,7 +18,7 @@ export async function getMaritalStatus({
   const config: AxiosRequestConfig = {
     params: {
       ...params,
-      type: AP_MASTER_COMERCIAL.MARITAL_STATUS,
+      type: AP_MASTER_TYPE.MARITAL_STATUS,
     },
   };
   const { data } = await api.get<MaritalStatusResponse>(ENDPOINT, config);
@@ -32,7 +32,7 @@ export async function getAllMaritalStatus({
     params: {
       all: true, // Assuming you want to fetch all periods
       ...params,
-      type: AP_MASTER_COMERCIAL.MARITAL_STATUS,
+      type: AP_MASTER_TYPE.MARITAL_STATUS,
       status: STATUS_ACTIVE,
     },
   };

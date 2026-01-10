@@ -41,7 +41,7 @@ import {
   useAllWorkersBySedeAndBrand,
 } from "@/features/ap/configuraciones/ventas/asignar-marca/lib/assignBrandConsultant.hook";
 import { STORE_VISITS } from "../lib/storeVisits.constants";
-import { AREA_CM_ID } from "@/features/ap/lib/ap.constants";
+import { AREA_CM_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 interface StoreVisitsFormProps {
   defaultValues: Partial<StoreVisitsSchema>;

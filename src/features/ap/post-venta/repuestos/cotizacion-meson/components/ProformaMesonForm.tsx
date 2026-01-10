@@ -1,7 +1,8 @@
 "use client";
 
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm, useFieldArray, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -27,7 +28,7 @@ import { Card } from "@/components/ui/card";
 import { useState, useEffect } from "react";
 import { EMPRESA_AP } from "@/core/core.constants";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
-import { AREA_PM_ID } from "@/features/ap/lib/ap.constants";
+import { AREA_PM_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import {
   useProduct,
@@ -38,6 +39,15 @@ import { format } from "date-fns";
 import { CURRENCY_TYPE_IDS } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.constants";
 import { Badge } from "@/components/ui/badge";
 import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.hook";
+import { getStockByProductIds } from "@/features/ap/post-venta/gestion-compras/inventario/lib/inventory.actions";
+import { StockByProductIdsResponse } from "@/features/ap/post-venta/gestion-compras/inventario/lib/inventory.interface";
+import { Warehouse, AlertCircle } from "lucide-react";
+
+const onSelectSupplyType = [
+  { label: "Stock", value: "STOCK" },
+  { label: "Lima", value: "LIMA" },
+  { label: "Importación", value: "IMPORTACION" },
+];
 
 // Componente auxiliar para manejar cada item de producto
 function ProductDetailItem({
@@ -45,14 +55,21 @@ function ProductDetailItem({
   form,
   onRemove,
   selectedCurrency,
+  stockData,
 }: {
   index: number;
   form: any;
   onRemove: () => void;
   selectedCurrency: any;
+  stockData: StockByProductIdsResponse | null;
 }) {
   const productId = form.watch(`details.${index}.product_id`);
   const { data: productData } = useProductById(Number(productId) || 0);
+
+  // Buscar el stock del producto actual
+  const currentProductStock = stockData?.data?.find(
+    (stock) => stock.product_id === Number(productId)
+  );
 
   // Auto-completar descripción y unidad de medida cuando se selecciona un producto
   useEffect(() => {
@@ -69,10 +86,10 @@ function ProductDetailItem({
   }, [productData, index, form]);
 
   return (
-    <div className="border rounded-lg bg-white hover:bg-gray-50 transition-colors">
+    <div className="border rounded-lg bg-white transition-colors">
       {/* Vista Desktop - Formato Tabla */}
-      <div className="hidden md:grid grid-cols-12 gap-3 px-4 py-3 items-center">
-        <div className="col-span-1 flex justify-center">
+      <div className="hidden md:grid grid-cols-12 gap-3 px-4 py-3 items-start">
+        <div className="col-span-1 flex justify-center pt-2">
           <Badge variant="secondary" className="text-xs">
             #{index + 1}
           </Badge>
@@ -94,6 +111,72 @@ function ProductDetailItem({
             perPage={10}
             debounceMs={500}
           />
+
+          {/* Mostrar stock inline debajo del selector */}
+          {currentProductStock && productId && (
+            <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded-md">
+              <div className="flex items-center gap-1 mb-1">
+                <Warehouse className="h-3 w-3 text-blue-600" />
+                <span className="text-xs font-semibold text-blue-900">
+                  Stock Disponible
+                </span>
+              </div>
+              {currentProductStock.warehouses.length > 0 ? (
+                <div className="space-y-1">
+                  {currentProductStock.warehouses
+                    .slice(0, 2)
+                    .map((warehouse) => (
+                      <div key={warehouse.warehouse_id} className="text-xs">
+                        <span className="font-medium text-gray-700">
+                          {warehouse.warehouse_name}:
+                        </span>
+                        <span className="ml-1 text-green-600 font-semibold">
+                          {warehouse.available_quantity}
+                        </span>
+                        <span className="text-gray-500 text-xs"> disp.</span>
+                        {warehouse.quantity_in_transit > 0 && (
+                          <>
+                            <span className="mx-1">•</span>
+                            <span className="text-blue-600 font-semibold">
+                              {warehouse.quantity_in_transit}
+                            </span>
+                            <span className="text-gray-500 text-xs">
+                              {" "}
+                              trán.
+                            </span>
+                          </>
+                        )}
+                        {warehouse.is_out_of_stock && (
+                          <Badge
+                            variant="destructive"
+                            className="ml-1 text-xs py-0 px-1 h-4"
+                          >
+                            Sin Stock
+                          </Badge>
+                        )}
+                      </div>
+                    ))}
+                  {currentProductStock.warehouses.length > 2 && (
+                    <div className="text-xs text-gray-500">
+                      +{currentProductStock.warehouses.length - 2} almacenes más
+                    </div>
+                  )}
+                  <div className="pt-1 border-t border-blue-300 mt-1 text-xs font-semibold text-gray-700">
+                    Total:{" "}
+                    <span className="text-green-600">
+                      {currentProductStock.total_available_quantity}
+                    </span>{" "}
+                    disponibles
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center gap-1 text-xs text-gray-500">
+                  <AlertCircle className="h-3 w-3" />
+                  <span>Sin stock</span>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         <div className="col-span-1">
@@ -237,6 +320,72 @@ function ProductDetailItem({
           debounceMs={500}
         />
 
+        {/* Mostrar stock inline debajo del selector - Mobile */}
+        {currentProductStock && productId && (
+          <div className="p-2 bg-blue-50 border border-blue-200 rounded-md">
+            <div className="flex items-center gap-1 mb-2">
+              <Warehouse className="h-3 w-3 text-blue-600" />
+              <span className="text-xs font-semibold text-blue-900">
+                Stock Disponible
+              </span>
+            </div>
+            {currentProductStock.warehouses.length > 0 ? (
+              <div className="space-y-1.5">
+                {currentProductStock.warehouses.slice(0, 3).map((warehouse) => (
+                  <div
+                    key={warehouse.warehouse_id}
+                    className="text-xs bg-white p-1.5 rounded"
+                  >
+                    <div className="font-medium text-gray-700 mb-0.5">
+                      {warehouse.warehouse_name}
+                    </div>
+                    <div className="flex gap-3 text-xs">
+                      <span>
+                        <span className="text-gray-500">Disp:</span>
+                        <span className="ml-1 text-green-600 font-semibold">
+                          {warehouse.available_quantity}
+                        </span>
+                      </span>
+                      {warehouse.quantity_in_transit > 0 && (
+                        <span>
+                          <span className="text-gray-500">Trán:</span>
+                          <span className="ml-1 text-blue-600 font-semibold">
+                            {warehouse.quantity_in_transit}
+                          </span>
+                        </span>
+                      )}
+                      {warehouse.is_out_of_stock && (
+                        <Badge
+                          variant="destructive"
+                          className="text-xs py-0 px-1 h-4"
+                        >
+                          Sin Stock
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+                ))}
+                {currentProductStock.warehouses.length > 3 && (
+                  <div className="text-xs text-gray-500 text-center">
+                    +{currentProductStock.warehouses.length - 3} almacenes más
+                  </div>
+                )}
+                <div className="pt-1.5 border-t border-blue-300 text-xs font-semibold text-gray-700">
+                  Total disponible:{" "}
+                  <span className="text-green-600">
+                    {currentProductStock.total_available_quantity}
+                  </span>
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-center gap-1 text-xs text-gray-500">
+                <AlertCircle className="h-3 w-3" />
+                <span>Sin stock en almacenes</span>
+              </div>
+            )}
+          </div>
+        )}
+
         <div className="grid grid-cols-2 gap-3">
           <FormField
             control={form.control}
@@ -366,6 +515,9 @@ export default function ProformaMesonForm({
   const [exchangeRate, setExchangeRate] = useState<number | null>(null);
   const [isLoadingExchangeRate, setIsLoadingExchangeRate] = useState(false);
   const [selectedCurrency, setSelectedCurrency] = useState<any>(null);
+  const [stockData, setStockData] = useState<StockByProductIdsResponse | null>(
+    null
+  );
 
   const form = useForm<QuotationMesonWithProductsSchema>({
     resolver: zodResolver(
@@ -395,6 +547,12 @@ export default function ProformaMesonForm({
   const quotationDate = form.watch("quotation_date");
   const vehicleId = form.watch("vehicle_id");
   const currencyId = form.watch("currency_id");
+
+  // Usar useWatch para detectar cambios en details en tiempo real
+  const watchedDetails = useWatch({
+    control: form.control,
+    name: "details",
+  });
 
   const { data: vehicles = [], isLoading: isLoadingVehicles } =
     useAllVehicles();
@@ -465,6 +623,38 @@ export default function ProformaMesonForm({
 
     fetchExchangeRate();
   }, [quotationDate]);
+
+  // Consultar stock de productos seleccionados
+  // Crear un string con los IDs de productos para detectar cambios
+  const productIdsString = useMemo(() => {
+    if (!watchedDetails || watchedDetails.length === 0) return "";
+    const ids = watchedDetails
+      .map((detail: any) => Number(detail?.product_id || 0))
+      .filter((id: number) => id > 0)
+      .sort((a: number, b: number) => a - b); // Ordenar para que [1,2] sea igual a [2,1]
+    return ids.join(",");
+  }, [watchedDetails]);
+
+  useEffect(() => {
+    const fetchProductsStock = async () => {
+      // Si no hay productos seleccionados, limpiar el stock
+      if (!productIdsString) {
+        setStockData(null);
+        return;
+      }
+
+      const productIds = productIdsString.split(",").map(Number);
+
+      try {
+        const response = await getStockByProductIds(productIds);
+        setStockData(response);
+      } catch {
+        setStockData(null);
+      }
+    };
+
+    fetchProductsStock();
+  }, [productIdsString]);
 
   const addProduct = () => {
     append({
@@ -601,6 +791,15 @@ export default function ProformaMesonForm({
               dateFormat="dd/MM/yyyy"
               captionLayout="dropdown"
               disabled={true}
+            />
+
+            <FormSelect
+              control={form.control}
+              name="supply_type"
+              options={onSelectSupplyType}
+              label="Tipo de Abastecimiento"
+              placeholder="Seleccionar un tipo"
+              required
             />
           </div>
 
@@ -786,6 +985,7 @@ export default function ProformaMesonForm({
                     form={form}
                     onRemove={() => remove(index)}
                     selectedCurrency={selectedCurrency}
+                    stockData={stockData}
                   />
                 ))}
               </div>

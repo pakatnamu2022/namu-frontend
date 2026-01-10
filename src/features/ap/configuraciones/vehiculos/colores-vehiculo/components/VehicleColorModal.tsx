@@ -16,7 +16,7 @@ import {
 import { GeneralModal } from "@/shared/components/GeneralModal";
 import { VehicleColorForm } from "./VehicleColorForm";
 import { VEHICLE_COLOR } from "../lib/vehicleColor.constants";
-import { AP_MASTER_COMERCIAL } from "@/features/ap/lib/ap.constants";
+import { AP_MASTER_TYPE } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 interface Props {
   id?: number;
@@ -50,7 +50,7 @@ export default function VehicleColorModal({
     return {
       code: data.code,
       description: data.description,
-      type: AP_MASTER_COMERCIAL.VEHICLE_COLOR,
+      type: AP_MASTER_TYPE.VEHICLE_COLOR,
     };
   }
 

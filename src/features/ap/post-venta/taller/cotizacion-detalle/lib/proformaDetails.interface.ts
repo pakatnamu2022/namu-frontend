@@ -1,4 +1,5 @@
 import { type Links, type Meta } from "@/shared/lib/pagination.interface.ts";
+import { ProductResource } from "../../../gestion-productos/productos/lib/product.interface";
 
 export interface OrderQuotationDetailsResponse {
   data: OrderQuotationDetailsResource[];
@@ -21,6 +22,7 @@ export interface OrderQuotationDetailsResource {
   discount: number;
   total_amount: number;
   observations: string | null;
+  product: ProductResource | null;
 }
 
 export interface OrderQuotationDetailsRequest {

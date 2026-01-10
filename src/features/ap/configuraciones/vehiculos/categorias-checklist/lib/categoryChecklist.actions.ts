@@ -9,7 +9,7 @@ import { api } from "@/core/api";
 import { GeneralResponse } from "@/shared/lib/response.interface";
 import { STATUS_ACTIVE } from "@/core/core.constants";
 import { CATEGORY_CHECKLIST } from "./categoryChecklist.constants";
-import { AP_MASTER_COMERCIAL } from "@/features/ap/lib/ap.constants";
+import { AP_MASTER_TYPE } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 const { ENDPOINT } = CATEGORY_CHECKLIST;
 
@@ -19,7 +19,7 @@ export async function getCategoryChecklist({
   const config: AxiosRequestConfig = {
     params: {
       ...params,
-      type: AP_MASTER_COMERCIAL.CATEGORIA_CHECKLIST,
+      type: AP_MASTER_TYPE.CATEGORIA_CHECKLIST,
     },
   };
   const { data } = await api.get<CategoryChecklistResponse>(ENDPOINT, config);
@@ -33,7 +33,7 @@ export async function getAllCategoryChecklist({
     params: {
       all: true, // Assuming you want to fetch all periods
       ...params,
-      type: AP_MASTER_COMERCIAL.CATEGORIA_CHECKLIST,
+      type: AP_MASTER_TYPE.CATEGORIA_CHECKLIST,
       status: STATUS_ACTIVE,
     },
   };

@@ -4,33 +4,32 @@ import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
 import {
-  commercialMastersSchemaCreate,
-  CommercialMastersSchema,
-} from "../lib/commercialMasters.schema";
-import { CommercialMastersResource } from "../lib/commercialMasters.interface";
+  ApMastersSchema,
+  apMastersSchemaCreate,
+} from "../lib/apMasters.schema";
+import { ApMastersResource } from "../lib/apMasters.interface";
 import { FormInput } from "@/shared/components/FormInput";
 import { FormSwitch } from "@/shared/components/FormSwitch";
 import { FormSelect } from "@/shared/components/FormSelect";
-import { useCommercialMastersTypes } from "../lib/commercialMasters.hook";
+import { useApMastersTypes } from "../lib/apMasters.hook";
 import { useMemo } from "react";
 
-interface CommercialMastersFormProps {
-  onSubmit: (data: CommercialMastersSchema) => void;
+interface ApMastersFormProps {
+  onSubmit: (data: ApMastersSchema) => void;
   isSubmitting: boolean;
-  defaultValues?: CommercialMastersResource;
+  defaultValues?: ApMastersResource;
   mode: "create" | "update";
   onCancel?: () => void;
 }
 
-export default function CommercialMastersForm({
+export default function ApMastersForm({
   onSubmit,
   isSubmitting,
   defaultValues,
   mode,
   onCancel,
-}: CommercialMastersFormProps) {
-  const { data: typesData, isLoading: isLoadingTypes } =
-    useCommercialMastersTypes();
+}: ApMastersFormProps) {
+  const { data: typesData, isLoading: isLoadingTypes } = useApMastersTypes();
 
   const typeOptions = useMemo(() => {
     if (!typesData?.data) return [];
@@ -40,8 +39,8 @@ export default function CommercialMastersForm({
     }));
   }, [typesData]);
 
-  const form = useForm<CommercialMastersSchema>({
-    resolver: zodResolver(commercialMastersSchemaCreate) as any,
+  const form = useForm<ApMastersSchema>({
+    resolver: zodResolver(apMastersSchemaCreate) as any,
     defaultValues: defaultValues || {
       code: "",
       description: "",
