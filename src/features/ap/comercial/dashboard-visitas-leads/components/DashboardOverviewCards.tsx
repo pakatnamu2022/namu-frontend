@@ -139,7 +139,7 @@ export default function DashboardOverviewCards({
                 progressValue={count}
                 progressMax={data.total_visitas}
               />
-            );
+              );
           })}
         </div>
       </div>
