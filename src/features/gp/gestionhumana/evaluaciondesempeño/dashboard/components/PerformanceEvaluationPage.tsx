@@ -39,10 +39,11 @@ export default function PerformanceEvaluationPage({ id }: { id?: number }) {
   const [selectedCardType, setSelectedCardType] = useState<KPICardType | null>(
     null
   );
+  const [shouldRecalculate, setShouldRecalculate] = useState(false);
 
   // Always call hooks unconditionally
   const evaluationByIdQuery = useEvaluation(id, {
-    recalculate: 1,
+    recalculate: shouldRecalculate ? 1 : undefined,
   });
   const activeEvaluationQuery = useActivePerformanceEvaluation();
 
@@ -116,11 +117,17 @@ export default function PerformanceEvaluationPage({ id }: { id?: number }) {
 
   const progressStats: ProgressStats = evaluationData.progress_stats!;
 
+  const handleRefresh = async () => {
+    setShouldRecalculate(true);
+    await evaluationQuery.refetch();
+    setShouldRecalculate(false);
+  };
+
   return (
     <PageWrapper>
       <div className="max-w-7xl mx-auto space-y-6">
         <EvaluationHeader
-          onRefresh={evaluationQuery.refetch}
+          onRefresh={handleRefresh}
           refetching={evaluationQuery.isRefetching}
           evaluationData={evaluationData}
           onDownloadReport={handleDownloadReport}
