@@ -1,7 +1,14 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, Clock, XCircle, History, Edit, MapPin } from "lucide-react";
+import {
+  CheckCircle2,
+  Clock,
+  XCircle,
+  History,
+  Edit,
+  MapPin,
+} from "lucide-react";
 import { EvaluationPersonResultResource } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/lib/evaluationPerson.interface";
 import { Badge } from "@/components/ui/badge";
 import { getMyEvaluatorTypes } from "../lib/teamHelpers";
@@ -32,23 +39,28 @@ export function TeamCard({ data, onEvaluate, onHistory }: TeamCardProps) {
   };
 
   return (
-    <div className="flex flex-col lg:flex-row lg:items-center gap-4 py-3 px-2 w-full">
-      {/* Sección superior/izquierda: Info del empleado */}
-      <div className="flex flex-col gap-3 flex-1 min-w-0">
+    <div className="flex flex-col h-full rounded-lg border border-border bg-card overflow-hidden hover:shadow-md transition-shadow">
+      {/* Contenido de la tarjeta */}
+      <div className="flex flex-col gap-3 p-4 flex-1">
         {/* Header: Nombre + Posición */}
         <div className="flex flex-col min-w-0">
-          <span className="font-bold text-sm sm:text-base lg:text-lg truncate">
-            {person.name}
-          </span>
-          <span className="text-xs sm:text-sm text-muted-foreground">
+          <span className="font-bold text-base truncate">{person.name}</span>
+          <span className="text-sm text-muted-foreground truncate">
             {person.position}
           </span>
         </div>
 
-        {/* Tags: Sede + Roles */}
+        {/* Tags: Sede + Estado + Roles */}
         <div className="flex items-center gap-2 flex-wrap">
           <Badge variant="blue" icon={MapPin} className="text-xs">
-            {person.sede}
+            {person.sede.replace(/_/g, " ")}
+          </Badge>
+          <Badge
+            variant={isEvaluated ? "green" : isPending ? "amber" : "red"}
+            icon={isEvaluated ? CheckCircle2 : isPending ? Clock : XCircle}
+            className="text-xs"
+          >
+            {overallCompletionRate}%
           </Badge>
           {myTypes.length > 0 && (
             <>
@@ -71,66 +83,51 @@ export function TeamCard({ data, onEvaluate, onHistory }: TeamCardProps) {
           )}
         </div>
 
-        {/* Resultados + Progreso en layout horizontal */}
-        <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
-          {/* Resultados */}
-          <div className="flex gap-2 items-center flex-wrap">
-            <div className="flex items-center gap-1.5 bg-muted/50 rounded-md px-3 py-1.5">
-              <span className="text-lg sm:text-xl font-bold">{result}%</span>
-              <span className="text-xs text-muted-foreground">Total</span>
-            </div>
-            <div className="flex items-center gap-1.5 bg-muted/30 rounded-md px-2.5 py-1">
-              <span className="text-sm font-semibold">{objectivesResult}%</span>
-              <span className="text-xs text-muted-foreground">Obj</span>
-            </div>
-            <div className="flex items-center gap-1.5 bg-muted/30 rounded-md px-2.5 py-1">
-              <span className="text-sm font-semibold">
-                {competencesResult}%
-              </span>
-              <span className="text-xs text-muted-foreground">Comp</span>
-            </div>
+        {/* Resultados compactos */}
+        <div className="flex gap-2 items-center flex-wrap">
+          <div className="flex items-center gap-1 bg-muted/50 rounded-md px-2 py-1">
+            <span className="text-sm font-bold">{result}%</span>
+            <span className="text-[10px] text-muted-foreground">Total</span>
           </div>
+          <div className="flex items-center gap-1 bg-muted/30 rounded-md px-2 py-1">
+            <span className="text-xs font-semibold">{objectivesResult}%</span>
+            <span className="text-[10px] text-muted-foreground">Obj</span>
+          </div>
+          <div className="flex items-center gap-1 bg-muted/30 rounded-md px-2 py-1">
+            <span className="text-xs font-semibold">{competencesResult}%</span>
+            <span className="text-[10px] text-muted-foreground">Comp</span>
+          </div>
+        </div>
 
-          {/* Badge de estado + Barra de progreso */}
-          <div className="flex items-center gap-2 w-full sm:flex-1">
-            <Badge
-              variant={isEvaluated ? "green" : isPending ? "amber" : "red"}
-              icon={isEvaluated ? CheckCircle2 : isPending ? Clock : XCircle}
-              className="shrink-0"
-              size="xs"
-            >
-              {overallCompletionRate}%
-            </Badge>
-            <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
-              <div
-                className={`h-full transition-all ${getProgressColor()}`}
-                style={{ width: `${overallCompletionRate}%` }}
-              />
-            </div>
-          </div>
+        {/* Botones de acción */}
+        <div className="flex gap-2 mt-auto">
+          <Button
+            size="sm"
+            variant={isEvaluated ? "outline" : "default"}
+            className="h-8 gap-1.5 px-3 text-xs flex-1"
+            onClick={() => onEvaluate(person.id)}
+          >
+            {isEvaluated ? "Ver Activa" : isPending ? "Continuar" : "Evaluar"}
+            <Edit className="size-3" />
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            className="h-8 gap-1.5 px-3 text-xs flex-1"
+            onClick={() => onHistory(person.id)}
+          >
+            Historial
+            <History className="size-3" />
+          </Button>
         </div>
       </div>
 
-      {/* Sección inferior/derecha: Acciones */}
-      <div className="flex flex-row lg:flex-col gap-2 w-full lg:w-auto shrink-0">
-        <Button
-          size="sm"
-          variant={isEvaluated ? "outline" : "default"}
-          className="h-8 lg:h-9 gap-1.5 lg:gap-2 flex-1 lg:flex-initial lg:min-w-[110px] text-xs lg:text-sm"
-          onClick={() => onEvaluate(person.id)}
-        >
-          {isEvaluated ? "Ver Activa" : isPending ? "Continuar" : "Evaluar"}
-          <Edit className="size-3 lg:size-4" />
-        </Button>
-        <Button
-          size="sm"
-          variant="outline"
-          className="h-8 lg:h-9 gap-1.5 lg:gap-2 flex-1 lg:flex-initial lg:min-w-[110px] text-xs lg:text-sm"
-          onClick={() => onHistory(person.id)}
-        >
-          Historial
-          <History className="size-3 lg:size-4" />
-        </Button>
+      {/* Barra de progreso pegada al final */}
+      <div className="w-full h-2 bg-muted">
+        <div
+          className={`h-full transition-all ${getProgressColor()}`}
+          style={{ width: `${overallCompletionRate}%` }}
+        />
       </div>
     </div>
   );

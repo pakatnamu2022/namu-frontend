@@ -6,9 +6,8 @@ import PageSkeleton from "@/shared/components/PageSkeleton";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { useEvaluationsByPersonToEvaluate } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/lib/evaluationPerson.hook";
 import { useAuthStore } from "@/features/auth/lib/auth.store";
-import TeamTable from "@/features/profile/team/components/TeamTable";
+import TeamGrid from "@/features/profile/team/components/TeamGrid";
 import TeamOptions from "@/features/profile/team/components/TeamOptions";
-import { teamColumns } from "@/features/profile/team/components/TeamColumns";
 import { WorkerResource } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.interface";
 import { EvaluationPersonResultModal } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/components/EvaluationPersonResultModal";
 import { useQueryClient } from "@tanstack/react-query";
@@ -90,8 +89,6 @@ export default function TeamPage() {
 
   if (!user) return <PageSkeleton />;
 
-  if (isLoading) return <FormSkeleton />;
-
   return (
     <PageWrapper>
       <HeaderTableWrapper>
@@ -102,12 +99,8 @@ export default function TeamPage() {
         />
         <TeamActions />
       </HeaderTableWrapper>
-      <TeamTable
+      <TeamGrid
         isLoading={isLoading}
-        columns={teamColumns({
-          onEvaluate: handleOnEvaluate,
-          onHistory: handleOnHistory,
-        })}
         data={filteredData}
         onEvaluate={handleOnEvaluate}
         onHistory={handleOnHistory}
@@ -120,7 +113,7 @@ export default function TeamPage() {
           setEvaluatorTypeFilter={setEvaluatorTypeFilter}
           counts={evaluatorTypeCounts}
         />
-      </TeamTable>
+      </TeamGrid>
 
       {selectedWorker && openDetailModal && (
         <EvaluationPersonResultModal
