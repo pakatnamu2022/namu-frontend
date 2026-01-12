@@ -28,9 +28,9 @@ import {
 import EvaluationSummaryCard from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/components/EvaluationSummaryCard";
 import EvaluationPersonObjectiveTable from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/components/EvaluationPersonObjetiveTable";
 import EvaluationPersonCompetenceTableWithColumns from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/components/EvaluationPersonCompetenceTable";
-import EvaluationPersonHeader from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/components/EvaluationPersonHeader";
 import EvaluationSelector from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/components/EvaluationSelector";
 import NoEvaluationMessage from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/components/NoEvaluationMessage";
+import PersonTitleComponent from "@/shared/components/PersonTitleComponent";
 import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { useParams } from 'react-router-dom';
 import { EVALUATION_OBJECTIVE } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluaciones/lib/evaluation.constans";
@@ -189,12 +189,22 @@ export default function EvaluationDetailPersonPage() {
     <PageWrapper>
       <div className="space-y-4 p-0">
         {/* Header principal */}
-        <EvaluationPersonHeader
-          personName={evaluationPersonResult.person.name}
-          personPosition={evaluationPersonResult.person.position}
-          personPhoto={evaluationPersonResult.person.photo}
-          completionRate={evaluationPersonResult.statistics.overall_completion_rate}
-        />
+        <PersonTitleComponent
+          name={evaluationPersonResult.person.name}
+          position={evaluationPersonResult.person.position}
+          photo={evaluationPersonResult.person.photo}
+          backButtonRoute="/perfil/equipo"
+          backButtonName="Ver Equipo"
+        >
+          <div className="ml-auto text-right">
+            <div className="text-2xl font-bold text-primary">
+              {evaluationPersonResult.statistics.overall_completion_rate}%
+            </div>
+            <div className="text-xs text-muted-foreground">
+              Progreso general
+            </div>
+          </div>
+        </PersonTitleComponent>
 
         {/* Selector de evaluación y controles */}
         <EvaluationSelector

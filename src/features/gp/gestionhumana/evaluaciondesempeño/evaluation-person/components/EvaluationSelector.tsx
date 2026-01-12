@@ -38,9 +38,7 @@ export default function EvaluationSelector({
             label: () => (
               <span className="flex items-center gap-2">
                 {evaluation.name}{" "}
-                <Badge variant={"tertiary"} className="text-[10px]">
-                  {evaluation.period}
-                </Badge>
+                <Badge variant="sky">{evaluation.period}</Badge>
               </span>
             ),
           }))}
@@ -49,7 +47,7 @@ export default function EvaluationSelector({
           }}
           value={selectedEvaluationId?.toString() ?? ""}
           placeholder="Selecciona la Evaluación..."
-          className="w-80!"
+          className="w-auto! min-w-80"
         />
       )}
 
