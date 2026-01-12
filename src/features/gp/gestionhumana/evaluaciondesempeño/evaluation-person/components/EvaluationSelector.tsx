@@ -55,6 +55,7 @@ export default function EvaluationSelector({
         <Button
           variant="outline"
           size="sm"
+          color="primary"
           onClick={onRefresh}
           disabled={isSaving}
           className="gap-2"

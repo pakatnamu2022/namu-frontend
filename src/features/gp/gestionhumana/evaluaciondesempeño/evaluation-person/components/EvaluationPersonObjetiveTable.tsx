@@ -51,13 +51,6 @@ export default function EvaluationPersonObjectiveTable({
     return <EmptyState />;
   }
 
-  // Crear las columnas
-  const columns = evaluationPersonObjectiveColumns({
-    evaluationPersonResult,
-    onUpdateCell,
-    readOnly,
-  });
-
   // Funciones para manejar comentarios y expansión
   const toggleRowExpansion = (rowId: number) => {
     const newExpandedRows = new Set(expandedRows);
@@ -72,6 +65,14 @@ export default function EvaluationPersonObjectiveTable({
   const handleCommentSubmit = (id: number, comment: string) => {
     onCommentCell?.(id, comment);
   };
+
+  // Crear las columnas
+  const columns = evaluationPersonObjectiveColumns({
+    evaluationPersonResult,
+    onUpdateCell,
+    onToggleComment: toggleRowExpansion,
+    readOnly,
+  });
 
   // Calcular estadísticas
   const totalObjectives = details.length;
@@ -119,7 +120,6 @@ export default function EvaluationPersonObjectiveTable({
                     key={detail.id}
                     id={detail.id}
                     isExpanded={expandedRows.has(detail.id)}
-                    onToggleExpansion={toggleRowExpansion}
                     columnsCount={columns.length}
                     comment={detail.comment}
                     readOnly={readOnly}

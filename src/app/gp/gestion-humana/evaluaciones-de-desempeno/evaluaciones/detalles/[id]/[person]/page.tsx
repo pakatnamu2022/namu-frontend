@@ -19,7 +19,7 @@ import {
   successToast,
 } from "@/core/core.function";
 import { Badge } from "@/components/ui/badge";
-import { TrendingUp, Target, RefreshCw, ChevronLeft } from "lucide-react";
+import { TrendingUp, Target, RefreshCw } from "lucide-react";
 import { EVALUATION_PERSON } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/lib/evaluationPerson.constans";
 import { useAllEvaluations } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluaciones/lib/evaluation.hook";
 import {
@@ -33,7 +33,7 @@ import EvaluationPersonCompetenceTableWithColumns from "@/features/gp/gestionhum
 import NoEvaluationMessage from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/components/NoEvaluationMessage";
 import PersonTitleComponent from "@/shared/components/PersonTitleComponent";
 import { useQueryClient, useQuery } from "@tanstack/react-query";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { EVALUATION_OBJECTIVE } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluaciones/lib/evaluation.constans";
 import PageWrapper from "@/shared/components/PageWrapper";
 
@@ -222,6 +222,7 @@ export default function EvaluationDetailPersonPage() {
           <div className="flex items-center gap-2">
             <Button
               variant="outline"
+              color="primary"
               size="sm"
               onClick={handleRefresh}
               disabled={saving}
@@ -230,12 +231,6 @@ export default function EvaluationDetailPersonPage() {
               <RefreshCw className={`size-4 ${saving ? "animate-spin" : ""}`} />
               Actualizar
             </Button>
-            <Link to={`${ABSOLUTE_ROUTE}/${selectedEvaluationId}`}>
-              <Button size={"sm"} variant={"tertiary"}>
-                <ChevronLeft className="w-4 h-4" />
-                Ver Evaluaciones
-              </Button>
-            </Link>
           </div>
         </div>
       </div>
@@ -276,59 +271,25 @@ export default function EvaluationDetailPersonPage() {
               {isLoadingEvaluationPerson ? (
                 <FormSkeleton />
               ) : (
-                <>
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-semibold">
-                      Evaluación de Objetivos
-                    </h3>
-                    {evaluationPersonResult?.objectivesPercentage && (
-                      <Badge variant="outline">
-                        Peso: {evaluationPersonResult.objectivesPercentage}% del
-                        total
-                      </Badge>
-                    )}
-                  </div>
-                  <EvaluationPersonObjectiveTable
-                    evaluationPersonResult={evaluationPersonResult}
-                    details={evaluationPersonResult?.details}
-                    onUpdateCell={handleUpdateResultCell}
-                    onCommentCell={handleCommentSubmit}
-                  />
-                </>
+                <EvaluationPersonObjectiveTable
+                  evaluationPersonResult={evaluationPersonResult}
+                  details={evaluationPersonResult?.details}
+                  onUpdateCell={handleUpdateResultCell}
+                  onCommentCell={handleCommentSubmit}
+                />
               )}
             </TabsContent>
             <TabsContent value="competences" className="space-y-6 p-6">
               {isLoadingEvaluationPerson ? (
                 <FormSkeleton />
               ) : (
-                <>
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-semibold">
-                      Evaluación de Competencias
-                    </h3>
-                    <div className="flex items-center gap-2">
-                      {evaluationPersonResult?.competencesPercentage && (
-                        <Badge variant="outline">
-                          Peso: {evaluationPersonResult.competencesPercentage}%
-                          del total
-                        </Badge>
-                      )}
-                      {evaluationPersonResult?.evaluation
-                        ?.typeEvaluationName && (
-                        <Badge variant="secondary">
-                          {evaluationPersonResult.evaluation.typeEvaluationName}
-                        </Badge>
-                      )}
-                    </div>
-                  </div>
-                  <EvaluationPersonCompetenceTableWithColumns
-                    evaluationPersonResult={evaluationPersonResult}
-                    competenceGroups={evaluationPersonResult?.competenceGroups}
-                    onUpdateCell={handleUpdateResultCellCompetence}
-                    showProgress={true}
-                    canEditAll={true}
-                  />
-                </>
+                <EvaluationPersonCompetenceTableWithColumns
+                  evaluationPersonResult={evaluationPersonResult}
+                  competenceGroups={evaluationPersonResult?.competenceGroups}
+                  onUpdateCell={handleUpdateResultCellCompetence}
+                  showProgress={true}
+                  canEditAll={true}
+                />
               )}
             </TabsContent>
           </TabsContents>

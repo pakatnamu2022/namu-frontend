@@ -19,12 +19,12 @@ export const PARAMETER: ModelComplete = {
 };
 
 export const PARAMETER_SCALES = [
-  "bg-red-100 text-red-400",
-  "bg-orange-100 text-orange-400",
-  "bg-amber-100 text-amber-500",
-  "bg-yellow-100 text-yellow-500",
-  "bg-green-100 text-green-500",
-  "bg-emerald-100 text-emerald-500",
+  "bg-red-100 text-red-600",
+  "bg-orange-100 text-orange-600",
+  "bg-amber-100 text-amber-600",
+  "bg-yellow-100 text-yellow-600",
+  "bg-green-100 text-green-600",
+  "bg-emerald-100 text-emerald-600",
 ];
 
 export type ParameterScale = (typeof PARAMETER_SCALES)[number];
@@ -32,10 +32,10 @@ export type ParameterScale = (typeof PARAMETER_SCALES)[number];
 export const SCALE_TO_COLOR_MAP: Record<ParameterScale, string> = {
   "bg-red-100 text-red-400": "#f87171", // red-400
   "bg-orange-100 text-orange-400": "#fb923c", // orange-400
-  "bg-amber-100 text-amber-500": "#f59e0b", // amber-500
-  "bg-yellow-100 text-yellow-500": "#eab308", // yellow-500
-  "bg-green-100 text-green-500": "#22c55e", // green-500
-  "bg-emerald-100 text-emerald-500": "#10b981", // emerald-500
+  "bg-amber-100 text-amber-700": "#f59e0b", // amber-700
+  "bg-yellow-100 text-yellow-700": "#eab308", // yellow-700
+  "bg-green-100 text-green-700": "#22c55e", // green-700
+  "bg-emerald-100 text-emerald-700": "#10b981", // emerald-700
 };
 
 export const PARAMETER_TYPES = [

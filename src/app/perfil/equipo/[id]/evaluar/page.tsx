@@ -231,21 +231,13 @@ export default function NamuPerformanceEvaluationPage() {
             <Button
               variant="outline"
               size="sm"
+              color="primary"
               onClick={handleRefresh}
               disabled={saving}
               className="gap-2"
             >
               <RefreshCw className={`size-4 ${saving ? "animate-spin" : ""}`} />
               Actualizar
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleBack}
-              className="gap-2"
-            >
-              <ChevronLeft className="w-4 h-4" />
-              Volver al Equipo
             </Button>
           </div>
         </div>
