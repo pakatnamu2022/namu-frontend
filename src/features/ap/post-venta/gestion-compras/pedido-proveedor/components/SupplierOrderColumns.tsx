@@ -1,0 +1,164 @@
+import type { ColumnDef } from "@tanstack/react-table";
+import { SupplierOrderResource } from "../lib/supplierOrder.interface";
+import { Button } from "@/components/ui/button";
+import { Eye, Pencil, FileCheck } from "lucide-react";
+import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
+import { Link } from "react-router-dom";
+import { Badge } from "@/components/ui/badge";
+
+export type SupplierOrderColumns = ColumnDef<SupplierOrderResource>;
+
+interface Props {
+  onDelete: (id: number) => void;
+  onView?: (id: number) => void;
+  permissions: {
+    canUpdate: boolean;
+    canDelete: boolean;
+    canView: boolean;
+  };
+  routeUpdate?: string;
+  routeInvoice?: string;
+}
+
+export const supplierOrderColumns = ({
+  onDelete,
+  onView,
+  permissions,
+  routeUpdate,
+  routeInvoice,
+}: Props): SupplierOrderColumns[] => [
+  {
+    accessorKey: "order_number",
+    header: "Nº Pedido",
+    cell: ({ getValue }) => {
+      const value = getValue() as string;
+      return value && <p className="font-semibold">{value}</p>;
+    },
+  },
+  {
+    accessorKey: "supplier_id",
+    header: "Proveedor",
+    cell: ({ row }) => {
+      const supplierData = row.original.supplier;
+      return (
+        <div className="flex flex-col">
+          <p className="font-medium">{supplierData?.full_name || "N/A"}</p>
+          {supplierData?.num_doc && (
+            <p className="text-[12px] text-muted-foreground">
+              RUC: {supplierData.num_doc}
+            </p>
+          )}
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "order_date",
+    header: "Fecha Pedido",
+    cell: ({ getValue }) => {
+      const value = getValue() as string;
+      return value || "N/A";
+    },
+  },
+  {
+    accessorKey: "supply_type",
+    header: "Tipo Abast.",
+    cell: ({ getValue }) => {
+      const value = getValue() as string;
+      const variants: Record<string, any> = {
+        STOCK: "default",
+        LIMA: "secondary",
+        IMPORTACION: "outline",
+      };
+      return (
+        <Badge variant={variants[value] || "default"}>{value || "N/A"}</Badge>
+      );
+    },
+  },
+  {
+    accessorKey: "warehouse_id",
+    header: "Almacén",
+    cell: ({ row }) => {
+      const warehouseData = row.original.warehouse;
+      return warehouseData?.description || "N/A";
+    },
+  },
+  {
+    accessorKey: "sede_id",
+    header: "Sede",
+    cell: ({ row }) => {
+      const sedeData = row.original.sede;
+      return sedeData?.abreviatura || "N/A";
+    },
+  },
+  {
+    accessorKey: "total_amount",
+    header: "Total",
+  },
+  {
+    accessorKey: "is_take",
+    header: "Estado",
+    cell: ({ getValue }) => {
+      const isTake = getValue() as boolean;
+      return (
+        <Badge variant={isTake ? "default" : "secondary"}>
+          {isTake ? "Tomado" : "Pendiente"}
+        </Badge>
+      );
+    },
+  },
+  {
+    id: "actions",
+    header: "Acciones",
+    cell: ({ row }) => {
+      const { id, is_take } = row.original;
+      const canEditDelete = !is_take; // Disable edit/delete if already taken
+
+      return (
+        <div className="flex items-center gap-2">
+          {permissions.canView && onView && (
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-7"
+              tooltip="Ver"
+              onClick={() => onView(id)}
+            >
+              <Eye className="size-4" />
+            </Button>
+          )}
+
+          {routeInvoice && (
+            <Link to={`${routeInvoice}/${id}`}>
+              <Button
+                variant="outline"
+                size="icon"
+                className="size-7"
+                tooltip="Facturación de la Orden"
+              >
+                <FileCheck className="size-4" />
+              </Button>
+            </Link>
+          )}
+
+          {permissions.canUpdate && canEditDelete && routeUpdate && (
+            <Link to={`${routeUpdate}/${id}`}>
+              <Button
+                variant="outline"
+                size="icon"
+                className="size-7"
+                tooltip="Editar"
+              >
+                <Pencil className="size-4" />
+              </Button>
+            </Link>
+          )}
+
+          {permissions.canDelete && canEditDelete && (
+            <DeleteButton onClick={() => onDelete(id)} />
+          )}
+        </div>
+      );
+    },
+  },
+];

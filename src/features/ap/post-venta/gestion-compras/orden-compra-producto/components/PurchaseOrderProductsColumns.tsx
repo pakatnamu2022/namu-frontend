@@ -1,7 +1,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { PurchaseOrderProductsResource } from "../lib/purchaseOrderProducts.interface";
 import { Button } from "@/components/ui/button";
-import { Eye, Pencil, PackageCheck } from "lucide-react";
+import { Eye, PackageCheck } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { Link } from "react-router-dom";
 
@@ -17,7 +17,6 @@ interface Props {
     canView: boolean;
     canReceive?: boolean;
   };
-  routeUpdate?: string;
   routeReception?: string;
 }
 
@@ -25,7 +24,6 @@ export const purchaseOrderProductsColumns = ({
   onDelete,
   onView,
   permissions,
-  routeUpdate,
   routeReception,
 }: Props): PurchaseOrderProductsColumns[] => [
   {
@@ -128,19 +126,6 @@ export const purchaseOrderProductsColumns = ({
                 tooltip="Recepcionar"
               >
                 <PackageCheck className="size-4" />
-              </Button>
-            </Link>
-          )}
-
-          {permissions.canUpdate && canEditDelete && routeUpdate && (
-            <Link to={`${routeUpdate}/${id}`}>
-              <Button
-                variant="outline"
-                size="icon"
-                className="size-7"
-                tooltip="Editar"
-              >
-                <Pencil className="size-4" />
               </Button>
             </Link>
           )}

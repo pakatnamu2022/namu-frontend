@@ -239,6 +239,10 @@ import UpdatePurchaseOrderProductsPage from "./app/ap/post-venta/gestion-de-comp
 import ReceptionsProductsPage from "./app/ap/post-venta/gestion-de-compras/orden-compra-producto/recepcion/[purchaseOrderId]/page.tsx";
 import UpdateReceptionProductPage from "./app/ap/post-venta/gestion-de-compras/orden-compra-producto/recepcion/actualizar/[purchaseOrderId]/[id]/page.tsx";
 import AddReceptionProductPage from "./app/ap/post-venta/gestion-de-compras/orden-compra-producto/recepcion/agregar/[purchaseOrderId]/page.tsx";
+import SupplierOrderPage from "./app/ap/post-venta/gestion-de-compras/pedido-proveedor/page.tsx";
+import AddSupplierOrderPage from "./app/ap/post-venta/gestion-de-compras/pedido-proveedor/agregar/page.tsx";
+import UpdateSupplierOrderPage from "./app/ap/post-venta/gestion-de-compras/pedido-proveedor/actualizar/[id]/page.tsx";
+import InvoiceSupplierOrderPage from "./app/ap/post-venta/gestion-de-compras/pedido-proveedor/facturar/[id]/page.tsx";
 import ApprovedAccesoriesPage from "./app/ap/post-venta/repuestos/accesorios-homologados/page.tsx";
 import AddApprovedAccesoriesPage from "./app/ap/post-venta/repuestos/accesorios-homologados/agregar/page.tsx";
 import UpdateApprovedAccesoriesPage from "./app/ap/post-venta/repuestos/accesorios-homologados/actualizar/[id]/page.tsx";
@@ -1197,6 +1201,22 @@ function App() {
               <Route
                 path="gestion-de-compras/orden-compra-producto/recepcion/actualizar/:purchaseOrderId/:id"
                 element={<UpdateReceptionProductPage />}
+              />
+              <Route
+                path="gestion-de-compras/pedido-proveedor"
+                element={<SupplierOrderPage />}
+              />
+              <Route
+                path="gestion-de-compras/pedido-proveedor/agregar"
+                element={<AddSupplierOrderPage />}
+              />
+              <Route
+                path="gestion-de-compras/pedido-proveedor/actualizar/:id"
+                element={<UpdateSupplierOrderPage />}
+              />
+              <Route
+                path="gestion-de-compras/pedido-proveedor/facturar/:id"
+                element={<InvoiceSupplierOrderPage />}
               />
               {/* Repuestos */}
               <Route

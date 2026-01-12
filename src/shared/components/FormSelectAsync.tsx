@@ -199,15 +199,14 @@ export function FormSelectAsync({
             ? selectedOption
             : null);
 
-        // Actualizar cache cuando se encuentra la opción seleccionada
-        if (field.value && selected && selected !== selectedOption) {
-          setSelectedOption(selected);
-        }
-
-        // Limpiar cache si no hay valor seleccionado
-        if (!field.value && selectedOption) {
-          setSelectedOption(null);
-        }
+        // Sincronizar selectedOption con field.value usando useEffect
+        useEffect(() => {
+          if (field.value && selected && selected !== selectedOption) {
+            setSelectedOption(selected);
+          } else if (!field.value && selectedOption) {
+            setSelectedOption(null);
+          }
+        }, [field.value, selected?.value, selectedOption?.value]);
 
         return (
           <FormItem className="flex flex-col justify-between">
