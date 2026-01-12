@@ -65,7 +65,7 @@ interface PurchaseOrderProductsFormProps {
   mode?: "create" | "update";
   onCancel?: () => void;
   PurchaseOrderProductsData?: PurchaseOrderProductsResource;
-  supplierOrderId?: number;
+  supplierOrderId: number;
   supplierOrderData?: SupplierOrderResource;
 }
 
@@ -87,6 +87,7 @@ export const PurchaseOrderProductsForm = ({
     ),
     defaultValues: {
       ...defaultValues,
+      ap_supplier_order_id: String(supplierOrderId),
       items: defaultValues.items || [],
       status: defaultValues.status || "PENDING",
     },

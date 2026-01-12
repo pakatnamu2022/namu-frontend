@@ -96,13 +96,13 @@ export const supplierOrderColumns = ({
     header: "Total",
   },
   {
-    accessorKey: "is_take",
-    header: "Estado",
+    accessorKey: "has_invoice",
+    header: "Asocio Factura",
     cell: ({ getValue }) => {
       const isTake = getValue() as boolean;
       return (
         <Badge variant={isTake ? "default" : "secondary"}>
-          {isTake ? "Tomado" : "Pendiente"}
+          {isTake ? "Si" : "No"}
         </Badge>
       );
     },
@@ -111,7 +111,7 @@ export const supplierOrderColumns = ({
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
-      const { id, is_take } = row.original;
+      const { id, is_take, has_invoice } = row.original;
       const canEditDelete = !is_take; // Disable edit/delete if already taken
 
       return (
@@ -128,7 +128,7 @@ export const supplierOrderColumns = ({
             </Button>
           )}
 
-          {routeInvoice && (
+          {routeInvoice && !has_invoice && (
             <Link to={`${routeInvoice}/${id}`}>
               <Button
                 variant="outline"
@@ -141,20 +141,23 @@ export const supplierOrderColumns = ({
             </Link>
           )}
 
-          {permissions.canUpdate && canEditDelete && routeUpdate && (
-            <Link to={`${routeUpdate}/${id}`}>
-              <Button
-                variant="outline"
-                size="icon"
-                className="size-7"
-                tooltip="Editar"
-              >
-                <Pencil className="size-4" />
-              </Button>
-            </Link>
-          )}
+          {permissions.canUpdate &&
+            !has_invoice &&
+            canEditDelete &&
+            routeUpdate && (
+              <Link to={`${routeUpdate}/${id}`}>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="size-7"
+                  tooltip="Editar"
+                >
+                  <Pencil className="size-4" />
+                </Button>
+              </Link>
+            )}
 
-          {permissions.canDelete && canEditDelete && (
+          {permissions.canDelete && !has_invoice && canEditDelete && (
             <DeleteButton onClick={() => onDelete(id)} />
           )}
         </div>

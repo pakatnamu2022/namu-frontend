@@ -51,7 +51,7 @@ import { SupplierOrderResource } from "../lib/supplierOrder.interface";
 import { useUnitMeasurement } from "@/features/ap/configuraciones/maestros-general/unidad-medida/lib/unitMeasurement.hook";
 import { UnitMeasurementResource } from "@/features/ap/configuraciones/maestros-general/unidad-medida/lib/unitMeasurement.interface";
 import { FormInput } from "@/shared/components/FormInput";
-import { PendingPurchaseRequestsList } from "../../orden-compra-producto/components/PendingPurchaseRequestsList";
+import { PendingPurchaseRequestsList } from "./PendingPurchaseRequestsList";
 import { SimpleConfirmDialog } from "@/shared/components/SimpleConfirmDialog";
 import { toast } from "sonner";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -117,6 +117,10 @@ export const SupplierOrderForm = ({
   const [addedRequestDetailIds, setAddedRequestDetailIds] = useState<number[]>(
     []
   );
+  // Mapa que relaciona cada product_id con sus request_detail_ids originales
+  const [productRequestMap, setProductRequestMap] = useState<
+    Record<string, number[]>
+  >({});
   const [isRequestListVisible, setIsRequestListVisible] = useState(true);
   const [openRejectedAlert, setOpenRejectedAlert] = useState(false);
   const [pendingDiscardRequest, setPendingDiscardRequest] = useState<any>(null);
@@ -201,16 +205,21 @@ export const SupplierOrderForm = ({
     const itemToRemove = fields[index] as any;
     const productId = itemToRemove.product_id;
 
-    // Buscar si este producto vino de una solicitud de compra
-    const requestDetail = purcheseRequestDetailsPending?.data?.find(
-      (detail: any) => detail.product_id.toString() === productId
-    );
+    // Buscar todos los request_detail_ids asociados a este producto
+    const associatedRequestIds = productRequestMap[productId] || [];
 
-    if (requestDetail && addedRequestDetailIds.includes(requestDetail.id)) {
-      // Si vino de una solicitud, removerlo de la lista de añadidos
+    if (associatedRequestIds.length > 0) {
+      // Remover TODOS los request_detail_ids asociados a este producto
       setAddedRequestDetailIds((prev) =>
-        prev.filter((id) => id !== requestDetail.id)
+        prev.filter((id) => !associatedRequestIds.includes(id))
       );
+
+      // Limpiar el mapeo de este producto
+      setProductRequestMap((prev) => {
+        const newMap = { ...prev };
+        delete newMap[productId];
+        return newMap;
+      });
     }
 
     // Eliminar el item del formulario
@@ -218,8 +227,9 @@ export const SupplierOrderForm = ({
   };
 
   const handleAddFromRequest = (requestDetail: any) => {
+    const productId = requestDetail.product_id.toString();
     const existingItemIndex = fields.findIndex(
-      (item: any) => item.product_id === requestDetail.product_id.toString()
+      (item: any) => item.product_id === productId
     );
 
     if (existingItemIndex !== -1) {
@@ -241,10 +251,16 @@ export const SupplierOrderForm = ({
           { shouldValidate: false }
         );
       }
+
+      // Agregar este request_detail_id al mapeo del producto
+      setProductRequestMap((prev) => ({
+        ...prev,
+        [productId]: [...(prev[productId] || []), requestDetail.id],
+      }));
     } else {
       // Si no existe, agregar nuevo item
       append({
-        product_id: requestDetail.product_id.toString(),
+        product_id: productId,
         unit_measurement_id:
           requestDetail.unit_measurement_id?.toString() || "",
         quantity: parseFloat(requestDetail.quantity),
@@ -252,6 +268,12 @@ export const SupplierOrderForm = ({
         unit_price: 0,
         note: requestDetail.notes || "",
       });
+
+      // Inicializar el mapeo para este nuevo producto
+      setProductRequestMap((prev) => ({
+        ...prev,
+        [productId]: [requestDetail.id],
+      }));
     }
 
     // Agregar el ID a la lista de añadidos

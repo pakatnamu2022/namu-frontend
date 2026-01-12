@@ -23,6 +23,7 @@ import SupplierOrderTable from "@/features/ap/post-venta/gestion-compras/pedido-
 import { supplierOrderColumns } from "@/features/ap/post-venta/gestion-compras/pedido-proveedor/components/SupplierOrderColumns";
 import SupplierOrderOptions from "@/features/ap/post-venta/gestion-compras/pedido-proveedor/components/SupplierOrderOptions";
 import { SUPPLIER_ORDER } from "@/features/ap/post-venta/gestion-compras/pedido-proveedor/lib/supplierOrder.constants";
+import { SupplierOrderViewSheet } from "@/features/ap/post-venta/gestion-compras/pedido-proveedor/components/SupplierOrderViewSheet";
 
 export default function SupplierOrderPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -30,6 +31,7 @@ export default function SupplierOrderPage() {
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [viewOrderId, setViewOrderId] = useState<number | null>(null);
   const { MODEL, ROUTE, ROUTE_ADD, ROUTE_UPDATE, ABSOLUTE_ROUTE } =
     SUPPLIER_ORDER;
   const permissions = useModulePermissions(ROUTE);
@@ -66,8 +68,7 @@ export default function SupplierOrderPage() {
   };
 
   const handleView = (id: number) => {
-    // TODO: Implement view sheet functionality
-    console.log("View order:", id);
+    setViewOrderId(id);
   };
 
   if (isLoadingModule) return <PageSkeleton />;
@@ -112,6 +113,12 @@ export default function SupplierOrderPage() {
           onConfirm={handleDelete}
         />
       )}
+
+      <SupplierOrderViewSheet
+        open={viewOrderId !== null}
+        onOpenChange={(open) => !open && setViewOrderId(null)}
+        orderId={viewOrderId}
+      />
 
       <DataTablePagination
         page={page}
