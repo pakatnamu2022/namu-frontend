@@ -7,7 +7,7 @@ import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { useEvaluationsByPersonToEvaluate } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/lib/evaluationPerson.hook";
 import { useAuthStore } from "@/features/auth/lib/auth.store";
 import TeamTable from "@/features/profile/team/components/TeamTable";
-import MetricOptions from "@/features/profile/team/components/TeamOptions";
+import TeamOptions from "@/features/profile/team/components/TeamOptions";
 import { teamColumns } from "@/features/profile/team/components/TeamColumns";
 import { WorkerResource } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.interface";
 import { EvaluationPersonResultModal } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/components/EvaluationPersonResultModal";
@@ -19,11 +19,12 @@ import {
   filterByEvaluatorType,
   getUserEvaluatorTypeCounts,
 } from "@/features/profile/team/lib/teamHelpers";
+import PageWrapper from "@/shared/components/PageWrapper";
+import { useActivePerformanceEvaluation } from "@/features/gp/gestionhumana/evaluaciondesempeño/dashboard/lib/performance-evaluation.hook";
 
 export default function TeamPage() {
   const { user } = useAuthStore();
   const router = useNavigate();
-
   const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
@@ -34,10 +35,11 @@ export default function TeamPage() {
     null
   );
   const [openDetailModal, setOpenDetailModal] = useState(false);
+  const { data: activeEvaluation } = useActivePerformanceEvaluation();
 
   const { data, isLoading } = useEvaluationsByPersonToEvaluate(
     user?.partner_id,
-    !!user?.partner_id,
+    !!user?.partner_id && user.subordinates > 0 && !!activeEvaluation?.id,
     {
       page,
       search,
@@ -52,6 +54,7 @@ export default function TeamPage() {
       user?.partner_id
     );
   }, [data, evaluatorTypeFilter, user?.partner_id]);
+
   // Calcular contadores por tipo de evaluador
   const evaluatorTypeCounts = useMemo(() => {
     return getUserEvaluatorTypeCounts(data || [], user?.partner_id);
@@ -90,7 +93,7 @@ export default function TeamPage() {
   if (isLoading) return <FormSkeleton />;
 
   return (
-    <div className="space-y-4 w-full py-4">
+    <PageWrapper>
       <HeaderTableWrapper>
         <TitleComponent
           title={"Evaluación de Guerreros"}
@@ -107,7 +110,8 @@ export default function TeamPage() {
         })}
         data={filteredData}
       >
-        <MetricOptions
+        <TeamOptions
+          metrics={!!activeEvaluation && activeEvaluation.typeEvaluation !== 0}
           search={search}
           setSearch={setSearch}
           evaluatorTypeFilter={evaluatorTypeFilter}
@@ -130,6 +134,6 @@ export default function TeamPage() {
           evaluation_id={Number(1)}
         />
       )}
-    </div>
+    </PageWrapper>
   );
 }
