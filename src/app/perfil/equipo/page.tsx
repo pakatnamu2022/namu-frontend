@@ -12,7 +12,6 @@ import { WorkerResource } from "@/features/gp/gestionhumana/gestion-de-personal/
 import { EvaluationPersonResultModal } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/components/EvaluationPersonResultModal";
 import { useQueryClient } from "@tanstack/react-query";
 import TeamActions from "@/features/profile/team/components/TeamActions";
-import FormSkeleton from "@/shared/components/FormSkeleton";
 import { useNavigate } from "react-router-dom";
 import {
   filterByEvaluatorType,

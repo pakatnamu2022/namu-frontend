@@ -88,7 +88,7 @@ export default function TeamGrid({
       <div className="space-y-3">
         <button
           onClick={() => toggleSection(sectionKey)}
-          className="w-full flex items-center gap-2 hover:opacity-80 transition-opacity"
+          className="w-full flex items-center gap-2 hover:opacity-80 transition-opacity cursor-pointer"
         >
           <ChevronDown
             className={`w-4 h-4 text-muted-foreground transition-transform ${

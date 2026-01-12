@@ -80,7 +80,7 @@ function MetricCard({
           <ModalParameter parameter={parameter} />
         </div>
 
-        <div className="flex flex-col items-center justify-center gap-2">
+        <div className="flex items-end justify-center gap-2">
           <Badge
             variant="ghost"
             className={cn("text-2xl font-bold px-4 py-2", scaleClass)}
@@ -164,7 +164,18 @@ export default function EvaluationSummaryCard({ evaluationResult }: Props) {
   return (
     <Card className="mb-4">
       <CardContent className="p-4">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-4">
+          <MetricCard
+            icon={TrendingUp}
+            title="Resultado Final"
+            score={evaluationResult.result}
+            maxScore={evaluationResult.maxFinalParameter}
+            labelRange={evaluationResult.statistics.final.label_range}
+            parameter={evaluationResult.finalParameter}
+            indexRange={evaluationResult.statistics.final.index_range_result}
+            isFinal
+          />
+
           {evaluationResult.objectivesPercentage > 0 && (
             <MetricCard
               icon={CheckCircle2}
@@ -204,45 +215,7 @@ export default function EvaluationSummaryCard({ evaluationResult }: Props) {
               }
             />
           )}
-
-          <MetricCard
-            icon={TrendingUp}
-            title="Resultado Final"
-            score={evaluationResult.result}
-            maxScore={evaluationResult.maxFinalParameter}
-            labelRange={evaluationResult.statistics.final.label_range}
-            parameter={evaluationResult.finalParameter}
-            indexRange={evaluationResult.statistics.final.index_range_result}
-            isFinal
-          />
         </div>
-
-        {evaluationResult.evaluation && (
-          <div className="mt-4 pt-4 border-t">
-            <div className="flex items-center justify-between text-sm">
-              <div className="flex items-center gap-4">
-                <Badge variant="outline">
-                  {evaluationResult.evaluation.typeEvaluationName}
-                </Badge>
-                <span className="text-muted-foreground">
-                  {evaluationResult.evaluation.period} -{" "}
-                  {evaluationResult.evaluation.cycle}
-                </span>
-              </div>
-              <Badge
-                variant={
-                  evaluationResult.evaluation.status === 2
-                    ? "secondary"
-                    : evaluationResult.evaluation.status === 1
-                    ? "default"
-                    : "tertiary"
-                }
-              >
-                {evaluationResult.evaluation.statusName}
-              </Badge>
-            </div>
-          </div>
-        )}
       </CardContent>
     </Card>
   );

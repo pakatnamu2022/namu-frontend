@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { getMyEvaluatorTypes } from "../lib/teamHelpers";
 import { getEvaluatorTypeById } from "../lib/teamConstants";
 import { useAuthStore } from "@/features/auth/lib/auth.store";
+import { cn } from "@/lib/utils";
 
 interface TeamCardProps {
   data: EvaluationPersonResultResource;
@@ -36,6 +37,13 @@ export function TeamCard({ data, onEvaluate, onHistory }: TeamCardProps) {
     if (overallCompletionRate >= 50) return "bg-amber-500";
     if (overallCompletionRate > 0) return "bg-orange-500";
     return "bg-red-500";
+  };
+
+  const getProgressBackgroundColor = () => {
+    if (overallCompletionRate === 100) return "bg-green-50";
+    if (overallCompletionRate >= 50) return "bg-amber-50";
+    if (overallCompletionRate > 0) return "bg-orange-50";
+    return "bg-red-50";
   };
 
   return (
@@ -123,7 +131,7 @@ export function TeamCard({ data, onEvaluate, onHistory }: TeamCardProps) {
       </div>
 
       {/* Barra de progreso pegada al final */}
-      <div className="w-full h-2 bg-muted">
+      <div className={cn("w-full h-2", getProgressBackgroundColor())}>
         <div
           className={`h-full transition-all ${getProgressColor()}`}
           style={{ width: `${overallCompletionRate}%` }}
