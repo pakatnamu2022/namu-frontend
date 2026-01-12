@@ -148,7 +148,9 @@ export function DataTable<TData, TValue>({
     <div className="flex flex-col gap-2 w-full items-end">
       <div className="grid md:flex md:flex-wrap gap-2 md:justify-between w-full">
         {children}
-        {isVisibleColumnFilter && <DataTableColumnFilter table={table} />}
+        {isVisibleColumnFilter && !mobileCardRender && (
+          <DataTableColumnFilter table={table} />
+        )}
       </div>
 
       {/* Vista de Tabla para pantallas grandes */}

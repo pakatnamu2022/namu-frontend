@@ -109,6 +109,8 @@ export default function TeamPage() {
           onHistory: handleOnHistory,
         })}
         data={filteredData}
+        onEvaluate={handleOnEvaluate}
+        onHistory={handleOnHistory}
       >
         <TeamOptions
           metrics={!!activeEvaluation && activeEvaluation.typeEvaluation !== 0}
