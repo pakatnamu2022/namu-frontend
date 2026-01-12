@@ -25,12 +25,7 @@ import {
   successToast,
 } from "@/core/core.function";
 import { Badge } from "@/components/ui/badge";
-import {
-  TrendingUp,
-  Target,
-  RefreshCw,
-  ChevronLeft,
-} from "lucide-react";
+import { TrendingUp, Target, RefreshCw, ChevronLeft } from "lucide-react";
 import { EVALUATION_PERSON } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/lib/evaluationPerson.constans";
 import { useActivePerformanceEvaluation } from "@/features/gp/gestionhumana/evaluaciondesempeño/dashboard/lib/performance-evaluation.hook";
 import {
