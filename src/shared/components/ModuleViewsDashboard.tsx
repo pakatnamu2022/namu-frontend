@@ -6,6 +6,7 @@ import DashboardSkeleton from "@/shared/components/DashboardSkeleton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ViewsResponseMenuChild } from "@/features/views/lib/views.interface";
 import * as LucideReact from "lucide-react";
+import TitleComponent from "./TitleComponent";
 
 interface ModuleViewsDashboardProps {
   /**
@@ -26,13 +27,13 @@ interface ModuleViewsDashboardProps {
  * o submódulo basándose en la ruta actual.
  *
  * @example
- * // Dashboard básico (detecta automáticamente módulo/submódulo):
+ * Dashboard básico (detecta automáticamente módulo/submódulo):
  * export default function MiModuloPage() {
  *   return <ModuleViewsDashboard />;
  * }
  *
  * @example
- * // Dashboard con título personalizado:
+ * Dashboard con título personalizado:
  * export default function MiModuloPage() {
  *   return (
  *     <ModuleViewsDashboard
@@ -78,6 +79,7 @@ export default function ModuleViewsDashboard({
   );
 
   const displayTitle = title || context?.descripcion || "Dashboard";
+  const icon = (context?.icon as keyof typeof LucideReact) || "";
 
   const handleItemClick = (item: ViewsResponseMenuChild) => {
     const itemRoute = item.route || item.slug || item.ruta;
@@ -103,10 +105,7 @@ export default function ModuleViewsDashboard({
   return (
     <div className="space-y-6 p-6">
       {/* Header */}
-      <div className="space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight">{displayTitle}</h1>
-        {subtitle && <p className="text-muted-foreground">{subtitle}</p>}
-      </div>
+      <TitleComponent title={displayTitle} subtitle={subtitle} icon={icon} />
 
       {/* Content */}
       {!hasContent ? (

@@ -158,37 +158,40 @@ export function DataTable<TData, TValue>({
             <TableHeader className={cn(headerVariants({ variant }))}>
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id} className="text-nowrap h-10">
-                  {headerGroup.headers.map((header) => (
-                    <TableHead key={header.id} className="h-10">
-                      {header.isPlaceholder ? null : header.column.getCanSort() ? (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="-ml-3 h-8 data-[state=open]:bg-accent"
-                          onClick={header.column.getToggleSortingHandler()}
-                        >
-                          <span>
-                            {flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
+                  {headerGroup.headers.map((header) => {
+                    return (
+                      <TableHead key={header.id} className="h-10">
+                        {header.isPlaceholder ? null : header.column.columnDef
+                            .enableSorting ? (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="-ml-3 h-8 data-[state=open]:bg-accent"
+                            onClick={header.column.getToggleSortingHandler()}
+                          >
+                            <span>
+                              {flexRender(
+                                header.column.columnDef.header,
+                                header.getContext()
+                              )}
+                            </span>
+                            {header.column.getIsSorted() === "asc" ? (
+                              <ArrowUp className="ml-2 h-4 w-4" />
+                            ) : header.column.getIsSorted() === "desc" ? (
+                              <ArrowDown className="ml-2 h-4 w-4" />
+                            ) : (
+                              <ArrowUpDown className="ml-2 h-4 w-4" />
                             )}
-                          </span>
-                          {header.column.getIsSorted() === "asc" ? (
-                            <ArrowUp className="ml-2 h-4 w-4" />
-                          ) : header.column.getIsSorted() === "desc" ? (
-                            <ArrowDown className="ml-2 h-4 w-4" />
-                          ) : (
-                            <ArrowUpDown className="ml-2 h-4 w-4" />
-                          )}
-                        </Button>
-                      ) : (
-                        flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )
-                      )}
-                    </TableHead>
-                  ))}
+                          </Button>
+                        ) : (
+                          flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )
+                        )}
+                      </TableHead>
+                    );
+                  })}
                 </TableRow>
               ))}
             </TableHeader>
