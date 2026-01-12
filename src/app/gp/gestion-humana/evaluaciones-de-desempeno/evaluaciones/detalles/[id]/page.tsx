@@ -30,6 +30,7 @@ import { WorkerResource } from "@/features/gp/gestionhumana/gestion-de-personal/
 import { regenerateEvaluation } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluaciones/lib/evaluation.actions";
 import { regenerateEvaluationPerson } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/lib/evaluationPerson.actions";
 import { notFound } from "@/shared/hooks/useNotFound";
+import PageWrapper from "@/shared/components/PageWrapper";
 
 const { ROUTE } = EVALUATION;
 
@@ -143,7 +144,7 @@ export default function EvaluationDetailPage() {
   if (!idEvaluation) notFound();
 
   return (
-    <div className="space-y-4">
+    <PageWrapper>
       <HeaderTableWrapper>
         <TitleComponent
           title={currentView.descripcion}
@@ -216,6 +217,6 @@ export default function EvaluationDetailPage() {
         setPerPage={setPerPage}
         totalData={data?.meta?.total || 0}
       />
-    </div>
+    </PageWrapper>
   );
 }

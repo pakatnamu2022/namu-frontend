@@ -125,53 +125,49 @@ export default function PerformanceEvaluationPage({ id }: { id?: number }) {
 
   return (
     <PageWrapper>
-      <div className="max-w-7xl mx-auto space-y-6">
-        <EvaluationHeader
-          onRefresh={handleRefresh}
-          refetching={evaluationQuery.isRefetching}
-          evaluationData={evaluationData}
-          onDownloadReport={handleDownloadReport}
-        />
+      <EvaluationHeader
+        onRefresh={handleRefresh}
+        refetching={evaluationQuery.isRefetching}
+        evaluationData={evaluationData}
+        onDownloadReport={handleDownloadReport}
+      />
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="md:col-span-2">
-            <ProgressChart progressStats={progressStats} />
-          </div>
-
-          <KPICards
-            progressStats={progressStats}
-            selectedCardType={selectedCardType}
-            onCardClick={handleCardClick}
-          />
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="md:col-span-2">
+          <ProgressChart progressStats={progressStats} />
         </div>
 
-        {selectedCardType && (
-          <Accordion type="single" collapsible value={selectedCardType}>
-            <AccordionItem value={selectedCardType}>
-              <AccordionTrigger className="text-lg font-semibold">
-                {getKPITitle(selectedCardType, progressStats)}
-              </AccordionTrigger>
-              <AccordionContent>
-                <PersonResultsAccordion
-                  data={personResults}
-                  isLoading={isLoadingPersons}
-                  error={personsError}
-                />
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
-        )}
+        <KPICards
+          progressStats={progressStats}
+          selectedCardType={selectedCardType}
+          onCardClick={handleCardClick}
+        />
+      </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <ParticipationChart progressStats={progressStats} />
-          <EvaluationResultsChart
-            resultsStats={evaluationData?.results_stats}
-          />
-          {/* <ConfigurationCard
+      {selectedCardType && (
+        <Accordion type="single" collapsible value={selectedCardType}>
+          <AccordionItem value={selectedCardType}>
+            <AccordionTrigger className="text-lg font-semibold">
+              {getKPITitle(selectedCardType, progressStats)}
+            </AccordionTrigger>
+            <AccordionContent>
+              <PersonResultsAccordion
+                data={personResults}
+                isLoading={isLoadingPersons}
+                error={personsError}
+              />
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+      )}
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <ParticipationChart progressStats={progressStats} />
+        <EvaluationResultsChart resultsStats={evaluationData?.results_stats} />
+        {/* <ConfigurationCard
             evaluationData={evaluationData}
             progressStats={progressStats}
           /> */}
-        </div>
       </div>
     </PageWrapper>
   );

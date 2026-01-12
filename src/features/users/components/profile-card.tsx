@@ -32,7 +32,10 @@ export function ProfileCard({ variant = "sidebar" }: ProfileCardProps) {
   const router = useNavigate();
   const { ROUTE: PER_DIEM_REQUEST_ROUTE } = PER_DIEM_REQUEST;
 
-  const sidebar = variant === "sidebar" ? useSidebar() : { setOpenMobile: () => {}, isMobile: false };
+  const sidebar =
+    variant === "sidebar"
+      ? useSidebar()
+      : { setOpenMobile: () => {}, isMobile: false };
   const { setOpenMobile, isMobile } = sidebar;
   const { user } = useAuthStore();
 
@@ -100,7 +103,7 @@ export function ProfileCard({ variant = "sidebar" }: ProfileCardProps) {
           </>
         );
       },
-      allow: true,
+      allow: user.subordinates > 0,
     },
     {
       label: "OnBoarding",
@@ -182,7 +185,7 @@ export function ProfileCard({ variant = "sidebar" }: ProfileCardProps) {
           </div>
         ) : (
           <div className="text-center">
-            <Avatar className="max-w-40 max-h-40 w-full h-full aspect-square mx-auto border-4 border-primary/20 mb-4">
+            <Avatar className="sm:max-w-32 sm:max-h-32 lg:max-w-40 lg:max-h-40 w-full h-full aspect-square mx-auto border-4 border-primary/20 mb-4">
               <AvatarImage
                 className="object-cover object-top"
                 src={user?.foto_adjunto}

@@ -3,7 +3,6 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import GeneralSheet from "@/shared/components/GeneralSheet";
-import { useIsTablet } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -56,6 +55,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { DateTimePickerForm } from "@/shared/components/DateTimePickerForm";
 import { FormInput } from "@/shared/components/FormInput";
 import { errorToast, successToast } from "@/core/core.function";
+import { useIsTablet } from "@/hooks/use-tablet";
 
 interface ExceptionalCaseSheetProps {
   open: boolean;

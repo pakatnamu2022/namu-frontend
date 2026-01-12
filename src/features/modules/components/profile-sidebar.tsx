@@ -10,7 +10,7 @@ const ProfileSidebar = ({
   route: string;
   name: string;
 }) => (
-  <div className="lg:col-span-1 space-y-6 border-primary/10 md:border-r">
+  <div className="lg:col-span-1 space-y-6 border-primary/10 lg:border-r">
     <Link to={route} className="w-full flex justify-center items-center gap-2">
       <Button variant="ghost" size="sm" className="text-primary">
         <ChevronLeft className="w-4 h-4" />

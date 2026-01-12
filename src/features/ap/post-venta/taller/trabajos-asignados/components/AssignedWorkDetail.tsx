@@ -13,7 +13,7 @@ import { format, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
 import { Clock, User, FileText, PlayCircle } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
-import { useIsTablet } from "@/hooks/use-mobile";
+import { useIsTablet } from "@/hooks/use-tablet";
 
 interface AssignedWorkDetailProps {
   planning: WorkOrderPlanningResource | null;

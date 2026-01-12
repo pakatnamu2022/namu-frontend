@@ -95,17 +95,21 @@ export const EvaluationHeader: React.FC<EvaluationHeaderProps> = ({
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
         {/* Información Principal */}
         <div className="space-y-3">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full">
             <TitleComponent
               title={evaluationData.name}
               subtitle={`${evaluationData.typeEvaluationName} • ${evaluationData.period}`}
               icon="BarChart3"
               isTruncate={false}
-            />
-            <Badge variant={getStatusVariant(evaluationData.status)} size="sm">
-              {getStatusIcon(evaluationData.status)}
-              <span className="ml-2">{evaluationData.statusName}</span>
-            </Badge>
+            >
+              <Badge
+                variant={getStatusVariant(evaluationData.status)}
+                size="sm"
+              >
+                {getStatusIcon(evaluationData.status)}
+                <span className="ml-2">{evaluationData.statusName}</span>
+              </Badge>
+            </TitleComponent>
           </div>
         </div>
 
