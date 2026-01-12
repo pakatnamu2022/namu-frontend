@@ -1,12 +1,5 @@
 "use client";
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
   Tabs,
@@ -16,7 +9,6 @@ import {
   TabsTrigger,
 } from "@/shared/components/animateTabs";
 import FormSkeleton from "@/shared/components/FormSkeleton";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useState } from "react";
 import {
   ERROR_MESSAGE,
@@ -36,6 +28,8 @@ import {
 import EvaluationSummaryCard from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/components/EvaluationSummaryCard";
 import EvaluationPersonObjectiveTable from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/components/EvaluationPersonObjetiveTable";
 import EvaluationPersonCompetenceTableWithColumns from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/components/EvaluationPersonCompetenceTable";
+import EvaluationPersonHeader from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/components/EvaluationPersonHeader";
+import NoEvaluationMessage from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/components/NoEvaluationMessage";
 import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { EVALUATION_OBJECTIVE } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluaciones/lib/evaluation.constans";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
@@ -162,33 +156,17 @@ export default function NamuPerformanceEvaluationPage() {
 
   if (!activeEvaluation) {
     return (
-      <div className="w-full py-4">
-        <Card className="border-none shadow-none">
-          <CardContent className="mx-auto max-w-7xl">
-            <CardHeader className="space-y-4 p-0">
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle className="text-2xl">
-                    No hay evaluación activa
-                  </CardTitle>
-                  <CardDescription>
-                    No se encontró una evaluación activa para evaluar en este
-                    momento.
-                  </CardDescription>
-                </div>
-                <Button
-                  variant="outline"
-                  onClick={handleBack}
-                  className="gap-2"
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                  Volver al Equipo
-                </Button>
-              </div>
-            </CardHeader>
-          </CardContent>
-        </Card>
-      </div>
+      <NoEvaluationMessage
+        title="No hay evaluación activa"
+        description="No se encontró una evaluación activa para evaluar en este momento."
+        showSelector={false}
+        actions={
+          <Button variant="outline" onClick={handleBack} className="gap-2">
+            <ChevronLeft className="w-4 h-4" />
+            Volver al Equipo
+          </Button>
+        }
+      />
     );
   }
 
@@ -198,32 +176,17 @@ export default function NamuPerformanceEvaluationPage() {
     (!evaluationPersonResult || evaluationPersonError)
   ) {
     return (
-      <div className="w-full py-4">
-        <Card className="border-none shadow-none">
-          <CardContent className="mx-auto max-w-7xl">
-            <CardHeader className="space-y-4 p-0">
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle className="text-2xl">
-                    Sin evaluación en este periodo
-                  </CardTitle>
-                  <CardDescription>
-                    Esta persona no tiene evaluación activa para evaluar.
-                  </CardDescription>
-                </div>
-                <Button
-                  variant="outline"
-                  onClick={handleBack}
-                  className="gap-2"
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                  Volver al Equipo
-                </Button>
-              </div>
-            </CardHeader>
-          </CardContent>
-        </Card>
-      </div>
+      <NoEvaluationMessage
+        title="Sin evaluación en este periodo"
+        description="Esta persona no tiene evaluación activa para evaluar."
+        showSelector={false}
+        actions={
+          <Button variant="outline" onClick={handleBack} className="gap-2">
+            <ChevronLeft className="w-4 h-4" />
+            Volver al Equipo
+          </Button>
+        }
+      />
     );
   }
 
@@ -233,37 +196,12 @@ export default function NamuPerformanceEvaluationPage() {
     <PageWrapper>
       <div className="space-y-4 p-0">
         {/* Header principal */}
-        <div className="flex items-center gap-4">
-          <Avatar className="h-16 w-16">
-            <AvatarImage
-              src={evaluationPersonResult.person.photo}
-              alt={evaluationPersonResult.person.name}
-            />
-            <AvatarFallback className="bg-primary text-white text-lg">
-              {evaluationPersonResult.person.name
-                .split(" ")
-                .map((n) => n[0])
-                .join("")
-                .substring(0, 2)}
-            </AvatarFallback>
-          </Avatar>
-          <div className="flex-1">
-            <CardTitle className="text-2xl capitalize">
-              {evaluationPersonResult.person.name.toLowerCase()}
-            </CardTitle>
-            <CardDescription className="capitalize text-base">
-              {evaluationPersonResult.person.position.toLowerCase()}
-            </CardDescription>
-          </div>
-          <div className="text-right">
-            <div className="text-2xl font-bold text-primary">
-              {evaluationPersonResult.statistics.overall_completion_rate}%
-            </div>
-            <div className="text-xs text-muted-foreground">
-              Progreso general
-            </div>
-          </div>
-        </div>
+        <EvaluationPersonHeader
+          personName={evaluationPersonResult.person.name}
+          personPosition={evaluationPersonResult.person.position}
+          personPhoto={evaluationPersonResult.person.photo}
+          completionRate={evaluationPersonResult.statistics.overall_completion_rate}
+        />
 
         {/* Evaluación activa y controles */}
         <div className="flex items-center justify-between gap-4">
