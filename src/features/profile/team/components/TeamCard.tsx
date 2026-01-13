@@ -16,7 +16,8 @@ import { getMyEvaluatorTypes } from "../lib/teamHelpers";
 import { getEvaluatorTypeById } from "../lib/teamConstants";
 import { useAuthStore } from "@/features/auth/lib/auth.store";
 import { cn } from "@/lib/utils";
-import { PARAMETER_SCALES } from "@/features/gp/gestionhumana/evaluaciondesempeño/parametros/lib/parameter.constans";
+import { getScales } from "@/features/gp/gestionhumana/evaluaciondesempeño/parametros/lib/parameter.hook";
+import { ParameterResource } from "@/features/gp/gestionhumana/evaluaciondesempeño/parametros/lib/parameter.interface";
 
 interface TeamCardProps {
   data: EvaluationPersonResultResource;
@@ -42,11 +43,28 @@ export function TeamCard({
   // Verificar si es evaluación de objetivos (typeEvaluation === 0)
   const isObjectivesOnly = evaluation?.typeEvaluation === 0;
 
-  // Función para obtener el color según el resultado y PARAMETER_SCALES
-  const getResultColor = (resultValue: number) => {
-    // Normalizar el resultado a un índice de 0-5 para PARAMETER_SCALES
-    const scaleIndex = Math.min(Math.floor(resultValue / 20), 5);
-    return PARAMETER_SCALES[scaleIndex];
+  // Función para obtener el color según el resultado y el parámetro correspondiente
+  const getResultColor = (
+    resultValue: number,
+    parameter: ParameterResource
+  ) => {
+    if (!parameter?.details || parameter.details.length === 0) {
+      return "";
+    }
+
+    // Encontrar el rango al que pertenece el resultado
+    const rangeIndex = parameter.details.findIndex((detail) => {
+      return resultValue >= detail.from && resultValue <= detail.to;
+    });
+
+    // Si no se encuentra un rango válido, retornar vacío
+    if (rangeIndex === -1) {
+      return "";
+    }
+
+    // Obtener las escalas de colores según la cantidad de rangos del parámetro
+    const scales = getScales(parameter.details.length);
+    return scales[rangeIndex] || "";
   };
 
   return (
@@ -108,7 +126,7 @@ export function TeamCard({
               <div
                 className={cn(
                   "flex items-center gap-1 rounded-md px-2 py-1",
-                  getResultColor(result)
+                  getResultColor(result, data.finalParameter)
                 )}
               >
                 <span className="text-sm font-bold">{result}%</span>
@@ -118,21 +136,36 @@ export function TeamCard({
           ) : (
             // Mostrar todas las métricas para evaluaciones completas
             <div className="flex gap-2 items-center">
-              <div className="flex items-center gap-1 bg-muted/50 rounded-md px-2 py-1">
+              <div
+                className={cn(
+                  "flex items-center gap-1 rounded-md px-2 py-1",
+                  getResultColor(result, data.finalParameter)
+                )}
+              >
                 <span className="text-sm font-bold">{result}%</span>
-                <span className="text-[10px] text-muted-foreground">Total</span>
+                <span className="text-[10px]">Total</span>
               </div>
-              <div className="flex items-center gap-1 bg-muted/30 rounded-md px-2 py-1">
+              <div
+                className={cn(
+                  "flex items-center gap-1 rounded-md px-2 py-1",
+                  getResultColor(objectivesResult, data.objectiveParameter)
+                )}
+              >
                 <span className="text-xs font-semibold">
                   {objectivesResult}%
                 </span>
-                <span className="text-[10px] text-muted-foreground">Obj</span>
+                <span className="text-[10px]">Obj</span>
               </div>
-              <div className="flex items-center gap-1 bg-muted/30 rounded-md px-2 py-1">
+              <div
+                className={cn(
+                  "flex items-center gap-1 rounded-md px-2 py-1",
+                  getResultColor(competencesResult, data.competenceParameter)
+                )}
+              >
                 <span className="text-xs font-semibold">
                   {competencesResult}%
                 </span>
-                <span className="text-[10px] text-muted-foreground">Comp</span>
+                <span className="text-[10px]">Comp</span>
               </div>
             </div>
           )}
