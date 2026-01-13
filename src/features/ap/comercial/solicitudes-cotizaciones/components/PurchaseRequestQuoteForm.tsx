@@ -13,8 +13,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { useNavigate } from "react-router-dom";
-import { Building2, Gift, PackagePlus } from "lucide-react";
+import { Building2 } from "lucide-react";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { FormSwitch } from "@/shared/components/FormSwitch";
 import { FormInput } from "@/shared/components/FormInput";
@@ -51,6 +50,7 @@ interface PurchaseRequestQuoteFormProps {
   isSubmitting?: boolean;
   mode?: "create" | "update";
   opportunity?: OpportunityResource;
+  onCancel: () => void;
 }
 
 const typeDocOptions = [
@@ -70,9 +70,9 @@ export const PurchaseRequestQuoteForm = ({
   isSubmitting = false,
   mode = "create",
   opportunity,
+  onCancel,
 }: PurchaseRequestQuoteFormProps) => {
-  const { ABSOLUTE_ROUTE, ROUTE } = PURCHASE_REQUEST_QUOTE;
-  const router = useNavigate();
+  const { ROUTE } = PURCHASE_REQUEST_QUOTE;
   const form = useForm({
     resolver: zodResolver(
       mode === "create"
@@ -962,36 +962,21 @@ export const PurchaseRequestQuoteForm = ({
             </GroupFormSection>
 
             {/*Seccion de Bonos y Descuentos*/}
-            <GroupFormSection
-              title="Bonos / Descuentos"
-              icon={Gift}
-              iconColor="text-primary"
-              bgColor="bg-blue-50"
-              cols={{ sm: 1 }}
-            >
-              <BonusDiscountTable
-                conceptsOptions={conceptDiscountBond}
-                costoReferencia={parseFloat(salePriceWatch || "0")}
-                currencySymbol={currencySymbol}
-                onRowsChange={setBonusDiscountRows}
-                initialData={initialBonusDiscounts}
-              />
-            </GroupFormSection>
+
+            <BonusDiscountTable
+              conceptsOptions={conceptDiscountBond}
+              costoReferencia={parseFloat(salePriceWatch || "0")}
+              currencySymbol={currencySymbol}
+              onRowsChange={setBonusDiscountRows}
+              initialData={initialBonusDiscounts}
+            />
 
             {/*Seccion Accesorios Homologados*/}
-            <GroupFormSection
-              title="Accesorios Homologados / Obsequios"
-              icon={PackagePlus}
-              iconColor="text-gray-500"
-              bgColor="bg-gray-50"
-              cols={{ sm: 1 }}
-            >
-              <ApprovedAccessoriesTable
-                accessories={approvedAccesories}
-                onAccessoriesChange={setAccessoriesRows}
-                initialData={initialAccessories}
-              />
-            </GroupFormSection>
+            <ApprovedAccessoriesTable
+              accessories={approvedAccesories}
+              onAccessoriesChange={setAccessoriesRows}
+              initialData={initialAccessories}
+            />
           </div>
 
           {/* Columna derecha: Resumen - sticky */}
@@ -1015,7 +1000,7 @@ export const PurchaseRequestQuoteForm = ({
             invoiceCurrencyId={invoiceCurrencyId}
             selectedInvoiceCurrency={selectedInvoiceCurrency}
             getExchangeRate={getExchangeRate}
-            onCancel={() => router(ABSOLUTE_ROUTE)}
+            onCancel={onCancel}
             onSubmit={handleFormSubmit}
           />
         </div>
