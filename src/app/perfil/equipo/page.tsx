@@ -46,16 +46,12 @@ export default function TeamPage() {
 
   // Filtrar datos por tipo de evaluador
   const filteredData = useMemo(() => {
-    return filterByEvaluatorType(
-      data || [],
-      evaluatorTypeFilter,
-      user?.partner_id
-    );
+    return filterByEvaluatorType(data, evaluatorTypeFilter, user?.partner_id);
   }, [data, evaluatorTypeFilter, user?.partner_id]);
 
   // Calcular contadores por tipo de evaluador
   const evaluatorTypeCounts = useMemo(() => {
-    return getUserEvaluatorTypeCounts(data || [], user?.partner_id);
+    return getUserEvaluatorTypeCounts(data, user?.partner_id);
   }, [data, user?.partner_id]);
   useEffect(() => {
     setPage(1);

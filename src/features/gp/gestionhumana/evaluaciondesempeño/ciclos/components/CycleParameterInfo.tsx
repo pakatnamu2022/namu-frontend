@@ -47,7 +47,7 @@ export default function CycleParameterInfo({ selectedParameter }: Props) {
           <p className="font-medium text-foreground mb-2 text-xs md:text-sm">
             Rangos de resultados
           </p>
-          <Table className="lg:w-2/3 w-full text-sm !border-none">
+          <Table className="lg:w-2/3 w-full text-sm border-none!">
             <TableHeader>
               <TableRow className="bg-muted/50 text-xs md:text-sm text-nowrap">
                 <TableHead className="border h-10 px-1">Etiqueta</TableHead>

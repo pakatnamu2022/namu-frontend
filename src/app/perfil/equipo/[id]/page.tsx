@@ -32,7 +32,7 @@ import EvaluationSelector from "@/features/gp/gestionhumana/evaluaciondesempeño
 import NoEvaluationMessage from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/components/NoEvaluationMessage";
 import PersonTitleComponent from "@/shared/components/PersonTitleComponent";
 import { useQueryClient, useQuery } from "@tanstack/react-query";
-import { useParams } from 'react-router-dom';
+import { useParams } from "react-router-dom";
 import { EVALUATION_OBJECTIVE } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluaciones/lib/evaluation.constans";
 import PageWrapper from "@/shared/components/PageWrapper";
 
@@ -171,9 +171,7 @@ export default function EvaluationDetailPersonPage() {
       <NoEvaluationMessage
         title="Sin evaluación en este periodo"
         description={`Esta persona no tuvo evaluación en el periodo ${
-          selectedEvaluation
-            ? `"${selectedEvaluation.name}"`
-            : "seleccionado"
+          selectedEvaluation ? `"${selectedEvaluation.name}"` : "seleccionado"
         }.`}
         evaluations={evaluations}
         selectedEvaluationId={selectedEvaluationId}
@@ -223,11 +221,11 @@ export default function EvaluationDetailPersonPage() {
           defaultValue={
             evaluationPersonResult?.hasObjectives ? "objectives" : "competences"
           }
-          className="p-2 w-full bg-muted rounded-lg col-span-3"
+          className="w-full rounded-lg col-span-3 items-end"
         >
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList>
             {evaluationPersonResult?.hasObjectives && (
-              <TabsTrigger value="objectives" className="gap-2">
+              <TabsTrigger value="objectives" className="gap-2 px-8">
                 <Target className="size-4" />
                 Objetivos
                 <Badge variant="outline" className="ml-2 text-xs">
@@ -238,7 +236,7 @@ export default function EvaluationDetailPersonPage() {
             )}
             {evaluationPersonResult?.evaluation.typeEvaluation.toString() !==
               EVALUATION_OBJECTIVE.ID && (
-              <TabsTrigger value="competences" className="gap-2">
+              <TabsTrigger value="competences" className="gap-2 px-8">
                 <TrendingUp className="size-4" />
                 Competencias
                 <Badge variant="outline" className="ml-2 text-xs">
@@ -249,64 +247,30 @@ export default function EvaluationDetailPersonPage() {
             )}
           </TabsList>
           <TabsContents className="rounded-sm bg-background w-full">
-            <TabsContent value="objectives" className="space-y-6 p-6">
+            <TabsContent value="objectives" className="space-y-6">
               {isLoadingEvaluationPerson ? (
                 <FormSkeleton />
               ) : (
-                <>
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-semibold">
-                      Evaluación de Objetivos
-                    </h3>
-                    {evaluationPersonResult?.objectivesPercentage && (
-                      <Badge variant="outline">
-                        Peso: {evaluationPersonResult.objectivesPercentage}% del
-                        total
-                      </Badge>
-                    )}
-                  </div>
-                  <EvaluationPersonObjectiveTable
-                    evaluationPersonResult={evaluationPersonResult}
-                    details={evaluationPersonResult?.details}
-                    onUpdateCell={handleUpdateResultCell}
-                    onCommentCell={handleCommentSubmit}
-                    readOnly={activeEvaluation?.id !== selectedEvaluationId}
-                  />
-                </>
+                <EvaluationPersonObjectiveTable
+                  evaluationPersonResult={evaluationPersonResult}
+                  details={evaluationPersonResult?.details}
+                  onUpdateCell={handleUpdateResultCell}
+                  onCommentCell={handleCommentSubmit}
+                  readOnly={activeEvaluation?.id !== selectedEvaluationId}
+                />
               )}
             </TabsContent>
             <TabsContent value="competences" className="space-y-6 p-6">
               {isLoadingEvaluationPerson ? (
                 <FormSkeleton />
               ) : (
-                <>
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-semibold">
-                      Evaluación de Competencias
-                    </h3>
-                    <div className="flex items-center gap-2">
-                      {evaluationPersonResult?.competencesPercentage && (
-                        <Badge variant="outline">
-                          Peso: {evaluationPersonResult.competencesPercentage}%
-                          del total
-                        </Badge>
-                      )}
-                      {evaluationPersonResult?.evaluation
-                        ?.typeEvaluationName && (
-                        <Badge variant="secondary">
-                          {evaluationPersonResult.evaluation.typeEvaluationName}
-                        </Badge>
-                      )}
-                    </div>
-                  </div>
-                  <EvaluationPersonCompetenceTableWithColumns
-                    evaluationPersonResult={evaluationPersonResult}
-                    competenceGroups={evaluationPersonResult?.competenceGroups}
-                    onUpdateCell={handleUpdateResultCellCompetence}
-                    showProgress={true}
-                    readOnly={activeEvaluation?.id !== selectedEvaluationId}
-                  />
-                </>
+                <EvaluationPersonCompetenceTableWithColumns
+                  evaluationPersonResult={evaluationPersonResult}
+                  competenceGroups={evaluationPersonResult?.competenceGroups}
+                  onUpdateCell={handleUpdateResultCellCompetence}
+                  showProgress={true}
+                  readOnly={activeEvaluation?.id !== selectedEvaluationId}
+                />
               )}
             </TabsContent>
           </TabsContents>

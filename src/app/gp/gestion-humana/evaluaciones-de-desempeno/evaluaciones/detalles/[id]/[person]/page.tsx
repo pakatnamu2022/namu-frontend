@@ -241,11 +241,11 @@ export default function EvaluationDetailPersonPage() {
           defaultValue={
             evaluationPersonResult?.hasObjectives ? "objectives" : "competences"
           }
-          className="p-2 w-full bg-muted rounded-lg col-span-3"
+          className="w-full rounded-lg col-span-3 items-end"
         >
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList>
             {evaluationPersonResult?.hasObjectives && (
-              <TabsTrigger value="objectives" className="gap-2">
+              <TabsTrigger value="objectives" className="gap-2 px-8">
                 <Target className="size-4" />
                 Objetivos
                 <Badge variant="outline" className="ml-2 text-xs">
@@ -256,7 +256,7 @@ export default function EvaluationDetailPersonPage() {
             )}
             {evaluationPersonResult?.evaluation.typeEvaluation.toString() !==
               EVALUATION_OBJECTIVE.ID && (
-              <TabsTrigger value="competences" className="gap-2">
+              <TabsTrigger value="competences" className="gap-2 px-8">
                 <TrendingUp className="size-4" />
                 Competencias
                 <Badge variant="outline" className="ml-2 text-xs">
@@ -267,7 +267,7 @@ export default function EvaluationDetailPersonPage() {
             )}
           </TabsList>
           <TabsContents className="rounded-sm bg-background w-full">
-            <TabsContent value="objectives" className="space-y-6 p-6">
+            <TabsContent value="objectives" className="space-y-6">
               {isLoadingEvaluationPerson ? (
                 <FormSkeleton />
               ) : (

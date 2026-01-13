@@ -15,7 +15,7 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 
 interface Props {
-  data: EvaluationPersonResultResource[];
+  data?: EvaluationPersonResultResource[];
   children?: React.ReactNode;
   isLoading?: boolean;
   onEvaluate: (personId: number) => void;
@@ -39,7 +39,7 @@ export default function TeamGrid({
   });
 
   // Separar y ordenar evaluaciones por estado
-  const sortedData = [...data].sort((a, b) => {
+  const sortedData = [...(data || [])].sort((a, b) => {
     const progressA = a.statistics.overall_completion_rate;
     const progressB = b.statistics.overall_completion_rate;
 
@@ -127,7 +127,7 @@ export default function TeamGrid({
       {/* Grid de tarjetas */}
       {isLoading ? (
         <FormSkeleton />
-      ) : data.length === 0 ? (
+      ) : data && data.length === 0 ? (
         <Empty className="border">
           <EmptyHeader>
             <EmptyMedia variant="icon">

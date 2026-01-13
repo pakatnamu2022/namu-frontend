@@ -60,7 +60,6 @@ export default function MyPerformance() {
       ),
     enabled: !!selectedEvaluationId && !!user.partner_id,
     refetchOnWindowFocus: false,
-    retry: false,
   });
 
   const { data: evaluations = [], isLoading: isLoadingEvaluations } =
@@ -126,7 +125,12 @@ export default function MyPerformance() {
     }
   };
 
-  if (isLoadingEvaluations) return <FormSkeleton />;
+  if (
+    isLoadingEvaluations ||
+    !evaluationPersonResult ||
+    !evaluationPersonResult.id
+  )
+    return <FormSkeleton />;
 
   // Si no hay resultado de evaluación para esta persona
   if (
@@ -141,9 +145,7 @@ export default function MyPerformance() {
       <NoEvaluationMessage
         title="Sin evaluación en este periodo"
         description={`No tienes evaluación en el periodo ${
-          selectedEvaluation
-            ? `"${selectedEvaluation.name}"`
-            : "seleccionado"
+          selectedEvaluation ? `"${selectedEvaluation.name}"` : "seleccionado"
         }.`}
         evaluations={evaluations}
         selectedEvaluationId={selectedEvaluationId}
@@ -152,8 +154,6 @@ export default function MyPerformance() {
       />
     );
   }
-
-  if (!evaluationPersonResult) return <FormSkeleton />;
 
   return (
     <PageWrapper>
@@ -166,7 +166,7 @@ export default function MyPerformance() {
         >
           <div className="ml-auto text-right">
             <div className="text-2xl font-bold text-primary">
-              {evaluationPersonResult.statistics.overall_completion_rate}%
+              {evaluationPersonResult?.statistics?.overall_completion_rate}%
             </div>
             <div className="text-xs text-muted-foreground">
               Progreso general
@@ -191,11 +191,11 @@ export default function MyPerformance() {
           defaultValue={
             evaluationPersonResult?.hasObjectives ? "objectives" : "competences"
           }
-          className="p-2 w-full bg-muted rounded-lg col-span-3"
+          className="w-full rounded-lg col-span-3 items-end"
         >
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList>
             {evaluationPersonResult?.hasObjectives && (
-              <TabsTrigger value="objectives" className="gap-2">
+              <TabsTrigger value="objectives" className="gap-2 px-8">
                 <Target className="size-4" />
                 Objetivos
                 <Badge variant="outline" className="ml-2 text-xs">
@@ -204,9 +204,9 @@ export default function MyPerformance() {
                 </Badge>
               </TabsTrigger>
             )}
-            {evaluationPersonResult?.evaluation.typeEvaluation.toString() !==
+            {evaluationPersonResult?.evaluation?.typeEvaluation.toString() !==
               EVALUATION_OBJECTIVE.ID && (
-              <TabsTrigger value="competences" className="gap-2">
+              <TabsTrigger value="competences" className="gap-2 px-8">
                 <TrendingUp className="size-4" />
                 Competencias
                 <Badge variant="outline" className="ml-2 text-xs">
@@ -217,63 +217,29 @@ export default function MyPerformance() {
             )}
           </TabsList>
           <TabsContents className="rounded-sm bg-background w-full">
-            <TabsContent value="objectives" className="space-y-6 p-6">
+            <TabsContent value="objectives" className="space-y-6">
               {isLoadingEvaluationPerson ? (
                 <FormSkeleton />
               ) : (
-                <>
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-semibold">
-                      Evaluación de Objetivos
-                    </h3>
-                    {evaluationPersonResult?.objectivesPercentage && (
-                      <Badge variant="outline">
-                        Peso: {evaluationPersonResult.objectivesPercentage}% del
-                        total
-                      </Badge>
-                    )}
-                  </div>
-                  <EvaluationPersonObjectiveTable
-                    evaluationPersonResult={evaluationPersonResult}
-                    details={evaluationPersonResult?.details}
-                    onUpdateCell={handleUpdateResultCell}
-                    readOnly={true}
-                  />
-                </>
+                <EvaluationPersonObjectiveTable
+                  evaluationPersonResult={evaluationPersonResult}
+                  details={evaluationPersonResult?.details}
+                  onUpdateCell={handleUpdateResultCell}
+                  readOnly={true}
+                />
               )}
             </TabsContent>
             <TabsContent value="competences" className="space-y-6 p-6">
               {isLoadingEvaluationPerson ? (
                 <FormSkeleton />
               ) : (
-                <>
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-semibold">
-                      Evaluación de Competencias
-                    </h3>
-                    <div className="flex items-center gap-2">
-                      {evaluationPersonResult?.competencesPercentage && (
-                        <Badge variant="outline">
-                          Peso: {evaluationPersonResult.competencesPercentage}%
-                          del total
-                        </Badge>
-                      )}
-                      {evaluationPersonResult?.evaluation
-                        ?.typeEvaluationName && (
-                        <Badge variant="secondary">
-                          {evaluationPersonResult.evaluation.typeEvaluationName}
-                        </Badge>
-                      )}
-                    </div>
-                  </div>
-                  <EvaluationPersonCompetenceTableWithColumns
-                    evaluationPersonResult={evaluationPersonResult}
-                    competenceGroups={evaluationPersonResult?.competenceGroups}
-                    onUpdateCell={handleUpdateResultCellCompetence}
-                    readOnly={true}
-                    showProgress={true}
-                  />
-                </>
+                <EvaluationPersonCompetenceTableWithColumns
+                  evaluationPersonResult={evaluationPersonResult}
+                  competenceGroups={evaluationPersonResult?.competenceGroups}
+                  onUpdateCell={handleUpdateResultCellCompetence}
+                  readOnly={true}
+                  showProgress={true}
+                />
               )}
             </TabsContent>
           </TabsContents>

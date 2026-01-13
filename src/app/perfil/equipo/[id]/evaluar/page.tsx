@@ -249,11 +249,11 @@ export default function NamuPerformanceEvaluationPage() {
           defaultValue={
             evaluationPersonResult?.hasObjectives ? "objectives" : "competences"
           }
-          className="p-2 w-full bg-muted rounded-lg col-span-3"
+          className="w-full rounded-lg col-span-3 items-end"
         >
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList>
             {evaluationPersonResult?.hasObjectives && (
-              <TabsTrigger value="objectives" className="gap-2">
+              <TabsTrigger value="objectives" className="gap-2 px-8">
                 <Target className="size-4" />
                 Objetivos
                 <Badge variant="outline" className="ml-2 text-xs">
@@ -264,7 +264,7 @@ export default function NamuPerformanceEvaluationPage() {
             )}
             {evaluationPersonResult?.evaluation.typeEvaluation.toString() !==
               EVALUATION_OBJECTIVE.ID && (
-              <TabsTrigger value="competences" className="gap-2">
+              <TabsTrigger value="competences" className="gap-2 px-8">
                 <TrendingUp className="size-4" />
                 Competencias
                 <Badge variant="outline" className="ml-2 text-xs">
@@ -275,33 +275,20 @@ export default function NamuPerformanceEvaluationPage() {
             )}
           </TabsList>
           <TabsContents className="rounded-sm bg-background w-full">
-            <TabsContent value="objectives" className="space-y-6 p-6">
+            <TabsContent value="objectives" className="space-y-6">
               {isLoadingEvaluationPerson ? (
                 <FormSkeleton />
               ) : (
-                <>
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-semibold">
-                      Evaluación de Objetivos
-                    </h3>
-                    {evaluationPersonResult?.objectivesPercentage && (
-                      <Badge variant="outline">
-                        Peso: {evaluationPersonResult.objectivesPercentage}% del
-                        total
-                      </Badge>
-                    )}
-                  </div>
-                  <EvaluationPersonObjectiveTable
-                    evaluationPersonResult={evaluationPersonResult}
-                    details={evaluationPersonResult?.details}
-                    onUpdateCell={handleUpdateResultCell}
-                    onCommentCell={handleCommentSubmit}
-                    readOnly={
-                      evaluationPersonResult.details[0].chief_id !==
-                      user.partner_id
-                    }
-                  />
-                </>
+                <EvaluationPersonObjectiveTable
+                  evaluationPersonResult={evaluationPersonResult}
+                  details={evaluationPersonResult?.details}
+                  onUpdateCell={handleUpdateResultCell}
+                  onCommentCell={handleCommentSubmit}
+                  readOnly={
+                    evaluationPersonResult.details[0].chief_id !==
+                    user.partner_id
+                  }
+                />
               )}
             </TabsContent>
             <TabsContent value="competences" className="space-y-6 p-6">
