@@ -1,6 +1,6 @@
-import { DataTable } from "@/shared/components/DataTable";
-import { PurchaseOrderProductsResource } from "../lib/purchaseOrderProducts.interface";
-import { PurchaseOrderProductsColumns } from "./PurchaseOrderProductsColumns";
+import { DataTable } from "@/shared/components/DataTable.tsx";
+import { PurchaseOrderProductsResource } from "@/features/ap/post-venta/gestion-compras/factura-compra/lib/purchaseOrderProducts.interface.ts";
+import { PurchaseOrderProductsColumns } from "./PurchaseOrderProductsColumns.tsx";
 
 interface Props {
   columns: PurchaseOrderProductsColumns[];

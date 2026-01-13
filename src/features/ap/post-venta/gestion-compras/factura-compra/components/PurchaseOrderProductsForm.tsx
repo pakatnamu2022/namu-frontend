@@ -2,7 +2,7 @@ import {
   PurchaseOrderProductsSchema,
   purchaseOrderProductsSchemaCreate,
   purchaseOrderProductsSchemaUpdate,
-} from "../lib/purchaseOrderProducts.schema";
+} from "@/features/ap/post-venta/gestion-compras/factura-compra/lib/purchaseOrderProducts.schema.ts";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -12,9 +12,9 @@ import {
   FormLabel,
   FormControl,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+} from "@/components/ui/form.tsx";
+import { Input } from "@/components/ui/input.tsx";
+import { Button } from "@/components/ui/button.tsx";
 import {
   Table,
   TableBody,
@@ -22,7 +22,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from "@/components/ui/table.tsx";
 import {
   FileText,
   Loader,
@@ -31,32 +31,32 @@ import {
   Trash2,
   Calculator,
 } from "lucide-react";
-import FormSkeleton from "@/shared/components/FormSkeleton";
-import { FormSelect } from "@/shared/components/FormSelect";
-import { useSuppliers } from "@/features/ap/comercial/proveedores/lib/suppliers.hook";
+import FormSkeleton from "@/shared/components/FormSkeleton.tsx";
+import { FormSelect } from "@/shared/components/FormSelect.tsx";
+import { useSuppliers } from "@/features/ap/comercial/proveedores/lib/suppliers.hook.ts";
 import {
   useAllWarehouse,
   useWarehouseById,
-} from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
-import { useProduct } from "@/features/ap/post-venta/gestion-productos/productos/lib/product.hook";
-import { ProductResource } from "@/features/ap/post-venta/gestion-productos/productos/lib/product.interface";
-import { Textarea } from "@/components/ui/textarea";
-import { GroupFormSection } from "@/shared/components/GroupFormSection";
-import { PAYMENT_TERMS_OPTIONS } from "../lib/purchaseOrderProducts.constants";
+} from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook.ts";
+import { useProduct } from "@/features/ap/post-venta/gestion-productos/productos/lib/product.hook.ts";
+import { ProductResource } from "@/features/ap/post-venta/gestion-productos/productos/lib/product.interface.ts";
+import { Textarea } from "@/components/ui/textarea.tsx";
+import { GroupFormSection } from "@/shared/components/GroupFormSection.tsx";
+import { PAYMENT_TERMS_OPTIONS } from "@/features/ap/post-venta/gestion-compras/factura-compra/lib/purchaseOrderProducts.constants.ts";
 import { useEffect } from "react";
-import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
-import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.hook";
-import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
-import { EMPRESA_AP } from "@/core/core.constants";
+import { DatePickerFormField } from "@/shared/components/DatePickerFormField.tsx";
+import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.hook.ts";
+import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook.ts";
+import { EMPRESA_AP } from "@/core/core.constants.ts";
 import { useState } from "react";
-import { api } from "@/core/api";
+import { api } from "@/core/api.ts";
 import { format, addDays } from "date-fns";
-import { CURRENCY_TYPE_IDS } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.constants";
-import { TYPES_OPERATION_ID } from "@/features/ap/configuraciones/maestros-general/tipos-operacion/lib/typesOperation.constants";
-import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
-import { SuppliersResource } from "@/features/ap/comercial/proveedores/lib/suppliers.interface";
-import { PurchaseOrderProductsResource } from "../lib/purchaseOrderProducts.interface";
-import { SupplierOrderResource } from "../../pedido-proveedor/lib/supplierOrder.interface";
+import { CURRENCY_TYPE_IDS } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.constants.ts";
+import { TYPES_OPERATION_ID } from "@/features/ap/configuraciones/maestros-general/tipos-operacion/lib/typesOperation.constants.ts";
+import { FormSelectAsync } from "@/shared/components/FormSelectAsync.tsx";
+import { SuppliersResource } from "@/features/ap/comercial/proveedores/lib/suppliers.interface.ts";
+import { PurchaseOrderProductsResource } from "@/features/ap/post-venta/gestion-compras/factura-compra/lib/purchaseOrderProducts.interface.ts";
+import { SupplierOrderResource } from "../../pedido-proveedor/lib/supplierOrder.interface.ts";
 
 interface PurchaseOrderProductsFormProps {
   defaultValues: Partial<PurchaseOrderProductsSchema>;

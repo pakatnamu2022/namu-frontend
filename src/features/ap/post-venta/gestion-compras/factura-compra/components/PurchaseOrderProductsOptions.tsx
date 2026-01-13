@@ -1,5 +1,5 @@
-import SearchInput from "@/shared/components/SearchInput";
-import DatePicker from "@/shared/components/DatePicker";
+import SearchInput from "@/shared/components/SearchInput.tsx";
+import DatePicker from "@/shared/components/DatePicker.tsx";
 
 interface PurchaseOrderProductsOptionsProps {
   search: string;

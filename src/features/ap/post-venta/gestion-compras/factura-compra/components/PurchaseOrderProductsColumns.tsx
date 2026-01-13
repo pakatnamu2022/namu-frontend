@@ -1,8 +1,8 @@
 import type { ColumnDef } from "@tanstack/react-table";
-import { PurchaseOrderProductsResource } from "../lib/purchaseOrderProducts.interface";
-import { Button } from "@/components/ui/button";
+import { PurchaseOrderProductsResource } from "@/features/ap/post-venta/gestion-compras/factura-compra/lib/purchaseOrderProducts.interface.ts";
+import { Button } from "@/components/ui/button.tsx";
 import { Eye, PackageCheck } from "lucide-react";
-import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
+import { DeleteButton } from "@/shared/components/SimpleDeleteDialog.tsx";
 import { Link } from "react-router-dom";
 
 export type PurchaseOrderProductsColumns =

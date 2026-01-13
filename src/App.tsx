@@ -234,10 +234,10 @@ import UpdateAdjustmentsProductPage from "./app/ap/post-venta/gestion-de-compras
 import InventoryPage from "./app/ap/post-venta/gestion-de-compras/inventario/page.tsx";
 import InventoryKardexPage from "./app/ap/post-venta/gestion-de-compras/inventario/kardex/page.tsx";
 import ProductKardexPage from "./app/ap/post-venta/gestion-de-compras/inventario/movimientos/[productId]/[warehouseId]/page.tsx";
-import PurchaseOrderProductsPage from "./app/ap/post-venta/gestion-de-compras/orden-compra-producto/page.tsx";
-import ReceptionsProductsPage from "./app/ap/post-venta/gestion-de-compras/orden-compra-producto/recepcion/[purchaseOrderId]/page.tsx";
-import UpdateReceptionProductPage from "./app/ap/post-venta/gestion-de-compras/orden-compra-producto/recepcion/actualizar/[purchaseOrderId]/[id]/page.tsx";
-import AddReceptionProductPage from "./app/ap/post-venta/gestion-de-compras/orden-compra-producto/recepcion/agregar/[purchaseOrderId]/page.tsx";
+import PurchaseOrderProductsPage from "./app/ap/post-venta/gestion-de-compras/factura-compra/page.tsx";
+import ReceptionsProductsPage from "@/app/ap/post-venta/gestion-de-compras/factura-compra/recepcion/[purchaseOrderId]/page.tsx";
+import UpdateReceptionProductPage from "@/app/ap/post-venta/gestion-de-compras/factura-compra/recepcion/actualizar/[purchaseOrderId]/[id]/page.tsx";
+import AddReceptionProductPage from "@/app/ap/post-venta/gestion-de-compras/factura-compra/recepcion/agregar/[purchaseOrderId]/page.tsx";
 import SupplierOrderPage from "./app/ap/post-venta/gestion-de-compras/pedido-proveedor/page.tsx";
 import AddSupplierOrderPage from "./app/ap/post-venta/gestion-de-compras/pedido-proveedor/agregar/page.tsx";
 import UpdateSupplierOrderPage from "./app/ap/post-venta/gestion-de-compras/pedido-proveedor/actualizar/[id]/page.tsx";
@@ -1182,19 +1182,19 @@ function App() {
                 element={<ProductKardexPage />}
               />
               <Route
-                path="gestion-de-compras/orden-compra-producto"
+                path="gestion-de-compras/factura-compra"
                 element={<PurchaseOrderProductsPage />}
               />
               <Route
-                path="gestion-de-compras/orden-compra-producto/recepcion/:purchaseOrderId"
+                path="gestion-de-compras/factura-compra/recepcion/:purchaseOrderId"
                 element={<ReceptionsProductsPage />}
               />
               <Route
-                path="gestion-de-compras/orden-compra-producto/recepcion/agregar/:purchaseOrderId"
+                path="gestion-de-compras/factura-compra/recepcion/agregar/:purchaseOrderId"
                 element={<AddReceptionProductPage />}
               />
               <Route
-                path="gestion-de-compras/orden-compra-producto/recepcion/actualizar/:purchaseOrderId/:id"
+                path="gestion-de-compras/factura-compra/recepcion/actualizar/:purchaseOrderId/:id"
                 element={<UpdateReceptionProductPage />}
               />
               <Route

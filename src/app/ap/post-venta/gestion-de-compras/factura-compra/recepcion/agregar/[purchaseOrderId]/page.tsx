@@ -1,23 +1,23 @@
 "use client";
 
 import { useNavigate, useParams } from "react-router-dom";
-import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
+import { useCurrentModule } from "@/shared/hooks/useCurrentModule.ts";
 import { useMutation } from "@tanstack/react-query";
 import {
   ERROR_MESSAGE,
   errorToast,
   SUCCESS_MESSAGE,
   successToast,
-} from "@/core/core.function";
-import TitleFormComponent from "@/shared/components/TitleFormComponent";
-import FormWrapper from "@/shared/components/FormWrapper";
-import NotFound from "@/app/not-found";
-import { storeReception } from "@/features/ap/post-venta/gestion-compras/recepciones-producto/lib/receptionsProducts.actions";
-import { ReceptionSchema } from "@/features/ap/post-venta/gestion-compras/recepciones-producto/lib/receptionsProducts.schema";
-import { ReceptionsProductsForm } from "@/features/ap/post-venta/gestion-compras/recepciones-producto/components/ReceptionsProductsForm";
-import { RECEPTION } from "@/features/ap/post-venta/gestion-compras/recepciones-producto/lib/receptionsProducts.constants";
-import { usePurchaseOrderProductsById } from "@/features/ap/post-venta/gestion-compras/orden-compra-producto/lib/purchaseOrderProducts.hook";
-import PageSkeleton from "@/shared/components/PageSkeleton";
+} from "@/core/core.function.ts";
+import TitleFormComponent from "@/shared/components/TitleFormComponent.tsx";
+import FormWrapper from "@/shared/components/FormWrapper.tsx";
+import NotFound from "@/app/not-found.tsx";
+import { storeReception } from "@/features/ap/post-venta/gestion-compras/recepciones-producto/lib/receptionsProducts.actions.ts";
+import { ReceptionSchema } from "@/features/ap/post-venta/gestion-compras/recepciones-producto/lib/receptionsProducts.schema.ts";
+import { ReceptionsProductsForm } from "@/features/ap/post-venta/gestion-compras/recepciones-producto/components/ReceptionsProductsForm.tsx";
+import { RECEPTION } from "@/features/ap/post-venta/gestion-compras/recepciones-producto/lib/receptionsProducts.constants.ts";
+import { usePurchaseOrderProductsById } from "@/features/ap/post-venta/gestion-compras/factura-compra/lib/purchaseOrderProducts.hook.ts";
+import PageSkeleton from "@/shared/components/PageSkeleton.tsx";
 
 export default function AddReceptionProductPage() {
   const router = useNavigate();

@@ -1,7 +1,7 @@
-import { ModelComplete } from "@/core/core.interface";
-import { PurchaseOrderProductsResource } from "./purchaseOrderProducts.interface";
+import { ModelComplete } from "@/core/core.interface.ts";
+import { PurchaseOrderProductsResource } from "./purchaseOrderProducts.interface.ts";
 
-const ROUTE = "orden-compra-producto";
+const ROUTE = "factura-compra";
 const ABSOLUTE_ROUTE = "/ap/post-venta/gestion-de-compras/" + ROUTE;
 
 export const PURCHASE_ORDER_PRODUCT: ModelComplete<PurchaseOrderProductsResource> =

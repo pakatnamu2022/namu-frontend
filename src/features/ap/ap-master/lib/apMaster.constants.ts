@@ -69,6 +69,6 @@ export const AREA_CM_ID = {
 };
 
 export const AREA_PM_ID = {
-  TALLER: "34",
-  MESON: "35",
+  TALLER: "881",
+  MESON: "882",
 };
