@@ -37,6 +37,11 @@ import { useAuthStore } from "@/features/auth/lib/auth.store";
 import PageWrapper from "@/shared/components/PageWrapper";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
+import {
+  getProgressBackgroundColor,
+  getProgressColor,
+  getVariantByCompletionRate,
+} from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/lib/evaluationPerson.function";
 
 const { QUERY_KEY, MODEL } = EVALUATION_PERSON;
 
@@ -172,27 +177,6 @@ export default function NamuPerformanceEvaluationPage() {
     );
   }
 
-  const getProgressColor = (overallCompletionRate: number) => {
-    if (overallCompletionRate === 100) return "bg-green-500";
-    if (overallCompletionRate >= 50) return "bg-amber-500";
-    if (overallCompletionRate > 0) return "bg-orange-500";
-    return "bg-red-500";
-  };
-
-  const getProgressBackgroundColor = (overallCompletionRate: number) => {
-    if (overallCompletionRate === 100) return "bg-green-50";
-    if (overallCompletionRate >= 50) return "bg-amber-50";
-    if (overallCompletionRate > 0) return "bg-orange-50";
-    return "bg-red-50";
-  };
-
-  const getVariantByCompletionRate = (rate: number) => {
-    if (rate === 100) return "green";
-    if (rate >= 50) return "amber";
-    if (rate > 0) return "orange";
-    return "red";
-  };
-
   // Si no hay resultado de evaluación para esta persona
   if (
     !isLoadingEvaluationPerson &&
@@ -265,9 +249,6 @@ export default function NamuPerformanceEvaluationPage() {
             <Button
               variant="default"
               size="icon-lg"
-              color={getVariantByCompletionRate(
-                evaluationPersonResult.statistics.overall_completion_rate
-              )}
               onClick={handleRefresh}
               disabled={saving}
               className="gap-2"
