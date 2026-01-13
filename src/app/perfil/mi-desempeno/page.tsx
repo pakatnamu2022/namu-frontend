@@ -16,7 +16,7 @@ import {
   successToast,
 } from "@/core/core.function";
 import { Badge } from "@/components/ui/badge";
-import { TrendingUp, Target } from "lucide-react";
+import { TrendingUp, Target, RefreshCw } from "lucide-react";
 import { EVALUATION_PERSON } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/lib/evaluationPerson.constans";
 import { useAllEvaluations } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluaciones/lib/evaluation.hook";
 import {
@@ -27,13 +27,22 @@ import {
 import EvaluationSummaryCard from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/components/EvaluationSummaryCard";
 import EvaluationPersonObjectiveTable from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/components/EvaluationPersonObjetiveTable";
 import EvaluationPersonCompetenceTableWithColumns from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/components/EvaluationPersonCompetenceTable";
-import EvaluationSelector from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/components/EvaluationSelector";
 import NoEvaluationMessage from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/components/NoEvaluationMessage";
 import PersonTitleComponent from "@/shared/components/PersonTitleComponent";
 import { useAuthStore } from "@/features/auth/lib/auth.store";
 import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { EVALUATION_OBJECTIVE } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluaciones/lib/evaluation.constans";
 import PageWrapper from "@/shared/components/PageWrapper";
+import {
+  getProgressBackgroundColor,
+  getProgressColor,
+  getVariantByCompletionRate,
+} from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/lib/evaluationPerson.function";
+import { cn } from "@/lib/utils";
+import { Progress } from "@/components/ui/progress";
+import { Button } from "@/components/ui/button";
+import { SearchableSelect } from "@/shared/components/SearchableSelect";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const { QUERY_KEY, MODEL } = EVALUATION_PERSON;
 
@@ -160,29 +169,73 @@ export default function MyPerformance() {
       <div className="space-y-4 p-0">
         {/* Header principal */}
         <PersonTitleComponent
-          name={user.name}
-          position={user.position}
-          photo={user.foto_adjunto}
+          name={evaluationPersonResult.person.name}
+          position={evaluationPersonResult.person.position}
+          photo={evaluationPersonResult.person.photo}
         >
-          <div className="ml-auto text-right">
-            <div className="text-2xl font-bold text-primary">
-              {evaluationPersonResult?.statistics?.overall_completion_rate}%
+          <div className="flex gap-2 items-end">
+            <div className="flex flex-col gap-2 items-center">
+              <div className="flex flex-wrap items-center gap-2">
+                {isLoadingEvaluations ? (
+                  <Skeleton className="h-8 w-80" />
+                ) : (
+                  <SearchableSelect
+                    options={evaluations.map((evaluation) => ({
+                      value: evaluation.id.toString(),
+                      label: () => (
+                        <div className="flex items-center flex-wrap gap-2">
+                          <Badge variant="indigo">{evaluation.name}</Badge>
+                          <Badge variant="sky">{evaluation.period}</Badge>
+                        </div>
+                      ),
+                      searchValue: `${evaluation.name} ${evaluation.period}`,
+                    }))}
+                    onChange={(value: string) => {
+                      setSelectedEvaluationId(Number(value));
+                    }}
+                    value={selectedEvaluationId?.toString() ?? ""}
+                    placeholder="Selecciona la Evaluación..."
+                    className="w-auto! min-w-80 text-xs! py-0.5! px-0! h-fit! bg-background border-0!"
+                  />
+                )}
+                <Badge variant="blue" className="text-xs">
+                  Activa
+                </Badge>
+                <Badge
+                  variant={getVariantByCompletionRate(
+                    evaluationPersonResult.statistics.overall_completion_rate
+                  )}
+                  className="text-xs"
+                >
+                  {evaluationPersonResult.statistics.overall_completion_rate}%
+                </Badge>
+              </div>
+              <Progress
+                value={
+                  evaluationPersonResult.statistics.overall_completion_rate
+                }
+                className={cn(
+                  "h-2",
+                  getProgressBackgroundColor(
+                    evaluationPersonResult.statistics.overall_completion_rate
+                  )
+                )}
+                indicatorClassName={getProgressColor(
+                  evaluationPersonResult.statistics.overall_completion_rate
+                )}
+              />
             </div>
-            <div className="text-xs text-muted-foreground">
-              Progreso general
-            </div>
+            <Button
+              variant="default"
+              size="icon-lg"
+              onClick={handleRefresh}
+              disabled={saving}
+              className="gap-2"
+            >
+              <RefreshCw className={`size-4 ${saving ? "animate-spin" : ""}`} />
+            </Button>
           </div>
         </PersonTitleComponent>
-
-        {/* Selector de evaluación y controles */}
-        <EvaluationSelector
-          evaluations={evaluations}
-          selectedEvaluationId={selectedEvaluationId}
-          onEvaluationChange={setSelectedEvaluationId}
-          onRefresh={handleRefresh}
-          isLoadingEvaluations={isLoadingEvaluations}
-          isSaving={saving}
-        />
       </div>
 
       <div className="mt-6 space-y-4 grid grid-cols-4 gap-6">
