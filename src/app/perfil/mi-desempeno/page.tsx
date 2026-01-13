@@ -191,7 +191,7 @@ export default function MyPerformance() {
           defaultValue={
             evaluationPersonResult?.hasObjectives ? "objectives" : "competences"
           }
-          className="w-full rounded-lg col-span-3 items-end"
+          className="w-full rounded-lg col-span-3"
         >
           <TabsList>
             {evaluationPersonResult?.hasObjectives && (

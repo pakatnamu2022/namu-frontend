@@ -35,6 +35,8 @@ import { EVALUATION_OBJECTIVE } from "@/features/gp/gestionhumana/evaluaciondese
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useAuthStore } from "@/features/auth/lib/auth.store";
 import PageWrapper from "@/shared/components/PageWrapper";
+import { Progress } from "@/components/ui/progress";
+import { cn } from "@/lib/utils";
 
 const { QUERY_KEY, MODEL } = EVALUATION_PERSON;
 
@@ -170,6 +172,27 @@ export default function NamuPerformanceEvaluationPage() {
     );
   }
 
+  const getProgressColor = (overallCompletionRate: number) => {
+    if (overallCompletionRate === 100) return "bg-green-500";
+    if (overallCompletionRate >= 50) return "bg-amber-500";
+    if (overallCompletionRate > 0) return "bg-orange-500";
+    return "bg-red-500";
+  };
+
+  const getProgressBackgroundColor = (overallCompletionRate: number) => {
+    if (overallCompletionRate === 100) return "bg-green-50";
+    if (overallCompletionRate >= 50) return "bg-amber-50";
+    if (overallCompletionRate > 0) return "bg-orange-50";
+    return "bg-red-50";
+  };
+
+  const getVariantByCompletionRate = (rate: number) => {
+    if (rate === 100) return "green";
+    if (rate >= 50) return "amber";
+    if (rate > 0) return "orange";
+    return "red";
+  };
+
   // Si no hay resultado de evaluación para esta persona
   if (
     !isLoadingEvaluationPerson &&
@@ -194,7 +217,7 @@ export default function NamuPerformanceEvaluationPage() {
 
   return (
     <PageWrapper>
-      <div className="space-y-4 p-0">
+      <div className="p-0">
         {/* Header principal */}
         <PersonTitleComponent
           name={evaluationPersonResult.person.name}
@@ -203,53 +226,70 @@ export default function NamuPerformanceEvaluationPage() {
           backButtonRoute="/perfil/equipo"
           backButtonName="Ver Equipo"
         >
-          <div className="ml-auto text-right">
-            <div className="text-2xl font-bold text-primary">
-              {evaluationPersonResult.statistics.overall_completion_rate}%
+          <div className="flex gap-2 items-end">
+            <div className="flex flex-col gap-2 items-center">
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge variant="indigo" className="text-xs">
+                  {activeEvaluation.name}
+                </Badge>
+                <Badge variant="sky" className="text-xs">
+                  {activeEvaluation.period}
+                </Badge>
+                <Badge variant="blue" className="text-xs">
+                  Activa
+                </Badge>
+                <Badge
+                  variant={getVariantByCompletionRate(
+                    evaluationPersonResult.statistics.overall_completion_rate
+                  )}
+                  className="text-xs"
+                >
+                  {evaluationPersonResult.statistics.overall_completion_rate}%
+                </Badge>
+              </div>
+              <Progress
+                value={
+                  evaluationPersonResult.statistics.overall_completion_rate
+                }
+                className={cn(
+                  "h-2",
+                  getProgressBackgroundColor(
+                    evaluationPersonResult.statistics.overall_completion_rate
+                  )
+                )}
+                indicatorClassName={getProgressColor(
+                  evaluationPersonResult.statistics.overall_completion_rate
+                )}
+              />
             </div>
-            <div className="text-xs text-muted-foreground">
-              Progreso general
-            </div>
-          </div>
-        </PersonTitleComponent>
-
-        {/* Evaluación activa y controles */}
-        <div className="flex items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <Badge variant="indigo" className="text-xs">
-              {activeEvaluation.name}
-            </Badge>
-            <Badge variant="sky" className="text-xs">
-              {activeEvaluation.period}
-            </Badge>
-            <Badge variant="blue" className="text-xs">
-              Activa
-            </Badge>
-          </div>
-
-          <div className="flex items-center gap-2">
             <Button
-              variant="outline"
-              size="sm"
-              color="primary"
+              variant="default"
+              size="icon-lg"
+              color={getVariantByCompletionRate(
+                evaluationPersonResult.statistics.overall_completion_rate
+              )}
               onClick={handleRefresh}
               disabled={saving}
               className="gap-2"
             >
               <RefreshCw className={`size-4 ${saving ? "animate-spin" : ""}`} />
-              Actualizar
             </Button>
           </div>
+        </PersonTitleComponent>
+
+        {/* Evaluación activa y controles */}
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-2"></div>
         </div>
       </div>
 
-      <div className="mt-6 space-y-4 grid grid-cols-4 gap-6">
+      <div className="space-y-4 grid grid-cols-4 gap-6">
         {/* Tabs de contenido */}
         <Tabs
           defaultValue={
             evaluationPersonResult?.hasObjectives ? "objectives" : "competences"
           }
-          className="w-full rounded-lg col-span-3 items-end"
+          className="w-full rounded-lg col-span-3"
         >
           <TabsList>
             {evaluationPersonResult?.hasObjectives && (
