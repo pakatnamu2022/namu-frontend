@@ -5,24 +5,32 @@ import {
   CheckCircle2,
   Clock,
   XCircle,
-  History,
-  Edit,
+  ClipboardList,
+  Eye,
   MapPin,
 } from "lucide-react";
 import { EvaluationPersonResultResource } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/lib/evaluationPerson.interface";
+import { EvaluationResource } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluaciones/lib/evaluation.interface";
 import { Badge } from "@/components/ui/badge";
 import { getMyEvaluatorTypes } from "../lib/teamHelpers";
 import { getEvaluatorTypeById } from "../lib/teamConstants";
 import { useAuthStore } from "@/features/auth/lib/auth.store";
 import { cn } from "@/lib/utils";
+import { PARAMETER_SCALES } from "@/features/gp/gestionhumana/evaluaciondesempeño/parametros/lib/parameter.constans";
 
 interface TeamCardProps {
   data: EvaluationPersonResultResource;
+  evaluation?: EvaluationResource | null;
   onEvaluate: (personId: number) => void;
   onHistory: (personId: number) => void;
 }
 
-export function TeamCard({ data, onEvaluate, onHistory }: TeamCardProps) {
+export function TeamCard({
+  data,
+  evaluation,
+  onEvaluate,
+  onHistory,
+}: TeamCardProps) {
   const { user } = useAuthStore();
   const { person, result, objectivesResult, competencesResult, statistics } =
     data;
@@ -31,19 +39,14 @@ export function TeamCard({ data, onEvaluate, onHistory }: TeamCardProps) {
   const isEvaluated = overallCompletionRate === 100;
   const isPending = overallCompletionRate < 100 && overallCompletionRate > 0;
 
-  // Color del progress bar según el porcentaje
-  const getProgressColor = () => {
-    if (overallCompletionRate === 100) return "bg-green-500";
-    if (overallCompletionRate >= 50) return "bg-amber-500";
-    if (overallCompletionRate > 0) return "bg-orange-500";
-    return "bg-red-500";
-  };
+  // Verificar si es evaluación de objetivos (typeEvaluation === 0)
+  const isObjectivesOnly = evaluation?.typeEvaluation === 0;
 
-  const getProgressBackgroundColor = () => {
-    if (overallCompletionRate === 100) return "bg-green-50";
-    if (overallCompletionRate >= 50) return "bg-amber-50";
-    if (overallCompletionRate > 0) return "bg-orange-50";
-    return "bg-red-50";
+  // Función para obtener el color según el resultado y PARAMETER_SCALES
+  const getResultColor = (resultValue: number) => {
+    // Normalizar el resultado a un índice de 0-5 para PARAMETER_SCALES
+    const scaleIndex = Math.min(Math.floor(resultValue / 20), 5);
+    return PARAMETER_SCALES[scaleIndex];
   };
 
   return (
@@ -99,33 +102,58 @@ export function TeamCard({ data, onEvaluate, onHistory }: TeamCardProps) {
         {/* Resultados + Botones en la misma fila */}
         <div className="flex items-center justify-between gap-3 mt-auto">
           {/* Resultados compactos */}
-          <div className="flex gap-2 items-center">
-            <div className="flex items-center gap-1 bg-muted/50 rounded-md px-2 py-1">
-              <span className="text-sm font-bold">{result}%</span>
-              <span className="text-[10px] text-muted-foreground">Total</span>
+          {isObjectivesOnly ? (
+            // Solo mostrar resultado final para evaluaciones de objetivos
+            <div className="flex gap-2 items-center">
+              <div
+                className={cn(
+                  "flex items-center gap-1 rounded-md px-2 py-1",
+                  getResultColor(result)
+                )}
+              >
+                <span className="text-sm font-bold">{result}%</span>
+                <span className="text-[10px]">Final</span>
+              </div>
             </div>
-            <div className="flex items-center gap-1 bg-muted/30 rounded-md px-2 py-1">
-              <span className="text-xs font-semibold">{objectivesResult}%</span>
-              <span className="text-[10px] text-muted-foreground">Obj</span>
+          ) : (
+            // Mostrar todas las métricas para evaluaciones completas
+            <div className="flex gap-2 items-center">
+              <div className="flex items-center gap-1 bg-muted/50 rounded-md px-2 py-1">
+                <span className="text-sm font-bold">{result}%</span>
+                <span className="text-[10px] text-muted-foreground">Total</span>
+              </div>
+              <div className="flex items-center gap-1 bg-muted/30 rounded-md px-2 py-1">
+                <span className="text-xs font-semibold">
+                  {objectivesResult}%
+                </span>
+                <span className="text-[10px] text-muted-foreground">Obj</span>
+              </div>
+              <div className="flex items-center gap-1 bg-muted/30 rounded-md px-2 py-1">
+                <span className="text-xs font-semibold">
+                  {competencesResult}%
+                </span>
+                <span className="text-[10px] text-muted-foreground">Comp</span>
+              </div>
             </div>
-            <div className="flex items-center gap-1 bg-muted/30 rounded-md px-2 py-1">
-              <span className="text-xs font-semibold">{competencesResult}%</span>
-              <span className="text-[10px] text-muted-foreground">Comp</span>
-            </div>
-          </div>
+          )}
 
           {/* Botones de acción */}
           <div className="flex gap-2 shrink-0">
             <Button
               size="sm"
-              variant={isEvaluated ? "outline" : "default"}
+              variant={isEvaluated ? "default" : "secondary"}
+              color={isEvaluated ? "emerald" : isPending ? "amber" : undefined}
               className="h-8 gap-1.5 px-3 text-xs"
               onClick={() => onEvaluate(person.id)}
             >
               <span className="hidden sm:inline">
-                {isEvaluated ? "Ver Activa" : isPending ? "Continuar" : "Evaluar"}
+                {isEvaluated ? "Ver" : isPending ? "Continuar" : "Evaluar"}
               </span>
-              <Edit className="size-3" />
+              {isEvaluated ? (
+                <Eye className="size-3" />
+              ) : (
+                <ClipboardList className="size-3" />
+              )}
             </Button>
             <Button
               size="sm"
@@ -134,18 +162,10 @@ export function TeamCard({ data, onEvaluate, onHistory }: TeamCardProps) {
               onClick={() => onHistory(person.id)}
               title="Ver historial"
             >
-              <History className="size-3" />
+              <ClipboardList className="size-3" />
             </Button>
           </div>
         </div>
-      </div>
-
-      {/* Barra de progreso pegada al final */}
-      <div className={cn("w-full h-2", getProgressBackgroundColor())}>
-        <div
-          className={`h-full transition-all ${getProgressColor()}`}
-          style={{ width: `${overallCompletionRate}%` }}
-        />
       </div>
     </div>
   );

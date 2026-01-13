@@ -97,6 +97,7 @@ export default function TeamPage() {
       <TeamGrid
         isLoading={isLoading}
         data={filteredData}
+        evaluation={activeEvaluation}
         onEvaluate={handleOnEvaluate}
         onHistory={handleOnHistory}
       >

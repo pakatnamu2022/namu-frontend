@@ -1,4 +1,5 @@
 import { EvaluationPersonResultResource } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/lib/evaluationPerson.interface";
+import { EvaluationResource } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluaciones/lib/evaluation.interface";
 import { TeamCard } from "./TeamCard";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import {
@@ -16,6 +17,7 @@ import { useState } from "react";
 
 interface Props {
   data?: EvaluationPersonResultResource[];
+  evaluation?: EvaluationResource | null;
   children?: React.ReactNode;
   isLoading?: boolean;
   onEvaluate: (personId: number) => void;
@@ -24,6 +26,7 @@ interface Props {
 
 export default function TeamGrid({
   data,
+  evaluation,
   children,
   isLoading,
   onEvaluate,
@@ -109,6 +112,7 @@ export default function TeamGrid({
               <TeamCard
                 key={item.person.id}
                 data={item}
+                evaluation={evaluation}
                 onEvaluate={onEvaluate}
                 onHistory={onHistory}
               />
