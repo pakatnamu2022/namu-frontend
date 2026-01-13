@@ -2,13 +2,13 @@ import { useQuery } from "@tanstack/react-query";
 import {
   PurchaseOrderProductsResource,
   PurchaseOrderProductsResponse,
-} from "./purchaseOrderProducts.interface";
+} from "./purchaseOrderProducts.interface.ts";
 import {
   findPurchaseOrderProductsById,
   getAllPurchaseOrderProducts,
   getPurchaseOrderProducts,
-} from "./purchaseOrderProducts.actions";
-import { PURCHASE_ORDER_PRODUCT } from "./purchaseOrderProducts.constants";
+} from "./purchaseOrderProducts.actions.ts";
+import { PURCHASE_ORDER_PRODUCT } from "./purchaseOrderProducts.constants.ts";
 
 const { QUERY_KEY } = PURCHASE_ORDER_PRODUCT;
 

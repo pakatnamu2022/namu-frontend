@@ -1,4 +1,4 @@
-import { type Links, type Meta } from "@/shared/lib/pagination.interface";
+import { type Links, type Meta } from "@/shared/lib/pagination.interface.ts";
 
 export interface PurchaseOrderProductsResponse {
   data: PurchaseOrderProductsResource[];

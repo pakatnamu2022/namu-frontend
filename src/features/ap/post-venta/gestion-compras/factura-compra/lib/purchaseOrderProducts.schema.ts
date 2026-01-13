@@ -1,4 +1,4 @@
-import { requiredStringId } from "@/shared/lib/global.schema";
+import { requiredStringId } from "@/shared/lib/global.schema.ts";
 import { z } from "zod";
 
 const purchaseOrderProductItemSchema = z.object({

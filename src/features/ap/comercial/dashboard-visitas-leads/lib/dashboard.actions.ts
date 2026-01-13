@@ -144,7 +144,7 @@ export async function downloadDashboardFile(
   const config: AxiosRequestConfig = {
     params: {
       type: filters.type,
-      registration_date: [filters.date_from, filters.date_to],
+      created_at: [filters.date_from, filters.date_to],
       ...(isPDF && { format: "pdf" }),
     },
     responseType: "blob",

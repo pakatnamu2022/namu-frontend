@@ -1,5 +1,5 @@
-import GeneralSheet from "@/shared/components/GeneralSheet";
-import { PurchaseOrderProductsResource } from "../lib/purchaseOrderProducts.interface";
+import GeneralSheet from "@/shared/components/GeneralSheet.tsx";
+import { PurchaseOrderProductsResource } from "@/features/ap/post-venta/gestion-compras/factura-compra/lib/purchaseOrderProducts.interface.ts";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import {
@@ -9,8 +9,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
+} from "@/components/ui/table.tsx";
+import { Badge } from "@/components/ui/badge.tsx";
 
 interface PurchaseOrderProductsViewSheetProps {
   open: boolean;

@@ -1,30 +1,30 @@
 "use client";
 
-import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
+import { useCurrentModule } from "@/shared/hooks/useCurrentModule.ts";
 import { useState } from "react";
 import {
   ERROR_MESSAGE,
   errorToast,
   SUCCESS_MESSAGE,
   successToast,
-} from "@/core/core.function";
-import PageSkeleton from "@/shared/components/PageSkeleton";
-import TitleComponent from "@/shared/components/TitleComponent";
-import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
-import DataTablePagination from "@/shared/components/DataTablePagination";
-import { DEFAULT_PER_PAGE } from "@/core/core.constants";
-import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
-import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import { notFound } from "@/shared/hooks/useNotFound";
-import { usePurchaseOrderProducts } from "@/features/ap/post-venta/gestion-compras/orden-compra-producto/lib/purchaseOrderProducts.hook";
-import { deletePurchaseOrderProducts } from "@/features/ap/post-venta/gestion-compras/orden-compra-producto/lib/purchaseOrderProducts.actions";
-import PurchaseOrderProductsTable from "@/features/ap/post-venta/gestion-compras/orden-compra-producto/components/PurchaseOrderProductsTable";
-import { purchaseOrderProductsColumns } from "@/features/ap/post-venta/gestion-compras/orden-compra-producto/components/PurchaseOrderProductsColumns";
-import PurchaseOrderProductsOptions from "@/features/ap/post-venta/gestion-compras/orden-compra-producto/components/PurchaseOrderProductsOptions";
-import { PURCHASE_ORDER_PRODUCT } from "@/features/ap/post-venta/gestion-compras/orden-compra-producto/lib/purchaseOrderProducts.constants";
-import { PurchaseOrderProductsViewSheet } from "@/features/ap/post-venta/gestion-compras/orden-compra-producto/components/PurchaseOrderProductsSheet";
-import { PurchaseOrderProductsResource } from "@/features/ap/post-venta/gestion-compras/orden-compra-producto/lib/purchaseOrderProducts.interface";
-import { TYPES_OPERATION_ID } from "@/features/ap/configuraciones/maestros-general/tipos-operacion/lib/typesOperation.constants";
+} from "@/core/core.function.ts";
+import PageSkeleton from "@/shared/components/PageSkeleton.tsx";
+import TitleComponent from "@/shared/components/TitleComponent.tsx";
+import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog.tsx";
+import DataTablePagination from "@/shared/components/DataTablePagination.tsx";
+import { DEFAULT_PER_PAGE } from "@/core/core.constants.ts";
+import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper.tsx";
+import { useModulePermissions } from "@/shared/hooks/useModulePermissions.ts";
+import { notFound } from "@/shared/hooks/useNotFound.ts";
+import { usePurchaseOrderProducts } from "@/features/ap/post-venta/gestion-compras/factura-compra/lib/purchaseOrderProducts.hook.ts";
+import { deletePurchaseOrderProducts } from "@/features/ap/post-venta/gestion-compras/factura-compra/lib/purchaseOrderProducts.actions.ts";
+import PurchaseOrderProductsTable from "@/features/ap/post-venta/gestion-compras/factura-compra/components/PurchaseOrderProductsTable.tsx";
+import { purchaseOrderProductsColumns } from "@/features/ap/post-venta/gestion-compras/factura-compra/components/PurchaseOrderProductsColumns.tsx";
+import PurchaseOrderProductsOptions from "@/features/ap/post-venta/gestion-compras/factura-compra/components/PurchaseOrderProductsOptions.tsx";
+import { PURCHASE_ORDER_PRODUCT } from "@/features/ap/post-venta/gestion-compras/factura-compra/lib/purchaseOrderProducts.constants.ts";
+import { PurchaseOrderProductsViewSheet } from "@/features/ap/post-venta/gestion-compras/factura-compra/components/PurchaseOrderProductsSheet.tsx";
+import { PurchaseOrderProductsResource } from "@/features/ap/post-venta/gestion-compras/factura-compra/lib/purchaseOrderProducts.interface.ts";
+import { TYPES_OPERATION_ID } from "@/features/ap/configuraciones/maestros-general/tipos-operacion/lib/typesOperation.constants.ts";
 
 export default function PurchaseOrderProductsPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();

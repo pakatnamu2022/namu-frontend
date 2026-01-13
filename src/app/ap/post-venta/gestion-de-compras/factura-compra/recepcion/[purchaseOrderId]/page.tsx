@@ -1,29 +1,29 @@
 "use client";
 
-import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
+import { useCurrentModule } from "@/shared/hooks/useCurrentModule.ts";
 import { useState } from "react";
 import {
   ERROR_MESSAGE,
   errorToast,
   SUCCESS_MESSAGE,
   successToast,
-} from "@/core/core.function";
-import PageSkeleton from "@/shared/components/PageSkeleton";
-import TitleComponent from "@/shared/components/TitleComponent";
-import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
-import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
-import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import NotFound from "@/app/not-found";
-import { useAllReceptions } from "@/features/ap/post-venta/gestion-compras/recepciones-producto/lib/receptionsProducts.hook";
-import { deleteReception } from "@/features/ap/post-venta/gestion-compras/recepciones-producto/lib/receptionsProducts.actions";
-import ReceptionsProductsTable from "@/features/ap/post-venta/gestion-compras/recepciones-producto/components/ReceptionsProductsTable";
-import ReceptionsProductsCards from "@/features/ap/post-venta/gestion-compras/recepciones-producto/components/ReceptionsProductsCards";
-import { RECEPTION } from "@/features/ap/post-venta/gestion-compras/recepciones-producto/lib/receptionsProducts.constants";
+} from "@/core/core.function.ts";
+import PageSkeleton from "@/shared/components/PageSkeleton.tsx";
+import TitleComponent from "@/shared/components/TitleComponent.tsx";
+import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog.tsx";
+import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper.tsx";
+import { useModulePermissions } from "@/shared/hooks/useModulePermissions.ts";
+import NotFound from "@/app/not-found.tsx";
+import { useAllReceptions } from "@/features/ap/post-venta/gestion-compras/recepciones-producto/lib/receptionsProducts.hook.ts";
+import { deleteReception } from "@/features/ap/post-venta/gestion-compras/recepciones-producto/lib/receptionsProducts.actions.ts";
+import ReceptionsProductsTable from "@/features/ap/post-venta/gestion-compras/recepciones-producto/components/ReceptionsProductsTable.tsx";
+import ReceptionsProductsCards from "@/features/ap/post-venta/gestion-compras/recepciones-producto/components/ReceptionsProductsCards.tsx";
+import { RECEPTION } from "@/features/ap/post-venta/gestion-compras/recepciones-producto/lib/receptionsProducts.constants.ts";
 import { useParams, useNavigate } from "react-router-dom";
-import { usePurchaseOrderProductsById } from "@/features/ap/post-venta/gestion-compras/orden-compra-producto/lib/purchaseOrderProducts.hook";
-import { Button } from "@/components/ui/button";
+import { usePurchaseOrderProductsById } from "@/features/ap/post-venta/gestion-compras/factura-compra/lib/purchaseOrderProducts.hook.ts";
+import { Button } from "@/components/ui/button.tsx";
 import { ArrowLeft, Plus } from "lucide-react";
-import { Card } from "@/components/ui/card";
+import { Card } from "@/components/ui/card.tsx";
 
 export default function ReceptionsProductsPage() {
   const { checkRouteExists, isLoadingModule } = useCurrentModule();

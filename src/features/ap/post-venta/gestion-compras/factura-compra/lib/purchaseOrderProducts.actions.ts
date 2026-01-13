@@ -1,13 +1,13 @@
 import type { AxiosRequestConfig } from "axios";
-import { api } from "@/core/api";
-import { GeneralResponse } from "@/shared/lib/response.interface";
+import { api } from "@/core/api.ts";
+import { GeneralResponse } from "@/shared/lib/response.interface.ts";
 import {
   getPurchaseOrderProductsProps,
   PurchaseOrderProductsRequest,
   PurchaseOrderProductsResource,
   PurchaseOrderProductsResponse,
-} from "./purchaseOrderProducts.interface";
-import { PURCHASE_ORDER_PRODUCT } from "./purchaseOrderProducts.constants";
+} from "./purchaseOrderProducts.interface.ts";
+import { PURCHASE_ORDER_PRODUCT } from "./purchaseOrderProducts.constants.ts";
 
 const { ENDPOINT } = PURCHASE_ORDER_PRODUCT;
 

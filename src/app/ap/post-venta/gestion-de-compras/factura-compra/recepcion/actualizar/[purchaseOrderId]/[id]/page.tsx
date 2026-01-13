@@ -3,26 +3,26 @@
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
+import { useCurrentModule } from "@/shared/hooks/useCurrentModule.ts";
 import {
   ERROR_MESSAGE,
   errorToast,
   SUCCESS_MESSAGE,
   successToast,
-} from "@/core/core.function";
-import TitleFormComponent from "@/shared/components/TitleFormComponent";
-import FormSkeleton from "@/shared/components/FormSkeleton";
-import FormWrapper from "@/shared/components/FormWrapper";
-import NotFound from "@/app/not-found";
+} from "@/core/core.function.ts";
+import TitleFormComponent from "@/shared/components/TitleFormComponent.tsx";
+import FormSkeleton from "@/shared/components/FormSkeleton.tsx";
+import FormWrapper from "@/shared/components/FormWrapper.tsx";
+import NotFound from "@/app/not-found.tsx";
 import {
   findReceptionById,
   updateReception,
-} from "@/features/ap/post-venta/gestion-compras/recepciones-producto/lib/receptionsProducts.actions";
-import { ReceptionSchema } from "@/features/ap/post-venta/gestion-compras/recepciones-producto/lib/receptionsProducts.schema";
-import { ReceptionResource } from "@/features/ap/post-venta/gestion-compras/recepciones-producto/lib/receptionsProducts.interface";
-import { ReceptionsProductsForm } from "@/features/ap/post-venta/gestion-compras/recepciones-producto/components/ReceptionsProductsForm";
-import { RECEPTION } from "@/features/ap/post-venta/gestion-compras/recepciones-producto/lib/receptionsProducts.constants";
-import { usePurchaseOrderProductsById } from "@/features/ap/post-venta/gestion-compras/orden-compra-producto/lib/purchaseOrderProducts.hook";
+} from "@/features/ap/post-venta/gestion-compras/recepciones-producto/lib/receptionsProducts.actions.ts";
+import { ReceptionSchema } from "@/features/ap/post-venta/gestion-compras/recepciones-producto/lib/receptionsProducts.schema.ts";
+import { ReceptionResource } from "@/features/ap/post-venta/gestion-compras/recepciones-producto/lib/receptionsProducts.interface.ts";
+import { ReceptionsProductsForm } from "@/features/ap/post-venta/gestion-compras/recepciones-producto/components/ReceptionsProductsForm.tsx";
+import { RECEPTION } from "@/features/ap/post-venta/gestion-compras/recepciones-producto/lib/receptionsProducts.constants.ts";
+import { usePurchaseOrderProductsById } from "@/features/ap/post-venta/gestion-compras/factura-compra/lib/purchaseOrderProducts.hook.ts";
 
 export default function UpdateReceptionProductPage() {
   const { id, purchaseOrderId } = useParams<{

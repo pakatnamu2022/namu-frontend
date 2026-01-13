@@ -5,8 +5,8 @@ import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import PageSkeleton from "@/shared/components/PageSkeleton";
 import TitleComponent from "@/shared/components/TitleComponent";
 import { notFound } from "@/shared/hooks/useNotFound";
-import { PurchaseOrderProductsForm } from "@/features/ap/post-venta/gestion-compras/orden-compra-producto/components/PurchaseOrderProductsForm";
-import { storePurchaseOrderProducts } from "@/features/ap/post-venta/gestion-compras/orden-compra-producto/lib/purchaseOrderProducts.actions";
+import { PurchaseOrderProductsForm } from "@/features/ap/post-venta/gestion-compras/factura-compra/components/PurchaseOrderProductsForm";
+import { storePurchaseOrderProducts } from "@/features/ap/post-venta/gestion-compras/factura-compra/lib/purchaseOrderProducts.actions";
 import {
   ERROR_MESSAGE,
   errorToast,
@@ -14,7 +14,7 @@ import {
   successToast,
 } from "@/core/core.function";
 import { useState } from "react";
-import { PURCHASE_ORDER_PRODUCT } from "@/features/ap/post-venta/gestion-compras/orden-compra-producto/lib/purchaseOrderProducts.constants";
+import { PURCHASE_ORDER_PRODUCT } from "@/features/ap/post-venta/gestion-compras/factura-compra/lib/purchaseOrderProducts.constants";
 import { useSupplierOrderById } from "@/features/ap/post-venta/gestion-compras/pedido-proveedor/lib/supplierOrder.hook";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FileText, Package } from "lucide-react";
