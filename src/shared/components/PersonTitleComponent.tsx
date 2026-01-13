@@ -52,7 +52,7 @@ export default function PersonTitleComponent({
           <AvatarImage
             src={photo}
             alt={name}
-            className="rounded-lg object-cover"
+            className="rounded-lg object-cover object-top"
           />
           <AvatarFallback className="bg-primary rounded-lg text-white text-sm md:text-base">
             {initials}
