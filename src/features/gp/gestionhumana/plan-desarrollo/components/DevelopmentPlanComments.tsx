@@ -20,14 +20,14 @@ export function DevelopmentPlanComments({
   onSubmitComment,
 }: DevelopmentPlanCommentsProps) {
   return (
-    <div className="pt-3 border-t space-y-2.5">
+    <div className="space-y-2.5">
       <h4 className="font-semibold text-xs text-muted-foreground uppercase tracking-wide">
         Comentarios
       </h4>
 
       {comment && (
-        <div className="p-2.5 rounded-md border bg-muted/20">
-          <p className="text-xs text-muted-foreground whitespace-pre-wrap leading-relaxed">
+        <div className="p-3 rounded-lg border bg-muted/30">
+          <p className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed">
             {comment}
           </p>
         </div>
@@ -39,17 +39,17 @@ export function DevelopmentPlanComments({
             placeholder="Escribe un comentario sobre este plan..."
             value={newComment}
             onChange={(e) => onCommentChange(e.target.value)}
-            className="min-h-16 resize-none text-xs"
+            className="min-h-20 resize-none text-sm"
           />
           <div className="flex justify-end">
             <Button
               size="sm"
               onClick={onSubmitComment}
               disabled={!newComment?.trim()}
-              className="gap-1.5 h-8 text-xs"
+              className="gap-2 h-9"
             >
-              <Send className="w-3.5 h-3.5" />
-              Enviar
+              <Send className="w-4 h-4" />
+              Enviar comentario
             </Button>
           </div>
         </div>

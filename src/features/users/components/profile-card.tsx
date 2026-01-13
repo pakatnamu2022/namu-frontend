@@ -176,7 +176,7 @@ export function ProfileCard({ variant = "sidebar" }: ProfileCardProps) {
 
   return (
     <div className="border-none shadow-none h-full">
-      <div className="p-4 gap-3 flex flex-col h-full">
+      <div className="p-2 gap-3 flex flex-col h-full">
         {/* Imagen de perfil más grande */}
 
         {!user.name ? (
@@ -184,8 +184,8 @@ export function ProfileCard({ variant = "sidebar" }: ProfileCardProps) {
             <Skeleton className="w-full h-full bg-primary rounded-full aspect-square" />
           </div>
         ) : (
-          <div className="text-center">
-            <Avatar className="sm:max-w-32 sm:max-h-32 lg:max-w-40 lg:max-h-40 w-full h-full aspect-square mx-auto border-4 border-primary/20 mb-4">
+          <div className="flex flex-col items-center gap-1">
+            <Avatar className="sm:max-w-28 sm:max-h-28 md:max-w-32 md:max-h-32 xl:max-w-40 xl:max-h-40 w-full h-full aspect-square mx-auto border-4 border-primary/20 mb-4 transition-all">
               <AvatarImage
                 className="object-cover object-top"
                 src={user?.foto_adjunto}
@@ -198,10 +198,10 @@ export function ProfileCard({ variant = "sidebar" }: ProfileCardProps) {
             <p className="text-primary dark:text-primary-foreground font-semibold text-sm">
               {user?.name}
             </p>
-            <Badge variant={"secondary"} className="px-4">
+            <Badge variant="secondary" className="px-4">
               {user.position}
             </Badge>
-            <Badge variant={"default"} className="px-4">
+            <Badge variant="default" className="px-4">
               {user.empresa} - {user.sede}
             </Badge>
           </div>

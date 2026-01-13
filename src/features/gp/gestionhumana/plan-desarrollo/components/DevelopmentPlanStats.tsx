@@ -19,42 +19,50 @@ export function DevelopmentPlanStats({
   progress,
 }: DevelopmentPlanStatsProps) {
   return (
-    <div className="space-y-3">
-      <div className="flex items-center justify-between gap-4 text-xs text-muted-foreground">
-        {(startDate || endDate) && (
-          <div className="flex items-center gap-1.5">
-            <Calendar className="w-3.5 h-3.5" />
-            <span>
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 rounded-lg bg-muted/30">
+      {/* Fechas */}
+      {(startDate || endDate) && (
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <Calendar className="w-4 h-4 shrink-0" />
+          <div className="flex flex-col">
+            <span className="text-xs font-medium text-foreground">Período</span>
+            <span className="text-xs">
               {startDate
                 ? new Date(startDate).toLocaleDateString("es-ES", {
-                    day: "2-digit",
+                    day: "numeric",
                     month: "short",
                   })
                 : "N/A"}{" "}
               -{" "}
               {endDate
                 ? new Date(endDate).toLocaleDateString("es-ES", {
-                    day: "2-digit",
+                    day: "numeric",
                     month: "short",
                   })
                 : "N/A"}
             </span>
           </div>
-        )}
-        <div className="flex items-center gap-1.5">
-          <CheckCircle2 className="w-3.5 h-3.5" />
-          <span>
-            {completedTasks}/{totalTasks}
+        </div>
+      )}
+
+      {/* Tareas completadas */}
+      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+        <CheckCircle2 className="w-4 h-4 shrink-0" />
+        <div className="flex flex-col">
+          <span className="text-xs font-medium text-foreground">Tareas</span>
+          <span className="text-xs">
+            {completedTasks} de {totalTasks} completadas
           </span>
         </div>
       </div>
 
-      <div className="space-y-1.5">
+      {/* Progress bar - ocupa todo el ancho en ambas columnas */}
+      <div className="col-span-1 sm:col-span-2 space-y-1.5">
         <div className="flex justify-between text-xs">
           <span className="font-medium">Progreso</span>
-          <span className="text-muted-foreground">{progress.toFixed(0)}%</span>
+          <span className="text-muted-foreground font-medium">{progress.toFixed(0)}%</span>
         </div>
-        <Progress value={progress} className="h-1.5" />
+        <Progress value={progress} className="h-2" />
       </div>
     </div>
   );

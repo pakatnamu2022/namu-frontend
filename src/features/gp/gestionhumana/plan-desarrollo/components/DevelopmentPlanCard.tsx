@@ -78,7 +78,7 @@ export function DevelopmentPlanCard({
           />
 
           <CollapsibleContent>
-            <div className="pt-3 mt-3 border-t space-y-3">
+            <div className="pt-3 border-t space-y-3">
               <DevelopmentPlanTaskList
                 tasks={plan.tasks}
                 isLeader={isLeader}

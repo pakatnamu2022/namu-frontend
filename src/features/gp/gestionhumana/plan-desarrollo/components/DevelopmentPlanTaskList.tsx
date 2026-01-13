@@ -28,34 +28,31 @@ export function DevelopmentPlanTaskList({
       <h4 className="font-semibold text-xs text-muted-foreground uppercase tracking-wide">
         Tareas ({tasks.length})
       </h4>
-      <div className="space-y-1.5">
+      <div className="grid gap-2">
         {tasks.map((task) => (
           <div
             key={task.id}
-            className="flex items-start gap-2.5 p-2.5 rounded-md border bg-muted/30 hover:bg-muted/50 transition-colors"
+            className="grid grid-cols-[auto_1fr_auto] gap-3 items-center p-2.5 rounded-lg border bg-muted/30 hover:bg-muted/50 transition-colors"
           >
             <Checkbox
               checked={task.fulfilled}
               onCheckedChange={() => onToggleTask(task.id)}
               disabled={!isLeader}
-              className="mt-0.5 h-4 w-4"
+              className="h-4 w-4"
             />
-            <div className="flex-1 min-w-0 space-y-0.5">
-              <p
-                className={`text-xs font-medium leading-tight ${
-                  task.fulfilled ? "line-through text-muted-foreground" : ""
-                }`}
-              >
-                {task.description}
-              </p>
-              <p className="text-[10px] text-muted-foreground flex items-center gap-1">
-                <Calendar className="w-3 h-3" />
-                {new Date(task.end_date).toLocaleDateString("es-ES", {
-                  day: "2-digit",
-                  month: "short",
-                  year: "numeric",
-                })}
-              </p>
+            <p
+              className={`text-sm font-medium leading-snug ${
+                task.fulfilled ? "line-through text-muted-foreground" : ""
+              }`}
+            >
+              {task.description}
+            </p>
+            <div className="flex items-center gap-1 text-xs text-muted-foreground whitespace-nowrap">
+              <Calendar className="w-3.5 h-3.5" />
+              {new Date(task.end_date).toLocaleDateString("es-ES", {
+                day: "numeric",
+                month: "short",
+              })}
             </div>
           </div>
         ))}
