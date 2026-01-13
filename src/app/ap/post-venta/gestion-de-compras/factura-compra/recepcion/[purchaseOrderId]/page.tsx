@@ -24,12 +24,14 @@ import { usePurchaseOrderProductsById } from "@/features/ap/post-venta/gestion-c
 import { Button } from "@/components/ui/button.tsx";
 import { ArrowLeft, Plus } from "lucide-react";
 import { Card } from "@/components/ui/card.tsx";
+import { PURCHASE_ORDER_PRODUCT } from "@/features/ap/post-venta/gestion-compras/factura-compra/lib/purchaseOrderProducts.constants";
 
 export default function ReceptionsProductsPage() {
   const { checkRouteExists, isLoadingModule } = useCurrentModule();
   const [deleteId, setDeleteId] = useState<number | null>(null);
-  const { MODEL, ROUTE_ADD, ROUTE_UPDATE, ABSOLUTE_ROUTE } = RECEPTION;
-  const permissions = useModulePermissions("orden-compra-producto");
+  const { MODEL, ROUTE_ADD, ROUTE_UPDATE } = RECEPTION;
+  const { ROUTE, ABSOLUTE_ROUTE } = PURCHASE_ORDER_PRODUCT;
+  const permissions = useModulePermissions(ROUTE);
   const navigate = useNavigate();
   const { purchaseOrderId } = useParams<{ purchaseOrderId: string }>();
   const purchaseOrderIdNum = purchaseOrderId
@@ -64,7 +66,7 @@ export default function ReceptionsProductsPage() {
   };
 
   if (isLoadingModule || isLoadingPurchaseOrder) return <PageSkeleton />;
-  if (!checkRouteExists("orden-compra-producto")) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) return <NotFound />;
   if (!purchaseOrder) return <NotFound />;
 
   return (

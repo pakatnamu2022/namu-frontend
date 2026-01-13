@@ -1,3 +1,4 @@
+import { VehiclePurchaseOrderResource } from "@/features/ap/comercial/ordenes-compra-vehiculo/lib/vehiclePurchaseOrder.interface";
 import { SuppliersResource } from "@/features/ap/comercial/proveedores/lib/suppliers.interface";
 import { WarehouseResource } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.interface";
 import { CurrencyTypesResource } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.interface";
@@ -34,6 +35,7 @@ export interface SupplierOrderResource {
   warehouse_id: number;
   type_currency_id: number;
   created_by: number;
+  created_by_name: string;
   order_date: string;
   order_number: string;
   supply_type: string;
@@ -45,6 +47,7 @@ export interface SupplierOrderResource {
   sede?: SedeResource;
   warehouse?: WarehouseResource;
   type_currency?: CurrencyTypesResource;
+  invoice?: VehiclePurchaseOrderResource;
   details: SupplierOrderDetailsResource[];
 }
 

@@ -23,6 +23,7 @@ import { ReceptionResource } from "@/features/ap/post-venta/gestion-compras/rece
 import { ReceptionsProductsForm } from "@/features/ap/post-venta/gestion-compras/recepciones-producto/components/ReceptionsProductsForm.tsx";
 import { RECEPTION } from "@/features/ap/post-venta/gestion-compras/recepciones-producto/lib/receptionsProducts.constants.ts";
 import { usePurchaseOrderProductsById } from "@/features/ap/post-venta/gestion-compras/factura-compra/lib/purchaseOrderProducts.hook.ts";
+import { PURCHASE_ORDER_PRODUCT } from "@/features/ap/post-venta/gestion-compras/factura-compra/lib/purchaseOrderProducts.constants";
 
 export default function UpdateReceptionProductPage() {
   const { id, purchaseOrderId } = useParams<{
@@ -32,7 +33,8 @@ export default function UpdateReceptionProductPage() {
   const router = useNavigate();
   const queryClient = useQueryClient();
   const { currentView, checkRouteExists } = useCurrentModule();
-  const { MODEL, QUERY_KEY } = RECEPTION;
+  const { MODEL, QUERY_KEY, ABSOLUTE_ROUTE } = RECEPTION;
+  const { ROUTE } = PURCHASE_ORDER_PRODUCT;
 
   const purchaseOrderIdNum = purchaseOrderId
     ? parseInt(purchaseOrderId)
@@ -54,9 +56,7 @@ export default function UpdateReceptionProductPage() {
       await queryClient.invalidateQueries({
         queryKey: [QUERY_KEY, id],
       });
-      router(
-        `/ap/post-venta/gestion-de-compras/orden-compra-producto/recepcion/${purchaseOrderId}`
-      );
+      router(`${ABSOLUTE_ROUTE}/${purchaseOrderId}`);
     },
     onError: (error: any) => {
       const msg = error?.response?.data?.message || "";
@@ -113,7 +113,7 @@ export default function UpdateReceptionProductPage() {
   if (isLoadingAny) {
     return <FormSkeleton />;
   }
-  if (!checkRouteExists("orden-compra-producto")) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) return <NotFound />;
   if (!currentView) return <NotFound />;
 
   return (
@@ -128,11 +128,7 @@ export default function UpdateReceptionProductPage() {
         onSubmit={handleSubmit}
         isSubmitting={isPending}
         mode="update"
-        onCancel={() =>
-          router(
-            `/ap/post-venta/gestion-de-compras/orden-compra-producto/recepcion/${purchaseOrderId}`
-          )
-        }
+        onCancel={() => router(`${ABSOLUTE_ROUTE}/${purchaseOrderId}`)}
         purchaseOrderNumber={purchaseOrder.number}
         purchaseOrderItems={purchaseOrder.items || []}
       />

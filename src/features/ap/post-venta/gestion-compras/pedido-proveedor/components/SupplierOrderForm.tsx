@@ -59,7 +59,6 @@ import { usePurchaseRequestsDetailsPending } from "../../../taller/solicitud-com
 import { rejectPurchaseRequestDetail } from "../../../taller/solicitud-compra/lib/purchaseRequest.actions";
 
 const SUPPLY_TYPE_OPTIONS = [
-  { label: "Stock", value: "STOCK" },
   { label: "Lima", value: "LIMA" },
   { label: "Importación", value: "IMPORTACION" },
 ];
@@ -238,6 +237,14 @@ export const SupplierOrderForm = ({
         form.getValues(`details.${existingItemIndex}.quantity`) || 0;
       const newQuantity = currentQuantity + parseFloat(requestDetail.quantity);
       form.setValue(`details.${existingItemIndex}.quantity`, newQuantity);
+
+      // Setear el unit_measurement_id si viene en el requestDetail
+      if (requestDetail.unit_measurement_id) {
+        form.setValue(
+          `details.${existingItemIndex}.unit_measurement_id`,
+          requestDetail.unit_measurement_id.toString()
+        );
+      }
 
       // Recalcular precio unitario
       const itemTotal =
@@ -650,6 +657,17 @@ export const SupplierOrderForm = ({
                                     })}
                                     perPage={10}
                                     debounceMs={500}
+                                    onValueChange={(_, selectedProduct) => {
+                                      // Setear el unit_measurement_id del producto seleccionado
+                                      if (
+                                        selectedProduct?.unit_measurement_id
+                                      ) {
+                                        form.setValue(
+                                          `details.${index}.unit_measurement_id`,
+                                          selectedProduct.unit_measurement_id.toString()
+                                        );
+                                      }
+                                    }}
                                   />
                                 </TableCell>
                                 <TableCell className="align-middle p-1.5">

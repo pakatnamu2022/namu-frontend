@@ -1,6 +1,6 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-import { Pencil } from "lucide-react";
+import { Pencil, Eye } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { PurchaseRequestResource } from "../lib/purchaseRequest.interface";
 import { Badge } from "@/components/ui/badge";
@@ -13,6 +13,7 @@ export type PurchaseRequestColumns = ColumnDef<PurchaseRequestResource>;
 interface Props {
   onDelete: (id: number) => void;
   onUpdate: (id: number) => void;
+  onViewDetail?: (purchaseRequest: PurchaseRequestResource) => void;
   permissions: {
     canUpdate: boolean;
     canDelete: boolean;
@@ -22,6 +23,7 @@ interface Props {
 export const purchaseRequestColumns = ({
   onUpdate,
   onDelete,
+  onViewDetail,
   permissions,
 }: Props): PurchaseRequestColumns[] => [
   {
@@ -35,7 +37,7 @@ export const purchaseRequestColumns = ({
   },
   {
     accessorKey: "requested_date",
-    header: "Fecha Solicitada",
+    header: "Fecha Solicitud",
     cell: ({ getValue }) => {
       const date = getValue() as string;
       if (!date) return "-";
@@ -91,6 +93,18 @@ export const purchaseRequestColumns = ({
 
       return (
         <div className="flex items-center gap-2">
+          {onViewDetail && (
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-7"
+              tooltip="Ver Detalle"
+              onClick={() => onViewDetail(row.original)}
+            >
+              <Eye className="size-5" />
+            </Button>
+          )}
+
           {permissions.canUpdate && (
             <Button
               variant="outline"
