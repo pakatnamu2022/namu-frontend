@@ -2,12 +2,17 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, Trash2, Calendar, Target, Award, X } from "lucide-react";
+import {
+  Plus,
+  Trash2,
+  Target,
+  Award,
+  X,
+  FileText,
+  ListChecks,
+} from "lucide-react";
 import DatePicker from "@/shared/components/DatePicker";
 import ObjectivesCompetencesSheet, {
   type SelectedItem,
@@ -21,6 +26,9 @@ import {
 } from "@/core/core.function";
 import { DEVELOPMENT_PLAN } from "@/features/gp/gestionhumana/plan-desarrollo/lib/developmentPlan.constants";
 import { Badge } from "@/components/ui/badge";
+import { GroupFormSection } from "@/shared/components/GroupFormSection";
+import { FormInput } from "@/shared/components/FormInput";
+import { Label } from "@/components/ui/label";
 
 interface Task {
   id: string;
@@ -137,72 +145,67 @@ export default function DevelopmentPlanForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Título del Plan */}
-      <div className="space-y-2">
-        <Label htmlFor="title">Título del Plan de Desarrollo</Label>
-        <Input
-          id="title"
-          placeholder="Ingresa el título del plan..."
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          maxLength={255}
-        />
-        <p className="text-xs text-muted-foreground text-right">
-          {title.length}/255
-        </p>
-      </div>
-
-      {/* Descripción */}
-      <div className="space-y-2">
-        <Label htmlFor="description">
-          Descripción <span className="text-red-500">*</span>
-        </Label>
-        <Textarea
-          id="description"
-          placeholder="Describe el plan de desarrollo..."
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          rows={4}
-          maxLength={500}
-          required
-        />
-        <p className="text-xs text-muted-foreground text-right">
-          {description.length}/500
-        </p>
-      </div>
-
-      {/* Intervalo de Duración */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base flex items-center gap-2">
-            <Calendar className="w-4 h-4" />
-            Intervalo de Duración
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <DatePicker
-            label="Fecha de Inicio"
-            placeholder="Selecciona la fecha de inicio"
-            value={startDate}
-            onChange={setStartDate}
-            disabledRange={endDate ? { after: endDate } : undefined}
+      {/* Información General */}
+      <GroupFormSection
+        title="Información General"
+        icon={FileText}
+        cols={{ sm: 1, md: 2, lg: 2 }}
+      >
+        <div className="col-span-full">
+          <FormInput
+            name="title"
+            label="Título del Plan de Desarrollo"
+            placeholder="Ingresa el título del plan..."
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            maxLength={255}
           />
-          <DatePicker
-            label="Fecha de Fin"
-            placeholder="Selecciona la fecha de fin"
-            value={endDate}
-            onChange={setEndDate}
-            disabledRange={startDate ? { before: startDate } : undefined}
+          <p className="text-xs text-muted-foreground text-right mt-1">
+            {title.length}/255
+          </p>
+        </div>
+
+        <div className="col-span-full space-y-2">
+          <Label htmlFor="description">
+            Descripción <span className="text-red-500">*</span>
+          </Label>
+          <Textarea
+            id="description"
+            placeholder="Describe el plan de desarrollo..."
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            rows={4}
+            maxLength={500}
+            required
           />
-        </CardContent>
-      </Card>
+          <p className="text-xs text-muted-foreground text-right">
+            {description.length}/500
+          </p>
+        </div>
+
+        <DatePicker
+          label="Fecha de Inicio"
+          placeholder="Selecciona la fecha de inicio"
+          value={startDate}
+          onChange={setStartDate}
+          disabledRange={endDate ? { after: endDate } : undefined}
+        />
+        <DatePicker
+          label="Fecha de Fin"
+          placeholder="Selecciona la fecha de fin"
+          value={endDate}
+          onChange={setEndDate}
+          disabledRange={startDate ? { before: startDate } : undefined}
+        />
+      </GroupFormSection>
 
       {/* Asociar Objetivos y/o Competencias */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">¿Qué trabajará este plan?</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
+      <GroupFormSection
+        title="¿Qué trabajará este plan?"
+        icon={Target}
+        cols={{ sm: 1, md: 1, lg: 1 }}
+      >
+        <div className="space-y-4">
           <div className="flex items-center space-x-2">
             <Checkbox
               id="noAssociate"
@@ -307,23 +310,24 @@ export default function DevelopmentPlanForm({
               )}
             </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </GroupFormSection>
 
       {/* Agregar Tareas */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Tareas</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
+      <GroupFormSection
+        title="Tareas"
+        icon={ListChecks}
+        cols={{ sm: 1, md: 1, lg: 1 }}
+      >
+        <div className="space-y-4 col-span-full">
           {/* Formulario para agregar nueva tarea */}
           <div className="border rounded-lg p-4 space-y-4 bg-muted/30">
             <h4 className="text-sm font-medium">Agregar Nueva Tarea</h4>
             <div className="flex flex-col sm:flex-row gap-3 items-end">
-              <div className="flex-1 space-y-2">
-                <Label htmlFor="taskDescription">Descripción</Label>
-                <Input
-                  id="taskDescription"
+              <div className="flex-1">
+                <FormInput
+                  name="taskDescription"
+                  label="Descripción"
                   placeholder="Descripción de la tarea..."
                   value={newTaskDescription}
                   onChange={(e) => setNewTaskDescription(e.target.value)}
@@ -331,11 +335,9 @@ export default function DevelopmentPlanForm({
                   maxLength={500}
                 />
               </div>
-              <div className="space-y-2 w-full sm:w-64">
-                <Label htmlFor="taskEndDate" className="text-sm font-medium">
-                  Fecha Fin
-                </Label>
+              <div className="w-full sm:w-64">
                 <DatePicker
+                  label="Fecha Fin"
                   placeholder="Selecciona la fecha fin"
                   value={newTaskEndDate}
                   onChange={setNewTaskEndDate}
@@ -404,8 +406,8 @@ export default function DevelopmentPlanForm({
               </div>
             </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </GroupFormSection>
 
       {/* Botones de acción */}
       <div className="flex gap-4 pt-4">

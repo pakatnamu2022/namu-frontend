@@ -44,6 +44,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
 import type { DevelopmentPlanResource } from "../lib/developmentPlan.interface";
 import { useAuthStore } from "@/features/auth/lib/auth.store";
+import EmptyState from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/components/EmptyState";
 
 interface DevelopmentPlanListProps {
   personId: number;
@@ -184,19 +185,11 @@ export default function DevelopmentPlanList({
 
   if (plans.length === 0) {
     return (
-      <Card>
-        <CardContent className="py-12">
-          <div className="text-center text-muted-foreground">
-            <CheckCircle2 className="w-12 h-12 mx-auto mb-4 opacity-50" />
-            <p className="text-lg font-medium">
-              No hay planes de desarrollo registrados
-            </p>
-            <p className="text-sm mt-2">
-              Crea tu primer plan de desarrollo haciendo clic en "Crear Plan"
-            </p>
-          </div>
-        </CardContent>
-      </Card>
+      <EmptyState
+        title="No hay planes de desarrollo registrados"
+        description="Crea tu primer plan de desarrollo haciendo clic en 'Crear Plan'"
+        icon={Target}
+      />
     );
   }
 
