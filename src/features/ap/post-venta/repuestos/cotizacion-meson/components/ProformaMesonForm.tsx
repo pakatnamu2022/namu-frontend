@@ -103,9 +103,7 @@ function ProductDetailItem({
             control={form.control}
             useQueryHook={useProduct}
             mapOptionFn={(product) => ({
-              label: `${product.code} ${product.name}(${
-                product.unit_measurement_name || "UND"
-              })`,
+              label: `${product.code} - ${product.name}`,
               value: product.id.toString(),
             })}
             perPage={10}
@@ -116,8 +114,8 @@ function ProductDetailItem({
           {currentProductStock && productId && (
             <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded-md">
               <div className="flex items-center gap-1 mb-1">
-                <Warehouse className="h-3 w-3 text-blue-600" />
-                <span className="text-xs font-semibold text-blue-900">
+                <Warehouse className="h-3 w-3 text-primary" />
+                <span className="text-xs font-semibold text-primary">
                   Stock Disponible
                 </span>
               </div>
@@ -137,7 +135,7 @@ function ProductDetailItem({
                         {warehouse.quantity_in_transit > 0 && (
                           <>
                             <span className="mx-1">•</span>
-                            <span className="text-blue-600 font-semibold">
+                            <span className="text-primary font-semibold">
                               {warehouse.quantity_in_transit}
                             </span>
                             <span className="text-gray-500 text-xs">
@@ -324,8 +322,8 @@ function ProductDetailItem({
         {currentProductStock && productId && (
           <div className="p-2 bg-blue-50 border border-blue-200 rounded-md">
             <div className="flex items-center gap-1 mb-2">
-              <Warehouse className="h-3 w-3 text-blue-600" />
-              <span className="text-xs font-semibold text-blue-900">
+              <Warehouse className="h-3 w-3 text-primary" />
+              <span className="text-xs font-semibold text-primary">
                 Stock Disponible
               </span>
             </div>
@@ -349,7 +347,7 @@ function ProductDetailItem({
                       {warehouse.quantity_in_transit > 0 && (
                         <span>
                           <span className="text-gray-500">Trán:</span>
-                          <span className="ml-1 text-blue-600 font-semibold">
+                          <span className="ml-1 text-primary font-semibold">
                             {warehouse.quantity_in_transit}
                           </span>
                         </span>

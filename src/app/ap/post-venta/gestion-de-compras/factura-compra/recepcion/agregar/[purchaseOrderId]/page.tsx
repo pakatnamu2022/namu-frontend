@@ -18,11 +18,13 @@ import { ReceptionsProductsForm } from "@/features/ap/post-venta/gestion-compras
 import { RECEPTION } from "@/features/ap/post-venta/gestion-compras/recepciones-producto/lib/receptionsProducts.constants.ts";
 import { usePurchaseOrderProductsById } from "@/features/ap/post-venta/gestion-compras/factura-compra/lib/purchaseOrderProducts.hook.ts";
 import PageSkeleton from "@/shared/components/PageSkeleton.tsx";
+import { PURCHASE_ORDER_PRODUCT } from "@/features/ap/post-venta/gestion-compras/factura-compra/lib/purchaseOrderProducts.constants";
 
 export default function AddReceptionProductPage() {
   const router = useNavigate();
   const { currentView, checkRouteExists } = useCurrentModule();
-  const { MODEL } = RECEPTION;
+  const { MODEL, ABSOLUTE_ROUTE } = RECEPTION;
+  const { ROUTE } = PURCHASE_ORDER_PRODUCT;
   const { purchaseOrderId } = useParams<{ purchaseOrderId: string }>();
   const purchaseOrderIdNum = purchaseOrderId
     ? parseInt(purchaseOrderId)
@@ -35,9 +37,7 @@ export default function AddReceptionProductPage() {
     mutationFn: storeReception,
     onSuccess: () => {
       successToast(SUCCESS_MESSAGE(MODEL, "create"));
-      router(
-        `/ap/post-venta/gestion-de-compras/orden-compra-producto/recepcion/${purchaseOrderId}`
-      );
+      router(`${ABSOLUTE_ROUTE}/${purchaseOrderId}`);
     },
     onError: (error: any) => {
       const msg = error?.response?.data?.message || "";
@@ -50,7 +50,7 @@ export default function AddReceptionProductPage() {
   };
 
   if (isLoadingPurchaseOrder) return <PageSkeleton />;
-  if (!checkRouteExists("orden-compra-producto")) return <NotFound />;
+  if (!checkRouteExists(ROUTE)) return <NotFound />;
   if (!currentView) return <NotFound />;
   if (!purchaseOrder) return <NotFound />;
 
@@ -77,11 +77,7 @@ export default function AddReceptionProductPage() {
         onSubmit={handleSubmit}
         isSubmitting={isPending}
         mode="create"
-        onCancel={() =>
-          router(
-            `/ap/post-venta/gestion-de-compras/orden-compra-producto/recepcion/${purchaseOrderId}`
-          )
-        }
+        onCancel={() => router(`${ABSOLUTE_ROUTE}/${purchaseOrderId}`)}
         purchaseOrderNumber={purchaseOrder.number}
         purchaseOrderItems={purchaseOrder.items}
       />
