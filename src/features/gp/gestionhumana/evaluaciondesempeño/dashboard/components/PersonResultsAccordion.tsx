@@ -173,9 +173,9 @@ const PersonResultsAccordion: React.FC<PersonResultsAccordionProps> = ({
         accessorKey: "total_progress.completion_rate",
         header: "Progreso Total",
         cell: ({ row }) => {
-          const percentage =
-            Number(row.original.total_progress.completion_rate.toFixed(2)) *
-            100;
+          const percentage = Number(
+            row.original.total_progress.completion_rate.toFixed(2)
+          );
           return (
             <div className="space-y-1 min-w-[180px]">
               <div className="flex justify-between items-center">
@@ -193,31 +193,31 @@ const PersonResultsAccordion: React.FC<PersonResultsAccordionProps> = ({
           );
         },
       },
-      {
-        accessorKey: "objectivesPercentage",
-        header: "Objetivos",
-        cell: ({ row }) => {
-          if (!row.original.hasObjectives) {
-            return <span className="text-xs text-muted-foreground">N/A</span>;
-          }
-          const percentage = row.original.objectivesPercentage;
-          return (
-            <div className="space-y-1 min-w-[180px]">
-              <div className="flex justify-between items-center">
-                <span className="text-xs font-medium">Objetivos</span>
-                <span className="text-xs text-muted-foreground">
-                  {percentage.toFixed(0)}%
-                </span>
-              </div>
-              <Progress
-                value={percentage}
-                className="h-2"
-                indicatorClassName={getProgressColor(percentage)}
-              />
-            </div>
-          );
-        },
-      },
+      // {
+      //   accessorKey: "objectivesPercentage",
+      //   header: "Objetivos",
+      //   cell: ({ row }) => {
+      //     if (!row.original.hasObjectives) {
+      //       return <span className="text-xs text-muted-foreground">N/A</span>;
+      //     }
+      //     const percentage = row.original.objectivesPercentage;
+      //     return (
+      //       <div className="space-y-1 min-w-[180px]">
+      //         <div className="flex justify-between items-center">
+      //           <span className="text-xs font-medium">Objetivos</span>
+      //           <span className="text-xs text-muted-foreground">
+      //             {percentage.toFixed(0)}%
+      //           </span>
+      //         </div>
+      //         <Progress
+      //           value={percentage}
+      //           className="h-2"
+      //           indicatorClassName={getProgressColor(percentage)}
+      //         />
+      //       </div>
+      //     );
+      //   },
+      // },
       {
         accessorKey: "result",
         header: "Resultado",

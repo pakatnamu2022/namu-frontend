@@ -21,9 +21,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       }
     >
       <SidebarLeft />
-      <SidebarInset className="bg-linear-to-br from-slate-50 to-blue-50/30 dark:from-background dark:to-background">
+      <SidebarInset className="bg-background">
         <Header />
-        <div className="flex gap-8 w-full h-[calc(100vh-3.5rem)] overflow-auto">
+        <div className="flex gap-8 w-full h-[calc(100vh-4.5rem)] overflow-auto">
           <div className="p-3 w-full">{children}</div>
         </div>
       </SidebarInset>
@@ -33,7 +33,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
 function SidebarLeft({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
-    <Sidebar {...props}>
+    <Sidebar {...props} variant="inset">
       <SidebarContent>
         <ProfileCard variant="sidebar" />
       </SidebarContent>

@@ -39,9 +39,12 @@ export default function PerformanceEvaluationPage({ id }: { id?: number }) {
   const [selectedCardType, setSelectedCardType] = useState<KPICardType | null>(
     null
   );
+  const [shouldRecalculate, setShouldRecalculate] = useState(false);
 
   // Always call hooks unconditionally
-  const evaluationByIdQuery = useEvaluation(id);
+  const evaluationByIdQuery = useEvaluation(id, {
+    recalculate: shouldRecalculate ? 1 : undefined,
+  });
   const activeEvaluationQuery = useActivePerformanceEvaluation();
 
   // Use the appropriate data based on whether id is provided
@@ -114,55 +117,57 @@ export default function PerformanceEvaluationPage({ id }: { id?: number }) {
 
   const progressStats: ProgressStats = evaluationData.progress_stats!;
 
+  const handleRefresh = async () => {
+    setShouldRecalculate(true);
+    await evaluationQuery.refetch();
+    setShouldRecalculate(false);
+  };
+
   return (
     <PageWrapper>
-      <div className="max-w-7xl mx-auto space-y-6">
-        <EvaluationHeader
-          onRefresh={evaluationQuery.refetch}
-          refetching={evaluationQuery.isRefetching}
-          evaluationData={evaluationData}
-          onDownloadReport={handleDownloadReport}
-        />
+      <EvaluationHeader
+        onRefresh={handleRefresh}
+        refetching={evaluationQuery.isRefetching}
+        evaluationData={evaluationData}
+        onDownloadReport={handleDownloadReport}
+      />
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="md:col-span-2">
-            <ProgressChart progressStats={progressStats} />
-          </div>
-
-          <KPICards
-            progressStats={progressStats}
-            selectedCardType={selectedCardType}
-            onCardClick={handleCardClick}
-          />
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="md:col-span-2">
+          <ProgressChart progressStats={progressStats} />
         </div>
 
-        {selectedCardType && (
-          <Accordion type="single" collapsible value={selectedCardType}>
-            <AccordionItem value={selectedCardType}>
-              <AccordionTrigger className="text-lg font-semibold">
-                {getKPITitle(selectedCardType, progressStats)}
-              </AccordionTrigger>
-              <AccordionContent>
-                <PersonResultsAccordion
-                  data={personResults}
-                  isLoading={isLoadingPersons}
-                  error={personsError}
-                />
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
-        )}
+        <KPICards
+          progressStats={progressStats}
+          selectedCardType={selectedCardType}
+          onCardClick={handleCardClick}
+        />
+      </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <ParticipationChart progressStats={progressStats} />
-          <EvaluationResultsChart
-            resultsStats={evaluationData?.results_stats}
-          />
-          {/* <ConfigurationCard
+      {selectedCardType && (
+        <Accordion type="single" collapsible value={selectedCardType}>
+          <AccordionItem value={selectedCardType}>
+            <AccordionTrigger className="text-lg font-semibold">
+              {getKPITitle(selectedCardType, progressStats)}
+            </AccordionTrigger>
+            <AccordionContent>
+              <PersonResultsAccordion
+                data={personResults}
+                isLoading={isLoadingPersons}
+                error={personsError}
+              />
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+      )}
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <ParticipationChart progressStats={progressStats} />
+        <EvaluationResultsChart resultsStats={evaluationData?.results_stats} />
+        {/* <ConfigurationCard
             evaluationData={evaluationData}
             progressStats={progressStats}
           /> */}
-        </div>
       </div>
     </PageWrapper>
   );

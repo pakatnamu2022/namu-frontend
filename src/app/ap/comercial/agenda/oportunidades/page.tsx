@@ -54,6 +54,7 @@ import {
   useCalendarMonth,
   useCalendarYear,
 } from "@/shared/components/CalendarGrid";
+import PageWrapper from "@/shared/components/PageWrapper";
 
 export default function OpportunitiesKanbanPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -265,7 +266,7 @@ export default function OpportunitiesKanbanPage() {
   if (!currentView) notFound();
 
   return (
-    <div className="space-y-4 h-screen flex flex-col">
+    <PageWrapper>
       <HeaderTableWrapper>
         <TitleComponent
           title="Tablero de Oportunidades"
@@ -273,7 +274,7 @@ export default function OpportunitiesKanbanPage() {
           icon="Target"
         />
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 w-full">
           <OpportunityActions
             canViewAllUsers={canViewAdvisors}
             selectedAdvisorId={selectedAdvisorId}
@@ -411,6 +412,6 @@ export default function OpportunitiesKanbanPage() {
           </div>
         </div>
       )}
-    </div>
+    </PageWrapper>
   );
 }

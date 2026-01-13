@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams } from 'react-router-dom';
+import { useParams } from "react-router-dom";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import TitleComponent from "@/shared/components/TitleComponent";
 import DataTablePagination from "@/shared/components/DataTablePagination";
@@ -34,9 +34,8 @@ import { Badge } from "@/components/ui/badge";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { notFound } from "@/shared/hooks/useNotFound";
 
-
 export default function CyclePersonDetailPage() {
-    const { id } = useParams();
+  const { id } = useParams();
   // const router = useNavigate();
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
@@ -91,10 +90,8 @@ export default function CyclePersonDetailPage() {
     refetch: refetchCategoriesCycle,
   } = useCategoriesInCycle(idCycle);
 
-  const {
-    data: chiefs = [],
-    isLoading: isLoadingChiefs,
-  } = useChiefsInCycle(idCycle);
+  const { data: chiefs = [], isLoading: isLoadingChiefs } =
+    useChiefsInCycle(idCycle);
 
   const handleAssign = async (data: CycleCategoryDetailFormType) => {
     if (!id) return;
@@ -122,6 +119,16 @@ export default function CyclePersonDetailPage() {
       successToast("Meta actualizada correctamente.");
     } catch (error) {
       errorToast("Error al actualizar la meta.");
+    }
+  };
+
+  const handleUpdateWeightCell = async (id: number, weight: number) => {
+    try {
+      await updateGoalCyclePersonDetail(id, { weight });
+      await refetch();
+      successToast("Peso actualizado correctamente.");
+    } catch (error) {
+      errorToast("Error al actualizar el peso.");
     }
   };
 
@@ -174,6 +181,7 @@ export default function CyclePersonDetailPage() {
         columns={CyclePersonDetailColumns({
           onDelete: setDeleteId,
           onUpdateGoal: handleUpdateGoalCell,
+          onUpdateWeight: handleUpdateWeightCell,
         })}
         data={data?.data || []}
       >

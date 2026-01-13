@@ -1,7 +1,7 @@
 "use client";
 
 import GeneralSheet from "@/shared/components/GeneralSheet";
-import { useIsTablet } from "@/hooks/use-mobile";
+import { useIsTablet } from "@/hooks/use-tablet";
 import { WorkOrderPlanningResource } from "../../planificacion-orden-trabajo/lib/workOrderPlanning.interface";
 import {
   Form,

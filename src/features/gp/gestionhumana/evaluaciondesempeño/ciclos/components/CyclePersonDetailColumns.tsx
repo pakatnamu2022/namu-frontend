@@ -10,9 +10,11 @@ export type CyclePersonDetailColumn = ColumnDef<CyclePersonDetailResource>;
 export const CyclePersonDetailColumns = ({
   onDelete,
   onUpdateGoal,
+  onUpdateWeight,
 }: {
   onDelete: (id: number) => void;
   onUpdateGoal: (id: number, goal: number) => void;
+  onUpdateWeight: (id: number, weight: number) => void;
 }): CyclePersonDetailColumn[] => [
   {
     accessorKey: "person",
@@ -62,8 +64,12 @@ export const CyclePersonDetailColumns = ({
   {
     accessorKey: "weight",
     header: "Peso",
-    cell: ({ getValue }) => (
-      <span className="font-semibold">{getValue() as string}</span>
+    cell: ({ row }) => (
+      <EditableCell
+        id={row.original.id}
+        value={row.original.weight}
+        onUpdate={onUpdateWeight}
+      />
     ),
   },
   {

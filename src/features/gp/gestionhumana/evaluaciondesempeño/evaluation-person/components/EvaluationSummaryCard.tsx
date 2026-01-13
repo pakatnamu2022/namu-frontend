@@ -1,4 +1,3 @@
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   TrendingUp,
@@ -80,7 +79,7 @@ function MetricCard({
           <ModalParameter parameter={parameter} />
         </div>
 
-        <div className="flex flex-col items-center justify-center gap-2">
+        <div className="flex items-end justify-center gap-2">
           <Badge
             variant="ghost"
             className={cn("text-2xl font-bold px-4 py-2", scaleClass)}
@@ -162,88 +161,55 @@ export default function EvaluationSummaryCard({ evaluationResult }: Props) {
   const competenceMaxScore = evaluationResult.statistics.competences.max_score;
 
   return (
-    <Card className="mb-4">
-      <CardContent className="p-4">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          {evaluationResult.objectivesPercentage > 0 && (
-            <MetricCard
-              icon={CheckCircle2}
-              title="Objetivos"
-              score={evaluationResult.objectivesResult}
-              maxScore={evaluationResult.statistics.objectives.max_score}
-              labelRange={evaluationResult.statistics.objectives.label_range}
-              percentage={evaluationResult.objectivesPercentage}
-              parameter={evaluationResult.objectiveParameter}
-              indexRange={
-                evaluationResult.statistics.objectives.index_range_result
-              }
-              completed={evaluationResult.statistics.objectives.completed}
-              total={evaluationResult.statistics.objectives.total}
-              completionRate={
-                evaluationResult.statistics.objectives.completion_rate
-              }
-            />
-          )}
+    <div className="grid grid-cols-1 gap-4 h-fit">
+      <MetricCard
+        icon={TrendingUp}
+        title="Resultado Final"
+        score={evaluationResult.result}
+        maxScore={evaluationResult.maxFinalParameter}
+        labelRange={evaluationResult.statistics.final.label_range}
+        parameter={evaluationResult.finalParameter}
+        indexRange={evaluationResult.statistics.final.index_range_result}
+        isFinal
+      />
 
-          {evaluationResult.competencesPercentage > 0 && (
-            <MetricCard
-              icon={Target}
-              title="Competencias"
-              score={evaluationResult.statistics.competences.average_score}
-              maxScore={competenceMaxScore}
-              labelRange={evaluationResult.statistics.competences.label_range}
-              percentage={evaluationResult.competencesPercentage}
-              parameter={evaluationResult.competenceParameter}
-              indexRange={
-                evaluationResult.statistics.competences.index_range_result
-              }
-              completed={evaluationResult.statistics.competences.completed}
-              total={evaluationResult.statistics.competences.total}
-              completionRate={
-                evaluationResult.statistics.competences.completion_rate
-              }
-            />
-          )}
+      {evaluationResult.objectivesPercentage > 0 && (
+        <MetricCard
+          icon={CheckCircle2}
+          title="Objetivos"
+          score={evaluationResult.objectivesResult}
+          maxScore={evaluationResult.statistics.objectives.max_score}
+          labelRange={evaluationResult.statistics.objectives.label_range}
+          percentage={evaluationResult.objectivesPercentage}
+          parameter={evaluationResult.objectiveParameter}
+          indexRange={evaluationResult.statistics.objectives.index_range_result}
+          completed={evaluationResult.statistics.objectives.completed}
+          total={evaluationResult.statistics.objectives.total}
+          completionRate={
+            evaluationResult.statistics.objectives.completion_rate
+          }
+        />
+      )}
 
-          <MetricCard
-            icon={TrendingUp}
-            title="Resultado Final"
-            score={evaluationResult.result}
-            maxScore={evaluationResult.maxFinalParameter}
-            labelRange={evaluationResult.statistics.final.label_range}
-            parameter={evaluationResult.finalParameter}
-            indexRange={evaluationResult.statistics.final.index_range_result}
-            isFinal
-          />
-        </div>
-
-        {evaluationResult.evaluation && (
-          <div className="mt-4 pt-4 border-t">
-            <div className="flex items-center justify-between text-sm">
-              <div className="flex items-center gap-4">
-                <Badge variant="outline">
-                  {evaluationResult.evaluation.typeEvaluationName}
-                </Badge>
-                <span className="text-muted-foreground">
-                  {evaluationResult.evaluation.period} -{" "}
-                  {evaluationResult.evaluation.cycle}
-                </span>
-              </div>
-              <Badge
-                variant={
-                  evaluationResult.evaluation.status === 2
-                    ? "secondary"
-                    : evaluationResult.evaluation.status === 1
-                    ? "default"
-                    : "tertiary"
-                }
-              >
-                {evaluationResult.evaluation.statusName}
-              </Badge>
-            </div>
-          </div>
-        )}
-      </CardContent>
-    </Card>
+      {evaluationResult.competencesPercentage > 0 && (
+        <MetricCard
+          icon={Target}
+          title="Competencias"
+          score={evaluationResult.statistics.competences.average_score}
+          maxScore={competenceMaxScore}
+          labelRange={evaluationResult.statistics.competences.label_range}
+          percentage={evaluationResult.competencesPercentage}
+          parameter={evaluationResult.competenceParameter}
+          indexRange={
+            evaluationResult.statistics.competences.index_range_result
+          }
+          completed={evaluationResult.statistics.competences.completed}
+          total={evaluationResult.statistics.competences.total}
+          completionRate={
+            evaluationResult.statistics.competences.completion_rate
+          }
+        />
+      )}
+    </div>
   );
 }

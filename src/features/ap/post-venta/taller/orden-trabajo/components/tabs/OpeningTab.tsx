@@ -14,10 +14,10 @@ import {
 import WorkOrderItemForm from "../../../orden-trabajo-item/components/WorkOrderItemForm";
 import { deleteWorkOrderItem } from "../../../orden-trabajo-item/lib/workOrderItem.actions";
 import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
-import { useIsTablet } from "@/hooks/use-mobile";
 import GeneralSheet from "@/shared/components/GeneralSheet";
 import { WORKER_ORDER_ITEM } from "../../../orden-trabajo-item/lib/workOrderItem.constants";
 import { errorToast, SUCCESS_MESSAGE, successToast } from "@/core/core.function";
+import { useIsTablet } from "@/hooks/use-tablet";
 
 const getGroupColor = (groupNumber: number) => {
   return GROUP_COLORS[groupNumber] || DEFAULT_GROUP_COLOR;

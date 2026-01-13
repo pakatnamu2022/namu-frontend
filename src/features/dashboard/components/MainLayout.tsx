@@ -29,7 +29,7 @@ export default function MainLayout({
       <SidebarLeft />
       <SidebarInset className="bg-muted/30">
         <Header />
-        <div className="p-3 flex gap-8 w-full h-[calc(100vh-3.5rem)] overflow-auto">
+        <div className="p-3 flex gap-8 w-full h-[calc(100vh-4.5rem)] overflow-auto">
           {children}
           <div
             className="w-80 h-fit rounded-lg bg-sidebar border-sidebar-border border xl:block hidden z-20 relative"
@@ -45,7 +45,7 @@ export default function MainLayout({
 
 function SidebarLeft({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
-    <Sidebar {...props}>
+    <Sidebar {...props} variant="inset">
       <SidebarContent>
         <ProfileCard variant="sidebar" />
       </SidebarContent>
