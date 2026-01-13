@@ -215,7 +215,7 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
                   value={selectedWarehouseForBulk}
                   onValueChange={setSelectedWarehouseForBulk}
                 >
-                  <SelectTrigger className="w-[200px]">
+                  <SelectTrigger className="w-[230px]">
                     <SelectValue placeholder="Seleccione almacén" />
                   </SelectTrigger>
                   <SelectContent>

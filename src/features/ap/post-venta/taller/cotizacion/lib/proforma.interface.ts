@@ -38,6 +38,7 @@ export interface OrderQuotationResource {
   status: string;
   customer_signature: string | null;
   has_sufficient_stock: boolean;
+  supply_type: "STOCK" | "LIMA" | "IMPORTACION";
 }
 
 export interface OrderQuotationRequest {

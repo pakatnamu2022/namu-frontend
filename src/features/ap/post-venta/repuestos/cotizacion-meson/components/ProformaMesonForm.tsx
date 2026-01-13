@@ -103,7 +103,7 @@ function ProductDetailItem({
             control={form.control}
             useQueryHook={useProduct}
             mapOptionFn={(product) => ({
-              label: `${product.name} (${
+              label: `${product.code} ${product.name}(${
                 product.unit_measurement_name || "UND"
               })`,
               value: product.id.toString(),
@@ -529,7 +529,7 @@ export default function ProformaMesonForm({
       area_id: AREA_PM_ID.MESON,
       vehicle_id: "",
       sede_id: "",
-      currency_id: "",
+      currency_id: CURRENCY_TYPE_IDS.SOLES,
       quotation_date: "",
       expiration_date: "",
       observations: "",

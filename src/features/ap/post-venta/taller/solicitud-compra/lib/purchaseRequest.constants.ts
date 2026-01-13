@@ -1,6 +1,15 @@
 import { type ModelComplete } from "@/core/core.interface.ts";
 import { PurchaseRequestResource } from "./purchaseRequest.interface";
 
+// Estados de solicitud de compra
+export const PURCHASE_REQUEST_STATUS = {
+  pending: "Pendiente",
+  approved: "Aprobado",
+  rejected: "Rechazado",
+} as const;
+
+export type PurchaseRequestStatus = keyof typeof PURCHASE_REQUEST_STATUS;
+
 // RUTAS PARA TALLER - SOLICITUD DE COMPRA
 const ROUTE = "solicitud-compra";
 const ABSOLUTE_ROUTE = `/ap/post-venta/taller/${ROUTE}`;

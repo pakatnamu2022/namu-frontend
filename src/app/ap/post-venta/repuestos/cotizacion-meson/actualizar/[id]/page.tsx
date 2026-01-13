@@ -71,6 +71,7 @@ export default function UpdateOrderQuotationMesonPage() {
       : "",
     observations: quotation.observations || "",
     currency_id: quotation.currency_id?.toString() || "",
+    supply_type: quotation.supply_type || "STOCK",
     details:
       quotation.details
         ?.filter((d) => d.item_type === "PRODUCT")

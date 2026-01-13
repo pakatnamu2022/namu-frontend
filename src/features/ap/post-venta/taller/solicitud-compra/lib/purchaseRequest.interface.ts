@@ -1,4 +1,5 @@
 import { type Links, type Meta } from "@/shared/lib/pagination.interface.ts";
+import { ProductResource } from "../../../gestion-productos/productos/lib/product.interface";
 
 export interface PurchaseRequestResponse {
   data: PurchaseRequestResource[];
@@ -21,6 +22,7 @@ export interface PurchaseRequestResource {
   status_color?: string;
   created_at: string;
   updated_at: string;
+  supply_type: "STOCK" | "LIMA" | "IMPORTACION";
   details?: PurchaseRequestDetailResource[];
 }
 
@@ -43,6 +45,7 @@ export interface PurchaseRequestDetailResource {
   product_code?: string;
   request_number?: string;
   requested_name?: string;
+  product?: ProductResource;
 }
 
 export interface PurchaseRequestRequest {
