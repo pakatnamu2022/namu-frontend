@@ -2,7 +2,6 @@
 
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import PageSkeleton from "@/shared/components/PageSkeleton";
-import TitleComponent from "@/shared/components/TitleComponent";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { useNavigate, useParams } from "react-router-dom";
 import { ORDER_QUOTATION_MESON } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.constants";
@@ -18,6 +17,8 @@ import {
 import { useState } from "react";
 import { useOrderQuotationById } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.hook";
 import { useQueryClient } from "@tanstack/react-query";
+import TitleFormComponent from "@/shared/components/TitleFormComponent";
+import FormWrapper from "@/shared/components/FormWrapper";
 
 export default function UpdateOrderQuotationMesonPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -91,10 +92,10 @@ export default function UpdateOrderQuotationMesonPage() {
   };
 
   return (
-    <div className="space-y-4">
-      <TitleComponent
+    <FormWrapper>
+      <TitleFormComponent
         title="Editar Cotización"
-        subtitle="Actualizar cotización de repuestos"
+        mode="edit"
         icon={currentView.icon}
       />
 
@@ -105,6 +106,6 @@ export default function UpdateOrderQuotationMesonPage() {
         mode="update"
         onCancel={handleCancel}
       />
-    </div>
+    </FormWrapper>
   );
 }

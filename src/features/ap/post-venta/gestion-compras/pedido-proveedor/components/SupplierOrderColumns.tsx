@@ -63,17 +63,6 @@ export const supplierOrderColumns = ({
   {
     accessorKey: "supply_type",
     header: "Tipo Abast.",
-    cell: ({ getValue }) => {
-      const value = getValue() as string;
-      const variants: Record<string, any> = {
-        STOCK: "default",
-        LIMA: "secondary",
-        IMPORTACION: "outline",
-      };
-      return (
-        <Badge variant={variants[value] || "default"}>{value || "N/A"}</Badge>
-      );
-    },
   },
   {
     accessorKey: "warehouse_id",

@@ -2,8 +2,7 @@ import { ModelComplete } from "@/core/core.interface";
 import { ReceptionResource } from "./receptionsProducts.interface";
 
 const ROUTE = "recepcion";
-const ABSOLUTE_ROUTE =
-  "/ap/post-venta/gestion-de-compras/orden-compra-producto";
+const ABSOLUTE_ROUTE = `/ap/post-venta/gestion-de-compras/factura-compra/${ROUTE}`;
 
 export const RECEPTION: ModelComplete<ReceptionResource> = {
   MODEL: {
@@ -16,8 +15,8 @@ export const RECEPTION: ModelComplete<ReceptionResource> = {
   QUERY_KEY: "purchase-receptions",
   ROUTE,
   ABSOLUTE_ROUTE,
-  ROUTE_ADD: `${ABSOLUTE_ROUTE}/${ROUTE}/agregar`,
-  ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/${ROUTE}/actualizar`,
+  ROUTE_ADD: `${ABSOLUTE_ROUTE}/agregar`,
+  ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/actualizar`,
 };
 
 export const RECEPTION_TYPES = [

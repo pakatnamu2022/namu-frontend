@@ -41,3 +41,10 @@ export const SUPPLY_TYPE = {
   LIMA: "LIMA",
   IMPORTACION: "IMPORTACION",
 };
+
+export const STATUS_ORDER_QUOTATION = {
+  OPEN: "Aperturado",
+  DISCARDED: "Descartado",
+  TO_BILL: "Por Facturar",
+  BILLED: "Facturado",
+};

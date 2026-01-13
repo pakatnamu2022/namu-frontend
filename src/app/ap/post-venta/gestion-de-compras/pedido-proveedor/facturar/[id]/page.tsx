@@ -18,6 +18,7 @@ import { PURCHASE_ORDER_PRODUCT } from "@/features/ap/post-venta/gestion-compras
 import { useSupplierOrderById } from "@/features/ap/post-venta/gestion-compras/pedido-proveedor/lib/supplierOrder.hook";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FileText, Package } from "lucide-react";
+import { SUPPLIER_ORDER } from "@/features/ap/post-venta/gestion-compras/pedido-proveedor/lib/supplierOrder.constants";
 
 export default function InvoiceSupplierOrderPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -26,7 +27,8 @@ export default function InvoiceSupplierOrderPage() {
   const supplierOrderId = params?.id ? Number(params.id) : 0;
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { MODEL, ROUTE, ABSOLUTE_ROUTE } = PURCHASE_ORDER_PRODUCT;
+  const { MODEL, ROUTE } = PURCHASE_ORDER_PRODUCT;
+  const { ABSOLUTE_ROUTE } = SUPPLIER_ORDER;
 
   // Consultar el pedido a proveedor
   const {

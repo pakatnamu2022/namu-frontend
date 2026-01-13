@@ -422,7 +422,8 @@ export default function PurchaseRequestForm({
                         label: () => (
                           <div className="flex items-center justify-between gap-2 w-full">
                             <span className="font-medium truncate">
-                              {inventory.product_name}
+                              {inventory.product.code} -{" "}
+                              {inventory.product.name}
                             </span>
                             <span
                               className={`text-xs font-semibold px-2 py-0.5 rounded shrink-0 ${
