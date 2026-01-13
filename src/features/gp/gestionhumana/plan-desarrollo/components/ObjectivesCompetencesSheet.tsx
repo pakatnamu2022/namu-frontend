@@ -1,8 +1,7 @@
 "use client";
 
 import GeneralSheet from "@/shared/components/GeneralSheet";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Target, Award } from "lucide-react";
+import { Target, Award, Calendar } from "lucide-react";
 import { useAllPeriods } from "../../evaluaciondesempeño/periodos/lib/period.hook";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import {
@@ -17,6 +16,8 @@ import { Form } from "@/components/ui/form";
 import { useMemo, useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
+import { GroupFormSection } from "@/shared/components/GroupFormSection";
+import EmptyState from "../../evaluaciondesempeño/evaluation-person/components/EmptyState";
 
 export interface SelectedItem {
   id: number;
@@ -152,6 +153,7 @@ export default function ObjectivesCompetencesSheet({
         open={open}
         onClose={onClose}
         title="Mis Objetivos y/o Competencias"
+        icon="Target"
         className="max-w-4xl!"
       >
         <FormSkeleton />
@@ -164,11 +166,17 @@ export default function ObjectivesCompetencesSheet({
       open={open}
       onClose={onClose}
       title="Mis Objetivos y/o Competencias"
+      subtitle="Selecciona los objetivos y competencias asociados al plan"
+      icon="Target"
       className="max-w-4xl!"
     >
       <div className="space-y-4 overflow-y-auto max-h-[calc(100vh-8rem)] pr-2">
         <Form {...form}>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <GroupFormSection
+            title="Filtros"
+            icon={Calendar}
+            cols={{ sm: 1, md: 2, lg: 2 }}
+          >
             <FormSelect
               name="period_id"
               label="Periodo"
@@ -193,31 +201,31 @@ export default function ObjectivesCompetencesSheet({
               strictFilter={true}
               disabled={!selectedPeriodId}
             />
-          </div>
+          </GroupFormSection>
 
-          {/* Card de Objetivos */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Target className="w-5 h-5" />
-                Objetivos
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
+          {/* Sección de Objetivos */}
+          <GroupFormSection
+            title="Objetivos"
+            icon={Target}
+            cols={{ sm: 1, md: 1, lg: 1 }}
+          >
+            <div className="col-span-full">
               {!selectedCycleId ? (
-                <div className="text-center text-muted-foreground py-8">
-                  <Target className="w-12 h-12 opacity-50 mx-auto mb-4" />
-                  <p>Selecciona un periodo y ciclo para ver los objetivos</p>
-                </div>
+                <EmptyState
+                  title="Selecciona un ciclo"
+                  description="Selecciona un periodo y ciclo para ver los objetivos"
+                  icon={Target}
+                />
               ) : isLoadingDetails ? (
                 <div className="text-center text-muted-foreground py-8">
                   <p>Cargando objetivos...</p>
                 </div>
               ) : objectives.length === 0 ? (
-                <div className="text-center text-muted-foreground py-8">
-                  <Target className="w-12 h-12 opacity-50 mx-auto mb-4" />
-                  <p>No se encontraron objetivos para este ciclo</p>
-                </div>
+                <EmptyState
+                  title="No se encontraron objetivos"
+                  description="No hay objetivos asignados para este ciclo"
+                  icon={Target}
+                />
               ) : (
                 <div className="space-y-2">
                   {objectives.map((objective) => (
@@ -252,37 +260,38 @@ export default function ObjectivesCompetencesSheet({
                   ))}
                 </div>
               )}
-            </CardContent>
-          </Card>
+            </div>
+          </GroupFormSection>
 
-          {/* Card de Competencias */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Award className="w-5 h-5" />
-                Competencias
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
+          {/* Sección de Competencias */}
+          <GroupFormSection
+            title="Competencias"
+            icon={Award}
+            cols={{ sm: 1, md: 1, lg: 1 }}
+          >
+            <div className="col-span-full">
               {!selectedCycleId ? (
-                <div className="text-center text-muted-foreground py-8">
-                  <Award className="w-12 h-12 opacity-50 mx-auto mb-4" />
-                  <p>Selecciona un periodo y ciclo para ver las competencias</p>
-                </div>
+                <EmptyState
+                  title="Selecciona un ciclo"
+                  description="Selecciona un periodo y ciclo para ver las competencias"
+                  icon={Award}
+                />
               ) : !selectedEvaluation ? (
-                <div className="text-center text-muted-foreground py-8">
-                  <Award className="w-12 h-12 opacity-50 mx-auto mb-4" />
-                  <p>Este ciclo no tiene una evaluación asociada</p>
-                </div>
+                <EmptyState
+                  title="Sin evaluación asociada"
+                  description="Este ciclo no tiene una evaluación asociada"
+                  icon={Award}
+                />
               ) : isLoadingCompetences ? (
                 <div className="text-center text-muted-foreground py-8">
                   <p>Cargando competencias...</p>
                 </div>
               ) : competences.length === 0 ? (
-                <div className="text-center text-muted-foreground py-8">
-                  <Award className="w-12 h-12 opacity-50 mx-auto mb-4" />
-                  <p>No se encontraron competencias para esta evaluación</p>
-                </div>
+                <EmptyState
+                  title="No se encontraron competencias"
+                  description="No hay competencias asignadas para esta evaluación"
+                  icon={Award}
+                />
               ) : (
                 <div className="space-y-2">
                   {competences.map((competence) => (
@@ -320,8 +329,8 @@ export default function ObjectivesCompetencesSheet({
                   ))}
                 </div>
               )}
-            </CardContent>
-          </Card>
+            </div>
+          </GroupFormSection>
 
           {/* Botones de acción */}
           <div className="flex gap-3 pt-4 sticky bottom-0 bg-background pb-2">

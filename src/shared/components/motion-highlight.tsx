@@ -512,7 +512,7 @@ function MotionHighlightItem({
 
           <div
             data-slot="motion-highlight-item"
-            className={cn("relative z-[1]", className)}
+            className={cn("relative z-1", className)}
             {...dataAttributes}
           >
             {children}

@@ -205,12 +205,12 @@ export function HierarchicalCategoryObjectivesModal({
             defaultValue="objectives"
             className="p-2 w-full h-full bg-muted rounded-lg"
           >
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList>
               <TabsTrigger value="objectives">Objetivos</TabsTrigger>
               <TabsTrigger value="asignations">Asignaciones</TabsTrigger>
             </TabsList>
             <TabsContents className="rounded-sm h-full bg-background w-full overflow-y-auto">
-              <TabsContent value="objectives" className="space-y-6 p-6">
+              <TabsContent value="objectives" className="space-y-6">
                 <div className="w-full flex justify-end mb-2 gap-2">
                   {!adding ? (
                     <Button variant="outline" size="sm" onClick={startAdd}>

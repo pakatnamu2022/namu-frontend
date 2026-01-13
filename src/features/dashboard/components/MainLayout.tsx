@@ -21,7 +21,7 @@ export default function MainLayout({
     <SidebarProvider
       style={
         {
-          "--sidebar-width": "20rem",
+          "--sidebar-width": "19rem",
           // "--sidebar-width-icon": SIDEBAR_WIDTH_ICON,
         } as React.CSSProperties
       }

@@ -31,13 +31,13 @@ export default function PersonTitleComponent({
   return (
     <div
       className={cn(
-        "flex flex-row gap-4 items-center md:items-center justify-between w-full md:w-full",
+        "flex flex-col md:flex-row gap-4 items-center md:items-center justify-between w-full md:w-full",
         className
       )}
     >
       <div
         className={cn(
-          "flex flex-row gap-4 items-center md:items-center w-full md:w-full",
+          "flex gap-2 md:gap-4 items-center md:items-center w-full md:w-full",
           className
         )}
       >
@@ -48,7 +48,7 @@ export default function PersonTitleComponent({
             size="icon"
           />
         )}
-        <Avatar className="h-12 w-12 rounded-lg">
+        <Avatar className="h-9 w-9 md:h-12 md:w-12 rounded-lg">
           <AvatarImage
             src={photo}
             alt={name}
@@ -59,15 +59,15 @@ export default function PersonTitleComponent({
           </AvatarFallback>
         </Avatar>
         <div className="flex flex-col items-start">
-          <h1 className="md:text-xl font-bold text-primary uppercase">
+          <h1 className="md:text-xl font-bold text-primary uppercase line-clamp-1">
             {name}
           </h1>
-          <p className="text-muted-foreground text-xs md:text-sm uppercase">
+          <p className="text-muted-foreground text-xs md:text-sm uppercase line-clamp-1">
             {position}
           </p>
         </div>
-        {children}
       </div>
+      <div className="flex w-full gap-2 md:justify-end">{children}</div>
     </div>
   );
 }

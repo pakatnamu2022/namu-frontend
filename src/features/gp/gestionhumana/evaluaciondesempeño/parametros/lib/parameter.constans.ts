@@ -30,12 +30,12 @@ export const PARAMETER_SCALES = [
 export type ParameterScale = (typeof PARAMETER_SCALES)[number];
 
 export const SCALE_TO_COLOR_MAP: Record<ParameterScale, string> = {
-  "bg-red-100 text-red-400": "#f87171", // red-400
-  "bg-orange-100 text-orange-400": "#fb923c", // orange-400
-  "bg-amber-100 text-amber-700": "#f59e0b", // amber-700
-  "bg-yellow-100 text-yellow-700": "#eab308", // yellow-700
-  "bg-green-100 text-green-700": "#22c55e", // green-700
-  "bg-emerald-100 text-emerald-700": "#10b981", // emerald-700
+  "bg-red-100 text-red-600": "#f87171", // red-400
+  "bg-orange-100 text-orange-600": "#fb923c", // orange-400
+  "bg-amber-100 text-amber-600": "#fbbf24", // amber-400
+  "bg-yellow-100 text-yellow-600": "#facc15", // yellow-400
+  "bg-green-100 text-green-600": "#4ade80", // green-400
+  "bg-emerald-100 text-emerald-600": "#34d399", // emerald-400
 };
 
 export const PARAMETER_TYPES = [

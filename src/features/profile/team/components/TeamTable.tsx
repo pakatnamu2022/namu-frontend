@@ -1,11 +1,13 @@
 import { DataTable } from "@/shared/components/DataTable";
 import { TeamColumns } from "./TeamColumns";
 import { EvaluationPersonResultResource } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/lib/evaluationPerson.interface";
+import { EvaluationResource } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluaciones/lib/evaluation.interface";
 import { TeamCard } from "./TeamCard";
 
 interface Props {
   columns: TeamColumns[];
   data: EvaluationPersonResultResource[];
+  evaluation?: EvaluationResource | null;
   children?: React.ReactNode;
   isLoading?: boolean;
   onEvaluate: (personId: number) => void;
@@ -15,6 +17,7 @@ interface Props {
 export default function TeamTable({
   columns,
   data,
+  evaluation,
   children,
   isLoading,
   onEvaluate,
@@ -32,7 +35,7 @@ export default function TeamTable({
           competencesResult: false,
         }}
         mobileCardRender={(row) => (
-          <TeamCard data={row} onEvaluate={onEvaluate} onHistory={onHistory} />
+          <TeamCard data={row} evaluation={evaluation} onEvaluate={onEvaluate} onHistory={onHistory} />
         )}
       >
         {children}

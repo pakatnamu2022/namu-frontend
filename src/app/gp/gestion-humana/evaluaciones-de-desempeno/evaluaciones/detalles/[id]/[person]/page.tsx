@@ -36,6 +36,13 @@ import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
 import { EVALUATION_OBJECTIVE } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluaciones/lib/evaluation.constans";
 import PageWrapper from "@/shared/components/PageWrapper";
+import {
+  getProgressBackgroundColor,
+  getProgressColor,
+  getVariantByCompletionRate,
+} from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/lib/evaluationPerson.function";
+import { Progress } from "@/components/ui/progress";
+import { cn } from "@/lib/utils";
 
 const { QUERY_KEY, MODEL, ABSOLUTE_ROUTE } = EVALUATION_PERSON;
 
@@ -177,7 +184,6 @@ export default function EvaluationDetailPersonPage() {
   return (
     <PageWrapper>
       <div className="space-y-4 p-0">
-        {/* Header principal */}
         <PersonTitleComponent
           name={evaluationPersonResult.person.name}
           position={evaluationPersonResult.person.position}
@@ -185,54 +191,69 @@ export default function EvaluationDetailPersonPage() {
           backButtonRoute={`${ABSOLUTE_ROUTE}/${selectedEvaluationId}`}
           backButtonName="Ver Evaluaciones"
         >
-          <div className="ml-auto text-right">
-            <div className="text-2xl font-bold text-primary">
-              {evaluationPersonResult.statistics.overall_completion_rate}%
+          <div className="flex gap-2 items-end">
+            <div className="flex flex-col gap-2 items-center">
+              <div className="flex flex-wrap items-center gap-2">
+                {isLoadingEvaluations ? (
+                  <Skeleton className="h-8 w-80" />
+                ) : (
+                  <SearchableSelect
+                    options={evaluations.map((evaluation) => ({
+                      value: evaluation.id.toString(),
+                      label: () => (
+                        <div className="flex items-center flex-wrap gap-2">
+                          <Badge variant="indigo">{evaluation.name}</Badge>
+                          <Badge variant="sky">{evaluation.period}</Badge>
+                        </div>
+                      ),
+                      searchValue: `${evaluation.name} ${evaluation.period}`,
+                    }))}
+                    onChange={(value: string) => {
+                      setSelectedEvaluationId(Number(value));
+                    }}
+                    value={selectedEvaluationId?.toString() ?? ""}
+                    placeholder="Selecciona la Evaluación..."
+                    className="w-auto! min-w-80 text-xs! py-0.5! px-0! h-fit! bg-background border-0!"
+                  />
+                )}
+                <Badge variant="blue" className="text-xs">
+                  Activa
+                </Badge>
+                <Badge
+                  variant={getVariantByCompletionRate(
+                    evaluationPersonResult.statistics.overall_completion_rate
+                  )}
+                  className="text-xs"
+                >
+                  {evaluationPersonResult.statistics.overall_completion_rate}%
+                </Badge>
+              </div>
+              <Progress
+                value={
+                  evaluationPersonResult.statistics.overall_completion_rate
+                }
+                className={cn(
+                  "h-2",
+                  getProgressBackgroundColor(
+                    evaluationPersonResult.statistics.overall_completion_rate
+                  )
+                )}
+                indicatorClassName={getProgressColor(
+                  evaluationPersonResult.statistics.overall_completion_rate
+                )}
+              />
             </div>
-            <div className="text-xs text-muted-foreground">
-              Progreso general
-            </div>
-          </div>
-        </PersonTitleComponent>
-
-        {/* Selector de evaluación y controles */}
-        <div className="flex items-center justify-between gap-4 flex-wrap">
-          {isLoadingEvaluations ? (
-            <Skeleton className="h-8 w-80" />
-          ) : (
-            <SearchableSelect
-              options={evaluations.map((evaluation) => ({
-                value: evaluation.id.toString(),
-                label: () => (
-                  <span className="flex items-center gap-2">
-                    {evaluation.name}{" "}
-                    <Badge variant="sky">{evaluation.period}</Badge>
-                  </span>
-                ),
-              }))}
-              onChange={(value: string) => {
-                setSelectedEvaluationId(Number(value));
-              }}
-              value={selectedEvaluationId?.toString() ?? ""}
-              placeholder="Selecciona la Evaluación..."
-              className="w-auto! min-w-80"
-            />
-          )}
-
-          <div className="flex items-center gap-2">
             <Button
-              variant="outline"
-              color="primary"
-              size="sm"
+              variant="default"
+              size="icon-lg"
               onClick={handleRefresh}
               disabled={saving}
               className="gap-2"
             >
               <RefreshCw className={`size-4 ${saving ? "animate-spin" : ""}`} />
-              Actualizar
             </Button>
           </div>
-        </div>
+        </PersonTitleComponent>
       </div>
 
       <div className="mt-6 space-y-4 grid grid-cols-4 gap-6">
@@ -241,11 +262,11 @@ export default function EvaluationDetailPersonPage() {
           defaultValue={
             evaluationPersonResult?.hasObjectives ? "objectives" : "competences"
           }
-          className="p-2 w-full bg-muted rounded-lg col-span-3"
+          className="w-full rounded-lg col-span-3"
         >
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList>
             {evaluationPersonResult?.hasObjectives && (
-              <TabsTrigger value="objectives" className="gap-2">
+              <TabsTrigger value="objectives" className="gap-2 px-8">
                 <Target className="size-4" />
                 Objetivos
                 <Badge variant="outline" className="ml-2 text-xs">
@@ -256,7 +277,7 @@ export default function EvaluationDetailPersonPage() {
             )}
             {evaluationPersonResult?.evaluation.typeEvaluation.toString() !==
               EVALUATION_OBJECTIVE.ID && (
-              <TabsTrigger value="competences" className="gap-2">
+              <TabsTrigger value="competences" className="gap-2 px-8">
                 <TrendingUp className="size-4" />
                 Competencias
                 <Badge variant="outline" className="ml-2 text-xs">
@@ -267,7 +288,7 @@ export default function EvaluationDetailPersonPage() {
             )}
           </TabsList>
           <TabsContents className="rounded-sm bg-background w-full">
-            <TabsContent value="objectives" className="space-y-6 p-6">
+            <TabsContent value="objectives" className="space-y-6">
               {isLoadingEvaluationPerson ? (
                 <FormSkeleton />
               ) : (

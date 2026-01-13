@@ -161,7 +161,7 @@ export default function EvaluationSummaryCard({ evaluationResult }: Props) {
   const competenceMaxScore = evaluationResult.statistics.competences.max_score;
 
   return (
-    <div className="grid grid-cols-1 gap-4 h-fit">
+    <div className="grid grid-cols-1 gap-4 h-fit w-full">
       <MetricCard
         icon={TrendingUp}
         title="Resultado Final"

@@ -265,9 +265,9 @@ export function EvaluationPersonResultModal({
             defaultValue="objectives"
             className="p-2 w-full bg-muted rounded-lg"
           >
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList>
               {evaluationPersonResult?.hasObjectives && (
-                <TabsTrigger value="objectives" className="gap-2">
+                <TabsTrigger value="objectives" className="gap-2 px-8">
                   <Target className="size-4" />
                   Objetivos
                   {quickStats && (
@@ -280,7 +280,7 @@ export function EvaluationPersonResultModal({
               )}
               {evaluationPersonResult?.evaluation.typeEvaluation.toString() !==
                 EVALUATION_OBJECTIVE.ID && (
-                <TabsTrigger value="competences" className="gap-2">
+                <TabsTrigger value="competences" className="gap-2 px-8">
                   <TrendingUp className="size-4" />
                   Competencias
                   {quickStats && (
@@ -293,7 +293,7 @@ export function EvaluationPersonResultModal({
               )}
             </TabsList>
             <TabsContents className="rounded-sm h-full bg-background w-full overflow-y-auto">
-              <TabsContent value="objectives" className="space-y-6 p-6">
+              <TabsContent value="objectives" className="space-y-6">
                 {isLoadingEvaluationPerson ? (
                   <FormSkeleton />
                 ) : (

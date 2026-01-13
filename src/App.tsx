@@ -105,7 +105,6 @@ import AddPositionPage from "./app/gp/gestion-humana/configuraciones/posiciones/
 // ============================================================================
 import DashboardLayout from "./features/dashboard/components/DashboardLayout";
 import MainLayout from "./features/dashboard/components/MainLayout";
-import ProfileLayout from "./app/perfil/layout";
 import APComercialLayout from "./app/ap/comercial/layout";
 import APConfiguracionesLayout from "./app/ap/configuraciones/layout";
 import APPostVentaLayout from "./app/ap/post-venta/layout";
@@ -347,6 +346,7 @@ import ControlTravelPage from "./app/tp/comercial-tp/control-viajes/page.tsx";
 
 import GeneralMastersPage from "./app/gp/maestros-generales/page.tsx";
 import { PER_DIEM_REQUEST } from "./features/profile/viaticos/lib/perDiemRequest.constants.ts";
+import ProfileLayout from "./features/dashboard/components/ProfileLayout.tsx";
 
 // ============================================================================
 // PROTECTED ROUTE COMPONENT
