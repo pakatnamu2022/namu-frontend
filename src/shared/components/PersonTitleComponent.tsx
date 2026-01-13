@@ -49,7 +49,11 @@ export default function PersonTitleComponent({
           />
         )}
         <Avatar className="h-12 w-12 rounded-lg">
-          <AvatarImage src={photo} alt={name} className="rounded-lg" />
+          <AvatarImage
+            src={photo}
+            alt={name}
+            className="rounded-lg object-cover"
+          />
           <AvatarFallback className="bg-primary rounded-lg text-white text-sm md:text-base">
             {initials}
           </AvatarFallback>
