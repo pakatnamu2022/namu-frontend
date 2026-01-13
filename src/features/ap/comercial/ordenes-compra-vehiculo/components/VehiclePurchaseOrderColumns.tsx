@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -134,33 +134,14 @@ export const vehiclePurchaseOrderColumns = ({
     accessorKey: "sede",
     header: "Sede",
   },
-  // {
-  //   accessorKey: "status",
-  //   header: "Estado",
-  //   cell: ({ row }) => {
-  //     const estado = row.original.status || "";
-  //     const color = row.original.status_color || "#6b7280";
-
-  //     // Calcular luminosidad para determinar color de texto
-  //     const hex = color.replace("#", "");
-  //     const r = parseInt(hex.substring(0, 2), 16);
-  //     const g = parseInt(hex.substring(2, 4), 16);
-  //     const b = parseInt(hex.substring(4, 6), 16);
-  //     const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-
-  //     return (
-  //       <Badge
-  //         className="border-0"
-  //         style={{
-  //           backgroundColor: color,
-  //           color: luminance > 0.5 ? "#000000" : "#FFFFFF",
-  //         }}
-  //       >
-  //         {estado}
-  //       </Badge>
-  //     );
-  //   },
-  // },
+  {
+    accessorKey: "creator.name",
+    header: "Creado Por",
+    cell: ({ getValue }) => {
+      const value = getValue() as string | null;
+      return value || "N/A";
+    },
+  },
   {
     id: "actions",
     header: "Acciones",
@@ -191,9 +172,7 @@ export const vehiclePurchaseOrderColumns = ({
               size="icon"
               className="size-7"
               tooltip="Reenviar Orden de Compra"
-              onClick={() =>
-                router(`compra-vehiculo-nuevo/reenviar/${id}`)
-              }
+              onClick={() => router(`compra-vehiculo-nuevo/reenviar/${id}`)}
             >
               <RefreshCw className="size-4" />
             </Button>

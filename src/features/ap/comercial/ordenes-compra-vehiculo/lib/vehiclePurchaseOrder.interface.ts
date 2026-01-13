@@ -1,6 +1,7 @@
 import { type Links, type Meta } from "@/shared/lib/pagination.interface";
 import { VehicleResource } from "../../vehiculos/lib/vehicles.interface";
 import { ClassArticleResource } from "../../../configuraciones/maestros-general/clase-articulo/lib/classArticle.interface";
+import { UserResource } from "@/features/gp/gestionsistema/usuarios/lib/user.interface";
 
 export interface VehiclePurchaseOrderResponse {
   data: VehiclePurchaseOrderResource[];
@@ -115,6 +116,7 @@ export interface VehiclePurchaseOrderResource {
   warehouse_physical?: string;
   taxClassType?: string;
   movements?: VehiclePurchaseOrderMovement[];
+  creator: UserResource;
 }
 
 export interface VehiclePurchaseOrderRequest {
