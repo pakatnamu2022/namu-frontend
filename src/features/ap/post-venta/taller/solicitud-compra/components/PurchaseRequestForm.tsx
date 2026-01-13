@@ -60,10 +60,12 @@ export default function PurchaseRequestForm({
 }: PurchaseRequestFormProps) {
   const [details, setDetails] = useState<PurchaseRequestDetailSchema[]>(() => {
     // Transformar los detalles del backend al formato esperado
+    console.log("Default Values in Form:", defaultValues.details);
     if (defaultValues.details && defaultValues.details.length > 0) {
       const transformed = defaultValues.details.map((detail: any) => ({
         product_id: detail.product_id?.toString() || "",
-        product_name: detail.product?.name || "",
+        product_name: detail.product_name || "",
+        product_code: detail.product_code || "",
         quantity: Number(detail.quantity) || 1,
         notes: detail.notes || "",
       }));
@@ -168,7 +170,7 @@ export default function PurchaseRequestForm({
       const newDetails: PurchaseRequestDetailSchema[] = productDetails.map(
         (detail) => ({
           product_id: detail.product_id!.toString(),
-          product_name: detail.description,
+          product_name: detail.product?.name || "",
           product_code: detail.product?.code || "",
           quantity: Number(detail.quantity) || 1, // Asegurar que sea number
           notes: "",

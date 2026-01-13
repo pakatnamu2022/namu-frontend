@@ -222,6 +222,7 @@ import UpdateBrandsPVPage from "./app/ap/post-venta/gestion-de-productos/marcas-
 import ProductPVPage from "./app/ap/post-venta/gestion-de-productos/productos/page.tsx";
 import AddProductPVPage from "./app/ap/post-venta/gestion-de-productos/productos/agregar/page.tsx";
 import UpdateProductPVPage from "./app/ap/post-venta/gestion-de-productos/productos/actualizar/[id]/page.tsx";
+import AssignWarehousePage from "./app/ap/post-venta/gestion-de-productos/productos/asignar-almacen/[id]/page.tsx";
 import ProductTransferPage from "./app/ap/post-venta/gestion-de-compras/transferencia-producto/page.tsx";
 import AddProductTransferPage from "./app/ap/post-venta/gestion-de-compras/transferencia-producto/agregar/page.tsx";
 import UpdateProductTransferPage from "./app/ap/post-venta/gestion-de-compras/transferencia-producto/actualizar/[id]/page.tsx";
@@ -234,8 +235,6 @@ import InventoryPage from "./app/ap/post-venta/gestion-de-compras/inventario/pag
 import InventoryKardexPage from "./app/ap/post-venta/gestion-de-compras/inventario/kardex/page.tsx";
 import ProductKardexPage from "./app/ap/post-venta/gestion-de-compras/inventario/movimientos/[productId]/[warehouseId]/page.tsx";
 import PurchaseOrderProductsPage from "./app/ap/post-venta/gestion-de-compras/orden-compra-producto/page.tsx";
-import AddPurchaseOrderProductsPage from "./app/ap/post-venta/gestion-de-compras/orden-compra-producto/agregar/page.tsx";
-import UpdatePurchaseOrderProductsPage from "./app/ap/post-venta/gestion-de-compras/orden-compra-producto/actualizar/[id]/page.tsx";
 import ReceptionsProductsPage from "./app/ap/post-venta/gestion-de-compras/orden-compra-producto/recepcion/[purchaseOrderId]/page.tsx";
 import UpdateReceptionProductPage from "./app/ap/post-venta/gestion-de-compras/orden-compra-producto/recepcion/actualizar/[purchaseOrderId]/[id]/page.tsx";
 import AddReceptionProductPage from "./app/ap/post-venta/gestion-de-compras/orden-compra-producto/recepcion/agregar/[purchaseOrderId]/page.tsx";
@@ -1133,6 +1132,10 @@ function App() {
                 path="gestion-de-productos/productos/actualizar/:id"
                 element={<UpdateProductPVPage />}
               />
+              <Route
+                path="gestion-de-productos/productos/asignar-almacen/:id"
+                element={<AssignWarehousePage />}
+              />
               {/* Gestion Compra */}
               <Route
                 path="gestion-de-compras/transferencia-producto"
@@ -1181,14 +1184,6 @@ function App() {
               <Route
                 path="gestion-de-compras/orden-compra-producto"
                 element={<PurchaseOrderProductsPage />}
-              />
-              <Route
-                path="gestion-de-compras/orden-compra-producto/agregar"
-                element={<AddPurchaseOrderProductsPage />}
-              />
-              <Route
-                path="gestion-de-compras/orden-compra-producto/actualizar/:id"
-                element={<UpdatePurchaseOrderProductsPage />}
               />
               <Route
                 path="gestion-de-compras/orden-compra-producto/recepcion/:purchaseOrderId"

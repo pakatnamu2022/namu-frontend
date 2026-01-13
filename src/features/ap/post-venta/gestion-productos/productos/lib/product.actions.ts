@@ -58,3 +58,17 @@ export async function deleteProduct(id: number): Promise<GeneralResponse> {
   const { data } = await api.delete<GeneralResponse>(`${ENDPOINT}/${id}`);
   return data;
 }
+
+export async function assignToWarehouse(
+  product_id: number,
+  warehouse_id: number
+): Promise<GeneralResponse> {
+  const { data } = await api.post<GeneralResponse>(
+    `${ENDPOINT}/assign-to-warehouse`,
+    {
+      product_id,
+      warehouse_id,
+    }
+  );
+  return data;
+}

@@ -1,7 +1,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { ProductResource } from "../lib/product.interface";
 import { Button } from "@/components/ui/button";
-import { Eye, Pencil, RefreshCw } from "lucide-react";
+import { Eye, Warehouse, RefreshCw } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -14,7 +14,7 @@ import {
 export type ProductColumns = ColumnDef<ProductResource>;
 
 interface Props {
-  onUpdate?: (id: number) => void;
+  onAssignWarehouse?: (id: number) => void;
   onDelete: (id: number) => void;
   onStatusChange: (id: number, newStatus: string) => void;
   onView: (id: number) => void;
@@ -25,7 +25,7 @@ interface Props {
 }
 
 export const productColumns = ({
-  onUpdate,
+  onAssignWarehouse,
   onDelete,
   onStatusChange,
   onView,
@@ -229,16 +229,16 @@ export const productColumns = ({
             <Eye className="size-4" />
           </Button>
 
-          {/* Edit */}
+          {/* Assign Warehouse */}
           {permissions.canUpdate && (
             <Button
               variant="outline"
               size="icon"
               className="size-7"
-              tooltip="Editar Vehículo"
-              onClick={() => onUpdate!(id)}
+              tooltip="Asignar Almacén"
+              onClick={() => onAssignWarehouse!(id)}
             >
-              <Pencil className="size-4" />
+              <Warehouse className="size-4" />
             </Button>
           )}
 
