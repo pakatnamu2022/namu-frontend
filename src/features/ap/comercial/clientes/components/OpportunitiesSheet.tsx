@@ -1,14 +1,6 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-  SheetFooter,
-} from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
@@ -17,7 +9,6 @@ import {
   Loader2,
   AlertCircle,
   BriefcaseBusiness,
-  User,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
@@ -26,6 +17,7 @@ import { getAllOpportunitiesByCustomer } from "../lib/customers.actions";
 import { OPPORTUNITIES } from "../../oportunidades/lib/opportunities.constants";
 import { errorToast } from "@/core/core.function";
 import { OpportunityInfoCard } from "../../solicitudes-cotizaciones/components/OpportunityInfoCard";
+import GeneralSheet from "@/shared/components/GeneralSheet";
 
 interface Props {
   customerId: number;
@@ -71,37 +63,29 @@ export default function OpportunitiesSheet({
   }, [open, customerId]);
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
-      <SheetTrigger asChild>
-        <Button
-          size="icon"
-          variant="outline"
-          className="size-7"
-          disabled={loading}
-          tooltip="Oportunidades"
-        >
-          <BriefcaseBusiness
-            className={cn("size-4", { "animate-spin": loading })}
-          />
-        </Button>
-      </SheetTrigger>
-      <SheetContent className="sm:max-w-[600px]">
-        <SheetHeader>
-          <SheetTitle className="flex flex-col gap-2">
-            <div className="flex items-center gap-2">
-              <Building2 className="size-5 text-primary" />
-              <span>Oportunidades</span>
-            </div>
-            {clientName && (
-              <div className="flex items-center gap-2 text-base font-medium text-gray-700">
-                <User className="size-4" />
-                <span>{clientName}</span>
-              </div>
-            )}
-          </SheetTitle>
-        </SheetHeader>
+    <>
+      <Button
+        size="icon"
+        variant="outline"
+        className="size-7"
+        disabled={loading}
+        tooltip="Oportunidades"
+        onClick={() => setOpen(true)}
+      >
+        <BriefcaseBusiness
+          className={cn("size-4", { "animate-spin": loading })}
+        />
+      </Button>
 
-        <div className="py-6 space-y-6">
+      <GeneralSheet
+        open={open}
+        onClose={() => setOpen(false)}
+        title="Oportunidades"
+        subtitle={clientName}
+        icon="BriefcaseBusiness"
+        size="2xl"
+      >
+        <div className="space-y-6">
           {/* Loading State */}
           {loadingOpportunities && (
             <div className="flex items-center justify-center py-12">
@@ -194,17 +178,7 @@ export default function OpportunitiesSheet({
             </div>
           )}
         </div>
-
-        <SheetFooter>
-          <Button
-            variant="outline"
-            onClick={() => setOpen(false)}
-            disabled={loading || loadingOpportunities}
-          >
-            Cerrar
-          </Button>
-        </SheetFooter>
-      </SheetContent>
-    </Sheet>
+      </GeneralSheet>
+    </>
   );
 }

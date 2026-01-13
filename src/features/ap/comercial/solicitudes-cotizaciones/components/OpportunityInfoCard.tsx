@@ -7,6 +7,7 @@ import {
   Activity,
   UserCircle2,
   MessageSquare,
+  Calendar,
 } from "lucide-react";
 import { OpportunityResource } from "../../oportunidades/lib/opportunities.interface";
 import { cn } from "@/lib/utils";
@@ -223,6 +224,18 @@ export const OpportunityInfoCard = ({
           )}
         >
           <div className="flex items-center gap-1.5">
+            <Calendar className="size-3.5 text-slate-500" />
+            <span className="text-slate-600">Creada:</span>
+            <span className="font-semibold text-slate-900">
+              {new Date(opportunity.created_at).toLocaleDateString("es-ES", {
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric",
+              })}
+            </span>
+          </div>
+          <div className="h-3 w-px bg-slate-300" />
+          <div className="flex items-center gap-1.5">
             <UserCircle2 className="size-3.5 text-slate-500" />
             <span className="text-slate-600">Asesor:</span>
             <span className="font-semibold text-slate-900">
@@ -232,9 +245,8 @@ export const OpportunityInfoCard = ({
           <div className="h-3 w-px bg-slate-300" />
           <div className="flex items-center gap-1.5">
             <Briefcase className="size-3.5 text-slate-500" />
-            <span className="text-slate-600">Tipo:</span>
             <span className="font-semibold text-slate-900">
-              {opportunity.opportunity_type}
+              {opportunity.lead.type}
             </span>
           </div>
           {opportunity.actions && opportunity.actions.length > 0 && (

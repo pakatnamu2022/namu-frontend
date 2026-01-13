@@ -3,6 +3,7 @@ import { CustomersResource } from "../../clientes/lib/customers.interface";
 import { FamiliesResource } from "@/features/ap/configuraciones/vehiculos/familias/lib/families.interface";
 import { OpportunityActionResource } from "./opportunityAction.interface";
 import { WorkerResource } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.interface";
+import { ManageLeadsResource } from "../../gestionar-leads/lib/manageLeads.interface";
 
 export interface OpportunitiesResponse {
   data: OpportunityResource[];
@@ -27,6 +28,8 @@ export interface OpportunityResource {
   client_status: string;
   opportunity_status: string;
   actions: OpportunityActionResource[];
+  lead: ManageLeadsResource;
+  created_at: string;
 }
 
 export interface AgendaDateGroup {
