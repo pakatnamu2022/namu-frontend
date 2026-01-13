@@ -5,7 +5,7 @@ import DevelopmentPlanForm from "../../../../../../features/gp/gestionhumana/pla
 import { useAuthStore } from "@/features/auth/lib/auth.store";
 import FormWrapper from "@/shared/components/FormWrapper";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
-import { useWorkers } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
+import { useWorkerById } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
 
 export default function CrearPlanDesarrolloPage() {
   const { id } = useParams();
@@ -15,8 +15,8 @@ export default function CrearPlanDesarrolloPage() {
   const bossId = currentUser?.partner_id;
 
   // Obtener información de la persona
-  const { data: workerData } = useWorkers({ person_id: personId });
-  const personName = workerData?.data?.[0]?.name || "Colaborador";
+  const { data: workerData } = useWorkerById(personId);
+  const personName = workerData?.name || "Colaborador";
 
   const handleSuccess = () => {
     // Al guardar exitosamente, redirigir a la lista

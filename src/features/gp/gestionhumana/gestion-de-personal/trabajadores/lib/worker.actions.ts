@@ -65,7 +65,7 @@ export async function getMyConsultants({
   return data;
 }
 
-export async function findWorkerById(id: string): Promise<WorkerResource> {
+export async function findWorkerById(id: number): Promise<WorkerResource> {
   const response = await api.get<WorkerResource>(`${ENDPOINT}/${id}`);
   return response.data;
 }
