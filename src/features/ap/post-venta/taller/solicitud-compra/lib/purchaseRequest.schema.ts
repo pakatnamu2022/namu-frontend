@@ -7,6 +7,7 @@ export const purchaseRequestDetailSchema = z.object({
   quantity: z.number().min(0.01, "La cantidad debe ser mayor a 0"),
   notes: z.string().optional(),
   product_name: z.string().optional(), // Solo para UI
+  product_code: z.string().optional(), // Solo para UI
 });
 
 export const purchaseRequestSchemaCreate = z.object({
@@ -15,6 +16,7 @@ export const purchaseRequestSchemaCreate = z.object({
   requested_date: z.union([z.literal(""), z.date()]),
   observations: z.string().optional(),
   has_appointment: z.boolean().optional(),
+  supply_type: z.enum(["STOCK", "LIMA", "IMPORTACION"]),
   details: z
     .array(purchaseRequestDetailSchema)
     .min(1, "Debe agregar al menos un producto"),

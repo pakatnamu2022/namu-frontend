@@ -3,17 +3,17 @@ import { Plus } from "lucide-react";
 import { Link } from "react-router-dom";
 import ActionsWrapper from "@/shared/components/ActionsWrapper";
 
-interface PurchaseOrderProductsActionsProps {
+interface SupplierOrderActionsProps {
   permissions: {
     canCreate: boolean;
   };
   routeAdd?: string;
 }
 
-export default function PurchaseOrderProductsActions({
+export default function SupplierOrderActions({
   permissions,
   routeAdd = "",
-}: PurchaseOrderProductsActionsProps) {
+}: SupplierOrderActionsProps) {
   if (!permissions.canCreate) {
     return null;
   }
@@ -22,7 +22,7 @@ export default function PurchaseOrderProductsActions({
     <ActionsWrapper>
       <Link to={routeAdd}>
         <Button size="sm" variant="outline" className="ml-auto">
-          <Plus className="size-4 mr-2" /> Agregar Orden de Compra
+          <Plus className="size-4 mr-2" /> Agregar Pedido a Proveedor
         </Button>
       </Link>
     </ActionsWrapper>

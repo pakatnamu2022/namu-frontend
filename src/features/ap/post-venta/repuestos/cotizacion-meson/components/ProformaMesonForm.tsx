@@ -103,7 +103,7 @@ function ProductDetailItem({
             control={form.control}
             useQueryHook={useProduct}
             mapOptionFn={(product) => ({
-              label: `${product.name} (${
+              label: `${product.code} ${product.name}(${
                 product.unit_measurement_name || "UND"
               })`,
               value: product.id.toString(),

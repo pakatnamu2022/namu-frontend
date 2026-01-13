@@ -36,6 +36,7 @@ const purchaseOrderProductsSchemaBase = z.object({
     .refine((value) => value.trim() !== "", {
       message: "Número de factura es requerido",
     }),
+  ap_supplier_order_id: requiredStringId("Orden de compra es requerida"),
   supplier_id: requiredStringId("Cliente es requerido"),
   sede_id: requiredStringId("Sede es requerido"),
   emission_date: z.union([z.literal(""), z.date()]).optional(),

@@ -16,25 +16,24 @@ import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { notFound } from "@/shared/hooks/useNotFound";
-import { usePurchaseOrderProducts } from "@/features/ap/post-venta/gestion-compras/orden-compra-producto/lib/purchaseOrderProducts.hook";
-import { deletePurchaseOrderProducts } from "@/features/ap/post-venta/gestion-compras/orden-compra-producto/lib/purchaseOrderProducts.actions";
-import PurchaseOrderProductsTable from "@/features/ap/post-venta/gestion-compras/orden-compra-producto/components/PurchaseOrderProductsTable";
-import { purchaseOrderProductsColumns } from "@/features/ap/post-venta/gestion-compras/orden-compra-producto/components/PurchaseOrderProductsColumns";
-import PurchaseOrderProductsOptions from "@/features/ap/post-venta/gestion-compras/orden-compra-producto/components/PurchaseOrderProductsOptions";
-import { PURCHASE_ORDER_PRODUCT } from "@/features/ap/post-venta/gestion-compras/orden-compra-producto/lib/purchaseOrderProducts.constants";
-import { PurchaseOrderProductsViewSheet } from "@/features/ap/post-venta/gestion-compras/orden-compra-producto/components/PurchaseOrderProductsSheet";
-import { PurchaseOrderProductsResource } from "@/features/ap/post-venta/gestion-compras/orden-compra-producto/lib/purchaseOrderProducts.interface";
-import { TYPES_OPERATION_ID } from "@/features/ap/configuraciones/maestros-general/tipos-operacion/lib/typesOperation.constants";
+import { useSupplierOrder } from "@/features/ap/post-venta/gestion-compras/pedido-proveedor/lib/supplierOrder.hook";
+import { deleteSupplierOrder } from "@/features/ap/post-venta/gestion-compras/pedido-proveedor/lib/supplierOrder.actions";
+import SupplierOrderActions from "@/features/ap/post-venta/gestion-compras/pedido-proveedor/components/SupplierOrderActions";
+import SupplierOrderTable from "@/features/ap/post-venta/gestion-compras/pedido-proveedor/components/SupplierOrderTable";
+import { supplierOrderColumns } from "@/features/ap/post-venta/gestion-compras/pedido-proveedor/components/SupplierOrderColumns";
+import SupplierOrderOptions from "@/features/ap/post-venta/gestion-compras/pedido-proveedor/components/SupplierOrderOptions";
+import { SUPPLIER_ORDER } from "@/features/ap/post-venta/gestion-compras/pedido-proveedor/lib/supplierOrder.constants";
+import { SupplierOrderViewSheet } from "@/features/ap/post-venta/gestion-compras/pedido-proveedor/components/SupplierOrderViewSheet";
 
-export default function PurchaseOrderProductsPage() {
+export default function SupplierOrderPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
-  const [viewData, setViewData] =
-    useState<PurchaseOrderProductsResource | null>(null);
-  const { MODEL, ROUTE, ABSOLUTE_ROUTE } = PURCHASE_ORDER_PRODUCT;
+  const [viewOrderId, setViewOrderId] = useState<number | null>(null);
+  const { MODEL, ROUTE, ROUTE_ADD, ROUTE_UPDATE, ABSOLUTE_ROUTE } =
+    SUPPLIER_ORDER;
   const permissions = useModulePermissions(ROUTE);
   const currentDate = new Date();
   const [dateFrom, setDateFrom] = useState<Date | undefined>(currentDate);
@@ -44,12 +43,11 @@ export default function PurchaseOrderProductsPage() {
     return date ? date.toLocaleDateString("en-CA") : undefined; // formato: YYYY-MM-DD
   };
 
-  const { data, isLoading, refetch } = usePurchaseOrderProducts({
+  const { data, isLoading, refetch } = useSupplierOrder({
     page,
     search,
     per_page,
-    type_operation_id: TYPES_OPERATION_ID.POSTVENTA,
-    emission_date:
+    order_date:
       dateFrom && dateTo
         ? [formatDate(dateFrom), formatDate(dateTo)]
         : undefined,
@@ -58,7 +56,7 @@ export default function PurchaseOrderProductsPage() {
   const handleDelete = async () => {
     if (!deleteId) return;
     try {
-      await deletePurchaseOrderProducts(deleteId);
+      await deleteSupplierOrder(deleteId);
       await refetch();
       successToast(SUCCESS_MESSAGE(MODEL, "delete"));
     } catch (error: any) {
@@ -70,10 +68,7 @@ export default function PurchaseOrderProductsPage() {
   };
 
   const handleView = (id: number) => {
-    const orderData = data?.data.find((item) => item.id === id);
-    if (orderData) {
-      setViewData(orderData);
-    }
+    setViewOrderId(id);
   };
 
   if (isLoadingModule) return <PageSkeleton />;
@@ -88,21 +83,20 @@ export default function PurchaseOrderProductsPage() {
           subtitle={currentView.descripcion}
           icon={currentView.icon}
         />
+        <SupplierOrderActions permissions={permissions} routeAdd={ROUTE_ADD} />
       </HeaderTableWrapper>
-      <PurchaseOrderProductsTable
+      <SupplierOrderTable
         isLoading={isLoading}
-        columns={purchaseOrderProductsColumns({
+        columns={supplierOrderColumns({
           onDelete: setDeleteId,
           onView: handleView,
-          permissions: {
-            ...permissions,
-            canReceive: true,
-          },
-          routeReception: `${ABSOLUTE_ROUTE}/recepcion`,
+          permissions,
+          routeUpdate: ROUTE_UPDATE,
+          routeInvoice: `${ABSOLUTE_ROUTE}/facturar`,
         })}
         data={data?.data || []}
       >
-        <PurchaseOrderProductsOptions
+        <SupplierOrderOptions
           search={search}
           setSearch={setSearch}
           dateFrom={dateFrom}
@@ -110,7 +104,7 @@ export default function PurchaseOrderProductsPage() {
           dateTo={dateTo}
           setDateTo={setDateTo}
         />
-      </PurchaseOrderProductsTable>
+      </SupplierOrderTable>
 
       {deleteId !== null && (
         <SimpleDeleteDialog
@@ -120,10 +114,10 @@ export default function PurchaseOrderProductsPage() {
         />
       )}
 
-      <PurchaseOrderProductsViewSheet
-        open={viewData !== null}
-        onOpenChange={(open) => !open && setViewData(null)}
-        data={viewData}
+      <SupplierOrderViewSheet
+        open={viewOrderId !== null}
+        onOpenChange={(open) => !open && setViewOrderId(null)}
+        orderId={viewOrderId}
       />
 
       <DataTablePagination

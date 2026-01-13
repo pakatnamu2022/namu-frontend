@@ -4,6 +4,9 @@ import { Pencil } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { PurchaseRequestResource } from "../lib/purchaseRequest.interface";
 import { Badge } from "@/components/ui/badge";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
+import { PURCHASE_REQUEST_STATUS } from "../lib/purchaseRequest.constants";
 
 export type PurchaseRequestColumns = ColumnDef<PurchaseRequestResource>;
 
@@ -28,10 +31,25 @@ export const purchaseRequestColumns = ({
       const value = getValue() as string;
       return value && <p className="font-semibold">{value}</p>;
     },
+    enableSorting: false,
   },
   {
     accessorKey: "requested_date",
     header: "Fecha Solicitada",
+    cell: ({ getValue }) => {
+      const date = getValue() as string;
+      if (!date) return "-";
+      try {
+        return format(new Date(date), "dd/MM/yyyy", { locale: es });
+      } catch {
+        return date;
+      }
+    },
+    enableSorting: false,
+  },
+  {
+    accessorKey: "requested_by",
+    header: "Solicitado Por",
   },
   {
     accessorKey: "warehouse_dyn_code",
@@ -42,13 +60,17 @@ export const purchaseRequestColumns = ({
     header: "Estado",
     cell: ({ row }) => {
       const { status, status_color } = row.original;
+      const statusText =
+        PURCHASE_REQUEST_STATUS[
+          status as keyof typeof PURCHASE_REQUEST_STATUS
+        ] || status;
       return (
         <Badge
           style={{
             backgroundColor: status_color || "#6B7280",
           }}
         >
-          {status}
+          {statusText}
         </Badge>
       );
     },

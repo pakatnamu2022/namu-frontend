@@ -1,6 +1,5 @@
 "use client";
 
-import { useNavigate } from "react-router-dom";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import { useEffect, useState } from "react";
 import {
@@ -30,7 +29,6 @@ import {
 } from "@/features/ap/post-venta/gestion-productos/productos/lib/product.actions";
 
 export default function ProductRepuestoPage() {
-  const router = useNavigate();
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
@@ -38,7 +36,7 @@ export default function ProductRepuestoPage() {
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [viewProductId, setViewProductId] = useState<number | null>(null);
   const [isDetailSheetOpen, setIsDetailSheetOpen] = useState(false);
-  const { MODEL, ROUTE, ROUTE_UPDATE } = PRODUCT_REPUESTOS;
+  const { MODEL, ROUTE } = PRODUCT_REPUESTOS;
   const permissions = useModulePermissions(ROUTE);
 
   useEffect(() => {
@@ -99,7 +97,6 @@ export default function ProductRepuestoPage() {
         columns={productColumns({
           onStatusChange: handleToggleStatus,
           onDelete: setDeleteId,
-          onUpdate: (id) => router(`${ROUTE_UPDATE}/${id}`),
           onView: handleView,
           permissions,
         })}

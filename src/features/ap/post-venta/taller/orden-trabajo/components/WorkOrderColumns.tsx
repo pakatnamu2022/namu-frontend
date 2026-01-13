@@ -62,7 +62,7 @@ export const workOrderColumns = ({
       const value = getValue() as string;
       if (!value) return "-";
       try {
-        const date = new Date(value + "T00:00:00");
+        const date = new Date(value.replace(" ", "T"));
         return format(date, "dd/MM/yyyy", { locale: es });
       } catch {
         return value;
@@ -76,7 +76,7 @@ export const workOrderColumns = ({
       const value = getValue() as string;
       if (!value) return "-";
       try {
-        const date = new Date(value + "T00:00:00");
+        const date = new Date(value.replace(" ", "T"));
         return format(date, "dd/MM/yyyy", { locale: es });
       } catch {
         return value;
@@ -90,7 +90,7 @@ export const workOrderColumns = ({
       const value = getValue() as string;
       if (!value) return "-";
       try {
-        const date = new Date(value + "T00:00:00");
+        const date = new Date(value.replace(" ", "T"));
         return format(date, "dd/MM/yyyy", { locale: es });
       } catch {
         return value;

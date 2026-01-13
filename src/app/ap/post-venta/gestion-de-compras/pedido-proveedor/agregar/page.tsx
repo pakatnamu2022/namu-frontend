@@ -12,18 +12,18 @@ import {
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import FormWrapper from "@/shared/components/FormWrapper";
 import { notFound } from "@/shared/hooks/useNotFound";
-import { storePurchaseOrderProducts } from "@/features/ap/post-venta/gestion-compras/orden-compra-producto/lib/purchaseOrderProducts.actions";
-import { PurchaseOrderProductsSchema } from "@/features/ap/post-venta/gestion-compras/orden-compra-producto/lib/purchaseOrderProducts.schema";
-import { PurchaseOrderProductsForm } from "@/features/ap/post-venta/gestion-compras/orden-compra-producto/components/PurchaseOrderProductsForm";
-import { PURCHASE_ORDER_PRODUCT } from "@/features/ap/post-venta/gestion-compras/orden-compra-producto/lib/purchaseOrderProducts.constants";
+import { storeSupplierOrder } from "@/features/ap/post-venta/gestion-compras/pedido-proveedor/lib/supplierOrder.actions";
+import { SupplierOrderForm } from "@/features/ap/post-venta/gestion-compras/pedido-proveedor/components/SupplierOrderForm";
+import { SUPPLIER_ORDER } from "@/features/ap/post-venta/gestion-compras/pedido-proveedor/lib/supplierOrder.constants";
+import { CURRENCY_TYPE_IDS } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.constants";
 
-export default function AddPurchaseOrderProductsPage() {
+export default function AddSupplierOrderPage() {
   const router = useNavigate();
   const { currentView, checkRouteExists } = useCurrentModule();
-  const { ROUTE, MODEL, ABSOLUTE_ROUTE } = PURCHASE_ORDER_PRODUCT;
+  const { ROUTE, MODEL, ABSOLUTE_ROUTE } = SUPPLIER_ORDER;
 
   const { mutate, isPending } = useMutation({
-    mutationFn: storePurchaseOrderProducts,
+    mutationFn: storeSupplierOrder,
     onSuccess: () => {
       successToast(SUCCESS_MESSAGE(MODEL, "create"));
       router(ABSOLUTE_ROUTE!);
@@ -34,7 +34,7 @@ export default function AddPurchaseOrderProductsPage() {
     },
   });
 
-  const handleSubmit = (data: PurchaseOrderProductsSchema) => {
+  const handleSubmit = (data: any) => {
     mutate(data);
   };
 
@@ -48,22 +48,15 @@ export default function AddPurchaseOrderProductsPage() {
         mode="create"
         icon={currentView.icon}
       />
-      <PurchaseOrderProductsForm
+      <SupplierOrderForm
         defaultValues={{
           supplier_id: "",
-          invoice_series: "",
-          invoice_number: "",
-          emission_date: "",
-          due_date: "",
           sede_id: "",
           warehouse_id: "",
-          currency_id: "",
-          payment_terms: "",
-          total_discount: 0,
-          total_tax: 0,
-          status: "PENDING",
-          notes: "",
-          items: [],
+          type_currency_id: CURRENCY_TYPE_IDS.DOLLARS,
+          order_date: "",
+          supply_type: "STOCK",
+          details: [],
         }}
         onSubmit={handleSubmit}
         isSubmitting={isPending}

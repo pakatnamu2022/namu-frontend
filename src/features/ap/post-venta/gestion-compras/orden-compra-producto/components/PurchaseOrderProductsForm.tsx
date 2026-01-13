@@ -30,8 +30,6 @@ import {
   Plus,
   Trash2,
   Calculator,
-  ChevronLeft,
-  ChevronRight,
 } from "lucide-react";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { FormSelect } from "@/shared/components/FormSelect";
@@ -58,11 +56,7 @@ import { TYPES_OPERATION_ID } from "@/features/ap/configuraciones/maestros-gener
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import { SuppliersResource } from "@/features/ap/comercial/proveedores/lib/suppliers.interface";
 import { PurchaseOrderProductsResource } from "../lib/purchaseOrderProducts.interface";
-import { usePurchaseRequestsDetailsPending } from "../../../taller/solicitud-compra/lib/purchaseRequest.hook";
-import { PendingPurchaseRequestsList } from "./PendingPurchaseRequestsList";
-import { SimpleConfirmDialog } from "@/shared/components/SimpleConfirmDialog";
-import { rejectPurchaseRequestDetail } from "../../../taller/solicitud-compra/lib/purchaseRequest.actions";
-import { toast } from "sonner";
+import { SupplierOrderResource } from "../../pedido-proveedor/lib/supplierOrder.interface";
 
 interface PurchaseOrderProductsFormProps {
   defaultValues: Partial<PurchaseOrderProductsSchema>;
@@ -71,6 +65,8 @@ interface PurchaseOrderProductsFormProps {
   mode?: "create" | "update";
   onCancel?: () => void;
   PurchaseOrderProductsData?: PurchaseOrderProductsResource;
+  supplierOrderId: number;
+  supplierOrderData?: SupplierOrderResource;
 }
 
 export const PurchaseOrderProductsForm = ({
@@ -80,6 +76,8 @@ export const PurchaseOrderProductsForm = ({
   mode = "create",
   onCancel,
   PurchaseOrderProductsData,
+  supplierOrderId,
+  supplierOrderData,
 }: PurchaseOrderProductsFormProps) => {
   const form = useForm({
     resolver: zodResolver(
@@ -89,12 +87,12 @@ export const PurchaseOrderProductsForm = ({
     ),
     defaultValues: {
       ...defaultValues,
+      ap_supplier_order_id: String(supplierOrderId),
       items: defaultValues.items || [],
       status: defaultValues.status || "PENDING",
     },
     mode: "onChange",
   });
-  const [openRejectedAlert, setOpenRejectedAlert] = useState(false);
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
@@ -103,17 +101,6 @@ export const PurchaseOrderProductsForm = ({
 
   const { data: mySedes = [], isLoading: isLoadingMySedes } = useMySedes({
     company: EMPRESA_AP.id,
-  });
-
-  // Watch para obtener el warehouse_id seleccionado
-  const selectedWarehouseId = form.watch("warehouse_id");
-
-  const {
-    data: purcheseRequestDetailsPending,
-    isLoading: isLoadingPurcheseRequestDetailsPending,
-    refetch: refetchPurchaseRequests,
-  } = usePurchaseRequestsDetailsPending({
-    warehouse_id: selectedWarehouseId ? Number(selectedWarehouseId) : undefined,
   });
 
   // En modo editar, obtener el warehouse por ID para extraer su sede_id
@@ -135,11 +122,6 @@ export const PurchaseOrderProductsForm = ({
   const [exchangeRateError, setExchangeRateError] = useState<string>("");
   const [isLoadingExchangeRate, setIsLoadingExchangeRate] = useState(false);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
-  const [addedRequestDetailIds, setAddedRequestDetailIds] = useState<number[]>(
-    []
-  );
-  const [isRequestListVisible, setIsRequestListVisible] = useState(true);
-  const [pendingDiscardRequest, setPendingDiscardRequest] = useState<any>(null);
 
   // Watch con suscripción completa al formulario
   const formValues = form.watch();
@@ -261,95 +243,8 @@ export const PurchaseOrderProductsForm = ({
     });
   };
 
-  const handleAddFromRequest = (requestDetail: any) => {
-    const existingItemIndex = fields.findIndex(
-      (item: any) => item.product_id === requestDetail.product_id.toString()
-    );
-
-    if (existingItemIndex !== -1) {
-      // Si el producto ya existe, sumar la cantidad
-      const currentQuantity =
-        form.getValues(`items.${existingItemIndex}.quantity`) || 0;
-      const newQuantity = currentQuantity + parseFloat(requestDetail.quantity);
-      form.setValue(`items.${existingItemIndex}.quantity`, newQuantity);
-
-      // Recalcular precio unitario
-      const itemTotal =
-        form.getValues(`items.${existingItemIndex}.item_total`) || 0;
-      if (newQuantity > 0) {
-        const calculatedPrice =
-          Math.round((itemTotal / newQuantity) * 10000) / 10000;
-        form.setValue(
-          `items.${existingItemIndex}.unit_price`,
-          calculatedPrice,
-          { shouldValidate: false }
-        );
-      }
-    } else {
-      // Si no existe, agregar nuevo item
-      append({
-        product_id: requestDetail.product_id.toString(),
-        quantity: parseFloat(requestDetail.quantity),
-        item_total: 0,
-        unit_price: 0,
-        discount: 0,
-        tax_rate: 18,
-        notes: requestDetail.notes || "",
-      });
-    }
-
-    // Agregar el ID a la lista de añadidos
-    setAddedRequestDetailIds((prev) => [...prev, requestDetail.id]);
-  };
-
   const handleRemoveItem = (index: number) => {
-    // Obtener el product_id del item que se va a eliminar
-    const itemToRemove = fields[index] as any;
-    const productId = itemToRemove.product_id;
-
-    // Buscar si este producto vino de una solicitud de compra
-    const requestDetail = purcheseRequestDetailsPending?.data?.find(
-      (detail: any) => detail.product_id.toString() === productId
-    );
-
-    if (requestDetail && addedRequestDetailIds.includes(requestDetail.id)) {
-      // Si vino de una solicitud, removerlo de la lista de añadidos
-      setAddedRequestDetailIds((prev) =>
-        prev.filter((id) => id !== requestDetail.id)
-      );
-    }
-
-    // Eliminar el item del formulario
     remove(index);
-  };
-
-  const handleDiscardFromRequest = (requestDetail: any) => {
-    // Guardar la solicitud pendiente de descarte y mostrar el diálogo
-    setPendingDiscardRequest(requestDetail);
-    setOpenRejectedAlert(true);
-  };
-
-  const handleConfirmDiscard = async () => {
-    if (!pendingDiscardRequest) return;
-
-    try {
-      // Llamar al endpoint para rechazar la solicitud de compra
-      await rejectPurchaseRequestDetail(pendingDiscardRequest.id);
-
-      toast.success("Solicitud descartada correctamente");
-
-      // Refrescar la lista de solicitudes pendientes
-      await refetchPurchaseRequests();
-    } catch (error: any) {
-      toast.error(
-        error.response?.data?.message ||
-          "Error al descartar la solicitud de compra"
-      );
-    } finally {
-      // Limpiar el estado y cerrar el diálogo
-      setPendingDiscardRequest(null);
-      setOpenRejectedAlert(false);
-    }
   };
 
   const handleSubmit = (data: any) => {
@@ -366,629 +261,528 @@ export const PurchaseOrderProductsForm = ({
           : data.due_date,
       igv: 18,
       type_operation_id: data.type_operation_id || TYPES_OPERATION_ID.POSTVENTA,
-      request_detail_ids: addedRequestDetailIds.length > 0 ? addedRequestDetailIds : undefined,
+      ap_supplier_order_id: supplierOrderId || undefined,
     };
 
     onSubmit(transformedData);
   };
 
-  // Filtrar solicitudes no añadidas
-  // Solo mostrar si hay almacén seleccionado
-  const availablePurchaseRequests =
-    (selectedWarehouseId &&
-      purcheseRequestDetailsPending?.data?.filter(
-        (detail: any) => !addedRequestDetailIds.includes(detail.id)
-      )) ||
-    [];
-
   return (
-    <>
-      <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(handleSubmit)}
-          className="space-y-6 w-full formlayout py-2"
-        >
-          <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 relative">
-            {/* Lista lateral de solicitudes de compra */}
-            {((availablePurchaseRequests.length > 0 && mode === "create") ||
-              (isLoadingPurcheseRequestDetailsPending &&
-                selectedWarehouseId &&
-                mode === "create")) && (
-              <>
-                {/* Botón toggle para mostrar/ocultar la lista */}
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setIsRequestListVisible(!isRequestListVisible)}
-                  className="absolute left-[-35px] top-0 z-10 h-8 w-8 p-0 rounded-full shadow-md hidden lg:block"
-                >
-                  {isRequestListVisible ? (
-                    <ChevronLeft className="h-4 w-4" />
-                  ) : (
-                    <ChevronRight className="h-4 w-4" />
-                  )}
-                </Button>
-
-                {/* Lista de solicitudes */}
-                {isRequestListVisible && (
-                  <div className="xl:col-span-3 order-last xl:order-first">
-                    <PendingPurchaseRequestsList
-                      requests={availablePurchaseRequests}
-                      isLoading={isLoadingPurcheseRequestDetailsPending}
-                      onAdd={handleAddFromRequest}
-                      onDiscard={handleDiscardFromRequest}
-                    />
-                  </div>
-                )}
-              </>
-            )}
-
-            {/* Contenido principal del formulario */}
-            <div
-              className={
-                ((availablePurchaseRequests.length > 0 && mode === "create") ||
-                  (isLoadingPurcheseRequestDetailsPending &&
-                    selectedWarehouseId &&
-                    mode === "create")) &&
-                isRequestListVisible
-                  ? "xl:col-span-9"
-                  : "xl:col-span-12"
-              }
-            >
-              <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-                {/* Sección 1: Información de la Orden */}
-                <GroupFormSection
-                  title="Información de la Orden"
-                  icon={FileText}
-                  className="xl:col-span-2"
-                  cols={{ sm: 1, md: 2 }}
-                >
-                  <FormSelectAsync
-                    placeholder="Seleccionar Proveedor"
-                    control={form.control}
-                    label={"Proveedor"}
-                    name="supplier_id"
-                    useQueryHook={useSuppliers}
-                    mapOptionFn={(item: SuppliersResource) => ({
-                      value: item.id.toString(),
-                      label: `${item.num_doc || "S/N"} | ${
-                        item.full_name || "S/N"
-                      }`,
-                    })}
-                    perPage={10}
-                    debounceMs={500}
-                    defaultOption={
-                      PurchaseOrderProductsData?.supplier_id
-                        ? {
-                            value:
-                              PurchaseOrderProductsData.supplier_id.toString(),
-                            label: `${
-                              PurchaseOrderProductsData.supplier_num_doc ||
-                              "S/N"
-                            } | ${PurchaseOrderProductsData.supplier || "S/N"}`,
-                          }
-                        : undefined
+    <Form {...form}>
+      <form
+        onSubmit={form.handleSubmit(handleSubmit)}
+        className="space-y-6 w-full formlayout py-2"
+      >
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+          {/* Sección 1: Información de la Orden */}
+          <GroupFormSection
+            title="Información de la Orden"
+            icon={FileText}
+            className="xl:col-span-2"
+            cols={{ sm: 1, md: 2 }}
+          >
+            <FormSelectAsync
+              placeholder="Seleccionar Proveedor"
+              control={form.control}
+              label={"Proveedor"}
+              name="supplier_id"
+              useQueryHook={useSuppliers}
+              mapOptionFn={(item: SuppliersResource) => ({
+                value: item.id.toString(),
+                label: `${item.num_doc || "S/N"} | ${item.full_name || "S/N"}`,
+              })}
+              perPage={10}
+              debounceMs={500}
+              disabled={Boolean(supplierOrderData)}
+              defaultOption={
+                PurchaseOrderProductsData?.supplier_id
+                  ? {
+                      value: PurchaseOrderProductsData.supplier_id.toString(),
+                      label: `${
+                        PurchaseOrderProductsData.supplier_num_doc || "S/N"
+                      } | ${PurchaseOrderProductsData.supplier || "S/N"}`,
                     }
-                  ></FormSelectAsync>
+                  : supplierOrderData?.supplier_id
+                  ? {
+                      value: supplierOrderData.supplier_id.toString(),
+                      label: `${
+                        supplierOrderData.supplier?.num_doc || "S/N"
+                      } | ${supplierOrderData.supplier?.full_name || "S/N"}`,
+                    }
+                  : undefined
+              }
+            ></FormSelectAsync>
 
-                  <FormField
-                    control={form.control}
-                    name="invoice_series"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Serie Factura</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Ej: F001" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+            <FormField
+              control={form.control}
+              name="invoice_series"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Serie Factura</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Ej: F001" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-                  <FormField
-                    control={form.control}
-                    name="invoice_number"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Núm. Factura</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Ej: 00012345" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+            <FormField
+              control={form.control}
+              name="invoice_number"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Núm. Factura</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Ej: 00012345" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-                  <DatePickerFormField
-                    control={form.control}
-                    name="emission_date"
-                    label="Fecha Emisión Factura"
-                    placeholder="Selecciona una fecha"
-                    dateFormat="dd/MM/yyyy"
-                    captionLayout="dropdown"
-                    disabledRange={{ after: new Date() }}
-                  />
+            <DatePickerFormField
+              control={form.control}
+              name="emission_date"
+              label="Fecha Emisión Factura"
+              placeholder="Selecciona una fecha"
+              dateFormat="dd/MM/yyyy"
+              captionLayout="dropdown"
+              disabledRange={{ after: new Date() }}
+            />
 
-                  <DatePickerFormField
-                    control={form.control}
-                    name="due_date"
-                    label="Fecha Vencimiento Factura (30 días después)"
-                    placeholder="Calculado automáticamente"
-                    dateFormat="dd/MM/yyyy"
-                    captionLayout="dropdown"
-                    disabledRange={{
-                      before: watchedEmissionDate || new Date(),
-                    }}
-                    disabled={true}
-                  />
+            <DatePickerFormField
+              control={form.control}
+              name="due_date"
+              label="Fecha Vencimiento Factura (30 días después)"
+              placeholder="Calculado automáticamente"
+              dateFormat="dd/MM/yyyy"
+              captionLayout="dropdown"
+              disabledRange={{
+                before: watchedEmissionDate || new Date(),
+              }}
+              disabled={true}
+            />
 
-                  <FormSelect
-                    name="sede_id"
-                    label="Sede"
-                    placeholder="Selecciona una sede"
-                    options={mySedes.map((item) => ({
-                      label: item.abreviatura,
-                      value: item.id.toString(),
-                    }))}
-                    control={form.control}
-                  />
+            <FormSelect
+              name="sede_id"
+              label="Sede"
+              placeholder="Selecciona una sede"
+              options={mySedes.map((item) => ({
+                label: item.abreviatura,
+                value: item.id.toString(),
+              }))}
+              control={form.control}
+              disabled={Boolean(supplierOrderData)}
+            />
 
-                  <FormSelect
-                    name="warehouse_id"
-                    label="Almacén"
-                    placeholder="Selecciona un almacén"
-                    options={warehouses.map((warehouse) => ({
-                      label: warehouse.description,
-                      description: warehouse.sede,
-                      value: warehouse.id.toString(),
-                    }))}
-                    control={form.control}
-                    disabled={!form.watch("sede_id") || isLoadingWarehouses}
-                  />
+            <FormSelect
+              name="warehouse_id"
+              label="Almacén"
+              placeholder="Selecciona un almacén"
+              options={warehouses.map((warehouse) => ({
+                label: warehouse.description,
+                description: warehouse.sede,
+                value: warehouse.id.toString(),
+              }))}
+              control={form.control}
+              disabled={
+                !form.watch("sede_id") ||
+                isLoadingWarehouses ||
+                Boolean(supplierOrderData)
+              }
+            />
 
-                  <FormSelect
-                    name="currency_id"
-                    label="Tipo Moneda"
-                    placeholder="Seleccionar Tipo"
-                    options={currencyTypes.map((item) => ({
-                      label: () => (
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs text-muted-foreground">
-                            {item.code}
-                          </span>
-                          <span>{item.name}</span>
-                        </div>
-                      ),
-                      value: item.id.toString(),
-                    }))}
-                    control={form.control}
-                  />
-
-                  <FormSelect
-                    name="payment_terms"
-                    label="Términos de Pago"
-                    placeholder="Selecciona términos de pago"
-                    options={PAYMENT_TERMS_OPTIONS.map((option) => ({
-                      label: option.label,
-                      value: option.value,
-                    }))}
-                    control={form.control}
-                  />
-                </GroupFormSection>
-
-                {/* Sección 2: Resumen */}
-                <GroupFormSection
-                  title="Total de Factura"
-                  icon={Calculator}
-                  className="xl:col-span-1"
-                  cols={{ sm: 1, md: 1 }}
-                >
-                  <div className="space-y-3">
-                    <div className="text-xs text-muted-foreground bg-blue-50 p-2 rounded-md mb-3">
-                      Los totales se calcularán automáticamente según los
-                      productos agregados.
-                    </div>
-
-                    <div className="flex justify-between items-center py-3 bg-primary/5 px-3 rounded-md">
-                      <span className="font-semibold">Total:</span>
-                      <span className="font-bold text-lg text-primary">
-                        {currencyTypes.find(
-                          (ct) => ct.id.toString() === watchedCurrencyTypeId
-                        )?.symbol || "S/."}{" "}
-                        {(form.watch("total") || 0)
-                          .toFixed(4)
-                          .replace(/\.?0+$/, "")}
-                      </span>
-                    </div>
-
-                    {/* Mostrar tipo de cambio y equivalente en soles si la moneda es diferente a soles */}
-                    {watchedCurrencyTypeId &&
-                      watchedCurrencyTypeId !== CURRENCY_TYPE_IDS.SOLES && (
-                        <>
-                          {isLoadingExchangeRate && (
-                            <div className="text-xs text-primary text-center py-2 bg-blue-50 rounded-md">
-                              Consultando tipo de cambio...
-                            </div>
-                          )}
-
-                          {exchangeRateError && (
-                            <div className="text-xs text-red-600 text-center py-2 bg-red-50 rounded-md">
-                              {exchangeRateError}
-                            </div>
-                          )}
-
-                          {exchangeRate && (
-                            <>
-                              <div className="flex justify-between items-center py-2 border-t mt-2 pt-2">
-                                <span className="text-xs text-muted-foreground">
-                                  Tipo de cambio:
-                                </span>
-                                <span className="text-xs font-medium">
-                                  S/.{" "}
-                                  {exchangeRate
-                                    .toFixed(4)
-                                    .replace(/\.?0+$/, "")}
-                                </span>
-                              </div>
-
-                              <div className="flex justify-between items-center py-3 bg-green-50 px-3 rounded-md">
-                                <span className="font-semibold text-sm">
-                                  Equivalente en Soles:
-                                </span>
-                                <span className="font-bold text-lg text-green-700">
-                                  S/.{" "}
-                                  {((form.watch("total") || 0) * exchangeRate)
-                                    .toFixed(4)
-                                    .replace(/\.?0+$/, "")}
-                                </span>
-                              </div>
-                            </>
-                          )}
-                        </>
-                      )}
-
-                    <p className="text-xs text-muted-foreground text-center pt-2">
-                      * Calculado automáticamente
-                    </p>
+            <FormSelect
+              name="currency_id"
+              label="Tipo Moneda"
+              placeholder="Seleccionar Tipo"
+              options={currencyTypes.map((item) => ({
+                label: () => (
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-muted-foreground">
+                      {item.code}
+                    </span>
+                    <span>{item.name}</span>
                   </div>
-                </GroupFormSection>
+                ),
+                value: item.id.toString(),
+              }))}
+              control={form.control}
+              disabled={Boolean(supplierOrderData)}
+            />
 
-                {/* Sección 3: Items de la Orden de Compra */}
-                <GroupFormSection
-                  title="Items de la Orden de Compra"
-                  icon={Package}
-                  className="mt-6 w-full col-span-full"
-                  cols={{ sm: 1 }}
-                >
-                  <div className="w-full space-y-4">
-                    {/* Tabla de Items */}
-                    <div className="w-full rounded-md border-none">
-                      <Table>
-                        <TableHeader>
-                          <TableRow>
-                            <TableHead className="w-12">#</TableHead>
-                            <TableHead className="min-w-[250px]">
-                              Producto
-                            </TableHead>
-                            <TableHead className="w-24 text-center">
-                              Cantidad
-                            </TableHead>
-                            <TableHead className="w-32 text-end">
-                              Precio
-                            </TableHead>
-                            <TableHead className="w-32 text-end">
-                              Total
-                            </TableHead>
-                            {watchedCurrencyTypeId &&
-                              watchedCurrencyTypeId !==
-                                CURRENCY_TYPE_IDS.SOLES &&
-                              exchangeRate && (
-                                <TableHead className="w-32 text-end">
-                                  Total Soles
-                                </TableHead>
-                              )}
-                            <TableHead className="w-20 text-center">
-                              Acción
-                            </TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {fields.map((field, index) => {
-                            const unitPrice =
-                              form.watch(`items.${index}.unit_price`) || 0;
-                            const itemTotal =
-                              form.watch(`items.${index}.item_total`) || 0;
+            <FormSelect
+              name="payment_terms"
+              label="Términos de Pago"
+              placeholder="Selecciona términos de pago"
+              options={PAYMENT_TERMS_OPTIONS.map((option) => ({
+                label: option.label,
+                value: option.value,
+              }))}
+              control={form.control}
+            />
+          </GroupFormSection>
 
-                            return (
-                              <TableRow key={field.id}>
-                                <TableCell className="align-middle p-1.5 h-full">
-                                  <div className="flex items-center justify-center gap-1 h-full">
-                                    <span className="text-sm font-medium">
-                                      {index + 1}
-                                    </span>
-                                  </div>
-                                </TableCell>
-                                <TableCell className="align-middle p-1.5">
-                                  <div className="space-y-1">
-                                    {mode === "update" ? (
-                                      // Modo edición: Mostrar nombre del producto (solo lectura)
-                                      <div className="h-auto min-h-10 w-full rounded-md border border-input bg-muted/50 px-3 py-2 text-sm flex items-center">
-                                        <span className="font-medium text-sm truncate">
-                                          {PurchaseOrderProductsData?.items?.[
-                                            index
-                                          ]?.product_name ||
-                                            "Producto no disponible"}
-                                        </span>
-                                      </div>
-                                    ) : (
-                                      // Modo creación: Selector asíncrono
-                                      <>
-                                        <FormSelectAsync
-                                          name={`items.${index}.product_id`}
-                                          placeholder="Buscar producto..."
-                                          control={form.control}
-                                          useQueryHook={useProduct}
-                                          mapOptionFn={(
-                                            product: ProductResource
-                                          ) => ({
-                                            value: product.id.toString(),
-                                            label: `${product.name} - ${
-                                              product.code
-                                            } - ${
-                                              product.unit_measurement_name ||
-                                              "Sin unidad"
-                                            }`,
-                                          })}
-                                          perPage={10}
-                                          debounceMs={500}
-                                          defaultOption={(() => {
-                                            // Buscar si este producto vino de una solicitud
-                                            const currentProductId = form.watch(
-                                              `items.${index}.product_id`
-                                            );
-                                            if (!currentProductId)
-                                              return undefined;
+          {/* Sección 2: Resumen */}
+          <GroupFormSection
+            title="Total de Factura"
+            icon={Calculator}
+            className="xl:col-span-1"
+            cols={{ sm: 1, md: 1 }}
+          >
+            <div className="space-y-3">
+              <div className="text-xs text-muted-foreground bg-blue-50 p-2 rounded-md mb-3">
+                Los totales se calcularán automáticamente según los productos
+                agregados.
+              </div>
 
-                                            const requestDetail =
-                                              purcheseRequestDetailsPending?.data?.find(
-                                                (detail: any) =>
-                                                  detail.product_id.toString() ===
-                                                  currentProductId
-                                              );
+              <div className="flex justify-between items-center py-3 bg-primary/5 px-3 rounded-md">
+                <span className="font-semibold">Total:</span>
+                <span className="font-bold text-lg text-primary">
+                  {currencyTypes.find(
+                    (ct) => ct.id.toString() === watchedCurrencyTypeId
+                  )?.symbol || "S/."}{" "}
+                  {(form.watch("total") || 0).toFixed(4).replace(/\.?0+$/, "")}
+                </span>
+              </div>
 
-                                            if (requestDetail) {
-                                              return {
-                                                value:
-                                                  requestDetail.product_id.toString(),
-                                                label: `${requestDetail.product_name} - ${requestDetail.product_code}`,
-                                              };
-                                            }
-                                            return undefined;
-                                          })()}
-                                        />
-                                      </>
-                                    )}
-                                  </div>
-                                </TableCell>
-                                <TableCell className="align-middle p-1.5 text-center">
-                                  <FormField
-                                    control={form.control}
-                                    name={`items.${index}.quantity`}
-                                    render={({ field }) => (
-                                      <FormItem>
-                                        <FormControl>
-                                          <Input
-                                            type="number"
-                                            min="1"
-                                            step="1"
-                                            placeholder="1"
-                                            className="text-center"
-                                            value={
-                                              typeof field.value === "number"
-                                                ? field.value
-                                                : ""
-                                            }
-                                            onChange={(e) => {
-                                              const num = parseInt(
-                                                e.target.value
-                                              );
-                                              field.onChange(
-                                                isNaN(num) ? "" : num
-                                              );
-
-                                              // Calcular precio unitario inmediatamente
-                                              if (!isNaN(num) && num > 0) {
-                                                const total =
-                                                  form.getValues(
-                                                    `items.${index}.item_total`
-                                                  ) || 0;
-                                                const calculatedPrice =
-                                                  Math.round(
-                                                    (total / num) * 10000
-                                                  ) / 10000;
-                                                form.setValue(
-                                                  `items.${index}.unit_price`,
-                                                  calculatedPrice,
-                                                  { shouldValidate: false }
-                                                );
-                                              }
-                                            }}
-                                          />
-                                        </FormControl>
-                                        <FormMessage />
-                                      </FormItem>
-                                    )}
-                                  />
-                                </TableCell>
-                                <TableCell className="align-middle p-1.5 text-end">
-                                  <div className="text-sm font-medium bg-muted/50 px-3 py-2 rounded-md">
-                                    {unitPrice.toFixed(4).replace(/\.?0+$/, "")}
-                                  </div>
-                                </TableCell>
-                                <TableCell className="align-middle p-1.5">
-                                  <FormField
-                                    control={form.control}
-                                    name={`items.${index}.item_total`}
-                                    render={({ field }) => (
-                                      <FormItem>
-                                        <FormControl>
-                                          <Input
-                                            type="number"
-                                            min="0"
-                                            step="0.0001"
-                                            placeholder="0.00"
-                                            className="text-end"
-                                            value={
-                                              typeof field.value === "number"
-                                                ? field.value
-                                                : ""
-                                            }
-                                            onChange={(e) => {
-                                              const num = parseFloat(
-                                                e.target.value
-                                              );
-                                              field.onChange(
-                                                isNaN(num) ? "" : num
-                                              );
-
-                                              // Calcular precio unitario inmediatamente
-                                              if (!isNaN(num) && num >= 0) {
-                                                const quantity =
-                                                  form.getValues(
-                                                    `items.${index}.quantity`
-                                                  ) || 1;
-                                                const calculatedPrice =
-                                                  Math.round(
-                                                    (num / quantity) * 10000
-                                                  ) / 10000;
-                                                form.setValue(
-                                                  `items.${index}.unit_price`,
-                                                  calculatedPrice,
-                                                  { shouldValidate: false }
-                                                );
-                                              }
-                                            }}
-                                          />
-                                        </FormControl>
-                                        <FormMessage />
-                                      </FormItem>
-                                    )}
-                                  />
-                                </TableCell>
-                                {watchedCurrencyTypeId &&
-                                  watchedCurrencyTypeId !==
-                                    CURRENCY_TYPE_IDS.SOLES &&
-                                  exchangeRate && (
-                                    <TableCell className="align-middle p-1.5 text-end">
-                                      <div className="text-sm font-medium text-green-700">
-                                        S/.{" "}
-                                        {(itemTotal * exchangeRate)
-                                          .toFixed(4)
-                                          .replace(/\.?0+$/, "")}
-                                      </div>
-                                    </TableCell>
-                                  )}
-                                <TableCell className="align-middle text-center p-1.5">
-                                  <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => handleRemoveItem(index)}
-                                    disabled={mode === "update"}
-                                    className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                                  >
-                                    <Trash2 className="h-4 w-4" />
-                                  </Button>
-                                </TableCell>
-                              </TableRow>
-                            );
-                          })}
-                        </TableBody>
-                      </Table>
-                    </div>
-
-                    {/* Botón para agregar items */}
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={handleAddItem}
-                      className="w-full"
-                      disabled={mode === "update"}
-                    >
-                      <Plus className="mr-2 h-4 w-4" />
-                      Agregar Producto
-                    </Button>
-
-                    {/* Campo de notas dentro de items */}
-                    {fields.length > 0 && (
-                      <div className="mt-4">
-                        <FormField
-                          control={form.control}
-                          name="notes"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Notas Generales</FormLabel>
-                              <FormControl>
-                                <Textarea
-                                  placeholder="Notas o comentarios adicionales de la orden"
-                                  className="resize-none"
-                                  rows={3}
-                                  {...field}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
+              {/* Mostrar tipo de cambio y equivalente en soles si la moneda es diferente a soles */}
+              {watchedCurrencyTypeId &&
+                watchedCurrencyTypeId !== CURRENCY_TYPE_IDS.SOLES && (
+                  <>
+                    {isLoadingExchangeRate && (
+                      <div className="text-xs text-primary text-center py-2 bg-blue-50 rounded-md">
+                        Consultando tipo de cambio...
                       </div>
                     )}
-                  </div>
-                </GroupFormSection>
-              </div>
+
+                    {exchangeRateError && (
+                      <div className="text-xs text-red-600 text-center py-2 bg-red-50 rounded-md">
+                        {exchangeRateError}
+                      </div>
+                    )}
+
+                    {exchangeRate && (
+                      <>
+                        <div className="flex justify-between items-center py-2 border-t mt-2 pt-2">
+                          <span className="text-xs text-muted-foreground">
+                            Tipo de cambio:
+                          </span>
+                          <span className="text-xs font-medium">
+                            S/. {exchangeRate.toFixed(4).replace(/\.?0+$/, "")}
+                          </span>
+                        </div>
+
+                        <div className="flex justify-between items-center py-3 bg-green-50 px-3 rounded-md">
+                          <span className="font-semibold text-sm">
+                            Equivalente en Soles:
+                          </span>
+                          <span className="font-bold text-lg text-green-700">
+                            S/.{" "}
+                            {((form.watch("total") || 0) * exchangeRate)
+                              .toFixed(4)
+                              .replace(/\.?0+$/, "")}
+                          </span>
+                        </div>
+                      </>
+                    )}
+                  </>
+                )}
+
+              <p className="text-xs text-muted-foreground text-center pt-2">
+                * Calculado automáticamente
+              </p>
             </div>
-          </div>
+          </GroupFormSection>
 
-          <div className="flex gap-4 w-full justify-end">
-            <Button type="button" variant="outline" onClick={onCancel}>
-              Cancelar
-            </Button>
+          {/* Sección 3: Items de la Orden de Compra */}
+          <GroupFormSection
+            title="Items de la Orden de Compra"
+            icon={Package}
+            className="mt-6 w-full col-span-full"
+            cols={{ sm: 1 }}
+          >
+            <div className="w-full space-y-4">
+              {/* Tabla de Items */}
+              <div className="w-full rounded-md border-none">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-12">#</TableHead>
+                      <TableHead className="min-w-[250px]">Producto</TableHead>
+                      <TableHead className="w-24 text-center">
+                        Cantidad
+                      </TableHead>
+                      <TableHead className="w-32 text-end">Precio</TableHead>
+                      <TableHead className="w-32 text-end">Total</TableHead>
+                      {watchedCurrencyTypeId &&
+                        watchedCurrencyTypeId !== CURRENCY_TYPE_IDS.SOLES &&
+                        exchangeRate && (
+                          <TableHead className="w-32 text-end">
+                            Total Soles
+                          </TableHead>
+                        )}
+                      <TableHead className="w-20 text-center">Acción</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {fields.map((field, index) => {
+                      const unitPrice =
+                        Number(form.watch(`items.${index}.unit_price`)) || 0;
+                      const itemTotal =
+                        Number(form.watch(`items.${index}.item_total`)) || 0;
 
-            <Button
-              type="submit"
-              disabled={
-                isSubmitting ||
-                !form.formState.isValid ||
-                Boolean(
-                  watchedCurrencyTypeId &&
-                    watchedCurrencyTypeId !== CURRENCY_TYPE_IDS.SOLES &&
-                    !exchangeRate
-                )
-              }
-            >
-              <Loader
-                className={`mr-2 h-4 w-4 ${!isSubmitting ? "hidden" : ""}`}
-              />
-              {isSubmitting ? "Guardando..." : "Guardar Orden de Compra"}
-            </Button>
-          </div>
-        </form>
-      </Form>
+                      return (
+                        <TableRow key={field.id}>
+                          <TableCell className="align-middle p-1.5 h-full">
+                            <div className="flex items-center justify-center gap-1 h-full">
+                              <span className="text-sm font-medium">
+                                {index + 1}
+                              </span>
+                            </div>
+                          </TableCell>
+                          <TableCell className="align-middle p-1.5">
+                            <div className="space-y-1">
+                              {mode === "update" ? (
+                                // Modo edición: Mostrar nombre del producto (solo lectura)
+                                <div className="h-auto min-h-10 w-full rounded-md border border-input bg-muted/50 px-3 py-2 text-sm flex items-center">
+                                  <span className="font-medium text-sm truncate">
+                                    {PurchaseOrderProductsData?.items?.[index]
+                                      ?.product_name ||
+                                      "Producto no disponible"}
+                                  </span>
+                                </div>
+                              ) : supplierOrderData ? (
+                                // Modo creación desde pedido proveedor: Mostrar nombre del producto (solo lectura)
+                                <div className="h-auto min-h-10 w-full rounded-md border border-input bg-muted/50 px-3 py-2 text-sm flex items-center">
+                                  <span className="font-medium text-sm truncate">
+                                    {supplierOrderData.details?.[index]?.product
+                                      ?.name ||
+                                      supplierOrderData.details?.[index]
+                                        ?.product?.code ||
+                                      "Producto no disponible"}
+                                  </span>
+                                </div>
+                              ) : (
+                                // Modo creación: Selector asíncrono
+                                <>
+                                  <FormSelectAsync
+                                    name={`items.${index}.product_id`}
+                                    placeholder="Buscar producto..."
+                                    control={form.control}
+                                    useQueryHook={useProduct}
+                                    mapOptionFn={(
+                                      product: ProductResource
+                                    ) => ({
+                                      value: product.id.toString(),
+                                      label: `${product.name} - ${
+                                        product.code
+                                      } - ${
+                                        product.unit_measurement_name ||
+                                        "Sin unidad"
+                                      }`,
+                                    })}
+                                    perPage={10}
+                                    debounceMs={500}
+                                  />
+                                </>
+                              )}
+                            </div>
+                          </TableCell>
+                          <TableCell className="align-middle p-1.5 text-center">
+                            <FormField
+                              control={form.control}
+                              name={`items.${index}.quantity`}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormControl>
+                                    <Input
+                                      type="number"
+                                      min="1"
+                                      step="1"
+                                      placeholder="1"
+                                      className="text-center"
+                                      disabled={Boolean(supplierOrderData)}
+                                      value={
+                                        typeof field.value === "number"
+                                          ? field.value
+                                          : ""
+                                      }
+                                      onChange={(e) => {
+                                        const num = parseInt(e.target.value);
+                                        field.onChange(isNaN(num) ? "" : num);
 
-      {/* Alert para confirmar rechazo de solicitud de compra Item */}
-      <SimpleConfirmDialog
-        open={openRejectedAlert}
-        onOpenChange={setOpenRejectedAlert}
-        onConfirm={handleConfirmDiscard}
-        title="¿Descartar Solicitud de Compra?"
-        description={`¿Estás seguro de descartar esta solicitud? El producto "${
-          pendingDiscardRequest?.product_name || ""
-        }" será descartado de las solicitudes pendientes.`}
-        confirmText="Sí, Descartar"
-        cancelText="Cancelar"
-        variant="destructive"
-        icon="warning"
-      />
-    </>
+                                        // Calcular precio unitario inmediatamente
+                                        if (!isNaN(num) && num > 0) {
+                                          const total =
+                                            form.getValues(
+                                              `items.${index}.item_total`
+                                            ) || 0;
+                                          const calculatedPrice =
+                                            Math.round((total / num) * 10000) /
+                                            10000;
+                                          form.setValue(
+                                            `items.${index}.unit_price`,
+                                            calculatedPrice,
+                                            { shouldValidate: false }
+                                          );
+                                        }
+                                      }}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </TableCell>
+                          <TableCell className="align-middle p-1.5 text-end">
+                            <div className="text-sm font-medium bg-muted/50 px-3 py-2 rounded-md">
+                              {unitPrice.toFixed(4).replace(/\.?0+$/, "")}
+                            </div>
+                          </TableCell>
+                          <TableCell className="align-middle p-1.5">
+                            <FormField
+                              control={form.control}
+                              name={`items.${index}.item_total`}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormControl>
+                                    <Input
+                                      type="number"
+                                      min="0"
+                                      step="0.0001"
+                                      placeholder="0.00"
+                                      className="text-end"
+                                      value={
+                                        typeof field.value === "number"
+                                          ? field.value
+                                          : ""
+                                      }
+                                      onChange={(e) => {
+                                        const num = parseFloat(e.target.value);
+                                        field.onChange(isNaN(num) ? "" : num);
+
+                                        // Calcular precio unitario inmediatamente
+                                        if (!isNaN(num) && num >= 0) {
+                                          const quantity =
+                                            form.getValues(
+                                              `items.${index}.quantity`
+                                            ) || 1;
+                                          const calculatedPrice =
+                                            Math.round(
+                                              (num / quantity) * 10000
+                                            ) / 10000;
+                                          form.setValue(
+                                            `items.${index}.unit_price`,
+                                            calculatedPrice,
+                                            { shouldValidate: false }
+                                          );
+                                        }
+                                      }}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </TableCell>
+                          {watchedCurrencyTypeId &&
+                            watchedCurrencyTypeId !== CURRENCY_TYPE_IDS.SOLES &&
+                            exchangeRate && (
+                              <TableCell className="align-middle p-1.5 text-end">
+                                <div className="text-sm font-medium text-green-700">
+                                  S/.{" "}
+                                  {(itemTotal * exchangeRate)
+                                    .toFixed(4)
+                                    .replace(/\.?0+$/, "")}
+                                </div>
+                              </TableCell>
+                            )}
+                          <TableCell className="align-middle text-center p-1.5">
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleRemoveItem(index)}
+                              disabled={
+                                mode === "update" || Boolean(supplierOrderData)
+                              }
+                              className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </div>
+
+              {/* Botón para agregar items */}
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleAddItem}
+                className="w-full"
+                disabled={mode === "update" || Boolean(supplierOrderData)}
+              >
+                <Plus className="mr-2 h-4 w-4" />
+                Agregar Producto
+              </Button>
+
+              {/* Campo de notas dentro de items */}
+              {fields.length > 0 && (
+                <div className="mt-4">
+                  <FormField
+                    control={form.control}
+                    name="notes"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Notas Generales</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            placeholder="Notas o comentarios adicionales de la orden"
+                            className="resize-none"
+                            rows={3}
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              )}
+            </div>
+          </GroupFormSection>
+        </div>
+
+        <div className="flex gap-4 w-full justify-end">
+          <Button type="button" variant="outline" onClick={onCancel}>
+            Cancelar
+          </Button>
+
+          <Button
+            type="submit"
+            disabled={
+              isSubmitting ||
+              !form.formState.isValid ||
+              Boolean(
+                watchedCurrencyTypeId &&
+                  watchedCurrencyTypeId !== CURRENCY_TYPE_IDS.SOLES &&
+                  !exchangeRate
+              )
+            }
+          >
+            <Loader
+              className={`mr-2 h-4 w-4 ${!isSubmitting ? "hidden" : ""}`}
+            />
+            {isSubmitting ? "Guardando..." : "Guardar Orden de Compra"}
+          </Button>
+        </div>
+      </form>
+    </Form>
   );
 };
