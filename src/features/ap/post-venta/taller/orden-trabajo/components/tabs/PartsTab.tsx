@@ -24,7 +24,6 @@ import {
 } from "@/components/ui/select";
 import {
   getAllWorkOrderParts,
-  getQuotationByVehicle,
   storeBulkFromQuotation,
   updateWorkOrderParts,
 } from "@/features/ap/post-venta/taller/orden-trabajo-repuesto/lib/workOrderParts.actions";
@@ -60,12 +59,9 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
 
   const items = useMemo(() => workOrder?.items || [], [workOrder?.items]);
 
-  // Obtener cotización por vehículo
-  const { data: quotation, isLoading: isLoadingQuotation } = useQuery({
-    queryKey: ["quotationByVehicle", workOrder?.vehicle_id],
-    queryFn: () => getQuotationByVehicle(Number(workOrder?.vehicle_id)),
-    enabled: !!workOrder?.vehicle_id,
-  });
+  // Obtener la cotización asociada si existe
+  const associatedQuotation = workOrder?.order_quotation || null;
+  const hasAssociatedQuotation = workOrder?.order_quotation_id !== null;
 
   // Auto-seleccionar el primer grupo si no hay ninguno seleccionado
   useEffect(() => {
@@ -80,10 +76,37 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
       is_physical_warehouse: 1,
     });
 
+  // Filtrar almacenes por sede si hay cotización asociada
+  const filteredWarehouses = useMemo(() => {
+    if (hasAssociatedQuotation && associatedQuotation?.sede_id) {
+      return warehouses.filter(
+        (w) => w.sede_id === associatedQuotation.sede_id
+      );
+    }
+    return warehouses;
+  }, [warehouses, hasAssociatedQuotation, associatedQuotation]);
+
+  // Auto-seleccionar almacén cuando se asocia cotización
+  useEffect(() => {
+    if (
+      hasAssociatedQuotation &&
+      associatedQuotation?.sede_id &&
+      filteredWarehouses.length > 0 &&
+      !selectedWarehouseForBulk
+    ) {
+      setSelectedWarehouseForBulk(filteredWarehouses[0].id.toString());
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    hasAssociatedQuotation,
+    associatedQuotation?.sede_id,
+    filteredWarehouses,
+  ]);
+
   const storeBulkMutation = useMutation({
     mutationFn: (params: { warehouseId: number; groupNumber: number }) =>
       storeBulkFromQuotation({
-        quotation_id: quotation?.id || 0,
+        quotation_id: associatedQuotation?.id || 0,
         work_order_id: workOrderId,
         warehouse_id: params.warehouseId,
         group_number: params.groupNumber,
@@ -95,7 +118,7 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
         queryKey: ["workOrderParts", workOrderId],
       });
       queryClient.invalidateQueries({
-        queryKey: ["quotationByVehicle", workOrder?.vehicle_id],
+        queryKey: ["workOrder", workOrderId],
       });
       setSelectedWarehouseForBulk("");
       setSelectedProductIds([]);
@@ -115,11 +138,14 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
   };
 
   const handleToggleAll = () => {
-    if (quotation?.details) {
-      if (selectedProductIds.length === quotation.details.length) {
+    if (associatedQuotation?.details) {
+      const productDetails = associatedQuotation.details.filter(
+        (d: any) => d.item_type === "PRODUCT"
+      );
+      if (selectedProductIds.length === productDetails.length) {
         setSelectedProductIds([]);
       } else {
-        setSelectedProductIds(quotation.details.map((d) => d.id));
+        setSelectedProductIds(productDetails.map((d: any) => d.id));
       }
     }
   };
@@ -171,12 +197,7 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
     (part) => part.group_number === selectedGroupNumber
   );
 
-  if (
-    isLoading ||
-    isLoadingWarehouses ||
-    isLoadingWorkOrder ||
-    isLoadingQuotation
-  ) {
+  if (isLoading || isLoadingWarehouses || isLoadingWorkOrder) {
     return (
       <div className="flex items-center justify-center py-12">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -193,20 +214,23 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
         onSelectGroup={setSelectedGroupNumber}
       />
 
-      {/* Mostrar cotización si existe */}
-      {quotation && quotation.details && quotation.details.length > 0 ? (
+      {/* Mostrar cotización asociada */}
+      {hasAssociatedQuotation && associatedQuotation && (
         <Card className="p-6">
           <div className="space-y-4">
+            {/* Header de la cotización asociada */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <Package className="h-6 w-6 text-primary" />
                 <div>
                   <h3 className="text-lg font-semibold">
-                    Cotización: {quotation.quotation_number}
+                    Cotización Asociada: {associatedQuotation.quotation_number}
                   </h3>
                   <p className="text-sm text-gray-600">
-                    {quotation.details.length} producto
-                    {quotation.details.length !== 1 ? "s" : ""}
+                    {associatedQuotation.details?.filter(
+                      (d: any) => d.item_type === "PRODUCT"
+                    ).length || 0}{" "}
+                    producto(s)
                   </p>
                 </div>
               </div>
@@ -214,12 +238,13 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
                 <Select
                   value={selectedWarehouseForBulk}
                   onValueChange={setSelectedWarehouseForBulk}
+                  disabled={hasAssociatedQuotation}
                 >
                   <SelectTrigger className="w-[230px]">
                     <SelectValue placeholder="Seleccione almacén" />
                   </SelectTrigger>
                   <SelectContent>
-                    {warehouses.map((warehouse) => (
+                    {filteredWarehouses.map((warehouse) => (
                       <SelectItem
                         key={warehouse.id}
                         value={warehouse.id.toString()}
@@ -270,7 +295,7 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
               </div>
             </div>
 
-            {/* Tabla de productos de la cotización */}
+            {/* Tabla de productos de la cotización asociada */}
             <div className="border rounded-lg overflow-hidden">
               <Table>
                 <TableHeader>
@@ -278,72 +303,65 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
                     <TableHead className="w-12">
                       <Checkbox
                         checked={
-                          quotation.details.length > 0 &&
-                          selectedProductIds.length === quotation.details.length
+                          associatedQuotation.details?.filter(
+                            (d: any) => d.item_type === "PRODUCT"
+                          ).length > 0 &&
+                          selectedProductIds.length ===
+                            associatedQuotation.details?.filter(
+                              (d: any) => d.item_type === "PRODUCT"
+                            ).length
                         }
                         onCheckedChange={handleToggleAll}
                       />
                     </TableHead>
-                    <TableHead>Producto</TableHead>
-                    <TableHead>Código</TableHead>
+                    <TableHead>Descripción</TableHead>
                     <TableHead className="text-center">Cantidad</TableHead>
-                    <TableHead>Unidad</TableHead>
-                    <TableHead className="text-right">Precio Unit.</TableHead>
+                    <TableHead className="text-right">P. Unitario</TableHead>
                     <TableHead className="text-right">Total</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {quotation.details.map((detail) => (
-                    <TableRow key={detail.id}>
-                      <TableCell>
-                        <Checkbox
-                          checked={selectedProductIds.includes(detail.id)}
-                          onCheckedChange={() => handleToggleProduct(detail.id)}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <p className="font-medium">{detail.description}</p>
-                      </TableCell>
-                      <TableCell>
-                        <p className="text-sm text-gray-600">
-                          {detail.product.code}
-                        </p>
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <Badge variant="outline" className="font-semibold">
-                          {detail.quantity}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <p className="text-sm">{detail.unit_measure}</p>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <p className="text-sm">
-                          S/. {Number(detail.unit_price).toFixed(2)}
-                        </p>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <p className="text-sm font-semibold">
-                          S/. {Number(detail.total_amount).toFixed(2)}
-                        </p>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                  {associatedQuotation.details
+                    ?.filter((detail: any) => detail.item_type === "PRODUCT")
+                    .map((detail: any) => {
+                      const currencySymbol =
+                        associatedQuotation.currency?.symbol || "S/.";
+                      return (
+                        <TableRow key={detail.id}>
+                          <TableCell>
+                            <Checkbox
+                              checked={selectedProductIds.includes(detail.id)}
+                              onCheckedChange={() =>
+                                handleToggleProduct(detail.id)
+                              }
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <p className="font-medium">{detail.description}</p>
+                          </TableCell>
+                          <TableCell className="text-center">
+                            <Badge variant="outline" className="font-semibold">
+                              {Number(detail.quantity).toFixed(2)}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <p className="text-sm">
+                              {currencySymbol}{" "}
+                              {Number(detail.unit_price || 0).toFixed(2)}
+                            </p>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <p className="text-sm font-semibold">
+                              {currencySymbol}{" "}
+                              {Number(detail.total_amount || 0).toFixed(2)}
+                            </p>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
                 </TableBody>
               </Table>
             </div>
-          </div>
-        </Card>
-      ) : (
-        <Card className="p-12">
-          <div className="text-center">
-            <Package className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              No hay cotización disponible
-            </h3>
-            <p className="text-sm text-gray-600">
-              Este vehículo no tiene una cotización asociada
-            </p>
           </div>
         </Card>
       )}

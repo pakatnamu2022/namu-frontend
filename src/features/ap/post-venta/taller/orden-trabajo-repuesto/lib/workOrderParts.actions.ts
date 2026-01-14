@@ -6,7 +6,6 @@ import {
   WorkOrderPartsRequest,
   WorkOrderPartsResource,
   WorkOrderPartsResponse,
-  QuotationByVehicleResponse,
   StoreBulkFromQuotationRequest,
 } from "./workOrderParts.interface";
 import { WORKER_ORDER_PARTS } from "./workOrderParts.constants";
@@ -65,15 +64,6 @@ export async function deleteWorkOrderParts(
   id: number
 ): Promise<GeneralResponse> {
   const { data } = await api.delete<GeneralResponse>(`${ENDPOINT}/${id}`);
-  return data;
-}
-
-export async function getQuotationByVehicle(
-  vehicleId: number
-): Promise<QuotationByVehicleResponse> {
-  const { data } = await api.get<QuotationByVehicleResponse>(
-    `${ENDPOINT}/quotation-by-vehicle/${vehicleId}`
-  );
   return data;
 }
 

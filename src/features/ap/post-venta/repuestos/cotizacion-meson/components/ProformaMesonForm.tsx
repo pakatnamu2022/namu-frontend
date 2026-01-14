@@ -762,9 +762,9 @@ export default function ProformaMesonForm({
               label="Vehículo"
               placeholder="Seleccione vehículo"
               options={vehicles.map((item) => ({
-                label: `${item.vin || "S/N"} | ${item.plate || ""} | ${
-                  item.model?.brand || ""
-                }`,
+                label: `[${item.plate || "S/N"}] • ${
+                  item.model?.version || ""
+                } • VIN: ${item.vin || "S/N"}`,
                 value: item.id.toString(),
               }))}
               control={form.control}

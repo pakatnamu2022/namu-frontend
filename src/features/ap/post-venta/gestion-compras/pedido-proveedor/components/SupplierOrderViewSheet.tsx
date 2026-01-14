@@ -59,14 +59,16 @@ export function SupplierOrderViewSheet({
 
   const currencySymbol = data?.type_currency?.symbol || "S/.";
 
-  // Calcular total del pedido
-  const orderTotal =
-    data?.details?.reduce((sum, item) => sum + item.total, 0) || 0;
+  // Obtener montos del pedido desde el API
+  const netAmount = Number(data?.net_amount) || 0;
+  const taxAmount = Number(data?.tax_amount) || 0;
+  const totalAmount = Number(data?.total_amount) || 0;
+
   const invoiceTotal = data?.invoice ? Number(data.invoice.total) : 0;
 
   // Verificar si los montos coinciden (con tolerancia de 0.01 para decimales)
   const totalsMatch = data?.invoice
-    ? Math.abs(orderTotal - invoiceTotal) < 0.01
+    ? Math.abs(totalAmount - invoiceTotal) < 0.01
     : true;
 
   return (
@@ -175,6 +177,40 @@ export function SupplierOrderViewSheet({
               </div>
             </div>
           </div>
+
+          {/* Solicitudes de Compra Asociadas */}
+          {data.purchase_requests && data.purchase_requests.length > 0 && (
+            <div className="p-4 border rounded-lg bg-blue-50/30">
+              <h3 className="font-semibold text-sm mb-3">
+                Solicitudes de Compra Asociadas
+              </h3>
+              <div className="space-y-2">
+                {data.purchase_requests.map((request) => (
+                  <div
+                    key={request.id}
+                    className="flex items-center justify-between p-2 bg-white rounded border"
+                  >
+                    <div>
+                      <p className="text-xs text-muted-foreground">
+                        N° Solicitud
+                      </p>
+                      <p className="font-semibold text-sm">
+                        {request.request_number}
+                      </p>
+                    </div>
+                    <div className="text-end">
+                      <p className="text-xs text-muted-foreground">
+                        Solicitado por
+                      </p>
+                      <p className="font-medium text-sm">
+                        {request.requested_by_name}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Información de la Factura Asociada */}
           {data.invoice && (
@@ -348,119 +384,123 @@ export function SupplierOrderViewSheet({
             </Table>
           </div>
 
-          {/* Comparación de Totales */}
+          {/* Desglose de Montos del Pedido */}
+          <Separator />
           <div className="space-y-4">
-            {data.invoice ? (
-              <>
-                <Separator />
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Total del Pedido */}
-                  <div
-                    className={`p-4 rounded-lg border-2 ${
-                      totalsMatch
-                        ? "bg-green-50 border-green-200"
-                        : "bg-red-50 border-red-200"
-                    }`}
-                  >
-                    <div className="text-center">
-                      <p
-                        className={`text-xs font-medium mb-2 ${
-                          totalsMatch ? "text-green-800" : "text-red-800"
-                        }`}
-                      >
-                        Total del Pedido
-                      </p>
-                      <p
-                        className={`text-2xl font-bold ${
-                          totalsMatch ? "text-green-700" : "text-red-700"
-                        }`}
-                      >
-                        {currencySymbol} {orderTotal.toFixed(2)}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Total de la Factura */}
-                  <div
-                    className={`p-4 rounded-lg border-2 ${
-                      totalsMatch
-                        ? "bg-green-50 border-green-200"
-                        : "bg-red-50 border-red-200"
-                    }`}
-                  >
-                    <div className="text-center">
-                      <p
-                        className={`text-xs font-medium mb-2 ${
-                          totalsMatch ? "text-green-800" : "text-red-800"
-                        }`}
-                      >
-                        Total de la Factura
-                      </p>
-                      <p
-                        className={`text-2xl font-bold ${
-                          totalsMatch ? "text-green-700" : "text-red-700"
-                        }`}
-                      >
-                        {data.invoice.currency_code === "USD" ? "$" : "S/."}{" "}
-                        {invoiceTotal.toFixed(2)}
-                      </p>
-                    </div>
-                  </div>
+            <h3 className="font-semibold text-lg">Resumen del Pedido</h3>
+            <div className="border rounded-lg p-4 bg-slate-50/50">
+              <div className="space-y-3">
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-muted-foreground">
+                    Valor de Venta Neta:
+                  </span>
+                  <span className="font-medium">
+                    {currencySymbol} {netAmount.toFixed(2)}
+                  </span>
                 </div>
 
-                {/* Mensaje de validación */}
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-muted-foreground">IGV (18%):</span>
+                  <span className="font-medium">
+                    {currencySymbol} {taxAmount.toFixed(2)}
+                  </span>
+                </div>
+
+                <div className="border-t pt-2 mt-2"></div>
+
+                <div className="flex justify-between items-center">
+                  <span className="font-semibold">Importe Total:</span>
+                  <span className="font-bold text-lg text-primary">
+                    {currencySymbol} {totalAmount.toFixed(2)}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Comparación de Totales con Factura */}
+          {data.invoice && (
+            <div className="space-y-4">
+              <Separator />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Total del Pedido */}
                 <div
-                  className={`p-3 rounded-lg text-center text-sm font-medium ${
+                  className={`p-4 rounded-lg border-2 ${
                     totalsMatch
-                      ? "bg-green-100 text-green-800 border border-green-200"
-                      : "bg-red-100 text-red-800 border border-red-200"
+                      ? "bg-green-50 border-green-200"
+                      : "bg-red-50 border-red-200"
                   }`}
                 >
-                  {totalsMatch ? (
-                    <span>
-                      ✓ Los montos del pedido y la factura coinciden
-                      correctamente
-                    </span>
-                  ) : (
-                    <span>
-                      ⚠ Los montos del pedido y la factura NO coinciden
-                    </span>
-                  )}
-                </div>
-              </>
-            ) : (
-              <div className="flex justify-end">
-                <div className="w-full md:w-1/2 p-4 bg-blue-50 border-2 border-blue-200 rounded-lg">
                   <div className="text-center">
-                    <p className="text-xs font-medium text-blue-800 mb-2">
+                    <p
+                      className={`text-xs font-medium mb-2 ${
+                        totalsMatch ? "text-green-800" : "text-red-800"
+                      }`}
+                    >
                       Total del Pedido
                     </p>
-                    <p className="text-2xl font-bold text-blue-700">
-                      {currencySymbol} {orderTotal.toFixed(2)}
+                    <p
+                      className={`text-2xl font-bold ${
+                        totalsMatch ? "text-green-700" : "text-red-700"
+                      }`}
+                    >
+                      {currencySymbol} {totalAmount.toFixed(2)}
                     </p>
-                    <p className="text-xs text-blue-600 mt-2">
-                      Sin factura asociada
+                  </div>
+                </div>
+
+                {/* Total de la Factura */}
+                <div
+                  className={`p-4 rounded-lg border-2 ${
+                    totalsMatch
+                      ? "bg-green-50 border-green-200"
+                      : "bg-red-50 border-red-200"
+                  }`}
+                >
+                  <div className="text-center">
+                    <p
+                      className={`text-xs font-medium mb-2 ${
+                        totalsMatch ? "text-green-800" : "text-red-800"
+                      }`}
+                    >
+                      Total de la Factura
+                    </p>
+                    <p
+                      className={`text-2xl font-bold ${
+                        totalsMatch ? "text-green-700" : "text-red-700"
+                      }`}
+                    >
+                      {data.invoice.currency_code === "USD" ? "$" : "S/."}{" "}
+                      {invoiceTotal.toFixed(2)}
                     </p>
                   </div>
                 </div>
               </div>
-            )}
-          </div>
+
+              {/* Mensaje de validación */}
+              <div
+                className={`p-3 rounded-lg text-center text-sm font-medium ${
+                  totalsMatch
+                    ? "bg-green-100 text-green-800 border border-green-200"
+                    : "bg-red-100 text-red-800 border border-red-200"
+                }`}
+              >
+                {totalsMatch ? (
+                  <span>
+                    ✓ Los montos del pedido y la factura coinciden correctamente
+                  </span>
+                ) : (
+                  <span>⚠ Los montos del pedido y la factura NO coinciden</span>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Información Adicional */}
-          <div className="grid grid-cols-2 gap-4 p-4 bg-muted/50 rounded-lg text-xs">
+          <div className="p-4 bg-muted/50 rounded-lg text-xs">
             <div>
               <p className="text-muted-foreground">Creado por</p>
               <p className="font-medium">{data.created_by_name}</p>
-            </div>
-            <div>
-              <p className="text-muted-foreground">Total Registrado</p>
-              <p className="font-medium">
-                {currencySymbol}{" "}
-                {Number(data.total_amount)
-                  .toFixed(4)
-                  .replace(/\.?0+$/, "")}
-              </p>
             </div>
           </div>
         </div>

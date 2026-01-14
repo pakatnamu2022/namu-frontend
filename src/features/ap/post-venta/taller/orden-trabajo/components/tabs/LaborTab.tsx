@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Wrench, Loader2, Plus, Trash2 } from "lucide-react";
+import { Wrench, Loader2, Plus, Trash2, FileText, Info } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -30,6 +31,7 @@ import GroupSelector from "../GroupSelector";
 import { useWorkOrderContext } from "../../contexts/WorkOrderContext";
 import { findWorkOrderById } from "../../lib/workOrder.actions";
 import { useQuery } from "@tanstack/react-query";
+import { useGetConsolidatedWorkers } from "../../../planificacion-orden-trabajo/lib/workOrderPlanning.hook";
 
 interface LaborTabProps {
   workOrderId: number;
@@ -52,10 +54,28 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
 
   const items = useMemo(() => workOrder?.items || [], [workOrder?.items]);
 
+  // Obtener la cotización asociada si existe
+  const associatedQuotation = workOrder?.order_quotation || null;
+  const hasAssociatedQuotation = workOrder?.order_quotation_id !== null;
+
+  // Filtrar items de tipo LABOR de la cotización
+  const laborItems = useMemo(() => {
+    if (!associatedQuotation?.details) return [];
+    return associatedQuotation.details.filter(
+      (detail: any) => detail.item_type === "LABOR"
+    );
+  }, [associatedQuotation]);
+
   // Obtener los números de grupos únicos disponibles
   const availableGroups = useMemo(() => {
     return Array.from(new Set(items.map((item) => item.group_number))).sort();
   }, [items]);
+
+  // Obtener operarios consolidados
+  const {
+    data: consolidatedWorkers = [],
+    isLoading: isLoadingConsolidatedWorkers,
+  } = useGetConsolidatedWorkers(workOrderId);
 
   const updateGroupMutation = useUpdateWorkOrderLabour();
 
@@ -69,6 +89,20 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
         work_order_id: labour.work_order_id,
         worker_id: Number(labour.worker_id),
         group_number: newGroupNumber,
+      },
+    });
+  };
+
+  const handleWorkerChange = (labour: any, newWorkerId: number) => {
+    updateGroupMutation.mutate({
+      id: labour.id,
+      data: {
+        description: labour.description,
+        time_spent: labour.time_spent,
+        hourly_rate: labour.hourly_rate,
+        work_order_id: labour.work_order_id,
+        worker_id: newWorkerId,
+        group_number: labour.group_number,
       },
     });
   };
@@ -117,6 +151,42 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
         selectedGroupNumber={selectedGroupNumber}
         onSelectGroup={setSelectedGroupNumber}
       />
+
+      {/* Información de Mano de Obra de la Cotización (Compacta) */}
+      {hasAssociatedQuotation && laborItems.length > 0 && (
+        <Card className="p-4 bg-blue-50 border-blue-200">
+          <div className="flex items-start gap-3">
+            <Info className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-2">
+                <FileText className="h-4 w-4 text-blue-600" />
+                <h4 className="text-sm font-semibold text-blue-900">
+                  Mano de Obra en Cotización {associatedQuotation.quotation_number}
+                </h4>
+                <Badge variant="secondary" className="text-xs">
+                  {laborItems.length} item{laborItems.length !== 1 ? "s" : ""}
+                </Badge>
+              </div>
+              <div className="space-y-1">
+                {laborItems.map((item: any, index: number) => (
+                  <div
+                    key={item.id}
+                    className="flex items-center justify-between text-sm py-1 border-b border-blue-100 last:border-0"
+                  >
+                    <span className="text-gray-700 truncate flex-1 mr-4">
+                      {index + 1}. {item.description}
+                    </span>
+                    <span className="text-blue-900 font-semibold whitespace-nowrap">
+                      {associatedQuotation.currency?.symbol || "S/"}{" "}
+                      {Number(item.total_amount || 0).toFixed(2)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </Card>
+      )}
 
       {/* Add Labor Button */}
       {!showForm && (
@@ -176,7 +246,27 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
                       <div className="line-clamp-2">{labour.description}</div>
                     </TableCell>
                     <TableCell className="text-left">
-                      {labour.worker_full_name}
+                      <Select
+                        value={labour.worker_id?.toString() || ""}
+                        onValueChange={(value) =>
+                          handleWorkerChange(labour, Number(value))
+                        }
+                        disabled={isLoadingConsolidatedWorkers}
+                      >
+                        <SelectTrigger className="w-[180px]">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {consolidatedWorkers.map((worker) => (
+                            <SelectItem
+                              key={worker.worker_id}
+                              value={worker.worker_id.toString()}
+                            >
+                              {worker.worker_name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </TableCell>
                     <TableCell className="text-right">
                       {labour.time_spent}

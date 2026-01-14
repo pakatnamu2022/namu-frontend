@@ -14,14 +14,12 @@ import {
   DEFAULT_GROUP_COLOR,
   GROUP_COLORS,
 } from "../../lib/workOrder.interface";
-import { WorkOrderItemResource } from "../../../orden-trabajo-item/lib/workOrderItem.interface";
 import GroupSelector from "../GroupSelector";
 import { useWorkOrderContext } from "../../contexts/WorkOrderContext";
 import {
   invoiceSchemaCreate,
   type InvoiceSchema,
 } from "../../lib/invoice.schema";
-import { useAllCustomers } from "@/features/ap/comercial/clientes/lib/customers.hook";
 import { useAllSunatConcepts } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.hook";
 import { useAuthorizedSeries } from "@/features/ap/configuraciones/maestros-general/asignar-serie-usuario/lib/userSeriesAssignment.hook";
 import { storeElectronicDocument } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.actions";
@@ -45,9 +43,6 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
   // Obtener resumen de pago del grupo seleccionado
   const { data: paymentSummary, isLoading: isLoadingPaymentSummary } =
     useGetPaymentSummary(workOrderId, selectedGroupNumber || undefined);
-
-  const { data: customers = [], isLoading: isLoadingCustomers } =
-    useAllCustomers();
 
   // Obtener tipos de documento (Factura, Boleta, etc.)
   const { data: documentTypes = [] } = useAllSunatConcepts({
@@ -77,8 +72,6 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
 
   // Watch para obtener el tipo de documento seleccionado
   const selectedDocumentType = form.watch("sunat_concept_document_type_id");
-  const clientId = form.watch("customer_id");
-
   // Obtener series autorizadas según el tipo de documento
   const { data: authorizedSeries = [] } = useAuthorizedSeries({
     type_receipt_id: documentTypes.find(
@@ -86,26 +79,21 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
     )?.tribute_code,
   });
 
-  // Obtener el cliente seleccionado
-  const selectedCustomer = customers.find(
-    (customer) => customer.id.toString() === clientId
-  );
-
   // Filtrar tipos de documento según el tipo de documento del cliente
   const filteredDocumentTypes = documentTypes.filter((type) => {
-    if (!selectedCustomer) return true;
+    // if (!selectedCustomer) return true;
 
-    const documentTypeId = selectedCustomer.document_type_id;
+    // const documentTypeId = selectedCustomer.document_type_id;
 
-    // Si el cliente tiene RUC (810), solo mostrar Factura (id: 29)
-    if (Number(documentTypeId) === 810) {
-      return type.id === 4;
-    }
+    // // Si el cliente tiene RUC (810), solo mostrar Factura (id: 29)
+    // if (Number(documentTypeId) === 810) {
+    //   return type.id === 4;
+    // }
 
-    // Si el cliente tiene Cédula (809), solo mostrar el tipo con id 30
-    if (Number(documentTypeId) === 809) {
-      return type.id === 2;
-    }
+    // // Si el cliente tiene Cédula (809), solo mostrar el tipo con id 30
+    // if (Number(documentTypeId) === 809) {
+    //   return type.id === 2;
+    // }
 
     return true;
   });
@@ -125,20 +113,6 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
       setSelectedGroupNumber(firstGroup);
     }
   }, [items, selectedGroupNumber, setSelectedGroupNumber]);
-
-  // Agrupar items por número de grupo
-  const groupedItems = items.reduce((acc, item) => {
-    const key = item.group_number;
-    if (!acc[key]) {
-      acc[key] = [];
-    }
-    acc[key].push(item);
-    return acc;
-  }, {} as Record<number, WorkOrderItemResource[]>);
-
-  const selectedGroupItems = selectedGroupNumber
-    ? groupedItems[selectedGroupNumber] || []
-    : [];
 
   // Mutación para crear documento electrónico
   const createInvoiceMutation = useMutation({
@@ -286,94 +260,106 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
       {/* Contenido del grupo seleccionado */}
       {selectedGroupNumber ? (
         <>
-          {/* Items del grupo */}
-          <Card className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h4 className="font-semibold text-gray-900">
-                Trabajos del Grupo {selectedGroupNumber}
-              </h4>
-              <span className="text-sm text-gray-600">
-                {selectedGroupItems.length} trabajo(s)
-              </span>
-            </div>
-
-            <div className="space-y-2">
-              {selectedGroupItems.map((item, idx) => (
-                <div
-                  key={item.id}
-                  className="flex items-start gap-2 p-3 bg-gray-50 rounded-lg text-sm"
-                >
-                  <div className="shrink-0 w-6 h-6 rounded-full bg-white border-2 flex items-center justify-center text-xs font-semibold">
-                    {idx + 1}
-                  </div>
-                  <div className="flex-1">
-                    <Badge
-                      variant="outline"
-                      className="text-xs mr-2 border-gray-300"
-                    >
-                      {item.type_planning_name}
-                    </Badge>
-                    <span className="text-gray-700">{item.description}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </Card>
-
           {/* Resumen de Costos */}
           {paymentSummary && (
-            <Card className="p-6">
-              <h4 className="font-semibold text-gray-900 mb-4">
-                Resumen de Costos
-              </h4>
-              <div className="space-y-3">
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Costo de Mano de Obra:</span>
-                  <span className="font-semibold">
-                    S/ {paymentSummary.payment_summary.labour_cost.toFixed(2)}
-                  </span>
+            <Card className="overflow-hidden">
+              <div className="bg-linear-to-r from-blue-50 to-indigo-50 px-6 py-4 border-b">
+                <h4 className="font-semibold text-gray-900 flex items-center gap-2">
+                  <Receipt className="h-5 w-5 text-primary" />
+                  Resumen de Costos
+                </h4>
+              </div>
+
+              <div className="p-6 space-y-6">
+                {/* Desglose de Costos */}
+                <div className="space-y-3">
+                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                    Desglose
+                  </p>
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                      <span className="text-sm text-gray-700">
+                        Costo de Mano de Obra
+                      </span>
+                      <span className="font-semibold text-gray-900">
+                        S/{" "}
+                        {paymentSummary.payment_summary.labour_cost.toFixed(2)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                      <span className="text-sm text-gray-700">
+                        Costo de Repuestos
+                      </span>
+                      <span className="font-semibold text-gray-900">
+                        S/{" "}
+                        {paymentSummary.payment_summary.parts_cost.toFixed(2)}
+                      </span>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Costo de Repuestos:</span>
-                  <span className="font-semibold">
-                    S/ {paymentSummary.payment_summary.parts_cost.toFixed(2)}
-                  </span>
+
+                {/* Cálculos */}
+                <div className="space-y-3 pt-3 border-t">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600">Subtotal</span>
+                    <span className="font-medium text-gray-900">
+                      S/ {paymentSummary.payment_summary.subtotal.toFixed(2)}
+                    </span>
+                  </div>
+                  {paymentSummary.payment_summary.discount_amount > 0 && (
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">Descuento</span>
+                      <span className="font-medium text-red-600">
+                        - S/{" "}
+                        {paymentSummary.payment_summary.discount_amount.toFixed(
+                          2
+                        )}
+                      </span>
+                    </div>
+                  )}
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600">IGV (18%)</span>
+                    <span className="font-medium text-gray-900">
+                      S/ {paymentSummary.payment_summary.tax_amount.toFixed(2)}
+                    </span>
+                  </div>
                 </div>
-                <div className="flex justify-between text-sm pt-2 border-t">
-                  <span className="text-gray-600">Subtotal:</span>
-                  <span className="font-semibold">
-                    S/ {paymentSummary.payment_summary.subtotal.toFixed(2)}
-                  </span>
+
+                {/* Total a Pagar */}
+                <div className="pt-3 border-t-2 border-gray-300">
+                  <div className="flex justify-between items-center p-4 bg-green-50 rounded-lg border-2 border-green-200">
+                    <span className="text-base font-bold text-gray-900">
+                      Total a Pagar
+                    </span>
+                    <span className="text-xl font-bold text-green-700">
+                      S/{" "}
+                      {paymentSummary.payment_summary.total_amount.toFixed(2)}
+                    </span>
+                  </div>
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Descuento:</span>
-                  <span className="font-semibold text-red-600">
-                    - S/ {paymentSummary.payment_summary.discount_amount.toFixed(2)}
-                  </span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">IGV (18%):</span>
-                  <span className="font-semibold">
-                    S/ {paymentSummary.payment_summary.tax_amount.toFixed(2)}
-                  </span>
-                </div>
-                <div className="flex justify-between text-base font-bold pt-2 border-t">
-                  <span>Total a Pagar:</span>
-                  <span className="text-green-600">
-                    S/ {paymentSummary.payment_summary.total_amount.toFixed(2)}
-                  </span>
-                </div>
-                <div className="flex justify-between text-sm pt-2 border-t">
-                  <span className="text-gray-600">Total de Adelantos:</span>
-                  <span className="font-semibold text-blue-600">
-                    S/ {paymentSummary.payment_summary.total_advances.toFixed(2)}
-                  </span>
-                </div>
-                <div className="flex justify-between text-base font-bold pt-2 border-t">
-                  <span>Saldo Restante:</span>
-                  <span className="text-orange-600">
-                    S/ {paymentSummary.payment_summary.remaining_balance.toFixed(2)}
-                  </span>
+
+                {/* Adelantos y Saldo */}
+                <div className="space-y-3 pt-3 border-t">
+                  <div className="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
+                    <span className="text-sm font-medium text-blue-900">
+                      Total de Adelantos
+                    </span>
+                    <span className="font-semibold text-blue-700">
+                      S/{" "}
+                      {paymentSummary.payment_summary.total_advances.toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center p-4 bg-orange-50 rounded-lg border-2 border-orange-200">
+                    <span className="text-base font-bold text-gray-900">
+                      Saldo Restante
+                    </span>
+                    <span className="text-xl font-bold text-orange-600">
+                      S/{" "}
+                      {paymentSummary.payment_summary.remaining_balance.toFixed(
+                        2
+                      )}
+                    </span>
+                  </div>
                 </div>
               </div>
             </Card>
@@ -387,12 +373,11 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
               onCancel={handleCancelForm}
               isPending={createInvoiceMutation.isPending}
               selectedGroupNumber={selectedGroupNumber}
-              customers={customers}
-              isLoadingCustomers={isLoadingCustomers}
               documentTypes={documentTypes}
               currencyTypes={currencyTypes}
               authorizedSeries={authorizedSeries}
               filteredDocumentTypes={filteredDocumentTypes}
+              defaultCustomer={workOrder?.vehicle?.owner}
             />
           ) : (
             /* Facturas del grupo */

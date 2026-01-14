@@ -41,7 +41,7 @@ import { useEffect, useState } from "react";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.hook";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
-import { EMPRESA_AP } from "@/core/core.constants";
+import { EMPRESA_AP, IGV } from "@/core/core.constants";
 import { api } from "@/core/api";
 import { format } from "date-fns";
 import { CURRENCY_TYPE_IDS } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.constants";
@@ -328,7 +328,7 @@ export const SupplierOrderForm = ({
         ...detail,
         quantity: parseFloat(detail.quantity) || 0,
         unit_price: parseFloat(detail.unit_price) || 0,
-        total: parseFloat(detail.total) || 0,
+        total: parseFloat(detail.total) || 0, // Enviar el valor neto directamente
       })),
       request_detail_ids:
         addedRequestDetailIds.length > 0 ? addedRequestDetailIds : undefined,
@@ -337,11 +337,17 @@ export const SupplierOrderForm = ({
     onSubmit(transformedData);
   };
 
-  // Calcular el total general
-  const grandTotal = watchedDetails?.reduce(
+  // Calcular el valor neto (suma de los items sin IGV)
+  const netValue = watchedDetails?.reduce(
     (sum, detail) => sum + (Number(detail?.total) || 0),
     0
   );
+
+  // Calcular IGV sobre el valor neto
+  const igvAmount = netValue * IGV.RATE; // 18% del valor neto
+
+  // Calcular el importe total (valor neto + IGV)
+  const grandTotal = netValue + igvAmount;
 
   // Filtrar solicitudes no añadidas
   // Solo mostrar si hay almacén seleccionado
@@ -521,14 +527,43 @@ export const SupplierOrderForm = ({
                       agregados.
                     </div>
 
-                    <div className="flex justify-between items-center py-3 bg-primary/5 px-3 rounded-md">
-                      <span className="font-semibold">Total:</span>
-                      <span className="font-bold text-lg text-primary">
-                        {currencyTypes.find(
-                          (ct) => ct.id.toString() === watchedCurrencyTypeId
-                        )?.symbol || "S/."}{" "}
-                        {(grandTotal || 0).toFixed(4).replace(/\.?0+$/, "")}
-                      </span>
+                    {/* Desglose de IGV */}
+                    <div className="space-y-2 border rounded-md p-3 bg-slate-50/50">
+                      <div className="flex justify-between items-center text-sm">
+                        <span className="text-muted-foreground">
+                          Valor de Venta Neta:
+                        </span>
+                        <span className="font-medium">
+                          {currencyTypes.find(
+                            (ct) => ct.id.toString() === watchedCurrencyTypeId
+                          )?.symbol || "S/."}{" "}
+                          {(netValue || 0).toFixed(2)}
+                        </span>
+                      </div>
+
+                      <div className="flex justify-between items-center text-sm">
+                        <span className="text-muted-foreground">
+                          IGV (18%):
+                        </span>
+                        <span className="font-medium">
+                          {currencyTypes.find(
+                            (ct) => ct.id.toString() === watchedCurrencyTypeId
+                          )?.symbol || "S/."}{" "}
+                          {(igvAmount || 0).toFixed(2)}
+                        </span>
+                      </div>
+
+                      <div className="border-t pt-2 mt-2"></div>
+
+                      <div className="flex justify-between items-center">
+                        <span className="font-semibold">Importe Total:</span>
+                        <span className="font-bold text-lg text-primary">
+                          {currencyTypes.find(
+                            (ct) => ct.id.toString() === watchedCurrencyTypeId
+                          )?.symbol || "S/."}{" "}
+                          {(grandTotal || 0).toFixed(2)}
+                        </span>
+                      </div>
                     </div>
 
                     {/* Mostrar tipo de cambio y equivalente en soles si la moneda es diferente a soles */}
@@ -550,24 +585,12 @@ export const SupplierOrderForm = ({
                           {exchangeRate && (
                             <>
                               <div className="flex justify-between items-center py-2 border-t mt-2 pt-2">
-                                <span className="text-xs text-muted-foreground">
+                                <span className="text-xs text-muted-foreground mt-2">
                                   Tipo de cambio:
                                 </span>
                                 <span className="text-xs font-medium">
                                   S/.{" "}
                                   {exchangeRate
-                                    .toFixed(4)
-                                    .replace(/\.?0+$/, "")}
-                                </span>
-                              </div>
-
-                              <div className="flex justify-between items-center py-3 bg-green-50 px-3 rounded-md">
-                                <span className="font-semibold text-sm">
-                                  Equivalente en Soles:
-                                </span>
-                                <span className="font-bold text-lg text-green-700">
-                                  S/.{" "}
-                                  {((grandTotal || 0) * exchangeRate)
                                     .toFixed(4)
                                     .replace(/\.?0+$/, "")}
                                 </span>

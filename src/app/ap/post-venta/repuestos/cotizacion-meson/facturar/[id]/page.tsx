@@ -3,7 +3,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   ElectronicDocumentSchema,
   type ElectronicDocumentSchema as ElectronicDocumentSchemaType,
@@ -27,6 +27,7 @@ import TitleComponent from "@/shared/components/TitleComponent";
 export default function BillOrderQuotationPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const quotationId = id ? parseInt(id) : 0;
   const { ABSOLUTE_ROUTE } = ORDER_QUOTATION_MESON;
 
@@ -67,6 +68,8 @@ export default function BillOrderQuotationPage() {
     mutationFn: storeElectronicDocument,
     onSuccess: () => {
       successToast(SUCCESS_MESSAGE(ELECTRONIC_DOCUMENT.MODEL, "create"));
+      // Invalidar la query de la cotización para refrescar los anticipos
+      queryClient.invalidateQueries({ queryKey: ["orderQuotation", quotationId] });
       navigate(ABSOLUTE_ROUTE);
     },
     onError: (error: any) => {
@@ -76,6 +79,30 @@ export default function BillOrderQuotationPage() {
   });
 
   const onSubmit = (data: ElectronicDocumentSchemaType) => {
+    // Calcular el saldo pendiente de la cotización
+    const totalCotizacion = quotation?.total_amount || 0;
+    const totalAnticiposAnteriores = quotation?.advances
+      ? quotation.advances.reduce((sum, advance) => sum + (advance.total || 0), 0)
+      : 0;
+    const saldoPendiente = totalCotizacion - totalAnticiposAnteriores;
+
+    // Validar que no se pueda crear un anticipo con monto 0
+    if (data.is_advance_payment && data.total === 0) {
+      errorToast("No se puede crear un anticipo con monto S/ 0.00");
+      return;
+    }
+
+    // Validar que el anticipo no exceda el saldo pendiente
+    if (data.is_advance_payment && data.total > saldoPendiente) {
+      const currencySymbol = quotation?.currency?.symbol || "S/";
+      errorToast(
+        `El anticipo no puede exceder el saldo pendiente de ${currencySymbol} ${saldoPendiente.toLocaleString("es-PE", {
+          minimumFractionDigits: 2,
+        })}`
+      );
+      return;
+    }
+
     // Convertir fecha_de_emision al formato correcto YYYY-MM-DD
     let fechaFormateada = data.fecha_de_emision;
     const fechaValue = data.fecha_de_emision as any;

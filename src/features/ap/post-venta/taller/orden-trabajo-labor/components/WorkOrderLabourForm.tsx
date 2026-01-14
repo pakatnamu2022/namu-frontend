@@ -4,16 +4,7 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { Form } from "@/components/ui/form";
 import { useStoreWorkOrderLabour } from "../lib/workOrderLabour.hook";
 import { WorkOrderLabourRequest } from "../lib/workOrderLabour.interface";
 import {
@@ -22,6 +13,8 @@ import {
 } from "../lib/workOrderLabour.schema";
 import { useGetConsolidatedWorkers } from "../../planificacion-orden-trabajo/lib/workOrderPlanning.hook";
 import { FormSelect } from "@/shared/components/FormSelect";
+import { FormInput } from "@/shared/components/FormInput";
+import { FormInputText } from "@/shared/components/FormInputText";
 
 interface WorkOrderLabourFormProps {
   workOrderId: number;
@@ -82,56 +75,32 @@ export default function WorkOrderLabourForm({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <FormField
-          control={form.control}
+        <FormInputText
           name="description"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Descripción</FormLabel>
-              <FormControl>
-                <Textarea
-                  {...field}
-                  placeholder="Describa el trabajo de mano de obra realizado..."
-                  rows={4}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          label="Descripción"
+          placeholder="Describa el trabajo de mano de obra realizado..."
+          rows={4}
+          control={form.control}
         />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
+          <FormInput
             name="time_spent"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Tiempo Empleado (horas)</FormLabel>
-                <FormControl>
-                  <Input {...field} type="text" placeholder="Ej: 2.5" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Tiempo Empleado (horas)"
+            placeholder="Ej: 2.5"
+            control={form.control}
           />
 
-          <FormField
-            control={form.control}
+          <FormInput
             name="hourly_rate"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Tarifa por Hora (S/)</FormLabel>
-                <FormControl>
-                  <Input {...field} type="text" placeholder="Ej: 50.00" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Tarifa por Hora (S/)"
+            placeholder="Ej: 50.00"
+            control={form.control}
           />
 
           <FormSelect
             name="worker_id"
-            label="Operario"
+            label="Operario (Opcional)"
             placeholder="Seleccione un operario"
             options={consolidatedWorkers.map((item) => ({
               label: item.worker_name,

@@ -18,6 +18,9 @@ import { Input } from "@/components/ui/input";
 import { SunatConceptsResource } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.interface";
 import { AssignSalesSeriesResource } from "@/features/ap/configuraciones/maestros-general/asignar-serie-venta/lib/assignSalesSeries.interface";
 import { CustomersResource } from "@/features/ap/comercial/clientes/lib/customers.interface";
+import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
+import { useCustomers } from "@/features/ap/comercial/clientes/lib/customers.hook";
+import { useMemo } from "react";
 
 interface InvoiceFormProps {
   form: UseFormReturn<InvoiceSchema, any, any>;
@@ -25,12 +28,11 @@ interface InvoiceFormProps {
   onCancel: () => void;
   isPending: boolean;
   selectedGroupNumber: number | null;
-  customers: CustomersResource[];
-  isLoadingCustomers: boolean;
   documentTypes: SunatConceptsResource[];
   currencyTypes: SunatConceptsResource[];
   authorizedSeries: AssignSalesSeriesResource[];
   filteredDocumentTypes: SunatConceptsResource[];
+  defaultCustomer?: CustomersResource;
 }
 
 export default function InvoiceForm({
@@ -39,25 +41,31 @@ export default function InvoiceForm({
   onCancel,
   isPending,
   selectedGroupNumber,
-  customers,
-  isLoadingCustomers,
   documentTypes,
   currencyTypes,
   authorizedSeries,
   filteredDocumentTypes,
+  defaultCustomer,
 }: InvoiceFormProps) {
   // Watch para obtener valores en tiempo real
   const selectedDocumentType = form.watch("sunat_concept_document_type_id");
   const selectedCurrencyId = form.watch("sunat_concept_currency_id");
   const series = form.watch("serie");
-  const clientId = form.watch("customer_id");
   const amount = form.watch("amount") || 0;
   const taxRate = form.watch("taxRate") || 18;
 
-  // Obtener el cliente seleccionado
-  const selectedCustomer = customers.find(
-    (customer) => customer.id.toString() === clientId
-  );
+  // Crear defaultOption desde defaultCustomer si existe
+  const defaultOption = useMemo(() => {
+    if (defaultCustomer) {
+      return {
+        value: defaultCustomer.id.toString(),
+        label: `${defaultCustomer.full_name} - ${
+          defaultCustomer.num_doc || "S/N"
+        }`,
+      };
+    }
+    return undefined;
+  }, [defaultCustomer]);
 
   // Obtener el símbolo de moneda
   const currencySymbol =
@@ -96,21 +104,30 @@ export default function InvoiceForm({
                 cols={{ sm: 1, md: 3 }}
               >
                 <div className="md:col-span-3">
-                  <FormSelect
-                    control={form.control}
+                  <FormSelectAsync
                     name="customer_id"
-                    options={customers.map((customer) => ({
-                      value: customer.id.toString(),
-                      label: `${customer.full_name} - ${customer.num_doc}`,
-                    }))}
                     label="Cliente *"
-                    description="Seleccione el cliente"
-                    placeholder={
-                      isLoadingCustomers
-                        ? "Cargando clientes..."
-                        : "Seleccionar cliente"
-                    }
-                    disabled={isLoadingCustomers}
+                    placeholder="Seleccionar cliente"
+                    control={form.control}
+                    useQueryHook={useCustomers}
+                    mapOptionFn={(customer) => ({
+                      value: customer.id.toString(),
+                      label: `${customer.full_name} - ${
+                        customer.num_doc || "S/N"
+                      }`,
+                    })}
+                    description="Cliente asignado desde la OT (puede modificarlo si lo desea)"
+                    perPage={10}
+                    debounceMs={500}
+                    defaultOption={defaultOption}
+                    // onValueChange={(_, customer) => {
+                    //   // Actualizar el estado con el cliente seleccionado
+                    //   if (customer) {
+                    //     setSelectedCustomer(customer as CustomersResource);
+                    //   } else {
+                    //     setSelectedCustomer(undefined);
+                    //   }
+                    // }}
                   />
                 </div>
 
@@ -267,22 +284,22 @@ export default function InvoiceForm({
                 Cliente
               </p>
               <p className="text-sm font-semibold">
-                {selectedCustomer?.full_name || "Sin seleccionar"}
+                {defaultCustomer?.full_name || "Sin seleccionar"}
               </p>
-              {selectedCustomer && (
+              {defaultCustomer && (
                 <>
                   <div className="text-xs text-muted-foreground">
                     <span className="font-semibold">Documento:</span>{" "}
-                    {selectedCustomer.num_doc}
+                    {defaultCustomer.num_doc}
                   </div>
                   <div className="text-xs text-muted-foreground">
                     <span className="font-semibold">Dirección:</span>{" "}
-                    {selectedCustomer.direction}
+                    {defaultCustomer.direction}
                   </div>
-                  {selectedCustomer.phone !== "0" && (
+                  {defaultCustomer.phone !== "0" && (
                     <div className="text-xs text-muted-foreground">
                       <span className="font-semibold">Teléfono:</span>{" "}
-                      {selectedCustomer.phone}
+                      {defaultCustomer.phone}
                     </div>
                   )}
                 </>

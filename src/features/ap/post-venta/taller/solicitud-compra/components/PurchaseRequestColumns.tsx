@@ -78,6 +78,18 @@ export const purchaseRequestColumns = ({
     },
   },
   {
+    accessorKey: "ap_order_quotation_id",
+    header: "Asociado a Cotización",
+    cell: ({ getValue }) => {
+      const value = getValue() as number | null;
+      return value !== null ? (
+        <Badge variant="default">SI</Badge>
+      ) : (
+        <Badge variant="secondary">NO</Badge>
+      );
+    },
+  },
+  {
     accessorKey: "observations",
     header: "Observaciones",
     cell: ({ getValue }) => {
@@ -89,7 +101,7 @@ export const purchaseRequestColumns = ({
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
-      const { id } = row.original;
+      const { id, ap_order_quotation_id } = row.original;
 
       return (
         <div className="flex items-center gap-2">
@@ -105,7 +117,7 @@ export const purchaseRequestColumns = ({
             </Button>
           )}
 
-          {permissions.canUpdate && (
+          {permissions.canUpdate && ap_order_quotation_id === null && (
             <Button
               variant="outline"
               size="icon"
