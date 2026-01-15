@@ -4,6 +4,8 @@ import { WorkOrderItemResource } from "../../orden-trabajo-item/lib/workOrderIte
 import { ElectronicDocumentResource } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.interface";
 import { OrderQuotationResource } from "../../cotizacion/lib/proforma.interface";
 import { VehicleResource } from "@/features/ap/comercial/vehiculos/lib/vehicles.interface";
+import { WorkOrderLabourResource } from "../../orden-trabajo-labor/lib/workOrderLabour.interface";
+import { WorkOrderPartsResource } from "../../orden-trabajo-repuesto/lib/workOrderParts.interface";
 
 export interface WorkOrderResponse {
   data: WorkOrderResource[];
@@ -41,6 +43,9 @@ export interface WorkOrderResource {
   vehicle_inspection: VehicleInspectionResource | null;
   items: WorkOrderItemResource[];
   order_quotation?: OrderQuotationResource;
+  labours: WorkOrderLabourResource[];
+  parts: WorkOrderPartsResource[];
+  advances: ElectronicDocumentResource[];
 }
 
 export interface WorkOrderRequest {
@@ -66,7 +71,6 @@ export interface WorkOrderPaymentSummary {
     total_advances: number;
     remaining_balance: number;
   };
-  advances: ElectronicDocumentResource[];
 }
 
 export const GROUP_COLORS: Record<number, { badge: string; input: string }> = {

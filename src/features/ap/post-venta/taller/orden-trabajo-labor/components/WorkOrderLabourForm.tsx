@@ -74,34 +74,34 @@ export default function WorkOrderLabourForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
         <FormInputText
           name="description"
           label="Descripción"
-          placeholder="Describa el trabajo de mano de obra realizado..."
-          rows={4}
+          placeholder="Describa el trabajo realizado..."
+          rows={3}
           control={form.control}
         />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <FormInput
             name="time_spent"
-            label="Tiempo Empleado (horas)"
+            label="Horas"
             placeholder="Ej: 2.5"
             control={form.control}
           />
 
           <FormInput
             name="hourly_rate"
-            label="Tarifa por Hora (S/)"
+            label="Tarifa/Hora (S/)"
             placeholder="Ej: 50.00"
             control={form.control}
           />
 
           <FormSelect
             name="worker_id"
-            label="Operario (Opcional)"
-            placeholder="Seleccione un operario"
+            label="Operario"
+            placeholder="Operario"
             options={consolidatedWorkers.map((item) => ({
               label: item.worker_name,
               value: item.worker_id.toString(),
@@ -112,12 +112,12 @@ export default function WorkOrderLabourForm({
           />
         </div>
 
-        <div className="flex justify-end gap-2 pt-4">
-          <Button type="button" variant="outline" onClick={onCancel}>
+        <div className="flex justify-end gap-2 pt-2">
+          <Button type="button" variant="outline" onClick={onCancel} size="sm">
             Cancelar
           </Button>
-          <Button type="submit" disabled={storeMutation.isPending}>
-            {storeMutation.isPending ? "Guardando..." : "Agregar Mano de Obra"}
+          <Button type="submit" disabled={storeMutation.isPending} size="sm">
+            {storeMutation.isPending ? "Guardando..." : "Agregar"}
           </Button>
         </div>
       </form>

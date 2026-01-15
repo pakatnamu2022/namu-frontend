@@ -93,3 +93,26 @@ export async function getPaymentSummary(
   );
   return data;
 }
+
+export async function downloadPreLiquidationPdf(id: number): Promise<void> {
+  const response = await api.get(`${ENDPOINT}/${id}/pre-liquidation`, {
+    responseType: "blob",
+  });
+
+  // Crear un blob desde la respuesta
+  const blob = new Blob([response.data], { type: "application/pdf" });
+
+  // Crear un enlace temporal para descargar el archivo
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.setAttribute("download", `pre-liquidacion-${id}.pdf`);
+
+  // Hacer clic automáticamente para iniciar la descarga
+  document.body.appendChild(link);
+  link.click();
+
+  // Limpiar
+  link.parentNode?.removeChild(link);
+  window.URL.revokeObjectURL(url);
+}

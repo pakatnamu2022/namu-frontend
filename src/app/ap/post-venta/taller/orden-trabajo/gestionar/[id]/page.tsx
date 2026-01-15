@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import {
+  downloadPreLiquidationPdf,
   findWorkOrderById,
   updateWorkOrder,
 } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.actions";
@@ -40,6 +41,7 @@ export default function ManageWorkOrderPage() {
   const id = Number(params.id);
   const [activeTab, setActiveTab] = useState("reception");
   const [isQuotationModalOpen, setIsQuotationModalOpen] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   const { ABSOLUTE_ROUTE } = WORKER_ORDER;
 
@@ -68,6 +70,21 @@ export default function ManageWorkOrderPage() {
       errorToast(msg || "Error al adjuntar la cotización");
     },
   });
+
+  const handleDownloadPdf = async () => {
+    if (!workOrder?.id) return;
+
+    try {
+      setIsDownloading(true);
+      await downloadPreLiquidationPdf(workOrder.id);
+      successToast("PDF descargado exitosamente");
+    } catch (error) {
+      console.error("Error al descargar PDF:", error);
+      errorToast("Error al descargar el PDF de la preliquidación");
+    } finally {
+      setIsDownloading(false);
+    }
+  };
 
   const handleSelectQuotation = (quotationId: number) => {
     attachQuotationMutation.mutate(quotationId);
@@ -112,6 +129,15 @@ export default function ManageWorkOrderPage() {
               </div>
             </div>
             <div className="flex items-center gap-4">
+              <Button
+                onClick={handleDownloadPdf}
+                disabled={isDownloading}
+                size="sm"
+                className="gap-2"
+              >
+                <FileText className="h-4 w-4" />
+                {isDownloading ? "Generando..." : "Preliquidación"}
+              </Button>
               {!hasQuotation && (
                 <Button
                   variant="outline"

@@ -1,10 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Wrench, Loader2, Plus, Trash2, FileText, Info } from "lucide-react";
+import { Wrench, Plus, Trash2, FileText } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -137,9 +136,12 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
 
   if (isLoading || isLoadingWorkOrder) {
     return (
-      <div className="flex items-center justify-center h-96">
-        <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
-      </div>
+      <Card className="p-12">
+        <div className="flex flex-col items-center justify-center text-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mb-4"></div>
+          <p className="text-gray-500">Cargando mano de obra...</p>
+        </div>
+      </Card>
     );
   }
 
@@ -154,36 +156,32 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
 
       {/* Información de Mano de Obra de la Cotización (Compacta) */}
       {hasAssociatedQuotation && laborItems.length > 0 && (
-        <Card className="p-4 bg-blue-50 border-blue-200">
-          <div className="flex items-start gap-3">
-            <Info className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-2">
-                <FileText className="h-4 w-4 text-blue-600" />
-                <h4 className="text-sm font-semibold text-blue-900">
-                  Mano de Obra en Cotización {associatedQuotation.quotation_number}
-                </h4>
-                <Badge variant="secondary" className="text-xs">
-                  {laborItems.length} item{laborItems.length !== 1 ? "s" : ""}
-                </Badge>
+        <Card className="p-3 bg-blue-50 border-blue-200">
+          <div className="flex items-center gap-2 mb-2">
+            <FileText className="h-4 w-4 text-primary" />
+            <h4 className="text-sm font-semibold text-primary">
+              Cotización {associatedQuotation!.quotation_number}
+            </h4>
+          </div>
+          <div className="space-y-1 text-sm">
+            {laborItems.map((item: any, index: number) => (
+              <div
+                key={item.id}
+                className="flex items-center gap-3 py-1 border-b border-blue-100 last:border-0"
+              >
+                <span className="text-gray-700 flex-1 truncate">
+                  {index + 1}. {item.description}
+                </span>
+                <div className="flex items-center gap-2 text-primary font-medium whitespace-nowrap">
+                  <span>{Number(item.quantity || 0).toFixed(2)} hrs</span>
+                  <span className="text-muted-foreground">×</span>
+                  <span>
+                    {associatedQuotation!.currency?.symbol || "S/"}{" "}
+                    {Number(item.total_amount || 0).toFixed(2)}
+                  </span>
+                </div>
               </div>
-              <div className="space-y-1">
-                {laborItems.map((item: any, index: number) => (
-                  <div
-                    key={item.id}
-                    className="flex items-center justify-between text-sm py-1 border-b border-blue-100 last:border-0"
-                  >
-                    <span className="text-gray-700 truncate flex-1 mr-4">
-                      {index + 1}. {item.description}
-                    </span>
-                    <span className="text-blue-900 font-semibold whitespace-nowrap">
-                      {associatedQuotation.currency?.symbol || "S/"}{" "}
-                      {Number(item.total_amount || 0).toFixed(2)}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
+            ))}
           </div>
         </Card>
       )}

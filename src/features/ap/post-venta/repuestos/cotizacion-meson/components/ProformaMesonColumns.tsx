@@ -96,6 +96,11 @@ export const orderQuotationMesonColumns = ({
     enableSorting: false,
   },
   {
+    accessorKey: "currency.name",
+    header: "Moneda",
+    enableSorting: false,
+  },
+  {
     accessorKey: "total_amount",
     header: "Total Monto",
     cell: ({ getValue, row }) => {

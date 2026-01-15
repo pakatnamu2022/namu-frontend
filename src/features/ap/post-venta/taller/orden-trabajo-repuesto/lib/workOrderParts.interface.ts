@@ -24,12 +24,14 @@ export interface WorkOrderPartsResource {
 }
 
 export interface WorkOrderPartsRequest {
-  id: number;
+  id?: number;
   work_order_id: number;
   group_number: number;
-  product_id: string;
-  warehouse_id: string;
+  product_id: string | number;
+  warehouse_id: string | number;
   quantity_used: number;
+  unit_price?: number;
+  discount_percentage?: number;
 }
 
 export interface getWorkOrderPartsProps {
