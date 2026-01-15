@@ -18,11 +18,13 @@ import { ApBankResource } from "@/features/ap/configuraciones/maestros-general/c
 interface AdditionalConfigSectionProps {
   form: UseFormReturn<ElectronicDocumentSchema>;
   checkbooks: ApBankResource[];
+  isModuleCommercial?: boolean;
 }
 
 export function AdditionalConfigSection({
   form,
   checkbooks,
+  isModuleCommercial = true,
 }: AdditionalConfigSectionProps) {
   const medioDePago = form.watch("medio_de_pago");
 
@@ -124,27 +126,30 @@ export function AdditionalConfigSection({
         )}
       />
 
-      <FormSelect
-        control={form.control}
-        label="Tipo de Financiamiento"
-        name="financing_type"
-        options={[
-          {
-            label: "CREDITO POR CONVENIO",
-            value: "CONVENIO",
-          },
-          {
-            label: "CREDITO VEHICULAR",
-            value: "VEHICULAR",
-          },
-          {
-            label: "CONTADO",
-            value: "CONTADO",
-          },
-        ]}
-        placeholder="Seleccione una opción"
-        description="Tipo de financiamiento del documento."
-      />
+      {isModuleCommercial && (
+        <FormSelect
+          control={form.control}
+          label="Tipo de Financiamiento"
+          name="financing_type"
+          options={[
+            {
+              label: "CREDITO POR CONVENIO",
+              value: "CONVENIO",
+            },
+            {
+              label: "CREDITO VEHICULAR",
+              value: "VEHICULAR",
+            },
+            {
+              label: "CONTADO",
+              value: "CONTADO",
+            },
+          ]}
+          placeholder="Seleccione una opción"
+          description="Tipo de financiamiento del documento."
+        />
+      )}
+
       <FormField
         control={form.control}
         name="observaciones"

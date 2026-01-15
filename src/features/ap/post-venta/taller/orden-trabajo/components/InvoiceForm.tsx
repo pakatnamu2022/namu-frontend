@@ -1,36 +1,47 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { FileText, FileCheck } from "lucide-react";
-import { Form } from "@/components/ui/form";
+import { useEffect, useMemo, useRef } from "react";
 import { UseFormReturn } from "react-hook-form";
-import { type InvoiceSchema } from "../lib/invoice.schema";
-import { GroupFormSection } from "@/shared/components/GroupFormSection";
-import { FormSelect } from "@/shared/components/FormSelect";
-import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
-import { FormDescription, FormLabel } from "@/components/ui/form";
-import { FormInputText } from "@/shared/components/FormInputText";
-import { FormInput } from "@/shared/components/FormInput";
-import { Input } from "@/components/ui/input";
+import { Form } from "@/components/ui/form";
+import {
+  ElectronicDocumentSchema,
+  ElectronicDocumentItemSchema,
+} from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.schema";
+import {
+  DEFAULT_IGV_PERCENTAGE,
+  NUBEFACT_CODES,
+  QUOTATION_ACCOUNT_PLAN_IDS,
+} from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.constants";
 import { SunatConceptsResource } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.interface";
 import { AssignSalesSeriesResource } from "@/features/ap/configuraciones/maestros-general/asignar-serie-venta/lib/assignSalesSeries.interface";
 import { CustomersResource } from "@/features/ap/comercial/clientes/lib/customers.interface";
+import { ApBankResource } from "@/features/ap/configuraciones/maestros-general/chequeras/lib/apBank.interface";
+import { WorkOrderLabourResource } from "@/features/ap/post-venta/taller/orden-trabajo-labor/lib/workOrderLabour.interface";
+import { WorkOrderPartsResource } from "@/features/ap/post-venta/taller/orden-trabajo-repuesto/lib/workOrderParts.interface";
+import { InvoiceDocumentInfoSection } from "./InvoiceDocumentInfoSection";
+import { InvoiceSummarySection } from "./InvoiceSummarySection";
+import { AdditionalConfigSection } from "@/features/ap/facturacion/electronic-documents/components/sections/AdditionalConfigSection";
+import { useCustomersById } from "@/features/ap/comercial/clientes/lib/customers.hook";
+import { ItemsSection } from "@/features/ap/facturacion/electronic-documents/components/sections/ItemsSection";
+import { ElectronicDocumentResource } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.interface";
 
 interface InvoiceFormProps {
-  form: UseFormReturn<InvoiceSchema, any, any>;
-  onSubmit: (data: InvoiceSchema) => void;
+  form: UseFormReturn<ElectronicDocumentSchema>;
+  onSubmit: (data: ElectronicDocumentSchema) => void;
   onCancel: () => void;
   isPending: boolean;
+  isEdit?: boolean;
   selectedGroupNumber: number | null;
-  customers: CustomersResource[];
-  isLoadingCustomers: boolean;
   documentTypes: SunatConceptsResource[];
+  transactionTypes: SunatConceptsResource[];
   currencyTypes: SunatConceptsResource[];
+  igvTypes: SunatConceptsResource[];
   authorizedSeries: AssignSalesSeriesResource[];
-  filteredDocumentTypes: SunatConceptsResource[];
+  checkbooks: ApBankResource[];
+  defaultCustomer?: CustomersResource;
+  labours: WorkOrderLabourResource[];
+  parts: WorkOrderPartsResource[];
+  advances?: ElectronicDocumentResource[]; // Anticipos previos de la orden de trabajo
 }
 
 export default function InvoiceForm({
@@ -38,348 +49,399 @@ export default function InvoiceForm({
   onSubmit,
   onCancel,
   isPending,
+  isEdit = false,
   selectedGroupNumber,
-  customers,
-  isLoadingCustomers,
   documentTypes,
+  transactionTypes,
   currencyTypes,
+  igvTypes,
   authorizedSeries,
-  filteredDocumentTypes,
+  checkbooks,
+  defaultCustomer,
+  labours,
+  parts,
+  advances = [],
 }: InvoiceFormProps) {
+  // Ref para evitar loops
+  const lastLoadedAdvancePaymentState = useRef<boolean | null>(null);
+  const itemsAlreadyLoaded = useRef<boolean>(false);
+
   // Watch para obtener valores en tiempo real
-  const selectedDocumentType = form.watch("sunat_concept_document_type_id");
   const selectedCurrencyId = form.watch("sunat_concept_currency_id");
-  const series = form.watch("serie");
-  const clientId = form.watch("customer_id");
-  const amount = form.watch("amount") || 0;
-  const taxRate = form.watch("taxRate") || 18;
+  const isAdvancePayment = form.watch("is_advance_payment") || false;
+  const clientId = form.watch("client_id");
 
   // Obtener el cliente seleccionado
-  const selectedCustomer = customers.find(
-    (customer) => customer.id.toString() === clientId
+  const { data: selectedCustomerFromApi } = useCustomersById(
+    clientId ? Number(clientId) : 0
   );
 
+  const selectedCustomer = selectedCustomerFromApi || defaultCustomer;
+
+  // Calcular porcentaje de IGV desde el cliente seleccionado
+  const porcentaje_de_igv =
+    selectedCustomer?.tax_class_type_igv || DEFAULT_IGV_PERCENTAGE;
+
   // Obtener el símbolo de moneda
+  const selectedCurrency = currencyTypes.find(
+    (c) => c.id === Number(selectedCurrencyId)
+  );
+
   const currencySymbol =
-    currencyTypes.find((c) => c.id.toString() === selectedCurrencyId)
-      ?.description || "S/";
+    selectedCurrency?.iso_code === "PEN"
+      ? "S/"
+      : selectedCurrency?.iso_code === "USD"
+      ? "$"
+      : "S/";
+
+  // Cambiar tipo de operación según si es anticipo o no
+  useEffect(() => {
+    if (transactionTypes.length === 0) return;
+
+    const currentValue = form.getValues("sunat_concept_transaction_type_id");
+
+    if (isAdvancePayment) {
+      // Anticipo: code_nubefact "04" - Venta Interna - Anticipos
+      const anticipoType = transactionTypes.find(
+        (type) => type.code_nubefact === "04"
+      );
+      if (anticipoType && currentValue !== anticipoType.id.toString()) {
+        form.setValue(
+          "sunat_concept_transaction_type_id",
+          anticipoType.id.toString(),
+          { shouldValidate: false }
+        );
+      }
+    } else {
+      // Verificar si hay anticipos previos en la orden de trabajo
+      const hasAdvances = advances?.some(
+        (advance) => advance.is_advance_payment === true
+      );
+
+      if (hasAdvances) {
+        // Venta final con anticipos: code_nubefact "04" - Venta Interna - Anticipos
+        const anticipoType = transactionTypes.find(
+          (type) => type.code_nubefact === "04"
+        );
+        if (anticipoType && currentValue !== anticipoType.id.toString()) {
+          form.setValue(
+            "sunat_concept_transaction_type_id",
+            anticipoType.id.toString(),
+            { shouldValidate: false }
+          );
+        }
+      } else {
+        // Venta completa sin anticipos: code_nubefact "01" - Venta Interna
+        const normalType = transactionTypes.find(
+          (type) => type.code_nubefact === "01"
+        );
+        if (normalType && currentValue !== normalType.id.toString()) {
+          form.setValue(
+            "sunat_concept_transaction_type_id",
+            normalType.id.toString(),
+            { shouldValidate: false }
+          );
+        }
+      }
+    }
+  }, [isAdvancePayment, transactionTypes, advances, form]);
+
+  // Efecto para cargar items automáticamente desde labours y parts
+  useEffect(() => {
+    if (igvTypes.length === 0) return;
+
+    // Verificar si ya se cargaron los items o si cambió el estado de anticipo
+    const shouldReload =
+      !itemsAlreadyLoaded.current ||
+      isAdvancePayment !== lastLoadedAdvancePaymentState.current;
+
+    if (!shouldReload) return;
+
+    lastLoadedAdvancePaymentState.current = isAdvancePayment;
+    itemsAlreadyLoaded.current = true;
+
+    const gravadaType = igvTypes.find(
+      (t) => t.code_nubefact === NUBEFACT_CODES.GRAVADA_ONEROSA
+    );
+
+    if (isAdvancePayment) {
+      // MODO ANTICIPO: Consolidar todo en un solo item
+      const allDescriptions: string[] = [];
+
+      // Agregar descripciones de mano de obra
+      labours.forEach((labour) => {
+        allDescriptions.push(labour.description);
+      });
+
+      // Agregar descripciones de repuestos
+      parts.forEach((part) => {
+        allDescriptions.push(part.product_name);
+      });
+
+      const consolidatedDescription =
+        allDescriptions.length > 0
+          ? `ANTICIPO POR ${allDescriptions.join(", ")}`
+          : "ANTICIPO POR SERVICIOS DE TALLER";
+
+      // Crear un solo item consolidado con valores en 0 para que el usuario los edite
+      const anticipoItem: ElectronicDocumentItemSchema = {
+        account_plan_id: QUOTATION_ACCOUNT_PLAN_IDS.ADVANCE_PAYMENT,
+        unidad_de_medida: "ZZ",
+        codigo: selectedGroupNumber?.toString() || "",
+        descripcion: consolidatedDescription,
+        cantidad: 1,
+        valor_unitario: 0,
+        precio_unitario: 0,
+        subtotal: 0,
+        sunat_concept_igv_type_id: gravadaType?.id || 0,
+        igv: 0,
+        total: 0,
+      };
+
+      form.setValue("items", [anticipoItem], { shouldValidate: false });
+    } else {
+      // MODO VENTA NORMAL: Crear items individuales
+      const invoiceItems: ElectronicDocumentItemSchema[] = [];
+
+      // Agregar items de mano de obra
+      labours.forEach((labour) => {
+        const totalCost = parseFloat(labour.total_cost || "0");
+        const precio_unitario = totalCost;
+        const valor_unitario = precio_unitario / (1 + porcentaje_de_igv / 100);
+        const subtotal = valor_unitario;
+        const igvAmount = subtotal * (porcentaje_de_igv / 100);
+
+        invoiceItems.push({
+          account_plan_id: QUOTATION_ACCOUNT_PLAN_IDS.FULL_SALE,
+          unidad_de_medida: "ZZ", // Servicios
+          codigo: labour.id.toString(),
+          descripcion: labour.description,
+          cantidad: 1,
+          valor_unitario: valor_unitario,
+          precio_unitario: precio_unitario,
+          subtotal: subtotal,
+          sunat_concept_igv_type_id: gravadaType?.id || 0,
+          igv: igvAmount,
+          total: totalCost,
+        });
+      });
+
+      // Agregar items de repuestos
+      parts.forEach((part) => {
+        const totalAmount = parseFloat(part.total_amount || "0");
+        const cantidad = part.quantity_used;
+        const precio_unitario = totalAmount / cantidad;
+        const valor_unitario = precio_unitario / (1 + porcentaje_de_igv / 100);
+        const subtotal = valor_unitario * cantidad;
+        const igvAmount = subtotal * (porcentaje_de_igv / 100);
+
+        invoiceItems.push({
+          account_plan_id: QUOTATION_ACCOUNT_PLAN_IDS.FULL_SALE,
+          unidad_de_medida: "NIU", // Bienes
+          codigo: part.id.toString(),
+          descripcion: part.product_name,
+          cantidad: cantidad,
+          valor_unitario: valor_unitario,
+          precio_unitario: precio_unitario,
+          subtotal: subtotal,
+          sunat_concept_igv_type_id: gravadaType?.id || 0,
+          igv: igvAmount,
+          total: totalAmount,
+        });
+      });
+
+      // AGREGAR ITEMS DE REGULARIZACIÓN DE ANTICIPOS (solo anticipos reales con is_advance_payment = true)
+      if (advances && advances.length > 0) {
+        advances
+          .filter((advance) => advance.is_advance_payment === true)
+          .forEach((advance) => {
+            // Calcular los valores base del anticipo para restar
+            // IMPORTANTE: Convertir a número porque puede venir como string desde la API
+            const total_con_igv = Number(advance.total) || 0;
+            const precio_unitario = total_con_igv; // El anticipo es cantidad 1
+            const valor_unitario =
+              precio_unitario / (1 + porcentaje_de_igv / 100);
+            const subtotal = valor_unitario;
+            const igvAmount = subtotal * (porcentaje_de_igv / 100);
+
+            // Crear item de regularización en NEGATIVO
+            invoiceItems.push({
+              account_plan_id: QUOTATION_ACCOUNT_PLAN_IDS.ADVANCE_PAYMENT,
+              unidad_de_medida: "ZZ",
+              codigo: advance.id?.toString(),
+              descripcion: `ANTICIPO: ${advance.serie}-${advance.numero} DEL ${
+                advance.fecha_de_emision
+                  ? new Date(advance.fecha_de_emision).toLocaleDateString(
+                      "es-PE"
+                    )
+                  : ""
+              }`,
+              cantidad: 1,
+              valor_unitario: valor_unitario,
+              precio_unitario: precio_unitario,
+              subtotal: subtotal,
+              sunat_concept_igv_type_id: gravadaType?.id || 0,
+              igv: igvAmount,
+              total: total_con_igv,
+              anticipo_regularizacion: true,
+              anticipo_documento_serie: advance.serie,
+              anticipo_documento_numero: advance.numero,
+              reference_document_id: advance.id?.toString(),
+            });
+          });
+      }
+
+      form.setValue("items", invoiceItems, { shouldValidate: false });
+    }
+  }, [
+    labours,
+    parts,
+    advances,
+    igvTypes,
+    porcentaje_de_igv,
+    isAdvancePayment,
+    selectedGroupNumber,
+    form,
+  ]);
+
+  // Observar items para re-calcular totales cuando cambien
+  const watchedItems = form.watch("items");
+  const items = useMemo(() => watchedItems || [], [watchedItems]);
 
   // Calcular totales
-  const calculateTaxAmount = () => {
-    return (amount * taxRate) / 100;
-  };
+  const totales = useMemo(() => {
+    let total_gravada = 0;
+    let total_inafecta = 0;
+    let total_exonerada = 0;
+    let total_igv = 0;
+    let total_gratuita = 0;
+    let total_anticipo = 0;
 
-  const calculateTotalAmount = () => {
-    return amount + calculateTaxAmount();
-  };
+    items.forEach((item) => {
+      const igvType = igvTypes.find(
+        (t) => t.id === item.sunat_concept_igv_type_id
+      );
+
+      if (igvType?.code_nubefact === "1") {
+        // Gravado
+        if (item.anticipo_regularizacion) {
+          total_gravada += -item.subtotal;
+          total_anticipo += item.subtotal;
+        } else {
+          total_gravada += item.subtotal;
+        }
+      } else if (igvType?.code_nubefact === "20") {
+        // Exonerado
+        if (item.anticipo_regularizacion) {
+          total_exonerada += item.subtotal;
+          total_anticipo += item.subtotal;
+        } else {
+          total_exonerada += item.subtotal;
+        }
+      } else if (igvType?.code_nubefact === "30") {
+        // Inafecto
+        if (item.anticipo_regularizacion) {
+          total_anticipo += item.subtotal;
+        } else {
+          total_inafecta += item.subtotal;
+        }
+      } else if (
+        igvType?.code_nubefact?.startsWith("1") ||
+        igvType?.code_nubefact?.startsWith("2")
+      ) {
+        // Gratuito
+        total_gratuita += item.subtotal;
+      }
+    });
+
+    total_igv = total_gravada * (porcentaje_de_igv / 100);
+    const total = total_gravada + total_inafecta + total_exonerada + total_igv;
+
+    return {
+      total_gravada,
+      total_inafecta,
+      total_exonerada,
+      total_igv,
+      total_gratuita,
+      total_anticipo,
+      total,
+    };
+  }, [items, igvTypes, porcentaje_de_igv]);
+
+  // Actualizar form values cuando cambien los cálculos
+  useEffect(() => {
+    form.setValue("total_gravada", totales.total_gravada, {
+      shouldValidate: false,
+    });
+    form.setValue("total_inafecta", totales.total_inafecta, {
+      shouldValidate: false,
+    });
+    form.setValue("total_exonerada", totales.total_exonerada, {
+      shouldValidate: false,
+    });
+    form.setValue("total_igv", totales.total_igv, { shouldValidate: false });
+    form.setValue("total_gratuita", totales.total_gratuita, {
+      shouldValidate: false,
+    });
+    form.setValue("total_anticipo", totales.total_anticipo, {
+      shouldValidate: false,
+    });
+    form.setValue("total", totales.total, { shouldValidate: false });
+  }, [totales, form]);
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      {/* Formulario */}
-      <div className="lg:col-span-2">
-        <Card className="p-6">
-          <div className="mb-4">
-            <h4 className="font-semibold text-gray-900 flex items-center gap-2">
-              <FileText className="h-5 w-5" />
-              Nueva Factura - Grupo {selectedGroupNumber}
-            </h4>
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Formulario - 2/3 del ancho */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Información del Documento */}
+            <InvoiceDocumentInfoSection
+              form={form}
+              isEdit={isEdit}
+              documentTypes={documentTypes}
+              currencyTypes={currencyTypes}
+              authorizedSeries={authorizedSeries}
+              defaultCustomer={defaultCustomer}
+              isAdvancePayment={isAdvancePayment}
+            />
+
+            {/* Items (solo lectura, cargados automáticamente) */}
+            <ItemsSection
+              form={form}
+              igvTypes={igvTypes}
+              currencySymbol={currencySymbol}
+              porcentaje_de_igv={porcentaje_de_igv}
+              isAdvancePayment={isAdvancePayment}
+              isFromQuotation={true}
+            />
+
+            {/* Configuración Adicional */}
+            <AdditionalConfigSection
+              form={form}
+              checkbooks={checkbooks}
+              isModuleCommercial={false}
+            />
           </div>
 
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              {/* Sección de Información del Documento */}
-              <GroupFormSection
-                title="Información del Documento"
-                icon={FileText}
-                iconColor="text-primary"
-                bgColor="bg-primary/5"
-                cols={{ sm: 1, md: 3 }}
-              >
-                <div className="md:col-span-3">
-                  <FormSelect
-                    control={form.control}
-                    name="customer_id"
-                    options={customers.map((customer) => ({
-                      value: customer.id.toString(),
-                      label: `${customer.full_name} - ${customer.num_doc}`,
-                    }))}
-                    label="Cliente *"
-                    description="Seleccione el cliente"
-                    placeholder={
-                      isLoadingCustomers
-                        ? "Cargando clientes..."
-                        : "Seleccionar cliente"
-                    }
-                    disabled={isLoadingCustomers}
-                  />
-                </div>
-
-                <FormSelect
-                  control={form.control}
-                  name="sunat_concept_document_type_id"
-                  options={filteredDocumentTypes.map((type) => ({
-                    value: type.id.toString(),
-                    label: type.description,
-                  }))}
-                  label="Tipo de Comprobante *"
-                  description="Seleccione el tipo de comprobante electrónico"
-                  placeholder="Seleccionar tipo de comprobante"
-                />
-
-                <FormSelect
-                  control={form.control}
-                  name="sunat_concept_currency_id"
-                  options={currencyTypes.map((type) => ({
-                    value: type.id.toString(),
-                    label: type.description,
-                  }))}
-                  label="Moneda *"
-                  description="Seleccione la moneda del documento"
-                  placeholder="Seleccionar moneda"
-                />
-
-                <DatePickerFormField
-                  control={form.control}
-                  name="fecha_de_emision"
-                  label="Fecha de Emisión *"
-                  placeholder="Seleccione fecha"
-                  description="Seleccione la fecha de emisión del documento"
-                  disabledRange={{
-                    before: new Date(
-                      new Date().getFullYear(),
-                      new Date().getMonth(),
-                      1
-                    ),
-                    after: new Date(),
-                  }}
-                />
-
-                <FormSelect
-                  control={form.control}
-                  name="serie"
-                  options={authorizedSeries.map((series) => ({
-                    value: series.id.toString(),
-                    label: `${series.series} - ${series.sede || ""}`,
-                  }))}
-                  label="Serie *"
-                  description="Series autorizadas para su usuario"
-                  placeholder="Seleccionar serie"
-                />
-
-                <div>
-                  <FormLabel>Número</FormLabel>
-                  <Input
-                    type="text"
-                    placeholder="Auto-generado"
-                    disabled
-                    value=""
-                  />
-                  <FormDescription className="text-xs">
-                    Se genera automáticamente
-                  </FormDescription>
-                </div>
-              </GroupFormSection>
-
-              {/* Sección de Descripción y Montos */}
-              <GroupFormSection
-                title="Detalle de la Factura"
-                icon={FileText}
-                iconColor="text-primary"
-                bgColor="bg-blue-50"
-                cols={{ sm: 1, md: 2 }}
-              >
-                <div className="md:col-span-2">
-                  <FormInputText
-                    control={form.control}
-                    name="description"
-                    label="Descripción *"
-                    placeholder="Detalle de los servicios facturados..."
-                    rows={3}
-                  />
-                </div>
-
-                <FormInput
-                  control={form.control}
-                  name="amount"
-                  label={`Subtotal (${currencySymbol}) *`}
-                  placeholder="0.00"
-                  type="number"
-                  step="0.01"
-                  min={0}
-                />
-
-                <FormInput
-                  control={form.control}
-                  name="taxRate"
-                  label="Tasa de IGV (%) *"
-                  placeholder="18.00"
-                  type="number"
-                  step="0.01"
-                  min={0}
-                  max={100}
-                />
-              </GroupFormSection>
-            </form>
-          </Form>
-        </Card>
-      </div>
-
-      {/* Resumen */}
-      <div className="lg:col-span-1">
-        <Card className="sticky top-6 bg-linear-to-br from-primary/5 via-background to-muted/20 border-primary/20">
-          <CardHeader className="space-y-1">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-lg flex items-center gap-2">
-                <FileCheck className="size-5 text-primary" />
-                Resumen
-              </CardTitle>
-              <Badge
-                variant="outline"
-                className="bg-primary/10 text-primary border-primary/30"
-              >
-                Nuevo
-              </Badge>
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {series
-                ? authorizedSeries.find((s) => s.id === Number(series))?.series
-                : "****"}
-              -########
-            </p>
-          </CardHeader>
-
-          <CardContent className="space-y-4">
-            {/* Tipo de Comprobante */}
-            <div className="space-y-1 p-3 rounded-lg bg-muted/30 border border-muted-foreground/10">
-              <p className="text-xs font-medium text-muted-foreground">
-                Tipo de Comprobante
-              </p>
-              <p className="text-sm font-semibold">
-                {documentTypes.find(
-                  (t) => t.id.toString() === selectedDocumentType
-                )?.description || "Sin seleccionar"}
-              </p>
-            </div>
-
-            {/* Cliente Info */}
-            <div className="space-y-1 p-3 rounded-lg bg-muted/30 border border-muted-foreground/10">
-              <p className="text-xs font-medium text-muted-foreground">
-                Cliente
-              </p>
-              <p className="text-sm font-semibold">
-                {selectedCustomer?.full_name || "Sin seleccionar"}
-              </p>
-              {selectedCustomer && (
-                <>
-                  <div className="text-xs text-muted-foreground">
-                    <span className="font-semibold">Documento:</span>{" "}
-                    {selectedCustomer.num_doc}
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    <span className="font-semibold">Dirección:</span>{" "}
-                    {selectedCustomer.direction}
-                  </div>
-                  {selectedCustomer.phone !== "0" && (
-                    <div className="text-xs text-muted-foreground">
-                      <span className="font-semibold">Teléfono:</span>{" "}
-                      {selectedCustomer.phone}
-                    </div>
-                  )}
-                </>
-              )}
-            </div>
-
-            {/* IGV Info */}
-            <div className="space-y-1 p-3 rounded-lg bg-blue-50 border border-blue-200">
-              <p className="text-xs font-medium text-blue-600">
-                IGV: {taxRate}%
-              </p>
-              <p className="text-xs text-muted-foreground">
-                El porcentaje de IGV se calcula según la tasa configurada
-              </p>
-            </div>
-
-            <Separator className="bg-muted-foreground/20" />
-
-            {/* Totales */}
-            <div className="space-y-3">
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-muted-foreground">Subtotal</span>
-                <span className="font-medium">
-                  {currencySymbol}{" "}
-                  {amount.toLocaleString("es-PE", {
-                    minimumFractionDigits: 2,
-                  })}
-                </span>
-              </div>
-
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-muted-foreground">IGV ({taxRate}%)</span>
-                <span className="font-medium">
-                  {currencySymbol}{" "}
-                  {calculateTaxAmount().toLocaleString("es-PE", {
-                    minimumFractionDigits: 2,
-                  })}
-                </span>
-              </div>
-
-              <Separator className="bg-primary/20" />
-
-              <div className="flex justify-between items-center p-3 rounded-lg bg-primary/10 border border-primary/30">
-                <span className="text-base font-semibold text-primary">
-                  Total
-                </span>
-                <span className="text-xl font-bold text-primary">
-                  {currencySymbol}{" "}
-                  {calculateTotalAmount().toLocaleString("es-PE", {
-                    minimumFractionDigits: 2,
-                  })}
-                </span>
-              </div>
-            </div>
-
-            <Separator className="bg-muted-foreground/20" />
-
-            {/* Action Buttons */}
-            <div className="space-y-2 pt-4">
-              <Button
-                type="submit"
-                className="w-full"
-                size="lg"
-                disabled={isPending}
-                onClick={form.handleSubmit(onSubmit)}
-              >
-                <FileCheck className="size-4 mr-2" />
-                {isPending ? "Creando..." : "Crear Factura"}
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full"
-                onClick={onCancel}
-                disabled={isPending}
-              >
-                Cancelar
-              </Button>
-            </div>
-
-            {/* Footer Info */}
-            <div className="pt-4 border-t border-muted-foreground/10">
-              <p className="text-xs text-center text-muted-foreground">
-                {form.watch("fecha_de_emision")
-                  ? new Date(
-                      form.watch("fecha_de_emision") + "T00:00:00"
-                    ).toLocaleDateString("es-PE", {
-                      day: "2-digit",
-                      month: "long",
-                      year: "numeric",
-                    })
-                  : "Sin fecha"}
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
+          {/* Resumen - 1/3 del ancho */}
+          <InvoiceSummarySection
+            form={form}
+            onCancel={onCancel}
+            isPending={isPending}
+            isEdit={isEdit}
+            selectedGroupNumber={selectedGroupNumber}
+            documentTypes={documentTypes}
+            authorizedSeries={authorizedSeries}
+            defaultCustomer={defaultCustomer}
+            currencySymbol={currencySymbol}
+            totales={totales}
+            porcentaje_de_igv={porcentaje_de_igv}
+            isAdvancePayment={isAdvancePayment}
+            advancePayments={advances}
+          />
+        </div>
+      </form>
+    </Form>
   );
 }

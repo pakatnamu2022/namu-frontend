@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Wrench, Loader2, Plus, Trash2 } from "lucide-react";
+import { Wrench, Plus, Trash2, FileText } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -30,6 +30,7 @@ import GroupSelector from "../GroupSelector";
 import { useWorkOrderContext } from "../../contexts/WorkOrderContext";
 import { findWorkOrderById } from "../../lib/workOrder.actions";
 import { useQuery } from "@tanstack/react-query";
+import { useGetConsolidatedWorkers } from "../../../planificacion-orden-trabajo/lib/workOrderPlanning.hook";
 
 interface LaborTabProps {
   workOrderId: number;
@@ -52,10 +53,28 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
 
   const items = useMemo(() => workOrder?.items || [], [workOrder?.items]);
 
+  // Obtener la cotización asociada si existe
+  const associatedQuotation = workOrder?.order_quotation || null;
+  const hasAssociatedQuotation = workOrder?.order_quotation_id !== null;
+
+  // Filtrar items de tipo LABOR de la cotización
+  const laborItems = useMemo(() => {
+    if (!associatedQuotation?.details) return [];
+    return associatedQuotation.details.filter(
+      (detail: any) => detail.item_type === "LABOR"
+    );
+  }, [associatedQuotation]);
+
   // Obtener los números de grupos únicos disponibles
   const availableGroups = useMemo(() => {
     return Array.from(new Set(items.map((item) => item.group_number))).sort();
   }, [items]);
+
+  // Obtener operarios consolidados
+  const {
+    data: consolidatedWorkers = [],
+    isLoading: isLoadingConsolidatedWorkers,
+  } = useGetConsolidatedWorkers(workOrderId);
 
   const updateGroupMutation = useUpdateWorkOrderLabour();
 
@@ -69,6 +88,20 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
         work_order_id: labour.work_order_id,
         worker_id: Number(labour.worker_id),
         group_number: newGroupNumber,
+      },
+    });
+  };
+
+  const handleWorkerChange = (labour: any, newWorkerId: number) => {
+    updateGroupMutation.mutate({
+      id: labour.id,
+      data: {
+        description: labour.description,
+        time_spent: labour.time_spent,
+        hourly_rate: labour.hourly_rate,
+        work_order_id: labour.work_order_id,
+        worker_id: newWorkerId,
+        group_number: labour.group_number,
       },
     });
   };
@@ -103,9 +136,12 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
 
   if (isLoading || isLoadingWorkOrder) {
     return (
-      <div className="flex items-center justify-center h-96">
-        <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
-      </div>
+      <Card className="p-12">
+        <div className="flex flex-col items-center justify-center text-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mb-4"></div>
+          <p className="text-gray-500">Cargando mano de obra...</p>
+        </div>
+      </Card>
     );
   }
 
@@ -117,6 +153,38 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
         selectedGroupNumber={selectedGroupNumber}
         onSelectGroup={setSelectedGroupNumber}
       />
+
+      {/* Información de Mano de Obra de la Cotización (Compacta) */}
+      {hasAssociatedQuotation && laborItems.length > 0 && (
+        <Card className="p-3 bg-blue-50 border-blue-200">
+          <div className="flex items-center gap-2 mb-2">
+            <FileText className="h-4 w-4 text-primary" />
+            <h4 className="text-sm font-semibold text-primary">
+              Cotización {associatedQuotation!.quotation_number}
+            </h4>
+          </div>
+          <div className="space-y-1 text-sm">
+            {laborItems.map((item: any, index: number) => (
+              <div
+                key={item.id}
+                className="flex items-center gap-3 py-1 border-b border-blue-100 last:border-0"
+              >
+                <span className="text-gray-700 flex-1 truncate">
+                  {index + 1}. {item.description}
+                </span>
+                <div className="flex items-center gap-2 text-primary font-medium whitespace-nowrap">
+                  <span>{Number(item.quantity || 0).toFixed(2)} hrs</span>
+                  <span className="text-muted-foreground">×</span>
+                  <span>
+                    {associatedQuotation!.currency?.symbol || "S/"}{" "}
+                    {Number(item.total_amount || 0).toFixed(2)}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
 
       {/* Add Labor Button */}
       {!showForm && (
@@ -176,7 +244,27 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
                       <div className="line-clamp-2">{labour.description}</div>
                     </TableCell>
                     <TableCell className="text-left">
-                      {labour.worker_full_name}
+                      <Select
+                        value={labour.worker_id?.toString() || ""}
+                        onValueChange={(value) =>
+                          handleWorkerChange(labour, Number(value))
+                        }
+                        disabled={isLoadingConsolidatedWorkers}
+                      >
+                        <SelectTrigger className="w-[180px]">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {consolidatedWorkers.map((worker) => (
+                            <SelectItem
+                              key={worker.worker_id}
+                              value={worker.worker_id.toString()}
+                            >
+                              {worker.worker_name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </TableCell>
                     <TableCell className="text-right">
                       {labour.time_spent}

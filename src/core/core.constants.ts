@@ -31,11 +31,6 @@ export const STATUS_INACTIVE = 0;
 
 export const LEGAL_AGE = 18;
 
-export const TAX = {
-  RATE: 0.18,
-  FACTOR: 1.18,
-};
-
 export const ACTIONS: Record<string, string> = {
   create: "crear",
   update: "actualizar",

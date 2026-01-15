@@ -50,6 +50,7 @@ export default function AddPurchaseRequestRepuestoPage() {
       />
       <PurchaseRequestForm
         defaultValues={{
+          supply_type: "LIMA",
           requested_date: "",
           observations: "",
         }}

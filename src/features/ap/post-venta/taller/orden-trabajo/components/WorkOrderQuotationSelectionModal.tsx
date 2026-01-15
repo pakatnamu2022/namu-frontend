@@ -6,33 +6,36 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Calendar, DollarSign } from "lucide-react";
-import { useOrderQuotations } from "../lib/proforma.hook";
-import { OrderQuotationResource } from "../lib/proforma.interface";
+import { useOrderQuotations } from "../../cotizacion/lib/proforma.hook";
+import { OrderQuotationResource } from "../../cotizacion/lib/proforma.interface";
 import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import DatePicker from "@/shared/components/DatePicker";
 import DataTablePagination from "@/shared/components/DataTablePagination";
-import { QuotationSelectionTable } from "./QuotationSelectionTable";
+import { QuotationSelectionTable } from "../../cotizacion/components/QuotationSelectionTable";
 import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { errorToast } from "@/core/core.function";
-import { STATUS_ORDER_QUOTATION, SUPPLY_TYPE } from "../lib/proforma.constants";
 import { AREA_PM_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
+import SearchInput from "@/shared/components/SearchInput";
 
-interface QuotationSelectionModalProps {
+interface WorkOrderQuotationSelectionModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSelectQuotation: (quotationId: string) => void;
+  onSelectQuotation: (quotationId: number) => void;
+  vehicleId?: string;
 }
 
-export const QuotationSelectionModal = ({
+export const WorkOrderQuotationSelectionModal = ({
   open,
   onOpenChange,
   onSelectQuotation,
-}: QuotationSelectionModalProps) => {
+  vehicleId,
+}: WorkOrderQuotationSelectionModalProps) => {
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const currentDate = new Date();
+  const [search, setSearch] = useState("");
   const [dateFrom, setDateFrom] = useState<Date | undefined>(currentDate);
   const [dateTo, setDateTo] = useState<Date | undefined>(currentDate);
 
@@ -54,10 +57,10 @@ export const QuotationSelectionModal = ({
   const { data, isLoading } = useOrderQuotations({
     page,
     per_page,
+    search,
     is_take: 0,
-    supply_type: [SUPPLY_TYPE.LIMA, SUPPLY_TYPE.IMPORTACION],
-    status: STATUS_ORDER_QUOTATION.TO_BILL,
-    area_id: AREA_PM_ID.MESON,
+    area_id: AREA_PM_ID.TALLER,
+    vehicle_id: vehicleId,
     quotation_date:
       dateFrom && dateTo
         ? [formatDate(dateFrom), formatDate(dateTo)]
@@ -65,7 +68,7 @@ export const QuotationSelectionModal = ({
   });
 
   const handleRowClick = (quotation: OrderQuotationResource) => {
-    onSelectQuotation(quotation.id.toString());
+    onSelectQuotation(quotation.id);
     onOpenChange(false);
   };
 
@@ -150,9 +153,15 @@ export const QuotationSelectionModal = ({
           </DialogTitle>
         </DialogHeader>
 
-        <div className="flex-1 overflow-auto space-y-3 sm:space-y-4">
+        <div className="flex-1 overflow-auto space-y-3 sm:space-y-4 p-2">
           {/* Filtros */}
           <div className="flex items-center gap-2 flex-wrap">
+            <SearchInput
+              label="Buscar Cotización"
+              value={search}
+              onChange={setSearch}
+              placeholder="Buscar orden de trabajo..."
+            />
             <DatePicker
               value={dateFrom}
               onChange={setDateFrom}

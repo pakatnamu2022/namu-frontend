@@ -267,8 +267,8 @@ export const ReceptionsProductsForm = ({
                         </h4>
                         {isOrderedProduct && (
                           <Badge
-                            variant="secondary"
-                            className="text-xs h-5 shrink-0 bg-blue-100 text-primary"
+                            variant="default"
+                            className="text-xs h-5 shrink-0"
                           >
                             ORDENADO
                           </Badge>
@@ -300,8 +300,8 @@ export const ReceptionsProductsForm = ({
                           : "grid-cols-1 md:grid-cols-2"
                       }`}
                     >
-                      {!isOrderedProduct && (
-                        mode === "update" ? (
+                      {!isOrderedProduct &&
+                        (mode === "update" ? (
                           // Modo edición: Mostrar nombre del producto (solo lectura)
                           <div className="space-y-1">
                             <FormLabel className="text-xs font-medium">
@@ -309,7 +309,8 @@ export const ReceptionsProductsForm = ({
                             </FormLabel>
                             <div className="h-auto min-h-10 w-full rounded-md border border-input bg-muted/50 px-3 py-2 text-sm flex items-center">
                               <span className="font-medium text-sm truncate">
-                                {productItem?.product_name || "Producto no disponible"}
+                                {productItem?.product_name ||
+                                  "Producto no disponible"}
                               </span>
                             </div>
                           </div>
@@ -328,8 +329,7 @@ export const ReceptionsProductsForm = ({
                             perPage={10}
                             debounceMs={500}
                           />
-                        )
-                      )}
+                        ))}
 
                       <FormField
                         control={form.control}

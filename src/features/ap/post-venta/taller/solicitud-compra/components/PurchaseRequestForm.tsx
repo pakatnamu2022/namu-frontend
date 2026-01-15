@@ -38,7 +38,6 @@ import { FormInputText } from "@/shared/components/FormInputText";
 import { CM_POSTVENTA_ID, EMPRESA_AP } from "@/core/core.constants";
 
 const onSelectSupplyType = [
-  { label: "Stock", value: "STOCK" },
   { label: "Lima", value: "LIMA" },
   { label: "Importación", value: "IMPORTACION" },
 ];
@@ -312,6 +311,7 @@ export default function PurchaseRequestForm({
               options={onSelectSupplyType}
               label="Tipo de Abastecimiento"
               placeholder="Seleccionar un tipo"
+              disabled={!!selectedQuotationId}
               required
             />
           </div>
@@ -403,66 +403,68 @@ export default function PurchaseRequestForm({
             </div>
           ) : (
             <>
-              {/* Selector de productos con búsqueda */}
-              <div className="mb-6">
-                <label className="text-sm font-medium mb-2 block">
-                  Seleccionar Producto
-                </label>
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <div className="flex-1">
-                    <FormSelectAsync
-                      name="temp_product_selector"
-                      placeholder="Buscar y seleccionar producto para agregar"
-                      control={form.control}
-                      useQueryHook={useInventory}
-                      additionalParams={{
-                        warehouse_id: selectedWarehouseId,
+              {/* Selector de productos con búsqueda - Solo visible si NO hay cotización */}
+              {!selectedQuotationId && (
+                <div className="mb-6">
+                  <label className="text-sm font-medium mb-2 block">
+                    Seleccionar Producto
+                  </label>
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <div className="flex-1">
+                      <FormSelectAsync
+                        name="temp_product_selector"
+                        placeholder="Buscar y seleccionar producto para agregar"
+                        control={form.control}
+                        useQueryHook={useInventory}
+                        additionalParams={{
+                          warehouse_id: selectedWarehouseId,
+                        }}
+                        mapOptionFn={(inventory: InventoryResource) => ({
+                          label: () => (
+                            <div className="flex items-center justify-between gap-2 w-full">
+                              <span className="font-medium truncate">
+                                {inventory.product.code} -{" "}
+                                {inventory.product.name}
+                              </span>
+                              <span
+                                className={`text-xs font-semibold px-2 py-0.5 rounded shrink-0 ${
+                                  inventory.available_quantity > 0
+                                    ? "bg-green-100 text-green-700"
+                                    : "bg-red-100 text-red-700"
+                                }`}
+                              >
+                                Stock: {inventory.available_quantity}
+                              </span>
+                            </div>
+                          ),
+                          value: inventory.product_id.toString(),
+                        })}
+                        perPage={10}
+                        onValueChange={(value, item) => {
+                          setTempProductId(value);
+                          setTempProductData(item || null);
+                        }}
+                      />
+                    </div>
+                    <Button
+                      type="button"
+                      onClick={() => {
+                        if (tempProductId && tempProductData) {
+                          handleAddProduct(tempProductId, tempProductData);
+                          setTempProductId("");
+                          setTempProductData(null);
+                          form.setValue("temp_product_selector" as any, "");
+                        }
                       }}
-                      mapOptionFn={(inventory: InventoryResource) => ({
-                        label: () => (
-                          <div className="flex items-center justify-between gap-2 w-full">
-                            <span className="font-medium truncate">
-                              {inventory.product.code} -{" "}
-                              {inventory.product.name}
-                            </span>
-                            <span
-                              className={`text-xs font-semibold px-2 py-0.5 rounded shrink-0 ${
-                                inventory.available_quantity > 0
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-red-100 text-red-700"
-                              }`}
-                            >
-                              Stock: {inventory.available_quantity}
-                            </span>
-                          </div>
-                        ),
-                        value: inventory.product_id.toString(),
-                      })}
-                      perPage={10}
-                      onValueChange={(value, item) => {
-                        setTempProductId(value);
-                        setTempProductData(item || null);
-                      }}
-                    />
+                      disabled={!tempProductId}
+                      className="self-end sm:w-auto w-full"
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Agregar
+                    </Button>
                   </div>
-                  <Button
-                    type="button"
-                    onClick={() => {
-                      if (tempProductId && tempProductData) {
-                        handleAddProduct(tempProductId, tempProductData);
-                        setTempProductId("");
-                        setTempProductData(null);
-                        form.setValue("temp_product_selector" as any, "");
-                      }
-                    }}
-                    disabled={!tempProductId}
-                    className="self-end sm:w-auto w-full"
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Agregar
-                  </Button>
                 </div>
-              </div>
+              )}
 
               {/* Lista de Productos */}
               <div className="mt-6">
@@ -526,6 +528,7 @@ export default function PurchaseRequestForm({
                                     )
                                   }
                                   className="h-9 text-sm"
+                                  disabled={!!selectedQuotationId}
                                 />
                               </div>
 
@@ -548,6 +551,7 @@ export default function PurchaseRequestForm({
                                   size="icon"
                                   className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
                                   onClick={() => handleRemoveProduct(index)}
+                                  disabled={!!selectedQuotationId}
                                 >
                                   <Trash2 className="h-4 w-4" />
                                 </Button>
@@ -569,6 +573,7 @@ export default function PurchaseRequestForm({
                                   size="icon"
                                   className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50 shrink-0"
                                   onClick={() => handleRemoveProduct(index)}
+                                  disabled={!!selectedQuotationId}
                                 >
                                   <Trash2 className="h-4 w-4" />
                                 </Button>
@@ -591,6 +596,7 @@ export default function PurchaseRequestForm({
                                       )
                                     }
                                     className="h-9 text-sm w-full"
+                                    disabled={!!selectedQuotationId}
                                   />
                                 </div>
 

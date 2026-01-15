@@ -23,6 +23,7 @@ export interface OrderQuotationDetailsResource {
   total_amount: number;
   observations: string | null;
   product: ProductResource | null;
+  status: string;
 }
 
 export interface OrderQuotationDetailsRequest {
