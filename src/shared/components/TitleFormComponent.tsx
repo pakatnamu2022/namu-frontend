@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 import * as LucideReact from "lucide-react";
+import BackButton from "./BackButton";
 
 interface Props {
   title: string;
@@ -7,6 +8,7 @@ interface Props {
   className?: string;
   icon?: keyof typeof LucideReact;
   children?: React.ReactNode;
+  backRoute?: string;
 }
 
 export default function TitleFormComponent({
@@ -15,6 +17,7 @@ export default function TitleFormComponent({
   className = "",
   icon,
   children,
+  backRoute,
 }: Props) {
   const IconComponent = icon
     ? (LucideReact[icon] as React.ComponentType<any>)
@@ -33,6 +36,8 @@ export default function TitleFormComponent({
           className
         )}
       >
+        {backRoute && <BackButton route={backRoute} name={""} size="icon" />}
+
         {IconComponent && (
           <div className="text-white bg-primary rounded-md p-2">
             <IconComponent className="size-5 text-white" />

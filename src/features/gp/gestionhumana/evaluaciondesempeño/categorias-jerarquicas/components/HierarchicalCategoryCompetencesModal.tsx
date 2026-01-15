@@ -207,7 +207,7 @@ export function HierarchicalCategoryCompetenceModal({
             defaultValue="competences"
             className="p-2 w-full h-full bg-muted rounded-lg"
           >
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList>
               <TabsTrigger value="competences">Competencias</TabsTrigger>
               <TabsTrigger value="asignations">Asignaciones</TabsTrigger>
             </TabsList>

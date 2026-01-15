@@ -31,6 +31,7 @@ import { cn } from "@/lib/utils";
 import GeneralSheet from "@/shared/components/GeneralSheet";
 import { DataTable } from "@/shared/components/DataTable";
 import EmptyState from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/components/EmptyState";
+import { GroupFormSection } from "@/shared/components/GroupFormSection";
 
 export interface BonusDiscountRow {
   id: string;
@@ -395,9 +396,13 @@ export const BonusDiscountTable = ({
   ];
 
   return (
-    <div className="space-y-4 col-span-full">
-      {/* Botón para abrir el sheet de agregar */}
-      <div className="flex justify-end">
+    <GroupFormSection
+      title="Bonos / Descuentos"
+      icon={Gift}
+      iconColor="text-primary"
+      bgColor="bg-blue-50"
+      cols={{ sm: 1 }}
+      headerExtra={
         <Button
           type="button"
           onClick={() => setIsAddSheetOpen(true)}
@@ -408,540 +413,549 @@ export const BonusDiscountTable = ({
           <Plus className="h-4 w-4" />
           Agregar Bono / Descuento
         </Button>
-      </div>
+      }
+    >
+      <div className="space-y-4 col-span-full">
+        {/* Tabla de bonos y descuentos usando DataTable */}
+        {rows.length > 0 ? (
+          <div className="space-y-0">
+            <DataTable
+              columns={columns}
+              data={rows}
+              variant="ghost"
+              isVisibleColumnFilter={false}
+            />
 
-      {/* Tabla de bonos y descuentos usando DataTable */}
-      {rows.length > 0 ? (
-        <div className="space-y-0">
-          <DataTable
-            columns={columns}
-            data={rows}
-            variant="ghost"
-            isVisibleColumnFilter={false}
+            {/* Total de descuentos */}
+            <div className="bg-gray-50 px-4 py-2 mt-1 rounded-xl">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0">
+                <div className="flex items-center w-full sm:w-auto justify-between sm:justify-start">
+                  <span className="text-sm text-gray-600">
+                    Precio de Venta:
+                  </span>
+                  <span className="ml-2 font-medium">
+                    {currencySymbol}{" "}
+                    <NumberFormat
+                      value={(Number(costoReferencia) || 0).toFixed(2)}
+                    />
+                  </span>
+                </div>
+                <div className="flex items-center w-full sm:w-auto justify-between sm:justify-end">
+                  <span className="text-sm text-gray-600">
+                    Total Descuento:
+                  </span>
+                  <span className="ml-2 text-lg font-bold text-primary">
+                    {currencySymbol}{" "}
+                    <NumberFormat value={calcularDescuentoTotal().toFixed(2)} />
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <EmptyState
+            title={`No hay ${title}`}
+            description="Agrega bonos o descuentos a la cotización."
+            icon={Gift}
           />
+        )}
 
-          {/* Total de descuentos */}
-          <div className="bg-gray-50 px-4 py-2 mt-1 rounded-xl">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0">
-              <div className="flex items-center w-full sm:w-auto justify-between sm:justify-start">
-                <span className="text-sm text-gray-600">Precio de Venta:</span>
-                <span className="ml-2 font-medium">
-                  {currencySymbol}{" "}
-                  <NumberFormat
-                    value={(Number(costoReferencia) || 0).toFixed(2)}
+        {/* Sheet para agregar bono/descuento */}
+        <GeneralSheet
+          open={isAddSheetOpen}
+          onClose={() => {
+            setIsAddSheetOpen(false);
+            setNewRow({
+              concept_id: "",
+              descripcion: "",
+              isPercentage: false,
+              valor: 0,
+              isNegative: false,
+            });
+            setErrors({
+              concept_id: false,
+              descripcion: false,
+              valor: false,
+            });
+          }}
+          title="Agregar Bono / Descuento"
+          subtitle="Agrega un nuevo bono o descuento a la cotización"
+          icon="Gift"
+          size="lg"
+        >
+          <div className="space-y-4 px-4">
+            <div>
+              <label className="text-sm font-medium mb-1 block">Concepto</label>
+              <Select
+                value={newRow.concept_id}
+                onValueChange={(value) => {
+                  setNewRow({ ...newRow, concept_id: value });
+                  setErrors({ ...errors, concept_id: false });
+                }}
+              >
+                <SelectTrigger
+                  className={errors.concept_id ? "border-red-500" : ""}
+                >
+                  <SelectValue placeholder="Selecciona un concepto" />
+                </SelectTrigger>
+                <SelectContent>
+                  {conceptsOptions.map((option) => (
+                    <SelectItem key={option.id} value={option.id.toString()}>
+                      {option.description}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.concept_id && (
+                <p className="text-xs text-red-500 mt-1">
+                  Este campo es requerido
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label className="text-sm font-medium mb-1 block">
+                Descripción
+              </label>
+              {(() => {
+                const options = getDescriptionOptions(newRow.concept_id);
+
+                if (options) {
+                  return (
+                    <Popover open={openCombobox} onOpenChange={setOpenCombobox}>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          size="lg"
+                          aria-expanded={openCombobox}
+                          className={cn(
+                            "w-full justify-between",
+                            errors.descripcion && "border-red-500"
+                          )}
+                        >
+                          {newRow.descripcion || "Ingrese descripción"}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-full p-0">
+                        <Command>
+                          <CommandInput
+                            placeholder="Buscar o escribir..."
+                            value={newRow.descripcion}
+                            onValueChange={(value) => {
+                              setNewRow({ ...newRow, descripcion: value });
+                              setErrors({ ...errors, descripcion: false });
+                            }}
+                          />
+                          <CommandList>
+                            <CommandEmpty>
+                              <div className="p-2">
+                                <p className="text-sm text-muted-foreground mb-2">
+                                  No se encontraron resultados.
+                                </p>
+                              </div>
+                            </CommandEmpty>
+                            <CommandGroup>
+                              {options.map((option) => (
+                                <CommandItem
+                                  key={option}
+                                  value={option}
+                                  onSelect={(currentValue) => {
+                                    setNewRow({
+                                      ...newRow,
+                                      descripcion: currentValue.toUpperCase(),
+                                    });
+                                    setErrors({
+                                      ...errors,
+                                      descripcion: false,
+                                    });
+                                    setOpenCombobox(false);
+                                  }}
+                                >
+                                  <Check
+                                    className={cn(
+                                      "mr-2 h-4 w-4",
+                                      newRow.descripcion === option
+                                        ? "opacity-100"
+                                        : "opacity-0"
+                                    )}
+                                  />
+                                  {option}
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+                  );
+                }
+
+                return (
+                  <Input
+                    value={newRow.descripcion}
+                    onChange={(e) => {
+                      setNewRow({ ...newRow, descripcion: e.target.value });
+                      setErrors({ ...errors, descripcion: false });
+                    }}
+                    placeholder="Ingrese descripción"
+                    className={errors.descripcion ? "border-red-500" : ""}
                   />
-                </span>
-              </div>
-              <div className="flex items-center w-full sm:w-auto justify-between sm:justify-end">
-                <span className="text-sm text-gray-600">Total Descuento:</span>
-                <span className="ml-2 text-lg font-bold text-primary">
-                  {currencySymbol}{" "}
-                  <NumberFormat value={calcularDescuentoTotal().toFixed(2)} />
-                </span>
+                );
+              })()}
+              {errors.descripcion && (
+                <p className="text-xs text-red-500 mt-1">
+                  Este campo es requerido
+                </p>
+              )}
+            </div>
+
+            <div className="grid grid-cols-1 gap-3">
+              <div>
+                <label className="text-sm font-medium mb-1 block">Valor</label>
+                <Input
+                  type="number"
+                  value={newRow.valor || ""}
+                  onChange={(e) => {
+                    setNewRow({
+                      ...newRow,
+                      valor: parseFloat(e.target.value) || 0,
+                    });
+                    setErrors({ ...errors, valor: false });
+                  }}
+                  placeholder="0.00"
+                  step="0.01"
+                  className={errors.valor ? "border-red-500" : ""}
+                />
+                {errors.valor && (
+                  <p className="text-xs text-red-500 mt-1">
+                    Ingrese un valor mayor a 0
+                  </p>
+                )}
               </div>
             </div>
-          </div>
-        </div>
-      ) : (
-        <EmptyState
-          title={`No hay ${title}`}
-          description="Agrega bonos o descuentos a la cotización."
-          icon={Gift}
-        />
-      )}
 
-      {/* Sheet para agregar bono/descuento */}
-      <GeneralSheet
-        open={isAddSheetOpen}
-        onClose={() => {
-          setIsAddSheetOpen(false);
-          setNewRow({
-            concept_id: "",
-            descripcion: "",
-            isPercentage: false,
-            valor: 0,
-            isNegative: false,
-          });
-          setErrors({
-            concept_id: false,
-            descripcion: false,
-            valor: false,
-          });
-        }}
-        title="Agregar Bono / Descuento"
-        subtitle="Agrega un nuevo bono o descuento a la cotización"
-        icon="Gift"
-        size="lg"
-      >
-        <div className="space-y-4 px-4">
-          <div>
-            <label className="text-sm font-medium mb-1 block">Concepto</label>
-            <Select
-              value={newRow.concept_id}
-              onValueChange={(value) => {
-                setNewRow({ ...newRow, concept_id: value });
-                setErrors({ ...errors, concept_id: false });
-              }}
-            >
-              <SelectTrigger
-                className={errors.concept_id ? "border-red-500" : ""}
-              >
-                <SelectValue placeholder="Selecciona un concepto" />
-              </SelectTrigger>
-              <SelectContent>
-                {conceptsOptions.map((option) => (
-                  <SelectItem key={option.id} value={option.id.toString()}>
-                    {option.description}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {errors.concept_id && (
-              <p className="text-xs text-red-500 mt-1">
-                Este campo es requerido
-              </p>
-            )}
-          </div>
-
-          <div>
-            <label className="text-sm font-medium mb-1 block">
-              Descripción
-            </label>
-            {(() => {
-              const options = getDescriptionOptions(newRow.concept_id);
-
-              if (options) {
-                return (
-                  <Popover open={openCombobox} onOpenChange={setOpenCombobox}>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        role="combobox"
-                        size="lg"
-                        aria-expanded={openCombobox}
-                        className={cn(
-                          "w-full justify-between",
-                          errors.descripcion && "border-red-500"
-                        )}
+            {/* Vista previa del cálculo */}
+            {newRow.valor > 0 && (
+              <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="space-y-2">
+                  <h4 className="font-medium text-sm text-primary">
+                    Vista Previa
+                  </h4>
+                  <div className="grid grid-cols-2 gap-2 text-sm">
+                    <div>
+                      <span className="text-gray-600">Precio de Venta:</span>
+                      <p className="font-medium">
+                        {currencySymbol}{" "}
+                        {costoReferencia.toLocaleString("es-PE", {
+                          minimumFractionDigits: 2,
+                        })}
+                      </p>
+                    </div>
+                    <div>
+                      <span className="text-gray-600">
+                        Monto {newRow.isNegative ? "Descuento" : "Bono"}:
+                      </span>
+                      <p
+                        className={`font-medium ${
+                          newRow.isNegative ? "text-red-600" : "text-primary"
+                        }`}
                       >
-                        {newRow.descripcion || "Ingrese descripción"}
-                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-full p-0">
-                      <Command>
-                        <CommandInput
-                          placeholder="Buscar o escribir..."
-                          value={newRow.descripcion}
-                          onValueChange={(value) => {
-                            setNewRow({ ...newRow, descripcion: value });
-                            setErrors({ ...errors, descripcion: false });
-                          }}
-                        />
-                        <CommandList>
-                          <CommandEmpty>
-                            <div className="p-2">
-                              <p className="text-sm text-muted-foreground mb-2">
-                                No se encontraron resultados.
-                              </p>
-                            </div>
-                          </CommandEmpty>
-                          <CommandGroup>
-                            {options.map((option) => (
-                              <CommandItem
-                                key={option}
-                                value={option}
-                                onSelect={(currentValue) => {
-                                  setNewRow({
-                                    ...newRow,
-                                    descripcion: currentValue.toUpperCase(),
-                                  });
-                                  setErrors({ ...errors, descripcion: false });
-                                  setOpenCombobox(false);
-                                }}
-                              >
-                                <Check
-                                  className={cn(
-                                    "mr-2 h-4 w-4",
-                                    newRow.descripcion === option
-                                      ? "opacity-100"
-                                      : "opacity-0"
-                                  )}
-                                />
-                                {option}
-                              </CommandItem>
-                            ))}
-                          </CommandGroup>
-                        </CommandList>
-                      </Command>
-                    </PopoverContent>
-                  </Popover>
-                );
-              }
-
-              return (
-                <Input
-                  value={newRow.descripcion}
-                  onChange={(e) => {
-                    setNewRow({ ...newRow, descripcion: e.target.value });
-                    setErrors({ ...errors, descripcion: false });
-                  }}
-                  placeholder="Ingrese descripción"
-                  className={errors.descripcion ? "border-red-500" : ""}
-                />
-              );
-            })()}
-            {errors.descripcion && (
-              <p className="text-xs text-red-500 mt-1">
-                Este campo es requerido
-              </p>
+                        {newRow.isNegative ? "- " : ""}
+                        {currencySymbol}{" "}
+                        {newRow.isPercentage
+                          ? (
+                              (costoReferencia * newRow.valor) /
+                              100
+                            ).toLocaleString("es-PE", {
+                              minimumFractionDigits: 2,
+                            })
+                          : newRow.valor.toLocaleString("es-PE", {
+                              minimumFractionDigits: 2,
+                            })}
+                      </p>
+                    </div>
+                  </div>
+                  {newRow.concept_id === DESCUENTO_NUEVO_ID && (
+                    <div className="mt-2 p-2 bg-red-100 border border-red-300 rounded">
+                      <p className="text-xs text-red-800 font-medium">
+                        Este descuento afectará el precio final del vehículo
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
             )}
-          </div>
 
-          <div className="grid grid-cols-1 gap-3">
-            <div>
-              <label className="text-sm font-medium mb-1 block">Valor</label>
-              <Input
-                type="number"
-                value={newRow.valor || ""}
-                onChange={(e) => {
+            {/* Botones de acción */}
+            <div className="flex gap-3 pt-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  setIsAddSheetOpen(false);
                   setNewRow({
-                    ...newRow,
-                    valor: parseFloat(e.target.value) || 0,
+                    concept_id: "",
+                    descripcion: "",
+                    isPercentage: false,
+                    valor: 0,
+                    isNegative: false,
                   });
-                  setErrors({ ...errors, valor: false });
+                  setErrors({
+                    concept_id: false,
+                    descripcion: false,
+                    valor: false,
+                  });
                 }}
-                placeholder="0.00"
-                step="0.01"
-                className={errors.valor ? "border-red-500" : ""}
-              />
-              {errors.valor && (
-                <p className="text-xs text-red-500 mt-1">
-                  Ingrese un valor mayor a 0
-                </p>
-              )}
-            </div>
-          </div>
-
-          {/* Vista previa del cálculo */}
-          {newRow.valor > 0 && (
-            <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-              <div className="space-y-2">
-                <h4 className="font-medium text-sm text-primary">
-                  Vista Previa
-                </h4>
-                <div className="grid grid-cols-2 gap-2 text-sm">
-                  <div>
-                    <span className="text-gray-600">Precio de Venta:</span>
-                    <p className="font-medium">
-                      {currencySymbol}{" "}
-                      {costoReferencia.toLocaleString("es-PE", {
-                        minimumFractionDigits: 2,
-                      })}
-                    </p>
-                  </div>
-                  <div>
-                    <span className="text-gray-600">
-                      Monto {newRow.isNegative ? "Descuento" : "Bono"}:
-                    </span>
-                    <p
-                      className={`font-medium ${
-                        newRow.isNegative ? "text-red-600" : "text-primary"
-                      }`}
-                    >
-                      {newRow.isNegative ? "- " : ""}
-                      {currencySymbol}{" "}
-                      {newRow.isPercentage
-                        ? (
-                            (costoReferencia * newRow.valor) /
-                            100
-                          ).toLocaleString("es-PE", {
-                            minimumFractionDigits: 2,
-                          })
-                        : newRow.valor.toLocaleString("es-PE", {
-                            minimumFractionDigits: 2,
-                          })}
-                    </p>
-                  </div>
-                </div>
-                {newRow.concept_id === DESCUENTO_NUEVO_ID && (
-                  <div className="mt-2 p-2 bg-red-100 border border-red-300 rounded">
-                    <p className="text-xs text-red-800 font-medium">
-                      Este descuento afectará el precio final del vehículo
-                    </p>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Botones de acción */}
-          <div className="flex gap-3 pt-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => {
-                setIsAddSheetOpen(false);
-                setNewRow({
-                  concept_id: "",
-                  descripcion: "",
-                  isPercentage: false,
-                  valor: 0,
-                  isNegative: false,
-                });
-                setErrors({
-                  concept_id: false,
-                  descripcion: false,
-                  valor: false,
-                });
-              }}
-              className="flex-1"
-            >
-              Cancelar
-            </Button>
-            <Button type="button" onClick={agregarFila} className="flex-1">
-              Agregar
-            </Button>
-          </div>
-        </div>
-      </GeneralSheet>
-
-      {/* Sheet para editar bono/descuento */}
-      <GeneralSheet
-        open={isEditSheetOpen}
-        onClose={cerrarEditSheet}
-        title="Editar Bono / Descuento"
-        subtitle="Modifica los datos del bono o descuento seleccionado"
-        icon="Edit2"
-        size="lg"
-      >
-        <div className="space-y-4 px-4">
-          <div>
-            <label className="text-sm font-medium mb-1 block">Concepto</label>
-            <Select
-              value={editForm.concept_id}
-              onValueChange={(value) => {
-                setEditForm({ ...editForm, concept_id: value });
-                setEditErrors({ ...editErrors, concept_id: false });
-              }}
-            >
-              <SelectTrigger
-                className={editErrors.concept_id ? "border-red-500" : ""}
+                className="flex-1"
               >
-                <SelectValue placeholder="Selecciona un concepto" />
-              </SelectTrigger>
-              <SelectContent>
-                {conceptsOptions.map((option) => (
-                  <SelectItem key={option.id} value={option.id.toString()}>
-                    {option.description}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {editErrors.concept_id && (
-              <p className="text-xs text-red-500 mt-1">
-                Este campo es requerido
-              </p>
-            )}
+                Cancelar
+              </Button>
+              <Button type="button" onClick={agregarFila} className="flex-1">
+                Agregar
+              </Button>
+            </div>
           </div>
+        </GeneralSheet>
 
-          <div>
-            <label className="text-sm font-medium mb-1 block">
-              Descripción
-            </label>
-            {(() => {
-              const options = getDescriptionOptions(editForm.concept_id);
-
-              if (options) {
-                return (
-                  <Popover
-                    open={openEditCombobox}
-                    onOpenChange={setOpenEditCombobox}
-                  >
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        role="combobox"
-                        size="lg"
-                        aria-expanded={openEditCombobox}
-                        className={cn(
-                          "w-full justify-between",
-                          editErrors.descripcion && "border-red-500"
-                        )}
-                      >
-                        {editForm.descripcion || "Ingrese descripción"}
-                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-full p-0">
-                      <Command>
-                        <CommandInput
-                          placeholder="Buscar o escribir..."
-                          value={editForm.descripcion}
-                          onValueChange={(value) => {
-                            setEditForm({ ...editForm, descripcion: value });
-                            setEditErrors({
-                              ...editErrors,
-                              descripcion: false,
-                            });
-                          }}
-                        />
-                        <CommandList>
-                          <CommandEmpty>
-                            <div className="p-2">
-                              <p className="text-sm text-muted-foreground mb-2">
-                                No se encontraron resultados.
-                              </p>
-                            </div>
-                          </CommandEmpty>
-                          <CommandGroup>
-                            {options.map((option) => (
-                              <CommandItem
-                                key={option}
-                                value={option}
-                                onSelect={(currentValue) => {
-                                  setEditForm({
-                                    ...editForm,
-                                    descripcion: currentValue.toUpperCase(),
-                                  });
-                                  setEditErrors({
-                                    ...editErrors,
-                                    descripcion: false,
-                                  });
-                                  setOpenEditCombobox(false);
-                                }}
-                              >
-                                <Check
-                                  className={cn(
-                                    "mr-2 h-4 w-4",
-                                    editForm.descripcion === option
-                                      ? "opacity-100"
-                                      : "opacity-0"
-                                  )}
-                                />
-                                {option}
-                              </CommandItem>
-                            ))}
-                          </CommandGroup>
-                        </CommandList>
-                      </Command>
-                    </PopoverContent>
-                  </Popover>
-                );
-              }
-
-              return (
-                <Input
-                  value={editForm.descripcion}
-                  onChange={(e) => {
-                    setEditForm({ ...editForm, descripcion: e.target.value });
-                    setEditErrors({ ...editErrors, descripcion: false });
-                  }}
-                  placeholder="Ingrese descripción"
-                  className={editErrors.descripcion ? "border-red-500" : ""}
-                />
-              );
-            })()}
-            {editErrors.descripcion && (
-              <p className="text-xs text-red-500 mt-1">
-                Este campo es requerido
-              </p>
-            )}
-          </div>
-
-          <div className="grid grid-cols-1 gap-3">
+        {/* Sheet para editar bono/descuento */}
+        <GeneralSheet
+          open={isEditSheetOpen}
+          onClose={cerrarEditSheet}
+          title="Editar Bono / Descuento"
+          subtitle="Modifica los datos del bono o descuento seleccionado"
+          icon="Edit2"
+          size="lg"
+        >
+          <div className="space-y-4 px-4">
             <div>
-              <label className="text-sm font-medium mb-1 block">Valor</label>
-              <Input
-                type="number"
-                value={editForm.valor || ""}
-                onChange={(e) => {
-                  setEditForm({
-                    ...editForm,
-                    valor: parseFloat(e.target.value) || 0,
-                  });
-                  setEditErrors({ ...editErrors, valor: false });
+              <label className="text-sm font-medium mb-1 block">Concepto</label>
+              <Select
+                value={editForm.concept_id}
+                onValueChange={(value) => {
+                  setEditForm({ ...editForm, concept_id: value });
+                  setEditErrors({ ...editErrors, concept_id: false });
                 }}
-                placeholder="0.00"
-                step="0.01"
-                className={editErrors.valor ? "border-red-500" : ""}
-              />
-              {editErrors.valor && (
+              >
+                <SelectTrigger
+                  className={editErrors.concept_id ? "border-red-500" : ""}
+                >
+                  <SelectValue placeholder="Selecciona un concepto" />
+                </SelectTrigger>
+                <SelectContent>
+                  {conceptsOptions.map((option) => (
+                    <SelectItem key={option.id} value={option.id.toString()}>
+                      {option.description}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {editErrors.concept_id && (
                 <p className="text-xs text-red-500 mt-1">
-                  Ingrese un valor mayor a 0
+                  Este campo es requerido
                 </p>
               )}
             </div>
-          </div>
 
-          {/* Vista previa del cálculo */}
-          {editForm.valor > 0 && (
-            <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-              <div className="space-y-2">
-                <h4 className="font-medium text-sm text-primary">
-                  Vista Previa
-                </h4>
-                <div className="grid grid-cols-2 gap-2 text-sm">
-                  <div>
-                    <span className="text-gray-600">Precio de Venta:</span>
-                    <p className="font-medium">
-                      {currencySymbol}{" "}
-                      {costoReferencia.toLocaleString("es-PE", {
-                        minimumFractionDigits: 2,
-                      })}
-                    </p>
-                  </div>
-                  <div>
-                    <span className="text-gray-600">
-                      Monto {editForm.isNegative ? "Descuento" : "Bono"}:
-                    </span>
-                    <p
-                      className={`font-medium ${
-                        editForm.isNegative ? "text-red-600" : "text-primary"
-                      }`}
+            <div>
+              <label className="text-sm font-medium mb-1 block">
+                Descripción
+              </label>
+              {(() => {
+                const options = getDescriptionOptions(editForm.concept_id);
+
+                if (options) {
+                  return (
+                    <Popover
+                      open={openEditCombobox}
+                      onOpenChange={setOpenEditCombobox}
                     >
-                      {editForm.isNegative ? "- " : ""}
-                      {currencySymbol}{" "}
-                      {editForm.isPercentage
-                        ? (
-                            (costoReferencia * editForm.valor) /
-                            100
-                          ).toLocaleString("es-PE", {
-                            minimumFractionDigits: 2,
-                          })
-                        : editForm.valor.toLocaleString("es-PE", {
-                            minimumFractionDigits: 2,
-                          })}
-                    </p>
-                  </div>
-                </div>
-                {editForm.concept_id === DESCUENTO_NUEVO_ID && (
-                  <div className="mt-2 p-2 bg-red-100 border border-red-300 rounded">
-                    <p className="text-xs text-red-800 font-medium">
-                      Este descuento afectará el precio final del vehículo
-                    </p>
-                  </div>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          size="lg"
+                          aria-expanded={openEditCombobox}
+                          className={cn(
+                            "w-full justify-between",
+                            editErrors.descripcion && "border-red-500"
+                          )}
+                        >
+                          {editForm.descripcion || "Ingrese descripción"}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-full p-0">
+                        <Command>
+                          <CommandInput
+                            placeholder="Buscar o escribir..."
+                            value={editForm.descripcion}
+                            onValueChange={(value) => {
+                              setEditForm({ ...editForm, descripcion: value });
+                              setEditErrors({
+                                ...editErrors,
+                                descripcion: false,
+                              });
+                            }}
+                          />
+                          <CommandList>
+                            <CommandEmpty>
+                              <div className="p-2">
+                                <p className="text-sm text-muted-foreground mb-2">
+                                  No se encontraron resultados.
+                                </p>
+                              </div>
+                            </CommandEmpty>
+                            <CommandGroup>
+                              {options.map((option) => (
+                                <CommandItem
+                                  key={option}
+                                  value={option}
+                                  onSelect={(currentValue) => {
+                                    setEditForm({
+                                      ...editForm,
+                                      descripcion: currentValue.toUpperCase(),
+                                    });
+                                    setEditErrors({
+                                      ...editErrors,
+                                      descripcion: false,
+                                    });
+                                    setOpenEditCombobox(false);
+                                  }}
+                                >
+                                  <Check
+                                    className={cn(
+                                      "mr-2 h-4 w-4",
+                                      editForm.descripcion === option
+                                        ? "opacity-100"
+                                        : "opacity-0"
+                                    )}
+                                  />
+                                  {option}
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+                  );
+                }
+
+                return (
+                  <Input
+                    value={editForm.descripcion}
+                    onChange={(e) => {
+                      setEditForm({ ...editForm, descripcion: e.target.value });
+                      setEditErrors({ ...editErrors, descripcion: false });
+                    }}
+                    placeholder="Ingrese descripción"
+                    className={editErrors.descripcion ? "border-red-500" : ""}
+                  />
+                );
+              })()}
+              {editErrors.descripcion && (
+                <p className="text-xs text-red-500 mt-1">
+                  Este campo es requerido
+                </p>
+              )}
+            </div>
+
+            <div className="grid grid-cols-1 gap-3">
+              <div>
+                <label className="text-sm font-medium mb-1 block">Valor</label>
+                <Input
+                  type="number"
+                  value={editForm.valor || ""}
+                  onChange={(e) => {
+                    setEditForm({
+                      ...editForm,
+                      valor: parseFloat(e.target.value) || 0,
+                    });
+                    setEditErrors({ ...editErrors, valor: false });
+                  }}
+                  placeholder="0.00"
+                  step="0.01"
+                  className={editErrors.valor ? "border-red-500" : ""}
+                />
+                {editErrors.valor && (
+                  <p className="text-xs text-red-500 mt-1">
+                    Ingrese un valor mayor a 0
+                  </p>
                 )}
               </div>
             </div>
-          )}
 
-          {/* Botones de acción */}
-          <div className="flex gap-3 pt-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={cerrarEditSheet}
-              className="flex-1"
-            >
-              Cancelar
-            </Button>
-            <Button type="button" onClick={guardarEdicion} className="flex-1">
-              Guardar Cambios
-            </Button>
+            {/* Vista previa del cálculo */}
+            {editForm.valor > 0 && (
+              <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="space-y-2">
+                  <h4 className="font-medium text-sm text-primary">
+                    Vista Previa
+                  </h4>
+                  <div className="grid grid-cols-2 gap-2 text-sm">
+                    <div>
+                      <span className="text-gray-600">Precio de Venta:</span>
+                      <p className="font-medium">
+                        {currencySymbol}{" "}
+                        {costoReferencia.toLocaleString("es-PE", {
+                          minimumFractionDigits: 2,
+                        })}
+                      </p>
+                    </div>
+                    <div>
+                      <span className="text-gray-600">
+                        Monto {editForm.isNegative ? "Descuento" : "Bono"}:
+                      </span>
+                      <p
+                        className={`font-medium ${
+                          editForm.isNegative ? "text-red-600" : "text-primary"
+                        }`}
+                      >
+                        {editForm.isNegative ? "- " : ""}
+                        {currencySymbol}{" "}
+                        {editForm.isPercentage
+                          ? (
+                              (costoReferencia * editForm.valor) /
+                              100
+                            ).toLocaleString("es-PE", {
+                              minimumFractionDigits: 2,
+                            })
+                          : editForm.valor.toLocaleString("es-PE", {
+                              minimumFractionDigits: 2,
+                            })}
+                      </p>
+                    </div>
+                  </div>
+                  {editForm.concept_id === DESCUENTO_NUEVO_ID && (
+                    <div className="mt-2 p-2 bg-red-100 border border-red-300 rounded">
+                      <p className="text-xs text-red-800 font-medium">
+                        Este descuento afectará el precio final del vehículo
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Botones de acción */}
+            <div className="flex gap-3 pt-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={cerrarEditSheet}
+                className="flex-1"
+              >
+                Cancelar
+              </Button>
+              <Button type="button" onClick={guardarEdicion} className="flex-1">
+                Guardar Cambios
+              </Button>
+            </div>
           </div>
-        </div>
-      </GeneralSheet>
-    </div>
+        </GeneralSheet>
+      </div>
+    </GroupFormSection>
   );
 };

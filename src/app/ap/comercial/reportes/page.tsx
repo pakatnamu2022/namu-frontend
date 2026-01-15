@@ -1,22 +1,22 @@
+import { SUBTITLE } from "@/core/core.function";
 import { ReportCard } from "@/features/ap/comercial/reportes/components/ReportCard";
 import {
   COMMERCIAL_REPORTS,
   REPORTS_CONSTANTS,
 } from "@/features/ap/comercial/reportes/lib/reports.constants";
+import PageWrapper from "@/shared/components/PageWrapper";
+import TitleComponent from "@/shared/components/TitleComponent";
 import { FileBarChart } from "lucide-react";
 
 export default function ReportesComercialPage() {
   return (
-    <div className="space-y-8 py-6">
+    <PageWrapper>
       {/* Header */}
-      <div className="space-y-1">
-        <h1 className="text-2xl font-semibold tracking-tight">
-          {REPORTS_CONSTANTS.TITLE}
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          {REPORTS_CONSTANTS.DESCRIPTION}
-        </p>
-      </div>
+      <TitleComponent
+        title={REPORTS_CONSTANTS.MODEL.name}
+        subtitle={SUBTITLE(REPORTS_CONSTANTS.MODEL, "fetch")}
+        icon={REPORTS_CONSTANTS.ICON}
+      />
 
       {/* Lista de reportes */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -37,6 +37,6 @@ export default function ReportesComercialPage() {
           </p>
         </div>
       )}
-    </div>
+    </PageWrapper>
   );
 }

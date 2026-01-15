@@ -10,7 +10,6 @@ import {
   successToast,
 } from "@/core/core.function";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
-import FormWrapper from "@/shared/components/FormWrapper";
 import { PURCHASE_REQUEST_QUOTE } from "@/features/ap/comercial/solicitudes-cotizaciones/lib/purchaseRequestQuote.constants";
 import { storePurchaseRequestQuote } from "@/features/ap/comercial/solicitudes-cotizaciones/lib/purchaseRequestQuote.actions";
 import { PurchaseRequestQuoteSchema } from "@/features/ap/comercial/solicitudes-cotizaciones/lib/purchaseRequestQuote.schema";
@@ -18,14 +17,19 @@ import { PurchaseRequestQuoteForm } from "@/features/ap/comercial/solicitudes-co
 import { notFound } from "@/shared/hooks/useNotFound";
 import { useOpportunity } from "@/features/ap/comercial/oportunidades/lib/opportunities.hook";
 import FormSkeleton from "@/shared/components/FormSkeleton";
+import PageWrapper from "@/shared/components/PageWrapper";
+import { OPPORTUNITIES } from "@/features/ap/comercial/oportunidades/lib/opportunities.constants";
 
 export default function AddPurchaseRequestQuotePage() {
   const router = useNavigate();
   const params = useParams();
   const { currentView, checkRouteExists } = useCurrentModule();
-  const { ROUTE, MODEL, ABSOLUTE_ROUTE } = PURCHASE_REQUEST_QUOTE;
+  const { ROUTE, MODEL } = PURCHASE_REQUEST_QUOTE;
+  const { ABSOLUTE_ROUTE: OPPORTUNITIES_ABSOLUTE_ROUTE } = OPPORTUNITIES;
 
   const opportunityId = Number(params.opportunity_id);
+
+  const BACK_ROUTE = `${OPPORTUNITIES_ABSOLUTE_ROUTE}/${opportunityId}`;
 
   // Obtener los datos de la oportunidad
   const { data: opportunity, isLoading: isLoadingOpportunity } =
@@ -35,7 +39,7 @@ export default function AddPurchaseRequestQuotePage() {
     mutationFn: storePurchaseRequestQuote,
     onSuccess: () => {
       successToast(SUCCESS_MESSAGE(MODEL, "create"));
-      router(ABSOLUTE_ROUTE);
+      router(BACK_ROUTE);
     },
     onError: (error: any) => {
       const msg = error?.response?.data?.message || "";
@@ -57,11 +61,12 @@ export default function AddPurchaseRequestQuotePage() {
   }
 
   return (
-    <FormWrapper>
+    <PageWrapper size="2xl">
       <TitleFormComponent
         title={currentView.descripcion}
         mode="create"
         icon={currentView.icon}
+        backRoute={BACK_ROUTE}
       />
       <PurchaseRequestQuoteForm
         defaultValues={{
@@ -82,7 +87,8 @@ export default function AddPurchaseRequestQuotePage() {
         isSubmitting={isPending}
         mode="create"
         opportunity={opportunity}
+        onCancel={() => router(BACK_ROUTE)}
       />
-    </FormWrapper>
+    </PageWrapper>
   );
 }

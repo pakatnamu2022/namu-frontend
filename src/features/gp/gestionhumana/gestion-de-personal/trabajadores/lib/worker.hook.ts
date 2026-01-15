@@ -12,6 +12,7 @@ import {
   getWorkersWithoutCompetences,
   getMyConsultants,
   getBirthdays,
+  findWorkerById,
 } from "./worker.actions.ts";
 import { WORKER } from "./worker.constant.ts";
 
@@ -29,6 +30,14 @@ export const useWorkers = (params?: Record<string, any>) => {
   return useQuery<WorkerResponse>({
     queryKey: [QUERY_KEY, params],
     queryFn: () => getWorker({ params }),
+    refetchOnWindowFocus: false,
+  });
+};
+
+export const useWorkerById = (id: number) => {
+  return useQuery<WorkerResource>({
+    queryKey: [QUERY_KEY, id],
+    queryFn: () => findWorkerById(id),
     refetchOnWindowFocus: false,
   });
 };

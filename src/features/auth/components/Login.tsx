@@ -115,15 +115,13 @@ export function Login({ className, ...props }: React.ComponentProps<"div">) {
                         <Eye className="h-4 w-4" />
                       )}
                       <span className="sr-only">
-                        {showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                        {showPassword
+                          ? "Ocultar contraseña"
+                          : "Mostrar contraseña"}
                       </span>
                     </Button>
                   </div>
-                  <Button
-                    type="submit"
-                    disabled={isLogging}
-                    className="w-full"
-                  >
+                  <Button type="submit" disabled={isLogging} className="w-full">
                     <LoaderCircle
                       className={cn(
                         "mr-2 h-4 w-4",
@@ -170,7 +168,7 @@ export function Login({ className, ...props }: React.ComponentProps<"div">) {
         </CardContent>
       </Card>
       <div className="text-muted-foreground hover:[a]:*:text-primary text-center text-xs text-balance [a]:*:underline [a]:*:underline-offset-4 pb-4">
-        © {new Date().getFullYear()} Siam. Todos los derechos reservados.
+        © {new Date().getFullYear()} Sian. Todos los derechos reservados.
       </div>
     </div>
   );

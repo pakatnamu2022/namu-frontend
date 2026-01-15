@@ -102,7 +102,7 @@ export const hierarchicalCategoryColumns = ({
     header: "Tiene Objetivos",
     cell: ({ getValue }) => (
       <Badge
-        variant={(getValue() as boolean) ? "tertiary" : "secondary"}
+        variant={(getValue() as boolean) ? "green" : "red"}
         className={cn("font-semibold flex gap-0.5 w-fit")}
       >
         {getValue() ? <Check className="size-3" /> : <X className="size-3" />}

@@ -1,11 +1,11 @@
 "use client";
 
 import { useNavigate, useParams } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { ChevronLeft } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import DevelopmentPlanForm from "../../../../../../features/gp/gestionhumana/plan-desarrollo/components/DevelopmentPlanForm";
 import { useAuthStore } from "@/features/auth/lib/auth.store";
+import FormWrapper from "@/shared/components/FormWrapper";
+import TitleFormComponent from "@/shared/components/TitleFormComponent";
+import { useWorkerById } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
 
 export default function CrearPlanDesarrolloPage() {
   const { id } = useParams();
@@ -14,9 +14,9 @@ export default function CrearPlanDesarrolloPage() {
   const currentUser = useAuthStore((state) => state.user);
   const bossId = currentUser?.partner_id;
 
-  const handleBack = () => {
-    router(`/perfil/equipo/${personId}/plan-desarrollo`);
-  };
+  // Obtener información de la persona
+  const { data: workerData } = useWorkerById(personId);
+  const personName = workerData?.name || "Colaborador";
 
   const handleSuccess = () => {
     // Al guardar exitosamente, redirigir a la lista
@@ -24,33 +24,19 @@ export default function CrearPlanDesarrolloPage() {
   };
 
   return (
-    <div className="w-full py-4">
-      <Card className="border-none shadow-none">
-        <CardContent className="mx-auto max-w-7xl">
-          <CardHeader className="space-y-4 p-0 mb-6">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-2xl">
-                Crear Plan de Desarrollo
-              </CardTitle>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleBack}
-                className="gap-2"
-              >
-                <ChevronLeft className="w-4 h-4" />
-                Volver
-              </Button>
-            </div>
-          </CardHeader>
+    <FormWrapper>
+      <TitleFormComponent
+        title={`Plan de Desarrollo - ${personName}`}
+        mode="create"
+        icon="Target"
+        backRoute={`/perfil/equipo/${personId}/plan-desarrollo`}
+      />
 
-          <DevelopmentPlanForm
-            personId={personId}
-            bossId={bossId}
-            onSuccess={handleSuccess}
-          />
-        </CardContent>
-      </Card>
-    </div>
+      <DevelopmentPlanForm
+        personId={personId}
+        bossId={bossId}
+        onSuccess={handleSuccess}
+      />
+    </FormWrapper>
   );
 }

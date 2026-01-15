@@ -35,6 +35,13 @@ import { EVALUATION_OBJECTIVE } from "@/features/gp/gestionhumana/evaluaciondese
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useAuthStore } from "@/features/auth/lib/auth.store";
 import PageWrapper from "@/shared/components/PageWrapper";
+import { Progress } from "@/components/ui/progress";
+import { cn } from "@/lib/utils";
+import {
+  getProgressBackgroundColor,
+  getProgressColor,
+  getVariantByCompletionRate,
+} from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/lib/evaluationPerson.function";
 
 const { QUERY_KEY, MODEL } = EVALUATION_PERSON;
 
@@ -194,7 +201,7 @@ export default function NamuPerformanceEvaluationPage() {
 
   return (
     <PageWrapper>
-      <div className="space-y-4 p-0">
+      <div className="p-0">
         {/* Header principal */}
         <PersonTitleComponent
           name={evaluationPersonResult.person.name}
@@ -203,57 +210,71 @@ export default function NamuPerformanceEvaluationPage() {
           backButtonRoute="/perfil/equipo"
           backButtonName="Ver Equipo"
         >
-          <div className="ml-auto text-right">
-            <div className="text-2xl font-bold text-primary">
-              {evaluationPersonResult.statistics.overall_completion_rate}%
+          <div className="flex gap-2 items-end">
+            <div className="flex flex-col gap-2 items-center">
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge variant="indigo" className="text-xs">
+                  {activeEvaluation.name}
+                </Badge>
+                <Badge variant="sky" className="text-xs">
+                  {activeEvaluation.period}
+                </Badge>
+                <Badge variant="blue" className="text-xs">
+                  Activa
+                </Badge>
+                <Badge
+                  variant={getVariantByCompletionRate(
+                    evaluationPersonResult.statistics.overall_completion_rate
+                  )}
+                  className="text-xs"
+                >
+                  {evaluationPersonResult.statistics.overall_completion_rate}%
+                </Badge>
+              </div>
+              <Progress
+                value={
+                  evaluationPersonResult.statistics.overall_completion_rate
+                }
+                className={cn(
+                  "h-2",
+                  getProgressBackgroundColor(
+                    evaluationPersonResult.statistics.overall_completion_rate
+                  )
+                )}
+                indicatorClassName={getProgressColor(
+                  evaluationPersonResult.statistics.overall_completion_rate
+                )}
+              />
             </div>
-            <div className="text-xs text-muted-foreground">
-              Progreso general
-            </div>
-          </div>
-        </PersonTitleComponent>
-
-        {/* Evaluación activa y controles */}
-        <div className="flex items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <Badge variant="indigo" className="text-xs">
-              {activeEvaluation.name}
-            </Badge>
-            <Badge variant="sky" className="text-xs">
-              {activeEvaluation.period}
-            </Badge>
-            <Badge variant="blue" className="text-xs">
-              Activa
-            </Badge>
-          </div>
-
-          <div className="flex items-center gap-2">
             <Button
-              variant="outline"
-              size="sm"
-              color="primary"
+              variant="default"
+              size="icon-lg"
               onClick={handleRefresh}
               disabled={saving}
               className="gap-2"
             >
               <RefreshCw className={`size-4 ${saving ? "animate-spin" : ""}`} />
-              Actualizar
             </Button>
           </div>
+        </PersonTitleComponent>
+
+        {/* Evaluación activa y controles */}
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-2"></div>
         </div>
       </div>
 
-      <div className="mt-6 space-y-4 grid grid-cols-4 gap-6">
+      <div className="space-y-4 grid grid-cols-4 gap-6">
         {/* Tabs de contenido */}
         <Tabs
           defaultValue={
             evaluationPersonResult?.hasObjectives ? "objectives" : "competences"
           }
-          className="p-2 w-full bg-muted rounded-lg col-span-3"
+          className="w-full rounded-lg col-span-3"
         >
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList>
             {evaluationPersonResult?.hasObjectives && (
-              <TabsTrigger value="objectives" className="gap-2">
+              <TabsTrigger value="objectives" className="gap-2 px-8">
                 <Target className="size-4" />
                 Objetivos
                 <Badge variant="outline" className="ml-2 text-xs">
@@ -264,7 +285,7 @@ export default function NamuPerformanceEvaluationPage() {
             )}
             {evaluationPersonResult?.evaluation.typeEvaluation.toString() !==
               EVALUATION_OBJECTIVE.ID && (
-              <TabsTrigger value="competences" className="gap-2">
+              <TabsTrigger value="competences" className="gap-2 px-8">
                 <TrendingUp className="size-4" />
                 Competencias
                 <Badge variant="outline" className="ml-2 text-xs">
@@ -275,33 +296,20 @@ export default function NamuPerformanceEvaluationPage() {
             )}
           </TabsList>
           <TabsContents className="rounded-sm bg-background w-full">
-            <TabsContent value="objectives" className="space-y-6 p-6">
+            <TabsContent value="objectives" className="space-y-6">
               {isLoadingEvaluationPerson ? (
                 <FormSkeleton />
               ) : (
-                <>
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-semibold">
-                      Evaluación de Objetivos
-                    </h3>
-                    {evaluationPersonResult?.objectivesPercentage && (
-                      <Badge variant="outline">
-                        Peso: {evaluationPersonResult.objectivesPercentage}% del
-                        total
-                      </Badge>
-                    )}
-                  </div>
-                  <EvaluationPersonObjectiveTable
-                    evaluationPersonResult={evaluationPersonResult}
-                    details={evaluationPersonResult?.details}
-                    onUpdateCell={handleUpdateResultCell}
-                    onCommentCell={handleCommentSubmit}
-                    readOnly={
-                      evaluationPersonResult.details[0].chief_id !==
-                      user.partner_id
-                    }
-                  />
-                </>
+                <EvaluationPersonObjectiveTable
+                  evaluationPersonResult={evaluationPersonResult}
+                  details={evaluationPersonResult?.details}
+                  onUpdateCell={handleUpdateResultCell}
+                  onCommentCell={handleCommentSubmit}
+                  readOnly={
+                    evaluationPersonResult.details[0].chief_id !==
+                    user.partner_id
+                  }
+                />
               )}
             </TabsContent>
             <TabsContent value="competences" className="space-y-6 p-6">

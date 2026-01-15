@@ -4,8 +4,7 @@ export const downloadReport = async (
   endpoint: string,
   params: Record<string, any>
 ) => {
-  const response = await api.get(endpoint, {
-    params,
+  const response = await api.post(endpoint, params, {
     responseType: "blob",
   });
 
@@ -19,7 +18,9 @@ export const downloadReport = async (
   let filename = "reporte";
 
   if (contentDisposition) {
-    const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+    const filenameMatch = contentDisposition.match(
+      /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/
+    );
     if (filenameMatch && filenameMatch[1]) {
       filename = filenameMatch[1].replace(/['"]/g, "");
     }

@@ -2,17 +2,14 @@
 
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   errorToast,
   successToast,
   ERROR_MESSAGE,
   SUCCESS_MESSAGE,
 } from "@/core/core.function";
-import {
-  findWorkerById,
-  updateWorker,
-} from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.actions";
+import { updateWorker } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.actions";
 import { WorkerSignatureSchema } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.schema";
 import { WorkerResource } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.interface";
 import { WorkerForm } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/components/WorkerForm";
@@ -22,6 +19,7 @@ import FormSkeleton from "@/shared/components/FormSkeleton";
 import FormWrapper from "@/shared/components/FormWrapper";
 import { WORKER } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.constant";
 import { notFound } from "@/shared/hooks/useNotFound";
+import { useWorkerById } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
 
 export default function UpdateWorkerSignaturePage() {
   const { id } = useParams();
@@ -30,11 +28,7 @@ export default function UpdateWorkerSignaturePage() {
   const { currentView, checkRouteExists } = useCurrentModule();
   const { MODEL, ROUTE, QUERY_KEY, ABSOLUTE_ROUTE } = WORKER;
 
-  const { data: worker, isLoading: loadingWorker } = useQuery({
-    queryKey: [QUERY_KEY, id],
-    queryFn: () => findWorkerById(id as string),
-    refetchOnWindowFocus: false,
-  });
+  const { data: worker, isLoading: loadingWorker } = useWorkerById(Number(id));
 
   const { mutate, isPending } = useMutation({
     mutationFn: (data: WorkerSignatureSchema) =>

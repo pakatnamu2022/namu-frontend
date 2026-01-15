@@ -251,7 +251,7 @@ export default function ShippingGuideHistory({
           </div>
         ) : (
           <Tabs defaultValue="resumen" className="mt-6">
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList>
               <TabsTrigger value="resumen">Resumen</TabsTrigger>
               <TabsTrigger value="timeline">Línea de Tiempo</TabsTrigger>
             </TabsList>

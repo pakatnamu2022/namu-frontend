@@ -5,27 +5,18 @@ import { useEffect, useState } from "react";
 import PageSkeleton from "@/shared/components/PageSkeleton";
 import TitleComponent from "@/shared/components/TitleComponent";
 import DataTablePagination from "@/shared/components/DataTablePagination";
-import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
-import {
-  ERROR_MESSAGE,
-  errorToast,
-  SUCCESS_MESSAGE,
-  successToast,
-} from "@/core/core.function";
 import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { VEHICLE_PURCHASE_ORDER } from "@/features/ap/comercial/ordenes-compra-vehiculo/lib/vehiclePurchaseOrder.constants";
 import { useVehiclePurchaseOrder } from "@/features/ap/comercial/ordenes-compra-vehiculo/lib/vehiclePurchaseOrder.hook";
-import { deleteVehiclePurchaseOrder } from "@/features/ap/comercial/ordenes-compra-vehiculo/lib/vehiclePurchaseOrder.actions";
 import VehiclePurchaseOrderActions from "@/features/ap/comercial/ordenes-compra-vehiculo/components/VehiclePurchaseOrderActions";
 import { vehiclePurchaseOrderColumns } from "@/features/ap/comercial/ordenes-compra-vehiculo/components/VehiclePurchaseOrderColumns";
 import VehiclePurchaseOrderTable from "@/features/ap/comercial/ordenes-compra-vehiculo/components/VehiclePurchaseOrderTable";
 import VehiclePurchaseOrderOptions from "@/features/ap/comercial/ordenes-compra-vehiculo/components/VehiclePurchaseOrderOptions";
 import { notFound } from "@/shared/hooks/useNotFound";
 
-
 export default function VehiclePurchaseOrderPage() {
-    const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
+  const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
@@ -36,8 +27,7 @@ export default function VehiclePurchaseOrderPage() {
   const [modelId, setModelId] = useState("all");
   const [colorId, setColorId] = useState("all");
   const [statusId, setStatusId] = useState("all");
-  const [deleteId, setDeleteId] = useState<number | null>(null);
-  const { MODEL, ROUTE } = VEHICLE_PURCHASE_ORDER;
+  const { ROUTE } = VEHICLE_PURCHASE_ORDER;
 
   useEffect(() => {
     setPage(1);
@@ -66,20 +56,6 @@ export default function VehiclePurchaseOrderPage() {
     vehicle$ap_vehicle_status_id: statusId !== "all" ? statusId : undefined,
   });
 
-  const handleDelete = async () => {
-    if (!deleteId) return;
-    try {
-      await deleteVehiclePurchaseOrder(deleteId);
-      await refetch();
-      successToast(SUCCESS_MESSAGE(MODEL, "delete"));
-    } catch (error: any) {
-      const msg = error?.response?.data?.message || "";
-      errorToast(ERROR_MESSAGE(MODEL, "delete", msg));
-    } finally {
-      setDeleteId(null);
-    }
-  };
-
   if (isLoadingModule) return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
   if (!currentView) notFound();
@@ -99,9 +75,7 @@ export default function VehiclePurchaseOrderPage() {
       </HeaderTableWrapper>
       <VehiclePurchaseOrderTable
         isLoading={isLoading}
-        columns={vehiclePurchaseOrderColumns({
-          onDelete: setDeleteId,
-        })}
+        columns={vehiclePurchaseOrderColumns()}
         data={data?.data || []}
       >
         <VehiclePurchaseOrderOptions
@@ -123,14 +97,6 @@ export default function VehiclePurchaseOrderPage() {
           setStatusId={setStatusId}
         />
       </VehiclePurchaseOrderTable>
-
-      {deleteId !== null && (
-        <SimpleDeleteDialog
-          open={true}
-          onOpenChange={(open) => !open && setDeleteId(null)}
-          onConfirm={handleDelete}
-        />
-      )}
 
       <DataTablePagination
         page={page}

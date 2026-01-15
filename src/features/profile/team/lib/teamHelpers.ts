@@ -8,15 +8,15 @@ import type { EvaluationPersonResultResource } from "@/features/gp/gestionhumana
  * @returns Array filtrado de personas donde el usuario tiene el rol especificado
  */
 export const filterByEvaluatorType = (
-  data: EvaluationPersonResultResource[],
+  data: EvaluationPersonResultResource[] | undefined,
   evaluatorType: number | null,
   userId: number | undefined
-): EvaluationPersonResultResource[] => {
+): EvaluationPersonResultResource[] | undefined => {
   if (evaluatorType === null || !userId) {
     return data;
   }
 
-  return data.filter((person) => {
+  return data?.filter((person) => {
     // Verificar si el usuario aparece como el tipo de evaluador especificado
     // en alguna competencia de esta persona
     return person.competenceGroups?.some((group) =>
@@ -65,7 +65,7 @@ export const getMyEvaluatorTypes = (
  * @returns Objeto con contadores por tipo de evaluador
  */
 export const getUserEvaluatorTypeCounts = (
-  data: EvaluationPersonResultResource[],
+  data: EvaluationPersonResultResource[] | undefined,
   userId: number | undefined
 ): Record<number | "all", number> => {
   if (!userId || !data) {

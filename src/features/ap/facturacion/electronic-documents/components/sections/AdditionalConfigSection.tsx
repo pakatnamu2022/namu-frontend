@@ -26,6 +26,16 @@ export function AdditionalConfigSection({
   checkbooks,
   isModuleCommercial = true,
 }: AdditionalConfigSectionProps) {
+  const medioDePago = form.watch("medio_de_pago");
+
+  // Filtrar chequeras: si medio de pago es EFECTIVO, solo mostrar las que contengan "CAJ"
+  const filteredCheckbooks =
+    medioDePago === "EFECTIVO"
+      ? checkbooks.filter((checkbook) =>
+          checkbook.code.toUpperCase().includes("CAJ")
+        )
+      : checkbooks;
+
   return (
     <GroupFormSection
       title="Configuración Adicional"
@@ -62,16 +72,8 @@ export function AdditionalConfigSection({
             value: "EFECTIVO",
           },
           {
-            label: "TARJETA DE DÉBITO",
-            value: "TARJETA DE DEBITO",
-          },
-          {
-            label: "TARJETA DE CRÉDITO",
-            value: "TARJETA DE CREDITO",
-          },
-          {
-            label: "CHEQUE",
-            value: "CHEQUE",
+            label: "TARJETA",
+            value: "TARJETA",
           },
           {
             label: "TRANSFERENCIA BANCARIA",
@@ -80,10 +82,6 @@ export function AdditionalConfigSection({
           {
             label: "DEPÓSITO BANCARIO",
             value: "DEPOSITO BANCARIO",
-          },
-          {
-            label: "GIRO",
-            value: "GIRO",
           },
           {
             label: "OTRO",
@@ -98,7 +96,7 @@ export function AdditionalConfigSection({
         control={form.control}
         label="Entidad"
         name="bank_id"
-        options={checkbooks.map((checkbook) => ({
+        options={filteredCheckbooks.map((checkbook) => ({
           label: checkbook.code,
           value: String(checkbook.id),
           description: checkbook.account_number,
