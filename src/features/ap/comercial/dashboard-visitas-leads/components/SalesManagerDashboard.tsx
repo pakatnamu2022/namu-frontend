@@ -21,10 +21,11 @@ import { EMPRESA_AP } from "@/core/core.constants";
 import TitleComponent from "@/shared/components/TitleComponent";
 import { MetricCard } from "@/shared/components/MetricCard";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
+import PageWrapper from "@/shared/components/PageWrapper";
 
 // Obtener el primer y último día del mes pasado
 const getLastMonthRange = () => {
-  const lastMonth = subMonths(new Date(), 1);
+  const lastMonth = subMonths(new Date(), 0);
   return {
     firstDay: startOfMonth(lastMonth),
     lastDay: endOfMonth(lastMonth),
@@ -92,7 +93,7 @@ export default function SalesManagerDashboard() {
   };
 
   return (
-    <div className="space-y-6 p-6">
+    <PageWrapper>
       <div className="flex items-center justify-between border-b pb-4">
         {/* Header */}
         <TitleComponent
@@ -252,6 +253,6 @@ export default function SalesManagerDashboard() {
           }}
         />
       )}
-    </div>
+    </PageWrapper>
   );
 }

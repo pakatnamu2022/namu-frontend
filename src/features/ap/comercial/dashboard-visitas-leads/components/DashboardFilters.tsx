@@ -84,6 +84,7 @@ export default function DashboardFilters({
       <ButtonGroup>
         <Button
           size="sm"
+          className={dashboardType === "LEADS" ? "" : "bg-muted"}
           variant={dashboardType === "LEADS" ? "default" : "outline"}
           onClick={() => onDashboardTypeChange("LEADS")}
         >
@@ -91,6 +92,7 @@ export default function DashboardFilters({
         </Button>
         <Button
           size="sm"
+          className={dashboardType === "VISITA" ? "" : "bg-muted"}
           variant={dashboardType === "VISITA" ? "default" : "outline"}
           onClick={() => onDashboardTypeChange("VISITA")}
         >
