@@ -42,6 +42,7 @@ export const ACTIONS: Record<string, string> = {
   delete: "eliminar",
   fetch: "obtener",
   close: "cerrar",
+  manage: "gestionar",
 };
 
 export const EMPRESA_TP = {
@@ -50,6 +51,7 @@ export const EMPRESA_TP = {
   label: "TP",
   src: "/logos/tplogo.svg",
   scrWhite: "/logos/tplogowhite.svg",
+  image: "/images/modules/transportes.webp",
 };
 export const EMPRESA_DP = {
   id: 2,
@@ -57,6 +59,7 @@ export const EMPRESA_DP = {
   label: "DP",
   src: "/logos/dplogo.svg",
   scrWhite: "/logos/dplogowhite.svg",
+  image: "/images/modules/deposito.webp",
 };
 export const EMPRESA_AP = {
   id: 3,
@@ -64,6 +67,7 @@ export const EMPRESA_AP = {
   label: "AP",
   src: "/logos/aplogo.svg",
   scrWhite: "/logos/aplogowhite.svg",
+  image: "/images/modules/automotores.webp",
 };
 export const EMPRESA_GP = {
   id: 4,
@@ -71,6 +75,7 @@ export const EMPRESA_GP = {
   label: "GP",
   src: "/logos/gplogo.svg",
   scrWhite: "/logos/gplogowhite.svg",
+  image: "/images/modules/grupo.webp",
 };
 
 export const CONSTANTS: any = {
