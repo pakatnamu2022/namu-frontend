@@ -3,10 +3,19 @@
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import { useNavigate } from "react-router-dom";
 import DashboardSkeleton from "@/shared/components/DashboardSkeleton";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { ViewsResponseMenuChild } from "@/features/views/lib/views.interface";
 import * as LucideReact from "lucide-react";
 import TitleComponent from "./TitleComponent";
+import PageWrapper from "./PageWrapper";
+import { SUBTITLE } from "@/core/core.function";
+import { ModelInterface } from "@/core/core.interface";
 
 interface ModuleViewsDashboardProps {
   /**
@@ -79,7 +88,7 @@ export default function ModuleViewsDashboard({
   );
 
   const displayTitle = title || context?.descripcion || "Dashboard";
-  const icon = (context?.icon as keyof typeof LucideReact) || "";
+  const icon = (context?.icon as keyof typeof LucideReact) || "FolderDot";
 
   const handleItemClick = (item: ViewsResponseMenuChild) => {
     const itemRoute = item.route || item.slug || item.ruta;
@@ -97,13 +106,13 @@ export default function ModuleViewsDashboard({
     const Icon = (LucideReact as any)[iconName];
     if (!Icon) return null;
 
-    return <Icon className="w-8 h-8" />;
+    return <Icon className="h-4 w-4 md:w-6 md:h-6" />;
   };
 
   const hasContent = submodules.length > 0 || views.length > 0;
 
   return (
-    <div className="space-y-6 p-6">
+    <PageWrapper>
       {/* Header */}
       <TitleComponent title={displayTitle} subtitle={subtitle} icon={icon} />
 
@@ -117,7 +126,7 @@ export default function ModuleViewsDashboard({
           </div>
         </div>
       ) : (
-        <div className="space-y-8">
+        <div className="md:space-y-8">
           {/* Submódulos */}
           {submodules.length > 0 && (
             <div className="space-y-4">
@@ -133,9 +142,9 @@ export default function ModuleViewsDashboard({
                   >
                     <CardHeader className="space-y-1">
                       <div className="flex items-center gap-3">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-secondary/20 text-secondary-foreground">
+                        <div className="flex h-10 w-10 md:h-12 md:w-12 items-center justify-center rounded-lg bg-secondary/20 text-secondary-foreground">
                           {getIcon(submodule.icono) || (
-                            <LucideReact.FolderOpen className="w-6 h-6" />
+                            <LucideReact.FolderOpen className="h-4 w-4 md:w-6 md:h-6" />
                           )}
                         </div>
                         <CardTitle className="text-base line-clamp-2">
@@ -148,7 +157,7 @@ export default function ModuleViewsDashboard({
                         <p className="text-xs text-muted-foreground">
                           {submodule.children?.length || 0} opciones
                         </p>
-                        <LucideReact.ChevronRight className="w-4 h-4 text-muted-foreground" />
+                        <LucideReact.ChevronRight className="h-4 w-4 text-muted-foreground" />
                       </div>
                     </CardContent>
                   </Card>
@@ -172,23 +181,28 @@ export default function ModuleViewsDashboard({
                     className="cursor-pointer transition-all hover:shadow-lg hover:scale-105 active:scale-95"
                     onClick={() => handleItemClick(view)}
                   >
-                    <CardHeader className="space-y-1">
+                    <CardHeader className="space-y-1 p-4 md:p-6">
                       <div className="flex items-center gap-3">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                          {getIcon(view.icono) || (
-                            <LucideReact.FileText className="w-6 h-6" />
+                        <div className="flex h-10 w-10 md:h-12 md:w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                          {getIcon(view.icon ?? "FileDot") || (
+                            <LucideReact.FileText className="h-4 w-4 md:w-6 md:h-6" />
                           )}
                         </div>
-                        <CardTitle className="text-base line-clamp-2">
-                          {view.descripcion}
-                        </CardTitle>
+                        <div>
+                          <CardTitle className="text-base line-clamp-2">
+                            {view.descripcion}
+                          </CardTitle>
+                          <CardDescription>
+                            {SUBTITLE(
+                              {
+                                name: view.descripcion,
+                              } as ModelInterface,
+                              "manage"
+                            )}
+                          </CardDescription>
+                        </div>
                       </div>
                     </CardHeader>
-                    <CardContent>
-                      <p className="text-xs text-muted-foreground">
-                        Click para acceder
-                      </p>
-                    </CardContent>
                   </Card>
                 ))}
               </div>
@@ -196,6 +210,6 @@ export default function ModuleViewsDashboard({
           )}
         </div>
       )}
-    </div>
+    </PageWrapper>
   );
 }

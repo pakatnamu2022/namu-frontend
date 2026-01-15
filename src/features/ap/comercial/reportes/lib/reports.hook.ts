@@ -1,10 +1,8 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { downloadReport, fetchSelectOptions } from "./reports.actions";
-import { useToast } from "@/hooks/use-toast";
+import { errorToast, successToast } from "@/core/core.function";
 
 export const useDownloadReport = () => {
-  const { toast } = useToast();
-
   return useMutation({
     mutationFn: ({
       endpoint,
@@ -14,20 +12,14 @@ export const useDownloadReport = () => {
       params: Record<string, any>;
     }) => downloadReport(endpoint, params),
     onSuccess: () => {
-      toast({
-        title: "Reporte descargado",
-        description: "El reporte se ha descargado correctamente",
-        variant: "default",
-      });
+      successToast("El reporte se ha descargado correctamente");
     },
     onError: (error: any) => {
-      toast({
-        title: "Error al descargar",
-        description:
-          error?.response?.data?.message ||
-          "Ocurrió un error al descargar el reporte",
-        variant: "destructive",
-      });
+      console.log("Error downloading report:", error);
+      errorToast(
+        error?.response?.data?.message ||
+          "Ocurrió un error al descargar el reporte"
+      );
     },
   });
 };
