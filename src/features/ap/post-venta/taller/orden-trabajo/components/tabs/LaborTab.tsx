@@ -61,7 +61,7 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
   const laborItems = useMemo(() => {
     if (!associatedQuotation?.details) return [];
     return associatedQuotation.details.filter(
-      (detail: any) => detail.item_type === "LABOR"
+      (detail: any) => detail.item_type === "LABOR",
     );
   }, [associatedQuotation]);
 
@@ -116,7 +116,7 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
 
   // Filtrar las manos de obra según el grupo seleccionado
   const filteredLabours = labours.filter(
-    (labour) => labour.group_number === selectedGroupNumber
+    (labour) => labour.group_number === selectedGroupNumber,
   );
 
   const deleteMutation = useDeleteWorkOrderLabour();
@@ -209,6 +209,7 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
             groupNumber={selectedGroupNumber!}
             onSuccess={handleSuccess}
             onCancel={() => setShowForm(false)}
+            workOrderItems={items}
           />
         </Card>
       )}
@@ -323,7 +324,7 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
                       .reduce(
                         (acc, labour) =>
                           acc + parseFloat(labour.total_cost || "0"),
-                        0
+                        0,
                       )
                       .toFixed(2)}
                   </p>

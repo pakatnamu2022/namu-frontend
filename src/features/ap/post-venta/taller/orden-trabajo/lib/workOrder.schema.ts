@@ -11,9 +11,12 @@ export const workOrderSchemaCreate = z
   .object({
     has_appointment: z.boolean().default(false),
     appointment_planning_id: z.string().optional(),
+    has_inspection: z.boolean().default(false),
+    vehicle_inspection_id: z.string().optional(),
     vehicle_id: requiredStringId("Vehículo es requerido"),
     sede_id: requiredStringId("Sede es requerida"),
     opening_date: z.union([z.literal(""), z.date()]),
+    currency_id: requiredStringId("Moneda es requerida"),
     estimated_delivery_date: z
       .union([z.literal(""), z.date()])
       .refine((val) => val !== "", {
@@ -46,7 +49,23 @@ export const workOrderSchemaCreate = z
       message:
         "Cita de planificación es requerida cuando 'Tiene cita' está activo",
       path: ["appointment_planning_id"],
-    }
+    },
+  )
+  .refine(
+    (data) => {
+      // Si has_inspection es true, vehicle_inspection_id es requerido
+      if (data.has_inspection) {
+        return (
+          !!data.vehicle_inspection_id && data.vehicle_inspection_id.length > 0
+        );
+      }
+      return true;
+    },
+    {
+      message:
+        "Inspección de vehículo es requerida cuando 'Tiene inspección' está activo",
+      path: ["vehicle_inspection_id"],
+    },
   );
 
 export const workOrderSchemaUpdate = workOrderSchemaCreate.partial();

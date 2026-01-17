@@ -16,12 +16,10 @@ import {
   DAMAGE_SYMBOLS,
   DAMAGE_COLORS,
 } from "@/features/ap/post-venta/taller/inspeccion-vehiculo/lib/vehicleInspection.interface";
-import {
-  findVehicleInspectionByWorkOrderId,
-  downloadVehicleInspectionPdf,
-} from "@/features/ap/post-venta/taller/inspeccion-vehiculo/lib/vehicleInspection.actions";
+import { downloadVehicleInspectionPdf } from "@/features/ap/post-venta/taller/inspeccion-vehiculo/lib/vehicleInspection.actions";
 import { useState } from "react";
 import { errorToast, successToast } from "@/core/core.function";
+import { findWorkOrderById } from "../../lib/workOrder.actions";
 
 interface ReceptionTabProps {
   workOrderId: number;
@@ -31,14 +29,16 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
   const [isDownloading, setIsDownloading] = useState(false);
 
   const {
-    data: inspection,
+    data: workOrder,
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["vehicleInspection", workOrderId],
-    queryFn: () => findVehicleInspectionByWorkOrderId(workOrderId),
+    queryKey: ["workOrder", workOrderId],
+    queryFn: () => findWorkOrderById(workOrderId),
     retry: false,
   });
+
+  const inspection = workOrder?.vehicle_inspection;
 
   const handleDownloadPdf = async () => {
     if (!inspection?.id) return;
