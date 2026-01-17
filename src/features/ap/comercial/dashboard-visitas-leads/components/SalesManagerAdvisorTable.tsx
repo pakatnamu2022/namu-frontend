@@ -238,7 +238,6 @@ export default function SalesManagerAdvisorTable({
     <DataTable
       columns={columns}
       data={sortedAdvisors}
-      variant="simple"
       isVisibleColumnFilter={false}
     />
   );
