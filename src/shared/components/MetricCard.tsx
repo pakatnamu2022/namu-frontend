@@ -723,7 +723,7 @@ export function MetricCard({
   return (
     <Card
       className={cn(
-        "overflow-hidden",
+        "overflow-hidden p-0 gap-0",
         "@container/card",
         variant === "outline" && "bg-linear-to-br from-muted to-background",
         variant === "default" && bgClass,

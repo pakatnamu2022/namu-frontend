@@ -1,6 +1,5 @@
 "use client";
 
-import { DashboardCard } from "@/components/ui/dashboard-card";
 import {
   Users,
   UserCheck,
@@ -39,7 +38,7 @@ export default function DashboardOverviewCards({
 
   const opportunityStateColors: Record<string, OpportunityStateColor> = {
     FRIO: { color: "blue", intensity: "600" },
-    TEMPLADO: { color: "orange", intensity: "500" },
+    TEMPLADA: { color: "orange", intensity: "500" },
     CALIENTE: { color: "red", intensity: "600" },
     "VENTA CONCRETADA": { color: "green", intensity: "600" },
     CERRADA: { color: "gray", intensity: "600" },
@@ -114,6 +113,7 @@ export default function DashboardOverviewCards({
 
         {/* Opportunity States */}
         {Object.entries(data.por_estado_oportunidad).map(([state, count]) => {
+          console.log(state, count);
           const Icon = opportunityStateIcons[state] || Users;
           const colorConfig = opportunityStateColors[state] || {
             color: "gray" as const,
