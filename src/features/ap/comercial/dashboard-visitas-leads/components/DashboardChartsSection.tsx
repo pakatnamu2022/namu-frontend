@@ -3,10 +3,9 @@
 import { useState, useMemo, useEffect } from "react";
 import { IndicatorsByDateRange } from "../lib/dashboard.interface";
 import BarChartCard from "./BarChartCard";
-import DonutChart, { DonutChartDataItem } from "./DonutChart";
-import SelectedDateBanner from "./SelectedDateBanner";
 import ChartLoadingSkeleton from "./ChartLoadingSkeleton";
-import { XampleBarChart } from "./XampleBarChart";
+import { ChartConfig } from "@/components/ui/chart";
+import { InteractivePieChart } from "./InteractivePieChart";
 
 interface DashboardChartsSectionProps {
   data: IndicatorsByDateRange[];
@@ -15,18 +14,18 @@ interface DashboardChartsSectionProps {
 
 // Colores para estados de visita
 const VISIT_STATUS_COLORS = {
-  atendidos: "#22c55e",
-  no_atendidos: "#eab308",
-  descartados: "#ef4444",
+  atendidos: "hsl(var(--chart-2))",
+  no_atendidos: "hsl(var(--chart-3))",
+  descartados: "hsl(var(--chart-4))",
 };
 
 // Colores para estados de oportunidad
 const OPPORTUNITY_STATUS_COLORS: { [key: string]: string } = {
-  CALIENTE: "#ef4444",
-  TEMPLADO: "#f59e0b",
-  FRIO: "#3b82f6",
-  "VENTA CONCRETADA": "#22c55e",
-  CERRADA: "#6b7280",
+  CALIENTE: "hsl(var(--chart-1))",
+  TEMPLADA: "hsl(var(--chart-5))",
+  FRIO: "hsl(var(--chart-2))",
+  "VENTA CONCRETADA": "hsl(var(--chart-4))",
+  CERRADA: "hsl(var(--chart-3))",
 };
 
 export default function DashboardChartsSection({
@@ -51,38 +50,66 @@ export default function DashboardChartsSection({
 
   const selectedDateData = data[selectedDateIndex] || data[0];
 
-  const visitStatusData: DonutChartDataItem[] = useMemo(() => {
-    if (!selectedDateData) return [];
-    return [
-      {
-        name: "Atendidos",
-        value: selectedDateData.estados_visita.atendidos,
-        color: VISIT_STATUS_COLORS.atendidos,
-      },
-      {
-        name: "No Atendidos",
-        value: selectedDateData.estados_visita.no_atendidos,
-        color: VISIT_STATUS_COLORS.no_atendidos,
-      },
-      {
-        name: "Descartados",
-        value: selectedDateData.estados_visita.descartados,
-        color: VISIT_STATUS_COLORS.descartados,
-      },
-    ].filter((item) => item.value > 0);
+  const opportunityConfig = useMemo(() => {
+    const config: ChartConfig = {
+      value: { label: "Cantidad" },
+    };
+    selectedDateData?.por_estado_oportunidad.forEach((item) => {
+      config[item.estado_oportunidad] = {
+        label: item.estado_oportunidad,
+        color: OPPORTUNITY_STATUS_COLORS[item.estado_oportunidad],
+      };
+    });
+    return config;
   }, [selectedDateData]);
 
-  const opportunityStatusData: DonutChartDataItem[] = useMemo(() => {
+  const opportunityPieData = useMemo(() => {
+    console;
     if (!selectedDateData) return [];
     return selectedDateData.por_estado_oportunidad
       .map((item) => ({
         name: item.estado_oportunidad,
         value: item.cantidad,
-        color:
-          OPPORTUNITY_STATUS_COLORS[item.estado_oportunidad] ||
-          OPPORTUNITY_STATUS_COLORS.FRIO,
+        fill: OPPORTUNITY_STATUS_COLORS[item.estado_oportunidad] || "#6b7280",
       }))
       .filter((item) => item.value > 0);
+  }, [selectedDateData]);
+
+  const visitStatusConfig = useMemo(() => {
+    const config: ChartConfig = {
+      value: { label: "Cantidad" },
+      Atendidos: { label: "Atendidos", color: VISIT_STATUS_COLORS.atendidos },
+      Pendientes: {
+        label: "Pendientes",
+        color: VISIT_STATUS_COLORS.no_atendidos,
+      },
+      Descartados: {
+        label: "Descartados",
+        color: VISIT_STATUS_COLORS.descartados,
+      },
+    };
+    return config;
+  }, []);
+
+  const visitStatusPieData = useMemo(() => {
+    if (!selectedDateData) return [];
+    return [
+      {
+        name: "Atendidos",
+        value: selectedDateData.estados_visita.atendidos,
+        fill: VISIT_STATUS_COLORS.atendidos,
+      },
+      {
+        name: "Pendientes",
+        value: selectedDateData.estados_visita.no_atendidos,
+        fill: VISIT_STATUS_COLORS.no_atendidos,
+      },
+      {
+        name: "Descartados",
+        value: selectedDateData.estados_visita.descartados,
+        fill: VISIT_STATUS_COLORS.descartados,
+      },
+    ].filter((item) => item.value > 0);
   }, [selectedDateData]);
 
   const handleBarClick = (index: number) => {
@@ -97,26 +124,31 @@ export default function DashboardChartsSection({
 
   return (
     <div className="space-y-6">
-      <XampleBarChart />
       <BarChartCard
+        selectedDated={selectedDateData?.fecha}
+        indexBar={selectedDateIndex}
         data={barChartData}
         type={type}
         onBarClick={handleBarClick}
       />
 
-      <SelectedDateBanner date={selectedDateData?.fecha || null} />
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <DonutChart
-          title={`Estado de ${typeLabel}`}
-          description="Distribución de visitas por estado de atención"
-          data={visitStatusData}
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        <InteractivePieChart
+          id="opportunity-status-chart"
+          config={opportunityConfig}
+          data={opportunityPieData}
+          title="Estado de Oportunidades"
+          subtitle="Distribución por estado de oportunidad"
+          showLegend
         />
 
-        <DonutChart
-          title="Estado de Oportunidades"
-          description="Distribución de visitas por estado de oportunidad"
-          data={opportunityStatusData}
+        <InteractivePieChart
+          id="visit-status-chart"
+          config={visitStatusConfig}
+          data={visitStatusPieData}
+          title={`Estado de ${typeLabel}`}
+          subtitle="Distribución por estado de atención"
+          showLegend
         />
       </div>
     </div>

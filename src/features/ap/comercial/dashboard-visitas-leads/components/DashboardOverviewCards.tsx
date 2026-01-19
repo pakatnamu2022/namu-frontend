@@ -21,7 +21,6 @@ interface DashboardOverviewCardsProps {
 
 export default function DashboardOverviewCards({
   data,
-  type,
 }: DashboardOverviewCardsProps) {
   const opportunityStateIcons: Record<string, any> = {
     FRIO: Snowflake,
@@ -47,19 +46,7 @@ export default function DashboardOverviewCards({
   return (
     <div className="space-y-6">
       {/* Main Stats */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <MetricCard
-          title={type === "LEADS" ? "Total Leads" : "Total Visitas"}
-          value={data.total_visitas}
-          subtitle={
-            type === "LEADS"
-              ? "Todos los leads registrados"
-              : "Todas las visitas registradas"
-          }
-          icon={Users}
-          variant="outline"
-        />
-
+      <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-7">
         <MetricCard
           title="Atendidos"
           value={data.atendidos}
@@ -113,7 +100,6 @@ export default function DashboardOverviewCards({
 
         {/* Opportunity States */}
         {Object.entries(data.por_estado_oportunidad).map(([state, count]) => {
-          console.log(state, count);
           const Icon = opportunityStateIcons[state] || Users;
           const colorConfig = opportunityStateColors[state] || {
             color: "gray" as const,
