@@ -100,7 +100,7 @@ export default function ExportButtons({
 
   if (variant === "grouped") {
     return (
-      <div className="flex items-center gap-1 bg-gray-50 rounded-lg border">
+      <div className="flex items-center gap-1 bg-gray-50 rounded-lg border h-8">
         {showExcelButton && (
           <Tooltip>
             <TooltipTrigger asChild>

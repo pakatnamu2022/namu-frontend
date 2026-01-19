@@ -10,6 +10,10 @@ import {
   IndicatorsByDateRange,
   IndicatorsByUser,
   IndicatorsByCampaign,
+  SalesManagerFilters,
+  SalesManagerDetailsResponse,
+  SalesManagerStatsResponse,
+  SalesManagerDetailsFilters,
 } from "./dashboard.interface";
 
 const BASE_ENDPOINT = "/ap/commercial/dashboard-visit-leads";
@@ -178,8 +182,8 @@ export async function downloadDashboardFile(
 
 // Sales Manager Dashboard Actions
 export async function getSalesManagerStats(
-  filters: import("./dashboard.interface").SalesManagerFilters
-): Promise<import("./dashboard.interface").SalesManagerStatsResponse> {
+  filters: SalesManagerFilters
+): Promise<SalesManagerStatsResponse> {
   const config: AxiosRequestConfig = {
     params: {
       date_from: filters.date_from,
@@ -189,15 +193,16 @@ export async function getSalesManagerStats(
     },
   };
 
-  const { data } = await api.get<
-    import("./dashboard.interface").SalesManagerStatsResponse
-  >(`${BASE_ENDPOINT}/for-sales-manager-stats`, config);
+  const { data } = await api.get<SalesManagerStatsResponse>(
+    `${BASE_ENDPOINT}/for-sales-manager-stats`,
+    config
+  );
   return data;
 }
 
 export async function getSalesManagerDetails(
-  filters: import("./dashboard.interface").SalesManagerDetailsFilters
-): Promise<import("./dashboard.interface").SalesManagerDetailsResponse> {
+  filters: SalesManagerDetailsFilters
+): Promise<SalesManagerDetailsResponse> {
   const config: AxiosRequestConfig = {
     params: {
       date_from: filters.date_from,
@@ -208,8 +213,49 @@ export async function getSalesManagerDetails(
     },
   };
 
-  const { data } = await api.get<
-    import("./dashboard.interface").SalesManagerDetailsResponse
-  >(`${BASE_ENDPOINT}/for-sales-manager-details`, config);
+  const { data } = await api.get<SalesManagerDetailsResponse>(
+    `${BASE_ENDPOINT}/for-sales-manager-details`,
+    config
+  );
   return data;
+}
+
+export async function downloadSalesManagerFile(
+  filters: SalesManagerFilters & {
+    format?: "pdf";
+  }
+): Promise<void> {
+  const isPDF = filters.format === "pdf";
+
+  const config: AxiosRequestConfig = {
+    params: {
+      type: filters.type,
+      created_at: [filters.date_from, filters.date_to],
+      boss_id: filters.boss_id,
+      ...(isPDF && { format: "pdf" }),
+    },
+    responseType: "blob",
+  };
+
+  const response = await api.get(
+    "/ap/commercial/potentialBuyers/export",
+    config
+  );
+
+  const mimeType = isPDF
+    ? "application/pdf"
+    : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+  const extension = isPDF ? "pdf" : "xlsx";
+
+  const blob = new Blob([response.data], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+
+  const dateRange = `${filters.date_from}_${filters.date_to}`;
+  link.download = `REPORTE-EQUIPO-${filters.type}-${dateRange}.${extension}`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
 }

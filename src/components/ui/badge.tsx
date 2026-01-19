@@ -68,6 +68,10 @@ const badgeVariants = cva(
         square:
           "p-0 text-[11px] h-5 w-5 justify-center items-center rounded-full",
       },
+      outline: {
+        true: "",
+        false: "border-none! font-medium!",
+      },
     },
     defaultVariants: {
       variant: "default",
@@ -77,13 +81,15 @@ const badgeVariants = cva(
 );
 
 export interface BadgeProps
-  extends React.HTMLAttributes<HTMLDivElement>,
+  extends
+    React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof badgeVariants> {}
 
 export type BadgeCustomProps = BadgeProps & {
   icon?: LucideIcon;
   tooltip?: React.ReactNode;
   tooltipVariant?: "default" | "secondary" | "tertiary";
+  outline?: boolean;
 };
 
 function getTooltipVariant(variant: BadgeCustomProps["tooltipVariant"]) {
@@ -105,6 +111,7 @@ function Badge({
   tooltipVariant,
   tooltip,
   children,
+  outline,
   ...props
 }: BadgeCustomProps) {
   const content = (
@@ -118,7 +125,7 @@ function Badge({
     <Tooltip>
       <TooltipTrigger asChild>
         <div
-          className={cn(badgeVariants({ variant, size }), className)}
+          className={cn(badgeVariants({ variant, size, outline }), className)}
           {...props}
         >
           {content}
@@ -129,7 +136,7 @@ function Badge({
       </TooltipContent>
     </Tooltip>
   ) : (
-    <div className={cn(badgeVariants({ variant, size }), className)} {...props}>
+    <div className={cn(badgeVariants({ variant, size, outline }), className)} {...props}>
       {content}
     </div>
   );
