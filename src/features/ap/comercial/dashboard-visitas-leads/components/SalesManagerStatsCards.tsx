@@ -52,10 +52,8 @@ function InteractivePieChart({
   return (
     <Card data-chart={id} className="flex flex-col">
       <ChartStyle id={id} config={config} />
-      <CardHeader className="flex-row items-start space-y-0 pb-2">
-        <div className="grid gap-1 flex-1">
-          <CardTitle>{title}</CardTitle>
-        </div>
+      <CardHeader className="flex-row flex-wrap gap-2 items-center space-y-0 pb-2">
+        <CardTitle>{title}</CardTitle>
         <Select value={activeItem} onValueChange={setActiveItem}>
           <SelectTrigger
             className="ml-auto h-7 w-[130px] rounded-lg pl-2.5"
@@ -169,17 +167,17 @@ export default function SalesManagerStatsCards({
     {
       name: "Atendidos",
       value: teamTotals.attended,
-      fill: "var(--color-Atendidos)",
+      fill: "hsl(var(--chart-2))",
     },
     {
       name: "No Atendidos",
       value: teamTotals.not_attended,
-      fill: "var(--color-No Atendidos)",
+      fill: "hsl(var(--chart-3))",
     },
     {
       name: "Descartados",
       value: teamTotals.discarded,
-      fill: "var(--color-Descartados)",
+      fill: "hsl(var(--chart-1))",
     },
   ];
 
