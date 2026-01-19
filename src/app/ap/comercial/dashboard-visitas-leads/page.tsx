@@ -193,11 +193,13 @@ export default function DashboardStoreVisitsPage() {
               )}
             >
               <DashboardSedeTable
-                data={sedeData}
-                selectedSedeId={selectedSedeId}
-                onSedeSelect={setSelectedSedeId}
-                brandData={sedeBrandData}
-                advisorData={advisorData}
+                {...({
+                  data: sedeData,
+                  selectedSedeId: selectedSedeId,
+                  onSedeSelect: setSelectedSedeId,
+                  brandData: sedeBrandData,
+                  advisorData: advisorData,
+                } as unknown as any)}
               />
             </div>
           </div>

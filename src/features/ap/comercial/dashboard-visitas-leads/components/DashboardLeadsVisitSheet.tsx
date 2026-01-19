@@ -15,12 +15,12 @@ interface StatProgressProps {
   label: string;
   value: number;
   total: number;
-  color: "green" | "amber" | "red";
+  color: "green" | "yellow" | "red";
 }
 
 const colorClasses = {
   green: { text: "text-green-600", indicator: "bg-green-600" },
-  amber: { text: "text-amber-600", indicator: "bg-amber-600" },
+  yellow: { text: "text-yellow-600", indicator: "bg-yellow-600" },
   red: { text: "text-red-600", indicator: "bg-red-600" },
 };
 
@@ -70,8 +70,9 @@ export default function DashboardLeadsVisitSheet({
       title={sede ? `Sede ${sede.sede_nombre}` : "Sede"}
       icon="Building2"
       size="7xl"
+      className="overflow-hidden!"
     >
-      <div className="space-y-6">
+      <div className="h-full">
         {loading && (
           <div className="flex items-center justify-center py-12">
             <div className="text-center space-y-4">
@@ -104,7 +105,7 @@ export default function DashboardLeadsVisitSheet({
                 </div>
               </div>
 
-              <div className="flex-1 min-w-[300px] space-y-3">
+              <div className="flex-1 md:min-w-[300px] space-y-3">
                 <StatProgress
                   label="Atendidos"
                   value={sede.atendidos}
@@ -115,7 +116,7 @@ export default function DashboardLeadsVisitSheet({
                   label="No Atendidos"
                   value={sede.no_atendidos}
                   total={sede.total_visitas}
-                  color="amber"
+                  color="yellow"
                 />
                 <StatProgress
                   label="Descartados"
@@ -133,8 +134,8 @@ export default function DashboardLeadsVisitSheet({
                     key={`${brand.sede_id}-${brand.vehicle_brand_id}`}
                     className="bg-muted/50 py-3"
                   >
-                    <CardContent className="px-3">
-                      <div className="text-xs text-muted-foreground mb-1">
+                    <CardContent className="px-3 flex justify-between items-center">
+                      <div className="text-muted-foreground text-sm">
                         {brand.marca_nombre}
                       </div>
                       <div className="text-lg font-bold text-primary">
