@@ -183,19 +183,6 @@ export default function DashboardStoreVisitsPage() {
             <DashboardChartsSection data={dateRangeData} type={dashboardType} />
           )}
 
-          {/* Indicadores de Usuario y Campaña - Solo para LEADS */}
-          {dashboardType === "LEADS" &&
-            (userData.length > 0 || campaignData.length > 0) && (
-              <div className="space-y-6">
-                {userData.length > 0 && (
-                  <DashboardUserIndicators data={userData} />
-                )}
-                {campaignData.length > 0 && (
-                  <DashboardCampaignChart data={campaignData} />
-                )}
-              </div>
-            )}
-
           {/* Main Content with Sidebar */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Left Column - Sede Table */}
@@ -214,6 +201,19 @@ export default function DashboardStoreVisitsPage() {
               />
             </div>
           </div>
+
+          {/* Indicadores de Usuario y Campaña - Solo para LEADS */}
+          {dashboardType === "LEADS" &&
+            (userData.length > 0 || campaignData.length > 0) && (
+              <div className="space-y-6">
+                {campaignData.length > 0 && (
+                  <DashboardCampaignChart data={campaignData} />
+                )}
+                {userData.length > 0 && (
+                  <DashboardUserIndicators data={userData} />
+                )}
+              </div>
+            )}
         </div>
       )}
     </PageWrapper>
