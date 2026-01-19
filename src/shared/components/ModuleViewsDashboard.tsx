@@ -81,10 +81,10 @@ export default function ModuleViewsDashboard({
 
   // Separar submódulos y vistas
   const submodules = children.filter(
-    (child) => child.children && child.children.length > 0
+    (child) => child.children && child.children.length > 0,
   );
   const views = children.filter(
-    (child) => !child.children || child.children.length === 0
+    (child) => !child.children || child.children.length === 0,
   );
 
   const displayTitle = title || context?.descripcion || "Dashboard";
@@ -137,7 +137,7 @@ export default function ModuleViewsDashboard({
                 {submodules.map((submodule) => (
                   <Card
                     key={submodule.id}
-                    className="cursor-pointer transition-all hover:shadow-lg hover:scale-105 active:scale-95 border-2"
+                    className="py-0 gap-0 cursor-pointer transition-all hover:shadow-lg hover:scale-105 active:scale-95 border-2"
                     onClick={() => handleItemClick(submodule)}
                   >
                     <CardHeader className="space-y-1">
@@ -178,11 +178,11 @@ export default function ModuleViewsDashboard({
                 {views.map((view) => (
                   <Card
                     key={view.id}
-                    className="cursor-pointer transition-all hover:shadow-lg hover:scale-105 active:scale-95"
+                    className="py-0 cursor-pointer transition-all hover:shadow-lg hover:scale-105 active:scale-95"
                     onClick={() => handleItemClick(view)}
                   >
-                    <CardHeader className="space-y-1 p-4 md:p-6">
-                      <div className="flex items-center gap-3">
+                    <CardHeader className="space-y-1 p-4 gap-0! md:p-6 h-full">
+                      <div className="flex items-center gap-3 h-full">
                         <div className="flex h-10 w-10 md:h-12 md:w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
                           {getIcon(view.icon ?? "FileDot") || (
                             <LucideReact.FileText className="h-4 w-4 md:w-6 md:h-6" />
@@ -197,7 +197,7 @@ export default function ModuleViewsDashboard({
                               {
                                 name: view.descripcion,
                               } as ModelInterface,
-                              "manage"
+                              "manage",
                             )}
                           </CardDescription>
                         </div>
