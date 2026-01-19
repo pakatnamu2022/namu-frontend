@@ -3,7 +3,13 @@
 import * as React from "react";
 import { Label, Pie, PieChart, Sector } from "recharts";
 import { PieSectorDataItem } from "recharts/types/polar/Pie";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   ChartConfig,
   ChartContainer,
@@ -18,6 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { TrendingUp, Users } from "lucide-react";
 import { SalesManagerStatsResponse } from "../lib/dashboard.interface";
 
 interface SalesManagerStatsCardsProps {
@@ -31,6 +38,12 @@ interface InteractivePieChartProps {
   data: Array<{ name: string; value: number; fill: string }>;
   config: ChartConfig;
   valueLabel?: string;
+  footerInfo?: {
+    label: string;
+    value: string | number;
+    trend?: string;
+    icon?: React.ReactNode;
+  };
 }
 
 function InteractivePieChart({
@@ -39,6 +52,7 @@ function InteractivePieChart({
   data,
   config,
   valueLabel = "Cantidad",
+  footerInfo,
 }: InteractivePieChartProps) {
   const [activeItem, setActiveItem] = React.useState(data[0]?.name || "");
 
@@ -52,13 +66,11 @@ function InteractivePieChart({
   return (
     <Card data-chart={id} className="flex flex-col">
       <ChartStyle id={id} config={config} />
-      <CardHeader className="flex-row items-start space-y-0 pb-2">
-        <div className="grid gap-1 flex-1">
-          <CardTitle>{title}</CardTitle>
-        </div>
+      <CardHeader className="flex-row flex-wrap gap-2 items-center space-y-0 pb-2">
+        <CardTitle>{title}</CardTitle>
         <Select value={activeItem} onValueChange={setActiveItem}>
           <SelectTrigger
-            className="ml-auto h-7 w-[130px] rounded-lg pl-2.5"
+            className="ml-auto h-7 w-fit rounded-lg pl-2.5"
             aria-label="Selecciona un valor"
           >
             <SelectValue placeholder="Selecciona" />
@@ -157,6 +169,19 @@ function InteractivePieChart({
           </PieChart>
         </ChartContainer>
       </CardContent>
+      {footerInfo && (
+        <CardFooter className="flex-col gap-1 text-sm pt-4">
+          <div className="flex items-center gap-2 font-medium leading-none">
+            {footerInfo.label}: {footerInfo.value}
+            {footerInfo.icon}
+          </div>
+          {footerInfo.trend && (
+            <div className="text-muted-foreground text-xs">
+              {footerInfo.trend}
+            </div>
+          )}
+        </CardFooter>
+      )}
     </Card>
   );
 }
@@ -169,17 +194,17 @@ export default function SalesManagerStatsCards({
     {
       name: "Atendidos",
       value: teamTotals.attended,
-      fill: "var(--color-Atendidos)",
+      fill: "hsl(var(--chart-2))",
     },
     {
-      name: "No Atendidos",
+      name: "Pendientes",
       value: teamTotals.not_attended,
-      fill: "var(--color-No Atendidos)",
+      fill: "hsl(var(--chart-3))",
     },
     {
       name: "Descartados",
       value: teamTotals.discarded,
-      fill: "var(--color-Descartados)",
+      fill: "hsl(var(--chart-1))",
     },
   ];
 
@@ -191,8 +216,8 @@ export default function SalesManagerStatsCards({
       label: "Atendidos",
       color: "hsl(var(--chart-2))",
     },
-    "No Atendidos": {
-      label: "No Atendidos",
+    Pendientes: {
+      label: "Pendientes",
       color: "hsl(var(--chart-3))",
     },
     Descartados: {
@@ -232,6 +257,12 @@ export default function SalesManagerStatsCards({
         data={attentionData}
         config={attentionConfig}
         valueLabel="Visitas"
+        footerInfo={{
+          label: "Total visitas",
+          value: teamTotals.total_visits.toLocaleString(),
+          trend: `${teamTotals.attention_percentage.toFixed(1)}% atendidos`,
+          icon: <TrendingUp className="h-4 w-4 text-emerald-500" />,
+        }}
       />
 
       {/* Gráfico de Estados de Oportunidad */}
@@ -242,6 +273,14 @@ export default function SalesManagerStatsCards({
           data={opportunityData}
           config={opportunityConfig}
           valueLabel="Oportunidades"
+          footerInfo={{
+            label: "Total oportunidades",
+            value: Object.values(teamTotals.by_opportunity_status)
+              .reduce((sum, val) => sum + val, 0)
+              .toLocaleString(),
+            trend: `${teamTotals.total_advisors} asesores`,
+            icon: <Users className="h-4 w-4 text-blue-500" />,
+          }}
         />
       )}
     </div>

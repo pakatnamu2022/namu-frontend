@@ -87,8 +87,9 @@ const mobileCardFooterVariants = cva(
   }
 );
 
-interface DataTableProps<TData, TValue>
-  extends VariantProps<typeof dataTableVariants> {
+interface DataTableProps<TData, TValue> extends VariantProps<
+  typeof dataTableVariants
+> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   children?: React.ReactNode;
@@ -145,7 +146,12 @@ export function DataTable<TData, TValue>({
   });
 
   return (
-    <div className="flex flex-col gap-2 w-full items-end">
+    <div
+      className={cn(
+        "flex flex-col w-full items-end",
+        isVisibleColumnFilter ? "gap-2" : ""
+      )}
+    >
       <div className="grid md:flex md:flex-wrap gap-2 md:justify-between w-full">
         {children}
         {isVisibleColumnFilter && !mobileCardRender && (
@@ -276,8 +282,8 @@ export function DataTable<TData, TValue>({
                         typeof header === "string"
                           ? header
                           : typeof header === "function"
-                          ? cell.column.id
-                          : cell.column.id;
+                            ? cell.column.id
+                            : cell.column.id;
 
                       return (
                         <div
