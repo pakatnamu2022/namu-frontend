@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   IndicatorBySede,
@@ -30,10 +30,10 @@ export default function DashboardSedeTable({
   const [selectedSedeForSheet, setSelectedSedeForSheet] =
     useState<IndicatorBySede | null>(null);
 
-  const handleSedeClick = (sede: IndicatorBySede) => {
+  const handleSedeClick = useCallback((sede: IndicatorBySede) => {
     setSelectedSedeForSheet(sede);
     setActionSheetOpen(true);
-  };
+  }, []);
 
   const filteredBrandData = selectedSedeForSheet
     ? brandData.filter((item) => item.sede_id === selectedSedeForSheet.sede_id)
@@ -47,7 +47,7 @@ export default function DashboardSedeTable({
 
   const columns = useMemo(
     () => dashboardSedeColumns({ selectedSedeId, onRowClick: handleSedeClick }),
-    [selectedSedeId],
+    [selectedSedeId, handleSedeClick],
   );
 
   const mobileCardRender = (sede: IndicatorBySede) => {
