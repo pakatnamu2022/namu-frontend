@@ -28,7 +28,7 @@ interface LeadCardProps {
   onDiscard: (
     leadId: number,
     comment: string,
-    reasonDiscardingId: number
+    reasonDiscardingId: number,
   ) => void;
 }
 
@@ -36,7 +36,7 @@ export const LeadCard = ({ lead, onDiscard }: LeadCardProps) => {
   const router = useNavigate();
   const [comment, setComment] = useState("");
   const [reasonDiscardingId, setReasonDiscardingId] = useState<number | null>(
-    null
+    null,
   );
   const { ABSOLUTE_ROUTE: OPPORTUNITIES_ROUTE } = OPPORTUNITIES;
 
@@ -57,7 +57,7 @@ export const LeadCard = ({ lead, onDiscard }: LeadCardProps) => {
       router(`/ap/comercial/clientes/agregar?${queryParams.toString()}`);
     } else {
       router(
-        `${OPPORTUNITIES_ROUTE}/agregar?client_id=${lead.client_id}&lead_id=${lead.id}`
+        `${OPPORTUNITIES_ROUTE}/agregar?client_id=${lead.client_id}&lead_id=${lead.id}`,
       );
     }
   };
@@ -77,7 +77,7 @@ export const LeadCard = ({ lead, onDiscard }: LeadCardProps) => {
 
   return (
     <>
-      <Card className="p-3 hover:shadow-sm transition-all border-primary/15 hover:bg-blue-300/5">
+      <Card className="p-3 hover:shadow-sm transition-all border-primary/15 hover:bg-blue-300/5 bg-linear-to-br from-muted to-background">
         <div className="w-full flex flex-col gap-1.5">
           {/* Client Name */}
           <div className="flex items-center gap-2">

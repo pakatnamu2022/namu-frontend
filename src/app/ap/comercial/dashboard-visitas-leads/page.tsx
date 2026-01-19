@@ -40,7 +40,7 @@ export default function DashboardStoreVisitsPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedSedeId, setSelectedSedeId] = useState<number | null>(null);
   const [dashboardType, setDashboardType] = useState<"VISITA" | "LEADS">(
-    "LEADS"
+    "LEADS",
   );
 
   // Data states
@@ -53,11 +53,11 @@ export default function DashboardStoreVisitsPage() {
   });
   const [sedeData, setSedeData] = useState<IndicatorBySede[]>([]);
   const [sedeBrandData, setSedeBrandData] = useState<IndicatorBySedeAndBrand[]>(
-    []
+    [],
   );
   const [advisorData, setAdvisorData] = useState<IndicatorByAdvisor[]>([]);
   const [dateRangeData, setDateRangeData] = useState<IndicatorsByDateRange[]>(
-    []
+    [],
   );
   const [userData, setUserData] = useState<IndicatorsByUser[]>([]);
   const [campaignData, setCampaignData] = useState<IndicatorsByCampaign[]>([]);
@@ -131,7 +131,7 @@ export default function DashboardStoreVisitsPage() {
     } catch (error: any) {
       errorToast(
         "Error al cargar los datos del dashboard",
-        error.response.data?.message?.toString()
+        error.response.data?.message?.toString(),
       );
     } finally {
       setIsLoading(false);
@@ -156,7 +156,7 @@ export default function DashboardStoreVisitsPage() {
           dashboardType === "LEADS" ? "Leads" : "Visitas a Tienda"
         }`}
         subtitle="Indicadores y métricas de rendimiento"
-        icon={currentView?.icon}
+        icon={currentView?.icon || "FileSignature"}
       >
         <DashboardFilters
           dashboardType={dashboardType}
@@ -183,37 +183,39 @@ export default function DashboardStoreVisitsPage() {
             <DashboardChartsSection data={dateRangeData} type={dashboardType} />
           )}
 
-          {/* Indicadores de Usuario y Campaña - Solo para LEADS */}
-          {dashboardType === "LEADS" &&
-            (userData.length > 0 || campaignData.length > 0) && (
-              <div className="space-y-6">
-                {userData.length > 0 && (
-                  <DashboardUserIndicators data={userData} />
-                )}
-                {campaignData.length > 0 && (
-                  <DashboardCampaignChart data={campaignData} />
-                )}
-              </div>
-            )}
-
           {/* Main Content with Sidebar */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Left Column - Sede Table */}
             <div
               className={cn(
                 "transition-all duration-300",
-                selectedSedeId ? "lg:col-span-2" : "lg:col-span-3"
+                selectedSedeId ? "lg:col-span-2" : "lg:col-span-3",
               )}
             >
               <DashboardSedeTable
-                data={sedeData}
-                selectedSedeId={selectedSedeId}
-                onSedeSelect={setSelectedSedeId}
-                brandData={sedeBrandData}
-                advisorData={advisorData}
+                {...({
+                  data: sedeData,
+                  selectedSedeId: selectedSedeId,
+                  onSedeSelect: setSelectedSedeId,
+                  brandData: sedeBrandData,
+                  advisorData: advisorData,
+                } as unknown as any)}
               />
             </div>
           </div>
+
+          {/* Indicadores de Usuario y Campaña - Solo para LEADS */}
+          {dashboardType === "LEADS" &&
+            (userData.length > 0 || campaignData.length > 0) && (
+              <div className="space-y-6">
+                {campaignData.length > 0 && (
+                  <DashboardCampaignChart data={campaignData} />
+                )}
+                {userData.length > 0 && (
+                  <DashboardUserIndicators data={userData} />
+                )}
+              </div>
+            )}
         </div>
       )}
     </PageWrapper>
