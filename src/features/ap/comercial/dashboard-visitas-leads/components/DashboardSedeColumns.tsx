@@ -39,6 +39,8 @@ interface Props {
   onRowClick?: (sede: IndicatorBySede) => void;
 }
 
+const cellClickClass = "cursor-pointer -m-2 p-2";
+
 export const dashboardSedeColumns = ({
   selectedSedeId,
   onRowClick,
@@ -51,7 +53,7 @@ export const dashboardSedeColumns = ({
       const isSelected = selectedSedeId === sede.sede_id;
 
       return (
-        <div onClick={() => onRowClick?.(sede)} className="cursor-pointer">
+        <div onClick={() => onRowClick?.(sede)} className={cellClickClass}>
           <div className={cn("font-semibold", isSelected && "text-primary")}>
             {sede.sede_nombre}
           </div>
@@ -72,7 +74,8 @@ export const dashboardSedeColumns = ({
         <div
           onClick={() => onRowClick?.(sede)}
           className={cn(
-            "font-bold text-lg text-center cursor-pointer",
+            cellClickClass,
+            "font-bold text-lg text-center",
             isSelected && "text-primary",
           )}
         >
@@ -89,7 +92,7 @@ export const dashboardSedeColumns = ({
       return (
         <div
           onClick={() => onRowClick?.(sede)}
-          className="text-center cursor-pointer"
+          className={cn(cellClickClass, "text-center")}
         >
           <ProgressCell
             value={sede.atendidos}
@@ -108,7 +111,7 @@ export const dashboardSedeColumns = ({
       return (
         <div
           onClick={() => onRowClick?.(sede)}
-          className="text-center cursor-pointer"
+          className={cn(cellClickClass, "text-center")}
         >
           <ProgressCell
             value={sede.no_atendidos}
@@ -127,7 +130,7 @@ export const dashboardSedeColumns = ({
       return (
         <div
           onClick={() => onRowClick?.(sede)}
-          className="text-center cursor-pointer"
+          className={cn(cellClickClass, "text-center")}
         >
           <ProgressCell
             value={sede.descartados}
@@ -147,7 +150,7 @@ export const dashboardSedeColumns = ({
       return (
         <div
           onClick={() => onRowClick?.(sede)}
-          className="flex flex-wrap gap-1 cursor-pointer"
+          className={cn(cellClickClass, "flex flex-wrap gap-1")}
         >
           {Object.entries(sede.por_estado_oportunidad).map(
             ([state, count]) =>
@@ -179,10 +182,7 @@ export const dashboardSedeColumns = ({
     id: "actions",
     header: "",
     cell: ({ row }) => (
-      <div
-        onClick={() => onRowClick?.(row.original)}
-        className="cursor-pointer"
-      >
+      <div onClick={() => onRowClick?.(row.original)} className={cellClickClass}>
         <ChevronRight className="h-5 w-5 transition-transform duration-200" />
       </div>
     ),
