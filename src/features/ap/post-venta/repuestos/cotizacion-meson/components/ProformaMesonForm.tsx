@@ -56,19 +56,21 @@ function ProductDetailItem({
   onRemove,
   selectedCurrency,
   stockData,
+  selectedBrandId,
 }: {
   index: number;
   form: any;
   onRemove: () => void;
   selectedCurrency: any;
   stockData: StockByProductIdsResponse | null;
+  selectedBrandId: string;
 }) {
   const productId = form.watch(`details.${index}.product_id`);
   const { data: productData } = useProductById(Number(productId) || 0);
 
   // Buscar el stock del producto actual
   const currentProductStock = stockData?.data?.find(
-    (stock) => stock.product_id === Number(productId)
+    (stock) => stock.product_id === Number(productId),
   );
 
   // Auto-completar descripción y unidad de medida cuando se selecciona un producto
@@ -80,7 +82,7 @@ function ProductDetailItem({
       // Actualizar unidad de medida
       form.setValue(
         `details.${index}.unit_measure`,
-        productData.unit_measurement_name || "UND"
+        productData.unit_measurement_name || "UND",
       );
     }
   }, [productData, index, form]);
@@ -106,6 +108,9 @@ function ProductDetailItem({
               label: `${product.code} - ${product.name}`,
               value: product.id.toString(),
             })}
+            additionalParams={{
+              brand_id: selectedBrandId,
+            }}
             perPage={10}
             debounceMs={500}
           />
@@ -124,34 +129,65 @@ function ProductDetailItem({
                   {currentProductStock.warehouses
                     .slice(0, 2)
                     .map((warehouse) => (
-                      <div key={warehouse.warehouse_id} className="text-xs">
-                        <span className="font-medium text-gray-700">
-                          {warehouse.warehouse_name}:
-                        </span>
-                        <span className="ml-1 text-green-600 font-semibold">
-                          {warehouse.available_quantity}
-                        </span>
-                        <span className="text-gray-500 text-xs"> disp.</span>
-                        {warehouse.quantity_in_transit > 0 && (
-                          <>
-                            <span className="mx-1">•</span>
-                            <span className="text-primary font-semibold">
-                              {warehouse.quantity_in_transit}
+                      <div
+                        key={warehouse.warehouse_id}
+                        className="text-xs space-y-0.5"
+                      >
+                        <div>
+                          <span className="font-medium text-gray-700">
+                            {warehouse.warehouse_name}:
+                          </span>
+                          <span className="ml-1 text-green-600 font-semibold">
+                            {warehouse.available_quantity}
+                          </span>
+                          <span className="text-gray-500 text-xs"> disp.</span>
+                          {warehouse.quantity_in_transit > 0 && (
+                            <>
+                              <span className="mx-1">•</span>
+                              <span className="text-primary font-semibold">
+                                {warehouse.quantity_in_transit}
+                              </span>
+                              <span className="text-gray-500 text-xs">
+                                {" "}
+                                trán.
+                              </span>
+                            </>
+                          )}
+                          {warehouse.is_out_of_stock && (
+                            <Badge
+                              variant="destructive"
+                              className="ml-1 text-xs py-0 px-1 h-4"
+                            >
+                              Sin Stock
+                            </Badge>
+                          )}
+                        </div>
+                        <div className="flex gap-3 text-[10px] text-gray-600 pl-1">
+                          <span>
+                            <span className="text-gray-500">Últ. compra:</span>
+                            <span className="ml-0.5 font-medium">
+                              {selectedCurrency?.symbol || "S/"}{" "}
+                              {warehouse.last_purchase_price?.toFixed(2) ||
+                                "0.00"}
                             </span>
-                            <span className="text-gray-500 text-xs">
-                              {" "}
-                              trán.
+                          </span>
+                          <span>
+                            <span className="text-gray-500">P. público:</span>
+                            <span className="ml-0.5 font-medium">
+                              {selectedCurrency?.symbol || "S/"}{" "}
+                              {warehouse.public_sale_price?.toFixed(2) ||
+                                "0.00"}
                             </span>
-                          </>
-                        )}
-                        {warehouse.is_out_of_stock && (
-                          <Badge
-                            variant="destructive"
-                            className="ml-1 text-xs py-0 px-1 h-4"
-                          >
-                            Sin Stock
-                          </Badge>
-                        )}
+                          </span>
+                          <span>
+                            <span className="text-gray-500">P. mín:</span>
+                            <span className="ml-0.5 font-medium">
+                              {selectedCurrency?.symbol || "S/"}{" "}
+                              {warehouse.minimum_sale_price?.toFixed(2) ||
+                                "0.00"}
+                            </span>
+                          </span>
+                        </div>
                       </div>
                     ))}
                   {currentProductStock.warehouses.length > 2 && (
@@ -337,7 +373,7 @@ function ProductDetailItem({
                     <div className="font-medium text-gray-700 mb-0.5">
                       {warehouse.warehouse_name}
                     </div>
-                    <div className="flex gap-3 text-xs">
+                    <div className="flex gap-3 text-xs mb-1">
                       <span>
                         <span className="text-gray-500">Disp:</span>
                         <span className="ml-1 text-green-600 font-semibold">
@@ -360,6 +396,29 @@ function ProductDetailItem({
                           Sin Stock
                         </Badge>
                       )}
+                    </div>
+                    <div className="grid grid-cols-3 gap-1 text-[10px] text-gray-600">
+                      <div>
+                        <div className="text-gray-500">Últ. compra</div>
+                        <div className="font-medium">
+                          {selectedCurrency?.symbol || "S/"}{" "}
+                          {warehouse.last_purchase_price?.toFixed(2) || "0.00"}
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-gray-500">P. público</div>
+                        <div className="font-medium">
+                          {selectedCurrency?.symbol || "S/"}{" "}
+                          {warehouse.public_sale_price?.toFixed(2) || "0.00"}
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-gray-500">P. mín</div>
+                        <div className="font-medium">
+                          {selectedCurrency?.symbol || "S/"}{" "}
+                          {warehouse.minimum_sale_price?.toFixed(2) || "0.00"}
+                        </div>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -514,14 +573,14 @@ export default function ProformaMesonForm({
   const [isLoadingExchangeRate, setIsLoadingExchangeRate] = useState(false);
   const [selectedCurrency, setSelectedCurrency] = useState<any>(null);
   const [stockData, setStockData] = useState<StockByProductIdsResponse | null>(
-    null
+    null,
   );
 
   const form = useForm<QuotationMesonWithProductsSchema>({
     resolver: zodResolver(
       mode === "create"
         ? quotationMesonWithProductsSchemaCreate
-        : quotationMesonWithProductsSchemaUpdate
+        : quotationMesonWithProductsSchemaUpdate,
     ) as any,
     defaultValues: {
       area_id: AREA_PM_ID.MESON,
@@ -575,7 +634,7 @@ export default function ProformaMesonForm({
   useEffect(() => {
     if (currencyId && currencyTypes.length > 0) {
       const currency = currencyTypes.find(
-        (c) => c.id.toString() === currencyId
+        (c) => c.id.toString() === currencyId,
       );
       setSelectedCurrency(currency || null);
     } else {
@@ -604,7 +663,7 @@ export default function ProformaMesonForm({
       try {
         const formattedDate = format(new Date(quotationDate), "yyyy-MM-dd");
         const response = await api.get(
-          `/gp/mg/exchange-rate/by-date-and-currency?to_currency_id=${CURRENCY_TYPE_IDS.DOLLARS}&date=${formattedDate}`
+          `/gp/mg/exchange-rate/by-date-and-currency?to_currency_id=${CURRENCY_TYPE_IDS.DOLLARS}&date=${formattedDate}`,
         );
 
         if (response.data?.data?.rate) {
@@ -984,6 +1043,7 @@ export default function ProformaMesonForm({
                     onRemove={() => remove(index)}
                     selectedCurrency={selectedCurrency}
                     stockData={stockData}
+                    selectedBrandId={selectedVehicle?.model?.brand_id}
                   />
                 ))}
               </div>
@@ -1014,8 +1074,8 @@ export default function ProformaMesonForm({
             {isSubmitting
               ? "Guardando..."
               : mode === "create"
-              ? "Crear Cotización"
-              : "Actualizar Cotización"}
+                ? "Crear Cotización"
+                : "Actualizar Cotización"}
           </Button>
         </div>
       </form>

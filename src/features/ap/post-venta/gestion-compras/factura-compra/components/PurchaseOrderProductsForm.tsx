@@ -83,7 +83,7 @@ export const PurchaseOrderProductsForm = ({
     resolver: zodResolver(
       mode === "create"
         ? purchaseOrderProductsSchemaCreate
-        : purchaseOrderProductsSchemaUpdate
+        : purchaseOrderProductsSchemaUpdate,
     ),
     defaultValues: {
       ...defaultValues,
@@ -107,7 +107,7 @@ export const PurchaseOrderProductsForm = ({
   const { data: initialWarehouse } = useWarehouseById(
     mode === "update" && defaultValues.warehouse_id
       ? Number(defaultValues.warehouse_id)
-      : 0
+      : 0,
   );
 
   const { data: warehouses = [], isLoading: isLoadingWarehouses } =
@@ -166,7 +166,7 @@ export const PurchaseOrderProductsForm = ({
     try {
       const formattedDate = format(date, "yyyy-MM-dd");
       const response = await api.get(
-        `/gp/mg/exchange-rate/by-date-and-currency?to_currency_id=${currencyId}&date=${formattedDate}`
+        `/gp/mg/exchange-rate/by-date-and-currency?to_currency_id=${currencyId}&date=${formattedDate}`,
       );
 
       if (response.data?.data?.rate) {
@@ -309,13 +309,13 @@ export const PurchaseOrderProductsForm = ({
                       } | ${PurchaseOrderProductsData.supplier || "S/N"}`,
                     }
                   : supplierOrderData?.supplier_id
-                  ? {
-                      value: supplierOrderData.supplier_id.toString(),
-                      label: `${
-                        supplierOrderData.supplier?.num_doc || "S/N"
-                      } | ${supplierOrderData.supplier?.full_name || "S/N"}`,
-                    }
-                  : undefined
+                    ? {
+                        value: supplierOrderData.supplier_id.toString(),
+                        label: `${
+                          supplierOrderData.supplier?.num_doc || "S/N"
+                        } | ${supplierOrderData.supplier?.full_name || "S/N"}`,
+                      }
+                    : undefined
               }
             ></FormSelectAsync>
 
@@ -451,7 +451,7 @@ export const PurchaseOrderProductsForm = ({
                   </span>
                   <span className="font-medium">
                     {currencyTypes.find(
-                      (ct) => ct.id.toString() === watchedCurrencyTypeId
+                      (ct) => ct.id.toString() === watchedCurrencyTypeId,
                     )?.symbol || "S/."}{" "}
                     {(form.watch("subtotal") || 0).toFixed(2)}
                   </span>
@@ -461,7 +461,7 @@ export const PurchaseOrderProductsForm = ({
                   <span className="text-muted-foreground">IGV (18%):</span>
                   <span className="font-medium">
                     {currencyTypes.find(
-                      (ct) => ct.id.toString() === watchedCurrencyTypeId
+                      (ct) => ct.id.toString() === watchedCurrencyTypeId,
                     )?.symbol || "S/."}{" "}
                     {(form.watch("total_tax") || 0).toFixed(2)}
                   </span>
@@ -473,7 +473,7 @@ export const PurchaseOrderProductsForm = ({
                   <span className="font-semibold">Importe Total:</span>
                   <span className="font-bold text-lg text-primary">
                     {currencyTypes.find(
-                      (ct) => ct.id.toString() === watchedCurrencyTypeId
+                      (ct) => ct.id.toString() === watchedCurrencyTypeId,
                     )?.symbol || "S/."}{" "}
                     {(form.watch("total") || 0).toFixed(2)}
                   </span>
@@ -594,7 +594,7 @@ export const PurchaseOrderProductsForm = ({
                                     control={form.control}
                                     useQueryHook={useProduct}
                                     mapOptionFn={(
-                                      product: ProductResource
+                                      product: ProductResource,
                                     ) => ({
                                       value: product.id.toString(),
                                       label: `${product.name} - ${
@@ -638,7 +638,7 @@ export const PurchaseOrderProductsForm = ({
                                         if (!isNaN(num) && num > 0) {
                                           const total =
                                             form.getValues(
-                                              `items.${index}.item_total`
+                                              `items.${index}.item_total`,
                                             ) || 0;
                                           const calculatedPrice =
                                             Math.round((total / num) * 10000) /
@@ -646,7 +646,7 @@ export const PurchaseOrderProductsForm = ({
                                           form.setValue(
                                             `items.${index}.unit_price`,
                                             calculatedPrice,
-                                            { shouldValidate: false }
+                                            { shouldValidate: false },
                                           );
                                         }
                                       }}
@@ -688,19 +688,20 @@ export const PurchaseOrderProductsForm = ({
                                         if (!isNaN(num) && num >= 0) {
                                           const quantity =
                                             form.getValues(
-                                              `items.${index}.quantity`
+                                              `items.${index}.quantity`,
                                             ) || 1;
                                           const calculatedPrice =
                                             Math.round(
-                                              (num / quantity) * 10000
+                                              (num / quantity) * 10000,
                                             ) / 10000;
                                           form.setValue(
                                             `items.${index}.unit_price`,
                                             calculatedPrice,
-                                            { shouldValidate: false }
+                                            { shouldValidate: false },
                                           );
                                         }
                                       }}
+                                      disabled={Boolean(supplierOrderData)}
                                     />
                                   </FormControl>
                                   <FormMessage />
@@ -792,8 +793,8 @@ export const PurchaseOrderProductsForm = ({
               !form.formState.isValid ||
               Boolean(
                 watchedCurrencyTypeId &&
-                  watchedCurrencyTypeId !== CURRENCY_TYPE_IDS.SOLES &&
-                  !exchangeRate
+                watchedCurrencyTypeId !== CURRENCY_TYPE_IDS.SOLES &&
+                !exchangeRate,
               )
             }
           >

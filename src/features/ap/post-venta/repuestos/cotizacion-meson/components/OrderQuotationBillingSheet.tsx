@@ -147,7 +147,7 @@ function BillingSheetContent({
   const advances = orderQuotation.advances || [];
   const hasAdvances = advances.length > 0;
   const totalAdvances = advances.reduce((sum, doc) => sum + doc.total, 0);
-  const currencySymbol = orderQuotation.currency?.symbol || "S/.";
+  const currencySymbol = orderQuotation.type_currency?.symbol || "S/.";
 
   // Verificar si debe mostrar la sección de firma
   const shouldShowSignature =
@@ -178,7 +178,7 @@ function BillingSheetContent({
     onError: (error: any) => {
       errorToast(
         error?.response?.data?.message ||
-          "Error al registrar la firma. Intente nuevamente."
+          "Error al registrar la firma. Intente nuevamente.",
       );
     },
   });
@@ -295,7 +295,7 @@ function BillingSheetContent({
                       day: "2-digit",
                       month: "2-digit",
                       year: "numeric",
-                    }
+                    },
                   )
                 : "N/A"}
             </p>
@@ -310,7 +310,7 @@ function BillingSheetContent({
                       day: "2-digit",
                       month: "2-digit",
                       year: "numeric",
-                    }
+                    },
                   )
                 : "N/A"}
             </p>
@@ -318,7 +318,7 @@ function BillingSheetContent({
           <div>
             <p className="text-xs text-muted-foreground">Moneda</p>
             <Badge variant="outline">
-              {orderQuotation.currency?.name || "N/A"}
+              {orderQuotation.type_currency?.name || "N/A"}
             </Badge>
           </div>
           {orderQuotation.observations && (
@@ -518,7 +518,7 @@ function BillingSheetContent({
                                 day: "2-digit",
                                 month: "2-digit",
                                 year: "numeric",
-                              }
+                              },
                             )}
                           </div>
                         </TableCell>
@@ -575,7 +575,7 @@ function BillingSheetContent({
                     "es-PE",
                     {
                       minimumFractionDigits: 2,
-                    }
+                    },
                   )}
                 </span>
               </div>

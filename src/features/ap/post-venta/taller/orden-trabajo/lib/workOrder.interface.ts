@@ -7,6 +7,7 @@ import { VehicleResource } from "@/features/ap/comercial/vehiculos/lib/vehicles.
 import { WorkOrderLabourResource } from "../../orden-trabajo-labor/lib/workOrderLabour.interface";
 import { WorkOrderPartsResource } from "../../orden-trabajo-repuesto/lib/workOrderParts.interface";
 import { ApMastersResource } from "@/features/ap/ap-master/lib/apMasters.interface";
+import { CurrencyTypesResource } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.interface";
 
 export interface WorkOrderResponse {
   data: WorkOrderResource[];
@@ -42,6 +43,7 @@ export interface WorkOrderResource {
   description_recall: string | null;
   type_recall: "ROJO" | "AMARILLO" | "VERDE" | null;
   is_inspection_completed: boolean;
+  type_currency: CurrencyTypesResource;
   vehicle_inspection: VehicleInspectionResource | null;
   items: WorkOrderItemResource[];
   order_quotation?: OrderQuotationResource;

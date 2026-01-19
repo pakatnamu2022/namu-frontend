@@ -79,7 +79,7 @@ export const orderQuotationColumns = ({
     header: "Total Monto",
     cell: ({ getValue, row }) => {
       const amount = getValue() as number;
-      const currencySymbol = row.original.currency?.symbol || "S/.";
+      const currencySymbol = row.original.type_currency?.symbol || "S/.";
       return `${currencySymbol} ${Number(amount || 0).toFixed(2)}`;
     },
     enableSorting: false,

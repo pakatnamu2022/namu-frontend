@@ -100,11 +100,7 @@ export function SupplierOrderViewSheet({
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Fecha de Pedido</p>
-              <p className="font-medium">
-                {format(new Date(data.order_date), "dd/MM/yyyy", {
-                  locale: es,
-                })}
-              </p>
+              <p className="font-medium">{data.order_date}</p>
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Tipo Abast.</p>
@@ -260,7 +256,7 @@ export function SupplierOrderViewSheet({
                             ? format(
                                 new Date(data.invoice.emission_date),
                                 "dd/MM/yyyy",
-                                { locale: es }
+                                { locale: es },
                               )
                             : "N/A"}
                         </p>
@@ -274,7 +270,7 @@ export function SupplierOrderViewSheet({
                             {format(
                               new Date(data.invoice.due_date),
                               "dd/MM/yyyy",
-                              { locale: es }
+                              { locale: es },
                             )}
                           </p>
                         </div>

@@ -133,6 +133,9 @@ interface WarehouseStock {
   is_low_stock: boolean;
   is_out_of_stock: boolean;
   last_movement_date: string;
+  last_purchase_price: number;
+  public_sale_price: number;
+  minimum_sale_price: number;
 }
 
 export interface InventoryResponse {

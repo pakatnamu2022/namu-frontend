@@ -31,6 +31,7 @@ import { useWorkOrderContext } from "../../contexts/WorkOrderContext";
 import { findWorkOrderById } from "../../lib/workOrder.actions";
 import { useQuery } from "@tanstack/react-query";
 import { useGetConsolidatedWorkers } from "../../../planificacion-orden-trabajo/lib/workOrderPlanning.hook";
+import { CURRENCY_TYPE_IDS } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.constants";
 
 interface LaborTabProps {
   workOrderId: number;
@@ -156,12 +157,42 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
 
       {/* Información de Mano de Obra de la Cotización (Compacta) */}
       {hasAssociatedQuotation && laborItems.length > 0 && (
-        <Card className="p-3 bg-blue-50 border-blue-200">
-          <div className="flex items-center gap-2 mb-2">
-            <FileText className="h-4 w-4 text-primary" />
-            <h4 className="text-sm font-semibold text-primary">
-              Cotización {associatedQuotation!.quotation_number}
-            </h4>
+        <Card className="p-4 bg-blue-50 border-blue-200">
+          <div className="flex items-center justify-between mb-3 pb-3 border-b border-blue-200">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <FileText className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <h4 className="text-sm font-semibold text-primary">
+                  Cotización {associatedQuotation!.quotation_number}
+                </h4>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {associatedQuotation!.quotation_date && (
+                    <span>
+                      {new Date(
+                        associatedQuotation!.quotation_date,
+                      ).toLocaleDateString("es-PE", {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                      })}{" "}
+                      •{" "}
+                    </span>
+                  )}
+                  Mano de obra asociada
+                </p>
+              </div>
+            </div>
+            {associatedQuotation!.type_currency?.id !==
+              Number(CURRENCY_TYPE_IDS.SOLES) && (
+              <div className="px-3 py-1.5 bg-white rounded-md border border-blue-300 shadow-sm">
+                <p className="text-xs text-muted-foreground">Tipo de cambio</p>
+                <p className="text-sm font-bold text-primary">
+                  {associatedQuotation!.exchange_rate || "N/A"}
+                </p>
+              </div>
+            )}
           </div>
           <div className="space-y-1 text-sm">
             {laborItems.map((item: any, index: number) => (
@@ -169,14 +200,19 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
                 key={item.id}
                 className="flex items-center gap-3 py-1 border-b border-blue-100 last:border-0"
               >
-                <span className="text-gray-700 flex-1 truncate">
-                  {index + 1}. {item.description}
-                </span>
+                <div className="flex items-center gap-2 flex-1">
+                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-semibold flex-shrink-0">
+                    {index + 1}
+                  </span>
+                  <span className="text-gray-700 truncate">
+                    {item.description}
+                  </span>
+                </div>
                 <div className="flex items-center gap-2 text-primary font-medium whitespace-nowrap">
                   <span>{Number(item.quantity || 0).toFixed(2)} hrs</span>
                   <span className="text-muted-foreground">×</span>
                   <span>
-                    {associatedQuotation!.currency?.symbol || "S/"}{" "}
+                    {associatedQuotation!.type_currency?.symbol || "S/"}{" "}
                     {Number(item.total_amount || 0).toFixed(2)}
                   </span>
                 </div>
@@ -210,6 +246,11 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
             onSuccess={handleSuccess}
             onCancel={() => setShowForm(false)}
             workOrderItems={items}
+            currencySymbol={
+              associatedQuotation?.type_currency?.symbol ||
+              workOrder?.type_currency?.symbol ||
+              "S/"
+            }
           />
         </Card>
       )}
@@ -271,10 +312,12 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
                       {labour.time_spent}
                     </TableCell>
                     <TableCell className="text-right">
-                      S/ {labour.hourly_rate}
+                      {workOrder?.type_currency?.symbol || "S/"}{" "}
+                      {labour.hourly_rate}
                     </TableCell>
                     <TableCell className="text-right font-semibold">
-                      S/ {labour.total_cost}
+                      {workOrder?.type_currency?.symbol || "S/"}{" "}
+                      {labour.total_cost}
                     </TableCell>
                     <TableCell className="text-center">
                       <Select
@@ -319,7 +362,7 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
                 <div className="text-right">
                   <p className="text-sm text-gray-600">Total Mano de Obra:</p>
                   <p className="text-xl font-bold">
-                    S/{" "}
+                    {workOrder?.type_currency?.symbol || "S/"}{" "}
                     {filteredLabours
                       .reduce(
                         (acc, labour) =>

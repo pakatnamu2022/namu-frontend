@@ -23,6 +23,7 @@ interface WorkOrderLabourFormProps {
   onSuccess: () => void;
   onCancel: () => void;
   workOrderItems?: WorkOrderItemResource[];
+  currencySymbol?: string;
 }
 
 export default function WorkOrderLabourForm({
@@ -31,6 +32,7 @@ export default function WorkOrderLabourForm({
   onSuccess,
   onCancel,
   workOrderItems = [],
+  currencySymbol = "S/",
 }: WorkOrderLabourFormProps) {
   const storeMutation = useStoreWorkOrderLabour();
 
@@ -106,7 +108,7 @@ export default function WorkOrderLabourForm({
 
           <FormInput
             name="hourly_rate"
-            label="Tarifa/Hora (S/)"
+            label={`Tarifa/Hora (${currencySymbol})`}
             placeholder="Ej: 50.00"
             control={form.control}
           />

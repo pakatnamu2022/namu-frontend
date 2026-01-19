@@ -16,6 +16,7 @@ import {
   MapPin,
   CheckCircle2,
   AlertCircle,
+  CircleDollarSign,
 } from "lucide-react";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { findWorkOrderById } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.actions";
@@ -142,7 +143,7 @@ export default function GeneralInformationPage() {
                         year: "numeric",
                         month: "long",
                         day: "numeric",
-                      }
+                      },
                     )}
                   </p>
                 </div>
@@ -167,7 +168,7 @@ export default function GeneralInformationPage() {
                         year: "numeric",
                         month: "long",
                         day: "numeric",
-                      }
+                      },
                     )}
                   </p>
                 </div>
@@ -261,7 +262,7 @@ export default function GeneralInformationPage() {
                   <p className="text-sm text-gray-600">Fecha de Cotización</p>
                   <p className="font-semibold">
                     {new Date(
-                      workOrder.order_quotation.quotation_date
+                      workOrder.order_quotation.quotation_date,
                     ).toLocaleDateString("es-PE", {
                       year: "numeric",
                       month: "long",
@@ -276,7 +277,7 @@ export default function GeneralInformationPage() {
                   <p className="text-sm text-gray-600">Fecha de Expiración</p>
                   <p className="font-semibold">
                     {new Date(
-                      workOrder.order_quotation.expiration_date
+                      workOrder.order_quotation.expiration_date,
                     ).toLocaleDateString("es-PE", {
                       year: "numeric",
                       month: "long",
@@ -311,16 +312,16 @@ export default function GeneralInformationPage() {
                 <div className="bg-gray-50 p-3 rounded-lg">
                   <p className="text-sm text-gray-600 mb-1">Subtotal</p>
                   <p className="text-lg font-bold text-gray-900">
-                    {workOrder.order_quotation.currency?.symbol || "S/"}{" "}
+                    {workOrder.order_quotation.type_currency?.symbol || "S/"}{" "}
                     {Number(workOrder.order_quotation.subtotal).toFixed(2)}
                   </p>
                 </div>
                 <div className="bg-gray-50 p-3 rounded-lg">
                   <p className="text-sm text-gray-600 mb-1">Descuento</p>
                   <p className="text-lg font-bold text-orange-600">
-                    {workOrder.order_quotation.currency?.symbol || "S/"}{" "}
+                    {workOrder.order_quotation.type_currency?.symbol || "S/"}{" "}
                     {Number(workOrder.order_quotation.discount_amount).toFixed(
-                      2
+                      2,
                     )}
                   </p>
                 </div>
@@ -329,7 +330,7 @@ export default function GeneralInformationPage() {
                     IGV ({workOrder.order_quotation.tax_amount}%)
                   </p>
                   <p className="text-lg font-bold text-gray-900">
-                    {workOrder.order_quotation.currency?.symbol || "S/"}{" "}
+                    {workOrder.order_quotation.type_currency?.symbol || "S/"}{" "}
                     {(
                       (Number(workOrder.order_quotation.subtotal) -
                         Number(workOrder.order_quotation.discount_amount)) *
@@ -340,7 +341,7 @@ export default function GeneralInformationPage() {
                 <div className="bg-primary/10 p-3 rounded-lg border-2 border-primary">
                   <p className="text-sm text-gray-600 mb-1">Total</p>
                   <p className="text-xl font-bold text-primary">
-                    {workOrder.order_quotation.currency?.symbol || "S/"}{" "}
+                    {workOrder.order_quotation.type_currency?.symbol || "S/"}{" "}
                     {Number(workOrder.order_quotation.total_amount).toFixed(2)}
                   </p>
                 </div>
@@ -381,7 +382,7 @@ export default function GeneralInformationPage() {
                 <p className="font-semibold">
                   {workOrder.opening_date
                     ? new Date(workOrder.opening_date).toLocaleDateString(
-                        "es-PE"
+                        "es-PE",
                       )
                     : "N/A"}
                 </p>
@@ -396,7 +397,7 @@ export default function GeneralInformationPage() {
                 <p className="font-semibold">
                   {workOrder.estimated_delivery_date
                     ? new Date(
-                        workOrder.estimated_delivery_date
+                        workOrder.estimated_delivery_date,
                       ).toLocaleDateString("es-PE")
                     : "N/A"}
                 </p>
@@ -409,7 +410,7 @@ export default function GeneralInformationPage() {
                 <p className="font-semibold">
                   {workOrder.actual_delivery_date
                     ? new Date(
-                        workOrder.actual_delivery_date
+                        workOrder.actual_delivery_date,
                       ).toLocaleDateString("es-PE")
                     : "- / - / -"}
                 </p>
@@ -422,7 +423,7 @@ export default function GeneralInformationPage() {
                 <p className="font-semibold">
                   {workOrder.diagnosis_date
                     ? new Date(workOrder.diagnosis_date).toLocaleDateString(
-                        "es-PE"
+                        "es-PE",
                       )
                     : "N/A"}
                 </p>
@@ -442,6 +443,15 @@ export default function GeneralInformationPage() {
               <div>
                 <p className="text-sm text-gray-600">Sede</p>
                 <p className="font-semibold">{workOrder.sede_name || "N/A"}</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-2">
+              <CircleDollarSign className="h-5 w-5 text-gray-500 mt-0.5" />
+              <div>
+                <p className="text-sm text-gray-600">Moneda</p>
+                <p className="font-semibold">
+                  {workOrder.type_currency.name || "N/A"}
+                </p>
               </div>
             </div>
           </div>
@@ -488,7 +498,7 @@ export default function GeneralInformationPage() {
                   <p className="text-sm text-gray-600">Fecha de Inspección</p>
                   <p className="font-semibold">
                     {new Date(
-                      workOrder.vehicle_inspection.inspection_date
+                      workOrder.vehicle_inspection.inspection_date,
                     ).toLocaleDateString("es-PE")}
                   </p>
                 </div>

@@ -36,7 +36,7 @@ export const ProductCategoryForm = ({
     resolver: zodResolver(
       mode === "create"
         ? productCategorySchemaCreate
-        : productCategorySchemaUpdate
+        : productCategorySchemaUpdate,
     ),
     defaultValues: {
       ...defaultValues,
@@ -55,7 +55,7 @@ export const ProductCategoryForm = ({
               <FormItem>
                 <FormLabel>Cod.</FormLabel>
                 <FormControl>
-                  <Input placeholder="Ej: Repuestos" {...field} />
+                  <Input placeholder="Ej: R" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -68,7 +68,7 @@ export const ProductCategoryForm = ({
               <FormItem>
                 <FormLabel>Descripción</FormLabel>
                 <FormControl>
-                  <Input placeholder="Ej: Camión" {...field} />
+                  <Input placeholder="Ej: Repuestos" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

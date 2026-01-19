@@ -55,17 +55,11 @@ export function PurchaseOrderProductsViewSheet({
           </div>
           <div>
             <p className="text-xs text-muted-foreground">F. Emisión</p>
-            <p className="font-medium">
-              {format(new Date(data.emission_date), "dd/MM/yyyy", {
-                locale: es,
-              })}
-            </p>
+            <p className="font-medium">{data.emission_date}</p>
           </div>
           <div>
             <p className="text-xs text-muted-foreground">F. Vencimiento</p>
-            <p className="font-medium">
-              {format(new Date(data.due_date), "dd/MM/yyyy", { locale: es })}
-            </p>
+            <p className="font-medium">{data.due_date}</p>
           </div>
           <div>
             <p className="text-xs text-muted-foreground">Estado</p>

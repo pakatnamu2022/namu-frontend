@@ -26,5 +26,6 @@ export const useProductById = (id: number) => {
     queryKey: [QUERY_KEY, id],
     queryFn: () => findProductById(id),
     refetchOnWindowFocus: false,
+    enabled: id > 0,
   });
 };

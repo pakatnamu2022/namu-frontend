@@ -289,6 +289,7 @@ import WorkOrderPlanningPage from "./app/ap/post-venta/taller/planificacion-orde
 import AddWorkOrderPlanningPage from "./app/ap/post-venta/taller/planificacion-orden-trabajo/agregar/page.tsx";
 import AssignedWorkPage from "./app/ap/post-venta/taller/trabajos-asignados/page.tsx";
 import VehicleInspectionPage from "./app/ap/post-venta/taller/orden-trabajo/[workOrderId]/inspeccion/page.tsx";
+import SalesReceiptsTallerPage from "./app/ap/post-venta/taller/comprobante-venta-taller/page.tsx";
 import RolePage from "./app/gp/gestion-del-sistema/roles/page.tsx";
 import PermissionPage from "./app/gp/gestion-del-sistema/roles/permisos/[id]/page.tsx";
 import AddUserPage from "./app/gp/gestion-del-sistema/usuarios/agregar/page.tsx";
@@ -376,7 +377,7 @@ const RouterCrud = (
   page: JSX.Element,
   addPage: JSX.Element,
   editPage: JSX.Element,
-  detailPage?: JSX.Element
+  detailPage?: JSX.Element,
 ) => {
   return (
     <>
@@ -542,7 +543,7 @@ function App() {
                 <OpportunitiesKanbanPage />,
                 <AddOpportunityPage />,
                 <UpdateOpportunityPage />,
-                <OpportunityDetailPage />
+                <OpportunityDetailPage />,
               )}
 
               {/* Clientes */}
@@ -550,7 +551,7 @@ function App() {
                 "clientes",
                 <CustomersPage />,
                 <AddCustomersPage />,
-                <UpdateCustomersPage />
+                <UpdateCustomersPage />,
               )}
 
               {/* Establecimientos */}
@@ -572,7 +573,7 @@ function App() {
                 "proveedores",
                 <SuppliersPage />,
                 <AddSupplierPage />,
-                <UpdateSuppliersPage />
+                <UpdateSuppliersPage />,
               )}
 
               {/* Establecimientos Proveedores */}
@@ -594,7 +595,7 @@ function App() {
                 "comprobantes-venta",
                 <ElectronicDocumentsPage />,
                 <AddElectronicDocumentPage />,
-                <UpdateElectronicDocumentPage />
+                <UpdateElectronicDocumentPage />,
               )}
 
               <Route
@@ -658,7 +659,7 @@ function App() {
                 "envios-recepciones",
                 <ShipmentsReceptionsPage />,
                 <AddShipmentsReceptionsPage />,
-                <UpdateShipmentsReceptionsPage />
+                <UpdateShipmentsReceptionsPage />,
               )}
               <Route
                 path="envios-recepciones/checklist/:id"
@@ -670,7 +671,7 @@ function App() {
                 "visitas-tienda",
                 <StoreVisitsPage />,
                 <AddStoreVisitsPage />,
-                <UpdateStoreVisitsPage />
+                <UpdateStoreVisitsPage />,
               )}
 
               {/* Gestionar Leads */}
@@ -719,7 +720,7 @@ function App() {
                 "vehiculos-exhibicion",
                 <ExhibitionVehiclesPage />,
                 <AddExhibitionVehiclesPage />,
-                <UpdateExhibitionVehiclesPage />
+                <UpdateExhibitionVehiclesPage />,
               )}
 
               {/* Reportes */}
@@ -1414,6 +1415,10 @@ function App() {
                 path="taller/trabajos-asignados"
                 element={<AssignedWorkPage />}
               />
+              <Route
+                path="taller/comprobante-venta-taller"
+                element={<SalesReceiptsTallerPage />}
+              />
             </Route>
 
             {/* ======================================================== */}
@@ -1579,7 +1584,7 @@ function App() {
                 "evaluaciones-de-desempeno/categorias-jerarquicas",
                 <HierarchicalCategoryPage />,
                 <AddHierarchicalCategoryPage />,
-                <UpdateHierarchicalCategoryPage />
+                <UpdateHierarchicalCategoryPage />,
               )}
 
               {RouterCrud(
@@ -1587,14 +1592,14 @@ function App() {
                 <CyclePage />,
                 <AddCyclePage />,
                 <UpdateCyclePage />,
-                <CyclePersonDetailPage />
+                <CyclePersonDetailPage />,
               )}
 
               {RouterCrud(
                 "evaluaciones-de-desempeno/competencias",
                 <CompetencesPage />,
                 <AddCompetencePage />,
-                <UpdateCompetencePage />
+                <UpdateCompetencePage />,
               )}
 
               {RouterCrud(
@@ -1602,7 +1607,7 @@ function App() {
                 <EvaluationPage />,
                 <AddEvaluationPage />,
                 <UpdateEvaluationPage />,
-                <EvaluationPersonPage />
+                <EvaluationPersonPage />,
               )}
 
               <Route
@@ -1624,28 +1629,28 @@ function App() {
                 "evaluaciones-de-desempeno/metricas",
                 <MetricPage />,
                 <AddMetricPage />,
-                <UpdateMetricPage />
+                <UpdateMetricPage />,
               )}
 
               {RouterCrud(
                 "evaluaciones-de-desempeno/objetivos",
                 <ObjectivePage />,
                 <AddObjectivePage />,
-                <UpdateObjectivePage />
+                <UpdateObjectivePage />,
               )}
 
               {RouterCrud(
                 "evaluaciones-de-desempeno/parametros",
                 <ParameterPage />,
                 <AddParameterPage />,
-                <UpdateParameterPage />
+                <UpdateParameterPage />,
               )}
 
               {RouterCrud(
                 "evaluaciones-de-desempeno/periodos",
                 <PeriodPage />,
                 <AddPeriodPage />,
-                <UpdatePeriodPage />
+                <UpdatePeriodPage />,
               )}
 
               <Route
@@ -1657,7 +1662,7 @@ function App() {
                 "evaluaciones-de-desempeno/modelo-evaluacion",
                 <EvaluationModelPage />,
                 <AddEvaluationModelPage />,
-                <UpdateEvaluationModelPage />
+                <UpdateEvaluationModelPage />,
               )}
             </Route>
 
@@ -1705,7 +1710,7 @@ function App() {
                 "equipos",
                 <EquipmentPage />,
                 <AddEquipmentPage />,
-                <UpdateEquipmentPage />
+                <UpdateEquipmentPage />,
               )}
             </Route>
 

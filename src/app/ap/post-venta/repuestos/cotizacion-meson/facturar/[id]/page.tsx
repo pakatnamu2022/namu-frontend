@@ -69,7 +69,9 @@ export default function BillOrderQuotationPage() {
     onSuccess: () => {
       successToast(SUCCESS_MESSAGE(ELECTRONIC_DOCUMENT.MODEL, "create"));
       // Invalidar la query de la cotización para refrescar los anticipos
-      queryClient.invalidateQueries({ queryKey: ["orderQuotation", quotationId] });
+      queryClient.invalidateQueries({
+        queryKey: ["orderQuotation", quotationId],
+      });
       navigate(ABSOLUTE_ROUTE);
     },
     onError: (error: any) => {
@@ -82,7 +84,10 @@ export default function BillOrderQuotationPage() {
     // Calcular el saldo pendiente de la cotización
     const totalCotizacion = quotation?.total_amount || 0;
     const totalAnticiposAnteriores = quotation?.advances
-      ? quotation.advances.reduce((sum, advance) => sum + (advance.total || 0), 0)
+      ? quotation.advances.reduce(
+          (sum, advance) => sum + (advance.total || 0),
+          0,
+        )
       : 0;
     const saldoPendiente = totalCotizacion - totalAnticiposAnteriores;
 
@@ -94,11 +99,14 @@ export default function BillOrderQuotationPage() {
 
     // Validar que el anticipo no exceda el saldo pendiente
     if (data.is_advance_payment && data.total > saldoPendiente) {
-      const currencySymbol = quotation?.currency?.symbol || "S/";
+      const currencySymbol = quotation?.type_currency?.symbol || "S/";
       errorToast(
-        `El anticipo no puede exceder el saldo pendiente de ${currencySymbol} ${saldoPendiente.toLocaleString("es-PE", {
-          minimumFractionDigits: 2,
-        })}`
+        `El anticipo no puede exceder el saldo pendiente de ${currencySymbol} ${saldoPendiente.toLocaleString(
+          "es-PE",
+          {
+            minimumFractionDigits: 2,
+          },
+        )}`,
       );
       return;
     }
