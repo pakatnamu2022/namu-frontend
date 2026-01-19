@@ -58,15 +58,15 @@ function InteractivePieChart({
 
   const activeIndex = React.useMemo(
     () => data.findIndex((item) => item.name === activeItem),
-    [activeItem, data]
+    [activeItem, data],
   );
 
   const items = React.useMemo(() => data.map((item) => item.name), [data]);
 
   return (
-    <Card data-chart={id} className="flex flex-col">
+    <Card data-chart={id} className="flex flex-col h-full">
       <ChartStyle id={id} config={config} />
-      <CardHeader className="flex-row flex-wrap gap-2 items-center space-y-0 pb-2">
+      <CardHeader className="flex-col gap-2 items-center space-y-0 pb-2">
         <CardTitle>{title}</CardTitle>
         <Select value={activeItem} onValueChange={setActiveItem}>
           <SelectTrigger
@@ -108,7 +108,7 @@ function InteractivePieChart({
         <ChartContainer
           id={id}
           config={config}
-          className="mx-auto aspect-square w-full max-w-[250px]"
+          className="mx-auto aspect-square w-full max-w-56"
         >
           <PieChart>
             <ChartTooltip
@@ -232,11 +232,11 @@ export default function SalesManagerStatsCards({
       name,
       value,
       fill: `var(--color-${name})`,
-    })
+    }),
   );
 
   const opportunityConfig = Object.entries(
-    teamTotals.by_opportunity_status
+    teamTotals.by_opportunity_status,
   ).reduce(
     (acc, [status], index) => {
       acc[status] = {
@@ -245,11 +245,11 @@ export default function SalesManagerStatsCards({
       };
       return acc;
     },
-    { value: { label: "Cantidad" } } as ChartConfig
+    { value: { label: "Cantidad" } } as ChartConfig,
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 grid grid-cols-4 gap-4">
       {/* Gráfico de Estado de Atención */}
       <InteractivePieChart
         id="attention-chart"

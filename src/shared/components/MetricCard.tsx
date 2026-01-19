@@ -5,8 +5,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
-import { ReactNode } from "react";
+import { LucideIcon } from "lucide-react";
 
 type TailwindColor =
   | "slate"
@@ -50,7 +51,7 @@ interface MetricCardProps {
   value: string | number;
   subtitle?: string;
   footer?: string;
-  icon?: ReactNode;
+  icon?: LucideIcon;
   variant?: "outline" | "default";
   color?: TailwindColor;
   colorIntensity?: ColorIntensity;
@@ -697,7 +698,7 @@ export function MetricCard({
   value,
   subtitle,
   footer,
-  icon,
+  icon: Icon,
   variant = "outline",
   color = "blue",
   colorIntensity = "600",
@@ -721,25 +722,34 @@ export function MetricCard({
   return (
     <Card
       className={cn(
+        "relative overflow-hidden",
         "@container/card",
         variant === "outline" && "bg-linear-to-br from-muted to-background",
         variant === "default" && bgClass,
-        className
+        className,
       )}
     >
-      <CardHeader className="p-4">
+      {Icon && (
+        <Icon
+          className={cn(
+            "absolute top-4 right-4 w-5 h-5",
+            valueClass,
+          )}
+        />
+      )}
+      <CardHeader className="pb-2 pt-4 px-4">
         <CardDescription
           className={cn(
             "line-clamp-1 font-semibold",
-            variant === "default" && textClass
+            variant === "default" && textClass,
           )}
         >
           {title}
         </CardDescription>
         <CardTitle
           className={cn(
-            "text-2xl font-semibold tabular-nums @[250px]/card:text-3xl",
-            valueClass
+            "text-2xl font-semibold tabular-nums @[250px]/card:text-3xl mb-0",
+            valueClass,
           )}
         >
           {value}
@@ -748,7 +758,7 @@ export function MetricCard({
           <p
             className={cn(
               "text-xs line-clamp-1",
-              variant === "default" ? textClass : "text-muted-foreground"
+              variant === "default" ? textClass : "text-muted-foreground",
             )}
           >
             {subtitle}
@@ -761,32 +771,26 @@ export function MetricCard({
             <div
               className={cn(
                 "line-clamp-1 flex gap-2 font-medium items-center",
-                variant === "default" && textClass
+                variant === "default" && textClass,
               )}
             >
               {footer}
-              {icon && <span className="size-4">{icon}</span>}
+              {Icon && <Icon className="size-4" />}
             </div>
           )}
           {showProgress && (
-            <div
+            <Progress
+              value={progressPercentage}
               className={cn(
-                "w-full h-2 rounded-full overflow-hidden",
+                "h-1.5",
                 variant === "default"
                   ? "bg-black/10 dark:bg-white/10"
-                  : "bg-gray-200 dark:bg-gray-800"
+                  : "bg-gray-200 dark:bg-gray-800",
               )}
-            >
-              <div
-                className={cn(
-                  "h-full transition-all duration-500",
-                  variant === "default"
-                    ? "bg-white/30"
-                    : colorProgressMap[color]
-                )}
-                style={{ width: `${progressPercentage.toFixed(1)}%` }}
-              />
-            </div>
+              indicatorClassName={cn(
+                variant === "default" ? "bg-white/30" : colorProgressMap[color],
+              )}
+            />
           )}
         </CardFooter>
       )}

@@ -26,6 +26,7 @@ import { MetricCard } from "@/shared/components/MetricCard";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import PageWrapper from "@/shared/components/PageWrapper";
 import FormSkeleton from "@/shared/components/FormSkeleton";
+import { UserCheck, UserCircle, UserMinus, Users, UserX } from "lucide-react";
 
 // Obtener el primer y último día del mes pasado
 const getLastMonthRange = () => {
@@ -44,16 +45,16 @@ export default function SalesManagerDashboard() {
 
   // Estados para los filtros
   const [dateFrom, setDateFrom] = useState<Date | undefined>(
-    lastMonthRange.firstDay
+    lastMonthRange.firstDay,
   );
   const [dateTo, setDateTo] = useState<Date | undefined>(
-    lastMonthRange.lastDay
+    lastMonthRange.lastDay,
   );
   const [type, setType] = useState<"VISITA" | "LEADS">("LEADS");
   const [bossId, setBossId] = useState<string>("");
 
   const [selectedAdvisorId, setSelectedAdvisorId] = useState<number | null>(
-    null
+    null,
   );
   const [showDetailsSheet, setShowDetailsSheet] = useState(false);
 
@@ -123,7 +124,7 @@ export default function SalesManagerDashboard() {
     } catch (error: any) {
       errorToast(
         "Error al descargar el Excel. Por favor, intente nuevamente.",
-        error.response?.data?.message?.toString()
+        error.response?.data?.message?.toString(),
       );
     }
   };
@@ -150,7 +151,7 @@ export default function SalesManagerDashboard() {
     } catch (error: any) {
       errorToast(
         "Error al descargar el PDF. Por favor, intente nuevamente.",
-        error.response?.data?.message?.toString()
+        error.response?.data?.message?.toString(),
       );
     }
   };
@@ -227,6 +228,7 @@ export default function SalesManagerDashboard() {
                 subtitle="Miembros del equipo"
                 variant="outline"
                 color="gray"
+                icon={Users}
               />
 
               <MetricCard
@@ -234,19 +236,21 @@ export default function SalesManagerDashboard() {
                 value={statsData.data.team_totals.total_visits}
                 subtitle="En el período seleccionado"
                 variant="outline"
+                icon={UserCircle}
               />
 
               <MetricCard
                 title="Atendidos"
                 value={statsData.data.team_totals.attended || 0}
                 subtitle={`${statsData.data.team_totals.attention_percentage.toFixed(
-                  1
+                  1,
                 )}% del total`}
                 variant="outline"
                 color="green"
                 showProgress
                 progressValue={statsData.data.team_totals.attended || 0}
                 progressMax={statsData.data.team_totals.total_visits || 0}
+                icon={UserCheck}
               />
 
               <MetricCard
@@ -262,6 +266,7 @@ export default function SalesManagerDashboard() {
                 showProgress
                 progressValue={statsData.data.team_totals.not_attended || 0}
                 progressMax={statsData.data.team_totals.total_visits || 0}
+                icon={UserMinus}
               />
 
               <MetricCard
@@ -277,11 +282,12 @@ export default function SalesManagerDashboard() {
                 showProgress
                 progressValue={statsData.data.team_totals.discarded || 0}
                 progressMax={statsData.data.team_totals.total_visits || 0}
+                icon={UserX}
               />
             </div>
 
             {/* Content Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 gap-6">
               {/* Advisors Table */}
               <div className="lg:col-span-2">
                 <SalesManagerAdvisorTable
@@ -290,7 +296,7 @@ export default function SalesManagerDashboard() {
                   onAdvisorClick={handleAdvisorClick}
                 />
               </div>
-
+              
               {/* Charts */}
               <div className="space-y-6">
                 <SalesManagerStatsCards
