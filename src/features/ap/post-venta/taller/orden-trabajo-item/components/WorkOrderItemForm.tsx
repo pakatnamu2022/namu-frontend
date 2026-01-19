@@ -4,21 +4,14 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { Form } from "@/components/ui/form";
 import { useAllTypesPlanning } from "@/features/ap/configuraciones/postventa/tipos-planificacion/lib/typesPlanning.hook";
 import { requiredStringId } from "@/shared/lib/global.schema";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { useStoreWorkOrderItem } from "../lib/workOrderItem.hook";
 import { WorkOrderItemRequest } from "../lib/workOrderItem.interface";
+import { FormInput } from "@/shared/components/FormInput";
+import { FormInputText } from "@/shared/components/FormInputText";
 
 const workOrderItemSchema = z.object({
   work_order_id: z.number(),
@@ -76,25 +69,12 @@ export default function WorkOrderItemForm({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <FormField
+        <FormInput
           control={form.control}
           name="group_number"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Número de Grupo</FormLabel>
-              <FormControl>
-                <Input
-                  type="number"
-                  min="1"
-                  {...field}
-                  onChange={(e) =>
-                    field.onChange(parseInt(e.target.value) || 1)
-                  }
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          label="Número de Grupo"
+          type="number"
+          placeholder="1"
         />
 
         <FormSelect
@@ -110,22 +90,11 @@ export default function WorkOrderItemForm({
           disabled={isLoadingTypes}
         />
 
-        <FormField
+        <FormInputText
           control={form.control}
           name="description"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Descripción</FormLabel>
-              <FormControl>
-                <Textarea
-                  {...field}
-                  placeholder="Describa el trabajo de servicio..."
-                  rows={4}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          label="Descripción"
+          placeholder="Describa el trabajo de servicio..."
         />
 
         <div className="flex justify-end gap-2 pt-4">

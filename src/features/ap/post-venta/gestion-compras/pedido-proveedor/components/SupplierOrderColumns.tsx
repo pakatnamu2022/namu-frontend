@@ -83,6 +83,11 @@ export const supplierOrderColumns = ({
   {
     accessorKey: "total_amount",
     header: "Total",
+    cell: ({ getValue, row }) => {
+      const amount = getValue() as number;
+      const currencySymbol = row.original.type_currency?.symbol || "S/.";
+      return `${currencySymbol} ${Number(amount || 0).toFixed(2)}`;
+    },
   },
   {
     accessorKey: "has_invoice",

@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { FileText, AlertCircle, CheckCircle } from "lucide-react";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
@@ -34,6 +33,7 @@ interface OrderQuotationDocumentInfoSectionProps {
   isFromQuotation?: boolean;
   defaultCustomer?: CustomersResource;
   hasSufficientStock?: boolean;
+  pendingBalance?: number;
 }
 
 export function OrderQuotationDocumentInfoSection({
@@ -46,6 +46,7 @@ export function OrderQuotationDocumentInfoSection({
   isFromQuotation = false,
   defaultCustomer,
   hasSufficientStock = true,
+  pendingBalance = 0,
 }: OrderQuotationDocumentInfoSectionProps) {
   // Estado para almacenar el cliente seleccionado
   const [selectedCustomer, setSelectedCustomer] = useState<
@@ -96,6 +97,10 @@ export function OrderQuotationDocumentInfoSection({
       });
     }
   }, [hasSufficientStock, form]);
+
+  // Determinar si el switch debe estar habilitado
+  // Se habilita cuando: hay stock suficiente O el saldo pendiente es 0 (ya pagó todo)
+  const isToggleEnabled = hasSufficientStock || pendingBalance === 0;
 
   // Filtrar tipos de documento según el document_type_id del cliente
   const filteredDocumentTypes = documentTypes.filter((type) => {
@@ -160,21 +165,20 @@ export function OrderQuotationDocumentInfoSection({
     <>
       {/* Alerta de Stock */}
       {isFromQuotation && (
-        <Alert
-          variant={hasSufficientStock ? "info" : "destructive"}
-          className="mb-4"
-        >
-          {hasSufficientStock ? (
-            <CheckCircle className="h-4 w-4" />
-          ) : (
-            <AlertCircle className="h-4 w-4" />
-          )}
-          <AlertDescription>
-            {hasSufficientStock
-              ? "Los repuestos de esta cotización cuentan con stock suficiente. Puede realizar una venta completa o un anticipo."
-              : "Existen repuestos en esta cotización que no cuentan con stock suficiente. Solo se permite generar un anticipo."}
-          </AlertDescription>
-        </Alert>
+        <div className="mb-6 rounded-md border p-4 bg-blue-50/50 border-blue-200">
+          <div className="flex gap-3">
+            {hasSufficientStock ? (
+              <CheckCircle className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+            ) : (
+              <AlertCircle className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+            )}
+            <p className="text-sm text-gray-700 leading-relaxed">
+              {hasSufficientStock
+                ? "Los repuestos de esta cotización cuentan con stock suficiente. Puede realizar una venta completa o un anticipo."
+                : "Existen repuestos en esta cotización que no cuentan con stock suficiente. Solo se permite generar un anticipo."}
+            </p>
+          </div>
+        </div>
       )}
 
       <GroupFormSection
@@ -233,11 +237,13 @@ export function OrderQuotationDocumentInfoSection({
           control={form.control}
           name="is_advance_payment"
           label="Tipo de Operación"
-          disabled={true}
+          disabled={!isToggleEnabled}
           text={isAdvancePayment ? "Anticipo" : "Venta Interna"}
           description={
-            !hasSufficientStock
+            !hasSufficientStock && pendingBalance > 0
               ? "Sin stock suficiente: Solo se permite anticipo"
+              : pendingBalance === 0
+              ? "Pago completo realizado: Puede generar documento de venta final"
               : isAdvancePayment
               ? "Tipo de operación: Venta Interna - Anticipos (código 04)"
               : "Tipo de operación: Venta Interna (código 01)"

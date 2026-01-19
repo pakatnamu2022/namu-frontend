@@ -233,17 +233,25 @@ export function OrderQuotationBillingForm({
 
   // Efecto para cargar items cuando cambia la cotización o isAdvancePayment
   useEffect(() => {
-    if (
-      !quotation ||
-      igvTypes.length === 0 ||
-      (quotation.id === lastLoadedQuotationId.current &&
-        isAdvancePayment === lastLoadedAdvancePaymentState.current)
-    ) {
+    if (!quotation || igvTypes.length === 0) {
+      return;
+    }
+
+    // Verificar si ya se procesó esta combinación específica
+    const shouldSkip =
+      quotation.id === lastLoadedQuotationId.current &&
+      isAdvancePayment === lastLoadedAdvancePaymentState.current &&
+      JSON.stringify(quotation.advances) ===
+        processedAdvancePaymentsForQuotationKey.current;
+
+    if (shouldSkip) {
       return;
     }
 
     lastLoadedAdvancePaymentState.current = isAdvancePayment;
-    processedAdvancePaymentsForQuotationKey.current = null;
+    processedAdvancePaymentsForQuotationKey.current = JSON.stringify(
+      quotation.advances
+    );
 
     // Crear items desde los detalles de la cotización
     if (quotation.details && quotation.details.length > 0) {
@@ -513,6 +521,7 @@ export function OrderQuotationBillingForm({
               isFromQuotation={true}
               defaultCustomer={quotation.vehicle?.owner}
               hasSufficientStock={quotation.has_sufficient_stock}
+              pendingBalance={pendingBalance}
             />
 
             {/* Agregar Items */}
@@ -529,7 +538,11 @@ export function OrderQuotationBillingForm({
             />
 
             {/* Configuración Adicional */}
-            <AdditionalConfigSection form={form} checkbooks={checkbooks} />
+            <AdditionalConfigSection
+              form={form}
+              checkbooks={checkbooks}
+              isModuleCommercial={false}
+            />
           </div>
           {/* Resumen tipo Recibo - 1/3 del ancho */}
           <OrderQuotationSummarySection

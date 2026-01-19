@@ -70,11 +70,17 @@ export const orderQuotationColumns = ({
     enableSorting: false,
   },
   {
+    accessorKey: "currency.name",
+    header: "Moneda",
+    enableSorting: false,
+  },
+  {
     accessorKey: "total_amount",
     header: "Total Monto",
-    cell: ({ getValue }) => {
+    cell: ({ getValue, row }) => {
       const amount = getValue() as number;
-      return `S/. ${Number(amount || 0).toFixed(2)}`;
+      const currencySymbol = row.original.currency?.symbol || "S/.";
+      return `${currencySymbol} ${Number(amount || 0).toFixed(2)}`;
     },
     enableSorting: false,
   },

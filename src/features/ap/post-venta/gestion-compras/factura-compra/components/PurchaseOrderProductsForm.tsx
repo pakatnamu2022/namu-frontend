@@ -47,7 +47,7 @@ import { useEffect } from "react";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField.tsx";
 import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.hook.ts";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook.ts";
-import { EMPRESA_AP } from "@/core/core.constants.ts";
+import { EMPRESA_AP, IGV } from "@/core/core.constants.ts";
 import { useState } from "react";
 import { api } from "@/core/api.ts";
 import { format, addDays } from "date-fns";
@@ -202,19 +202,25 @@ export const PurchaseOrderProductsForm = ({
 
   // useEffect para calcular y sincronizar totales cuando cambian los item_total
   useEffect(() => {
-    let subtotal = 0;
+    let netValue = 0;
 
     watchedItems?.forEach((item) => {
       if (!item) return;
       const itemTotal = Number(item.item_total) || 0;
-      subtotal += itemTotal;
+      netValue += itemTotal;
     });
 
-    const totalAmount = Math.round(subtotal * 10000) / 10000;
+    netValue = Math.round(netValue * 10000) / 10000;
 
-    form.setValue("subtotal", totalAmount, { shouldValidate: false });
+    // Calcular IGV sobre el valor neto
+    const taxAmount = Math.round(netValue * IGV.RATE * 10000) / 10000;
+
+    // Calcular el total (valor neto + IGV)
+    const totalAmount = Math.round((netValue + taxAmount) * 10000) / 10000;
+
+    form.setValue("subtotal", netValue, { shouldValidate: false });
     form.setValue("total_discount", 0, { shouldValidate: false });
-    form.setValue("total_tax", 0, { shouldValidate: false });
+    form.setValue("total_tax", taxAmount, { shouldValidate: false });
     form.setValue("total", totalAmount, { shouldValidate: false });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [itemTotalsKey]);
@@ -259,7 +265,7 @@ export const PurchaseOrderProductsForm = ({
         data.due_date instanceof Date
           ? format(data.due_date, "yyyy-MM-dd")
           : data.due_date,
-      igv: 18,
+      igv: data.total_tax || 0, // Enviar el monto del IGV calculado
       type_operation_id: data.type_operation_id || TYPES_OPERATION_ID.POSTVENTA,
       ap_supplier_order_id: supplierOrderId || undefined,
     };
@@ -437,14 +443,41 @@ export const PurchaseOrderProductsForm = ({
                 agregados.
               </div>
 
-              <div className="flex justify-between items-center py-3 bg-primary/5 px-3 rounded-md">
-                <span className="font-semibold">Total:</span>
-                <span className="font-bold text-lg text-primary">
-                  {currencyTypes.find(
-                    (ct) => ct.id.toString() === watchedCurrencyTypeId
-                  )?.symbol || "S/."}{" "}
-                  {(form.watch("total") || 0).toFixed(4).replace(/\.?0+$/, "")}
-                </span>
+              {/* Desglose de IGV */}
+              <div className="space-y-2 border rounded-md p-3 bg-slate-50/50">
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-muted-foreground">
+                    Valor de Venta Neta:
+                  </span>
+                  <span className="font-medium">
+                    {currencyTypes.find(
+                      (ct) => ct.id.toString() === watchedCurrencyTypeId
+                    )?.symbol || "S/."}{" "}
+                    {(form.watch("subtotal") || 0).toFixed(2)}
+                  </span>
+                </div>
+
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-muted-foreground">IGV (18%):</span>
+                  <span className="font-medium">
+                    {currencyTypes.find(
+                      (ct) => ct.id.toString() === watchedCurrencyTypeId
+                    )?.symbol || "S/."}{" "}
+                    {(form.watch("total_tax") || 0).toFixed(2)}
+                  </span>
+                </div>
+
+                <div className="border-t pt-2 mt-2"></div>
+
+                <div className="flex justify-between items-center">
+                  <span className="font-semibold">Importe Total:</span>
+                  <span className="font-bold text-lg text-primary">
+                    {currencyTypes.find(
+                      (ct) => ct.id.toString() === watchedCurrencyTypeId
+                    )?.symbol || "S/."}{" "}
+                    {(form.watch("total") || 0).toFixed(2)}
+                  </span>
+                </div>
               </div>
 
               {/* Mostrar tipo de cambio y equivalente en soles si la moneda es diferente a soles */}
@@ -466,23 +499,11 @@ export const PurchaseOrderProductsForm = ({
                     {exchangeRate && (
                       <>
                         <div className="flex justify-between items-center py-2 border-t mt-2 pt-2">
-                          <span className="text-xs text-muted-foreground">
+                          <span className="text-xs text-muted-foreground mt-2">
                             Tipo de cambio:
                           </span>
                           <span className="text-xs font-medium">
                             S/. {exchangeRate.toFixed(4).replace(/\.?0+$/, "")}
-                          </span>
-                        </div>
-
-                        <div className="flex justify-between items-center py-3 bg-green-50 px-3 rounded-md">
-                          <span className="font-semibold text-sm">
-                            Equivalente en Soles:
-                          </span>
-                          <span className="font-bold text-lg text-green-700">
-                            S/.{" "}
-                            {((form.watch("total") || 0) * exchangeRate)
-                              .toFixed(4)
-                              .replace(/\.?0+$/, "")}
                           </span>
                         </div>
                       </>

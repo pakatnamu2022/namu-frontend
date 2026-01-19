@@ -12,6 +12,8 @@ export interface OrderQuotationResponse {
 
 export interface OrderQuotationResource {
   id: number;
+  customer: string;
+  created_by_name: string;
   vehicle_id: number;
   vehicle: VehicleResource;
   quotation_number: string;

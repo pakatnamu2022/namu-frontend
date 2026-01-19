@@ -22,12 +22,12 @@ export default function OrderQuotationTable({
         data={data}
         isLoading={isLoading}
         initialColumnVisibility={{
-          full_name_client: true,
-          plate: true,
-          email_client: false,
-          phone_client: false,
-          date_appointment: true,
-          time_appointment: true,
+          quotation_number: true,
+          quotation_date: true,
+          expiration_date: true,
+          total_amount: true,
+          observations: false,
+          is_take: true,
         }}
       >
         {children}

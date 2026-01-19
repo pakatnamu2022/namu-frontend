@@ -1,39 +1,47 @@
 "use client";
 
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import {
   ArrowLeft,
   Wrench,
-  Calendar,
   ClipboardCheck,
   FolderOpen,
   Receipt,
   UserCog,
   Package,
   FileText,
+  Paperclip,
 } from "lucide-react";
 import FormSkeleton from "@/shared/components/FormSkeleton";
-import { findWorkOrderById } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.actions";
+import {
+  downloadPreLiquidationPdf,
+  findWorkOrderById,
+  updateWorkOrder,
+} from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.actions";
 import { WORKER_ORDER } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.constants";
 import LaborTab from "@/features/ap/post-venta/taller/orden-trabajo/components/tabs/LaborTab";
-import AppointmentTab from "@/features/ap/post-venta/taller/orden-trabajo/components/tabs/AppointmentTab";
 import ReceptionTab from "@/features/ap/post-venta/taller/orden-trabajo/components/tabs/ReceptionTab";
 import OpeningTab from "@/features/ap/post-venta/taller/orden-trabajo/components/tabs/OpeningTab";
 import BillingTab from "@/features/ap/post-venta/taller/orden-trabajo/components/tabs/BillingTab";
 import OperatorsTab from "@/features/ap/post-venta/taller/orden-trabajo/components/tabs/OperatorsTab";
 import PartsTab from "@/features/ap/post-venta/taller/orden-trabajo/components/tabs/PartsTab";
 import { WorkOrderProvider } from "@/features/ap/post-venta/taller/orden-trabajo/contexts/WorkOrderContext";
+import { WorkOrderQuotationSelectionModal } from "@/features/ap/post-venta/taller/orden-trabajo/components/WorkOrderQuotationSelectionModal";
 import { useParams, useNavigate } from "react-router-dom";
+import { successToast, errorToast } from "@/core/core.function";
 
 export default function ManageWorkOrderPage() {
   const params = useParams();
   const router = useNavigate();
+  const queryClient = useQueryClient();
   const id = Number(params.id);
-  const [activeTab, setActiveTab] = useState("appointment");
+  const [activeTab, setActiveTab] = useState("reception");
+  const [isQuotationModalOpen, setIsQuotationModalOpen] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   const { ABSOLUTE_ROUTE } = WORKER_ORDER;
 
@@ -43,6 +51,47 @@ export default function ManageWorkOrderPage() {
     queryFn: () => findWorkOrderById(id),
     enabled: !!id,
   });
+
+  // Mutación para adjuntar cotización
+  const attachQuotationMutation = useMutation({
+    mutationFn: (quotationId: number) =>
+      updateWorkOrder(id, {
+        vehicle_id: workOrder?.vehicle_id || "",
+        order_quotation_id: quotationId,
+      } as any),
+    onSuccess: () => {
+      successToast("Cotización adjuntada exitosamente a la orden de trabajo");
+      queryClient.invalidateQueries({
+        queryKey: ["workOrder", id],
+      });
+    },
+    onError: (error: any) => {
+      const msg = error?.response?.data?.message || "";
+      errorToast(msg || "Error al adjuntar la cotización");
+    },
+  });
+
+  const handleDownloadPdf = async () => {
+    if (!workOrder?.id) return;
+
+    try {
+      setIsDownloading(true);
+      await downloadPreLiquidationPdf(workOrder.id);
+      successToast("PDF descargado exitosamente");
+    } catch (error) {
+      console.error("Error al descargar PDF:", error);
+      errorToast("Error al descargar el PDF de la preliquidación");
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
+  const handleSelectQuotation = (quotationId: number) => {
+    attachQuotationMutation.mutate(quotationId);
+  };
+
+  // Verificar si ya tiene cotización adjuntada
+  const hasQuotation = workOrder?.order_quotation_id !== null;
 
   if (isLoading) {
     return <FormSkeleton />;
@@ -81,6 +130,28 @@ export default function ManageWorkOrderPage() {
             </div>
             <div className="flex items-center gap-4">
               <Button
+                onClick={handleDownloadPdf}
+                disabled={isDownloading}
+                size="sm"
+                className="gap-2"
+              >
+                <FileText className="h-4 w-4" />
+                {isDownloading ? "Generando..." : "Preliquidación"}
+              </Button>
+              {!hasQuotation && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsQuotationModalOpen(true)}
+                  className="gap-2"
+                  disabled={attachQuotationMutation.isPending}
+                >
+                  <Paperclip className="h-4 w-4" />
+                  <span className="hidden sm:inline">Adjuntar Cotización</span>
+                  <span className="sm:hidden">Cotización</span>
+                </Button>
+              )}
+              <Button
                 variant="outline"
                 size="sm"
                 onClick={() =>
@@ -112,14 +183,7 @@ export default function ManageWorkOrderPage() {
             className="w-full"
           >
             <div className="overflow-x-auto overflow-y-hidden scrollbar-hide -mx-6 px-6">
-              <TabsList className="inline-flex w-auto min-w-full lg:w-full lg:grid lg:grid-cols-8 gap-1">
-                <TabsTrigger
-                  value="appointment"
-                  className="flex items-center gap-2 whitespace-nowrap"
-                >
-                  <Calendar className="h-4 w-4 shrink-0" />
-                  <span>Cita</span>
-                </TabsTrigger>
+              <TabsList className="inline-flex w-auto min-w-full lg:w-full lg:grid lg:grid-cols-6 gap-1">
                 <TabsTrigger
                   value="reception"
                   className="flex items-center gap-2 whitespace-nowrap"
@@ -168,10 +232,6 @@ export default function ManageWorkOrderPage() {
             </div>
 
             <div className="mt-6">
-              <TabsContent value="appointment" className="space-y-4">
-                <AppointmentTab workOrderId={workOrder.id} />
-              </TabsContent>
-
               <TabsContent value="reception" className="space-y-4">
                 <ReceptionTab workOrderId={workOrder.id} />
               </TabsContent>
@@ -198,6 +258,14 @@ export default function ManageWorkOrderPage() {
             </div>
           </Tabs>
         </Card>
+
+        {/* Modal de selección de cotización */}
+        <WorkOrderQuotationSelectionModal
+          open={isQuotationModalOpen}
+          onOpenChange={setIsQuotationModalOpen}
+          onSelectQuotation={handleSelectQuotation}
+          vehicleId={workOrder?.vehicle_id}
+        />
       </div>
     </WorkOrderProvider>
   );

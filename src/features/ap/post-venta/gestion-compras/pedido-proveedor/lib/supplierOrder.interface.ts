@@ -39,6 +39,8 @@ export interface SupplierOrderResource {
   order_date: string;
   order_number: string;
   supply_type: string;
+  net_amount: number;
+  tax_amount: number;
   total_amount: number;
   is_take: boolean;
   has_invoice: boolean;
@@ -49,6 +51,14 @@ export interface SupplierOrderResource {
   type_currency?: CurrencyTypesResource;
   invoice?: VehiclePurchaseOrderResource;
   details: SupplierOrderDetailsResource[];
+  purchase_requests?: [
+    {
+      id: number;
+      request_number: string;
+      requested_by: number;
+      requested_by_name: string;
+    }
+  ];
 }
 
 export interface SupplierOrderDetailsRequest {
