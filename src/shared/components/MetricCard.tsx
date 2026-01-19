@@ -718,34 +718,36 @@ export function MetricCard({
     variant === "default"
       ? colorTextMap[color][colorIntensity]
       : colorValueMap[color];
+  const bgClassIcon = colorBgMap[color][colorIntensity];
 
   return (
     <Card
       className={cn(
-        "relative overflow-hidden",
+        "overflow-hidden",
         "@container/card",
         variant === "outline" && "bg-linear-to-br from-muted to-background",
         variant === "default" && bgClass,
         className,
       )}
     >
-      {Icon && (
-        <Icon
-          className={cn(
-            "absolute top-4 right-4 w-5 h-5",
-            valueClass,
-          )}
-        />
-      )}
       <CardHeader className="pb-2 pt-4 px-4">
-        <CardDescription
-          className={cn(
-            "line-clamp-1 font-semibold",
-            variant === "default" && textClass,
+        <div className="flex w-full justify-between items-center">
+          <CardDescription
+            className={cn(
+              "line-clamp-1 font-semibold",
+              variant === "default" && textClass,
+            )}
+          >
+            {title}
+          </CardDescription>
+
+          {Icon && (
+            <div className={cn("p-1 rounded-md", bgClassIcon)}>
+              <Icon className="w-4 h-4 text-white" />
+            </div>
           )}
-        >
-          {title}
-        </CardDescription>
+        </div>
+
         <CardTitle
           className={cn(
             "text-2xl font-semibold tabular-nums @[250px]/card:text-3xl mb-0",

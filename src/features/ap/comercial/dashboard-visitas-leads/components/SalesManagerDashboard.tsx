@@ -27,6 +27,8 @@ import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import PageWrapper from "@/shared/components/PageWrapper";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { UserCheck, UserCircle, UserMinus, Users, UserX } from "lucide-react";
+import { ButtonGroup } from "@/components/ui/button-group";
+import { Button } from "@/components/ui/button";
 
 // Obtener el primer y último día del mes pasado
 const getLastMonthRange = () => {
@@ -160,7 +162,7 @@ export default function SalesManagerDashboard() {
     <PageWrapper>
       {/* Header */}
       <TitleComponent
-        icon={"FileSignature"}
+        icon="FileSignature"
         title="Dashboard de Leads de Equipo de Ventas"
         subtitle={
           statsData
@@ -201,17 +203,24 @@ export default function SalesManagerDashboard() {
           className="w-[280px]"
         />
 
-        <SearchableSelect
-          options={[
-            { label: "Visitas", value: "VISITA" },
-            { label: "Leads", value: "LEADS" },
-          ]}
-          value={type}
-          onChange={(value) => setType(value as "VISITA" | "LEADS")}
-          placeholder="Tipo"
-          buttonSize="sm"
-          classNameDiv="min-w-[120px]"
-        />
+        <ButtonGroup>
+          <Button
+            size="sm"
+            color="muted"
+            variant={type === "LEADS" ? "default" : "outline"}
+            onClick={() => setType("LEADS")}
+          >
+            Leads
+          </Button>
+          <Button
+            size="sm"
+            color="muted"
+            variant={type === "VISITA" ? "default" : "outline"}
+            onClick={() => setType("VISITA")}
+          >
+            Visitas
+          </Button>
+        </ButtonGroup>
       </div>
 
       {/* Stats Overview */}
@@ -296,7 +305,7 @@ export default function SalesManagerDashboard() {
                   onAdvisorClick={handleAdvisorClick}
                 />
               </div>
-              
+
               {/* Charts */}
               <div className="space-y-6">
                 <SalesManagerStatsCards

@@ -244,7 +244,7 @@ export default function SalesManagerStatsCards({
         color: `hsl(var(--chart-${(index % 5) + 1}))`,
       };
       return acc;
-    },
+    },  
     { value: { label: "Cantidad" } } as ChartConfig,
   );
 
