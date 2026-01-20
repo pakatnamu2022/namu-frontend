@@ -26,7 +26,7 @@ export default function AddSupplierEstablishmentPage() {
   const router = useNavigate();
   const queryClient = useQueryClient();
   const { currentView, checkRouteExists } = useCurrentModule();
-  const { MODEL } = ESTABLISHMENTS;
+  const { MODEL, ABSOLUTE_ROUTE } = ESTABLISHMENTS;
 
   // Get customer data
   const { data: customer, isLoading: loadingCustomer } = useQuery({
@@ -42,7 +42,7 @@ export default function AddSupplierEstablishmentPage() {
       await queryClient.invalidateQueries({
         queryKey: [ESTABLISHMENTS.QUERY_KEY],
       });
-      router(`/ap/comercial/clientes/establecimientos/${id}`);
+      router(`${ABSOLUTE_ROUTE}/${id}`);
     },
     onError: (error: any) => {
       const msg = error?.response?.data?.message || "";
@@ -88,7 +88,7 @@ export default function AddSupplierEstablishmentPage() {
         isSubmitting={isPending}
         mode="create"
         businessPartnerId={Number(id)}
-        isCustomer={false}
+        onCancel={() => router(`${ABSOLUTE_ROUTE}/${id}`)}
       />
     </FormWrapper>
   );

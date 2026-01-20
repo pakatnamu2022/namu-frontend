@@ -1,6 +1,7 @@
 import { type ModelComplete } from "@/core/core.interface";
 import { CustomersResource } from "./customers.interface";
 
+// RUTA PARA COMERCIAL - CLIENTES
 const ROUTE = "clientes";
 const ABSOLUTE_ROUTE = `/ap/comercial/${ROUTE}`;
 
@@ -19,6 +20,8 @@ export const CUSTOMERS: ModelComplete<CustomersResource> = {
   ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/actualizar`,
 };
 
+// RUTA PARA TALLER - CLIENTES
+
 const ROUTE_PV = "clientes-post-venta";
 const ABSOLUTE_ROUTE_PV = `/ap/post-venta/taller/${ROUTE_PV}`;
 
@@ -35,4 +38,23 @@ export const CUSTOMERS_PV: ModelComplete<CustomersResource> = {
   ABSOLUTE_ROUTE: ABSOLUTE_ROUTE_PV,
   ROUTE_ADD: `${ABSOLUTE_ROUTE_PV}/agregar`,
   ROUTE_UPDATE: `${ABSOLUTE_ROUTE_PV}/actualizar`,
+};
+
+// RUTAS PARA REPUESTOS - CLIENTES
+const ROUTE_RP = "clientes-repuestos";
+const ABSOLUTE_ROUTE_RP = `/ap/post-venta/repuestos/${ROUTE_RP}`;
+
+export const CUSTOMERS_RP: ModelComplete<CustomersResource> = {
+  MODEL: {
+    name: "Cliente Repuestos",
+    plural: "Clientes Repuestos",
+    gender: false,
+  },
+  ICON: "ContactRound",
+  ENDPOINT: "/ap/commercial/businessPartners",
+  QUERY_KEY: "customers-rp",
+  ROUTE: ROUTE_RP,
+  ABSOLUTE_ROUTE: ABSOLUTE_ROUTE_RP,
+  ROUTE_ADD: `${ABSOLUTE_ROUTE_RP}/agregar`,
+  ROUTE_UPDATE: `${ABSOLUTE_ROUTE_RP}/actualizar`,
 };
