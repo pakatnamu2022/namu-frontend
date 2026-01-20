@@ -19,17 +19,19 @@ export interface OrderQuotationResource {
   quotation_number: string;
   subtotal: number;
   discount_percentage: number | null;
-  discount_amount: number | null;
+  discount_amount: number;
+  op_gravada: number;
   tax_amount: number | null;
   total_amount: number;
   validity_days: number | null;
   quotation_date: string;
   expiration_date: string;
+  collection_date: string;
   observations: string | null;
   details: OrderQuotationDetailsResource[];
   advances: ElectronicDocumentResource[];
   currency_id: number;
-  currency: CurrencyTypesResource;
+  type_currency: CurrencyTypesResource;
   created_at: string;
   updated_at: string;
   area_id: number | null;
@@ -41,6 +43,7 @@ export interface OrderQuotationResource {
   customer_signature: string | null;
   has_sufficient_stock: boolean;
   supply_type: "STOCK" | "LIMA" | "IMPORTACION";
+  exchange_rate: number;
 }
 
 export interface OrderQuotationRequest {

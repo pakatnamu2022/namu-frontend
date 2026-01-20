@@ -70,6 +70,9 @@ export default function UpdateOrderQuotationMesonPage() {
     expiration_date: quotation.expiration_date
       ? new Date(quotation.expiration_date)
       : "",
+    collection_date: quotation.collection_date
+      ? new Date(quotation.collection_date)
+      : "",
     observations: quotation.observations || "",
     currency_id: quotation.currency_id?.toString() || "",
     supply_type: quotation.supply_type || "STOCK",
@@ -82,7 +85,7 @@ export default function UpdateOrderQuotationMesonPage() {
           quantity: Number(detail.quantity) || 0,
           unit_measure: detail.unit_measure || "",
           unit_price: Number(detail.unit_price) || 0,
-          discount: Number(detail.discount) || 0,
+          discount_percentage: Number(detail.discount_percentage) || 0,
           total_amount: Number(detail.total_amount) || 0,
           observations: detail.observations || "",
           retail_price_external: Number(detail.retail_price_external) || 0,

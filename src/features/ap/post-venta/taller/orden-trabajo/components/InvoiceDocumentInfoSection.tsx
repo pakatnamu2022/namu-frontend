@@ -107,13 +107,13 @@ export function InvoiceDocumentInfoSection({
     if (!selectedCustomer) return;
 
     const currentDocumentTypeId = form.getValues(
-      "sunat_concept_document_type_id"
+      "sunat_concept_document_type_id",
     );
 
     // Si hay un tipo de documento seleccionado, verificar si sigue siendo válido
     if (currentDocumentTypeId) {
       const isValid = filteredDocumentTypes.some(
-        (type) => type.id.toString() === currentDocumentTypeId
+        (type) => type.id.toString() === currentDocumentTypeId,
       );
 
       // Si el tipo de documento actual no es válido, limpiarlo
@@ -131,7 +131,7 @@ export function InvoiceDocumentInfoSection({
     // Si hay una serie seleccionada, verificar si sigue siendo válida
     if (currentSerieId) {
       const isValid = filteredSeries.some(
-        (series) => series.id.toString() === currentSerieId
+        (series) => series.id.toString() === currentSerieId,
       );
 
       // Si la serie actual no es válida, limpiarla
@@ -213,6 +213,7 @@ export function InvoiceDocumentInfoSection({
         description="Seleccione la moneda del documento"
         placeholder="Seleccionar moneda"
         required
+        disabled
       />
 
       <DatePickerFormField
@@ -222,11 +223,7 @@ export function InvoiceDocumentInfoSection({
         placeholder="Seleccione fecha"
         description="Seleccione la fecha de emisión del documento"
         disabledRange={{
-          before: new Date(
-            new Date().getFullYear(),
-            new Date().getMonth(),
-            1
-          ),
+          before: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
           after: new Date(),
         }}
       />

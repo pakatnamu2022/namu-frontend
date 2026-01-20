@@ -190,7 +190,7 @@ export default function ReceptionsProductsCards({
                           "dd/MM/yyyy",
                           {
                             locale: es,
-                          }
+                          },
                         )
                       : "-"}
                   </p>
@@ -344,13 +344,9 @@ export default function ReceptionsProductsCards({
 
               {/* Total items */}
               {reception.total_items !== undefined && (
-                <div
-                  className={`flex items-center ${
-                    isSingleCard ? "flex-col items-start" : "gap-2"
-                  } text-sm`}
-                >
+                <div className="flex items-start gap-2 text-sm">
                   {isSingleCard && (
-                    <Package className="size-4 text-muted-foreground mb-2" />
+                    <Package className="size-4 text-muted-foreground shrink-0 mt-0.5" />
                   )}
                   <div className="flex-1">
                     <p
@@ -512,7 +508,7 @@ export default function ReceptionsProductsCards({
                                   <p className="text-yellow-700 text-xs">
                                     Razón:{" "}
                                     {translateReasonObservation(
-                                      detail.reason_observation
+                                      detail.reason_observation,
                                     )}
                                   </p>
                                 )}
@@ -550,7 +546,7 @@ export default function ReceptionsProductsCards({
                                   "dd/MM/yyyy",
                                   {
                                     locale: es,
-                                  }
+                                  },
                                 )}
                               </span>
                             </div>

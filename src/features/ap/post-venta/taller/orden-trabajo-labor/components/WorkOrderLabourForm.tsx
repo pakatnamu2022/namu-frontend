@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
@@ -14,13 +14,16 @@ import {
 import { useGetConsolidatedWorkers } from "../../planificacion-orden-trabajo/lib/workOrderPlanning.hook";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { FormInput } from "@/shared/components/FormInput";
-import { FormInputText } from "@/shared/components/FormInputText";
+import { FormCombobox } from "@/shared/components/FormCombobox";
+import { WorkOrderItemResource } from "../../orden-trabajo-item/lib/workOrderItem.interface";
 
 interface WorkOrderLabourFormProps {
   workOrderId: number;
   groupNumber: number;
   onSuccess: () => void;
   onCancel: () => void;
+  workOrderItems?: WorkOrderItemResource[];
+  currencySymbol?: string;
 }
 
 export default function WorkOrderLabourForm({
@@ -28,6 +31,8 @@ export default function WorkOrderLabourForm({
   groupNumber,
   onSuccess,
   onCancel,
+  workOrderItems = [],
+  currencySymbol = "S/",
 }: WorkOrderLabourFormProps) {
   const storeMutation = useStoreWorkOrderLabour();
 
@@ -46,6 +51,15 @@ export default function WorkOrderLabourForm({
     data: consolidatedWorkers = [],
     isLoading: isLoadingConsolidatedWorkers,
   } = useGetConsolidatedWorkers(workOrderId);
+
+  // Crear opciones de descripción a partir de los items de la orden de trabajo
+  const descriptionOptions = useMemo(() => {
+    return workOrderItems.map((item) => ({
+      label: item.description,
+      value: item.description,
+      description: item.type_planning_name,
+    }));
+  }, [workOrderItems]);
 
   // Auto-seleccionar el operario si solo hay uno disponible
   useEffect(() => {
@@ -75,12 +89,13 @@ export default function WorkOrderLabourForm({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
-        <FormInputText
+        <FormCombobox
           name="description"
           label="Descripción"
-          placeholder="Describa el trabajo realizado..."
-          rows={3}
+          placeholder="Seleccione o escriba una descripción..."
+          options={descriptionOptions}
           control={form.control}
+          allowCreate={true}
         />
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -93,7 +108,7 @@ export default function WorkOrderLabourForm({
 
           <FormInput
             name="hourly_rate"
-            label="Tarifa/Hora (S/)"
+            label={`Tarifa/Hora (${currencySymbol})`}
             placeholder="Ej: 50.00"
             control={form.control}
           />

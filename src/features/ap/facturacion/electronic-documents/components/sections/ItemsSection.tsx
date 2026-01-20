@@ -28,6 +28,7 @@ interface ItemsSectionProps {
   isAdvancePayment?: boolean;
   maxAdvanceAmount?: number;
   isFromQuotation?: boolean;
+  showActions?: boolean;
 }
 
 export function ItemsSection({
@@ -38,6 +39,7 @@ export function ItemsSection({
   isAdvancePayment = false,
   maxAdvanceAmount,
   isFromQuotation = false,
+  showActions = true,
 }: ItemsSectionProps) {
   const { data: accountPlans } = useAllAccountingAccountPlan();
 
@@ -308,6 +310,7 @@ export function ItemsSection({
           onRemoveItem={removeItem}
           onEditItem={editItem}
           isAdvancePayment={isAdvancePayment}
+          showActions={showActions}
         />
       </GroupFormSection>
 

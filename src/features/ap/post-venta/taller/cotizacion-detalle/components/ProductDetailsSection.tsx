@@ -45,6 +45,8 @@ interface ProductDetailsSectionProps {
   isLoadingDetails: boolean;
   onRefresh: () => Promise<void>;
   onDelete: (id: number) => Promise<void>;
+  currencySymbol: string;
+  currencyId: number;
 }
 
 export default function ProductDetailsSection({
@@ -54,6 +56,8 @@ export default function ProductDetailsSection({
   isLoadingDetails,
   onRefresh,
   onDelete,
+  currencySymbol,
+  currencyId,
 }: ProductDetailsSectionProps) {
   const [isSaving, setIsSaving] = useState(false);
   const [exchangeRate, setExchangeRate] = useState<number | null>(null);
@@ -100,7 +104,7 @@ export default function ProductDetailsSection({
       try {
         const formattedDate = format(new Date(quotationDate), "yyyy-MM-dd");
         const response = await api.get(
-          `/gp/mg/exchange-rate/by-date-and-currency?to_currency_id=${CURRENCY_TYPE_IDS.DOLLARS}&date=${formattedDate}`
+          `/gp/mg/exchange-rate/by-date-and-currency?to_currency_id=${CURRENCY_TYPE_IDS.DOLLARS}&date=${formattedDate}`,
         );
 
         if (response.data?.data?.rate) {
@@ -120,17 +124,29 @@ export default function ProductDetailsSection({
     fetchExchangeRate();
   }, [quotationDate, form]);
 
+  // Verificar si la cotización está en dólares
+  const isInDollars = currencyId === Number(CURRENCY_TYPE_IDS.DOLLARS);
+
   // Calcular automáticamente el precio unitario
-  // Fórmula: unit_price = retail_price_external * freight_commission * tipo_cambio (redondeado a 2 decimales)
+  // Si la cotización está en dólares: unit_price = retail_price_external * freight_commission
+  // Si la cotización está en soles: unit_price = retail_price_external * freight_commission * tipo_cambio
   useEffect(() => {
     const retail = retailPriceExternal || 0;
     const comision = comisionFlete || 1.05;
-    const tipoCambio = exchangeRate || 1;
 
-    const calculatedUnitPrice =
-      Math.round(retail * comision * tipoCambio * 100) / 100;
+    let calculatedUnitPrice: number;
+    if (isInDollars) {
+      // En dólares: solo precio externo * comisión de flete
+      calculatedUnitPrice = Math.round(retail * comision * 100) / 100;
+    } else {
+      // En soles: precio externo * comisión de flete * tipo de cambio
+      const tipoCambio = exchangeRate || 1;
+      calculatedUnitPrice =
+        Math.round(retail * comision * tipoCambio * 100) / 100;
+    }
+
     form.setValue("unit_price", calculatedUnitPrice);
-  }, [retailPriceExternal, comisionFlete, exchangeRate, form]);
+  }, [retailPriceExternal, comisionFlete, exchangeRate, form, isInDollars]);
 
   const onSubmit = async (data: ProductDetailSchema) => {
     try {
@@ -173,7 +189,7 @@ export default function ProductDetailsSection({
 
   const formatCurrency = (amount: string | number | null | undefined) => {
     const value = Number(amount) || 0;
-    return `S/. ${value.toFixed(2)}`;
+    return `${currencySymbol} ${value.toFixed(2)}`;
   };
 
   const productDetails = details.filter((d) => d.item_type === "PRODUCT");
@@ -190,25 +206,30 @@ export default function ProductDetailsSection({
           {/* Mensaje de tipo de cambio y comisión */}
           <div className="bg-blue-50 border border-blue-200 rounded-md px-3 py-2 space-y-1">
             <p className="text-xs text-primary">
+              <span className="font-semibold">Moneda de cotización:</span>{" "}
+              {currencySymbol}
+            </p>
+            <p className="text-xs text-primary">
               <span className="font-semibold">Comisión de flete:</span>{" "}
               {comisionFlete || 1.05}
             </p>
-            {isLoadingExchangeRate ? (
-              <p className="text-xs text-primary">
-                <span className="font-semibold">Tipo de cambio:</span>{" "}
-                Cargando...
-              </p>
-            ) : exchangeRate ? (
-              <p className="text-xs text-primary">
-                <span className="font-semibold">Tipo de cambio:</span> S/.{" "}
-                {exchangeRate.toFixed(4)}
-              </p>
-            ) : (
-              <p className="text-xs text-red-600">
-                <span className="font-semibold">Tipo de cambio:</span> No
-                disponible
-              </p>
-            )}
+            {!isInDollars &&
+              (isLoadingExchangeRate ? (
+                <p className="text-xs text-primary">
+                  <span className="font-semibold">Tipo de cambio:</span>{" "}
+                  Cargando...
+                </p>
+              ) : exchangeRate ? (
+                <p className="text-xs text-primary">
+                  <span className="font-semibold">Tipo de cambio:</span> S/.{" "}
+                  {exchangeRate.toFixed(4)}
+                </p>
+              ) : (
+                <p className="text-xs text-red-600">
+                  <span className="font-semibold">Tipo de cambio:</span> No
+                  disponible
+                </p>
+              ))}
           </div>
 
           {/* Primera fila: Repuesto y Precio Externo */}
@@ -221,7 +242,7 @@ export default function ProductDetailsSection({
                 control={form.control}
                 useQueryHook={useProduct}
                 mapOptionFn={(product) => ({
-                  label: product.name,
+                  label: `${product.code} - ${product.name}`,
                   value: product.id.toString(),
                 })}
                 perPage={10}
@@ -464,7 +485,7 @@ export default function ProductDetailsSection({
                       <div>
                         <span className="text-gray-500">Descuento:</span>
                         <span className="ml-1 font-medium text-orange-600">
-                          -{formatCurrency(detail.discount)}
+                          -{formatCurrency(detail.discount_percentage)}
                         </span>
                       </div>
                       <div className="text-right">

@@ -82,7 +82,7 @@ export const SupplierOrderForm = ({
 }: SupplierOrderFormProps) => {
   const form = useForm({
     resolver: zodResolver(
-      mode === "create" ? supplierOrderSchemaCreate : supplierOrderSchemaUpdate
+      mode === "create" ? supplierOrderSchemaCreate : supplierOrderSchemaUpdate,
     ),
     defaultValues: {
       ...defaultValues,
@@ -91,6 +91,7 @@ export const SupplierOrderForm = ({
     },
     mode: "onChange",
   });
+  console.log("Default Values:", SupplierOrderData);
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
@@ -114,7 +115,7 @@ export const SupplierOrderForm = ({
   const [exchangeRateError, setExchangeRateError] = useState<string>("");
   const [isLoadingExchangeRate, setIsLoadingExchangeRate] = useState(false);
   const [addedRequestDetailIds, setAddedRequestDetailIds] = useState<number[]>(
-    []
+    [],
   );
   // Mapa que relaciona cada product_id con sus request_detail_ids originales
   const [productRequestMap, setProductRequestMap] = useState<
@@ -150,7 +151,7 @@ export const SupplierOrderForm = ({
     try {
       const formattedDate = format(date, "yyyy-MM-dd");
       const response = await api.get(
-        `/gp/mg/exchange-rate/by-date-and-currency?to_currency_id=${currencyId}&date=${formattedDate}`
+        `/gp/mg/exchange-rate/by-date-and-currency?to_currency_id=${currencyId}&date=${formattedDate}`,
       );
 
       if (response.data?.data?.rate) {
@@ -210,7 +211,7 @@ export const SupplierOrderForm = ({
     if (associatedRequestIds.length > 0) {
       // Remover TODOS los request_detail_ids asociados a este producto
       setAddedRequestDetailIds((prev) =>
-        prev.filter((id) => !associatedRequestIds.includes(id))
+        prev.filter((id) => !associatedRequestIds.includes(id)),
       );
 
       // Limpiar el mapeo de este producto
@@ -228,7 +229,7 @@ export const SupplierOrderForm = ({
   const handleAddFromRequest = (requestDetail: any) => {
     const productId = requestDetail.product_id.toString();
     const existingItemIndex = fields.findIndex(
-      (item: any) => item.product_id === productId
+      (item: any) => item.product_id === productId,
     );
 
     if (existingItemIndex !== -1) {
@@ -242,7 +243,7 @@ export const SupplierOrderForm = ({
       if (requestDetail.unit_measurement_id) {
         form.setValue(
           `details.${existingItemIndex}.unit_measurement_id`,
-          requestDetail.unit_measurement_id.toString()
+          requestDetail.unit_measurement_id.toString(),
         );
       }
 
@@ -255,7 +256,7 @@ export const SupplierOrderForm = ({
         form.setValue(
           `details.${existingItemIndex}.unit_price`,
           calculatedPrice,
-          { shouldValidate: false }
+          { shouldValidate: false },
         );
       }
 
@@ -307,7 +308,7 @@ export const SupplierOrderForm = ({
     } catch (error: any) {
       toast.error(
         error.response?.data?.message ||
-          "Error al descartar la solicitud de compra"
+          "Error al descartar la solicitud de compra",
       );
     } finally {
       // Limpiar el estado y cerrar el diálogo
@@ -340,7 +341,7 @@ export const SupplierOrderForm = ({
   // Calcular el valor neto (suma de los items sin IGV)
   const netValue = watchedDetails?.reduce(
     (sum, detail) => sum + (Number(detail?.total) || 0),
-    0
+    0,
   );
 
   // Calcular IGV sobre el valor neto
@@ -354,7 +355,7 @@ export const SupplierOrderForm = ({
   const availablePurchaseRequests =
     (selectedWarehouseId &&
       purcheseRequestDetailsPending?.data?.filter(
-        (detail: any) => !addedRequestDetailIds.includes(detail.id)
+        (detail: any) => !addedRequestDetailIds.includes(detail.id),
       )) ||
     [];
 
@@ -446,7 +447,7 @@ export const SupplierOrderForm = ({
                       SupplierOrderData?.supplier_id
                         ? {
                             value: SupplierOrderData.supplier_id.toString(),
-                            label: "Proveedor cargado",
+                            label: SupplierOrderData.supplier!.full_name,
                           }
                         : undefined
                     }
@@ -535,7 +536,7 @@ export const SupplierOrderForm = ({
                         </span>
                         <span className="font-medium">
                           {currencyTypes.find(
-                            (ct) => ct.id.toString() === watchedCurrencyTypeId
+                            (ct) => ct.id.toString() === watchedCurrencyTypeId,
                           )?.symbol || "S/."}{" "}
                           {(netValue || 0).toFixed(2)}
                         </span>
@@ -547,7 +548,7 @@ export const SupplierOrderForm = ({
                         </span>
                         <span className="font-medium">
                           {currencyTypes.find(
-                            (ct) => ct.id.toString() === watchedCurrencyTypeId
+                            (ct) => ct.id.toString() === watchedCurrencyTypeId,
                           )?.symbol || "S/."}{" "}
                           {(igvAmount || 0).toFixed(2)}
                         </span>
@@ -559,7 +560,7 @@ export const SupplierOrderForm = ({
                         <span className="font-semibold">Importe Total:</span>
                         <span className="font-bold text-lg text-primary">
                           {currencyTypes.find(
-                            (ct) => ct.id.toString() === watchedCurrencyTypeId
+                            (ct) => ct.id.toString() === watchedCurrencyTypeId,
                           )?.symbol || "S/."}{" "}
                           {(grandTotal || 0).toFixed(2)}
                         </span>
@@ -652,7 +653,7 @@ export const SupplierOrderForm = ({
                           {fields.map((field, index) => {
                             const unitPrice =
                               Number(
-                                form.watch(`details.${index}.unit_price`)
+                                form.watch(`details.${index}.unit_price`),
                               ) || 0;
                             const itemTotal =
                               Number(form.watch(`details.${index}.total`)) || 0;
@@ -673,7 +674,7 @@ export const SupplierOrderForm = ({
                                     control={form.control}
                                     useQueryHook={useProduct}
                                     mapOptionFn={(
-                                      product: ProductResource
+                                      product: ProductResource,
                                     ) => ({
                                       value: product.id.toString(),
                                       label: `${product.name} - ${product.code}`,
@@ -687,7 +688,7 @@ export const SupplierOrderForm = ({
                                       ) {
                                         form.setValue(
                                           `details.${index}.unit_measurement_id`,
-                                          selectedProduct.unit_measurement_id.toString()
+                                          selectedProduct.unit_measurement_id.toString(),
                                         );
                                       }
                                     }}
@@ -700,7 +701,7 @@ export const SupplierOrderForm = ({
                                     control={form.control}
                                     useQueryHook={useUnitMeasurement}
                                     mapOptionFn={(
-                                      unit: UnitMeasurementResource
+                                      unit: UnitMeasurementResource,
                                     ) => ({
                                       value: unit.id.toString(),
                                       label: unit.description,
@@ -725,10 +726,10 @@ export const SupplierOrderForm = ({
                                             value={field.value ?? ""}
                                             onChange={(e) => {
                                               const num = parseFloat(
-                                                e.target.value
+                                                e.target.value,
                                               );
                                               field.onChange(
-                                                isNaN(num) ? "" : num
+                                                isNaN(num) ? "" : num,
                                               );
 
                                               // Calcular precio unitario inmediatamente
@@ -736,17 +737,17 @@ export const SupplierOrderForm = ({
                                                 const total =
                                                   Number(
                                                     form.getValues(
-                                                      `details.${index}.total`
-                                                    )
+                                                      `details.${index}.total`,
+                                                    ),
                                                   ) || 0;
                                                 const calculatedPrice =
                                                   Math.round(
-                                                    (total / num) * 10000
+                                                    (total / num) * 10000,
                                                   ) / 10000;
                                                 form.setValue(
                                                   `details.${index}.unit_price`,
                                                   calculatedPrice,
-                                                  { shouldValidate: false }
+                                                  { shouldValidate: false },
                                                 );
                                               }
                                             }}
@@ -778,10 +779,10 @@ export const SupplierOrderForm = ({
                                             value={field.value ?? ""}
                                             onChange={(e) => {
                                               const num = parseFloat(
-                                                e.target.value
+                                                e.target.value,
                                               );
                                               field.onChange(
-                                                isNaN(num) ? "" : num
+                                                isNaN(num) ? "" : num,
                                               );
 
                                               // Calcular precio unitario inmediatamente
@@ -789,17 +790,17 @@ export const SupplierOrderForm = ({
                                                 const quantity =
                                                   Number(
                                                     form.getValues(
-                                                      `details.${index}.quantity`
-                                                    )
+                                                      `details.${index}.quantity`,
+                                                    ),
                                                   ) || 1;
                                                 const calculatedPrice =
                                                   Math.round(
-                                                    (num / quantity) * 10000
+                                                    (num / quantity) * 10000,
                                                   ) / 10000;
                                                 form.setValue(
                                                   `details.${index}.unit_price`,
                                                   calculatedPrice,
-                                                  { shouldValidate: false }
+                                                  { shouldValidate: false },
                                                 );
                                               }
                                             }}
@@ -868,8 +869,8 @@ export const SupplierOrderForm = ({
                 !form.formState.isValid ||
                 Boolean(
                   watchedCurrencyTypeId &&
-                    watchedCurrencyTypeId !== CURRENCY_TYPE_IDS.SOLES &&
-                    !exchangeRate
+                  watchedCurrencyTypeId !== CURRENCY_TYPE_IDS.SOLES &&
+                  !exchangeRate,
                 )
               }
             >

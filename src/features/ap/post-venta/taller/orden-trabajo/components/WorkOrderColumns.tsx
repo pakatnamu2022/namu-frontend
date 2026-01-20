@@ -134,18 +134,14 @@ export const workOrderColumns = ({
     },
   },
   {
+    accessorKey: "status.description",
+    header: "Estado",
+  },
+  {
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
       const { id, is_inspection_completed } = row.original;
-
-      // const handleDownloadPdf = async () => {
-      //   try {
-      //     await downloadWorkOrderPdf(id);
-      //   } catch {
-      //     errorToast("Error al descargar el PDF");
-      //   }
-      // };
 
       return (
         <div className="flex items-center gap-2">
@@ -172,26 +168,6 @@ export const workOrderColumns = ({
               <Settings className="size-5" />
             </Button>
           )}
-
-          {/* <Button
-            variant="outline"
-            size="icon"
-            className="size-7"
-            onClick={handleDownloadPdf}
-            tooltip="PDF"
-          >
-            <Download className="size-5" />
-          </Button> */}
-
-          {/* <Button
-            variant="outline"
-            size="icon"
-            className="size-7"
-            onClick={() => onRequestParts(id)}
-            tooltip="Solicitar Repuestos"
-          >
-            <Package className="size-5" />
-          </Button> */}
 
           {permissions.canUpdate && (
             <Button

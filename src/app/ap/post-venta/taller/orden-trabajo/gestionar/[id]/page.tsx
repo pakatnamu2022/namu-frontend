@@ -109,26 +109,39 @@ export default function ManageWorkOrderPage() {
     <WorkOrderProvider>
       <div className="space-y-6">
         {/* Header */}
-        <Card className="p-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => router(ABSOLUTE_ROUTE)}
-              >
-                <ArrowLeft className="h-5 w-5" />
-              </Button>
-              <div>
-                <h1 className="text-2xl font-bold">
-                  Gestión de Orden de Trabajo
-                </h1>
-                <p className="text-sm text-gray-600 mt-1 font-bold">
-                  #: {workOrder.correlative} - Placa: {workOrder.vehicle_plate}
-                </p>
+        <Card className="p-4 sm:p-6">
+          <div className="flex flex-col gap-4">
+            {/* Primera fila: Botón volver, título y estado */}
+            <div className="flex items-start sm:items-center justify-between gap-3">
+              <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => router(ABSOLUTE_ROUTE)}
+                  className="shrink-0"
+                >
+                  <ArrowLeft className="h-5 w-5" />
+                </Button>
+                <div className="min-w-0">
+                  <h1 className="text-lg sm:text-2xl font-bold truncate">
+                    Gestión de Orden de Trabajo
+                  </h1>
+                  <p className="text-xs sm:text-sm text-gray-600 mt-1 font-bold truncate">
+                    #: {workOrder.correlative} - Placa:{" "}
+                    {workOrder.vehicle_plate}
+                  </p>
+                </div>
+              </div>
+              <div className="shrink-0 flex flex-col items-end">
+                <span className="text-xs text-gray-500 mb-1">Estado</span>
+                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800 whitespace-nowrap">
+                  {workOrder.status.description}
+                </span>
               </div>
             </div>
-            <div className="flex items-center gap-4">
+
+            {/* Segunda fila: Botones de acción */}
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
               <Button
                 onClick={handleDownloadPdf}
                 disabled={isDownloading}
@@ -136,7 +149,12 @@ export default function ManageWorkOrderPage() {
                 className="gap-2"
               >
                 <FileText className="h-4 w-4" />
-                {isDownloading ? "Generando..." : "Preliquidación"}
+                <span className="hidden sm:inline">
+                  {isDownloading ? "Generando..." : "Preliquidación"}
+                </span>
+                <span className="sm:hidden">
+                  {isDownloading ? "..." : "Preliq."}
+                </span>
               </Button>
               {!hasQuotation && (
                 <Button
@@ -156,21 +174,15 @@ export default function ManageWorkOrderPage() {
                 size="sm"
                 onClick={() =>
                   router(
-                    `/ap/post-venta/taller/orden-trabajo/gestionar/${id}/informacion-general`
+                    `/ap/post-venta/taller/orden-trabajo/gestionar/${id}/informacion-general`,
                   )
                 }
                 className="gap-2"
               >
                 <FileText className="h-4 w-4" />
                 <span className="hidden sm:inline">Información General</span>
-                <span className="sm:hidden">Info</span>
+                <span className="sm:hidden">Info. Gen.</span>
               </Button>
-              <div className="text-right">
-                <p className="text-sm text-gray-600">Estado</p>
-                <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
-                  ID: {workOrder.status_id}
-                </span>
-              </div>
             </div>
           </div>
         </Card>

@@ -147,7 +147,7 @@ function BillingSheetContent({
   const advances = orderQuotation.advances || [];
   const hasAdvances = advances.length > 0;
   const totalAdvances = advances.reduce((sum, doc) => sum + doc.total, 0);
-  const currencySymbol = orderQuotation.currency?.symbol || "S/.";
+  const currencySymbol = orderQuotation.type_currency?.symbol || "S/.";
 
   // Verificar si debe mostrar la sección de firma
   const shouldShowSignature =
@@ -178,7 +178,7 @@ function BillingSheetContent({
     onError: (error: any) => {
       errorToast(
         error?.response?.data?.message ||
-          "Error al registrar la firma. Intente nuevamente."
+          "Error al registrar la firma. Intente nuevamente.",
       );
     },
   });
@@ -295,7 +295,7 @@ function BillingSheetContent({
                       day: "2-digit",
                       month: "2-digit",
                       year: "numeric",
-                    }
+                    },
                   )
                 : "N/A"}
             </p>
@@ -310,7 +310,7 @@ function BillingSheetContent({
                       day: "2-digit",
                       month: "2-digit",
                       year: "numeric",
-                    }
+                    },
                   )
                 : "N/A"}
             </p>
@@ -318,7 +318,7 @@ function BillingSheetContent({
           <div>
             <p className="text-xs text-muted-foreground">Moneda</p>
             <Badge variant="outline">
-              {orderQuotation.currency?.name || "N/A"}
+              {orderQuotation.type_currency?.name || "N/A"}
             </Badge>
           </div>
           {orderQuotation.observations && (
@@ -345,7 +345,8 @@ function BillingSheetContent({
                 <TableHead>Descripción</TableHead>
                 <TableHead className="text-center">Cantidad</TableHead>
                 <TableHead className="text-right">P. Unitario</TableHead>
-                <TableHead className="text-right">Subtotal</TableHead>
+                <TableHead className="text-right">% Dto.</TableHead>
+                <TableHead className="text-right">Neto</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -368,6 +369,16 @@ function BillingSheetContent({
                       {Number(detail.unit_price).toLocaleString("es-PE", {
                         minimumFractionDigits: 2,
                       })}
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="text-sm font-medium">
+                      {Number(detail.discount_percentage).toLocaleString(
+                        "es-PE",
+                        {
+                          minimumFractionDigits: 2,
+                        },
+                      )}
                     </div>
                   </TableCell>
                   <TableCell className="text-right">
@@ -395,24 +406,26 @@ function BillingSheetContent({
               })}
             </span>
           </div>
-          {orderQuotation.discount_amount &&
-            orderQuotation.discount_amount > 0 && (
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">
-                  Descuento ({orderQuotation.discount_percentage}%)
-                </span>
-                <span className="font-medium text-red-600">
-                  - {currencySymbol}{" "}
-                  {orderQuotation.discount_amount.toLocaleString("es-PE", {
-                    minimumFractionDigits: 2,
-                  })}
-                </span>
-              </div>
-            )}
           <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">
-              IGV ({orderQuotation.tax_amount}%)
+            <span className="text-muted-foreground">Descuento</span>
+            <span className="font-medium">
+              {currencySymbol}{" "}
+              {orderQuotation.discount_amount.toLocaleString("es-PE", {
+                minimumFractionDigits: 2,
+              })}
             </span>
+          </div>
+          <div className="flex justify-between text-sm">
+            <span className="text-muted-foreground">OP. Gravadas</span>
+            <span className="font-medium">
+              {currencySymbol}{" "}
+              {orderQuotation.op_gravada.toLocaleString("es-PE", {
+                minimumFractionDigits: 2,
+              })}
+            </span>
+          </div>
+          <div className="flex justify-between text-sm">
+            <span className="text-muted-foreground">IGV (18%)</span>
             <span className="font-medium">
               {currencySymbol}{" "}
               {(
@@ -472,6 +485,7 @@ function BillingSheetContent({
                     <TableHead>Tipo</TableHead>
                     <TableHead>Cliente</TableHead>
                     <TableHead>Fecha Emisión</TableHead>
+                    <TableHead>Observaciones</TableHead>
                     <TableHead>Estado</TableHead>
                     <TableHead className="text-right">Monto</TableHead>
                   </TableRow>
@@ -518,8 +532,13 @@ function BillingSheetContent({
                                 day: "2-digit",
                                 month: "2-digit",
                                 year: "numeric",
-                              }
+                              },
                             )}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="text-sm text-muted-foreground max-w-[200px]">
+                            {doc.observaciones || "-"}
                           </div>
                         </TableCell>
                         <TableCell>
@@ -532,7 +551,7 @@ function BillingSheetContent({
                           </Badge>
                         </TableCell>
                         <TableCell className="text-right">
-                          <div className="font-semibold">
+                          <div className="font-semibold w-20">
                             {currencySymbol}{" "}
                             {doc.total.toLocaleString("es-PE", {
                               minimumFractionDigits: 2,
@@ -575,7 +594,7 @@ function BillingSheetContent({
                     "es-PE",
                     {
                       minimumFractionDigits: 2,
-                    }
+                    },
                   )}
                 </span>
               </div>

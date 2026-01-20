@@ -19,7 +19,7 @@ export interface OrderQuotationDetailsResource {
   freight_commission: number;
   exchange_rate: number;
   unit_price: number;
-  discount: number;
+  discount_percentage: number;
   total_amount: number;
   observations: string | null;
   product: ProductResource | null;

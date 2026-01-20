@@ -54,7 +54,7 @@ export function OrderQuotationSummarySection({
 
   // Obtener el cliente seleccionado solo por ID (eficiente, sin traer 2000+ clientes)
   const { data: selectedCustomerFromApi } = useCustomersById(
-    clientId ? Number(clientId) : 0
+    clientId ? Number(clientId) : 0,
   );
 
   // Usar el cliente de la API si existe, sino usar el owner de la cotización como fallback
@@ -63,7 +63,7 @@ export function OrderQuotationSummarySection({
   // Verificar si hay anticipos reales (is_advance_payment = true)
   // Si solo hay "advances" con is_advance_payment = false, son ventas internas completas, NO anticipos
   const hasRealAdvancePayments = advancePayments.some(
-    (advance) => advance.is_advance_payment === true
+    (advance) => advance.is_advance_payment === true,
   );
 
   // Calcular el saldo pendiente para determinar si ya está completado
@@ -166,7 +166,7 @@ export function OrderQuotationSummarySection({
               IGV: {porcentaje_de_igv}%
             </p>
             <p className="text-xs text-muted-foreground">
-              Las cotizaciones ya incluyen IGV en los precios de los repuestos.
+              El IGV se calcula sobre el subtotal de la cotización.
             </p>
           </div>
 
@@ -192,7 +192,7 @@ export function OrderQuotationSummarySection({
                   const isNegative =
                     isAdvanceRegularization &&
                     advancePayments.find(
-                      (ap) => ap.id === Number(item.reference_document_id)
+                      (ap) => ap.id === Number(item.reference_document_id),
                     )?.sunat_concept_document_type_id !==
                       SUNAT_TYPE_INVOICES_ID.NOTA_CREDITO;
 
@@ -329,10 +329,10 @@ export function OrderQuotationSummarySection({
               {isPending
                 ? "Guardando..."
                 : isEdit
-                ? "Actualizar Documento"
-                : form.watch("enviar_automaticamente_a_la_sunat")
-                ? "Guardar y Enviar a SUNAT"
-                : "Guardar Documento"}
+                  ? "Actualizar Documento"
+                  : form.watch("enviar_automaticamente_a_la_sunat")
+                    ? "Guardar y Enviar a SUNAT"
+                    : "Guardar Documento"}
             </Button>
             {isCompletedWithoutAdvances && (
               <p className="text-xs text-center text-destructive font-medium">
@@ -362,7 +362,7 @@ export function OrderQuotationSummarySection({
             <p className="text-xs text-center text-muted-foreground">
               {form.watch("fecha_de_emision")
                 ? new Date(
-                    form.watch("fecha_de_emision") + "T00:00:00"
+                    form.watch("fecha_de_emision") + "T00:00:00",
                   ).toLocaleDateString("es-PE", {
                     day: "2-digit",
                     month: "long",

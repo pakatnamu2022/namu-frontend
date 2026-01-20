@@ -201,14 +201,14 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
     setSelectedProductIds((prev) =>
       prev.includes(productId)
         ? prev.filter((id) => id !== productId)
-        : [...prev, productId]
+        : [...prev, productId],
     );
   };
 
   const handleToggleAll = () => {
     if (associatedQuotation?.details) {
       const productDetails = associatedQuotation.details.filter(
-        (d: any) => d.item_type === "PRODUCT" && d.status === "pending"
+        (d: any) => d.item_type === "PRODUCT" && d.status === "pending",
       );
       if (selectedProductIds.length === productDetails.length) {
         setSelectedProductIds([]);
@@ -286,7 +286,7 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
   }, [items]);
 
   const filteredParts = parts.filter(
-    (part) => part.group_number === selectedGroupNumber
+    (part) => part.group_number === selectedGroupNumber,
   );
 
   if (isLoading || isLoadingWarehouses || isLoadingWorkOrder) {
@@ -337,7 +337,7 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
                 <p className="text-xs text-primary">
                   <span className="font-semibold">Almacén:</span>{" "}
                   {filteredWarehouses.find(
-                    (w) => w.id.toString() === selectedWarehouseForAdd
+                    (w) => w.id.toString() === selectedWarehouseForAdd,
                   )?.description || "No seleccionado"}
                 </p>
                 <p className="text-xs text-primary">
@@ -393,7 +393,7 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <FormInput
                   name="unit_price"
-                  label="Precio Unitario (S/)"
+                  label={`Precio Unitario (${associatedQuotation?.type_currency?.symbol || workOrder?.type_currency?.symbol || "S/"})`}
                   type="number"
                   placeholder="0.0"
                   control={form.control}
@@ -449,7 +449,7 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
       {hasAssociatedQuotation &&
         associatedQuotation &&
         associatedQuotation.details?.filter(
-          (d: any) => d.item_type === "PRODUCT" && d.status === "pending"
+          (d: any) => d.item_type === "PRODUCT" && d.status === "pending",
         ).length > 0 && (
           <Card className="p-6">
             <div className="space-y-4">
@@ -465,7 +465,7 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
                     <p className="text-sm text-gray-600">
                       {associatedQuotation.details?.filter(
                         (d: any) =>
-                          d.item_type === "PRODUCT" && d.status === "pending"
+                          d.item_type === "PRODUCT" && d.status === "pending",
                       ).length || 0}{" "}
                       producto(s)
                     </p>
@@ -543,13 +543,13 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
                             associatedQuotation.details?.filter(
                               (d: any) =>
                                 d.item_type === "PRODUCT" &&
-                                d.status === "pending"
+                                d.status === "pending",
                             ).length > 0 &&
                             selectedProductIds.length ===
                               associatedQuotation.details?.filter(
                                 (d: any) =>
                                   d.item_type === "PRODUCT" &&
-                                  d.status === "pending"
+                                  d.status === "pending",
                               ).length
                           }
                           onCheckedChange={handleToggleAll}
@@ -566,11 +566,11 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
                       ?.filter(
                         (detail: any) =>
                           detail.item_type === "PRODUCT" &&
-                          detail.status === "pending"
+                          detail.status === "pending",
                       )
                       .map((detail: any) => {
                         const currencySymbol =
-                          associatedQuotation.currency?.symbol || "S/.";
+                          associatedQuotation.type_currency?.symbol || "S/.";
                         return (
                           <TableRow key={detail.id}>
                             <TableCell>
@@ -663,13 +663,13 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
                     {part.quantity_used}
                   </TableCell>
                   <TableCell className="text-right">
-                    S/{" "}
+                    {workOrder?.type_currency?.symbol || "S/"}{" "}
                     {part.unit_price
                       ? Number(part.unit_price).toFixed(2)
                       : "0.00"}
                   </TableCell>
                   <TableCell className="text-right font-semibold">
-                    S/{" "}
+                    {workOrder?.type_currency?.symbol || "S/"}{" "}
                     {part.total_amount
                       ? Number(part.total_amount).toFixed(2)
                       : "0.00"}
@@ -717,11 +717,11 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
               <div className="text-right">
                 <p className="text-sm text-gray-600">Total de Repuestos:</p>
                 <p className="text-xl font-bold">
-                  S/{" "}
+                  {workOrder?.type_currency?.symbol || "S/"}{" "}
                   {filteredParts
                     .reduce(
                       (acc, part) => acc + parseFloat(part.total_amount || "0"),
-                      0
+                      0,
                     )
                     .toFixed(2)}
                 </p>
