@@ -1,5 +1,6 @@
 import { ModelComplete } from "@/core/core.interface";
 import { ReportConfig } from "./reports.interface";
+import { VEHICLE_STATUS_ID } from "@/features/ap/configuraciones/vehiculos/estados-vehiculo/lib/vehicleStatus.constants";
 
 export const COMMERCIAL_REPORTS: ReportConfig[] = [
   {
@@ -10,17 +11,16 @@ export const COMMERCIAL_REPORTS: ReportConfig[] = [
     endpoint: "/ap/commercial/vehicles/export/sales",
     fields: [
       {
-        name: "is_paid",
-        label: "Estado de Pago",
+        name: "ap_vehicle_status_id",
+        label: "Estado de Vehículo",
         type: "select",
         required: false,
         placeholder: "Seleccionar estado",
-        options: [
-          { label: "Todos", value: "" },
-          { label: "Pagado", value: "1" },
-          { label: "Pendiente", value: "0" },
-        ],
-        defaultValue: "1",
+        options: Object.entries(VEHICLE_STATUS_ID).map(([key, value]) => ({
+          label: key.replace(/_/g, " "),
+          value: value.toString(),
+        })),
+        defaultValue: "6",
       },
     ],
     defaultParams: {},
