@@ -21,6 +21,15 @@ const colorClasses = {
     hoverOutline: "hover:bg-primary/5", // Para outline/tertiary/ghost
   },
 
+  muted: {
+    text: "text-muted-foreground",
+    border: "border-muted-foreground",
+    bg: "bg-muted text-muted-foreground",
+    bgSolid: "bg-muted text-foreground",
+    hoverSolid: "hover:bg-muted/90",
+    hoverOutline: "hover:bg-muted/50 hover:text-muted-foreground",
+  },
+
   // Colores grises
   slate: {
     text: "text-slate-500 dark:text-slate-400",
@@ -365,11 +374,12 @@ const buttonVariants = cva(
       variant: "default",
       size: "default",
     },
-  }
+  },
 );
 
 export interface ButtonProps
-  extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "color">,
+  extends
+    Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "color">,
     VariantProps<typeof buttonVariants> {
   asChild?: boolean;
   tooltip?: React.ReactNode; // ✅ puede ser string o JSX
@@ -388,7 +398,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       delayDuration,
       ...props
     },
-    ref
+    ref,
   ) => {
     const Comp = asChild ? SlotPrimitive.Slot : "button";
     const button = (
@@ -410,7 +420,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     ) : (
       button
     );
-  }
+  },
 );
 
 Button.displayName = "Button";

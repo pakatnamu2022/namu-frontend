@@ -69,6 +69,31 @@ export const BG_OPPORTUNITY: Record<string, string> = {
   [OPPORTUNITY_CERRADA]: "bg-gray-500/5",
 };
 
+export const VARIANT_OPPORTUNITY: Record<string, string> = {
+  [OPPORTUNITY_FRIA]: "blue",
+  [OPPORTUNITY_TEMPLADA]: "yellow",
+  [OPPORTUNITY_CALIENTE]: "orange",
+  [OPPORTUNITY_VENDIDA]: "green",
+  [OPPORTUNITY_CERRADA]: "gray",
+};
+
+export const getStatusColor = (status: string) => {
+  switch (status) {
+    case OPPORTUNITY_FRIA:
+      return "blue";
+    case OPPORTUNITY_TEMPLADA:
+      return "amber";
+    case OPPORTUNITY_CALIENTE:
+      return "orange";
+    case OPPORTUNITY_VENDIDA:
+      return "green";
+    case OPPORTUNITY_CERRADA:
+      return "gray";
+    default:
+      return "default";
+  }
+};
+
 export const BG_TEXT_OPPORTUNITY: Record<string, string> = {
   [OPPORTUNITY_FRIA]: "bg-blue-500/15",
   [OPPORTUNITY_TEMPLADA]: "bg-yellow-500/15",

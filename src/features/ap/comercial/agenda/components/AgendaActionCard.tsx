@@ -3,7 +3,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Clock, CheckCircle2, Circle } from "lucide-react";
-import { Link } from 'react-router-dom'
+import { Link } from "react-router-dom";
 import {
   getContactIcon,
   OPPORTUNITIES,
@@ -39,7 +39,7 @@ export default function AgendaActionCard({ action }: AgendaActionCardProps) {
         </div>
 
         <Card className={`hover:shadow-md transition-shadow`}>
-          <CardContent className="pt-4">
+          <CardContent>
             <div className="space-y-2">
               <div className="flex flex-wrap items-center gap-2">
                 <Clock className="size-4 text-gray-500" />

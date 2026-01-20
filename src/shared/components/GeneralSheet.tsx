@@ -32,7 +32,7 @@ export interface GeneralSheetProps {
   type?: "default" | "tablet" | "mobile";
 }
 
-type Size = "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl" | "full";
+type Size = "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl" | "5xl" | "6xl" | "7xl" | "full";
 interface SizeClasses {
   [key: string]: string;
 }
@@ -44,6 +44,9 @@ const sizes: SizeClasses = {
   "2xl": "max-w-2xl!",
   "3xl": "max-w-3xl!",
   "4xl": "max-w-4xl!",
+  "5xl": "max-w-5xl!",
+  "6xl": "max-w-6xl!",
+  "7xl": "max-w-7xl!",
   full: "w-full!",
 };
 
@@ -124,7 +127,7 @@ const GeneralSheet: React.FC<GeneralSheetProps> = ({
             </div>
             <DrawerClose onClick={onClose} />
           </DrawerHeader>
-          <div className="mt-4 p-2 h-full max-h-[calc(100vh-20rem)] overflow-auto">
+          <div className="p-2 h-full max-h-[calc(100vh-15rem)] overflow-auto">
             {children}
           </div>
         </DrawerContent>

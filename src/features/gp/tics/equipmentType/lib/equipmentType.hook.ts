@@ -3,11 +3,18 @@ import {
   EquipmentTypeResource,
   EquipmentTypeResponse,
 } from "./equipmentType.interface";
-import { getAllEquipmentType, getEquipmentType } from "./equipmentType.actions";
+import {
+  findEquipmentTypeById,
+  getAllEquipmentType,
+  getEquipmentType,
+} from "./equipmentType.actions";
+import { EQUIPMENT_TYPE } from "./equipmentType.constants";
+
+const { QUERY_KEY } = EQUIPMENT_TYPE;
 
 export const useEquipmentTypes = (params?: Record<string, any>) => {
   return useQuery<EquipmentTypeResponse>({
-    queryKey: ["equipmentType", params],
+    queryKey: [QUERY_KEY, params],
     queryFn: () => getEquipmentType({ params }),
     refetchOnWindowFocus: false,
   });
@@ -15,8 +22,16 @@ export const useEquipmentTypes = (params?: Record<string, any>) => {
 
 export const useAllEquipmentTypes = () => {
   return useQuery<EquipmentTypeResource[]>({
-    queryKey: ["equipmentTypeAll"],
+    queryKey: [`${QUERY_KEY}All`],
     queryFn: () => getAllEquipmentType(),
+    refetchOnWindowFocus: false,
+  });
+};
+
+export const useEquipmentTypeById = (id: number) => {
+  return useQuery({
+    queryKey: [QUERY_KEY, id],
+    queryFn: () => findEquipmentTypeById(id),
     refetchOnWindowFocus: false,
   });
 };

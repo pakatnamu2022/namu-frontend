@@ -123,7 +123,7 @@ export default function OpportunitiesKanbanPage() {
     if (!over) return;
 
     const opportunity = opportunities.find(
-      (o) => o.id.toString() === active.id
+      (o) => o.id.toString() === active.id,
     );
     if (!opportunity) return;
 
@@ -132,7 +132,7 @@ export default function OpportunitiesKanbanPage() {
 
     // Si se soltó sobre otra tarjeta, encontrar su columna
     const overOpportunity = opportunities.find(
-      (o) => o.id.toString() === over.id
+      (o) => o.id.toString() === over.id,
     );
     if (overOpportunity) {
       targetColumnId = overOpportunity.opportunity_status;
@@ -149,7 +149,7 @@ export default function OpportunitiesKanbanPage() {
       opportunity.opportunity_status === OPPORTUNITY_CERRADA
     ) {
       errorToast(
-        "No se pueden mover oportunidades que están Vendidas o Cerradas"
+        "No se pueden mover oportunidades que están Vendidas o Cerradas",
       );
       invalidateQuery([QUERY_KEY, "my"]); // Revertir UI
       return;
@@ -200,7 +200,7 @@ export default function OpportunitiesKanbanPage() {
         onError: () => {
           invalidateQuery([QUERY_KEY, "my"]);
         },
-      }
+      },
     );
   };
 
@@ -249,7 +249,7 @@ export default function OpportunitiesKanbanPage() {
   const handleDiscardLead = (
     leadId: number,
     comment: string,
-    reasonDiscardingId: number
+    reasonDiscardingId: number,
   ) => {
     discardLead(leadId, comment, reasonDiscardingId)
       .then(() => {
@@ -353,7 +353,7 @@ export default function OpportunitiesKanbanPage() {
                 validatedLeads.length > 0
                   ? "h-[calc(100vh-320px)] min-w-[800px]"
                   : "h-[calc(100vh-200px)] min-w-[800px]",
-                "p-1"
+                "p-1",
               )}
             >
               {(column) => (
@@ -363,7 +363,7 @@ export default function OpportunitiesKanbanPage() {
                   className={cn(
                     column.bgColor,
                     !column.canEdit && "opacity-65",
-                    "border-none shadow-none"
+                    "border-none shadow-none",
                   )}
                 >
                   <KanbanHeader className="border-none">
@@ -393,7 +393,7 @@ export default function OpportunitiesKanbanPage() {
                           "w-72 transition-colors duration-300",
                           column.shadowColor,
                           column.borderColor,
-                          column.hoverColor
+                          column.hoverColor,
                         )}
                       >
                         <OpportunityCard

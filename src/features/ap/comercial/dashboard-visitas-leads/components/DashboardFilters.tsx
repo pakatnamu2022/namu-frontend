@@ -42,7 +42,7 @@ export default function DashboardFilters({
     } catch (error: any) {
       errorToast(
         "Error al descargar el Excel. Por favor, intente nuevamente.",
-        error.response.data?.message?.toString()
+        error.response.data?.message?.toString(),
       );
     }
   };
@@ -64,7 +64,7 @@ export default function DashboardFilters({
     } catch (error: any) {
       errorToast(
         "Error al descargar el PDF. Por favor, intente nuevamente.",
-        error.response.data?.message?.toString()
+        error.response.data?.message?.toString(),
       );
     }
   };
@@ -84,6 +84,7 @@ export default function DashboardFilters({
       <ButtonGroup>
         <Button
           size="sm"
+          color="muted"
           variant={dashboardType === "LEADS" ? "default" : "outline"}
           onClick={() => onDashboardTypeChange("LEADS")}
         >
@@ -91,6 +92,7 @@ export default function DashboardFilters({
         </Button>
         <Button
           size="sm"
+          color="muted"
           variant={dashboardType === "VISITA" ? "default" : "outline"}
           onClick={() => onDashboardTypeChange("VISITA")}
         >

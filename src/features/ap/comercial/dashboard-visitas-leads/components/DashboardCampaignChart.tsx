@@ -80,7 +80,7 @@ export default function DashboardCampaignChart({
             const totalOportunidades = campaign.por_estado_oportunidad
               ? Object.values(campaign.por_estado_oportunidad).reduce(
                   (sum, val) => sum + (val || 0),
-                  0
+                  0,
                 )
               : 0;
 
@@ -159,7 +159,7 @@ export default function DashboardCampaignChart({
                         : 0;
                       const percentage = getPercentage(
                         value,
-                        totalOportunidades
+                        totalOportunidades,
                       );
 
                       if (value === 0) return null;
@@ -239,8 +239,7 @@ export default function DashboardCampaignChart({
               }))}
               layout="vertical"
               margin={{
-                right: 40,
-                left: 10,
+                left: 30,
               }}
             >
               <CartesianGrid horizontal={false} />
@@ -250,27 +249,18 @@ export default function DashboardCampaignChart({
                 tickLine={false}
                 tickMargin={10}
                 axisLine={false}
-                hide
               />
               <XAxis dataKey="total_visitas" type="number" hide />
               <ChartTooltip
                 cursor={false}
-                content={<ChartTooltipContent indicator="line" />}
+                content={<ChartTooltipContent hideLabel />}
               />
               <Bar
                 dataKey="total_visitas"
                 layout="vertical"
-                fill="var(--color-total_visitas)"
-                radius={4}
+                fill="hsl(var(--primary))"
+                radius={5}
               >
-                <LabelList
-                  dataKey="campaign"
-                  position="insideLeft"
-                  offset={8}
-                  className="fill-background"
-                  fontSize={12}
-                  fontWeight={500}
-                />
                 <LabelList
                   dataKey="total_visitas"
                   position="right"
@@ -297,7 +287,7 @@ export default function DashboardCampaignChart({
                 <p className="text-xl font-bold">
                   {data.reduce(
                     (sum, campaign) => sum + campaign.total_visitas,
-                    0
+                    0,
                   )}
                 </p>
               </div>
@@ -309,7 +299,7 @@ export default function DashboardCampaignChart({
                   {data.reduce(
                     (sum, campaign) =>
                       sum + (campaign.estados_visita?.atendidos || 0),
-                    0
+                    0,
                   )}
                 </p>
               </div>
@@ -324,10 +314,10 @@ export default function DashboardCampaignChart({
                       (campaign.por_estado_oportunidad
                         ? Object.values(campaign.por_estado_oportunidad).reduce(
                             (s, v) => s + (v || 0),
-                            0
+                            0,
                           )
                         : 0),
-                    0
+                    0,
                   )}
                 </p>
               </div>
