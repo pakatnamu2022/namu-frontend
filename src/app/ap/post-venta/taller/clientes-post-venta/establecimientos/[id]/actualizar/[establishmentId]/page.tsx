@@ -58,7 +58,7 @@ export default function UpdateCustomerPvEstablishmentPage() {
   };
 
   function mapEstablishmentToForm(
-    data: EstablishmentsResource
+    data: EstablishmentsResource,
   ): Partial<EstablishmentsSchema> {
     return {
       code: data.code,
@@ -96,8 +96,7 @@ export default function UpdateCustomerPvEstablishmentPage() {
         isSubmitting={isPending}
         mode="update"
         businessPartnerId={establishment.business_partner_id}
-        isCustomer={true}
-        isCommercial={false}
+        onCancel={() => router(`${ABSOLUTE_ROUTE}/${id}`)}
       />
     </FormWrapper>
   );

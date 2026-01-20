@@ -13,24 +13,24 @@ import {
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import FormWrapper from "@/shared/components/FormWrapper";
-import { ESTABLISHMENTS_PV } from "@/features/ap/comercial/establecimientos/lib/establishments.constants";
+import { ESTABLISHMENTS_RP } from "@/features/ap/comercial/establecimientos/lib/establishments.constants";
 import { createEstablishments } from "@/features/ap/comercial/establecimientos/lib/establishments.actions";
 import { EstablishmentsSchema } from "@/features/ap/comercial/establecimientos/lib/establishments.schema";
 import { EstablishmentsForm } from "@/features/ap/comercial/establecimientos/components/EstablishmentsForm";
-import { CUSTOMERS_PV } from "@/features/ap/comercial/clientes/lib/customers.constants";
+import { CUSTOMERS_RP } from "@/features/ap/comercial/clientes/lib/customers.constants";
 import { findCustomersById } from "@/features/ap/comercial/clientes/lib/customers.actions";
 import { notFound } from "@/shared/hooks/useNotFound";
 
-export default function AddCustomerPvEstablishmentPage() {
+export default function AddCustomerRpEstablishmentPage() {
   const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();
   const { currentView, checkRouteExists } = useCurrentModule();
-  const { MODEL, ABSOLUTE_ROUTE } = ESTABLISHMENTS_PV;
+  const { MODEL, ABSOLUTE_ROUTE } = ESTABLISHMENTS_RP;
 
   // Get customer data
   const { data: customer, isLoading: loadingCustomer } = useQuery({
-    queryKey: [CUSTOMERS_PV.QUERY_KEY, id],
+    queryKey: [CUSTOMERS_RP.QUERY_KEY, id],
     queryFn: () => findCustomersById(Number(id)),
     refetchOnWindowFocus: false,
   });
@@ -40,7 +40,7 @@ export default function AddCustomerPvEstablishmentPage() {
     onSuccess: async () => {
       successToast(SUCCESS_MESSAGE(MODEL, "create"));
       await queryClient.invalidateQueries({
-        queryKey: [ESTABLISHMENTS_PV.QUERY_KEY],
+        queryKey: [ESTABLISHMENTS_RP.QUERY_KEY],
       });
       router(`${ABSOLUTE_ROUTE}/${id}`);
     },
@@ -59,7 +59,7 @@ export default function AddCustomerPvEstablishmentPage() {
   if (isLoadingAny) {
     return <FormSkeleton />;
   }
-  if (!checkRouteExists(CUSTOMERS_PV.ROUTE)) notFound();
+  if (!checkRouteExists(CUSTOMERS_RP.ROUTE)) notFound();
   if (!currentView) notFound();
 
   return (

@@ -260,6 +260,12 @@ import AddProductRepuestoPage from "./app/ap/post-venta/repuestos/producto-repue
 import UpdateProductRepuestoPage from "./app/ap/post-venta/repuestos/producto-repuesto/actualizar/[id]/page.tsx";
 import InventoryRepuestoPage from "./app/ap/post-venta/repuestos/inventario-repuesto/page.tsx";
 import ProductRepuestoKardexPage from "./app/ap/post-venta/repuestos/inventario-repuesto/movimientos/[productId]/[warehouseId]/page.tsx";
+import CustomersRpPage from "./app/ap/post-venta/repuestos/clientes-repuestos/page.tsx";
+import AddCustomersRpPage from "./app/ap/post-venta/repuestos/clientes-repuestos/agregar/page.tsx";
+import UpdateCustomersRpPage from "./app/ap/post-venta/repuestos/clientes-repuestos/actualizar/[id]/page.tsx";
+import CustomerRpEstablishmentsListPage from "./app/ap/post-venta/repuestos/clientes-repuestos/establecimientos/[id]/page.tsx";
+import AddCustomerRpEstablishmentPage from "./app/ap/post-venta/repuestos/clientes-repuestos/establecimientos/[id]/agregar/page.tsx";
+import UpdateCustomerRpEstablishmentPage from "./app/ap/post-venta/repuestos/clientes-repuestos/establecimientos/[id]/actualizar/[establishmentId]/page.tsx";
 import CardWashPage from "./app/ap/post-venta/taller/lavado-vehiculo/page.tsx";
 import AppointmentPlanningPage from "./app/ap/post-venta/taller/citas/page.tsx";
 import AddAppointmentPlanningPage from "./app/ap/post-venta/taller/citas/agregar/page.tsx";
@@ -1290,6 +1296,30 @@ function App() {
               <Route
                 path="repuestos/inventario-repuesto/movimientos/:productId/:warehouseId"
                 element={<ProductRepuestoKardexPage />}
+              />
+              <Route
+                path="repuestos/clientes-repuestos"
+                element={<CustomersRpPage />}
+              />
+              <Route
+                path="repuestos/clientes-repuestos/agregar"
+                element={<AddCustomersRpPage />}
+              />
+              <Route
+                path="repuestos/clientes-repuestos/actualizar/:id"
+                element={<UpdateCustomersRpPage />}
+              />
+              <Route
+                path="repuestos/clientes-repuestos/establecimientos/:id"
+                element={<CustomerRpEstablishmentsListPage />}
+              />
+              <Route
+                path="repuestos/clientes-repuestos/establecimientos/:id/agregar"
+                element={<AddCustomerRpEstablishmentPage />}
+              />
+              <Route
+                path="repuestos/clientes-repuestos/establecimientos/:id/actualizar/:establishmentId"
+                element={<UpdateCustomerRpEstablishmentPage />}
               />
               {/* Taller */}
               <Route path="taller/lavado-vehiculo" element={<CardWashPage />} />
