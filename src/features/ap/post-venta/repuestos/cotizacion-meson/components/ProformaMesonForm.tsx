@@ -641,6 +641,7 @@ export default function ProformaMesonForm({
       currency_id: CURRENCY_TYPE_IDS.SOLES,
       quotation_date: "",
       expiration_date: "",
+      collection_date: "",
       observations: "",
       details: [],
       ...defaultValues,
@@ -847,7 +848,7 @@ export default function ProformaMesonForm({
           <h3 className="text-lg font-semibold mb-4">
             Información de la Cotización
           </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <FormSelect
               name="sede_id"
               label="Sede"
@@ -904,6 +905,15 @@ export default function ProformaMesonForm({
               dateFormat="dd/MM/yyyy"
               captionLayout="dropdown"
               disabled={true}
+            />
+
+            <DatePickerFormField
+              control={form.control}
+              name="collection_date"
+              label="Fecha de Recojo"
+              placeholder="Selecciona una fecha"
+              dateFormat="dd/MM/yyyy"
+              captionLayout="dropdown"
             />
 
             <FormSelect

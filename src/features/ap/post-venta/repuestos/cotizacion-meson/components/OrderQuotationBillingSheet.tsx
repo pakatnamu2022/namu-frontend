@@ -485,6 +485,7 @@ function BillingSheetContent({
                     <TableHead>Tipo</TableHead>
                     <TableHead>Cliente</TableHead>
                     <TableHead>Fecha Emisión</TableHead>
+                    <TableHead>Observaciones</TableHead>
                     <TableHead>Estado</TableHead>
                     <TableHead className="text-right">Monto</TableHead>
                   </TableRow>
@@ -536,6 +537,11 @@ function BillingSheetContent({
                           </div>
                         </TableCell>
                         <TableCell>
+                          <div className="text-sm text-muted-foreground max-w-[200px]">
+                            {doc.observaciones || "-"}
+                          </div>
+                        </TableCell>
+                        <TableCell>
                           <Badge
                             variant="outline"
                             className={`${config?.className} flex items-center gap-1 w-fit`}
@@ -545,7 +551,7 @@ function BillingSheetContent({
                           </Badge>
                         </TableCell>
                         <TableCell className="text-right">
-                          <div className="font-semibold">
+                          <div className="font-semibold w-20">
                             {currencySymbol}{" "}
                             {doc.total.toLocaleString("es-PE", {
                               minimumFractionDigits: 2,

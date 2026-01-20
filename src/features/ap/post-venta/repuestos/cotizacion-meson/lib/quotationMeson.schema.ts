@@ -1,4 +1,4 @@
-import { requiredStringId } from "@/shared/lib/global.schema";
+import { requiredDate, requiredStringId } from "@/shared/lib/global.schema";
 import { z } from "zod";
 
 // Schema para los detalles de productos
@@ -36,24 +36,9 @@ export const quotationMesonWithProductsSchemaCreate = z.object({
   vehicle_id: requiredStringId("Vehículo es requerido"),
   sede_id: requiredStringId("Sede es requerida"),
   currency_id: requiredStringId("Moneda es requerida"),
-  quotation_date: z
-    .union([
-      z.literal(""),
-      z.date(),
-      z.string(), // Agregar esto
-    ])
-    .refine((val) => val !== "", {
-      message: "Fecha de cotización es requerida",
-    }),
-  expiration_date: z
-    .union([
-      z.literal(""),
-      z.date(),
-      z.string(), // Agregar esto
-    ])
-    .refine((val) => val !== "", {
-      message: "Fecha de cotización es requerida",
-    }),
+  quotation_date: requiredDate("Fecha de cotización es requerida"),
+  expiration_date: requiredDate("Fecha de expiración es requerida"),
+  collection_date: requiredDate("Fecha de recojo es requerida"),
   observations: z.string().min(0).max(500).optional(),
   supply_type: z.enum(["STOCK", "LIMA", "IMPORTACION"]),
 

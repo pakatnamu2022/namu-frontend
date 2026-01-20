@@ -86,6 +86,20 @@ export const orderQuotationMesonColumns = ({
     enableSorting: false,
   },
   {
+    accessorKey: "collection_date",
+    header: "Fecha de Recojo",
+    cell: ({ getValue }) => {
+      const date = getValue() as string;
+      if (!date) return "-";
+      try {
+        return format(new Date(date), "dd/MM/yyyy", { locale: es });
+      } catch {
+        return date;
+      }
+    },
+    enableSorting: false,
+  },
+  {
     accessorKey: "customer",
     header: "Cliente",
     enableSorting: false,

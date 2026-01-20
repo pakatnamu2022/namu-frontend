@@ -26,6 +26,7 @@ export interface OrderQuotationResource {
   validity_days: number | null;
   quotation_date: string;
   expiration_date: string;
+  collection_date: string;
   observations: string | null;
   details: OrderQuotationDetailsResource[];
   advances: ElectronicDocumentResource[];
