@@ -188,7 +188,9 @@ export default function LaborDetailsSection({
                 name="discount"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-xs">Desc. ({currencySymbol})</FormLabel>
+                    <FormLabel className="text-xs">
+                      Desc. ({currencySymbol})
+                    </FormLabel>
                     <FormControl>
                       <Input
                         type="number"
@@ -309,7 +311,7 @@ export default function LaborDetailsSection({
 
                     <div className="col-span-1 text-right">
                       <span className="text-sm text-orange-600">
-                        -{formatCurrency(detail.discount)}
+                        -{formatCurrency(detail.discount_percentage)}
                       </span>
                     </div>
 
@@ -369,7 +371,7 @@ export default function LaborDetailsSection({
                       <div>
                         <span className="text-gray-500">Desc:</span>
                         <span className="font-medium ml-1 text-orange-600">
-                          -{formatCurrency(detail.discount)}
+                          -{formatCurrency(detail.discount_percentage)}
                         </span>
                       </div>
                       <div className="text-right">

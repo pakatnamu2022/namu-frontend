@@ -8,7 +8,7 @@ export const productDetailMesonSchema = z.object({
   quantity: z.number().min(0.01, "Cantidad debe ser mayor a 0"),
   unit_measure: z.string().min(1, "Unidad de medida es requerida").max(50),
   unit_price: z.number().min(0, "Precio debe ser mayor o igual a 0"),
-  discount: z
+  discount_percentage: z
     .number()
     .min(0, "Descuento debe ser mayor o igual a 0")
     .max(100, "Descuento no puede ser mayor a 100")

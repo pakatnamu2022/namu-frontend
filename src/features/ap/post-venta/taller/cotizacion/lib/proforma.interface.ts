@@ -19,7 +19,8 @@ export interface OrderQuotationResource {
   quotation_number: string;
   subtotal: number;
   discount_percentage: number | null;
-  discount_amount: number | null;
+  discount_amount: number;
+  op_gravada: number;
   tax_amount: number | null;
   total_amount: number;
   validity_days: number | null;

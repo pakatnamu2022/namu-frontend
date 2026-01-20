@@ -96,7 +96,7 @@ export const orderQuotationMesonColumns = ({
     enableSorting: false,
   },
   {
-    accessorKey: "currency.name",
+    accessorKey: "type_currency.name",
     header: "Moneda",
     enableSorting: false,
   },

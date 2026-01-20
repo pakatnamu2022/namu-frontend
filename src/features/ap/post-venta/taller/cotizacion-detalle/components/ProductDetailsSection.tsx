@@ -485,7 +485,7 @@ export default function ProductDetailsSection({
                       <div>
                         <span className="text-gray-500">Descuento:</span>
                         <span className="ml-1 font-medium text-orange-600">
-                          -{formatCurrency(detail.discount)}
+                          -{formatCurrency(detail.discount_percentage)}
                         </span>
                       </div>
                       <div className="text-right">

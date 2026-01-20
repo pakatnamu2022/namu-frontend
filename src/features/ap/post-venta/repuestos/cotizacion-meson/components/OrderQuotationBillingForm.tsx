@@ -293,16 +293,17 @@ export function OrderQuotationBillingForm({
           quotation.details.map((detail) => {
             const cantidad = Number(detail.quantity) || 1;
             // IMPORTANTE: Convertir a número porque puede venir como string desde la API
-            const total_con_igv = Number(detail.total_amount) || 0;
+            // El total_amount de la cotización es el SUBTOTAL (sin IGV)
+            const subtotalDetail = Number(detail.total_amount) || 0;
 
-            // El total_amount YA incluye IGV, así que usamos ese valor directamente
-            const precio_unitario = total_con_igv / cantidad;
-            const valor_unitario =
-              precio_unitario / (1 + porcentaje_de_igv / 100);
+            // El valor_unitario y precio_unitario son iguales (sin IGV)
+            const valor_unitario = subtotalDetail / cantidad;
+            const precio_unitario =
+              valor_unitario * (1 + porcentaje_de_igv / 100);
 
-            const subtotal = valor_unitario * cantidad;
+            const subtotal = subtotalDetail;
             const igvAmount = subtotal * (porcentaje_de_igv / 100);
-            const total = total_con_igv; // Usar el total original que ya incluye IGV
+            const total = subtotal + igvAmount; // Total CON IGV
 
             return {
               account_plan_id: QUOTATION_ACCOUNT_PLAN_IDS.FULL_SALE,
@@ -430,7 +431,16 @@ export function OrderQuotationBillingForm({
       }
     });
 
-    total_igv = total_gravada * (porcentaje_de_igv / 100);
+    // Redondeamos a 2 decimales
+    total_gravada = parseFloat(total_gravada.toFixed(2));
+    total_inafecta = parseFloat(total_inafecta.toFixed(2));
+    total_exonerada = parseFloat(total_exonerada.toFixed(2));
+    total_gratuita = parseFloat(total_gratuita.toFixed(2));
+    total_anticipo = parseFloat(total_anticipo.toFixed(2));
+
+    total_igv = parseFloat(
+      (total_gravada * (porcentaje_de_igv / 100)).toFixed(2),
+    );
     const total = total_gravada + total_inafecta + total_exonerada + total_igv;
 
     return {
@@ -535,6 +545,7 @@ export function OrderQuotationBillingForm({
                 isAdvancePayment ? Math.max(pendingBalance, 0) : undefined
               }
               isFromQuotation={true}
+              showActions={false}
             />
 
             {/* Configuración Adicional */}
