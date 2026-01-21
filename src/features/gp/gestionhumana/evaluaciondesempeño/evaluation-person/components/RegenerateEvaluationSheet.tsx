@@ -68,7 +68,8 @@ export default function RegenerateEvaluationSheet({
       <SheetTrigger asChild>
         <Button
           size="sm"
-          variant="outline"
+          variant="tertiary"
+          color="red"
           className="w-full md:w-auto"
           disabled={loadingRegenerate}
         >

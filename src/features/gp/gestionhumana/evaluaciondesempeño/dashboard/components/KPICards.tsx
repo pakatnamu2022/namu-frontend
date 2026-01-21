@@ -69,12 +69,12 @@ export const KPICards: React.FC<KPICardsProps> = ({
         return (
           <Card
             key={index}
-            className={`hover:shadow-md transition-all cursor-pointer ${
+            className={`py-4 hover:shadow-md transition-all cursor-pointer ${
               isSelected ? "ring-2 ring-primary shadow-md" : ""
             }`}
             onClick={() => onCardClick(kpi.type)}
           >
-            <CardContent className="p-4 px-6">
+            <CardContent>
               <div className="flex items-center justify-between">
                 <div>
                   <p className={`text-sm font-medium ${kpi.labelColor}`}>
