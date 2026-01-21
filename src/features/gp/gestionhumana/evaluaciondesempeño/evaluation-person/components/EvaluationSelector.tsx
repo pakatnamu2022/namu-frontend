@@ -38,7 +38,7 @@ export default function EvaluationSelector({
             label: () => (
               <span className="flex items-center gap-2">
                 {evaluation.name}{" "}
-                <Badge variant="sky">{evaluation.period}</Badge>
+                <Badge color="sky">{evaluation.period}</Badge>
               </span>
             ),
           }))}

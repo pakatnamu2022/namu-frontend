@@ -136,7 +136,7 @@ export const ChecklistField = ({
             <div className="flex items-center justify-between">
               <FormLabel className="text-base font-semibold">{label}</FormLabel>
               <div className="flex items-center gap-2">
-                <Badge variant="secondary">
+                <Badge color="secondary">
                   {Object.keys(field.value || {}).length} / {items.length}{" "}
                   seleccionados
                 </Badge>

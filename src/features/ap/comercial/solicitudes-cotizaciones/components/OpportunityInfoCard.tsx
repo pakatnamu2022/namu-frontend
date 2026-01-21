@@ -146,7 +146,7 @@ export const OpportunityInfoCard = ({
               {opportunity.opportunity_status}
             </Badge>
             {opportunity.is_closed && (
-              <Badge variant="destructive" className="text-xs shadow-sm">
+              <Badge color="destructive" className="text-xs shadow-sm">
                 Cerrada
               </Badge>
             )}

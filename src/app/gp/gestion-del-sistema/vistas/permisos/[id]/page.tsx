@@ -199,7 +199,7 @@ export default function ViewPermissionsPage() {
             <div>
               <span className="text-sm text-muted-foreground">Ruta</span>
               <div className="font-semibold">
-                <Badge variant="secondary">{view.route || view.ruta}</Badge>
+                <Badge color="secondary">{view.route || view.ruta}</Badge>
               </div>
             </div>
             {view.parent && (
@@ -269,7 +269,7 @@ export default function ViewPermissionsPage() {
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          <Badge variant="secondary" className="text-sm">
+          <Badge color="secondary" className="text-sm">
             {selectedActions.length} de {PERMISSION_ACTIONS.length} acción(es)
             seleccionada(s)
           </Badge>

@@ -246,7 +246,7 @@ export default function LaborDetailsSection({
       <div className="mt-6">
         <div className="flex items-center justify-between mb-3 pb-2 border-b">
           <h4 className="font-semibold text-gray-700">Items de Mano de Obra</h4>
-          <Badge variant="secondary" className="font-semibold">
+          <Badge color="secondary" className="font-semibold">
             {laborDetails.length} item(s)
           </Badge>
         </div>

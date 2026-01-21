@@ -93,7 +93,7 @@ export default function TransferReceptionsCards({
                 </Badge>
                 {hasObservations && (
                   <Badge
-                    variant="destructive"
+                    color="destructive"
                     className="flex items-center gap-1"
                   >
                     <AlertCircle className="h-3 w-3" />

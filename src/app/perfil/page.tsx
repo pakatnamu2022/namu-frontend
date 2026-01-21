@@ -63,7 +63,7 @@ export default function ProfilePage() {
                   <h1 className="text-2xl sm:text-3xl font-bold text-primary wrap-break-word">
                     {userComplete.name}
                   </h1>
-                  <Badge variant="secondary" className="w-fit mx-auto sm:mx-0">
+                  <Badge color="secondary" className="w-fit mx-auto sm:mx-0">
                     {userComplete.position}
                   </Badge>
                 </div>

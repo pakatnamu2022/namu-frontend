@@ -240,12 +240,12 @@ export const shipmentsReceptionsColumns = ({
       const isReceived = row.getValue("is_received") as boolean;
 
       return isReceived ? (
-        <Badge variant="green">
+        <Badge color="green">
           <CheckCircle2 className="size-3" />
           Recepcionado
         </Badge>
       ) : (
-        <Badge variant="blue">
+        <Badge color="blue">
           <XCircle className="size-3" />
           Pendiente
         </Badge>
@@ -340,7 +340,7 @@ export const shipmentsReceptionsColumns = ({
       }
 
       return (
-        <Badge variant="gray">
+        <Badge color="gray">
           <XCircle className="size-3" />
           No enviado
         </Badge>

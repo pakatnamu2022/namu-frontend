@@ -18,6 +18,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { getScales } from "../../parametros/lib/parameter.hook";
 import { cn } from "@/lib/utils";
+import { getColorByCompletionRate } from "../lib/evaluationPerson.function";
 
 export type EvaluationPersonObjectiveColumns =
   ColumnDef<EvaluationPersonResource>;
@@ -87,13 +88,13 @@ export const evaluationPersonObjectiveColumns = ({
               )}
             </Badge>
             {overdue && !wasEvaluated && (
-              <Badge variant="destructive" className="text-xs gap-1">
+              <Badge color="destructive" className="text-xs gap-1">
                 <Clock className="size-3" />
                 Vencido
               </Badge>
             )}
             {!overdue && !wasEvaluated && (
-              <Badge variant="default" className="text-xs gap-1">
+              <Badge color="default" className="text-xs gap-1">
                 <Clock className="size-3" />
                 Pendiente
               </Badge>
@@ -124,20 +125,12 @@ export const evaluationPersonObjectiveColumns = ({
       const detail = row.original;
       const result = detail.result;
 
-      // Función para obtener el color del resultado
-      const getResultVariant = (result: string | number) => {
-        const numResult =
-          typeof result === "string" ? parseFloat(result) : result;
-        if (numResult >= 4) return "default";
-        if (numResult >= 3) return "tertiary";
-        if (numResult >= 2) return "outline";
-        return "secondary";
-      };
-
       return (
         <div className="flex items-center justify-center">
           {readOnly ? (
-            <Badge variant={getResultVariant(result)}>{result || "0.00"}</Badge>
+            <Badge color={getColorByCompletionRate(Number(result))}>
+              {result || "0.00"}
+            </Badge>
           ) : (
             <EditableCell
               variant="outline"
@@ -166,8 +159,8 @@ export const evaluationPersonObjectiveColumns = ({
             variant={"ghost"}
             className={cn(
               getScales(
-                evaluationPersonResult?.objectiveParameter.details.length
-              )[row.original.index_range_result]
+                evaluationPersonResult?.objectiveParameter.details.length,
+              )[row.original.index_range_result],
             )}
           >
             {compliance.toFixed(1)}%
@@ -188,8 +181,8 @@ export const evaluationPersonObjectiveColumns = ({
             variant={"ghost"}
             className={cn(
               getScales(
-                evaluationPersonResult?.objectiveParameter.details.length
-              )[row.original.index_range_result]
+                evaluationPersonResult?.objectiveParameter.details.length,
+              )[row.original.index_range_result],
             )}
           >
             {qualification.toFixed(1)}%
@@ -198,8 +191,8 @@ export const evaluationPersonObjectiveColumns = ({
             variant={"ghost"}
             className={cn(
               getScales(
-                evaluationPersonResult?.objectiveParameter.details.length
-              )[row.original.index_range_result]
+                evaluationPersonResult?.objectiveParameter.details.length,
+              )[row.original.index_range_result],
             )}
           >
             {row.original.label_range}

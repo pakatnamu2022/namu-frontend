@@ -213,13 +213,13 @@ export default function NamuPerformanceEvaluationPage() {
           <div className="flex gap-2 items-end">
             <div className="flex flex-col gap-2 items-center">
               <div className="flex flex-wrap items-center gap-2">
-                <Badge variant="indigo" className="text-xs">
+                <Badge color="indigo" className="text-xs">
                   {activeEvaluation.name}
                 </Badge>
-                <Badge variant="sky" className="text-xs">
+                <Badge color="sky" className="text-xs">
                   {activeEvaluation.period}
                 </Badge>
-                <Badge variant="blue" className="text-xs">
+                <Badge color="blue" className="text-xs">
                   Activa
                 </Badge>
                 <Badge
@@ -330,7 +330,7 @@ export default function NamuPerformanceEvaluationPage() {
                       )}
                       {evaluationPersonResult?.evaluation
                         ?.typeEvaluationName && (
-                        <Badge variant="secondary">
+                        <Badge color="secondary">
                           {evaluationPersonResult.evaluation.typeEvaluationName}
                         </Badge>
                       )}

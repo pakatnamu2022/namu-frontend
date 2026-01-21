@@ -511,7 +511,7 @@ function BillingSheetContent({
                             {doc.document_type?.description || "N/A"}
                           </div>
                           {doc.is_advance_payment && (
-                            <Badge variant="secondary" className="text-xs mt-1">
+                            <Badge color="secondary" className="text-xs mt-1">
                               Anticipo
                             </Badge>
                           )}

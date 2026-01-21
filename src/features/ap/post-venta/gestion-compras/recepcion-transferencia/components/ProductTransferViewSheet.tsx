@@ -135,7 +135,7 @@ export function ProductTransferViewSheet({
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Tipo de Ítem</p>
-                  <Badge variant="secondary" className="capitalize">
+                  <Badge color="secondary" className="capitalize">
                     {data.item_type === "SERVICIO" ? "Servicio" : "Producto"}
                   </Badge>
                 </div>
@@ -465,7 +465,7 @@ export function ProductTransferViewSheet({
                             Cantidad
                           </p>
                           <Badge
-                            variant="secondary"
+                            color="secondary"
                             className="text-sm font-semibold"
                           >
                             {detail.quantity}

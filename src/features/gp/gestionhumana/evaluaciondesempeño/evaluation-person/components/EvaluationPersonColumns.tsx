@@ -59,7 +59,7 @@ export const EvaluationPersonColumns = ({
 
       return (
         <div className="flex justify-center items-center gap-2 w-full">
-          <Badge className="min-w-16 justify-end" variant="sky">
+          <Badge className="min-w-16 justify-end" color="sky">
             {objectivesPercentage.toFixed(0) ?? 0}% -{" "}
             {competencesPercentage.toFixed(0) ?? 0}%
           </Badge>
@@ -76,7 +76,7 @@ export const EvaluationPersonColumns = ({
         <div className="flex justify-center items-center gap-2 w-full">
           <Badge
             className="min-w-16 justify-end"
-            variant={getVariantByCompletionRate(objectivesResult)}
+            color={getVariantByCompletionRate(objectivesResult)}
           >
             {objectivesResult.toFixed(2) ?? 0} %
           </Badge>
@@ -93,7 +93,7 @@ export const EvaluationPersonColumns = ({
         <div className="flex justify-center items-center gap-2 w-full">
           <Badge
             className="min-w-16 justify-end"
-            variant={getVariantByCompletionRate(competencesResult)}
+            color={getVariantByCompletionRate(competencesResult)}
           >
             {competencesResult.toFixed(2) ?? 0} %
           </Badge>
@@ -110,7 +110,7 @@ export const EvaluationPersonColumns = ({
         <div className="flex justify-center items-center gap-2 w-full ">
           <Badge
             className="min-w-16 justify-end"
-            variant={getVariantByCompletionRate(objectivesResult)}
+            color={getVariantByCompletionRate(objectivesResult)}
           >
             {objectivesResult.toFixed(2) ?? 0} %
           </Badge>
@@ -127,7 +127,7 @@ export const EvaluationPersonColumns = ({
         <div className="flex justify-center items-center gap-2 w-full ">
           <Badge
             className="min-w-16 justify-end"
-            variant={getVariantByCompletionRate(total_progress)}
+            color={getVariantByCompletionRate(total_progress)}
           >
             {total_progress.toFixed(2) ?? 0} %
           </Badge>

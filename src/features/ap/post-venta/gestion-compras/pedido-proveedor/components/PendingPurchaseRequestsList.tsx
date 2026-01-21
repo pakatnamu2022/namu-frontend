@@ -31,7 +31,7 @@ export const PendingPurchaseRequestsList = ({
           <ShoppingCart className="h-4 w-4 text-primary" />
           Solicitudes Pendientes
           {!isLoading && (
-            <Badge variant="secondary" className="ml-auto text-xs">
+            <Badge color="secondary" className="ml-auto text-xs">
               {requests.length}
             </Badge>
           )}

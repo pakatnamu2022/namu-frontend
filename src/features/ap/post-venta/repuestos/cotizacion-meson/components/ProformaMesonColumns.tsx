@@ -179,15 +179,15 @@ export const orderQuotationMesonColumns = ({
       const getStatusBadge = (status: string) => {
         switch (status) {
           case "Descartado":
-            return <Badge variant="red">{status}</Badge>;
+            return <Badge color="red">{status}</Badge>;
           case "Aperturado":
-            return <Badge variant="indigo">{status}</Badge>;
+            return <Badge color="indigo">{status}</Badge>;
           case "Por Facturar":
-            return <Badge variant="orange">{status}</Badge>;
+            return <Badge color="orange">{status}</Badge>;
           case "Facturado":
-            return <Badge variant="green">{status}</Badge>;
+            return <Badge color="green">{status}</Badge>;
           default:
-            return <Badge variant="secondary">{status}</Badge>;
+            return <Badge color="secondary">{status}</Badge>;
         }
       };
 

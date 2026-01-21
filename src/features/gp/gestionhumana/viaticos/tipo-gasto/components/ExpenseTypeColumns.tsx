@@ -61,7 +61,7 @@ export const expenseTypeColumns = ({
     cell: ({ getValue }) => {
       const value = getValue() as boolean;
       return (
-        <Badge variant={value ? "default" : "secondary"} className="capitalize">
+        <Badge color={value ? "default" : "secondary"} className="capitalize">
           {value ? "Sí" : "No"}
         </Badge>
       );
@@ -82,7 +82,7 @@ export const expenseTypeColumns = ({
       const value = getValue() as boolean;
       return (
         <Badge
-          variant={value ? "default" : "secondary"}
+          color={value ? "default" : "secondary"}
           className="capitalize w-20 flex items-center justify-center"
         >
           {value ? "Activo" : "Inactivo"}

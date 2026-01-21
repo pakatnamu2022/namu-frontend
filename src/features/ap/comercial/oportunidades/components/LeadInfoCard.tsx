@@ -94,7 +94,7 @@ export const LeadInfoCard = ({ lead }: LeadInfoCardProps) => {
                   </p>
                 )}
                 {lead.campaign && (
-                  <Badge variant="secondary" className="text-xs">
+                  <Badge color="secondary" className="text-xs">
                     {lead.campaign}
                   </Badge>
                 )}

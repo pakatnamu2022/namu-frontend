@@ -40,7 +40,7 @@ export default function TeamOptions({
             <TabsTrigger value="all" className="flex items-center gap-2">
               {ALL_EVALUATOR_TYPE.name}
               {counts.all > 0 && (
-                <Badge variant="secondary" className="ml-1 px-1.5 py-0 text-xs">
+                <Badge color="secondary" className="ml-1 px-1.5 py-0 text-xs">
                   {counts.all}
                 </Badge>
               )}
@@ -61,7 +61,7 @@ export default function TeamOptions({
                   {type.description}
                   {count > 0 && (
                     <Badge
-                      variant="secondary"
+                      color="secondary"
                       className="ml-1 px-1.5 py-0 text-xs"
                     >
                       {count}

@@ -202,8 +202,8 @@ export default function EvaluationDetailPersonPage() {
                       value: evaluation.id.toString(),
                       label: () => (
                         <div className="flex items-center flex-wrap gap-2">
-                          <Badge variant="indigo">{evaluation.name}</Badge>
-                          <Badge variant="sky">{evaluation.period}</Badge>
+                          <Badge color="indigo">{evaluation.name}</Badge>
+                          <Badge color="sky">{evaluation.period}</Badge>
                         </div>
                       ),
                       searchValue: `${evaluation.name} ${evaluation.period}`,
@@ -216,7 +216,7 @@ export default function EvaluationDetailPersonPage() {
                     className="w-auto! min-w-80 text-xs! py-0.5! px-0! h-fit! bg-background border-0!"
                   />
                 )}
-                <Badge variant="blue" className="text-xs">
+                <Badge color="blue" className="text-xs">
                   Activa
                 </Badge>
                 <Badge

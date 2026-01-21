@@ -232,7 +232,7 @@ export default function GeneralInformationPage() {
                 <FileText className="h-5 w-5" />
                 Información de la Cotización
               </h3>
-              <Badge variant="default">
+              <Badge color="default">
                 <CheckCircle2 className="h-3 w-3 mr-1" />
                 {workOrder.order_quotation.status}
               </Badge>

@@ -10,7 +10,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { Badge, BadgeColor } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { EvaluationResource } from "../../evaluaciones/lib/evaluation.interface";
 import { parse } from "date-fns";
@@ -33,9 +33,7 @@ export const EvaluationHeader: React.FC<EvaluationHeaderProps> = ({
   onRefresh,
   onDownloadReport,
 }) => {
-  const getStatusVariant = (
-    status: number,
-  ): "default" | "secondary" | "outline" | "tertiary" => {
+  const getStatusVariant = (status: number): BadgeColor => {
     switch (status) {
       case 0:
         return "tertiary";
@@ -44,7 +42,7 @@ export const EvaluationHeader: React.FC<EvaluationHeaderProps> = ({
       case 2:
         return "secondary";
       default:
-        return "outline";
+        return "muted";
     }
   };
 
@@ -102,10 +100,7 @@ export const EvaluationHeader: React.FC<EvaluationHeaderProps> = ({
               icon="BarChart3"
               isTruncate={false}
             >
-              <Badge
-                variant={getStatusVariant(evaluationData.status)}
-                size="sm"
-              >
+              <Badge color={getStatusVariant(evaluationData.status)} size="sm">
                 {getStatusIcon(evaluationData.status)}
                 <span className="ml-2">{evaluationData.statusName}</span>
               </Badge>

@@ -47,7 +47,7 @@ export const establishmentsColumns = ({
     accessorKey: "type",
     header: "Tipo",
     cell: ({ row }) => (
-      <Badge variant="secondary">{row.getValue("type")}</Badge>
+      <Badge color="secondary">{row.getValue("type")}</Badge>
     ),
   },
   {

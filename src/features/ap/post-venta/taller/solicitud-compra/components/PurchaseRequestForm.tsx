@@ -472,7 +472,7 @@ export default function PurchaseRequestForm({
                   <h4 className="font-semibold text-gray-700">
                     Items de Productos
                   </h4>
-                  <Badge variant="secondary" className="font-semibold">
+                  <Badge color="secondary" className="font-semibold">
                     {details.length} item(s)
                   </Badge>
                 </div>

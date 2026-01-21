@@ -17,6 +17,7 @@ import { evaluationPersonCompetenceColumns } from "./EvaluationPersonCompetenceC
 import { DataTable } from "@/shared/components/DataTable";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { getColorByCompletionRate } from "../lib/evaluationPerson.function";
 
 interface Props {
   competenceGroups?: CompetenceGroup[];
@@ -54,12 +55,12 @@ export default function EvaluationPersonCompetenceTableWithColumns({
   // Calcular estadísticas generales
   const totalSubCompetences = competenceGroups.reduce(
     (sum, group) => sum + (group.sub_competences?.length || 0),
-    0
+    0,
   );
 
   const completedSubCompetences = competenceGroups.reduce(
     (sum, group) => sum + (group.completed_evaluations || 0),
-    0
+    0,
   );
 
   const averageResult =
@@ -69,12 +70,6 @@ export default function EvaluationPersonCompetenceTableWithColumns({
       : 0;
 
   // Función para obtener el color del badge de cumplimiento
-  const getComplianceBadgeVariant = (percentage: number) => {
-    if (percentage >= 90) return "default";
-    if (percentage >= 70) return "tertiary";
-    if (percentage >= 50) return "outline";
-    return "secondary";
-  };
 
   if (!competenceGroups || competenceGroups.length === 0) {
     return (
@@ -169,7 +164,7 @@ export default function EvaluationPersonCompetenceTableWithColumns({
               <div
                 className={cn(
                   "bg-muted/50 p-4 border-b cursor-pointer hover:bg-muted/70 transition-colors",
-                  !isExpanded && "border-b-0"
+                  !isExpanded && "border-b-0",
                 )}
                 onClick={() => toggleGroup(group.competence_id)}
               >
@@ -270,10 +265,10 @@ export default function EvaluationPersonCompetenceTableWithColumns({
           <div className="flex items-center justify-start gap-3">
             <span className="text-muted-foreground">Promedio General:</span>
             <Badge
-              variant={getComplianceBadgeVariant(
+              color={getColorByCompletionRate(
                 (averageResult /
                   (evaluationPersonResult?.maxCompetenceParameter || 5)) *
-                  100
+                  100,
               )}
             >
               {averageResult.toFixed(1)}/
@@ -288,7 +283,7 @@ export default function EvaluationPersonCompetenceTableWithColumns({
         <button
           onClick={() =>
             setExpandedGroups(
-              new Set(competenceGroups.map((g) => g.competence_id))
+              new Set(competenceGroups.map((g) => g.competence_id)),
             )
           }
           className="text-xs text-muted-foreground hover:text-foreground transition-colors"

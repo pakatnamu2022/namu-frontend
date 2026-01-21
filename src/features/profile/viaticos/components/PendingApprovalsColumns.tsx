@@ -62,7 +62,7 @@ export const pendingApprovalsColumns = ({
       return (
         <div className="text-xs text-end">
           {startDate} - {endDate}{" "}
-          <Badge size="square" variant={"tertiary"}>
+          <Badge size="square" color={"tertiary"}>
             {row.original.days_count}
           </Badge>
         </div>

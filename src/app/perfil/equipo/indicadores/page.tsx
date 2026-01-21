@@ -556,7 +556,7 @@ function AreaMetricsSection({ areaMetrics }: { areaMetrics: any[] }) {
                     {area.completed} de {area.total} completados
                   </p>
                 </div>
-                <Badge variant="secondary" className="text-base font-bold">
+                <Badge color="secondary" className="text-base font-bold">
                   {area.average_result.toFixed(2)} pts
                 </Badge>
               </div>
@@ -598,7 +598,7 @@ function CategoryMetricsSection({
                     {category.completed} de {category.total} completados
                   </p>
                 </div>
-                <Badge variant="secondary" className="text-base font-bold">
+                <Badge color="secondary" className="text-base font-bold">
                   {category.average_result.toFixed(2)} pts
                 </Badge>
               </div>
@@ -637,7 +637,7 @@ function CompetenceGapsSection({ competenceGaps }: { competenceGaps: any[] }) {
                 <p className="text-sm font-medium flex-1 line-clamp-2">
                   {gap.competence_name}
                 </p>
-                <Badge variant="destructive">
+                <Badge color="destructive">
                   {gap.gap_percentage}% brecha
                 </Badge>
               </div>

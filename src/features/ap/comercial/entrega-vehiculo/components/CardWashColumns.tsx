@@ -104,7 +104,7 @@ export const cardWashColumns = ({
             />
           )}
           {isCompleted && (
-            <Badge variant="default" className="gap-1">
+            <Badge color="default" className="gap-1">
               <CheckCircle2 className="h-3 w-3" />
               Completado
             </Badge>

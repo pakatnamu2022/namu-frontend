@@ -58,7 +58,7 @@ export default function NoEvaluationMessage({
                         label: () => (
                           <span className="flex items-center gap-2">
                             {evaluation.name}{" "}
-                            <Badge variant={"tertiary"} className="text-[10px]">
+                            <Badge color={"tertiary"} className="text-[10px]">
                               {evaluation.period}
                             </Badge>
                           </span>

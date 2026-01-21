@@ -82,7 +82,7 @@ export default function DatePicker({
   }, [value]);
 
   const [visibleMonth, setVisibleMonth] = useState<Date | undefined>(
-    parsedDate
+    parsedDate,
   );
   const [drawerOpen, setDrawerOpen] = useState(false);
 
@@ -118,7 +118,7 @@ export default function DatePicker({
             <Tooltip>
               <TooltipTrigger asChild>
                 <Badge
-                  variant="secondary"
+                  color="secondary"
                   className="ml-2 p-0 aspect-square w-4 h-4 text-center justify-center cursor-help"
                 >
                   ?
@@ -144,7 +144,7 @@ export default function DatePicker({
               className={cn(
                 "w-full justify-between font-normal",
                 !parsedDate && "text-muted-foreground",
-                error && "border-red-500"
+                error && "border-red-500",
               )}
               disabled={disabled}
             >
@@ -185,7 +185,7 @@ export default function DatePicker({
               className={cn(
                 "w-full justify-between font-normal",
                 !parsedDate && "text-muted-foreground",
-                error && "border-red-500"
+                error && "border-red-500",
               )}
               size={"sm"}
               disabled={disabled}

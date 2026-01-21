@@ -128,7 +128,7 @@ export const exhibitionVehiclesColumns = ({
             {vehicleItems.length > 0 && (
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Badge variant="default" className="w-fit">
+                  <Badge color="default" className="w-fit">
                     {vehicleItems.length} Vehículo(s)
                   </Badge>
                 </TooltipTrigger>
@@ -146,7 +146,7 @@ export const exhibitionVehiclesColumns = ({
             {equipmentItems.length > 0 && (
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Badge variant="secondary" className="w-fit">
+                  <Badge color="secondary" className="w-fit">
                     {equipmentItems.length} Equipo(s)
                   </Badge>
                 </TooltipTrigger>

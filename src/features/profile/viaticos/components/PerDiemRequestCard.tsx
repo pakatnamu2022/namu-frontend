@@ -23,7 +23,7 @@ export default function PerDiemRequestCard({
 
   const totalSpentByEmployee = employeeExpenses.reduce(
     (sum, expense) => sum + expense.company_amount,
-    0
+    0,
   );
 
   const spentPercentage = (totalSpentByEmployee / request.total_budget) * 100;
@@ -51,7 +51,7 @@ export default function PerDiemRequestCard({
             </h3>
           </div>
           <Badge
-            variant={statusConfig.variant}
+            color={statusConfig.color}
             className="flex items-center gap-1 shrink-0"
           >
             <StatusIcon className={`w-3 h-3`} />
@@ -135,8 +135,8 @@ export default function PerDiemRequestCard({
                 spentPercentage > 95
                   ? "bg-destructive"
                   : spentPercentage > 85
-                  ? "bg-muted-foreground/60"
-                  : "bg-muted-foreground/40"
+                    ? "bg-muted-foreground/60"
+                    : "bg-muted-foreground/40"
               }`}
               style={{ width: `${Math.min(spentPercentage, 100)}%` }}
             />

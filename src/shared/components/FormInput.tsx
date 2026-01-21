@@ -18,8 +18,10 @@ import { Badge } from "@/components/ui/badge";
 import RequiredField from "./RequiredField";
 import { cn } from "@/lib/utils";
 
-interface FormInputProps
-  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "name"> {
+interface FormInputProps extends Omit<
+  React.InputHTMLAttributes<HTMLInputElement>,
+  "name"
+> {
   name: string;
   description?: string;
   label?: string | React.ReactNode;
@@ -81,7 +83,7 @@ export function FormInput({
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Badge
-                    variant="tertiary"
+                    color="tertiary"
                     className="ml-2 p-0 aspect-square w-4 h-4 text-center justify-center"
                   >
                     ?
@@ -105,7 +107,7 @@ export function FormInput({
                 "h-8 md:h-10 text-xs md:text-sm",
                 addonStart && "pl-10",
                 addonEnd && "pr-10",
-                className
+                className,
               )}
               {...inputProps}
               onChange={handleStandaloneChange}
@@ -155,7 +157,7 @@ export function FormInput({
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Badge
-                      variant="tertiary"
+                      color="tertiary"
                       className="ml-2 p-0 aspect-square w-4 h-4 text-center justify-center"
                     >
                       ?
@@ -178,7 +180,7 @@ export function FormInput({
                       "h-8 md:h-10 text-xs md:text-sm",
                       addonStart && "pl-10",
                       addonEnd && "pr-10",
-                      className
+                      className,
                     )}
                     {...field}
                     {...inputProps}

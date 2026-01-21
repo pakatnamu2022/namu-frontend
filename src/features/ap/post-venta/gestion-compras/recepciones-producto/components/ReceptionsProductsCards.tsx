@@ -481,7 +481,7 @@ export default function ReceptionsProductsCards({
                         </div>
                         <div className="text-right shrink-0">
                           <Badge
-                            variant="default"
+                            color="default"
                             className={
                               isSingleCard ? "text-sm h-7" : "text-xs h-6"
                             }

@@ -1,4 +1,4 @@
-import { BadgeVariants } from "@/components/ui/badge";
+import { BadgeColor } from "@/components/ui/badge";
 import {
   PerDiemRequestStatus,
   PerDiemSettlementStatus,
@@ -17,7 +17,7 @@ export const statusConfig: Record<
   PerDiemRequestStatus,
   {
     label: string;
-    variant: BadgeVariants;
+    color: BadgeColor;
     IconComponent: React.ComponentType<{ className?: string }>;
     iconBgColor: string;
     iconColor: string;
@@ -25,49 +25,49 @@ export const statusConfig: Record<
 > = {
   pending: {
     label: "Pendiente",
-    variant: "gray",
+    color: "gray",
     IconComponent: Clock,
     iconBgColor: "bg-gray-100 dark:bg-gray-800",
     iconColor: "text-gray-600 dark:text-gray-400",
   },
   approved: {
     label: "Aprobada",
-    variant: "teal",
+    color: "teal",
     IconComponent: CheckCircle2,
     iconBgColor: "bg-teal-100 dark:bg-teal-950",
     iconColor: "text-teal-600 dark:text-teal-400",
   },
   rejected: {
     label: "Rechazada",
-    variant: "red",
+    color: "red",
     IconComponent: XCircle,
     iconBgColor: "bg-red-100 dark:bg-red-950",
     iconColor: "text-red-600 dark:text-red-400",
   },
   pending_settlement: {
     label: "Pendiente de Liquidación",
-    variant: "indigo",
+    color: "indigo",
     IconComponent: FileText,
     iconBgColor: "bg-indigo-100 dark:bg-indigo-950",
     iconColor: "text-indigo-600 dark:text-indigo-400",
   },
   in_progress: {
     label: "En Progreso",
-    variant: "orange",
+    color: "orange",
     IconComponent: Plane,
     iconBgColor: "bg-orange-100 dark:bg-orange-950",
     iconColor: "text-orange-600 dark:text-orange-400",
   },
   cancelled: {
     label: "Cancelada",
-    variant: "secondary",
+    color: "secondary",
     IconComponent: CircleDashed,
     iconBgColor: "bg-gray-100 dark:bg-gray-800",
     iconColor: "text-gray-600 dark:text-gray-400",
   },
   settled: {
     label: "Liquidada",
-    variant: "blue",
+    color: "blue",
     IconComponent: FileCheck,
     iconBgColor: "bg-blue-100 dark:bg-blue-950",
     iconColor: "text-blue-600 dark:text-blue-400",
@@ -78,7 +78,7 @@ export const statusSettlementConfig: Record<
   PerDiemSettlementStatus,
   {
     label: string;
-    variant: BadgeVariants;
+    color: BadgeColor;
     IconComponent: React.ComponentType<{ className?: string }>;
     iconBgColor: string;
     iconColor: string;
@@ -86,28 +86,28 @@ export const statusSettlementConfig: Record<
 > = {
   approved: {
     label: "Aprobada",
-    variant: "green",
+    color: "green",
     IconComponent: Clock,
     iconBgColor: "bg-green-100 dark:bg-green-800",
     iconColor: "text-green-600 dark:text-green-400",
   },
   completed: {
     label: "Completada",
-    variant: "blue",
+    color: "blue",
     IconComponent: Clock,
     iconBgColor: "bg-blue-100 dark:bg-blue-800",
     iconColor: "text-blue-600 dark:text-blue-400",
   },
   rejected: {
     label: "Rechazada",
-    variant: "orange",
+    color: "orange",
     IconComponent: Clock,
     iconBgColor: "bg-orange-100 dark:bg-orange-800",
     iconColor: "text-orange-600 dark:text-orange-400",
   },
   submitted: {
     label: "Enviada",
-    variant: "indigo",
+    color: "indigo",
     IconComponent: Clock,
     iconBgColor: "bg-indigo-100 dark:bg-indigo-800",
     iconColor: "text-indigo-600 dark:text-indigo-400",
@@ -118,7 +118,7 @@ export const getStatusConfig = (status: PerDiemRequestStatus) => {
   return (
     statusConfig[status] || {
       label: status,
-      variant: "outline" as const,
+      color: "default" as BadgeColor,
       IconComponent: Clock,
       iconBgColor: "bg-gray-100 dark:bg-gray-800",
       iconColor: "text-gray-600 dark:text-gray-400",

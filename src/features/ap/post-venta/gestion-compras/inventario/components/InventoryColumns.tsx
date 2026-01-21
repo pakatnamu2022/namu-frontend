@@ -136,7 +136,7 @@ export const inventoryColumns = ({
 
       return (
         <Badge
-          variant="secondary"
+          color="secondary"
           className="w-28 flex items-center justify-center bg-green-500 text-white hover:bg-green-600"
         >
           Normal

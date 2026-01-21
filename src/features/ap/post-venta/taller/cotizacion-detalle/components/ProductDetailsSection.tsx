@@ -365,7 +365,7 @@ export default function ProductDetailsSection({
       <div className="mt-6">
         <div className="flex items-center justify-between mb-3 pb-2 border-b">
           <h4 className="font-semibold text-gray-700">Items de Repuestos</h4>
-          <Badge variant="secondary" className="font-semibold">
+          <Badge color="secondary" className="font-semibold">
             {productDetails.length} item(s)
           </Badge>
         </div>
