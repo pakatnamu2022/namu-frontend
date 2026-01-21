@@ -297,13 +297,19 @@ export function OrderQuotationBillingForm({
             const subtotalDetail = Number(detail.total_amount) || 0;
 
             // El valor_unitario y precio_unitario son iguales (sin IGV)
-            const valor_unitario = subtotalDetail / cantidad;
-            const precio_unitario =
-              valor_unitario * (1 + porcentaje_de_igv / 100);
+            // Redondear a 2 decimales para evitar errores de precisión
+            const valor_unitario = parseFloat(
+              (subtotalDetail / cantidad).toFixed(2),
+            );
+            const precio_unitario = parseFloat(
+              (valor_unitario * (1 + porcentaje_de_igv / 100)).toFixed(2),
+            );
 
-            const subtotal = subtotalDetail;
-            const igvAmount = subtotal * (porcentaje_de_igv / 100);
-            const total = subtotal + igvAmount; // Total CON IGV
+            const subtotal = parseFloat(subtotalDetail.toFixed(2));
+            const igvAmount = parseFloat(
+              (subtotal * (porcentaje_de_igv / 100)).toFixed(2),
+            );
+            const total = parseFloat((subtotal + igvAmount).toFixed(2)); // Total CON IGV
 
             return {
               account_plan_id: QUOTATION_ACCOUNT_PLAN_IDS.FULL_SALE,
@@ -332,10 +338,14 @@ export function OrderQuotationBillingForm({
               // IMPORTANTE: Convertir a número porque puede venir como string desde la API
               const total_con_igv = Number(advance.total) || 0;
               const precio_unitario = total_con_igv; // El anticipo es cantidad 1
-              const valor_unitario =
-                precio_unitario / (1 + porcentaje_de_igv / 100);
+              // Redondear a 2 decimales para evitar errores de precisión
+              const valor_unitario = parseFloat(
+                (precio_unitario / (1 + porcentaje_de_igv / 100)).toFixed(2),
+              );
               const subtotal = valor_unitario;
-              const igvAmount = subtotal * (porcentaje_de_igv / 100);
+              const igvAmount = parseFloat(
+                (total_con_igv - valor_unitario).toFixed(2),
+              ); // IGV = total - base para evitar descuadre
 
               // Crear item de regularización en NEGATIVO
               quotationItems.push({
@@ -441,7 +451,9 @@ export function OrderQuotationBillingForm({
     total_igv = parseFloat(
       (total_gravada * (porcentaje_de_igv / 100)).toFixed(2),
     );
-    const total = total_gravada + total_inafecta + total_exonerada + total_igv;
+    const total = parseFloat(
+      (total_gravada + total_inafecta + total_exonerada + total_igv).toFixed(2),
+    );
 
     return {
       total_gravada,
