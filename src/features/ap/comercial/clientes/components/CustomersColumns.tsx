@@ -49,14 +49,14 @@ export const customersColumns = ({
     accessorKey: "type_person",
     header: "Tipo",
     cell: ({ row }) => (
-      <Badge variant="secondary">{row.getValue("type_person")}</Badge>
+      <Badge color="secondary">{row.getValue("type_person")}</Badge>
     ),
   },
   {
     accessorKey: "person_segment",
     header: "Segmento",
     cell: ({ row }) => (
-      <Badge variant="default">{row.getValue("person_segment")}</Badge>
+      <Badge color="default">{row.getValue("person_segment")}</Badge>
     ),
   },
   {

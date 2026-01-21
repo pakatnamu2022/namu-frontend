@@ -20,7 +20,7 @@ export default function Posts({ posts }: Props) {
           key={post.id}
           className="bg-background/90 backdrop-blur-xs border border-primary/10 shadow-xs"
         >
-          <CardContent className="p-6">
+          <CardContent>
             {/* Header del post */}
             <PostHeader post={post} />
 

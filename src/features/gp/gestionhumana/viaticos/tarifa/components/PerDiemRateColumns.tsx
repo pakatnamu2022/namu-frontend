@@ -53,7 +53,7 @@ export const perDiemRateColumns = ({
     accessorKey: "active",
     header: "Estado",
     cell: ({ row }) => (
-      <Badge variant={row.getValue("active") ? "default" : "secondary"}>
+      <Badge color={row.getValue("active") ? "default" : "secondary"}>
         {row.getValue("active") ? "Activo" : "Inactivo"}
       </Badge>
     ),

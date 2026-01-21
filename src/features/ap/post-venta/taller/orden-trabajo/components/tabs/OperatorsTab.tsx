@@ -193,7 +193,7 @@ export default function OperatorsTab({ workOrderId }: OperatorsTabProps) {
                             planning.workers.map((worker, idx) => (
                               <Badge
                                 key={`${worker.worker_id}-${idx}`}
-                                variant="secondary"
+                                color="secondary"
                                 className="text-xs"
                               >
                                 {worker.worker_name}

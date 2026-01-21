@@ -212,7 +212,7 @@ export const TransferReceptionForm = ({
                         </h4>
                         {isOrderedProduct && (
                           <Badge
-                            variant="default"
+                            color="default"
                             className="text-xs h-5 shrink-0"
                           >
                             TRANSFERIDO
@@ -220,7 +220,7 @@ export const TransferReceptionForm = ({
                         )}
                         {isServiceItem && (
                           <Badge
-                            variant="default"
+                            color="default"
                             className="text-xs h-5 shrink-0"
                           >
                             SERVICIO

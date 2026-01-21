@@ -83,9 +83,9 @@ export const purchaseRequestColumns = ({
     cell: ({ getValue }) => {
       const value = getValue() as number | null;
       return value !== null ? (
-        <Badge variant="default">SI</Badge>
+        <Badge color="default">SI</Badge>
       ) : (
-        <Badge variant="secondary">NO</Badge>
+        <Badge color="secondary">NO</Badge>
       );
     },
   },

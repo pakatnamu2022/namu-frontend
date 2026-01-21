@@ -28,7 +28,7 @@ export default function AvailableCompanies() {
           ))
         : permissions?.map((company, index) => {
             const empresaData = CONSTANTS.EMPRESAS.find(
-              (c: any) => c.id === company.empresa_id
+              (c: any) => c.id === company.empresa_id,
             );
             const logo = empresaData?.scrWhite || "/logos/default.svg";
             const backgroundImage =
@@ -45,7 +45,7 @@ export default function AvailableCompanies() {
                   style={{ backgroundImage: `url(${backgroundImage})` }}
                 />
 
-                <div className="absolute inset-0 bg-linear-to-t from-primary/70 via-primary/10 to-transparent" />
+                <div className="absolute inset-0 bg-linear-to-t from-primary/70 dark:from-muted via-primary/10 to-transparent" />
 
                 <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6 flex items-center gap-4">
                   <div className="size-12 md:size-14 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform duration-500">

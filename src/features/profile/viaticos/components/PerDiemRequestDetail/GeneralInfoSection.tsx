@@ -80,7 +80,7 @@ export default function GeneralInfoSection({
               <CalendarClock className="h-3 w-3 mr-1" />
               {format(new Date(request.end_date), "dd/MM/yyyy", { locale: es })}
             </Badge>
-            <Badge variant="secondary" className="text-xs">
+            <Badge color="secondary" className="text-xs">
               {request.days_count} {request.days_count === 1 ? "día" : "días"}
             </Badge>
           </div>
@@ -118,7 +118,7 @@ export default function GeneralInfoSection({
         )}
         <div>
           <Badge
-            variant={request.with_active ? "blue" : "gray"}
+            color={request.with_active ? "blue" : "gray"}
             className="text-xs"
           >
             {request.with_active
@@ -187,7 +187,7 @@ export default function GeneralInfoSection({
                   <p className="text-xs md:text-sm">
                     {format(
                       new Date(request.hotel_reservation.checkin_date),
-                      "dd/MM/yyyy"
+                      "dd/MM/yyyy",
                     )}
                   </p>
                 </div>
@@ -198,7 +198,7 @@ export default function GeneralInfoSection({
                   <p className="text-xs md:text-sm">
                     {format(
                       new Date(request.hotel_reservation.checkout_date),
-                      "dd/MM/yyyy"
+                      "dd/MM/yyyy",
                     )}
                   </p>
                 </div>
@@ -262,7 +262,7 @@ export default function GeneralInfoSection({
       <div
         className={cn(
           "flex items-start gap-3 md:col-span-2",
-          !request.hotel_reservation && "-mt-3"
+          !request.hotel_reservation && "-mt-3",
         )}
       >
         <User className="h-5 w-5 text-muted-foreground mt-0.5 shrink-0" />
@@ -273,12 +273,13 @@ export default function GeneralInfoSection({
               {request.approvals.map((approval, index) => (
                 <Badge
                   key={index}
-                  variant={
+                  variant="outline"
+                  color={
                     approval.status === "approved"
                       ? "green"
                       : approval.status === "rejected"
-                      ? "red"
-                      : "outline"
+                        ? "red"
+                        : "default"
                   }
                   className="text-xs flex flex-col items-start"
                 >

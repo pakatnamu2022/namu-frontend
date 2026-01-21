@@ -31,7 +31,7 @@ export const OpportunityActionTimeline = ({
 
   // Sort actions by date (most recent first)
   const sortedActions = [...actions].sort(
-    (a, b) => new Date(b.datetime).getTime() - new Date(a.datetime).getTime()
+    (a, b) => new Date(b.datetime).getTime() - new Date(a.datetime).getTime(),
   );
 
   return (
@@ -44,7 +44,7 @@ export const OpportunityActionTimeline = ({
           const date = parse(
             action.datetime,
             "yyyy-MM-dd HH:mm:ss",
-            new Date()
+            new Date(),
           );
           const dateStr = date.toLocaleDateString("es-PE", {
             day: "2-digit",
@@ -86,8 +86,9 @@ export const OpportunityActionTimeline = ({
                           {action.action_contact_type}
                         </Badge>
                         <Badge
-                          variant={action.result ? "default" : "destructive"}
+                          color={action.result ? "default" : "destructive"}
                           className="text-xs"
+                          variant="outline"
                         >
                           {action.result ? "Exitosa" : "Sin resultado"}
                         </Badge>

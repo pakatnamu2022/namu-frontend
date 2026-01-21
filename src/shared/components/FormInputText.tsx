@@ -18,8 +18,10 @@ import { Badge } from "@/components/ui/badge";
 import RequiredField from "./RequiredField";
 import { cn } from "@/lib/utils";
 
-interface FormInputTextProps
-  extends Omit<React.TextareaHTMLAttributes<HTMLTextAreaElement>, "name"> {
+interface FormInputTextProps extends Omit<
+  React.TextareaHTMLAttributes<HTMLTextAreaElement>,
+  "name"
+> {
   name: string;
   description?: string;
   label?: string | React.ReactNode;
@@ -53,7 +55,7 @@ export function FormInputText({
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Badge
-                    variant="tertiary"
+                    color="tertiary"
                     className="ml-2 p-0 aspect-square w-4 h-4 text-center justify-center"
                   >
                     ?

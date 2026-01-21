@@ -44,7 +44,7 @@ export default function VehiclePurchaseOrderDetailView({
             {purchaseOrder.status ? (
               <Badge className="border-0">Válida</Badge>
             ) : (
-              <Badge variant="secondary" className="border-0">
+              <Badge color="secondary" className="border-0">
                 Anulada
               </Badge>
             )}
@@ -260,11 +260,11 @@ export default function VehiclePurchaseOrderDetailView({
                       </TableCell>
                       <TableCell>
                         {item.is_vehicle ? (
-                          <Badge variant="default" className="text-xs">
+                          <Badge color="default" className="text-xs">
                             Vehículo
                           </Badge>
                         ) : (
-                          <Badge variant="secondary" className="text-xs">
+                          <Badge color="secondary" className="text-xs">
                             Item
                           </Badge>
                         )}
@@ -356,7 +356,7 @@ export default function VehiclePurchaseOrderDetailView({
           <p className="text-xs text-muted-foreground">Almacén</p>
           <div className="flex gap-4">
             <p className="font-medium">{purchaseOrder.warehouse}</p>
-            <Badge variant="default" className="h-6">
+            <Badge color="default" className="h-6">
               {purchaseOrder.article_class?.description}
             </Badge>
           </div>

@@ -125,7 +125,7 @@ export const shipmentsReceptionsColumns = ({
     cell: ({ row }) => {
       const type = row.getValue("document_type") as string;
       return (
-        <Badge variant={type === "GUIA_REMISION" ? "default" : "secondary"}>
+        <Badge color={type === "GUIA_REMISION" ? "default" : "secondary"}>
           {type === "GUIA_REMISION" ? "Guía Remisión" : "Guía Traslado"}
         </Badge>
       );
@@ -240,12 +240,12 @@ export const shipmentsReceptionsColumns = ({
       const isReceived = row.getValue("is_received") as boolean;
 
       return isReceived ? (
-        <Badge variant="green">
+        <Badge color="green">
           <CheckCircle2 className="size-3" />
           Recepcionado
         </Badge>
       ) : (
-        <Badge variant="blue">
+        <Badge color="blue">
           <XCircle className="size-3" />
           Pendiente
         </Badge>
@@ -328,7 +328,7 @@ export const shipmentsReceptionsColumns = ({
 
         return (
           <div className="flex flex-col gap-1">
-            <Badge variant={variant}>
+            <Badge color={variant}>
               {icon}
               {label}
             </Badge>
@@ -340,7 +340,7 @@ export const shipmentsReceptionsColumns = ({
       }
 
       return (
-        <Badge variant="gray">
+        <Badge color="gray">
           <XCircle className="size-3" />
           No enviado
         </Badge>
@@ -396,7 +396,7 @@ export const shipmentsReceptionsColumns = ({
       const status = row.getValue("status") as boolean;
       return (
         <Badge
-          variant={status ? "default" : "secondary"}
+          color={status ? "default" : "secondary"}
           className="capitalize w-20 flex items-center justify-center"
         >
           {status ? "Activo" : "Cancelado"}
@@ -441,8 +441,8 @@ export const shipmentsReceptionsColumns = ({
       const receiveTooltip = isAlreadyReceived
         ? "Ya ha sido recepcionado"
         : isGuiaRemision && notAcceptedBySunat
-        ? "Debe ser aceptado por SUNAT primero"
-        : "Recepcionar";
+          ? "Debe ser aceptado por SUNAT primero"
+          : "Recepcionar";
 
       return (
         <div className="flex items-center gap-2">

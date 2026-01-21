@@ -28,7 +28,7 @@ export default function EvaluationPersonActions({
   return (
     <div className="flex items-center gap-2 w-full md:justify-end">
       <Link to={`${ABSOLUTE_ROUTE}/${idEvaluation}`}>
-        <Button size={"sm"} variant={"tertiary"}>
+        <Button size="sm" variant="outline" color="primary">
           <LayoutDashboard className="w-4 h-4" />
           Dashboard
         </Button>

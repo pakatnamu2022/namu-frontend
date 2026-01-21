@@ -49,7 +49,7 @@ export const pendingSettlementsColumns = ({
           year: "numeric",
           month: "2-digit",
           day: "2-digit",
-        }
+        },
       );
       const endDate = new Date(row.original.end_date).toLocaleDateString(
         "es-PE",
@@ -57,12 +57,12 @@ export const pendingSettlementsColumns = ({
           year: "numeric",
           month: "2-digit",
           day: "2-digit",
-        }
+        },
       );
       return (
         <p className="text-end">
           {startDate} - {endDate}{" "}
-          <Badge size="square" variant={"tertiary"}>
+          <Badge size="square" color="tertiary">
             {row.original.days_count}
           </Badge>
         </p>

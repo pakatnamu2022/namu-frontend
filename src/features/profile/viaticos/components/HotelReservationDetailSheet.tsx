@@ -77,7 +77,7 @@ export default function HotelReservationDetailSheet({
         <div className="flex justify-between items-center">
           <div>
             {hotelReservation.attended && (
-              <Badge variant="default" className="gap-1">
+              <Badge color="default" className="gap-1">
                 Asistido
               </Badge>
             )}

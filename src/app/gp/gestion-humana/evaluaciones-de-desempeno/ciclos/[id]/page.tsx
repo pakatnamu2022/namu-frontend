@@ -105,7 +105,7 @@ export default function CyclePersonDetailPage() {
       successToast("Participantes asignados correctamente.");
     } catch (error: any) {
       errorToast(
-        error.response.data.message ?? "Error al asignar los participantes."
+        error.response.data.message ?? "Error al asignar los participantes.",
       );
     } finally {
       setOpenAssign(false);
@@ -166,7 +166,7 @@ export default function CyclePersonDetailPage() {
           subtitle={currentView.descripcion}
           icon={currentView.icon}
         >
-          <Badge className="truncate" variant={"secondary"}>
+          <Badge className="truncate" color="secondary">
             {cycle?.typeEvaluationName}
           </Badge>
         </TitleComponent>

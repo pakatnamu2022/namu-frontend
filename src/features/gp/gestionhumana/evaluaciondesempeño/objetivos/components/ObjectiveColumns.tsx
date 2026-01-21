@@ -69,7 +69,7 @@ export const objectiveColumns = ({
     accessorKey: "isAscending",
     header: "Lógica",
     cell: ({ getValue }) => (
-      <Badge variant={getValue() ? "default" : "destructive"}>
+      <Badge color={getValue() ? "default" : "destructive"}>
         {getValue() ? (
           <ArrowUp className="size-4" />
         ) : (

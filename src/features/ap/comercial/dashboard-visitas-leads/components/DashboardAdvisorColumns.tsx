@@ -128,11 +128,12 @@ export const dashboardAdvisorColumns = ({
                 (count as number) > 0 && (
                   <Badge
                     key={`${advisor.worker_id}-${advisor.sede_id}-${advisor.vehicle_brand_id}-${state}`}
-                    variant={
+                    variant="outline"
+                    color={
                       state === "FRIO"
                         ? "secondary"
                         : state === "TEMPLADO"
-                          ? "outline"
+                          ? "default"
                           : state === "CALIENTE"
                             ? "destructive"
                             : state === "VENTA CONCRETADA"

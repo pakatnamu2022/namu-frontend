@@ -21,7 +21,7 @@ export const DocumentValidationStatus = ({
     <div className={`${leftPosition} whitespace-nowrap`}>
       {(!documentNumber ||
         (documentNumber.length === expectedDigits && !isValidating)) && (
-        <Badge variant="blue" size="xs" className="rounded-sm py-0 md:px-2">
+        <Badge color="blue" size="xs" className="rounded-sm py-0 md:px-2">
           Automático
         </Badge>
       )}
@@ -29,7 +29,7 @@ export const DocumentValidationStatus = ({
       {documentNumber &&
         documentNumber.length > 0 &&
         documentNumber.length < expectedDigits && (
-          <Badge variant="red" size="xs" className="rounded-sm py-0 md:px-2">
+          <Badge color="red" size="xs" className="rounded-sm py-0 md:px-2">
             {`Falta${expectedDigits - documentNumber.length === 1 ? "" : "n"}`}{" "}
             {expectedDigits - documentNumber.length}{" "}
             {`dígito${expectedDigits - documentNumber.length === 1 ? "" : "s"}`}
@@ -38,7 +38,7 @@ export const DocumentValidationStatus = ({
 
       {isValidating && (
         <Badge
-          variant="amber"
+          color="amber"
           size="xs"
           className="rounded-sm py-0 md:px-2 animate-pulse"
         >

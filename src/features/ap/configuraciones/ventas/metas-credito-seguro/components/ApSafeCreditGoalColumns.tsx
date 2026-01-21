@@ -44,7 +44,7 @@ export const apSafeCreditGoalColumns = ({
       const value = getValue() as string;
       return (
         <Badge
-          variant={value == "CREDITO" ? "default" : "secondary"}
+          color={value == "CREDITO" ? "default" : "secondary"}
           className="capitalize w-20 flex items-center justify-center"
         >
           {value == "CREDITO" ? "CREDITO" : "SEGURO"}

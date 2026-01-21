@@ -99,7 +99,7 @@ function ProductDetailItem({
       {/* Vista Desktop - Formato Tabla */}
       <div className="hidden md:grid grid-cols-14 gap-3 px-4 py-3 items-start">
         <div className="col-span-1 flex justify-center pt-2">
-          <Badge variant="secondary" className="text-xs">
+          <Badge color="secondary" className="text-xs">
             #{index + 1}
           </Badge>
         </div>
@@ -151,7 +151,7 @@ function ProductDetailItem({
                           </span>
                           {warehouse.is_out_of_stock && (
                             <Badge
-                              variant="destructive"
+                              color="destructive"
                               className="text-xs py-0 px-1 h-4"
                             >
                               Sin Stock
@@ -213,7 +213,7 @@ function ProductDetailItem({
                       disponibles
                     </span>
                     {currentProductStock.warehouses.length > 1 && (
-                      <Badge variant="secondary" className="text-xs">
+                      <Badge color="secondary" className="text-xs">
                         {currentProductStock.warehouses.length} almacenes
                       </Badge>
                     )}
@@ -366,7 +366,7 @@ function ProductDetailItem({
       {/* Vista Mobile - Formato Card */}
       <div className="md:hidden p-4 space-y-3">
         <div className="flex items-start justify-between">
-          <Badge variant="secondary" className="text-xs">
+          <Badge color="secondary" className="text-xs">
             Repuesto #{index + 1}
           </Badge>
           <Button
@@ -436,7 +436,7 @@ function ProductDetailItem({
                       )}
                       {warehouse.is_out_of_stock && (
                         <Badge
-                          variant="destructive"
+                          color="destructive"
                           className="text-xs py-0 px-1 h-4"
                         >
                           Sin Stock

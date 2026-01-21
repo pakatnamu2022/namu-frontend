@@ -37,7 +37,7 @@ interface ProgressStats {
 export default function PerformanceEvaluationPage({ id }: { id?: number }) {
   const { ABSOLUTE_ROUTE } = EVALUATION;
   const [selectedCardType, setSelectedCardType] = useState<KPICardType | null>(
-    null
+    null,
   );
   const [shouldRecalculate, setShouldRecalculate] = useState(false);
 
@@ -57,7 +57,7 @@ export default function PerformanceEvaluationPage({ id }: { id?: number }) {
     error: personsError,
   } = usePersonResultsByType(
     evaluationData?.id || 0,
-    selectedCardType || "total"
+    selectedCardType || "total",
   );
 
   const handleCardClick = (type: KPICardType) => {

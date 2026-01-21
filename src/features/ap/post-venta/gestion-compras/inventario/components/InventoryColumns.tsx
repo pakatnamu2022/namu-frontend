@@ -115,7 +115,7 @@ export const inventoryColumns = ({
       if (isOutOfStock || status === "OUT_OF_STOCK") {
         return (
           <Badge
-            variant="destructive"
+            color="destructive"
             className="w-28 flex items-center justify-center"
           >
             Sin Stock
@@ -126,7 +126,7 @@ export const inventoryColumns = ({
       if (isLowStock || status === "LOW_STOCK") {
         return (
           <Badge
-            variant="secondary"
+            color="secondary"
             className="w-28 flex items-center justify-center bg-yellow-500 text-white hover:bg-yellow-600"
           >
             Stock Bajo
@@ -136,7 +136,7 @@ export const inventoryColumns = ({
 
       return (
         <Badge
-          variant="secondary"
+          color="secondary"
           className="w-28 flex items-center justify-center bg-green-500 text-white hover:bg-green-600"
         >
           Normal

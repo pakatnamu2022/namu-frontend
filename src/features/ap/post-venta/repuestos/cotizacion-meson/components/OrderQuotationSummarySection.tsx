@@ -100,7 +100,7 @@ export function OrderQuotationSummarySection({
             -{form.watch("numero") || "########"}
           </p>
           {isAdvancePayment && (
-            <Badge variant="secondary" className="w-fit">
+            <Badge color="secondary" className="w-fit">
               Anticipo
             </Badge>
           )}

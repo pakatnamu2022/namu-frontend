@@ -40,7 +40,7 @@ import { cn } from "@/lib/utils";
 import {
   getProgressBackgroundColor,
   getProgressColor,
-  getVariantByCompletionRate,
+  getProgressColorBadge,
 } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/lib/evaluationPerson.function";
 
 const { QUERY_KEY, MODEL } = EVALUATION_PERSON;
@@ -68,7 +68,7 @@ export default function NamuPerformanceEvaluationPage() {
     queryFn: () =>
       getEvaluationPersonResultByPersonAndEvaluation(
         personId,
-        activeEvaluation?.id
+        activeEvaluation?.id,
       ),
     enabled: !!activeEvaluation?.id && !!personId,
     refetchOnWindowFocus: false,
@@ -91,7 +91,7 @@ export default function NamuPerformanceEvaluationPage() {
       successToast(SUCCESS_MESSAGE(MODEL, "update"));
     } catch (error: any) {
       errorToast(
-        error?.response?.data?.message || ERROR_MESSAGE(MODEL, "update")
+        error?.response?.data?.message || ERROR_MESSAGE(MODEL, "update"),
       );
     } finally {
       setSaving(false);
@@ -106,7 +106,7 @@ export default function NamuPerformanceEvaluationPage() {
       successToast(SUCCESS_MESSAGE(MODEL, "update"));
     } catch (error: any) {
       errorToast(
-        error?.response?.data?.message || ERROR_MESSAGE(MODEL, "update")
+        error?.response?.data?.message || ERROR_MESSAGE(MODEL, "update"),
       );
     } finally {
       setSaving(false);
@@ -115,7 +115,7 @@ export default function NamuPerformanceEvaluationPage() {
 
   const handleUpdateResultCellCompetence = async (
     id: number,
-    result: number
+    result: number,
   ) => {
     try {
       setSaving(true);
@@ -124,7 +124,7 @@ export default function NamuPerformanceEvaluationPage() {
       successToast(SUCCESS_MESSAGE(MODEL, "update"));
     } catch (error: any) {
       errorToast(
-        error?.response?.data?.message || ERROR_MESSAGE(MODEL, "update")
+        error?.response?.data?.message || ERROR_MESSAGE(MODEL, "update"),
       );
     } finally {
       setSaving(false);
@@ -138,7 +138,7 @@ export default function NamuPerformanceEvaluationPage() {
       successToast("Datos actualizados correctamente");
     } catch (error: any) {
       errorToast(
-        error?.response?.data?.message || "Error al actualizar los datos"
+        error?.response?.data?.message || "Error al actualizar los datos",
       );
     } finally {
       setSaving(false);
@@ -213,18 +213,18 @@ export default function NamuPerformanceEvaluationPage() {
           <div className="flex gap-2 items-end">
             <div className="flex flex-col gap-2 items-center">
               <div className="flex flex-wrap items-center gap-2">
-                <Badge variant="indigo" className="text-xs">
+                <Badge color="indigo" className="text-xs">
                   {activeEvaluation.name}
                 </Badge>
-                <Badge variant="sky" className="text-xs">
+                <Badge color="sky" className="text-xs">
                   {activeEvaluation.period}
                 </Badge>
-                <Badge variant="blue" className="text-xs">
+                <Badge color="blue" className="text-xs">
                   Activa
                 </Badge>
                 <Badge
-                  variant={getVariantByCompletionRate(
-                    evaluationPersonResult.statistics.overall_completion_rate
+                  color={getProgressColorBadge(
+                    evaluationPersonResult.statistics.overall_completion_rate,
                   )}
                   className="text-xs"
                 >
@@ -238,11 +238,11 @@ export default function NamuPerformanceEvaluationPage() {
                 className={cn(
                   "h-2",
                   getProgressBackgroundColor(
-                    evaluationPersonResult.statistics.overall_completion_rate
-                  )
+                    evaluationPersonResult.statistics.overall_completion_rate,
+                  ),
                 )}
                 indicatorClassName={getProgressColor(
-                  evaluationPersonResult.statistics.overall_completion_rate
+                  evaluationPersonResult.statistics.overall_completion_rate,
                 )}
               />
             </div>
@@ -330,7 +330,7 @@ export default function NamuPerformanceEvaluationPage() {
                       )}
                       {evaluationPersonResult?.evaluation
                         ?.typeEvaluationName && (
-                        <Badge variant="secondary">
+                        <Badge color="secondary">
                           {evaluationPersonResult.evaluation.typeEvaluationName}
                         </Badge>
                       )}

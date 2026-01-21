@@ -20,7 +20,7 @@ export const CompanyStatusBadges = ({
       {/* Estado */}
       {status !== "-" && (
         <Badge
-          variant={status === "ACTIVO" ? "green" : "red"}
+          color={status === "ACTIVO" ? "green" : "red"}
           size="xs"
           className="rounded-sm py-0 md:px-2"
         >
@@ -36,7 +36,7 @@ export const CompanyStatusBadges = ({
       {/* Condición */}
       {condition !== "-" && (
         <Badge
-          variant={status === "ACTIVO" ? "green" : "red"}
+          color={status === "ACTIVO" ? "green" : "red"}
           size="xs"
           className="rounded-sm py-0 md:px-2"
         >

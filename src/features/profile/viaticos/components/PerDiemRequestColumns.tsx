@@ -52,7 +52,7 @@ export const perDiemRequestColumns = ({
           year: "numeric",
           month: "2-digit",
           day: "2-digit",
-        }
+        },
       );
       const endDate = new Date(row.original.end_date).toLocaleDateString(
         "es-PE",
@@ -60,12 +60,12 @@ export const perDiemRequestColumns = ({
           year: "numeric",
           month: "2-digit",
           day: "2-digit",
-        }
+        },
       );
       return (
         <div className="text-xs text-end">
           {startDate} - {endDate}{" "}
-          <Badge size="square" variant={"tertiary"}>
+          <Badge size="square" color="tertiary">
             {row.original.days_count}
           </Badge>
         </div>

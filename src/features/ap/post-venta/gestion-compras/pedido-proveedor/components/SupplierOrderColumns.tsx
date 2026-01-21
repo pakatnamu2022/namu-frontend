@@ -95,7 +95,7 @@ export const supplierOrderColumns = ({
     cell: ({ getValue }) => {
       const isTake = getValue() as boolean;
       return (
-        <Badge variant={isTake ? "default" : "secondary"}>
+        <Badge color={isTake ? "default" : "secondary"}>
           {isTake ? "Si" : "No"}
         </Badge>
       );

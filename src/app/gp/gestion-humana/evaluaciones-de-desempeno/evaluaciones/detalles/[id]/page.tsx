@@ -9,7 +9,6 @@ import PageSkeleton from "@/shared/components/PageSkeleton";
 import { errorToast, successToast } from "@/core/core.function";
 import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
 import { DEFAULT_PER_PAGE } from "@/core/core.constants";
-import { Badge } from "@/components/ui/badge";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { EVALUATION } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluaciones/lib/evaluation.constans";
 import {
@@ -47,7 +46,7 @@ export default function EvaluationDetailPage() {
   const [bossDni, setBossDni] = useState<string | null>(null);
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [selectedWorker, setSelectedWorker] = useState<WorkerResource | null>(
-    null
+    null,
   );
   const [openDetailModal, setOpenDetailModal] = useState(false);
   const [loadingRegenerate, setLoadingRegenerate] = useState(false);
@@ -102,13 +101,13 @@ export default function EvaluationDetailPage() {
       await regenerateEvaluation(idEvaluation, params).then(
         (data: { message?: string }) => {
           successToast(data.message ?? "Evaluación regenerada correctamente.");
-        }
+        },
       );
       await refetch();
       setLoadingRegenerate(false);
     } catch (error: any) {
       errorToast(
-        error.response.data.message ?? "Error al regenerar la evaluación."
+        error.response.data.message ?? "Error al regenerar la evaluación.",
       );
       setLoadingRegenerate(false);
     }
@@ -116,18 +115,18 @@ export default function EvaluationDetailPage() {
 
   const handleRegenerateOne = async (
     person_id: number,
-    evaluation_id: number
+    evaluation_id: number,
   ) => {
     try {
       await regenerateEvaluationPerson(person_id, evaluation_id).then(
         async (data) => {
           successToast(data.message ?? "Evaluación regenerada correctamente.");
           await refetch();
-        }
+        },
       );
     } catch (error: any) {
       errorToast(
-        error.response.data.message ?? "Error al regenerar la evaluación."
+        error.response.data.message ?? "Error al regenerar la evaluación.",
       );
     }
   };
@@ -136,7 +135,8 @@ export default function EvaluationDetailPage() {
     isLoadingModule ||
     isLoadingPersons ||
     isLoadingPositions ||
-    isLoadingBosses
+    isLoadingBosses ||
+    !evaluation
   )
     return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
@@ -147,14 +147,10 @@ export default function EvaluationDetailPage() {
     <PageWrapper>
       <HeaderTableWrapper>
         <TitleComponent
-          title={currentView.descripcion}
-          subtitle={"Evaluación " + evaluation?.typeEvaluationName}
+          title={evaluation?.name || "Evaluación"}
+          subtitle={evaluation?.typeEvaluationName}
           icon={currentView.icon}
-        >
-          <Badge className="truncate" variant={"secondary"}>
-            {evaluation?.name}
-          </Badge>
-        </TitleComponent>
+        />
 
         <EvaluationPersonActions
           idEvaluation={idEvaluation}
@@ -164,6 +160,7 @@ export default function EvaluationDetailPage() {
       </HeaderTableWrapper>
 
       <EvaluationPersonTable
+        evaluation={evaluation}
         isLoading={isLoading}
         columns={EvaluationPersonColumns({
           onRegenerate: handleRegenerateOne,

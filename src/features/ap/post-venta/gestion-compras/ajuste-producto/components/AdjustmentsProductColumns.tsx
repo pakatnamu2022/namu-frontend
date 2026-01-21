@@ -63,7 +63,7 @@ export const adjustmentsProductColumns = ({
       const value = getValue() as string;
       return (
         <Badge
-          variant={
+          color={
             value == AP_MASTER_TYPE.TYPE_ADJUSTMENT_IN ? "default" : "secondary"
           }
           className="capitalize w-20 flex items-center justify-center"

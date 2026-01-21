@@ -13,12 +13,13 @@ import { cn } from "@/lib/utils";
 const colorClasses = {
   // Color primary (del tema)
   primary: {
-    text: "text-primary",
-    border: "border-primary",
-    bg: "bg-primary text-primary-foreground",
-    bgSolid: "bg-primary text-primary-foreground", // Para default/secondary/destructive
-    hoverSolid: "hover:bg-primary/90", // Para default/secondary/destructive
-    hoverOutline: "hover:bg-primary/5", // Para outline/tertiary/ghost
+    text: "text-primary dark:text-blue-400",
+    border: "border-primary dark:border-blue-500",
+    bg: "bg-primary text-primary-foreground dark:bg-blue-600",
+    bgSolid: "bg-primary text-primary-foreground dark:bg-blue-600", // Para default/secondary/destructive
+    hoverSolid: "hover:bg-primary/90 dark:hover:bg-blue-600", // Para default/secondary/destructive
+    hoverOutline:
+      "hover:bg-primary/5 dark:hover:bg-blue-950 hover:text-blue-600 dark:hover:text-blue-400", // Para outline/tertiary/ghost
   },
 
   muted: {

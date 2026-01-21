@@ -73,7 +73,7 @@ export const productTransferColumns = ({
     cell: () => {
       return (
         <Badge
-          variant="default"
+          color="default"
           className="capitalize w-28 flex items-center justify-center"
         >
           TRANSFERENCIA

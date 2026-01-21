@@ -69,6 +69,7 @@ export default function RegenerateEvaluationSheet({
         <Button
           size="sm"
           variant="outline"
+          color="red"
           className="w-full md:w-auto"
           disabled={loadingRegenerate}
         >

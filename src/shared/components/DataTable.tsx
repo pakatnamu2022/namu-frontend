@@ -56,7 +56,7 @@ const headerVariants = cva("sticky top-0 z-10", {
   },
 });
 
-const mobileCardVariants = cva("overflow-hidden transition-colors", {
+const mobileCardVariants = cva("overflow-hidden transition-colors py-0 gap-0", {
   variants: {
     variant: {
       default: "border-primary/10 hover:border-primary/30 border shadow-sm",
@@ -71,7 +71,7 @@ const mobileCardVariants = cva("overflow-hidden transition-colors", {
 });
 
 const mobileCardFooterVariants = cva(
-  "border-t px-3 py-1 flex justify-end gap-2",
+  "border-t px-3 py-1 [.border-t]:pt-1 flex justify-end gap-2",
   {
     variants: {
       variant: {
@@ -84,7 +84,7 @@ const mobileCardFooterVariants = cva(
     defaultVariants: {
       variant: "default",
     },
-  }
+  },
 );
 
 interface DataTableProps<TData, TValue> extends VariantProps<
@@ -119,7 +119,7 @@ export function DataTable<TData, TValue>({
 }: DataTableProps<TData, TValue>) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
-    initialColumnVisibility ?? {}
+    initialColumnVisibility ?? {},
   );
 
   const table = useReactTable({
@@ -149,7 +149,7 @@ export function DataTable<TData, TValue>({
     <div
       className={cn(
         "flex flex-col w-full items-end",
-        isVisibleColumnFilter ? "gap-2" : ""
+        isVisibleColumnFilter ? "gap-2" : "",
       )}
     >
       <div className="grid md:flex md:flex-wrap gap-2 md:justify-between w-full">
@@ -180,7 +180,7 @@ export function DataTable<TData, TValue>({
                             <span>
                               {flexRender(
                                 header.column.columnDef.header,
-                                header.getContext()
+                                header.getContext(),
                               )}
                             </span>
                             {header.column.getIsSorted() === "asc" ? (
@@ -194,7 +194,7 @@ export function DataTable<TData, TValue>({
                         ) : (
                           flexRender(
                             header.column.columnDef.header,
-                            header.getContext()
+                            header.getContext(),
                           )
                         )}
                       </TableHead>
@@ -220,7 +220,7 @@ export function DataTable<TData, TValue>({
                       <TableCell key={cell.id} className="p-2 truncate">
                         {flexRender(
                           cell.column.columnDef.cell,
-                          cell.getContext()
+                          cell.getContext(),
                         )}
                       </TableCell>
                     ))}
@@ -261,12 +261,12 @@ export function DataTable<TData, TValue>({
             const actionCell = cells.find(
               (cell) =>
                 cell.column.id.toLowerCase().includes("accion") ||
-                cell.column.id.toLowerCase().includes("action")
+                cell.column.id.toLowerCase().includes("action"),
             );
             const contentCells = cells.filter(
               (cell) =>
                 !cell.column.id.toLowerCase().includes("accion") &&
-                !cell.column.id.toLowerCase().includes("action")
+                !cell.column.id.toLowerCase().includes("action"),
             );
 
             return (
@@ -290,13 +290,13 @@ export function DataTable<TData, TValue>({
                           key={cell.id}
                           className="grid grid-cols-3 items-center gap-1 text-wrap"
                         >
-                          <span className="text-xs font-medium text-primary">
+                          <span className="text-xs font-medium text-primary dark:text-primary-foreground">
                             {headerText}
                           </span>
                           <div className="text-xs text-foreground col-span-2">
                             {flexRender(
                               cell.column.columnDef.cell,
-                              cell.getContext()
+                              cell.getContext(),
                             )}
                           </div>
                         </div>
@@ -310,7 +310,7 @@ export function DataTable<TData, TValue>({
                   >
                     {flexRender(
                       actionCell.column.columnDef.cell,
-                      actionCell.getContext()
+                      actionCell.getContext(),
                     )}
                   </CardFooter>
                 )}

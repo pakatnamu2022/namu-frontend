@@ -27,14 +27,14 @@ export default function DashboardLayout({
     document.body.classList.add(
       "bg-linear-to-br",
       "from-slate-50",
-      "to-primary/5"
+      "to-primary/5",
     );
 
     return () => {
       document.body.classList.remove(
         "bg-linear-to-br",
         "from-slate-50",
-        "to-primary/5"
+        "to-primary/5",
       );
     };
   }, []);
