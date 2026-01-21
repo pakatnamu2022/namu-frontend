@@ -38,6 +38,23 @@ export async function getAllWarehouse({
   return data;
 }
 
+export async function getMyPhysicalWarehouse({
+  params,
+}: getWarehouseProps): Promise<WarehouseResource[]> {
+  const config: AxiosRequestConfig = {
+    params: {
+      all: true, // Assuming you want to fetch all periods
+      ...params,
+      status: STATUS_ACTIVE,
+    },
+  };
+  const { data } = await api.get<WarehouseResource[]>(
+    `${ENDPOINT}/my-physical-warehouses`,
+    config,
+  );
+  return data;
+}
+
 export async function getWarehouseByModelSede({
   params,
 }: getWarehouseProps): Promise<WarehouseResource[]> {
@@ -48,7 +65,7 @@ export async function getWarehouseByModelSede({
   };
   const { data } = await api.get<WarehouseResource[]>(
     `${ENDPOINT}/by-model-sede`,
-    config
+    config,
   );
   return data;
 }
@@ -63,13 +80,13 @@ export async function getWarehousesByCompany({
   };
   const { data } = await api.get<WarehouseResource[]>(
     `${ENDPOINT}/warehouses-by-company`,
-    config
+    config,
   );
   return data;
 }
 
 export async function findWarehouseById(
-  id: number
+  id: number,
 ): Promise<WarehouseResource> {
   const response = await api.get<WarehouseResource>(`${ENDPOINT}/${id}`);
   return response.data;
@@ -82,7 +99,7 @@ export async function storeWarehouse(data: any): Promise<WarehouseResource> {
 
 export async function updateWarehouse(
   id: number,
-  data: any
+  data: any,
 ): Promise<WarehouseResource> {
   const response = await api.put<WarehouseResource>(`${ENDPOINT}/${id}`, data);
   return response.data;

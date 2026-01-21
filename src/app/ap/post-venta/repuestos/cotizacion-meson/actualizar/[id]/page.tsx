@@ -62,8 +62,9 @@ export default function UpdateOrderQuotationMesonPage() {
 
   const defaultValues = {
     area_id: quotation.area_id?.toString() || "",
-    vehicle_id: quotation.vehicle_id?.toString() || "",
     sede_id: quotation.sede_id?.toString() || "",
+    vehicle_id: quotation.vehicle_id?.toString() || "",
+    client_id: quotation.client?.id?.toString() || "",
     quotation_date: quotation.quotation_date
       ? new Date(quotation.quotation_date)
       : "",
@@ -108,6 +109,9 @@ export default function UpdateOrderQuotationMesonPage() {
         isSubmitting={isSubmitting}
         mode="update"
         onCancel={handleCancel}
+        vehicleData={quotation.vehicle}
+        clientData={quotation.client}
+        quotationData={quotation}
       />
     </FormWrapper>
   );

@@ -100,14 +100,18 @@ export const orderQuotationMesonColumns = ({
     enableSorting: false,
   },
   {
-    accessorKey: "customer",
+    accessorKey: "client.full_name",
     header: "Cliente",
     enableSorting: false,
   },
   {
-    accessorKey: "plate",
+    accessorKey: "vehicle.plate",
     header: "Placa",
     enableSorting: false,
+    cell: ({ getValue }) => {
+      const value = getValue() as string;
+      return value || "-";
+    },
   },
   {
     accessorKey: "type_currency.name",

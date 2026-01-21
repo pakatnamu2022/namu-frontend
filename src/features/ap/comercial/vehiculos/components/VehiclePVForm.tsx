@@ -22,7 +22,8 @@ import { FormSelect } from "@/shared/components/FormSelect";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { useModelsVn } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.hook";
-import { useAllVehicleColor } from "@/features/ap/configuraciones/vehiculos/colores-vehiculo/lib/vehicleColor.hook";
+import { useVehicleColor } from "@/features/ap/configuraciones/vehiculos/colores-vehiculo/lib/vehicleColor.hook";
+import { VehicleColorResource } from "@/features/ap/configuraciones/vehiculos/colores-vehiculo/lib/vehicleColor.interface";
 import { useAllEngineTypes } from "@/features/ap/configuraciones/vehiculos/tipos-motor/lib/engineTypes.hook";
 import { useWarehouseByModelSede } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
@@ -63,7 +64,7 @@ export const VehiclePVForm = ({
   const [isColorModalOpen, setIsColorModalOpen] = useState(false);
   const form = useForm({
     resolver: zodResolver(
-      mode === "create" ? vehicleSchemaCreate : vehicleSchemaUpdate
+      mode === "create" ? vehicleSchemaCreate : vehicleSchemaUpdate,
     ),
     defaultValues: {
       ...defaultValues,
@@ -72,8 +73,6 @@ export const VehiclePVForm = ({
     mode: "onChange",
   });
   const [isFirstLoad, setIsFirstLoad] = useState(mode === "update");
-  const { data: colors = [], isLoading: isLoadingColors } =
-    useAllVehicleColor();
   const { data: engineTypes = [], isLoading: isLoadingEngineTypes } =
     useAllEngineTypes();
   const { data: mySedes = [], isLoading: isLoadingMySedes } = useMySedes({
@@ -100,7 +99,7 @@ export const VehiclePVForm = ({
     error: plateError,
   } = usePlateValidation(
     plateWatch,
-    !isFirstLoad && !!plateWatch && plateWatch.length === Number(6)
+    !isFirstLoad && !!plateWatch && plateWatch.length === Number(6),
   );
 
   useEffect(() => {
@@ -123,10 +122,17 @@ export const VehiclePVForm = ({
     }
   }, [warehouses, form]);
 
+  // Auto-seleccionar sede si solo hay una asignada
+  useEffect(() => {
+    if (mySedes.length === 1 && !form.watch("sede_id")) {
+      form.setValue("sede_id", mySedes[0].id.toString());
+    }
+  }, [mySedes, form]);
+
   // Obtener la información de la API para mostrar como guía
   const apiInfo = plateData?.success && plateData.data ? plateData.data : null;
 
-  const isLoading = isLoadingColors || isLoadingEngineTypes || isLoadingMySedes;
+  const isLoading = isLoadingEngineTypes || isLoadingMySedes;
 
   if (isLoading) return <FormSkeleton />;
 
@@ -283,7 +289,7 @@ export const VehiclePVForm = ({
             </Button>
           </FormSelectAsync>
 
-          <FormSelect
+          <FormSelectAsync
             name="vehicle_color_id"
             label={() => (
               <FormLabel className="flex items-center gap-2 relative">
@@ -296,11 +302,22 @@ export const VehiclePVForm = ({
               </FormLabel>
             )}
             placeholder="Seleccionar color"
-            options={colors.map((color) => ({
-              value: color.id.toString(),
-              label: color.description,
-            }))}
             control={form.control}
+            useQueryHook={useVehicleColor}
+            mapOptionFn={(item: VehicleColorResource) => ({
+              value: item.id.toString(),
+              label: item.description,
+            })}
+            perPage={10}
+            debounceMs={500}
+            defaultOption={
+              vehicleData?.vehicle_color_id
+                ? {
+                    value: vehicleData.vehicle_color_id.toString(),
+                    label: vehicleData.vehicle_color,
+                  }
+                : undefined
+            }
           >
             <Button
               type="button"
@@ -312,7 +329,7 @@ export const VehiclePVForm = ({
             >
               <Plus className="h-4 w-4" />
             </Button>
-          </FormSelect>
+          </FormSelectAsync>
 
           <FormSelect
             placeholder="Seleccionar tipo de motor"
@@ -326,9 +343,9 @@ export const VehiclePVForm = ({
           />
 
           <FormSelectAsync
-            placeholder="Seleccionar cliente"
+            placeholder="Seleccionar titular"
             control={form.control}
-            label={"Cliente"}
+            label={"Titular"}
             name="customer_id"
             useQueryHook={useCustomers}
             mapOptionFn={(item: CustomersResource) => ({
@@ -386,8 +403,8 @@ export const VehiclePVForm = ({
             {isSubmitting
               ? "Guardando"
               : mode === "create"
-              ? "Crear Vehículo"
-              : "Actualizar Vehículo"}
+                ? "Crear Vehículo"
+                : "Actualizar Vehículo"}
           </Button>
         </div>
       </form>
