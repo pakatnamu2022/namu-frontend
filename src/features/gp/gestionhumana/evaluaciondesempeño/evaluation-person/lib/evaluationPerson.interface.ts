@@ -163,3 +163,53 @@ export interface Evaluator {
   id: number;
   is_completed: boolean;
 }
+
+// Leader Status Interfaces
+export interface LeaderStatusEvaluationResponse {
+  evaluation: LeaderStatusEvaluation;
+  leaders: Leader[];
+  summary: LeaderStatusSummary;
+}
+
+export interface LeaderStatusSummary {
+  total_leaders: number;
+  completed: number;
+  in_progress: number;
+  not_started: number;
+  completion_percentage: number;
+}
+
+export interface Leader {
+  person_id: number;
+  name: string;
+  dni: string;
+  position: string;
+  area: string;
+  sede: string;
+  hierarchical_category: string;
+  evaluation_status: LeaderEvaluationStatus;
+  team_info: TeamInfo;
+  last_updated: string;
+}
+
+export interface TeamInfo {
+  subordinates_count: number;
+}
+
+export interface LeaderEvaluationStatus {
+  is_completed: boolean;
+  completion_percentage: number;
+  progress_status: string;
+  progress_status_label: string;
+  objectives_result: number;
+  competences_result: number;
+  final_result: number;
+}
+
+export interface LeaderStatusEvaluation {
+  id: number;
+  name: string;
+  status: number;
+  start_date: string;
+  end_date: string;
+}

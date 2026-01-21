@@ -4,6 +4,7 @@ import type {
   EvaluationPersonResponse,
   EvaluationPersonResultByPersonAndEvaluationResponse,
   EvaluationPersonResultResource,
+  LeaderStatusEvaluationResponse,
 } from "./evaluationPerson.interface";
 import type { AxiosRequestConfig } from "axios";
 import type { MessageResponse } from "@/core/core.interface";
@@ -113,6 +114,29 @@ export async function regenerateEvaluationPerson(
   const { data } = await api.post<MessageResponse>(
     `${ENDPOINT}/regenerate/${person_id}/${evaluation_id}`,
     { evaluation_id }
+  );
+  return data;
+}
+
+export async function getLeadersStatus(
+  evaluationId: number
+): Promise<LeaderStatusEvaluationResponse> {
+  const { data } = await api.get<LeaderStatusEvaluationResponse>(
+    `${ENDPOINT}/evaluation/${evaluationId}/leaders-status`
+  );
+  return data;
+}
+
+export async function sendReminderToLeader(
+  evaluationId: number,
+  leaderId: number
+): Promise<MessageResponse> {
+  const { data } = await api.post<MessageResponse>(
+    `/gp/gh/performanceEvaluation/evaluation/notifications/send-reminder-to-leader`,
+    {
+      evaluation_id: evaluationId,
+      leader_id: leaderId,
+    }
   );
   return data;
 }
