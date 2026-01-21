@@ -34,7 +34,7 @@ export default function ManageQuotationPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingDetails, setIsLoadingDetails] = useState(false);
   const [quotation, setQuotation] = useState<OrderQuotationResource | null>(
-    null
+    null,
   );
   const [details, setDetails] = useState<OrderQuotationDetailsResource[]>([]);
 
@@ -102,8 +102,11 @@ export default function ManageQuotationPage() {
     }
   };
 
-  const formatCurrency = (amount: number) => {
-    return `S/. ${amount.toFixed(2)}`;
+  const formatCurrency = (
+    amount: number,
+    quotation: OrderQuotationResource,
+  ) => {
+    return `${quotation.type_currency.symbol} ${amount.toFixed(2)}`;
   };
 
   // Calcular el total actual desde los detalles
@@ -176,7 +179,7 @@ export default function ManageQuotationPage() {
             <div className="pt-3 border-t border-gray-200">
               <p className="text-xs text-gray-600 mb-1">Monto Total</p>
               <p className="font-bold text-2xl text-gray-900">
-                {formatCurrency(currentTotal)}
+                {formatCurrency(currentTotal, quotation)}
               </p>
             </div>
           </div>
@@ -273,6 +276,8 @@ export default function ManageQuotationPage() {
         isLoadingDetails={isLoadingDetails}
         onRefresh={loadDetails}
         onDelete={handleDelete}
+        currencySymbol={quotation.type_currency.symbol}
+        exchangeRate={quotation.exchange_rate}
       />
 
       {/* Sección de Productos */}
@@ -283,6 +288,8 @@ export default function ManageQuotationPage() {
         onRefresh={loadDetails}
         onDelete={handleDelete}
         quotationDate={quotation.quotation_date}
+        currencySymbol={quotation.type_currency.symbol}
+        currencyId={quotation.currency_id}
       />
     </div>
   );

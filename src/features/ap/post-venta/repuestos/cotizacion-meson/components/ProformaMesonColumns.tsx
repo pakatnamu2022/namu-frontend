@@ -86,6 +86,20 @@ export const orderQuotationMesonColumns = ({
     enableSorting: false,
   },
   {
+    accessorKey: "collection_date",
+    header: "Fecha de Recojo",
+    cell: ({ getValue }) => {
+      const date = getValue() as string;
+      if (!date) return "-";
+      try {
+        return format(new Date(date), "dd/MM/yyyy", { locale: es });
+      } catch {
+        return date;
+      }
+    },
+    enableSorting: false,
+  },
+  {
     accessorKey: "customer",
     header: "Cliente",
     enableSorting: false,
@@ -96,7 +110,7 @@ export const orderQuotationMesonColumns = ({
     enableSorting: false,
   },
   {
-    accessorKey: "currency.name",
+    accessorKey: "type_currency.name",
     header: "Moneda",
     enableSorting: false,
   },
@@ -105,7 +119,7 @@ export const orderQuotationMesonColumns = ({
     header: "Total Monto",
     cell: ({ getValue, row }) => {
       const amount = getValue() as number;
-      const currencySymbol = row.original.currency?.symbol || "S/.";
+      const currencySymbol = row.original.type_currency?.symbol || "S/.";
       return `${currencySymbol} ${Number(amount || 0).toFixed(2)}`;
     },
     enableSorting: false,
@@ -211,7 +225,7 @@ export const orderQuotationMesonColumns = ({
           successToast(
             `PDF descargado correctamente ${
               withCode ? "con código" : "sin código"
-            }`
+            }`,
           );
         } catch {
           errorToast("Error al descargar el PDF");

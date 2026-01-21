@@ -25,6 +25,7 @@ export default function OrderQuotationMesonTable({
           quotation_number: true,
           quotation_date: true,
           expiration_date: true,
+          collection_date: false,
           plate: true,
           customer: true,
           total_amount: true,

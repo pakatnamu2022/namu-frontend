@@ -14,16 +14,13 @@ import {
 } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.constants";
 import { SunatConceptsResource } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.interface";
 import { AssignSalesSeriesResource } from "@/features/ap/configuraciones/maestros-general/asignar-serie-venta/lib/assignSalesSeries.interface";
-import { CustomersResource } from "@/features/ap/comercial/clientes/lib/customers.interface";
 import { ApBankResource } from "@/features/ap/configuraciones/maestros-general/chequeras/lib/apBank.interface";
-import { WorkOrderLabourResource } from "@/features/ap/post-venta/taller/orden-trabajo-labor/lib/workOrderLabour.interface";
-import { WorkOrderPartsResource } from "@/features/ap/post-venta/taller/orden-trabajo-repuesto/lib/workOrderParts.interface";
 import { InvoiceDocumentInfoSection } from "./InvoiceDocumentInfoSection";
 import { InvoiceSummarySection } from "./InvoiceSummarySection";
 import { AdditionalConfigSection } from "@/features/ap/facturacion/electronic-documents/components/sections/AdditionalConfigSection";
 import { useCustomersById } from "@/features/ap/comercial/clientes/lib/customers.hook";
 import { ItemsSection } from "@/features/ap/facturacion/electronic-documents/components/sections/ItemsSection";
-import { ElectronicDocumentResource } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.interface";
+import { WorkOrderResource } from "../lib/workOrder.interface";
 
 interface InvoiceFormProps {
   form: UseFormReturn<ElectronicDocumentSchema>;
@@ -38,10 +35,7 @@ interface InvoiceFormProps {
   igvTypes: SunatConceptsResource[];
   authorizedSeries: AssignSalesSeriesResource[];
   checkbooks: ApBankResource[];
-  defaultCustomer?: CustomersResource;
-  labours: WorkOrderLabourResource[];
-  parts: WorkOrderPartsResource[];
-  advances?: ElectronicDocumentResource[]; // Anticipos previos de la orden de trabajo
+  workOrder: WorkOrderResource;
 }
 
 export default function InvoiceForm({
@@ -57,11 +51,14 @@ export default function InvoiceForm({
   igvTypes,
   authorizedSeries,
   checkbooks,
-  defaultCustomer,
-  labours,
-  parts,
-  advances = [],
+  workOrder,
 }: InvoiceFormProps) {
+  // Cliente por defecto desde la orden de trabajo y otros datos necesarios
+  const defaultCustomer = workOrder.vehicle?.owner;
+  const labours = workOrder.labours;
+  const parts = workOrder.parts;
+  const advances = workOrder.advances;
+
   // Ref para evitar loops
   const lastLoadedAdvancePaymentState = useRef<boolean | null>(null);
   const itemsAlreadyLoaded = useRef<boolean>(false);
@@ -73,7 +70,7 @@ export default function InvoiceForm({
 
   // Obtener el cliente seleccionado
   const { data: selectedCustomerFromApi } = useCustomersById(
-    clientId ? Number(clientId) : 0
+    clientId ? Number(clientId) : 0,
   );
 
   const selectedCustomer = selectedCustomerFromApi || defaultCustomer;
@@ -84,15 +81,15 @@ export default function InvoiceForm({
 
   // Obtener el símbolo de moneda
   const selectedCurrency = currencyTypes.find(
-    (c) => c.id === Number(selectedCurrencyId)
+    (c) => c.id === Number(selectedCurrencyId),
   );
 
   const currencySymbol =
     selectedCurrency?.iso_code === "PEN"
       ? "S/"
       : selectedCurrency?.iso_code === "USD"
-      ? "$"
-      : "S/";
+        ? "$"
+        : "S/";
 
   // Cambiar tipo de operación según si es anticipo o no
   useEffect(() => {
@@ -103,48 +100,69 @@ export default function InvoiceForm({
     if (isAdvancePayment) {
       // Anticipo: code_nubefact "04" - Venta Interna - Anticipos
       const anticipoType = transactionTypes.find(
-        (type) => type.code_nubefact === "04"
+        (type) => type.code_nubefact === "04",
       );
       if (anticipoType && currentValue !== anticipoType.id.toString()) {
         form.setValue(
           "sunat_concept_transaction_type_id",
           anticipoType.id.toString(),
-          { shouldValidate: false }
+          { shouldValidate: false },
         );
       }
     } else {
       // Verificar si hay anticipos previos en la orden de trabajo
       const hasAdvances = advances?.some(
-        (advance) => advance.is_advance_payment === true
+        (advance) => advance.is_advance_payment === true,
       );
 
       if (hasAdvances) {
         // Venta final con anticipos: code_nubefact "04" - Venta Interna - Anticipos
         const anticipoType = transactionTypes.find(
-          (type) => type.code_nubefact === "04"
+          (type) => type.code_nubefact === "04",
         );
         if (anticipoType && currentValue !== anticipoType.id.toString()) {
           form.setValue(
             "sunat_concept_transaction_type_id",
             anticipoType.id.toString(),
-            { shouldValidate: false }
+            { shouldValidate: false },
           );
         }
       } else {
         // Venta completa sin anticipos: code_nubefact "01" - Venta Interna
         const normalType = transactionTypes.find(
-          (type) => type.code_nubefact === "01"
+          (type) => type.code_nubefact === "01",
         );
         if (normalType && currentValue !== normalType.id.toString()) {
           form.setValue(
             "sunat_concept_transaction_type_id",
             normalType.id.toString(),
-            { shouldValidate: false }
+            { shouldValidate: false },
           );
         }
       }
     }
   }, [isAdvancePayment, transactionTypes, advances, form]);
+
+  // Efecto para cargar datos de la cotización
+  useEffect(() => {
+    // Esperar a que currencyTypes esté cargado antes de procesar
+    if (!workOrder || currencyTypes.length === 0) return;
+
+    // Mapear moneda de la cotización con la moneda de SUNAT usando el tribute_code
+    if (workOrder.type_currency?.id) {
+      const matchedCurrency = currencyTypes.find(
+        (c) => c.tribute_code === String(workOrder.type_currency.id),
+      );
+
+      if (matchedCurrency) {
+        form.setValue(
+          "sunat_concept_currency_id",
+          matchedCurrency.id.toString(),
+          { shouldValidate: false },
+        );
+      }
+    }
+  }, [workOrder?.id, currencyTypes, form]);
 
   // Efecto para cargar items automáticamente desde labours y parts
   useEffect(() => {
@@ -161,7 +179,7 @@ export default function InvoiceForm({
     itemsAlreadyLoaded.current = true;
 
     const gravadaType = igvTypes.find(
-      (t) => t.code_nubefact === NUBEFACT_CODES.GRAVADA_ONEROSA
+      (t) => t.code_nubefact === NUBEFACT_CODES.GRAVADA_ONEROSA,
     );
 
     if (isAdvancePayment) {
@@ -272,7 +290,7 @@ export default function InvoiceForm({
               descripcion: `ANTICIPO: ${advance.serie}-${advance.numero} DEL ${
                 advance.fecha_de_emision
                   ? new Date(advance.fecha_de_emision).toLocaleDateString(
-                      "es-PE"
+                      "es-PE",
                     )
                   : ""
               }`,
@@ -319,7 +337,7 @@ export default function InvoiceForm({
 
     items.forEach((item) => {
       const igvType = igvTypes.find(
-        (t) => t.id === item.sunat_concept_igv_type_id
+        (t) => t.id === item.sunat_concept_igv_type_id,
       );
 
       if (igvType?.code_nubefact === "1") {

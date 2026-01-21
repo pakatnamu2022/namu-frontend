@@ -20,7 +20,7 @@ import {
   Trash2,
   List,
   Search,
-  CarFront,
+  ClipboardCheck,
 } from "lucide-react";
 import {
   WorkOrderSchema,
@@ -30,7 +30,6 @@ import {
 import { FormSelect } from "@/shared/components/FormSelect";
 import { useAllVehicles } from "@/features/ap/comercial/vehiculos/lib/vehicles.hook";
 import FormSkeleton from "@/shared/components/FormSkeleton";
-import { Input } from "@/components/ui/input";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -44,9 +43,12 @@ import { DEFAULT_GROUP_COLOR, GROUP_COLORS } from "../lib/workOrder.interface";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { WORKER_ORDER } from "../lib/workOrder.constants";
 import { AppointmentSelectionModal } from "../../citas/components/AppointmentSelectionModal";
+import { VehicleInspectionSelectionModal } from "../../inspeccion-vehiculo/components/VehicleInspectionSelectionModal";
+import { VehicleInspectionResource } from "../../inspeccion-vehiculo/lib/vehicleInspection.interface";
 import { FormSwitch } from "@/shared/components/FormSwitch";
 import { FormInput } from "@/shared/components/FormInput";
 import { FormInputText } from "@/shared/components/FormInputText";
+import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.hook";
 
 const getGroupColor = (groupNumber: number) => {
   return GROUP_COLORS[groupNumber] || DEFAULT_GROUP_COLOR;
@@ -75,15 +77,19 @@ export const WorkOrderForm = ({
   const router = useNavigate();
   const [selectedVehicle, setSelectedVehicle] = useState<any>(null);
   const [isAppointmentModalOpen, setIsAppointmentModalOpen] = useState(false);
+  const [isInspectionModalOpen, setIsInspectionModalOpen] = useState(false);
+  const [selectedInspection, setSelectedInspection] =
+    useState<VehicleInspectionResource | null>(null);
   const { ABSOLUTE_ROUTE } = WORKER_ORDER;
 
   const form = useForm({
     resolver: zodResolver(
-      mode === "create" ? workOrderSchemaCreate : workOrderSchemaUpdate
+      mode === "create" ? workOrderSchemaCreate : workOrderSchemaUpdate,
     ),
     defaultValues: {
       ...defaultValues,
       has_appointment: defaultValues.has_appointment ?? false,
+      has_inspection: defaultValues.has_inspection ?? false,
       items: defaultValues.items ?? [],
       diagnosis_date:
         defaultValues.diagnosis_date || defaultValues.opening_date,
@@ -107,22 +113,28 @@ export const WorkOrderForm = ({
   const { data: typesPlanning = [], isLoading: isLoadingTypesPlanning } =
     useAllTypesPlanning();
 
+  const { data: currencyTypes = [], isLoading: isLoadingCurrencyTypes } =
+    useAllCurrencyTypes();
+
   const isLoading =
     isLoadingVehicles ||
     isLoadingAppointments ||
     isLoadingSedes ||
-    isLoadingTypesPlanning;
+    isLoadingTypesPlanning ||
+    isLoadingCurrencyTypes;
 
   // Watch fields
   const watchedVehicleId = form.watch("vehicle_id");
   const watchedHasAppointment = form.watch("has_appointment");
   const watchedAppointmentId = form.watch("appointment_planning_id");
+  const watchedHasInspection = form.watch("has_inspection");
+  const watchedInspectionId = form.watch("vehicle_inspection_id");
 
   // Effect para cargar información del vehículo cuando se selecciona
   useEffect(() => {
     if (watchedVehicleId && vehicles.length > 0) {
       const vehicle = vehicles.find(
-        (v) => v.id.toString() === watchedVehicleId
+        (v) => v.id.toString() === watchedVehicleId,
       );
       setSelectedVehicle(vehicle);
     } else {
@@ -138,7 +150,7 @@ export const WorkOrderForm = ({
       appointments.length > 0
     ) {
       const appointment = appointments.find(
-        (a) => a.id.toString() === watchedAppointmentId
+        (a) => a.id.toString() === watchedAppointmentId,
       );
 
       if (appointment) {
@@ -183,6 +195,15 @@ export const WorkOrderForm = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [watchedHasAppointment]);
 
+  // Limpiar vehicle_inspection_id cuando has_inspection es false
+  useEffect(() => {
+    if (!watchedHasInspection && mode === "create") {
+      form.setValue("vehicle_inspection_id", "");
+      setSelectedInspection(null);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [watchedHasInspection]);
+
   const handleAddItem = () => {
     const lastGroup =
       fields.length > 0 ? fields[fields.length - 1].group_number : 0;
@@ -197,16 +218,32 @@ export const WorkOrderForm = ({
     form.setValue("appointment_planning_id", appointmentId);
   };
 
+  const handleSelectInspection = (inspection: VehicleInspectionResource) => {
+    form.setValue("vehicle_inspection_id", inspection.id.toString());
+    setSelectedInspection(inspection);
+  };
+
   const getSelectedAppointmentLabel = () => {
     if (!watchedAppointmentId || appointments.length === 0) return null;
 
     const appointment = appointments.find(
-      (a) => a.id.toString() === watchedAppointmentId
+      (a) => a.id.toString() === watchedAppointmentId,
     );
 
     if (!appointment) return null;
 
     return `${appointment.full_name_client} - ${appointment.date_appointment} ${appointment.time_appointment}`;
+  };
+
+  const getSelectedInspectionLabel = () => {
+    if (!watchedInspectionId || !selectedInspection) return null;
+
+    const dateStr =
+      typeof selectedInspection.inspection_date === "string"
+        ? selectedInspection.inspection_date
+        : selectedInspection.inspection_date?.toISOString().split("T")[0];
+
+    return `${selectedInspection.vehicle_plate || "S/N"} - ${dateStr || "Sin fecha"}`;
   };
 
   if (isLoading) return <FormSkeleton />;
@@ -271,6 +308,122 @@ export const WorkOrderForm = ({
                 </FormItem>
               )}
             />
+          )}
+        </GroupFormSection>
+
+        {/* Inspección de Vehículo */}
+        <GroupFormSection
+          title="Inspección de Vehículo"
+          icon={ClipboardCheck}
+          iconColor="text-primary"
+          bgColor="bg-blue-50"
+          cols={{ sm: 1 }}
+        >
+          {/* Checkbox Tiene Inspección */}
+          <FormField
+            control={form.control}
+            name="has_inspection"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                <FormControl>
+                  <Checkbox
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+                <div className="space-y-1 leading-none">
+                  <FormLabel>¿Tiene inspección registrada?</FormLabel>
+                  <p className="text-sm text-muted-foreground">
+                    Marque esta opción si ya existe una inspección de vehículo
+                    que desea asociar a esta orden de trabajo
+                  </p>
+                </div>
+              </FormItem>
+            )}
+          />
+
+          {/* Selector de Inspección - Solo visible si has_inspection es true */}
+          {watchedHasInspection && (
+            <FormField
+              control={form.control}
+              name="vehicle_inspection_id"
+              render={() => (
+                <FormItem>
+                  <FormLabel>Inspección de Vehículo</FormLabel>
+                  <FormControl>
+                    <div className="space-y-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="w-full justify-start"
+                        onClick={() => setIsInspectionModalOpen(true)}
+                      >
+                        <Search className="h-4 w-4 mr-2" />
+                        {getSelectedInspectionLabel() ||
+                          "Buscar y seleccionar inspección"}
+                      </Button>
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
+
+          {/* Información de la Inspección Seleccionada */}
+          {selectedInspection && watchedHasInspection && (
+            <Card className="p-4 bg-green-50 border-green-200">
+              <div className="flex items-center gap-2 mb-3">
+                <ClipboardCheck className="h-5 w-5 text-green-600" />
+                <h4 className="font-semibold text-gray-800">
+                  Información de la Inspección
+                </h4>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div>
+                  <p className="text-xs text-gray-500">Placa</p>
+                  <p className="font-semibold text-sm">
+                    {selectedInspection.vehicle_plate || "N/A"}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500">VIN</p>
+                  <p className="font-semibold text-sm">
+                    {selectedInspection.vehicle_vin || "N/A"}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500">Fecha Inspección</p>
+                  <p className="font-semibold text-sm">
+                    {typeof selectedInspection.inspection_date === "string"
+                      ? selectedInspection.inspection_date
+                      : selectedInspection.inspection_date
+                          ?.toISOString()
+                          .split("T")[0] || "N/A"}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500">Kilometraje</p>
+                  <p className="font-semibold text-sm">
+                    {selectedInspection.mileage
+                      ? `${selectedInspection.mileage} km`
+                      : "N/A"}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500">OT Origen</p>
+                  <p className="font-semibold text-sm">
+                    {selectedInspection.work_order_correlative || "N/A"}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500">Inspeccionado por</p>
+                  <p className="font-semibold text-sm">
+                    {selectedInspection.inspected_by_name || "N/A"}
+                  </p>
+                </div>
+              </div>
+            </Card>
           )}
         </GroupFormSection>
 
@@ -371,6 +524,62 @@ export const WorkOrderForm = ({
           </Card>
         )}
 
+        {/* Información de la OT */}
+        <GroupFormSection
+          title="Información de la OT"
+          icon={Building}
+          iconColor="text-gray-800"
+          bgColor="bg-gray-50"
+          cols={{ sm: 2, lg: 3 }}
+        >
+          <FormSelect
+            control={form.control}
+            name="currency_id"
+            options={currencyTypes.map((type) => ({
+              value: type.id.toString(),
+              label: type.name,
+            }))}
+            label="Moneda"
+            placeholder="Seleccionar moneda"
+            required
+          />
+          <DatePickerFormField
+            control={form.control}
+            name="estimated_delivery_date"
+            label="Fecha Estimada de Entrega"
+            placeholder="Selecciona una fecha"
+            dateFormat="dd/MM/yyyy"
+            captionLayout="dropdown"
+            disabledRange={{ before: new Date() }}
+          />
+          <FormSwitch
+            name="is_guarantee"
+            label="Vehículo en Garantía"
+            text={form.watch("is_guarantee") ? "Sí" : "No"}
+            control={form.control}
+          />
+          <FormSwitch
+            name="is_recall"
+            label="Recall"
+            text={form.watch("is_recall") ? "Sí" : "No"}
+            control={form.control}
+          />
+          <FormSelect
+            name="type_recall"
+            label="Tipo Recall"
+            placeholder="Seleccione tipo"
+            options={typeRecall}
+            control={form.control}
+            strictFilter={true}
+          />
+          <FormInput
+            name="description_recall"
+            label="Descripción Recall"
+            placeholder="Ingrese el detalle del recall"
+            control={form.control}
+          />
+        </GroupFormSection>
+
         {/* Items de Servicio */}
         {mode === "create" && (
           <GroupFormSection
@@ -422,27 +631,14 @@ export const WorkOrderForm = ({
                       {/* Fila 1: Grupo y Tipo de Planificación */}
                       <div className="grid grid-cols-12 gap-4">
                         <div className="col-span-2">
-                          <FormField
-                            control={form.control}
+                          <FormInput
                             name={`items.${index}.group_number`}
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel className="text-xs">Grupo</FormLabel>
-                                <FormControl>
-                                  <Input
-                                    type="number"
-                                    min="1"
-                                    max="20"
-                                    className={`text-center h-10 ${colors.input}`}
-                                    {...field}
-                                    onChange={(e) =>
-                                      field.onChange(parseInt(e.target.value))
-                                    }
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
+                            label="Grupo"
+                            type="number"
+                            min={1}
+                            max={20}
+                            className={`text-center h-10 ${colors.input}`}
+                            control={form.control}
                           />
                         </div>
 
@@ -485,71 +681,6 @@ export const WorkOrderForm = ({
             </div>
           </GroupFormSection>
         )}
-
-        {/* Fechas */}
-        <GroupFormSection
-          title="Fechas"
-          icon={Building}
-          iconColor="text-gray-800"
-          bgColor="bg-gray-50"
-          cols={{ sm: 2 }}
-        >
-          <DatePickerFormField
-            control={form.control}
-            name="opening_date"
-            label="Fecha de Apertura"
-            placeholder="Selecciona una fecha"
-            dateFormat="dd/MM/yyyy"
-            captionLayout="dropdown"
-            disabled={true}
-          />
-
-          <DatePickerFormField
-            control={form.control}
-            name="estimated_delivery_date"
-            label="Fecha Estimada de Entrega"
-            placeholder="Selecciona una fecha"
-            dateFormat="dd/MM/yyyy"
-            captionLayout="dropdown"
-            disabledRange={{ before: new Date() }}
-          />
-
-          <FormSwitch
-            name="is_guarantee"
-            label="Vehículo en Garantía"
-            text={form.watch("is_guarantee") ? "Sí" : "No"}
-            control={form.control}
-          />
-        </GroupFormSection>
-
-        <GroupFormSection
-          title="Recall"
-          icon={CarFront}
-          iconColor="text-gray-800"
-          bgColor="bg-gray-50"
-          cols={{ sm: 2 }}
-        >
-          <FormSwitch
-            name="is_recall"
-            label="Recall"
-            text={form.watch("is_recall") ? "Sí" : "No"}
-            control={form.control}
-          />
-          <FormInput
-            name="description_recall"
-            label="Descripción Recall"
-            placeholder="Ingrese el detalle del recall"
-            control={form.control}
-          />
-          <FormSelect
-            name="type_recall"
-            label="Tipo Recall"
-            placeholder="Seleccione tipo"
-            options={typeRecall}
-            control={form.control}
-            strictFilter={true}
-          />
-        </GroupFormSection>
 
         {/* Observaciones */}
         <GroupFormSection
@@ -598,6 +729,13 @@ export const WorkOrderForm = ({
           open={isAppointmentModalOpen}
           onOpenChange={setIsAppointmentModalOpen}
           onSelectAppointment={handleSelectAppointment}
+        />
+
+        {/* Modal de Selección de Inspección */}
+        <VehicleInspectionSelectionModal
+          open={isInspectionModalOpen}
+          onOpenChange={setIsInspectionModalOpen}
+          onSelectInspection={handleSelectInspection}
         />
       </form>
     </Form>

@@ -54,34 +54,34 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
   const documentTypes = useMemo(
     () =>
       sunatConcepts.filter(
-        (concept) => concept.type === SUNAT_CONCEPTS_TYPE.BILLING_DOCUMENT_TYPE
+        (concept) => concept.type === SUNAT_CONCEPTS_TYPE.BILLING_DOCUMENT_TYPE,
       ),
-    [sunatConcepts]
+    [sunatConcepts],
   );
 
   const transactionTypes = useMemo(
     () =>
       sunatConcepts.filter(
         (concept) =>
-          concept.type === SUNAT_CONCEPTS_TYPE.BILLING_TRANSACTION_TYPE
+          concept.type === SUNAT_CONCEPTS_TYPE.BILLING_TRANSACTION_TYPE,
       ),
-    [sunatConcepts]
+    [sunatConcepts],
   );
 
   const currencyTypes = useMemo(
     () =>
       sunatConcepts.filter(
-        (concept) => concept.type === SUNAT_CONCEPTS_TYPE.BILLING_CURRENCY
+        (concept) => concept.type === SUNAT_CONCEPTS_TYPE.BILLING_CURRENCY,
       ),
-    [sunatConcepts]
+    [sunatConcepts],
   );
 
   const igvTypes = useMemo(
     () =>
       sunatConcepts.filter(
-        (concept) => concept.type === SUNAT_CONCEPTS_TYPE.BILLING_IGV_TYPE
+        (concept) => concept.type === SUNAT_CONCEPTS_TYPE.BILLING_IGV_TYPE,
       ),
-    [sunatConcepts]
+    [sunatConcepts],
   );
 
   const form = useForm<ElectronicDocumentSchemaType>({
@@ -118,22 +118,22 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
   // Obtener series autorizadas según el tipo de documento
   const { data: authorizedSeries = [] } = useAuthorizedSeries({
     type_receipt_id: documentTypes.find(
-      (dt) => dt.id.toString() === selectedDocumentType
+      (dt) => dt.id.toString() === selectedDocumentType,
     )?.tribute_code,
   });
 
   const selectedSeries = authorizedSeries.find(
-    (s) => s.id.toString() === selectedSeriesId
+    (s) => s.id.toString() === selectedSeriesId,
   );
 
   const selectedCurrency = currencyTypes.find(
-    (c) => c.id === Number(selectedCurrencyId)
+    (c) => c.id === Number(selectedCurrencyId),
   );
 
   // Solo consultar el siguiente correlativo cuando hay tipo de documento y serie
   const { data: nextNumber } = useNextCorrelativeElectronicDocument(
     selectedDocumentType ? Number(selectedDocumentType) : 0,
-    selectedSeriesId ? Number(selectedSeriesId) : 0
+    selectedSeriesId ? Number(selectedSeriesId) : 0,
   );
 
   // Actualizar número de correlativo
@@ -318,17 +318,11 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
                       <span className="text-red-600">
                         - S/{" "}
                         {paymentSummary.payment_summary.discount_amount.toFixed(
-                          2
+                          2,
                         )}
                       </span>
                     </div>
                   )}
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">IGV (18%)</span>
-                    <span>
-                      S/ {paymentSummary.payment_summary.tax_amount.toFixed(2)}
-                    </span>
-                  </div>
                 </div>
 
                 {/* Totales finales */}
@@ -341,7 +335,7 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
                         <span className="text-green-600">
                           - S/{" "}
                           {paymentSummary.payment_summary.total_advances.toFixed(
-                            2
+                            2,
                           )}
                         </span>
                       </div>
@@ -352,7 +346,7 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
                         <span className="text-gray-900">
                           S/{" "}
                           {paymentSummary.payment_summary.remaining_balance.toFixed(
-                            2
+                            2,
                           )}
                         </span>
                       </div>
@@ -377,10 +371,7 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
               igvTypes={igvTypes}
               authorizedSeries={authorizedSeries}
               checkbooks={checkbooks}
-              defaultCustomer={workOrder?.vehicle?.owner}
-              labours={workOrder!.labours}
-              parts={workOrder!.parts}
-              advances={workOrder!.advances}
+              workOrder={workOrder!}
             />
           ) : (
             /* Facturas del grupo */

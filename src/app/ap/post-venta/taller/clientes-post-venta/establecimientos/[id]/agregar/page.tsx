@@ -88,8 +88,7 @@ export default function AddCustomerPvEstablishmentPage() {
         isSubmitting={isPending}
         mode="create"
         businessPartnerId={Number(id)}
-        isCustomer={true}
-        isCommercial={false}
+        onCancel={() => router(`${ABSOLUTE_ROUTE}/${id}`)}
       />
     </FormWrapper>
   );

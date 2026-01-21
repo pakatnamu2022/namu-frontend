@@ -43,15 +43,6 @@ export async function findVehicleInspectionById(
   return response.data;
 }
 
-export async function findVehicleInspectionByWorkOrderId(
-  workOrderId: number
-): Promise<VehicleInspectionResource> {
-  const response = await api.get<{ data: VehicleInspectionResource }>(
-    `${ENDPOINT}/by-work-order/${workOrderId}`
-  );
-  return response.data.data;
-}
-
 export async function storeVehicleInspection(
   data: VehicleInspectionRequest | FormData
 ): Promise<VehicleInspectionResource> {

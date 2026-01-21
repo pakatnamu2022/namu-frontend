@@ -64,6 +64,7 @@ export default function UpdateWorkOrderPage() {
         ? String(data.appointment_planning_id)
         : "",
       vehicle_id: data.vehicle_id ? String(data.vehicle_id) : "",
+      currency_id: data.currency_id ? String(data.currency_id) : "",
       sede_id: data.sede_id ? String(data.sede_id) : "",
       opening_date: data.opening_date ? new Date(data.opening_date) : "",
       estimated_delivery_date: data.estimated_delivery_date

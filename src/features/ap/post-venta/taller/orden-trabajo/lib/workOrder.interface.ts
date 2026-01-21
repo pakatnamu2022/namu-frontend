@@ -6,6 +6,8 @@ import { OrderQuotationResource } from "../../cotizacion/lib/proforma.interface"
 import { VehicleResource } from "@/features/ap/comercial/vehiculos/lib/vehicles.interface";
 import { WorkOrderLabourResource } from "../../orden-trabajo-labor/lib/workOrderLabour.interface";
 import { WorkOrderPartsResource } from "../../orden-trabajo-repuesto/lib/workOrderParts.interface";
+import { ApMastersResource } from "@/features/ap/ap-master/lib/apMasters.interface";
+import { CurrencyTypesResource } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.interface";
 
 export interface WorkOrderResponse {
   data: WorkOrderResource[];
@@ -21,6 +23,7 @@ export interface WorkOrderResource {
   order_quotation_id: number | null;
   appointment_planning_id: string;
   vehicle_id: string;
+  currency_id: string;
   vehicle: VehicleResource;
   vehicle_plate: string;
   vehicle_vin: string;
@@ -40,12 +43,14 @@ export interface WorkOrderResource {
   description_recall: string | null;
   type_recall: "ROJO" | "AMARILLO" | "VERDE" | null;
   is_inspection_completed: boolean;
+  type_currency: CurrencyTypesResource;
   vehicle_inspection: VehicleInspectionResource | null;
   items: WorkOrderItemResource[];
   order_quotation?: OrderQuotationResource;
   labours: WorkOrderLabourResource[];
   parts: WorkOrderPartsResource[];
   advances: ElectronicDocumentResource[];
+  status: ApMastersResource;
 }
 
 export interface WorkOrderRequest {

@@ -20,7 +20,6 @@ import {
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
-import { Link } from "react-router-dom";
 import { useEffect } from "react";
 import {
   useAllDepartment,
@@ -30,11 +29,6 @@ import {
 import { useAllSedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import { EMPRESA_AP } from "@/core/core.constants";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  ESTABLISHMENTS,
-  ESTABLISHMENTS_PV,
-  SUPPLIER_ESTABLISHMENTS,
-} from "../lib/establishments.constants";
 
 const AUTOMOTORES_PAKATNAMU_ID = 17;
 
@@ -44,8 +38,7 @@ interface EstablishmentsFormProps {
   isSubmitting?: boolean;
   mode?: "create" | "update";
   businessPartnerId: number;
-  isCustomer: boolean;
-  isCommercial?: boolean;
+  onCancel: () => void;
 }
 
 export const EstablishmentsForm = ({
@@ -54,11 +47,8 @@ export const EstablishmentsForm = ({
   isSubmitting = false,
   mode = "create",
   businessPartnerId,
-  isCustomer,
-  isCommercial = true,
+  onCancel,
 }: EstablishmentsFormProps) => {
-  const { ABSOLUTE_ROUTE } = isCommercial ? ESTABLISHMENTS : ESTABLISHMENTS_PV;
-  const { ABSOLUTE_ROUTE: SUPPLIER_ABSOLUTE_ROUTE } = SUPPLIER_ESTABLISHMENTS;
   const form = useForm<EstablishmentsSchema>({
     resolver: zodResolver(establishmentsSchema),
     defaultValues: {
@@ -238,8 +228,8 @@ export const EstablishmentsForm = ({
               !selectedDepartmentId
                 ? "Seleccione Departamento"
                 : isLoadingProvinces
-                ? "Cargando..."
-                : "Selecciona una Provincia"
+                  ? "Cargando..."
+                  : "Selecciona una Provincia"
             }
             options={provinces.map((province) => ({
               label: province.name,
@@ -255,8 +245,8 @@ export const EstablishmentsForm = ({
               !selectedProvinceId
                 ? "Seleccione Provincia"
                 : isLoadingDistricts
-                ? "Cargando..."
-                : "Selecciona un Distrito"
+                  ? "Cargando..."
+                  : "Selecciona un Distrito"
             }
             options={districts.map((district) => ({
               label: district.name,
@@ -310,15 +300,14 @@ export const EstablishmentsForm = ({
 
         {/* Buttons */}
         <div className="flex gap-4 w-full justify-end">
-          <Link
-            to={`${
-              isCustomer ? ABSOLUTE_ROUTE : SUPPLIER_ABSOLUTE_ROUTE
-            }/${businessPartnerId}`}
+          <Button
+            variant="outline"
+            type="button"
+            disabled={isSubmitting}
+            onClick={onCancel}
           >
-            <Button type="button" variant="outline">
-              Cancelar
-            </Button>
-          </Link>
+            Cancelar
+          </Button>
 
           <Button
             type="submit"

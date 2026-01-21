@@ -260,6 +260,12 @@ import AddProductRepuestoPage from "./app/ap/post-venta/repuestos/producto-repue
 import UpdateProductRepuestoPage from "./app/ap/post-venta/repuestos/producto-repuesto/actualizar/[id]/page.tsx";
 import InventoryRepuestoPage from "./app/ap/post-venta/repuestos/inventario-repuesto/page.tsx";
 import ProductRepuestoKardexPage from "./app/ap/post-venta/repuestos/inventario-repuesto/movimientos/[productId]/[warehouseId]/page.tsx";
+import CustomersRpPage from "./app/ap/post-venta/repuestos/clientes-repuestos/page.tsx";
+import AddCustomersRpPage from "./app/ap/post-venta/repuestos/clientes-repuestos/agregar/page.tsx";
+import UpdateCustomersRpPage from "./app/ap/post-venta/repuestos/clientes-repuestos/actualizar/[id]/page.tsx";
+import CustomerRpEstablishmentsListPage from "./app/ap/post-venta/repuestos/clientes-repuestos/establecimientos/[id]/page.tsx";
+import AddCustomerRpEstablishmentPage from "./app/ap/post-venta/repuestos/clientes-repuestos/establecimientos/[id]/agregar/page.tsx";
+import UpdateCustomerRpEstablishmentPage from "./app/ap/post-venta/repuestos/clientes-repuestos/establecimientos/[id]/actualizar/[establishmentId]/page.tsx";
 import CardWashPage from "./app/ap/post-venta/taller/lavado-vehiculo/page.tsx";
 import AppointmentPlanningPage from "./app/ap/post-venta/taller/citas/page.tsx";
 import AddAppointmentPlanningPage from "./app/ap/post-venta/taller/citas/agregar/page.tsx";
@@ -289,6 +295,7 @@ import WorkOrderPlanningPage from "./app/ap/post-venta/taller/planificacion-orde
 import AddWorkOrderPlanningPage from "./app/ap/post-venta/taller/planificacion-orden-trabajo/agregar/page.tsx";
 import AssignedWorkPage from "./app/ap/post-venta/taller/trabajos-asignados/page.tsx";
 import VehicleInspectionPage from "./app/ap/post-venta/taller/orden-trabajo/[workOrderId]/inspeccion/page.tsx";
+import SalesReceiptsTallerPage from "./app/ap/post-venta/taller/comprobante-venta-taller/page.tsx";
 import RolePage from "./app/gp/gestion-del-sistema/roles/page.tsx";
 import PermissionPage from "./app/gp/gestion-del-sistema/roles/permisos/[id]/page.tsx";
 import AddUserPage from "./app/gp/gestion-del-sistema/usuarios/agregar/page.tsx";
@@ -376,7 +383,7 @@ const RouterCrud = (
   page: JSX.Element,
   addPage: JSX.Element,
   editPage: JSX.Element,
-  detailPage?: JSX.Element
+  detailPage?: JSX.Element,
 ) => {
   return (
     <>
@@ -542,7 +549,7 @@ function App() {
                 <OpportunitiesKanbanPage />,
                 <AddOpportunityPage />,
                 <UpdateOpportunityPage />,
-                <OpportunityDetailPage />
+                <OpportunityDetailPage />,
               )}
 
               {/* Clientes */}
@@ -550,7 +557,7 @@ function App() {
                 "clientes",
                 <CustomersPage />,
                 <AddCustomersPage />,
-                <UpdateCustomersPage />
+                <UpdateCustomersPage />,
               )}
 
               {/* Establecimientos */}
@@ -572,7 +579,7 @@ function App() {
                 "proveedores",
                 <SuppliersPage />,
                 <AddSupplierPage />,
-                <UpdateSuppliersPage />
+                <UpdateSuppliersPage />,
               )}
 
               {/* Establecimientos Proveedores */}
@@ -594,7 +601,7 @@ function App() {
                 "comprobantes-venta",
                 <ElectronicDocumentsPage />,
                 <AddElectronicDocumentPage />,
-                <UpdateElectronicDocumentPage />
+                <UpdateElectronicDocumentPage />,
               )}
 
               <Route
@@ -658,7 +665,7 @@ function App() {
                 "envios-recepciones",
                 <ShipmentsReceptionsPage />,
                 <AddShipmentsReceptionsPage />,
-                <UpdateShipmentsReceptionsPage />
+                <UpdateShipmentsReceptionsPage />,
               )}
               <Route
                 path="envios-recepciones/checklist/:id"
@@ -670,7 +677,7 @@ function App() {
                 "visitas-tienda",
                 <StoreVisitsPage />,
                 <AddStoreVisitsPage />,
-                <UpdateStoreVisitsPage />
+                <UpdateStoreVisitsPage />,
               )}
 
               {/* Gestionar Leads */}
@@ -719,7 +726,7 @@ function App() {
                 "vehiculos-exhibicion",
                 <ExhibitionVehiclesPage />,
                 <AddExhibitionVehiclesPage />,
-                <UpdateExhibitionVehiclesPage />
+                <UpdateExhibitionVehiclesPage />,
               )}
 
               {/* Reportes */}
@@ -1290,6 +1297,30 @@ function App() {
                 path="repuestos/inventario-repuesto/movimientos/:productId/:warehouseId"
                 element={<ProductRepuestoKardexPage />}
               />
+              <Route
+                path="repuestos/clientes-repuestos"
+                element={<CustomersRpPage />}
+              />
+              <Route
+                path="repuestos/clientes-repuestos/agregar"
+                element={<AddCustomersRpPage />}
+              />
+              <Route
+                path="repuestos/clientes-repuestos/actualizar/:id"
+                element={<UpdateCustomersRpPage />}
+              />
+              <Route
+                path="repuestos/clientes-repuestos/establecimientos/:id"
+                element={<CustomerRpEstablishmentsListPage />}
+              />
+              <Route
+                path="repuestos/clientes-repuestos/establecimientos/:id/agregar"
+                element={<AddCustomerRpEstablishmentPage />}
+              />
+              <Route
+                path="repuestos/clientes-repuestos/establecimientos/:id/actualizar/:establishmentId"
+                element={<UpdateCustomerRpEstablishmentPage />}
+              />
               {/* Taller */}
               <Route path="taller/lavado-vehiculo" element={<CardWashPage />} />
               <Route path="taller/modelos-vn-pv" element={<ModelsVnPvPage />} />
@@ -1413,6 +1444,10 @@ function App() {
               <Route
                 path="taller/trabajos-asignados"
                 element={<AssignedWorkPage />}
+              />
+              <Route
+                path="taller/comprobante-venta-taller"
+                element={<SalesReceiptsTallerPage />}
               />
             </Route>
 
@@ -1579,7 +1614,7 @@ function App() {
                 "evaluaciones-de-desempeno/categorias-jerarquicas",
                 <HierarchicalCategoryPage />,
                 <AddHierarchicalCategoryPage />,
-                <UpdateHierarchicalCategoryPage />
+                <UpdateHierarchicalCategoryPage />,
               )}
 
               {RouterCrud(
@@ -1587,14 +1622,14 @@ function App() {
                 <CyclePage />,
                 <AddCyclePage />,
                 <UpdateCyclePage />,
-                <CyclePersonDetailPage />
+                <CyclePersonDetailPage />,
               )}
 
               {RouterCrud(
                 "evaluaciones-de-desempeno/competencias",
                 <CompetencesPage />,
                 <AddCompetencePage />,
-                <UpdateCompetencePage />
+                <UpdateCompetencePage />,
               )}
 
               {RouterCrud(
@@ -1602,7 +1637,7 @@ function App() {
                 <EvaluationPage />,
                 <AddEvaluationPage />,
                 <UpdateEvaluationPage />,
-                <EvaluationPersonPage />
+                <EvaluationPersonPage />,
               )}
 
               <Route
@@ -1624,28 +1659,28 @@ function App() {
                 "evaluaciones-de-desempeno/metricas",
                 <MetricPage />,
                 <AddMetricPage />,
-                <UpdateMetricPage />
+                <UpdateMetricPage />,
               )}
 
               {RouterCrud(
                 "evaluaciones-de-desempeno/objetivos",
                 <ObjectivePage />,
                 <AddObjectivePage />,
-                <UpdateObjectivePage />
+                <UpdateObjectivePage />,
               )}
 
               {RouterCrud(
                 "evaluaciones-de-desempeno/parametros",
                 <ParameterPage />,
                 <AddParameterPage />,
-                <UpdateParameterPage />
+                <UpdateParameterPage />,
               )}
 
               {RouterCrud(
                 "evaluaciones-de-desempeno/periodos",
                 <PeriodPage />,
                 <AddPeriodPage />,
-                <UpdatePeriodPage />
+                <UpdatePeriodPage />,
               )}
 
               <Route
@@ -1657,7 +1692,7 @@ function App() {
                 "evaluaciones-de-desempeno/modelo-evaluacion",
                 <EvaluationModelPage />,
                 <AddEvaluationModelPage />,
-                <UpdateEvaluationModelPage />
+                <UpdateEvaluationModelPage />,
               )}
             </Route>
 
@@ -1705,7 +1740,7 @@ function App() {
                 "equipos",
                 <EquipmentPage />,
                 <AddEquipmentPage />,
-                <UpdateEquipmentPage />
+                <UpdateEquipmentPage />,
               )}
             </Route>
 

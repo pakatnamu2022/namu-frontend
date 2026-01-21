@@ -107,7 +107,7 @@ function DetailSheetContent({ purchaseRequest }: DetailSheetContentProps) {
                     "dd/MM/yyyy",
                     {
                       locale: es,
-                    }
+                    },
                   )
                 : "N/A"}
             </p>
@@ -149,7 +149,7 @@ function DetailSheetContent({ purchaseRequest }: DetailSheetContentProps) {
                     "dd/MM/yyyy HH:mm",
                     {
                       locale: es,
-                    }
+                    },
                   )
                 : "N/A"}
             </p>
@@ -192,10 +192,10 @@ function DetailSheetContent({ purchaseRequest }: DetailSheetContentProps) {
                   {purchaseRequest.ap_order_quotation.quotation_date
                     ? format(
                         new Date(
-                          purchaseRequest.ap_order_quotation.quotation_date
+                          purchaseRequest.ap_order_quotation.quotation_date,
                         ),
                         "dd/MM/yyyy",
-                        { locale: es }
+                        { locale: es },
                       )
                     : "N/A"}
                 </p>
@@ -252,12 +252,13 @@ function DetailSheetContent({ purchaseRequest }: DetailSheetContentProps) {
                   Total Cotización
                 </p>
                 <p className="text-sm font-semibold text-primary">
-                  {purchaseRequest.ap_order_quotation.currency?.symbol || "S/."}{" "}
+                  {purchaseRequest.ap_order_quotation.type_currency?.symbol ||
+                    "S/."}{" "}
                   {purchaseRequest.ap_order_quotation.total_amount.toLocaleString(
                     "es-PE",
                     {
                       minimumFractionDigits: 2,
-                    }
+                    },
                   )}
                 </p>
               </div>
