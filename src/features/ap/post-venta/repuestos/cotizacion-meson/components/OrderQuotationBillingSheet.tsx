@@ -196,31 +196,31 @@ function BillingSheetContent({
           <div className="col-span-2">
             <p className="text-xs text-muted-foreground">Cliente</p>
             <p className="text-sm font-semibold">
-              {orderQuotation.vehicle?.owner?.full_name || "N/A"}
+              {orderQuotation.client?.full_name || "N/A"}
             </p>
           </div>
           <div>
             <p className="text-xs text-muted-foreground">Documento</p>
             <p className="text-sm font-medium">
-              {orderQuotation.vehicle?.owner?.num_doc || "N/A"}
+              {orderQuotation.client.num_doc || "N/A"}
             </p>
           </div>
           <div>
             <p className="text-xs text-muted-foreground">Teléfono</p>
             <p className="text-sm font-medium">
-              {orderQuotation.vehicle?.owner?.phone || "N/A"}
+              {orderQuotation.client.phone || "N/A"}
             </p>
           </div>
           <div>
             <p className="text-xs text-muted-foreground">Email</p>
             <p className="text-sm font-medium">
-              {orderQuotation.vehicle?.owner?.email || "N/A"}
+              {orderQuotation.client.email || "N/A"}
             </p>
           </div>
           <div>
             <p className="text-xs text-muted-foreground">Dirección</p>
             <p className="text-sm font-medium">
-              {orderQuotation.vehicle?.owner?.direction || "N/A"}
+              {orderQuotation.client.direction || "N/A"}
             </p>
           </div>
         </div>

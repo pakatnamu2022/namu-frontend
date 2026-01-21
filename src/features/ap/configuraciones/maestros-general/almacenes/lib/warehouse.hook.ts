@@ -7,6 +7,7 @@ import {
   getWarehouseByModelSede,
   getWarehouse,
   getWarehousesByCompany,
+  getMyPhysicalWarehouse,
 } from "./warehouse.actions";
 
 const { QUERY_KEY } = WAREHOUSE;
@@ -23,6 +24,14 @@ export const useAllWarehouse = (params?: Record<string, any>) => {
   return useQuery<WarehouseResource[]>({
     queryKey: [QUERY_KEY, "all", params],
     queryFn: () => getAllWarehouse({ params }),
+    refetchOnWindowFocus: false,
+  });
+};
+
+export const useMyPhysicalWarehouse = (params?: Record<string, any>) => {
+  return useQuery<WarehouseResource[]>({
+    queryKey: [QUERY_KEY, "myPhysical", params],
+    queryFn: () => getMyPhysicalWarehouse({ params }),
     refetchOnWindowFocus: false,
   });
 };

@@ -1,12 +1,6 @@
 import { z } from "zod";
 
 export const vehicleColorSchemaCreate = z.object({
-  code: z
-    .string()
-    .max(50)
-    .refine((value) => value.trim() !== "", {
-      message: "Código es requerido",
-    }),
   description: z
     .string()
     .max(255)

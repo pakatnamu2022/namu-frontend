@@ -22,11 +22,12 @@ import { useAllBrands } from "@/features/ap/configuraciones/vehiculos/marcas/lib
 import { useAllProductCategory } from "../../categorias-producto/lib/productCategory.hook";
 import { useAllUnitMeasurement } from "@/features/ap/configuraciones/maestros-general/unidad-medida/lib/unitMeasurement.hook";
 import { useAllClassArticle } from "@/features/ap/configuraciones/maestros-general/clase-articulo/lib/classArticle.hook";
-import { Textarea } from "@/components/ui/textarea";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { CM_COMERCIAL_ID, CM_POSTVENTA_ID } from "@/core/core.constants";
-import { useAllWarehouse } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
+import { useMyPhysicalWarehouse } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
 import { useEffect } from "react";
+import { FormInput } from "@/shared/components/FormInput";
+import { FormInputText } from "@/shared/components/FormInputText";
 
 interface ProductFormProps {
   defaultValues: Partial<ProductSchema>;
@@ -45,7 +46,7 @@ export const ProductForm = ({
 }: ProductFormProps) => {
   const form = useForm({
     resolver: zodResolver(
-      mode === "create" ? productSchemaCreate : productSchemaUpdate
+      mode === "create" ? productSchemaCreate : productSchemaUpdate,
     ),
     defaultValues: {
       ...defaultValues,
@@ -69,10 +70,7 @@ export const ProductForm = ({
   const { data: unitMeasurements = [], isLoading: isLoadingUnitMeasurements } =
     useAllUnitMeasurement();
   const { data: warehouses = [], isLoading: isLoadingWarehouses } =
-    useAllWarehouse({
-      type_operation_id: CM_POSTVENTA_ID,
-      is_physical_warehouse: 1,
-    });
+    useMyPhysicalWarehouse();
   const { data: classArticles = [], isLoading: isLoadingClassArticles } =
     useAllClassArticle({
       type_operation_id: CM_POSTVENTA_ID,
@@ -87,11 +85,11 @@ export const ProductForm = ({
   useEffect(() => {
     if (watchedCategoryId && watchedBrandId && watchedClassId) {
       const category = categories.find(
-        (c) => c.id.toString() === watchedCategoryId
+        (c) => c.id.toString() === watchedCategoryId,
       );
       const brand = brands.find((b) => b.id.toString() === watchedBrandId);
       const classArticle = classArticles.find(
-        (ca) => ca.id.toString() === watchedClassId
+        (ca) => ca.id.toString() === watchedClassId,
       );
 
       if (category && brand && classArticle) {
@@ -114,6 +112,17 @@ export const ProductForm = ({
     form,
   ]);
 
+  // Inicializar con el primer almacén por defecto en modo crear
+  useEffect(() => {
+    if (mode === "create" && warehouses.length > 0 && fields.length === 0) {
+      append({
+        warehouse_id: warehouses[0].id.toString(),
+        minimum_stock: undefined,
+        maximum_stock: undefined,
+      });
+    }
+  }, [mode, warehouses, fields.length, append]);
+
   if (
     isLoadingBrands ||
     isLoadingCategories ||
@@ -135,50 +144,29 @@ export const ProductForm = ({
           bgColor="bg-blue-50"
           cols={{ sm: 2, md: 3 }}
         >
-          <FormField
-            control={form.control}
-            name="code"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Código</FormLabel>
-                <FormControl>
-                  <Input placeholder="Código producto" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
+          <FormInput
             name="dyn_code"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Código Dynamic (Generado)</FormLabel>
-                <FormControl>
-                  <Input
-                    readOnly
-                    placeholder="Generado automáticamente"
-                    {...field}
-                    className="bg-slate-100"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
+            label="Código Dyn (Generado)"
+            placeholder="Generado automáticamente"
+            readOnly
+            className="bg-slate-100"
             control={form.control}
-            name="name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Nombre</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: Filtro de aceite" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
           />
+
+          <FormInput
+            name="code"
+            label="Código"
+            placeholder="Código producto"
+            control={form.control}
+          />
+
+          <FormInput
+            name="name"
+            label="Nombre"
+            placeholder="Ej: Filtro de aceite"
+            control={form.control}
+          />
+
           <FormSelect
             name="product_category_id"
             label="Categoría"
@@ -189,6 +177,7 @@ export const ProductForm = ({
             }))}
             control={form.control}
           />
+
           <FormSelect
             name="brand_id"
             label="Marca"
@@ -199,6 +188,7 @@ export const ProductForm = ({
             }))}
             control={form.control}
           />
+
           <FormSelect
             name="ap_class_article_id"
             label="Clase de Artículo"
@@ -209,6 +199,7 @@ export const ProductForm = ({
             }))}
             control={form.control}
           />
+
           <FormSelect
             name="unit_measurement_id"
             label="Unidad de Medida"
@@ -219,31 +210,13 @@ export const ProductForm = ({
             }))}
             control={form.control}
           />
-          <FormField
-            control={form.control}
+
+          <FormInput
             name="warranty_months"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Garantía (Meses)</FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    min="0"
-                    placeholder="0"
-                    value={typeof field.value === "number" ? field.value : ""}
-                    onChange={(e) => {
-                      if (e.target.value === "") {
-                        field.onChange("");
-                      } else {
-                        const num = parseInt(e.target.value);
-                        field.onChange(isNaN(num) ? "" : num);
-                      }
-                    }}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Garantía (Meses)"
+            placeholder="0"
+            control={form.control}
+            type="number"
           />
         </GroupFormSection>
 
@@ -259,27 +232,9 @@ export const ProductForm = ({
               {fields.map((field, index) => (
                 <div
                   key={field.id}
-                  className="p-4 border rounded-lg bg-linear-to-br from-slate-50 to-slate-100/50 border-slate-200 hover:border-slate-300 transition-colors"
+                  className="flex items-end gap-3 p-3 border rounded-lg bg-linear-to-br from-slate-50 to-slate-100/50 border-slate-200 hover:border-slate-300 transition-colors"
                 >
-                  {/* Header */}
-                  <div className="flex items-center justify-between mb-3">
-                    <h4 className="text-sm font-semibold text-slate-700 flex items-center gap-2">
-                      <Warehouse className="h-4 w-4 text-primary" />
-                      Almacén #{index + 1}
-                    </h4>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
-                      onClick={() => remove(index)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-
-                  {/* Almacén Select */}
-                  <div className="mb-3">
+                  <div className="flex-1">
                     <FormSelect
                       name={`warehouses.${index}.warehouse_id`}
                       label="Almacén"
@@ -295,73 +250,77 @@ export const ProductForm = ({
                     />
                   </div>
 
-                  {/* Cantidades en Grid */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <FormField
-                      control={form.control}
-                      name={`warehouses.${index}.minimum_stock`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-xs">Stock Mín.</FormLabel>
-                          <FormControl>
-                            <Input
-                              type="number"
-                              min="0"
-                              step="0.01"
-                              placeholder="0.00"
-                              className="h-9"
-                              value={
-                                typeof field.value === "number"
-                                  ? field.value
-                                  : ""
+                  <FormField
+                    control={form.control}
+                    name={`warehouses.${index}.minimum_stock`}
+                    render={({ field }) => (
+                      <FormItem className="w-32">
+                        <FormLabel className="text-xs">Stock Mín.</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            placeholder="0.00"
+                            className="h-9"
+                            value={
+                              typeof field.value === "number" ? field.value : ""
+                            }
+                            onChange={(e) => {
+                              if (e.target.value === "") {
+                                field.onChange(undefined);
+                              } else {
+                                const num = parseFloat(e.target.value);
+                                field.onChange(isNaN(num) ? undefined : num);
                               }
-                              onChange={(e) => {
-                                if (e.target.value === "") {
-                                  field.onChange(undefined);
-                                } else {
-                                  const num = parseFloat(e.target.value);
-                                  field.onChange(isNaN(num) ? undefined : num);
-                                }
-                              }}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name={`warehouses.${index}.maximum_stock`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-xs">Stock Máx.</FormLabel>
-                          <FormControl>
-                            <Input
-                              type="number"
-                              min="0"
-                              step="0.01"
-                              placeholder="0.00"
-                              className="h-9"
-                              value={
-                                typeof field.value === "number"
-                                  ? field.value
-                                  : ""
+                            }}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name={`warehouses.${index}.maximum_stock`}
+                    render={({ field }) => (
+                      <FormItem className="w-32">
+                        <FormLabel className="text-xs">Stock Máx.</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            placeholder="0.00"
+                            className="h-9"
+                            value={
+                              typeof field.value === "number" ? field.value : ""
+                            }
+                            onChange={(e) => {
+                              if (e.target.value === "") {
+                                field.onChange(undefined);
+                              } else {
+                                const num = parseFloat(e.target.value);
+                                field.onChange(isNaN(num) ? undefined : num);
                               }
-                              onChange={(e) => {
-                                if (e.target.value === "") {
-                                  field.onChange(undefined);
-                                } else {
-                                  const num = parseFloat(e.target.value);
-                                  field.onChange(isNaN(num) ? undefined : num);
-                                }
-                              }}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
+                            }}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="h-9 w-9 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                    onClick={() => remove(index)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
                 </div>
               ))}
               <Button
@@ -384,24 +343,11 @@ export const ProductForm = ({
         )}
 
         {/* Notas */}
-        <FormField
-          control={form.control}
+        <FormInputText
           name="description"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Descripción / Notas</FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder="Descripción o notas del producto"
-                  className="resize-none"
-                  rows={3}
-                  {...field}
-                  value={field.value ?? ""}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          label="Descripción / Notas"
+          placeholder="Descripción o notas del producto"
+          control={form.control}
         />
 
         <div className="flex gap-4 w-full justify-end">

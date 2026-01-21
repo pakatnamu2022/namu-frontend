@@ -3,6 +3,7 @@ import { type Links, type Meta } from "@/shared/lib/pagination.interface.ts";
 import { OrderQuotationDetailsResource } from "../../cotizacion-detalle/lib/proformaDetails.interface";
 import { CurrencyTypesResource } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.interface";
 import { ElectronicDocumentResource } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.interface";
+import { CustomersResource } from "@/features/ap/comercial/clientes/lib/customers.interface";
 
 export interface OrderQuotationResponse {
   data: OrderQuotationResource[];
@@ -30,6 +31,7 @@ export interface OrderQuotationResource {
   observations: string | null;
   details: OrderQuotationDetailsResource[];
   advances: ElectronicDocumentResource[];
+  client: CustomersResource;
   currency_id: number;
   type_currency: CurrencyTypesResource;
   created_at: string;
