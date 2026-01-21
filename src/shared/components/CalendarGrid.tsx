@@ -37,10 +37,10 @@ export type CalendarState = {
 };
 // Initialize with current date - using function to ensure fresh date on each initialization
 const monthAtom = atom<CalendarState["month"]>(
-  (() => new Date().getMonth())() as CalendarState["month"]
+  (() => new Date().getMonth())() as CalendarState["month"],
 );
 const yearAtom = atom<CalendarState["year"]>(
-  (() => new Date().getFullYear())()
+  (() => new Date().getFullYear())(),
 );
 export const useCalendarMonth = () => useAtom(monthAtom);
 export const useCalendarYear = () => useAtom(yearAtom);
@@ -80,23 +80,23 @@ type ComboboxProps = {
 };
 export const monthsForLocale = (
   localeName: Intl.LocalesArgument,
-  monthFormat: Intl.DateTimeFormatOptions["month"] = "long"
+  monthFormat: Intl.DateTimeFormatOptions["month"] = "long",
 ) => {
   const format = new Intl.DateTimeFormat(localeName, { month: monthFormat })
     .format;
   return [...new Array(12).keys()].map((m) =>
-    format(new Date(Date.UTC(2021, m, 2)))
+    format(new Date(Date.UTC(2021, m, 2))),
   );
 };
 export const daysForLocale = (
   locale: Intl.LocalesArgument,
-  startDay: number
+  startDay: number,
 ) => {
   const weekdays: string[] = [];
   const baseDate = new Date(2024, 0, startDay);
   for (let i = 0; i < 7; i++) {
     weekdays.push(
-      new Intl.DateTimeFormat(locale, { weekday: "short" }).format(baseDate)
+      new Intl.DateTimeFormat(locale, { weekday: "short" }).format(baseDate),
     );
     baseDate.setDate(baseDate.getDate() + 1);
   }
@@ -153,7 +153,7 @@ const Combobox: React.FC<ComboboxProps> = ({
                   <Check
                     className={cn(
                       "mr-2 h-4 w-4",
-                      value === item.value ? "opacity-100" : "opacity-0"
+                      value === item.value ? "opacity-100" : "opacity-0",
                     )}
                   />
                   {item.label}
@@ -217,15 +217,15 @@ export const CalendarBody = ({
   // Memoize expensive date calculations
   const currentMonthDate = useMemo(
     () => new Date(year, month, 1),
-    [year, month]
+    [year, month],
   );
   const daysInMonth = useMemo(
     () => getDaysInMonth(currentMonthDate),
-    [currentMonthDate]
+    [currentMonthDate],
   );
   const firstDay = useMemo(
     () => (getDay(currentMonthDate) - startDay + 7) % 7,
-    [currentMonthDate, startDay]
+    [currentMonthDate, startDay],
   );
   // Memoize previous month calculations
   const prevMonthData = useMemo(() => {
@@ -234,7 +234,7 @@ export const CalendarBody = ({
     const prevMonthDays = getDaysInMonth(new Date(prevMonthYear, prevMonth, 1));
     const prevMonthDaysArray = Array.from(
       { length: prevMonthDays },
-      (_, i) => i + 1
+      (_, i) => i + 1,
     );
     return { prevMonthDays, prevMonthDaysArray };
   }, [month, year]);
@@ -245,7 +245,7 @@ export const CalendarBody = ({
     const nextMonthDays = getDaysInMonth(new Date(nextMonthYear, nextMonth, 1));
     const nextMonthDaysArray = Array.from(
       { length: nextMonthDays },
-      (_, i) => i + 1
+      (_, i) => i + 1,
     );
     return { nextMonthDaysArray };
   }, [month, year]);
@@ -266,7 +266,7 @@ export const CalendarBody = ({
       day: number,
       targetMonth: number,
       targetYear: number,
-      isCurrentMonth: boolean
+      isCurrentMonth: boolean,
     ): CalendarDayData => ({
       date: new Date(targetYear, targetMonth, day),
       day,
@@ -275,7 +275,7 @@ export const CalendarBody = ({
       isCurrentMonth,
       features: isCurrentMonth ? featuresByDay[day] || [] : [],
     }),
-    [featuresByDay]
+    [featuresByDay],
   );
 
   // Default day renderer if none provided
@@ -292,7 +292,7 @@ export const CalendarBody = ({
         <div
           className={cn(
             "relative flex h-full w-full flex-col gap-1 p-1 text-muted-foreground text-xs cursor-pointer hover:bg-muted/50 transition-colors",
-            dayClassName
+            dayClassName,
           )}
           onClick={() => onClick?.(dayData)}
         >
@@ -323,7 +323,7 @@ export const CalendarBody = ({
         </div>
       );
     },
-    [children, showOutOfBoundsDays]
+    [children, showOutOfBoundsDays],
   );
   // Use the provided renderDay function or default
   const dayRenderer = renderDay || defaultRenderDay;
@@ -350,7 +350,7 @@ export const CalendarBody = ({
         days.push(
           <div className="h-full" key={`prev-${i}`}>
             {renderedDay}
-          </div>
+          </div>,
         );
       }
     }
@@ -368,7 +368,7 @@ export const CalendarBody = ({
     days.push(
       <div className="h-full" key={`current-${day}`}>
         {renderedDay}
-      </div>
+      </div>,
     );
   }
 
@@ -391,7 +391,7 @@ export const CalendarBody = ({
           days.push(
             <div className="h-full" key={`next-${i}`}>
               {renderedDay}
-            </div>
+            </div>,
           );
         }
       }
@@ -403,7 +403,7 @@ export const CalendarBody = ({
         <div
           className={cn(
             "relative aspect-square overflow-hidden border-t border-r",
-            index % 7 === 6 && "border-r-0"
+            index % 7 === 6 && "border-r-0",
           )}
           key={index}
         >
@@ -459,6 +459,7 @@ export type CalendarYearPickerProps = {
   start: number;
   end: number;
 };
+
 export const CalendarYearPicker = ({
   className,
   start,
@@ -485,12 +486,13 @@ export const CalendarYearPicker = ({
 export type CalendarDatePaginationProps = {
   className?: string;
 };
+
 export const CalendarDatePagination = ({
   className,
 }: CalendarDatePaginationProps) => {
   const [month, setMonth] = useCalendarMonth();
   const [year, setYear] = useCalendarYear();
-  
+
   const handlePreviousMonth = useCallback(() => {
     if (month === 0) {
       setMonth(11);
@@ -560,7 +562,7 @@ export const CalendarItem = memo(
       />
       <span className="truncate">{feature.name}</span>
     </div>
-  )
+  ),
 );
 CalendarItem.displayName = "CalendarItem";
 
@@ -579,7 +581,7 @@ export const CalendarDayContent = ({
   <div
     className={cn(
       "p-1 rounded text-xs bg-primary/10 hover:bg-primary/20 transition-colors cursor-pointer",
-      className
+      className,
     )}
     onClick={onClick}
   >
@@ -629,7 +631,7 @@ export const CalendarDayBadge = ({
     className={cn(
       "inline-flex items-center rounded-full px-2 py-1 text-xs font-medium cursor-pointer",
       "bg-primary/10 text-primary hover:bg-primary/20",
-      className
+      className,
     )}
     style={color ? { backgroundColor: `${color}20`, color } : undefined}
     onClick={onClick}

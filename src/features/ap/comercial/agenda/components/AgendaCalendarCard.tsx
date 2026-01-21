@@ -34,9 +34,9 @@ export default function AgendaCalendarCard({
         >
           <CalendarDate>
             <CalendarDatePicker>
-              <CalendarMonthPicker className="w-fit text-xs sm:text-sm font-bold text-primary" />
+              <CalendarMonthPicker className="w-fit text-xs sm:text-sm font-bold text-primary dark:text-primary-foreground" />
               <CalendarYearPicker
-                className="w-fit text-xs sm:text-sm font-bold text-primary"
+                className="w-fit text-xs sm:text-sm font-bold text-primary dark:text-primary-foreground"
                 start={2024}
                 end={2030}
               />

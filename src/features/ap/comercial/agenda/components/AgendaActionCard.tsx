@@ -42,7 +42,7 @@ export default function AgendaActionCard({ action }: AgendaActionCardProps) {
           <CardContent>
             <div className="space-y-2">
               <div className="flex flex-wrap items-center gap-2">
-                <Clock className="size-4 text-gray-500" />
+                <Clock className="size-4 text-gray-500 dark:text-gray-400" />
                 <span className="font-semibold">{time}</span>
                 <Badge
                   variant="outline"
@@ -70,12 +70,12 @@ export default function AgendaActionCard({ action }: AgendaActionCardProps) {
               </div>
 
               {action.client && (
-                <div className="text-sm text-gray-600">
+                <div className="text-sm text-gray-600 dark:text-gray-300">
                   Cliente: <span className="font-medium">{action.client}</span>
                 </div>
               )}
 
-              <p className="text-sm text-gray-700 line-clamp-2">
+              <p className="text-sm text-gray-700 dark:text-gray-300 line-clamp-2">
                 {action.description}
               </p>
 
