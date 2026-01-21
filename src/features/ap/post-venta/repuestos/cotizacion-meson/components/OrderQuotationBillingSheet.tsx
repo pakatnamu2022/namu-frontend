@@ -221,7 +221,8 @@ function BillingSheetContent({
             )}
             <div>
               <Badge
-                variant={
+                variant="outline"
+                color={
                   orderQuotation.status === "Descartado"
                     ? "destructive"
                     : orderQuotation.status === "Aperturado"
@@ -230,7 +231,7 @@ function BillingSheetContent({
                         ? "secondary"
                         : orderQuotation.status === "Facturado"
                           ? "default"
-                          : "outline"
+                          : "default"
                 }
                 className={
                   orderQuotation.status === "Descartado"
