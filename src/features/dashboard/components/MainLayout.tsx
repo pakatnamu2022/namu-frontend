@@ -32,7 +32,7 @@ export default function MainLayout({
         <div className="p-3 flex gap-8 w-full h-[calc(100vh-4.5rem)] overflow-auto">
           {children}
           <div
-            className="w-80 h-fit rounded-lg bg-sidebar border-sidebar-border border xl:block hidden z-20 relative"
+            className="w-80 h-fit rounded-lg bg-muted border-sidebar-border border xl:block hidden z-20 relative"
             style={{ position: "sticky", top: 0, alignSelf: "flex-start" }}
           >
             <FeedWidget />
