@@ -441,7 +441,9 @@ export function OrderQuotationBillingForm({
     total_igv = parseFloat(
       (total_gravada * (porcentaje_de_igv / 100)).toFixed(2),
     );
-    const total = total_gravada + total_inafecta + total_exonerada + total_igv;
+    const total = parseFloat(
+      (total_gravada + total_inafecta + total_exonerada + total_igv).toFixed(2),
+    );
 
     return {
       total_gravada,

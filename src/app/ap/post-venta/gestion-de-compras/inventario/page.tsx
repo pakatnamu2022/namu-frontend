@@ -6,15 +6,11 @@ import { useEffect, useState } from "react";
 import PageSkeleton from "@/shared/components/PageSkeleton";
 import TitleComponent from "@/shared/components/TitleComponent";
 import DataTablePagination from "@/shared/components/DataTablePagination";
-import {
-  CM_POSTVENTA_ID,
-  DEFAULT_PER_PAGE,
-  EMPRESA_AP,
-} from "@/core/core.constants";
+import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { notFound } from "@/shared/hooks/useNotFound";
 import InventoryOptions from "@/features/ap/post-venta/gestion-compras/inventario/components/InventoryOptions";
-import { useWarehousesByCompany } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
+import { useMyPhysicalWarehouse } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
 import { INVENTORY } from "@/features/ap/post-venta/gestion-compras/inventario/lib/inventory.constants";
 import { useInventory } from "@/features/ap/post-venta/gestion-compras/inventario/lib/inventory.hook";
 import InventoryTable from "@/features/ap/post-venta/gestion-compras/inventario/components/InventoryTable";
@@ -36,13 +32,7 @@ export default function InventoryPage() {
 
   // Obtener mis almacenes físicos de postventa
   const { data: warehouses = [], isLoading: isLoadingWarehouses } =
-    useWarehousesByCompany({
-      my: 1,
-      is_received: 1,
-      empresa_id: EMPRESA_AP.id,
-      type_operation_id: CM_POSTVENTA_ID,
-      only_physical: 1,
-    });
+    useMyPhysicalWarehouse();
 
   // Setear automáticamente el primer almacén cuando se carguen
   useEffect(() => {
@@ -76,7 +66,7 @@ export default function InventoryPage() {
     },
     {
       enabled: !!warehouseId,
-    }
+    },
   );
 
   if (isLoadingModule || isLoadingWarehouses) return <PageSkeleton />;
