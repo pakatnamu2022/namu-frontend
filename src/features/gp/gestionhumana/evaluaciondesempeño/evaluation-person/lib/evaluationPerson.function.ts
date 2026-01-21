@@ -80,14 +80,14 @@ export const getProgressBackgroundColor = (overallCompletionRate: number) => {
   return "bg-red-50";
 };
 
-export const getColorByCompletionRate = (rate: number): BadgeColor => {
+export const getResultRateColorBadge = (rate: number): BadgeColor => {
   if (rate >= 100) return "green";
   if (rate >= 50) return "amber";
   if (rate > 0) return "orange";
   return "red";
 };
 
-export const getComplianceBadgeColor = (percentage: number): BadgeColor => {
+export const getProgressColorBadge = (percentage: number): BadgeColor => {
   if (percentage >= 90) return "default";
   if (percentage >= 70) return "tertiary";
   if (percentage >= 50) return "red";

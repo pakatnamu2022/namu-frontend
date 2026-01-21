@@ -46,7 +46,7 @@ import { SearchableSelect } from "@/shared/components/SearchableSelect";
 import {
   getProgressBackgroundColor,
   getProgressColor,
-  getVariantByCompletionRate,
+  getProgressColorBadge,
 } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/lib/evaluationPerson.function";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
@@ -76,7 +76,7 @@ export default function NamuPerformanceHistoryPage() {
     queryFn: () =>
       getEvaluationPersonResultByPersonAndEvaluation(
         personId,
-        selectedEvaluationId
+        selectedEvaluationId,
       ),
     enabled: !!selectedEvaluationId && !!personId,
     refetchOnWindowFocus: false,
@@ -117,7 +117,7 @@ export default function NamuPerformanceHistoryPage() {
       successToast(SUCCESS_MESSAGE(MODEL, "update"));
     } catch (error: any) {
       errorToast(
-        error?.response?.data?.message || ERROR_MESSAGE(MODEL, "update")
+        error?.response?.data?.message || ERROR_MESSAGE(MODEL, "update"),
       );
     } finally {
       setSaving(false);
@@ -132,7 +132,7 @@ export default function NamuPerformanceHistoryPage() {
       successToast(SUCCESS_MESSAGE(MODEL, "update"));
     } catch (error: any) {
       errorToast(
-        error?.response?.data?.message || ERROR_MESSAGE(MODEL, "update")
+        error?.response?.data?.message || ERROR_MESSAGE(MODEL, "update"),
       );
     } finally {
       setSaving(false);
@@ -141,7 +141,7 @@ export default function NamuPerformanceHistoryPage() {
 
   const handleUpdateResultCellCompetence = async (
     id: number,
-    result: number
+    result: number,
   ) => {
     try {
       setSaving(true);
@@ -150,7 +150,7 @@ export default function NamuPerformanceHistoryPage() {
       successToast(SUCCESS_MESSAGE(MODEL, "update"));
     } catch (error: any) {
       errorToast(
-        error?.response?.data?.message || ERROR_MESSAGE(MODEL, "update")
+        error?.response?.data?.message || ERROR_MESSAGE(MODEL, "update"),
       );
     } finally {
       setSaving(false);
@@ -164,7 +164,7 @@ export default function NamuPerformanceHistoryPage() {
       successToast("Datos actualizados correctamente");
     } catch (error: any) {
       errorToast(
-        error?.response?.data?.message || "Error al actualizar los datos"
+        error?.response?.data?.message || "Error al actualizar los datos",
       );
     } finally {
       setSaving(false);
@@ -195,7 +195,7 @@ export default function NamuPerformanceHistoryPage() {
     selectedEvaluationId
   ) {
     const selectedEvaluation = evaluations.find(
-      (evaluation) => evaluation.id === selectedEvaluationId
+      (evaluation) => evaluation.id === selectedEvaluationId,
     );
     return (
       <NoEvaluationMessage
@@ -263,8 +263,8 @@ export default function NamuPerformanceHistoryPage() {
                   Activa
                 </Badge>
                 <Badge
-                  variant={getVariantByCompletionRate(
-                    evaluationPersonResult.statistics.overall_completion_rate
+                  color={getProgressColorBadge(
+                    evaluationPersonResult.statistics.overall_completion_rate,
                   )}
                   className="text-xs"
                 >
@@ -278,11 +278,11 @@ export default function NamuPerformanceHistoryPage() {
                 className={cn(
                   "h-2",
                   getProgressBackgroundColor(
-                    evaluationPersonResult.statistics.overall_completion_rate
-                  )
+                    evaluationPersonResult.statistics.overall_completion_rate,
+                  ),
                 )}
                 indicatorClassName={getProgressColor(
-                  evaluationPersonResult.statistics.overall_completion_rate
+                  evaluationPersonResult.statistics.overall_completion_rate,
                 )}
               />
             </div>

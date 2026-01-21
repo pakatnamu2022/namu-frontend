@@ -46,9 +46,7 @@ export const establishmentsColumns = ({
   {
     accessorKey: "type",
     header: "Tipo",
-    cell: ({ row }) => (
-      <Badge color="secondary">{row.getValue("type")}</Badge>
-    ),
+    cell: ({ row }) => <Badge color="secondary">{row.getValue("type")}</Badge>,
   },
   {
     accessorKey: "activity_economic",
@@ -101,7 +99,7 @@ export const establishmentsColumns = ({
     cell: ({ row }) => {
       const status = row.getValue("status") as boolean;
       return (
-        <Badge variant={status ? "default" : "destructive"}>
+        <Badge color={status ? "default" : "destructive"}>
           {status ? "Activo" : "Inactivo"}
         </Badge>
       );

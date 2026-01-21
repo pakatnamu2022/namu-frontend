@@ -17,7 +17,7 @@ import { evaluationPersonCompetenceColumns } from "./EvaluationPersonCompetenceC
 import { DataTable } from "@/shared/components/DataTable";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { getColorByCompletionRate } from "../lib/evaluationPerson.function";
+import { getResultRateColorBadge } from "../lib/evaluationPerson.function";
 
 interface Props {
   competenceGroups?: CompetenceGroup[];
@@ -265,7 +265,7 @@ export default function EvaluationPersonCompetenceTableWithColumns({
           <div className="flex items-center justify-start gap-3">
             <span className="text-muted-foreground">Promedio General:</span>
             <Badge
-              color={getColorByCompletionRate(
+              color={getResultRateColorBadge(
                 (averageResult /
                   (evaluationPersonResult?.maxCompetenceParameter || 5)) *
                   100,

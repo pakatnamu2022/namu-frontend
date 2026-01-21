@@ -1,7 +1,7 @@
 "use client";
 
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Badge, BadgeColor } from "@/components/ui/badge";
 import { ManageLeadsResource } from "../../gestionar-leads/lib/manageLeads.interface";
 import {
   Car,
@@ -21,16 +21,14 @@ interface LeadInfoCardProps {
   lead: ManageLeadsResource;
 }
 
-const getStatusBadgeVariant = (
-  status: string
-): "default" | "secondary" | "destructive" | "outline" => {
+const getStatusBadgeVariant = (status: string): BadgeColor => {
   const statusLower = status?.toLowerCase();
   if (statusLower?.includes("válido") || statusLower?.includes("valido"))
     return "default";
   if (statusLower?.includes("pendiente")) return "secondary";
   if (statusLower?.includes("inválido") || statusLower?.includes("invalido"))
     return "destructive";
-  return "outline";
+  return "default";
 };
 
 export const LeadInfoCard = ({ lead }: LeadInfoCardProps) => {
@@ -52,8 +50,9 @@ export const LeadInfoCard = ({ lead }: LeadInfoCardProps) => {
                 </span>
                 {lead.status_num_doc && (
                   <Badge
-                    variant={getStatusBadgeVariant(lead.status_num_doc)}
+                    color={getStatusBadgeVariant(lead.status_num_doc)}
                     className="text-xs"
+                    variant="outline"
                   >
                     {lead.status_num_doc}
                   </Badge>

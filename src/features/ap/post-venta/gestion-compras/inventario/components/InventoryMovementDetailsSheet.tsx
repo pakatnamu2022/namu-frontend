@@ -56,7 +56,7 @@ export default function InventoryMovementDetailsSheet({
               <div>
                 <p className="text-xs text-muted-foreground">Estado</p>
                 <Badge
-                  variant={
+                  color={
                     reference.status === "APPROVED" ? "default" : "secondary"
                   }
                 >
@@ -125,7 +125,7 @@ export default function InventoryMovementDetailsSheet({
                 <div>
                   <p className="text-xs text-muted-foreground">Estado SUNAT</p>
                   <Badge
-                    variant={
+                    color={
                       reference.aceptada_por_sunat ? "default" : "secondary"
                     }
                   >
@@ -246,9 +246,7 @@ export default function InventoryMovementDetailsSheet({
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">Estado Entrega</p>
-                <Badge
-                  variant={reference.is_delivered ? "default" : "secondary"}
-                >
+                <Badge color={reference.is_delivered ? "default" : "secondary"}>
                   {reference.is_delivered ? "ENTREGADO" : "PENDIENTE"}
                 </Badge>
               </div>
@@ -290,7 +288,7 @@ export default function InventoryMovementDetailsSheet({
                     "dd/MM/yyyy HH:mm",
                     {
                       locale: es,
-                    }
+                    },
                   )}
                 </p>
               </div>

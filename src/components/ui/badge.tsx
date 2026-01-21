@@ -75,7 +75,7 @@ const badgeVariants = cva(
 const colorStyles: Record<BadgeColor, Record<BadgeVariant, string>> = {
   default: {
     default: "bg-primary text-primary-foreground hover:bg-primary/80",
-    outline: "border-primary text-primary hover:bg-primary/10",
+    outline: "border border-border text-foreground hover:bg-primary/10",
     ghost: "text-primary hover:bg-primary/10",
   },
   secondary: {

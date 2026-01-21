@@ -70,7 +70,7 @@ export const warehouseColumns = ({
         return <span className="text-muted-foreground">-</span>;
       return (
         <Badge
-          variant={value ? "default" : "secondary"}
+          color={value ? "default" : "secondary"}                      
           className="capitalize w-8 flex items-center justify-center"
         >
           {value ? "SI" : "NO"}
@@ -87,7 +87,7 @@ export const warehouseColumns = ({
         return <span className="text-muted-foreground">-</span>;
       return (
         <Badge
-          variant={value ? "default" : "secondary"}
+          color={value ? "default" : "secondary"}                      
           className="capitalize w-20 flex items-center justify-center"
         >
           {value ? "Activo" : "Inactivo"}

@@ -333,7 +333,7 @@ export default function ReceptionsProductsCards({
                       Cantidad Total
                     </p>
                     <Badge
-                      variant="secondary"
+                      color="secondary"
                       className={isSingleCard ? "text-sm" : "text-xs"}
                     >
                       {Number(reception.total_quantity).toFixed(2)} unidades
@@ -357,7 +357,7 @@ export default function ReceptionsProductsCards({
                       Items Únicos
                     </p>
                     <Badge
-                      variant="secondary"
+                      color="secondary"
                       className={isSingleCard ? "text-sm" : "text-xs"}
                     >
                       {reception.total_items}{" "}

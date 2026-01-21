@@ -18,7 +18,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { getScales } from "../../parametros/lib/parameter.hook";
 import { cn } from "@/lib/utils";
-import { getColorByCompletionRate } from "../lib/evaluationPerson.function";
+import { getResultRateColorBadge } from "../lib/evaluationPerson.function";
 
 export type EvaluationPersonObjectiveColumns =
   ColumnDef<EvaluationPersonResource>;
@@ -128,7 +128,7 @@ export const evaluationPersonObjectiveColumns = ({
       return (
         <div className="flex items-center justify-center">
           {readOnly ? (
-            <Badge color={getColorByCompletionRate(Number(result))}>
+            <Badge color={getResultRateColorBadge(Number(result))}>
               {result || "0.00"}
             </Badge>
           ) : (

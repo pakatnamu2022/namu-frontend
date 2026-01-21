@@ -1,4 +1,4 @@
-import { Badge } from "@/components/ui/badge";
+import { Badge, BadgeColor } from "@/components/ui/badge";
 import {
   Target,
   User,
@@ -16,13 +16,11 @@ interface OpportunityInfoCardProps {
   opportunity: OpportunityResource;
 }
 
-const getClientStatusVariant = (
-  status: string
-): "default" | "secondary" | "outline" => {
+const getClientStatusVariant = (status: string): BadgeColor => {
   const statusUpper = status.toUpperCase();
   if (statusUpper.includes("LISTO")) return "default";
   if (statusUpper.includes("NEGOCIACIÓN")) return "secondary";
-  return "outline";
+  return "default";
 };
 
 // Función para obtener los colores según el estado
@@ -113,7 +111,7 @@ export const OpportunityInfoCard = ({
         className={cn(
           "border-l-4 px-4 py-3 bg-linear-to-r",
           colors.bg,
-          colors.border
+          colors.border,
         )}
       >
         <div className="flex items-center justify-between">
@@ -121,7 +119,7 @@ export const OpportunityInfoCard = ({
             <div
               className={cn(
                 "flex size-9 items-center justify-center rounded-full",
-                colors.bgIcon
+                colors.bgIcon,
               )}
             >
               <Target className={cn("size-4", colors.textIcon)} />
@@ -140,7 +138,7 @@ export const OpportunityInfoCard = ({
               className={cn(
                 "text-xs shadow-sm",
                 colors.bgBadge,
-                colors.textBadge
+                colors.textBadge,
               )}
             >
               {opportunity.opportunity_status}
@@ -166,7 +164,7 @@ export const OpportunityInfoCard = ({
                 <div
                   className={cn(
                     "flex size-8 items-center justify-center rounded-lg",
-                    colors.bgIcon
+                    colors.bgIcon,
                   )}
                 >
                   <User className={cn("size-4", colors.textIcon)} />
@@ -184,7 +182,8 @@ export const OpportunityInfoCard = ({
                 </div>
               </div>
               <Badge
-                variant={getClientStatusVariant(opportunity.client_status)}
+                variant="outline"
+                color={getClientStatusVariant(opportunity.client_status)}
                 className="text-[10px] h-5 shrink-0"
               >
                 {opportunity.client_status}
@@ -199,7 +198,7 @@ export const OpportunityInfoCard = ({
               <div
                 className={cn(
                   "flex size-8 items-center justify-center rounded-lg",
-                  colors.bgIcon
+                  colors.bgIcon,
                 )}
               >
                 <Package className={cn("size-4", colors.textIcon)} />
@@ -220,7 +219,7 @@ export const OpportunityInfoCard = ({
         <div
           className={cn(
             "flex flex-wrap items-center gap-x-4 gap-y-2 rounded-lg border px-3 py-2 text-xs",
-            colors.bgText
+            colors.bgText,
           )}
         >
           <div className="flex items-center gap-1.5">

@@ -3,7 +3,7 @@ import {
   AsesorResource,
   AssignmentLeadershipResource,
 } from "../lib/assignmentLeadership.interface";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -19,7 +19,7 @@ interface Props {
     id: number,
     newStatus: boolean,
     year: number,
-    month: number
+    month: number,
   ) => void;
   permissions: {
     canUpdate: boolean;
@@ -94,7 +94,7 @@ export const assignmentLeadershipColumns = ({
       const value = getValue() as boolean;
       return (
         <Badge
-          variant={value ? "default" : "secondary"}
+          color={value ? "default" : "secondary"}
           className="capitalize w-20 flex items-center justify-center"
         >
           {value ? "Activo" : "Inactivo"}

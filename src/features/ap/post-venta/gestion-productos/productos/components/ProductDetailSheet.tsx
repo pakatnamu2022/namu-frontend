@@ -30,18 +30,18 @@ export default function ProductDetailSheet({
 
   const getStatusConfig = (status: string) => {
     const configs = {
-      ACTIVE: { variant: "default" as const, label: "Activo" },
-      INACTIVE: { variant: "secondary" as const, label: "Inactivo" },
-      DISCONTINUED: { variant: "destructive" as const, label: "Descontinuado" },
+      ACTIVE: { color: "default" as const, label: "Activo" },
+      INACTIVE: { color: "secondary" as const, label: "Inactivo" },
+      DISCONTINUED: { color: "destructive" as const, label: "Descontinuado" },
     };
     return configs[status as keyof typeof configs] || configs.INACTIVE;
   };
 
   const getStockStatusConfig = (status: string) => {
     const configs = {
-      NORMAL: { variant: "default" as const, label: "Normal" },
-      LOW: { variant: "secondary" as const, label: "Stock Bajo" },
-      OUT: { variant: "destructive" as const, label: "Sin Stock" },
+      NORMAL: { color: "default" as const, label: "Normal" },
+      LOW: { color: "secondary" as const, label: "Stock Bajo" },
+      OUT: { color: "destructive" as const, label: "Sin Stock" },
     };
     return configs[status as keyof typeof configs] || configs.NORMAL;
   };
@@ -65,7 +65,7 @@ export default function ProductDetailSheet({
             <div className="mt-6 space-y-6">
               {/* Estado */}
               <div>
-                <Badge variant={getStatusConfig(product.status).variant}>
+                <Badge color={getStatusConfig(product.status).color}>
                   {getStatusConfig(product.status).label}
                 </Badge>
               </div>
@@ -262,8 +262,8 @@ export default function ProductDetailSheet({
                               </p>
                             </div>
                             <Badge
-                              variant={
-                                getStockStatusConfig(ws.stock_status).variant
+                              color={
+                                getStockStatusConfig(ws.stock_status).color
                               }
                             >
                               {getStockStatusConfig(ws.stock_status).label}
@@ -333,7 +333,7 @@ export default function ProductDetailSheet({
                             <p className="text-xs text-muted-foreground">
                               Último movimiento:{" "}
                               {new Date(
-                                ws.last_movement_date
+                                ws.last_movement_date,
                               ).toLocaleDateString()}
                             </p>
                           )}

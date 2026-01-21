@@ -61,7 +61,7 @@ export function AdjustmentsProductDetailSheet({
               <div>
                 <p className="text-xs text-muted-foreground">Tipo Movimiento</p>
                 <Badge
-                  variant={
+                  color={
                     data.movement_type === AP_MASTER_TYPE.TYPE_ADJUSTMENT_IN
                       ? "default"
                       : "secondary"
@@ -84,9 +84,7 @@ export function AdjustmentsProductDetailSheet({
               <div>
                 <p className="text-xs text-muted-foreground">Estado</p>
                 <Badge
-                  variant={
-                    data.status === "APPROVED" ? "default" : "destructive"
-                  }
+                  color={data.status === "APPROVED" ? "default" : "destructive"}
                 >
                   {data.status || "-"}
                 </Badge>

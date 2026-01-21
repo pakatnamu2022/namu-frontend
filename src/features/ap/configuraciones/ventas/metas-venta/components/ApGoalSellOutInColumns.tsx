@@ -32,7 +32,7 @@ export const apGoalSellOutInColumns = (): ApGoalSellOutInColumns[] => [
       const value = getValue() as string;
       return (
         <Badge
-          variant={value == "IN" ? "default" : "secondary"}
+          color={value == "IN" ? "default" : "secondary"}
           className="capitalize w-20 flex items-center justify-center"
         >
           {value == "IN" ? "SELL IN" : "SELL OUT"}

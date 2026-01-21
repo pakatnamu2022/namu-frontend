@@ -413,7 +413,7 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
                           </p>
                         </div>
                         <Badge
-                          variant={
+                          color={
                             advance.sunat_responsecode === "0"
                               ? "default"
                               : "secondary"

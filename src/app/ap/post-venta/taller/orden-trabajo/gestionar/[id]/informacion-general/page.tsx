@@ -532,7 +532,7 @@ export default function GeneralInformationPage() {
               Estado de Facturación
             </h3>
             <div className="flex items-center gap-3">
-              <Badge variant={workOrder.is_invoiced ? "default" : "secondary"}>
+              <Badge color={workOrder.is_invoiced ? "default" : "secondary"}>
                 {workOrder.is_invoiced ? "Facturado" : "No Facturado"}
               </Badge>
             </div>

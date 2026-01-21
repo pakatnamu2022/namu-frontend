@@ -181,15 +181,15 @@ export default function SalesManagerAdvisorTable({
                 ([state, count]) =>
                   count > 0 && (
                     <Badge
-                      outline={false}
                       size="sm"
+                      variant="outline"
                       key={`${row.original.worker_id}-${state}`}
-                      variant={getStatusColor(state)}
+                      color={getStatusColor(state)}
                       className="text-xs font-normal w-fit"
                     >
                       {state}: {count as number}
                     </Badge>
-                  )
+                  ),
               )
             ) : (
               <span className="text-xs text-muted-foreground">—</span>
@@ -214,13 +214,13 @@ export default function SalesManagerAdvisorTable({
         ),
       },
     ],
-    [onAdvisorClick]
+    [onAdvisorClick],
   );
 
   // Sort by total visits descending
   const sortedAdvisors = useMemo(
     () => [...advisors].sort((a, b) => b.total_visits - a.total_visits),
-    [advisors]
+    [advisors],
   );
 
   return (

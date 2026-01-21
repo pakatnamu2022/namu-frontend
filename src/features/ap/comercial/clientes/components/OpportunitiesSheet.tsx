@@ -49,7 +49,7 @@ export default function OpportunitiesSheet({
     } catch (error: any) {
       errorToast(
         "Error al cargar las oportunidades",
-        error.response?.data?.message
+        error.response?.data?.message,
       );
     } finally {
       setLoadingOpportunities(false);
@@ -120,10 +120,7 @@ export default function OpportunitiesSheet({
           {!loadingOpportunities && !error && opportunities.length > 0 && (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <Badge
-                  variant="secondary"
-                  className="bg-green-100 text-green-800 hover:bg-green-200"
-                >
+                <Badge color="green" variant="outline">
                   {opportunities.length}{" "}
                   {opportunities.length === 1 ? "oportunidad" : "oportunidades"}
                 </Badge>
@@ -150,7 +147,7 @@ export default function OpportunitiesSheet({
                         "transition-all duration-200",
                         canClick
                           ? "cursor-pointer hover:shadow-lg"
-                          : "cursor-not-allowed opacity-60"
+                          : "cursor-not-allowed opacity-60",
                       )}
                     >
                       <OpportunityInfoCard opportunity={opportunity} />

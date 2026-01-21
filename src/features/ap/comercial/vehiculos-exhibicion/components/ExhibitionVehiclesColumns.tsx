@@ -117,10 +117,10 @@ export const exhibitionVehiclesColumns = ({
       header: "Items",
       cell: ({ row }) => {
         const vehicleItems = row.original.items.filter(
-          (item) => item.item_type === "vehicle"
+          (item) => item.item_type === "vehicle",
         );
         const equipmentItems = row.original.items.filter(
-          (item) => item.item_type === "equipment"
+          (item) => item.item_type === "equipment",
         );
 
         return (
@@ -174,7 +174,7 @@ export const exhibitionVehiclesColumns = ({
       accessorKey: "status",
       header: "Estado",
       cell: ({ row }) => (
-        <Badge variant={row.original.status ? "green" : "destructive"}>
+        <Badge color={row.original.status ? "green" : "destructive"}>
           {row.original.status ? "Activo" : "Inactivo"}
         </Badge>
       ),
@@ -205,9 +205,7 @@ export const exhibitionVehiclesColumns = ({
             )}
 
             {permissions.canDelete && (
-              <DeleteButton
-                onClick={() => onDelete(record.id)}
-              />
+              <DeleteButton onClick={() => onDelete(record.id)} />
             )}
           </div>
         );

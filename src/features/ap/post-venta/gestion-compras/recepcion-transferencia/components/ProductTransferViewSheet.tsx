@@ -5,7 +5,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { Badge } from "@/components/ui/badge";
+import { Badge, BadgeColor } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
@@ -39,20 +39,25 @@ interface ProductTransferViewSheetProps {
 }
 
 const getStatusBadge = (status: string) => {
-  const statusConfig = {
-    IN_TRANSIT: { label: "En Tránsito", variant: "default" as const },
-    COMPLETED: { label: "Completado", variant: "secondary" as const },
-    CANCELLED: { label: "Cancelado", variant: "destructive" as const },
-    PENDING: { label: "Pendiente", variant: "outline" as const },
+  const statusConfig: {
+    [key: string]: {
+      label: string;
+      color: BadgeColor;
+    };
+  } = {
+    IN_TRANSIT: { label: "En Tránsito", color: "default" },
+    COMPLETED: { label: "Completado", color: "secondary" },
+    CANCELLED: { label: "Cancelado", color: "destructive" },
+    PENDING: { label: "Pendiente", color: "default" },
   };
 
   const config = statusConfig[status as keyof typeof statusConfig] || {
     label: status,
-    variant: "default" as const,
+    color: "default",
   };
 
   return (
-    <Badge variant={config.variant} className="capitalize">
+    <Badge color={config.color} className="capitalize">
       {config.label}
     </Badge>
   );
@@ -67,7 +72,7 @@ export function ProductTransferViewSheet({
     queryKey: ["product-transfer-detail", transferId],
     queryFn: async () => {
       const response = await api.get<TransferData>(
-        `/ap/postVenta/inventoryMovements/${transferId}`
+        `/ap/postVenta/inventoryMovements/${transferId}`,
       );
       return response.data;
     },
@@ -204,7 +209,7 @@ export function ProductTransferViewSheet({
                               ? format(
                                   new Date(data.reference.issue_date),
                                   "dd/MM/yyyy",
-                                  { locale: es }
+                                  { locale: es },
                                 )
                               : "-"}
                           </p>

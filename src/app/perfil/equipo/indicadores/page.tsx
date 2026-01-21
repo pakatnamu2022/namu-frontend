@@ -79,7 +79,7 @@ export default function TeamIndicatorsPage() {
     useAllEvaluations();
 
   const { data, isLoading, refetch, isRefetching } = useLeaderDashboard(
-    selectedEvaluationId || 0
+    selectedEvaluationId || 0,
   );
 
   // Auto-select first evaluation if none selected
@@ -103,7 +103,11 @@ export default function TeamIndicatorsPage() {
           <p className="text-muted-foreground">
             No hay información disponible para mostrar.
           </p>
-          <Button variant="outline" className="mt-4" onClick={() => router("/perfil/equipo")}>
+          <Button
+            variant="outline"
+            className="mt-4"
+            onClick={() => router("/perfil/equipo")}
+          >
             Regresar
           </Button>
         </div>
@@ -185,7 +189,7 @@ function EvaluationSelector({
   setOpen: (open: boolean) => void;
 }) {
   const selectedEvaluation = evaluations.find(
-    (e) => e.id === selectedEvaluationId
+    (e) => e.id === selectedEvaluationId,
   );
 
   return (
@@ -224,7 +228,7 @@ function EvaluationSelector({
                         "mr-2 h-4 w-4",
                         selectedEvaluationId === evaluation.id
                           ? "opacity-100"
-                          : "opacity-0"
+                          : "opacity-0",
                       )}
                     />
                     <div className="flex flex-col">
@@ -266,7 +270,7 @@ function EvaluationHeader({
         </div>
         <Badge variant="outline">{evaluation.typeEvaluationName}</Badge>
         <Badge
-          variant={evaluation.status === 1 ? "default" : "secondary"}
+          color={evaluation.status === 1 ? "default" : "secondary"}
           className="gap-1"
         >
           {evaluation.statusName}
@@ -474,7 +478,7 @@ function ResultsChartSection({ distribution }: { distribution: any[] }) {
       ...config,
       [item.rangeLabel]: { label: item.rangeLabel, color: item.fill },
     }),
-    { count: { label: "Colaboradores" } }
+    { count: { label: "Colaboradores" } },
   );
 
   return (
@@ -637,9 +641,7 @@ function CompetenceGapsSection({ competenceGaps }: { competenceGaps: any[] }) {
                 <p className="text-sm font-medium flex-1 line-clamp-2">
                   {gap.competence_name}
                 </p>
-                <Badge color="destructive">
-                  {gap.gap_percentage}% brecha
-                </Badge>
+                <Badge color="destructive">{gap.gap_percentage}% brecha</Badge>
               </div>
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
                 <span>
@@ -699,7 +701,7 @@ function CollaboratorsTable({ collaborators }: { collaborators: any[] }) {
                   <TableCell className="text-sm">{collaborator.area}</TableCell>
                   <TableCell className="text-center">
                     <Badge
-                      variant={
+                      color={
                         collaborator.is_completed ? "default" : "secondary"
                       }
                     >

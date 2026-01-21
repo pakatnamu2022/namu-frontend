@@ -108,7 +108,7 @@ export function SupplierOrderViewSheet({
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Tiene Factura</p>
-              <Badge variant={data.has_invoice ? "default" : "destructive"}>
+              <Badge color={data.has_invoice ? "default" : "destructive"}>
                 {data.has_invoice ? "Sí" : "No"}
               </Badge>
             </div>

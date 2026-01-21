@@ -27,7 +27,7 @@ export const vehiclePurchaseOrderColumns =
           </Badge>
         ) : (
           <Badge
-            variant="secondary"
+            color="secondary"
             tooltip="Anulada"
             tooltipVariant="secondary"
             className="border-0 h-6 p-0 flex justify-center items-center w-fit px-2 gap-2 text-xs"

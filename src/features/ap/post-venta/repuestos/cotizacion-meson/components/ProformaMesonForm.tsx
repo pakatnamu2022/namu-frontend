@@ -141,7 +141,7 @@ function ProductDetailItem({
                           </span>
                           {warehouse.is_out_of_stock && (
                             <Badge
-                              variant="destructive"
+                              color="destructive"
                               className="text-xs py-0 px-1 h-4"
                             >
                               Sin Stock
@@ -420,7 +420,7 @@ function ProductDetailItem({
                       )}
                       {warehouse.is_out_of_stock && (
                         <Badge
-                          variant="destructive"
+                          color="destructive"
                           className="text-xs py-0 px-1 h-4"
                         >
                           Sin Stock

@@ -49,14 +49,14 @@ export const cycleColumns = ({
           <Badge color="default">
             {format(
               parse(cycle.start_date as string, "yyyy-MM-dd", new Date()),
-              "dd/MM/yyyy"
+              "dd/MM/yyyy",
             )}
           </Badge>
           <span className="mx-1">-</span>
           <Badge color="default">
             {format(
               parse(cycle.end_date as string, "yyyy-MM-dd", new Date()),
-              "dd/MM/yyyy"
+              "dd/MM/yyyy",
             )}
           </Badge>
         </div>
@@ -122,7 +122,7 @@ export const cycleColumns = ({
       const status = getValue() as string;
       return (
         <div className="font-semibold">
-          <Badge variant={"tertiary"}>{status}</Badge>
+          <Badge color="tertiary">{status}</Badge>
         </div>
       );
     },

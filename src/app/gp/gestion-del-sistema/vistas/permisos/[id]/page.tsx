@@ -39,7 +39,7 @@ export default function ViewPermissionsPage() {
 
   const [view, setView] = useState<ViewResource | null>(null);
   const [existingPermissions, setExistingPermissions] = useState<Permission[]>(
-    []
+    [],
   );
   const [isLoading, setIsLoading] = useState(true);
   const [selectedActions, setSelectedActions] = useState<string[]>([]);
@@ -60,7 +60,7 @@ export default function ViewPermissionsPage() {
 
         // Fetch view data
         const { data: viewData } = await api.get<ViewResource>(
-          `${ENDPOINT}/${id}`
+          `${ENDPOINT}/${id}`,
         );
         setView(viewData);
 
@@ -82,7 +82,7 @@ export default function ViewPermissionsPage() {
       } catch (error: any) {
         errorToast(
           "Error al cargar los datos",
-          error.response.data?.message?.toString()
+          error.response.data?.message?.toString(),
         );
       } finally {
         setIsLoading(false);
@@ -96,7 +96,7 @@ export default function ViewPermissionsPage() {
     setSelectedActions((prev) =>
       prev.includes(actionValue)
         ? prev.filter((val) => val !== actionValue)
-        : [...prev, actionValue]
+        : [...prev, actionValue],
     );
   };
 
@@ -129,12 +129,12 @@ export default function ViewPermissionsPage() {
       await bulkCreatePermissions(payload);
 
       successToast(
-        `Permisos sincronizados correctamente para "${view.descripcion}"`
+        `Permisos sincronizados correctamente para "${view.descripcion}"`,
       );
     } catch (error: any) {
       errorToast(
         "Error al sincronizar permisos",
-        error.response.data?.message?.toString()
+        error.response.data?.message?.toString(),
       );
     } finally {
       setIsSaving(false);
@@ -281,7 +281,8 @@ export default function ViewPermissionsPage() {
               // Check if this action exists in current permissions
               const existsInCurrent = existingPermissions.some(
                 (perm) =>
-                  getActionFromPolicyMethod(perm.policy_method) === action.value
+                  getActionFromPolicyMethod(perm.policy_method) ===
+                  action.value,
               );
 
               return (
@@ -297,7 +298,7 @@ export default function ViewPermissionsPage() {
                   {existsInCurrent && (
                     <div className="absolute top-2 right-2">
                       <Badge
-                        variant="secondary"
+                        color="secondary"
                         className="text-[10px] px-1.5 py-0"
                       >
                         Actual

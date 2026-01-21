@@ -20,7 +20,10 @@ import {
 import { useNavigate } from "react-router-dom";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { EVALUATION_PERSON } from "../lib/evaluationPerson.constans";
-import { getVariantByCompletionRate } from "../lib/evaluationPerson.function";
+import {
+  getProgressColorBadge,
+  getResultRateColorBadge,
+} from "../lib/evaluationPerson.function";
 
 export type EvaluationPersonColumn = ColumnDef<EvaluationPersonResultResource>;
 const { ABSOLUTE_ROUTE } = EVALUATION_PERSON;
@@ -76,7 +79,7 @@ export const EvaluationPersonColumns = ({
         <div className="flex justify-center items-center gap-2 w-full">
           <Badge
             className="min-w-16 justify-end"
-            color={getVariantByCompletionRate(objectivesResult)}
+            color={getResultRateColorBadge(objectivesResult)}
           >
             {objectivesResult.toFixed(2) ?? 0} %
           </Badge>
@@ -93,7 +96,7 @@ export const EvaluationPersonColumns = ({
         <div className="flex justify-center items-center gap-2 w-full">
           <Badge
             className="min-w-16 justify-end"
-            color={getVariantByCompletionRate(competencesResult)}
+            color={getResultRateColorBadge(competencesResult)}
           >
             {competencesResult.toFixed(2) ?? 0} %
           </Badge>
@@ -110,7 +113,7 @@ export const EvaluationPersonColumns = ({
         <div className="flex justify-center items-center gap-2 w-full ">
           <Badge
             className="min-w-16 justify-end"
-            color={getVariantByCompletionRate(objectivesResult)}
+            color={getResultRateColorBadge(objectivesResult)}
           >
             {objectivesResult.toFixed(2) ?? 0} %
           </Badge>
@@ -127,7 +130,7 @@ export const EvaluationPersonColumns = ({
         <div className="flex justify-center items-center gap-2 w-full ">
           <Badge
             className="min-w-16 justify-end"
-            color={getVariantByCompletionRate(total_progress)}
+            color={getProgressColorBadge(total_progress)}
           >
             {total_progress.toFixed(2) ?? 0} %
           </Badge>

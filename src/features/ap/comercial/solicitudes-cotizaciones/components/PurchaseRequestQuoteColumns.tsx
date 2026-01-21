@@ -71,7 +71,7 @@ export const purchaseRequestQuoteColumns = ({
       const isApproved = getValue() as boolean;
       return (
         <Badge
-          variant={isApproved ? "default" : "secondary"}
+          color={isApproved ? "default" : "secondary"}
           className={isApproved ? "bg-primary" : "bg-secondary"}
         >
           {isApproved ? "Sí" : "No"}
