@@ -63,7 +63,7 @@ export function PurchaseOrderProductsViewSheet({
           </div>
           <div>
             <p className="text-xs text-muted-foreground">Estado</p>
-            <Badge variant={data.status ? "default" : "destructive"}>
+            <Badge color={data.status ? "default" : "destructive"}>
               {data.status ? "Activo" : "Inactivo"}
             </Badge>
           </div>

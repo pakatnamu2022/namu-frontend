@@ -103,7 +103,7 @@ export const workOrderColumns = ({
     cell: ({ getValue }) => {
       const value = getValue() as boolean;
       return (
-        <Badge variant={value ? "default" : "secondary"}>
+        <Badge color={value ? "default" : "secondary"}>
           {value ? "Sí" : "No"}
         </Badge>
       );
@@ -115,7 +115,7 @@ export const workOrderColumns = ({
     cell: ({ getValue }) => {
       const value = getValue() as boolean;
       return (
-        <Badge variant={value ? "default" : "secondary"}>
+        <Badge color={value ? "default" : "secondary"}>
           {value ? "Sí" : "No"}
         </Badge>
       );
@@ -127,7 +127,7 @@ export const workOrderColumns = ({
     cell: ({ getValue }) => {
       const value = getValue() as boolean;
       return (
-        <Badge variant={value ? "default" : "secondary"}>
+        <Badge color={value ? "default" : "secondary"}>
           {value ? "Sí" : "No"}
         </Badge>
       );

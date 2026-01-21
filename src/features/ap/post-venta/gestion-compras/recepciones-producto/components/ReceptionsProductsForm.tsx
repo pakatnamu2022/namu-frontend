@@ -267,7 +267,7 @@ export const ReceptionsProductsForm = ({
                         </h4>
                         {isOrderedProduct && (
                           <Badge
-                            variant="default"
+                            color="default"
                             className="text-xs h-5 shrink-0"
                           >
                             ORDENADO

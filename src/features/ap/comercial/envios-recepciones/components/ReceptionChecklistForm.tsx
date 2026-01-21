@@ -123,7 +123,7 @@ export const ReceptionChecklistForm = ({
                       <p className="font-medium text-foreground">
                         {accessory.description}
                       </p>
-                      <Badge variant="secondary" className="text-xs">
+                      <Badge color="secondary" className="text-xs">
                         {accessory.quantity} {accessory.unit_measurement}
                       </Badge>
                     </div>

@@ -157,11 +157,11 @@ export const dashboardSedeColumns = ({
               (count as number) > 0 && (
                 <Badge
                   key={`${sede.sede_id}-${state}`}
-                  variant={
+                  color={
                     state === "FRIO"
                       ? "secondary"
                       : state === "TEMPLADO"
-                        ? "outline"
+                        ? "default"
                         : state === "CALIENTE"
                           ? "destructive"
                           : state === "VENTA CONCRETADA"
@@ -182,7 +182,10 @@ export const dashboardSedeColumns = ({
     id: "actions",
     header: "",
     cell: ({ row }) => (
-      <div onClick={() => onRowClick?.(row.original)} className={cellClickClass}>
+      <div
+        onClick={() => onRowClick?.(row.original)}
+        className={cellClickClass}
+      >
         <ChevronRight className="h-5 w-5 transition-transform duration-200" />
       </div>
     ),

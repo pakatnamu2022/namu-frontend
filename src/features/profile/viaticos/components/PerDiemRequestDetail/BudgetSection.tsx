@@ -53,7 +53,7 @@ export default function BudgetSection({ request }: BudgetSectionProps) {
                       <p className="text-xs text-muted-foreground mb-0.5">
                         Días
                       </p>
-                      <Badge variant="indigo" className="text-xs">
+                      <Badge color="indigo" className="text-xs">
                         {budget.days} {budget.days === 1 ? "día" : "días"}
                       </Badge>
                     </div>
@@ -63,7 +63,7 @@ export default function BudgetSection({ request }: BudgetSectionProps) {
                         Presupuesto
                       </p>
                       <Badge
-                        variant={"blue"}
+                        color="blue"
                         className="font-semibold text-primary"
                       >
                         S/ {budget.total.toFixed(2)}
@@ -118,10 +118,10 @@ export default function BudgetSection({ request }: BudgetSectionProps) {
                           spentPercentage > 100
                             ? "bg-red-500"
                             : spentPercentage > 90
-                            ? "bg-orange-500"
-                            : spentPercentage > 70
-                            ? "bg-yellow-500"
-                            : "bg-green-500"
+                              ? "bg-orange-500"
+                              : spentPercentage > 70
+                                ? "bg-yellow-500"
+                                : "bg-green-500"
                         }`}
                         style={{
                           width: `${Math.min(spentPercentage, 100)}%`,

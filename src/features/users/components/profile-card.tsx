@@ -96,7 +96,7 @@ export function ProfileCard({ variant = "sidebar" }: ProfileCardProps) {
         return (
           <>
             {pendingEvaluations && pendingEvaluations > 0 && (
-              <Badge className="animate-pulse" variant={"secondary"}>
+              <Badge className="animate-pulse" color={"secondary"}>
                 {pendingEvaluations}
               </Badge>
             )}
@@ -198,10 +198,10 @@ export function ProfileCard({ variant = "sidebar" }: ProfileCardProps) {
             <p className="text-primary dark:text-primary-foreground font-semibold text-sm">
               {user?.name}
             </p>
-            <Badge variant="secondary" className="px-4">
+            <Badge color="secondary" className="px-4">
               {user.position}
             </Badge>
-            <Badge variant="default" className="px-4">
+            <Badge color="default" className="px-4">
               {user.empresa} - {user.sede}
             </Badge>
           </div>

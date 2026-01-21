@@ -14,6 +14,8 @@ export interface EvaluationPersonResultResource {
   id: number;
   person_id: number;
   evaluation_id: number;
+  supervisor_id: number;
+  supervisor: WorkerResource;
   person: WorkerResource;
   competencesPercentage: number;
   objectivesPercentage: number;

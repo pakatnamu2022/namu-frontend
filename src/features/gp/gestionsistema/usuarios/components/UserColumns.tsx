@@ -62,7 +62,7 @@ export const userColumns = ({
       const value = getValue() as string;
       return (
         value && (
-          <Badge variant="default" className="capitalize gap-2">
+          <Badge color="default" className="capitalize gap-2">
             {value}
           </Badge>
         )
@@ -76,7 +76,7 @@ export const userColumns = ({
       const value = getValue() as string;
       return (
         value && (
-          <Badge variant={"tertiary"} className="capitalize gap-2">
+          <Badge color={"tertiary"} className="capitalize gap-2">
             {value}
           </Badge>
         )
@@ -104,7 +104,7 @@ export const userColumns = ({
       const value = getValue() as string;
       return (
         value && (
-          <Badge variant="tertiary" className="capitalize gap-2">
+          <Badge color="tertiary" className="capitalize gap-2">
             {value}
           </Badge>
         )

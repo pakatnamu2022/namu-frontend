@@ -38,13 +38,13 @@ const PersonResultsAccordion: React.FC<PersonResultsAccordionProps> = ({
 
     if (hasCompleted) {
       return (
-        <Badge variant="default" className="bg-primary text-primary">
+        <Badge color="default" className="bg-primary text-primary">
           Completada
         </Badge>
       );
     }
     if (hasProgress) {
-      return <Badge variant="tertiary">En Progreso</Badge>;
+      return <Badge color="tertiary">En Progreso</Badge>;
     }
     return (
       <Badge variant="outline" className="bg-secondary text-secondary">

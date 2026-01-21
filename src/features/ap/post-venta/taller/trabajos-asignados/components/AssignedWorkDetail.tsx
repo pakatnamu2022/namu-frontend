@@ -132,7 +132,7 @@ export function AssignedWorkDetail({
                     ? format(
                         parseISO(planning.planned_start_datetime),
                         "dd/MM/yyyy HH:mm",
-                        { locale: es }
+                        { locale: es },
                       )
                     : "-"}
                 </p>
@@ -144,7 +144,7 @@ export function AssignedWorkDetail({
                     ? format(
                         parseISO(planning.planned_end_datetime),
                         "dd/MM/yyyy HH:mm",
-                        { locale: es }
+                        { locale: es },
                       )
                     : "-"}
                 </p>
@@ -156,7 +156,7 @@ export function AssignedWorkDetail({
                     ? format(
                         parseISO(planning.actual_start_datetime),
                         "dd/MM/yyyy HH:mm",
-                        { locale: es }
+                        { locale: es },
                       )
                     : "-"}
                 </p>
@@ -168,7 +168,7 @@ export function AssignedWorkDetail({
                     ? format(
                         parseISO(planning.actual_end_datetime),
                         "dd/MM/yyyy HH:mm",
-                        { locale: es }
+                        { locale: es },
                       )
                     : "-"}
                 </p>
@@ -196,12 +196,12 @@ export function AssignedWorkDetail({
                     <div className="flex items-center justify-between">
                       <h4 className="font-semibold">Sesión {index + 1}</h4>
                       <Badge
-                        variant={
+                        color={
                           session.status === "in_progress"
-                            ? "default"
+                            ? "blue"
                             : session.status === "completed"
-                            ? "secondary"
-                            : "outline"
+                              ? "green"
+                              : "gray"
                         }
                       >
                         {SESSION_STATUS_LABELS[session.status]}
@@ -215,7 +215,7 @@ export function AssignedWorkDetail({
                           {format(
                             parseISO(session.start_datetime),
                             "dd/MM/yyyy HH:mm",
-                            { locale: es }
+                            { locale: es },
                           )}
                         </p>
                       </div>
@@ -226,7 +226,7 @@ export function AssignedWorkDetail({
                             ? format(
                                 parseISO(session.end_datetime),
                                 "dd/MM/yyyy HH:mm",
-                                { locale: es }
+                                { locale: es },
                               )
                             : "En curso..."}
                         </p>

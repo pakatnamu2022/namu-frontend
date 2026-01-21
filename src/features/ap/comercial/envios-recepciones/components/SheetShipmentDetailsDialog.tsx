@@ -82,7 +82,7 @@ export function SheetShipmentDetailsDialog({
                     Tipo de Documento
                   </p>
                   <Badge
-                    variant={
+                    color={
                       shipment.document_type === "GUIA_REMISION"
                         ? "default"
                         : "secondary"

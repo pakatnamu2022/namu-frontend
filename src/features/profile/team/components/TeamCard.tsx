@@ -46,7 +46,7 @@ export function TeamCard({
   // Función para obtener el color según el resultado y el parámetro correspondiente
   const getResultColor = (
     resultValue: number,
-    parameter: ParameterResource
+    parameter: ParameterResource,
   ) => {
     if (!parameter?.details || parameter.details.length === 0) {
       return "";
@@ -83,7 +83,7 @@ export function TeamCard({
           {/* Porcentaje de progreso destacado */}
           <div className="flex flex-col items-end gap-1 shrink-0">
             <Badge
-              variant={isEvaluated ? "green" : isPending ? "amber" : "red"}
+              color={isEvaluated ? "green" : isPending ? "amber" : "red"}
               icon={isEvaluated ? CheckCircle2 : isPending ? Clock : XCircle}
               className="text-xs"
             >
@@ -126,7 +126,7 @@ export function TeamCard({
               <div
                 className={cn(
                   "flex items-center gap-1 rounded-md px-2 py-1",
-                  getResultColor(result, data.finalParameter)
+                  getResultColor(result, data.finalParameter),
                 )}
               >
                 <span className="text-sm font-bold">{result}%</span>
@@ -139,7 +139,7 @@ export function TeamCard({
               <div
                 className={cn(
                   "flex items-center gap-1 rounded-md px-2 py-1",
-                  getResultColor(result, data.finalParameter)
+                  getResultColor(result, data.finalParameter),
                 )}
               >
                 <span className="text-sm font-bold">{result}%</span>
@@ -148,7 +148,7 @@ export function TeamCard({
               <div
                 className={cn(
                   "flex items-center gap-1 rounded-md px-2 py-1",
-                  getResultColor(objectivesResult, data.objectiveParameter)
+                  getResultColor(objectivesResult, data.objectiveParameter),
                 )}
               >
                 <span className="text-xs font-semibold">
@@ -159,7 +159,7 @@ export function TeamCard({
               <div
                 className={cn(
                   "flex items-center gap-1 rounded-md px-2 py-1",
-                  getResultColor(competencesResult, data.competenceParameter)
+                  getResultColor(competencesResult, data.competenceParameter),
                 )}
               >
                 <span className="text-xs font-semibold">

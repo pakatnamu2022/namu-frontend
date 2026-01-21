@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { Pencil } from "lucide-react";
 import { STORE_VISITS } from "../lib/storeVisits.constants";
-import { Badge } from "@/components/ui/badge";
+import { Badge, BadgeColor } from "@/components/ui/badge";
 
 export type StoreVisitsColumns = ColumnDef<StoreVisitsResource>;
 
@@ -71,34 +71,34 @@ export const storeVisitsColumns = ({
         string,
         {
           label: string;
-          variant: "default" | "secondary" | "destructive" | "outline";
+          color: BadgeColor;
           className?: string;
         }
       > = {
         Subido: {
           label: "Subido",
-          variant: "secondary",
+          color: "secondary",
           className: "bg-blue-100 text-blue-700 hover:bg-blue-200",
         },
         Atendido: {
           label: "Atendido",
-          variant: "default",
+          color: "default",
           className: "bg-green-100 text-green-700 hover:bg-green-200",
         },
         Descartado: {
           label: "Descartado",
-          variant: "destructive",
+          color: "destructive",
           className: "bg-red-100 text-red-700 hover:bg-red-200",
         },
       };
 
       const config = conditionConfig[condition] || {
         label: condition,
-        variant: "secondary",
+        color: "secondary",
       };
 
       return (
-        <Badge variant={config.variant} className={config.className}>
+        <Badge color={config.color} className={config.className}>
           {config.label}
         </Badge>
       );
@@ -128,7 +128,7 @@ export const storeVisitsColumns = ({
             </Button>
           )}
 
-          {/* Delete */}  
+          {/* Delete */}
           {permissions.canDelete && (
             <DeleteButton onClick={() => onDelete(id)} />
           )}

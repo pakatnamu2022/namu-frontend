@@ -89,7 +89,7 @@ export const hierarchicalCategoryColumns = ({
     header: "Inclusión",
     cell: ({ getValue }) => (
       <Badge
-        variant={(getValue() as boolean) ? "secondary" : "default"}
+        color={(getValue() as boolean) ? "secondary" : "default"}
         className={cn("font-semibold flex gap-0.5 w-fit")}
       >
         {getValue() ? <X className="size-3" /> : <Check className="size-3" />}
@@ -102,7 +102,7 @@ export const hierarchicalCategoryColumns = ({
     header: "Tiene Objetivos",
     cell: ({ getValue }) => (
       <Badge
-        variant={(getValue() as boolean) ? "green" : "red"}
+        color={(getValue() as boolean) ? "green" : "red"}
         className={cn("font-semibold flex gap-0.5 w-fit")}
       >
         {getValue() ? <Check className="size-3" /> : <X className="size-3" />}
@@ -130,7 +130,7 @@ export const hierarchicalCategoryColumns = ({
           >
             <Users2 className="size-5" />
             <Badge
-              variant="tertiary"
+              color="tertiary"
               className="size-5 aspect-square p-0! flex justify-center items-center rounded-full text-xs"
             >
               {row.original.children?.length || 0}

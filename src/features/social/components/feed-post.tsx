@@ -57,7 +57,7 @@ export function FeedPost({
 
   return (
     <Card className="bg-background/90 backdrop-blur-xs border border-primary/10">
-      <CardContent className="p-6">
+      <CardContent>
         {/* Header del post */}
         <div className="flex items-center gap-3 mb-4">
           <Avatar className="w-12 h-12">

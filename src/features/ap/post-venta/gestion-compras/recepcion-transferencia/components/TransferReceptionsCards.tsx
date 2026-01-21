@@ -79,7 +79,7 @@ export default function TransferReceptionsCards({
               {/* Status y Estado */}
               <div className="flex gap-2 mb-4">
                 <Badge
-                  variant={
+                  color={
                     reception.status === "APPROVED" ? "default" : "secondary"
                   }
                   className="flex items-center gap-1"
@@ -93,7 +93,7 @@ export default function TransferReceptionsCards({
                 </Badge>
                 {hasObservations && (
                   <Badge
-                    variant="destructive"
+                    color="destructive"
                     className="flex items-center gap-1"
                   >
                     <AlertCircle className="h-3 w-3" />
@@ -121,7 +121,7 @@ export default function TransferReceptionsCards({
                         "dd/MM/yyyy",
                         {
                           locale: es,
-                        }
+                        },
                       )}
                     </p>
                   </div>

@@ -35,7 +35,7 @@ export const periodColumns = ({
     accessorKey: "active",
     header: "Estado",
     cell: ({ getValue }) => (
-      <Badge variant={getValue() ? "default" : "tertiary"}>
+      <Badge color={getValue() ? "default" : "tertiary"}>
         {getValue() ? "Activo" : "Inactivo"}
       </Badge>
     ),

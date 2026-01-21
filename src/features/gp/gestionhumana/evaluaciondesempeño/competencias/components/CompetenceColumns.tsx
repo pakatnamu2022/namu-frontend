@@ -46,7 +46,7 @@ export const competenceColumns = ({
         (sub) => sub.definicion || sub.definicion.trim() !== ""
       ).length;
       return (
-        <Badge variant={count > 0 ? "default" : "destructive"}>{count}</Badge>
+        <Badge color={count > 0 ? "default" : "destructive"}>{count}</Badge>
       );
     },
   },

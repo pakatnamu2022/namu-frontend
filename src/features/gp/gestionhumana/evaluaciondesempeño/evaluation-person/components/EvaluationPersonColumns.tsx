@@ -20,6 +20,10 @@ import {
 import { useNavigate } from "react-router-dom";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { EVALUATION_PERSON } from "../lib/evaluationPerson.constans";
+import {
+  getProgressColorBadge,
+  getResultRateColorBadge,
+} from "../lib/evaluationPerson.function";
 
 export type EvaluationPersonColumn = ColumnDef<EvaluationPersonResultResource>;
 const { ABSOLUTE_ROUTE } = EVALUATION_PERSON;
@@ -41,6 +45,15 @@ export const EvaluationPersonColumns = ({
     ),
   },
   {
+    accessorKey: "supervisor",
+    header: "Jefe Inmediato",
+    cell: ({ getValue }) => (
+      <span className="font-semibold">
+        {(getValue() as WorkerResource)?.name}
+      </span>
+    ),
+  },
+  {
     accessorKey: "resultsPercentage",
     header: "Proporción (Obj - Com)",
     cell: ({ row }) => {
@@ -49,7 +62,7 @@ export const EvaluationPersonColumns = ({
 
       return (
         <div className="flex justify-center items-center gap-2 w-full">
-          <Badge className="min-w-16 justify-end" variant={"tertiary"}>
+          <Badge className="min-w-16 justify-end" color="sky">
             {objectivesPercentage.toFixed(0) ?? 0}% -{" "}
             {competencesPercentage.toFixed(0) ?? 0}%
           </Badge>
@@ -64,7 +77,10 @@ export const EvaluationPersonColumns = ({
       const objectivesResult = row.original.objectivesResult;
       return (
         <div className="flex justify-center items-center gap-2 w-full">
-          <Badge className="min-w-16 justify-end" variant={"outline"}>
+          <Badge
+            className="min-w-16 justify-end"
+            color={getResultRateColorBadge(objectivesResult)}
+          >
             {objectivesResult.toFixed(2) ?? 0} %
           </Badge>
         </div>
@@ -78,7 +94,10 @@ export const EvaluationPersonColumns = ({
       const competencesResult = row.original.competencesResult;
       return (
         <div className="flex justify-center items-center gap-2 w-full">
-          <Badge className="min-w-16 justify-end" variant={"outline"}>
+          <Badge
+            className="min-w-16 justify-end"
+            color={getResultRateColorBadge(competencesResult)}
+          >
             {competencesResult.toFixed(2) ?? 0} %
           </Badge>
         </div>
@@ -92,7 +111,10 @@ export const EvaluationPersonColumns = ({
       const objectivesResult = row.original.result;
       return (
         <div className="flex justify-center items-center gap-2 w-full ">
-          <Badge className="min-w-16 justify-end" variant={"default"}>
+          <Badge
+            className="min-w-16 justify-end"
+            color={getResultRateColorBadge(objectivesResult)}
+          >
             {objectivesResult.toFixed(2) ?? 0} %
           </Badge>
         </div>
@@ -106,7 +128,10 @@ export const EvaluationPersonColumns = ({
       const total_progress = row.original.total_progress.completion_rate;
       return (
         <div className="flex justify-center items-center gap-2 w-full ">
-          <Badge className="min-w-16 justify-end" variant={"default"}>
+          <Badge
+            className="min-w-16 justify-end"
+            color={getProgressColorBadge(total_progress)}
+          >
             {total_progress.toFixed(2) ?? 0} %
           </Badge>
         </div>

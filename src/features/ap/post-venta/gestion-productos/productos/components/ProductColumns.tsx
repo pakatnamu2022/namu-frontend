@@ -88,12 +88,12 @@ export const productColumns = ({
 
       return (
         <Badge
-          variant={
+          color={
             hasOutOfStock
               ? "destructive"
               : hasLowStock
-              ? "secondary"
-              : "default"
+                ? "secondary"
+                : "default"
           }
         >
           {displayStock}
@@ -143,15 +143,15 @@ export const productColumns = ({
 
       const statusConfig = {
         ACTIVE: {
-          variant: "default" as const,
+          color: "default" as const,
           label: "Activo",
         },
         INACTIVE: {
-          variant: "secondary" as const,
+          color: "secondary" as const,
           label: "Inactivo",
         },
         DISCONTINUED: {
-          variant: "destructive" as const,
+          color: "destructive" as const,
           label: "Descontinuado",
         },
       };
@@ -160,7 +160,7 @@ export const productColumns = ({
 
       return (
         <Badge
-          variant={config.variant}
+          color={config.color}
           className="capitalize w-32 flex items-center justify-center gap-2"
         >
           {config.label}
@@ -189,8 +189,8 @@ export const productColumns = ({
                       status === "ACTIVE"
                         ? "bg-green-500"
                         : status === "INACTIVE"
-                        ? "bg-gray-400"
-                        : "bg-secondary"
+                          ? "bg-gray-400"
+                          : "bg-secondary"
                     }`}
                   />
                   <RefreshCw className="size-3.5" />

@@ -167,7 +167,7 @@ export const assignedWorkColumns = ({
 
       return (
         <>
-          <Badge variant={variantMap[status]}>
+          <Badge color={variantMap[status]}>
             {PLANNING_STATUS_LABELS[status]}
           </Badge>
           {status === "in_progress" && hasActive && (

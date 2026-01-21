@@ -336,7 +336,7 @@ export function EvaluationPersonResultModal({
                         )}
                         {evaluationPersonResult?.evaluation
                           ?.typeEvaluationName && (
-                          <Badge variant="secondary">
+                          <Badge color="secondary">
                             {
                               evaluationPersonResult.evaluation
                                 .typeEvaluationName

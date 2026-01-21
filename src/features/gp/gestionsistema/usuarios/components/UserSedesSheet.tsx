@@ -144,7 +144,7 @@ export const UserSedesSheet = ({
 
           {/* Estadísticas y seleccionar todo */}
           <div className="flex items-center justify-between gap-2">
-            <Badge variant="secondary">
+            <Badge color="secondary">
               {selectedSedes.length}{" "}
               {selectedSedes.length === 1
                 ? "sede seleccionada"
@@ -196,7 +196,7 @@ export const UserSedesSheet = ({
                           {sede.description}
                         </p>
                         {sede.distrito && (
-                          <Badge variant="tertiary" className="text-xs gap-1">
+                          <Badge color="tertiary" className="text-xs gap-1">
                             <MapPin className="h-3 w-3" />
                             {sede.distrito}
                           </Badge>
