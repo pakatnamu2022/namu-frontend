@@ -125,7 +125,10 @@ export const EvaluationPersonColumns = ({
       const total_progress = row.original.total_progress.completion_rate;
       return (
         <div className="flex justify-center items-center gap-2 w-full ">
-          <Badge className="min-w-16 justify-end" variant={"default"}>
+          <Badge
+            className="min-w-16 justify-end"
+            variant={getVariantByCompletionRate(total_progress)}
+          >
             {total_progress.toFixed(2) ?? 0} %
           </Badge>
         </div>
