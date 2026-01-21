@@ -330,6 +330,7 @@ import PerDiemRequestDetailPage from "./app/perfil/viaticos/[id]/page.tsx";
 import AddExpensePage from "./app/perfil/viaticos/[id]/gastos/agregar/page.tsx";
 import UpdateExpensePage from "./app/perfil/viaticos/[id]/gastos/actualizar/[expenseId]/page.tsx";
 import UploadDepositPage from "./app/gp/gestion-humana/viaticos/solicitud-viaticos/[id]/deposito/page.tsx";
+import AccountantDistrictAssignmentPage from "./app/gp/gestion-humana/viaticos/asignacion-asistentes/page.tsx";
 import UpdatePositionPage from "./app/gp/gestion-humana/configuraciones/posiciones/actualizar/[id]/page";
 import UpdateHierarchicalCategoryPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/categorias-jerarquicas/actualizar/[id]/page";
 import SedePage from "./app/gp/maestro-general/sede/page.tsx";
@@ -1518,6 +1519,8 @@ function App() {
                   </Suspense>
                 }
               >
+                <Route index element={<ModulePage />} />
+
                 {/* Administración de Categoria Viaticos */}
                 <Route
                   path="categoria-viaticos"
@@ -1561,6 +1564,12 @@ function App() {
                 <Route
                   path="convenios-hoteles/actualizar/:id"
                   element={<UpdateHotelAgreementPage />}
+                />
+
+                {/* Asignación de Asistentes */}
+                <Route
+                  path="asignacion-asistentes"
+                  element={<AccountantDistrictAssignmentPage />}
                 />
 
                 {/* Administración de Solicitud de Viaticos */}

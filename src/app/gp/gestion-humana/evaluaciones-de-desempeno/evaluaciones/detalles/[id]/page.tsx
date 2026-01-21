@@ -24,12 +24,18 @@ import { EvaluationPersonColumns } from "@/features/gp/gestionhumana/evaluaciond
 import EvaluationPersonOptions from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/components/EvaluationPersonOptions";
 import { EvaluationPersonResultModal } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/components/EvaluationPersonResultModal";
 import { useQueryClient } from "@tanstack/react-query";
-import { useEvaluationPersonResult } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/lib/evaluationPerson.hook";
+import {
+  useEvaluationPersonResult,
+  useLeadersStatus,
+} from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/lib/evaluationPerson.hook";
 import { WorkerResource } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.interface";
 import { regenerateEvaluation } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluaciones/lib/evaluation.actions";
 import { regenerateEvaluationPerson } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/lib/evaluationPerson.actions";
 import { notFound } from "@/shared/hooks/useNotFound";
 import PageWrapper from "@/shared/components/PageWrapper";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import LeadersStatusTable from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/components/LeadersStatusTable";
+import { LeadersStatusColumns } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/components/LeadersStatusColumns";
 
 const { ROUTE } = EVALUATION;
 
@@ -50,6 +56,7 @@ export default function EvaluationDetailPage() {
   );
   const [openDetailModal, setOpenDetailModal] = useState(false);
   const [loadingRegenerate, setLoadingRegenerate] = useState(false);
+  const [activeTab, setActiveTab] = useState<string>("persons");
 
   const idEvaluation = Number(id);
 
@@ -77,6 +84,11 @@ export default function EvaluationDetailPage() {
 
   const { data: bosses = [], isLoading: isLoadingBosses } =
     useBossesInEvaluation(idEvaluation);
+
+  const { data: leadersData, isLoading: isLoadingLeaders } = useLeadersStatus(
+    idEvaluation,
+    activeTab === "leaders",
+  );
 
   const handleDelete = async () => {
     if (!deleteId) return;
@@ -159,29 +171,56 @@ export default function EvaluationDetailPage() {
         />
       </HeaderTableWrapper>
 
-      <EvaluationPersonTable
-        evaluation={evaluation}
-        isLoading={isLoading}
-        columns={EvaluationPersonColumns({
-          onRegenerate: handleRegenerateOne,
-          onDelete: setDeleteId,
-        })}
-        data={data?.data || []}
-      >
-        <EvaluationPersonOptions
-          search={search}
-          setSearch={setSearch}
-          persons={persons || []}
-          personId={personId}
-          setPersonId={setPersonId}
-          positions={positions}
-          positionId={positionId}
-          setPositionId={setPositionId}
-          bosses={bosses}
-          bossDni={bossDni}
-          setBossDni={setBossDni}
-        />
-      </EvaluationPersonTable>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList>
+          <TabsTrigger value="persons">Evaluados</TabsTrigger>
+          <TabsTrigger value="leaders">Estado de Líderes</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="persons">
+          <EvaluationPersonTable
+            evaluation={evaluation}
+            isLoading={isLoading}
+            columns={EvaluationPersonColumns({
+              onRegenerate: handleRegenerateOne,
+              onDelete: setDeleteId,
+            })}
+            data={data?.data || []}
+          >
+            <EvaluationPersonOptions
+              search={search}
+              setSearch={setSearch}
+              persons={persons || []}
+              personId={personId}
+              setPersonId={setPersonId}
+              positions={positions}
+              positionId={positionId}
+              setPositionId={setPositionId}
+              bosses={bosses}
+              bossDni={bossDni}
+              setBossDni={setBossDni}
+            />
+          </EvaluationPersonTable>
+
+          <DataTablePagination
+            page={page}
+            totalPages={data?.meta?.last_page || 1}
+            onPageChange={setPage}
+            per_page={per_page}
+            setPerPage={setPerPage}
+            totalData={data?.meta?.total || 0}
+          />
+        </TabsContent>
+
+        <TabsContent value="leaders">
+          <LeadersStatusTable
+            columns={LeadersStatusColumns({ evaluationId: idEvaluation })}
+            data={leadersData?.leaders || []}
+            summary={leadersData?.summary}
+            isLoading={isLoadingLeaders}
+          />
+        </TabsContent>
+      </Tabs>
 
       {deleteId !== null && (
         <SimpleDeleteDialog
@@ -205,15 +244,6 @@ export default function EvaluationDetailPage() {
           evaluation_id={Number(idEvaluation)}
         />
       )}
-
-      <DataTablePagination
-        page={page}
-        totalPages={data?.meta?.last_page || 1}
-        onPageChange={setPage}
-        per_page={per_page}
-        setPerPage={setPerPage}
-        totalData={data?.meta?.total || 0}
-      />
     </PageWrapper>
   );
 }
