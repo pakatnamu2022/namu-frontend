@@ -37,7 +37,7 @@ export default function PerDiemRequestPage() {
   const [hotelReservationRequestId, setHotelReservationRequestId] = useState<
     number | null
   >(null);
-
+ 
   useEffect(() => {
     setPage(1);
   }, [search, per_page]);
