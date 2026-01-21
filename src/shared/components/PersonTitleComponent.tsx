@@ -32,13 +32,13 @@ export default function PersonTitleComponent({
     <div
       className={cn(
         "flex flex-col md:flex-row gap-4 items-center md:items-center justify-between w-full md:w-full",
-        className
+        className,
       )}
     >
       <div
         className={cn(
           "flex gap-2 md:gap-4 items-center md:items-center w-full md:w-full",
-          className
+          className,
         )}
       >
         {backButtonRoute && (
@@ -59,7 +59,7 @@ export default function PersonTitleComponent({
           </AvatarFallback>
         </Avatar>
         <div className="flex flex-col items-start">
-          <h1 className="md:text-xl font-bold text-primary uppercase line-clamp-1">
+          <h1 className="md:text-xl font-bold text-primary dark:text-primary-foreground uppercase line-clamp-1">
             {name}
           </h1>
           <p className="text-muted-foreground text-xs md:text-sm uppercase line-clamp-1">
