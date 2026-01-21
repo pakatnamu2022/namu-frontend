@@ -45,24 +45,11 @@ export default function AgendaActionCard({ action }: AgendaActionCardProps) {
                 <Clock className="size-4 text-gray-500 dark:text-gray-400" />
                 <span className="font-semibold">{time}</span>
                 <Badge
+                  icon={action.result ? CheckCircle2 : Circle}
                   variant="outline"
-                  className={
-                    action.result
-                      ? "bg-primary/10 text-primary border-primary/20"
-                      : "bg-red-100 text-red-800 border-red-300"
-                  }
+                  color={action.result ? "blue" : "red"}
                 >
-                  {action.result ? (
-                    <>
-                      <CheckCircle2 className="size-3 mr-1" />
-                      Exitosa
-                    </>
-                  ) : (
-                    <>
-                      <Circle className="size-3 mr-1" />
-                      Sin resultado
-                    </>
-                  )}
+                  {action.result ? "Exitosa" : "Sin resultado"}
                 </Badge>
                 <Badge variant="outline" className="text-xs">
                   {action.action_contact_type}

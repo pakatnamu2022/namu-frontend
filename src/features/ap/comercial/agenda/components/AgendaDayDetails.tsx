@@ -6,6 +6,7 @@ import AgendaActionCard from "./AgendaActionCard";
 import { format, parse } from "date-fns";
 import { es } from "date-fns/locale";
 import { AgendaDateGroup } from "../../oportunidades/lib/opportunities.interface";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface AgendaDayDetailsProps {
   selectedDayData?: AgendaDateGroup;
@@ -43,7 +44,7 @@ export default function AgendaDayDetails({
           </div>
         )}
       </div>
-      <div>
+      <ScrollArea className="h-full">
         {!selectedDayData ? (
           <div className="text-center py-8 text-muted-foreground">
             Selecciona un día del calendario
@@ -72,7 +73,7 @@ export default function AgendaDayDetails({
             </div>
           </div>
         )}
-      </div>
+      </ScrollArea>
     </div>
   );
 }

@@ -1,7 +1,8 @@
 "use client";
 
-import { CheckCircle2, Circle } from "lucide-react";
+import { CheckCircle2, CircleMinus } from "lucide-react";
 import type { CalendarDayData } from "@/shared/components/CalendarGrid";
+import { Badge } from "@/components/ui/badge";
 
 interface CalendarDayProps {
   dayData: CalendarDayData;
@@ -47,20 +48,18 @@ export default function CalendarDay({
       </div>
 
       {dayData.isCurrentMonth && totalCount > 0 && (
-        <div className="space-y-1">
+        <div className="flex flex-row gap-1">
           {/* Acciones exitosas */}
           {positiveCount > 0 && (
-            <div className="flex items-center gap-1 text-xs bg-primary/10 text-primary px-2 md:py-1 rounded dark:bg-blue-900 dark:text-blue-300">
-              <CheckCircle2 className="size-2 md:size-3" />
+            <Badge color="blue" icon={CheckCircle2} variant="outline" size="lg">
               <span>{positiveCount}</span>
-            </div>
+            </Badge>
           )}
           {/* Acciones sin resultado */}
           {negativeCount > 0 && (
-            <div className="flex items-center gap-1 text-xs bg-red-100 text-red-800 px-2 md:py-1 rounded dark:bg-red-900 dark:text-red-300">
-              <Circle className="size-2 md:size-3" />
+            <Badge color="red" icon={CircleMinus} variant="outline" size="lg">
               <span>{negativeCount}</span>
-            </div>
+            </Badge>
           )}
         </div>
       )}
