@@ -203,8 +203,11 @@ export function FormSelectAsync({
         useEffect(() => {
           if (field.value && selected && selected !== selectedOption) {
             setSelectedOption(selected);
-          } else if (!field.value && selectedOption) {
-            setSelectedOption(null);
+          } else if (field.value === "" || field.value === null || field.value === undefined) {
+            // Limpiar selectedOption cuando el valor está vacío (deselección)
+            if (selectedOption) {
+              setSelectedOption(null);
+            }
           }
         }, [field.value, selected?.value, selectedOption?.value]);
 
