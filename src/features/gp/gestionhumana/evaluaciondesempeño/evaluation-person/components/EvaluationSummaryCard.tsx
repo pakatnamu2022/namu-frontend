@@ -79,16 +79,18 @@ function MetricCard({
           <ModalParameter parameter={parameter} />
         </div>
 
-        <div className="flex items-end justify-center gap-2">
+        <div className="flex items-end justify-center gap-2 flex-wrap">
           <Badge
+            size="lg"
             variant="ghost"
-            className={cn("text-2xl font-bold px-4 py-2", scaleClass)}
+            className={cn("text-xl font-bold", scaleClass)}
           >
             {score}/{maxScore}%
           </Badge>
           <Badge
+            size="sm"
             variant="ghost"
-            className={cn("text-lg font-semibold px-3 py-1", scaleClass)}
+            className={cn("text-sm font-semibold", scaleClass)}
           >
             {labelRange}
           </Badge>
@@ -109,10 +111,11 @@ function MetricCard({
       </div>
 
       {/* Score y Nivel */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-end gap-2 flex-wrap justify-between">
         <div className="space-y-1">
           <div className="text-xs text-muted-foreground">Puntuación</div>
           <Badge
+            size="lg"
             variant="ghost"
             className={cn("text-base font-bold", scaleClass)}
           >
@@ -122,6 +125,7 @@ function MetricCard({
         <div className="space-y-1 text-right">
           <div className="text-xs text-muted-foreground">Nivel</div>
           <Badge
+            size="sm"
             variant="ghost"
             className={cn("text-sm font-semibold", scaleClass)}
           >
@@ -144,7 +148,7 @@ function MetricCard({
         </div>
         <div className="flex items-center justify-between text-xs">
           <span className="text-muted-foreground">Tasa de finalización</span>
-          <Badge variant="outline" className="text-xs h-5">
+          <Badge variant="outline" size="sm" className="text-xs h-5">
             {completionRate}%
           </Badge>
         </div>
@@ -161,7 +165,7 @@ export default function EvaluationSummaryCard({ evaluationResult }: Props) {
   const competenceMaxScore = evaluationResult.statistics.competences.max_score;
 
   return (
-    <div className="grid grid-cols-1 gap-4 h-fit w-full">
+    <div className="grid grid-cols-1 gap-4 h-fit w-full row-start-1 md:row-start-auto col-span-3 md:col-span-1">
       <MetricCard
         icon={TrendingUp}
         title="Resultado Final"

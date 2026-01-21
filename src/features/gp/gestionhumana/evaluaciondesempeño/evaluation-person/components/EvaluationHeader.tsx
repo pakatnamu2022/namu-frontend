@@ -19,7 +19,7 @@ export default function EvaluationHeader({
 }: EvaluationHeaderProps) {
   return (
     <div className="bg-muted/50 p-4 rounded-lg border">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col md:flex-row gap-2 items-center justify-between">
         <div className="flex items-center gap-3">
           <Target className="size-5 text-primary" />
           <div>
@@ -30,7 +30,7 @@ export default function EvaluationHeader({
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 w-full md:w-auto justify-end">
           {showProgress && (
             <div className="text-right">
               <div className="flex items-center gap-2 mb-1">

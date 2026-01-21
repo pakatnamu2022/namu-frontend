@@ -264,7 +264,7 @@ export default function NamuPerformanceEvaluationPage() {
         </div>
       </div>
 
-      <div className="space-y-4 grid grid-cols-4 gap-6">
+      <div className="space-y-4 grid grid-cols-1 md:grid-cols-4 gap-6">
         {/* Tabs de contenido */}
         <Tabs
           defaultValue={
