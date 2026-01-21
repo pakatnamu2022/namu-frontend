@@ -20,10 +20,9 @@ import {
   QuotationMesonWithProductsSchema,
 } from "../lib/quotationMeson.schema";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
-import { useAllVehicles } from "@/features/ap/comercial/vehiculos/lib/vehicles.hook";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { FormSelect } from "@/shared/components/FormSelect";
-import { Car, User, Plus, Trash2, Package } from "lucide-react";
+import { Plus, Trash2, Package, PackagePlus, ExternalLink } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { useState, useEffect } from "react";
 import { EMPRESA_AP, IGV } from "@/core/core.constants";
@@ -42,6 +41,14 @@ import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-gene
 import { getStockByProductIds } from "@/features/ap/post-venta/gestion-compras/inventario/lib/inventory.actions";
 import { StockByProductIdsResponse } from "@/features/ap/post-venta/gestion-compras/inventario/lib/inventory.interface";
 import { Warehouse, AlertCircle } from "lucide-react";
+import QuotationPartModal from "./QuotationPartModal";
+import { useCustomers } from "@/features/ap/comercial/clientes/lib/customers.hook";
+import { CustomersResource } from "@/features/ap/comercial/clientes/lib/customers.interface";
+import { CUSTOMERS_RP } from "@/features/ap/comercial/clientes/lib/customers.constants";
+import { OrderQuotationResource } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.interface";
+import { useVehicles } from "@/features/ap/comercial/vehiculos/lib/vehicles.hook";
+import { VehicleResource } from "@/features/ap/comercial/vehiculos/lib/vehicles.interface";
+import { VEHICLES_RP } from "@/features/ap/comercial/vehiculos/lib/vehicles.constants";
 
 const onSelectSupplyType = [
   { label: "Stock", value: "STOCK" },
@@ -56,14 +63,14 @@ function ProductDetailItem({
   onRemove,
   selectedCurrency,
   stockData,
-  selectedBrandId,
+  defaultProductOption,
 }: {
   index: number;
   form: any;
   onRemove: () => void;
   selectedCurrency: any;
   stockData: StockByProductIdsResponse | null;
-  selectedBrandId: string;
+  defaultProductOption?: { value: string; label: string };
 }) {
   const productId = form.watch(`details.${index}.product_id`);
   const { data: productData } = useProductById(Number(productId) || 0);
@@ -108,11 +115,9 @@ function ProductDetailItem({
               label: `${product.code} - ${product.name}`,
               value: product.id.toString(),
             })}
-            additionalParams={{
-              brand_id: selectedBrandId,
-            }}
             perPage={10}
             debounceMs={500}
+            defaultOption={defaultProductOption}
           />
         </div>
 
@@ -124,6 +129,11 @@ function ProductDetailItem({
                 <Warehouse className="h-3.5 w-3.5 text-primary" />
                 <span className="text-xs font-semibold text-primary">
                   Stock Disponible
+                  {productData?.brand_name && (
+                    <span className="ml-1 font-normal">
+                      - Marca: {productData.brand_name}
+                    </span>
+                  )}
                 </span>
               </div>
               {currentProductStock.warehouses.length > 0 ? (
@@ -382,6 +392,7 @@ function ProductDetailItem({
           })}
           perPage={10}
           debounceMs={500}
+          defaultOption={defaultProductOption}
         />
 
         {/* Mostrar stock inline debajo del selector - Mobile */}
@@ -391,6 +402,11 @@ function ProductDetailItem({
               <Warehouse className="h-3 w-3 text-primary" />
               <span className="text-xs font-semibold text-primary">
                 Stock Disponible
+                {productData?.brand_name && (
+                  <span className="ml-1 font-normal">
+                    - Marca: {productData.brand_name}
+                  </span>
+                )}
               </span>
             </div>
             {currentProductStock.warehouses.length > 0 ? (
@@ -611,6 +627,9 @@ interface ProformaMesonFormProps {
   isSubmitting?: boolean;
   mode?: "create" | "update";
   onCancel?: () => void;
+  clientData?: CustomersResource;
+  vehicleData?: VehicleResource;
+  quotationData?: OrderQuotationResource;
 }
 
 export default function ProformaMesonForm({
@@ -619,14 +638,17 @@ export default function ProformaMesonForm({
   isSubmitting = false,
   mode = "create",
   onCancel,
+  clientData,
+  vehicleData,
+  quotationData,
 }: ProformaMesonFormProps) {
-  const [selectedVehicle, setSelectedVehicle] = useState<any>(null);
   const [exchangeRate, setExchangeRate] = useState<number | null>(null);
   const [isLoadingExchangeRate, setIsLoadingExchangeRate] = useState(false);
   const [selectedCurrency, setSelectedCurrency] = useState<any>(null);
   const [stockData, setStockData] = useState<StockByProductIdsResponse | null>(
     null,
   );
+  const [isPartModalOpen, setIsPartModalOpen] = useState(false);
 
   const form = useForm<QuotationMesonWithProductsSchema>({
     resolver: zodResolver(
@@ -636,7 +658,6 @@ export default function ProformaMesonForm({
     ) as any,
     defaultValues: {
       area_id: AREA_PM_ID.MESON,
-      vehicle_id: "",
       sede_id: "",
       currency_id: CURRENCY_TYPE_IDS.SOLES,
       quotation_date: "",
@@ -655,8 +676,8 @@ export default function ProformaMesonForm({
   });
 
   const quotationDate = form.watch("quotation_date");
-  const vehicleId = form.watch("vehicle_id");
   const currencyId = form.watch("currency_id");
+  const supplyType = form.watch("supply_type");
 
   // Usar useWatch para detectar cambios en details en tiempo real
   const watchedDetails = useWatch({
@@ -664,24 +685,32 @@ export default function ProformaMesonForm({
     name: "details",
   });
 
-  const { data: vehicles = [], isLoading: isLoadingVehicles } =
-    useAllVehicles();
-
   const { data: mySedes = [], isLoading: isLoadingMySedes } = useMySedes({
     company: EMPRESA_AP.id,
   });
 
   const { data: currencyTypes = [] } = useAllCurrencyTypes();
 
-  // Actualizar vehículo seleccionado
+  // Setear sede por defecto si solo hay una
   useEffect(() => {
-    if (vehicleId && vehicles.length > 0) {
-      const vehicle = vehicles.find((v) => v.id.toString() === vehicleId);
-      setSelectedVehicle(vehicle || null);
-    } else {
-      setSelectedVehicle(null);
+    if (mySedes.length === 1 && !form.getValues("sede_id")) {
+      form.setValue("sede_id", mySedes[0].id.toString());
     }
-  }, [vehicleId, vehicles]);
+  }, [mySedes, form]);
+
+  // Setear fecha de apertura por defecto a hoy
+  useEffect(() => {
+    if (!defaultValues?.quotation_date && !form.getValues("quotation_date")) {
+      form.setValue("quotation_date", new Date());
+    }
+  }, [form, defaultValues]);
+
+  // Setear fecha de recojo por defecto a hoy si el tipo de abastecimiento es STOCK
+  useEffect(() => {
+    if (supplyType === "STOCK" && !form.getValues("collection_date")) {
+      form.setValue("collection_date", new Date());
+    }
+  }, [supplyType, form]);
 
   // Actualizar moneda seleccionada
   useEffect(() => {
@@ -838,7 +867,7 @@ export default function ProformaMesonForm({
     }, 0);
   };
 
-  if (isLoadingVehicles || isLoadingMySedes) return <FormSkeleton />;
+  if (isLoadingMySedes) return <FormSkeleton />;
 
   return (
     <Form {...form}>
@@ -873,19 +902,71 @@ export default function ProformaMesonForm({
               required
             />
 
-            <FormSelect
-              name="vehicle_id"
-              label="Vehículo"
-              placeholder="Seleccione vehículo"
-              options={vehicles.map((item) => ({
-                label: `[${item.plate || "S/N"}] • ${
-                  item.model?.version || ""
-                } • VIN: ${item.vin || "S/N"}`,
-                value: item.id.toString(),
-              }))}
+            <FormSelectAsync
+              placeholder="Seleccionar cliente"
               control={form.control}
-              required
-            />
+              label={"Cliente"}
+              name="client_id"
+              useQueryHook={useCustomers}
+              mapOptionFn={(item: CustomersResource) => ({
+                value: item.id.toString(),
+                label: `${item.full_name}`,
+              })}
+              perPage={10}
+              debounceMs={500}
+              defaultOption={
+                clientData
+                  ? {
+                      value: clientData.id.toString(),
+                      label: `${clientData.full_name}`,
+                    }
+                  : undefined
+              }
+            >
+              <Button
+                type="button"
+                variant="outline"
+                size="icon-lg"
+                className="aspect-square"
+                onClick={() => window.open(CUSTOMERS_RP.ROUTE_ADD, "_blank")}
+                tooltip="Agregar nuevo cliente"
+              >
+                <ExternalLink className="h-4 w-4" />
+              </Button>
+            </FormSelectAsync>
+
+            <FormSelectAsync
+              placeholder="Seleccionar vehículo"
+              control={form.control}
+              label={"Vehículo (Opcional)"}
+              name="vehicle_id"
+              useQueryHook={useVehicles}
+              mapOptionFn={(item: VehicleResource) => ({
+                value: item.id.toString(),
+                label: `${item.plate || item.vin} - ${item.model?.code || ""}`,
+              })}
+              perPage={10}
+              debounceMs={500}
+              defaultOption={
+                vehicleData
+                  ? {
+                      value: vehicleData.id.toString(),
+                      label: `${vehicleData.plate || vehicleData.vin} - ${vehicleData.model?.code || ""}`,
+                    }
+                  : undefined
+              }
+            >
+              <Button
+                type="button"
+                variant="outline"
+                size="icon-lg"
+                className="aspect-square"
+                onClick={() => window.open(VEHICLES_RP.ROUTE_ADD, "_blank")}
+                tooltip="Agregar nuevo vehículo"
+              >
+                <ExternalLink className="h-4 w-4" />
+              </Button>
+            </FormSelectAsync>
 
             <DatePickerFormField
               control={form.control}
@@ -907,15 +988,6 @@ export default function ProformaMesonForm({
               disabled={true}
             />
 
-            <DatePickerFormField
-              control={form.control}
-              name="collection_date"
-              label="Fecha de Recojo"
-              placeholder="Selecciona una fecha"
-              dateFormat="dd/MM/yyyy"
-              captionLayout="dropdown"
-            />
-
             <FormSelect
               control={form.control}
               name="supply_type"
@@ -924,89 +996,16 @@ export default function ProformaMesonForm({
               placeholder="Seleccionar un tipo"
               required
             />
-          </div>
 
-          {/* Información del Vehículo Seleccionado */}
-          {selectedVehicle && (
-            <div className="mt-4">
-              <Card className="p-4 bg-linear-to-r from-blue-50 to-indigo-50 border-blue-200">
-                <div className="flex items-center gap-2 mb-3">
-                  <Car className="h-5 w-5 text-primary" />
-                  <h4 className="font-semibold text-gray-800">
-                    Información del Vehículo
-                  </h4>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  <div>
-                    <p className="text-xs text-gray-500">VIN</p>
-                    <p className="font-semibold text-sm">
-                      {selectedVehicle.vin || "N/A"}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-500">Marca</p>
-                    <p className="font-semibold text-sm">
-                      {selectedVehicle.model?.brand || "N/A"}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-500">Modelo</p>
-                    <p className="font-semibold text-sm truncate">
-                      {selectedVehicle.model?.version || "N/A"}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-500">Año</p>
-                    <p className="font-semibold text-sm">
-                      {selectedVehicle.year || "N/A"}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-500">Color</p>
-                    <p className="font-semibold text-sm">
-                      {selectedVehicle.vehicle_color || "N/A"}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-500">Motor</p>
-                    <p className="font-semibold text-sm">
-                      {selectedVehicle.engine_type || "N/A"}
-                    </p>
-                  </div>
-                  {selectedVehicle.owner !== null && (
-                    <div className="col-span-1 sm:col-span-2 lg:col-span-3 pt-2 border-t border-blue-200">
-                      <div className="flex items-center gap-2 mb-2">
-                        <User className="h-4 w-4 text-primary" />
-                        <p className="text-xs font-semibold text-gray-700">
-                          Propietario
-                        </p>
-                      </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                        <div>
-                          <p className="text-xs text-gray-500">Nombre</p>
-                          <p className="font-medium text-sm">
-                            {selectedVehicle.owner.full_name}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-gray-500">Documento</p>
-                          <p className="font-medium text-sm">
-                            {selectedVehicle.owner.num_doc}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-gray-500">Teléfono</p>
-                          <p className="font-medium text-sm">
-                            {selectedVehicle.owner.phone || "N/A"}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </Card>
-            </div>
-          )}
+            <DatePickerFormField
+              control={form.control}
+              name="collection_date"
+              label="Fecha de Recojo"
+              placeholder="Selecciona una fecha"
+              dateFormat="dd/MM/yyyy"
+              captionLayout="dropdown"
+            />
+          </div>
 
           <FormField
             control={form.control}
@@ -1035,15 +1034,26 @@ export default function ProformaMesonForm({
               <Package className="h-5 w-5 text-primary" />
               <h3 className="text-lg font-semibold">Repuestos</h3>
             </div>
-            <Button
-              type="button"
-              onClick={addProduct}
-              size="sm"
-              disabled={!quotationDate}
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Agregar Repuesto
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                type="button"
+                onClick={() => setIsPartModalOpen(true)}
+                size="sm"
+                variant="outline"
+              >
+                <PackagePlus className="h-4 w-4 mr-2" />
+                Crear Repuesto
+              </Button>
+              <Button
+                type="button"
+                onClick={addProduct}
+                size="sm"
+                disabled={!quotationDate}
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Agregar Repuesto
+              </Button>
+            </div>
           </div>
 
           {/* Mensaje de tipo de cambio */}
@@ -1102,17 +1112,30 @@ export default function ProformaMesonForm({
 
               {/* Items */}
               <div className="space-y-2">
-                {fields.map((field, index) => (
-                  <ProductDetailItem
-                    key={field.id}
-                    index={index}
-                    form={form}
-                    onRemove={() => remove(index)}
-                    selectedCurrency={selectedCurrency}
-                    stockData={stockData}
-                    selectedBrandId={selectedVehicle?.model?.brand_id}
-                  />
-                ))}
+                {fields.map((field, index) => {
+                  // Buscar el detalle original para obtener el defaultOption del producto
+                  const originalDetail = quotationData?.details?.filter(
+                    (d) => d.item_type === "PRODUCT",
+                  )[index];
+                  const defaultProductOption = originalDetail?.product
+                    ? {
+                        value: originalDetail.product.id.toString(),
+                        label: `${originalDetail.product.code} - ${originalDetail.product.name}`,
+                      }
+                    : undefined;
+
+                  return (
+                    <ProductDetailItem
+                      key={field.id}
+                      index={index}
+                      form={form}
+                      onRemove={() => remove(index)}
+                      selectedCurrency={selectedCurrency}
+                      stockData={stockData}
+                      defaultProductOption={defaultProductOption}
+                    />
+                  );
+                })}
               </div>
 
               {/* Total General */}
@@ -1162,6 +1185,12 @@ export default function ProformaMesonForm({
           </Button>
         </div>
       </form>
+
+      {/* Modal para crear repuesto */}
+      <QuotationPartModal
+        open={isPartModalOpen}
+        onClose={() => setIsPartModalOpen(false)}
+      />
     </Form>
   );
 }
