@@ -56,7 +56,7 @@ export const ModelsVnForm = ({
   const router = useNavigate();
   const form = useForm({
     resolver: zodResolver(
-      mode === "create" ? modelsVnSchemaCreate : (modelsVnSchemaUpdate as any)
+      mode === "create" ? modelsVnSchemaCreate : (modelsVnSchemaUpdate as any),
     ),
     defaultValues: {
       ...defaultValues,
@@ -74,13 +74,16 @@ export const ModelsVnForm = ({
   const { data: brands = [], isLoading: isLoadingbrands } = useAllBrands(
     typeOperationId === String(CM_COMERCIAL_ID)
       ? { type_operation_id: typeOperationId }
-      : {}
+      : {},
   );
   const { data: families = [], isLoading: isLoadingFamilies } = useAllFamilies({
     brand_id: marcaSeleccionada,
   });
   const { data: articleClasses = [], isLoading: isLoadingArticleClasses } =
-    useAllClassArticle({ type: "VEHICULO" });
+    useAllClassArticle({
+      type: "VEHICULO",
+      type_operation_id: CM_COMERCIAL_ID,
+    });
   const { data: fuelTypes = [], isLoading: isLoadingFuelTypes } =
     useAllFuelType();
   const { data: typesVehicles = [], isLoading: isLoadingTypesVehicles } =
@@ -119,7 +122,7 @@ export const ModelsVnForm = ({
     }
 
     const familiaObj = families.find(
-      (family) => family.id.toString() === familiaSeleccionada
+      (family) => family.id.toString() === familiaSeleccionada,
     );
     if (!familiaObj) return;
     const year2Digitos = yearModelo.toString().slice(-2);
@@ -182,7 +185,7 @@ export const ModelsVnForm = ({
             shouldDirty: true,
           });
         }
-      }
+      },
     );
   }, [precioDistribuidor, form]);
 
