@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Progress } from "@/components/ui/progress";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, X } from "lucide-react";
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/shared/components/DataTable";
 import { EvaluationPersonResultResource } from "../../evaluation-person/lib/evaluationPerson.interface";
@@ -146,10 +146,11 @@ const PersonResultsAccordion: React.FC<PersonResultsAccordionProps> = ({
         cell: ({ row }) => (
           <div>
             <div className="font-medium text-sm">
-              {row.original.evaluator.name}
+              {row.original.evaluator?.name} ??{" "}
+              <X className="text-destructive" />
             </div>
             <div className="text-xs text-muted-foreground">
-              {row.original.evaluator.position || "Sin cargo"}
+              {row.original.evaluator?.position || "Sin cargo"}
             </div>
           </div>
         ),
