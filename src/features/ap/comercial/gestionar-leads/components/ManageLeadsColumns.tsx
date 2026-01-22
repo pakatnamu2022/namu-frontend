@@ -45,15 +45,15 @@ export const manageLeadsColumns = ({
           color: BadgeColor;
         }
       > = {
-        PENDIENTE: { label: "Pendiente", color: "secondary" },
-        VALIDADO: { label: "Validado", color: "default" },
-        ERRADO: { label: "Errado", color: "destructive" },
-        NO_ENCONTRADO: { label: "No Encontrado", color: "default" },
+        PENDIENTE: { label: "Pendiente", color: "gray" },
+        VALIDADO: { label: "Validado", color: "green" },
+        ERRADO: { label: "Errado", color: "orange" },
+        NO_ENCONTRADO: { label: "No Encontrado", color: "red" },
       };
 
       const config = statusConfig[status] || {
         label: status,
-        color: "secondary",
+        color: "default",
       };
 
       return (
@@ -118,37 +118,29 @@ export const manageLeadsColumns = ({
         {
           label: string;
           color: BadgeColor;
-          className?: string;
         }
       > = {
         Subido: {
           label: "Subido",
-          color: "secondary",
-          className: "bg-blue-100 text-blue-700 hover:bg-blue-200",
+          color: "sky",
         },
         Atendido: {
           label: "Atendido",
-          color: "default",
-          className: "bg-green-100 text-green-700 hover:bg-green-200",
+          color: "green",
         },
         Descartado: {
           label: "Descartado",
-          color: "destructive",
-          className: "bg-red-100 text-red-700 hover:bg-red-200",
+          color: "orange",
         },
       };
 
       const config = conditionConfig[condition] || {
         label: condition,
-        color: "secondary",
+        color: "sky",
       };
 
       return (
-        <Badge
-          color={config.color}
-          className={config.className}
-          variant="outline"
-        >
+        <Badge color={config.color} variant="outline">
           {config.label}
         </Badge>
       );
