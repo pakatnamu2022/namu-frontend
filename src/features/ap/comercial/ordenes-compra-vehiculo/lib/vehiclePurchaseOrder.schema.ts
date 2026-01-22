@@ -69,7 +69,7 @@ const basePurchaseOrderSchema = z.object({
   // Items de la Orden de Compra
   items: z
     .array(purchaseOrderItemSchema)
-    .min(1, "Debe agregar al menos un item a la orden de compra"),
+    .min(1, "Debe actualizar al menos un item a la orden de compra"),
 });
 
 // Schema base sin el refine para poder usar .partial()

@@ -46,7 +46,7 @@ export const EstablishmentSelectorModal = ({
         est.code?.toLowerCase().includes(query) ||
         est.description?.toLowerCase().includes(query) ||
         est.full_address?.toLowerCase().includes(query) ||
-        est.type?.toLowerCase().includes(query)
+        est.type?.toLowerCase().includes(query),
     );
   }, [establishments, searchQuery]);
 
@@ -60,6 +60,7 @@ export const EstablishmentSelectorModal = ({
       });
 
       if (matchingEstablishment) {
+        // eslint-disable-next-line react-hooks/immutability
         handleSelect(matchingEstablishment);
       }
     }
@@ -121,42 +122,42 @@ export const EstablishmentSelectorModal = ({
             ) : (
               <div className="space-y-3">
                 {filteredEstablishments.map((establishment) => (
-                <button
-                  key={establishment.id}
-                  onClick={() => handleSelect(establishment)}
-                  className={cn(
-                    "w-full text-left p-4 rounded-lg border-2 transition-all hover:border-primary hover:shadow-md",
-                    selectedId === establishment.id
-                      ? "border-primary bg-primary/5"
-                      : "border-border"
-                  )}
-                >
-                  <div className="flex items-start gap-3">
-                    <div className="mt-1">
-                      <Building2 className="h-5 w-5 text-primary" />
-                    </div>
-                    <div className="flex-1 space-y-1">
-                      <div className="flex items-center gap-2">
-                        <span className="font-semibold">
-                          {establishment.code}
-                        </span>
-                        <span className="text-xs text-muted-foreground">
-                          {establishment.type}
-                        </span>
+                  <button
+                    key={establishment.id}
+                    onClick={() => handleSelect(establishment)}
+                    className={cn(
+                      "w-full text-left p-4 rounded-lg border-2 transition-all hover:border-primary hover:shadow-md",
+                      selectedId === establishment.id
+                        ? "border-primary bg-primary/5"
+                        : "border-border",
+                    )}
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="mt-1">
+                        <Building2 className="h-5 w-5 text-primary" />
                       </div>
-                      {establishment.description && (
-                        <p className="text-sm text-muted-foreground">
-                          {establishment.description}
-                        </p>
-                      )}
-                      <div className="flex items-start gap-1 text-sm text-muted-foreground">
-                        <MapPin className="h-4 w-4 mt-0.5 shrink-0" />
-                        <span>{establishment.full_address}</span>
+                      <div className="flex-1 space-y-1">
+                        <div className="flex items-center gap-2">
+                          <span className="font-semibold">
+                            {establishment.code}
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            {establishment.type}
+                          </span>
+                        </div>
+                        {establishment.description && (
+                          <p className="text-sm text-muted-foreground">
+                            {establishment.description}
+                          </p>
+                        )}
+                        <div className="flex items-start gap-1 text-sm text-muted-foreground">
+                          <MapPin className="h-4 w-4 mt-0.5 shrink-0" />
+                          <span>{establishment.full_address}</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </button>
-              ))}
+                  </button>
+                ))}
               </div>
             )}
           </div>

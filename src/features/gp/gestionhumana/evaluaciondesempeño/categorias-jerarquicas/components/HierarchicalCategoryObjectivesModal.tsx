@@ -126,7 +126,7 @@ export function HierarchicalCategoryObjectivesModal({
       await invalidateQuery();
     },
     onError: () => {
-      errorToast("No se pudo agregar el objetivo");
+      errorToast("No se pudo actualizar el objetivo");
     },
   });
 

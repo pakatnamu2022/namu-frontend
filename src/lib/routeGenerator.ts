@@ -28,7 +28,7 @@ export function generateRoutesFromPermissions(
     const companySlug = company.empresa_abreviatura.toLowerCase();
 
     company.menu.forEach((module) => {
-      // Solo agregar si tiene slug
+      // Solo actualizar si tiene slug
       if (!module.slug) return;
 
       const moduleSlug = module.slug;

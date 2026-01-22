@@ -289,6 +289,9 @@ export function OrderQuotationBillingForm({
         form.setValue("items", quotationItems, { shouldValidate: false });
       } else {
         // ITEMS NORMALES (SIN CONSOLIDAR)
+        // Función auxiliar para redondear a 2 decimales
+        const round2 = (num: number) => Math.round(num * 100) / 100;
+
         const quotationItems: ElectronicDocumentItemSchema[] =
           quotation.details.map((detail) => {
             const cantidad = Number(detail.quantity) || 1;
@@ -297,19 +300,14 @@ export function OrderQuotationBillingForm({
             const subtotalDetail = Number(detail.total_amount) || 0;
 
             // El valor_unitario y precio_unitario son iguales (sin IGV)
-            // Redondear a 2 decimales para evitar errores de precisión
-            const valor_unitario = parseFloat(
-              (subtotalDetail / cantidad).toFixed(2),
-            );
-            const precio_unitario = parseFloat(
-              (valor_unitario * (1 + porcentaje_de_igv / 100)).toFixed(2),
+            const valor_unitario = round2(subtotalDetail / cantidad);
+            const precio_unitario = round2(
+              valor_unitario * (1 + porcentaje_de_igv / 100),
             );
 
-            const subtotal = parseFloat(subtotalDetail.toFixed(2));
-            const igvAmount = parseFloat(
-              (subtotal * (porcentaje_de_igv / 100)).toFixed(2),
-            );
-            const total = parseFloat((subtotal + igvAmount).toFixed(2)); // Total CON IGV
+            const subtotal = round2(subtotalDetail);
+            const igvAmount = round2(subtotal * (porcentaje_de_igv / 100));
+            const total = round2(subtotal + igvAmount); // Total CON IGV
 
             return {
               account_plan_id: QUOTATION_ACCOUNT_PLAN_IDS.FULL_SALE,
@@ -334,18 +332,18 @@ export function OrderQuotationBillingForm({
           quotation.advances
             .filter((advance) => advance.is_advance_payment === true)
             .forEach((advance) => {
+              // Función auxiliar para redondear a 2 decimales
+              const round2 = (num: number) => Math.round(num * 100) / 100;
+
               // Calcular los valores base del anticipo para restar
               // IMPORTANTE: Convertir a número porque puede venir como string desde la API
               const total_con_igv = Number(advance.total) || 0;
-              const precio_unitario = total_con_igv; // El anticipo es cantidad 1
-              // Redondear a 2 decimales para evitar errores de precisión
-              const valor_unitario = parseFloat(
-                (precio_unitario / (1 + porcentaje_de_igv / 100)).toFixed(2),
+              const precio_unitario = round2(total_con_igv); // El anticipo es cantidad 1
+              const valor_unitario = round2(
+                precio_unitario / (1 + porcentaje_de_igv / 100),
               );
-              const subtotal = valor_unitario;
-              const igvAmount = parseFloat(
-                (total_con_igv - valor_unitario).toFixed(2),
-              ); // IGV = total - base para evitar descuadre
+              const subtotal = round2(valor_unitario);
+              const igvAmount = round2(subtotal * (porcentaje_de_igv / 100));
 
               // Crear item de regularización en NEGATIVO
               quotationItems.push({
@@ -397,6 +395,7 @@ export function OrderQuotationBillingForm({
 
   // Calcular totales
   const totales = useMemo(() => {
+    // Trabajar con precisión completa durante los cálculos, redondear solo al final
     let total_gravada = 0;
     let total_inafecta = 0;
     let total_exonerada = 0;
@@ -404,18 +403,35 @@ export function OrderQuotationBillingForm({
     let total_gratuita = 0;
     let total_anticipo = 0;
 
-    items.forEach((item) => {
+    // Función auxiliar para redondear a 2 decimales (solo al final)
+    const round2 = (num: number) => Math.round(num * 100) / 100;
+
+    console.log("=== DEBUG CÁLCULO DE TOTALES ===");
+    console.log("Porcentaje IGV:", porcentaje_de_igv);
+    console.log("Items:", items);
+
+    items.forEach((item, index) => {
       const igvType = igvTypes.find(
         (t) => t.id === item.sunat_concept_igv_type_id,
       );
 
+      console.log(`Item ${index + 1}:`, {
+        descripcion: item.descripcion,
+        subtotal: item.subtotal,
+        igv: item.igv,
+        anticipo_regularizacion: item.anticipo_regularizacion,
+        code_nubefact: igvType?.code_nubefact,
+      });
+
       if (igvType?.code_nubefact === "1") {
         // Gravado
         if (item.anticipo_regularizacion) {
-          total_gravada += -item.subtotal;
+          total_gravada -= item.subtotal;
+          total_igv -= item.igv; // Restar también el IGV del anticipo
           total_anticipo += item.subtotal;
         } else {
           total_gravada += item.subtotal;
+          total_igv += item.igv; // Sumar el IGV del item
         }
       } else if (igvType?.code_nubefact === "20") {
         // Exonerado
@@ -441,19 +457,31 @@ export function OrderQuotationBillingForm({
       }
     });
 
-    // Redondeamos a 2 decimales
-    total_gravada = parseFloat(total_gravada.toFixed(2));
-    total_inafecta = parseFloat(total_inafecta.toFixed(2));
-    total_exonerada = parseFloat(total_exonerada.toFixed(2));
-    total_gratuita = parseFloat(total_gratuita.toFixed(2));
-    total_anticipo = parseFloat(total_anticipo.toFixed(2));
+    console.log("ANTES de redondear:");
+    console.log("  total_gravada:", total_gravada);
+    console.log("  total_inafecta:", total_inafecta);
+    console.log("  total_exonerada:", total_exonerada);
+    console.log("  total_igv (acumulado de items):", total_igv);
 
-    total_igv = parseFloat(
-      (total_gravada * (porcentaje_de_igv / 100)).toFixed(2),
-    );
-    const total = parseFloat(
-      (total_gravada + total_inafecta + total_exonerada + total_igv).toFixed(2),
-    );
+    // Redondear solo al final para evitar errores de precisión acumulados
+    total_gravada = round2(total_gravada);
+    total_inafecta = round2(total_inafecta);
+    total_exonerada = round2(total_exonerada);
+    total_gratuita = round2(total_gratuita);
+    total_anticipo = round2(total_anticipo);
+    total_igv = round2(total_igv); // Redondear el IGV acumulado
+
+    console.log("DESPUÉS de redondear:");
+    console.log("  total_gravada:", total_gravada);
+    console.log("  total_igv:", total_igv);
+
+    // Calcular total final
+    const suma_antes_redondeo =
+      total_gravada + total_inafecta + total_exonerada + total_igv;
+    console.log("Suma ANTES de redondear:", suma_antes_redondeo);
+    const total = round2(suma_antes_redondeo);
+    console.log("Total FINAL:", total);
+    console.log("=== FIN DEBUG ===");
 
     return {
       total_gravada,

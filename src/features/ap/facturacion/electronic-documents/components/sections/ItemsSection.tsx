@@ -117,8 +117,8 @@ export function ItemsSection({
     if (isAdvancePayment && maxAdvanceAmount && total > maxAdvanceAmount) {
       errorToast(
         `El monto del anticipo no puede exceder ${currencySymbol} ${maxAdvanceAmount.toFixed(
-          2
-        )}`
+          2,
+        )}`,
       );
       return;
     }
@@ -204,8 +204,8 @@ export function ItemsSection({
     ) {
       errorToast(
         `El monto del anticipo no puede exceder ${currencySymbol} ${maxAdvanceAmount.toFixed(
-          2
-        )}`
+          2,
+        )}`,
       );
       return;
     }
@@ -281,7 +281,7 @@ export function ItemsSection({
               <AlertDescription className="text-xs text-muted-foreground">
                 {maxAdvanceAmount &&
                   ` Máximo permitido: ${currencySymbol} ${maxAdvanceAmount.toFixed(
-                    2
+                    2,
                   )}`}
               </AlertDescription>
             </Alert>

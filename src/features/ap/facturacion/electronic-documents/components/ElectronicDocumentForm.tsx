@@ -276,7 +276,7 @@ export function ElectronicDocumentForm({
       lastLoadedAdvancePaymentState.current = isAdvancePayment;
 
       // Si cambió el modo de anticipo, resetear el tracking de anticipos procesados
-      // para que se vuelvan a agregar cuando se cambie de anticipo → venta total
+      // para que se vuelvan a actualizar cuando se cambie de anticipo → venta total
       processedAdvancePaymentsForQuotationKey.current = null;
       // Crear item con el vehículo
       if (quotation.ap_model_vn) {
@@ -384,7 +384,7 @@ MODELO: ${vehicle?.model?.version || ``}
           total: subtotal + igvAmount,
         };
 
-        // Si es anticipo, agregar información adicional
+        // Si es anticipo, actualizar información adicional
         if (isAdvancePayment) {
           vehicleItem.anticipo_regularizacion = false;
         }
@@ -408,7 +408,7 @@ MODELO: ${vehicle?.model?.version || ``}
     pendingBalance,
   ]);
 
-  // Efecto separado para procesar y agregar anticipos cuando la consulta termine
+  // Efecto separado para procesar y actualizar anticipos cuando la consulta termine
   useEffect(() => {
     if (!quotation) return;
     if (isAdvancePayment) return; // sólo aplica para venta total

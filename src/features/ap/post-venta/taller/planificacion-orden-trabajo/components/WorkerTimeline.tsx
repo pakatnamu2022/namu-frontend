@@ -856,7 +856,7 @@ export function WorkerTimeline({
                   const width = calculateWidth(planning);
                   const isExternal = planning.type === "external";
 
-                  // Verificar si el planning anterior era interno y este es externo para agregar espacio
+                  // Verificar si el planning anterior era interno y este es externo para actualizar espacio
                   const previousPlanning =
                     index > 0 ? plannings[index - 1] : null;
                   const needsTopMargin =

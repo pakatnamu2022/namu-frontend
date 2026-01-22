@@ -126,7 +126,7 @@ export default function HierarchicalCategoryPage() {
       successToast("Posiciones agregadas correctamente.");
     } catch (error: any) {
       errorToast(
-        error?.response?.data?.message ?? "Error al agregar posiciones."
+        error?.response?.data?.message ?? "Error al actualizar posiciones."
       );
     }
   };

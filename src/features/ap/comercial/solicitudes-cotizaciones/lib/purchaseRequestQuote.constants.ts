@@ -16,7 +16,7 @@ export const PURCHASE_REQUEST_QUOTE: ModelComplete<PurchaseRequestQuoteResource>
     QUERY_KEY: "purchaseRequestQuote",
     ROUTE,
     ABSOLUTE_ROUTE,
-    // La ruta de agregar ahora requiere el opportunity_id como parámetro
+    // La ruta de actualizar ahora requiere el opportunity_id como parámetro
     ROUTE_ADD: `${ABSOLUTE_ROUTE}/:opportunity_id/agregar`,
     ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/actualizar`,
   };
