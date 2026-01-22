@@ -59,14 +59,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
-
-const SCALE_COLORS: Record<string, string> = {
-  Excelente: "hsl(142, 71%, 45%)",
-  "Muy Bueno": "hsl(160, 60%, 45%)",
-  Satisfactorio: "hsl(47, 91%, 54%)",
-  "Necesita desarrollo": "hsl(25, 95%, 53%)",
-  "No Cumple": "hsl(0, 72%, 51%)",
-};
+import { SCALE_TO_COLOR_MAP } from "@/features/gp/gestionhumana/evaluaciondesempeño/parametros/lib/parameter.constans";
+import { getScales } from "@/features/gp/gestionhumana/evaluaciondesempeño/parametros/lib/parameter.hook";
 
 export default function TeamIndicatorsPage() {
   const router = useNavigate();
@@ -462,12 +456,16 @@ function ProgressChartSection({ teamSummary }: { teamSummary: any }) {
 
 // Results Bar Chart Component
 function ResultsChartSection({ distribution }: { distribution: any[] }) {
-  const chartData = distribution.map((range) => ({
-    rangeLabel: range.label,
-    count: range.count,
-    percentage: range.percentage,
-    fill: SCALE_COLORS[range.label] || "hsl(var(--primary))",
-  }));
+  const scales = getScales(distribution.length);
+  const chartData = distribution.map((range, index) => {
+    const scaleClass = scales[index % scales.length];
+    return {
+      rangeLabel: range.label,
+      count: range.count,
+      percentage: range.percentage,
+      fill: SCALE_TO_COLOR_MAP[scaleClass],
+    };
+  });
 
   const activeIndex = chartData.reduce((maxIndex, item, index, array) => {
     return item.count > array[maxIndex].count ? index : maxIndex;
