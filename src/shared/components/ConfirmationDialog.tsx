@@ -8,9 +8,19 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
-  AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
+import { Button } from "@/components/ui/button";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { AlertTriangle, BadgeInfo, X } from "lucide-react";
 import { ReactNode, useState } from "react";
 
@@ -44,6 +54,7 @@ export const ConfirmationDialog = ({
   onOpenChange: controlledOnOpenChange,
 }: ConfirmationDialogProps) => {
   const [internalOpen, setInternalOpen] = useState(false);
+  const isMobile = useIsMobile();
 
   const isControlled = controlledOpen !== undefined;
   const isOpen = isControlled ? controlledOpen : internalOpen;
@@ -63,27 +74,65 @@ export const ConfirmationDialog = ({
       ? "text-amber-500"
       : "text-blue-500";
 
+  const iconBgColor =
+    icon === "danger"
+      ? "bg-red-100"
+      : icon === "warning"
+      ? "bg-amber-100"
+      : "bg-blue-100";
+
+  const IconHeader = (
+    <div className="flex items-center gap-3">
+      <div className={`rounded-full p-2 ${iconBgColor}`}>
+        <IconComponent className={`h-5 w-5 ${iconColor}`} />
+      </div>
+      <div className="text-left font-semibold">{title}</div>
+    </div>
+  );
+
+  if (isMobile) {
+    return (
+      <Drawer
+        open={isOpen}
+        onOpenChange={setIsOpen}
+        dismissible={false}
+      >
+        <DrawerTrigger asChild>{trigger}</DrawerTrigger>
+        <DrawerContent onPointerDownOutside={(e) => e.preventDefault()}>
+          <DrawerHeader>
+            {IconHeader}
+            <DrawerDescription className="text-left mt-2">
+              {description}
+            </DrawerDescription>
+          </DrawerHeader>
+          {children && <div className="px-4">{children}</div>}
+          <DrawerFooter className="flex-col gap-2">
+            <Button
+              onClick={handleConfirm}
+              disabled={confirmDisabled}
+              className={
+                variant === "destructive"
+                  ? "bg-secondary hover:bg-red-700 text-white"
+                  : ""
+              }
+            >
+              {confirmText}
+            </Button>
+            <DrawerClose asChild>
+              <Button variant="outline">{cancelText}</Button>
+            </DrawerClose>
+          </DrawerFooter>
+        </DrawerContent>
+      </Drawer>
+    );
+  }
+
   return (
     <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
       <AlertDialogTrigger asChild>{trigger}</AlertDialogTrigger>
       <AlertDialogContent className="sm:max-w-md">
         <AlertDialogHeader>
-          <div className="flex items-center gap-3">
-            <div
-              className={`rounded-full p-2 ${
-                icon === "danger"
-                  ? "bg-red-100"
-                  : icon === "warning"
-                  ? "bg-amber-100"
-                  : "bg-blue-100"
-              }`}
-            >
-              <IconComponent className={`h-5 w-5 ${iconColor}`} />
-            </div>
-            <div>
-              <AlertDialogTitle className="text-left">{title}</AlertDialogTitle>
-            </div>
-          </div>
+          {IconHeader}
         </AlertDialogHeader>
         <AlertDialogDescription className="text-left mt-2">
           {description}
