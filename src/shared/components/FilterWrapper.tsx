@@ -1,7 +1,7 @@
 "use client";
 
 import { Filter } from "lucide-react";
-import { Children, ReactNode, useState } from "react";
+import { ReactNode, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import GeneralSheet from "./GeneralSheet";
@@ -21,23 +21,9 @@ export default function FilterWrapper({
 }: FilterWrapperProps) {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
 
-  const childrenArray = Children.toArray(children);
-  const filterCount = childrenArray.length;
-
-  // Si hay solo 1 filtro, mostrarlo directamente sin botón
-  if (filterCount <= 1) {
-    return (
-      <div
-        className={cn("flex items-center gap-2 flex-wrap w-full", className)}
-      >
-        {children}
-      </div>
-    );
-  }
-
   // Si hay más de 3 filtros: Sheet en mobile
   return (
-    <div className={cn("w-full", className)}>
+    <div className={cn("w-fit", className)}>
       {/* Desktop: mostrar filtros inline */}
       <div className="hidden md:flex items-center gap-2 flex-wrap">
         {children}
@@ -47,7 +33,7 @@ export default function FilterWrapper({
       <div className="md:hidden">
         <Button
           variant="outline"
-          size="icon-xs"
+          size="icon-sm"
           onClick={() => setIsSheetOpen(true)}
         >
           <Filter className="h-3.5 w-3.5" />

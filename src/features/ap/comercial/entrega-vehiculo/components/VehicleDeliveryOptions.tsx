@@ -5,9 +5,15 @@ import SearchInput from "@/shared/components/SearchInput";
 export default function VehicleDeliveryOptions({
   search,
   setSearch,
+  dateFrom,
+  dateTo,
+  setDateRange,
 }: {
   search: string;
   setSearch: (value: string) => void;
+  dateFrom: Date | undefined;
+  dateTo: Date | undefined;
+  setDateRange: (dateFrom: Date | undefined, dateTo: Date | undefined) => void;
 }) {
   return (
     <FilterWrapper>
@@ -17,8 +23,12 @@ export default function VehicleDeliveryOptions({
         placeholder="Buscar entrega de vehículo..."
       />
       <DateRangePickerFilter
-        onDateChange={() => {}}
-        placeholder="Filtrar por fecha"
+        dateFrom={dateFrom}
+        dateTo={dateTo}
+        onDateChange={setDateRange}
+        placeholder="Seleccionar rango"
+        dateFormat="d MMM yyyy"
+        className="md:w-fit"
       />
     </FilterWrapper>
   );
