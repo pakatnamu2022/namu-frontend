@@ -15,10 +15,9 @@ export const useDownloadReport = () => {
       successToast("El reporte se ha descargado correctamente");
     },
     onError: (error: any) => {
-      console.log("Error downloading report:", error);
       errorToast(
         error?.response?.data?.message ||
-          "Ocurrió un error al descargar el reporte"
+          "Ocurrió un error al descargar el reporte",
       );
     },
   });

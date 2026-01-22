@@ -41,7 +41,7 @@ import { useCustomers } from "../../clientes/lib/customers.hook";
 import { CUSTOMERS_PV } from "../../clientes/lib/customers.constants";
 import { CustomersResource } from "../../clientes/lib/customers.interface";
 import { VehicleResource } from "../lib/vehicles.interface";
-import { MODELS_VN_POSTVENTA } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.constanst";
+import { MODELS_VN_REPUESTOS } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.constanst";
 
 interface VehiclePVFormProps {
   defaultValues: Partial<VehicleSchema>;
@@ -122,10 +122,12 @@ export const VehiclePVForm = ({
     }
   }, [warehouses, form]);
 
-  // Auto-seleccionar sede si solo hay una asignada
+  // Auto-seleccionar primera sede por defecto
   useEffect(() => {
-    if (mySedes.length === 1 && !form.watch("sede_id")) {
-      form.setValue("sede_id", mySedes[0].id.toString());
+    if (mySedes.length > 0 && !form.getValues("sede_id")) {
+      form.setValue("sede_id", mySedes[0].id.toString(), {
+        shouldValidate: true,
+      });
     }
   }, [mySedes, form]);
 
@@ -281,7 +283,7 @@ export const VehiclePVForm = ({
               size="icon-lg"
               className="aspect-square"
               onClick={() =>
-                window.open(MODELS_VN_POSTVENTA.ROUTE_ADD, "_blank")
+                window.open(MODELS_VN_REPUESTOS.ROUTE_ADD, "_blank")
               }
               tooltip="Agregar nuevo modelo"
             >

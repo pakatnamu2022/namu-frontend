@@ -54,7 +54,7 @@ export default function AddAdjustmentsProductPage() {
           movement_type: AP_MASTER_TYPE.TYPE_ADJUSTMENT_IN,
           reason_in_out_id: "",
           warehouse_id: "",
-          movement_date: "",
+          movement_date: new Date(),
           notes: "",
           details: [],
         }}

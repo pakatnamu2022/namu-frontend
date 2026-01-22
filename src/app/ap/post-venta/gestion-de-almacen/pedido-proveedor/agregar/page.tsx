@@ -54,7 +54,7 @@ export default function AddSupplierOrderPage() {
           sede_id: "",
           warehouse_id: "",
           type_currency_id: CURRENCY_TYPE_IDS.DOLLARS,
-          order_date: "",
+          order_date: new Date().toISOString().split("T")[0] || "",
           supply_type: "LIMA",
           details: [],
         }}

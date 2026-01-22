@@ -36,3 +36,22 @@ export const MODELS_VN_POSTVENTA: ModelComplete<ModelsVnResource> = {
   ROUTE_ADD: `${ABSOLUTE_ROUTE_POSTVENTA}/agregar`,
   ROUTE_UPDATE: `${ABSOLUTE_ROUTE_POSTVENTA}/actualizar`,
 };
+
+// RUTA PARA REPUESTOS - MODELOS VN
+const ROUTE_REPUESTOS = "modelos-vn-repuestos";
+const ABSOLUTE_ROUTE_REPUESTOS = `/ap/post-venta/repuestos/${ROUTE_REPUESTOS}`;
+
+export const MODELS_VN_REPUESTOS: ModelComplete<ModelsVnResource> = {
+  MODEL: {
+    name: "Modelo VN",
+    plural: "Modelos VN",
+    gender: true,
+  },
+  ICON: "ContactRound",
+  ENDPOINT: "/ap/configuration/modelsVn",
+  QUERY_KEY: "modelsVn-repuestos",
+  ROUTE: ROUTE_REPUESTOS,
+  ABSOLUTE_ROUTE: ABSOLUTE_ROUTE_REPUESTOS,
+  ROUTE_ADD: `${ABSOLUTE_ROUTE_REPUESTOS}/agregar`,
+  ROUTE_UPDATE: `${ABSOLUTE_ROUTE_REPUESTOS}/actualizar`,
+};

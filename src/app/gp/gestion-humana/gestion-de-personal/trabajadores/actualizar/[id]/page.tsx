@@ -11,7 +11,6 @@ import {
 } from "@/core/core.function";
 import { updateWorker } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.actions";
 import { WorkerSignatureSchema } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.schema";
-import { WorkerResource } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.interface";
 import { WorkerForm } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/components/WorkerForm";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
@@ -42,7 +41,7 @@ export default function UpdateWorkerSignaturePage() {
     },
     onError: (error: any) => {
       errorToast(
-        error?.response?.data?.message || ERROR_MESSAGE(MODEL, "update")
+        error?.response?.data?.message || ERROR_MESSAGE(MODEL, "update"),
       );
     },
   });
@@ -51,10 +50,7 @@ export default function UpdateWorkerSignaturePage() {
     mutate(data);
   };
 
-  function mapWorkerToForm(
-    data: WorkerResource
-  ): Partial<WorkerSignatureSchema> {
-    console.log("DATA WORKER:", data);
+  function mapWorkerToForm(): Partial<WorkerSignatureSchema> {
     return {
       worker_signature: null,
     };
@@ -76,7 +72,7 @@ export default function UpdateWorkerSignaturePage() {
         icon={currentView.icon}
       />
       <WorkerForm
-        defaultValues={mapWorkerToForm(worker)}
+        defaultValues={mapWorkerToForm()}
         onSubmit={handleSubmit}
         isSubmitting={isPending}
         mode="signature"

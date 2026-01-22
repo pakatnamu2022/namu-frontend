@@ -13,7 +13,6 @@ import {
 } from "@/components/ui/form.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
-import { Textarea } from "@/components/ui/textarea.tsx";
 import {
   Loader,
   Truck,
@@ -56,6 +55,8 @@ import { SuppliersResource } from "@/features/ap/comercial/proveedores/lib/suppl
 import { useInventory } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.hook.ts";
 import { InventoryResource } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.interface.ts";
 import { TYPES_OPERATION_ID } from "@/features/ap/configuraciones/maestros-general/tipos-operacion/lib/typesOperation.constants.ts";
+import { FormInput } from "@/shared/components/FormInput";
+import { FormInputText } from "@/shared/components/FormInputText";
 
 interface ProductTransferFormProps {
   defaultValues: Partial<ProductTransferSchema>;
@@ -79,7 +80,7 @@ export const ProductTransferForm = ({
     resolver: zodResolver(
       mode === "create"
         ? productTransferSchemaCreate
-        : productTransferSchemaUpdate
+        : productTransferSchemaUpdate,
     ) as any,
     defaultValues: {
       ...defaultValues,
@@ -118,7 +119,7 @@ export const ProductTransferForm = ({
     !isFirstLoad &&
       isPersonaNatural &&
       !!conductorDni &&
-      conductorDni.length === 8
+      conductorDni.length === 8,
   );
 
   const { fields, append, remove } = useFieldArray({
@@ -148,14 +149,14 @@ export const ProductTransferForm = ({
     {
       type_operation_id: TYPES_OPERATION_ID.COMERCIAL,
       type_receipt_id: TYPE_RECEIPT_SERIES.GUIA_REMISION,
-    }
+    },
   );
 
   // Filtrar series según la sede del almacén origen seleccionado
   const filteredSeries = series.filter((serie) => {
     if (!watchWarehouseOriginId) return true;
     const warehouse = warehouses.find(
-      (w) => w.id.toString() === watchWarehouseOriginId
+      (w) => w.id.toString() === watchWarehouseOriginId,
     );
     return warehouse ? serie.sede_id === warehouse.sede_id : true;
   });
@@ -170,11 +171,11 @@ export const ProductTransferForm = ({
     });
 
   const reasonTransfer = sunatConcepts.filter(
-    (concept) => concept.type === SUNAT_CONCEPTS_TYPE.TRANSFER_REASON
+    (concept) => concept.type === SUNAT_CONCEPTS_TYPE.TRANSFER_REASON,
   );
 
   const typeTransportation = sunatConcepts.filter(
-    (concept) => concept.type === SUNAT_CONCEPTS_TYPE.TYPE_TRANSPORTATION
+    (concept) => concept.type === SUNAT_CONCEPTS_TYPE.TYPE_TRANSPORTATION,
   );
 
   // UseEffect para conductor
@@ -237,12 +238,38 @@ export const ProductTransferForm = ({
     }
   }, [typePersonId, isFirstLoad, form, isPersonaNatural, isPersonaJuridica]);
 
+  // Setear valores por defecto en modo create
+  useEffect(() => {
+    if (mode !== "create") return;
+
+    // Setear primer almacén como origen si no hay valor
+    if (warehouses.length > 0 && !form.getValues("warehouse_origin_id")) {
+      form.setValue("warehouse_origin_id", warehouses[0].id.toString(), {
+        shouldValidate: true,
+      });
+    }
+
+    // Setear fecha de movimiento a hoy si no hay valor
+    if (!form.getValues("movement_date")) {
+      form.setValue("movement_date", new Date(), {
+        shouldValidate: true,
+      });
+    }
+
+    // Setear fecha de traslado a hoy si no hay valor
+    if (!form.getValues("issue_date")) {
+      form.setValue("issue_date", new Date(), {
+        shouldValidate: true,
+      });
+    }
+  }, [warehouses, mode, form]);
+
   // Limpiar serie cuando cambia el almacén origen
   useEffect(() => {
     const currentSeriesId = form.getValues("document_series_id");
     if (currentSeriesId && watchWarehouseOriginId) {
       const isValidSeries = filteredSeries.some(
-        (serie) => serie.id.toString() === currentSeriesId
+        (serie) => serie.id.toString() === currentSeriesId,
       );
       if (!isValidSeries && mode === "create") {
         form.setValue("document_series_id", "");
@@ -379,37 +406,20 @@ export const ProductTransferForm = ({
             strictFilter={true}
           />
 
-          <FormField
-            control={form.control}
+          <FormInput
             name="total_packages"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Núm. Bultos</FormLabel>
-                <FormControl>
-                  <Input type="number" placeholder="1" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Núm. Bultos"
+            type="number"
+            placeholder="1"
+            control={form.control}
           />
 
-          <FormField
-            control={form.control}
+          <FormInput
             name="total_weight"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Peso Total (kg)</FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    step="0.01"
-                    placeholder="0.00"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Peso Total (kg)"
+            type="number"
+            placeholder="0"
+            control={form.control}
           />
 
           <DatePickerFormField
@@ -442,7 +452,7 @@ export const ProductTransferForm = ({
                   item.id.toString() ===
                     BUSINESS_PARTNERS.TYPE_PERSON_NATURAL_ID ||
                   item.id.toString() ===
-                    BUSINESS_PARTNERS.TYPE_PERSON_JURIDICA_ID
+                    BUSINESS_PARTNERS.TYPE_PERSON_JURIDICA_ID,
               )
               .map((item) => ({
                 label: item.description,
@@ -496,18 +506,11 @@ export const ProductTransferForm = ({
                 )}
               />
 
-              <FormField
-                control={form.control}
+              <FormInput
                 name="driver_name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Nombre del Conductor</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Nombre completo" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+                label="Nombre del Conductor"
+                placeholder="Nombre completo"
+                control={form.control}
               />
 
               <FormField
@@ -815,23 +818,13 @@ export const ProductTransferForm = ({
 
         {/* Sección: Observaciones */}
         <div className="space-y-4">
-          <FormField
-            control={form.control}
+          <FormInputText
             name="notes"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Notas u Observaciones</FormLabel>
-                <FormControl>
-                  <Textarea
-                    placeholder="Observaciones adicionales sobre la transferencia..."
-                    className="resize-none"
-                    rows={4}
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Notas u Observaciones"
+            placeholder="Observaciones adicionales sobre la transferencia..."
+            control={form.control}
+            className="resize-none"
+            rows={4}
           />
         </div>
 
@@ -863,8 +856,8 @@ export const ProductTransferForm = ({
             {isSubmitting
               ? "Guardando..."
               : mode === "create"
-              ? "Crear Transferencia"
-              : "Actualizar Transferencia"}
+                ? "Crear Transferencia"
+                : "Actualizar Transferencia"}
           </Button>
         </div>
       </form>

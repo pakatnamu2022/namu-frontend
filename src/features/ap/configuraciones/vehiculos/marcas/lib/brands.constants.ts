@@ -32,7 +32,7 @@ export const BRAND: ModelComplete<BrandsResource> = {
 };
 
 const ROUTE_POSTVENTA = "marcas-producto";
-const ABSOLUTE_ROUTE_POSTVENTA = `/ap/post-venta/gestion-de-productos/${ROUTE_POSTVENTA}`;
+const ABSOLUTE_ROUTE_POSTVENTA = `/ap/post-venta/gestion-de-almacen/${ROUTE_POSTVENTA}`;
 
 export const BRAND_POSTVENTA: ModelComplete<BrandsResource> = {
   MODEL: {

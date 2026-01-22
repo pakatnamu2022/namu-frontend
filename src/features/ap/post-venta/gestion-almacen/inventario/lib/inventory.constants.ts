@@ -3,7 +3,7 @@ import { InventoryResource } from "./inventory.interface.ts";
 
 // INVENTARIO EN ALMACÉN
 const ROUTE = "inventario";
-const ABSOLUTE_ROUTE = `/ap/post-venta/gestion-de-compras/${ROUTE}`;
+const ABSOLUTE_ROUTE = `/ap/post-venta/gestion-de-almacen/${ROUTE}`;
 
 export const INVENTORY: ModelComplete<InventoryResource> = {
   MODEL: {
@@ -53,7 +53,7 @@ export function translateMovementType(type?: string | null): string {
     RETURN_IN: "Devolución Entrada",
     RETURN_OUT: "Devolución Salida",
   };
-  return type ? translations[type] ?? type : "-";
+  return type ? (translations[type] ?? type) : "-";
 }
 
 /**
@@ -66,5 +66,5 @@ export function translateMovementStatus(status?: string | null): string {
     IN_TRANSIT: "En Tránsito",
     CANCELLED: "Cancelado",
   };
-  return status ? translations[status] ?? status : "-";
+  return status ? (translations[status] ?? status) : "-";
 }

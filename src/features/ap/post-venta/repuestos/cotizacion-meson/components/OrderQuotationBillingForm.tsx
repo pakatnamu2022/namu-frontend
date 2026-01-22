@@ -406,22 +406,10 @@ export function OrderQuotationBillingForm({
     // Función auxiliar para redondear a 2 decimales (solo al final)
     const round2 = (num: number) => Math.round(num * 100) / 100;
 
-    console.log("=== DEBUG CÁLCULO DE TOTALES ===");
-    console.log("Porcentaje IGV:", porcentaje_de_igv);
-    console.log("Items:", items);
-
-    items.forEach((item, index) => {
+    items.forEach((item) => {
       const igvType = igvTypes.find(
         (t) => t.id === item.sunat_concept_igv_type_id,
       );
-
-      console.log(`Item ${index + 1}:`, {
-        descripcion: item.descripcion,
-        subtotal: item.subtotal,
-        igv: item.igv,
-        anticipo_regularizacion: item.anticipo_regularizacion,
-        code_nubefact: igvType?.code_nubefact,
-      });
 
       if (igvType?.code_nubefact === "1") {
         // Gravado
@@ -457,12 +445,6 @@ export function OrderQuotationBillingForm({
       }
     });
 
-    console.log("ANTES de redondear:");
-    console.log("  total_gravada:", total_gravada);
-    console.log("  total_inafecta:", total_inafecta);
-    console.log("  total_exonerada:", total_exonerada);
-    console.log("  total_igv (acumulado de items):", total_igv);
-
     // Redondear solo al final para evitar errores de precisión acumulados
     total_gravada = round2(total_gravada);
     total_inafecta = round2(total_inafecta);
@@ -471,17 +453,10 @@ export function OrderQuotationBillingForm({
     total_anticipo = round2(total_anticipo);
     total_igv = round2(total_igv); // Redondear el IGV acumulado
 
-    console.log("DESPUÉS de redondear:");
-    console.log("  total_gravada:", total_gravada);
-    console.log("  total_igv:", total_igv);
-
     // Calcular total final
     const suma_antes_redondeo =
       total_gravada + total_inafecta + total_exonerada + total_igv;
-    console.log("Suma ANTES de redondear:", suma_antes_redondeo);
     const total = round2(suma_antes_redondeo);
-    console.log("Total FINAL:", total);
-    console.log("=== FIN DEBUG ===");
 
     return {
       total_gravada,

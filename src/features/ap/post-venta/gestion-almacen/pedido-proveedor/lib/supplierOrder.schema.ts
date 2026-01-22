@@ -1,4 +1,4 @@
-import { requiredStringId } from "@/shared/lib/global.schema.ts";
+import { requiredDate, requiredStringId } from "@/shared/lib/global.schema.ts";
 import { z } from "zod";
 
 const supplierOrderDetailItemSchema = z.object({
@@ -18,7 +18,7 @@ const supplierOrderSchemaBase = z.object({
   sede_id: requiredStringId("Sede es requerida"),
   warehouse_id: requiredStringId("Almacén es requerido"),
   type_currency_id: requiredStringId("Tipo de moneda es requerida"),
-  order_date: z.union([z.literal(""), z.date()]),
+  order_date: requiredDate("Fecha de pedido es requerida"),
   supply_type: z.enum(["STOCK", "LIMA", "IMPORTACION"], {
     message: "Tipo de abastecimiento inválido",
   }),
@@ -42,7 +42,7 @@ export function validateSupplierOrderFormData(data: any): SupplierOrderSchema {
 }
 
 export function validateSupplierOrderUpdateFormData(
-  data: any
+  data: any,
 ): Partial<SupplierOrderSchema> {
   return supplierOrderSchemaUpdate.parse(data);
 }

@@ -2,7 +2,7 @@ import { type ModelComplete } from "@/core/core.interface.ts";
 import { ProductTransferResource } from "./productTransfer.interface.ts";
 
 const ROUTE = "transferencia-producto";
-const ABSOLUTE_ROUTE = `/ap/post-venta/gestion-de-compras/${ROUTE}`;
+const ABSOLUTE_ROUTE = `/ap/post-venta/gestion-de-almacen/${ROUTE}`;
 
 export const PRODUCT_TRANSFER: ModelComplete<ProductTransferResource> = {
   MODEL: {

@@ -1,5 +1,8 @@
 import { BUSINESS_PARTNERS } from "@/core/core.constants.ts";
-import { requiredStringId } from "@/shared/lib/global.schema.ts";
+import {
+  requiredNumber,
+  requiredStringId,
+} from "@/shared/lib/global.schema.ts";
 import { z } from "zod";
 
 // Schema para los detalles de productos
@@ -13,7 +16,7 @@ export const productTransferDetailSchema = z.object({
         const num = Number(val);
         return !isNaN(num) && num >= 1;
       },
-      { message: "La cantidad debe ser un número mayor o igual a 1" }
+      { message: "La cantidad debe ser un número mayor o igual a 1" },
     ),
   unit_cost: z.string().optional(),
   notes: z.string().optional(),
@@ -28,7 +31,7 @@ const productTransferSchemaBase = z.object({
   issue_date: z.union([z.literal(""), z.date()]).optional(),
   document_series_id: requiredStringId("La serie del documento es requerida"),
   warehouse_destination_id: requiredStringId(
-    "El almacén de destino es requerido"
+    "El almacén de destino es requerido",
   ),
   movement_date: z.union([z.literal(""), z.date()]).optional(),
   notes: z.string().optional(),
@@ -39,37 +42,19 @@ const productTransferSchemaBase = z.object({
   plate: z.string().optional(),
   transfer_reason_id: requiredStringId("El motivo de traslado es requerido"),
   transfer_modality_id: requiredStringId(
-    "La modalidad de traslado es requerida"
+    "La modalidad de traslado es requerida",
   ),
   transport_company_id: z.string().optional(),
-  total_packages: z
-    .string()
-    .min(1, "El total de bultos es requerido")
-    .refine(
-      (val) => {
-        const num = Number(val);
-        return !isNaN(num) && num >= 1;
-      },
-      { message: "El total de bultos debe ser un número mayor o igual a 1" }
-    ),
-  total_weight: z
-    .string()
-    .min(1, "El peso total es requerido")
-    .refine(
-      (val) => {
-        const num = Number(val);
-        return !isNaN(num) && num >= 0.1;
-      },
-      { message: "El peso total debe ser un número mayor o igual a 0.1" }
-    ),
+  total_packages: requiredNumber("El número total de bultos es requerido"),
+  total_weight: requiredNumber("El peso total es requerido"),
   details: z
     .array(productTransferDetailSchema)
     .min(1, "Debe actualizar al menos un producto"),
   transmitter_origin_id: requiredStringId(
-    "El remitente en el origen es requerido"
+    "El remitente en el origen es requerido",
   ),
   receiver_destination_id: requiredStringId(
-    "El receptor en el destino es requerido"
+    "El receptor en el destino es requerido",
   ),
 });
 
@@ -83,7 +68,7 @@ export const productTransferSchemaCreate = productTransferSchemaBase
     {
       message: "El almacén de origen no puede ser igual al almacén de destino",
       path: ["warehouse_destination_id"],
-    }
+    },
   )
   .refine(
     (data) => {
@@ -98,7 +83,7 @@ export const productTransferSchemaCreate = productTransferSchemaBase
     {
       message: "Todos los productos deben ser seleccionados",
       path: ["details"],
-    }
+    },
   )
   .refine(
     (data) => {
@@ -113,7 +98,7 @@ export const productTransferSchemaCreate = productTransferSchemaBase
     {
       message: "Todas las descripciones deben tener al menos 6 caracteres",
       path: ["details"],
-    }
+    },
   )
   .refine(
     (data) => {
@@ -126,7 +111,7 @@ export const productTransferSchemaCreate = productTransferSchemaBase
     {
       message: "El DNI del conductor es requerido para persona natural",
       path: ["driver_doc"],
-    }
+    },
   )
   .refine(
     (data) => {
@@ -139,7 +124,7 @@ export const productTransferSchemaCreate = productTransferSchemaBase
     {
       message: "El nombre del conductor es requerido para persona natural",
       path: ["driver_name"],
-    }
+    },
   )
   .refine(
     (data) => {
@@ -156,7 +141,7 @@ export const productTransferSchemaCreate = productTransferSchemaBase
     {
       message: "La licencia de conducir es requerida para persona natural",
       path: ["license"],
-    }
+    },
   )
   .refine(
     (data) => {
@@ -169,7 +154,7 @@ export const productTransferSchemaCreate = productTransferSchemaBase
     {
       message: "La placa del vehículo es requerida para persona natural",
       path: ["plate"],
-    }
+    },
   )
   .refine(
     (data) => {
@@ -184,7 +169,7 @@ export const productTransferSchemaCreate = productTransferSchemaBase
     {
       message: "El proveedor es requerido para persona jurídica",
       path: ["transport_company_id"],
-    }
+    },
   );
 
 // Schema para actualización (todos los campos opcionales)

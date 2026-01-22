@@ -90,6 +90,7 @@ export default function AddModelsVnPage() {
         onSubmit={handleSubmit}
         isSubmitting={isPending}
         mode="create"
+        onCancel={() => router(ABSOLUTE_ROUTE!)}
       />
     </FormWrapper>
   );

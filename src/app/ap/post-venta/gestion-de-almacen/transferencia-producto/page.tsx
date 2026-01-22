@@ -126,7 +126,7 @@ export default function ProductTransferPage() {
           },
           routeUpdate: ROUTE_UPDATE,
           routeReception:
-            "/ap/post-venta/gestion-de-compras/transferencia-producto/recepcion",
+            "/ap/post-venta/gestion-de-almacen/transferencia-producto/recepcion",
         })}
         data={data?.data || []}
       >
