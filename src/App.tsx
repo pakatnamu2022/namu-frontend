@@ -1190,19 +1190,19 @@ function App() {
                 element={<ProductKardexPage />}
               />
               <Route
-                path="gestion-de-almacen/factura-compra"
+                path="gestion-de-almacen/recepcion-compra"
                 element={<PurchaseOrderProductsPage />}
               />
               <Route
-                path="gestion-de-almacen/factura-compra/recepcion/:purchaseOrderId"
+                path="gestion-de-almacen/recepcion-compra/recepcion/:purchaseOrderId"
                 element={<ReceptionsProductsPage />}
               />
               <Route
-                path="gestion-de-almacen/factura-compra/recepcion/agregar/:purchaseOrderId"
+                path="gestion-de-almacen/recepcion-compra/recepcion/agregar/:purchaseOrderId"
                 element={<AddReceptionProductPage />}
               />
               <Route
-                path="gestion-de-almacen/factura-compra/recepcion/actualizar/:purchaseOrderId/:id"
+                path="gestion-de-almacen/recepcion-compra/recepcion/actualizar/:purchaseOrderId/:id"
                 element={<UpdateReceptionProductPage />}
               />
               <Route
