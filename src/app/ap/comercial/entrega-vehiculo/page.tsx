@@ -1,5 +1,4 @@
 "use client";
-
 import PageSkeleton from "@/shared/components/PageSkeleton";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import { useEffect, useState } from "react";

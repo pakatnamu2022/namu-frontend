@@ -1,3 +1,5 @@
+import { DateRangePickerFilter } from "@/shared/components/DateRangePickerFilter";
+import FilterWrapper from "@/shared/components/FilterWrapper";
 import SearchInput from "@/shared/components/SearchInput";
 
 export default function VehicleDeliveryOptions({
@@ -8,12 +10,16 @@ export default function VehicleDeliveryOptions({
   setSearch: (value: string) => void;
 }) {
   return (
-    <div className="flex items-center gap-2 flex-wrap">
+    <FilterWrapper>
       <SearchInput
         value={search}
         onChange={setSearch}
         placeholder="Buscar entrega de vehículo..."
       />
-    </div>
+      <DateRangePickerFilter
+        onDateChange={() => {}}
+        placeholder="Filtrar por fecha"
+      />
+    </FilterWrapper>
   );
 }

@@ -152,7 +152,7 @@ export function DataTable<TData, TValue>({
         isVisibleColumnFilter ? "gap-2" : "",
       )}
     >
-      <div className="grid md:flex md:flex-wrap gap-2 md:justify-between w-full">
+      <div className="flex md:flex-wrap gap-2 md:justify-between w-full">
         {children}
         {isVisibleColumnFilter && !mobileCardRender && (
           <DataTableColumnFilter table={table} />

@@ -32,7 +32,17 @@ export interface GeneralSheetProps {
   type?: "default" | "tablet" | "mobile";
 }
 
-type Size = "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl" | "5xl" | "6xl" | "7xl" | "full";
+type Size =
+  | "md"
+  | "lg"
+  | "xl"
+  | "2xl"
+  | "3xl"
+  | "4xl"
+  | "5xl"
+  | "6xl"
+  | "7xl"
+  | "full";
 interface SizeClasses {
   [key: string]: string;
 }
@@ -121,7 +131,7 @@ const GeneralSheet: React.FC<GeneralSheetProps> = ({
               <div>
                 {title && <DrawerTitle>{title}</DrawerTitle>}
                 {subtitle && (
-                  <p className="text-sm text-muted-foreground">{subtitle}</p>
+                  <p className="text-xs text-muted-foreground">{subtitle}</p>
                 )}
               </div>
             </div>
