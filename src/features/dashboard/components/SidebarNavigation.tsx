@@ -22,7 +22,7 @@ export default function SidebarNavigation() {
   const handleBack = () => {
     if (subModuleSlug) {
       router(
-        `/modules/${currentCompany?.empresa_abreviatura}/${currentModule?.slug}`
+        `/modules/${currentCompany?.empresa_abreviatura}/${currentModule?.slug}`,
       );
     } else {
       router(`/modules/${currentCompany?.empresa_abreviatura}`);

@@ -77,7 +77,7 @@ export default function EvaluationPersonObjectiveTable({
   // Calcular estadísticas
   const totalObjectives = details.length;
   const completedObjectives = details.filter(
-    (detail) => detail.wasEvaluated
+    (detail) => detail.wasEvaluated,
   ).length;
 
   return (

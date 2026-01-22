@@ -48,7 +48,7 @@ export function ProfileCard({ variant = "sidebar" }: ProfileCardProps) {
 
   const { data } = useEvaluationsByPersonToEvaluate(
     user?.partner_id,
-    shouldLoadEvaluations
+    shouldLoadEvaluations,
   );
 
   const UserMenuOptions: {
@@ -185,7 +185,7 @@ export function ProfileCard({ variant = "sidebar" }: ProfileCardProps) {
           </div>
         ) : (
           <div className="flex flex-col items-center gap-1">
-            <Avatar className="sm:max-w-28 sm:max-h-28 md:max-w-32 md:max-h-32 xl:max-w-40 xl:max-h-40 w-full h-full aspect-square mx-auto border-4 border-primary/20 mb-4 transition-all">
+            <Avatar className="max-w-26 max-h-26 sm:max-w-28 sm:max-h-28 md:max-w-32 md:max-h-32 xl:max-w-40 xl:max-h-40 w-full h-full aspect-square mx-auto border-4 border-primary/20 mb-4 transition-all">
               <AvatarImage
                 className="object-cover object-top"
                 src={user?.foto_adjunto}
@@ -243,7 +243,7 @@ export function ProfileCard({ variant = "sidebar" }: ProfileCardProps) {
                 ? format(
                     parse(user.fecha_ingreso, "yyyy-MM-dd", new Date()),
                     "PPP",
-                    { locale: es }
+                    { locale: es },
                   )
                 : "-"}
             </span>

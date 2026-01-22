@@ -79,7 +79,7 @@ export const CONSTANTS: any = {
   LOGO: "/logos/sian.svg",
   LOGO_WHITE: "/logos/sianwhite.svg",
   LOGO_ICON: "/logos/sianlogo.svg",
-  EMPRESAS: [EMPRESA_GP, EMPRESA_DP, EMPRESA_AP, EMPRESA_TP],
+  EMPRESAS: [EMPRESA_AP, EMPRESA_DP, EMPRESA_GP, EMPRESA_TP],
 };
 
 export const AP_CHECKLIST = {

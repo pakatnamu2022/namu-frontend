@@ -1,20 +1,15 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
+import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Building2, MapPin, Loader2 } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Building2, MapPin, Loader2, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { EstablishmentsResource } from "../../establecimientos/lib/establishments.interface";
 import { STATUS_ACTIVE } from "@/core/core.constants";
 import { useAllEstablishments } from "../../establecimientos/lib/establishments.hook";
+import { GeneralModal } from "@/shared/components/GeneralModal";
 
 interface EstablishmentSelectorModalProps {
   open: boolean;
@@ -34,13 +29,28 @@ export const EstablishmentSelectorModal = ({
   sede_id,
 }: EstablishmentSelectorModalProps) => {
   const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const { data: establishments = [], isLoading } = useAllEstablishments({
     business_partner_id: businessPartnerId,
     status: STATUS_ACTIVE,
   });
 
-  // Auto-seleccionar establecimientos si sede_id coincide
+  // Filtrar establecimientos por búsqueda
+  const filteredEstablishments = useMemo(() => {
+    if (!searchQuery.trim()) return establishments;
+
+    const query = searchQuery.toLowerCase();
+    return establishments.filter(
+      (est) =>
+        est.code?.toLowerCase().includes(query) ||
+        est.description?.toLowerCase().includes(query) ||
+        est.full_address?.toLowerCase().includes(query) ||
+        est.type?.toLowerCase().includes(query)
+    );
+  }, [establishments, searchQuery]);
+
+  // Auto-seleccionar establecimiento si sede_id coincide
   useEffect(() => {
     if (sede_id && sede_id !== "" && establishments.length > 0 && !isLoading) {
       const matchingEstablishment = establishments.find((est) => {
@@ -50,11 +60,17 @@ export const EstablishmentSelectorModal = ({
       });
 
       if (matchingEstablishment) {
-        // Si encuentra coincidencia, selecciona automáticamente
         handleSelect(matchingEstablishment);
       }
     }
   }, [sede_id, establishments, isLoading]);
+
+  // Limpiar búsqueda al cerrar el modal
+  useEffect(() => {
+    if (!open) {
+      setSearchQuery("");
+    }
+  }, [open]);
 
   const handleSelect = (establishment: EstablishmentsResource) => {
     setSelectedId(establishment.id);
@@ -62,35 +78,49 @@ export const EstablishmentSelectorModal = ({
     onOpenChange(false);
   };
 
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Building2 className="h-5 w-5 text-primary" />
-            Seleccionar Establecimiento
-          </DialogTitle>
-          <DialogDescription>
-            Establecimientos de {businessPartnerName}
-            <span className="ml-2 inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
-              {establishments.length}
-            </span>
-          </DialogDescription>
-        </DialogHeader>
+  const handleClose = () => {
+    onOpenChange(false);
+  };
 
-        <ScrollArea className="max-h-[500px] pr-4">
-          {isLoading ? (
-            <div className="flex items-center justify-center py-8">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            </div>
-          ) : establishments.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
-              <Building2 className="h-12 w-12 mb-2 opacity-20" />
-              <p>No se encontraron establecimientos</p>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {establishments.map((establishment) => (
+  return (
+    <GeneralModal
+      open={open}
+      onClose={handleClose}
+      title="Seleccionar Establecimiento"
+      subtitle={`Establecimientos de ${businessPartnerName} (${establishments.length})`}
+      icon="MapPin"
+      maxWidth="max-w-3xl"
+    >
+      <div className="flex flex-col gap-4">
+        {/* Buscador */}
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Buscar por código, descripción o dirección..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-9"
+          />
+        </div>
+
+        <ScrollArea className="h-[400px]">
+          <div className="pr-4">
+            {isLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              </div>
+            ) : filteredEstablishments.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
+                <Building2 className="h-12 w-12 mb-2 opacity-20" />
+                <p>
+                  {searchQuery
+                    ? "No se encontraron resultados"
+                    : "No se encontraron establecimientos"}
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {filteredEstablishments.map((establishment) => (
                 <button
                   key={establishment.id}
                   onClick={() => handleSelect(establishment)}
@@ -98,7 +128,7 @@ export const EstablishmentSelectorModal = ({
                     "w-full text-left p-4 rounded-lg border-2 transition-all hover:border-primary hover:shadow-md",
                     selectedId === establishment.id
                       ? "border-primary bg-primary/5"
-                      : "border-gray-200"
+                      : "border-border"
                   )}
                 >
                   <div className="flex items-start gap-3">
@@ -107,36 +137,37 @@ export const EstablishmentSelectorModal = ({
                     </div>
                     <div className="flex-1 space-y-1">
                       <div className="flex items-center gap-2">
-                        <span className="font-semibold text-gray-900">
+                        <span className="font-semibold">
                           {establishment.code}
                         </span>
-                        <span className="text-xs text-gray-500">
+                        <span className="text-xs text-muted-foreground">
                           {establishment.type}
                         </span>
                       </div>
                       {establishment.description && (
-                        <p className="text-sm text-gray-700">
+                        <p className="text-sm text-muted-foreground">
                           {establishment.description}
                         </p>
                       )}
-                      <div className="flex items-start gap-1 text-sm text-gray-600">
-                        <MapPin className="h-4 w-4 mt-0.5 text-gray-400 flex-shrink-0" />
+                      <div className="flex items-start gap-1 text-sm text-muted-foreground">
+                        <MapPin className="h-4 w-4 mt-0.5 shrink-0" />
                         <span>{establishment.full_address}</span>
                       </div>
                     </div>
                   </div>
                 </button>
               ))}
-            </div>
-          )}
+              </div>
+            )}
+          </div>
         </ScrollArea>
 
-        <div className="flex justify-end">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+        <div className="flex justify-end pt-2">
+          <Button variant="outline" onClick={handleClose}>
             Cancelar
           </Button>
         </div>
-      </DialogContent>
-    </Dialog>
+      </div>
+    </GeneralModal>
   );
 };
