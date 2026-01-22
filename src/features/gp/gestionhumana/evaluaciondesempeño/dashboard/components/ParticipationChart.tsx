@@ -3,7 +3,6 @@
 import * as React from "react";
 import { ChartConfig } from "@/components/ui/chart";
 import { InteractivePieChart } from "@/features/ap/comercial/dashboard-visitas-leads/components/InteractivePieChart";
-import { TrendingUp } from "lucide-react";
 
 interface ProgressStats {
   completed_participants: number;
@@ -67,16 +66,7 @@ export const ParticipationChart: React.FC<ParticipationChartProps> = ({
       config={chartConfig}
       valueLabel="Participantes"
       showLegend
-      footerInfo={{
-        label: "Total de Participantes",
-        value: progressStats.total_participants,
-        icon: <TrendingUp className="text-success-foreground" />,
-        trend: `${(
-          (progressStats.completed_participants /
-            progressStats.total_participants) *
-          100
-        ).toFixed(2)}% Completado`,
-      }}
+      showSelectionFooter
     />
   );
 };

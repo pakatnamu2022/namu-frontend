@@ -67,7 +67,7 @@ export function EvaluationResultsChart({
       count: {
         label: "Colaboradores",
       },
-    }
+    },
   );
 
   const percentageFormatter = new Intl.NumberFormat("es-ES", {
@@ -78,9 +78,7 @@ export function EvaluationResultsChart({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg">
-          Resultados - Parámetro {parameterName}
-        </CardTitle>
+        <CardTitle>Resultados - Parámetro {parameterName}</CardTitle>
         <CardDescription>
           Distribucion de colaboradores por niveles
         </CardDescription>
@@ -96,28 +94,9 @@ export function EvaluationResultsChart({
               axisLine={false}
             />
             <ChartTooltip
-              cursor={false}
+              cursor={true}
               content={
-                <ChartTooltipContent
-                  hideLabel
-                  nameKey="rangeLabel"
-                  formatter={(value, _name, item) => {
-                    const payload = item?.payload as ChartDatum | undefined;
-                    const numericCount =
-                      typeof value === "number" ? value : Number(value) || 0;
-                    const percentage = payload ? Number(payload.percentage) : 0;
-                    const participantLabel =
-                      numericCount === 1 ? "colaborador" : "colaboradores";
-                    const formattedPercentage =
-                      percentageFormatter.format(percentage);
-                    return [
-                      `${numericCount.toLocaleString(
-                        "es-ES"
-                      )} ${participantLabel} (${formattedPercentage}%)`,
-                      payload?.rangeLabel ?? "",
-                    ];
-                  }}
-                />
+                <ChartTooltipContent nameKey="rangeLabel" className="w-auto" />
               }
             />
             <Bar
@@ -144,7 +123,9 @@ export function EvaluationResultsChart({
         </ChartContainer>
       </CardContent>
       <CardFooter className="flex-col items-start gap-1 text-sm text-muted-foreground">
-        <span>Total evaluados: {totalEvaluated.toLocaleString("es-ES")}</span>
+        <div className="flex items-center gap-2 font-medium leading-none text-foreground">
+          Total evaluados: {totalEvaluated.toLocaleString("es-ES")}
+        </div>
         <span>
           Cada barra representa el numero de colaboradores en el rango.
         </span>
