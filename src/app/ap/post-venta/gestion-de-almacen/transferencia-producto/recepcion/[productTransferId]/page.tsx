@@ -41,7 +41,7 @@ export default function TransferReceptionsPage() {
 
   const { data, isLoading, refetch } = useAllTransferReceptions(
     {},
-    productTransferIdNum
+    productTransferIdNum,
   );
 
   const handleDelete = async () => {
@@ -59,7 +59,7 @@ export default function TransferReceptionsPage() {
   };
 
   const handleBack = () => {
-    navigate("/ap/post-venta/gestion-de-compras/transferencia-producto");
+    navigate("/ap/post-venta/gestion-de-almacen/transferencia-producto");
   };
 
   const handleAddReception = () => {

@@ -12,7 +12,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import {
   quotationMesonWithProductsSchemaCreate,
@@ -49,6 +48,7 @@ import { OrderQuotationResource } from "@/features/ap/post-venta/taller/cotizaci
 import { useVehicles } from "@/features/ap/comercial/vehiculos/lib/vehicles.hook";
 import { VehicleResource } from "@/features/ap/comercial/vehiculos/lib/vehicles.interface";
 import { VEHICLES_RP } from "@/features/ap/comercial/vehiculos/lib/vehicles.constants";
+import { FormInputText } from "@/shared/components/FormInputText";
 
 const onSelectSupplyType = [
   { label: "Stock", value: "STOCK" },
@@ -691,10 +691,12 @@ export default function ProformaMesonForm({
 
   const { data: currencyTypes = [] } = useAllCurrencyTypes();
 
-  // Setear sede por defecto si solo hay una
+  // Setear primera sede por defecto
   useEffect(() => {
-    if (mySedes.length === 1 && !form.getValues("sede_id")) {
-      form.setValue("sede_id", mySedes[0].id.toString());
+    if (mySedes.length > 0 && !form.getValues("sede_id")) {
+      form.setValue("sede_id", mySedes[0].id.toString(), {
+        shouldValidate: true,
+      });
     }
   }, [mySedes, form]);
 
@@ -1007,23 +1009,12 @@ export default function ProformaMesonForm({
             />
           </div>
 
-          <FormField
-            control={form.control}
+          <FormInputText
             name="observations"
-            render={({ field }) => (
-              <FormItem className="mt-4">
-                <FormLabel>Observaciones</FormLabel>
-                <FormControl>
-                  <Textarea
-                    {...field}
-                    value={field.value ?? ""}
-                    placeholder="Notas adicionales sobre la cotización..."
-                    rows={3}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Observaciones"
+            placeholder="Notas adicionales sobre la cotización..."
+            control={form.control}
+            rows={3}
           />
         </Card>
 

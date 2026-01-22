@@ -66,8 +66,6 @@ export default function AddProductTransferPage() {
           transfer_reason_id: SUNAT_CONCEPTS_ID.TRANSFER_REASON_TRASLADO_SEDE,
           transfer_modality_id: "",
           transport_company_id: "",
-          total_packages: "1",
-          total_weight: "0",
           transmitter_origin_id: AUTOMOTORES_PAKATNAMU_ID,
           receiver_destination_id: AUTOMOTORES_PAKATNAMU_ID,
           details: [],

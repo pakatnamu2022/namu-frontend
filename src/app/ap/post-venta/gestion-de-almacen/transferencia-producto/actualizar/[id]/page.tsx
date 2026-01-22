@@ -59,7 +59,7 @@ export default function UpdateProductTransferPage() {
   };
 
   function mapTransferToForm(
-    data: ProductTransferResource
+    data: ProductTransferResource,
   ): Partial<ProductTransferSchema> {
     return {
       warehouse_origin_id: String(data.warehouse_origin_id),
@@ -85,8 +85,8 @@ export default function UpdateProductTransferPage() {
       transport_company_id: String(data.reference.transport_company_id),
       transmitter_origin_id: AUTOMOTORES_PAKATNAMU_ID,
       receiver_destination_id: AUTOMOTORES_PAKATNAMU_ID,
-      total_packages: String(data.reference.total_packages),
-      total_weight: String(data.reference.total_weight),
+      total_packages: Number(data.reference.total_packages),
+      total_weight: Number(data.reference.total_weight),
       issue_date: data.created_at ? new Date(data.created_at) : undefined,
       details:
         data.details?.map((item) => ({

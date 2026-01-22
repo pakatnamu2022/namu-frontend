@@ -102,6 +102,8 @@ export default function ProductPVPage() {
         isLoading={isLoading}
         columns={productColumns({
           onStatusChange: handleToggleStatus,
+          onUpdate: (id: number) =>
+            router(`${ABSOLUTE_ROUTE}/actualizar/${id}`),
           onDelete: setDeleteId,
           onView: handleView,
           onAssignWarehouse: handleAssignWarehouse,

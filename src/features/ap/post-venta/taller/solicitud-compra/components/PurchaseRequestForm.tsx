@@ -27,7 +27,7 @@ import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import FormSkeleton from "@/shared/components/FormSkeleton";
-import { useWarehousesByCompany } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
+import { useMyPhysicalWarehouse } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
 import { useInventory } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.hook";
 import { InventoryResource } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.interface";
 import { getAllOrderQuotations } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.actions";
@@ -35,7 +35,6 @@ import { OrderQuotationResource } from "@/features/ap/post-venta/taller/cotizaci
 import { QuotationSelectionModal } from "../../cotizacion/components/QuotationSelectionModal";
 import { errorToast } from "@/core/core.function";
 import { FormInputText } from "@/shared/components/FormInputText";
-import { CM_POSTVENTA_ID, EMPRESA_AP } from "@/core/core.constants";
 
 const onSelectSupplyType = [
   { label: "Lima", value: "LIMA" },
@@ -59,7 +58,6 @@ export default function PurchaseRequestForm({
 }: PurchaseRequestFormProps) {
   const [details, setDetails] = useState<PurchaseRequestDetailSchema[]>(() => {
     // Transformar los detalles del backend al formato esperado
-    console.log("Default Values in Form:", defaultValues.details);
     if (defaultValues.details && defaultValues.details.length > 0) {
       const transformed = defaultValues.details.map((detail: any) => ({
         product_id: detail.product_id?.toString() || "",
@@ -78,19 +76,13 @@ export default function PurchaseRequestForm({
 
   // Obtener mis almacenes físicos de postventa
   const { data: warehouses = [], isLoading: isLoadingWarehouses } =
-    useWarehousesByCompany({
-      my: 1,
-      is_received: 1,
-      empresa_id: EMPRESA_AP.id,
-      type_operation_id: CM_POSTVENTA_ID,
-      only_physical: 1,
-    });
+    useMyPhysicalWarehouse();
 
   const form = useForm({
     resolver: zodResolver(
       mode === "create"
         ? purchaseRequestSchemaCreate
-        : purchaseRequestSchemaUpdate
+        : purchaseRequestSchemaUpdate,
     ),
     defaultValues: {
       warehouse_id: "",
@@ -121,6 +113,18 @@ export default function PurchaseRequestForm({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [details]);
 
+  // Setear valores por defecto en modo create
+  useEffect(() => {
+    if (mode !== "create") return;
+
+    // Setear primer almacén si no hay valor
+    if (warehouses.length > 0 && !form.getValues("warehouse_id")) {
+      form.setValue("warehouse_id", warehouses[0].id.toString(), {
+        shouldValidate: true,
+      });
+    }
+  }, [warehouses, mode, form]);
+
   useEffect(() => {
     if (!hasAppointment) {
       form.setValue("ap_order_quotation_id", "");
@@ -149,20 +153,20 @@ export default function PurchaseRequestForm({
   const loadQuotationDetails = useCallback(
     async (
       quotationId: string,
-      quotationsToSearch?: OrderQuotationResource[]
+      quotationsToSearch?: OrderQuotationResource[],
     ) => {
       // Usar quotationsToSearch si se proporciona, sino usar el estado quotations
       const quotationsArray = quotationsToSearch || quotations;
 
       const selectedQuotation = quotationsArray.find(
-        (q) => q.id.toString() === quotationId
+        (q) => q.id.toString() === quotationId,
       );
 
       if (!selectedQuotation || !selectedQuotation.details) return;
 
       // Filtrar solo los productos (item_type = "PRODUCT")
       const productDetails = selectedQuotation.details.filter(
-        (detail) => detail.item_type === "PRODUCT"
+        (detail) => detail.item_type === "PRODUCT",
       );
 
       // Mapear a PurchaseRequestDetailSchema
@@ -173,7 +177,7 @@ export default function PurchaseRequestForm({
           product_code: detail.product?.code || "",
           quantity: Number(detail.quantity) || 1, // Asegurar que sea number
           notes: "",
-        })
+        }),
       );
 
       // Setear los detalles en la tabla
@@ -184,7 +188,7 @@ export default function PurchaseRequestForm({
         form.setValue("supply_type", selectedQuotation.supply_type);
       }
     },
-    [quotations, form]
+    [quotations, form],
   );
 
   useEffect(() => {
@@ -207,7 +211,7 @@ export default function PurchaseRequestForm({
 
   const handleAddProduct = (
     productId: string,
-    productData?: InventoryResource
+    productData?: InventoryResource,
   ) => {
     if (!productId) {
       return;
@@ -215,7 +219,7 @@ export default function PurchaseRequestForm({
 
     // Verificar si el producto ya está en la lista
     const productExists = details.some(
-      (detail) => detail.product_id === productId
+      (detail) => detail.product_id === productId,
     );
 
     if (productExists) {
@@ -264,7 +268,7 @@ export default function PurchaseRequestForm({
     if (!selectedQuotationId || quotations.length === 0) return null;
 
     const quotation = quotations.find(
-      (q) => q.id.toString() === selectedQuotationId
+      (q) => q.id.toString() === selectedQuotationId,
     );
 
     if (!quotation) return null;
@@ -272,7 +276,7 @@ export default function PurchaseRequestForm({
     return `${quotation.quotation_number} - ${quotation.vehicle.plate} (${
       quotation.vehicle.model.brand
     } ${quotation.vehicle.model.family}) - S/ ${quotation.total_amount.toFixed(
-      2
+      2,
     )}`;
   };
 
@@ -524,7 +528,7 @@ export default function PurchaseRequestForm({
                                   onChange={(e) =>
                                     handleUpdateQuantity(
                                       index,
-                                      Number(e.target.value)
+                                      Number(e.target.value),
                                     )
                                   }
                                   className="h-9 text-sm"
@@ -592,7 +596,7 @@ export default function PurchaseRequestForm({
                                     onChange={(e) =>
                                       handleUpdateQuantity(
                                         index,
-                                        Number(e.target.value)
+                                        Number(e.target.value),
                                       )
                                     }
                                     className="h-9 text-sm w-full"
@@ -642,8 +646,8 @@ export default function PurchaseRequestForm({
             {isSubmitting
               ? "Guardando..."
               : mode === "create"
-              ? "Crear Solicitud"
-              : "Actualizar Solicitud"}
+                ? "Crear Solicitud"
+                : "Actualizar Solicitud"}
           </Button>
         </div>
 

@@ -8,11 +8,9 @@ import {
   FormItem,
   FormLabel,
   FormControl,
-  FormMessage,
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Building2, Loader, MapPin } from "lucide-react";
-import { Input } from "@/components/ui/input";
 import {
   EstablishmentsSchema,
   establishmentsSchema,
@@ -29,6 +27,7 @@ import {
 import { useAllSedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import { EMPRESA_AP } from "@/core/core.constants";
 import { Checkbox } from "@/components/ui/checkbox";
+import { FormInput } from "@/shared/components/FormInput";
 
 const AUTOMOTORES_PAKATNAMU_ID = 17;
 
@@ -132,62 +131,36 @@ export const EstablishmentsForm = ({
           title="Información del Establecimiento"
           cols={{ sm: 1, md: 2 }}
         >
-          <FormField
-            control={form.control}
+          <FormInput
             name="code"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Código *</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: 001" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
+            label="Código"
+            placeholder="Ej: 001"
             control={form.control}
+            required
+          />
+
+          <FormInput
             name="type"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Tipo *</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: Sede Leguia" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Tipo"
+            placeholder="Ej: Sede Leguia"
+            control={form.control}
+            required
           />
 
-          <FormField
-            control={form.control}
+          <FormInput
             name="description"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Descripción</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: Comercial" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Descripción"
+            placeholder="Ej: AP_LEGUIA"
+            control={form.control}
+            required
           />
 
-          <FormField
-            control={form.control}
+          <FormInput
             name="activity_economic"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Actividad Económica</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="Ingrese la actividad económica"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Actividad Económica"
+            placeholder="Ingrese la actividad económica"
+            control={form.control}
+            required
           />
         </GroupFormSection>
 
@@ -197,18 +170,12 @@ export const EstablishmentsForm = ({
           title="Ubicación"
           cols={{ sm: 1, md: 2 }}
         >
-          <FormField
-            control={form.control}
+          <FormInput
             name="address"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Dirección *</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ingrese la dirección" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Dirección"
+            placeholder="Ingrese la dirección"
+            control={form.control}
+            required
           />
 
           <FormSelect

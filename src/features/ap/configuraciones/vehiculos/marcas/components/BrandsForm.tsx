@@ -39,7 +39,7 @@ export const BrandsForm = ({
 }: BrandsFormProps) => {
   const form = useForm({
     resolver: zodResolver(
-      mode === "create" ? brandSchemaCreate : (brandSchemaUpdate as any)
+      mode === "create" ? brandSchemaCreate : (brandSchemaUpdate as any),
     ),
     defaultValues: {
       ...defaultValues,
@@ -197,7 +197,7 @@ export const BrandsForm = ({
             to={
               isCommercial === String(CM_COMERCIAL_ID)
                 ? ABSOLUTE_ROUTE!
-                : "/ap/post-venta/gestion-de-productos/marcas-producto"
+                : "/ap/post-venta/gestion-de-almacen/marcas-producto"
             }
           >
             <Button type="button" variant="outline">

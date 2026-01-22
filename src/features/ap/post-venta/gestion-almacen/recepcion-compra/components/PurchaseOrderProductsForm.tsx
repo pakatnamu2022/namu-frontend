@@ -9,7 +9,6 @@ import {
   Form,
   FormField,
   FormItem,
-  FormLabel,
   FormControl,
   FormMessage,
 } from "@/components/ui/form.tsx";
@@ -40,7 +39,6 @@ import {
 } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook.ts";
 import { useProduct } from "@/features/ap/post-venta/gestion-almacen/productos/lib/product.hook.ts";
 import { ProductResource } from "@/features/ap/post-venta/gestion-almacen/productos/lib/product.interface.ts";
-import { Textarea } from "@/components/ui/textarea.tsx";
 import { GroupFormSection } from "@/shared/components/GroupFormSection.tsx";
 import { PAYMENT_TERMS_OPTIONS } from "@/features/ap/post-venta/gestion-almacen/recepcion-compra/lib/purchaseOrderProducts.constants.ts";
 import { useEffect } from "react";
@@ -57,6 +55,8 @@ import { FormSelectAsync } from "@/shared/components/FormSelectAsync.tsx";
 import { SuppliersResource } from "@/features/ap/comercial/proveedores/lib/suppliers.interface.ts";
 import { PurchaseOrderProductsResource } from "@/features/ap/post-venta/gestion-almacen/recepcion-compra/lib/purchaseOrderProducts.interface.ts";
 import { SupplierOrderResource } from "@/features/ap/post-venta/gestion-almacen/pedido-proveedor/lib/supplierOrder.interface.ts";
+import { FormInput } from "@/shared/components/FormInput";
+import { FormInputText } from "@/shared/components/FormInputText";
 
 interface PurchaseOrderProductsFormProps {
   defaultValues: Partial<PurchaseOrderProductsSchema>;
@@ -319,32 +319,18 @@ export const PurchaseOrderProductsForm = ({
               }
             ></FormSelectAsync>
 
-            <FormField
+            <FormInput
               control={form.control}
               name="invoice_series"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Serie Factura</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Ej: F001" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              label="Serie Factura"
+              placeholder="Ej: F001"
             />
 
-            <FormField
+            <FormInput
               control={form.control}
               name="invoice_number"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Núm. Factura</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Ej: 00012345" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              label="Núm. Factura"
+              placeholder="Ej: 00012345"
             />
 
             <DatePickerFormField
@@ -757,23 +743,12 @@ export const PurchaseOrderProductsForm = ({
               {/* Campo de notas dentro de items */}
               {fields.length > 0 && (
                 <div className="mt-4">
-                  <FormField
+                  <FormInputText
                     control={form.control}
                     name="notes"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Notas Generales</FormLabel>
-                        <FormControl>
-                          <Textarea
-                            placeholder="Notas o comentarios adicionales de la orden"
-                            className="resize-none"
-                            rows={3}
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+                    label="Notas Generales"
+                    placeholder="Notas o comentarios adicionales de la orden"
+                    rows={3}
                   />
                 </div>
               )}

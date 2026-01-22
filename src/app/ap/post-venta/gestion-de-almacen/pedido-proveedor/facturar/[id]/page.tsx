@@ -16,8 +16,8 @@ import {
 import { useState } from "react";
 import { PURCHASE_ORDER_PRODUCT } from "@/features/ap/post-venta/gestion-almacen/recepcion-compra/lib/purchaseOrderProducts.constants.ts";
 import { useSupplierOrderById } from "@/features/ap/post-venta/gestion-almacen/pedido-proveedor/lib/supplierOrder.hook.ts";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card.tsx";
-import { FileText, Package } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card.tsx";
+import { FileText } from "lucide-react";
 import { SUPPLIER_ORDER } from "@/features/ap/post-venta/gestion-almacen/pedido-proveedor/lib/supplierOrder.constants.ts";
 
 export default function InvoiceSupplierOrderPage() {
@@ -92,104 +92,80 @@ export default function InvoiceSupplierOrderPage() {
       />
 
       {/* Información del Pedido a Proveedor */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm flex items-center gap-2">
-              <FileText className="h-4 w-4" />
-              Información del Pedido
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2 text-sm">
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Nº Pedido:</span>
-              <span className="font-semibold">
-                {supplierOrder.order_number}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Proveedor:</span>
-              <span className="font-medium">
-                {supplierOrder.supplier?.full_name}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">RUC:</span>
-              <span>{supplierOrder.supplier?.num_doc}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Fecha Pedido:</span>
-              <span>{supplierOrder.order_date}</span>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm flex items-center gap-2">
-              <Package className="h-4 w-4" />
-              Detalles de Entrega
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2 text-sm">
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Sede:</span>
-              <span className="font-medium">
-                {supplierOrder.sede?.abreviatura}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Almacén:</span>
-              <span className="font-medium">
-                {supplierOrder.warehouse?.description}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Moneda:</span>
-              <span>{supplierOrder.type_currency?.name}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Tipo Abast.:</span>
-              <span>{supplierOrder.supply_type}</span>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="rounded-lg border bg-card p-5 lg:m-4">
+        <div className="flex items-center gap-2 mb-5 pb-3 border-b">
+          <FileText className="h-4 w-4 text-muted-foreground" />
+          <h3 className="text-sm font-semibold text-foreground">
+            Información del Pedido
+          </h3>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5">
+          <div className="space-y-1">
+            <p className="text-xs text-muted-foreground font-medium">
+              Proveedor
+            </p>
+            <p className="text-sm font-semibold text-foreground">
+              {supplierOrder.supplier?.full_name}
+            </p>
+          </div>
+          <div className="space-y-1">
+            <p className="text-xs text-muted-foreground font-medium">RUC</p>
+            <p className="text-sm font-semibold text-foreground">
+              {supplierOrder.supplier?.num_doc}
+            </p>
+          </div>
+          <div className="space-y-1">
+            <p className="text-xs text-muted-foreground font-medium">
+              Fecha Pedido
+            </p>
+            <p className="text-sm font-semibold text-foreground">
+              {supplierOrder.order_date}
+            </p>
+          </div>
+          <div className="space-y-1">
+            <p className="text-xs text-muted-foreground font-medium">Moneda</p>
+            <p className="text-sm font-semibold text-foreground">
+              {supplierOrder.type_currency?.name}
+            </p>
+          </div>
+          <div className="space-y-1">
+            <p className="text-xs text-muted-foreground font-medium">
+              Tipo Abastecimiento
+            </p>
+            <p className="text-sm font-semibold text-foreground">
+              {supplierOrder.supply_type}
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* Formulario de Orden de Compra */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Datos de la Factura del Proveedor</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <PurchaseOrderProductsForm
-            defaultValues={{
-              supplier_id: supplierOrder.supplier_id.toString(),
-              sede_id: supplierOrder.sede_id.toString(),
-              warehouse_id: supplierOrder.warehouse_id.toString(),
-              currency_id: supplierOrder.type_currency_id.toString(),
-              emission_date: new Date(),
-              due_date: new Date(),
-              items:
-                supplierOrder.details?.map((detail) => ({
-                  product_id: detail.product_id.toString(),
-                  quantity: Number(detail.quantity),
-                  unit_price: Number(detail.unit_price),
-                  item_total: Number(detail.total),
-                  discount: 0,
-                  tax_rate: 18,
-                  notes: detail.note || "",
-                })) || [],
-            }}
-            onSubmit={handleSubmit}
-            isSubmitting={isSubmitting}
-            mode="create"
-            onCancel={handleCancel}
-            supplierOrderId={supplierOrder.id}
-            supplierOrderData={supplierOrder}
-          />
-        </CardContent>
-      </Card>
+      <PurchaseOrderProductsForm
+        defaultValues={{
+          supplier_id: supplierOrder.supplier_id.toString(),
+          sede_id: supplierOrder.sede_id.toString(),
+          warehouse_id: supplierOrder.warehouse_id.toString(),
+          currency_id: supplierOrder.type_currency_id.toString(),
+          emission_date: new Date(),
+          due_date: new Date(),
+          items:
+            supplierOrder.details?.map((detail) => ({
+              product_id: detail.product_id.toString(),
+              quantity: Number(detail.quantity),
+              unit_price: Number(detail.unit_price),
+              item_total: Number(detail.total),
+              discount: 0,
+              tax_rate: 18,
+              notes: detail.note || "",
+            })) || [],
+        }}
+        onSubmit={handleSubmit}
+        isSubmitting={isSubmitting}
+        mode="create"
+        onCancel={handleCancel}
+        supplierOrderId={supplierOrder.id}
+        supplierOrderData={supplierOrder}
+      />
     </div>
   );
 }
