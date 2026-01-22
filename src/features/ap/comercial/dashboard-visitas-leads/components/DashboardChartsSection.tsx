@@ -14,18 +14,18 @@ interface DashboardChartsSectionProps {
 
 // Colores para estados de visita
 const VISIT_STATUS_COLORS = {
-  atendidos: "hsl(var(--chart-2))",
-  no_atendidos: "hsl(var(--chart-3))",
-  descartados: "hsl(var(--chart-4))",
+  atendidos: "var(--chart-2)",
+  no_atendidos: "var(--chart-3)",
+  descartados: "var(--chart-4)",
 };
 
 // Colores para estados de oportunidad
 const OPPORTUNITY_STATUS_COLORS: { [key: string]: string } = {
-  CALIENTE: "hsl(var(--chart-1))",
-  TEMPLADA: "hsl(var(--chart-5))",
-  FRIO: "hsl(var(--chart-2))",
-  "VENTA CONCRETADA": "hsl(var(--chart-4))",
-  CERRADA: "hsl(var(--chart-3))",
+  CALIENTE: "var(--chart-1)",
+  TEMPLADA: "var(--chart-5)",
+  FRIO: "var(--chart-2)",
+  "VENTA CONCRETADA": "var(--chart-4)",
+  CERRADA: "var(--chart-3)",
 };
 
 export default function DashboardChartsSection({

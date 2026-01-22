@@ -6,19 +6,19 @@ import { ArrowRight, Cake } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useBirthday } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
+import { FEED } from "../lib/feed.constants";
 
 export function FeedWidget() {
+  const { ROUTE } = FEED;
   const router = useNavigate();
-
   const { data, isLoading } = useBirthday();
-
   const handleViewFeed = () => {
-    router("/feed");
+    router(ROUTE);
   };
 
   return (
-    <Card className="border-none shadow-none p-2 h-fit">
-      <CardHeader className="p-3">
+    <Card className="border-none shadow-none p-2 h-fit gap-0">
+      <CardHeader className="p-3 gap-0">
         <div className="flex items-center justify-between">
           <CardTitle className="text-primary dark:text-primary-foreground flex items-center gap-2 text-lg">
             <Cake className="w-5 h-5" />
@@ -84,18 +84,11 @@ export function FeedWidget() {
                       {person.fecha_nacimiento}
                     </p>
                   </div>
-                  {/* <p className="text-xs text-gray-600">
-                  <span className="text-gray-500">{person.}</span>{" "}
-                  {person.content}
-                </p>
-                <p className="text-xs text-gray-400 mt-1">{person.timestamp}</p> */}
                 </div>
               </div>
             ))}
           </div>
         )}
-
-        {/* Estadísticas rápidas */}
 
         {/* Botón para ver feed completo */}
         <Button

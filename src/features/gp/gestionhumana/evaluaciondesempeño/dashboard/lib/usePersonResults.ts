@@ -23,7 +23,7 @@ export const usePersonResults = (params: PersonResultsParams | null) => {
 
 export const usePersonResultsByType = (
   evaluationId: number,
-  type: "completed" | "in_progress" | "not_started" | "total"
+  type: "completed" | "in_progress" | "not_started" | "total",
 ) => {
   const getParams = (): PersonResultsParams | null => {
     if (!evaluationId) return null;

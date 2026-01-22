@@ -1,14 +1,18 @@
 import React, { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { ExternalLink, Search } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/shared/components/DataTable";
 import { EvaluationPersonResultResource } from "../../evaluation-person/lib/evaluationPerson.interface";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import {
+  getProgressColor,
+  getResultRateColorBadge,
+} from "../../evaluation-person/lib/evaluationPerson.function";
+import { Badge } from "@/components/ui/badge";
 
 export interface PersonResultsAccordionProps {
   data: EvaluationPersonResultResource[];
@@ -24,35 +28,6 @@ const PersonResultsAccordion: React.FC<PersonResultsAccordionProps> = ({
   const router = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
 
-  const getProgressColor = (percentage: number) => {
-    if (percentage >= 80) return "bg-primary";
-    if (percentage >= 60) return "bg-tertiary";
-    return "bg-secondary";
-  };
-
-  const getStatusBadge = (result: EvaluationPersonResultResource) => {
-    const hasCompleted =
-      result.competencesResult > 0 && result.objectivesResult > 0;
-    const hasProgress =
-      result.competencesPercentage > 0 || result.objectivesPercentage > 0;
-
-    if (hasCompleted) {
-      return (
-        <Badge color="default" className="bg-primary text-primary">
-          Completada
-        </Badge>
-      );
-    }
-    if (hasProgress) {
-      return <Badge color="tertiary">En Progreso</Badge>;
-    }
-    return (
-      <Badge variant="outline" className="bg-secondary text-secondary">
-        Sin Iniciar
-      </Badge>
-    );
-  };
-
   // Filtrar datos basados en la búsqueda
   const filteredData = useMemo(() => {
     if (!searchQuery.trim()) return data;
@@ -62,7 +37,7 @@ const PersonResultsAccordion: React.FC<PersonResultsAccordionProps> = ({
       (person) =>
         person.person.name.toLowerCase().includes(query) ||
         (person.person.position &&
-          person.person.position.toLowerCase().includes(query))
+          person.person.position.toLowerCase().includes(query)),
     );
   }, [data, searchQuery]);
 
@@ -74,10 +49,10 @@ const PersonResultsAccordion: React.FC<PersonResultsAccordionProps> = ({
     return (
       <Card
         key={person.id}
-        className="cursor-pointer hover:bg-muted/50 transition-colors"
+        className="cursor-pointer hover:bg-muted/50 transition-colors p-0 gap-0"
         onClick={() =>
           router(
-            `/gp/gestion-humana/evaluaciones-de-desempeno/evaluaciones/detalles/${person.evaluation_id}/${person.person_id}`
+            `/gp/gestion-humana/evaluaciones-de-desempeno/evaluaciones/detalles/${person.evaluation_id}/${person.person_id}`,
           )
         }
       >
@@ -91,7 +66,6 @@ const PersonResultsAccordion: React.FC<PersonResultsAccordionProps> = ({
                   {person.person.position || "Sin cargo"}
                 </div>
               </div>
-              {getStatusBadge(person)}
             </div>
 
             {/* Progreso Total */}
@@ -110,19 +84,19 @@ const PersonResultsAccordion: React.FC<PersonResultsAccordionProps> = ({
             </div>
 
             {/* Objetivos */}
-            {person.hasObjectives && (
+            {person.objectivesPercentage > 0 && (
               <div className="space-y-1">
                 <div className="flex justify-between items-center">
                   <span className="text-xs font-medium">Objetivos</span>
                   <span className="text-xs text-muted-foreground">
-                    {person.objectivesPercentage.toFixed(0)}%
+                    {person.objectivesResult.toFixed(0)}%
                   </span>
                 </div>
                 <Progress
-                  value={person.objectivesPercentage}
+                  value={person.objectivesResult}
                   className="h-2"
-                  indicatorClassName={getProgressColor(
-                    person.objectivesPercentage
+                  indicatorClassName={getResultRateColorBadge(
+                    person.objectivesResult,
                   )}
                 />
               </div>
@@ -131,13 +105,16 @@ const PersonResultsAccordion: React.FC<PersonResultsAccordionProps> = ({
             {/* Resultado Final */}
             <div className="flex justify-between items-center pt-2 border-t">
               <span className="text-sm font-medium">Resultado Final</span>
-              <span className="text-sm font-semibold">
+              <Badge
+                color={getResultRateColorBadge(person.result)}
+                className="text-sm font-semibold"
+              >
                 {person.result ? person.result.toFixed(1) : "0.0"}
-              </span>
+              </Badge>
             </div>
           </div>
         </CardContent>
-        <CardFooter className="border-t px-3 py-2 flex justify-end">
+        <CardFooter className="border-t flex justify-end [.border-t]:pt-1 py-1 px-4">
           <Button variant="ghost" size="sm">
             <ExternalLink className="w-4 h-4 mr-2" />
             Ver detalle
@@ -164,17 +141,25 @@ const PersonResultsAccordion: React.FC<PersonResultsAccordionProps> = ({
         ),
       },
       {
-        accessorKey: "status",
-        header: "Estado",
-        cell: ({ row }) => getStatusBadge(row.original),
-        enableSorting: false,
+        accessorKey: "evaluator.name",
+        header: "Lider",
+        cell: ({ row }) => (
+          <div>
+            <div className="font-medium text-sm">
+              {row.original.evaluator?.name ?? "Sin Evalador"}
+            </div>
+            <div className="text-xs text-muted-foreground">
+              {row.original.evaluator?.position || "Sin cargo"}
+            </div>
+          </div>
+        ),
       },
       {
         accessorKey: "total_progress.completion_rate",
         header: "Progreso Total",
         cell: ({ row }) => {
           const percentage = Number(
-            row.original.total_progress.completion_rate.toFixed(2)
+            row.original.total_progress.completion_rate.toFixed(2),
           );
           return (
             <div className="space-y-1 min-w-[180px]">
@@ -193,40 +178,16 @@ const PersonResultsAccordion: React.FC<PersonResultsAccordionProps> = ({
           );
         },
       },
-      // {
-      //   accessorKey: "objectivesPercentage",
-      //   header: "Objetivos",
-      //   cell: ({ row }) => {
-      //     if (!row.original.hasObjectives) {
-      //       return <span className="text-xs text-muted-foreground">N/A</span>;
-      //     }
-      //     const percentage = row.original.objectivesPercentage;
-      //     return (
-      //       <div className="space-y-1 min-w-[180px]">
-      //         <div className="flex justify-between items-center">
-      //           <span className="text-xs font-medium">Objetivos</span>
-      //           <span className="text-xs text-muted-foreground">
-      //             {percentage.toFixed(0)}%
-      //           </span>
-      //         </div>
-      //         <Progress
-      //           value={percentage}
-      //           className="h-2"
-      //           indicatorClassName={getProgressColor(percentage)}
-      //         />
-      //       </div>
-      //     );
-      //   },
-      // },
       {
         accessorKey: "result",
         header: "Resultado",
         cell: ({ row }) => (
-          <div className="text-center">
-            <span className="text-sm font-semibold">
-              {row.original.result ? row.original.result.toFixed(1) : "0.0"}
-            </span>
-          </div>
+          <Badge
+            className="text-sm font-semibold"
+            color={getResultRateColorBadge(row.original.result)}
+          >
+            {row.original.result ? row.original.result.toFixed(1) : "0.0"}
+          </Badge>
         ),
       },
       {
@@ -237,17 +198,16 @@ const PersonResultsAccordion: React.FC<PersonResultsAccordionProps> = ({
             className="cursor-pointer"
             onClick={() => {
               router(
-                `/gp/gestion-humana/evaluaciones-de-desempeno/evaluaciones/detalles/${row.original.evaluation_id}/${row.original.person_id}`
+                `/gp/gestion-humana/evaluaciones-de-desempeno/evaluaciones/detalles/${row.original.evaluation_id}/${row.original.person_id}`,
               );
             }}
           >
             <ExternalLink className="w-4 h-4 text-muted-foreground" />
           </div>
         ),
-        enableSorting: false,
       },
     ],
-    [router]
+    [router],
   );
 
   if (error) {
@@ -260,7 +220,7 @@ const PersonResultsAccordion: React.FC<PersonResultsAccordionProps> = ({
   }
 
   return (
-    <div className="space-y-4 py-4">
+    <div className="space-y-4">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
         <div className="text-sm text-muted-foreground">
           {filteredData.length} persona{filteredData.length !== 1 ? "s" : ""}{" "}
@@ -270,15 +230,12 @@ const PersonResultsAccordion: React.FC<PersonResultsAccordionProps> = ({
               data.length !== 1 ? "es" : ""
             })`}
         </div>
-        <div className="relative w-full sm:w-64">
-          <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Buscar por nombre o cargo..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-8"
-          />
-        </div>
+        <Input
+          placeholder="Buscar por nombre o cargo..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="w-64 h-9"
+        />
       </div>
       <div className="max-h-[600px] overflow-y-auto">
         <DataTable
