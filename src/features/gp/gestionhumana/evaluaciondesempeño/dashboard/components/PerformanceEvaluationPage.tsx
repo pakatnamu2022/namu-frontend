@@ -161,7 +161,7 @@ export default function PerformanceEvaluationPage({ id }: { id?: number }) {
         </Accordion>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
         <ParticipationChart progressStats={progressStats} />
         <EvaluationResultsChart resultsStats={evaluationData?.results_stats} />
         {/* <ConfigurationCard

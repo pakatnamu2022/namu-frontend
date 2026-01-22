@@ -145,7 +145,7 @@ export default function TeamIndicatorsPage() {
         <ProgressChartSection teamSummary={team_summary} />
 
         {/* Charts Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
           <ParticipationChart progressStats={progressStats} />
           <ResultsChartSection distribution={distribution} />
         </div>

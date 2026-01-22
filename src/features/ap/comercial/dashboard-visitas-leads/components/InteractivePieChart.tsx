@@ -62,11 +62,13 @@ export function InteractivePieChart({
   return (
     <Card data-chart={id} className="flex flex-col h-full">
       <ChartStyle id={id} config={config} />
-      <CardHeader className="flex-col gap-2 items-center space-y-0 pb-2">
-        <CardTitle>{title}</CardTitle>
-        {subtitle && (
-          <p className="text-sm text-muted-foreground">{subtitle}</p>
-        )}
+      <CardHeader className="flex flex-wrap gap-2 items-center space-y-0 pb-2">
+        <div className="flex flex-col gap-1 w-fit">
+          <CardTitle>{title}</CardTitle>
+          {subtitle && (
+            <p className="text-sm text-muted-foreground">{subtitle}</p>
+          )}
+        </div>
         <Select value={activeItem} onValueChange={setActiveItem}>
           <SelectTrigger
             className="ml-auto h-7 w-fit rounded-lg pl-2.5"
@@ -175,32 +177,39 @@ export function InteractivePieChart({
           </PieChart>
         </ChartContainer>
       </CardContent>
-      {showLegend && (
-        <div className="flex flex-wrap justify-center gap-2 px-4 pb-4">
-          {data.map((item) => (
-            <div key={item.name} className="flex items-center gap-1.5 text-xs">
-              <span
-                className="h-2.5 w-2.5 shrink-0 rounded-sm"
-                style={{ backgroundColor: `var(--color-${item.name})` }}
-              />
-              <span className="text-muted-foreground">{config[item.name]?.label || item.name}</span>
-            </div>
-          ))}
-        </div>
-      )}
-      {footerInfo && (
-        <CardFooter className="flex-col gap-1 text-sm pt-4">
-          <div className="flex items-center gap-2 font-medium leading-none">
-            {footerInfo.label}: {footerInfo.value}
-            {footerInfo.icon}
+      <div className="flex flex-col gap-2">
+        {showLegend && (
+          <div className="flex flex-wrap justify-center gap-2 px-4">
+            {data.map((item) => (
+              <div
+                key={item.name}
+                className="flex items-center gap-1.5 text-xs"
+              >
+                <span
+                  className="h-2.5 w-2.5 shrink-0 rounded-sm"
+                  style={{ backgroundColor: `var(--color-${item.name})` }}
+                />
+                <span className="text-muted-foreground">
+                  {config[item.name]?.label || item.name}
+                </span>
+              </div>
+            ))}
           </div>
-          {footerInfo.trend && (
-            <div className="text-muted-foreground text-xs">
-              {footerInfo.trend}
+        )}
+        {footerInfo && (
+          <CardFooter className="flex-col gap-1 text-sm">
+            <div className="flex items-center gap-2 font-medium leading-none">
+              {footerInfo.label}: {footerInfo.value}
+              {footerInfo.icon}
             </div>
-          )}
-        </CardFooter>
-      )}
+            {footerInfo.trend && (
+              <div className="text-muted-foreground text-xs">
+                {footerInfo.trend}
+              </div>
+            )}
+          </CardFooter>
+        )}
+      </div>
     </Card>
   );
 }
