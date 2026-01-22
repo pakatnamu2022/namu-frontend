@@ -145,9 +145,14 @@ export default function PerformanceEvaluationPage({ id }: { id?: number }) {
       </div>
 
       {selectedCardType && (
-        <Accordion type="single" collapsible value={selectedCardType}>
+        <Accordion
+          type="single"
+          collapsible
+          value={selectedCardType}
+          className="px-4"
+        >
           <AccordionItem value={selectedCardType}>
-            <AccordionTrigger className="text-lg font-semibold">
+            <AccordionTrigger className="text-lg font-semibold uppercase tracking-wider pb-0">
               {getKPITitle(selectedCardType, progressStats)}
             </AccordionTrigger>
             <AccordionContent>
