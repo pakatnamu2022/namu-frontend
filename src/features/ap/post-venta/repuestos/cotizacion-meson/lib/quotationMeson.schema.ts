@@ -46,7 +46,7 @@ export const quotationMesonWithProductsSchemaCreate = z.object({
   // Array de detalles de productos
   details: z
     .array(productDetailMesonSchema)
-    .min(1, "Debe agregar al menos un producto"),
+    .min(1, "Debe actualizar al menos un producto"),
 });
 
 export const quotationMesonWithProductsSchemaUpdate =

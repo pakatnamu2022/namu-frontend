@@ -19,7 +19,7 @@ export const purchaseRequestSchemaCreate = z.object({
   supply_type: z.enum(["STOCK", "LIMA", "IMPORTACION"]),
   details: z
     .array(purchaseRequestDetailSchema)
-    .min(1, "Debe agregar al menos un producto"),
+    .min(1, "Debe actualizar al menos un producto"),
 });
 
 export const purchaseRequestSchemaUpdate =

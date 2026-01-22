@@ -9,15 +9,15 @@ import { DEFAULT_PER_PAGE } from "@/core/core.constants.ts";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper.tsx";
 import { notFound } from "@/shared/hooks/useNotFound.ts";
 import { useParams, Link } from "react-router-dom";
-import { INVENTORY_REPUESTOS } from "@/features/ap/post-venta/gestion-compras/inventario/lib/inventory.constants.ts";
-import InventoryMovementsTable from "@/features/ap/post-venta/gestion-compras/inventario/components/InventoryMovementsTable.tsx";
-import { inventoryMovementsColumns } from "@/features/ap/post-venta/gestion-compras/inventario/components/InventoryMovementsColumns.tsx";
-import InventoryMovementsOptions from "@/features/ap/post-venta/gestion-compras/inventario/components/InventoryMovementsOptions.tsx";
+import { INVENTORY_REPUESTOS } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.constants.ts";
+import InventoryMovementsTable from "@/features/ap/post-venta/gestion-almacen/inventario/components/InventoryMovementsTable.tsx";
+import { inventoryMovementsColumns } from "@/features/ap/post-venta/gestion-almacen/inventario/components/InventoryMovementsColumns.tsx";
+import InventoryMovementsOptions from "@/features/ap/post-venta/gestion-almacen/inventario/components/InventoryMovementsOptions.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { ArrowLeft } from "lucide-react";
 import BackButton from "@/shared/components/BackButton.tsx";
 import { errorToast } from "@/core/core.function";
-import { useInventoryMovements } from "@/features/ap/post-venta/gestion-compras/inventario/lib/inventory.hook";
+import { useInventoryMovements } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.hook";
 
 export default function ProductRepuestoKardexPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();

@@ -246,7 +246,7 @@ export default function VehicleDamageMarker({
         </Card>
       )}
 
-      {/* Dialog para agregar daño */}
+      {/* Dialog para actualizar daño */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>

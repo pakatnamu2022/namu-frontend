@@ -257,7 +257,7 @@ export const ShipmentsReceptionsForm = ({
   // Inicializar establecimientos desde defaultValues al montar (solo en modo update)
   useEffect(() => {
     if (mode === "update" && defaultValues) {
-      // Inicializar establecimiento origen
+      // Inicializar establecimientos origen
       if (
         defaultValues.transmitter_establishment &&
         !selectedOriginEstablishment
@@ -270,7 +270,7 @@ export const ShipmentsReceptionsForm = ({
         } as EstablishmentsResource);
       }
 
-      // Inicializar establecimiento destino
+      // Inicializar establecimientos destino
       if (
         defaultValues.receiver_establishment &&
         !selectedDestinationEstablishment
@@ -337,7 +337,7 @@ export const ShipmentsReceptionsForm = ({
     }
   }, [watchTransmitterDestinoId, customers.length]);
 
-  // Cargar establecimiento origen cuando watchTransmitterId cambia
+  // Cargar establecimientos origen cuando watchTransmitterId cambia
   useEffect(() => {
     if (!watchTransmitterId) {
       if (selectedOriginEstablishment !== null) {
@@ -360,7 +360,7 @@ export const ShipmentsReceptionsForm = ({
     }
   }, [watchTransmitterId, originEstablishments.length]);
 
-  // Cargar establecimiento destino cuando watchReceiverId cambia
+  // Cargar establecimientos destino cuando watchReceiverId cambia
   useEffect(() => {
     if (!watchReceiverId) {
       if (selectedDestinationEstablishment !== null) {

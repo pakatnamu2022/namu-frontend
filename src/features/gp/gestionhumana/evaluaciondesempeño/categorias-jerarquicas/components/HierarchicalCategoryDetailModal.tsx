@@ -35,7 +35,7 @@ export function HierarchicalCategoryDetailModal({
   // existentes renderizados
   const [items, setItems] = useState<HierarchicalCategoryDetail[]>(data ?? []);
 
-  // modo agregar (muestra el bloque animado con select + botón agregar)
+  // modo actualizar (muestra el bloque animado con select + botón actualizar)
   const [adding, setAdding] = useState(false);
 
   // selección actual del select

@@ -111,7 +111,7 @@ export default function PerformanceEvaluationPage({ id }: { id?: number }) {
       window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error("Error al descargar el reporte:", error);
-      // Aquí puedes agregar un toast o notificación de error
+      // Aquí puedes actualizar un toast o notificación de error
     }
   };
 

@@ -22,22 +22,22 @@ export const CUSTOMERS: ModelComplete<CustomersResource> = {
 
 // RUTA PARA TALLER - CLIENTES
 
-const ROUTE_PV = "clientes-post-venta";
-const ABSOLUTE_ROUTE_PV = `/ap/post-venta/taller/${ROUTE_PV}`;
+const ROUTE_TLL = "clientes-taller";
+const ABSOLUTE_ROUTE_TLL = `/ap/post-venta/taller/${ROUTE_TLL}`;
 
 export const CUSTOMERS_PV: ModelComplete<CustomersResource> = {
   MODEL: {
-    name: "Cliente Post Venta",
-    plural: "Clientes Post Venta",
+    name: "Cliente Taller",
+    plural: "Clientes Taller",
     gender: false,
   },
   ICON: "ContactRound",
   ENDPOINT: "/ap/commercial/businessPartners",
   QUERY_KEY: "customers-pv",
-  ROUTE: ROUTE_PV,
-  ABSOLUTE_ROUTE: ABSOLUTE_ROUTE_PV,
-  ROUTE_ADD: `${ABSOLUTE_ROUTE_PV}/agregar`,
-  ROUTE_UPDATE: `${ABSOLUTE_ROUTE_PV}/actualizar`,
+  ROUTE: ROUTE_TLL,
+  ABSOLUTE_ROUTE: ABSOLUTE_ROUTE_TLL,
+  ROUTE_ADD: `${ABSOLUTE_ROUTE_TLL}/agregar`,
+  ROUTE_UPDATE: `${ABSOLUTE_ROUTE_TLL}/actualizar`,
 };
 
 // RUTAS PARA REPUESTOS - CLIENTES

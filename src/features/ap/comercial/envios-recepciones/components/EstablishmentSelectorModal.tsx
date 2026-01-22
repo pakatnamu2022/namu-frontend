@@ -40,7 +40,7 @@ export const EstablishmentSelectorModal = ({
     status: STATUS_ACTIVE,
   });
 
-  // Auto-seleccionar establecimiento si sede_id coincide
+  // Auto-seleccionar establecimientos si sede_id coincide
   useEffect(() => {
     if (sede_id && sede_id !== "" && establishments.length > 0 && !isLoading) {
       const matchingEstablishment = establishments.find((est) => {

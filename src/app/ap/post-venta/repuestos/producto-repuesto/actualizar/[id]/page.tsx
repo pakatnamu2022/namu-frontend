@@ -13,14 +13,14 @@ import {
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import FormWrapper from "@/shared/components/FormWrapper";
-import { PRODUCT_REPUESTOS } from "@/features/ap/post-venta/gestion-productos/productos/lib/product.constants";
+import { PRODUCT_REPUESTOS } from "@/features/ap/post-venta/gestion-almacen/productos/lib/product.constants";
 import {
   findProductById,
   updateProduct,
-} from "@/features/ap/post-venta/gestion-productos/productos/lib/product.actions";
-import { ProductSchema } from "@/features/ap/post-venta/gestion-productos/productos/lib/product.schema";
-import { ProductResource } from "@/features/ap/post-venta/gestion-productos/productos/lib/product.interface";
-import { ProductForm } from "@/features/ap/post-venta/gestion-productos/productos/components/ProductForm";
+} from "@/features/ap/post-venta/gestion-almacen/productos/lib/product.actions";
+import { ProductSchema } from "@/features/ap/post-venta/gestion-almacen/productos/lib/product.schema";
+import { ProductResource } from "@/features/ap/post-venta/gestion-almacen/productos/lib/product.interface";
+import { ProductForm } from "@/features/ap/post-venta/gestion-almacen/productos/components/ProductForm";
 import { notFound } from "@/shared/hooks/useNotFound";
 
 export default function UpdateProductRepuestoPage() {
