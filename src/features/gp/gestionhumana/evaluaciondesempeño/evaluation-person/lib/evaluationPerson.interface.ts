@@ -14,8 +14,8 @@ export interface EvaluationPersonResultResource {
   id: number;
   person_id: number;
   evaluation_id: number;
-  supervisor_id: number;
-  supervisor: WorkerResource;
+  evaluator_id: number;
+  evaluator: WorkerResource;
   person: WorkerResource;
   competencesPercentage: number;
   objectivesPercentage: number;
@@ -34,6 +34,7 @@ export interface EvaluationPersonResultResource {
   competenceParameter: ParameterResource;
   hasObjectives: boolean;
   total_progress: TotalProgress;
+  is_completed: boolean;
 }
 
 export interface TotalProgress {
