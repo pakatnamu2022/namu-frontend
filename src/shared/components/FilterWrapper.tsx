@@ -3,14 +3,6 @@
 import { Filter } from "lucide-react";
 import { Children, ReactNode, useState } from "react";
 import { Button } from "@/components/ui/button";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import GeneralSheet from "./GeneralSheet";
 
@@ -68,7 +60,7 @@ export default function FilterWrapper({
           open={isSheetOpen}
           onClose={() => setIsSheetOpen(false)}
         >
-          {children}
+          <div className="flex flex-col gap-2">{children}</div>
         </GeneralSheet>
       </div>
     </div>
