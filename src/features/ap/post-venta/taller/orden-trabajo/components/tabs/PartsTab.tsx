@@ -32,8 +32,8 @@ import {
 } from "@/features/ap/post-venta/taller/orden-trabajo-repuesto/lib/workOrderParts.actions";
 import { errorToast, successToast } from "@/core/core.function";
 import { useAllWarehouse } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
-import { useInventory } from "@/features/ap/post-venta/gestion-compras/inventario/lib/inventory.hook";
-import { InventoryResource } from "@/features/ap/post-venta/gestion-compras/inventario/lib/inventory.interface";
+import { useInventory } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.hook";
+import { InventoryResource } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.interface";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
 import GroupSelector from "../GroupSelector";
@@ -63,7 +63,7 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
     useState<string>("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
 
-  // Formulario para agregar repuesto
+  // Formulario para actualizar repuesto
   const form = useForm<AddPartFormValues>({
     defaultValues: {
       product_id: "",
@@ -121,7 +121,7 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filteredWarehouses]);
 
-  // Auto-seleccionar almacén para agregar repuesto
+  // Auto-seleccionar almacén para actualizar repuesto
   useEffect(() => {
     if (filteredWarehouses.length > 0 && !selectedWarehouseForAdd) {
       setSelectedWarehouseForAdd(filteredWarehouses[0].id.toString());
@@ -154,7 +154,7 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
     },
   });
 
-  // Mutación para agregar un repuesto individual
+  // Mutación para actualizar un repuesto individual
   const storePartMutation = useMutation({
     mutationFn: (data: AddPartFormValues) =>
       storeWorkOrderParts({
@@ -181,7 +181,7 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
     },
     onError: (error: any) => {
       const msg = error?.response?.data?.message || "";
-      errorToast(msg || "Error al agregar el repuesto");
+      errorToast(msg || "Error al actualizar el repuesto");
     },
   });
 

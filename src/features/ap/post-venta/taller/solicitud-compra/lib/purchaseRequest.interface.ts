@@ -1,5 +1,5 @@
 import { type Links, type Meta } from "@/shared/lib/pagination.interface.ts";
-import { ProductResource } from "../../../gestion-productos/productos/lib/product.interface";
+import { ProductResource } from "@/features/ap/post-venta/gestion-almacen/productos/lib/product.interface";
 import { WarehouseResource } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.interface";
 import { OrderQuotationResource } from "../../cotizacion/lib/proforma.interface";
 

@@ -23,7 +23,7 @@ import { OrderQuotationResource } from "../../../taller/cotizacion/lib/proforma.
 import { downloadOrderQuotationRepuestoPdf } from "../../../taller/cotizacion/lib/proforma.actions";
 import { SimpleConfirmDialog } from "@/shared/components/SimpleConfirmDialog";
 import { useState } from "react";
-import { createSaleFromQuotation } from "../../../gestion-compras/inventario/lib/inventory.actions";
+import { createSaleFromQuotation } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.actions";
 import { DiscardQuotationModal } from "./DiscardQuotationModal";
 
 export type OrderQuotationMesonColumns = ColumnDef<OrderQuotationResource>;

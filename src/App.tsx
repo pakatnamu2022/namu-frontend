@@ -182,9 +182,9 @@ import UpdateBrandPage from "./app/ap/configuraciones/vehiculos/marcas/actualiza
 import ModelsVnPage from "./app/ap/configuraciones/vehiculos/modelos-vn/page.tsx";
 import AddModelsVnPage from "./app/ap/configuraciones/vehiculos/modelos-vn/agregar/page.tsx";
 import UpdateModelsVnPage from "./app/ap/configuraciones/vehiculos/modelos-vn/actualizar/[id]/page.tsx";
-import ModelsVnPvPage from "./app/ap/post-venta/taller/modelos-vn-pv/page.tsx";
-import AddModelsVnPvPage from "./app/ap/post-venta/taller/modelos-vn-pv/agregar/page.tsx";
-import UpdateModelsVnPvPage from "./app/ap/post-venta/taller/modelos-vn-pv/actualizar/[id]/page.tsx";
+import ModelsVnPvPage from "./app/ap/post-venta/taller/modelos-vn-taller/page.tsx";
+import AddModelsVnPvPage from "@/app/ap/post-venta/taller/modelos-vn-taller/agregar/page.tsx";
+import UpdateModelsVnPvPage from "@/app/ap/post-venta/taller/modelos-vn-taller/actualizar/[id]/page.tsx";
 import TypeVehicleOriginPage from "./app/ap/configuraciones/vehiculos/origen-vehiculo/page.tsx";
 import BodyTypePage from "./app/ap/configuraciones/vehiculos/tipos-carroceria/page.tsx";
 import FuelTypePage from "./app/ap/configuraciones/vehiculos/tipos-combustible/page.tsx";
@@ -214,33 +214,33 @@ import ApGoalSellOutInPage from "./app/ap/configuraciones/ventas/metas-venta/pag
 import AddApGoalSellOutInPage from "./app/ap/configuraciones/ventas/metas-venta/gestionar/page.tsx";
 import ApGoalSellOutInSummaryPage from "./app/ap/configuraciones/ventas/metas-venta/resumen/page.tsx";
 import ShopPage from "./app/ap/configuraciones/ventas/tiendas/page.tsx";
-import ProductCategoryPage from "./app/ap/post-venta/gestion-de-productos/categorias-producto/page.tsx";
-import BrandsPVPage from "./app/ap/post-venta/gestion-de-productos/marcas-producto/page.tsx";
-import AddBrandsPVPage from "./app/ap/post-venta/gestion-de-productos/marcas-producto/agregar/page.tsx";
-import UpdateBrandsPVPage from "./app/ap/post-venta/gestion-de-productos/marcas-producto/actualizar/[id]/page.tsx";
-import ProductPVPage from "./app/ap/post-venta/gestion-de-productos/productos/page.tsx";
-import AddProductPVPage from "./app/ap/post-venta/gestion-de-productos/productos/agregar/page.tsx";
-import UpdateProductPVPage from "./app/ap/post-venta/gestion-de-productos/productos/actualizar/[id]/page.tsx";
-import AssignWarehousePage from "./app/ap/post-venta/gestion-de-productos/productos/asignar-almacen/[id]/page.tsx";
-import ProductTransferPage from "./app/ap/post-venta/gestion-de-compras/transferencia-producto/page.tsx";
-import AddProductTransferPage from "./app/ap/post-venta/gestion-de-compras/transferencia-producto/agregar/page.tsx";
-import UpdateProductTransferPage from "./app/ap/post-venta/gestion-de-compras/transferencia-producto/actualizar/[id]/page.tsx";
-import TransferReceptionsPage from "./app/ap/post-venta/gestion-de-compras/transferencia-producto/recepcion/[productTransferId]/page.tsx";
-import CreateTransferReceptionPage from "./app/ap/post-venta/gestion-de-compras/transferencia-producto/recepcion/agregar/[productTransferId]/page.tsx";
-import AdjustmentsProductPage from "./app/ap/post-venta/gestion-de-compras/ajuste-producto/page.tsx";
-import AddAdjustmentsProductPage from "./app/ap/post-venta/gestion-de-compras/ajuste-producto/agregar/page.tsx";
-import UpdateAdjustmentsProductPage from "./app/ap/post-venta/gestion-de-compras/ajuste-producto/actualizar/[id]/page.tsx";
-import InventoryPage from "./app/ap/post-venta/gestion-de-compras/inventario/page.tsx";
-import InventoryKardexPage from "./app/ap/post-venta/gestion-de-compras/inventario/kardex/page.tsx";
-import ProductKardexPage from "./app/ap/post-venta/gestion-de-compras/inventario/movimientos/[productId]/[warehouseId]/page.tsx";
-import PurchaseOrderProductsPage from "./app/ap/post-venta/gestion-de-compras/factura-compra/page.tsx";
-import ReceptionsProductsPage from "@/app/ap/post-venta/gestion-de-compras/factura-compra/recepcion/[purchaseOrderId]/page.tsx";
-import UpdateReceptionProductPage from "@/app/ap/post-venta/gestion-de-compras/factura-compra/recepcion/actualizar/[purchaseOrderId]/[id]/page.tsx";
-import AddReceptionProductPage from "@/app/ap/post-venta/gestion-de-compras/factura-compra/recepcion/agregar/[purchaseOrderId]/page.tsx";
-import SupplierOrderPage from "./app/ap/post-venta/gestion-de-compras/pedido-proveedor/page.tsx";
-import AddSupplierOrderPage from "./app/ap/post-venta/gestion-de-compras/pedido-proveedor/agregar/page.tsx";
-import UpdateSupplierOrderPage from "./app/ap/post-venta/gestion-de-compras/pedido-proveedor/actualizar/[id]/page.tsx";
-import InvoiceSupplierOrderPage from "./app/ap/post-venta/gestion-de-compras/pedido-proveedor/facturar/[id]/page.tsx";
+import ProductCategoryPage from "@/app/ap/post-venta/gestion-de-almacen/categorias-producto/page.tsx";
+import BrandsPVPage from "./app/ap/post-venta/gestion-de-almacen/marcas-producto/page.tsx";
+import AddBrandsPVPage from "@/app/ap/post-venta/gestion-de-almacen/marcas-producto/agregar/page.tsx";
+import UpdateBrandsPVPage from "@/app/ap/post-venta/gestion-de-almacen/marcas-producto/actualizar/[id]/page.tsx";
+import ProductPVPage from "./app/ap/post-venta/gestion-de-almacen/productos/page.tsx";
+import AddProductPVPage from "@/app/ap/post-venta/gestion-de-almacen/productos/agregar/page.tsx";
+import UpdateProductPVPage from "@/app/ap/post-venta/gestion-de-almacen/productos/actualizar/[id]/page.tsx";
+import AssignWarehousePage from "@/app/ap/post-venta/gestion-de-almacen/productos/asignar-almacen/[id]/page.tsx";
+import ProductTransferPage from "./app/ap/post-venta/gestion-de-almacen/transferencia-producto/page.tsx";
+import AddProductTransferPage from "@/app/ap/post-venta/gestion-de-almacen/transferencia-producto/agregar/page.tsx";
+import UpdateProductTransferPage from "@/app/ap/post-venta/gestion-de-almacen/transferencia-producto/actualizar/[id]/page.tsx";
+import TransferReceptionsPage from "@/app/ap/post-venta/gestion-de-almacen/transferencia-producto/recepcion/[productTransferId]/page.tsx";
+import CreateTransferReceptionPage from "@/app/ap/post-venta/gestion-de-almacen/transferencia-producto/recepcion/agregar/[productTransferId]/page.tsx";
+import AdjustmentsProductPage from "./app/ap/post-venta/gestion-de-almacen/ajuste-producto/page.tsx";
+import AddAdjustmentsProductPage from "@/app/ap/post-venta/gestion-de-almacen/ajuste-producto/agregar/page.tsx";
+import UpdateAdjustmentsProductPage from "@/app/ap/post-venta/gestion-de-almacen/ajuste-producto/actualizar/[id]/page.tsx";
+import InventoryPage from "./app/ap/post-venta/gestion-de-almacen/inventario/page.tsx";
+import InventoryKardexPage from "@/app/ap/post-venta/gestion-de-almacen/inventario/kardex/page.tsx";
+import ProductKardexPage from "@/app/ap/post-venta/gestion-de-almacen/inventario/movimientos/[productId]/[warehouseId]/page.tsx";
+import PurchaseOrderProductsPage from "./app/ap/post-venta/gestion-de-almacen/recepcion-compra/page.tsx";
+import ReceptionsProductsPage from "@/app/ap/post-venta/gestion-de-almacen/recepcion-compra/recepcion/[purchaseOrderId]/page.tsx";
+import UpdateReceptionProductPage from "@/app/ap/post-venta/gestion-de-almacen/recepcion-compra/recepcion/actualizar/[purchaseOrderId]/[id]/page.tsx";
+import AddReceptionProductPage from "@/app/ap/post-venta/gestion-de-almacen/recepcion-compra/recepcion/agregar/[purchaseOrderId]/page.tsx";
+import SupplierOrderPage from "./app/ap/post-venta/gestion-de-almacen/pedido-proveedor/page.tsx";
+import AddSupplierOrderPage from "@/app/ap/post-venta/gestion-de-almacen/pedido-proveedor/agregar/page.tsx";
+import UpdateSupplierOrderPage from "@/app/ap/post-venta/gestion-de-almacen/pedido-proveedor/actualizar/[id]/page.tsx";
+import InvoiceSupplierOrderPage from "@/app/ap/post-venta/gestion-de-almacen/pedido-proveedor/facturar/[id]/page.tsx";
 import ApprovedAccesoriesPage from "./app/ap/post-venta/repuestos/accesorios-homologados/page.tsx";
 import AddApprovedAccesoriesPage from "./app/ap/post-venta/repuestos/accesorios-homologados/agregar/page.tsx";
 import UpdateApprovedAccesoriesPage from "./app/ap/post-venta/repuestos/accesorios-homologados/actualizar/[id]/page.tsx";
@@ -277,15 +277,15 @@ import ManageOrderQuotationPage from "./app/ap/post-venta/taller/cotizacion/gest
 import PurchaseRequestPVPage from "./app/ap/post-venta/taller/solicitud-compra/page.tsx";
 import AddPurchaseRequestPVPage from "./app/ap/post-venta/taller/solicitud-compra/agregar/page.tsx";
 import UpdatePurchaseRequestPVPage from "./app/ap/post-venta/taller/solicitud-compra/actualizar/[id]/page.tsx";
-import CustomersPvPage from "./app/ap/post-venta/taller/clientes-post-venta/page.tsx";
-import AddCustomersPvPage from "./app/ap/post-venta/taller/clientes-post-venta/agregar/page.tsx";
-import UpdateCustomersPvPage from "./app/ap/post-venta/taller/clientes-post-venta/actualizar/[id]/page.tsx";
-import CustomerPvEstablishmentsListPage from "./app/ap/post-venta/taller/clientes-post-venta/establecimientos/[id]/page.tsx";
-import AddCustomerPvEstablishmentPage from "./app/ap/post-venta/taller/clientes-post-venta/establecimientos/[id]/agregar/page.tsx";
-import UpdateCustomerPvEstablishmentPage from "./app/ap/post-venta/taller/clientes-post-venta/establecimientos/[id]/actualizar/[establishmentId]/page.tsx";
-import VehiclesPostVentaPage from "./app/ap/post-venta/taller/vehiculos-post-venta/page.tsx";
-import AddVehiclePVPage from "./app/ap/post-venta/taller/vehiculos-post-venta/agregar/page.tsx";
-import UpdateVehiclePVPage from "./app/ap/post-venta/taller/vehiculos-post-venta/actualizar/[id]/page.tsx";
+import CustomersPvPage from "./app/ap/post-venta/taller/clientes-taller/page.tsx";
+import AddCustomersPvPage from "@/app/ap/post-venta/taller/clientes-taller/agregar/page.tsx";
+import UpdateCustomersPvPage from "@/app/ap/post-venta/taller/clientes-taller/actualizar/[id]/page.tsx";
+import CustomerPvEstablishmentsListPage from "./app/ap/post-venta/taller/clientes-taller/establecimientos/[id]/page.tsx";
+import AddCustomerPvEstablishmentPage from "@/app/ap/post-venta/taller/clientes-taller/establecimientos/[id]/agregar/page.tsx";
+import UpdateCustomerPvEstablishmentPage from "@/app/ap/post-venta/taller/clientes-taller/establecimientos/[id]/actualizar/[establishmentId]/page.tsx";
+import VehiclesPostVentaPage from "./app/ap/post-venta/taller/vehiculos-taller/page.tsx";
+import AddVehiclePVPage from "@/app/ap/post-venta/taller/vehiculos-taller/agregar/page.tsx";
+import UpdateVehiclePVPage from "@/app/ap/post-venta/taller/vehiculos-taller/actualizar/[id]/page.tsx";
 import WorkOrderPage from "./app/ap/post-venta/taller/orden-trabajo/page.tsx";
 import AddWorkOrderPage from "./app/ap/post-venta/taller/orden-trabajo/agregar/page.tsx";
 import UpdateWorkOrderPage from "./app/ap/post-venta/taller/orden-trabajo/actualizar/[id]/page.tsx";
@@ -1113,112 +1113,112 @@ function App() {
               <Route index element={<ModulePage />} />
               {/* Gestión de Productos */}
               <Route
-                path="gestion-de-productos/categorias-producto"
+                path="gestion-de-almacen/categorias-producto"
                 element={<ProductCategoryPage />}
               />
               <Route
-                path="gestion-de-productos/marcas-producto"
+                path="gestion-de-almacen/marcas-producto"
                 element={<BrandsPVPage />}
               />
               <Route
-                path="gestion-de-productos/marcas-producto/agregar"
+                path="gestion-de-almacen/marcas-producto/agregar"
                 element={<AddBrandsPVPage />}
               />
               <Route
-                path="gestion-de-productos/marcas-producto/actualizar/:id"
+                path="gestion-de-almacen/marcas-producto/actualizar/:id"
                 element={<UpdateBrandsPVPage />}
               />
               <Route
-                path="gestion-de-productos/productos"
+                path="gestion-de-almacen/productos"
                 element={<ProductPVPage />}
               />
               <Route
-                path="gestion-de-productos/productos/agregar"
+                path="gestion-de-almacen/productos/agregar"
                 element={<AddProductPVPage />}
               />
               <Route
-                path="gestion-de-productos/productos/actualizar/:id"
+                path="gestion-de-almacen/productos/actualizar/:id"
                 element={<UpdateProductPVPage />}
               />
               <Route
-                path="gestion-de-productos/productos/asignar-almacen/:id"
+                path="gestion-de-almacen/productos/asignar-almacen/:id"
                 element={<AssignWarehousePage />}
               />
               {/* Gestion Compra */}
               <Route
-                path="gestion-de-compras/transferencia-producto"
+                path="gestion-de-almacen/transferencia-producto"
                 element={<ProductTransferPage />}
               />
               <Route
-                path="gestion-de-compras/transferencia-producto/agregar"
+                path="gestion-de-almacen/transferencia-producto/agregar"
                 element={<AddProductTransferPage />}
               />
               <Route
-                path="gestion-de-compras/transferencia-producto/actualizar/:id"
+                path="gestion-de-almacen/transferencia-producto/actualizar/:id"
                 element={<UpdateProductTransferPage />}
               />
               <Route
-                path="gestion-de-compras/transferencia-producto/recepcion/:productTransferId"
+                path="gestion-de-almacen/transferencia-producto/recepcion/:productTransferId"
                 element={<TransferReceptionsPage />}
               />
               <Route
-                path="gestion-de-compras/transferencia-producto/recepcion/agregar/:productTransferId"
+                path="gestion-de-almacen/transferencia-producto/recepcion/agregar/:productTransferId"
                 element={<CreateTransferReceptionPage />}
               />
               <Route
-                path="gestion-de-compras/ajuste-producto"
+                path="gestion-de-almacen/ajuste-producto"
                 element={<AdjustmentsProductPage />}
               />
               <Route
-                path="gestion-de-compras/ajuste-producto/agregar"
+                path="gestion-de-almacen/ajuste-producto/agregar"
                 element={<AddAdjustmentsProductPage />}
               />
               <Route
-                path="gestion-de-compras/ajuste-producto/actualizar/:id"
+                path="gestion-de-almacen/ajuste-producto/actualizar/:id"
                 element={<UpdateAdjustmentsProductPage />}
               />
               <Route
-                path="gestion-de-compras/inventario"
+                path="gestion-de-almacen/inventario"
                 element={<InventoryPage />}
               />
               <Route
-                path="gestion-de-compras/inventario/kardex"
+                path="gestion-de-almacen/inventario/kardex"
                 element={<InventoryKardexPage />}
               />
               <Route
-                path="gestion-de-compras/inventario/movimientos/:productId/:warehouseId"
+                path="gestion-de-almacen/inventario/movimientos/:productId/:warehouseId"
                 element={<ProductKardexPage />}
               />
               <Route
-                path="gestion-de-compras/factura-compra"
+                path="gestion-de-almacen/factura-compra"
                 element={<PurchaseOrderProductsPage />}
               />
               <Route
-                path="gestion-de-compras/factura-compra/recepcion/:purchaseOrderId"
+                path="gestion-de-almacen/factura-compra/recepcion/:purchaseOrderId"
                 element={<ReceptionsProductsPage />}
               />
               <Route
-                path="gestion-de-compras/factura-compra/recepcion/agregar/:purchaseOrderId"
+                path="gestion-de-almacen/factura-compra/recepcion/agregar/:purchaseOrderId"
                 element={<AddReceptionProductPage />}
               />
               <Route
-                path="gestion-de-compras/factura-compra/recepcion/actualizar/:purchaseOrderId/:id"
+                path="gestion-de-almacen/factura-compra/recepcion/actualizar/:purchaseOrderId/:id"
                 element={<UpdateReceptionProductPage />}
               />
               <Route
-                path="gestion-de-compras/pedido-proveedor"
+                path="gestion-de-almacen/pedido-proveedor"
                 element={<SupplierOrderPage />}
               />
               <Route
-                path="gestion-de-compras/pedido-proveedor/agregar"
+                path="gestion-de-almacen/pedido-proveedor/agregar"
                 element={<AddSupplierOrderPage />}
               />
               <Route
-                path="gestion-de-compras/pedido-proveedor/actualizar/:id"
+                path="gestion-de-almacen/pedido-proveedor/actualizar/:id"
                 element={<UpdateSupplierOrderPage />}
               />
               <Route
-                path="gestion-de-compras/pedido-proveedor/facturar/:id"
+                path="gestion-de-almacen/pedido-proveedor/facturar/:id"
                 element={<InvoiceSupplierOrderPage />}
               />
               {/* Repuestos */}
@@ -1374,39 +1374,39 @@ function App() {
                 element={<UpdatePurchaseRequestPVPage />}
               />
               <Route
-                path="taller/clientes-post-venta"
+                path="taller/clientes-taller"
                 element={<CustomersPvPage />}
               />
               <Route
-                path="taller/clientes-post-venta/agregar"
+                path="taller/clientes-taller/agregar"
                 element={<AddCustomersPvPage />}
               />
               <Route
-                path="taller/clientes-post-venta/actualizar/:id"
+                path="taller/clientes-taller/actualizar/:id"
                 element={<UpdateCustomersPvPage />}
               />
               <Route
-                path="taller/clientes-post-venta/establecimientos/:id"
+                path="taller/clientes-taller/establecimientos/:id"
                 element={<CustomerPvEstablishmentsListPage />}
               />
               <Route
-                path="taller/clientes-post-venta/establecimientos/:id/agregar"
+                path="taller/clientes-taller/establecimientos/:id/agregar"
                 element={<AddCustomerPvEstablishmentPage />}
               />
               <Route
-                path="taller/clientes-post-venta/establecimientos/:id/actualizar/:establishmentId"
+                path="taller/clientes-taller/establecimientos/:id/actualizar/:establishmentId"
                 element={<UpdateCustomerPvEstablishmentPage />}
               />
               <Route
-                path="taller/vehiculos-post-venta"
+                path="taller/vehiculos-taller"
                 element={<VehiclesPostVentaPage />}
               />
               <Route
-                path="taller/vehiculos-post-venta/agregar"
+                path="taller/vehiculos-taller/agregar"
                 element={<AddVehiclePVPage />}
               />
               <Route
-                path="taller/vehiculos-post-venta/actualizar/:id"
+                path="taller/vehiculos-taller/actualizar/:id"
                 element={<UpdateVehiclePVPage />}
               />
               <Route

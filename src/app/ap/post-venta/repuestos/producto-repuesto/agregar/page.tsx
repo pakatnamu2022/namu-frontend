@@ -11,10 +11,10 @@ import {
 } from "@/core/core.function";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import FormWrapper from "@/shared/components/FormWrapper";
-import { PRODUCT_REPUESTOS } from "@/features/ap/post-venta/gestion-productos/productos/lib/product.constants";
-import { storeProduct } from "@/features/ap/post-venta/gestion-productos/productos/lib/product.actions";
-import { ProductSchema } from "@/features/ap/post-venta/gestion-productos/productos/lib/product.schema";
-import { ProductForm } from "@/features/ap/post-venta/gestion-productos/productos/components/ProductForm";
+import { PRODUCT_REPUESTOS } from "@/features/ap/post-venta/gestion-almacen/productos/lib/product.constants";
+import { storeProduct } from "@/features/ap/post-venta/gestion-almacen/productos/lib/product.actions";
+import { ProductSchema } from "@/features/ap/post-venta/gestion-almacen/productos/lib/product.schema";
+import { ProductForm } from "@/features/ap/post-venta/gestion-almacen/productos/components/ProductForm";
 import { notFound } from "@/shared/hooks/useNotFound";
 
 export default function AddProductRepuestoPage() {

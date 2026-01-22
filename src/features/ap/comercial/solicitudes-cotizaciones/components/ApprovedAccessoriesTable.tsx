@@ -81,7 +81,7 @@ export const ApprovedAccessoriesTable = ({
 
     setErrors(newErrors);
 
-    // Si hay errores, no agregar
+    // Si hay errores, no actualizar
     if (newErrors.accessory_id || newErrors.quantity) {
       return;
     }
@@ -399,7 +399,7 @@ export const ApprovedAccessoriesTable = ({
           />
         )}
 
-        {/* Sheet para agregar accesorio/obsequio */}
+        {/* Sheet para actualizar accesorio/obsequio */}
         <GeneralSheet
           open={isAddSheetOpen}
           onClose={() => {

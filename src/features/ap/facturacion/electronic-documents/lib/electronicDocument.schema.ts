@@ -151,7 +151,7 @@ export const ElectronicDocumentSchema = z
     // ===== ITEMS (OBLIGATORIOS) =====
     items: z
       .array(ElectronicDocumentItemSchema)
-      .min(1, "Debe agregar al menos un item"),
+      .min(1, "Debe actualizar al menos un item"),
 
     // ===== GUÍAS (OPCIONALES) =====
     guias: z.array(ElectronicDocumentGuideSchema).optional(),
@@ -270,7 +270,7 @@ export const CreditNoteSchema = z.object({
     .min(10, "Las observaciones deben tener al menos 10 caracteres"),
   enviar_automaticamente_a_la_sunat: z.boolean().default(false),
   enviar_automaticamente_al_cliente: z.boolean().default(false),
-  items: z.array(CreditNoteItemSchema).min(1, "Debe agregar al menos un item"),
+  items: z.array(CreditNoteItemSchema).min(1, "Debe actualizar al menos un item"),
 });
 
 // Schema para Item de Nota de Débito (igual a CreditNoteItemSchema)
@@ -315,7 +315,7 @@ export const DebitNoteSchema = z.object({
     .min(10, "Las observaciones deben tener al menos 10 caracteres"),
   enviar_automaticamente_a_la_sunat: z.boolean().default(false),
   enviar_automaticamente_al_cliente: z.boolean().default(false),
-  items: z.array(DebitNoteItemSchema).min(1, "Debe agregar al menos un item"),
+  items: z.array(DebitNoteItemSchema).min(1, "Debe actualizar al menos un item"),
 });
 
 export type ElectronicDocumentSchema = z.infer<typeof ElectronicDocumentSchema>;

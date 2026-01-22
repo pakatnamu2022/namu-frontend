@@ -179,7 +179,7 @@ export default function PerDiemRequestDetailAdminPage() {
           icon={Receipt}
           cols={{ sm: 1 }}
         >
-          {/* Botón para agregar pasajes aéreos si with_active es false */}
+          {/* Botón para actualizar pasajes aéreos si with_active es false */}
           {/* {!request.with_active && (
             <div className="mb-4 flex justify-end">
               <Button
@@ -213,7 +213,7 @@ export default function PerDiemRequestDetailAdminPage() {
           </div>
         </GroupFormSection>
 
-        {/* Modal para agregar pasajes aéreos */}
+        {/* Modal para actualizar pasajes aéreos */}
         {!request.with_active && (
           <AddFlightTicketModal
             requestId={Number(id)}

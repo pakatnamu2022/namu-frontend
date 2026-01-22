@@ -170,7 +170,7 @@ export const BonusDiscountTable = ({
 
     setErrors(newErrors);
 
-    // Si hay errores, no agregar
+    // Si hay errores, no actualizar
     if (newErrors.concept_id || newErrors.descripcion || newErrors.valor) {
       return;
     }
@@ -460,7 +460,7 @@ export const BonusDiscountTable = ({
           />
         )}
 
-        {/* Sheet para agregar bono/descuento */}
+        {/* Sheet para actualizar bono/descuento */}
         <GeneralSheet
           open={isAddSheetOpen}
           onClose={() => {

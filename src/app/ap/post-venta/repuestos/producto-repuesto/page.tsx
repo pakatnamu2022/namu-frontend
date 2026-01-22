@@ -15,18 +15,18 @@ import DataTablePagination from "@/shared/components/DataTablePagination";
 import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import { PRODUCT_REPUESTOS } from "@/features/ap/post-venta/gestion-productos/productos/lib/product.constants";
-import ProductActions from "@/features/ap/post-venta/gestion-productos/productos/components/ProductActions";
-import ProductTable from "@/features/ap/post-venta/gestion-productos/productos/components/ProductTable";
-import { productColumns } from "@/features/ap/post-venta/gestion-productos/productos/components/ProductColumns";
-import ProductOptions from "@/features/ap/post-venta/gestion-productos/productos/components/ProductOptions";
-import ProductDetailSheet from "@/features/ap/post-venta/gestion-productos/productos/components/ProductDetailSheet";
-import { useProduct } from "@/features/ap/post-venta/gestion-productos/productos/lib/product.hook";
+import { PRODUCT_REPUESTOS } from "@/features/ap/post-venta/gestion-almacen/productos/lib/product.constants";
+import ProductActions from "@/features/ap/post-venta/gestion-almacen/productos/components/ProductActions";
+import ProductTable from "@/features/ap/post-venta/gestion-almacen/productos/components/ProductTable";
+import { productColumns } from "@/features/ap/post-venta/gestion-almacen/productos/components/ProductColumns";
+import ProductOptions from "@/features/ap/post-venta/gestion-almacen/productos/components/ProductOptions";
+import ProductDetailSheet from "@/features/ap/post-venta/gestion-almacen/productos/components/ProductDetailSheet";
+import { useProduct } from "@/features/ap/post-venta/gestion-almacen/productos/lib/product.hook";
 import { notFound } from "@/shared/hooks/useNotFound";
 import {
   deleteProduct,
   updateProduct,
-} from "@/features/ap/post-venta/gestion-productos/productos/lib/product.actions";
+} from "@/features/ap/post-venta/gestion-almacen/productos/lib/product.actions";
 
 export default function ProductRepuestoPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();

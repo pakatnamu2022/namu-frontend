@@ -32,14 +32,14 @@ import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import {
   useProduct,
   useProductById,
-} from "@/features/ap/post-venta/gestion-productos/productos/lib/product.hook";
+} from "@/features/ap/post-venta/gestion-almacen/productos/lib/product.hook";
 import { api } from "@/core/api";
 import { format } from "date-fns";
 import { CURRENCY_TYPE_IDS } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.constants";
 import { Badge } from "@/components/ui/badge";
 import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.hook";
-import { getStockByProductIds } from "@/features/ap/post-venta/gestion-compras/inventario/lib/inventory.actions";
-import { StockByProductIdsResponse } from "@/features/ap/post-venta/gestion-compras/inventario/lib/inventory.interface";
+import { getStockByProductIds } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.actions";
+import { StockByProductIdsResponse } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.interface";
 import { Warehouse, AlertCircle } from "lucide-react";
 import QuotationPartModal from "./QuotationPartModal";
 import { useCustomers } from "@/features/ap/comercial/clientes/lib/customers.hook";

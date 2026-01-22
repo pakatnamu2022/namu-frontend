@@ -94,7 +94,7 @@ export default function DevelopmentPlanTasks({
       cols={{ sm: 1, md: 1, lg: 1 }}
     >
       <div className="space-y-4 col-span-full">
-        {/* Formulario para agregar nueva tarea */}
+        {/* Formulario para actualizar nueva tarea */}
         <div className="border rounded-lg p-4 space-y-4 bg-muted/30">
           <div className="flex flex-col sm:flex-row gap-3 items-end">
             <div className="flex-1">

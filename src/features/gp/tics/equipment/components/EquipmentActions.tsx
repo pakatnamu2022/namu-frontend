@@ -9,7 +9,7 @@ export default function EquipmentActions() {
   const push = useNavigate();
 
   const handleAddEquipment = () => {
-    push("./equipos/agregar");
+    push("./equipos/actualizar");
   };
 
   return (

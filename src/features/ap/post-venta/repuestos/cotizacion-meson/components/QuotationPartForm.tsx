@@ -1,7 +1,7 @@
 import {
   ProductSchema,
   productSchemaCreate,
-} from "@/features/ap/post-venta/gestion-productos/productos/lib/product.schema";
+} from "@/features/ap/post-venta/gestion-almacen/productos/lib/product.schema";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
@@ -10,7 +10,7 @@ import { Loader, Warehouse } from "lucide-react";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { useAllBrands } from "@/features/ap/configuraciones/vehiculos/marcas/lib/brands.hook";
-import { useAllProductCategory } from "@/features/ap/post-venta/gestion-productos/categorias-producto/lib/productCategory.hook";
+import { useAllProductCategory } from "@/features/ap/post-venta/gestion-almacen/categorias-producto/lib/productCategory.hook";
 import { useAllUnitMeasurement } from "@/features/ap/configuraciones/maestros-general/unidad-medida/lib/unitMeasurement.hook";
 import { useAllClassArticle } from "@/features/ap/configuraciones/maestros-general/clase-articulo/lib/classArticle.hook";
 import { useMyPhysicalWarehouse } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";

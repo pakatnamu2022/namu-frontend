@@ -5,11 +5,11 @@ import {
   SUCCESS_MESSAGE,
   successToast,
 } from "@/core/core.function";
-import { ProductSchema } from "@/features/ap/post-venta/gestion-productos/productos/lib/product.schema";
-import { storeProduct } from "@/features/ap/post-venta/gestion-productos/productos/lib/product.actions";
+import { ProductSchema } from "@/features/ap/post-venta/gestion-almacen/productos/lib/product.schema";
+import { storeProduct } from "@/features/ap/post-venta/gestion-almacen/productos/lib/product.actions";
 import { GeneralModal } from "@/shared/components/GeneralModal";
 import { QuotationPartForm } from "./QuotationPartForm";
-import { PRODUCT } from "@/features/ap/post-venta/gestion-productos/productos/lib/product.constants";
+import { PRODUCT } from "@/features/ap/post-venta/gestion-almacen/productos/lib/product.constants";
 
 interface Props {
   open: boolean;

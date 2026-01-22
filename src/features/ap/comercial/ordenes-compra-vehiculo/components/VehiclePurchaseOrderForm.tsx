@@ -98,7 +98,7 @@ export const VehiclePurchaseOrderForm = ({
     name: "items",
   });
 
-  // Si es compra de vehículo y no hay items, agregar el primer item automáticamente
+  // Si es compra de vehículo y no hay items, actualizar el primer item automáticamente
   useEffect(() => {
     if (
       isVehiclePurchase &&
@@ -587,7 +587,7 @@ export const VehiclePurchaseOrderForm = ({
                 variant={"ghost"}
               />
 
-              {/* Botón para agregar items */}
+              {/* Botón para actualizar items */}
               <Button
                 type="button"
                 variant="outline"

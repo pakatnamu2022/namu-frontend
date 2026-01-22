@@ -32,7 +32,7 @@ import {
 import {
   useProduct,
   useProductById,
-} from "@/features/ap/post-venta/gestion-productos/productos/lib/product.hook";
+} from "@/features/ap/post-venta/gestion-almacen/productos/lib/product.hook";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import { api } from "@/core/api";
 import { format } from "date-fns";
