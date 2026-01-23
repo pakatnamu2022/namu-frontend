@@ -36,7 +36,7 @@ export default function CreateTransferReceptionPage() {
     onSuccess: () => {
       successToast(SUCCESS_MESSAGE(MODEL, "create"));
       router(
-        `/ap/post-venta/gestion-de-compras/transferencia-producto/recepcion/${productTransferId}`
+        `/ap/post-venta/gestion-de-almacen/transferencia-producto/recepcion/${productTransferId}`,
       );
     },
     onError: (error: any) => {
@@ -77,7 +77,7 @@ export default function CreateTransferReceptionPage() {
         mode="create"
         onCancel={() =>
           router(
-            `/ap/post-venta/gestion-de-compras/transferencia-producto/recepcion/${productTransferId}`
+            `/ap/post-venta/gestion-de-almacen/transferencia-producto/recepcion/${productTransferId}`,
           )
         }
         itemType={productTransfer.item_type as "PRODUCTO" | "SERVICIO"}

@@ -37,7 +37,7 @@ export default function PerDiemRequestPage() {
   const [hotelReservationRequestId, setHotelReservationRequestId] = useState<
     number | null
   >(null);
- 
+
   useEffect(() => {
     setPage(1);
   }, [search, per_page]);
@@ -63,8 +63,6 @@ export default function PerDiemRequestPage() {
       setDeleteId(null);
     }
   };
-
-  console.log({ canSend });
 
   if (isLoadingModule) return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();

@@ -2,56 +2,61 @@
 
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import { useEffect, useState } from "react";
+import PageSkeleton from "@/shared/components/PageSkeleton";
+import TitleComponent from "@/shared/components/TitleComponent";
+import DataTablePagination from "@/shared/components/DataTablePagination";
+import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
 import {
   ERROR_MESSAGE,
   errorToast,
   SUCCESS_MESSAGE,
   successToast,
 } from "@/core/core.function";
-import PageSkeleton from "@/shared/components/PageSkeleton";
-import TitleComponent from "@/shared/components/TitleComponent";
-import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
-import DataTablePagination from "@/shared/components/DataTablePagination";
-import { DEFAULT_PER_PAGE } from "@/core/core.constants";
-import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
-import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import { PRODUCT_REPUESTOS } from "@/features/ap/post-venta/gestion-almacen/productos/lib/product.constants";
-import ProductActions from "@/features/ap/post-venta/gestion-almacen/productos/components/ProductActions";
-import ProductTable from "@/features/ap/post-venta/gestion-almacen/productos/components/ProductTable";
-import { productColumns } from "@/features/ap/post-venta/gestion-almacen/productos/components/ProductColumns";
-import ProductOptions from "@/features/ap/post-venta/gestion-almacen/productos/components/ProductOptions";
-import ProductDetailSheet from "@/features/ap/post-venta/gestion-almacen/productos/components/ProductDetailSheet";
-import { useProduct } from "@/features/ap/post-venta/gestion-almacen/productos/lib/product.hook";
-import { notFound } from "@/shared/hooks/useNotFound";
+import { CM_POSTVENTA_ID, DEFAULT_PER_PAGE } from "@/core/core.constants";
+import { useModelsVn } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.hook";
 import {
-  deleteProduct,
-  updateProduct,
-} from "@/features/ap/post-venta/gestion-almacen/productos/lib/product.actions";
+  deleteModelsVn,
+  updateModelsVn,
+} from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.actions";
+import ModelsVnActions from "@/features/ap/configuraciones/vehiculos/modelos-vn/components/ModelsVnActions";
+import ModelsVnTable from "@/features/ap/configuraciones/vehiculos/modelos-vn/components/ModelsVnTable";
+import { modelsVnColumns } from "@/features/ap/configuraciones/vehiculos/modelos-vn/components/ModelsVnColumns";
+import ModelsVnOptions from "@/features/ap/configuraciones/vehiculos/modelos-vn/components/ModelsVnOptions";
+import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
+import { MODELS_VN_REPUESTOS } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.constanst";
+import { useAllBrands } from "@/features/ap/configuraciones/vehiculos/marcas/lib/brands.hook";
+import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
+import { notFound } from "@/shared/hooks/useNotFound";
 
-export default function ProductRepuestoPage() {
+export default function ModelsVnRepuestosPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
-  const [viewProductId, setViewProductId] = useState<number | null>(null);
-  const [isDetailSheetOpen, setIsDetailSheetOpen] = useState(false);
-  const { MODEL, ROUTE } = PRODUCT_REPUESTOS;
+  const [brandId, setBrandId] = useState<string>("");
+  const { ROUTE, MODEL } = MODELS_VN_REPUESTOS;
   const permissions = useModulePermissions(ROUTE);
 
   useEffect(() => {
     setPage(1);
   }, [search, per_page]);
 
-  const { data, isLoading, refetch } = useProduct({
+  const { data, isLoading, refetch } = useModelsVn({
     page,
     search,
     per_page,
+    family$brand_id: brandId,
   });
 
-  const handleToggleStatus = async (id: number, newStatus: string) => {
+  const { data: brands = [] } = useAllBrands();
+
+  const handleToggleStatus = async (id: number, newStatus: boolean) => {
     try {
-      await updateProduct(id, { status: newStatus });
+      await updateModelsVn(id, {
+        status: newStatus,
+        type_operation_id: String(CM_POSTVENTA_ID),
+      });
       await refetch();
       successToast("Estado actualizado correctamente.");
     } catch {
@@ -59,15 +64,10 @@ export default function ProductRepuestoPage() {
     }
   };
 
-  const handleView = (id: number) => {
-    setViewProductId(id);
-    setIsDetailSheetOpen(true);
-  };
-
   const handleDelete = async () => {
     if (!deleteId) return;
     try {
-      await deleteProduct(deleteId);
+      await deleteModelsVn(deleteId);
       await refetch();
       successToast(SUCCESS_MESSAGE(MODEL, "delete"));
     } catch (error: any) {
@@ -90,21 +90,29 @@ export default function ProductRepuestoPage() {
           subtitle={currentView.descripcion}
           icon={currentView.icon}
         />
-        <ProductActions permissions={permissions} module="REPUESTOS" />
+        <ModelsVnActions
+          permissions={permissions}
+          isCommercial={CM_POSTVENTA_ID}
+        />
       </HeaderTableWrapper>
-      <ProductTable
+      <ModelsVnTable
         isLoading={isLoading}
-        columns={productColumns({
-          onStatusChange: handleToggleStatus,
-          onUpdate: () => {},
+        columns={modelsVnColumns({
+          onToggleStatus: handleToggleStatus,
           onDelete: setDeleteId,
-          onView: handleView,
           permissions,
+          isCommercial: CM_POSTVENTA_ID,
         })}
         data={data?.data || []}
       >
-        <ProductOptions search={search} setSearch={setSearch} />
-      </ProductTable>
+        <ModelsVnOptions
+          search={search}
+          setSearch={setSearch}
+          brands={brands}
+          brandId={brandId}
+          setBrandId={setBrandId}
+        />
+      </ModelsVnTable>
 
       {deleteId !== null && (
         <SimpleDeleteDialog
@@ -113,12 +121,6 @@ export default function ProductRepuestoPage() {
           onConfirm={handleDelete}
         />
       )}
-
-      <ProductDetailSheet
-        productId={viewProductId}
-        open={isDetailSheetOpen}
-        onOpenChange={setIsDetailSheetOpen}
-      />
 
       <DataTablePagination
         page={page}

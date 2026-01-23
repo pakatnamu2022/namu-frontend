@@ -20,16 +20,16 @@ import {
 import { ModelsVnResource } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.interface";
 import { ModelsVnForm } from "@/features/ap/configuraciones/vehiculos/modelos-vn/components/ModelsVnForm";
 import FormWrapper from "@/shared/components/FormWrapper";
-import { MODELS_VN } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.constanst";
+import { MODELS_VN_REPUESTOS } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.constanst";
 import { notFound } from "@/shared/hooks/useNotFound";
-import { CM_COMERCIAL_ID } from "@/core/core.constants";
+import { CM_POSTVENTA_ID } from "@/core/core.constants";
 
-export default function UpdateModelsVnPage() {
+export default function UpdateModelsVnRepuestosPage() {
   const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();
   const { currentView, checkRouteExists } = useCurrentModule();
-  const { QUERY_KEY, MODEL, ABSOLUTE_ROUTE, ROUTE } = MODELS_VN;
+  const { QUERY_KEY, MODEL, ABSOLUTE_ROUTE, ROUTE } = MODELS_VN_REPUESTOS;
 
   const { data: ModelsVn, isLoading: loadingModelsVn } = useQuery({
     queryKey: [QUERY_KEY, id],
@@ -93,7 +93,7 @@ export default function UpdateModelsVnPage() {
       sale_price: Number(data.sale_price),
       currency_type_id: String(data.currency_type_id),
       margin: Number(data.margin),
-      type_operation_id: String(CM_COMERCIAL_ID),
+      type_operation_id: String(CM_POSTVENTA_ID),
     };
   }
 

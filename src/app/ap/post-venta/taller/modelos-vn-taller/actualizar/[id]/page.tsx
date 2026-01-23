@@ -117,6 +117,7 @@ export default function UpdateModelsVnPage() {
         onSubmit={handleSubmit}
         isSubmitting={isPending}
         mode="update"
+        onCancel={() => router(ABSOLUTE_ROUTE!)}
       />
     </FormWrapper>
   );

@@ -3,7 +3,7 @@ import { TransferReceptionResource } from "./transferReception.interface.ts";
 
 const ROUTE = "recepcion";
 const ABSOLUTE_ROUTE =
-  "/ap/post-venta/gestion-de-compras/transferencia-producto";
+  "/ap/post-venta/gestion-de-almacen/transferencia-producto";
 
 export const TRANSFER_RECEPTION: ModelComplete<TransferReceptionResource> = {
   MODEL: {
@@ -30,7 +30,7 @@ export function translateReceptionType(type?: string | null): string {
     GIFT: "Regalo",
     SAMPLE: "Muestra",
   };
-  return type ? translations[type] ?? type : "-";
+  return type ? (translations[type] ?? type) : "-";
 }
 
 /**
@@ -46,7 +46,7 @@ export function translateReasonObservation(reason?: string | null): string {
     POOR_QUALITY: "Mala Calidad",
     OTHER: "Otro",
   };
-  return reason ? translations[reason] ?? reason : "-";
+  return reason ? (translations[reason] ?? reason) : "-";
 }
 
 /**
@@ -58,7 +58,7 @@ export function translateStatus(status?: string | null): string {
     PARTIAL: "Parcial",
     INCOMPLETE: "Incompleto",
   };
-  return status ? translations[status] ?? status : "-";
+  return status ? (translations[status] ?? status) : "-";
 }
 
 /**
@@ -69,5 +69,5 @@ export function translateReceptionTypeStatus(type?: string | null): string {
     COMPLETE: "Completa",
     PARTIAL: "Parcial",
   };
-  return type ? translations[type] ?? type : "-";
+  return type ? (translations[type] ?? type) : "-";
 }

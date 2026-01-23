@@ -35,9 +35,7 @@ import { calculateIGV } from "@/core/core.function";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.hook";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
-import { useNavigate } from "react-router-dom";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
-import { MODELS_VN, MODELS_VN_POSTVENTA } from "../lib/modelsVn.constanst";
 import { CM_COMERCIAL_ID } from "@/core/core.constants";
 
 interface ModelsVnFormProps {
@@ -45,6 +43,7 @@ interface ModelsVnFormProps {
   onSubmit: (data: any) => void;
   isSubmitting?: boolean;
   mode?: "create" | "update";
+  onCancel: () => void;
 }
 
 export const ModelsVnForm = ({
@@ -52,8 +51,8 @@ export const ModelsVnForm = ({
   onSubmit,
   isSubmitting = false,
   mode = "create",
+  onCancel,
 }: ModelsVnFormProps) => {
-  const router = useNavigate();
   const form = useForm({
     resolver: zodResolver(
       mode === "create" ? modelsVnSchemaCreate : (modelsVnSchemaUpdate as any),
@@ -98,10 +97,6 @@ export const ModelsVnForm = ({
   } = useAllGearShiftType();
   const { data: currencyTypes = [], isLoading: isLoadingCurrencyTypes } =
     useAllCurrencyTypes();
-  const { ABSOLUTE_ROUTE } =
-    typeOperationId === String(CM_COMERCIAL_ID)
-      ? MODELS_VN
-      : MODELS_VN_POSTVENTA;
 
   useEffect(() => {
     if (!familiaSeleccionada || !yearModelo) return;
@@ -833,9 +828,7 @@ export const ModelsVnForm = ({
             title="¿Cancelar registro?"
             variant="destructive"
             icon="warning"
-            onConfirm={() => {
-              router(ABSOLUTE_ROUTE!);
-            }}
+            onConfirm={onCancel}
           />
 
           <Button

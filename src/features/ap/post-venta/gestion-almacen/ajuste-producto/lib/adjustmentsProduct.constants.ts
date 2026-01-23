@@ -3,7 +3,7 @@ import { AdjustmentsProductResource } from "./adjustmentsProduct.interface.ts";
 import { AP_MASTER_TYPE } from "@/features/ap/ap-master/lib/apMaster.constants.ts";
 
 const ROUTE = "ajuste-producto";
-const ABSOLUTE_ROUTE = `/ap/post-venta/gestion-de-compras/${ROUTE}`;
+const ABSOLUTE_ROUTE = `/ap/post-venta/gestion-de-almacen/${ROUTE}`;
 
 export const ADJUSTMENT: ModelComplete<AdjustmentsProductResource> = {
   MODEL: {

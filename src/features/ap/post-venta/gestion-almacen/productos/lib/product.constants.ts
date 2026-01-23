@@ -3,7 +3,7 @@ import { ProductResource } from "./product.interface.ts";
 
 // PRODUCTOS PARA ALMACENES
 const ROUTE = "productos";
-const ABSOLUTE_ROUTE = "/ap/post-venta/gestion-de-productos/productos";
+const ABSOLUTE_ROUTE = "/ap/post-venta/gestion-de-almacen/productos";
 
 export const PRODUCT: ModelComplete<ProductResource> = {
   MODEL: {

@@ -47,7 +47,7 @@ export function TravelControlDetailModal({
 }: TravelControlDetailModalProps) {
   const [open, setOpen] = useState(false);
   const [localTrip, setLocalTrip] = useState<TravelControlResource | null>(
-    trip
+    trip,
   );
   const { user } = useAuthStore();
   const { data: userComplete } = useUserComplete(user.id);
@@ -56,11 +56,11 @@ export function TravelControlDetailModal({
   const [endPhoto, setEndPhoto] = useState<string | null>(null);
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
   const [startPhotoData, setStartPhotoData] = useState<TravelPhoto | null>(
-    null
+    null,
   );
   const [endPhotoData, setEndPhotoData] = useState<TravelPhoto | null>(null);
   const { data: lastMileage } = useLastMileage(
-    localTrip?.tracto_id ? String(localTrip.tracto_id) : undefined
+    localTrip?.tracto_id ? String(localTrip.tracto_id) : undefined,
   );
 
   const travelSchema = useMemo(() => {
@@ -111,7 +111,7 @@ export function TravelControlDetailModal({
   const getStartTime = (): Date | null => {
     if (!localTrip) return null;
     const startRecord = localTrip?.driver_records?.find(
-      (register) => register?.record_type === "start"
+      (register) => register?.record_type === "start",
     );
     const dateString = startRecord?.recorded_at || localTrip.startTime || null;
     if (!dateString) return null;
@@ -196,7 +196,7 @@ export function TravelControlDetailModal({
   const handlePhotoCapture = async (
     photoUrl: string,
     photoType: "start" | "end",
-    action: "start" | "end"
+    action: "start" | "end",
   ) => {
     if (!localTrip) {
       toast({
@@ -239,7 +239,7 @@ export function TravelControlDetailModal({
         parseInt(localTrip.id),
         base64Data,
         photoType,
-        metadata
+        metadata,
       );
 
       if (action === "start") {
@@ -352,7 +352,7 @@ export function TravelControlDetailModal({
         const photoUploaded = await handlePhotoCapture(
           startPhoto,
           "start",
-          "start"
+          "start",
         );
         if (!photoUploaded) {
           return;
@@ -467,9 +467,6 @@ export function TravelControlDetailModal({
   };
 
   const handleSaveFuel = async (data: TravelControlModalData) => {
-    console.log("DATOS DEL FORMULARIO PARA COMBUSTIBLE:", data);
-    console.log("LOCAL TRIP:", localTrip);
-
     if (!localTrip) {
       toast({
         title: "Error",

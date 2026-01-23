@@ -2,7 +2,7 @@ import { ModelComplete } from "@/core/core.interface.ts";
 import { SupplierOrderResource } from "./supplierOrder.interface.ts";
 
 const ROUTE = "pedido-proveedor";
-const ABSOLUTE_ROUTE = "/ap/post-venta/gestion-de-compras/" + ROUTE;
+const ABSOLUTE_ROUTE = "/ap/post-venta/gestion-de-almacen/" + ROUTE;
 
 export const SUPPLIER_ORDER: ModelComplete<SupplierOrderResource> = {
   MODEL: {

@@ -25,7 +25,7 @@ import {
 import FormSkeleton from "@/shared/components/FormSkeleton.tsx";
 import { FormSelect } from "@/shared/components/FormSelect.tsx";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync.tsx";
-import { useAllWarehouse } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook.ts";
+import { useMyPhysicalWarehouse } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook.ts";
 import { useProduct } from "@/features/ap/post-venta/gestion-almacen/productos/lib/product.hook.ts";
 import { Textarea } from "@/components/ui/textarea.tsx";
 import { ProductResource } from "@/features/ap/post-venta/gestion-almacen/productos/lib/product.interface.ts";
@@ -58,7 +58,7 @@ export const AdjustmentsProductForm = ({
 }: AdjustmentsProductFormProps) => {
   const form = useForm({
     resolver: zodResolver(
-      mode === "create" ? adjustmentSchemaCreate : adjustmentSchemaUpdate
+      mode === "create" ? adjustmentSchemaCreate : adjustmentSchemaUpdate,
     ),
     defaultValues: {
       ...defaultValues,
@@ -73,9 +73,7 @@ export const AdjustmentsProductForm = ({
   });
 
   const { data: warehouses = [], isLoading: isLoadingWarehouses } =
-    useAllWarehouse({
-      is_physical_warehouse: 1,
-    });
+    useMyPhysicalWarehouse();
   const { data: allReasons = [], isLoading: isLoadingReasons } =
     useAllReasonsAdjustment();
 
@@ -177,7 +175,7 @@ export const AdjustmentsProductForm = ({
             label="Almacén"
             placeholder="Selecciona un almacén"
             options={warehouses.map((warehouse) => ({
-              label: warehouse.description,
+              label: warehouse.dyn_code,
               value: warehouse.id.toString(),
             }))}
             control={form.control}
@@ -317,12 +315,12 @@ export const AdjustmentsProductForm = ({
                                   {(
                                     Number(
                                       form.watch(`details.${index}.quantity`) ||
-                                        0
+                                        0,
                                     ) *
                                     Number(
                                       form.watch(
-                                        `details.${index}.unit_cost`
-                                      ) || 0
+                                        `details.${index}.unit_cost`,
+                                      ) || 0,
                                     )
                                   ).toFixed(2)}
                                 </span>

@@ -91,7 +91,6 @@ export const SupplierOrderForm = ({
     },
     mode: "onChange",
   });
-  console.log("Default Values:", SupplierOrderData);
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
@@ -171,19 +170,46 @@ export const SupplierOrderForm = ({
 
   // useEffect para consultar tipo de cambio cuando cambien la moneda y la fecha
   useEffect(() => {
+    // Verificar si la fecha es válida (puede ser Date o string)
+    const isValidDate =
+      watchedOrderDate instanceof Date ||
+      (typeof watchedOrderDate === "string" && watchedOrderDate.length > 0);
+    const dateToUse =
+      watchedOrderDate instanceof Date
+        ? watchedOrderDate
+        : watchedOrderDate
+          ? new Date(watchedOrderDate)
+          : null;
+
     // Solo consultar si la moneda NO es soles (id 1) y si ambos valores existen
     if (
       watchedCurrencyTypeId &&
       watchedCurrencyTypeId !== CURRENCY_TYPE_IDS.SOLES &&
-      watchedOrderDate instanceof Date
+      isValidDate &&
+      dateToUse &&
+      !isNaN(dateToUse.getTime())
     ) {
-      fetchExchangeRate(watchedCurrencyTypeId, watchedOrderDate);
+      fetchExchangeRate(watchedCurrencyTypeId, dateToUse);
     } else {
       // Si es soles o no hay datos, limpiar el tipo de cambio
       setExchangeRate(null);
       setExchangeRateError("");
     }
   }, [watchedCurrencyTypeId, watchedOrderDate]);
+
+  // Setear la primera sede por defecto cuando se carguen las sedes
+  useEffect(() => {
+    if (mySedes.length > 0 && !form.getValues("sede_id")) {
+      form.setValue("sede_id", mySedes[0].id.toString());
+    }
+  }, [mySedes, form]);
+
+  // Setear el primer almacén por defecto cuando se carguen los almacenes
+  useEffect(() => {
+    if (warehouses.length > 0 && !form.getValues("warehouse_id")) {
+      form.setValue("warehouse_id", warehouses[0].id.toString());
+    }
+  }, [warehouses, form]);
 
   if (isLoadingCurrencyTypes || isLoadingMySedes) {
     return <FormSkeleton />;

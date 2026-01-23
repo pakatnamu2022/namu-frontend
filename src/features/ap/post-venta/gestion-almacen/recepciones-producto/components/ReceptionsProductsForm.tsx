@@ -28,7 +28,6 @@ import { FormSelect } from "@/shared/components/FormSelect.tsx";
 import { useAllWarehouse } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook.ts";
 import { useProduct } from "@/features/ap/post-venta/gestion-almacen/productos/lib/product.hook.ts";
 import { ProductResource } from "@/features/ap/post-venta/gestion-almacen/productos/lib/product.interface.ts";
-import { Textarea } from "@/components/ui/textarea.tsx";
 import { GroupFormSection } from "@/shared/components/GroupFormSection.tsx";
 import { Card } from "@/components/ui/card.tsx";
 import { useEffect } from "react";
@@ -38,6 +37,8 @@ import { OBSERVATION_REASONS } from "@/features/ap/configuraciones/postventa/mot
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync.tsx";
 import { useSuppliers } from "@/features/ap/comercial/proveedores/lib/suppliers.hook.ts";
 import { SuppliersResource } from "@/features/ap/comercial/proveedores/lib/suppliers.interface.ts";
+import { FormInput } from "@/shared/components/FormInput";
+import { FormInputText } from "@/shared/components/FormInputText";
 
 interface ReceptionsProductsFormProps {
   defaultValues: Partial<ReceptionSchema>;
@@ -65,7 +66,7 @@ export const ReceptionsProductsForm = ({
 }: ReceptionsProductsFormProps) => {
   const form = useForm({
     resolver: zodResolver(
-      mode === "create" ? receptionSchemaCreate : receptionSchemaUpdate
+      mode === "create" ? receptionSchemaCreate : receptionSchemaUpdate,
     ),
     defaultValues: {
       ...defaultValues,
@@ -160,44 +161,21 @@ export const ReceptionsProductsForm = ({
             disabled={true}
           />
 
-          <FormField
-            control={form.control}
+          <FormInput
             name="shipping_guide_number"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Núm. de Guía de Remisión</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: G001-00001234" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Núm. de Guía de Remisión"
+            placeholder="Ej: G001-00001234"
+            control={form.control}
           />
 
-          <FormField
-            control={form.control}
+          <FormInput
             name="freight_cost"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-sm font-medium text-gray-700">
-                  Costo de Flete (SOL PERUANO)
-                </FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    placeholder="Ej: 0.00"
-                    value={typeof field.value === "number" ? field.value : ""}
-                    onChange={(e) => {
-                      const num = parseFloat(e.target.value);
-                      field.onChange(isNaN(num) ? 0 : num);
-                    }}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Costo de Flete (SOL PERUANO)"
+            placeholder="Ej: 0.00"
+            type="number"
+            step="0.01"
+            min="0"
+            control={form.control}
           />
 
           <FormSelectAsync
@@ -251,7 +229,7 @@ export const ReceptionsProductsForm = ({
                 const isOrderedProduct = detail?.purchase_order_item_id != null;
 
                 const productItem = purchaseOrderItems.find(
-                  (item) => item.product_id.toString() === detail?.product_id
+                  (item) => item.product_id.toString() === detail?.product_id,
                 );
 
                 return (
@@ -365,7 +343,7 @@ export const ReceptionsProductsForm = ({
                                     // No permitir que la cantidad recibida supere la ordenada
                                     const finalQuantityReceived = Math.min(
                                       newQuantityReceived,
-                                      orderedQuantity
+                                      orderedQuantity,
                                     );
                                     const observedQuantity =
                                       orderedQuantity - finalQuantityReceived;
@@ -373,7 +351,7 @@ export const ReceptionsProductsForm = ({
                                     field.onChange(finalQuantityReceived);
                                     form.setValue(
                                       `details.${index}.observed_quantity`,
-                                      observedQuantity
+                                      observedQuantity,
                                     );
                                   } else {
                                     field.onChange(newQuantityReceived);
@@ -421,7 +399,7 @@ export const ReceptionsProductsForm = ({
                                       // No permitir que la cantidad observada supere la ordenada
                                       const finalObservedQuantity = Math.min(
                                         newObservedQuantity,
-                                        orderedQuantity
+                                        orderedQuantity,
                                       );
                                       const receivedQuantity =
                                         orderedQuantity - finalObservedQuantity;
@@ -429,7 +407,7 @@ export const ReceptionsProductsForm = ({
                                       field.onChange(finalObservedQuantity);
                                       form.setValue(
                                         `details.${index}.quantity_received`,
-                                        receivedQuantity
+                                        receivedQuantity,
                                       );
                                     } else {
                                       field.onChange(newObservedQuantity);
@@ -501,8 +479,8 @@ export const ReceptionsProductsForm = ({
                                 {receptionType === "BONUS"
                                   ? "Bonificación"
                                   : receptionType === "GIFT"
-                                  ? "Regalo"
-                                  : "Muestra"}
+                                    ? "Regalo"
+                                    : "Muestra"}
                               </FormLabel>
                               <FormControl>
                                 <Input
@@ -542,7 +520,7 @@ export const ReceptionsProductsForm = ({
                                       (reason) => ({
                                         label: reason.label,
                                         value: reason.value,
-                                      })
+                                      }),
                                     )}
                                     control={form.control}
                                     disabled={mode === "update"}
@@ -608,23 +586,12 @@ export const ReceptionsProductsForm = ({
         </Card>
 
         {/* Notas */}
-        <FormField
-          control={form.control}
+        <FormInputText
           name="notes"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Notas Generales</FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder="Notas o comentarios adicionales de la recepción"
-                  className="resize-none"
-                  rows={3}
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          label="Notas Generales"
+          placeholder="Notas o comentarios adicionales de la recepción"
+          control={form.control}
+          rows={3}
         />
 
         <div className="flex gap-4 w-full justify-end">

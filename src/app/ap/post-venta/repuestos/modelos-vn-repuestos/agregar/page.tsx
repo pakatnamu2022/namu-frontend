@@ -14,14 +14,14 @@ import { ModelsVnSchema } from "@/features/ap/configuraciones/vehiculos/modelos-
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import { ModelsVnForm } from "@/features/ap/configuraciones/vehiculos/modelos-vn/components/ModelsVnForm";
 import FormWrapper from "@/shared/components/FormWrapper";
-import { MODELS_VN } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.constanst";
+import { MODELS_VN_REPUESTOS } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.constanst";
 import { notFound } from "@/shared/hooks/useNotFound";
-import { CM_COMERCIAL_ID } from "@/core/core.constants";
+import { CM_POSTVENTA_ID } from "@/core/core.constants";
 
-export default function AddModelsVnPage() {
+export default function AddModelsVnRepuestosPage() {
   const router = useNavigate();
   const { currentView, checkRouteExists } = useCurrentModule();
-  const { ROUTE, MODEL, ABSOLUTE_ROUTE } = MODELS_VN;
+  const { ROUTE, MODEL, ABSOLUTE_ROUTE } = MODELS_VN_REPUESTOS;
 
   const { mutate, isPending } = useMutation({
     mutationFn: storeModelsVn,
@@ -85,7 +85,7 @@ export default function AddModelsVnPage() {
           traction_type_id: "",
           transmission_id: "",
           currency_type_id: "",
-          type_operation_id: String(CM_COMERCIAL_ID),
+          type_operation_id: String(CM_POSTVENTA_ID),
         }}
         onSubmit={handleSubmit}
         isSubmitting={isPending}
