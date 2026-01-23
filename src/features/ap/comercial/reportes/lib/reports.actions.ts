@@ -5,10 +5,12 @@ export const downloadReport = async (
   params: Record<string, any>,
 ) => {
   try {
-    const response = await api.post(endpoint, params);
+    const response = await api.post(endpoint, params, {
+      responseType: "blob",
+    });
 
     // Crear un enlace temporal para descargar el archivo
-    const url = window.URL.createObjectURL(response.data);
+    const url = window.URL.createObjectURL(new Blob([response.data]));
     const link = document.createElement("a");
     link.href = url;
 
@@ -38,17 +40,12 @@ export const downloadReport = async (
     window.URL.revokeObjectURL(url);
 
     return response.data;
-  } catch (error: any) {
-    console.log(error);
+  } catch (error) {
     throw error;
   }
 };
 
 export const fetchSelectOptions = async (endpoint: string) => {
-  try {
-    const response = await api.get(endpoint);
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
+  const response = await api.get(endpoint);
+  return response.data;
 };
