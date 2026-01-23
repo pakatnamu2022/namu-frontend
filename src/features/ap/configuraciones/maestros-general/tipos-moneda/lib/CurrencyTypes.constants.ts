@@ -17,7 +17,15 @@ export const CURRENCY_TYPES: ModelComplete<CurrencyTypesResource> = {
   ABSOLUTE_ROUTE,
   ROUTE_ADD: `${ABSOLUTE_ROUTE}/agregar`,
   ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/actualizar`,
-  EMPTY: { id: 0, code: "", name: "", symbol: "", status: true },
+  EMPTY: {
+    id: 0,
+    code: "",
+    name: "",
+    symbol: "",
+    status: true,
+    enable_commercial: false,
+    enable_after_sales: false,
+  },
 };
 
 export const CURRENCY_TYPE_IDS = {
