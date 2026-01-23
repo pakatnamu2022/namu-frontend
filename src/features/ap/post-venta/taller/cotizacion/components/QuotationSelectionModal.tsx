@@ -91,6 +91,11 @@ export const QuotationSelectionModal = ({
       header: "Vehículo",
       cell: ({ row }) => {
         const vehicle = row.original.vehicle;
+
+        if (!vehicle) {
+          return <span className="text-muted-foreground">-</span>;
+        }
+
         return (
           <div className="flex flex-col gap-0.5">
             <span className="font-medium">{vehicle.plate || "-"}</span>
