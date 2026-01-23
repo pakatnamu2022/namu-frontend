@@ -28,6 +28,7 @@ export interface ReportField {
 export interface ReportConfig {
   id: string;
   title: string;
+  type: string;
   description: string;
   icon?: string;
   endpoint: string;

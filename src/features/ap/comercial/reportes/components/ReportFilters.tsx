@@ -109,7 +109,7 @@ export function ReportFilters({
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
         {/* Campos dinámicos */}
         {fields.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4">
             {fields.map((field) => (
               <DynamicField
                 key={field.name}

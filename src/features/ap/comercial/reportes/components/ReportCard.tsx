@@ -8,6 +8,7 @@ import { FileBarChart } from "lucide-react";
 import * as LucideIcons from "lucide-react";
 import { Button } from "@/components/ui/button";
 import GeneralSheet from "@/shared/components/GeneralSheet";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 interface ReportCardProps {
   report: ReportConfig;
@@ -36,27 +37,37 @@ export function ReportCard({ report }: ReportCardProps) {
 
   return (
     <>
-      <div className="w-full border rounded-lg p-4 bg-card flex flex-col gap-3">
-        <div className="flex items-start gap-3">
-          <div className="p-2 rounded-md bg-primary/10 shrink-0">
-            <IconComponent className="h-5 w-5 text-primary" />
+      <Card>
+        <CardHeader className="flex justify-between items-start gap-3 w-full">
+          <div className="p-3 rounded-md bg-primary/10 shrink-0">
+            <IconComponent className="h-7 w-7 text-primary" />
           </div>
+          <p className="font-mono uppercase font-bold text-muted-foreground text-xs">
+            {report.type}
+          </p>
+        </CardHeader>
+        <CardContent className="flex flex-col items-start gap-4">
           <div className="flex-1 min-w-0">
-            <h3 className="text-sm font-medium leading-tight">{report.title}</h3>
-            <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+            <h3 className="text-lg font-semibold leading-tight">
+              {report.title}
+            </h3>
+            <p className="text-sm text-muted-foreground mt-2">
               {report.description}
             </p>
           </div>
-        </div>
-        <Button
-          variant="outline"
-          size="sm"
-          className="w-full"
-          onClick={() => setIsSheetOpen(true)}
-        >
-          Configurar
-        </Button>
-      </div>
+          <div className="flex justify-end w-full">
+            <Button
+              variant="default"
+              color="muted"
+              size="default"
+              className="w-fit"
+              onClick={() => setIsSheetOpen(true)}
+            >
+              Configurar Descarga
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
       <GeneralSheet
         open={isSheetOpen}

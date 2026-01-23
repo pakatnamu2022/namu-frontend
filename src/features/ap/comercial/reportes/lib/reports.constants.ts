@@ -6,7 +6,9 @@ export const COMMERCIAL_REPORTS: ReportConfig[] = [
   {
     id: "vehicle-sales",
     title: "Reporte de Ventas de Vehículos",
-    description: "Exporta el reporte de ventas de vehículos",
+    type: "Ventas",
+    description:
+      "Exporta el reporte de ventas de vehículos, según su estado, que pueden ser los estados: Vendido, En Proceso, Cancelado, etc. ",
     icon: "TrendingUp",
     endpoint: "/ap/commercial/vehicles/export/sales",
     fields: [
