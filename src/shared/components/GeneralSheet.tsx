@@ -1,12 +1,4 @@
 import * as React from "react";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetClose,
-  SheetDescription,
-} from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import * as LucideReact from "lucide-react";
 import {
@@ -94,12 +86,14 @@ const GeneralSheet: React.FC<GeneralSheetProps> = ({
 
   {
     return type === "default" ? (
-      <Sheet open={open} onOpenChange={(v) => !v && onClose()} modal={modal}>
-        <SheetContent
-          side={side}
-          className={cn(sizes[size], className, "overflow-y-auto")}
-        >
-          <SheetHeader>
+      <Drawer
+        open={open}
+        onOpenChange={(v) => !v && onClose()}
+        modal={modal}
+        direction={side}
+      >
+        <DrawerContent className={cn(sizes[size], className)}>
+          <DrawerHeader>
             <div className="flex items-center gap-2">
               {icon && IconComponent && (
                 <div className="mr-2 bg-primary text-primary-foreground rounded-md p-2">
@@ -107,18 +101,24 @@ const GeneralSheet: React.FC<GeneralSheetProps> = ({
                 </div>
               )}
               <div>
-                {title && <SheetTitle>{title}</SheetTitle>}
-                {subtitle && (
-                  <p className="text-sm text-muted-foreground">{subtitle}</p>
-                )}
+                <DrawerTitle className={cn(!title ? "hidden" : "")}>
+                  {title}
+                </DrawerTitle>
+                <DrawerDescription
+                  className={cn(
+                    "text-sm text-muted-foreground",
+                    !subtitle ? "hidden" : "",
+                  )}
+                >
+                  {subtitle}
+                </DrawerDescription>
               </div>
             </div>
-            <SheetClose onClick={onClose} />
-          </SheetHeader>
-          <SheetDescription className="hidden" />
-          <div className="mt-4 h-full">{children}</div>
-        </SheetContent>
-      </Sheet>
+            <DrawerClose onClick={onClose} />
+          </DrawerHeader>
+          <div className="mt-4 px-4 h-full">{children}</div>
+        </DrawerContent>
+      </Drawer>
     ) : (
       <Drawer open={open} onOpenChange={(v) => !v && onClose()} modal={modal}>
         <DrawerContent
@@ -132,15 +132,21 @@ const GeneralSheet: React.FC<GeneralSheetProps> = ({
                 </div>
               )}
               <div className="flex flex-col items-start">
-                {title && <DrawerTitle>{title}</DrawerTitle>}
-                {subtitle && (
-                  <p className="text-xs text-muted-foreground">{subtitle}</p>
-                )}
+                <DrawerTitle className={cn(!title ? "hidden" : "")}>
+                  {title}
+                </DrawerTitle>
+                <DrawerDescription
+                  className={cn(
+                    "text-xs text-muted-foreground",
+                    !subtitle ? "hidden" : "",
+                  )}
+                >
+                  {subtitle}
+                </DrawerDescription>
               </div>
             </div>
             <DrawerClose onClick={onClose} />
           </DrawerHeader>
-          <DrawerDescription className="hidden" />
           <div className="p-2 h-full max-h-[calc(100vh-15rem)] overflow-auto">
             {children}
           </div>
