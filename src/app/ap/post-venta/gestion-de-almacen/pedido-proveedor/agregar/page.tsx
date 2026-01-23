@@ -15,7 +15,7 @@ import { notFound } from "@/shared/hooks/useNotFound.ts";
 import { storeSupplierOrder } from "@/features/ap/post-venta/gestion-almacen/pedido-proveedor/lib/supplierOrder.actions.ts";
 import { SupplierOrderForm } from "@/features/ap/post-venta/gestion-almacen/pedido-proveedor/components/SupplierOrderForm.tsx";
 import { SUPPLIER_ORDER } from "@/features/ap/post-venta/gestion-almacen/pedido-proveedor/lib/supplierOrder.constants.ts";
-import { CURRENCY_TYPE_IDS } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.constants.ts";
+import { CURRENCY_TYPE_IDS } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.constants";
 
 export default function AddSupplierOrderPage() {
   const router = useNavigate();

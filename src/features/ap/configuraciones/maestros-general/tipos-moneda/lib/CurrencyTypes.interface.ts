@@ -11,6 +11,8 @@ export interface CurrencyTypesResource {
   code: string;
   name: string;
   symbol: string;
+  enable_commercial: boolean;
+  enable_after_sales: boolean;
   status: boolean;
   current_exchange_rate?: number;
 }

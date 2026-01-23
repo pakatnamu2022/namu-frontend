@@ -72,3 +72,8 @@ export const AREA_PM_ID = {
   TALLER: "881",
   MESON: "882",
 };
+
+export const ON_SELECT_AREA = [
+  { label: "COMERCIAL", value: AREA_CM_ID.COMERCIAL },
+  { label: "POSTVENTA", value: AREA_CM_ID.POSTVENTA },
+];

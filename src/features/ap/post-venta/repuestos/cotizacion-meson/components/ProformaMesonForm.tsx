@@ -24,7 +24,7 @@ import { FormSelect } from "@/shared/components/FormSelect";
 import { Plus, Trash2, Package, PackagePlus, ExternalLink } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { useState, useEffect } from "react";
-import { EMPRESA_AP, IGV } from "@/core/core.constants";
+import { EMPRESA_AP, IGV, STATUS_ACTIVE } from "@/core/core.constants";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import { AREA_PM_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
@@ -689,7 +689,9 @@ export default function ProformaMesonForm({
     company: EMPRESA_AP.id,
   });
 
-  const { data: currencyTypes = [] } = useAllCurrencyTypes();
+  const { data: currencyTypes = [] } = useAllCurrencyTypes({
+    enable_after_sales: STATUS_ACTIVE,
+  });
 
   // Setear primera sede por defecto
   useEffect(() => {
