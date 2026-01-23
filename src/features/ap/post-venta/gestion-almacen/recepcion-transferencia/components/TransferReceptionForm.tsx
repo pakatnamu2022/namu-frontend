@@ -24,8 +24,9 @@ import {
 } from "lucide-react";
 import FormSkeleton from "@/shared/components/FormSkeleton.tsx";
 import { FormSelect } from "@/shared/components/FormSelect.tsx";
+import { FormSelectAsync } from "@/shared/components/FormSelectAsync.tsx";
 import { useAllWarehouse } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook.ts";
-import { useAllProduct } from "@/features/ap/post-venta/gestion-almacen/productos/lib/product.hook.ts";
+import { useProduct } from "@/features/ap/post-venta/gestion-almacen/productos/lib/product.hook.ts";
 import { Textarea } from "@/components/ui/textarea.tsx";
 import { GroupFormSection } from "@/shared/components/GroupFormSection.tsx";
 import { Card } from "@/components/ui/card.tsx";
@@ -65,7 +66,7 @@ export const TransferReceptionForm = ({
     resolver: zodResolver(
       mode === "create"
         ? transferReceptionSchemaCreate
-        : transferReceptionSchemaUpdate
+        : transferReceptionSchemaUpdate,
     ),
     defaultValues: {
       ...defaultValues,
@@ -83,7 +84,6 @@ export const TransferReceptionForm = ({
     useAllWarehouse({
       is_physical_warehouse: 1,
     });
-  const { data: products = [], isLoading: isLoadingProducts } = useAllProduct();
 
   const watchedDetails = form.watch("details");
 
@@ -111,7 +111,7 @@ export const TransferReceptionForm = ({
     }
   }, [mode, productTransferItems, fields.length, form]);
 
-  if (isLoadingWarehouses || isLoadingProducts) {
+  if (isLoadingWarehouses) {
     return <FormSkeleton />;
   }
 
@@ -254,16 +254,18 @@ export const TransferReceptionForm = ({
                       }`}
                     >
                       {!isOrderedProduct && !isServiceItem && (
-                        <FormSelect
+                        <FormSelectAsync
                           name={`details.${index}.product_id`}
                           label="Producto *"
-                          placeholder="Selecciona"
-                          options={products.map((product) => ({
+                          placeholder="Buscar producto..."
+                          useQueryHook={useProduct}
+                          mapOptionFn={(product) => ({
                             label: `${product.name} (${product.code})`,
                             value: product.id.toString(),
-                          }))}
+                          })}
                           control={form.control}
                           disabled={mode === "update"}
+                          perPage={20}
                         />
                       )}
 
@@ -318,7 +320,7 @@ export const TransferReceptionForm = ({
                                     // No permitir que la cantidad recibida supere la transferida
                                     const finalQuantityReceived = Math.min(
                                       newQuantityReceived,
-                                      transferredQuantity
+                                      transferredQuantity,
                                     );
                                     const observedQuantity =
                                       transferredQuantity -
@@ -327,7 +329,7 @@ export const TransferReceptionForm = ({
                                     field.onChange(finalQuantityReceived);
                                     form.setValue(
                                       `details.${index}.observed_quantity`,
-                                      observedQuantity
+                                      observedQuantity,
                                     );
                                   } else {
                                     field.onChange(newQuantityReceived);
@@ -375,7 +377,7 @@ export const TransferReceptionForm = ({
                                       // No permitir que la cantidad observada supere la transferida
                                       const finalObservedQuantity = Math.min(
                                         newObservedQuantity,
-                                        transferredQuantity
+                                        transferredQuantity,
                                       );
                                       const receivedQuantity =
                                         transferredQuantity -
@@ -384,7 +386,7 @@ export const TransferReceptionForm = ({
                                       field.onChange(finalObservedQuantity);
                                       form.setValue(
                                         `details.${index}.quantity_received`,
-                                        receivedQuantity
+                                        receivedQuantity,
                                       );
                                     } else {
                                       field.onChange(newObservedQuantity);
@@ -422,7 +424,7 @@ export const TransferReceptionForm = ({
                                       (reason) => ({
                                         label: reason.label,
                                         value: reason.value,
-                                      })
+                                      }),
                                     )}
                                     control={form.control}
                                     disabled={mode === "update"}
