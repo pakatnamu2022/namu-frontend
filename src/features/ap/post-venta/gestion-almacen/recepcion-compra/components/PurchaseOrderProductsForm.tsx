@@ -45,7 +45,7 @@ import { useEffect } from "react";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField.tsx";
 import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.hook.ts";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook.ts";
-import { EMPRESA_AP, IGV } from "@/core/core.constants.ts";
+import { EMPRESA_AP, IGV, STATUS_ACTIVE } from "@/core/core.constants.ts";
 import { useState } from "react";
 import { api } from "@/core/api.ts";
 import { format, addDays } from "date-fns";
@@ -116,7 +116,9 @@ export const PurchaseOrderProductsForm = ({
       sede_id: form.watch("sede_id") || undefined,
     });
   const { data: currencyTypes = [], isLoading: isLoadingCurrencyTypes } =
-    useAllCurrencyTypes();
+    useAllCurrencyTypes({
+      enable_after_sales: STATUS_ACTIVE,
+    });
 
   const [exchangeRate, setExchangeRate] = useState<number | null>(null);
   const [exchangeRateError, setExchangeRateError] = useState<string>("");
