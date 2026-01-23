@@ -1,14 +1,6 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import {
-  errorToast,
-  infoToast,
-  successToast,
-  warningToast,
-} from "@/core/core.function";
 import AvailableCompanies from "@/features/companies/components/Companies";
-import { toast } from "sonner";
 
 export default function CompaniesPage() {
   return (
@@ -34,12 +26,6 @@ export default function CompaniesPage() {
               <div className="grid gap-6">
                 <AvailableCompanies />
               </div>
-
-              <Button
-                onClick={() => infoToast("¡Esto es una notificación de éxito!")}
-              >
-                Button
-              </Button>
             </div>
           </div>
         </div>
