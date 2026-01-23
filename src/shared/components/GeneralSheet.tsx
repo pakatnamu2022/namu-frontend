@@ -5,6 +5,7 @@ import {
   SheetHeader,
   SheetTitle,
   SheetClose,
+  SheetDescription,
 } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import * as LucideReact from "lucide-react";
@@ -12,6 +13,7 @@ import {
   Drawer,
   DrawerClose,
   DrawerContent,
+  DrawerDescription,
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
@@ -32,7 +34,17 @@ export interface GeneralSheetProps {
   type?: "default" | "tablet" | "mobile";
 }
 
-type Size = "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl" | "5xl" | "6xl" | "7xl" | "full";
+type Size =
+  | "md"
+  | "lg"
+  | "xl"
+  | "2xl"
+  | "3xl"
+  | "4xl"
+  | "5xl"
+  | "6xl"
+  | "7xl"
+  | "full";
 interface SizeClasses {
   [key: string]: string;
 }
@@ -103,30 +115,32 @@ const GeneralSheet: React.FC<GeneralSheetProps> = ({
             </div>
             <SheetClose onClick={onClose} />
           </SheetHeader>
+          <SheetDescription className="hidden" />
           <div className="mt-4 h-full">{children}</div>
         </SheetContent>
       </Sheet>
     ) : (
       <Drawer open={open} onOpenChange={(v) => !v && onClose()} modal={modal}>
         <DrawerContent
-          className={cn(sizes[size], className, "px-0 pb-4 overflow-y-auto")}
+          className={cn(sizes[size], className, "px-0 pb-4 overflow-hidden")}
         >
-          <DrawerHeader>
+          <DrawerHeader className="py-2">
             <div className="flex items-center gap-2">
               {icon && IconComponent && (
                 <div className="mr-2 bg-primary text-primary-foreground rounded-md p-2">
                   <IconComponent className="size-5" />
                 </div>
               )}
-              <div>
+              <div className="flex flex-col items-start">
                 {title && <DrawerTitle>{title}</DrawerTitle>}
                 {subtitle && (
-                  <p className="text-sm text-muted-foreground">{subtitle}</p>
+                  <p className="text-xs text-muted-foreground">{subtitle}</p>
                 )}
               </div>
             </div>
             <DrawerClose onClick={onClose} />
           </DrawerHeader>
+          <DrawerDescription className="hidden" />
           <div className="p-2 h-full max-h-[calc(100vh-15rem)] overflow-auto">
             {children}
           </div>

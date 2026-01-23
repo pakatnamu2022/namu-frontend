@@ -38,7 +38,7 @@ export default function TitleComponent({
           <h1
             className={cn(
               "text-sm md:text-xl font-bold text-primary dark:text-primary-foreground",
-              { truncate: isTruncate }
+              { truncate: isTruncate },
             )}
           >
             {title}
@@ -54,7 +54,7 @@ export default function TitleComponent({
           )}
         </div>
       </div>
-      <div className="flex gap-2 items-center">{children}</div>
+      {children && <div className="flex gap-2 items-center">{children}</div>}
     </div>
   );
 }
