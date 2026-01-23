@@ -6,6 +6,7 @@ import {
   DrawerClose,
   DrawerContent,
   DrawerDescription,
+  DrawerFooter,
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
@@ -116,7 +117,10 @@ const GeneralSheet: React.FC<GeneralSheetProps> = ({
             </div>
             <DrawerClose onClick={onClose} />
           </DrawerHeader>
-          <div className="mt-4 px-4 h-full">{children}</div>
+          <div className="no-scrollbar overflow-y-auto py-2 px-4">
+            {children}
+          </div>
+          <DrawerFooter></DrawerFooter>
         </DrawerContent>
       </Drawer>
     ) : (
@@ -131,13 +135,15 @@ const GeneralSheet: React.FC<GeneralSheetProps> = ({
                   <IconComponent className="size-5" />
                 </div>
               )}
-              <div className="flex flex-col items-start">
-                <DrawerTitle className={cn(!title ? "hidden" : "")}>
+              <div className="flex flex-col items-start justify-start">
+                <DrawerTitle
+                  className={cn(!title ? "hidden" : "", "text-start")}
+                >
                   {title}
                 </DrawerTitle>
                 <DrawerDescription
                   className={cn(
-                    "text-xs text-muted-foreground",
+                    "text-xs text-muted-foreground text-start",
                     !subtitle ? "hidden" : "",
                   )}
                 >
@@ -147,9 +153,10 @@ const GeneralSheet: React.FC<GeneralSheetProps> = ({
             </div>
             <DrawerClose onClick={onClose} />
           </DrawerHeader>
-          <div className="p-2 h-full max-h-[calc(100vh-15rem)] overflow-auto">
+          <div className="no-scrollbar overflow-y-auto py-2 px-4">
             {children}
           </div>
+          <DrawerFooter></DrawerFooter>
         </DrawerContent>
       </Drawer>
     );
