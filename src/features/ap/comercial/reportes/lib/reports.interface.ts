@@ -1,10 +1,15 @@
 export type ReportFormat = "excel" | "pdf";
 
-export type ReportFieldType = "date" | "daterange" | "select" | "text" | "number";
+export type ReportFieldType = "date" | "daterange" | "select" | "multiselect" | "text" | "number";
 
 export interface ReportFieldOption {
   label: string;
   value: string;
+}
+
+export interface MultiSelectOption {
+  id: number;
+  [key: string]: any;
 }
 
 export interface ReportField {
@@ -20,6 +25,11 @@ export interface ReportField {
   endpoint?: string;
   // Mapper para transformar la respuesta del endpoint a opciones
   optionsMapper?: (data: any) => ReportFieldOption[];
+  // Para campos de tipo multiselect
+  multiSelectOptions?: MultiSelectOption[];
+  multiSelectMapper?: (data: any) => MultiSelectOption[];
+  getDisplayValue?: (item: MultiSelectOption) => string;
+  getSecondaryText?: (item: MultiSelectOption) => string | undefined;
   // Para daterange
   nameFrom?: string;
   nameTo?: string;

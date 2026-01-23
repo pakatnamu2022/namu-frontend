@@ -15,14 +15,15 @@ export const COMMERCIAL_REPORTS: ReportConfig[] = [
       {
         name: "ap_vehicle_status_id",
         label: "Estado de Vehículo",
-        type: "select",
+        type: "multiselect",
         required: false,
-        placeholder: "Seleccionar estado",
-        options: Object.entries(VEHICLE_STATUS_ID).map(([key, value]) => ({
-          label: key.replace(/_/g, " "),
-          value: value.toString(),
+        placeholder: "Seleccionar estados",
+        multiSelectOptions: Object.entries(VEHICLE_STATUS_ID).map(([key, value]) => ({
+          id: value,
+          name: key.replace(/_/g, " "),
         })),
-        defaultValue: "6",
+        getDisplayValue: (item) => item.name,
+        defaultValue: [6],
       },
     ],
     defaultParams: {},
