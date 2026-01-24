@@ -16,7 +16,7 @@ interface PurchaseRequestQuoteSummaryProps {
   form: UseFormReturn<any>;
   mode: "create" | "update";
   isSubmitting: boolean;
-  clients: CustomersResource[];
+  selectedHolder?: CustomersResource;
   modelsVn: ModelsVnResource[];
   vehiclesVn: VehicleResourceWithCosts[];
   vehicleColors: VehicleColorResource[];
@@ -24,7 +24,6 @@ interface PurchaseRequestQuoteSummaryProps {
   vehicleVnWatch: string | undefined;
   modelVnWatch: string | undefined;
   vehicleColorWatch: string | undefined;
-  holderWatch: string | undefined;
   selectedModel: ModelsVnResource | undefined;
   vehicleCurrency: {
     currencyId: number;
@@ -50,7 +49,7 @@ export function PurchaseRequestQuoteSummary({
   form,
   mode,
   isSubmitting,
-  clients,
+  selectedHolder,
   modelsVn,
   vehiclesVn,
   vehicleColors,
@@ -58,7 +57,6 @@ export function PurchaseRequestQuoteSummary({
   vehicleVnWatch,
   modelVnWatch,
   vehicleColorWatch,
-  holderWatch,
   selectedModel,
   vehicleCurrency,
   totals,
@@ -135,10 +133,7 @@ export function PurchaseRequestQuoteSummary({
               Titular
             </p>
             <p className="text-sm font-semibold">
-              {holderWatch
-                ? clients.find((c) => c.id.toString() === holderWatch)
-                    ?.full_name || "Sin seleccionar"
-                : "Sin seleccionar"}
+              {selectedHolder?.full_name || "Sin seleccionar"}
             </p>
           </div>
 

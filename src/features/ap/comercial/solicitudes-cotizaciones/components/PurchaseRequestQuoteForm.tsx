@@ -15,16 +15,21 @@ import {
 } from "@/components/ui/form";
 import { Building2 } from "lucide-react";
 import { FormSelect } from "@/shared/components/FormSelect";
+import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import { FormSwitch } from "@/shared/components/FormSwitch";
 import { FormInput } from "@/shared/components/FormInput";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { PurchaseRequestQuoteSummary } from "./PurchaseRequestQuoteSummary";
 import { useMyOpportunities } from "../../oportunidades/lib/opportunities.hook";
 import FormSkeleton from "@/shared/components/FormSkeleton";
-import { useAllCustomers } from "../../clientes/lib/customers.hook";
+import {
+  useCustomers,
+  useCustomersById,
+} from "../../clientes/lib/customers.hook";
+import { CustomersResource } from "../../clientes/lib/customers.interface";
 import { useAllModelsVn } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.hook";
 import { useAllVehicleColor } from "@/features/ap/configuraciones/vehiculos/colores-vehiculo/lib/vehicleColor.hook";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import { BonusDiscountTable } from "./BonusDiscountTable";
 import { ApprovedAccessoriesTable } from "./ApprovedAccessoriesTable";
 import { useAllConceptDiscountBond } from "../lib/purchaseRequestQuote.hook";
@@ -33,7 +38,7 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.hook";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
-import { EMPRESA_AP } from "@/core/core.constants";
+import { EMPRESA_AP, STATUS_ACTIVE } from "@/core/core.constants";
 import {
   useAllVehiclesWithCosts,
   useVehiclePurchaseOrder,
@@ -77,7 +82,7 @@ export const PurchaseRequestQuoteForm = ({
     resolver: zodResolver(
       mode === "create"
         ? purchaseRequestQuoteSchemaCreate
-        : purchaseRequestQuoteSchemaUpdate
+        : purchaseRequestQuoteSchemaUpdate,
     ),
     defaultValues: {
       ...defaultValues,
@@ -93,8 +98,11 @@ export const PurchaseRequestQuoteForm = ({
   const [invoiceCurrencyId, setInvoiceCurrencyId] = useState<string>("");
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [selectedFamilyId, setSelectedFamilyId] = useState<number | undefined>(
-    undefined
+    undefined,
   );
+  const [selectedHolder, setSelectedHolder] = useState<
+    CustomersResource | undefined
+  >(undefined);
 
   // Hooks de datos
   const { data: mySedes = [], isLoading: isLoadingMySedes } = useMySedes({
@@ -113,7 +121,30 @@ export const PurchaseRequestQuoteForm = ({
 
   // Usar un array vacío si no debemos cargar oportunidades (cuando viene la prop opportunity)
   const opportunities = shouldFetchOpportunities ? opportunitiesData : [];
-  const { data: clients = [], isLoading: isLoadingClients } = useAllCustomers();
+
+  // Hook para cargar el holder inicial en modo update
+  const { data: loadedHolder } = useCustomersById(
+    defaultValues.holder_id ? Number(defaultValues.holder_id) : 0,
+  );
+
+  // Sincronizar con el holder cargado cuando cambie
+  useEffect(() => {
+    if (loadedHolder && loadedHolder.id !== selectedHolder?.id) {
+      setSelectedHolder(loadedHolder);
+    }
+  }, [loadedHolder]);
+
+  // Default option para el FormSelectAsync de holder
+  const holderDefaultOption = useMemo(() => {
+    if (selectedHolder) {
+      return {
+        value: selectedHolder.id.toString(),
+        label: selectedHolder.full_name,
+      };
+    }
+    return undefined;
+  }, [selectedHolder]);
+
   const { data: modelsVn = [], isLoading: isLoadingModelsVn } = useAllModelsVn({
     family_id: selectedFamilyId,
   });
@@ -131,7 +162,9 @@ export const PurchaseRequestQuoteForm = ({
       family_id: selectedFamilyId,
     });
   const { data: currencyTypes = [], isLoading: isLoadingCurrencyTypes } =
-    useAllCurrencyTypes();
+    useAllCurrencyTypes({
+      enable_after_sales: STATUS_ACTIVE,
+    });
 
   // Refs
   const isFirstLoadRef = useRef(true);
@@ -153,7 +186,7 @@ export const PurchaseRequestQuoteForm = ({
 
   // Hook para obtener datos de la orden de compra del vehículo
   const { data: vehiclePurchaseOrderData } = useVehiclePurchaseOrder(
-    withVinWatch && vehicleVnWatch ? Number(vehicleVnWatch) : null
+    withVinWatch && vehicleVnWatch ? Number(vehicleVnWatch) : null,
   );
 
   // Datos iniciales para las tablas (solo en modo update)
@@ -188,7 +221,7 @@ export const PurchaseRequestQuoteForm = ({
               valor: valor,
               isNegative: bonus.is_negative || false,
             };
-          }
+          },
         );
         setInitialBonusDiscounts(transformedBonusDiscounts);
         setBonusDiscountRows(transformedBonusDiscounts);
@@ -202,7 +235,7 @@ export const PurchaseRequestQuoteForm = ({
             accessory_id: Number(acc.approved_accessory_id),
             quantity: Number(acc.quantity),
             type: acc.type || "ACCESORIO_ADICIONAL",
-          })
+          }),
         );
         setInitialAccessories(transformedAccessories);
         setAccessoriesRows(transformedAccessories);
@@ -216,7 +249,7 @@ export const PurchaseRequestQuoteForm = ({
 
   // Obtener el vehiculo seleccionado
   const vehicleVnSelected = vehiclesVn.find(
-    (vehicle) => vehicle.id === Number(vehicleVnWatch)
+    (vehicle) => vehicle.id === Number(vehicleVnWatch),
   );
 
   // Obtener el modelo seleccionado y su precio original
@@ -300,21 +333,21 @@ export const PurchaseRequestQuoteForm = ({
         previousVehicleVnRef.current = vehicleVnWatch;
 
         const selectedVehicle = vehiclesVn.find(
-          (vehicle) => vehicle.id === Number(vehicleVnWatch)
+          (vehicle) => vehicle.id === Number(vehicleVnWatch),
         );
         if (selectedVehicle) {
           form.setValue(
             "ap_models_vn_id",
-            String(selectedVehicle.ap_models_vn_id)
+            String(selectedVehicle.ap_models_vn_id),
           );
           form.setValue(
             "vehicle_color_id",
-            String(selectedVehicle.vehicle_color_id)
+            String(selectedVehicle.vehicle_color_id),
           );
 
           // Actualizar el precio de venta basado en el modelo del vehículo seleccionado
           const modelOfSelectedVehicle = modelsVn.find(
-            (model) => model.id === Number(selectedVehicle.ap_models_vn_id)
+            (model) => model.id === Number(selectedVehicle.ap_models_vn_id),
           );
           if (modelOfSelectedVehicle && mode === "create") {
             // Siempre actualizar el precio, incluso si es 0
@@ -353,7 +386,7 @@ export const PurchaseRequestQuoteForm = ({
       !hasInitializedCheckboxRef.current
     ) {
       const selectedOpportunity = opportunities.find(
-        (opp) => opp.id.toString() === opportunityWatch
+        (opp) => opp.id.toString() === opportunityWatch,
       );
       if (selectedOpportunity) {
         const isSameClient =
@@ -381,20 +414,25 @@ export const PurchaseRequestQuoteForm = ({
         // Primero intentar usar la prop opportunity si está disponible
         if (opportunity) {
           form.setValue("holder_id", opportunity.client.id.toString());
+          // Actualizar el selectedHolder con los datos del cliente de la oportunidad
+          setSelectedHolder(opportunity.client as CustomersResource);
         } else if (opportunityWatch) {
           // Si no hay prop, buscar en el array de oportunidades
           const selectedOpportunity = opportunities.find(
-            (opp) => opp.id.toString() === opportunityWatch
+            (opp) => opp.id.toString() === opportunityWatch,
           );
           if (selectedOpportunity) {
             form.setValue(
               "holder_id",
-              selectedOpportunity.client.id.toString()
+              selectedOpportunity.client.id.toString(),
             );
+            // Actualizar el selectedHolder con los datos del cliente de la oportunidad
+            setSelectedHolder(selectedOpportunity.client as CustomersResource);
           }
         }
       } else if (!copyClientToHolder) {
         form.setValue("holder_id", "");
+        setSelectedHolder(undefined);
       }
     }
   }, [copyClientToHolder, opportunityWatch, opportunity]);
@@ -413,7 +451,7 @@ export const PurchaseRequestQuoteForm = ({
     // Si no, usar la lógica normal de selección desde el formulario
     if (opportunityWatch && opportunities.length > 0) {
       const selectedOpportunity = opportunities.find(
-        (opp) => opp.id.toString() === opportunityWatch
+        (opp) => opp.id.toString() === opportunityWatch,
       );
       if (selectedOpportunity && selectedOpportunity.family_id) {
         const newFamilyId = selectedOpportunity.family_id;
@@ -455,11 +493,11 @@ export const PurchaseRequestQuoteForm = ({
   const getVehicleCurrency = () => {
     if (withVinWatch && vehicleVnWatch) {
       const selectedVehicle = vehiclesVn.find(
-        (vehicle) => vehicle.id === Number(vehicleVnWatch)
+        (vehicle) => vehicle.id === Number(vehicleVnWatch),
       );
       if (selectedVehicle) {
         const modelOfVehicle = modelsVn.find(
-          (model) => model.id === Number(selectedVehicle.ap_models_vn_id)
+          (model) => model.id === Number(selectedVehicle.ap_models_vn_id),
         );
         return {
           currencyId: modelOfVehicle?.currency_type_id || 0,
@@ -488,7 +526,7 @@ export const PurchaseRequestQuoteForm = ({
   const convertAmount = (
     amount: number,
     fromCurrencyId: number,
-    toCurrencyId: number
+    toCurrencyId: number,
   ) => {
     if (fromCurrencyId === toCurrencyId) return amount;
 
@@ -523,7 +561,7 @@ export const PurchaseRequestQuoteForm = ({
       }
 
       const accessory = approvedAccesories.find(
-        (acc) => acc.id === row.accessory_id
+        (acc) => acc.id === row.accessory_id,
       );
       if (accessory) {
         const accessoryPrice = accessory.price * row.quantity;
@@ -570,13 +608,13 @@ export const PurchaseRequestQuoteForm = ({
     return convertAmount(
       totals.subtotal,
       totals.vehicleCurrencyId,
-      Number(invoiceCurrencyId)
+      Number(invoiceCurrencyId),
     );
   };
 
   const finalTotal = getFinalTotal();
   const selectedInvoiceCurrency = currencyTypes.find(
-    (c) => c.id === Number(invoiceCurrencyId)
+    (c) => c.id === Number(invoiceCurrencyId),
   );
 
   // Transformar datos de bonos/descuentos para el envío
@@ -621,7 +659,6 @@ export const PurchaseRequestQuoteForm = ({
 
   if (
     isLoadingOpportunities ||
-    isLoadingClients ||
     isLoadingColor ||
     isLoadingConceptDiscountBond ||
     isLoadingApprovedAccesories ||
@@ -689,17 +726,25 @@ export const PurchaseRequestQuoteForm = ({
               )}
 
               <div className="relative">
-                <FormSelect
+                <FormSelectAsync
                   name="holder_id"
                   label="Titular"
                   placeholder="Selecciona un titular"
-                  options={clients.map((item) => ({
-                    label: item.full_name,
-                    value: item.id.toString(),
-                  }))}
                   control={form.control}
-                  strictFilter={true}
                   disabled={copyClientToHolder}
+                  useQueryHook={useCustomers}
+                  mapOptionFn={(customer: CustomersResource) => ({
+                    value: customer.id.toString(),
+                    label: customer.full_name,
+                  })}
+                  perPage={10}
+                  debounceMs={500}
+                  defaultOption={holderDefaultOption}
+                  onValueChange={(_, customer) => {
+                    setSelectedHolder(
+                      customer as CustomersResource | undefined,
+                    );
+                  }}
                 />
                 <div className="flex items-center space-x-2 absolute top-0 right-0">
                   <Checkbox
@@ -984,7 +1029,7 @@ export const PurchaseRequestQuoteForm = ({
             form={form}
             mode={mode}
             isSubmitting={isSubmitting}
-            clients={clients}
+            selectedHolder={selectedHolder}
             modelsVn={modelsVn}
             vehiclesVn={vehiclesVn}
             vehicleColors={color}
@@ -992,7 +1037,6 @@ export const PurchaseRequestQuoteForm = ({
             vehicleVnWatch={vehicleVnWatch}
             modelVnWatch={modelVnWatch}
             vehicleColorWatch={vehicleColorWatch}
-            holderWatch={holderWatch}
             selectedModel={selectedModel}
             vehicleCurrency={vehicleCurrency}
             totals={totals}
