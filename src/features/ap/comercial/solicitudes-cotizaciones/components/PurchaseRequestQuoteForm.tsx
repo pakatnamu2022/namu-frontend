@@ -163,7 +163,7 @@ export const PurchaseRequestQuoteForm = ({
     });
   const { data: currencyTypes = [], isLoading: isLoadingCurrencyTypes } =
     useAllCurrencyTypes({
-      enable_after_sales: STATUS_ACTIVE,
+      enable_commercial: STATUS_ACTIVE,
     });
 
   // Refs
