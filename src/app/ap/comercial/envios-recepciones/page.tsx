@@ -42,7 +42,9 @@ export default function ShipmentsReceptionsPage() {
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
-  const [dateFrom, setDateFrom] = useState<Date | undefined>(new Date());
+  const [dateFrom, setDateFrom] = useState<Date | undefined>(
+    new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+  );
   const [dateTo, setDateTo] = useState<Date | undefined>(new Date());
 
   const formattedDateFrom = dateFrom ? format(dateFrom, "yyyy-MM-dd") : "";
