@@ -27,6 +27,7 @@ import { SUNAT_CONCEPTS_TYPE } from "@/features/gp/maestro-general/conceptos-sun
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { useAuthorizedSeries } from "@/features/ap/configuraciones/maestros-general/asignar-serie-usuario/lib/userSeriesAssignment.hook";
 import { notFound } from "@/shared/hooks/useNotFound";
+import { STATUS_ACTIVE } from "@/core/core.constants";
 
 export default function UpdateElectronicDocumentPage() {
   const { ROUTE, MODEL, ABSOLUTE_ROUTE } = ELECTRONIC_DOCUMENT;
@@ -55,74 +56,76 @@ export default function UpdateElectronicDocumentPage() {
         SUNAT_CONCEPTS_TYPE.BILLING_CREDIT_NOTE_TYPE,
         SUNAT_CONCEPTS_TYPE.BILLING_DEBIT_NOTE_TYPE,
       ],
+      enable_commercial: STATUS_ACTIVE,
     });
 
   // Filter concepts by type locally
   const documentTypes = useMemo(
     () =>
       sunatConcepts.filter(
-        (concept) => concept.type === SUNAT_CONCEPTS_TYPE.BILLING_DOCUMENT_TYPE
+        (concept) => concept.type === SUNAT_CONCEPTS_TYPE.BILLING_DOCUMENT_TYPE,
       ),
-    [sunatConcepts]
+    [sunatConcepts],
   );
 
   const transactionTypes = useMemo(
     () =>
       sunatConcepts.filter(
         (concept) =>
-          concept.type === SUNAT_CONCEPTS_TYPE.BILLING_TRANSACTION_TYPE
+          concept.type === SUNAT_CONCEPTS_TYPE.BILLING_TRANSACTION_TYPE,
       ),
-    [sunatConcepts]
+    [sunatConcepts],
   );
 
   const identityDocumentTypes = useMemo(
     () =>
       sunatConcepts.filter(
-        (concept) => concept.type === SUNAT_CONCEPTS_TYPE.TYPE_DOCUMENT
+        (concept) => concept.type === SUNAT_CONCEPTS_TYPE.TYPE_DOCUMENT,
       ),
-    [sunatConcepts]
+    [sunatConcepts],
   );
 
   const currencyTypes = useMemo(
     () =>
       sunatConcepts.filter(
-        (concept) => concept.type === SUNAT_CONCEPTS_TYPE.BILLING_CURRENCY
+        (concept) => concept.type === SUNAT_CONCEPTS_TYPE.BILLING_CURRENCY,
       ),
-    [sunatConcepts]
+    [sunatConcepts],
   );
 
   const igvTypes = useMemo(
     () =>
       sunatConcepts.filter(
-        (concept) => concept.type === SUNAT_CONCEPTS_TYPE.BILLING_IGV_TYPE
+        (concept) => concept.type === SUNAT_CONCEPTS_TYPE.BILLING_IGV_TYPE,
       ),
-    [sunatConcepts]
+    [sunatConcepts],
   );
 
   const detractionTypes = useMemo(
     () =>
       sunatConcepts.filter(
         (concept) =>
-          concept.type === SUNAT_CONCEPTS_TYPE.BILLING_DETRACTION_TYPE
+          concept.type === SUNAT_CONCEPTS_TYPE.BILLING_DETRACTION_TYPE,
       ),
-    [sunatConcepts]
+    [sunatConcepts],
   );
 
   const creditNoteTypes = useMemo(
     () =>
       sunatConcepts.filter(
         (concept) =>
-          concept.type === SUNAT_CONCEPTS_TYPE.BILLING_CREDIT_NOTE_TYPE
+          concept.type === SUNAT_CONCEPTS_TYPE.BILLING_CREDIT_NOTE_TYPE,
       ),
-    [sunatConcepts]
+    [sunatConcepts],
   );
 
   const debitNoteTypes = useMemo(
     () =>
       sunatConcepts.filter(
-        (concept) => concept.type === SUNAT_CONCEPTS_TYPE.BILLING_DEBIT_NOTE_TYPE
+        (concept) =>
+          concept.type === SUNAT_CONCEPTS_TYPE.BILLING_DEBIT_NOTE_TYPE,
       ),
-    [sunatConcepts]
+    [sunatConcepts],
   );
 
   // Fetch authorized series
@@ -235,7 +238,7 @@ export default function UpdateElectronicDocumentPage() {
     if (document && authorizedSeries.length > 0) {
       const serieString = document.serie;
       const foundSeries = authorizedSeries.find(
-        (series) => series.series === serieString
+        (series) => series.series === serieString,
       );
 
       if (foundSeries) {

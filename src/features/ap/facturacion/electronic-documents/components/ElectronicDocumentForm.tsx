@@ -651,13 +651,6 @@ MODELO: ${vehicle?.model?.version || ``}
               onCustomerChange={setSelectedCustomer}
             />
 
-            {/* Información del Cliente */}
-            {/* <ClientInfoSection
-              form={form}
-              isEdit={isEdit}
-              isFromQuotation={!!selectedQuotationId}
-            /> */}
-
             {/* Agregar Items */}
             <ItemsSection
               form={form}
@@ -671,6 +664,7 @@ MODELO: ${vehicle?.model?.version || ``}
                   : undefined
               }
               isFromQuotation={!!selectedQuotationId}
+              useQuotation={useQuotation}
             />
 
             {/* Configuración Adicional */}
