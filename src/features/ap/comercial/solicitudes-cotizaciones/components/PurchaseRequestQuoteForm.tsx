@@ -489,6 +489,17 @@ export const PurchaseRequestQuoteForm = ({
     }
   }, [docTypeCurrencyWatch]);
 
+  // Effect para seleccionar la primera moneda por defecto en modo create
+  useEffect(() => {
+    if (
+      mode === "create" &&
+      currencyTypes.length > 0 &&
+      !form.getValues("doc_type_currency_id")
+    ) {
+      form.setValue("doc_type_currency_id", currencyTypes[0].id.toString());
+    }
+  }, [currencyTypes, mode]);
+
   // Obtener la moneda del vehículo (modelo VN o vehículo VN)
   const getVehicleCurrency = () => {
     if (withVinWatch && vehicleVnWatch) {
