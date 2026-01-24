@@ -100,6 +100,21 @@ export function FormSelectAsync({
     defaultOption || null,
   );
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Sincronizar cuando defaultOption cambie (ej. al seleccionar cotización)
+  useEffect(() => {
+    if (defaultOption) {
+      setSelectedOption(defaultOption);
+      setAllOptions((prev) => {
+        // Verificar si ya existe la opción
+        const exists = prev.some((opt) => opt.value === defaultOption.value);
+        if (!exists) {
+          return [defaultOption, ...prev];
+        }
+        return prev;
+      });
+    }
+  }, [defaultOption?.value]);
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(
     undefined,
   );

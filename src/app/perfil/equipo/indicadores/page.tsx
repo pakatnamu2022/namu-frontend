@@ -401,19 +401,19 @@ function ProgressChartSection({ teamSummary }: { teamSummary: any }) {
       category: "Completados",
       value: teamSummary.completed,
       total: teamSummary.total_collaborators,
-      color: "hsl(142, 71%, 45%)",
+      color: "var(--chart-1)",
     },
     {
       category: "En Progreso",
       value: teamSummary.in_progress,
       total: teamSummary.total_collaborators,
-      color: "hsl(47, 91%, 54%)",
+      color: "var(--chart-2)",
     },
     {
       category: "Sin Iniciar",
       value: teamSummary.not_started,
       total: teamSummary.total_collaborators,
-      color: "hsl(0, 72%, 51%)",
+      color: "var(--chart-3)",
     },
   ];
 

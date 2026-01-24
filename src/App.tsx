@@ -891,6 +891,7 @@ function App() {
               />
 
               {/* Vehículos Configuration */}
+              <Route index path="vehiculos" element={<ModulePage />} />
 
               <Route
                 path="vehiculos/categorias"
