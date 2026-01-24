@@ -226,7 +226,7 @@ export default function DashboardCampaignChart({
             config={{
               total_visitas: {
                 label: "Leads",
-                color: "hsl(var(--primary))",
+                color: "var(--primary)",
               },
             }}
             className="h-[300px] w-full"
@@ -258,7 +258,7 @@ export default function DashboardCampaignChart({
               <Bar
                 dataKey="total_visitas"
                 layout="vertical"
-                fill="hsl(var(--primary))"
+                fill="var(--primary)"
                 radius={5}
               >
                 <LabelList

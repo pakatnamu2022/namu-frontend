@@ -30,7 +30,7 @@ interface BarChartCardProps {
 const barChartConfig = {
   total_visitas: {
     label: "Total",
-    color: "hsl(var(--primary))",
+    color: "var(--primary)",
   },
 };
 
@@ -148,7 +148,7 @@ export default function BarChartCard({
             />
             <Bar
               dataKey="total_visitas"
-              fill="hsl(var(--primary))"
+              fill="var(--primary)"
               activeIndex={indexBar}
               activeBar={({ ...props }) => {
                 return (
