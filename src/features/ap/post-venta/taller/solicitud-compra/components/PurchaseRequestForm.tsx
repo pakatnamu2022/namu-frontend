@@ -273,11 +273,13 @@ export default function PurchaseRequestForm({
 
     if (!quotation) return null;
 
-    return `${quotation.quotation_number} - ${quotation.vehicle.plate} (${
-      quotation.vehicle.model.brand
-    } ${quotation.vehicle.model.family}) - S/ ${quotation.total_amount.toFixed(
-      2,
-    )}`;
+    // Validar si existe vehículo
+    const vehicle = quotation?.vehicle;
+    const vehicleInfo = vehicle
+      ? `${vehicle.plate || "Sin placa"} (${vehicle.model?.brand || ""} ${vehicle.model?.family || ""})`
+      : "Sin vehículo";
+
+    return `${quotation.quotation_number} - ${vehicleInfo} - S/ ${quotation.total_amount.toFixed(2)}`;
   };
 
   return (

@@ -98,6 +98,10 @@ export const purchaseRequestColumns = ({
     },
   },
   {
+    accessorKey: "supplier_order_numbers",
+    header: "Orden de Proveedor",
+  },
+  {
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {

@@ -90,12 +90,21 @@ export const QuotationSelectionModal = ({
       accessorKey: "vehicle",
       header: "Vehículo",
       cell: ({ row }) => {
-        const vehicle = row.original.vehicle;
+        const vehicle = row.original?.vehicle;
+
+        if (!vehicle) {
+          return <span className="text-muted-foreground">-</span>;
+        }
+
+        const plate = vehicle?.plate || "-";
+        const brand = vehicle?.model?.brand || "";
+        const family = vehicle?.model?.family || "";
+
         return (
           <div className="flex flex-col gap-0.5">
-            <span className="font-medium">{vehicle.plate || "-"}</span>
+            <span className="font-medium">{plate}</span>
             <span className="text-xs text-muted-foreground">
-              {vehicle.model?.brand || ""} {vehicle.model?.family || ""}
+              {brand} {family}
             </span>
           </div>
         );
