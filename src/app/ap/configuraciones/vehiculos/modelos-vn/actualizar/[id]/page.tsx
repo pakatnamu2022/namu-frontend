@@ -19,10 +19,10 @@ import {
 } from "@/core/core.function";
 import { ModelsVnResource } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.interface";
 import { ModelsVnForm } from "@/features/ap/configuraciones/vehiculos/modelos-vn/components/ModelsVnForm";
-import FormWrapper from "@/shared/components/FormWrapper";
 import { MODELS_VN } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.constanst";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { CM_COMERCIAL_ID } from "@/core/core.constants";
+import PageWrapper from "@/shared/components/PageWrapper";
 
 export default function UpdateModelsVnPage() {
   const { id } = useParams();
@@ -106,7 +106,7 @@ export default function UpdateModelsVnPage() {
   if (!currentView) notFound();
 
   return (
-    <FormWrapper>
+    <PageWrapper>
       <TitleFormComponent
         title={currentView.descripcion}
         mode="edit"
@@ -119,6 +119,6 @@ export default function UpdateModelsVnPage() {
         mode="update"
         onCancel={() => router(ABSOLUTE_ROUTE!)}
       />
-    </FormWrapper>
+    </PageWrapper>
   );
 }

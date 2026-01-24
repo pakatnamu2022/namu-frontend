@@ -233,10 +233,7 @@ export const ModelsVnForm = ({
 
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-4 w-full formlayout"
-      >
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-full">
         <div className="space-y-8">
           {/* Sección: Datos Generales */}
           <GroupFormSection
@@ -244,6 +241,11 @@ export const ModelsVnForm = ({
             icon={ClipboardMinus}
             iconColor="text-secondary"
             bgColor="bg-red-50"
+            cols={{
+              xl: 4,
+              "2xl": 5,
+            }}
+            gap="gap-3"
           >
             <FormField
               control={form.control}
@@ -324,6 +326,11 @@ export const ModelsVnForm = ({
             icon={Settings}
             iconColor="text-primary"
             bgColor="bg-blue-50"
+            cols={{
+              xl: 4,
+              "2xl": 5,
+            }}
+            gap="gap-3"
           >
             <FormSelect
               name="fuel_id"
@@ -654,6 +661,11 @@ export const ModelsVnForm = ({
               icon={CircleDollarSign}
               iconColor="text-gray-600"
               bgColor="bg-gray-50"
+              cols={{
+                xl: 4,
+                "2xl": 5,
+              }}
+              gap="gap-3"
             >
               <FormSelect
                 name="currency_type_id"

@@ -13,11 +13,55 @@ interface FormSectionProps {
     md?: 1 | 2 | 3 | 4 | 5 | 6;
     lg?: 1 | 2 | 3 | 4 | 5 | 6;
     xl?: 1 | 2 | 3 | 4 | 5 | 6;
+    "2xl"?: 1 | 2 | 3 | 4 | 5 | 6;
   };
   className?: string;
   gap?: string;
   headerExtra?: ReactNode;
 }
+
+const colsMap = {
+  sm: {
+    1: "sm:grid-cols-1",
+    2: "sm:grid-cols-2",
+    3: "sm:grid-cols-3",
+    4: "sm:grid-cols-4",
+    5: "sm:grid-cols-5",
+    6: "sm:grid-cols-6",
+  },
+  md: {
+    1: "md:grid-cols-1",
+    2: "md:grid-cols-2",
+    3: "md:grid-cols-3",
+    4: "md:grid-cols-4",
+    5: "md:grid-cols-5",
+    6: "md:grid-cols-6",
+  },
+  lg: {
+    1: "lg:grid-cols-1",
+    2: "lg:grid-cols-2",
+    3: "lg:grid-cols-3",
+    4: "lg:grid-cols-4",
+    5: "lg:grid-cols-5",
+    6: "lg:grid-cols-6",
+  },
+  xl: {
+    1: "xl:grid-cols-1",
+    2: "xl:grid-cols-2",
+    3: "xl:grid-cols-3",
+    4: "xl:grid-cols-4",
+    5: "xl:grid-cols-5",
+    6: "xl:grid-cols-6",
+  },
+  "2xl": {
+    1: "2xl:grid-cols-1",
+    2: "2xl:grid-cols-2",
+    3: "2xl:grid-cols-3",
+    4: "2xl:grid-cols-4",
+    5: "2xl:grid-cols-5",
+    6: "2xl:grid-cols-6",
+  },
+} as const;
 
 export const GroupFormSection = ({
   title,
@@ -33,10 +77,11 @@ export const GroupFormSection = ({
   const gridClasses = [
     "grid",
     "grid-cols-1",
-    cols.sm && `sm:grid-cols-${cols.sm}`,
-    cols.md && `md:grid-cols-${cols.md}`,
-    cols.lg && `lg:grid-cols-${cols.lg}`,
-    cols.xl && `xl:grid-cols-${cols.xl}`,
+    cols.sm && colsMap.sm[cols.sm],
+    cols.md && colsMap.md[cols.md],
+    cols.lg && colsMap.lg[cols.lg],
+    cols.xl && colsMap.xl[cols.xl],
+    cols["2xl"] && colsMap["2xl"][cols["2xl"]],
     gap,
     "items-start",
   ]
@@ -47,7 +92,7 @@ export const GroupFormSection = ({
     <div
       className={cn(
         `bg-background rounded-md border border-muted shadow-sm overflow-hidden`,
-        className
+        className,
       )}
     >
       <div className={`${bgColor} px-6 py-2.5 border-b border-muted`}>
@@ -55,7 +100,7 @@ export const GroupFormSection = ({
           <h3
             className={cn(
               "text-sm md:text-base font-semibold flex items-center",
-              iconColor
+              iconColor,
             )}
           >
             <Icon className={`size-4 md:size-5 mr-2`} />
