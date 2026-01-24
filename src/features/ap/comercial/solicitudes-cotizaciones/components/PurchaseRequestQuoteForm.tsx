@@ -13,7 +13,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Building2 } from "lucide-react";
+import { Building2, Plus } from "lucide-react";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import { FormSwitch } from "@/shared/components/FormSwitch";
@@ -48,6 +48,11 @@ import { PurchaseOrderAccessoriesCard } from "./PurchaseOrderAccessoriesCard";
 import { OpportunityInfoCard } from "./OpportunityInfoCard";
 import { OpportunityResource } from "../../oportunidades/lib/opportunities.interface";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
+import { Button } from "@/components/ui/button";
+import { useIsMobile } from "@/hooks/use-mobile";
+import VehicleColorModal from "@/features/ap/configuraciones/vehiculos/colores-vehiculo/components/VehicleColorModal";
+import { useQueryClient } from "@tanstack/react-query";
+import { VEHICLE_COLOR } from "@/features/ap/configuraciones/vehiculos/colores-vehiculo/lib/vehicleColor.constants";
 
 interface PurchaseRequestQuoteFormProps {
   defaultValues: Partial<PurchaseRequestQuoteSchema>;
@@ -77,6 +82,9 @@ export const PurchaseRequestQuoteForm = ({
   opportunity,
   onCancel,
 }: PurchaseRequestQuoteFormProps) => {
+  const isMobile = useIsMobile();
+  const [isColorModalOpen, setIsColorModalOpen] = useState(false);
+  const queryClient = useQueryClient();
   const { ROUTE } = PURCHASE_REQUEST_QUOTE;
   const form = useForm({
     resolver: zodResolver(
@@ -865,7 +873,18 @@ export const PurchaseRequestQuoteForm = ({
                     strictFilter={true}
                     startsWith={true}
                     sortByLength={true}
-                  />
+                  >
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size={isMobile ? "icon-sm" : "icon-lg"}
+                      className="aspect-square"
+                      onClick={() => setIsColorModalOpen(true)}
+                      title="Agregar nuevo color"
+                    >
+                      <Plus className="size-2 md:size-4" />
+                    </Button>
+                  </FormSelect>
                 </>
               )}
 
@@ -1060,6 +1079,17 @@ export const PurchaseRequestQuoteForm = ({
           />
         </div>
       </form>
+      <VehicleColorModal
+        open={isColorModalOpen}
+        onClose={async () => {
+          setIsColorModalOpen(false);
+          await queryClient.invalidateQueries({
+            queryKey: [VEHICLE_COLOR.QUERY_KEY],
+          });
+        }}
+        title="Nuevo Color de Vehículo"
+        mode="create"
+      />
     </Form>
   );
 };
