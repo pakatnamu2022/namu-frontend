@@ -279,7 +279,7 @@ export const PurchaseOrderProductsForm = ({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(handleSubmit)}
-        className="space-y-6 w-full formlayout py-2"
+        className="space-y-6 w-full py-2"
       >
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
           {/* Sección 1: Información de la Orden */}

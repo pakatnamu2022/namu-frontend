@@ -424,7 +424,7 @@ export const VehiclePurchaseOrderForm = ({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-6 w-full formlayout py-2"
+        className="space-y-6 w-full py-2"
       >
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
           {/* Sección 1: Información del Vehículo - Solo si isVehiclePurchase es true */}
