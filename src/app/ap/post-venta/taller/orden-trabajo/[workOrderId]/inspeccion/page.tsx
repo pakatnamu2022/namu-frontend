@@ -79,11 +79,11 @@ export default function VehicleInspectionPage() {
       "inspection_date",
       data.inspection_date instanceof Date
         ? data.inspection_date.toISOString()
-        : ""
+        : "",
     );
     formData.append("fuel_level", data.fuel_level);
     formData.append("oil_level", data.oil_level);
-    formData.append("mileage", data.mileage);
+    formData.append("mileage", String(data.mileage));
     formData.append("customer_signature", data.customer_signature);
 
     // Agregar daños y sus fotos
@@ -93,13 +93,13 @@ export default function VehicleInspectionPage() {
         if (damage.x_coordinate !== undefined) {
           formData.append(
             `damages[${index}][x_coordinate]`,
-            String(damage.x_coordinate)
+            String(damage.x_coordinate),
           );
         }
         if (damage.y_coordinate !== undefined) {
           formData.append(
             `damages[${index}][y_coordinate]`,
-            String(damage.y_coordinate)
+            String(damage.y_coordinate),
           );
         }
         if (damage.description) {
@@ -156,7 +156,7 @@ export default function VehicleInspectionPage() {
     inspection_date: getCurrentDate(),
     fuel_level: workOrder.fuel_level || "",
     oil_level: "",
-    mileage: workOrder.mileage ? String(workOrder.mileage) : "",
+    mileage: workOrder.mileage ? Number(workOrder.mileage) : 0,
     damages: [],
   };
 

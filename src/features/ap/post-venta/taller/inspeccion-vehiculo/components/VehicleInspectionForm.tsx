@@ -61,7 +61,7 @@ export const VehicleInspectionForm = ({
     resolver: zodResolver(
       mode === "create"
         ? vehicleInspectionSchemaCreate
-        : vehicleInspectionSchemaUpdate
+        : vehicleInspectionSchemaUpdate,
     ),
     defaultValues,
     mode: "onChange",
@@ -75,10 +75,13 @@ export const VehicleInspectionForm = ({
     form.setValue("damages", damages);
   };
 
-  const checklistValues = CHECKLIST_ITEMS.reduce((acc, item) => {
-    acc[item.key] = form.watch(item.key as any) || false;
-    return acc;
-  }, {} as Record<string, boolean>);
+  const checklistValues = CHECKLIST_ITEMS.reduce(
+    (acc, item) => {
+      acc[item.key] = form.watch(item.key as any) || false;
+      return acc;
+    },
+    {} as Record<string, boolean>,
+  );
 
   return (
     <Form {...form}>
@@ -105,6 +108,7 @@ export const VehicleInspectionForm = ({
             name="mileage"
             label="Kilometraje"
             placeholder="Ingrese el kilometraje"
+            type="number"
             control={form.control}
           />
 

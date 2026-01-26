@@ -171,7 +171,7 @@ export const VehicleInspectionSelectionModal = ({
               onChange={setDateFrom}
               label="Fecha Desde"
               placeholder="Fecha Desde"
-              showClearButton={true}
+              showClearButton={false}
               captionLayout="dropdown"
             />
             <DatePicker
@@ -179,7 +179,7 @@ export const VehicleInspectionSelectionModal = ({
               onChange={setDateTo}
               label="Fecha Hasta"
               placeholder="Fecha Hasta"
-              showClearButton={true}
+              showClearButton={false}
               captionLayout="dropdown"
             />
           </div>

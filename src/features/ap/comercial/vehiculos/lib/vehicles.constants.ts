@@ -24,7 +24,7 @@ export const VEHICLES: ModelComplete<VehicleResource> = {
 const ROUTE_TLL = "vehiculos-taller";
 const ABSOLUTE_ROUTE_TLL = `/ap/post-venta/taller/${ROUTE_TLL}`;
 
-export const VEHICLES_PV: ModelComplete<VehicleResource> = {
+export const VEHICLES_TLL: ModelComplete<VehicleResource> = {
   MODEL: {
     name: "Vehículo Post Venta",
     plural: "Vehículos Post Venta",

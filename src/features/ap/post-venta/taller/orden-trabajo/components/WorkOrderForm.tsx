@@ -28,7 +28,9 @@ import {
   workOrderSchemaUpdate,
 } from "../lib/workOrder.schema";
 import { FormSelect } from "@/shared/components/FormSelect";
-import { useAllVehicles } from "@/features/ap/comercial/vehiculos/lib/vehicles.hook";
+import { useVehicles } from "@/features/ap/comercial/vehiculos/lib/vehicles.hook";
+import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
+import { VehicleResource } from "@/features/ap/comercial/vehiculos/lib/vehicles.interface";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { Card } from "@/components/ui/card";
@@ -39,7 +41,11 @@ import { useAllAppointmentPlanning } from "../../citas/lib/appointmentPlanning.h
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import { useAllTypesPlanning } from "@/features/ap/configuraciones/postventa/tipos-planificacion/lib/typesPlanning.hook";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
-import { DEFAULT_GROUP_COLOR, GROUP_COLORS } from "../lib/workOrder.interface";
+import {
+  DEFAULT_GROUP_COLOR,
+  GROUP_COLORS,
+  WorkOrderResource,
+} from "../lib/workOrder.interface";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { WORKER_ORDER } from "../lib/workOrder.constants";
 import { AppointmentSelectionModal } from "../../citas/components/AppointmentSelectionModal";
@@ -59,6 +65,7 @@ interface WorkOrderFormProps {
   onSubmit: (data: any) => void;
   isSubmitting?: boolean;
   mode?: "create" | "update";
+  workOrderData?: WorkOrderResource;
 }
 
 // Tipo Recall
@@ -73,6 +80,7 @@ export const WorkOrderForm = ({
   onSubmit,
   isSubmitting = false,
   mode = "create",
+  workOrderData,
 }: WorkOrderFormProps) => {
   const router = useNavigate();
   const [selectedVehicle, setSelectedVehicle] = useState<any>(null);
@@ -102,8 +110,6 @@ export const WorkOrderForm = ({
     name: "items",
   });
 
-  const { data: vehicles = [], isLoading: isLoadingVehicles } =
-    useAllVehicles();
   const { data: appointments = [], isLoading: isLoadingAppointments } =
     useAllAppointmentPlanning({ is_taken: 0 });
   const { data: sedes = [], isLoading: isLoadingSedes } = useMySedes({
@@ -117,30 +123,16 @@ export const WorkOrderForm = ({
     useAllCurrencyTypes();
 
   const isLoading =
-    isLoadingVehicles ||
     isLoadingAppointments ||
     isLoadingSedes ||
     isLoadingTypesPlanning ||
     isLoadingCurrencyTypes;
 
   // Watch fields
-  const watchedVehicleId = form.watch("vehicle_id");
   const watchedHasAppointment = form.watch("has_appointment");
   const watchedAppointmentId = form.watch("appointment_planning_id");
   const watchedHasInspection = form.watch("has_inspection");
   const watchedInspectionId = form.watch("vehicle_inspection_id");
-
-  // Effect para cargar información del vehículo cuando se selecciona
-  useEffect(() => {
-    if (watchedVehicleId && vehicles.length > 0) {
-      const vehicle = vehicles.find(
-        (v) => v.id.toString() === watchedVehicleId,
-      );
-      setSelectedVehicle(vehicle);
-    } else {
-      setSelectedVehicle(null);
-    }
-  }, [watchedVehicleId, vehicles]);
 
   // Effect para cargar items desde la cita seleccionada
   useEffect(() => {
@@ -435,18 +427,34 @@ export const WorkOrderForm = ({
           bgColor="bg-gray-50"
           cols={{ sm: 2 }}
         >
-          <FormSelect
+          <FormSelectAsync
             name="vehicle_id"
             label="Vehículo"
             placeholder="Seleccione vehículo"
-            options={vehicles.map((item) => ({
-              label: `(${item.plate || "S/N"}) ${item.model?.brand || ""} ${
-                item.model?.version || ""
-              } (${item.year || ""})`,
-              value: item.id.toString(),
-            }))}
             control={form.control}
-            strictFilter={true}
+            useQueryHook={useVehicles}
+            mapOptionFn={(item: VehicleResource) => ({
+              value: item.id.toString(),
+              label: `${item.vin || "S/N"} | ${item.plate || ""} | ${
+                item.model?.brand || ""
+              }`,
+            })}
+            perPage={10}
+            debounceMs={500}
+            defaultOption={
+              workOrderData?.vehicle
+                ? {
+                    value: workOrderData.vehicle.id.toString(),
+                    label: `${workOrderData.vehicle.vin || "S/N"} | ${
+                      workOrderData.vehicle.plate || ""
+                    } | ${workOrderData.vehicle.model?.brand || ""}`,
+                  }
+                : undefined
+            }
+            onValueChange={(_value, item) => {
+              setSelectedVehicle(item || null);
+            }}
+            disabled={watchedHasAppointment && Boolean(watchedAppointmentId)}
           />
 
           <FormSelect
@@ -459,6 +467,7 @@ export const WorkOrderForm = ({
             }))}
             control={form.control}
             strictFilter={true}
+            disabled={watchedHasAppointment && Boolean(watchedAppointmentId)}
           />
         </GroupFormSection>
 
