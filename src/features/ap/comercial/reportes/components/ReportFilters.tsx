@@ -9,6 +9,7 @@ import { FormSelect } from "@/shared/components/FormSelect";
 import { DateRangePickerFormField } from "@/shared/components/DateRangePickerFormField";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 import { FormInput } from "@/shared/components/FormInput";
+import { MultiSelectTags } from "@/shared/components/MultiSelectTags";
 import { Loader2, Download, FileSpreadsheet, FileText } from "lucide-react";
 import {
   ReportField,
@@ -53,6 +54,10 @@ export function ReportFilters({
         schemaFields[field.name] = field.required
           ? z.coerce.number({ message: `${field.label} es requerido` })
           : z.coerce.number().optional();
+      } else if (field.type === "multiselect") {
+        schemaFields[field.name] = field.required
+          ? z.array(z.number()).min(1, { message: `${field.label} es requerido` })
+          : z.array(z.number()).optional();
       } else {
         schemaFields[field.name] = field.required
           ? z.string({ message: `${field.label} es requerido` })
@@ -109,7 +114,7 @@ export function ReportFilters({
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
         {/* Campos dinámicos */}
         {fields.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4">
             {fields.map((field) => (
               <DynamicField
                 key={field.name}
@@ -173,6 +178,9 @@ function DynamicField({ field, control }: DynamicFieldProps) {
   switch (field.type) {
     case "select":
       return <SelectField field={field} control={control} />;
+
+    case "multiselect":
+      return <MultiSelectField field={field} control={control} />;
 
     case "daterange":
       return (
@@ -244,6 +252,33 @@ function SelectField({ field, control }: DynamicFieldProps) {
       control={control}
       required={field.required}
       disabled={isLoading}
+    />
+  );
+}
+
+function MultiSelectField({ field, control }: DynamicFieldProps) {
+  // Si el campo tiene un endpoint, cargar las opciones dinámicamente
+  const { data, isLoading } = useSelectOptions(field.endpoint);
+
+  const options = field.endpoint
+    ? field.multiSelectMapper
+      ? field.multiSelectMapper(data)
+      : []
+    : field.multiSelectOptions || [];
+
+  return (
+    <MultiSelectTags
+      name={field.name}
+      label={field.label}
+      placeholder={
+        field.placeholder || `Seleccionar ${field.label.toLowerCase()}`
+      }
+      options={options}
+      control={control}
+      required={field.required}
+      disabled={isLoading}
+      getDisplayValue={field.getDisplayValue || ((item) => item.name || String(item.id))}
+      getSecondaryText={field.getSecondaryText}
     />
   );
 }

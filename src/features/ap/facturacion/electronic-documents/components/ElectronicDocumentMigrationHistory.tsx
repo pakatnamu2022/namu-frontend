@@ -2,14 +2,6 @@
 
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -40,6 +32,7 @@ import {
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { cn } from "@/lib/utils";
+import GeneralSheet from "@/shared/components/GeneralSheet";
 
 interface ElectronicDocumentMigrationHistoryProps {
   electronicDocumentId: number;
@@ -146,7 +139,7 @@ export default function ElectronicDocumentMigrationHistory({
 
   const getProcesoEstadoBadge = (
     procesoEstado: number,
-    procesoEstadoName: string
+    procesoEstadoName: string,
   ) => {
     const variants: Record<
       number,
@@ -215,55 +208,55 @@ export default function ElectronicDocumentMigrationHistory({
   };
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
-      <SheetTrigger asChild>
-        <Button
-          tooltip="Historial de Migración"
-          variant="outline"
-          size="icon"
-          className="size-7"
-        >
-          <FileClock className="size-4" />
-        </Button>
-      </SheetTrigger>
-      <SheetContent className="!max-w-(--breakpoint-xl) w-full">
-        <SheetHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <SheetTitle>Historial de Migración</SheetTitle>
-              <SheetDescription>
-                Historial detallado del proceso de migración de la orden de
-                compra
-              </SheetDescription>
-            </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleRefresh}
-              disabled={isLoadingLogs || isLoadingHistory}
-              className="gap-2"
-            >
-              <RefreshCw
-                className={cn(
-                  "h-4 w-4",
-                  (isLoadingLogs || isLoadingHistory) && "animate-spin"
-                )}
-              />
-              Actualizar
-            </Button>
-          </div>
-        </SheetHeader>
+    <>
+      <Button
+        variant="outline"
+        size="icon"
+        className="size-7"
+        tooltip="Ver Historial de Migración"
+        onClick={() => setOpen(true)}
+      >
+        <FileClock className="size-4" />
+      </Button>
 
+      <GeneralSheet
+        open={open}
+        onClose={() => setOpen(false)}
+        icon="FileClock"
+        title="Historial de Migración"
+        subtitle=" Historial detallado del proceso de migración del documento electrónico"
+        size="7xl"
+      >
         {isLoadingLogs || isLoadingHistory ? (
           <div className="flex items-center justify-center h-96">
             <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
           </div>
         ) : (
           <Tabs defaultValue="resumen" className="mt-6">
-            <TabsList>
-              <TabsTrigger value="resumen">Resumen</TabsTrigger>
-              <TabsTrigger value="timeline">Línea de Tiempo</TabsTrigger>
-            </TabsList>
+            <div className="flex items-center justify-between">
+              <TabsList>
+                <TabsTrigger value="resumen">Resumen</TabsTrigger>
+                <TabsTrigger value="timeline">Línea de Tiempo</TabsTrigger>
+              </TabsList>
+              <div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  color="primary"
+                  onClick={handleRefresh}
+                  disabled={isLoadingLogs || isLoadingHistory}
+                  className="gap-2"
+                >
+                  <RefreshCw
+                    className={cn(
+                      "h-4 w-4",
+                      (isLoadingLogs || isLoadingHistory) && "animate-spin",
+                    )}
+                  />
+                  Actualizar
+                </Button>
+              </div>
+            </div>
 
             <TabsContent value="resumen" className="space-y-4">
               {logsData && (
@@ -279,8 +272,8 @@ export default function ElectronicDocumentMigrationHistory({
                       {getStatusBadge(
                         logsData.electronic_document.migration_status,
                         getNameStatus(
-                          logsData.electronic_document.migration_status
-                        )
+                          logsData.electronic_document.migration_status,
+                        ),
                       )}
                     </div>
                     <Separator />
@@ -347,7 +340,7 @@ export default function ElectronicDocumentMigrationHistory({
                             <TableCell>
                               {getProcesoEstadoBadge(
                                 log.proceso_estado,
-                                log.proceso_estado_name
+                                log.proceso_estado_name,
                               )}
                             </TableCell>
                             <TableCell>
@@ -383,7 +376,7 @@ export default function ElectronicDocumentMigrationHistory({
                         historyData.electronic_document.migration_status ===
                           "completed"
                           ? "Completado"
-                          : "Pendiente"
+                          : "Pendiente",
                       )}
                     </div>
                   </div>
@@ -393,7 +386,7 @@ export default function ElectronicDocumentMigrationHistory({
                     <div className="space-y-8">
                       {historyData.timeline.map((timelineStep, stepIndex) => (
                         <div key={stepIndex} className="relative">
-                          <div className="sticky top-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-10 pb-2">
+                          <div className="sticky top-0 bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60 z-10 pb-2">
                             <h4 className="font-semibold text-sm">
                               {timelineStep.step_name || timelineStep.step}
                             </h4>
@@ -431,7 +424,7 @@ export default function ElectronicDocumentMigrationHistory({
                                         event.proceso_estado,
                                         event.proceso_estado === 1
                                           ? "Procesado Exitosamente"
-                                          : "Error"
+                                          : "Error",
                                       )}
                                     </div>
                                   )}
@@ -448,7 +441,7 @@ export default function ElectronicDocumentMigrationHistory({
             </TabsContent>
           </Tabs>
         )}
-      </SheetContent>
-    </Sheet>
+      </GeneralSheet>
+    </>
   );
 }

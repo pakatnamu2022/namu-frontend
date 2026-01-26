@@ -39,6 +39,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
         classNames: {
           toast:
             "bg-background/60! backdrop-blur-md! shadow-lg! border! border-slate-200/50! dark:border-slate-700/50!",
+          description: "text-muted-foreground!",
           actionButton:
             "!bg-primary !text-primary-foreground hover:!bg-primary/90",
           success: "[&_button]:!bg-primary [&_button]:hover:!bg-primary/90",

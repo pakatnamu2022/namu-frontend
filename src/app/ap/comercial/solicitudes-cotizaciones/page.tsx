@@ -32,6 +32,7 @@ import PurchaseRequestQuoteOptions from "@/features/ap/comercial/solicitudes-cot
 import AssignVehicleModal from "@/features/ap/comercial/solicitudes-cotizaciones/components/AssignVehicleModal";
 import { PurchaseRequestQuoteResource } from "@/features/ap/comercial/solicitudes-cotizaciones/lib/purchaseRequestQuote.interface";
 import { notFound } from "@/shared/hooks/useNotFound";
+import { format } from "date-fns";
 
 export default function PurchaseRequestQuotePage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -42,8 +43,14 @@ export default function PurchaseRequestQuotePage() {
   const [assignVehicleQuote, setAssignVehicleQuote] =
     useState<PurchaseRequestQuoteResource | null>(null);
   const [unassignVehicleId, setUnassignVehicleId] = useState<number | null>(
-    null
+    null,
   );
+  const [dateFrom, setDateFrom] = useState<Date | undefined>(
+    new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+  );
+  const [dateTo, setDateTo] = useState<Date | undefined>(new Date());
+  const formattedDateFrom = dateFrom ? format(dateFrom, "yyyy-MM-dd") : "";
+  const formattedDateTo = dateTo ? format(dateTo, "yyyy-MM-dd") : "";
   const { MODEL, ROUTE } = PURCHASE_REQUEST_QUOTE;
   const permissions = useModulePermissions(ROUTE);
 
@@ -56,6 +63,7 @@ export default function PurchaseRequestQuotePage() {
     search,
     per_page,
     status: 1, // TODO: Remove and change to hide actions on columns
+    created_to: [formattedDateFrom, formattedDateTo],
   });
 
   const handleApprove = async () => {
@@ -120,7 +128,16 @@ export default function PurchaseRequestQuotePage() {
         })}
         data={data?.data || []}
       >
-        <PurchaseRequestQuoteOptions search={search} setSearch={setSearch} />
+        <PurchaseRequestQuoteOptions
+          search={search}
+          setSearch={setSearch}
+          dateFrom={dateFrom}
+          dateTo={dateTo}
+          setDateRange={(from, to) => {
+            setDateFrom(from);
+            setDateTo(to);
+          }}
+        />
       </PurchaseRequestQuoteTable>
 
       {approveId !== null && (

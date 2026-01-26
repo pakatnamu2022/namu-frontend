@@ -6,21 +6,24 @@ export const COMMERCIAL_REPORTS: ReportConfig[] = [
   {
     id: "vehicle-sales",
     title: "Reporte de Ventas de Vehículos",
-    description: "Exporta el reporte de ventas de vehículos",
+    type: "Ventas",
+    description:
+      "Exporta el reporte de ventas de vehículos, según su estado, que pueden ser los estados: Vendido, En Proceso, Cancelado, etc. ",
     icon: "TrendingUp",
     endpoint: "/ap/commercial/vehicles/export/sales",
     fields: [
       {
         name: "ap_vehicle_status_id",
         label: "Estado de Vehículo",
-        type: "select",
+        type: "multiselect",
         required: false,
-        placeholder: "Seleccionar estado",
-        options: Object.entries(VEHICLE_STATUS_ID).map(([key, value]) => ({
-          label: key.replace(/_/g, " "),
-          value: value.toString(),
+        placeholder: "Seleccionar estados",
+        multiSelectOptions: Object.entries(VEHICLE_STATUS_ID).map(([key, value]) => ({
+          id: value,
+          name: key.replace(/_/g, " "),
         })),
-        defaultValue: "6",
+        getDisplayValue: (item) => item.name,
+        defaultValue: [6],
       },
     ],
     defaultParams: {},

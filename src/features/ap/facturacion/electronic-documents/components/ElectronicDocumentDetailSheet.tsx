@@ -1,11 +1,4 @@
 import { useMutation } from "@tanstack/react-query";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
@@ -23,6 +16,7 @@ import {
   Ban,
   SearchCheck,
   Loader2,
+  Eye,
 } from "lucide-react";
 import type { ElectronicDocumentResource } from "../lib/electronicDocument.interface";
 import {
@@ -36,6 +30,7 @@ import {
 import { queryElectronicDocumentStatus } from "../lib/electronicDocument.actions";
 import { successToast, errorToast } from "@/core/core.function";
 import { Link } from "react-router-dom";
+import GeneralSheet from "@/shared/components/GeneralSheet";
 
 interface ElectronicDocumentDetailSheetProps {
   document: ElectronicDocumentResource | null;
@@ -74,8 +69,8 @@ export function ElectronicDocumentDetailSheet({
     document.currency?.iso_code === "PEN"
       ? "S/"
       : document.currency?.iso_code === "USD"
-      ? "$"
-      : "";
+        ? "$"
+        : "";
 
   const statusConfig = {
     draft: {
@@ -109,18 +104,25 @@ export function ElectronicDocumentDetailSheet({
   const StatusIcon = config?.icon || FileText;
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="sm:max-w-4xl overflow-y-auto">
-        <SheetHeader>
-          <SheetTitle className="flex items-center gap-2">
-            <FileText className="h-5 w-5 text-primary" />
-            Detalle del Documento Electrónico
-          </SheetTitle>
-          <SheetDescription>
-            {document.serie}-{String(document.numero).padStart(8, "0")}
-          </SheetDescription>
-        </SheetHeader>
+    <>
+      <Button
+        variant="outline"
+        size="icon"
+        className="size-7"
+        tooltip="Ver Detalle"
+        onClick={() => onOpenChange(true)}
+      >
+        <Eye className="size-4" />
+      </Button>
 
+      <GeneralSheet
+        open={open}
+        onClose={() => onOpenChange(false)}
+        icon="FileText"
+        title={`Detalle del Documento Electrónico - ${document.serie}-${String(document.numero).padStart(8, "0")}`}
+        subtitle="Información completa del documento electrónico incluyendo datos del cliente, items y estado SUNAT."
+        size="5xl"
+      >
         <div className="mt-6 space-y-6">
           {/* Estado y Tipo */}
           <div className="grid grid-cols-2 gap-4">
@@ -271,7 +273,7 @@ export function ElectronicDocumentDetailSheet({
                       day: "2-digit",
                       month: "long",
                       year: "numeric",
-                    }
+                    },
                   )}
                 </p>
               </div>
@@ -282,7 +284,7 @@ export function ElectronicDocumentDetailSheet({
                   </p>
                   <p className="text-sm font-medium">
                     {new Date(
-                      document.fecha_de_vencimiento + "T00:00:00"
+                      document.fecha_de_vencimiento + "T00:00:00",
                     ).toLocaleDateString("es-PE", {
                       day: "2-digit",
                       month: "long",
@@ -332,9 +334,7 @@ export function ElectronicDocumentDetailSheet({
               )}
               {document.medio_de_pago && (
                 <div>
-                  <p className="text-xs text-muted-foreground">
-                    Medio de Pago
-                  </p>
+                  <p className="text-xs text-muted-foreground">Medio de Pago</p>
                   <p className="text-sm font-medium">
                     {document.medio_de_pago}
                   </p>
@@ -534,7 +534,7 @@ export function ElectronicDocumentDetailSheet({
             </>
           )}
         </div>
-      </SheetContent>
-    </Sheet>
+      </GeneralSheet>
+    </>
   );
 }

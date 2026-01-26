@@ -55,8 +55,8 @@ export const electronicDocumentColumns = ({
     module === "COMERCIAL"
       ? ELECTRONIC_DOCUMENT
       : module === "TALLER"
-      ? ELECTRONIC_DOCUMENT_TALLER
-      : ELECTRONIC_DOCUMENT_REPUESTOS;
+        ? ELECTRONIC_DOCUMENT_TALLER
+        : ELECTRONIC_DOCUMENT_REPUESTOS;
 
   return [
     {
@@ -189,8 +189,8 @@ export const electronicDocumentColumns = ({
           currency?.iso_code === "PEN"
             ? "S/"
             : currency?.iso_code === "USD"
-            ? "$"
-            : "";
+              ? "$"
+              : "";
 
         return (
           <span className="font-semibold text-sm">
@@ -326,7 +326,7 @@ export const electronicDocumentColumns = ({
           document.migrated_at &&
           document.migration_status === "completed" &&
           document.items?.some(
-            (item) => item.anticipo_regularizacion === true
+            (item) => item.anticipo_regularizacion === true,
           ) &&
           permissions.canCreateDebitNote;
 
@@ -337,9 +337,9 @@ export const electronicDocumentColumns = ({
           SUNAT_TYPE_INVOICES_ID.NOTA_DEBITO
             ? `${ABSOLUTE_ROUTE}/${document.original_document_id}/debit-note/actualizar/${document.id}`
             : document.sunat_concept_document_type_id ===
-              SUNAT_TYPE_INVOICES_ID.NOTA_CREDITO
-            ? `${ABSOLUTE_ROUTE}/${document.original_document_id}/credit-note/actualizar/${document.id}`
-            : `${ABSOLUTE_ROUTE}/actualizar/${document.id}`;
+                SUNAT_TYPE_INVOICES_ID.NOTA_CREDITO
+              ? `${ABSOLUTE_ROUTE}/${document.original_document_id}/credit-note/actualizar/${document.id}`
+              : `${ABSOLUTE_ROUTE}/actualizar/${document.id}`;
 
         return (
           <div className="flex items-center gap-1">
