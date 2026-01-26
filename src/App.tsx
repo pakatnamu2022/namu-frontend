@@ -8,6 +8,7 @@ import {
 import { useAuthStore } from "./features/auth/lib/auth.store";
 import DashboardSkeleton from "./shared/components/DashboardSkeleton";
 import { AuthInitializer } from "./shared/components/AuthInitializer";
+import { TitleUpdater } from "./components/TitleUpdater";
 import { FC, JSX, Suspense } from "react";
 import ModulePerformanceEvaluationPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/page";
 import HierarchicalCategoryPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/categorias-jerarquicas/page";
@@ -420,6 +421,7 @@ const { ROUTE: PER_DIEM_REQUEST_ROUTE } = PER_DIEM_REQUEST;
 function App() {
   return (
     <BrowserRouter>
+      <TitleUpdater />
       <AuthInitializer />
       <Suspense fallback={<LoadingFallback />}>
         <Routes>
