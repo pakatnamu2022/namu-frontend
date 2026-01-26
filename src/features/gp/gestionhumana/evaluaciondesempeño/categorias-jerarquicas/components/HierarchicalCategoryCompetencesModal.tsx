@@ -13,13 +13,7 @@ import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
 
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { useMutation } from "@tanstack/react-query";
-import {
-  Tabs,
-  TabsContent,
-  TabsContents,
-  TabsList,
-  TabsTrigger,
-} from "@/shared/components/animateTabs";
+import { ButtonGroup } from "@/components/ui/button-group";
 import { HierarchicalCategoryResource } from "../lib/hierarchicalCategory.interface";
 import { HIERARCHICAL_CATEGORY } from "../lib/hierarchicalCategory.constants";
 import { ModelInterface } from "@/core/core.interface";
@@ -70,6 +64,9 @@ export function HierarchicalCategoryCompetenceModal({
   const [adding, setAdding] = useState(false);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [deleteDetailId, setDeleteDetailId] = useState<number | null>(null);
+  const [activeView, setActiveView] = useState<"competences" | "asignations">(
+    "competences",
+  );
 
   const { data = [], isLoading: isLoadingWorkers } =
     useCategoryCompetenceWorkerById(category.id);
@@ -198,67 +195,77 @@ export function HierarchicalCategoryCompetenceModal({
       open={open}
       onClose={() => setOpen(false)}
       size="4xl"
+      childrenFooter={
+        <div className="w-full flex justify-end gap-2 mt-4">
+          <Button variant="outline" onClick={() => setOpen(false)}>
+            Cerrar
+          </Button>
+        </div>
+      }
     >
       {isLoadingWorkers ? (
         <FormSkeleton />
       ) : (
-        <div className="mt-4 space-y-4 overflow-auto max-h-[80vh] h-full">
-          <Tabs
-            defaultValue="competences"
-            className="p-2 w-full h-full bg-muted rounded-lg"
-          >
-            <TabsList>
-              <TabsTrigger value="competences">Competencias</TabsTrigger>
-              <TabsTrigger value="asignations">Asignaciones</TabsTrigger>
-            </TabsList>
-            <TabsContents className="rounded-sm h-full bg-background w-full overflow-y-auto">
-              <TabsContent value="competences" className="space-y-6 p-6">
-                <div className="w-full flex justify-end mb-2 gap-2">
-                  {!adding ? (
-                    <Button variant="outline" size="sm" onClick={startAdd}>
-                      Agregar Competencia
-                      <Plus className="size-5 ml-2" />
-                    </Button>
-                  ) : (
-                    <Button variant="ghost" size="sm" onClick={cancelAdd}>
-                      <X className="size-4 mr-2" />
-                      Cancelar agregado
-                    </Button>
-                  )}
-                </div>
+        <div className="space-y-4 overflow-auto">
+          <ButtonGroup>
+            <Button
+              variant={activeView === "competences" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setActiveView("competences")}
+            >
+              Competencias
+            </Button>
+            <Button
+              variant={activeView === "asignations" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setActiveView("asignations")}
+            >
+              Asignaciones
+            </Button>
+          </ButtonGroup>
 
-                {/* Selector de competencia */}
-                <AddCompetenceSelect
-                  adding={adding}
-                  setSelectedId={setSelectedId}
-                  competences={competences}
-                  selectedId={selectedId}
-                  isDuplicate={isDuplicate}
-                  isUpdating={isUpdating}
-                  addCompetence={addCompetence}
-                />
+          {activeView === "competences" && (
+            <>
+              <div className="flex justify-end">
+                {!adding ? (
+                  <Button variant="outline" size="sm" onClick={startAdd}>
+                    Agregar Competencia
+                    <Plus className="size-5 ml-2" />
+                  </Button>
+                ) : (
+                  <Button variant="ghost" size="sm" onClick={cancelAdd}>
+                    <X className="size-4 mr-2" />
+                    Cancelar agregado
+                  </Button>
+                )}
+              </div>
 
-                {/* Lista de competencias */}
-                <CategoryCompetencesList
-                  categoryCompetences={categoryCompetences}
-                  setDeleteDetailId={setDeleteDetailId}
-                />
-              </TabsContent>
-              <TabsContent
-                value="asignations"
-                className="space-y-6 p-6 overflow-auto max-h-[70vh]"
-              >
-                {/* Lista de competencias por Trabajador */}
-                <CategoryCompetencePersonList
-                  data={data}
-                  handleSwitchChange={handleSwitchChange}
-                  isPending={isPending}
-                  handleUpdateGoalCell={handleUpdateGoalCell}
-                  handleUpdateWeightCell={handleUpdateWeightCell}
-                />
-              </TabsContent>
-            </TabsContents>
-          </Tabs>
+              <AddCompetenceSelect
+                adding={adding}
+                setSelectedId={setSelectedId}
+                competences={competences}
+                selectedId={selectedId}
+                isDuplicate={isDuplicate}
+                isUpdating={isUpdating}
+                addCompetence={addCompetence}
+              />
+
+              <CategoryCompetencesList
+                categoryCompetences={categoryCompetences}
+                setDeleteDetailId={setDeleteDetailId}
+              />
+            </>
+          )}
+
+          {activeView === "asignations" && (
+            <CategoryCompetencePersonList
+              data={data}
+              handleSwitchChange={handleSwitchChange}
+              isPending={isPending}
+              handleUpdateGoalCell={handleUpdateGoalCell}
+              handleUpdateWeightCell={handleUpdateWeightCell}
+            />
+          )}
         </div>
       )}
 

@@ -53,6 +53,7 @@ export default function UpdateWorkerSignaturePage() {
   function mapWorkerToForm(): Partial<WorkerSignatureSchema> {
     return {
       worker_signature: null,
+      supervisor_id: worker?.supervisor_id?.toString() || "",
     };
   }
 
