@@ -1,11 +1,9 @@
 "use client";
 
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { FormSelect } from "@/shared/components/FormSelect";
-import FormInput from "@/shared/components/FormInput";
 import { Loader2, Save, X } from "lucide-react";
 import {
   Dialog,
@@ -15,10 +13,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  WorkScheduleSchema,
-  workScheduleSchemaCreate,
-} from "../lib/work-schedule.schema";
+import { WorkScheduleSchema } from "../lib/work-schedule.schema";
 import { WORK_SCHEDULE_STATUS_OPTIONS } from "../lib/work-schedule.constant";
 import { WorkTypeResource } from "../../tipo-dia-trabajo/lib/work-type.interface";
 import { WorkScheduleResource } from "../lib/work-schedule.interface";
@@ -32,6 +27,7 @@ import {
   FormControl,
   FormMessage,
 } from "@/components/ui/form";
+import { FormInput } from "@/shared/components/FormInput";
 
 interface WorkScheduleFormProps {
   open: boolean;
@@ -60,12 +56,16 @@ export function WorkScheduleForm({
 }: WorkScheduleFormProps) {
   const isEditing = !!editingSchedule;
 
-  const defaultWorkType = workTypes.find((wt) => !wt.is_night_shift && !wt.is_holiday && !wt.is_sunday);
+  const defaultWorkType = workTypes.find(
+    (wt) => !wt.is_night_shift && !wt.is_holiday && !wt.is_sunday,
+  );
 
   const form = useForm({
     defaultValues: {
       worker_id: workerId,
-      work_type_id: String(editingSchedule?.work_type.id ?? defaultWorkType?.id ?? ""),
+      work_type_id: String(
+        editingSchedule?.work_type.id ?? defaultWorkType?.id ?? "",
+      ),
       period_id: periodId,
       work_date: editingSchedule?.work_date ?? selectedDate.toISOString(),
       hours_worked: editingSchedule?.hours_worked ?? null,
@@ -119,7 +119,10 @@ export function WorkScheduleForm({
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+          <form
+            onSubmit={form.handleSubmit(handleSubmit)}
+            className="space-y-4"
+          >
             <FormSelect
               control={form.control}
               name="work_type_id"

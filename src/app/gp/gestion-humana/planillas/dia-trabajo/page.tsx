@@ -21,7 +21,10 @@ import { WorkScheduleForm } from "@/features/gp/gestionhumana/planillas/dia-trab
 import { WorkScheduleSummary } from "@/features/gp/gestionhumana/planillas/dia-trabajo/components/WorkScheduleSummary";
 import { WorkScheduleResource } from "@/features/gp/gestionhumana/planillas/dia-trabajo/lib/work-schedule.interface";
 import { WorkScheduleSchema } from "@/features/gp/gestionhumana/planillas/dia-trabajo/lib/work-schedule.schema";
-import { useAllPayrollPeriods, useCurrentPayrollPeriod } from "@/features/gp/gestionhumana/planillas/periodo-planilla/lib/payroll-period.hook";
+import {
+  useAllPayrollPeriods,
+  useCurrentPayrollPeriod,
+} from "@/features/gp/gestionhumana/planillas/periodo-planilla/lib/payroll-period.hook";
 import { useAllWorkTypes } from "@/features/gp/gestionhumana/planillas/tipo-dia-trabajo/lib/work-type.hook";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { useForm } from "react-hook-form";
@@ -49,14 +52,18 @@ export default function WorkSchedulesPage() {
   const [selectedWorkerId, setSelectedWorkerId] = useState<number | null>(null);
   const [formOpen, setFormOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const [editingSchedule, setEditingSchedule] = useState<WorkScheduleResource | null>(null);
+  const [editingSchedule, setEditingSchedule] =
+    useState<WorkScheduleResource | null>(null);
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Queries
-  const { data: periods = [], isLoading: isLoadingPeriods } = useAllPayrollPeriods();
-  const { data: currentPeriod, isLoading: isLoadingCurrentPeriod } = useCurrentPayrollPeriod();
-  const { data: workTypes = [], isLoading: isLoadingWorkTypes } = useAllWorkTypes();
+  const { data: periods = [], isLoading: isLoadingPeriods } =
+    useAllPayrollPeriods();
+  const { data: currentPeriod, isLoading: isLoadingCurrentPeriod } =
+    useCurrentPayrollPeriod();
+  const { data: workTypes = [], isLoading: isLoadingWorkTypes } =
+    useAllWorkTypes();
 
   // Set default period when current period loads
   useEffect(() => {
@@ -65,11 +72,8 @@ export default function WorkSchedulesPage() {
     }
   }, [currentPeriod, selectedPeriodId]);
 
-  const {
-    data: schedules = [],
-    isLoading: isLoadingSchedules,
-    refetch: refetchSchedules,
-  } = useWorkSchedulesByPeriod(selectedPeriodId);
+  const { data: schedules = [], refetch: refetchSchedules } =
+    useWorkSchedulesByPeriod(selectedPeriodId);
 
   const {
     data: summaryData,
@@ -105,7 +109,9 @@ export default function WorkSchedulesPage() {
 
   // Selected period data
   const selectedPeriod = useMemo(() => {
-    return periods.find((p) => p.id === selectedPeriodId) || summaryData?.period;
+    return (
+      periods.find((p) => p.id === selectedPeriodId) || summaryData?.period
+    );
   }, [periods, selectedPeriodId, summaryData]);
 
   // Period options for select
@@ -164,7 +170,7 @@ export default function WorkSchedulesPage() {
     } catch (error: any) {
       errorToast(
         error?.response?.data?.message ??
-          ERROR_MESSAGE(MODEL, editingSchedule ? "update" : "create")
+          ERROR_MESSAGE(MODEL, editingSchedule ? "update" : "create"),
       );
     } finally {
       setIsSubmitting(false);
@@ -178,7 +184,9 @@ export default function WorkSchedulesPage() {
       await Promise.all([refetchSchedules(), refetchSummary()]);
       successToast(SUCCESS_MESSAGE(MODEL, "delete"));
     } catch (error: any) {
-      errorToast(error?.response?.data?.message ?? ERROR_MESSAGE(MODEL, "delete"));
+      errorToast(
+        error?.response?.data?.message ?? ERROR_MESSAGE(MODEL, "delete"),
+      );
     } finally {
       setDeleteId(null);
     }
@@ -194,7 +202,8 @@ export default function WorkSchedulesPage() {
   if (!checkRouteExists(ROUTE)) notFound();
   if (!currentView) return <div>No hay</div>;
 
-  const isLoadingData = isLoadingPeriods || isLoadingCurrentPeriod || isLoadingWorkTypes;
+  const isLoadingData =
+    isLoadingPeriods || isLoadingCurrentPeriod || isLoadingWorkTypes;
 
   return (
     <div className="space-y-4">
@@ -264,7 +273,12 @@ export default function WorkSchedulesPage() {
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <h2 className="text-lg font-semibold">
-                    Calendario - {format(new Date(selectedPeriod.year, selectedPeriod.month - 1), "MMMM yyyy", { locale: es })}
+                    Calendario -{" "}
+                    {format(
+                      new Date(selectedPeriod.year, selectedPeriod.month - 1),
+                      "MMMM yyyy",
+                      { locale: es },
+                    )}
                   </h2>
                 </div>
                 <WorkScheduleCalendar
@@ -293,20 +307,23 @@ export default function WorkSchedulesPage() {
       )}
 
       {/* Form Modal */}
-      {formOpen && selectedWorkerId && selectedWorkerData && selectedPeriodId && (
-        <WorkScheduleForm
-          open={formOpen}
-          onOpenChange={setFormOpen}
-          onSubmit={handleSubmit}
-          isSubmitting={isSubmitting}
-          workTypes={workTypes}
-          periodId={selectedPeriodId}
-          workerId={selectedWorkerId}
-          workerName={selectedWorkerData.worker_name}
-          selectedDate={selectedDate}
-          editingSchedule={editingSchedule}
-        />
-      )}
+      {formOpen &&
+        selectedWorkerId &&
+        selectedWorkerData &&
+        selectedPeriodId && (
+          <WorkScheduleForm
+            open={formOpen}
+            onOpenChange={setFormOpen}
+            onSubmit={handleSubmit}
+            isSubmitting={isSubmitting}
+            workTypes={workTypes}
+            periodId={selectedPeriodId}
+            workerId={selectedWorkerId}
+            workerName={selectedWorkerData.worker_name}
+            selectedDate={selectedDate}
+            editingSchedule={editingSchedule}
+          />
+        )}
 
       {/* Delete Confirmation */}
       {deleteId !== null && (
