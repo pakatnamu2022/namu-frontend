@@ -336,6 +336,9 @@ import UploadDepositPage from "./app/gp/gestion-humana/viaticos/solicitud-viatic
 import AccountantDistrictAssignmentPage from "./app/gp/gestion-humana/viaticos/asignacion-asistentes/page.tsx";
 import UpdatePositionPage from "./app/gp/gestion-humana/configuraciones/posiciones/actualizar/[id]/page";
 import UpdateHierarchicalCategoryPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/categorias-jerarquicas/actualizar/[id]/page";
+import PayrollConceptsPage from "./app/gp/gestion-humana/planillas/conceptos/page";
+import AddPayrollConceptPage from "./app/gp/gestion-humana/planillas/conceptos/agregar/page";
+import UpdatePayrollConceptPage from "./app/gp/gestion-humana/planillas/conceptos/actualizar/[id]/page";
 import SedePage from "./app/gp/maestro-general/sede/page.tsx";
 import UpdateSedePage from "./app/gp/maestro-general/sede/actualizar/[id]/page.tsx";
 import AddSedePage from "./app/gp/maestro-general/sede/agregar/page.tsx";
@@ -1718,6 +1721,14 @@ function App() {
                 <EvaluationModelPage />,
                 <AddEvaluationModelPage />,
                 <UpdateEvaluationModelPage />,
+              )}
+
+              {/* Planillas */}
+              {RouterCrud(
+                "planillas/conceptos",
+                <PayrollConceptsPage />,
+                <AddPayrollConceptPage />,
+                <UpdatePayrollConceptPage />,
               )}
             </Route>
 
