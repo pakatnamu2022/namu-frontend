@@ -141,11 +141,12 @@ export const workOrderColumns = ({
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
-      const { id, is_inspection_completed } = row.original;
+      const { id, is_inspection_completed, status } = row.original;
+      const isClosed = status?.description === "CERRADO";
 
       return (
         <div className="flex items-center gap-2">
-          {!is_inspection_completed && (
+          {!is_inspection_completed && !isClosed && (
             <Button
               variant="outline"
               size="icon"
@@ -169,7 +170,7 @@ export const workOrderColumns = ({
             </Button>
           )}
 
-          {permissions.canUpdate && (
+          {permissions.canUpdate && !isClosed && (
             <Button
               variant="outline"
               size="icon"
@@ -181,7 +182,7 @@ export const workOrderColumns = ({
             </Button>
           )}
 
-          {permissions.canDelete && (
+          {permissions.canDelete && !isClosed && (
             <DeleteButton onClick={() => onDelete(id)} />
           )}
         </div>
