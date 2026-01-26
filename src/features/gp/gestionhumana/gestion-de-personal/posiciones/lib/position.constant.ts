@@ -29,6 +29,7 @@ export const POSITION_TYPE = {
   TICS: [38, 39, 40, 273, 280, 281, 317, 345, 356],
   OPERATORS: [70, 79, 100, 144],
   PDI: [132, 249],
+  WAREHOUSE: [113, 114],
 };
 
 export const STATUS_WORKER = {
