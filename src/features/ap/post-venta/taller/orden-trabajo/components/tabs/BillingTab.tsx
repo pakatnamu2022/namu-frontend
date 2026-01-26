@@ -184,6 +184,9 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
           selectedGroupNumber,
         ],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["workOrder", workOrderId],
+      });
       setShowForm(false);
       form.reset();
     },
@@ -251,6 +254,14 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
 
   // Obtener facturas de adelanto (advances) del resumen de pago
   const advances = workOrder?.advances || [];
+
+  // Calcular si ya se pagó el monto total
+  const totalInvoiced = advances.reduce(
+    (sum, advance) => sum + Number(advance.total),
+    0,
+  );
+  const totalAmount = paymentSummary?.payment_summary.total_amount || 0;
+  const isFullyPaid = totalAmount > 0 && totalInvoiced >= totalAmount;
 
   return (
     <div className="space-y-6">
@@ -342,10 +353,12 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
                       </Badge>
                     )}
                   </div>
-                  <Button onClick={handleCreateInvoice} size="sm">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Nueva Factura
-                  </Button>
+                  {!isFullyPaid && (
+                    <Button onClick={handleCreateInvoice} size="sm">
+                      <Plus className="h-4 w-4 mr-2" />
+                      Nueva Factura
+                    </Button>
+                  )}
                 </div>
 
                 {advances.length === 0 ? (
@@ -457,7 +470,7 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
                             </div>
                           </div>
                           <div className="text-right">
-                            <p className="font-bold text-green-600">
+                            <p className="font-bold text-primary">
                               S/ {Number(advance.total).toFixed(2)}
                             </p>
                           </div>
