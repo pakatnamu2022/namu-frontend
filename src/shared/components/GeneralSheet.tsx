@@ -19,6 +19,7 @@ export interface GeneralSheetProps {
   title?: string;
   subtitle?: string;
   children: React.ReactNode;
+  childrenFooter?: React.ReactNode;
   side?: "top" | "bottom" | "left" | "right";
   className?: string;
   modal?: boolean;
@@ -61,11 +62,12 @@ const GeneralSheet: React.FC<GeneralSheetProps> = ({
   title,
   subtitle,
   children,
+  childrenFooter,
   side = "right",
   className,
   modal,
   icon,
-  size = "large",
+  size = "lg",
   type,
 }) => {
   const isMobile = useIsMobile();
@@ -120,7 +122,7 @@ const GeneralSheet: React.FC<GeneralSheetProps> = ({
           <div className="no-scrollbar overflow-y-auto py-2 px-4">
             {children}
           </div>
-          <DrawerFooter></DrawerFooter>
+          <DrawerFooter>{childrenFooter}</DrawerFooter>
         </DrawerContent>
       </Drawer>
     ) : (
@@ -156,7 +158,7 @@ const GeneralSheet: React.FC<GeneralSheetProps> = ({
           <div className="no-scrollbar overflow-y-auto py-2 px-4">
             {children}
           </div>
-          <DrawerFooter></DrawerFooter>
+          <DrawerFooter>{childrenFooter}</DrawerFooter>
         </DrawerContent>
       </Drawer>
     );
