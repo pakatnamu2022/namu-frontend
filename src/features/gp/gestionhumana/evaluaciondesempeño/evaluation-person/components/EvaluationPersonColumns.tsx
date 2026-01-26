@@ -6,17 +6,7 @@ import { PanelLeft, RefreshCw } from "lucide-react";
 import { EvaluationPersonResultResource } from "../lib/evaluationPerson.interface";
 import { WorkerResource } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.interface";
 import { Badge } from "@/components/ui/badge";
-import { useState } from "react";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { useNavigate } from "react-router-dom";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { EVALUATION_PERSON } from "../lib/evaluationPerson.constans";
@@ -146,11 +136,8 @@ export const EvaluationPersonColumns = ({
       const router = useNavigate();
       const id = row.original.person_id;
       const evaluationId = row.original.evaluation_id;
-      const [showRegenerateDialog, setShowRegenerateDialog] = useState(false);
-
       const handleRegenerate = () => {
         onRegenerate(id, evaluationId);
-        setShowRegenerateDialog(false);
       };
 
       return (
@@ -168,40 +155,27 @@ export const EvaluationPersonColumns = ({
           </Button>
 
           {/* Regenerar */}
-          <Button
-            variant="outline"
-            size="icon"
-            className="h-7"
-            onClick={() => setShowRegenerateDialog(true)}
-            tooltip="Restablecer Evaluación"
-          >
-            <RefreshCw className="size-5" />
-          </Button>
+          <ConfirmationDialog
+            trigger={
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-7"
+                tooltip="Restablecer Evaluación"
+              >
+                <RefreshCw className="size-5" />
+              </Button>
+            }
+            title="Restablecer Evaluación"
+            description="¿Estás seguro de que deseas regenerar la evaluación? Esta acción sobrescribirá los datos actuales de la evaluación."
+            confirmText="Regenerar"
+            cancelText="Cancelar"
+            onConfirm={handleRegenerate}
+            icon="warning"
+          />
 
           {/* Delete */}
           <DeleteButton onClick={() => onDelete(id)} />
-
-          {/* Confirmation Dialog */}
-          <AlertDialog
-            open={showRegenerateDialog}
-            onOpenChange={setShowRegenerateDialog}
-          >
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Restablecer Evaluación</AlertDialogTitle>
-                <AlertDialogDescription>
-                  ¿Estás seguro de que deseas regenerar la evaluación? Esta
-                  acción sobrescribirá los datos actuales de la evaluación.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                <AlertDialogAction onClick={handleRegenerate}>
-                  Regenerar
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
         </div>
       );
     },
