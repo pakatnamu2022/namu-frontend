@@ -1,11 +1,3 @@
-"use client";
-
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { ParEvaluatorForm } from "./ParEvaluatorForm";
 import { useAllWorkers } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
 import FormSkeleton from "@/shared/components/FormSkeleton";
@@ -14,6 +6,7 @@ import { ParEvaluatorResource } from "../lib/par-evaluator.interface";
 import { STATUS_WORKER } from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.constant";
 import { useEffect, useState } from "react";
 import { getAllParEvaluators } from "../lib/par-evaluator.actions";
+import { GeneralModal } from "@/shared/components/GeneralModal";
 
 interface ParEvaluatorAddModalProps {
   open: boolean;
@@ -75,29 +68,28 @@ export function ParEvaluatorAddModal({
   const isLoading = loadingWorkers || loadingExisting;
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] w-full overflow-auto max-w-2xl">
-        <DialogHeader>
-          <DialogTitle>Asignar Evaluadores Par</DialogTitle>
-        </DialogHeader>
-
-        {isLoading ? (
-          <FormSkeleton />
-        ) : (
-          <ParEvaluatorForm
-            persons={workersData || []}
-            existingEvaluators={existingEvaluators}
-            defaultValues={{
-              worker_id: workerId?.toString() || undefined,
-              mate_ids: [],
-            }}
-            onSubmit={handleSubmit}
-            isSubmitting={isSubmitting}
-            mode="create"
-            showCancelButton={false}
-          />
-        )}
-      </DialogContent>
-    </Dialog>
+    <GeneralModal
+      open={open}
+      onClose={() => onOpenChange(false)}
+      title="Asignar Evaluadores Par"
+      icon={"UserCog"}
+    >
+      {isLoading ? (
+        <FormSkeleton />
+      ) : (
+        <ParEvaluatorForm
+          persons={workersData || []}
+          existingEvaluators={existingEvaluators}
+          defaultValues={{
+            worker_id: workerId?.toString() || undefined,
+            mate_ids: [],
+          }}
+          onSubmit={handleSubmit}
+          isSubmitting={isSubmitting}
+          mode="create"
+          showCancelButton={false}
+        />
+      )}
+    </GeneralModal>
   );
 }

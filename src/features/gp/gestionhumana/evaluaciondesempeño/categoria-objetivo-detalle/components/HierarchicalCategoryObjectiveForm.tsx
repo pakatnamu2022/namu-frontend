@@ -42,7 +42,7 @@ export const HierarchicalCategoryObjectiveForm = ({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-full formlayout">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-full">
         <div className="grid grid-cols-1 gap-4">
           <FormSelect
             control={form.control}

@@ -134,10 +134,11 @@ export const EvaluationPersonColumns = ({
     size: 60,
     cell: ({ row }) => {
       const router = useNavigate();
-      const id = row.original.person_id;
+      const id = row.original.id;
+      const person_id = row.original.person_id;
       const evaluationId = row.original.evaluation_id;
       const handleRegenerate = () => {
-        onRegenerate(id, evaluationId);
+        onRegenerate(person_id, evaluationId);
       };
 
       return (
@@ -148,7 +149,7 @@ export const EvaluationPersonColumns = ({
             size="sm"
             className="h-7 text-xs!"
             tooltip="Ver Evaluación"
-            onClick={() => router(`${ABSOLUTE_ROUTE}/${evaluationId}/${id}`)}
+            onClick={() => router(`${ABSOLUTE_ROUTE}/${evaluationId}/${person_id}`)}
           >
             Evaluación
             <PanelLeft className="size-5" />

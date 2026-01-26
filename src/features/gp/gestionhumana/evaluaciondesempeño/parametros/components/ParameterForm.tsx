@@ -137,7 +137,7 @@ export default function ParameterForm({
     <Form {...form}>
       <form
         onSubmit={handleSubmit(onSave)}
-        className="space-y-6 w-full formlayout"
+        className="space-y-6 w-full"
       >
         <FormField
           control={control}
