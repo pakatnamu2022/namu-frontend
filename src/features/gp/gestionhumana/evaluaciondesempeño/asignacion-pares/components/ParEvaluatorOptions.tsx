@@ -2,6 +2,7 @@
 
 import SearchInput from "@/shared/components/SearchInput";
 import { WORKER } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.constant";
+import FilterWrapper from "@/shared/components/FilterWrapper";
 
 const { MODEL } = WORKER;
 
@@ -13,12 +14,12 @@ export default function ParEvaluatorOptions({
   setSearch: (value: string) => void;
 }) {
   return (
-    <div className="flex items-center gap-2 flex-wrap justify-between w-full">
+    <FilterWrapper>
       <SearchInput
         value={search}
         onChange={setSearch}
         placeholder={`Buscar ${MODEL.name}`}
       />
-    </div>
+    </FilterWrapper>
   );
 }

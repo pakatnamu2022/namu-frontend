@@ -3,16 +3,16 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { UserPlus } from "lucide-react";
-import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
+// import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { WorkerResource } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.interface";
 
 export type ParEvaluatorColumns = ColumnDef<WorkerResource>;
 
 export const parEvaluatorColumns = ({
-  onDelete,
+  // onDelete,
   onAssign,
 }: {
-  onDelete: (id: number) => void;
+  // onDelete: (id: number) => void;
   onAssign: (workerId: number) => void;
 }): ParEvaluatorColumns[] => [
   {
@@ -46,6 +46,7 @@ export const parEvaluatorColumns = ({
           <Button
             variant="outline"
             size="sm"
+            color="primary"
             className="h-7"
             onClick={() => onAssign(id)}
           >
@@ -53,7 +54,7 @@ export const parEvaluatorColumns = ({
             Asignar
           </Button>
           {/* Delete */}
-          <DeleteButton onClick={() => onDelete(id)} />
+          {/* <DeleteButton onClick={() => onDelete(id)} /> */}
         </div>
       );
     },

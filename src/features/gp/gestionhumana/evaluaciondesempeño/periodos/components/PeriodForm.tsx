@@ -50,7 +50,7 @@ export const PeriodForm = ({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-4 w-full formlayout"
+        className="space-y-4 w-full"
       >
         <FormField
           control={form.control}

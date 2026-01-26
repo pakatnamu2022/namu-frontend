@@ -19,7 +19,7 @@ const colorClasses = {
     bgSolid: "bg-primary text-primary-foreground dark:bg-blue-600", // Para default/secondary/destructive
     hoverSolid: "hover:bg-primary/90 dark:hover:bg-blue-600", // Para default/secondary/destructive
     hoverOutline:
-      "hover:bg-primary/5 dark:hover:bg-blue-950 hover:text-blue-600 dark:hover:text-blue-400", // Para outline/tertiary/ghost
+      "hover:bg-primary/5 dark:hover:bg-blue-950 hover:text-primary dark:hover:text-blue-400", // Para outline/tertiary/ghost
   },
 
   muted: {
