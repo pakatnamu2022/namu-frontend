@@ -17,17 +17,17 @@ export default function SalesManagerStatsCards({
     {
       name: "Atendidos",
       value: teamTotals.attended,
-      fill: "hsl(var(--chart-2))",
+      fill: "var(--chart-2)",
     },
     {
       name: "Pendientes",
       value: teamTotals.not_attended,
-      fill: "hsl(var(--chart-3))",
+      fill: "var(--chart-3)",
     },
     {
       name: "Descartados",
       value: teamTotals.discarded,
-      fill: "hsl(var(--chart-1))",
+      fill: "var(--chart-1)",
     },
   ];
 
@@ -37,15 +37,15 @@ export default function SalesManagerStatsCards({
     },
     Atendidos: {
       label: "Atendidos",
-      color: "hsl(var(--chart-2))",
+      color: "var(--chart-2)",
     },
     Pendientes: {
       label: "Pendientes",
-      color: "hsl(var(--chart-3))",
+      color: "var(--chart-3)",
     },
     Descartados: {
       label: "Descartados",
-      color: "hsl(var(--chart-1))",
+      color: "var(--chart-1)",
     },
   } satisfies ChartConfig;
 
@@ -64,7 +64,7 @@ export default function SalesManagerStatsCards({
     (acc, [status], index) => {
       acc[status] = {
         label: status,
-        color: `hsl(var(--chart-${(index % 5) + 1}))`,
+        color: `var(--chart-${(index % 5) + 1})`,
       };
       return acc;
     },

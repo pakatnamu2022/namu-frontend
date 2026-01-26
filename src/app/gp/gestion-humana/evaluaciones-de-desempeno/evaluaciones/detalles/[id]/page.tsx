@@ -17,7 +17,6 @@ import {
   usePersonsInEvaluation,
   usePositionsInEvaluation,
 } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluaciones/lib/evaluation.hook";
-import { deleteEvaluationPersonDetail } from "@/features/gp/gestionhumana/evaluaciondesempeño/excluidos/lib/excluded.actions";
 import EvaluationPersonActions from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/components/EvaluationPersonActions";
 import EvaluationPersonTable from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/components/EvaluationPersonTable";
 import { EvaluationPersonColumns } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/components/EvaluationPersonColumns";
@@ -30,7 +29,10 @@ import {
 } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/lib/evaluationPerson.hook";
 import { WorkerResource } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.interface";
 import { regenerateEvaluation } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluaciones/lib/evaluation.actions";
-import { regenerateEvaluationPerson } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/lib/evaluationPerson.actions";
+import {
+  deleteEvaluationPerson,
+  regenerateEvaluationPerson,
+} from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/lib/evaluationPerson.actions";
 import { notFound } from "@/shared/hooks/useNotFound";
 import PageWrapper from "@/shared/components/PageWrapper";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -93,11 +95,13 @@ export default function EvaluationDetailPage() {
   const handleDelete = async () => {
     if (!deleteId) return;
     try {
-      await deleteEvaluationPersonDetail(deleteId);
+      await deleteEvaluationPerson(deleteId);
       await refetch();
       successToast("Detalle de Ciclo eliminado correctamente.");
-    } catch (error) {
-      errorToast("Error al eliminar el objetivo.");
+    } catch (error: any) {
+      errorToast(
+        error.response.data.message || "Error al eliminar el registro.",
+      );
     } finally {
       setDeleteId(null);
     }

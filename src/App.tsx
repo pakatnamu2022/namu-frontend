@@ -336,6 +336,9 @@ import UploadDepositPage from "./app/gp/gestion-humana/viaticos/solicitud-viatic
 import AccountantDistrictAssignmentPage from "./app/gp/gestion-humana/viaticos/asignacion-asistentes/page.tsx";
 import UpdatePositionPage from "./app/gp/gestion-humana/configuraciones/posiciones/actualizar/[id]/page";
 import UpdateHierarchicalCategoryPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/categorias-jerarquicas/actualizar/[id]/page";
+import PayrollConceptsPage from "./app/gp/gestion-humana/planillas/conceptos/page";
+import AddPayrollConceptPage from "./app/gp/gestion-humana/planillas/conceptos/agregar/page";
+import UpdatePayrollConceptPage from "./app/gp/gestion-humana/planillas/conceptos/actualizar/[id]/page";
 import SedePage from "./app/gp/maestro-general/sede/page.tsx";
 import UpdateSedePage from "./app/gp/maestro-general/sede/actualizar/[id]/page.tsx";
 import AddSedePage from "./app/gp/maestro-general/sede/agregar/page.tsx";
@@ -358,6 +361,13 @@ import ControlTravelPage from "./app/tp/comercial-tp/control-viajes/page.tsx";
 import GeneralMastersPage from "./app/gp/maestros-generales/page.tsx";
 import { PER_DIEM_REQUEST } from "./features/profile/viaticos/lib/perDiemRequest.constants.ts";
 import ProfileLayout from "./features/dashboard/components/ProfileLayout.tsx";
+import WorkSchedulesPage from "./app/gp/gestion-humana/planillas/dia-trabajo/page.tsx";
+import PayrollPeriodsPage from "./app/gp/gestion-humana/planillas/periodos/page.tsx";
+import AddPayrollPeriodPage from "./app/gp/gestion-humana/planillas/periodos/agregar/page.tsx";
+import UpdatePayrollPeriodPage from "./app/gp/gestion-humana/planillas/periodos/actualizar/[id]/page.tsx";
+import WorkTypePage from "./app/gp/gestion-humana/planillas/tipo-dia-trabajo/page.tsx";
+import AddWorkTypePage from "./app/gp/gestion-humana/planillas/tipo-dia-trabajo/agregar/page.tsx";
+import UpdateWorkTypePage from "./app/gp/gestion-humana/planillas/tipo-dia-trabajo/actualizar/[id]/page.tsx";
 
 // ============================================================================
 // PROTECTED ROUTE COMPONENT
@@ -891,6 +901,7 @@ function App() {
               />
 
               {/* Vehículos Configuration */}
+              <Route index path="vehiculos" element={<ModulePage />} />
 
               <Route
                 path="vehiculos/categorias"
@@ -1717,6 +1728,36 @@ function App() {
                 <EvaluationModelPage />,
                 <AddEvaluationModelPage />,
                 <UpdateEvaluationModelPage />,
+              )}
+
+              {/* Planillas */}
+              {/* Conceptos */}
+              {RouterCrud(
+                "planillas/conceptos",
+                <PayrollConceptsPage />,
+                <AddPayrollConceptPage />,
+                <UpdatePayrollConceptPage />,
+              )}
+              {/* Dia Trabajo */}
+              {RouterCrud(
+                "planillas/dia-trabajo",
+                <WorkSchedulesPage />,
+                <WorkSchedulesPage />,
+                <WorkSchedulesPage />,
+              )}
+              {/* Periodos */}
+              {RouterCrud(
+                "planillas/periodos",
+                <PayrollPeriodsPage />,
+                <AddPayrollPeriodPage />,
+                <UpdatePayrollPeriodPage />,
+              )}
+              {/* Tipo de Dia de Trabajo */}
+              {RouterCrud(
+                "planillas/tipo-dia-trabajo",
+                <WorkTypePage />,
+                <AddWorkTypePage />,
+                <UpdateWorkTypePage />,
               )}
             </Route>
 

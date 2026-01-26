@@ -29,6 +29,7 @@ interface ItemsSectionProps {
   maxAdvanceAmount?: number;
   isFromQuotation?: boolean;
   showActions?: boolean;
+  useQuotation?: boolean;
 }
 
 export function ItemsSection({
@@ -40,6 +41,7 @@ export function ItemsSection({
   maxAdvanceAmount,
   isFromQuotation = false,
   showActions = true,
+  useQuotation = false,
 }: ItemsSectionProps) {
   const { data: accountPlans } = useAllAccountingAccountPlan();
 
@@ -180,14 +182,6 @@ export function ItemsSection({
     )
       return;
 
-    // Calcular valores según SUNAT:
-    // Ejemplo: precio_unitario (con IGV) = 590, descuento = 200
-    // 1. valor_unitario = precio sin IGV = 590 / 1.18 = 500
-    // 2. precio_unitario = precio con IGV = 590
-    // 3. descuento = 200 (se aplica sobre el valor_unitario)
-    // 4. subtotal = (valor_unitario * cantidad) - descuento = 500 - 200 = 300
-    // 5. igv = subtotal * 0.18 = 300 * 0.18 = 54
-    // 6. total = subtotal + igv = 300 + 54 = 354
     const precio_con_igv_input = newItem.precio_unitario; // Lo que ingresa el usuario (CON IGV)
     const descuento = newItem.descuento || 0;
     const valor_unitario = precio_con_igv_input / (1 + porcentaje_de_igv / 100);
@@ -286,16 +280,18 @@ export function ItemsSection({
               </AlertDescription>
             </Alert>
           )}
-          <Button
-            type="button"
-            onClick={openSheetForNewItem}
-            disabled={isAddItemDisabled}
-            className={isFromQuotation ? "hidden" : "gap-2"}
-            size="sm"
-          >
-            <Plus className="size-4" />
-            Agregar Item
-          </Button>
+          {!useQuotation && (
+            <Button
+              type="button"
+              onClick={openSheetForNewItem}
+              disabled={isAddItemDisabled}
+              className={isFromQuotation ? "hidden" : "gap-2"}
+              size="sm"
+            >
+              <Plus className="size-4" />
+              Agregar Item
+            </Button>
+          )}
         </div>
 
         {form.formState.errors.items && (
