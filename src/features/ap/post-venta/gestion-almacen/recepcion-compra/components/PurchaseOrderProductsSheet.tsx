@@ -208,25 +208,13 @@ export function PurchaseOrderProductsViewSheet({
         {/* Información Adicional */}
         <div className="grid grid-cols-2 gap-4 p-4 bg-muted/50 rounded-lg text-xs">
           <div>
-            <p className="text-muted-foreground">Estado de Migración</p>
-            <p className="font-medium capitalize">{data.migration_status}</p>
+            <p className="text-muted-foreground">Creado por</p>
+            <p className="font-medium">{data.created_by_name}</p>
           </div>
           <div>
-            <p className="text-muted-foreground">Reenviado</p>
-            <p className="font-medium">{data.resent ? "Sí" : "No"}</p>
-          </div>
-          <div>
-            <p className="text-muted-foreground">Creado</p>
+            <p className="text-muted-foreground">Fecha de Creación</p>
             <p className="font-medium">
               {format(new Date(data.created_at), "dd/MM/yyyy HH:mm", {
-                locale: es,
-              })}
-            </p>
-          </div>
-          <div>
-            <p className="text-muted-foreground">Actualizado</p>
-            <p className="font-medium">
-              {format(new Date(data.updated_at), "dd/MM/yyyy HH:mm", {
                 locale: es,
               })}
             </p>

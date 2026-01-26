@@ -59,7 +59,7 @@ export const UserSeriesAssignmentForm = ({
     resolver: zodResolver(
       mode === "create"
         ? userSeriesAssignmentSchemaCreate
-        : userSeriesAssignmentSchemaUpdate
+        : userSeriesAssignmentSchemaUpdate,
     ),
     defaultValues: {
       ...defaultValues,
@@ -74,6 +74,7 @@ export const UserSeriesAssignmentForm = ({
       ...POSITION_TYPE.SALES_COORDINATOR,
       ...POSITION_TYPE.TICS,
       ...POSITION_TYPE.PDI,
+      ...POSITION_TYPE.WAREHOUSE,
     ],
     status_id: STATUS_WORKER.ACTIVE,
     sede$empresa_id: EMPRESA_AP.id,
@@ -134,15 +135,16 @@ export const UserSeriesAssignmentForm = ({
                             onRemove={() =>
                               field.onChange(
                                 (field.value ?? []).filter(
-                                  (a: { id: number }) => a.id !== comprobante.id
-                                )
+                                  (a: { id: number }) =>
+                                    a.id !== comprobante.id,
+                                ),
                               )
                             }
                           >
                             {comprobante.series} - {comprobante.type_receipt} -{" "}
                             {comprobante.type_operation}-{comprobante.sede}
                           </TagsValue>
-                        )
+                        ),
                       )}
                     </TagsTrigger>
                     <TagsContent>
@@ -157,7 +159,7 @@ export const UserSeriesAssignmentForm = ({
                                 if (
                                   !(field.value ?? []).some(
                                     (a: { id: number }) =>
-                                      a.id === comprobante.id
+                                      a.id === comprobante.id,
                                   )
                                 ) {
                                   field.onChange([
@@ -172,7 +174,7 @@ export const UserSeriesAssignmentForm = ({
                               - {comprobante.type_operation} -{" "}
                               {comprobante.sede}{" "}
                               {(field.value ?? []).some(
-                                (a: { id: number }) => a.id === comprobante.id
+                                (a: { id: number }) => a.id === comprobante.id,
                               ) && (
                                 <CheckIcon
                                   className="text-muted-foreground"

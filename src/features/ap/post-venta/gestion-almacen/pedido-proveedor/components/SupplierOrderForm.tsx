@@ -59,7 +59,6 @@ import { usePurchaseRequestsDetailsPending } from "../../../taller/solicitud-com
 import { rejectPurchaseRequestDetail } from "../../../taller/solicitud-compra/lib/purchaseRequest.actions.ts";
 
 const SUPPLY_TYPE_OPTIONS = [
-  { label: "Stock", value: "STOCK" },
   { label: "Lima", value: "LIMA" },
   { label: "Importación", value: "IMPORTACION" },
 ];
