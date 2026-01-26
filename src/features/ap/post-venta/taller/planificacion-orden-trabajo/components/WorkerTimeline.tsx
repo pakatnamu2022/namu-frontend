@@ -61,6 +61,12 @@ import {
 import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  AT_WORK_WORK_ORDER_ID,
+  FINISHED_WORK_ORDER_ID,
+  OPENING_WORK_ORDER_ID,
+  RECEIVED_WORK_ORDER_ID,
+} from "@/features/ap/ap-master/lib/apMaster.constants";
 
 interface WorkerTimelineProps {
   open?: boolean;
@@ -130,6 +136,12 @@ export function WorkerTimeline({
         search: debouncedSearch,
         page: pageWorkOrder,
         per_page: 20,
+        status_id: [
+          OPENING_WORK_ORDER_ID,
+          RECEIVED_WORK_ORDER_ID,
+          AT_WORK_WORK_ORDER_ID,
+          FINISHED_WORK_ORDER_ID,
+        ],
       },
     });
 
