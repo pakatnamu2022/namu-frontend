@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 import { FileText, Plus, Receipt } from "lucide-react";
 import { findWorkOrderById } from "../../lib/workOrder.actions";
 import { useGetPaymentSummary } from "../../lib/workOrder.hook";
@@ -325,85 +326,147 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
             />
           ) : (
             /* Facturas del grupo */
-            <Card className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h4 className="font-semibold text-gray-900">
-                  Facturas Emitidas
-                </h4>
-                <Button onClick={handleCreateInvoice}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Nueva Factura
-                </Button>
-              </div>
-
-              {advances.length === 0 ? (
-                <div className="text-center py-8">
-                  <FileText className="h-12 w-12 text-gray-400 mx-auto mb-3" />
-                  <p className="text-sm text-gray-600 mb-1">
-                    No hay facturas para este grupo
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    Crea la primera factura para este grupo
-                  </p>
+            <Card className="p-4">
+              {/* Resumen compacto con progreso */}
+              <div className="space-y-4">
+                {/* Header */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <FileText className="h-5 w-5 text-primary" />
+                    <h4 className="font-semibold text-gray-900">
+                      Facturas Emitidas
+                    </h4>
+                    {advances.length > 0 && (
+                      <Badge variant="outline" className="bg-primary/5">
+                        {advances.length}
+                      </Badge>
+                    )}
+                  </div>
+                  <Button onClick={handleCreateInvoice} size="sm">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Nueva Factura
+                  </Button>
                 </div>
-              ) : (
-                <div className="space-y-4">
-                  {advances.map((advance) => (
-                    <div
-                      key={advance.id}
-                      className="border rounded-lg p-4 bg-white hover:shadow-md transition-shadow"
-                    >
-                      <div className="flex items-start justify-between mb-3">
-                        <div>
-                          <p className="font-semibold text-gray-900">
-                            {advance.full_number}
-                          </p>
-                          <p className="text-sm text-gray-600">
-                            {advance.fecha_de_emision}
-                          </p>
-                        </div>
-                        <Badge
-                          color={
-                            advance.sunat_responsecode === "0"
-                              ? "default"
-                              : "secondary"
-                          }
-                          className={
-                            advance.sunat_responsecode === "0"
-                              ? "bg-green-600"
-                              : "bg-yellow-600"
-                          }
-                        >
-                          {advance.sunat_responsecode === "0"
-                            ? "Aceptado"
-                            : "Pendiente"}
-                        </Badge>
-                      </div>
 
-                      <div className="grid grid-cols-2 gap-3 text-sm">
-                        <div>
-                          <p className="text-gray-600">Cliente</p>
-                          <p className="text-gray-700">
-                            {advance.cliente_denominacion}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-gray-600">Total</p>
-                          <p className="font-bold text-green-600">
-                            S/ {Number(advance.total).toFixed(2)}
-                          </p>
-                        </div>
-                        <div className="col-span-2">
-                          <p className="text-gray-600">Tipo de Documento</p>
-                          <p className="text-gray-700">
-                            {advance.document_type?.description}
-                          </p>
-                        </div>
+                {advances.length === 0 ? (
+                  <div className="text-center py-6">
+                    <FileText className="h-10 w-10 text-gray-400 mx-auto mb-2" />
+                    <p className="text-sm text-gray-600 mb-1">
+                      No hay facturas para este grupo
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      Crea la primera factura haciendo clic en "Nueva Factura"
+                    </p>
+                  </div>
+                ) : (
+                  <>
+                    {/* Barra de Progreso */}
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium text-foreground">
+                          Progreso de Facturación
+                        </span>
+                        <span className="text-sm font-semibold text-primary">
+                          {paymentSummary
+                            ? (
+                                (advances.reduce(
+                                  (sum, advance) => sum + Number(advance.total),
+                                  0,
+                                ) /
+                                  paymentSummary.payment_summary.total_amount) *
+                                100
+                              ).toFixed(1)
+                            : "0.0"}
+                          %
+                        </span>
+                      </div>
+                      <Progress
+                        value={
+                          paymentSummary
+                            ? (advances.reduce(
+                                (sum, advance) => sum + Number(advance.total),
+                                0,
+                              ) /
+                                paymentSummary.payment_summary.total_amount) *
+                              100
+                            : 0
+                        }
+                        className="h-3"
+                      />
+                      <div className="flex justify-between text-xs text-muted-foreground">
+                        <span>
+                          S/{" "}
+                          {advances
+                            .reduce(
+                              (sum, advance) => sum + Number(advance.total),
+                              0,
+                            )
+                            .toFixed(2)}
+                        </span>
+                        <span>
+                          S/{" "}
+                          {paymentSummary
+                            ? paymentSummary.payment_summary.total_amount.toFixed(
+                                2,
+                              )
+                            : "0.00"}
+                        </span>
                       </div>
                     </div>
-                  ))}
-                </div>
-              )}
+
+                    {/* Lista de facturas - Más compacta */}
+                    <div className="space-y-2">
+                      {advances.map((advance) => (
+                        <div
+                          key={advance.id}
+                          className="flex items-center justify-between p-3 border rounded-lg bg-white hover:bg-gray-50 transition-colors"
+                        >
+                          <div className="flex items-center gap-3 flex-1">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2">
+                                <p className="font-semibold text-gray-900 text-sm">
+                                  {advance.full_number}
+                                </p>
+                                <Badge
+                                  variant="default"
+                                  color={
+                                    advance.sunat_responsecode === "0"
+                                      ? "green"
+                                      : "default"
+                                  }
+                                >
+                                  {advance.sunat_responsecode === "0"
+                                    ? "Aceptado"
+                                    : "Pendiente"}
+                                </Badge>
+                                {advance.is_advance_payment && (
+                                  <Badge variant="default" color="secondary">
+                                    Anticipo
+                                  </Badge>
+                                )}
+                              </div>
+                              <div className="flex items-center gap-3 mt-1">
+                                <p className="text-xs text-gray-600">
+                                  {advance.fecha_de_emision}
+                                </p>
+                                <span className="text-xs text-gray-400">•</span>
+                                <p className="text-xs text-gray-600">
+                                  {advance.document_type?.description}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <p className="font-bold text-green-600">
+                              S/ {Number(advance.total).toFixed(2)}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
             </Card>
           )}
         </>

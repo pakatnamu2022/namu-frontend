@@ -47,6 +47,7 @@ interface PurchaseRequestFormProps {
   isSubmitting?: boolean;
   mode?: "create" | "update";
   onCancel?: () => void;
+  showQuotationOption?: boolean;
 }
 
 export default function PurchaseRequestForm({
@@ -55,6 +56,7 @@ export default function PurchaseRequestForm({
   isSubmitting = false,
   mode = "create",
   onCancel,
+  showQuotationOption = true,
 }: PurchaseRequestFormProps) {
   const [details, setDetails] = useState<PurchaseRequestDetailSchema[]>(() => {
     // Transformar los detalles del backend al formato esperado
@@ -323,32 +325,34 @@ export default function PurchaseRequestForm({
           </div>
 
           {/* Checkbox para adjuntar cotización */}
-          <div className="mt-4">
-            <FormField
-              control={form.control}
-              name="has_appointment"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel>¿Adjuntar Cotización?</FormLabel>
-                    <p className="text-sm text-muted-foreground">
-                      Marque esta opción si desea adjuntar una cotización a la
-                      solicitud de compra.
-                    </p>
-                  </div>
-                </FormItem>
-              )}
-            />
-          </div>
+          {showQuotationOption && (
+            <div className="mt-4">
+              <FormField
+                control={form.control}
+                name="has_appointment"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel>¿Adjuntar Cotización?</FormLabel>
+                      <p className="text-sm text-muted-foreground">
+                        Marque esta opción si desea adjuntar una cotización a la
+                        solicitud de compra.
+                      </p>
+                    </div>
+                  </FormItem>
+                )}
+              />
+            </div>
+          )}
 
           {/* Selector de Cotización - Solo visible si has_appointment es true */}
-          {hasAppointment && (
+          {showQuotationOption && hasAppointment && (
             <div className="mt-4">
               <FormField
                 control={form.control}

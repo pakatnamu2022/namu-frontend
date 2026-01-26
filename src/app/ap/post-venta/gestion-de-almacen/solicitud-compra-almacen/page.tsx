@@ -17,21 +17,27 @@ import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { useNavigate } from "react-router-dom";
-import { PURCHASE_REQUEST } from "@/features/ap/post-venta/taller/solicitud-compra/lib/purchaseRequest.constants";
+import { PURCHASE_REQUEST_ALMACEN } from "@/features/ap/post-venta/taller/solicitud-compra/lib/purchaseRequest.constants";
 import PurchaseRequestActions from "@/features/ap/post-venta/taller/solicitud-compra/components/PurchaseRequestActions";
 import { purchaseRequestColumns } from "@/features/ap/post-venta/taller/solicitud-compra/components/PurchaseRequestColumns";
 import PurchaseRequestTable from "@/features/ap/post-venta/taller/solicitud-compra/components/PurchaseRequestTable";
 import PurchaseRequestOptions from "@/features/ap/post-venta/taller/solicitud-compra/components/PurchaseRequestOptions";
 import { deletePurchaseRequest } from "@/features/ap/post-venta/taller/solicitud-compra/lib/purchaseRequest.actions";
 import { usePurchaseRequests } from "@/features/ap/post-venta/taller/solicitud-compra/lib/purchaseRequest.hook";
+import { PurchaseRequestDetailSheet } from "@/features/ap/post-venta/taller/solicitud-compra/components/PurchaseRequestDetailSheet";
+import type { PurchaseRequestResource } from "@/features/ap/post-venta/taller/solicitud-compra/lib/purchaseRequest.interface";
 
-export default function PurchaseRequestPVPage() {
+export default function WarehousePurchaseRequestPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
-  const { MODEL, ROUTE, ROUTE_UPDATE, ROUTE_ADD } = PURCHASE_REQUEST;
+  const [selectedPurchaseRequestId, setSelectedPurchaseRequestId] = useState<
+    number | null
+  >(null);
+  const [isDetailSheetOpen, setIsDetailSheetOpen] = useState(false);
+  const { MODEL, ROUTE, ROUTE_UPDATE, ROUTE_ADD } = PURCHASE_REQUEST_ALMACEN;
   const permissions = useModulePermissions(ROUTE);
   const router = useNavigate();
   const currentDate = new Date();
@@ -81,6 +87,16 @@ export default function PurchaseRequestPVPage() {
     router(`${ROUTE_UPDATE}/${id}`);
   };
 
+  const handleViewDetail = (purchaseRequest: PurchaseRequestResource) => {
+    setSelectedPurchaseRequestId(purchaseRequest.id);
+    setIsDetailSheetOpen(true);
+  };
+
+  const handleCloseDetailSheet = () => {
+    setIsDetailSheetOpen(false);
+    setSelectedPurchaseRequestId(null);
+  };
+
   if (isLoadingModule) return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
   if (!currentView) notFound();
@@ -104,6 +120,7 @@ export default function PurchaseRequestPVPage() {
         columns={purchaseRequestColumns({
           onDelete: setDeleteId,
           onUpdate: handleUpdate,
+          onViewDetail: handleViewDetail,
           permissions,
         })}
         data={data?.data || []}
@@ -134,6 +151,13 @@ export default function PurchaseRequestPVPage() {
           onConfirm={handleDelete}
         />
       )}
+
+      <PurchaseRequestDetailSheet
+        purchaseRequestId={selectedPurchaseRequestId}
+        open={isDetailSheetOpen}
+        onClose={handleCloseDetailSheet}
+        onRefresh={refetch}
+      />
     </div>
   );
 }
