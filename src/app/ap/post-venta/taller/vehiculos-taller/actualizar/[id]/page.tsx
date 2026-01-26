@@ -13,7 +13,7 @@ import {
 import TitleFormComponent from "@/shared/components/TitleFormComponent.tsx";
 import FormSkeleton from "@/shared/components/FormSkeleton.tsx";
 import FormWrapper from "@/shared/components/FormWrapper.tsx";
-import { VEHICLES_PV } from "@/features/ap/comercial/vehiculos/lib/vehicles.constants.ts";
+import { VEHICLES_TLL } from "@/features/ap/comercial/vehiculos/lib/vehicles.constants.ts";
 import { updateVehicle } from "@/features/ap/comercial/vehiculos/lib/vehicles.actions.ts";
 import { VehiclePVForm } from "@/features/ap/comercial/vehiculos/components/VehiclePVForm.tsx";
 import { VehicleResource } from "@/features/ap/comercial/vehiculos/lib/vehicles.interface.ts";
@@ -26,10 +26,10 @@ export default function UpdateVehiclePVPage() {
   const router = useNavigate();
   const queryClient = useQueryClient();
   const { currentView, checkRouteExists } = useCurrentModule();
-  const { ROUTE, QUERY_KEY, MODEL, ABSOLUTE_ROUTE } = VEHICLES_PV;
+  const { ROUTE, QUERY_KEY, MODEL, ABSOLUTE_ROUTE } = VEHICLES_TLL;
 
   const { data: vehicle, isLoading: loadingVehicle } = useVehicleById(
-    Number(id)
+    Number(id),
   );
 
   const { mutate, isPending } = useMutation({

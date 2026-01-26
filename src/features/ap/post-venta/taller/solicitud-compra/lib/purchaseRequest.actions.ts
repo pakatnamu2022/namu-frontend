@@ -30,7 +30,7 @@ export async function getPurchaseRequestsDetailsPending({
   };
   const { data } = await api.get<PurchaseRequestDetailResponse>(
     `${ENDPOINT}/pending-details`,
-    config
+    config,
   );
   return data;
 }
@@ -49,14 +49,14 @@ export async function getAllPurchaseRequests({
 }
 
 export async function findPurchaseRequestById(
-  id: number
+  id: number,
 ): Promise<PurchaseRequestResource> {
   const response = await api.get<PurchaseRequestResource>(`${ENDPOINT}/${id}`);
   return response.data;
 }
 
 export async function storePurchaseRequest(
-  data: PurchaseRequestRequest
+  data: PurchaseRequestRequest,
 ): Promise<PurchaseRequestResource> {
   const response = await api.post<PurchaseRequestResource>(ENDPOINT, data);
   return response.data;
@@ -64,27 +64,50 @@ export async function storePurchaseRequest(
 
 export async function updatePurchaseRequest(
   id: number,
-  data: PurchaseRequestRequest
+  data: PurchaseRequestRequest,
 ): Promise<PurchaseRequestResource> {
   const response = await api.put<PurchaseRequestResource>(
     `${ENDPOINT}/${id}`,
-    data
+    data,
   );
   return response.data;
 }
 
 export async function deletePurchaseRequest(
-  id: number
+  id: number,
 ): Promise<GeneralResponse> {
   const { data } = await api.delete<GeneralResponse>(`${ENDPOINT}/${id}`);
   return data;
 }
 
 export async function rejectPurchaseRequestDetail(
-  id: number
+  id: number,
 ): Promise<GeneralResponse> {
   const { data } = await api.patch<GeneralResponse>(
-    `${ENDPOINT}/details/${id}/reject`
+    `${ENDPOINT}/details/${id}/reject`,
   );
   return data;
+}
+
+export async function downloadPurchaseRequestPdf(id: number): Promise<void> {
+  const response = await api.get(`${ENDPOINT}/${id}/pdf`, {
+    responseType: "blob",
+  });
+
+  // Crear un blob desde la respuesta
+  const blob = new Blob([response.data], { type: "application/pdf" });
+
+  // Crear un enlace temporal para descargar el archivo
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.setAttribute("download", `solicitud-compra-${id}.pdf`);
+
+  // Hacer clic automáticamente para iniciar la descarga
+  document.body.appendChild(link);
+  link.click();
+
+  // Limpiar
+  link.parentNode?.removeChild(link);
+  window.URL.revokeObjectURL(url);
 }

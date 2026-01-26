@@ -21,6 +21,7 @@ import { AdditionalConfigSection } from "@/features/ap/facturacion/electronic-do
 import { useCustomersById } from "@/features/ap/comercial/clientes/lib/customers.hook";
 import { ItemsSection } from "@/features/ap/facturacion/electronic-documents/components/sections/ItemsSection";
 import { WorkOrderResource } from "../lib/workOrder.interface";
+import { WorkOrderFinancialInfo } from "./WorkOrderFinancialInfo";
 
 interface InvoiceFormProps {
   form: UseFormReturn<ElectronicDocumentSchema>;
@@ -413,6 +414,14 @@ export default function InvoiceForm({
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Formulario - 2/3 del ancho */}
           <div className="lg:col-span-2 space-y-6">
+            {/* Información Financiera de la Orden de Trabajo */}
+            <WorkOrderFinancialInfo
+              labours={labours}
+              parts={parts}
+              advances={advances}
+              currencySymbol={currencySymbol}
+            />
+
             {/* Información del Documento */}
             <InvoiceDocumentInfoSection
               form={form}

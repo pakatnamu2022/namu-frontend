@@ -1,12 +1,14 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-import { Pencil, Eye } from "lucide-react";
+import { Pencil, Eye, Download } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { PurchaseRequestResource } from "../lib/purchaseRequest.interface";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { PURCHASE_REQUEST_STATUS } from "../lib/purchaseRequest.constants";
+import { errorToast, successToast } from "@/core/core.function";
+import { downloadPurchaseRequestPdf } from "../lib/purchaseRequest.actions";
 
 export type PurchaseRequestColumns = ColumnDef<PurchaseRequestResource>;
 
@@ -105,7 +107,19 @@ export const purchaseRequestColumns = ({
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
-      const { id, ap_order_quotation_id } = row.original;
+      const { id, ap_order_quotation_id, supplier_order_numbers } =
+        row.original;
+
+      const handleDownloadPdf = async (id: number) => {
+        try {
+          await downloadPurchaseRequestPdf(id);
+          successToast(
+            `PDF descargado correctamente para la solicitud de compra`,
+          );
+        } catch {
+          errorToast("Error al descargar el PDF");
+        }
+      };
 
       return (
         <div className="flex items-center gap-2">
@@ -121,6 +135,16 @@ export const purchaseRequestColumns = ({
             </Button>
           )}
 
+          <Button
+            variant="outline"
+            size="icon"
+            className="size-7"
+            tooltip="Facturar"
+            onClick={() => handleDownloadPdf(id)}
+          >
+            <Download className="size-5" />
+          </Button>
+
           {permissions.canUpdate && ap_order_quotation_id === null && (
             <Button
               variant="outline"
@@ -133,7 +157,7 @@ export const purchaseRequestColumns = ({
             </Button>
           )}
 
-          {permissions.canDelete && (
+          {permissions.canDelete && !supplier_order_numbers && (
             <DeleteButton onClick={() => onDelete(id)} />
           )}
         </div>

@@ -68,7 +68,7 @@ export const appointmentPlanningColumns = ({
         const formattedDate = format(
           new Date(date + "T00:00:00"),
           "dd/MM/yyyy",
-          { locale: es }
+          { locale: es },
         );
         return (
           <div className="flex flex-col gap-1">
@@ -103,7 +103,7 @@ export const appointmentPlanningColumns = ({
         const formattedDate = format(
           new Date(date + "T00:00:00"),
           "dd/MM/yyyy",
-          { locale: es }
+          { locale: es },
         );
         return (
           <div className="flex flex-col gap-1">
@@ -123,6 +123,11 @@ export const appointmentPlanningColumns = ({
         return date;
       }
     },
+    enableSorting: false,
+  },
+  {
+    accessorKey: "description",
+    header: "Descripción",
     enableSorting: false,
   },
   {

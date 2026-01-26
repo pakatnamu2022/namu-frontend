@@ -28,6 +28,7 @@ export default function AppointmentPlanningTable({
           phone_client: false,
           date_appointment: true,
           time_appointment: true,
+          description: false,
           is_taken: true,
         }}
       >

@@ -205,7 +205,8 @@ export const assignedWorkColumns = ({
         <div className="flex items-center gap-2">
           <Button
             variant="outline"
-            size="sm"
+            size="icon"
+            className="size-7"
             onClick={() => onView?.(planning)}
           >
             <Eye className="h-4 w-4" />
@@ -214,7 +215,7 @@ export const assignedWorkColumns = ({
           {(showStart || showContinue || showPauseAndComplete) && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="icon" className="size-7">
                   <MoreHorizontal className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
