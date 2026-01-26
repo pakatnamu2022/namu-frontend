@@ -34,7 +34,10 @@ import FormSkeleton from "@/shared/components/FormSkeleton.tsx";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog.tsx";
 import { useNavigate } from "react-router-dom";
 import { PRODUCT_TRANSFER } from "@/features/ap/post-venta/gestion-almacen/transferencia-producto/lib/productTransfer.constants.ts";
-import { useWarehousesByCompany } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook.ts";
+import {
+  useAllWarehouse,
+  useWarehousesByCompany,
+} from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook.ts";
 import { useSuppliers } from "@/features/ap/comercial/proveedores/lib/suppliers.hook.ts";
 import { useAllSunatConcepts } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.hook.ts";
 import { SUNAT_CONCEPTS_TYPE } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants.ts";
@@ -138,6 +141,15 @@ export const ProductTransferForm = ({
       type_operation_id: CM_POSTVENTA_ID,
       only_physical: 1,
     });
+
+  // Obtener almacenes destino
+  const {
+    data: warehousesDestination = [],
+    isLoading: isLoadingWarehousesDestination,
+  } = useAllWarehouse({
+    is_physical_warehouse: 1,
+    type_operation_id: CM_POSTVENTA_ID,
+  });
 
   // Obtener productos solo en modo create
   // En modo update, los productos se muestran desde transferData
@@ -315,7 +327,8 @@ export const ProductTransferForm = ({
     isLoadingWarehouses ||
     isLoadingSunatConcepts ||
     isLoadingSeries ||
-    isLoadingTypesPerson
+    isLoadingTypesPerson ||
+    isLoadingWarehousesDestination
   ) {
     return <FormSkeleton />;
   }
@@ -352,7 +365,7 @@ export const ProductTransferForm = ({
             name="warehouse_destination_id"
             label="Almacén de Destino"
             placeholder="Selecciona almacén"
-            options={warehouses.map((item) => ({
+            options={warehousesDestination.map((item) => ({
               label: item.description,
               value: item.id.toString(),
             }))}
