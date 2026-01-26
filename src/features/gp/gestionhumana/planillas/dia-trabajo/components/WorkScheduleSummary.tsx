@@ -9,7 +9,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { WorkScheduleWorkerSummary, WorkScheduleSummaryPeriod } from "../lib/work-schedule.interface";
+import {
+  WorkScheduleWorkerSummary,
+  WorkScheduleSummaryPeriod,
+} from "../lib/work-schedule.interface";
 import { Clock, Sun, Moon, Calendar, Users } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -59,7 +62,7 @@ export function WorkScheduleSummary({
       holiday: acc.holiday + worker.total_holiday_hours,
       days: acc.days + worker.days_worked,
     }),
-    { normal: 0, extra: 0, night: 0, holiday: 0, days: 0 }
+    { normal: 0, extra: 0, night: 0, holiday: 0, days: 0 },
   );
 
   return (
@@ -134,14 +137,16 @@ export function WorkScheduleSummary({
                   </TableCell>
                   <TableCell className="text-center">
                     {worker.total_normal_hours > 0 ? (
-                      <Badge variant="secondary">{worker.total_normal_hours}h</Badge>
+                      <Badge color="secondary">
+                        {worker.total_normal_hours}h
+                      </Badge>
                     ) : (
                       <span className="text-muted-foreground">-</span>
                     )}
                   </TableCell>
                   <TableCell className="text-center">
                     {worker.total_extra_hours > 0 ? (
-                      <Badge variant="outline" className="text-orange-600 border-orange-300">
+                      <Badge variant="outline" color="orange">
                         {worker.total_extra_hours}h
                       </Badge>
                     ) : (
@@ -150,7 +155,7 @@ export function WorkScheduleSummary({
                   </TableCell>
                   <TableCell className="text-center">
                     {worker.total_night_hours > 0 ? (
-                      <Badge variant="outline" className="text-blue-600 border-blue-300">
+                      <Badge variant="outline" color="blue">
                         {worker.total_night_hours}h
                       </Badge>
                     ) : (
@@ -159,7 +164,7 @@ export function WorkScheduleSummary({
                   </TableCell>
                   <TableCell className="text-center">
                     {worker.total_holiday_hours > 0 ? (
-                      <Badge variant="outline" className="text-purple-600 border-purple-300">
+                      <Badge variant="outline" color="purple">
                         {worker.total_holiday_hours}h
                       </Badge>
                     ) : (
@@ -167,7 +172,7 @@ export function WorkScheduleSummary({
                     )}
                   </TableCell>
                   <TableCell className="text-center">
-                    <Badge variant="secondary">{worker.days_worked}</Badge>
+                    <Badge color="secondary">{worker.days_worked}</Badge>
                   </TableCell>
                 </TableRow>
               ))}
@@ -175,10 +180,14 @@ export function WorkScheduleSummary({
               {summary.length > 1 && (
                 <TableRow className="bg-muted/50 font-semibold">
                   <TableCell>TOTAL</TableCell>
-                  <TableCell className="text-center">{totals.normal}h</TableCell>
+                  <TableCell className="text-center">
+                    {totals.normal}h
+                  </TableCell>
                   <TableCell className="text-center">{totals.extra}h</TableCell>
                   <TableCell className="text-center">{totals.night}h</TableCell>
-                  <TableCell className="text-center">{totals.holiday}h</TableCell>
+                  <TableCell className="text-center">
+                    {totals.holiday}h
+                  </TableCell>
                   <TableCell className="text-center">{totals.days}</TableCell>
                 </TableRow>
               )}

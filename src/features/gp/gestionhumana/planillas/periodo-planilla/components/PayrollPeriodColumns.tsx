@@ -13,10 +13,13 @@ import { es } from "date-fns/locale";
 
 export type PayrollPeriodColumns = ColumnDef<PayrollPeriodResource>;
 
-const statusConfig: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
-  OPEN: { label: "Abierto", variant: "outline" },
-  CALCULATED: { label: "Calculado", variant: "secondary" },
-  CLOSED: { label: "Cerrado", variant: "default" },
+const statusConfig: Record<
+  string,
+  { label: string; color: "default" | "secondary" | "destructive" | "muted" }
+> = {
+  OPEN: { label: "Abierto", color: "muted" },
+  CALCULATED: { label: "Calculado", color: "secondary" },
+  CLOSED: { label: "Cerrado", color: "default" },
 };
 
 export const payrollPeriodColumns = ({
@@ -82,8 +85,11 @@ export const payrollPeriodColumns = ({
     header: "Estado",
     cell: ({ getValue }) => {
       const status = getValue() as string;
-      const config = statusConfig[status] || { label: status, variant: "outline" as const };
-      return <Badge variant={config.variant}>{config.label}</Badge>;
+      const config = statusConfig[status] || {
+        label: status,
+        color: "default",
+      };
+      return <Badge color={config.color}>{config.label}</Badge>;
     },
   },
   {

@@ -1,11 +1,16 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, getDay, isWeekend } from "date-fns";
-import { es } from "date-fns/locale";
+import {
+  format,
+  startOfMonth,
+  endOfMonth,
+  eachDayOfInterval,
+  getDay,
+  isWeekend,
+} from "date-fns";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { WorkScheduleResource } from "../lib/work-schedule.interface";
 import { getStatusOption } from "../lib/work-schedule.constant";
@@ -84,7 +89,7 @@ export function WorkScheduleCalendar({
               className={cn(
                 "w-full h-full min-h-16 p-1 rounded-md cursor-pointer transition-all",
                 statusOption?.color || "bg-gray-100",
-                "hover:ring-2 hover:ring-primary"
+                "hover:ring-2 hover:ring-primary",
               )}
               onClick={() => canModify && onEditSchedule(schedule)}
               onMouseEnter={() => setHoveredDay(dateKey)}
@@ -97,7 +102,9 @@ export function WorkScheduleCalendar({
               <div className="text-[10px]">
                 {schedule.total_hours}h
                 {schedule.extra_hours > 0 && (
-                  <span className="text-orange-600 ml-1">+{schedule.extra_hours}</span>
+                  <span className="text-orange-600 ml-1">
+                    +{schedule.extra_hours}
+                  </span>
                 )}
               </div>
               {isHovered && canModify && (
@@ -131,9 +138,13 @@ export function WorkScheduleCalendar({
           <TooltipContent>
             <div className="space-y-1">
               <p className="font-medium">{schedule.work_type.name}</p>
-              <p>Horas: {schedule.hours_worked} | Extra: {schedule.extra_hours}</p>
+              <p>
+                Horas: {schedule.hours_worked} | Extra: {schedule.extra_hours}
+              </p>
               <p>Total: {schedule.total_hours}h</p>
-              {schedule.notes && <p className="text-xs italic">{schedule.notes}</p>}
+              {schedule.notes && (
+                <p className="text-xs italic">{schedule.notes}</p>
+              )}
             </div>
           </TooltipContent>
         </Tooltip>
@@ -147,17 +158,19 @@ export function WorkScheduleCalendar({
           isSunday && "bg-red-50",
           isSaturday && "bg-orange-50",
           !isWeekend(day) && "bg-muted/30",
-          canModify && "hover:bg-muted cursor-pointer"
+          canModify && "hover:bg-muted cursor-pointer",
         )}
         onClick={() => canModify && onAddSchedule(day)}
         onMouseEnter={() => setHoveredDay(dateKey)}
         onMouseLeave={() => setHoveredDay(null)}
       >
-        <div className={cn(
-          "text-xs font-medium",
-          isSunday && "text-red-600",
-          isSaturday && "text-orange-600"
-        )}>
+        <div
+          className={cn(
+            "text-xs font-medium",
+            isSunday && "text-red-600",
+            isSaturday && "text-orange-600",
+          )}
+        >
           {format(day, "d")}
         </div>
         {canModify && (
@@ -182,7 +195,7 @@ export function WorkScheduleCalendar({
             className={cn(
               "text-center text-xs font-medium py-2 border-r last:border-r-0",
               index === 0 && "text-red-600 bg-red-50/50",
-              index === 6 && "text-orange-600 bg-orange-50/50"
+              index === 6 && "text-orange-600 bg-orange-50/50",
             )}
           >
             {label}
@@ -192,7 +205,10 @@ export function WorkScheduleCalendar({
 
       <div className="grid grid-cols-7">
         {Array.from({ length: firstDayOffset }).map((_, index) => (
-          <div key={`empty-${index}`} className="min-h-16 border-r border-b bg-muted/20" />
+          <div
+            key={`empty-${index}`}
+            className="min-h-16 border-r border-b bg-muted/20"
+          />
         ))}
 
         {daysInMonth.map((day) => (

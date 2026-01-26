@@ -98,7 +98,7 @@ export const workTypeColumns = ({
     cell: ({ getValue }) => {
       const active = getValue() as boolean;
       return (
-        <Badge variant={active ? "default" : "secondary"}>
+        <Badge color={active ? "default" : "secondary"}>
           {active ? "Activo" : "Inactivo"}
         </Badge>
       );

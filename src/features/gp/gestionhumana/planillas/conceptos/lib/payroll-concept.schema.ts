@@ -4,9 +4,10 @@ export const payrollConceptSchemaCreate = z.object({
   code: z.string().min(1, "El código es requerido"),
   name: z.string().min(1, "El nombre es requerido"),
   description: z.string().optional(),
-  type: z.enum(["EARNING", "DEDUCTION", "CONTRIBUTION"], {
-    required_error: "El tipo es requerido",
-  }),
+  type: z.enum(
+    ["EARNING", "DEDUCTION", "CONTRIBUTION"],
+    "El tipo es requerido",
+  ),
   category: z.enum(
     [
       "BASE_SALARY",
@@ -20,9 +21,7 @@ export const payrollConceptSchemaCreate = z.object({
       "LOAN",
       "OTHER",
     ],
-    {
-      required_error: "La categoría es requerida",
-    }
+    "La categoría es requerida",
   ),
   formula: z.string().optional(),
   formula_description: z.string().optional(),
