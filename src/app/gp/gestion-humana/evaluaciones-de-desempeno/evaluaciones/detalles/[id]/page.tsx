@@ -98,8 +98,10 @@ export default function EvaluationDetailPage() {
       await deleteEvaluationPerson(deleteId);
       await refetch();
       successToast("Detalle de Ciclo eliminado correctamente.");
-    } catch (error) {
-      errorToast("Error al eliminar el objetivo.");
+    } catch (error: any) {
+      errorToast(
+        error.response.data.message || "Error al eliminar el registro.",
+      );
     } finally {
       setDeleteId(null);
     }
