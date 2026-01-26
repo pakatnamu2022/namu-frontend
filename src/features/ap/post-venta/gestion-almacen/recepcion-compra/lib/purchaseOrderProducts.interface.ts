@@ -56,6 +56,7 @@ export interface PurchaseOrderProductsResource {
   has_receptions?: boolean;
   migrated_at?: string | null;
   notes?: string;
+  created_by_name: string;
   created_at: string;
   updated_at: string;
 }
