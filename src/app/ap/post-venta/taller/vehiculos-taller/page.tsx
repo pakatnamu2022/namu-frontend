@@ -20,7 +20,7 @@ import { vehicleColumns } from "@/features/ap/comercial/vehiculos/components/Veh
 import VehicleTable from "@/features/ap/comercial/vehiculos/components/VehicleTable.tsx";
 import VehicleOptions from "@/features/ap/comercial/vehiculos/components/VehicleOptions.tsx";
 import { notFound } from "@/shared/hooks/useNotFound.ts";
-import { VEHICLES_PV } from "@/features/ap/comercial/vehiculos/lib/vehicles.constants.ts";
+import { VEHICLES_TLL } from "@/features/ap/comercial/vehiculos/lib/vehicles.constants.ts";
 import { useNavigate } from "react-router-dom";
 import { useVehicles } from "@/features/ap/comercial/vehiculos/lib/vehicles.hook.ts";
 
@@ -31,7 +31,7 @@ export default function VehiclesPostVentaPage() {
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
-  const { MODEL, ROUTE, ROUTE_UPDATE } = VEHICLES_PV;
+  const { MODEL, ROUTE, ROUTE_UPDATE } = VEHICLES_TLL;
 
   useEffect(() => {
     setPage(1);

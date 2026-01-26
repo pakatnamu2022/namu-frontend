@@ -60,7 +60,7 @@ export function PauseWorkSheet({
       onClose={handleClose}
       title={`Pausar Trabajo - ${work.work_order_correlative}`}
       type={isTablet ? "tablet" : "default"}
-      className="sm:max-w-2xl"
+      size="2xl"
     >
       <div className="space-y-4">
         <div className="p-4 bg-gray-50 rounded-lg">

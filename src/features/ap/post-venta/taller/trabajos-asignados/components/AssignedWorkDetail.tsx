@@ -38,7 +38,7 @@ export function AssignedWorkDetail({
       onClose={onClose}
       title={`Detalle de  - ${planning.work_order_correlative}`}
       type={isTablet ? "tablet" : "default"}
-      className="sm:max-w-3xl"
+      size="4xl"
     >
       <div className="space-y-6 max-h-[calc(100vh-200px)] overflow-y-auto pr-2">
         {/* Estado */}

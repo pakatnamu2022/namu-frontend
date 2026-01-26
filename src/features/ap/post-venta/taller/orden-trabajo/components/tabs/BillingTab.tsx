@@ -303,56 +303,6 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
                     </span>
                   </div>
                 </div>
-
-                {/* Desglose */}
-                <div className="px-4 py-2 space-y-1 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Subtotal</span>
-                    <span>
-                      S/ {paymentSummary.payment_summary.subtotal.toFixed(2)}
-                    </span>
-                  </div>
-                  {paymentSummary.payment_summary.discount_amount > 0 && (
-                    <div className="flex justify-between">
-                      <span className="text-gray-500">Descuento</span>
-                      <span className="text-red-600">
-                        - S/{" "}
-                        {paymentSummary.payment_summary.discount_amount.toFixed(
-                          2,
-                        )}
-                      </span>
-                    </div>
-                  )}
-                </div>
-
-                {/* Totales finales */}
-                {(paymentSummary.payment_summary.total_advances > 0 ||
-                  paymentSummary.payment_summary.remaining_balance !== 0) && (
-                  <div className="px-4 py-2 space-y-1 text-sm bg-gray-50">
-                    {paymentSummary.payment_summary.total_advances > 0 && (
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Adelantos</span>
-                        <span className="text-green-600">
-                          - S/{" "}
-                          {paymentSummary.payment_summary.total_advances.toFixed(
-                            2,
-                          )}
-                        </span>
-                      </div>
-                    )}
-                    {paymentSummary.payment_summary.remaining_balance !== 0 && (
-                      <div className="flex justify-between font-medium">
-                        <span className="text-gray-900">Saldo Pendiente</span>
-                        <span className="text-gray-900">
-                          S/{" "}
-                          {paymentSummary.payment_summary.remaining_balance.toFixed(
-                            2,
-                          )}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                )}
               </div>
             </Card>
           )}
