@@ -244,6 +244,9 @@ import SupplierOrderPage from "./app/ap/post-venta/gestion-de-almacen/pedido-pro
 import AddSupplierOrderPage from "@/app/ap/post-venta/gestion-de-almacen/pedido-proveedor/agregar/page.tsx";
 import UpdateSupplierOrderPage from "@/app/ap/post-venta/gestion-de-almacen/pedido-proveedor/actualizar/[id]/page.tsx";
 import InvoiceSupplierOrderPage from "@/app/ap/post-venta/gestion-de-almacen/pedido-proveedor/facturar/[id]/page.tsx";
+import WarehousePurchaseRequestPage from "./app/ap/post-venta/gestion-de-almacen/solicitud-compra-almacen/page.tsx";
+import AddWarehousePurchaseRequestPage from "@/app/ap/post-venta/gestion-de-almacen/solicitud-compra-almacen/agregar/page.tsx";
+import UpdateWarehousePurchaseRequestPage from "@/app/ap/post-venta/gestion-de-almacen/solicitud-compra-almacen/actualizar/[id]/page.tsx";
 import ApprovedAccesoriesPage from "./app/ap/post-venta/repuestos/accesorios-homologados/page.tsx";
 import AddApprovedAccesoriesPage from "./app/ap/post-venta/repuestos/accesorios-homologados/agregar/page.tsx";
 import UpdateApprovedAccesoriesPage from "./app/ap/post-venta/repuestos/accesorios-homologados/actualizar/[id]/page.tsx";
@@ -1234,6 +1237,18 @@ function App() {
               <Route
                 path="gestion-de-almacen/pedido-proveedor/facturar/:id"
                 element={<InvoiceSupplierOrderPage />}
+              />
+              <Route
+                path="gestion-de-almacen/solicitud-compra-almacen"
+                element={<WarehousePurchaseRequestPage />}
+              />
+              <Route
+                path="gestion-de-almacen/solicitud-compra-almacen/agregar"
+                element={<AddWarehousePurchaseRequestPage />}
+              />
+              <Route
+                path="gestion-de-almacen/solicitud-compra-almacen/actualizar/:id"
+                element={<UpdateWarehousePurchaseRequestPage />}
               />
               {/* Repuestos */}
               <Route

@@ -37,7 +37,7 @@ export default function PurchaseRequestRepuestoPage() {
     number | null
   >(null);
   const [isDetailSheetOpen, setIsDetailSheetOpen] = useState(false);
-  const { MODEL, ROUTE, ROUTE_UPDATE } = PURCHASE_REQUEST_REPUESTOS;
+  const { MODEL, ROUTE, ROUTE_UPDATE, ROUTE_ADD } = PURCHASE_REQUEST_REPUESTOS;
   const permissions = useModulePermissions(ROUTE);
   const router = useNavigate();
   const currentDate = new Date();
@@ -109,7 +109,10 @@ export default function PurchaseRequestRepuestoPage() {
           subtitle={currentView.descripcion}
           icon={currentView.icon}
         />
-        <PurchaseRequestActions permissions={permissions} module="REPUESTO" />
+        <PurchaseRequestActions
+          permissions={permissions}
+          onAdd={() => router(ROUTE_ADD!)}
+        />
       </HeaderTableWrapper>
 
       <PurchaseRequestTable
