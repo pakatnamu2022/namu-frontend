@@ -2,6 +2,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { IndicatorByAdvisor } from "../lib/dashboard.interface";
+import { getStatusColor } from "../../oportunidades/lib/opportunities.constants";
 
 export type DashboardAdvisorColumn = ColumnDef<IndicatorByAdvisor>;
 
@@ -121,6 +122,8 @@ export const dashboardAdvisorColumns = ({
       cell: ({ row }) => {
         const advisor = row.original;
 
+        console.log(advisor);
+
         return (
           <div className="flex flex-wrap gap-1">
             {Object.entries(advisor.por_estado_oportunidad).map(
@@ -128,21 +131,12 @@ export const dashboardAdvisorColumns = ({
                 (count as number) > 0 && (
                   <Badge
                     key={`${advisor.worker_id}-${advisor.sede_id}-${advisor.vehicle_brand_id}-${state}`}
-                    variant="outline"
-                    color={
-                      state === "FRIO"
-                        ? "secondary"
-                        : state === "TEMPLADO"
-                          ? "default"
-                          : state === "CALIENTE"
-                            ? "destructive"
-                            : state === "VENTA CONCRETADA"
-                              ? "default"
-                              : "secondary"
-                    }
-                    className="text-xs"
+                    variant="ghost"
+                    color={getStatusColor(state)}
+                    className="text-xs flex-row gap-1 md:gap-0 md:flex-col"
                   >
-                    {state}: {count as number}
+                    <span className="font-bold">{count as number}</span>
+                    <span className="font-medium">{state}</span>
                   </Badge>
                 ),
             )}
