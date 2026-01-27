@@ -206,14 +206,16 @@ export default function EvaluationDetailPage() {
             />
           </EvaluationPersonTable>
 
-          <DataTablePagination
-            page={page}
-            totalPages={data?.meta?.last_page || 1}
-            onPageChange={setPage}
-            per_page={per_page}
-            setPerPage={setPerPage}
-            totalData={data?.meta?.total || 0}
-          />
+          <div className="mt-4">
+            <DataTablePagination
+              page={page}
+              totalPages={data?.meta?.last_page || 1}
+              onPageChange={setPage}
+              per_page={per_page}
+              setPerPage={setPerPage}
+              totalData={data?.meta?.total || 0}
+            />
+          </div>
         </TabsContent>
 
         <TabsContent value="leaders">

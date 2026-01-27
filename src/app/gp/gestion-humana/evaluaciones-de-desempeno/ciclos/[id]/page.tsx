@@ -30,7 +30,6 @@ import {
 } from "@/features/gp/gestionhumana/evaluaciondesempeño/ciclos/lib/cycle.hook";
 import CyclePersonDetailOptions from "@/features/gp/gestionhumana/evaluaciondesempeño/ciclos/components/CyclePersonDetailOptions";
 import { DEFAULT_PER_PAGE } from "@/core/core.constants";
-import { Badge } from "@/components/ui/badge";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { notFound } from "@/shared/hooks/useNotFound";
 
@@ -163,13 +162,9 @@ export default function CyclePersonDetailPage() {
       <HeaderTableWrapper>
         <TitleComponent
           title={currentView.descripcion}
-          subtitle={currentView.descripcion}
+          subtitle={cycle?.typeEvaluationName}
           icon={currentView.icon}
-        >
-          <Badge className="truncate" color="secondary">
-            {cycle?.typeEvaluationName}
-          </Badge>
-        </TitleComponent>
+        />
 
         <CyclePersonDetailActions
           id={idCycle}
