@@ -7,9 +7,10 @@ export function expenseSchemaToFormData(data: ExpenseSchema): FormData {
   const formData = new FormData();
 
   // Convertir Date a string si es necesario
-  const expenseDate = data.expense_date instanceof Date
-    ? data.expense_date.toISOString().split('T')[0]
-    : data.expense_date;
+  const expenseDate =
+    data.expense_date instanceof Date
+      ? data.expense_date.toISOString().split("T")[0]
+      : data.expense_date;
 
   formData.append("expense_date", expenseDate);
   formData.append("expense_type_id", data.expense_type_id);
@@ -30,6 +31,10 @@ export function expenseSchemaToFormData(data: ExpenseSchema): FormData {
 
   if (data.notes) {
     formData.append("notes", data.notes);
+  }
+
+  if (data.reason) {
+    formData.append("reason", data.reason);
   }
 
   return formData;

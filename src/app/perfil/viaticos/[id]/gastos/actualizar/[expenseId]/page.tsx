@@ -138,6 +138,7 @@ export default function UpdateExpensePage() {
             receipt_number: expense.receipt_number || "",
             ruc: expense.ruc || "",
             notes: expense.notes || "",
+            reason: expense.reason || "",
           }}
           onSubmit={handleSubmit}
           isSubmitting={isPending}
