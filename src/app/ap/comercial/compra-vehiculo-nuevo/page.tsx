@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import PageSkeleton from "@/shared/components/PageSkeleton";
 import TitleComponent from "@/shared/components/TitleComponent";
 import DataTablePagination from "@/shared/components/DataTablePagination";
-import { DEFAULT_PER_PAGE } from "@/core/core.constants";
+import { CM_COMERCIAL_ID, DEFAULT_PER_PAGE } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { VEHICLE_PURCHASE_ORDER } from "@/features/ap/comercial/ordenes-compra-vehiculo/lib/vehiclePurchaseOrder.constants";
 import { useVehiclePurchaseOrder } from "@/features/ap/comercial/ordenes-compra-vehiculo/lib/vehiclePurchaseOrder.hook";
@@ -54,6 +54,7 @@ export default function VehiclePurchaseOrderPage() {
     vehicle$ap_models_vn_id: modelId !== "all" ? modelId : undefined,
     vehicle_color_id: colorId !== "all" ? colorId : undefined,
     vehicle$ap_vehicle_status_id: statusId !== "all" ? statusId : undefined,
+    type_operation_id: CM_COMERCIAL_ID,
   });
 
   if (isLoadingModule) return <PageSkeleton />;

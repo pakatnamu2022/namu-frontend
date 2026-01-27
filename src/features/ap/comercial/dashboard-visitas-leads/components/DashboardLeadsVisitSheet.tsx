@@ -18,7 +18,7 @@ interface StatItemProps {
 }
 
 function StatItem({ label, value, total, color, bgColor }: StatItemProps) {
-  const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
+  const percentage = total > 0 ? (value / total) * 100 : 0;
   const barHeight = Math.max(percentage * 0.32, 4);
   return (
     <div className="flex items-end gap-2 h-10">
@@ -30,7 +30,7 @@ function StatItem({ label, value, total, color, bgColor }: StatItemProps) {
         <span className="text-xs text-muted-foreground">{label}</span>
         <div className="flex items-baseline gap-1">
           <span className={`text-lg font-bold ${color}`}>{value}</span>
-          <span className="text-xs text-muted-foreground">({percentage}%)</span>
+          <span className="text-xs text-muted-foreground">({percentage.toFixed(1)}%)</span>
         </div>
       </div>
     </div>

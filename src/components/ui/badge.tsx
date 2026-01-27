@@ -80,7 +80,7 @@ const colorStyles: Record<BadgeColor, Record<BadgeVariant, string>> = {
   },
   secondary: {
     default: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-    outline: "border-secondary text-secondary-foreground hover:bg-secondary/10",
+    outline: "border-secondary text-secondary hover:bg-secondary/10",
     ghost: "text-secondary-foreground hover:bg-secondary/10",
   },
   tertiary: {
