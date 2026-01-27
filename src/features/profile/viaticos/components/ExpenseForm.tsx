@@ -79,7 +79,7 @@ export default function ExpenseForm({
       message:
         "El archivo del comprobante es requerido cuando el tipo es factura",
       path: ["receipt_file"],
-    }
+    },
   );
 
   const form = useForm<ExpenseSchema>({
@@ -99,10 +99,10 @@ export default function ExpenseForm({
   // Validación de RUC cuando el campo tiene 11 dígitos (RUC peruano estándar)
   const shouldValidateRuc = Boolean(
     !isFirstLoad &&
-      rucValue &&
-      rucValue.length === 11 &&
-      /^\d+$/.test(rucValue) &&
-      (receiptType === "invoice" || receiptType === "ticket")
+    rucValue &&
+    rucValue.length === 11 &&
+    /^\d+$/.test(rucValue) &&
+    (receiptType === "invoice" || receiptType === "ticket"),
   );
 
   const {
@@ -133,7 +133,7 @@ export default function ExpenseForm({
   useEffect(() => {
     if (expenseTypeId && expenseTypes) {
       const selectedExpenseType = expenseTypes.find(
-        (type) => type.id.toString() === expenseTypeId
+        (type) => type.id.toString() === expenseTypeId,
       );
 
       if (selectedExpenseType) {
@@ -174,10 +174,14 @@ export default function ExpenseForm({
     { value: "no_receipt", label: "Sin Comprobante" },
   ];
 
-  // Deshabilitar fechas fuera del rango de la solicitud de viáticos
+  // Deshabilitar fechas fuera del rango de la solicitud de viáticos (con margen de +-1 día)
   const disabledDates = (date: Date) => {
     if (!startDate || !endDate) return false;
-    return date < startDate || date > endDate;
+    const minDate = new Date(startDate);
+    minDate.setDate(minDate.getDate() - 1);
+    const maxDate = new Date(endDate);
+    maxDate.setDate(maxDate.getDate() + 1);
+    return date < minDate || date > maxDate;
   };
 
   // Verificar si el RUC es válido antes de permitir envío
@@ -374,29 +378,40 @@ export default function ExpenseForm({
             </div>
           )}
 
-          {/* Notas */}
+          {/* Notas / Destino */}
           <div>
+            {/* Motivo (solo para Movilidad Local) */}
+            {expenseTypeId === TYPE_EXPENSE_LOCAL_MOBILITY && (
+              <div className="mb-4">
+                <FormInputText
+                  name="reason"
+                  label="Motivo"
+                  placeholder="Ejem: Desayuno"
+                  control={form.control}
+                  rows={3}
+                  required
+                />
+              </div>
+            )}
+
             <FormInputText
               name="notes"
               label={
                 expenseTypeId === TYPE_EXPENSE_LOCAL_MOBILITY
-                  ? "Notas"
+                  ? "Destino"
                   : "Notas (Opcional)"
               }
-              placeholder="Observaciones adicionales..."
+              placeholder={
+                expenseTypeId === TYPE_EXPENSE_LOCAL_MOBILITY
+                  ? "Ejem: Punto de desayuno - AP. PIURA"
+                  : "Observaciones adicionales..."
+              }
               control={form.control}
               rows={3}
               required={expenseTypeId === TYPE_EXPENSE_LOCAL_MOBILITY}
             />
           </div>
         </div>
-
-        {/* <pre>
-          <code>
-            {JSON.stringify(form.getValues(), null, 2)}
-            {JSON.stringify(form.formState.errors, null, 2)}
-          </code>
-        </pre> */}
 
         <div className="flex flex-col-reverse sm:flex-row gap-3 sm:gap-4 w-full sm:justify-end pt-4">
           <Button
@@ -421,8 +436,8 @@ export default function ExpenseForm({
             {isSubmitting
               ? "Guardando..."
               : mode === "create"
-              ? "Guardar Gasto"
-              : "Actualizar Gasto"}
+                ? "Guardar Gasto"
+                : "Actualizar Gasto"}
           </Button>
         </div>
       </form>
