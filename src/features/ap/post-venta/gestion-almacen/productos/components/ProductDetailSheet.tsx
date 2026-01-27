@@ -1,15 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet.tsx";
+import { SheetContent } from "@/components/ui/sheet.tsx";
 import { Badge } from "@/components/ui/badge.tsx";
 import { Separator } from "@/components/ui/separator.tsx";
 import { Loader2 } from "lucide-react";
 import { findProductById } from "@/features/ap/post-venta/gestion-almacen/productos/lib/product.actions.ts";
+import GeneralSheet from "@/shared/components/GeneralSheet";
 
 interface Props {
   productId: number | null;
@@ -47,7 +42,13 @@ export default function ProductDetailSheet({
   };
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
+    <GeneralSheet
+      open={open}
+      onClose={() => onOpenChange(false)}
+      title={product ? product.name : "Detalle del Producto"}
+      subtitle={product ? `Código: ${product.code}` : ""}
+      size="4xl"
+    >
       <SheetContent className="w-full sm:max-w-2xl overflow-y-auto">
         {isLoading ? (
           <div className="flex items-center justify-center h-full">
@@ -55,13 +56,6 @@ export default function ProductDetailSheet({
           </div>
         ) : product ? (
           <>
-            <SheetHeader>
-              <SheetTitle className="text-2xl">{product.name}</SheetTitle>
-              <SheetDescription>
-                Código: <span className="font-semibold">{product.code}</span>
-              </SheetDescription>
-            </SheetHeader>
-
             <div className="mt-6 space-y-6">
               {/* Estado */}
               <div>
@@ -352,6 +346,6 @@ export default function ProductDetailSheet({
           </div>
         )}
       </SheetContent>
-    </Sheet>
+    </GeneralSheet>
   );
 }
