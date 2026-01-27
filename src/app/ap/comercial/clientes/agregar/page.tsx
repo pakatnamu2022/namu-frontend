@@ -19,6 +19,7 @@ import { EMPRESA_AP } from "@/core/core.constants";
 import { OPPORTUNITIES } from "@/features/ap/comercial/oportunidades/lib/opportunities.constants";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { format } from "date-fns";
+import PageWrapper from "@/shared/components/PageWrapper";
 
 export default function AddCustomersPage() {
   const router = useNavigate();
@@ -53,7 +54,7 @@ export default function AddCustomersPage() {
       // Redirect based on redirect_to param
       if (redirectTo === "opportunities") {
         router(
-          `${OPPORTUNITIES_ROUTE}/agregar?client_id=${response.id}&lead_id=${lead_id}`
+          `${OPPORTUNITIES_ROUTE}/agregar?client_id=${response.id}&lead_id=${lead_id}`,
         );
       } else {
         router(ABSOLUTE_ROUTE!);
@@ -80,7 +81,7 @@ export default function AddCustomersPage() {
   if (!currentView) notFound();
 
   return (
-    <FormWrapper>
+    <PageWrapper>
       <TitleFormComponent
         title={currentView.descripcion}
         mode="create"
@@ -136,6 +137,6 @@ export default function AddCustomersPage() {
         mode="create"
         fromOpportunities={redirectTo === "opportunities"}
       />
-    </FormWrapper>
+    </PageWrapper>
   );
 }
