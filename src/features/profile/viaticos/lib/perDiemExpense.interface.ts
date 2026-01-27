@@ -11,6 +11,7 @@ export interface PerDiemExpenseResource {
   receipt_number?: string;
   receipt_path?: string;
   notes?: string;
+  reason?: string;
   business_name?: string;
   ruc?: string;
   is_company_expense: boolean;
@@ -58,7 +59,7 @@ export interface PerDiemExpenseFormData extends FormData {
   append(
     name: keyof PerDiemExpenseRequest,
     value: string | Blob,
-    fileName?: string
+    fileName?: string,
   ): void;
 }
 

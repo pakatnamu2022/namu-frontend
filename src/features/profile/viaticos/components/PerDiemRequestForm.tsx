@@ -46,7 +46,7 @@ export const PerDiemRequestForm = ({
     resolver: zodResolver(
       mode === "create"
         ? perDiemRequestSchemaCreate
-        : perDiemRequestSchemaUpdate
+        : perDiemRequestSchemaUpdate,
     ) as any,
     defaultValues: {
       ...defaultValues,
@@ -125,7 +125,7 @@ export const PerDiemRequestForm = ({
     const currentSedeId = form.getValues("sede_service_id");
     if (currentSedeId) {
       const sedeExists = filteredSedes.some(
-        (sede) => sede.id.toString() === currentSedeId
+        (sede) => sede.id.toString() === currentSedeId,
       );
       if (!sedeExists) {
         form.setValue("sede_service_id", "");
@@ -163,7 +163,7 @@ export const PerDiemRequestForm = ({
             placeholder="Selecciona una sede"
             options={filteredSedes
               .filter(
-                (item) => item?.id && item?.abreviatura
+                (item) => item?.id && item?.abreviatura,
                 // && item.id !== user?.sede_id
                 // && item?.shop_id !== user?.shop_id
               )
