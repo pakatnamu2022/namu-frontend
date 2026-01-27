@@ -1,7 +1,5 @@
 "use client";
 
-import { Card, CardContent } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
 import { Loader2, AlertCircle } from "lucide-react";
 import {
   IndicatorBySede,
@@ -11,37 +9,30 @@ import {
 import DashboardAdvisorTable from "./DashboardAdvisorTable";
 import GeneralSheet from "@/shared/components/GeneralSheet";
 
-interface StatProgressProps {
+interface StatItemProps {
   label: string;
   value: number;
   total: number;
-  color: "green" | "yellow" | "red";
+  color: string;
+  bgColor: string;
 }
 
-const colorClasses = {
-  green: { text: "text-green-600", indicator: "bg-green-600" },
-  yellow: { text: "text-yellow-600", indicator: "bg-yellow-600" },
-  red: { text: "text-red-600", indicator: "bg-red-600" },
-};
-
-function StatProgress({ label, value, total, color }: StatProgressProps) {
-  const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : "0";
-  const progressValue = total > 0 ? (value / total) * 100 : 0;
-  const classes = colorClasses[color];
-
+function StatItem({ label, value, total, color, bgColor }: StatItemProps) {
+  const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
+  const barHeight = Math.max(percentage * 0.32, 4);
   return (
-    <div>
-      <div className="flex justify-between text-sm mb-1">
-        <span className={`${classes.text} font-medium`}>{label}</span>
-        <span className={`${classes.text} font-semibold`}>
-          {value} ({percentage}%)
-        </span>
-      </div>
-      <Progress
-        value={progressValue}
-        className="h-2"
-        indicatorClassName={classes.indicator}
+    <div className="flex items-end gap-2 h-10">
+      <div
+        className={`w-2 rounded-full ${bgColor}`}
+        style={{ height: `${barHeight}px` }}
       />
+      <div className="flex flex-col justify-end">
+        <span className="text-xs text-muted-foreground">{label}</span>
+        <div className="flex items-baseline gap-1">
+          <span className={`text-lg font-bold ${color}`}>{value}</span>
+          <span className="text-xs text-muted-foreground">({percentage}%)</span>
+        </div>
+      </div>
     </div>
   );
 }
@@ -96,62 +87,76 @@ export default function DashboardLeadsVisitSheet({
         )}
 
         {!loading && sede && (
-          <>
-            <div className="flex flex-wrap items-center gap-6">
-              <div className="p-4 rounded-lg bg-primary/5 border border-primary/10">
-                <div className="text-sm text-muted-foreground mb-1">Total</div>
-                <div className="text-3xl font-bold text-primary">
-                  {sede.total_visitas}
+          <div className="flex flex-col gap-4">
+            {/* Barra de estadísticas compacta */}
+            <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-6 p-3 rounded-lg bg-muted/30 border">
+              {/* Total y Estados */}
+              <div className="flex items-center gap-4 md:gap-6">
+                {/* Total */}
+                <div className="flex items-center gap-2 md:gap-3 pr-4 md:pr-6 border-r">
+                  <div className="text-2xl md:text-3xl font-bold text-primary">
+                    {sede.total_visitas}
+                  </div>
+                  <span className="text-xs text-muted-foreground uppercase tracking-wide">
+                    Visitas
+                  </span>
+                </div>
+
+                {/* Estados */}
+                <div className="flex items-center gap-4 md:gap-6">
+                  <StatItem
+                    label="Atendidos"
+                    value={sede.atendidos}
+                    total={sede.total_visitas}
+                    color="text-green-600"
+                    bgColor="bg-green-500"
+                  />
+                  <StatItem
+                    label="No Atendidos"
+                    value={sede.no_atendidos}
+                    total={sede.total_visitas}
+                    color="text-yellow-600"
+                    bgColor="bg-yellow-500"
+                  />
+                  <StatItem
+                    label="Descartados"
+                    value={sede.descartados}
+                    total={sede.total_visitas}
+                    color="text-red-600"
+                    bgColor="bg-red-500"
+                  />
                 </div>
               </div>
 
-              <div className="flex-1 md:min-w-[300px] space-y-3">
-                <StatProgress
-                  label="Atendidos"
-                  value={sede.atendidos}
-                  total={sede.total_visitas}
-                  color="green"
-                />
-                <StatProgress
-                  label="No Atendidos"
-                  value={sede.no_atendidos}
-                  total={sede.total_visitas}
-                  color="yellow"
-                />
-                <StatProgress
-                  label="Descartados"
-                  value={sede.descartados}
-                  total={sede.total_visitas}
-                  color="red"
-                />
-              </div>
+              {/* Separador y Marcas */}
+              {brandData.length > 0 && (
+                <>
+                  <div className="hidden md:block h-10 w-px bg-border" />
+                  <div className="h-px md:hidden w-full bg-border" />
+                  <div className="flex items-center gap-4 flex-wrap">
+                    {brandData.map((brand) => (
+                      <div
+                        key={`${brand.sede_id}-${brand.vehicle_brand_id}`}
+                        className="flex flex-col items-center"
+                      >
+                        <span className="text-sm font-bold text-primary">
+                          {brand.total_visitas}
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          {brand.marca_nombre}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
             </div>
-
-            {brandData.length > 0 && (
-              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
-                {brandData.map((brand) => (
-                  <Card
-                    key={`${brand.sede_id}-${brand.vehicle_brand_id}`}
-                    className="bg-muted/50 py-3"
-                  >
-                    <CardContent className="px-3 flex justify-between items-center">
-                      <div className="text-muted-foreground text-sm">
-                        {brand.marca_nombre}
-                      </div>
-                      <div className="text-lg font-bold text-primary">
-                        {brand.total_visitas}
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            )}
 
             <DashboardAdvisorTable
               data={advisorData}
               selectedSedeId={sede.sede_id}
             />
-          </>
+          </div>
         )}
       </div>
     </GeneralSheet>
