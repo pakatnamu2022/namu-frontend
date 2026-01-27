@@ -26,6 +26,10 @@ export interface SupplierOrderDetailsResource {
     name: string;
     description: string;
   };
+  unit_measurement?: {
+    id: number;
+    description: string;
+  };
 }
 
 export interface SupplierOrderResource {
@@ -51,13 +55,14 @@ export interface SupplierOrderResource {
   type_currency?: CurrencyTypesResource;
   invoice?: VehiclePurchaseOrderResource;
   details: SupplierOrderDetailsResource[];
+  created_at: string;
   purchase_requests?: [
     {
       id: number;
       request_number: string;
       requested_by: number;
       requested_by_name: string;
-    }
+    },
   ];
 }
 

@@ -5,6 +5,8 @@ import { useState } from "react";
 import {
   ERROR_MESSAGE,
   errorToast,
+  getMonday,
+  getSunday,
   SUCCESS_MESSAGE,
   successToast,
 } from "@/core/core.function.ts";
@@ -36,8 +38,13 @@ export default function SupplierOrderPage() {
     SUPPLIER_ORDER;
   const permissions = useModulePermissions(ROUTE);
   const currentDate = new Date();
-  const [dateFrom, setDateFrom] = useState<Date | undefined>(currentDate);
-  const [dateTo, setDateTo] = useState<Date | undefined>(currentDate);
+
+  const [dateFrom, setDateFrom] = useState<Date | undefined>(
+    getMonday(currentDate),
+  );
+  const [dateTo, setDateTo] = useState<Date | undefined>(
+    getSunday(currentDate),
+  );
 
   const formatDate = (date: Date | undefined) => {
     return date ? date.toLocaleDateString("en-CA") : undefined; // formato: YYYY-MM-DD

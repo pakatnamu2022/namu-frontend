@@ -59,6 +59,7 @@ export default function AddWarehousePurchaseRequestPage() {
         mode="create"
         onCancel={() => router(ABSOLUTE_ROUTE!)}
         showQuotationOption={false}
+        allowCreateProduct={true}
       />
     </FormWrapper>
   );

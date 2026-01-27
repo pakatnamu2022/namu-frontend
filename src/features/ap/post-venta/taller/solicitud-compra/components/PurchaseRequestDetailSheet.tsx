@@ -306,14 +306,12 @@ function DetailSheetContent({ purchaseRequest }: DetailSheetContentProps) {
                   <TableRow key={detail.id}>
                     <TableCell>
                       <div className="text-sm font-medium">
-                        {detail.product?.code || detail.product_code || "N/A"}
+                        {detail.product?.code || "N/A"}
                       </div>
                     </TableCell>
                     <TableCell>
                       <div className="text-sm">
-                        {detail.product?.description ||
-                          detail.product_name ||
-                          "N/A"}
+                        {detail.product?.name || "N/A"}
                       </div>
                     </TableCell>
                     <TableCell className="text-center">

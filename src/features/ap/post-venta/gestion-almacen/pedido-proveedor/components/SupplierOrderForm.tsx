@@ -125,6 +125,47 @@ export const SupplierOrderForm = ({
   const [isRequestListVisible, setIsRequestListVisible] = useState(true);
   const [openRejectedAlert, setOpenRejectedAlert] = useState(false);
   const [pendingDiscardRequest, setPendingDiscardRequest] = useState<any>(null);
+  // Mapa de defaultOptions por product_id (para producto y unidad de medida)
+  const [detailDefaultOptions, setDetailDefaultOptions] = useState<
+    Record<
+      string,
+      {
+        product?: { value: string; label: string };
+        unit?: { value: string; label: string };
+      }
+    >
+  >({});
+
+  // Inicializar defaultOptions desde SupplierOrderData al editar
+  useEffect(() => {
+    if (SupplierOrderData?.details?.length) {
+      const initialDefaults: Record<
+        string,
+        {
+          product?: { value: string; label: string };
+          unit?: { value: string; label: string };
+        }
+      > = {};
+      SupplierOrderData.details.forEach((detail) => {
+        const productId = detail.product_id.toString();
+        initialDefaults[productId] = {
+          product: detail.product
+            ? {
+                value: productId,
+                label: `${detail.product.name} - ${detail.product.code}`,
+              }
+            : undefined,
+          unit: detail.unit_measurement
+            ? {
+                value: detail.unit_measurement_id.toString(),
+                label: detail.unit_measurement.description,
+              }
+            : undefined,
+        };
+      });
+      setDetailDefaultOptions(initialDefaults);
+    }
+  }, [SupplierOrderData]);
 
   // Watch con suscripción completa al formulario
   const formValues = form.watch();
@@ -314,6 +355,26 @@ export const SupplierOrderForm = ({
 
     // Agregar el ID a la lista de añadidos
     setAddedRequestDetailIds((prev) => [...prev, requestDetail.id]);
+
+    // Guardar defaultOptions para el producto y unidad de medida
+    setDetailDefaultOptions((prev) => ({
+      ...prev,
+      [productId]: {
+        product: {
+          value: productId,
+          label: `${requestDetail.product_name || ""} - ${requestDetail.product_code || ""}`,
+        },
+        unit: requestDetail.unit_measurement_id
+          ? {
+              value: requestDetail.unit_measurement_id.toString(),
+              label:
+                requestDetail.unit_measurement_name ||
+                requestDetail.product?.unit_measurement?.description ||
+                "",
+            }
+          : prev[productId]?.unit,
+      },
+    }));
   };
 
   const handleDiscardFromRequest = (requestDetail: any) => {
@@ -684,6 +745,12 @@ export const SupplierOrderForm = ({
                               ) || 0;
                             const itemTotal =
                               Number(form.watch(`details.${index}.total`)) || 0;
+                            const currentProductId = form.watch(
+                              `details.${index}.product_id`,
+                            );
+                            const rowDefaults = currentProductId
+                              ? detailDefaultOptions[currentProductId]
+                              : undefined;
 
                             return (
                               <TableRow key={field.id}>
@@ -708,6 +775,7 @@ export const SupplierOrderForm = ({
                                     })}
                                     perPage={10}
                                     debounceMs={500}
+                                    defaultOption={rowDefaults?.product}
                                     onValueChange={(_, selectedProduct) => {
                                       // Setear el unit_measurement_id del producto seleccionado
                                       if (
@@ -735,6 +803,7 @@ export const SupplierOrderForm = ({
                                     })}
                                     perPage={10}
                                     debounceMs={500}
+                                    defaultOption={rowDefaults?.unit}
                                   />
                                 </TableCell>
                                 <TableCell className="align-middle p-1.5 text-center">

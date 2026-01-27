@@ -23,6 +23,7 @@ interface Props {
   };
   routeUpdate?: string;
   routeReception?: string;
+  warehouseId?: string;
 }
 
 export const productTransferColumns = ({
@@ -33,6 +34,7 @@ export const productTransferColumns = ({
   permissions,
   routeUpdate,
   routeReception,
+  warehouseId,
 }: Props): ProductTransferColumns[] => [
   {
     accessorKey: "movement_number",
@@ -82,6 +84,43 @@ export const productTransferColumns = ({
     },
   },
   {
+    id: "status",
+    header: "Estado",
+    cell: ({ row }) => {
+      const { reference } = row.original;
+      const isSent = !!reference?.sent_at;
+      const isAcceptedBySunat = reference?.aceptada_por_sunat === true;
+      const isReceived = reference?.is_received === true;
+
+      if (isReceived) {
+        return (
+          <Badge className="w-32 flex items-center justify-center bg-green-600 hover:bg-green-700 text-white">
+            RECEPCIONADO
+          </Badge>
+        );
+      }
+      if (isSent && isAcceptedBySunat) {
+        return (
+          <Badge className="w-32 flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white">
+            ENVIADO
+          </Badge>
+        );
+      }
+      if (isSent) {
+        return (
+          <Badge className="w-32 flex items-center justify-center bg-yellow-600 hover:bg-yellow-700 text-white">
+            ENVIADO
+          </Badge>
+        );
+      }
+      return (
+        <Badge className="w-32 flex items-center justify-center bg-gray-500 hover:bg-gray-600 text-white">
+          PENDIENTE
+        </Badge>
+      );
+    },
+  },
+  {
     accessorKey: "total_items",
     header: "Total de Ítems",
   },
@@ -93,13 +132,18 @@ export const productTransferColumns = ({
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
-      const { id, reference, reference_id } = row.original;
-      // Obtener valores desde la referencia (guía de remisión)
+      const { id, reference, reference_id, warehouse_origin_id, warehouse_destination_id } = row.original;
       const isSent = !!reference?.sent_at;
       const isAcceptedBySunat = reference?.aceptada_por_sunat === true;
+      const isReceived = reference?.is_received === true;
+
+      const currentWarehouseId = warehouseId ? Number(warehouseId) : null;
+      const isOrigin = currentWarehouseId === warehouse_origin_id;
+      const isDestination = currentWarehouseId === warehouse_destination_id;
 
       return (
         <div className="flex items-center gap-2">
+          {/* Ver - Visible tanto para origen como destino */}
           {permissions.canView && onView && (
             <Button
               variant="outline"
@@ -112,8 +156,8 @@ export const productTransferColumns = ({
             </Button>
           )}
 
-          {/* Enviar a Nubefact - Solo si NO ha sido enviado */}
-          {!isSent && onSendToNubefact && reference_id && (
+          {/* Enviar a Nubefact - Solo origen y si NO ha sido enviado */}
+          {isOrigin && !isSent && onSendToNubefact && reference_id && (
             <Button
               variant="outline"
               size="icon"
@@ -125,8 +169,9 @@ export const productTransferColumns = ({
             </Button>
           )}
 
-          {/* Consultar estado en Nubefact - Solo si ya fue enviado y NO está aceptado */}
-          {isSent &&
+          {/* Consultar estado en Nubefact - Solo origen, enviado y NO aceptado */}
+          {isOrigin &&
+            isSent &&
             !isAcceptedBySunat &&
             onQueryFromNubefact &&
             reference_id && (
@@ -141,11 +186,13 @@ export const productTransferColumns = ({
               </Button>
             )}
 
-          {/* Recepcionar - Solo si fue enviado y aceptado por SUNAT */}
-          {permissions.canReceive &&
+          {/* Recepcionar - Solo destino, enviado, aceptado por SUNAT y no recepcionado aún */}
+          {isDestination &&
+            permissions.canReceive &&
             routeReception &&
             isSent &&
-            isAcceptedBySunat && (
+            isAcceptedBySunat &&
+            !isReceived && (
               <Link to={`${routeReception}/${id}`}>
                 <Button
                   variant="outline"
@@ -158,8 +205,8 @@ export const productTransferColumns = ({
               </Link>
             )}
 
-          {/* Editar - Oculto si fue aceptada por SUNAT */}
-          {permissions.canUpdate && routeUpdate && !isAcceptedBySunat && (
+          {/* Editar - Solo origen, oculto si fue aceptada por SUNAT */}
+          {isOrigin && permissions.canUpdate && routeUpdate && !isAcceptedBySunat && (
             <Link to={`${routeUpdate}/${id}`}>
               <Button
                 variant="outline"
@@ -172,8 +219,8 @@ export const productTransferColumns = ({
             </Link>
           )}
 
-          {/* Eliminar - Oculto si fue aceptada por SUNAT */}
-          {permissions.canDelete && !isAcceptedBySunat && (
+          {/* Eliminar - Solo origen, oculto si fue aceptada por SUNAT */}
+          {isOrigin && permissions.canDelete && !isAcceptedBySunat && (
             <DeleteButton onClick={() => onDelete(id)} />
           )}
         </div>

@@ -4,7 +4,7 @@ import type { Action, ModelInterface } from "./core.interface";
 
 export const successToast = (
   body: string,
-  description: string = new Date().toLocaleString()
+  description: string = new Date().toLocaleString(),
 ) => {
   return toast.success(body, {
     description,
@@ -17,7 +17,7 @@ export const successToast = (
 
 export const errorToast = (
   body: string = "Error",
-  description: string = new Date().toLocaleString()
+  description: string = new Date().toLocaleString(),
 ) => {
   return toast.error(body, {
     description,
@@ -30,7 +30,7 @@ export const errorToast = (
 
 export const warningToast = (
   body: string,
-  description: string = new Date().toLocaleString()
+  description: string = new Date().toLocaleString(),
 ) => {
   return toast.warning(body, {
     description,
@@ -43,7 +43,7 @@ export const warningToast = (
 
 export const infoToast = (
   body: string,
-  description: string = new Date().toLocaleString()
+  description: string = new Date().toLocaleString(),
 ) => {
   return toast.info(body, {
     description,
@@ -64,7 +64,7 @@ export const promiseToast = <T>(
     loading?: string;
     success?: string | ((data: T) => string);
     error?: string | ((error: unknown) => string);
-  } = {}
+  } = {},
 ) => {
   return toast.promise(promise, {
     loading: messages.loading ?? "Procesando...",
@@ -91,14 +91,14 @@ export const objectToFormData = (obj: any) => {
 
 export const SUCCESS_MESSAGE: (
   { name, gender }: ModelInterface,
-  action: Action
+  action: Action,
 ) => string = ({ name, gender = true }, action) =>
   `${name} ${ACTIONS_NAMES[action]}${gender ? "a" : "o"} correctamente.`;
 
 export const ERROR_MESSAGE = (
   { name, gender }: ModelInterface,
   action: Action,
-  message?: string
+  message?: string,
 ): string => {
   if (message && message.trim() !== "") {
     return message;
@@ -108,7 +108,7 @@ export const ERROR_MESSAGE = (
 
 export const SUBTITLE: ({ name }: ModelInterface, action: Action) => string = (
   { name },
-  action
+  action,
 ) => `Aquí puedes ${ACTIONS[action]} ${name.toLowerCase()}.`;
 
 function roundTwoDecimalPlacesUp(valor: number): number {
@@ -158,4 +158,23 @@ export function currentMonth(): number {
 // Helper function to clean text: uppercase and remove special characters
 export const cleanText = (text: string): string => {
   return text.toUpperCase().replace(/[^A-Z0-9\s]/g, ""); // Only allow letters, numbers, and spaces
+};
+
+// Calcular el lunes de la semana actual
+export const getMonday = (date: Date) => {
+  const day = date.getDay();
+  const diff = date.getDate() - day + (day === 0 ? -6 : 1); // Ajustar cuando es domingo
+  const monday = new Date(date);
+  monday.setDate(diff);
+  monday.setHours(0, 0, 0, 0);
+  return monday;
+};
+
+// Calcular el domingo de la semana actual
+export const getSunday = (date: Date) => {
+  const monday = getMonday(date);
+  const sunday = new Date(monday);
+  sunday.setDate(monday.getDate() + 6);
+  sunday.setHours(23, 59, 59, 999);
+  return sunday;
 };
