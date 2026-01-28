@@ -111,7 +111,7 @@ export default function DailyDeliveryDashboard() {
         <>
           <DailySummaryCards
             summary={data.summary}
-            hierarchy={data.hierarchy}
+            brandReport={data.brand_report}
           />
 
           <Tabs

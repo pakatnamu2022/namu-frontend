@@ -11,8 +11,8 @@ interface Props {
   setSearch: (value: string) => void;
   statusFilter: string;
   setStatusFilter: (value: string) => void;
-  moduleFilter: string;
-  setModuleFilter: (value: string) => void;
+  moduleFilter?: string;
+  setModuleFilter?: (value: string) => void;
   documentTypeFilter: string;
   setDocumentTypeFilter: (value: string) => void;
   documentTypes: SunatConceptsResource[];
@@ -52,7 +52,7 @@ export default function ElectronicDocumentOptions({
         />
       )}
 
-      {setModuleFilter && (
+      {moduleFilter && setModuleFilter && (
         <SearchableSelect
           onChange={setModuleFilter}
           value={moduleFilter}
