@@ -7,7 +7,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import TitleComponent from "@/shared/components/TitleComponent";
 import DataTablePagination from "@/shared/components/DataTablePagination";
 import { errorToast, successToast } from "@/core/core.function";
-import { DEFAULT_PER_PAGE } from "@/core/core.constants";
+import { DEFAULT_PER_PAGE, MODULE_COMERCIAL } from "@/core/core.constants";
 import {
   sendElectronicDocumentToSunat,
   cancelElectronicDocument,
@@ -36,7 +36,6 @@ export default function ElectronicDocumentsPage() {
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
-  const [moduleFilter, setModuleFilter] = useState("");
   const [documentTypeFilter, setDocumentTypeFilter] = useState("");
   const [selectedDocument, setSelectedDocument] =
     useState<ElectronicDocumentResource | null>(null);
@@ -45,14 +44,14 @@ export default function ElectronicDocumentsPage() {
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setPage(1);
-  }, [search, per_page, statusFilter, moduleFilter, documentTypeFilter]);
+  }, [search, per_page, statusFilter, documentTypeFilter]);
 
   const { data, isLoading, isFetching, refetch } = useElectronicDocuments({
     page,
     per_page,
     search,
     status: statusFilter,
-    origin_module: moduleFilter,
+    origin_module: MODULE_COMERCIAL,
     sunat_concept_document_type_id: documentTypeFilter
       ? parseInt(documentTypeFilter)
       : undefined,
@@ -164,8 +163,6 @@ export default function ElectronicDocumentsPage() {
           setSearch={setSearch}
           statusFilter={statusFilter}
           setStatusFilter={setStatusFilter}
-          moduleFilter={moduleFilter}
-          setModuleFilter={setModuleFilter}
           documentTypeFilter={documentTypeFilter}
           setDocumentTypeFilter={setDocumentTypeFilter}
           documentTypes={documentTypes || []}
