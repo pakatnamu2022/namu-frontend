@@ -97,7 +97,7 @@ export const AppointmentSelectionModal = ({
           const formattedDate = format(
             new Date(date + "T00:00:00"),
             "dd/MM/yyyy",
-            { locale: es }
+            { locale: es },
           );
           return (
             <div className="flex flex-col gap-1">
@@ -129,7 +129,7 @@ export const AppointmentSelectionModal = ({
           </DialogTitle>
         </DialogHeader>
 
-        <div className="flex-1 overflow-auto space-y-3 sm:space-y-4">
+        <div className="flex-1 overflow-auto space-y-3 sm:space-y-4 p-2">
           {/* Filtros */}
           <div className="flex items-end gap-2 flex-wrap">
             <SearchInput

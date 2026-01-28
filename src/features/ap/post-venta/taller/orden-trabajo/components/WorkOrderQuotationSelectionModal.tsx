@@ -82,7 +82,7 @@ export const WorkOrderQuotationSelectionModal = ({
       },
     },
     {
-      accessorKey: "customer",
+      accessorKey: "client.full_name",
       header: "Cliente",
       cell: ({ getValue }) => {
         const value = getValue() as string;

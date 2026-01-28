@@ -12,11 +12,13 @@ import { useStoreWorkOrderItem } from "../lib/workOrderItem.hook";
 import { WorkOrderItemRequest } from "../lib/workOrderItem.interface";
 import { FormInput } from "@/shared/components/FormInput";
 import { FormInputText } from "@/shared/components/FormInputText";
+import { useAllTypesOperationsAppointment } from "@/features/ap/configuraciones/postventa/tipos-operacion-cita/lib/typesOperationsAppointment.hook";
 
 const workOrderItemSchema = z.object({
   work_order_id: z.number(),
   group_number: z.number().int().min(1, "Número de grupo debe ser mayor a 0"),
   type_planning_id: requiredStringId("Tipo de planificación es requerido"),
+  type_operation_id: requiredStringId("Tipo de operación es requerido"),
   description: z.string().min(1, "Descripción es requerida"),
 });
 
@@ -38,6 +40,9 @@ export default function WorkOrderItemForm({
   const { data: typesPlanning = [], isLoading: isLoadingTypes } =
     useAllTypesPlanning();
 
+  const { data: typesOperation = [], isLoading: isLoadingTypesOperation } =
+    useAllTypesOperationsAppointment();
+
   const storeMutation = useStoreWorkOrderItem();
 
   const form = useForm<WorkOrderItemFormValues>({
@@ -46,6 +51,7 @@ export default function WorkOrderItemForm({
       work_order_id: workOrderId,
       group_number: defaultGroupNumber,
       type_planning_id: "",
+      type_operation_id: "",
       description: "",
     },
   });
@@ -55,6 +61,7 @@ export default function WorkOrderItemForm({
       work_order_id: data.work_order_id,
       group_number: data.group_number,
       type_planning_id: data.type_planning_id,
+      type_operation_id: data.type_operation_id, // Aquí podrías agregar un campo adicional en el formulario si es necesario
       description: data.description,
     };
 
@@ -88,6 +95,19 @@ export default function WorkOrderItemForm({
           control={form.control}
           strictFilter={true}
           disabled={isLoadingTypes}
+        />
+
+        <FormSelect
+          name="type_operation_id"
+          label="Tipo de Operación"
+          placeholder="Seleccione operación"
+          options={typesOperation.map((item) => ({
+            label: item.description,
+            value: item.id.toString(),
+          }))}
+          control={form.control}
+          strictFilter={true}
+          disabled={isLoadingTypesOperation}
         />
 
         <FormInputText

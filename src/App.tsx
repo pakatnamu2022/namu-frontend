@@ -277,13 +277,13 @@ import CardWashPage from "./app/ap/post-venta/taller/lavado-vehiculo/page.tsx";
 import AppointmentPlanningPage from "./app/ap/post-venta/taller/citas/page.tsx";
 import AddAppointmentPlanningPage from "./app/ap/post-venta/taller/citas/agregar/page.tsx";
 import UpdateAppointmentPlanningPage from "./app/ap/post-venta/taller/citas/actualizar/[id]/page.tsx";
-import OrderQuotationPage from "./app/ap/post-venta/taller/cotizacion/page.tsx";
-import AddOrderQuotationPage from "./app/ap/post-venta/taller/cotizacion/agregar/page.tsx";
-import UpdateOrderQuotationPage from "./app/ap/post-venta/taller/cotizacion/actualizar/[id]/page.tsx";
-import ManageOrderQuotationPage from "./app/ap/post-venta/taller/cotizacion/gestionar/[id]/page.tsx";
-import PurchaseRequestPVPage from "./app/ap/post-venta/taller/solicitud-compra/page.tsx";
-import AddPurchaseRequestPVPage from "./app/ap/post-venta/taller/solicitud-compra/agregar/page.tsx";
-import UpdatePurchaseRequestPVPage from "./app/ap/post-venta/taller/solicitud-compra/actualizar/[id]/page.tsx";
+import OrderQuotationPage from "./app/ap/post-venta/taller/cotizacion-taller/page.tsx";
+import AddOrderQuotationPage from "./app/ap/post-venta/taller/cotizacion-taller/agregar/page.tsx";
+import UpdateOrderQuotationPage from "@/app/ap/post-venta/taller/cotizacion-taller/actualizar/[id]/page.tsx";
+import ManageOrderQuotationPage from "@/app/ap/post-venta/taller/cotizacion-taller/gestionar/[id]/page.tsx";
+import PurchaseRequestPVPage from "./app/ap/post-venta/taller/solicitud-compra-taller/page.tsx";
+import AddPurchaseRequestPVPage from "./app/ap/post-venta/taller/solicitud-compra-taller/agregar/page.tsx";
+import UpdatePurchaseRequestPVPage from "@/app/ap/post-venta/taller/solicitud-compra-taller/actualizar/[id]/page.tsx";
 import CustomersPvPage from "./app/ap/post-venta/taller/clientes-taller/page.tsx";
 import AddCustomersPvPage from "@/app/ap/post-venta/taller/clientes-taller/agregar/page.tsx";
 import UpdateCustomersPvPage from "@/app/ap/post-venta/taller/clientes-taller/actualizar/[id]/page.tsx";
@@ -1389,31 +1389,31 @@ function App() {
                 element={<UpdateAppointmentPlanningPage />}
               />
               <Route
-                path="taller/cotizacion"
+                path="taller/cotizacion-taller"
                 element={<OrderQuotationPage />}
               />
               <Route
-                path="taller/cotizacion/agregar"
+                path="taller/cotizacion-taller/agregar"
                 element={<AddOrderQuotationPage />}
               />
               <Route
-                path="taller/cotizacion/actualizar/:id"
+                path="taller/cotizacion-taller/actualizar/:id"
                 element={<UpdateOrderQuotationPage />}
               />
               <Route
-                path="taller/cotizacion/gestionar/:id"
+                path="taller/cotizacion-taller/gestionar/:id"
                 element={<ManageOrderQuotationPage />}
               />
               <Route
-                path="taller/solicitud-compra"
+                path="taller/solicitud-compra-taller"
                 element={<PurchaseRequestPVPage />}
               />
               <Route
-                path="taller/solicitud-compra/agregar"
+                path="taller/solicitud-compra-taller/agregar"
                 element={<AddPurchaseRequestPVPage />}
               />
               <Route
-                path="taller/solicitud-compra/actualizar/:id"
+                path="taller/solicitud-compra-taller/actualizar/:id"
                 element={<UpdatePurchaseRequestPVPage />}
               />
               <Route

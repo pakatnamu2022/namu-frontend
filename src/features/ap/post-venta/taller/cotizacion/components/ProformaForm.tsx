@@ -10,10 +10,13 @@ import {
   orderQuotationSchemaUpdate,
 } from "../lib/proforma.schema";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
-import { useAllVehicles } from "@/features/ap/comercial/vehiculos/lib/vehicles.hook";
+import {
+  useAllVehicles,
+  useVehicles,
+} from "@/features/ap/comercial/vehiculos/lib/vehicles.hook";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { FormSelect } from "@/shared/components/FormSelect";
-import { Car, User } from "lucide-react";
+import { Car, ExternalLink, User } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { useState, useEffect } from "react";
 import { EMPRESA_AP, STATUS_ACTIVE } from "@/core/core.constants";
@@ -21,6 +24,12 @@ import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import { AREA_PM_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 import { FormInputText } from "@/shared/components/FormInputText";
 import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.hook";
+import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
+import { useCustomers } from "@/features/ap/comercial/clientes/lib/customers.hook";
+import { CustomersResource } from "@/features/ap/comercial/clientes/lib/customers.interface";
+import { CUSTOMERS_PV } from "@/features/ap/comercial/clientes/lib/customers.constants";
+import { VehicleResource } from "@/features/ap/comercial/vehiculos/lib/vehicles.interface";
+import { OrderQuotationResource } from "../lib/proforma.interface";
 
 interface OrderQuotationFormProps {
   defaultValues: Partial<OrderQuotationSchema>;
@@ -28,6 +37,7 @@ interface OrderQuotationFormProps {
   isSubmitting?: boolean;
   mode?: "create" | "update";
   onCancel?: () => void;
+  proforma?: OrderQuotationResource;
 }
 
 export default function OrderQuotationForm({
@@ -36,6 +46,7 @@ export default function OrderQuotationForm({
   isSubmitting = false,
   mode = "create",
   onCancel,
+  proforma,
 }: OrderQuotationFormProps) {
   const [selectedVehicle, setSelectedVehicle] = useState<any>(null);
 
@@ -87,13 +98,24 @@ export default function OrderQuotationForm({
     }
   }, [quotationDate, form]);
 
+  useEffect(() => {
+    if (mode === "create") {
+      if (mySedes.length > 0 && !form.getValues("sede_id")) {
+        form.setValue("sede_id", mySedes[0].id.toString());
+      }
+      if (!form.getValues("quotation_date")) {
+        form.setValue("quotation_date", new Date());
+      }
+    }
+  }, [mode, mySedes, form]);
+
   if (isLoadingVehicles || isLoadingMySedes || isLoadingCurrencyTypes)
     return <FormSkeleton />;
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <FormSelect
             control={form.control}
             name="currency_id"
@@ -118,19 +140,71 @@ export default function OrderQuotationForm({
             required
           />
 
-          <FormSelect
-            name="vehicle_id"
-            label="Vehículo"
-            placeholder="Seleccione vehículo"
-            options={vehicles.map((item) => ({
-              label: `${item.vin || "S/N"} | ${item.plate || ""} | ${
-                item.model?.brand || ""
-              }`,
-              value: item.id.toString(),
-            }))}
+          <FormSelectAsync
+            placeholder="Seleccionar cliente"
             control={form.control}
-            required
-          />
+            label={"Cliente"}
+            name="client_id"
+            useQueryHook={useCustomers}
+            mapOptionFn={(item: CustomersResource) => ({
+              value: item.id.toString(),
+              label: `${item.full_name}`,
+            })}
+            perPage={10}
+            debounceMs={500}
+            defaultOption={
+              proforma
+                ? {
+                    value: proforma.client.id.toString(),
+                    label: `${proforma.client.full_name}`,
+                  }
+                : undefined
+            }
+          >
+            <Button
+              type="button"
+              variant="outline"
+              size="icon-lg"
+              className="aspect-square"
+              onClick={() => window.open(CUSTOMERS_PV.ROUTE_ADD, "_blank")}
+              tooltip="Agregar nuevo cliente"
+            >
+              <ExternalLink className="h-4 w-4" />
+            </Button>
+          </FormSelectAsync>
+
+          <FormSelectAsync
+            placeholder="Seleccionar vehículo"
+            control={form.control}
+            label={"Vehículo (Opcional)"}
+            name="vehicle_id"
+            useQueryHook={useVehicles}
+            mapOptionFn={(item: VehicleResource) => ({
+              value: item.id.toString(),
+              label: `${item.plate || item.vin} - ${item.model?.code || ""}`,
+            })}
+            perPage={10}
+            debounceMs={500}
+            defaultOption={
+              proforma
+                ? {
+                    value: proforma.vehicle.id.toString(),
+                    label: `${proforma.vehicle.plate || proforma.vehicle.vin} - ${proforma.vehicle.model?.code || ""}`,
+                  }
+                : undefined
+            }
+          >
+            <Button
+              type="button"
+              variant="outline"
+              size="icon-lg"
+              className="aspect-square"
+              onClick={() => window.open(CUSTOMERS_PV.ROUTE_ADD, "_blank")}
+              tooltip="Agregar nuevo vehículo"
+            >
+              <ExternalLink className="h-4 w-4" />
+            </Button>
+          </FormSelectAsync>
 
           <DatePickerFormField
             control={form.control}

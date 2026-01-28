@@ -94,27 +94,27 @@ export const productTransferColumns = ({
 
       if (isReceived) {
         return (
-          <Badge className="w-32 flex items-center justify-center bg-green-600 hover:bg-green-700 text-white">
+          <Badge variant="default" color="blue">
             RECEPCIONADO
           </Badge>
         );
       }
       if (isSent && isAcceptedBySunat) {
         return (
-          <Badge className="w-32 flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white">
-            ENVIADO
+          <Badge variant="default" color="green">
+            ACEPTADO POR SUNAT
           </Badge>
         );
       }
       if (isSent) {
         return (
-          <Badge className="w-32 flex items-center justify-center bg-yellow-600 hover:bg-yellow-700 text-white">
+          <Badge variant="default" color="orange">
             ENVIADO
           </Badge>
         );
       }
       return (
-        <Badge className="w-32 flex items-center justify-center bg-gray-500 hover:bg-gray-600 text-white">
+        <Badge variant="default" color="gray">
           PENDIENTE
         </Badge>
       );
@@ -132,7 +132,13 @@ export const productTransferColumns = ({
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
-      const { id, reference, reference_id, warehouse_origin_id, warehouse_destination_id } = row.original;
+      const {
+        id,
+        reference,
+        reference_id,
+        warehouse_origin_id,
+        warehouse_destination_id,
+      } = row.original;
       const isSent = !!reference?.sent_at;
       const isAcceptedBySunat = reference?.aceptada_por_sunat === true;
       const isReceived = reference?.is_received === true;
@@ -206,18 +212,21 @@ export const productTransferColumns = ({
             )}
 
           {/* Editar - Solo origen, oculto si fue aceptada por SUNAT */}
-          {isOrigin && permissions.canUpdate && routeUpdate && !isAcceptedBySunat && (
-            <Link to={`${routeUpdate}/${id}`}>
-              <Button
-                variant="outline"
-                size="icon"
-                className="size-7"
-                tooltip="Editar"
-              >
-                <Pencil className="size-5" />
-              </Button>
-            </Link>
-          )}
+          {isOrigin &&
+            permissions.canUpdate &&
+            routeUpdate &&
+            !isAcceptedBySunat && (
+              <Link to={`${routeUpdate}/${id}`}>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="size-7"
+                  tooltip="Editar"
+                >
+                  <Pencil className="size-5" />
+                </Button>
+              </Link>
+            )}
 
           {/* Eliminar - Solo origen, oculto si fue aceptada por SUNAT */}
           {isOrigin && permissions.canDelete && !isAcceptedBySunat && (

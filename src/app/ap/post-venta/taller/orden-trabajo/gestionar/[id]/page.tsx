@@ -15,12 +15,14 @@ import {
   Package,
   FileText,
   Paperclip,
+  Unlink,
 } from "lucide-react";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import {
   downloadPreLiquidationPdf,
   findWorkOrderById,
   updateWorkOrder,
+  unlinkQuotation,
 } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.actions";
 import { WORKER_ORDER } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.constants";
 import LaborTab from "@/features/ap/post-venta/taller/orden-trabajo/components/tabs/LaborTab";
@@ -68,6 +70,21 @@ export default function ManageWorkOrderPage() {
     onError: (error: any) => {
       const msg = error?.response?.data?.message || "";
       errorToast(msg || "Error al adjuntar la cotización");
+    },
+  });
+
+  // Mutación para desasociar cotización
+  const unlinkQuotationMutation = useMutation({
+    mutationFn: () => unlinkQuotation(id),
+    onSuccess: () => {
+      successToast("Cotización desasociada exitosamente");
+      queryClient.invalidateQueries({
+        queryKey: ["workOrder", id],
+      });
+    },
+    onError: (error: any) => {
+      const msg = error?.response?.data?.message || "";
+      errorToast(msg || "Error al desasociar la cotización");
     },
   });
 
@@ -156,7 +173,7 @@ export default function ManageWorkOrderPage() {
                   {isDownloading ? "..." : "Preliq."}
                 </span>
               </Button>
-              {!hasQuotation && (
+              {!hasQuotation ? (
                 <Button
                   variant="outline"
                   size="sm"
@@ -167,6 +184,20 @@ export default function ManageWorkOrderPage() {
                   <Paperclip className="h-4 w-4" />
                   <span className="hidden sm:inline">Adjuntar Cotización</span>
                   <span className="sm:hidden">Cotización</span>
+                </Button>
+              ) : (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => unlinkQuotationMutation.mutate()}
+                  className="gap-2"
+                  disabled={unlinkQuotationMutation.isPending}
+                >
+                  <Unlink className="h-4 w-4" />
+                  <span className="hidden sm:inline">
+                    Desasociar Cotización
+                  </span>
+                  <span className="sm:hidden">Desasociar</span>
                 </Button>
               )}
               <Button

@@ -17,7 +17,6 @@ import {
   Car,
   Building,
   Plus,
-  Trash2,
   List,
   Search,
   ClipboardCheck,
@@ -55,6 +54,7 @@ import { FormSwitch } from "@/shared/components/FormSwitch";
 import { FormInput } from "@/shared/components/FormInput";
 import { FormInputText } from "@/shared/components/FormInputText";
 import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.hook";
+import { useAllTypesOperationsAppointment } from "@/features/ap/configuraciones/postventa/tipos-operacion-cita/lib/typesOperationsAppointment.hook";
 
 const getGroupColor = (groupNumber: number) => {
   return GROUP_COLORS[groupNumber] || DEFAULT_GROUP_COLOR;
@@ -105,7 +105,7 @@ export const WorkOrderForm = ({
     mode: "onChange",
   });
 
-  const { fields, append, remove } = useFieldArray({
+  const { fields, append } = useFieldArray({
     control: form.control,
     name: "items",
   });
@@ -119,6 +119,9 @@ export const WorkOrderForm = ({
   const { data: typesPlanning = [], isLoading: isLoadingTypesPlanning } =
     useAllTypesPlanning();
 
+  const { data: typesOperation = [], isLoading: isLoadingTypesOperation } =
+    useAllTypesOperationsAppointment();
+
   const { data: currencyTypes = [], isLoading: isLoadingCurrencyTypes } =
     useAllCurrencyTypes();
 
@@ -126,9 +129,11 @@ export const WorkOrderForm = ({
     isLoadingAppointments ||
     isLoadingSedes ||
     isLoadingTypesPlanning ||
+    isLoadingTypesOperation ||
     isLoadingCurrencyTypes;
 
   // Watch fields
+  const watchedIsRecall = form.watch("is_recall");
   const watchedHasAppointment = form.watch("has_appointment");
   const watchedAppointmentId = form.watch("appointment_planning_id");
   const watchedHasInspection = form.watch("has_inspection");
@@ -159,6 +164,8 @@ export const WorkOrderForm = ({
           append({
             group_number: 1,
             type_planning_id: appointment.type_planning_id.toString(),
+            type_operation_id:
+              appointment.type_operation_appointment_id.toString(),
             description: appointment.description || "",
           });
         }
@@ -196,12 +203,28 @@ export const WorkOrderForm = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [watchedHasInspection]);
 
+  // Setear sede por defecto (primera sede taller disponible)
+  useEffect(() => {
+    if (mode === "create" && sedes.length > 0 && !form.getValues("sede_id")) {
+      form.setValue("sede_id", sedes[0].id.toString());
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sedes, mode]);
+
+  // Limpiar campos de recall cuando is_recall es false
+  useEffect(() => {
+    if (!watchedIsRecall) {
+      form.setValue("type_recall", undefined);
+      form.setValue("description_recall", "");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [watchedIsRecall]);
+
   const handleAddItem = () => {
-    const lastGroup =
-      fields.length > 0 ? fields[fields.length - 1].group_number : 0;
     append({
-      group_number: lastGroup + 1,
+      group_number: 1,
       type_planning_id: "",
+      type_operation_id: "",
       description: "-",
     });
   };
@@ -573,20 +596,24 @@ export const WorkOrderForm = ({
             text={form.watch("is_recall") ? "Sí" : "No"}
             control={form.control}
           />
-          <FormSelect
-            name="type_recall"
-            label="Tipo Recall"
-            placeholder="Seleccione tipo"
-            options={typeRecall}
-            control={form.control}
-            strictFilter={true}
-          />
-          <FormInput
-            name="description_recall"
-            label="Descripción Recall"
-            placeholder="Ingrese el detalle del recall"
-            control={form.control}
-          />
+          {watchedIsRecall && (
+            <>
+              <FormSelect
+                name="type_recall"
+                label="Tipo Recall"
+                placeholder="Seleccione tipo"
+                options={typeRecall}
+                control={form.control}
+                strictFilter={true}
+              />
+              <FormInput
+                name="description_recall"
+                label="Descripción Recall"
+                placeholder="Ingrese el detalle del recall"
+                control={form.control}
+              />
+            </>
+          )}
         </GroupFormSection>
 
         {/* Items de Servicio */}
@@ -623,21 +650,10 @@ export const WorkOrderForm = ({
                           Trabajo #{index + 1}
                         </h5>
                       </div>
-                      {fields.length > 1 && (
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => remove(index)}
-                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      )}
                     </div>
 
                     <div className="grid grid-cols-1 gap-4">
-                      {/* Fila 1: Grupo y Tipo de Planificación */}
+                      {/* Fila 1: Grupo, Tipo de Planificación y Tipo de Operación */}
                       <div className="grid grid-cols-12 gap-4">
                         <div className="col-span-2">
                           <FormInput
@@ -651,12 +667,26 @@ export const WorkOrderForm = ({
                           />
                         </div>
 
-                        <div className="col-span-10">
+                        <div className="col-span-5">
                           <FormSelect
                             name={`items.${index}.type_planning_id`}
                             label="Tipo de Planificación"
                             placeholder="Seleccione tipo"
                             options={typesPlanning.map((item) => ({
+                              label: item.description,
+                              value: item.id.toString(),
+                            }))}
+                            control={form.control}
+                            strictFilter={true}
+                          />
+                        </div>
+
+                        <div className="col-span-5">
+                          <FormSelect
+                            name={`items.${index}.type_operation_id`}
+                            label="Tipo de Operación"
+                            placeholder="Seleccione operación"
+                            options={typesOperation.map((item) => ({
                               label: item.description,
                               value: item.id.toString(),
                             }))}
@@ -678,15 +708,17 @@ export const WorkOrderForm = ({
                 );
               })}
 
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleAddItem}
-                className="w-full"
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Agregar Trabajo
-              </Button>
+              {fields.length === 0 && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleAddItem}
+                  className="w-full"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Agregar Trabajo
+                </Button>
+              )}
             </div>
           </GroupFormSection>
         )}

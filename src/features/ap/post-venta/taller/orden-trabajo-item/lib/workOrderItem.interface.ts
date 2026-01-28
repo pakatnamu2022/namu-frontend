@@ -12,6 +12,8 @@ export interface WorkOrderItemResource {
   work_order_id: string;
   type_planning_id: string;
   type_planning_name: string;
+  type_operation_id: string;
+  type_operation_name: string;
   description: string;
 }
 
@@ -19,6 +21,7 @@ export interface WorkOrderItemRequest {
   work_order_id: number;
   group_number: number;
   type_planning_id: string;
+  type_operation_id: string;
   description: string;
 }
 

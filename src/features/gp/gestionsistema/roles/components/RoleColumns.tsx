@@ -46,6 +46,7 @@ export const roleColumns = ({ onUpdate, onDelete }: Props): RoleColumns[] => [
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
       const router = useNavigate();
       const id = row.original.id;
       const { ABSOLUTE_ROUTE } = ROLE;
@@ -77,8 +78,8 @@ export const roleColumns = ({ onUpdate, onDelete }: Props): RoleColumns[] => [
             onClick={() =>
               router(
                 `${ABSOLUTE_ROUTE}/permisos/${id}?nombre=${encodeURIComponent(
-                  row.original.nombre
-                )}`
+                  row.original.nombre,
+                )}`,
               )
             }
           >

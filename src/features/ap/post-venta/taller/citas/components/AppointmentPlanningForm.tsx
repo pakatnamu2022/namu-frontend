@@ -91,6 +91,13 @@ export const AppointmentPlanningForm = ({
     has_workshop: true,
   });
 
+  useEffect(() => {
+    if (sedes.length > 0 && !defaultValues.sede_id) {
+      form.setValue("sede_id", sedes[0].id.toString());
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sedes]);
+
   const isLoading =
     isLoadingOperations ||
     isLoadingPlanning ||
@@ -100,6 +107,7 @@ export const AppointmentPlanningForm = ({
   // Watch vehicle selection
   const watchVehicleId = form.watch("ap_vehicle_id");
   const watchCustomer = form.watch("num_doc_client");
+  const watchTypeOperationId = form.watch("type_operation_appointment_id");
 
   // Detectar el tipo de documento basado en la longitud
   const isDni = watchCustomer?.length === 8;
@@ -185,6 +193,20 @@ export const AppointmentPlanningForm = ({
   const shouldDisableCustomerFields = Boolean(
     customerData?.success && customerData.data,
   );
+
+  // Setear descripción cuando cambia el tipo de operación
+  useEffect(() => {
+    if (isFirstLoad) return;
+
+    if (watchTypeOperationId && typesOperations.length > 0) {
+      const selectedOperation = typesOperations.find(
+        (op) => op.id.toString() === watchTypeOperationId,
+      );
+      if (selectedOperation) {
+        form.setValue("description", selectedOperation.description);
+      }
+    }
+  }, [watchTypeOperationId, typesOperations, form, isFirstLoad]);
 
   // Normalizar formato de hora a HH:mm
   const normalizeTime = (time: string): string => {

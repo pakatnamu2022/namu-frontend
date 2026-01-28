@@ -1,11 +1,11 @@
 "use client";
 
-import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
+import { useCurrentModule } from "@/shared/hooks/useCurrentModule.ts";
 import { useEffect, useState } from "react";
-import PageSkeleton from "@/shared/components/PageSkeleton";
-import TitleComponent from "@/shared/components/TitleComponent";
-import DataTablePagination from "@/shared/components/DataTablePagination";
-import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
+import PageSkeleton from "@/shared/components/PageSkeleton.tsx";
+import TitleComponent from "@/shared/components/TitleComponent.tsx";
+import DataTablePagination from "@/shared/components/DataTablePagination.tsx";
+import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog.tsx";
 import {
   ERROR_MESSAGE,
   errorToast,
@@ -13,20 +13,20 @@ import {
   getSunday,
   SUCCESS_MESSAGE,
   successToast,
-} from "@/core/core.function";
-import { DEFAULT_PER_PAGE } from "@/core/core.constants";
-import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
-import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import { notFound } from "@/shared/hooks/useNotFound";
+} from "@/core/core.function.ts";
+import { DEFAULT_PER_PAGE } from "@/core/core.constants.ts";
+import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper.tsx";
+import { useModulePermissions } from "@/shared/hooks/useModulePermissions.ts";
+import { notFound } from "@/shared/hooks/useNotFound.ts";
 import { useNavigate } from "react-router-dom";
-import { PURCHASE_REQUEST } from "@/features/ap/post-venta/taller/solicitud-compra/lib/purchaseRequest.constants";
-import PurchaseRequestActions from "@/features/ap/post-venta/taller/solicitud-compra/components/PurchaseRequestActions";
-import { purchaseRequestColumns } from "@/features/ap/post-venta/taller/solicitud-compra/components/PurchaseRequestColumns";
-import PurchaseRequestTable from "@/features/ap/post-venta/taller/solicitud-compra/components/PurchaseRequestTable";
-import PurchaseRequestOptions from "@/features/ap/post-venta/taller/solicitud-compra/components/PurchaseRequestOptions";
-import { deletePurchaseRequest } from "@/features/ap/post-venta/taller/solicitud-compra/lib/purchaseRequest.actions";
-import { usePurchaseRequests } from "@/features/ap/post-venta/taller/solicitud-compra/lib/purchaseRequest.hook";
-import { useMyPhysicalWarehouse } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
+import { PURCHASE_REQUEST_TALLER } from "@/features/ap/post-venta/taller/solicitud-compra/lib/purchaseRequest.constants.ts";
+import PurchaseRequestActions from "@/features/ap/post-venta/taller/solicitud-compra/components/PurchaseRequestActions.tsx";
+import { purchaseRequestColumns } from "@/features/ap/post-venta/taller/solicitud-compra/components/PurchaseRequestColumns.tsx";
+import PurchaseRequestTable from "@/features/ap/post-venta/taller/solicitud-compra/components/PurchaseRequestTable.tsx";
+import PurchaseRequestOptions from "@/features/ap/post-venta/taller/solicitud-compra/components/PurchaseRequestOptions.tsx";
+import { deletePurchaseRequest } from "@/features/ap/post-venta/taller/solicitud-compra/lib/purchaseRequest.actions.ts";
+import { usePurchaseRequests } from "@/features/ap/post-venta/taller/solicitud-compra/lib/purchaseRequest.hook.ts";
+import { useMyPhysicalWarehouse } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook.ts";
 
 export default function PurchaseRequestPVPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -35,7 +35,7 @@ export default function PurchaseRequestPVPage() {
   const [search, setSearch] = useState("");
   const [warehouseId, setWarehouseId] = useState<string>("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
-  const { MODEL, ROUTE, ROUTE_UPDATE, ROUTE_ADD } = PURCHASE_REQUEST;
+  const { MODEL, ROUTE, ROUTE_UPDATE, ROUTE_ADD } = PURCHASE_REQUEST_TALLER;
   const permissions = useModulePermissions(ROUTE);
   const router = useNavigate();
   const currentDate = new Date();
