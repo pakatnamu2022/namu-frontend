@@ -365,6 +365,14 @@ import ControlTravelPage from "./app/tp/comercial-tp/control-viajes/page.tsx";
 import GeneralMastersPage from "./app/gp/maestros-generales/page.tsx";
 import { PER_DIEM_REQUEST } from "./features/profile/viaticos/lib/perDiemRequest.constants.ts";
 import ControlFreightPage from "./app/tp/comercial-tp/control-fletes/page.tsx";
+import PayrollPeriodsPage from "./app/gp/gestion-humana/planillas/periodos/page.tsx";
+import AddPayrollPeriodPage from "./app/gp/gestion-humana/planillas/periodos/agregar/page.tsx";
+import UpdatePayrollPeriodPage from "./app/gp/gestion-humana/planillas/periodos/actualizar/[id]/page.tsx";
+import WorkTypePage from "./app/gp/gestion-humana/planillas/tipo-dia-trabajo/page.tsx";
+import AddWorkTypePage from "./app/gp/gestion-humana/planillas/tipo-dia-trabajo/agregar/page.tsx";
+import UpdateWorkTypePage from "./app/gp/gestion-humana/planillas/tipo-dia-trabajo/actualizar/[id]/page.tsx";
+import WorkSchedulesPage from "./app/gp/gestion-humana/planillas/dia-trabajo/page.tsx";
+import ProfileLayout from "./features/dashboard/components/ProfileLayout.tsx";
 
 // ============================================================================
 // PROTECTED ROUTE COMPONENT
@@ -1834,7 +1842,7 @@ function App() {
               }
             >
               <Route path="control-viajes" element={<ControlTravelPage />} />
-              <Route path="control-fletes" element={<ControlFreightPage/>} />
+              <Route path="control-fletes" element={<ControlFreightPage />} />
             </Route>
 
             {/* ======================================================== */}
