@@ -163,7 +163,9 @@ export const CustomersForm = ({
   const conductorDni = form.watch("driver_num_doc");
   const conyugeDni = form.watch("spouse_num_doc");
   const typePersonWatch = form.watch("type_person_id");
-  const isMarried = maritalStatusId === BUSINESS_PARTNERS.MARITAL_STATUS_ID;
+  const isMarried =
+    maritalStatusId === BUSINESS_PARTNERS.MARRIED_ID ||
+    maritalStatusId === BUSINESS_PARTNERS.CO_OWNER_ID;
   const isJuridica = typePersonId === BUSINESS_PARTNERS.TYPE_PERSON_JURIDICA_ID;
   // Obtenemos los numeros de dígitos esperados para DNI y RUC
   const selectedDocumentTypeDni = documentTypes.find(
@@ -894,7 +896,7 @@ export const CustomersForm = ({
               })}
               perPage={10}
               debounceMs={500}
-              disabled={!!districtDefaultOption}
+              disabled={!!districtDefaultOption && mode !== "update"}
               defaultOption={districtDefaultOption}
             />
           </div>
@@ -934,59 +936,6 @@ export const CustomersForm = ({
               strictFilter={true}
             />
           </div>
-
-          {/* Sección: Datos del Cónyuge (Solo si está casado) */}
-          {!isJuridica && isMarried && !fromOpportunities && (
-            <GroupFormSection
-              title="Datos del Cónyuge"
-              icon={Heart}
-              iconColor="text-pink-600"
-              bgColor="bg-pink-50"
-              cols={{ sm: 1, md: 3 }}
-              className="mt-8"
-            >
-              <FormInput
-                control={form.control}
-                name="spouse_num_doc"
-                label={
-                  <div className="flex items-center gap-2 relative">
-                    DNI
-                    <DocumentValidationStatus
-                      shouldValidate={true}
-                      documentNumber={conyugeDni || ""}
-                      expectedDigits={8}
-                      isValidating={isConyugeDniLoading}
-                      leftPosition="right-0"
-                    />
-                  </div>
-                }
-                type="number"
-                placeholder="Número de documento"
-                maxLength={8}
-                addonEnd={
-                  <ValidationIndicator
-                    show={!!conyugeDni}
-                    isValidating={isConyugeDniLoading}
-                    isValid={conyugeDniData?.success && !!conyugeDniData.data}
-                    hasError={
-                      !!conyugeDniError ||
-                      (conyugeDniData && !conyugeDniData.success)
-                    }
-                  />
-                }
-              />
-
-              <div className="col-span-1 md:col-span-2">
-                <FormInput
-                  control={form.control}
-                  name="spouse_full_name"
-                  label="Nombres Completos"
-                  placeholder="Nombres Completos"
-                  disabled={shouldDisableSpouseFields}
-                />
-              </div>
-            </GroupFormSection>
-          )}
 
           {/* Sección: Representante Legal (Solo si es Persona Jurídica y NO viene de oportunidades) */}
           {isJuridica && !fromOpportunities && (
@@ -1055,6 +1004,59 @@ export const CustomersForm = ({
             </GroupFormSection>
           )}
         </GroupFormSection>
+
+        {/* Sección: Datos del Cónyuge (Solo si está casado) */}
+        {!isJuridica && isMarried && !fromOpportunities && (
+          <GroupFormSection
+            title="Datos del Cónyuge"
+            icon={Heart}
+            iconColor="text-pink-600"
+            bgColor="bg-pink-50"
+            cols={{ sm: 1, md: 3 }}
+            className="mt-8"
+          >
+            <FormInput
+              control={form.control}
+              name="spouse_num_doc"
+              label={
+                <div className="flex items-center gap-2 relative">
+                  DNI
+                  <DocumentValidationStatus
+                    shouldValidate={true}
+                    documentNumber={conyugeDni || ""}
+                    expectedDigits={8}
+                    isValidating={isConyugeDniLoading}
+                    leftPosition="right-0"
+                  />
+                </div>
+              }
+              inputMode="numeric"
+              placeholder="Número de documento"
+              maxLength={8}
+              addonEnd={
+                <ValidationIndicator
+                  show={!!conyugeDni}
+                  isValidating={isConyugeDniLoading}
+                  isValid={conyugeDniData?.success && !!conyugeDniData.data}
+                  hasError={
+                    !!conyugeDniError ||
+                    (conyugeDniData && !conyugeDniData.success)
+                  }
+                />
+              }
+            />
+
+            <div className="col-span-1 md:col-span-2">
+              <FormInput
+                control={form.control}
+                name="spouse_full_name"
+                label="Nombres Completos"
+                placeholder="Nombres Completos"
+                disabled={shouldDisableSpouseFields}
+              />
+            </div>
+          </GroupFormSection>
+        )}
 
         {/* GRUPO 2: INFORMACIÓN ADICIONAL */}
         <GroupFormSection
@@ -1126,7 +1128,8 @@ export const CustomersForm = ({
                   />
                 </div>
               }
-              type="number"
+              type="text"
+              inputMode="numeric"
               placeholder="Número de documento"
               maxLength={8}
               addonEnd={
