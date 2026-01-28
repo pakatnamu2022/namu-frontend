@@ -9,6 +9,8 @@ import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
 import {
   ERROR_MESSAGE,
   errorToast,
+  getMonday,
+  getSunday,
   SUCCESS_MESSAGE,
   successToast,
 } from "@/core/core.function";
@@ -26,12 +28,14 @@ import { deletePurchaseRequest } from "@/features/ap/post-venta/taller/solicitud
 import { usePurchaseRequests } from "@/features/ap/post-venta/taller/solicitud-compra/lib/purchaseRequest.hook";
 import { PurchaseRequestDetailSheet } from "@/features/ap/post-venta/taller/solicitud-compra/components/PurchaseRequestDetailSheet";
 import type { PurchaseRequestResource } from "@/features/ap/post-venta/taller/solicitud-compra/lib/purchaseRequest.interface";
+import { useMyPhysicalWarehouse } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
 
 export default function PurchaseRequestRepuestoPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
+  const [warehouseId, setWarehouseId] = useState<string>("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [selectedPurchaseRequestId, setSelectedPurchaseRequestId] = useState<
     number | null
@@ -42,12 +46,20 @@ export default function PurchaseRequestRepuestoPage() {
   const router = useNavigate();
   const currentDate = new Date();
 
-  const [dateFrom, setDateFrom] = useState<Date | undefined>(currentDate);
-  const [dateTo, setDateTo] = useState<Date | undefined>(currentDate);
+  const [dateFrom, setDateFrom] = useState<Date | undefined>(
+    getMonday(currentDate),
+  );
+  const [dateTo, setDateTo] = useState<Date | undefined>(
+    getSunday(currentDate),
+  );
 
   const formatDate = (date: Date | undefined) => {
     return date ? date.toLocaleDateString("en-CA") : undefined; // formato: YYYY-MM-DD
   };
+
+  // Obtener mis almacenes físicos de postventa
+  const { data: warehouses = [], isLoading: isLoadingWarehouses } =
+    useMyPhysicalWarehouse();
 
   useEffect(() => {
     setPage(1);
@@ -97,7 +109,7 @@ export default function PurchaseRequestRepuestoPage() {
     setSelectedPurchaseRequestId(null);
   };
 
-  if (isLoadingModule) return <PageSkeleton />;
+  if (isLoadingModule || isLoadingWarehouses) return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
   if (!currentView) notFound();
 
@@ -132,6 +144,9 @@ export default function PurchaseRequestRepuestoPage() {
           setDateFrom={setDateFrom}
           dateTo={dateTo}
           setDateTo={setDateTo}
+          warehouses={warehouses}
+          warehouseId={warehouseId}
+          setWarehouseId={setWarehouseId}
         />
       </PurchaseRequestTable>
 

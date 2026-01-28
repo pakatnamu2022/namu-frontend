@@ -41,6 +41,7 @@ interface SearchableSelectProps {
   disabled?: boolean;
   buttonSize?: "icon" | "sm" | "lg" | "default" | "xs" | "icon-sm" | "icon-lg";
   showSearch?: boolean;
+  allowClear?: boolean;
 }
 
 export function SearchableSelect({
@@ -57,6 +58,7 @@ export function SearchableSelect({
   disabled = false,
   buttonSize = "sm",
   showSearch = true,
+  allowClear = true,
 }: SearchableSelectProps) {
   const [open, setOpen] = React.useState(false);
   const [searchValue, setSearchValue] = React.useState("");
@@ -108,7 +110,7 @@ export function SearchableSelect({
 
   const handleSelect = (optionValue: string) => {
     if (value === optionValue) {
-      onChange("");
+      if (allowClear) onChange("");
     } else {
       onChange(optionValue);
     }

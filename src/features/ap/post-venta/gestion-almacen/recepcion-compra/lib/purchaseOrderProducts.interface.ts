@@ -16,6 +16,7 @@ export interface PurchaseOrderProductItemResource {
   unit_measurement?: string | null;
   product_id: number;
   product_name?: string;
+  product_code?: string;
 }
 
 export interface PurchaseOrderProductsResource {

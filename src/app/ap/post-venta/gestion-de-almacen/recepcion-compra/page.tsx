@@ -1,10 +1,12 @@
 "use client";
 
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule.ts";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ERROR_MESSAGE,
   errorToast,
+  getMonday,
+  getSunday,
   SUCCESS_MESSAGE,
   successToast,
 } from "@/core/core.function.ts";
@@ -12,7 +14,7 @@ import PageSkeleton from "@/shared/components/PageSkeleton.tsx";
 import TitleComponent from "@/shared/components/TitleComponent.tsx";
 import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog.tsx";
 import DataTablePagination from "@/shared/components/DataTablePagination.tsx";
-import { DEFAULT_PER_PAGE } from "@/core/core.constants.ts";
+import { DEFAULT_PER_PAGE, EMPRESA_AP } from "@/core/core.constants.ts";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper.tsx";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions.ts";
 import { notFound } from "@/shared/hooks/useNotFound.ts";
@@ -25,24 +27,41 @@ import { PURCHASE_ORDER_PRODUCT } from "@/features/ap/post-venta/gestion-almacen
 import { PurchaseOrderProductsViewSheet } from "@/features/ap/post-venta/gestion-almacen/recepcion-compra/components/PurchaseOrderProductsSheet.tsx";
 import { PurchaseOrderProductsResource } from "@/features/ap/post-venta/gestion-almacen/recepcion-compra/lib/purchaseOrderProducts.interface.ts";
 import { TYPES_OPERATION_ID } from "@/features/ap/configuraciones/maestros-general/tipos-operacion/lib/typesOperation.constants.ts";
+import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 
 export default function PurchaseOrderProductsPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
+  const [sedeId, setSedeId] = useState<string>("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [viewData, setViewData] =
     useState<PurchaseOrderProductsResource | null>(null);
   const { MODEL, ROUTE, ABSOLUTE_ROUTE } = PURCHASE_ORDER_PRODUCT;
   const permissions = useModulePermissions(ROUTE);
   const currentDate = new Date();
-  const [dateFrom, setDateFrom] = useState<Date | undefined>(currentDate);
-  const [dateTo, setDateTo] = useState<Date | undefined>(currentDate);
+  const [dateFrom, setDateFrom] = useState<Date | undefined>(
+    getMonday(currentDate),
+  );
+  const [dateTo, setDateTo] = useState<Date | undefined>(
+    getSunday(currentDate),
+  );
 
   const formatDate = (date: Date | undefined) => {
     return date ? date.toLocaleDateString("en-CA") : undefined; // formato: YYYY-MM-DD
   };
+
+  const { data: mySedes = [], isLoading: isLoadingSedes } = useMySedes({
+    company: EMPRESA_AP.id,
+  });
+
+  useEffect(() => {
+    if (mySedes.length > 0 && !sedeId) {
+      setSedeId(mySedes[0].id.toString());
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mySedes]);
 
   const { data, isLoading, refetch } = usePurchaseOrderProducts({
     page,
@@ -53,6 +72,7 @@ export default function PurchaseOrderProductsPage() {
       dateFrom && dateTo
         ? [formatDate(dateFrom), formatDate(dateTo)]
         : undefined,
+    sede_id: sedeId || undefined,
   });
 
   const handleDelete = async () => {
@@ -76,7 +96,7 @@ export default function PurchaseOrderProductsPage() {
     }
   };
 
-  if (isLoadingModule) return <PageSkeleton />;
+  if (isLoadingModule || isLoadingSedes) return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
   if (!currentView) notFound();
 
@@ -109,6 +129,9 @@ export default function PurchaseOrderProductsPage() {
           setDateFrom={setDateFrom}
           dateTo={dateTo}
           setDateTo={setDateTo}
+          sedes={mySedes}
+          sedeId={sedeId}
+          setSedeId={setSedeId}
         />
       </PurchaseOrderProductsTable>
 

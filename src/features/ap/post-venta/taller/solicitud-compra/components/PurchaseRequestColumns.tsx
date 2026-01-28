@@ -60,26 +60,6 @@ export const purchaseRequestColumns = ({
     header: "Almacén",
   },
   {
-    accessorKey: "status",
-    header: "Estado",
-    cell: ({ row }) => {
-      const { status, status_color } = row.original;
-      const statusText =
-        PURCHASE_REQUEST_STATUS[
-          status as keyof typeof PURCHASE_REQUEST_STATUS
-        ] || status;
-      return (
-        <Badge
-          style={{
-            backgroundColor: status_color || "#6B7280",
-          }}
-        >
-          {statusText}
-        </Badge>
-      );
-    },
-  },
-  {
     accessorKey: "ap_order_quotation_id",
     header: "Asociado a Cotización",
     cell: ({ getValue }) => {
@@ -102,6 +82,26 @@ export const purchaseRequestColumns = ({
   {
     accessorKey: "supplier_order_numbers",
     header: "Orden de Proveedor",
+  },
+  {
+    accessorKey: "status",
+    header: "Estado",
+    cell: ({ row }) => {
+      const { status, status_color } = row.original;
+      const statusText =
+        PURCHASE_REQUEST_STATUS[
+          status as keyof typeof PURCHASE_REQUEST_STATUS
+        ] || status;
+      return (
+        <Badge
+          style={{
+            backgroundColor: status_color || "#6B7280",
+          }}
+        >
+          {statusText}
+        </Badge>
+      );
+    },
   },
   {
     id: "actions",

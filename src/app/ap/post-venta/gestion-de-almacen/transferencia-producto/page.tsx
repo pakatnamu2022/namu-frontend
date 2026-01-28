@@ -1,10 +1,12 @@
 "use client";
 
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule.ts";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ERROR_MESSAGE,
   errorToast,
+  getMonday,
+  getSunday,
   SUCCESS_MESSAGE,
   successToast,
 } from "@/core/core.function.ts";
@@ -29,12 +31,14 @@ import {
   useQueryShippingGuideFromNubefact,
 } from "@/features/ap/post-venta/gestion-almacen/transferencia-producto/lib/productTransfer.hook.ts";
 import { ProductTransferViewSheet } from "@/features/ap/post-venta/gestion-almacen/recepcion-transferencia/components/ProductTransferViewSheet.tsx";
+import { useMyPhysicalWarehouse } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
 
 export default function ProductTransferPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
+  const [warehouseId, setWarehouseId] = useState<string>("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [sendToNubefactId, setSendToNubefactId] = useState<number | null>(null);
   const [viewId, setViewId] = useState<number | null>(null);
@@ -45,8 +49,24 @@ export default function ProductTransferPage() {
   const queryFromNubefactMutation = useQueryShippingGuideFromNubefact();
   const currentDate = new Date();
 
-  const [dateFrom, setDateFrom] = useState<Date | undefined>(currentDate);
-  const [dateTo, setDateTo] = useState<Date | undefined>(currentDate);
+  const [dateFrom, setDateFrom] = useState<Date | undefined>(
+    getMonday(currentDate),
+  );
+  const [dateTo, setDateTo] = useState<Date | undefined>(
+    getSunday(currentDate),
+  );
+
+  // Obtener mis almacenes físicos de postventa
+  const { data: warehouses = [], isLoading: isLoadingWarehouses } =
+    useMyPhysicalWarehouse();
+
+  // Setear el primer almacén por defecto
+  useEffect(() => {
+    if (warehouses.length > 0 && !warehouseId) {
+      setWarehouseId(warehouses[0].id.toString());
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [warehouses]);
 
   const formatDate = (date: Date | undefined) => {
     return date ? date.toLocaleDateString("en-CA") : undefined; // formato: YYYY-MM-DD
@@ -60,6 +80,7 @@ export default function ProductTransferPage() {
       dateFrom && dateTo
         ? [formatDate(dateFrom), formatDate(dateTo)]
         : undefined,
+    warehouse_id: warehouseId || undefined,
   });
 
   const handleView = (id: number) => {
@@ -99,7 +120,7 @@ export default function ProductTransferPage() {
     });
   };
 
-  if (isLoadingModule) return <PageSkeleton />;
+  if (isLoadingModule || isLoadingWarehouses) return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
   if (!currentView) notFound();
 
@@ -127,6 +148,7 @@ export default function ProductTransferPage() {
           routeUpdate: ROUTE_UPDATE,
           routeReception:
             "/ap/post-venta/gestion-de-almacen/transferencia-producto/recepcion",
+          warehouseId,
         })}
         data={data?.data || []}
       >
@@ -137,6 +159,9 @@ export default function ProductTransferPage() {
           setDateFrom={setDateFrom}
           dateTo={dateTo}
           setDateTo={setDateTo}
+          warehouses={warehouses}
+          warehouseId={warehouseId}
+          setWarehouseId={setWarehouseId}
         />
       </ProductTransferTable>
 

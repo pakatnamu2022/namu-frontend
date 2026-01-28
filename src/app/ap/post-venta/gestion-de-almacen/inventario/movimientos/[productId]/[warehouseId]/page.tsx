@@ -16,7 +16,7 @@ import InventoryMovementsOptions from "@/features/ap/post-venta/gestion-almacen/
 import { Button } from "@/components/ui/button.tsx";
 import { ArrowLeft } from "lucide-react";
 import BackButton from "@/shared/components/BackButton.tsx";
-import { errorToast } from "@/core/core.function.ts";
+import { errorToast, getMonday, getSunday } from "@/core/core.function.ts";
 import { useInventoryMovements } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.hook.ts";
 
 export default function ProductKardexPage() {
@@ -24,10 +24,16 @@ export default function ProductKardexPage() {
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
-  const [dateFrom, setDateFrom] = useState<Date | undefined>(undefined);
-  const [dateTo, setDateTo] = useState<Date | undefined>(undefined);
   const { ROUTE, ABSOLUTE_ROUTE } = INVENTORY;
   const params = useParams();
+  const currentDate = new Date();
+
+  const [dateFrom, setDateFrom] = useState<Date | undefined>(
+    getMonday(currentDate),
+  );
+  const [dateTo, setDateTo] = useState<Date | undefined>(
+    getSunday(currentDate),
+  );
 
   const productId = parseInt(params.productId as string);
   const warehouseId = parseInt(params.warehouseId as string);
@@ -53,7 +59,7 @@ export default function ProductKardexPage() {
     },
     {
       enabled: !isNaN(productId) && !isNaN(warehouseId),
-    }
+    },
   );
 
   useEffect(() => {

@@ -8,7 +8,7 @@ const supplierOrderDetailItemSchema = z.object({
   unit_price: z
     .number()
     .min(0, { message: "El precio unitario debe ser mayor o igual a 0" }),
-  total: z.number().min(0, { message: "El total debe ser mayor o igual a 0" }),
+  total: z.number().min(0.01, { message: "El total debe ser mayor a 0" }),
   note: z.string().optional(),
 });
 

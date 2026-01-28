@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Plus, Trash2, Package, Search } from "lucide-react";
+import { Plus, Trash2, Package, Search, PackagePlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -35,6 +35,7 @@ import { OrderQuotationResource } from "@/features/ap/post-venta/taller/cotizaci
 import { QuotationSelectionModal } from "../../cotizacion/components/QuotationSelectionModal";
 import { errorToast } from "@/core/core.function";
 import { FormInputText } from "@/shared/components/FormInputText";
+import QuotationPartModal from "@/features/ap/post-venta/repuestos/cotizacion-meson/components/QuotationPartModal";
 
 const onSelectSupplyType = [
   { label: "Lima", value: "LIMA" },
@@ -48,6 +49,7 @@ interface PurchaseRequestFormProps {
   mode?: "create" | "update";
   onCancel?: () => void;
   showQuotationOption?: boolean;
+  allowCreateProduct?: boolean;
 }
 
 export default function PurchaseRequestForm({
@@ -57,6 +59,7 @@ export default function PurchaseRequestForm({
   mode = "create",
   onCancel,
   showQuotationOption = true,
+  allowCreateProduct = false,
 }: PurchaseRequestFormProps) {
   const [details, setDetails] = useState<PurchaseRequestDetailSchema[]>(() => {
     // Transformar los detalles del backend al formato esperado
@@ -75,6 +78,7 @@ export default function PurchaseRequestForm({
   const [quotations, setQuotations] = useState<OrderQuotationResource[]>([]);
   const [isLoadingQuotations, setIsLoadingQuotations] = useState(false);
   const [isQuotationModalOpen, setIsQuotationModalOpen] = useState(false);
+  const [isPartModalOpen, setIsPartModalOpen] = useState(false);
 
   // Obtener mis almacenes físicos de postventa
   const { data: warehouses = [], isLoading: isLoadingWarehouses } =
@@ -399,9 +403,22 @@ export default function PurchaseRequestForm({
 
         {/* Productos */}
         <Card className="p-6">
-          <div className="flex items-center gap-2 mb-4">
-            <Package className="h-5 w-5 text-primary" />
-            <h3 className="text-lg font-semibold">Productos Solicitados</h3>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <Package className="h-5 w-5 text-primary" />
+              <h3 className="text-lg font-semibold">Productos Solicitados</h3>
+            </div>
+            {allowCreateProduct && (
+              <Button
+                type="button"
+                onClick={() => setIsPartModalOpen(true)}
+                size="sm"
+                variant="outline"
+              >
+                <PackagePlus className="h-4 w-4 mr-2" />
+                Crear Repuesto
+              </Button>
+            )}
           </div>
 
           {!selectedWarehouseId ? (
@@ -663,6 +680,14 @@ export default function PurchaseRequestForm({
           onOpenChange={setIsQuotationModalOpen}
           onSelectQuotation={handleSelectQuotation}
         />
+
+        {/* Modal de Crear Repuesto - Solo disponible para almacén */}
+        {allowCreateProduct && (
+          <QuotationPartModal
+            open={isPartModalOpen}
+            onClose={() => setIsPartModalOpen(false)}
+          />
+        )}
       </form>
     </Form>
   );
