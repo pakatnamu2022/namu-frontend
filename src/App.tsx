@@ -335,6 +335,7 @@ import ControlTravelPage from "./app/tp/comercial-tp/control-viajes/page.tsx";
 
 import GeneralMastersPage from "./app/gp/maestros-generales/page.tsx";
 import { PER_DIEM_REQUEST } from "./features/profile/viaticos/lib/perDiemRequest.constants.ts";
+import ControlFreightPage from "./app/tp/comercial-tp/control-fletes/page.tsx";
 
 // ============================================================================
 // PROTECTED ROUTE COMPONENT
@@ -1664,6 +1665,7 @@ function App() {
               }
             >
               <Route path="control-viajes" element={<ControlTravelPage />} />
+              <Route path="control-fletes" element={<ControlFreightPage/>} />
             </Route>
 
             {/* ======================================================== */}
