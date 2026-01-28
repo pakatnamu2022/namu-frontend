@@ -39,7 +39,7 @@ export const BrandsForm = ({
 }: BrandsFormProps) => {
   const form = useForm({
     resolver: zodResolver(
-      mode === "create" ? brandSchemaCreate : (brandSchemaUpdate as any)
+      mode === "create" ? brandSchemaCreate : (brandSchemaUpdate as any),
     ),
     defaultValues: {
       ...defaultValues,
@@ -71,7 +71,7 @@ export const BrandsForm = ({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(handleSubmit)}
-        className="space-y-4 w-full formlayout"
+        className="space-y-4 w-full"
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
@@ -197,7 +197,7 @@ export const BrandsForm = ({
             to={
               isCommercial === String(CM_COMERCIAL_ID)
                 ? ABSOLUTE_ROUTE!
-                : "/ap/post-venta/gestion-de-productos/marcas-producto"
+                : "/ap/post-venta/gestion-de-almacen/marcas-producto"
             }
           >
             <Button type="button" variant="outline">

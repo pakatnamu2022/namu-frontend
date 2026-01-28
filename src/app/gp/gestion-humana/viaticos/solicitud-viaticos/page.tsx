@@ -64,8 +64,6 @@ export default function PerDiemRequestPage() {
     }
   };
 
-  console.log({ canSend });
-
   if (isLoadingModule) return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
   if (!currentView) notFound();

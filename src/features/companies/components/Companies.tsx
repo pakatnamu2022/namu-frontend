@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/features/auth/lib/auth.store";
 import CardSkeletonGrid from "@/shared/components/CardSkeletonGrid";
@@ -26,47 +21,55 @@ export default function AvailableCompanies() {
   // }, [permissions, router]);
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
       {permissions?.length === 0
         ? Array.from({ length: 4 }, (_, index) => (
             <CardSkeletonGrid key={index} />
           ))
-        : permissions?.map((company, index) => {
-            const logo =
-              CONSTANTS.EMPRESAS.find((c: any) => c.id === company.empresa_id)
-                ?.scrWhite || "/logos/default.svg";
-            return (
-              <Card
-                key={company.empresa_id}
-                className="group hover:shadow-xl transition-all duration-500 cursor-pointer border bg-background backdrop-blur-xs hover:scale-[1.02] relative overflow-hidden"
-                onClick={() => handleCompanySelect(company.empresa_abreviatura)}
-                style={{ animationDelay: `${index * 100}ms` }}
-              >
-                <CardHeader className="text-center relative z-10 flex-row gap-4 md:gap-6 space-y-0 p-4">
-                  <div className="relative">
-                    <div className="size-14 md:size-20 rounded-2xl flex items-center justify-center group-hover:scale-105 transition-all duration-500 shadow-lg text-white bg-primary">
-                      <div className="size-10 md:size-16 relative">
-                        <img
-                          src={logo}
-                          alt={company.empresa_nombre}
-                          className="object-contain"
-                        />
-                      </div>
+        : permissions
+            ?.sort((a, b) => a.empresa_nombre.localeCompare(b.empresa_nombre))
+            ?.map((company, index) => {
+              const empresaData = CONSTANTS.EMPRESAS.find(
+                (c: any) => c.id === company.empresa_id,
+              );
+              const logo = empresaData?.scrWhite || "/logos/default.svg";
+              const backgroundImage =
+                empresaData?.image || "/images/modules/default.webp";
+
+              return (
+                <Card
+                  key={company.empresa_id}
+                  className="group hover:shadow-xl transition-all duration-500 cursor-pointer border-0 hover:scale-[1.02] relative overflow-hidden h-48 md:h-64"
+                  onClick={() =>
+                    handleCompanySelect(company.empresa_abreviatura)
+                  }
+                  style={{ animationDelay: `${index * 100}ms` }}
+                >
+                  <div
+                    className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110"
+                    style={{ backgroundImage: `url(${backgroundImage})` }}
+                  />
+
+                  <div className="absolute inset-0 bg-linear-to-t from-primary/70 dark:from-muted via-primary/10 to-transparent" />
+
+                  <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6 flex items-center gap-4">
+                    <div className="size-12 md:size-14 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform duration-500">
+                      <img
+                        src={logo}
+                        alt={company.empresa_nombre}
+                        className="size-8 md:size-10 object-contain"
+                      />
+                    </div>
+
+                    <div className="flex-1">
+                      <CardTitle className="text-lg md:text-2xl font-semibold text-white drop-shadow-lg line-clamp-2">
+                        {company.empresa_nombre}
+                      </CardTitle>
                     </div>
                   </div>
-
-                  <div className="flex flex-col justify-center items-start md:gap-1">
-                    <CardTitle className="text-base md:text-lg font-bold text-primary dark:text-primary-foreground group-hover:text-primary transition-colors duration-300 text-start line-clamp-2">
-                      {company.empresa_nombre}
-                    </CardTitle>
-                    <CardDescription className="text-xs md:text-base muted-foreground group-hover:text-gray-700 transition-colors duration-300 text-start line-clamp-1">
-                      {/* {company.empresa_nombre} */}
-                    </CardDescription>
-                  </div>
-                </CardHeader>
-              </Card>
-            );
-          })}
+                </Card>
+              );
+            })}
     </div>
   );
 }

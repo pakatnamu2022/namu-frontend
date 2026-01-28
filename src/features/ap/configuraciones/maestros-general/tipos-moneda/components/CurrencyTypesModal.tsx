@@ -40,15 +40,19 @@ export default function CurrencyTypesModal({
     refetch,
   } = mode === "create"
     ? { data: EMPTY, isLoading: false, refetch: () => {} }
-    : useCurrencyTypesById(id!);
+    : // eslint-disable-next-line react-hooks/rules-of-hooks
+      useCurrencyTypesById(id!);
 
   function mapCurrencyTypesToForm(
-    data: CurrencyTypesResource
+    data: CurrencyTypesResource,
   ): Partial<CurrencyTypesSchema> {
     return {
       code: data.code,
       name: data.name,
       symbol: data.symbol,
+      enable_after_sales: Boolean(data.enable_after_sales),
+      enable_commercial: Boolean(data.enable_commercial),
+      status: Boolean(data.status),
     };
   }
 

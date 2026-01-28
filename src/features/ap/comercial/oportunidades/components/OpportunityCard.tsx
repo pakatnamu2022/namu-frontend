@@ -129,7 +129,7 @@ export const OpportunityCard = ({
         `p-3 hover:shadow-sm transition-all border-gray-200 ${
           !disableClick ? "cursor-pointer" : ""
         }`,
-        statusColor
+        statusColor,
       )}
       onClick={handleClick}
     >

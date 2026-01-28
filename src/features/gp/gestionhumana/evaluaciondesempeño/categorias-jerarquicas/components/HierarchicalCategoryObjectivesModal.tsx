@@ -21,13 +21,7 @@ import {
   updateHierarchicalCategoryObjective,
 } from "../../categoria-objetivo-detalle/lib/hierarchicalCategoryObjective.actions";
 import { CATEGORY_OBJECTIVE } from "../../categoria-objetivo-detalle/lib/hierarchicalCategoryObjective.constants";
-import {
-  Tabs,
-  TabsContent,
-  TabsContents,
-  TabsList,
-  TabsTrigger,
-} from "@/shared/components/animateTabs";
+import { ButtonGroup } from "@/components/ui/button-group";
 import { HierarchicalCategoryResource } from "../lib/hierarchicalCategory.interface";
 import { HIERARCHICAL_CATEGORY } from "../lib/hierarchicalCategory.constants";
 import { ModelInterface } from "@/core/core.interface";
@@ -70,13 +64,16 @@ export function HierarchicalCategoryObjectivesModal({
   const [adding, setAdding] = useState(false);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [deleteDetailId, setDeleteDetailId] = useState<number | null>(null);
+  const [activeView, setActiveView] = useState<"objectives" | "asignations">(
+    "objectives",
+  );
 
   const { data = [], isLoading: isLoadingWorkers } =
     useCategoryObjectiveWorkerById(category.id);
 
   const isDuplicate = (posId: number) => {
     const inItems = data.some((i) =>
-      i.objectives.some((o) => o.objective_id === posId)
+      i.objectives.some((o) => o.objective_id === posId),
     );
     return inItems;
   };
@@ -126,7 +123,7 @@ export function HierarchicalCategoryObjectivesModal({
       await invalidateQuery();
     },
     onError: () => {
-      errorToast("No se pudo agregar el objetivo");
+      errorToast("No se pudo actualizar el objetivo");
     },
   });
 
@@ -196,73 +193,79 @@ export function HierarchicalCategoryObjectivesModal({
       open={open}
       onClose={() => setOpen(false)}
       size="4xl"
+      childrenFooter={
+        <div className="w-full flex justify-end gap-2 mt-4">
+          <Button variant="outline" onClick={() => setOpen(false)}>
+            Cerrar
+          </Button>
+        </div>
+      }
     >
       {isLoadingWorkers ? (
         <FormSkeleton />
       ) : (
-        <div className="mt-4 space-y-4 overflow-auto max-h-[80vh] h-full">
-          <Tabs
-            defaultValue="objectives"
-            className="p-2 w-full h-full bg-muted rounded-lg"
-          >
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="objectives">Objetivos</TabsTrigger>
-              <TabsTrigger value="asignations">Asignaciones</TabsTrigger>
-            </TabsList>
-            <TabsContents className="rounded-sm h-full bg-background w-full overflow-y-auto">
-              <TabsContent value="objectives" className="space-y-6 p-6">
-                <div className="w-full flex justify-end mb-2 gap-2">
-                  {!adding ? (
-                    <Button variant="outline" size="sm" onClick={startAdd}>
-                      Agregar Objetivo
-                      <Plus className="size-5 ml-2" />
-                    </Button>
-                  ) : (
-                    <Button variant="ghost" size="sm" onClick={cancelAdd}>
-                      <X className="size-4 mr-2" />
-                      Cancelar agregado
-                    </Button>
-                  )}
-                </div>
+        <div className="space-y-4 overflow-auto">
+          <ButtonGroup>
+            <Button
+              variant={activeView === "objectives" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setActiveView("objectives")}
+            >
+              Objetivos
+            </Button>
+            <Button
+              variant={activeView === "asignations" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setActiveView("asignations")}
+            >
+              Asignaciones
+            </Button>
+          </ButtonGroup>
 
-                {/* Selector de objetivo */}
-                <AddObjectiveSelect
-                  adding={adding}
-                  setSelectedId={setSelectedId}
-                  objectives={objectives}
-                  selectedId={selectedId}
-                  isDuplicate={isDuplicate}
-                  isUpdating={isUpdating}
-                  addObjective={addObjective}
-                />
+          {activeView === "objectives" && (
+            <>
+              <div className="flex justify-end">
+                {!adding ? (
+                  <Button variant="outline" size="sm" onClick={startAdd}>
+                    Agregar Objetivo
+                    <Plus className="size-5 ml-2" />
+                  </Button>
+                ) : (
+                  <Button variant="ghost" size="sm" onClick={cancelAdd}>
+                    <X className="size-4 mr-2" />
+                    Cancelar agregado
+                  </Button>
+                )}
+              </div>
 
-                {/* Lista de objetivos */}
-                <CategoryObjectivesList
-                  categoryObjectives={categoryObjectives}
-                  setDeleteDetailId={setDeleteDetailId}
-                />
-              </TabsContent>
-              <TabsContent value="asignations" className="space-y-6 p-6">
-                {/* Lista de objetivos por Trabajador */}
-                <CategoryObjectivePersonList
-                  data={data}
-                  handleSwitchChange={handleSwitchChange}
-                  isPending={isPending}
-                  handleUpdateGoalCell={handleUpdateGoalCell}
-                  handleUpdateWeightCell={handleUpdateWeightCell}
-                />
-              </TabsContent>
-            </TabsContents>
-          </Tabs>
+              <AddObjectiveSelect
+                adding={adding}
+                setSelectedId={setSelectedId}
+                objectives={objectives}
+                selectedId={selectedId}
+                isDuplicate={isDuplicate}
+                isUpdating={isUpdating}
+                addObjective={addObjective}
+              />
+
+              <CategoryObjectivesList
+                categoryObjectives={categoryObjectives}
+                setDeleteDetailId={setDeleteDetailId}
+              />
+            </>
+          )}
+
+          {activeView === "asignations" && (
+            <CategoryObjectivePersonList
+              data={data}
+              handleSwitchChange={handleSwitchChange}
+              isPending={isPending}
+              handleUpdateGoalCell={handleUpdateGoalCell}
+              handleUpdateWeightCell={handleUpdateWeightCell}
+            />
+          )}
         </div>
       )}
-
-      {/* Footer */}
-      <div className="w-full flex justify-end gap-2 mt-4">
-        <Button variant="outline" onClick={() => setOpen(false)}>
-          Cerrar
-        </Button>
-      </div>
 
       {/* Delete Dialog */}
       {deleteDetailId !== null && (

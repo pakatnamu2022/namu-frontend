@@ -162,7 +162,7 @@ export const viewColumns = ({
       const value = getValue() as string;
       return (
         value && (
-          <Badge variant="secondary" className="gap-2">
+          <Badge color="secondary" className="gap-2">
             {value}
           </Badge>
         )

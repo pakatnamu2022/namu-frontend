@@ -22,12 +22,11 @@ import { FormSelect } from "@/shared/components/FormSelect";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { useModelsVn } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.hook";
-import { useAllVehicleColor } from "@/features/ap/configuraciones/vehiculos/colores-vehiculo/lib/vehicleColor.hook";
+import { useVehicleColor } from "@/features/ap/configuraciones/vehiculos/colores-vehiculo/lib/vehicleColor.hook";
+import { VehicleColorResource } from "@/features/ap/configuraciones/vehiculos/colores-vehiculo/lib/vehicleColor.interface";
 import { useAllEngineTypes } from "@/features/ap/configuraciones/vehiculos/tipos-motor/lib/engineTypes.hook";
 import { useWarehouseByModelSede } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
-import { useNavigate } from "react-router-dom";
-import { VEHICLES_PV } from "../lib/vehicles.constants";
 import { CM_POSTVENTA_ID, EMPRESA_AP } from "@/core/core.constants";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import { DocumentValidationStatus } from "@/shared/components/DocumentValidationStatus";
@@ -42,7 +41,7 @@ import { useCustomers } from "../../clientes/lib/customers.hook";
 import { CUSTOMERS_PV } from "../../clientes/lib/customers.constants";
 import { CustomersResource } from "../../clientes/lib/customers.interface";
 import { VehicleResource } from "../lib/vehicles.interface";
-import { MODELS_VN_POSTVENTA } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.constanst";
+import { MODELS_VN_REPUESTOS } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.constanst";
 
 interface VehiclePVFormProps {
   defaultValues: Partial<VehicleSchema>;
@@ -50,6 +49,7 @@ interface VehiclePVFormProps {
   isSubmitting?: boolean;
   mode?: "create" | "update";
   vehicleData?: VehicleResource; // Datos completos del vehículo cuando se edita
+  onCancel?: () => void;
 }
 
 export const VehiclePVForm = ({
@@ -58,13 +58,13 @@ export const VehiclePVForm = ({
   isSubmitting = false,
   mode = "create",
   vehicleData,
+  onCancel,
 }: VehiclePVFormProps) => {
-  const router = useNavigate();
   const queryClient = useQueryClient();
   const [isColorModalOpen, setIsColorModalOpen] = useState(false);
   const form = useForm({
     resolver: zodResolver(
-      mode === "create" ? vehicleSchemaCreate : vehicleSchemaUpdate
+      mode === "create" ? vehicleSchemaCreate : vehicleSchemaUpdate,
     ),
     defaultValues: {
       ...defaultValues,
@@ -73,8 +73,6 @@ export const VehiclePVForm = ({
     mode: "onChange",
   });
   const [isFirstLoad, setIsFirstLoad] = useState(mode === "update");
-  const { data: colors = [], isLoading: isLoadingColors } =
-    useAllVehicleColor();
   const { data: engineTypes = [], isLoading: isLoadingEngineTypes } =
     useAllEngineTypes();
   const { data: mySedes = [], isLoading: isLoadingMySedes } = useMySedes({
@@ -101,7 +99,7 @@ export const VehiclePVForm = ({
     error: plateError,
   } = usePlateValidation(
     plateWatch,
-    !isFirstLoad && !!plateWatch && plateWatch.length === Number(6)
+    !isFirstLoad && !!plateWatch && plateWatch.length === Number(6),
   );
 
   useEffect(() => {
@@ -124,10 +122,19 @@ export const VehiclePVForm = ({
     }
   }, [warehouses, form]);
 
+  // Auto-seleccionar primera sede por defecto
+  useEffect(() => {
+    if (mySedes.length > 0 && !form.getValues("sede_id")) {
+      form.setValue("sede_id", mySedes[0].id.toString(), {
+        shouldValidate: true,
+      });
+    }
+  }, [mySedes, form]);
+
   // Obtener la información de la API para mostrar como guía
   const apiInfo = plateData?.success && plateData.data ? plateData.data : null;
 
-  const isLoading = isLoadingColors || isLoadingEngineTypes || isLoadingMySedes;
+  const isLoading = isLoadingEngineTypes || isLoadingMySedes;
 
   if (isLoading) return <FormSkeleton />;
 
@@ -276,7 +283,7 @@ export const VehiclePVForm = ({
               size="icon-lg"
               className="aspect-square"
               onClick={() =>
-                window.open(MODELS_VN_POSTVENTA.ROUTE_ADD, "_blank")
+                window.open(MODELS_VN_REPUESTOS.ROUTE_ADD, "_blank")
               }
               tooltip="Agregar nuevo modelo"
             >
@@ -284,7 +291,7 @@ export const VehiclePVForm = ({
             </Button>
           </FormSelectAsync>
 
-          <FormSelect
+          <FormSelectAsync
             name="vehicle_color_id"
             label={() => (
               <FormLabel className="flex items-center gap-2 relative">
@@ -297,11 +304,22 @@ export const VehiclePVForm = ({
               </FormLabel>
             )}
             placeholder="Seleccionar color"
-            options={colors.map((color) => ({
-              value: color.id.toString(),
-              label: color.description,
-            }))}
             control={form.control}
+            useQueryHook={useVehicleColor}
+            mapOptionFn={(item: VehicleColorResource) => ({
+              value: item.id.toString(),
+              label: item.description,
+            })}
+            perPage={10}
+            debounceMs={500}
+            defaultOption={
+              vehicleData?.vehicle_color_id
+                ? {
+                    value: vehicleData.vehicle_color_id.toString(),
+                    label: vehicleData.vehicle_color,
+                  }
+                : undefined
+            }
           >
             <Button
               type="button"
@@ -313,7 +331,7 @@ export const VehiclePVForm = ({
             >
               <Plus className="h-4 w-4" />
             </Button>
-          </FormSelect>
+          </FormSelectAsync>
 
           <FormSelect
             placeholder="Seleccionar tipo de motor"
@@ -327,9 +345,9 @@ export const VehiclePVForm = ({
           />
 
           <FormSelectAsync
-            placeholder="Seleccionar cliente"
+            placeholder="Seleccionar titular"
             control={form.control}
-            label={"Cliente"}
+            label={"Titular"}
             name="customer_id"
             useQueryHook={useCustomers}
             mapOptionFn={(item: CustomersResource) => ({
@@ -373,11 +391,7 @@ export const VehiclePVForm = ({
         </GroupFormSection>
 
         <div className="flex gap-4 w-full justify-end">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => router(VEHICLES_PV.ABSOLUTE_ROUTE)}
-          >
+          <Button type="button" variant="outline" onClick={onCancel}>
             Cancelar
           </Button>
 
@@ -391,8 +405,8 @@ export const VehiclePVForm = ({
             {isSubmitting
               ? "Guardando"
               : mode === "create"
-              ? "Crear Vehículo"
-              : "Actualizar Vehículo"}
+                ? "Crear Vehículo"
+                : "Actualizar Vehículo"}
           </Button>
         </div>
       </form>

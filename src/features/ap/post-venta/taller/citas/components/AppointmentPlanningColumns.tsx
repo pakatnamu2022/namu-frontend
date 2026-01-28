@@ -68,7 +68,7 @@ export const appointmentPlanningColumns = ({
         const formattedDate = format(
           new Date(date + "T00:00:00"),
           "dd/MM/yyyy",
-          { locale: es }
+          { locale: es },
         );
         return (
           <div className="flex flex-col gap-1">
@@ -103,7 +103,7 @@ export const appointmentPlanningColumns = ({
         const formattedDate = format(
           new Date(date + "T00:00:00"),
           "dd/MM/yyyy",
-          { locale: es }
+          { locale: es },
         );
         return (
           <div className="flex flex-col gap-1">
@@ -126,13 +126,18 @@ export const appointmentPlanningColumns = ({
     enableSorting: false,
   },
   {
+    accessorKey: "description",
+    header: "Descripción",
+    enableSorting: false,
+  },
+  {
     accessorKey: "is_taken",
     header: "Tomada",
     cell: ({ getValue }) => {
       const value = getValue() as boolean;
       return (
         <Badge
-          variant={value ? "default" : "secondary"}
+          color={value ? "default" : "secondary"}
           className="capitalize w-8 flex items-center justify-center"
         >
           {value ? "Sí" : "No"}

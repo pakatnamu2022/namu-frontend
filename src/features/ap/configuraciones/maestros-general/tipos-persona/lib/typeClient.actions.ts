@@ -8,7 +8,7 @@ import {
   TypeClientResource,
   TypeClientResponse,
 } from "./typeClient.interface";
-import { AP_MASTER_COMERCIAL } from "../../../../lib/ap.constants";
+import { AP_MASTER_TYPE } from "../../../../ap-master/lib/apMaster.constants";
 
 const { ENDPOINT } = TYPE_PERSON;
 
@@ -18,7 +18,7 @@ export async function getTypeClient({
   const config: AxiosRequestConfig = {
     params: {
       ...params,
-      type: AP_MASTER_COMERCIAL.TYPE_PERSON,
+      type: AP_MASTER_TYPE.TYPE_PERSON,
     },
   };
   const { data } = await api.get<TypeClientResponse>(ENDPOINT, config);
@@ -32,7 +32,7 @@ export async function getAllTypeClient({
     params: {
       all: true, // Assuming you want to fetch all periods
       ...params,
-      type: AP_MASTER_COMERCIAL.TYPE_PERSON,
+      type: AP_MASTER_TYPE.TYPE_PERSON,
       status: STATUS_ACTIVE,
     },
   };

@@ -42,13 +42,17 @@ export const currencyTypesColumns = ({
     header: "Simbolo",
   },
   {
+    accessorKey: "enabled_area",
+    header: "Área Habilitada",
+  },
+  {
     accessorKey: "status",
     header: "Estado",
     cell: ({ getValue }) => {
       const value = getValue() as boolean;
       return (
         <Badge
-          variant={value ? "default" : "secondary"}
+          color={value ? "default" : "secondary"}
           className="capitalize w-20 flex items-center justify-center"
         >
           {value ? "Activo" : "Inactivo"}

@@ -41,7 +41,7 @@ export default function ShippingGuidePage(): JSX.Element {
   const shippingGuide = vehicleDelivery.shipping_guide;
   const isSent = Boolean(
     vehicleDelivery?.sent_at &&
-    (vehicleDelivery?.aceptada_por_sunat || vehicleDelivery?.status_dynamic)
+    (vehicleDelivery?.aceptada_por_sunat || vehicleDelivery?.status_dynamic),
   );
   const canEdit = !shippingGuide?.aceptada_por_sunat && !isSent;
 
@@ -54,7 +54,7 @@ export default function ShippingGuidePage(): JSX.Element {
       successToast(
         shippingGuide
           ? "Guía de remisión actualizada exitosamente"
-          : "Guía de remisión creada exitosamente"
+          : "Guía de remisión creada exitosamente",
       );
       router(ABSOLUTE_ROUTE);
     } catch (error: any) {
@@ -107,7 +107,7 @@ export default function ShippingGuidePage(): JSX.Element {
               <div>
                 <p className="text-sm text-muted-foreground">Estado Lavado</p>
                 <Badge
-                  variant={
+                  color={
                     vehicleDelivery.status_wash === "Completado"
                       ? "default"
                       : "secondary"
@@ -119,7 +119,7 @@ export default function ShippingGuidePage(): JSX.Element {
               <div>
                 <p className="text-sm text-muted-foreground">Estado Entrega</p>
                 <Badge
-                  variant={
+                  color={
                     vehicleDelivery.status_delivery === "Completado"
                       ? "default"
                       : "secondary"
@@ -155,7 +155,7 @@ export default function ShippingGuidePage(): JSX.Element {
                       Estado SUNAT
                     </p>
                     <Badge
-                      variant={
+                      color={
                         shippingGuide.aceptada_por_sunat
                           ? "default"
                           : "secondary"
@@ -171,7 +171,7 @@ export default function ShippingGuidePage(): JSX.Element {
                       Registrado en SUNAT
                     </p>
                     <Badge
-                      variant={
+                      color={
                         shippingGuide.is_sunat_registered
                           ? "default"
                           : "secondary"
@@ -216,7 +216,7 @@ export default function ShippingGuidePage(): JSX.Element {
                             onClick={() =>
                               window.open(
                                 shippingGuide.enlace_del_pdf!,
-                                "_blank"
+                                "_blank",
                               )
                             }
                           >
@@ -231,7 +231,7 @@ export default function ShippingGuidePage(): JSX.Element {
                             onClick={() =>
                               window.open(
                                 shippingGuide.enlace_del_xml!,
-                                "_blank"
+                                "_blank",
                               )
                             }
                           >
@@ -246,7 +246,7 @@ export default function ShippingGuidePage(): JSX.Element {
                             onClick={() =>
                               window.open(
                                 shippingGuide.enlace_del_cdr!,
-                                "_blank"
+                                "_blank",
                               )
                             }
                           >
@@ -265,8 +265,11 @@ export default function ShippingGuidePage(): JSX.Element {
               <Card className="border-yellow-500 bg-yellow-50">
                 <CardContent className="pt-6">
                   <p className="text-sm text-yellow-800">
-                    Esta guía de remisión ya ha sido {vehicleDelivery.aceptada_por_sunat ? "aceptada por SUNAT" : "enviada a Dynamic"} y no
-                    puede ser editada.
+                    Esta guía de remisión ya ha sido{" "}
+                    {vehicleDelivery.aceptada_por_sunat
+                      ? "aceptada por SUNAT"
+                      : "enviada a Dynamic"}{" "}
+                    y no puede ser editada.
                   </p>
                 </CardContent>
               </Card>

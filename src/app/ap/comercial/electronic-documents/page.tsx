@@ -110,7 +110,7 @@ export default function ElectronicDocumentsPage() {
     const result = await preCancelElectronicDocument(id);
     if (!result.annulled) {
       throw new Error(
-        "El documento no está anulado en Dynamics. No se puede anular en Nubefact."
+        "El documento no está anulado en Dynamics. No se puede anular en Nubefact.",
       );
     }
   };
@@ -140,10 +140,6 @@ export default function ElectronicDocumentsPage() {
           }}
         />
       </HeaderTableWrapper>
-
-      {/* <pre>
-        <code>{JSON.stringify(permissions, null, 2)}</code>
-      </pre> */}
 
       <ElectronicDocumentTable
         isLoading={isLoading}

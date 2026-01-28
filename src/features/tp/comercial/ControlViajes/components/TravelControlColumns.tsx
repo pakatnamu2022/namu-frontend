@@ -85,7 +85,7 @@ export const TravelControlColumns = ({
 
       if (value === "pending") {
         return (
-          <Badge variant="amber" className="capitalize gap-2">
+          <Badge color="amber" className="capitalize gap-2">
             <Clock className="size-4" />
             Pendiente
           </Badge>
@@ -94,7 +94,7 @@ export const TravelControlColumns = ({
 
       if (value === "in_progress") {
         return (
-          <Badge variant="blue" className="capitalize gap-2">
+          <Badge color="blue" className="capitalize gap-2">
             <Play className="size-4" />
             En Ruta
           </Badge>
@@ -103,7 +103,7 @@ export const TravelControlColumns = ({
 
       if (value === "completed") {
         return (
-          <Badge variant="green" className="capitalize gap-2">
+          <Badge color="green" className="capitalize gap-2">
             <CheckCircle className="size-4" />
             Completado
           </Badge>
@@ -112,7 +112,7 @@ export const TravelControlColumns = ({
 
       if (value === "fuel_pending") {
         return (
-          <Badge variant="orange" className="capitalize gap-2">
+          <Badge color="orange" className="capitalize gap-2">
             <Fuel className="size-4" />
             Combustible
           </Badge>

@@ -23,7 +23,6 @@ export default function HierarchicalCategoryTable({
         isLoading={isLoading}
         initialColumnVisibility={{
           description: false,
-          hasObjectives: false,
         }}
       >
         {children}

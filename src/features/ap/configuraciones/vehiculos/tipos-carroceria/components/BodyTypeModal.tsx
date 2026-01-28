@@ -13,7 +13,7 @@ import { GeneralModal } from "@/shared/components/GeneralModal";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { BodyTypeForm } from "./BodyTypeForm";
 import { BODY_TYPE } from "../lib/bodyType.constants";
-import { AP_MASTER_COMERCIAL } from "@/features/ap/lib/ap.constants";
+import { AP_MASTER_TYPE } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 interface Props {
   id?: number;
@@ -44,7 +44,7 @@ export default function BodyTypeModal({
     return {
       code: data.code,
       description: data.description,
-      type: AP_MASTER_COMERCIAL.BODY_TYPE,
+      type: AP_MASTER_TYPE.BODY_TYPE,
     };
   }
 

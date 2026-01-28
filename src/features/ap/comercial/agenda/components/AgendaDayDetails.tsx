@@ -6,6 +6,7 @@ import AgendaActionCard from "./AgendaActionCard";
 import { format, parse } from "date-fns";
 import { es } from "date-fns/locale";
 import { AgendaDateGroup } from "../../oportunidades/lib/opportunities.interface";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface AgendaDayDetailsProps {
   selectedDayData?: AgendaDateGroup;
@@ -17,14 +18,14 @@ export default function AgendaDayDetails({
   return (
     <div className="flex flex-col gap-4">
       <div>
-        <p className="text-lg font-semibold text-primary">
+        <p className="text-lg font-semibold text-primary dark:text-primary-foreground">
           {selectedDayData
             ? `Acciones del ${format(
                 parse(selectedDayData.date, "yyyy-MM-dd", new Date()),
                 "PPP",
                 {
                   locale: es,
-                }
+                },
               )}`
             : "Selecciona un día"}
         </p>
@@ -32,24 +33,18 @@ export default function AgendaDayDetails({
       <div>
         {selectedDayData && (
           <div className="flex gap-2">
-            <Badge
-              variant="outline"
-              className="bg-primary/10 text-primary border-primary/20"
-            >
+            <Badge variant="outline" color="blue">
               <CheckCircle2 className="size-3 mr-1" />
               {selectedDayData.count_positive_result || 0} Exitosas
             </Badge>
-            <Badge
-              variant="outline"
-              className="bg-red-50 text-red-700 border-red-300"
-            >
+            <Badge variant="outline" color="red">
               <Circle className="size-3 mr-1" />
               {selectedDayData.count_negative_result || 0} Sin resultado
             </Badge>
           </div>
         )}
       </div>
-      <div>
+      <ScrollArea className="h-full">
         {!selectedDayData ? (
           <div className="text-center py-8 text-muted-foreground">
             Selecciona un día del calendario
@@ -68,7 +63,7 @@ export default function AgendaDayDetails({
                 .sort(
                   (a: any, b: any) =>
                     new Date(a.datetime).getTime() -
-                    new Date(b.datetime).getTime()
+                    new Date(b.datetime).getTime(),
                 )
                 .map((action: any) => (
                   <div key={action.id} className="relative">
@@ -78,7 +73,7 @@ export default function AgendaDayDetails({
             </div>
           </div>
         )}
-      </div>
+      </ScrollArea>
     </div>
   );
 }

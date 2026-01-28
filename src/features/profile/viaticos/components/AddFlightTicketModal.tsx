@@ -49,7 +49,7 @@ export default function AddFlightTicketModal({
   const handleSubmit = (data: ExpenseSchema) => {
     // Validar que no se exceda el máximo de 2 gastos
     if (currentExpensesCount >= 2) {
-      errorToast("Solo puedes agregar hasta 2 pasajes aéreos");
+      errorToast("Solo puedes actualizar hasta 2 pasajes aéreos");
       return;
     }
 

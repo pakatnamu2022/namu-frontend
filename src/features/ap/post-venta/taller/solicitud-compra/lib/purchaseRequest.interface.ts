@@ -1,4 +1,7 @@
 import { type Links, type Meta } from "@/shared/lib/pagination.interface.ts";
+import { ProductResource } from "@/features/ap/post-venta/gestion-almacen/productos/lib/product.interface";
+import { WarehouseResource } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.interface";
+import { OrderQuotationResource } from "../../cotizacion/lib/proforma.interface";
 
 export interface PurchaseRequestResponse {
   data: PurchaseRequestResource[];
@@ -12,16 +15,20 @@ export interface PurchaseRequestResource {
   ap_order_quotation_id: number | null;
   purchase_order_id: number | null;
   warehouse_id: number;
-  warehouse_name?: string;
   requested_date: string;
   advisor_notified: boolean;
   notified_at: string | null;
   observations: string | null;
   status: string;
   status_color?: string;
+  supplier_order_numbers: string;
   created_at: string;
   updated_at: string;
+  supply_type: "STOCK" | "LIMA" | "IMPORTACION";
+  requested_by: string;
   details?: PurchaseRequestDetailResource[];
+  warehouse: WarehouseResource;
+  ap_order_quotation?: OrderQuotationResource;
 }
 
 export interface PurchaseRequestDetailResponse {
@@ -43,6 +50,7 @@ export interface PurchaseRequestDetailResource {
   product_code?: string;
   request_number?: string;
   requested_name?: string;
+  product?: ProductResource;
 }
 
 export interface PurchaseRequestRequest {

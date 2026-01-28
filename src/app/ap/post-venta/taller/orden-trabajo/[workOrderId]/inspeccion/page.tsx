@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams, useNavigate } from "react-router-dom";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   ERROR_MESSAGE,
   errorToast,
@@ -12,11 +12,7 @@ import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import FormWrapper from "@/shared/components/FormWrapper";
 import { VEHICLE_INSPECTION } from "@/features/ap/post-venta/taller/inspeccion-vehiculo/lib/vehicleInspection.constants";
-import {
-  findVehicleInspectionByWorkOrderId,
-  storeVehicleInspection,
-  updateVehicleInspection,
-} from "@/features/ap/post-venta/taller/inspeccion-vehiculo/lib/vehicleInspection.actions";
+import { storeVehicleInspection } from "@/features/ap/post-venta/taller/inspeccion-vehiculo/lib/vehicleInspection.actions";
 import { VehicleInspectionSchema } from "@/features/ap/post-venta/taller/inspeccion-vehiculo/lib/vehicleInspection.schema";
 import { VehicleInspectionForm } from "@/features/ap/post-venta/taller/inspeccion-vehiculo/components/VehicleInspectionForm";
 import { notFound } from "@/shared/hooks/useNotFound";
@@ -36,25 +32,6 @@ export default function VehicleInspectionPage() {
   const { data: workOrder, isLoading: isLoadingWorkOrder } =
     useFindWorkOrderById(Number(workOrderId));
 
-  // Verificar si ya existe una inspección para esta orden de trabajo
-  const {
-    data: existingInspection,
-    isLoading: isLoadingInspection,
-    error: inspectionError,
-  } = useQuery({
-    queryKey: [QUERY_KEY, "work-order", workOrderId],
-    queryFn: () => findVehicleInspectionByWorkOrderId(Number(workOrderId)),
-    enabled: !!workOrderId,
-    retry: false,
-    staleTime: Infinity, // Los datos nunca se consideran "obsoletos"
-    gcTime: Infinity, // Mantener en caché indefinidamente
-    refetchOnWindowFocus: false, // NO refrescar cuando vuelves a la ventana
-    refetchOnMount: false, // NO refrescar cuando el componente se monta de nuevo
-    refetchOnReconnect: false, // NO refrescar cuando se reconecta internet
-  });
-
-  const isUpdate = !!existingInspection && !inspectionError;
-
   // Mutation para crear
   const { mutate: create, isPending: isCreating } = useMutation({
     mutationFn: storeVehicleInspection,
@@ -66,21 +43,6 @@ export default function VehicleInspectionPage() {
     onError: (error: any) => {
       const msg = error?.response?.data?.message || "";
       errorToast(ERROR_MESSAGE(MODEL, "create", msg));
-    },
-  });
-
-  // Mutation para actualizar
-  const { mutate: update, isPending: isUpdating } = useMutation({
-    mutationFn: (data: VehicleInspectionSchema) =>
-      updateVehicleInspection(existingInspection!.id, data),
-    onSuccess: () => {
-      successToast(SUCCESS_MESSAGE(MODEL, "update"));
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
-      router(ABSOLUTE_ROUTE!);
-    },
-    onError: (error: any) => {
-      const msg = error?.response?.data?.message || "";
-      errorToast(ERROR_MESSAGE(MODEL, "update", msg));
     },
   });
 
@@ -117,11 +79,11 @@ export default function VehicleInspectionPage() {
       "inspection_date",
       data.inspection_date instanceof Date
         ? data.inspection_date.toISOString()
-        : ""
+        : "",
     );
     formData.append("fuel_level", data.fuel_level);
     formData.append("oil_level", data.oil_level);
-    formData.append("mileage", data.mileage);
+    formData.append("mileage", String(data.mileage));
     formData.append("customer_signature", data.customer_signature);
 
     // Agregar daños y sus fotos
@@ -131,13 +93,13 @@ export default function VehicleInspectionPage() {
         if (damage.x_coordinate !== undefined) {
           formData.append(
             `damages[${index}][x_coordinate]`,
-            String(damage.x_coordinate)
+            String(damage.x_coordinate),
           );
         }
         if (damage.y_coordinate !== undefined) {
           formData.append(
             `damages[${index}][y_coordinate]`,
-            String(damage.y_coordinate)
+            String(damage.y_coordinate),
           );
         }
         if (damage.description) {
@@ -150,16 +112,10 @@ export default function VehicleInspectionPage() {
       });
     }
 
-    if (isUpdate) {
-      update(formData as any);
-    } else {
-      create(formData as any);
-    }
+    create(formData as any);
   };
 
-  const isLoadingAny = isLoadingWorkOrder || isLoadingInspection;
-
-  if (isLoadingAny) {
+  if (isLoadingWorkOrder) {
     return <FormSkeleton />;
   }
 
@@ -172,84 +128,43 @@ export default function VehicleInspectionPage() {
     return new Date();
   };
 
-  const defaultValues: Partial<VehicleInspectionSchema> = isUpdate
-    ? {
-        work_order_id: String(workOrder.id),
-        dirty_unit: existingInspection.dirty_unit,
-        unit_ok: existingInspection.unit_ok,
-        title_deed: existingInspection.title_deed,
-        soat: existingInspection.soat,
-        moon_permits: existingInspection.moon_permits,
-        service_card: existingInspection.service_card,
-        owner_manual: existingInspection.owner_manual,
-        key_ring: existingInspection.key_ring,
-        wheel_lock: existingInspection.wheel_lock,
-        safe_glasses: existingInspection.safe_glasses,
-        radio_mask: existingInspection.radio_mask,
-        lighter: existingInspection.lighter,
-        floors: existingInspection.floors,
-        seat_cover: existingInspection.seat_cover,
-        quills: existingInspection.quills,
-        antenna: existingInspection.antenna,
-        glasses_wheel: existingInspection.glasses_wheel,
-        emblems: existingInspection.emblems,
-        spare_tire: existingInspection.spare_tire,
-        fluid_caps: existingInspection.fluid_caps,
-        tool_kit: existingInspection.tool_kit,
-        jack_and_lever: existingInspection.jack_and_lever,
-        general_observations: existingInspection.general_observations || "",
-        inspection_date: existingInspection.inspection_date
-          ? new Date(existingInspection.inspection_date)
-          : "",
-        fuel_level: existingInspection.fuel_level,
-        oil_level: existingInspection.oil_level,
-        mileage: existingInspection.mileage,
-        damages:
-          existingInspection.damages?.map((damage) => ({
-            damage_type: damage.damage_type,
-            x_coordinate: Number(damage.x_coordinate),
-            y_coordinate: Number(damage.y_coordinate),
-            description: damage.description,
-            photo_url: damage.photo_url,
-          })) || [],
-      }
-    : {
-        work_order_id: String(workOrder.id),
-        dirty_unit: false,
-        unit_ok: false,
-        title_deed: false,
-        soat: false,
-        moon_permits: false,
-        service_card: false,
-        owner_manual: false,
-        key_ring: false,
-        wheel_lock: false,
-        safe_glasses: false,
-        radio_mask: false,
-        lighter: false,
-        floors: false,
-        seat_cover: false,
-        quills: false,
-        antenna: false,
-        glasses_wheel: false,
-        emblems: false,
-        spare_tire: false,
-        fluid_caps: false,
-        tool_kit: false,
-        jack_and_lever: false,
-        general_observations: "",
-        inspection_date: getCurrentDate(),
-        fuel_level: workOrder.fuel_level || "",
-        oil_level: "",
-        mileage: workOrder.mileage ? String(workOrder.mileage) : "",
-        damages: [],
-      };
+  const defaultValues: Partial<VehicleInspectionSchema> = {
+    work_order_id: String(workOrder.id),
+    dirty_unit: false,
+    unit_ok: false,
+    title_deed: false,
+    soat: false,
+    moon_permits: false,
+    service_card: false,
+    owner_manual: false,
+    key_ring: false,
+    wheel_lock: false,
+    safe_glasses: false,
+    radio_mask: false,
+    lighter: false,
+    floors: false,
+    seat_cover: false,
+    quills: false,
+    antenna: false,
+    glasses_wheel: false,
+    emblems: false,
+    spare_tire: false,
+    fluid_caps: false,
+    tool_kit: false,
+    jack_and_lever: false,
+    general_observations: "",
+    inspection_date: getCurrentDate(),
+    fuel_level: workOrder.fuel_level || "",
+    oil_level: "",
+    mileage: workOrder.mileage ? Number(workOrder.mileage) : 0,
+    damages: [],
+  };
 
   return (
     <FormWrapper>
       <TitleFormComponent
         title={`Inspección de Vehículo - ${workOrder.correlative}`}
-        mode={isUpdate ? "edit" : "create"}
+        mode="create"
         icon="ClipboardCheck"
       />
 
@@ -290,8 +205,8 @@ export default function VehicleInspectionPage() {
       <VehicleInspectionForm
         defaultValues={defaultValues}
         onSubmit={handleSubmit}
-        isSubmitting={isCreating || isUpdating}
-        mode={isUpdate ? "update" : "create"}
+        isSubmitting={isCreating}
+        mode="create"
         onCancel={() => router(ABSOLUTE_ROUTE!)}
       />
     </FormWrapper>

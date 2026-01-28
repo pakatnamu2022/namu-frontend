@@ -114,7 +114,11 @@ export function MultiSelectTags<T extends MultiSelectTagsItem>({
                     </TagsValue>
                   ))}
                 </TagsTrigger>
-                <TagsContent>
+                <TagsContent
+                onWheel={(e) => e.stopPropagation()}
+                onWheelCapture={(e) => e.stopPropagation()}
+                onTouchMove={(e) => e.stopPropagation()}
+              >
                   <TagsInput placeholder={searchPlaceholder} />
                   <TagsList>
                     <TagsEmpty>{emptyMessage}</TagsEmpty>

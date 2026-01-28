@@ -16,7 +16,7 @@ import FormSkeleton from "@/shared/components/FormSkeleton";
 import { GeneralModal } from "@/shared/components/GeneralModal";
 import { VoucherTypesForm } from "./VoucherTypesForm";
 import { VOUCHER_TYPE } from "../lib/voucherTypes.constants";
-import { AP_MASTER_COMERCIAL } from "../../../../lib/ap.constants";
+import { AP_MASTER_TYPE } from "../../../../ap-master/lib/apMaster.constants";
 
 interface Props {
   id?: number;
@@ -49,7 +49,7 @@ export default function VoucherTypesModal({
     return {
       code: data.code,
       description: data.description,
-      type: AP_MASTER_COMERCIAL.VOUCHER_TYPE,
+      type: AP_MASTER_TYPE.VOUCHER_TYPE,
     };
   }
 

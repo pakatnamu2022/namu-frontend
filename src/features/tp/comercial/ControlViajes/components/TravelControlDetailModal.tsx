@@ -3,7 +3,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
 import { Form } from "@/components/ui/form";
 import {
   TravelControlDetailModalProps,
@@ -39,6 +38,12 @@ import { FuelRegistrationSection } from "./FuelRegistrationSection";
 import { TripMetricsSection } from "./TripMetricsSection";
 import { PhotoEvidenceSection } from "./PhotoEvidenceSection";
 import { TravelPhoto } from "../lib/travelPhoto.interface";
+import {
+  errorToast,
+  infoToast,
+  successToast,
+  warningToast,
+} from "@/core/core.function";
 
 export function TravelControlDetailModal({
   trip,
@@ -47,7 +52,7 @@ export function TravelControlDetailModal({
 }: TravelControlDetailModalProps) {
   const [open, setOpen] = useState(false);
   const [localTrip, setLocalTrip] = useState<TravelControlResource | null>(
-    trip
+    trip,
   );
   const { user } = useAuthStore();
   const { data: userComplete } = useUserComplete(user.id);
@@ -56,11 +61,11 @@ export function TravelControlDetailModal({
   const [endPhoto, setEndPhoto] = useState<string | null>(null);
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
   const [startPhotoData, setStartPhotoData] = useState<TravelPhoto | null>(
-    null
+    null,
   );
   const [endPhotoData, setEndPhotoData] = useState<TravelPhoto | null>(null);
   const { data: lastMileage } = useLastMileage(
-    localTrip?.tracto_id ? String(localTrip.tracto_id) : undefined
+    localTrip?.tracto_id ? String(localTrip.tracto_id) : undefined,
   );
 
   const travelSchema = useMemo(() => {
@@ -95,7 +100,6 @@ export function TravelControlDetailModal({
     trigger: triggerValidation,
   } = form;
 
-  const { toast } = useToast();
   const { mutateAsync: startRouteMutation, isPending: isStartingRoute } =
     useStartRoute();
   const { mutateAsync: endRouteMutation, isPending: isEndingRoute } =
@@ -111,7 +115,7 @@ export function TravelControlDetailModal({
   const getStartTime = (): Date | null => {
     if (!localTrip) return null;
     const startRecord = localTrip?.driver_records?.find(
-      (register) => register?.record_type === "start"
+      (register) => register?.record_type === "start",
     );
     const dateString = startRecord?.recorded_at || localTrip.startTime || null;
     if (!dateString) return null;
@@ -127,20 +131,12 @@ export function TravelControlDetailModal({
     const isValid = await triggerValidation(["initialKm"]);
 
     if (!isValid) {
-      toast({
-        title: "Error de validación",
-        description: "Por favor, corrige el kilometraje inicial",
-        variant: "destructive",
-      });
+      warningToast("Por favor, corrige el kilometraje inicial");
       return;
     }
 
     if (!startPhoto) {
-      toast({
-        title: "Foto requerida",
-        description: "Por favor, capture una foto antes de iniciar la ruta.",
-        variant: "destructive",
-      });
+      warningToast("Por favor, capture una foto antes de iniciar la ruta.");
       return;
     }
 
@@ -152,12 +148,9 @@ export function TravelControlDetailModal({
     const isValid = await triggerValidation("factorKm");
 
     if (!isValid) {
-      toast({
-        title: "Error de validación",
-        description:
-          errors.factorKm?.message || "Por favor, corrige el factor KM",
-        variant: "destructive",
-      });
+      warningToast(
+        errors.factorKm?.message || "Por favor, corrige el factor KM",
+      );
       return;
     }
 
@@ -169,20 +162,12 @@ export function TravelControlDetailModal({
     const isValid = await triggerValidation(["finalKm"]);
 
     if (!isValid) {
-      toast({
-        title: "Error de validacion",
-        description: "Por favor, corrige los errores en el formulario",
-        variant: "destructive",
-      });
+      warningToast("Por favor, corrige los errores en el formulario");
       return;
     }
 
     if (!endPhoto) {
-      toast({
-        title: "Foto requerida",
-        description: "Por favor, capture una foto antes de finalizar la ruta.",
-        variant: "destructive",
-      });
+      warningToast("Por favor, capture una foto antes de finalizar la ruta.");
       return false;
     }
 
@@ -196,14 +181,10 @@ export function TravelControlDetailModal({
   const handlePhotoCapture = async (
     photoUrl: string,
     photoType: "start" | "end",
-    action: "start" | "end"
+    action: "start" | "end",
   ) => {
     if (!localTrip) {
-      toast({
-        title: "Error",
-        description: "No hay viaje seleccionado",
-        variant: "destructive",
-      });
+      errorToast("No hay viaje seleccionado");
       return;
     }
 
@@ -239,7 +220,7 @@ export function TravelControlDetailModal({
         parseInt(localTrip.id),
         base64Data,
         photoType,
-        metadata
+        metadata,
       );
 
       if (action === "start") {
@@ -250,13 +231,9 @@ export function TravelControlDetailModal({
         setEndPhotoData(result.data);
       }
 
-      toast({
-        title: "Foto guardada",
-        description: `Foto de ${
-          photoType === "start" ? "inicio" : "fin"
-        } guardada exitosamente`,
-        variant: "default",
-      });
+      successToast(
+        `Foto de ${photoType === "start" ? "inicio" : "fin"} guardada exitosamente`,
+      );
 
       return true;
     } catch (error: any) {
@@ -267,11 +244,9 @@ export function TravelControlDetailModal({
       } else if (error.response?.data?.message) {
         errorMessage = error.response.data.message;
       }
-      toast({
-        title: "Error al guardar foto",
-        description: errorMessage || "No se puede guardar la foto",
-        variant: "destructive",
-      });
+      errorToast(
+        `Error al guardar foto: ${errorMessage || "No se puede guardar la foto"}`,
+      );
       return null;
     } finally {
       setIsUploadingPhoto(false);
@@ -330,20 +305,12 @@ export function TravelControlDetailModal({
 
   const handleStartRoute = async (data: TravelControlModalData) => {
     if (!localTrip) {
-      toast({
-        title: "Error",
-        description: "No hay viaje seleccionado",
-        variant: "destructive",
-      });
+      warningToast("No hay viaje seleccionado");
       return;
     }
 
     if (!startPhoto) {
-      toast({
-        title: "Foto Requerida",
-        description: "Por favor, capture una foto antes de iniciar la ruta.",
-        variant: "destructive",
-      });
+      warningToast("Por favor, capture una foto antes de iniciar la ruta.");
       return;
     }
 
@@ -352,7 +319,7 @@ export function TravelControlDetailModal({
         const photoUploaded = await handlePhotoCapture(
           startPhoto,
           "start",
-          "start"
+          "start",
         );
         if (!photoUploaded) {
           return;
@@ -385,38 +352,29 @@ export function TravelControlDetailModal({
 
       startStopwatch.start();
 
-      toast({
-        title: "¡Ruta Iniciada!",
-        description: `Kilometraje inicial: ${data.initialKm} km`,
-      });
+      infoToast("¡Ruta Iniciada!", `Kilometraje inicial: ${data.initialKm} km`);
 
       setOpen(false);
     } catch (error: any) {
       console.error("Error al iniciar ruta:", error);
-      toast({
-        title: "Error al iniciar ruta",
-        description: error.message || "Error en el servidor",
-        variant: "destructive",
-      });
+      errorToast(
+        "Error al iniciar ruta",
+        error.message || "Error en el servidor",
+      );
     }
   };
 
   const handleEndRoute = async (data: TravelControlModalData) => {
     if (!localTrip) {
-      toast({
-        title: "Error",
-        description: "No hay viaje seleccionado",
-        variant: "destructive",
-      });
+      warningToast("No hay viaje seleccionado");
       return;
     }
 
     if (!endPhoto) {
-      toast({
-        title: "Foto Requerida",
-        description: "Por favor, capture una foto antes de finalizar la ruta.",
-        variant: "destructive",
-      });
+      warningToast(
+        "Foto Requerida",
+        "Por favor, capture una foto antes de finalizar la ruta.",
+      );
       return;
     }
 
@@ -450,32 +408,24 @@ export function TravelControlDetailModal({
 
       startStopwatch.stop();
 
-      toast({
-        title: "¡Ruta Finalizada!",
-        description: `Total: ${updatedTrip.totalKm || 0} km en ${
+      infoToast(
+        "¡Ruta Finalizada!",
+        `Total: ${updatedTrip.totalKm || 0} km en ${
           updatedTrip.totalHours?.toFixed(2) || "0.00"
         } horas`,
-      });
+      );
     } catch (error: any) {
       console.error("Error al finalizar ruta:", error);
-      toast({
-        title: "Error al finalizar ruta",
-        description: error.message || "Error en el servidor",
-        variant: "destructive",
-      });
+      errorToast(
+        "Error al finalizar ruta",
+        error.message || "Error en el servidor",
+      );
     }
   };
 
   const handleSaveFuel = async (data: TravelControlModalData) => {
-    console.log("DATOS DEL FORMULARIO PARA COMBUSTIBLE:", data);
-    console.log("LOCAL TRIP:", localTrip);
-
     if (!localTrip) {
-      toast({
-        title: "Error",
-        description: "No hay viaje seleccionado",
-        variant: "destructive",
-      });
+      warningToast("Error", "No hay viaje seleccionado");
       return;
     }
 
@@ -502,21 +452,18 @@ export function TravelControlDetailModal({
         onStatusChange(localTrip.id, "completed");
       }
 
-      toast({
-        title: "Combustible Registrado",
-        description: `Monto total: S/ ${
-          result.fuel?.fuelAmount?.toFixed(2) || "0.00"
-        }`,
-      });
+      errorToast(
+        "Combustible Registrado",
+        `Monto total: S/ ${result.fuel?.fuelAmount?.toFixed(2) || "0.00"}`,
+      );
 
       setOpen(false);
     } catch (error: any) {
       console.error("Error al registrar combustible:", error);
-      toast({
-        title: "Error al registrar combustible",
-        description: error.message || "Error en el servidor",
-        variant: "destructive",
-      });
+      errorToast(
+        "Error al registrar combustible",
+        error.message || "Error en el servidor",
+      );
     }
   };
 

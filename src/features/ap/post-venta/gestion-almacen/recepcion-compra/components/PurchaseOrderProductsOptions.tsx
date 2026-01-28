@@ -1,0 +1,44 @@
+import SearchInput from "@/shared/components/SearchInput.tsx";
+import DatePicker from "@/shared/components/DatePicker.tsx";
+
+interface PurchaseOrderProductsOptionsProps {
+  search: string;
+  setSearch: (value: string) => void;
+  dateFrom: Date | undefined;
+  setDateFrom: (date: Date | undefined) => void;
+  dateTo: Date | undefined;
+  setDateTo: (date: Date | undefined) => void;
+}
+
+export default function PurchaseOrderProductsOptions({
+  search,
+  setSearch,
+  dateFrom,
+  setDateFrom,
+  dateTo,
+  setDateTo,
+}: PurchaseOrderProductsOptionsProps) {
+  return (
+    <div className="flex items-center gap-2 flex-wrap">
+      <SearchInput
+        value={search}
+        onChange={setSearch}
+        placeholder="Buscar por número de orden, proveedor..."
+      />
+      <DatePicker
+        value={dateFrom}
+        onChange={setDateFrom}
+        placeholder="Fecha Desde"
+        showClearButton={false}
+        captionLayout="dropdown"
+      />
+      <DatePicker
+        value={dateTo}
+        onChange={setDateTo}
+        placeholder="Fecha Hasta"
+        showClearButton={false}
+        captionLayout="dropdown"
+      />
+    </div>
+  );
+}

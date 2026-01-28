@@ -1,5 +1,5 @@
 import { type ModelComplete } from "@/core/core.interface";
-import { COMMERCIAL_MASTERS_ENDPOINT } from "@/features/ap/lib/ap.constants";
+import { AP_MASTERS } from "@/features/ap/ap-master/lib/apMaster.constants";
 import { ReasonsRejectionResource } from "./reasonsRejection.interface";
 
 const ROUTE = "motivos-descarte";
@@ -12,7 +12,7 @@ export const REASONS_REJECTION: ModelComplete<ReasonsRejectionResource> = {
     gender: true,
   },
   ICON: "ContactRound",
-  ENDPOINT: COMMERCIAL_MASTERS_ENDPOINT,
+  ENDPOINT: AP_MASTERS.ENDPOINT,
   QUERY_KEY: "commercialMasters",
   ROUTE,
   ABSOLUTE_ROUTE,

@@ -11,6 +11,8 @@ import {
   Heart,
   Scale,
   Info,
+  Check,
+  X,
 } from "lucide-react";
 import {
   CustomersSchema,
@@ -46,10 +48,12 @@ import { useAllEconomicActivity } from "@/features/ap/configuraciones/maestros-g
 import { DocumentValidationStatus } from "../../../../../shared/components/DocumentValidationStatus";
 import { ValidationIndicator } from "../../../../../shared/components/ValidationIndicator";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
+import { CompanyStatusBadges } from "@/shared/components/CompanyStatusBadges";
 import { useNavigate } from "react-router-dom";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { CUSTOMERS } from "../lib/customers.constants";
 import { FormInput } from "@/shared/components/FormInput";
+import { Badge } from "@/components/ui/badge";
 
 interface CustomersFormProps {
   defaultValues: Partial<CustomersSchema>;
@@ -94,7 +98,7 @@ export const CustomersForm = ({
 
   const form = useForm({
     resolver: zodResolver(
-      mode === "create" ? customersSchemaCreate : customersSchemaUpdate
+      mode === "create" ? customersSchemaCreate : customersSchemaUpdate,
     ),
     defaultValues: {
       ...defaultValues,
@@ -163,17 +167,17 @@ export const CustomersForm = ({
   const isJuridica = typePersonId === BUSINESS_PARTNERS.TYPE_PERSON_JURIDICA_ID;
   // Obtenemos los numeros de dígitos esperados para DNI y RUC
   const selectedDocumentTypeDni = documentTypes.find(
-    (type) => type.id.toString() === BUSINESS_PARTNERS.TYPE_DOCUMENT_DNI_ID
+    (type) => type.id.toString() === BUSINESS_PARTNERS.TYPE_DOCUMENT_DNI_ID,
   );
   const selectedDocumentTypeRuc = documentTypes.find(
-    (type) => type.id.toString() === BUSINESS_PARTNERS.TYPE_DOCUMENT_RUC_ID
+    (type) => type.id.toString() === BUSINESS_PARTNERS.TYPE_DOCUMENT_RUC_ID,
   );
 
   const numDigitsDni = selectedDocumentTypeDni?.code;
   const numDigitsRuc = selectedDocumentTypeRuc?.code;
 
   const selectedDocumentType = documentTypes.find(
-    (type) => type.id.toString() === documentTypeId
+    (type) => type.id.toString() === documentTypeId,
   );
 
   const shouldValidate = VALIDATABLE_DOCUMENT.IDS.includes(documentTypeId!);
@@ -185,7 +189,7 @@ export const CustomersForm = ({
     documentNumber && documentNumber.length === expectedDigits;
 
   const shouldTriggerValidation = Boolean(
-    shouldValidate && isValidLength && validationType
+    shouldValidate && isValidLength && validationType,
   );
 
   const hasDocumentChanged =
@@ -238,7 +242,7 @@ export const CustomersForm = ({
   } = useDniValidation(
     conyugeDni,
     !isFirstLoad && !!conyugeDni && conyugeDni.length === Number(numDigitsDni),
-    true
+    true,
   );
 
   const {
@@ -251,7 +255,7 @@ export const CustomersForm = ({
       !!legalRepresentativeDni &&
       !isFirstLoad &&
       legalRepresentativeDni.length === Number(numDigitsDni),
-    true
+    true,
   );
 
   const {
@@ -263,8 +267,21 @@ export const CustomersForm = ({
     !isFirstLoad &&
       !!conductorDni &&
       conductorDni.length === Number(numDigitsDni),
-    true
+    true,
   );
+
+  // Hook para buscar distrito por ubigeo cuando se valida RUC
+  const ubigeoFromRuc = rucData?.data?.ubigeo?.[2] || "";
+  const { data: districtByUbigeo, isLoading: isLoadingDistrictByUbigeo } =
+    useDistricts({
+      search: ubigeoFromRuc,
+      per_page: 1,
+    });
+
+  // Estado para la opción por defecto del distrito
+  const [districtDefaultOption, setDistrictDefaultOption] = useState<
+    { label: string; value: string } | undefined
+  >(undefined);
 
   // Datos consolidados
   const validationData = dniData || rucData;
@@ -301,15 +318,15 @@ export const CustomersForm = ({
     if (fromOpportunities) {
       form.setValue(
         "person_segment_id",
-        BUSINESS_PARTNERS.PERSON_SEGMENT_DEFAULT_ID
+        BUSINESS_PARTNERS.PERSON_SEGMENT_DEFAULT_ID,
       );
       form.setValue(
         "tax_class_type_id",
-        BUSINESS_PARTNERS.TYPE_TAX_CLASS_DEFAULT_ID
+        BUSINESS_PARTNERS.TYPE_TAX_CLASS_DEFAULT_ID,
       );
       form.setValue(
         "activity_economic_id",
-        BUSINESS_PARTNERS.ACTIVITY_ECONOMIC_DEFAULT_ID
+        BUSINESS_PARTNERS.ACTIVITY_ECONOMIC_DEFAULT_ID,
       );
       form.setValue("direction", "NO DEFINIDO");
     }
@@ -332,6 +349,8 @@ export const CustomersForm = ({
       form.setValue("first_name", "");
       form.setValue("paternal_surname", "");
       form.setValue("maternal_surname", "");
+      // Limpiar distrito cuando cambia tipo de persona
+      setDistrictDefaultOption(undefined);
     }
     if (typePersonWatch === BUSINESS_PARTNERS.TYPE_PERSON_JURIDICA_ID) {
       form.setValue("document_type_id", BUSINESS_PARTNERS.TYPE_DOCUMENT_RUC_ID);
@@ -418,6 +437,8 @@ export const CustomersForm = ({
         setCompanyCondition("-");
         form.setValue("company_status", "", { shouldValidate: true });
         form.setValue("company_condition", "", { shouldValidate: true });
+        // Limpiar distrito cuando hay error
+        setDistrictDefaultOption(undefined);
       } else {
         form.setValue("first_name", "", { shouldValidate: true });
         form.setValue("middle_name", "", { shouldValidate: true });
@@ -448,11 +469,11 @@ export const CustomersForm = ({
       form.setValue("legal_representative_name", repInfo.first_name || "");
       form.setValue(
         "legal_representative_paternal_surname",
-        repInfo.paternal_surname || ""
+        repInfo.paternal_surname || "",
       );
       form.setValue(
         "legal_representative_maternal_surname",
-        repInfo.maternal_surname || ""
+        repInfo.maternal_surname || "",
       );
     } else if (legalRepDniData && !legalRepDniData.success) {
       form.setValue("legal_representative_name", "");
@@ -480,12 +501,12 @@ export const CustomersForm = ({
       form.setValue("driving_license_expiration_date", expirationDate || "");
       form.setValue(
         "driving_license_category",
-        licenseInfo.licencia.categoria || ""
+        licenseInfo.licencia.categoria || "",
       );
       form.setValue("status_license", licenseInfo.licencia.estado || "");
       form.setValue(
         "restriction",
-        licenseInfo.licencia.restricciones || "NO DEFINIDO"
+        licenseInfo.licencia.restricciones || "NO DEFINIDO",
       );
     } else {
       form.setValue("driving_license", "");
@@ -495,6 +516,26 @@ export const CustomersForm = ({
       form.setValue("restriction", "NO DEFINIDO");
     }
   }, [conductorDniData, form]);
+
+  // UseEffect específico para setear distrito automáticamente desde ubigeo del RUC:
+  useEffect(() => {
+    if (isFirstLoad || isLoadingDistrictByUbigeo) return;
+
+    if (districtByUbigeo?.data && districtByUbigeo.data.length > 0) {
+      const firstDistrict = districtByUbigeo.data[0];
+
+      // Setear el valor en el formulario
+      form.setValue("district_id", firstDistrict.id.toString(), {
+        shouldValidate: true,
+      });
+
+      // Setear la opción por defecto para el FormSelectAsync
+      setDistrictDefaultOption({
+        label: `${firstDistrict.name} - ${firstDistrict.province} - ${firstDistrict.ubigeo}`,
+        value: firstDistrict.id.toString(),
+      });
+    }
+  }, [districtByUbigeo, form, isFirstLoad, isLoadingDistrictByUbigeo]);
 
   // Agregar este useEffect después de los otros useEffect existentes
   useEffect(() => {
@@ -527,16 +568,16 @@ export const CustomersForm = ({
 
   // AQUÍ VAN LAS VARIABLES DE ESTADO DINÁMICAS
   const shouldDisableMainFields = Boolean(
-    validationData?.success && validationData.data
+    validationData?.success && validationData.data,
   );
   const shouldDisableSpouseFields = Boolean(
-    conyugeDniData?.success && conyugeDniData.data
+    conyugeDniData?.success && conyugeDniData.data,
   );
   const shouldDisableLegalRepFields = Boolean(
-    legalRepDniData?.success && legalRepDniData.data
+    legalRepDniData?.success && legalRepDniData.data,
   );
   const shouldDisableLicenseFields = Boolean(
-    conductorDniData?.success && conductorDniData.data
+    conductorDniData?.success && conductorDniData.data,
   );
 
   // Función para filtrar tipos de documento según tipo de persona
@@ -545,7 +586,7 @@ export const CustomersForm = ({
 
     if (typePersonWatch === BUSINESS_PARTNERS.TYPE_PERSON_JURIDICA_ID) {
       return documentTypes.filter(
-        (doc) => doc.id.toString() == BUSINESS_PARTNERS.TYPE_DOCUMENT_RUC_ID
+        (doc) => doc.id.toString() == BUSINESS_PARTNERS.TYPE_DOCUMENT_RUC_ID,
       );
     }
     if (typePersonWatch !== BUSINESS_PARTNERS.TYPE_PERSON_JURIDICA_ID) {
@@ -581,18 +622,18 @@ export const CustomersForm = ({
           cols={{ sm: 2, md: 3 }}
           headerExtra={
             notificationMessage && (
-              <div
-                className={`px-2 py-1 rounded-md flex items-center gap-2 text-sm sm:text-base ${
+              <Badge
+                color={
                   businessPartnerType === TYPE_BUSINESS_PARTNERS.PROVEEDOR
-                    ? "bg-blue-100 text-primary border border-blue-200"
-                    : "bg-red-100 text-secondary border border-red-200"
-                }`}
+                    ? "blue"
+                    : "red"
+                }
+                icon={Info}
               >
-                <Info className="size-4 shrink-0" />
                 <span className="text-xs font-medium">
                   {notificationMessage}
                 </span>
-              </div>
+              </Badge>
             )
           }
         >
@@ -654,13 +695,13 @@ export const CustomersForm = ({
                     <div className="animate-spin h-4 w-4 border-2 border-amber-500 border-t-transparent rounded-full" />
                   )}
                   {validationData?.success && validationData.data && (
-                    <div className="text-green-500">✓</div>
+                    <Check className="text-green-500" />
                   )}
                   {(validationError ||
                     (validationData &&
                       !validationData.data &&
                       validationData?.source !== "database")) && (
-                    <div className="text-red-500">✗</div>
+                    <X className="text-red-500" />
                   )}
                 </div>
               )
@@ -677,47 +718,11 @@ export const CustomersForm = ({
                   label={
                     <div className="flex items-center justify-between gap-2 w-full">
                       <span>Razón Social</span>
-                      {/* Indicadores de Estado y Condición */}
-                      {isJuridica &&
-                        (companyStatus !== "-" || companyCondition !== "-") && (
-                          <div className="absolute right-0 top-0 flex gap-2">
-                            {/* Estado */}
-                            <div
-                              className={`px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${
-                                companyStatus === "ACTIVO"
-                                  ? "bg-green-100 text-green-800 border border-green-200"
-                                  : "bg-red-100 text-red-800 border border-red-200"
-                              }`}
-                            >
-                              <div
-                                className={`w-2 h-2 rounded-full ${
-                                  companyStatus === "ACTIVO"
-                                    ? "bg-green-500"
-                                    : "bg-red-500"
-                                }`}
-                              ></div>
-                              Estado: {companyStatus}
-                            </div>
-
-                            {/* Condición */}
-                            <div
-                              className={`px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${
-                                companyCondition === "HABIDO"
-                                  ? "bg-green-100 text-green-800 border border-green-200"
-                                  : "bg-yellow-100 text-yellow-800 border border-yellow-200"
-                              }`}
-                            >
-                              <div
-                                className={`w-2 h-2 rounded-full ${
-                                  companyCondition === "HABIDO"
-                                    ? "bg-green-500"
-                                    : "bg-yellow-500"
-                                }`}
-                              ></div>
-                              Condición: {companyCondition}
-                            </div>
-                          </div>
-                        )}
+                      <CompanyStatusBadges
+                        status={companyStatus}
+                        condition={companyCondition}
+                        show={isJuridica}
+                      />
                     </div>
                   }
                   placeholder="Ingrese razón social"
@@ -799,7 +804,7 @@ export const CustomersForm = ({
                     new Date(
                       new Date().getFullYear() - LEGAL_AGE,
                       new Date().getMonth(),
-                      new Date().getDate()
+                      new Date().getDate(),
                     )
                   }
                   disabledRange={{
@@ -807,7 +812,7 @@ export const CustomersForm = ({
                     after: new Date(
                       new Date().getFullYear() - LEGAL_AGE,
                       new Date().getMonth(),
-                      new Date().getDate()
+                      new Date().getDate(),
                     ),
                   }}
                 />
@@ -877,6 +882,7 @@ export const CustomersForm = ({
 
           <div className="col-span-1 md:col-span-2">
             <FormSelectAsync
+              key={districtDefaultOption?.value || "district-select"}
               name="district_id"
               label="Ubigeo"
               placeholder="Selecciona ubigeo"
@@ -888,7 +894,8 @@ export const CustomersForm = ({
               })}
               perPage={10}
               debounceMs={500}
-              disabled={shouldDisableMainFields && !isRucNatural && isJuridica}
+              disabled={!!districtDefaultOption}
+              defaultOption={districtDefaultOption}
             />
           </div>
 
@@ -989,7 +996,7 @@ export const CustomersForm = ({
               iconColor="text-purple-600"
               bgColor="bg-purple-50"
               cols={{ sm: 2, md: 3 }}
-              className="mt-8"
+              className="mt-8 md:col-span-3"
             >
               <FormInput
                 control={form.control}
@@ -1006,7 +1013,7 @@ export const CustomersForm = ({
                     />
                   </div>
                 }
-                type="number"
+                type="string"
                 placeholder="Número de documento"
                 maxLength={8}
                 addonEnd={
@@ -1188,6 +1195,7 @@ export const CustomersForm = ({
             />
           </GroupFormSection>
         )}
+
         <div className="flex gap-4 w-full justify-end">
           <ConfirmationDialog
             trigger={

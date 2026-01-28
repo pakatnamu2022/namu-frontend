@@ -6,7 +6,7 @@ import { Switch } from "@/components/ui/switch.tsx";
 import { cn } from "@/lib/utils.ts";
 import { Badge } from "@/components/ui/badge.tsx";
 import { ReasonsAdjustmentResource } from "@/features/ap/configuraciones/postventa/motivos-ajuste/lib/reasonsAdjustment.interface.ts";
-import { AP_MASTER_POST_VENTA } from "@/features/ap/lib/ap.constants.ts";
+import { AP_MASTER_TYPE } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 export type ReasonsAdjustmentColumns = ColumnDef<ReasonsAdjustmentResource>;
 
@@ -45,16 +45,12 @@ export const reasonsAdjustmentColumns = ({
       const value = getValue() as string;
       return (
         <Badge
-          variant={
-            value == AP_MASTER_POST_VENTA.TYPE_ADJUSTMENT_IN
-              ? "default"
-              : "secondary"
+          color={
+            value == AP_MASTER_TYPE.TYPE_ADJUSTMENT_IN ? "default" : "secondary"
           }
           className="capitalize w-20 flex items-center justify-center"
         >
-          {value == AP_MASTER_POST_VENTA.TYPE_ADJUSTMENT_IN
-            ? "INGRESO"
-            : "SALIDA"}
+          {value == AP_MASTER_TYPE.TYPE_ADJUSTMENT_IN ? "INGRESO" : "SALIDA"}
         </Badge>
       );
     },
@@ -66,7 +62,7 @@ export const reasonsAdjustmentColumns = ({
       const value = getValue() as boolean;
       return (
         <Badge
-          variant={value ? "default" : "secondary"}
+          color={value ? "default" : "secondary"}
           className="capitalize w-20 flex items-center justify-center"
         >
           {value ? "Activo" : "Inactivo"}

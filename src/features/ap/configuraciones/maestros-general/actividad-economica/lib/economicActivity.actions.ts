@@ -8,7 +8,7 @@ import {
   EconomicActivityResponse,
   getEconomicActivityProps,
 } from "./economicActivity.interface";
-import { AP_MASTER_COMERCIAL } from "../../../../lib/ap.constants";
+import { AP_MASTER_TYPE } from "../../../../ap-master/lib/apMaster.constants";
 
 const { ENDPOINT } = ECONOMIC_ACTIVITY;
 
@@ -18,7 +18,7 @@ export async function getEconomicActivity({
   const config: AxiosRequestConfig = {
     params: {
       ...params,
-      type: AP_MASTER_COMERCIAL.ECONOMIC_ACTIVITY,
+      type: AP_MASTER_TYPE.ECONOMIC_ACTIVITY,
     },
   };
   const { data } = await api.get<EconomicActivityResponse>(ENDPOINT, config);
@@ -32,7 +32,7 @@ export async function getAllEconomicActivity({
     params: {
       all: true, // Assuming you want to fetch all periods
       ...params,
-      type: AP_MASTER_COMERCIAL.ECONOMIC_ACTIVITY,
+      type: AP_MASTER_TYPE.ECONOMIC_ACTIVITY,
       status: STATUS_ACTIVE,
     },
   };

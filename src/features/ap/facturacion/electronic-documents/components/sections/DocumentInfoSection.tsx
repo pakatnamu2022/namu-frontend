@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { FileText } from "lucide-react";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
@@ -17,7 +17,12 @@ import { Input } from "@/components/ui/input";
 import { ElectronicDocumentSchema } from "../../lib/electronicDocument.schema";
 import { SunatConceptsResource } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.interface";
 import { AssignSalesSeriesResource } from "@/features/ap/configuraciones/maestros-general/asignar-serie-venta/lib/assignSalesSeries.interface";
-import { useAllCustomers } from "@/features/ap/comercial/clientes/lib/customers.hook";
+import {
+  useCustomers,
+  useCustomersById,
+} from "@/features/ap/comercial/clientes/lib/customers.hook";
+import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
+import { CustomersResource } from "@/features/ap/comercial/clientes/lib/customers.interface";
 
 interface DocumentInfoSectionProps {
   form: UseFormReturn<ElectronicDocumentSchema>;
@@ -25,9 +30,11 @@ interface DocumentInfoSectionProps {
   documentTypes: SunatConceptsResource[];
   authorizedSeries: AssignSalesSeriesResource[];
   isAdvancePayment: boolean;
+  defaultCustomerId?: number | null;
   currencyTypes: SunatConceptsResource[];
   isFromQuotation?: boolean;
   hasVehicle?: boolean;
+  onCustomerChange?: (customer: CustomersResource | undefined) => void;
 }
 
 export function DocumentInfoSection({
@@ -38,15 +45,38 @@ export function DocumentInfoSection({
   isAdvancePayment,
   currencyTypes,
   isFromQuotation = false,
+  defaultCustomerId,
   hasVehicle = true,
+  onCustomerChange,
 }: DocumentInfoSectionProps) {
-  const { data: customers = [], isLoading } = useAllCustomers();
+  const [selectedCustomer, setSelectedCustomer] = useState<
+    CustomersResource | undefined
+  >(undefined);
 
-  // Obtener el cliente seleccionado
-  const clientId = form.watch("client_id");
-  const selectedCustomer = customers.find(
-    (customer) => customer.id.toString() === clientId
-  );
+  // Cargar el cliente desde el ID cuando viene de una cotización
+  const { data: loadedCustomer } = useCustomersById(defaultCustomerId || 0);
+
+  // Sincronizar con el cliente cargado cuando cambie (ej. al seleccionar cotización)
+  useEffect(() => {
+    if (loadedCustomer && loadedCustomer.id !== selectedCustomer?.id) {
+      setSelectedCustomer(loadedCustomer);
+      onCustomerChange?.(loadedCustomer);
+      // Actualizar el valor en el form
+      form.setValue("client_id", loadedCustomer.id.toString());
+    }
+  }, [loadedCustomer, form]);
+
+  const defaultOption = useMemo(() => {
+    if (loadedCustomer) {
+      return {
+        value: loadedCustomer.id.toString(),
+        label: `${loadedCustomer.full_name} - ${
+          loadedCustomer.num_doc || "S/N"
+        }`,
+      };
+    }
+    return undefined;
+  }, [loadedCustomer]);
 
   // Filtrar tipos de documento según el document_type_id del cliente
   const filteredDocumentTypes = documentTypes.filter((type) => {
@@ -73,13 +103,13 @@ export function DocumentInfoSection({
     if (!selectedCustomer) return;
 
     const currentDocumentTypeId = form.getValues(
-      "sunat_concept_document_type_id"
+      "sunat_concept_document_type_id",
     );
 
     // Si hay un tipo de documento seleccionado, verificar si sigue siendo válido
     if (currentDocumentTypeId) {
       const isValid = filteredDocumentTypes.some(
-        (type) => type.id.toString() === currentDocumentTypeId
+        (type) => type.id.toString() === currentDocumentTypeId,
       );
 
       // Si el tipo de documento actual no es válido, limpiarlo
@@ -99,23 +129,31 @@ export function DocumentInfoSection({
       cols={{ sm: 1, md: 3 }}
     >
       <div className="md:col-span-3">
-        <FormSelect
-          control={form.control}
+        <FormSelectAsync
           name="client_id"
-          options={customers.map((customer) => ({
-            value: customer.id.toString(),
-            label: `${customer.full_name} - ${customer.num_doc}`,
-          }))}
           label="Cliente *"
+          placeholder="Seleccionar cliente"
+          control={form.control}
+          useQueryHook={useCustomers}
+          mapOptionFn={(customer) => ({
+            value: customer.id.toString(),
+            label: `${customer.full_name} - ${customer.num_doc || "S/N"}`,
+          })}
           description={
             isFromQuotation
-              ? "Cliente asignado desde la cotización"
+              ? "Cliente asignado desde la cotización (puede modificarlo si lo desea)"
               : "Seleccione el cliente"
           }
-          placeholder={
-            isLoading ? "Cargando clientes..." : "Seleccionar cliente"
-          }
-          disabled={isEdit || isFromQuotation}
+          perPage={10}
+          debounceMs={500}
+          disabled={isEdit}
+          defaultOption={defaultOption}
+          onValueChange={(_, customer) => {
+            // Actualizar el estado con el cliente seleccionado
+            const customerResource = customer as CustomersResource | undefined;
+            setSelectedCustomer(customerResource);
+            onCustomerChange?.(customerResource);
+          }}
         />
       </div>
 
@@ -142,8 +180,8 @@ export function DocumentInfoSection({
           !hasVehicle && isFromQuotation
             ? "Cotización sin vehículo: Solo se permite anticipo"
             : isAdvancePayment
-            ? "Tipo de operación: Venta Interna - Anticipos (código 04)"
-            : "Tipo de operación: Venta Interna (código 01)"
+              ? "Tipo de operación: Venta Interna - Anticipos (código 04)"
+              : "Tipo de operación: Venta Interna (código 01)"
         }
       />
 

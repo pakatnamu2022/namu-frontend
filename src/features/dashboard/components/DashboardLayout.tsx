@@ -27,14 +27,14 @@ export default function DashboardLayout({
     document.body.classList.add(
       "bg-linear-to-br",
       "from-slate-50",
-      "to-primary/5"
+      "to-primary/5",
     );
 
     return () => {
       document.body.classList.remove(
         "bg-linear-to-br",
         "from-slate-50",
-        "to-primary/5"
+        "to-primary/5",
       );
     };
   }, []);
@@ -57,7 +57,7 @@ export default function DashboardLayout({
             <DashboardSkeleton />
           </div>
         ) : (
-          <div className="flex flex-1 flex-col gap-4 p-4 bg-background w-full overflow-x-auto max-w-(--breakpoint-2xl) mx-auto">
+          <div className="flex flex-1 flex-col gap-4 p-4 bg-background w-full overflow-x-auto max-w-(--breakpoint-3xl) mx-auto">
             {/* <div className="flex flex-1 flex-col gap-4 p-4 bg-linear-to-br from-slate-50 to-primary/5 w-full overflow-x-auto"> */}
             {children}
           </div>

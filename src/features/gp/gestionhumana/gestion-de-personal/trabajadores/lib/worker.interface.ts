@@ -8,6 +8,7 @@ export interface WorkerResponse {
 
 export interface WorkerResource {
   id: number;
+  supervisor_id?: number;
   name: string;
   document: string;
   sede: string;

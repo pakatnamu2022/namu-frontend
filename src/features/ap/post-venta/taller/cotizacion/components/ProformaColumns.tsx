@@ -70,11 +70,17 @@ export const orderQuotationColumns = ({
     enableSorting: false,
   },
   {
+    accessorKey: "type_currency.name",
+    header: "Moneda",
+    enableSorting: false,
+  },
+  {
     accessorKey: "total_amount",
     header: "Total Monto",
-    cell: ({ getValue }) => {
+    cell: ({ getValue, row }) => {
       const amount = getValue() as number;
-      return `S/. ${Number(amount || 0).toFixed(2)}`;
+      const currencySymbol = row.original.type_currency?.symbol || "S/.";
+      return `${currencySymbol} ${Number(amount || 0).toFixed(2)}`;
     },
     enableSorting: false,
   },
@@ -90,7 +96,7 @@ export const orderQuotationColumns = ({
       const value = getValue() as boolean;
       return (
         <Badge
-          variant={value ? "default" : "secondary"}
+          color={value ? "default" : "secondary"}
           className="capitalize w-8 flex items-center justify-center"
         >
           {value ? "Sí" : "No"}
@@ -107,7 +113,7 @@ export const orderQuotationColumns = ({
 
       const handleDownloadPdf = async () => {
         try {
-          await downloadOrderQuotationPdf(id, true);
+          await downloadOrderQuotationPdf(id);
           successToast("PDF descargado correctamente");
         } catch {
           errorToast("Error al descargar el PDF");

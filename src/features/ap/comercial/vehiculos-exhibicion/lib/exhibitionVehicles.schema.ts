@@ -61,14 +61,14 @@ export const exhibitionVehiclesSchemaCreate = z.object({
   status: z.boolean(),
   items: z
     .array(exhibitionVehicleItemSchema)
-    .min(1, "Debe agregar al menos un item"),
+    .min(1, "Debe actualizar al menos un item"),
 });
 
 // Schema para actualización (todos los campos opcionales excepto items)
 export const exhibitionVehiclesSchemaUpdate = exhibitionVehiclesSchemaCreate.partial().extend({
   items: z
     .array(exhibitionVehicleItemSchema)
-    .min(1, "Debe agregar al menos un item"),
+    .min(1, "Debe actualizar al menos un item"),
 });
 
 export type ExhibitionVehiclesSchemaCreate = z.infer<

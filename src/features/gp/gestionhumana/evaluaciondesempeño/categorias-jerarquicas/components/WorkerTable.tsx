@@ -56,7 +56,7 @@ export default function WorkerTable({ workers, isLoading }: WorkerTableProps) {
               <TableCell>{worker.position}</TableCell>
               <TableCell>
                 {worker.inclusion_reason && (
-                  <Badge variant="secondary">{worker.inclusion_reason}</Badge>
+                  <Badge color="secondary">{worker.inclusion_reason}</Badge>
                 )}
               </TableCell>
             </TableRow>

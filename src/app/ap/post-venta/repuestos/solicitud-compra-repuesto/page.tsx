@@ -24,6 +24,8 @@ import PurchaseRequestTable from "@/features/ap/post-venta/taller/solicitud-comp
 import PurchaseRequestOptions from "@/features/ap/post-venta/taller/solicitud-compra/components/PurchaseRequestOptions";
 import { deletePurchaseRequest } from "@/features/ap/post-venta/taller/solicitud-compra/lib/purchaseRequest.actions";
 import { usePurchaseRequests } from "@/features/ap/post-venta/taller/solicitud-compra/lib/purchaseRequest.hook";
+import { PurchaseRequestDetailSheet } from "@/features/ap/post-venta/taller/solicitud-compra/components/PurchaseRequestDetailSheet";
+import type { PurchaseRequestResource } from "@/features/ap/post-venta/taller/solicitud-compra/lib/purchaseRequest.interface";
 
 export default function PurchaseRequestRepuestoPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -31,7 +33,11 @@ export default function PurchaseRequestRepuestoPage() {
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
-  const { MODEL, ROUTE, ROUTE_UPDATE } = PURCHASE_REQUEST_REPUESTOS;
+  const [selectedPurchaseRequestId, setSelectedPurchaseRequestId] = useState<
+    number | null
+  >(null);
+  const [isDetailSheetOpen, setIsDetailSheetOpen] = useState(false);
+  const { MODEL, ROUTE, ROUTE_UPDATE, ROUTE_ADD } = PURCHASE_REQUEST_REPUESTOS;
   const permissions = useModulePermissions(ROUTE);
   const router = useNavigate();
   const currentDate = new Date();
@@ -81,6 +87,16 @@ export default function PurchaseRequestRepuestoPage() {
     router(`${ROUTE_UPDATE}/${id}`);
   };
 
+  const handleViewDetail = (purchaseRequest: PurchaseRequestResource) => {
+    setSelectedPurchaseRequestId(purchaseRequest.id);
+    setIsDetailSheetOpen(true);
+  };
+
+  const handleCloseDetailSheet = () => {
+    setIsDetailSheetOpen(false);
+    setSelectedPurchaseRequestId(null);
+  };
+
   if (isLoadingModule) return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
   if (!currentView) notFound();
@@ -93,7 +109,10 @@ export default function PurchaseRequestRepuestoPage() {
           subtitle={currentView.descripcion}
           icon={currentView.icon}
         />
-        <PurchaseRequestActions permissions={permissions} module="REPUESTO" />
+        <PurchaseRequestActions
+          permissions={permissions}
+          onAdd={() => router(ROUTE_ADD!)}
+        />
       </HeaderTableWrapper>
 
       <PurchaseRequestTable
@@ -101,6 +120,7 @@ export default function PurchaseRequestRepuestoPage() {
         columns={purchaseRequestColumns({
           onDelete: setDeleteId,
           onUpdate: handleUpdate,
+          onViewDetail: handleViewDetail,
           permissions,
         })}
         data={data?.data || []}
@@ -131,6 +151,13 @@ export default function PurchaseRequestRepuestoPage() {
           onConfirm={handleDelete}
         />
       )}
+
+      <PurchaseRequestDetailSheet
+        purchaseRequestId={selectedPurchaseRequestId}
+        open={isDetailSheetOpen}
+        onClose={handleCloseDetailSheet}
+        onRefresh={refetch}
+      />
     </div>
   );
 }

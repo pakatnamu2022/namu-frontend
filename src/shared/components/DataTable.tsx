@@ -56,7 +56,7 @@ const headerVariants = cva("sticky top-0 z-10", {
   },
 });
 
-const mobileCardVariants = cva("overflow-hidden transition-colors", {
+const mobileCardVariants = cva("overflow-hidden transition-colors py-0 gap-0", {
   variants: {
     variant: {
       default: "border-primary/10 hover:border-primary/30 border shadow-sm",
@@ -71,7 +71,7 @@ const mobileCardVariants = cva("overflow-hidden transition-colors", {
 });
 
 const mobileCardFooterVariants = cva(
-  "border-t px-3 py-1 flex justify-end gap-2",
+  "border-t px-3 py-1 [.border-t]:pt-1 flex justify-end gap-2",
   {
     variants: {
       variant: {
@@ -84,11 +84,12 @@ const mobileCardFooterVariants = cva(
     defaultVariants: {
       variant: "default",
     },
-  }
+  },
 );
 
-interface DataTableProps<TData, TValue>
-  extends VariantProps<typeof dataTableVariants> {
+interface DataTableProps<TData, TValue> extends VariantProps<
+  typeof dataTableVariants
+> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   children?: React.ReactNode;
@@ -118,7 +119,7 @@ export function DataTable<TData, TValue>({
 }: DataTableProps<TData, TValue>) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
-    initialColumnVisibility ?? {}
+    initialColumnVisibility ?? {},
   );
 
   const table = useReactTable({
@@ -145,10 +146,17 @@ export function DataTable<TData, TValue>({
   });
 
   return (
-    <div className="flex flex-col gap-2 w-full items-end">
-      <div className="grid md:flex md:flex-wrap gap-2 md:justify-between w-full">
+    <div
+      className={cn(
+        "flex flex-col w-full items-end",
+        isVisibleColumnFilter ? "gap-2" : "",
+      )}
+    >
+      <div className="flex md:flex-wrap gap-2 justify-end md:justify-between w-full">
         {children}
-        {isVisibleColumnFilter && <DataTableColumnFilter table={table} />}
+        {isVisibleColumnFilter && !mobileCardRender && (
+          <DataTableColumnFilter table={table} />
+        )}
       </div>
 
       {/* Vista de Tabla para pantallas grandes */}
@@ -158,37 +166,40 @@ export function DataTable<TData, TValue>({
             <TableHeader className={cn(headerVariants({ variant }))}>
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id} className="text-nowrap h-10">
-                  {headerGroup.headers.map((header) => (
-                    <TableHead key={header.id} className="h-10">
-                      {header.isPlaceholder ? null : header.column.getCanSort() ? (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="-ml-3 h-8 data-[state=open]:bg-accent"
-                          onClick={header.column.getToggleSortingHandler()}
-                        >
-                          <span>
-                            {flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
+                  {headerGroup.headers.map((header) => {
+                    return (
+                      <TableHead key={header.id} className="h-10">
+                        {header.isPlaceholder ? null : header.column.columnDef
+                            .enableSorting ? (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="-ml-3 h-8 data-[state=open]:bg-accent"
+                            onClick={header.column.getToggleSortingHandler()}
+                          >
+                            <span>
+                              {flexRender(
+                                header.column.columnDef.header,
+                                header.getContext(),
+                              )}
+                            </span>
+                            {header.column.getIsSorted() === "asc" ? (
+                              <ArrowUp className="ml-2 h-4 w-4" />
+                            ) : header.column.getIsSorted() === "desc" ? (
+                              <ArrowDown className="ml-2 h-4 w-4" />
+                            ) : (
+                              <ArrowUpDown className="ml-2 h-4 w-4" />
                             )}
-                          </span>
-                          {header.column.getIsSorted() === "asc" ? (
-                            <ArrowUp className="ml-2 h-4 w-4" />
-                          ) : header.column.getIsSorted() === "desc" ? (
-                            <ArrowDown className="ml-2 h-4 w-4" />
-                          ) : (
-                            <ArrowUpDown className="ml-2 h-4 w-4" />
-                          )}
-                        </Button>
-                      ) : (
-                        flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )
-                      )}
-                    </TableHead>
-                  ))}
+                          </Button>
+                        ) : (
+                          flexRender(
+                            header.column.columnDef.header,
+                            header.getContext(),
+                          )
+                        )}
+                      </TableHead>
+                    );
+                  })}
                 </TableRow>
               ))}
             </TableHeader>
@@ -209,7 +220,7 @@ export function DataTable<TData, TValue>({
                       <TableCell key={cell.id} className="p-2 truncate">
                         {flexRender(
                           cell.column.columnDef.cell,
-                          cell.getContext()
+                          cell.getContext(),
                         )}
                       </TableCell>
                     ))}
@@ -250,12 +261,12 @@ export function DataTable<TData, TValue>({
             const actionCell = cells.find(
               (cell) =>
                 cell.column.id.toLowerCase().includes("accion") ||
-                cell.column.id.toLowerCase().includes("action")
+                cell.column.id.toLowerCase().includes("action"),
             );
             const contentCells = cells.filter(
               (cell) =>
                 !cell.column.id.toLowerCase().includes("accion") &&
-                !cell.column.id.toLowerCase().includes("action")
+                !cell.column.id.toLowerCase().includes("action"),
             );
 
             return (
@@ -271,21 +282,21 @@ export function DataTable<TData, TValue>({
                         typeof header === "string"
                           ? header
                           : typeof header === "function"
-                          ? cell.column.id
-                          : cell.column.id;
+                            ? cell.column.id
+                            : cell.column.id;
 
                       return (
                         <div
                           key={cell.id}
                           className="grid grid-cols-3 items-center gap-1 text-wrap"
                         >
-                          <span className="text-xs font-medium text-primary">
+                          <span className="text-xs font-medium text-primary dark:text-primary-foreground">
                             {headerText}
                           </span>
                           <div className="text-xs text-foreground col-span-2">
                             {flexRender(
                               cell.column.columnDef.cell,
-                              cell.getContext()
+                              cell.getContext(),
                             )}
                           </div>
                         </div>
@@ -299,7 +310,7 @@ export function DataTable<TData, TValue>({
                   >
                     {flexRender(
                       actionCell.column.columnDef.cell,
-                      actionCell.getContext()
+                      actionCell.getContext(),
                     )}
                   </CardFooter>
                 )}

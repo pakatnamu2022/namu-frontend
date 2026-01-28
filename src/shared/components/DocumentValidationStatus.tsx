@@ -1,3 +1,5 @@
+import { Badge } from "@/components/ui/badge";
+
 interface DocumentValidationStatusProps {
   shouldValidate: boolean;
   documentNumber: string;
@@ -19,23 +21,29 @@ export const DocumentValidationStatus = ({
     <div className={`${leftPosition} whitespace-nowrap`}>
       {(!documentNumber ||
         (documentNumber.length === expectedDigits && !isValidating)) && (
-        <span className="text-xs text-primary bg-blue-50 px-2 rounded">
+        <Badge color="blue" size="xs" className="rounded-sm py-0 md:px-2">
           Automático
-        </span>
+        </Badge>
       )}
 
       {documentNumber &&
         documentNumber.length > 0 &&
         documentNumber.length < expectedDigits && (
-          <span className="text-xs text-gray-500">
-            Faltan {expectedDigits - documentNumber.length} dígitos
-          </span>
+          <Badge color="red" size="xs" className="rounded-sm py-0 md:px-2">
+            {`Falta${expectedDigits - documentNumber.length === 1 ? "" : "n"}`}{" "}
+            {expectedDigits - documentNumber.length}{" "}
+            {`dígito${expectedDigits - documentNumber.length === 1 ? "" : "s"}`}
+          </Badge>
         )}
 
       {isValidating && (
-        <span className="text-xs text-amber-600 bg-amber-50 px-2 rounded animate-pulse">
+        <Badge
+          color="amber"
+          size="xs"
+          className="rounded-sm py-0 md:px-2 animate-pulse"
+        >
           Validando...
-        </span>
+        </Badge>
       )}
     </div>
   );

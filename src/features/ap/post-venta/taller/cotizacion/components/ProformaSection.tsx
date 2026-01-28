@@ -18,7 +18,7 @@ import {
 import { Plus, Trash2, Loader2, Package } from "lucide-react";
 import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
 import GeneralSheet from "@/shared/components/GeneralSheet";
-import { useIsTablet } from "@/hooks/use-mobile";
+import { useIsTablet } from "@/hooks/use-tablet";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -169,7 +169,7 @@ export default function PartsManagementSection({
                 <TableHead className="text-right">Cantidad</TableHead>
                 <TableHead className="text-right">Precio Unit.</TableHead>
                 <TableHead className="text-right">Total</TableHead>
-                <TableHead className="w-[80px]">Acciones</TableHead>
+                <TableHead className="w-20">Acciones</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

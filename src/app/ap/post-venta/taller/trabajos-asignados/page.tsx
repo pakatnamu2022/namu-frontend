@@ -99,7 +99,7 @@ export default function AssignedWorkPage() {
     if (!actionWork) return;
     try {
       await startSession.mutateAsync({ id: actionWork.id });
-      successToast("Sesión iniciada exitosamente");
+      successToast("Trabajo iniciado exitosamente");
       refetch();
       setOpenStartAlert(false);
       setActionWork(null);
@@ -136,7 +136,7 @@ export default function AssignedWorkPage() {
     } catch (error: any) {
       errorToast(
         "Error al completar el trabajo",
-        error.response?.data?.message
+        error.response?.data?.message,
       );
       return;
     }

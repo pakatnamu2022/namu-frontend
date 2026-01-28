@@ -41,7 +41,7 @@ import {
   useAllWorkersBySedeAndBrand,
 } from "@/features/ap/configuraciones/ventas/asignar-marca/lib/assignBrandConsultant.hook";
 import { STORE_VISITS } from "../lib/storeVisits.constants";
-import { AREA_CM_ID } from "@/features/ap/lib/ap.constants";
+import { AREA_CM_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 interface StoreVisitsFormProps {
   defaultValues: Partial<StoreVisitsSchema>;
@@ -195,7 +195,7 @@ export const StoreVisitsForm = ({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-4 w-full formlayout"
+        className="space-y-4 w-full"
       >
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <FormSelect

@@ -60,6 +60,7 @@ export const ElectronicDocumentSchema = z
     origin_entity_id: optionalStringId("Entidad de origen inválida"),
     purchase_request_quote_id: z.string().optional(), // ID de cotización vinculada (módulo comercial)
     order_quotation_id: optionalStringId("ID de cotización de orden inválido"), // ID de cotización de orden (módulo post-venta)
+    work_order_id: optionalStringId("ID de orden de trabajo inválido"), // ID de orden de trabajo (módulo post-venta)
     is_advance_payment: z.boolean().default(false), // Es un pago de anticipo
     ap_vehicle_id: optionalStringId("Vehículo es inválido"), // ID del vehículo vinculado desde la cotización
 
@@ -150,7 +151,7 @@ export const ElectronicDocumentSchema = z
     // ===== ITEMS (OBLIGATORIOS) =====
     items: z
       .array(ElectronicDocumentItemSchema)
-      .min(1, "Debe agregar al menos un item"),
+      .min(1, "Debe actualizar al menos un item"),
 
     // ===== GUÍAS (OPCIONALES) =====
     guias: z.array(ElectronicDocumentGuideSchema).optional(),
@@ -269,7 +270,7 @@ export const CreditNoteSchema = z.object({
     .min(10, "Las observaciones deben tener al menos 10 caracteres"),
   enviar_automaticamente_a_la_sunat: z.boolean().default(false),
   enviar_automaticamente_al_cliente: z.boolean().default(false),
-  items: z.array(CreditNoteItemSchema).min(1, "Debe agregar al menos un item"),
+  items: z.array(CreditNoteItemSchema).min(1, "Debe actualizar al menos un item"),
 });
 
 // Schema para Item de Nota de Débito (igual a CreditNoteItemSchema)
@@ -314,7 +315,7 @@ export const DebitNoteSchema = z.object({
     .min(10, "Las observaciones deben tener al menos 10 caracteres"),
   enviar_automaticamente_a_la_sunat: z.boolean().default(false),
   enviar_automaticamente_al_cliente: z.boolean().default(false),
-  items: z.array(DebitNoteItemSchema).min(1, "Debe agregar al menos un item"),
+  items: z.array(DebitNoteItemSchema).min(1, "Debe actualizar al menos un item"),
 });
 
 export type ElectronicDocumentSchema = z.infer<typeof ElectronicDocumentSchema>;

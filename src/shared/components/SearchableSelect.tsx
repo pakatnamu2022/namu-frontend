@@ -70,6 +70,14 @@ export function SearchableSelect({
     if (!searchValue) return options;
 
     return options.filter((option) => {
+      const searchLower = searchValue.toLowerCase();
+
+      // Si existe searchValue personalizado, usar solo ese para la búsqueda
+      if (option.searchValue) {
+        return option.searchValue.toLowerCase().includes(searchLower);
+      }
+
+      // Sino, buscar por label, value y description como antes
       // Obtener el label como string
       let labelText = "";
       if (typeof option.label === "function") {
@@ -81,8 +89,6 @@ export function SearchableSelect({
 
       // Convertir value a string para búsqueda
       const valueText = String(option.value);
-
-      const searchLower = searchValue.toLowerCase();
 
       return (
         labelText.toLowerCase().includes(searchLower) ||

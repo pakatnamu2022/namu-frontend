@@ -6,7 +6,16 @@ import { useState } from "react";
 import TitleComponent from "@/shared/components/TitleComponent";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { Button } from "@/components/ui/button";
-import { Plus, Edit, CircleX, NotebookText, FileText } from "lucide-react";
+import {
+  Plus,
+  Edit,
+  CircleX,
+  NotebookText,
+  FileText,
+  Phone,
+  Mail,
+  MessageSquare,
+} from "lucide-react";
 import { errorToast } from "@/core/core.function";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -232,6 +241,170 @@ export default function OpportunityDetailPage() {
                 Estado del Cliente
               </p>
               <Badge variant="outline">{opportunity.client_status}</Badge>
+            </div>
+          </div>
+
+          {/* Información de contacto del cliente */}
+          <div className="space-y-4 p-4 rounded-lg border border-gray-200 bg-linear-to-br from-gray-50 to-white">
+            <p className="text-sm font-bold text-gray-900">
+              Información de Contacto
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Teléfono principal */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-3">
+                  <div className="bg-blue-100 p-2 rounded-lg">
+                    <Phone className="size-4 text-blue-600" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-xs text-gray-500 font-medium">Teléfono</p>
+                    <p className="text-sm font-semibold text-gray-900">
+                      {opportunity.client.phone || "Sin teléfono"}
+                    </p>
+                  </div>
+                </div>
+                {opportunity.client.phone && (
+                  <div className="flex gap-2 ml-11">
+                    <Button
+                      size="sm"
+                      className="h-9 gap-2 text-xs font-medium text-white"
+                      asChild
+                    >
+                      <a href={`tel:+51${opportunity.client.phone.replace(/[\s\-()]/g, "")}`}>
+                        <Phone className="size-3.5" />
+                        Llamar
+                      </a>
+                    </Button>
+                    <Button
+                      size="sm"
+                      className="h-9 gap-2 text-xs font-medium bg-green-700 hover:bg-green-800 text-white"
+                      asChild
+                    >
+                      <a
+                        href={`https://wa.me/51${opportunity.client.phone.replace(/[\s\-()]/g, "")}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <MessageSquare className="size-3.5" />
+                        WhatsApp
+                      </a>
+                    </Button>
+                  </div>
+                )}
+              </div>
+
+              {/* Email */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-3">
+                  <div className="bg-red-100 p-2 rounded-lg">
+                    <Mail className="size-4 text-secondary" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs text-gray-500 font-medium">
+                      Correo electrónico
+                    </p>
+                    <p className="text-sm font-semibold text-gray-900 truncate">
+                      {opportunity.client.email || "Sin correo"}
+                    </p>
+                  </div>
+                </div>
+                {opportunity.client.email && (
+                  <div className="ml-11">
+                    <Button
+                      size="sm"
+                      className="h-9 gap-2 text-xs font-medium bg-secondary hover:bg-secondary/90 text-white"
+                      asChild
+                    >
+                      <a href={`mailto:${opportunity.client.email}`}>
+                        <Mail className="size-3.5" />
+                        Enviar correo
+                      </a>
+                    </Button>
+                  </div>
+                )}
+              </div>
+
+              {/* Teléfono secundario */}
+              {opportunity.client.secondary_phone && (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-3">
+                    <div className="bg-blue-100 p-2 rounded-lg">
+                      <Phone className="size-4 text-blue-600" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-xs text-gray-500 font-medium">
+                        Teléfono secundario
+                        {opportunity.client.secondary_phone_contact_name && (
+                          <span className="ml-1 text-gray-400">
+                            ({opportunity.client.secondary_phone_contact_name})
+                          </span>
+                        )}
+                      </p>
+                      <p className="text-sm font-semibold text-gray-900">
+                        {opportunity.client.secondary_phone}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex gap-2 ml-11">
+                    <Button
+                      size="sm"
+                      className="h-9 gap-2 text-xs font-medium text-white"
+                      asChild
+                    >
+                      <a href={`tel:+51${opportunity.client.secondary_phone.replace(/[\s\-()]/g, "")}`}>
+                        <Phone className="size-3.5" />
+                        Llamar
+                      </a>
+                    </Button>
+                    <Button
+                      size="sm"
+                      className="h-9 gap-2 text-xs font-medium bg-green-700 hover:bg-green-800 text-white"
+                      asChild
+                    >
+                      <a
+                        href={`https://wa.me/51${opportunity.client.secondary_phone.replace(/[\s\-()]/g, "")}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <MessageSquare className="size-3.5" />
+                        WhatsApp
+                      </a>
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {/* Email secundario */}
+              {opportunity.client.secondary_email && (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-3">
+                    <div className="bg-red-100 p-2 rounded-lg">
+                      <Mail className="size-4 text-secondary" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs text-gray-500 font-medium">
+                        Correo secundario
+                      </p>
+                      <p className="text-sm font-semibold text-gray-900 truncate">
+                        {opportunity.client.secondary_email}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="ml-11">
+                    <Button
+                      size="sm"
+                      className="h-9 gap-2 text-xs font-medium bg-secondary hover:bg-secondary/90 text-white"
+                      asChild
+                    >
+                      <a href={`mailto:${opportunity.client.secondary_email}`}>
+                        <Mail className="size-3.5" />
+                        Enviar correo
+                      </a>
+                    </Button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 

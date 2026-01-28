@@ -65,17 +65,17 @@ export const evaluationColumns = ({
       const evaluation = getValue() as EvaluationResource;
       return (
         <div className="font-semibold">
-          <Badge variant="default">
+          <Badge color="default">
             {format(
               parse(evaluation.start_date as string, "yyyy-MM-dd", new Date()),
-              "dd/MM/yyyy"
+              "dd/MM/yyyy",
             )}
           </Badge>
           <span className="mx-1">-</span>
-          <Badge variant="default">
+          <Badge color="default">
             {format(
               parse(evaluation.end_date as string, "yyyy-MM-dd", new Date()),
-              "dd/MM/yyyy"
+              "dd/MM/yyyy",
             )}
           </Badge>
         </div>
@@ -89,12 +89,12 @@ export const evaluationColumns = ({
       const evaluation = row.original as EvaluationResource;
       return (
         <Badge
-          variant={
+          color={
             evaluation.typeEvaluation === 0
-              ? "tertiary"
+              ? "blue"
               : evaluation.typeEvaluation === 1
-              ? "default"
-              : "outline"
+                ? "sky"
+                : "indigo"
           }
         >
           {evaluation.typeEvaluationName}
@@ -143,7 +143,7 @@ export const evaluationColumns = ({
     cell: ({ row }) => {
       const evaluation = row.original as EvaluationResource;
       return (
-        <Badge variant={evaluation.send_opened_email ? "default" : "secondary"}>
+        <Badge color={evaluation.send_opened_email ? "default" : "secondary"}>
           {evaluation.send_opened_email ? "Enviado" : "No enviado"}
         </Badge>
       );
@@ -155,7 +155,7 @@ export const evaluationColumns = ({
     cell: ({ row }) => {
       const evaluation = row.original as EvaluationResource;
       return (
-        <Badge variant={evaluation.send_closed_email ? "default" : "secondary"}>
+        <Badge color={evaluation.send_closed_email ? "default" : "secondary"}>
           {evaluation.send_closed_email ? "Enviado" : "No enviado"}
         </Badge>
       );

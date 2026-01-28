@@ -1,6 +1,6 @@
 "use client";
 
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import TitleComponent from "@/shared/components/TitleComponent";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
@@ -39,7 +39,8 @@ export default function AddOpportunityPage() {
   const createOpportunityMutation = useCreateOpportunity();
   const createActionMutation = useCreateOpportunityAction();
   const { data, isLoading, error } = useCustomerValidated(
-    clientIdFromQuery ? Number(clientIdFromQuery) : 0
+    clientIdFromQuery ? Number(clientIdFromQuery) : 0,
+    leadIdFromQuery ? Number(leadIdFromQuery) : 0
   );
   const { data: leadData, isLoading: isLoadingLead } = useManageLead(
     leadIdFromQuery ? Number(leadIdFromQuery) : 0

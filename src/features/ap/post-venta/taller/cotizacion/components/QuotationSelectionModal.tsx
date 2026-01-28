@@ -16,6 +16,8 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { errorToast } from "@/core/core.function";
+import { STATUS_ORDER_QUOTATION, SUPPLY_TYPE } from "../lib/proforma.constants";
+import { AREA_PM_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 interface QuotationSelectionModalProps {
   open: boolean;
@@ -53,6 +55,9 @@ export const QuotationSelectionModal = ({
     page,
     per_page,
     is_take: 0,
+    supply_type: [SUPPLY_TYPE.LIMA, SUPPLY_TYPE.IMPORTACION],
+    status: STATUS_ORDER_QUOTATION.TO_BILL,
+    area_id: AREA_PM_ID.MESON,
     quotation_date:
       dateFrom && dateTo
         ? [formatDate(dateFrom), formatDate(dateTo)]
@@ -74,15 +79,32 @@ export const QuotationSelectionModal = ({
       },
     },
     {
+      accessorKey: "customer",
+      header: "Cliente",
+      cell: ({ getValue }) => {
+        const value = getValue() as string;
+        return value && <p className="font-semibold">{value}</p>;
+      },
+    },
+    {
       accessorKey: "vehicle",
       header: "Vehículo",
       cell: ({ row }) => {
-        const vehicle = row.original.vehicle;
+        const vehicle = row.original?.vehicle;
+
+        if (!vehicle) {
+          return <span className="text-muted-foreground">-</span>;
+        }
+
+        const plate = vehicle?.plate || "-";
+        const brand = vehicle?.model?.brand || "";
+        const family = vehicle?.model?.family || "";
+
         return (
           <div className="flex flex-col gap-0.5">
-            <span className="font-medium">{vehicle.plate || "-"}</span>
+            <span className="font-medium">{plate}</span>
             <span className="text-xs text-muted-foreground">
-              {vehicle.model?.brand || ""} {vehicle.model?.family || ""}
+              {brand} {family}
             </span>
           </div>
         );
@@ -97,11 +119,9 @@ export const QuotationSelectionModal = ({
         if (!date) return "-";
 
         try {
-          const formattedDate = format(
-            new Date(date + "T00:00:00"),
-            "dd/MM/yyyy",
-            { locale: es }
-          );
+          const formattedDate = format(new Date(date), "dd/MM/yyyy", {
+            locale: es,
+          });
           return (
             <div className="flex items-center gap-1.5 text-sm">
               <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
@@ -167,6 +187,7 @@ export const QuotationSelectionModal = ({
             isLoading={isLoading}
             initialColumnVisibility={{
               quotation_number: true,
+              customer: true,
               vehicle: true,
               quotation_date: true,
               total_amount: true,

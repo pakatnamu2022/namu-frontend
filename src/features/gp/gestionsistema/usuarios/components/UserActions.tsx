@@ -9,7 +9,7 @@ export default function UserActions() {
   const push = useNavigate();
 
   const handleAddUser = () => {
-    push("./usuarios/agregar");
+    push("./usuarios/actualizar");
   };
 
   return (

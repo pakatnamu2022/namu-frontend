@@ -77,7 +77,7 @@ export function DatePickerFormField<T extends FieldValues>({
   endMonth = new Date(
     new Date().getFullYear() + 1,
     new Date().getMonth(),
-    new Date().getDate()
+    new Date().getDate(),
   ),
   size,
 }: DatePickerFormFieldProps<T>) {
@@ -94,7 +94,7 @@ export function DatePickerFormField<T extends FieldValues>({
   }, [field.value]);
 
   const [visibleMonth, setVisibleMonth] = useState<Date | undefined>(
-    parsedDate
+    parsedDate,
   );
 
   useEffect(() => {
@@ -127,7 +127,7 @@ export function DatePickerFormField<T extends FieldValues>({
             <Tooltip>
               <TooltipTrigger asChild>
                 <Badge
-                  variant="tertiary"
+                  color="tertiary"
                   className="ml-2 p-0 aspect-square w-4 h-4 text-center justify-center"
                 >
                   ?
@@ -181,7 +181,7 @@ export function DatePickerFormField<T extends FieldValues>({
                 size={size ? size : isMobile ? "sm" : "lg"}
                 className={cn(
                   "w-full justify-start text-left font-normal",
-                  !parsedDate && "text-muted-foreground"
+                  !parsedDate && "text-muted-foreground",
                 )}
                 disabled={disabled}
               >

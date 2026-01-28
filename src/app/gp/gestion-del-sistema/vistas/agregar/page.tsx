@@ -28,8 +28,9 @@ export default function AddViewPage() {
       successToast("Vista creado exitosamente");
       router(ABSOLUTE_ROUTE!);
     },
-    onError: () => {
-      errorToast("Hubo un error al crear el equipo");
+    onError: (error: any) => {
+      const msj = error?.response?.data?.message || "Error desconocido";
+      errorToast(msj);
     },
   });
 

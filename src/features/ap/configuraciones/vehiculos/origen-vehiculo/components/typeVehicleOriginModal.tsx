@@ -16,7 +16,7 @@ import { GeneralModal } from "@/shared/components/GeneralModal";
 import { TypeVehicleOriginForm } from "./typeVehicleOriginForm";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { VEHICLE_ORIGIN } from "../lib/typeVehicleOrigin.constants";
-import { AP_MASTER_COMERCIAL } from "@/features/ap/lib/ap.constants";
+import { AP_MASTER_TYPE } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 interface Props {
   id?: number;
@@ -53,7 +53,7 @@ export default function TypeVehicleOriginModal({
     return {
       code: data.code,
       description: data.description,
-      type: AP_MASTER_COMERCIAL.VEHICLE_ORIGIN,
+      type: AP_MASTER_TYPE.VEHICLE_ORIGIN,
     };
   }
 

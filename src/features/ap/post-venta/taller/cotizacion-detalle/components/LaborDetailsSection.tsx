@@ -36,6 +36,8 @@ interface LaborDetailsSectionProps {
   isLoadingDetails: boolean;
   onRefresh: () => Promise<void>;
   onDelete: (id: number) => Promise<void>;
+  currencySymbol: string;
+  exchangeRate: number;
 }
 
 export default function LaborDetailsSection({
@@ -44,6 +46,8 @@ export default function LaborDetailsSection({
   isLoadingDetails,
   onRefresh,
   onDelete,
+  currencySymbol,
+  exchangeRate,
 }: LaborDetailsSectionProps) {
   const [isSaving, setIsSaving] = useState(false);
 
@@ -58,6 +62,7 @@ export default function LaborDetailsSection({
       unit_price: 0,
       discount: 0,
       total_amount: 0,
+      exchange_rate: exchangeRate,
       observations: "",
     },
   });
@@ -86,6 +91,7 @@ export default function LaborDetailsSection({
         unit_price: 0,
         discount: 0,
         total_amount: 0,
+        exchange_rate: exchangeRate,
         observations: "",
       });
       await onRefresh();
@@ -99,7 +105,7 @@ export default function LaborDetailsSection({
 
   const formatCurrency = (amount: string | number | null | undefined) => {
     const value = Number(amount) || 0;
-    return `S/. ${value.toFixed(2)}`;
+    return `${currencySymbol} ${value.toFixed(2)}`;
   };
 
   const laborDetails = details.filter((d) => d.item_type === "LABOR");
@@ -182,7 +188,9 @@ export default function LaborDetailsSection({
                 name="discount"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-xs">Desc. (S/.)</FormLabel>
+                    <FormLabel className="text-xs">
+                      Desc. ({currencySymbol})
+                    </FormLabel>
                     <FormControl>
                       <Input
                         type="number"
@@ -238,7 +246,7 @@ export default function LaborDetailsSection({
       <div className="mt-6">
         <div className="flex items-center justify-between mb-3 pb-2 border-b">
           <h4 className="font-semibold text-gray-700">Items de Mano de Obra</h4>
-          <Badge variant="secondary" className="font-semibold">
+          <Badge color="secondary" className="font-semibold">
             {laborDetails.length} item(s)
           </Badge>
         </div>
@@ -303,7 +311,7 @@ export default function LaborDetailsSection({
 
                     <div className="col-span-1 text-right">
                       <span className="text-sm text-orange-600">
-                        -{formatCurrency(detail.discount)}
+                        -{formatCurrency(detail.discount_percentage)}
                       </span>
                     </div>
 
@@ -363,7 +371,7 @@ export default function LaborDetailsSection({
                       <div>
                         <span className="text-gray-500">Desc:</span>
                         <span className="font-medium ml-1 text-orange-600">
-                          -{formatCurrency(detail.discount)}
+                          -{formatCurrency(detail.discount_percentage)}
                         </span>
                       </div>
                       <div className="text-right">

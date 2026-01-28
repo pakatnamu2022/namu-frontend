@@ -29,6 +29,7 @@ export default function PurchaseRequestTable({
           status: true,
           requested_by: true,
           observations: false,
+          has_supplier_order: true,
         }}
       >
         {children}

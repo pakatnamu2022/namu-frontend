@@ -1,15 +1,12 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { ReactNode } from "react";
 import CommentSection from "./CommentSection";
-import { MessageCircleMore, MessageCirclePlus } from "lucide-react";
 
 interface ExpandableTableRowProps {
   id: number;
   isExpanded: boolean;
-  onToggleExpansion: (id: number) => void;
   children: ReactNode;
   columnsCount: number;
   comment?: string;
@@ -20,7 +17,6 @@ interface ExpandableTableRowProps {
 export default function ExpandableTableRow({
   id,
   isExpanded,
-  onToggleExpansion,
   children,
   columnsCount,
   comment,
@@ -29,38 +25,12 @@ export default function ExpandableTableRow({
 }: ExpandableTableRowProps) {
   return (
     <>
-      {/* Fila principal */}
+      {/* Fila principal con datos */}
       <TableRow className="text-nowrap hover:bg-muted bg-background">
-        {/* Contenido de la fila */}
         {children}
       </TableRow>
 
-      {/* Botón fino para comentarios */}
-      <TableRow className="border-b-0">
-        <TableCell colSpan={columnsCount} className="p-0">
-          <Button
-            variant="ghost"
-            onClick={() => onToggleExpansion(id)}
-            className="w-full h-6 rounded-none text-xs border-b"
-            aria-label={
-              isExpanded ? "Ocultar comentarios" : "Mostrar comentarios"
-            }
-          >
-            {comment ? (
-              <MessageCircleMore className="size-4 ml-1" />
-            ) : (
-              <MessageCirclePlus className="size-4 ml-1" />
-            )}
-            {isExpanded
-              ? "Ocultar comentario"
-              : comment
-              ? "Ver / Editar comentario"
-              : "Clic para agregar comentario"}
-          </Button>
-        </TableCell>
-      </TableRow>
-
-      {/* Fila expandible con comentario */}
+      {/* Fila expandible con comentario - se muestra cuando isExpanded=true */}
       {isExpanded && (
         <TableRow className="bg-muted/30">
           <TableCell colSpan={columnsCount} className="p-0">

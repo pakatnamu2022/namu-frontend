@@ -36,7 +36,7 @@ import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { APPOINTMENT_PLANNING } from "../lib/appointmentPlanning.constants";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import { VehicleResource } from "@/features/ap/comercial/vehiculos/lib/vehicles.interface";
-import { VEHICLES_PV } from "@/features/ap/comercial/vehiculos/lib/vehicles.constants";
+import { VEHICLES_TLL } from "@/features/ap/comercial/vehiculos/lib/vehicles.constants";
 import { AppointmentPlanningResource } from "../lib/appointmentPlanning.interface";
 import { DocumentValidationStatus } from "@/shared/components/DocumentValidationStatus";
 import { ValidationIndicator } from "@/shared/components/ValidationIndicator";
@@ -72,7 +72,7 @@ export const AppointmentPlanningForm = ({
     resolver: zodResolver(
       mode === "create"
         ? appointmentPlanningSchemaCreate
-        : appointmentPlanningSchemaUpdate
+        : appointmentPlanningSchemaUpdate,
     ),
     defaultValues: {
       ...defaultValues,
@@ -113,7 +113,7 @@ export const AppointmentPlanningForm = ({
   } = useDniValidation(
     watchCustomer,
     !isFirstLoad && !!watchCustomer && isDni,
-    true
+    true,
   );
 
   // Validación RUC (11 dígitos)
@@ -124,7 +124,7 @@ export const AppointmentPlanningForm = ({
   } = useRucValidation(
     watchCustomer,
     !isFirstLoad && !!watchCustomer && isRuc,
-    true
+    true,
   );
 
   // Datos consolidados
@@ -183,7 +183,7 @@ export const AppointmentPlanningForm = ({
 
   // Deshabilitar campos de cliente si se encontró información
   const shouldDisableCustomerFields = Boolean(
-    customerData?.success && customerData.data
+    customerData?.success && customerData.data,
   );
 
   // Normalizar formato de hora a HH:mm
@@ -267,7 +267,7 @@ export const AppointmentPlanningForm = ({
               variant="outline"
               size="icon-lg"
               className="aspect-square"
-              onClick={() => window.open(VEHICLES_PV.ROUTE_ADD, "_blank")}
+              onClick={() => window.open(VEHICLES_TLL.ROUTE_ADD, "_blank")}
               tooltip="Agregar nuevo vehículo"
             >
               <ExternalLink className="h-4 w-4" />
@@ -386,10 +386,10 @@ export const AppointmentPlanningForm = ({
         >
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             <FormSelect
-              name="type_operation_appointment_id"
-              label="Tipo de Operación"
+              name="type_planning_id"
+              label="Tipo de Planificación"
               placeholder="Seleccione tipo"
-              options={typesOperations.map((item) => ({
+              options={typesPlanning.map((item) => ({
                 label: item.description,
                 value: item.id.toString(),
               }))}
@@ -398,10 +398,10 @@ export const AppointmentPlanningForm = ({
             />
 
             <FormSelect
-              name="type_planning_id"
-              label="Tipo de Planificación"
+              name="type_operation_appointment_id"
+              label="Tipo de Operación"
               placeholder="Seleccione tipo"
-              options={typesPlanning.map((item) => ({
+              options={typesOperations.map((item) => ({
                 label: item.description,
                 value: item.id.toString(),
               }))}

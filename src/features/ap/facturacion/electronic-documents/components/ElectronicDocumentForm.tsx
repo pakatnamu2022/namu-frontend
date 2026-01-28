@@ -28,7 +28,7 @@ import { QuotationFinancialInfo } from "./sections/QuotationFinancialInfo";
 import { ItemsSection } from "./sections/ItemsSection";
 import { AdditionalConfigSection } from "./sections/AdditionalConfigSection";
 import { SummarySection } from "./sections/SummarySection";
-import { useAllCustomers } from "@/features/ap/comercial/clientes/lib/customers.hook";
+import { CustomersResource } from "@/features/ap/comercial/clientes/lib/customers.interface";
 import { useAllApBank } from "@/features/ap/configuraciones/maestros-general/chequeras/lib/apBank.hook";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { SUNAT_TYPE_INVOICES_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
@@ -63,8 +63,13 @@ export function ElectronicDocumentForm({
 }: ElectronicDocumentFormProps) {
   // Estados para manejar la cotización seleccionada
   const [selectedQuotationId, setSelectedQuotationId] = useState<number | null>(
-    null
+    null,
   );
+
+  // Estado para el cliente seleccionado (manejado por DocumentInfoSection)
+  const [selectedCustomer, setSelectedCustomer] = useState<
+    CustomersResource | undefined
+  >(undefined);
 
   // Ref para rastrear la última cotización cargada (evitar loops)
   const lastLoadedQuotationId = useRef<number | null>(null);
@@ -84,7 +89,7 @@ export function ElectronicDocumentForm({
 
   // Fetch la cotización seleccionada
   const { data: quotation } = usePurchaseRequestQuoteById(
-    selectedQuotationId || 0
+    selectedQuotationId || 0,
   );
 
   // Obtener anticipos previos de la cotización
@@ -96,31 +101,24 @@ export function ElectronicDocumentForm({
   const items = form.watch("items") || [];
   // OBJECTS
   const selectedCurrency = currencyTypes.find(
-    (c) => c.id === Number(form.watch("sunat_concept_currency_id"))
+    (c) => c.id === Number(form.watch("sunat_concept_currency_id")),
   );
 
   // ID
   const selectedSeriesId = form.watch("serie");
   const selectedDocumentType = form.watch("sunat_concept_document_type_id");
-  const clientId = form.watch("client_id");
   const purchaseRequestQuoteId = form.watch("purchase_request_quote_id");
   const isAdvancePayment = form.watch("is_advance_payment") || false;
 
   // Consultar series autorizadas
   const { data: authorizedSeries = [] } = useAuthorizedSeries({
     type_receipt_id: documentTypes.find(
-      (dt) => dt.id.toString() === selectedDocumentType
+      (dt) => dt.id.toString() === selectedDocumentType,
     )?.tribute_code,
   });
 
   const selectedSeries = authorizedSeries.find(
-    (s) => s.id.toString() === selectedSeriesId
-  );
-
-  // Obtener todos los clientes para calcular el IGV
-  const { data: customers = [] } = useAllCustomers();
-  const selectedCustomer = customers.find(
-    (customer) => customer.id.toString() === clientId
+    (s) => s.id.toString() === selectedSeriesId,
   );
 
   // Calcular porcentaje de IGV desde el cliente seleccionado
@@ -204,18 +202,18 @@ export function ElectronicDocumentForm({
     if (isAdvancePayment) {
       // Anticipo: code_nubefact "04" - Venta Interna - Anticipos (id: 36)
       const anticipoType = transactionTypes.find(
-        (type) => type.code_nubefact === "04"
+        (type) => type.code_nubefact === "04",
       );
       if (anticipoType && currentValue !== anticipoType.id.toString()) {
         form.setValue(
           "sunat_concept_transaction_type_id",
-          anticipoType.id.toString()
+          anticipoType.id.toString(),
         );
       }
     } else if (advancePayments.length > 0) {
       // Normal: code_nubefact "04" - Venta Interna (id: 36)
       const regularizationType = transactionTypes.find(
-        (type) => type.code_nubefact === "04"
+        (type) => type.code_nubefact === "04",
       );
       if (
         regularizationType &&
@@ -223,42 +221,38 @@ export function ElectronicDocumentForm({
       ) {
         form.setValue(
           "sunat_concept_transaction_type_id",
-          regularizationType.id.toString()
+          regularizationType.id.toString(),
         );
       }
     } else {
       // Normal: code_nubefact "01" - Venta Interna (id: 33)
       const normalType = transactionTypes.find(
-        (type) => type.code_nubefact === "01"
+        (type) => type.code_nubefact === "01",
       );
       if (normalType && currentValue !== normalType.id.toString()) {
         form.setValue(
           "sunat_concept_transaction_type_id",
-          normalType.id.toString()
+          normalType.id.toString(),
         );
       }
     }
   }, [isAdvancePayment, advancePayments, transactionTypes, form, quotation]);
 
-  // Efecto para cargar cliente y moneda SOLO cuando cambia la cotización
+  // Efecto para cargar moneda SOLO cuando cambia la cotización
+  // Nota: El cliente se carga y se setea en DocumentInfoSection via onCustomerChange
   useEffect(() => {
     if (quotation && quotation.id !== lastLoadedQuotationId.current) {
       // Marcar esta cotización como cargada
       lastLoadedQuotationId.current = quotation.id;
 
-      // Asignar el cliente desde el holder de la cotización
-      if (quotation.holder_id) {
-        form.setValue("client_id", quotation.holder_id.toString());
-      }
-
       // Moneda
       if (quotation.doc_type_currency_id) {
         const currencyId = currencyTypes.find(
-          (c) => c.currency_type === quotation.doc_type_currency_id
+          (c) => c.currency_type === quotation.doc_type_currency_id,
         )?.id;
         form.setValue(
           "sunat_concept_currency_id",
-          currencyId?.toString() || ""
+          currencyId?.toString() || "",
         );
       }
     }
@@ -276,7 +270,7 @@ export function ElectronicDocumentForm({
       lastLoadedAdvancePaymentState.current = isAdvancePayment;
 
       // Si cambió el modo de anticipo, resetear el tracking de anticipos procesados
-      // para que se vuelvan a agregar cuando se cambie de anticipo → venta total
+      // para que se vuelvan a actualizar cuando se cambie de anticipo → venta total
       processedAdvancePaymentsForQuotationKey.current = null;
       // Crear item con el vehículo
       if (quotation.ap_model_vn) {
@@ -378,13 +372,13 @@ MODELO: ${vehicle?.model?.version || ``}
           subtotal: subtotal,
           sunat_concept_igv_type_id:
             igvTypes.find(
-              (t) => t.code_nubefact === NUBEFACT_CODES.GRAVADA_ONEROSA
+              (t) => t.code_nubefact === NUBEFACT_CODES.GRAVADA_ONEROSA,
             )?.id || 0,
           igv: igvAmount,
           total: subtotal + igvAmount,
         };
 
-        // Si es anticipo, agregar información adicional
+        // Si es anticipo, actualizar información adicional
         if (isAdvancePayment) {
           vehicleItem.anticipo_regularizacion = false;
         }
@@ -408,7 +402,7 @@ MODELO: ${vehicle?.model?.version || ``}
     pendingBalance,
   ]);
 
-  // Efecto separado para procesar y agregar anticipos cuando la consulta termine
+  // Efecto separado para procesar y actualizar anticipos cuando la consulta termine
   useEffect(() => {
     if (!quotation) return;
     if (isAdvancePayment) return; // sólo aplica para venta total
@@ -442,7 +436,7 @@ MODELO: ${vehicle?.model?.version || ``}
           subtotal: subtotal,
           sunat_concept_igv_type_id:
             igvTypes.find(
-              (t) => t.code_nubefact === NUBEFACT_CODES.GRAVADA_ONEROSA
+              (t) => t.code_nubefact === NUBEFACT_CODES.GRAVADA_ONEROSA,
             )?.id || 0,
           igv: igvAmount,
           total: subtotal + igvAmount,
@@ -450,7 +444,7 @@ MODELO: ${vehicle?.model?.version || ``}
           anticipo_documento_serie: advance.serie,
           anticipo_documento_numero: Number(advance.numero),
         };
-      }
+      },
     );
 
     const currentItems = form.getValues("items") || [];
@@ -479,7 +473,7 @@ MODELO: ${vehicle?.model?.version || ``}
 
     items.forEach((item) => {
       const igvType = igvTypes.find(
-        (t) => t.id === item.sunat_concept_igv_type_id
+        (t) => t.id === item.sunat_concept_igv_type_id,
       );
 
       if (igvType?.code_nubefact === "1") {
@@ -487,7 +481,7 @@ MODELO: ${vehicle?.model?.version || ``}
         if (item.anticipo_regularizacion) {
           if (item.reference_document_id) {
             const advancePayment = advancePayments.find(
-              (ap) => ap.id === Number(item.reference_document_id)
+              (ap) => ap.id === Number(item.reference_document_id),
             );
             if (
               advancePayment &&
@@ -589,7 +583,7 @@ MODELO: ${vehicle?.model?.version || ``}
   // Solo consultar el siguiente correlativo cuando NO está en modo edición
   const { data: nextNumber } = useNextCorrelativeElectronicDocument(
     !isEdit && selectedDocumentType ? Number(selectedDocumentType) : 0,
-    !isEdit && series ? Number(series) : 0
+    !isEdit && series ? Number(series) : 0,
   );
 
   const { data: checkbooks = [] } = useAllApBank({
@@ -614,8 +608,8 @@ MODELO: ${vehicle?.model?.version || ``}
     selectedCurrency?.iso_code === "PEN"
       ? "S/"
       : selectedCurrency?.iso_code === "USD"
-      ? "$"
-      : "";
+        ? "$"
+        : "";
 
   if (useQuotation && isLoadingQuotations) {
     return <FormSkeleton />;
@@ -651,14 +645,11 @@ MODELO: ${vehicle?.model?.version || ``}
               currencyTypes={currencyTypes}
               isFromQuotation={!!selectedQuotationId}
               hasVehicle={hasVehicle}
+              defaultCustomerId={
+                quotation?.holder_id ? Number(quotation.holder_id) : null
+              }
+              onCustomerChange={setSelectedCustomer}
             />
-
-            {/* Información del Cliente */}
-            {/* <ClientInfoSection
-              form={form}
-              isEdit={isEdit}
-              isFromQuotation={!!selectedQuotationId}
-            /> */}
 
             {/* Agregar Items */}
             <ItemsSection
@@ -673,6 +664,7 @@ MODELO: ${vehicle?.model?.version || ``}
                   : undefined
               }
               isFromQuotation={!!selectedQuotationId}
+              useQuotation={useQuotation}
             />
 
             {/* Configuración Adicional */}
@@ -698,13 +690,13 @@ MODELO: ${vehicle?.model?.version || ``}
 
         {/* <pre>
           <code>{JSON.stringify(form.getValues(), null, 2)}</code>
-        </pre>
+        </pre> */}
 
-        <pre>
+        {/* <pre>
           <code>{JSON.stringify(form.formState.errors, null, 2)}</code>
-        </pre>
+        </pre> */}
 
-        <Button onClick={() => form.trigger()}>Trigger Form</Button> */}
+        {/* <Button onClick={() => form.trigger()}>Trigger Form</Button> */}
       </form>
     </Form>
   );

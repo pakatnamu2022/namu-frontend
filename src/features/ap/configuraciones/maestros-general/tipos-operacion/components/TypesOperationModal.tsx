@@ -16,7 +16,7 @@ import { GeneralModal } from "@/shared/components/GeneralModal";
 import { TypesOperationForm } from "./TypesOperationForm";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { TYPES_OPERATION } from "../lib/typesOperation.constants";
-import { AP_MASTER_COMERCIAL } from "../../../../lib/ap.constants";
+import { AP_MASTER_TYPE } from "../../../../ap-master/lib/apMaster.constants";
 
 interface Props {
   id?: number;
@@ -41,14 +41,15 @@ export default function TypesOperationModal({
     refetch,
   } = mode === "create"
     ? { data: EMPTY, isLoading: false, refetch: () => {} }
-    : useTypesOperationById(id!);
+    : // eslint-disable-next-line react-hooks/rules-of-hooks
+      useTypesOperationById(id!);
 
   function mapTypesOperationToForm(
     data: TypesOperationResource
   ): Partial<TypesOperationSchema> {
     return {
       description: data.description,
-      type: AP_MASTER_COMERCIAL.TYPE_OPERATION,
+      type: AP_MASTER_TYPE.TYPE_OPERATION,
     };
   }
 

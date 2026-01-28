@@ -48,7 +48,7 @@ export const customersPvColumns = ({
     accessorKey: "type_person",
     header: "Tipo",
     cell: ({ row }) => (
-      <Badge variant="default">{row.getValue("type_person")}</Badge>
+      <Badge color="default">{row.getValue("type_person")}</Badge>
     ),
   },
   {

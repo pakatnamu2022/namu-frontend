@@ -1,5 +1,4 @@
 "use client";
-
 import PageSkeleton from "@/shared/components/PageSkeleton";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import { useEffect, useState } from "react";
@@ -31,11 +30,20 @@ import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { VehicleDeliveryDetailsSheet } from "@/features/ap/comercial/entrega-vehiculo/components/VehicleDeliveryDetailsSheet";
 import { VehiclesDeliveryResource } from "@/features/ap/comercial/entrega-vehiculo/lib/vehicleDelivery.interface";
 import { notFound } from "@/shared/hooks/useNotFound";
+import { format } from "date-fns";
 
 export default function VehicleDeliveryPage() {
   const { MODEL, ROUTE } = VEHICLE_DELIVERY;
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
+  const [dateFrom, setDateFrom] = useState<Date | undefined>(
+    new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+  );
+  const [dateTo, setDateTo] = useState<Date | undefined>(new Date());
+
+  const formattedDateFrom = dateFrom ? format(dateFrom, "yyyy-MM-dd") : "";
+  const formattedDateTo = dateTo ? format(dateTo, "yyyy-MM-dd") : "";
+
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
@@ -56,6 +64,7 @@ export default function VehicleDeliveryPage() {
     page,
     search,
     per_page,
+    real_delivery_date: [formattedDateFrom, formattedDateTo],
   });
 
   const handleDelete = async () => {
@@ -138,7 +147,16 @@ export default function VehicleDeliveryPage() {
         })}
         data={data?.data || []}
       >
-        <VehicleDeliveryOptions search={search} setSearch={setSearch} />
+        <VehicleDeliveryOptions
+          search={search}
+          setSearch={setSearch}
+          dateFrom={dateFrom}
+          dateTo={dateTo}
+          setDateRange={(from, to) => {
+            setDateFrom(from);
+            setDateTo(to);
+          }}
+        />
       </VehicleDeliveryTable>
 
       {/* Sheet para ver detalles */}

@@ -23,6 +23,11 @@ import { DatePickerFormField } from "@/shared/components/DatePickerFormField.tsx
 import { WORKER } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.constant.ts";
 import { SignaturePad } from "@/features/ap/post-venta/taller/inspeccion-vehiculo/components/SignaturePad";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
+import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
+import {
+  useWorkers,
+  useWorkerById,
+} from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
 
 interface PeriodFormProps {
   defaultValues: any;
@@ -38,6 +43,18 @@ export const WorkerForm = ({
   mode = "create",
 }: PeriodFormProps) => {
   const { ABSOLUTE_ROUTE, MODEL } = WORKER;
+
+  const { data: supervisor } = useWorkerById(
+    defaultValues.supervisor_id ? Number(defaultValues.supervisor_id) : 0
+  );
+
+  const supervisorDefaultOption = supervisor
+    ? {
+        value: supervisor.id.toString(),
+        label: supervisor.name,
+        description: `${supervisor.document} - ${supervisor.position}`,
+      }
+    : undefined;
 
   const getSchema = () => {
     if (mode === "signature") return workerSignatureSchemaUpdate;
@@ -67,6 +84,22 @@ export const WorkerForm = ({
             bgColor="bg-blue-50"
             cols={{ sm: 1 }}
           >
+            <FormSelectAsync
+              control={form.control}
+              name="supervisor_id"
+              label="Supervisor"
+              placeholder="Buscar supervisor..."
+              useQueryHook={useWorkers}
+              mapOptionFn={(worker) => ({
+                value: worker.id.toString(),
+                label: worker.name,
+                description: `${worker.document} - ${worker.position}`,
+              })}
+              perPage={10}
+              debounceMs={500}
+              defaultOption={supervisorDefaultOption}
+            />
+
             <FormField
               control={form.control}
               name="worker_signature"
@@ -112,10 +145,7 @@ export const WorkerForm = ({
   // Renderizar formulario normal
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-4 w-full formlayout"
-      >
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-full">
         <FormField
           control={form.control}
           name="name"

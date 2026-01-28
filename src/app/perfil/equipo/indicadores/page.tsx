@@ -59,14 +59,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
-
-const SCALE_COLORS: Record<string, string> = {
-  Excelente: "hsl(142, 71%, 45%)",
-  "Muy Bueno": "hsl(160, 60%, 45%)",
-  Satisfactorio: "hsl(47, 91%, 54%)",
-  "Necesita desarrollo": "hsl(25, 95%, 53%)",
-  "No Cumple": "hsl(0, 72%, 51%)",
-};
+import { SCALE_TO_COLOR_MAP } from "@/features/gp/gestionhumana/evaluaciondesempeño/parametros/lib/parameter.constans";
+import { getScales } from "@/features/gp/gestionhumana/evaluaciondesempeño/parametros/lib/parameter.hook";
 
 export default function TeamIndicatorsPage() {
   const router = useNavigate();
@@ -79,7 +73,7 @@ export default function TeamIndicatorsPage() {
     useAllEvaluations();
 
   const { data, isLoading, refetch, isRefetching } = useLeaderDashboard(
-    selectedEvaluationId || 0
+    selectedEvaluationId || 0,
   );
 
   // Auto-select first evaluation if none selected
@@ -103,7 +97,11 @@ export default function TeamIndicatorsPage() {
           <p className="text-muted-foreground">
             No hay información disponible para mostrar.
           </p>
-          <Button variant="outline" className="mt-4" onClick={() => router("/perfil/equipo")}>
+          <Button
+            variant="outline"
+            className="mt-4"
+            onClick={() => router("/perfil/equipo")}
+          >
             Regresar
           </Button>
         </div>
@@ -147,7 +145,7 @@ export default function TeamIndicatorsPage() {
         <ProgressChartSection teamSummary={team_summary} />
 
         {/* Charts Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
           <ParticipationChart progressStats={progressStats} />
           <ResultsChartSection distribution={distribution} />
         </div>
@@ -185,7 +183,7 @@ function EvaluationSelector({
   setOpen: (open: boolean) => void;
 }) {
   const selectedEvaluation = evaluations.find(
-    (e) => e.id === selectedEvaluationId
+    (e) => e.id === selectedEvaluationId,
   );
 
   return (
@@ -224,7 +222,7 @@ function EvaluationSelector({
                         "mr-2 h-4 w-4",
                         selectedEvaluationId === evaluation.id
                           ? "opacity-100"
-                          : "opacity-0"
+                          : "opacity-0",
                       )}
                     />
                     <div className="flex flex-col">
@@ -266,7 +264,7 @@ function EvaluationHeader({
         </div>
         <Badge variant="outline">{evaluation.typeEvaluationName}</Badge>
         <Badge
-          variant={evaluation.status === 1 ? "default" : "secondary"}
+          color={evaluation.status === 1 ? "default" : "secondary"}
           className="gap-1"
         >
           {evaluation.statusName}
@@ -403,19 +401,19 @@ function ProgressChartSection({ teamSummary }: { teamSummary: any }) {
       category: "Completados",
       value: teamSummary.completed,
       total: teamSummary.total_collaborators,
-      color: "hsl(142, 71%, 45%)",
+      color: "var(--chart-1)",
     },
     {
       category: "En Progreso",
       value: teamSummary.in_progress,
       total: teamSummary.total_collaborators,
-      color: "hsl(47, 91%, 54%)",
+      color: "var(--chart-2)",
     },
     {
       category: "Sin Iniciar",
       value: teamSummary.not_started,
       total: teamSummary.total_collaborators,
-      color: "hsl(0, 72%, 51%)",
+      color: "var(--chart-3)",
     },
   ];
 
@@ -458,12 +456,16 @@ function ProgressChartSection({ teamSummary }: { teamSummary: any }) {
 
 // Results Bar Chart Component
 function ResultsChartSection({ distribution }: { distribution: any[] }) {
-  const chartData = distribution.map((range) => ({
-    rangeLabel: range.label,
-    count: range.count,
-    percentage: range.percentage,
-    fill: SCALE_COLORS[range.label] || "hsl(var(--primary))",
-  }));
+  const scales = getScales(distribution.length);
+  const chartData = distribution.map((range, index) => {
+    const scaleClass = scales[index % scales.length];
+    return {
+      rangeLabel: range.label,
+      count: range.count,
+      percentage: range.percentage,
+      fill: SCALE_TO_COLOR_MAP[scaleClass],
+    };
+  });
 
   const activeIndex = chartData.reduce((maxIndex, item, index, array) => {
     return item.count > array[maxIndex].count ? index : maxIndex;
@@ -474,7 +476,7 @@ function ResultsChartSection({ distribution }: { distribution: any[] }) {
       ...config,
       [item.rangeLabel]: { label: item.rangeLabel, color: item.fill },
     }),
-    { count: { label: "Colaboradores" } }
+    { count: { label: "Colaboradores" } },
   );
 
   return (
@@ -556,7 +558,7 @@ function AreaMetricsSection({ areaMetrics }: { areaMetrics: any[] }) {
                     {area.completed} de {area.total} completados
                   </p>
                 </div>
-                <Badge variant="secondary" className="text-base font-bold">
+                <Badge color="secondary" className="text-base font-bold">
                   {area.average_result.toFixed(2)} pts
                 </Badge>
               </div>
@@ -598,7 +600,7 @@ function CategoryMetricsSection({
                     {category.completed} de {category.total} completados
                   </p>
                 </div>
-                <Badge variant="secondary" className="text-base font-bold">
+                <Badge color="secondary" className="text-base font-bold">
                   {category.average_result.toFixed(2)} pts
                 </Badge>
               </div>
@@ -637,9 +639,7 @@ function CompetenceGapsSection({ competenceGaps }: { competenceGaps: any[] }) {
                 <p className="text-sm font-medium flex-1 line-clamp-2">
                   {gap.competence_name}
                 </p>
-                <Badge variant="destructive">
-                  {gap.gap_percentage}% brecha
-                </Badge>
+                <Badge color="destructive">{gap.gap_percentage}% brecha</Badge>
               </div>
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
                 <span>
@@ -699,7 +699,7 @@ function CollaboratorsTable({ collaborators }: { collaborators: any[] }) {
                   <TableCell className="text-sm">{collaborator.area}</TableCell>
                   <TableCell className="text-center">
                     <Badge
-                      variant={
+                      color={
                         collaborator.is_completed ? "default" : "secondary"
                       }
                     >

@@ -3,7 +3,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Clock, CheckCircle2, Circle } from "lucide-react";
-import { Link } from 'react-router-dom'
+import { Link } from "react-router-dom";
 import {
   getContactIcon,
   OPPORTUNITIES,
@@ -39,30 +39,17 @@ export default function AgendaActionCard({ action }: AgendaActionCardProps) {
         </div>
 
         <Card className={`hover:shadow-md transition-shadow`}>
-          <CardContent className="pt-4">
+          <CardContent>
             <div className="space-y-2">
               <div className="flex flex-wrap items-center gap-2">
-                <Clock className="size-4 text-gray-500" />
+                <Clock className="size-4 text-gray-500 dark:text-gray-400" />
                 <span className="font-semibold">{time}</span>
                 <Badge
+                  icon={action.result ? CheckCircle2 : Circle}
                   variant="outline"
-                  className={
-                    action.result
-                      ? "bg-primary/10 text-primary border-primary/20"
-                      : "bg-red-100 text-red-800 border-red-300"
-                  }
+                  color={action.result ? "blue" : "red"}
                 >
-                  {action.result ? (
-                    <>
-                      <CheckCircle2 className="size-3 mr-1" />
-                      Exitosa
-                    </>
-                  ) : (
-                    <>
-                      <Circle className="size-3 mr-1" />
-                      Sin resultado
-                    </>
-                  )}
+                  {action.result ? "Exitosa" : "Sin resultado"}
                 </Badge>
                 <Badge variant="outline" className="text-xs">
                   {action.action_contact_type}
@@ -70,12 +57,12 @@ export default function AgendaActionCard({ action }: AgendaActionCardProps) {
               </div>
 
               {action.client && (
-                <div className="text-sm text-gray-600">
+                <div className="text-sm text-gray-600 dark:text-gray-300">
                   Cliente: <span className="font-medium">{action.client}</span>
                 </div>
               )}
 
-              <p className="text-sm text-gray-700 line-clamp-2">
+              <p className="text-sm text-gray-700 dark:text-gray-300 line-clamp-2">
                 {action.description}
               </p>
 

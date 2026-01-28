@@ -15,7 +15,6 @@ import { PAR_EVALUATOR } from "../lib/par-evaluator.constant";
 import { MultiSelectTags } from "@/shared/components/MultiSelectTags";
 import { WorkerResource } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.interface";
 import { ParEvaluatorResource } from "../lib/par-evaluator.interface";
-import { FormSelect } from "@/shared/components/FormSelect";
 import { useMemo } from "react";
 
 interface PeriodFormProps {
@@ -40,7 +39,7 @@ export const ParEvaluatorForm = ({
   const { ABSOLUTE_ROUTE } = PAR_EVALUATOR;
   const form = useForm({
     resolver: zodResolver(
-      mode === "create" ? parEvaluatorSchemaCreate : parEvaluatorSchemaUpdate
+      mode === "create" ? parEvaluatorSchemaCreate : parEvaluatorSchemaUpdate,
     ),
     defaultValues: {
       ...defaultValues,
@@ -65,35 +64,10 @@ export const ParEvaluatorForm = ({
     });
   }, [persons, selectedWorkerId, existingMateIds]);
 
-  // Convertir trabajadores a opciones para el FormSelect
-  const workerOptions = useMemo(() => {
-    return persons.map((person) => ({
-      value: person.id.toString(),
-      label: person.name,
-      description: person.document || person.position,
-    }));
-  }, [persons]);
-
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-4 w-full formlayout"
-      >
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-full">
         <div className="grid grid-cols-1 gap-4">
-          {/* Selector de trabajador - solo en modo create */}
-          {mode === "create" && (
-            <FormSelect
-              control={form.control}
-              name="worker_id"
-              label="Trabajador a Evaluar"
-              placeholder="Selecciona un trabajador"
-              options={workerOptions}
-              required={true}
-              strictFilter={true}
-            />
-          )}
-
           {/* Mostrar evaluadores existentes */}
           {existingEvaluators.length > 0 && (
             <div className="space-y-2">

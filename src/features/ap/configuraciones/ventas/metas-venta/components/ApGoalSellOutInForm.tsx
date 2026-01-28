@@ -139,7 +139,7 @@ export const ApGoalSellOutInForm = ({
       </div>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-4 w-full formlayout"
+        className="space-y-4 w-full"
       >
         {/* Card bonita para mostrar el total */}
         {form.watch("shop_id") && (

@@ -15,10 +15,10 @@ export default function SettlementStatusBadge({
     icon: null,
   };
 
-  const { IconComponent, variant, label } = config;
+  const { IconComponent, color, label } = config;
 
   return (
-    <Badge variant={variant} className="flex! items-center gap-1 w-fit">
+    <Badge color={color} className="flex! items-center gap-1 w-fit">
       {IconComponent && <IconComponent className="w-3 h-3" />}
       <p className="line-clamp-1">{label}</p>
     </Badge>

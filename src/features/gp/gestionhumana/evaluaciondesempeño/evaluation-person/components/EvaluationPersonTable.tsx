@@ -1,12 +1,14 @@
 import { DataTable } from "@/shared/components/DataTable";
 import { EvaluationPersonColumn } from "./EvaluationPersonColumns";
 import { EvaluationPersonResultResource } from "../lib/evaluationPerson.interface";
+import { EvaluationResource } from "../../evaluaciones/lib/evaluation.interface";
 
 interface Props {
   columns: EvaluationPersonColumn[];
   data: EvaluationPersonResultResource[];
   children?: React.ReactNode;
   isLoading?: boolean;
+  evaluation: EvaluationResource;
 }
 
 export default function EvaluationPersonTable({
@@ -14,6 +16,7 @@ export default function EvaluationPersonTable({
   data,
   children,
   isLoading,
+  evaluation,
 }: Props) {
   return (
     <div className="border-none text-muted-foreground max-w-full">
@@ -26,7 +29,8 @@ export default function EvaluationPersonTable({
           sede: false,
           area: false,
           category: false,
-          chief: false,
+          supervisor: false,
+          competencesResult: evaluation.typeEvaluation !== 0,
         }}
       >
         {children}

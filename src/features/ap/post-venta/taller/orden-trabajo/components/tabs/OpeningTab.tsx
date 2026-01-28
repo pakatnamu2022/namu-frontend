@@ -5,7 +5,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Loader2, Trash2 } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import { findWorkOrderById } from "../../lib/workOrder.actions";
 import {
   DEFAULT_GROUP_COLOR,
@@ -14,10 +14,14 @@ import {
 import WorkOrderItemForm from "../../../orden-trabajo-item/components/WorkOrderItemForm";
 import { deleteWorkOrderItem } from "../../../orden-trabajo-item/lib/workOrderItem.actions";
 import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
-import { useIsTablet } from "@/hooks/use-mobile";
 import GeneralSheet from "@/shared/components/GeneralSheet";
 import { WORKER_ORDER_ITEM } from "../../../orden-trabajo-item/lib/workOrderItem.constants";
-import { errorToast, SUCCESS_MESSAGE, successToast } from "@/core/core.function";
+import {
+  errorToast,
+  SUCCESS_MESSAGE,
+  successToast,
+} from "@/core/core.function";
+import { useIsTablet } from "@/hooks/use-tablet";
 
 const getGroupColor = (groupNumber: number) => {
   return GROUP_COLORS[groupNumber] || DEFAULT_GROUP_COLOR;
@@ -82,10 +86,12 @@ export default function OpeningTab({ workOrderId }: OpeningTabProps) {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
-        <span className="ml-2 text-gray-600">Cargando trabajos...</span>
-      </div>
+      <Card className="p-12">
+        <div className="flex flex-col items-center justify-center text-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mb-4"></div>
+          <p className="text-gray-500">Cargando trabajos...</p>
+        </div>
+      </Card>
     );
   }
 

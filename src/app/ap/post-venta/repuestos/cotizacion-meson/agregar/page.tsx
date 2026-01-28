@@ -2,7 +2,6 @@
 
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import PageSkeleton from "@/shared/components/PageSkeleton";
-import TitleComponent from "@/shared/components/TitleComponent";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { useNavigate } from "react-router-dom";
 import { ORDER_QUOTATION_MESON } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.constants";
@@ -16,6 +15,8 @@ import {
   successToast,
 } from "@/core/core.function";
 import { useState } from "react";
+import TitleFormComponent from "@/shared/components/TitleFormComponent";
+import FormWrapper from "@/shared/components/FormWrapper";
 
 export default function AddOrderQuotationMesonPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -46,10 +47,10 @@ export default function AddOrderQuotationMesonPage() {
   if (!currentView) notFound();
 
   return (
-    <div className="space-y-4">
-      <TitleComponent
+    <FormWrapper>
+      <TitleFormComponent
         title={`Agregar ${currentView.descripcion}`}
-        subtitle={`Crear una nueva ${MODEL.name.toLowerCase()} con repuestos`}
+        mode="create"
         icon={currentView.icon}
       />
       <ProformaMesonForm
@@ -58,6 +59,6 @@ export default function AddOrderQuotationMesonPage() {
         mode="create"
         onCancel={handleCancel}
       />
-    </div>
+    </FormWrapper>
   );
 }

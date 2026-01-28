@@ -31,7 +31,7 @@ export default function PurchaseRequestPVPage() {
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
-  const { MODEL, ROUTE, ROUTE_UPDATE } = PURCHASE_REQUEST;
+  const { MODEL, ROUTE, ROUTE_UPDATE, ROUTE_ADD } = PURCHASE_REQUEST;
   const permissions = useModulePermissions(ROUTE);
   const router = useNavigate();
   const currentDate = new Date();
@@ -93,7 +93,10 @@ export default function PurchaseRequestPVPage() {
           subtitle={currentView.descripcion}
           icon={currentView.icon}
         />
-        <PurchaseRequestActions permissions={permissions} module="TALLER" />
+        <PurchaseRequestActions
+          permissions={permissions}
+          onAdd={() => router(ROUTE_ADD!)}
+        />
       </HeaderTableWrapper>
 
       <PurchaseRequestTable

@@ -8,7 +8,7 @@ import {
   PersonSegmentResource,
   PersonSegmentResponse,
 } from "./personSegment.interface";
-import { AP_MASTER_COMERCIAL } from "../../../../lib/ap.constants";
+import { AP_MASTER_TYPE } from "../../../../ap-master/lib/apMaster.constants";
 
 const { ENDPOINT } = PERSON_SEGMENT;
 
@@ -18,7 +18,7 @@ export async function getPersonSegment({
   const config: AxiosRequestConfig = {
     params: {
       ...params,
-      type: AP_MASTER_COMERCIAL.PERSON_SEGMENT,
+      type: AP_MASTER_TYPE.PERSON_SEGMENT,
     },
   };
   const { data } = await api.get<PersonSegmentResponse>(ENDPOINT, config);
@@ -32,7 +32,7 @@ export async function getAllPersonSegment({
     params: {
       all: true,
       ...params,
-      type: AP_MASTER_COMERCIAL.PERSON_SEGMENT,
+      type: AP_MASTER_TYPE.PERSON_SEGMENT,
       status: STATUS_ACTIVE,
     },
   };

@@ -12,6 +12,10 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { useAuthStore } from "@/features/auth/lib/auth.store";
+import {
+  getProgressColorBadge,
+  getResultRateColorBadge,
+} from "../lib/evaluationPerson.function";
 
 export type EvaluationPersonCompetenceColumns = ColumnDef<Subcompetence>;
 
@@ -30,54 +34,6 @@ export const evaluationPersonCompetenceColumns = ({
   competenceMaxScore: number;
   canEditAll?: boolean;
 }): EvaluationPersonCompetenceColumns[] => {
-  // Función para obtener el color del resultado
-  const getResultVariant = (result: string | number) => {
-    const numResult = typeof result === "string" ? parseFloat(result) : result;
-    if (numResult >= 4) return "default"; // Verde
-    if (numResult >= 3) return "tertiary"; // Azul
-    if (numResult >= 2) return "outline"; // Gris
-    return "secondary"; // Rojo
-  };
-
-  // Función para obtener el ícono del tipo de evaluador
-  // const getEvaluatorIcon = (type: number) => {
-  //   switch (type) {
-  //     case 0:
-  //       return <User className="size-3" />; // Jefe
-  //     case 1:
-  //       return <Users className="size-3" />; // Pares
-  //     case 2:
-  //       return <UserCheck className="size-3" />; // Subordinados
-  //     case 3:
-  //       return <Target className="size-3" />; // Autoevaluación
-  //     default:
-  //       return <User className="size-3" />;
-  //   }
-  // };
-
-  // Función para obtener el nombre del tipo de evaluador
-  // const getEvaluatorTypeName = (type: number) => {
-  //   switch (type) {
-  //     case 0:
-  //       return "Jefe Directo";
-  //     case 1:
-  //       return "Pares";
-  //     case 2:
-  //       return "Reportes";
-  //     case 3:
-  //       return "Autoevaluación";
-  //     default:
-  //       return "Desconocido";
-  //   }
-  // };
-
-  // Función para obtener el color del badge de estado
-  const getCompletionBadgeVariant = (percentage: number) => {
-    if (percentage === 100) return "default";
-    if (percentage >= 50) return "tertiary";
-    return "outline";
-  };
-
   // Componente para celdas de evaluación
   const EvaluationCell = ({
     evaluator,
@@ -91,7 +47,7 @@ export const evaluationPersonCompetenceColumns = ({
     if (readOnly) {
       return (
         <Badge
-          variant={getResultVariant(evaluator?.result || "0.00")}
+          color={getResultRateColorBadge(evaluator?.result || "0.00")}
           className="text-xs"
         >
           {evaluator?.result || "0.00"}
@@ -158,7 +114,7 @@ export const evaluationPersonCompetenceColumns = ({
       cell: ({ row }) => {
         const subCompetence = row.original;
         const jefeEvaluator = subCompetence.evaluators?.find(
-          (e) => e.evaluator_type === 0
+          (e) => e.evaluator_type === 0,
         );
         return (
           <div className="w-full flex justify-center">
@@ -293,7 +249,7 @@ export const evaluationPersonCompetenceColumns = ({
       return (
         <div className="text-center py-1 rounded">
           <Badge
-            variant={getResultVariant(subCompetence.average_result || 0)}
+            color={getResultRateColorBadge(subCompetence.average_result || 0)}
             className="font-semibold"
           >
             {(subCompetence.average_result || 0).toFixed(2)}
@@ -319,14 +275,11 @@ export const evaluationPersonCompetenceColumns = ({
       return (
         <div className="text-center space-y-1">
           <Badge
-            variant={getCompletionBadgeVariant(completionPercentage)}
+            color={getProgressColorBadge(completionPercentage)}
             className="text-xs"
           >
             {Math.round(completionPercentage)}%
           </Badge>
-          {/* <div className="w-full">
-            <Progress value={completionPercentage} className="w-full h-1" />
-          </div> */}
         </div>
       );
     },

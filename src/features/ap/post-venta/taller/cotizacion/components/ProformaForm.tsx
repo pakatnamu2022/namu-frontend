@@ -16,9 +16,9 @@ import { FormSelect } from "@/shared/components/FormSelect";
 import { Car, User } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { useState, useEffect } from "react";
-import { EMPRESA_AP } from "@/core/core.constants";
+import { EMPRESA_AP, STATUS_ACTIVE } from "@/core/core.constants";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
-import { AREA_PM_ID } from "@/features/ap/lib/ap.constants";
+import { AREA_PM_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 import { FormInputText } from "@/shared/components/FormInputText";
 import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.hook";
 
@@ -43,7 +43,7 @@ export default function OrderQuotationForm({
     resolver: zodResolver(
       mode === "create"
         ? orderQuotationSchemaCreate
-        : orderQuotationSchemaUpdate
+        : orderQuotationSchemaUpdate,
     ),
     defaultValues: {
       ...defaultValues,
@@ -63,7 +63,9 @@ export default function OrderQuotationForm({
   });
 
   const { data: currencyTypes = [], isLoading: isLoadingCurrencyTypes } =
-    useAllCurrencyTypes();
+    useAllCurrencyTypes({
+      enable_after_sales: STATUS_ACTIVE,
+    });
 
   useEffect(() => {
     if (vehicleId && vehicles.length > 0) {
@@ -258,8 +260,8 @@ export default function OrderQuotationForm({
             {isSubmitting
               ? "Guardando..."
               : mode === "create"
-              ? "Crear Cotización"
-              : "Actualizar Cotización"}
+                ? "Crear Cotización"
+                : "Actualizar Cotización"}
           </Button>
         </div>
       </form>

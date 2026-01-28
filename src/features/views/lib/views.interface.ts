@@ -58,5 +58,5 @@ export interface ViewsResponseMenuChild {
   slug?: string;
   route?: string;
   icon?: IconNames;
-  children: any[];
+  children: ViewsResponseMenuChild[];
 }

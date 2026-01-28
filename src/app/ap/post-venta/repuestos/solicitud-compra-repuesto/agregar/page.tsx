@@ -50,7 +50,8 @@ export default function AddPurchaseRequestRepuestoPage() {
       />
       <PurchaseRequestForm
         defaultValues={{
-          requested_date: "",
+          supply_type: "LIMA",
+          requested_date: new Date().toISOString().split("T")[0] || "",
           observations: "",
         }}
         onSubmit={handleSubmit}

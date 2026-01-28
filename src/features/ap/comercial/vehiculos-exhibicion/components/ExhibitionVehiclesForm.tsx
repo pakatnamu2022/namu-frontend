@@ -327,7 +327,7 @@ export const ExhibitionVehiclesForm = ({
             </div>
           </div>
 
-          {/* TODO: Aquí agregar la sección de Items (vehículos y equipos) */}
+          {/* TODO: Aquí actualizar la sección de Items (vehículos y equipos) */}
           {/* Esta sección requiere un componente de array dinámico con useFieldArray */}
           <div className="rounded-lg border border-dashed p-4 text-center text-muted-foreground">
             <p className="text-sm">

@@ -8,7 +8,6 @@ export interface VehicleInspectionResponse {
 
 export interface VehicleInspectionResource {
   id: number;
-  work_order_id: number;
   mileage: string;
   fuel_level: string;
   oil_level: string;
@@ -40,6 +39,13 @@ export interface VehicleInspectionResource {
   inspection_date: string | Date;
   customer_signature_url: string;
   damages?: VehicleInspectionDamageResource[];
+  // Campos de vehículo (desde la orden de trabajo)
+  vehicle_plate?: string;
+  vehicle_vin?: string;
+  vehicle_model?: string;
+  vehicle_brand?: string;
+  work_order_correlative?: string;
+  work_order_id?: number;
 }
 
 export interface VehicleInspectionDamageResource {

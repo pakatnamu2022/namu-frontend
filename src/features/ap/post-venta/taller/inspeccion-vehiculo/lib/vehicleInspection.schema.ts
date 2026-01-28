@@ -1,4 +1,4 @@
-import { requiredStringId } from "@/shared/lib/global.schema";
+import { requiredNumber, requiredStringId } from "@/shared/lib/global.schema";
 import { z } from "zod";
 
 export const vehicleInspectionDamageSchema = z.object({
@@ -48,12 +48,7 @@ export const vehicleInspectionSchemaCreate = z.object({
     .refine((value) => value.trim() !== "", {
       message: "Nivel de aceite es requerido",
     }),
-  mileage: z
-    .string()
-    .max(10)
-    .refine((value) => value.trim() !== "", {
-      message: "Kilometraje es requerido",
-    }),
+  mileage: requiredNumber("Kilometraje es requerido"),
   damages: z.array(vehicleInspectionDamageSchema).default([]),
   customer_signature: z.string().min(1, "Firma del cliente es requerida"),
 });

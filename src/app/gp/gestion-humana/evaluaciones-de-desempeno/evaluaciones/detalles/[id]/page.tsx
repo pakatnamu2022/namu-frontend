@@ -9,7 +9,6 @@ import PageSkeleton from "@/shared/components/PageSkeleton";
 import { errorToast, successToast } from "@/core/core.function";
 import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
 import { DEFAULT_PER_PAGE } from "@/core/core.constants";
-import { Badge } from "@/components/ui/badge";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { EVALUATION } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluaciones/lib/evaluation.constans";
 import {
@@ -18,18 +17,27 @@ import {
   usePersonsInEvaluation,
   usePositionsInEvaluation,
 } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluaciones/lib/evaluation.hook";
-import { deleteEvaluationPersonDetail } from "@/features/gp/gestionhumana/evaluaciondesempeño/excluidos/lib/excluded.actions";
 import EvaluationPersonActions from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/components/EvaluationPersonActions";
 import EvaluationPersonTable from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/components/EvaluationPersonTable";
 import { EvaluationPersonColumns } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/components/EvaluationPersonColumns";
 import EvaluationPersonOptions from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/components/EvaluationPersonOptions";
 import { EvaluationPersonResultModal } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/components/EvaluationPersonResultModal";
 import { useQueryClient } from "@tanstack/react-query";
-import { useEvaluationPersonResult } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/lib/evaluationPerson.hook";
+import {
+  useEvaluationPersonResult,
+  useLeadersStatus,
+} from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/lib/evaluationPerson.hook";
 import { WorkerResource } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.interface";
 import { regenerateEvaluation } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluaciones/lib/evaluation.actions";
-import { regenerateEvaluationPerson } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/lib/evaluationPerson.actions";
+import {
+  deleteEvaluationPerson,
+  regenerateEvaluationPerson,
+} from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/lib/evaluationPerson.actions";
 import { notFound } from "@/shared/hooks/useNotFound";
+import PageWrapper from "@/shared/components/PageWrapper";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import LeadersStatusTable from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/components/LeadersStatusTable";
+import { LeadersStatusColumns } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/components/LeadersStatusColumns";
 
 const { ROUTE } = EVALUATION;
 
@@ -46,10 +54,11 @@ export default function EvaluationDetailPage() {
   const [bossDni, setBossDni] = useState<string | null>(null);
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [selectedWorker, setSelectedWorker] = useState<WorkerResource | null>(
-    null
+    null,
   );
   const [openDetailModal, setOpenDetailModal] = useState(false);
   const [loadingRegenerate, setLoadingRegenerate] = useState(false);
+  const [activeTab, setActiveTab] = useState<string>("persons");
 
   const idEvaluation = Number(id);
 
@@ -78,14 +87,21 @@ export default function EvaluationDetailPage() {
   const { data: bosses = [], isLoading: isLoadingBosses } =
     useBossesInEvaluation(idEvaluation);
 
+  const { data: leadersData, isLoading: isLoadingLeaders } = useLeadersStatus(
+    idEvaluation,
+    activeTab === "leaders",
+  );
+
   const handleDelete = async () => {
     if (!deleteId) return;
     try {
-      await deleteEvaluationPersonDetail(deleteId);
+      await deleteEvaluationPerson(deleteId);
       await refetch();
       successToast("Detalle de Ciclo eliminado correctamente.");
-    } catch (error) {
-      errorToast("Error al eliminar el objetivo.");
+    } catch (error: any) {
+      errorToast(
+        error.response.data.message || "Error al eliminar el registro.",
+      );
     } finally {
       setDeleteId(null);
     }
@@ -101,13 +117,13 @@ export default function EvaluationDetailPage() {
       await regenerateEvaluation(idEvaluation, params).then(
         (data: { message?: string }) => {
           successToast(data.message ?? "Evaluación regenerada correctamente.");
-        }
+        },
       );
       await refetch();
       setLoadingRegenerate(false);
     } catch (error: any) {
       errorToast(
-        error.response.data.message ?? "Error al regenerar la evaluación."
+        error.response.data.message ?? "Error al regenerar la evaluación.",
       );
       setLoadingRegenerate(false);
     }
@@ -115,18 +131,18 @@ export default function EvaluationDetailPage() {
 
   const handleRegenerateOne = async (
     person_id: number,
-    evaluation_id: number
+    evaluation_id: number,
   ) => {
     try {
       await regenerateEvaluationPerson(person_id, evaluation_id).then(
         async (data) => {
           successToast(data.message ?? "Evaluación regenerada correctamente.");
           await refetch();
-        }
+        },
       );
     } catch (error: any) {
       errorToast(
-        error.response.data.message ?? "Error al regenerar la evaluación."
+        error.response.data.message ?? "Error al regenerar la evaluación.",
       );
     }
   };
@@ -135,7 +151,8 @@ export default function EvaluationDetailPage() {
     isLoadingModule ||
     isLoadingPersons ||
     isLoadingPositions ||
-    isLoadingBosses
+    isLoadingBosses ||
+    !evaluation
   )
     return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
@@ -143,17 +160,13 @@ export default function EvaluationDetailPage() {
   if (!idEvaluation) notFound();
 
   return (
-    <div className="space-y-4">
+    <PageWrapper>
       <HeaderTableWrapper>
         <TitleComponent
-          title={currentView.descripcion}
-          subtitle={"Evaluación " + evaluation?.typeEvaluationName}
+          title={evaluation?.name || "Evaluación"}
+          subtitle={evaluation?.typeEvaluationName}
           icon={currentView.icon}
-        >
-          <Badge className="truncate" variant={"secondary"}>
-            {evaluation?.name}
-          </Badge>
-        </TitleComponent>
+        />
 
         <EvaluationPersonActions
           idEvaluation={idEvaluation}
@@ -162,28 +175,58 @@ export default function EvaluationDetailPage() {
         />
       </HeaderTableWrapper>
 
-      <EvaluationPersonTable
-        isLoading={isLoading}
-        columns={EvaluationPersonColumns({
-          onRegenerate: handleRegenerateOne,
-          onDelete: setDeleteId,
-        })}
-        data={data?.data || []}
-      >
-        <EvaluationPersonOptions
-          search={search}
-          setSearch={setSearch}
-          persons={persons || []}
-          personId={personId}
-          setPersonId={setPersonId}
-          positions={positions}
-          positionId={positionId}
-          setPositionId={setPositionId}
-          bosses={bosses}
-          bossDni={bossDni}
-          setBossDni={setBossDni}
-        />
-      </EvaluationPersonTable>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList>
+          <TabsTrigger value="persons">Evaluados</TabsTrigger>
+          <TabsTrigger value="leaders">Estado de Líderes</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="persons">
+          <EvaluationPersonTable
+            evaluation={evaluation}
+            isLoading={isLoading}
+            columns={EvaluationPersonColumns({
+              onRegenerate: handleRegenerateOne,
+              onDelete: setDeleteId,
+            })}
+            data={data?.data || []}
+          >
+            <EvaluationPersonOptions
+              search={search}
+              setSearch={setSearch}
+              persons={persons || []}
+              personId={personId}
+              setPersonId={setPersonId}
+              positions={positions}
+              positionId={positionId}
+              setPositionId={setPositionId}
+              bosses={bosses}
+              bossDni={bossDni}
+              setBossDni={setBossDni}
+            />
+          </EvaluationPersonTable>
+
+          <div className="mt-4">
+            <DataTablePagination
+              page={page}
+              totalPages={data?.meta?.last_page || 1}
+              onPageChange={setPage}
+              per_page={per_page}
+              setPerPage={setPerPage}
+              totalData={data?.meta?.total || 0}
+            />
+          </div>
+        </TabsContent>
+
+        <TabsContent value="leaders">
+          <LeadersStatusTable
+            columns={LeadersStatusColumns({ evaluationId: idEvaluation })}
+            data={leadersData?.leaders || []}
+            summary={leadersData?.summary}
+            isLoading={isLoadingLeaders}
+          />
+        </TabsContent>
+      </Tabs>
 
       {deleteId !== null && (
         <SimpleDeleteDialog
@@ -207,15 +250,6 @@ export default function EvaluationDetailPage() {
           evaluation_id={Number(idEvaluation)}
         />
       )}
-
-      <DataTablePagination
-        page={page}
-        totalPages={data?.meta?.last_page || 1}
-        onPageChange={setPage}
-        per_page={per_page}
-        setPerPage={setPerPage}
-        totalData={data?.meta?.total || 0}
-      />
-    </div>
+    </PageWrapper>
   );
 }

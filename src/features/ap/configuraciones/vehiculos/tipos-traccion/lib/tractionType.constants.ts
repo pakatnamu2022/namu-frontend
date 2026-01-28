@@ -1,6 +1,6 @@
 import { type ModelComplete } from "@/core/core.interface";
 import { TractionTypeResource } from "./tractionType.interface";
-import { COMMERCIAL_MASTERS_ENDPOINT } from "@/features/ap/lib/ap.constants";
+import { AP_MASTERS } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 const ROUTE = "tipos-traccion";
 const ABSOLUTE_ROUTE = `/ap/configuraciones/vehiculos/${ROUTE}`;
@@ -12,7 +12,7 @@ export const TRACTION_TYPE: ModelComplete<TractionTypeResource> = {
     gender: true,
   },
   ICON: "ContactRound",
-  ENDPOINT: COMMERCIAL_MASTERS_ENDPOINT,
+  ENDPOINT: AP_MASTERS.ENDPOINT,
   QUERY_KEY: "tractionType",
   ROUTE,
   ABSOLUTE_ROUTE,

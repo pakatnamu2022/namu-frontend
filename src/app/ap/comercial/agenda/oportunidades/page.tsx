@@ -35,10 +35,8 @@ import OpportunityActions from "@/features/ap/comercial/oportunidades/components
 import { discardLead } from "@/features/ap/comercial/gestionar-leads/lib/manageLeads.actions";
 import { MANAGE_LEADS } from "@/features/ap/comercial/gestionar-leads/lib/manageLeads.constants";
 import { useInvalidateQuery } from "@/core/core.hook";
-import { useCommercialFiltersStore } from "@/features/ap/comercial/lib/commercial.store";
-import {
-  useMyConsultants,
-} from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
+import { useCommercialFiltersStore } from "@/features/ap/ap-master/lib/commercial.store";
+import { useMyConsultants } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
 import {
   Carousel,
   CarouselContent,
@@ -46,15 +44,17 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import {
-  STATUS_WORKER,
-} from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.constant";
+import { STATUS_WORKER } from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.constant";
 import { EMPRESA_AP } from "@/core/core.constants";
 import { useEffect, useState } from "react";
 import type { CarouselApi } from "@/components/ui/carousel";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { notFound } from "@/shared/hooks/useNotFound";
-import { useCalendarMonth, useCalendarYear } from "@/shared/components/CalendarGrid";
+import {
+  useCalendarMonth,
+  useCalendarYear,
+} from "@/shared/components/CalendarGrid";
+import PageWrapper from "@/shared/components/PageWrapper";
 
 export default function OpportunitiesKanbanPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -123,7 +123,7 @@ export default function OpportunitiesKanbanPage() {
     if (!over) return;
 
     const opportunity = opportunities.find(
-      (o) => o.id.toString() === active.id
+      (o) => o.id.toString() === active.id,
     );
     if (!opportunity) return;
 
@@ -132,7 +132,7 @@ export default function OpportunitiesKanbanPage() {
 
     // Si se soltó sobre otra tarjeta, encontrar su columna
     const overOpportunity = opportunities.find(
-      (o) => o.id.toString() === over.id
+      (o) => o.id.toString() === over.id,
     );
     if (overOpportunity) {
       targetColumnId = overOpportunity.opportunity_status;
@@ -149,7 +149,7 @@ export default function OpportunitiesKanbanPage() {
       opportunity.opportunity_status === OPPORTUNITY_CERRADA
     ) {
       errorToast(
-        "No se pueden mover oportunidades que están Vendidas o Cerradas"
+        "No se pueden mover oportunidades que están Vendidas o Cerradas",
       );
       invalidateQuery([QUERY_KEY, "my"]); // Revertir UI
       return;
@@ -200,7 +200,7 @@ export default function OpportunitiesKanbanPage() {
         onError: () => {
           invalidateQuery([QUERY_KEY, "my"]);
         },
-      }
+      },
     );
   };
 
@@ -249,7 +249,7 @@ export default function OpportunitiesKanbanPage() {
   const handleDiscardLead = (
     leadId: number,
     comment: string,
-    reasonDiscardingId: number
+    reasonDiscardingId: number,
   ) => {
     discardLead(leadId, comment, reasonDiscardingId)
       .then(() => {
@@ -266,7 +266,7 @@ export default function OpportunitiesKanbanPage() {
   if (!currentView) notFound();
 
   return (
-    <div className="space-y-4 h-screen flex flex-col">
+    <PageWrapper>
       <HeaderTableWrapper>
         <TitleComponent
           title="Tablero de Oportunidades"
@@ -274,7 +274,7 @@ export default function OpportunitiesKanbanPage() {
           icon="Target"
         />
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 w-full">
           <OpportunityActions
             canViewAllUsers={canViewAdvisors}
             selectedAdvisorId={selectedAdvisorId}
@@ -353,7 +353,7 @@ export default function OpportunitiesKanbanPage() {
                 validatedLeads.length > 0
                   ? "h-[calc(100vh-320px)] min-w-[800px]"
                   : "h-[calc(100vh-200px)] min-w-[800px]",
-                "p-1"
+                "p-1",
               )}
             >
               {(column) => (
@@ -363,7 +363,7 @@ export default function OpportunitiesKanbanPage() {
                   className={cn(
                     column.bgColor,
                     !column.canEdit && "opacity-65",
-                    "border-none shadow-none"
+                    "border-none shadow-none",
                   )}
                 >
                   <KanbanHeader className="border-none">
@@ -393,7 +393,7 @@ export default function OpportunitiesKanbanPage() {
                           "w-72 transition-colors duration-300",
                           column.shadowColor,
                           column.borderColor,
-                          column.hoverColor
+                          column.hoverColor,
                         )}
                       >
                         <OpportunityCard
@@ -412,6 +412,6 @@ export default function OpportunitiesKanbanPage() {
           </div>
         </div>
       )}
-    </div>
+    </PageWrapper>
   );
 }

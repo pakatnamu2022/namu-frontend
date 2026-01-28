@@ -1,4 +1,4 @@
-import { User, Target, Users, UserCheck } from "lucide-react";
+import { Crown, UserCircle, Users, UsersRound } from "lucide-react";
 
 /**
  * Tipos de evaluadores en el sistema de evaluación 360°
@@ -10,8 +10,8 @@ export const EVALUATOR_TYPES = {
     shortName: "Jefe",
     description: "Como Líder",
     weight: "60%",
-    icon: User,
-    color: "default" as const,
+    icon: Crown,
+    color: "purple" as const,
   },
   AUTO: {
     id: 1,
@@ -19,8 +19,8 @@ export const EVALUATOR_TYPES = {
     shortName: "Auto",
     description: "Autoevaluaciones",
     weight: "20%",
-    icon: Target,
-    color: "secondary" as const,
+    icon: UserCircle,
+    color: "cyan" as const,
   },
   PARES: {
     id: 2,
@@ -29,7 +29,7 @@ export const EVALUATOR_TYPES = {
     description: "Como Par",
     weight: "10%",
     icon: Users,
-    color: "tertiary" as const,
+    color: "teal" as const,
   },
   REPORTES: {
     id: 3,
@@ -37,8 +37,8 @@ export const EVALUATOR_TYPES = {
     shortName: "Reporte",
     description: "Como Reporte",
     weight: "10%",
-    icon: UserCheck,
-    color: "outline" as const,
+    icon: UsersRound,
+    color: "indigo" as const,
   },
 } as const;
 

@@ -12,7 +12,6 @@ import {
 } from "@/core/core.function";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import FormSkeleton from "@/shared/components/FormSkeleton";
-import FormWrapper from "@/shared/components/FormWrapper";
 import { PURCHASE_REQUEST_QUOTE } from "@/features/ap/comercial/solicitudes-cotizaciones/lib/purchaseRequestQuote.constants";
 import {
   findPurchaseRequestQuoteById,
@@ -22,6 +21,7 @@ import { PurchaseRequestQuoteSchema } from "@/features/ap/comercial/solicitudes-
 import { PurchaseRequestQuoteResource } from "@/features/ap/comercial/solicitudes-cotizaciones/lib/purchaseRequestQuote.interface";
 import { PurchaseRequestQuoteForm } from "@/features/ap/comercial/solicitudes-cotizaciones/components/PurchaseRequestQuoteForm";
 import { notFound } from "@/shared/hooks/useNotFound";
+import PageWrapper from "@/shared/components/PageWrapper";
 
 export default function UpdatePurchaseRequestQuotePage() {
   const { id } = useParams();
@@ -88,18 +88,20 @@ export default function UpdatePurchaseRequestQuotePage() {
   if (!currentView) notFound();
 
   return (
-    <FormWrapper>
+    <PageWrapper size="2xl">
       <TitleFormComponent
         title={currentView.descripcion}
         mode="edit"
         icon={currentView.icon}
+        backRoute={ABSOLUTE_ROUTE}
       />
       <PurchaseRequestQuoteForm
         defaultValues={mapPurchaseRequestQuoteToForm(PurchaseRequestQuote)}
         onSubmit={handleSubmit}
         isSubmitting={isPending}
         mode="update"
+        onCancel={() => router(ABSOLUTE_ROUTE)}
       />
-    </FormWrapper>
+    </PageWrapper>
   );
 }

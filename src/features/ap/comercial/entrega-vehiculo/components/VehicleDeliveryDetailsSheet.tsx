@@ -223,7 +223,7 @@ export function VehicleDeliveryDetailsSheet({
                         <p className="text-xs font-medium text-gray-500 mb-1">
                           Tipo de Documento
                         </p>
-                        <Badge variant="default">
+                        <Badge color="default">
                           {vehicleDelivery.shipping_guide.document_type ===
                           "GUIA_REMISION"
                             ? "Guía Remisión"

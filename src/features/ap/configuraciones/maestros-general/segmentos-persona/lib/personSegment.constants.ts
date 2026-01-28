@@ -1,6 +1,6 @@
 import { type ModelComplete } from "@/core/core.interface";
 import { PersonSegmentResource } from "./personSegment.interface";
-import { COMMERCIAL_MASTERS_ENDPOINT } from "../../../../lib/ap.constants";
+import { AP_MASTERS } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 const ROUTE = "segmentos-persona";
 const ABSOLUTE_ROUTE = `/ap/configuraciones/maestros-general/${ROUTE}`;
@@ -12,7 +12,7 @@ export const PERSON_SEGMENT: ModelComplete<PersonSegmentResource> = {
     gender: false,
   },
   ICON: "ContactRound",
-  ENDPOINT: COMMERCIAL_MASTERS_ENDPOINT,
+  ENDPOINT: AP_MASTERS.ENDPOINT,
   QUERY_KEY: "personSegment",
   ROUTE,
   ABSOLUTE_ROUTE,

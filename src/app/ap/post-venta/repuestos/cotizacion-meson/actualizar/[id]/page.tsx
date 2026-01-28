@@ -2,7 +2,6 @@
 
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import PageSkeleton from "@/shared/components/PageSkeleton";
-import TitleComponent from "@/shared/components/TitleComponent";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { useNavigate, useParams } from "react-router-dom";
 import { ORDER_QUOTATION_MESON } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.constants";
@@ -18,6 +17,8 @@ import {
 import { useState } from "react";
 import { useOrderQuotationById } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.hook";
 import { useQueryClient } from "@tanstack/react-query";
+import TitleFormComponent from "@/shared/components/TitleFormComponent";
+import FormWrapper from "@/shared/components/FormWrapper";
 
 export default function UpdateOrderQuotationMesonPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -61,16 +62,21 @@ export default function UpdateOrderQuotationMesonPage() {
 
   const defaultValues = {
     area_id: quotation.area_id?.toString() || "",
-    vehicle_id: quotation.vehicle_id?.toString() || "",
     sede_id: quotation.sede_id?.toString() || "",
+    vehicle_id: quotation.vehicle_id?.toString() || "",
+    client_id: quotation.client?.id?.toString() || "",
     quotation_date: quotation.quotation_date
       ? new Date(quotation.quotation_date)
       : "",
     expiration_date: quotation.expiration_date
       ? new Date(quotation.expiration_date)
       : "",
+    collection_date: quotation.collection_date
+      ? new Date(quotation.collection_date)
+      : "",
     observations: quotation.observations || "",
     currency_id: quotation.currency_id?.toString() || "",
+    supply_type: quotation.supply_type || "STOCK",
     details:
       quotation.details
         ?.filter((d) => d.item_type === "PRODUCT")
@@ -80,7 +86,7 @@ export default function UpdateOrderQuotationMesonPage() {
           quantity: Number(detail.quantity) || 0,
           unit_measure: detail.unit_measure || "",
           unit_price: Number(detail.unit_price) || 0,
-          discount: Number(detail.discount) || 0,
+          discount_percentage: Number(detail.discount_percentage) || 0,
           total_amount: Number(detail.total_amount) || 0,
           observations: detail.observations || "",
           retail_price_external: Number(detail.retail_price_external) || 0,
@@ -90,10 +96,10 @@ export default function UpdateOrderQuotationMesonPage() {
   };
 
   return (
-    <div className="space-y-4">
-      <TitleComponent
+    <FormWrapper>
+      <TitleFormComponent
         title="Editar Cotización"
-        subtitle="Actualizar cotización de repuestos"
+        mode="edit"
         icon={currentView.icon}
       />
 
@@ -103,7 +109,10 @@ export default function UpdateOrderQuotationMesonPage() {
         isSubmitting={isSubmitting}
         mode="update"
         onCancel={handleCancel}
+        vehicleData={quotation.vehicle}
+        clientData={quotation.client}
+        quotationData={quotation}
       />
-    </div>
+    </FormWrapper>
   );
 }
