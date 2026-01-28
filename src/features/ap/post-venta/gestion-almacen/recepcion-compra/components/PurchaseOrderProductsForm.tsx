@@ -48,7 +48,7 @@ import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook.ts"
 import { EMPRESA_AP, IGV, STATUS_ACTIVE } from "@/core/core.constants.ts";
 import { useState } from "react";
 import { api } from "@/core/api.ts";
-import { format, addDays } from "date-fns";
+import { format, addDays, parseISO } from "date-fns";
 import { CURRENCY_TYPE_IDS } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.constants.ts";
 import { TYPES_OPERATION_ID } from "@/features/ap/configuraciones/maestros-general/tipos-operacion/lib/typesOperation.constants.ts";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync.tsx";
@@ -342,7 +342,14 @@ export const PurchaseOrderProductsForm = ({
               placeholder="Selecciona una fecha"
               dateFormat="dd/MM/yyyy"
               captionLayout="dropdown"
-              disabledRange={{ after: new Date() }}
+              disabledRange={
+                supplierOrderData?.order_date
+                  ? [
+                      { before: parseISO(supplierOrderData.order_date) },
+                      { after: new Date() },
+                    ]
+                  : { after: new Date() }
+              }
             />
 
             <DatePickerFormField

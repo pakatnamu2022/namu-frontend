@@ -86,12 +86,16 @@ export function PurchaseOrderProductsViewSheet({
                   {data.supplier_num_doc || "-"}
                 </p>
               </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Tipo de Pedido</p>
-                <p className="font-medium text-sm">
-                  {data.supplier_order_type || "-"}
-                </p>
-              </div>
+              {data.supplier_order_type != "-" && (
+                <div>
+                  <p className="text-xs text-muted-foreground">
+                    Tipo de Pedido
+                  </p>
+                  <p className="font-medium text-sm">
+                    {data.supplier_order_type || "-"}
+                  </p>
+                </div>
+              )}
             </div>
           </div>
 
@@ -142,14 +146,9 @@ export function PurchaseOrderProductsViewSheet({
                       <span className="font-medium text-sm">
                         {item.product_name || "-"}
                       </span>
-                      {item.unit_measurement && (
+                      {item.product_code && (
                         <span className="text-xs text-muted-foreground">
-                          Unidad: {item.unit_measurement}
-                        </span>
-                      )}
-                      {item.description && (
-                        <span className="text-xs text-muted-foreground">
-                          {item.description}
+                          {item.product_code}
                         </span>
                       )}
                     </div>

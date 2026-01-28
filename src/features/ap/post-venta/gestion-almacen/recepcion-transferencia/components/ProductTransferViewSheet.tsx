@@ -503,34 +503,19 @@ export function ProductTransferViewSheet({
             </>
           )}
 
-          <Separator />
-
-          {/* Información de Registro */}
-          <div className="space-y-4">
-            <h3 className="font-semibold text-lg">Información de Registro</h3>
-            <div className="space-y-2 text-sm">
-              <div>
-                <p className="text-muted-foreground">Registrado por</p>
-                <p className="font-medium">{data.user_name}</p>
-              </div>
-              <div>
-                <p className="text-muted-foreground">Fecha de creación</p>
-                <p className="font-medium">
-                  {format(new Date(data.created_at), "dd/MM/yyyy HH:mm", {
-                    locale: es,
-                  })}
-                </p>
-              </div>
-              {data.updated_at !== data.created_at && (
-                <div>
-                  <p className="text-muted-foreground">Última actualización</p>
-                  <p className="font-medium">
-                    {format(new Date(data.updated_at), "dd/MM/yyyy HH:mm", {
-                      locale: es,
-                    })}
-                  </p>
-                </div>
-              )}
+          {/* Información Adicional */}
+          <div className="grid grid-cols-2 gap-4 p-4 bg-muted/50 rounded-lg text-xs">
+            <div>
+              <p className="text-muted-foreground">Creado por</p>
+              <p className="font-medium">{data.user_name}</p>
+            </div>
+            <div>
+              <p className="text-muted-foreground">Fecha de Creación</p>
+              <p className="font-medium">
+                {format(new Date(data.created_at), "dd/MM/yyyy HH:mm", {
+                  locale: es,
+                })}
+              </p>
             </div>
           </div>
         </div>

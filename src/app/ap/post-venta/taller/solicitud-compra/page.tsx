@@ -9,6 +9,8 @@ import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
 import {
   ERROR_MESSAGE,
   errorToast,
+  getMonday,
+  getSunday,
   SUCCESS_MESSAGE,
   successToast,
 } from "@/core/core.function";
@@ -24,24 +26,26 @@ import PurchaseRequestTable from "@/features/ap/post-venta/taller/solicitud-comp
 import PurchaseRequestOptions from "@/features/ap/post-venta/taller/solicitud-compra/components/PurchaseRequestOptions";
 import { deletePurchaseRequest } from "@/features/ap/post-venta/taller/solicitud-compra/lib/purchaseRequest.actions";
 import { usePurchaseRequests } from "@/features/ap/post-venta/taller/solicitud-compra/lib/purchaseRequest.hook";
+import { useMyPhysicalWarehouse } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
 
 export default function PurchaseRequestPVPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
+  const [warehouseId, setWarehouseId] = useState<string>("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const { MODEL, ROUTE, ROUTE_UPDATE, ROUTE_ADD } = PURCHASE_REQUEST;
   const permissions = useModulePermissions(ROUTE);
   const router = useNavigate();
   const currentDate = new Date();
 
-  const [dateFrom, setDateFrom] = useState<Date | undefined>(currentDate);
-  const [dateTo, setDateTo] = useState<Date | undefined>(currentDate);
-
-  const formatDate = (date: Date | undefined) => {
-    return date ? date.toLocaleDateString("en-CA") : undefined; // formato: YYYY-MM-DD
-  };
+  const [dateFrom, setDateFrom] = useState<Date | undefined>(
+    getMonday(currentDate),
+  );
+  const [dateTo, setDateTo] = useState<Date | undefined>(
+    getSunday(currentDate),
+  );
 
   useEffect(() => {
     setPage(1);
@@ -52,6 +56,14 @@ export default function PurchaseRequestPVPage() {
       errorToast("La fecha 'Desde' no puede ser mayor que la fecha 'Hasta'.");
     }
   }, [dateFrom, dateTo]);
+
+  const formatDate = (date: Date | undefined) => {
+    return date ? date.toLocaleDateString("en-CA") : undefined; // formato: YYYY-MM-DD
+  };
+
+  // Obtener mis almacenes físicos de postventa
+  const { data: warehouses = [], isLoading: isLoadingWarehouses } =
+    useMyPhysicalWarehouse();
 
   const { data, isLoading, refetch } = usePurchaseRequests({
     page,
@@ -81,7 +93,7 @@ export default function PurchaseRequestPVPage() {
     router(`${ROUTE_UPDATE}/${id}`);
   };
 
-  if (isLoadingModule) return <PageSkeleton />;
+  if (isLoadingModule || isLoadingWarehouses) return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
   if (!currentView) notFound();
 
@@ -115,6 +127,9 @@ export default function PurchaseRequestPVPage() {
           setDateFrom={setDateFrom}
           dateTo={dateTo}
           setDateTo={setDateTo}
+          warehouses={warehouses}
+          warehouseId={warehouseId}
+          setWarehouseId={setWarehouseId}
         />
       </PurchaseRequestTable>
 

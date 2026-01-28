@@ -16,7 +16,7 @@ import InventoryMovementsOptions from "@/features/ap/post-venta/gestion-almacen/
 import { Button } from "@/components/ui/button.tsx";
 import { ArrowLeft } from "lucide-react";
 import BackButton from "@/shared/components/BackButton.tsx";
-import { errorToast } from "@/core/core.function";
+import { errorToast, getMonday, getSunday } from "@/core/core.function";
 import { useInventoryMovements } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.hook";
 
 export default function ProductRepuestoKardexPage() {
@@ -24,8 +24,13 @@ export default function ProductRepuestoKardexPage() {
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
-  const [dateFrom, setDateFrom] = useState<Date | undefined>(undefined);
-  const [dateTo, setDateTo] = useState<Date | undefined>(undefined);
+  const currentDate = new Date();
+  const [dateFrom, setDateFrom] = useState<Date | undefined>(
+    getMonday(currentDate),
+  );
+  const [dateTo, setDateTo] = useState<Date | undefined>(
+    getSunday(currentDate),
+  );
   const { ROUTE, ABSOLUTE_ROUTE } = INVENTORY_REPUESTOS;
   const params = useParams();
 
@@ -53,7 +58,7 @@ export default function ProductRepuestoKardexPage() {
     },
     {
       enabled: !isNaN(productId) && !isNaN(warehouseId),
-    }
+    },
   );
 
   useEffect(() => {

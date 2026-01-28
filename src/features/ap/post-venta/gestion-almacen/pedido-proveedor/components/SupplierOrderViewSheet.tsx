@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import GeneralSheet from "@/shared/components/GeneralSheet.tsx";
 import { SupplierOrderResource } from "@/features/ap/post-venta/gestion-almacen/pedido-proveedor/lib/supplierOrder.interface.ts";
 import { getSupplierOrderById } from "@/features/ap/post-venta/gestion-almacen/pedido-proveedor/lib/supplierOrder.actions.ts";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
 import {
   Table,
@@ -254,7 +254,9 @@ export function SupplierOrderViewSheet({
                         <p className="text-sm font-medium">
                           {data.invoice.emission_date
                             ? format(
-                                new Date(data.invoice.emission_date),
+                                new Date(
+                                  data.invoice.emission_date + "T00:00:00",
+                                ),
                                 "dd/MM/yyyy",
                                 { locale: es },
                               )
@@ -268,7 +270,7 @@ export function SupplierOrderViewSheet({
                           </p>
                           <p className="text-sm font-medium">
                             {format(
-                              new Date(data.invoice.due_date),
+                              parseISO(data.invoice.due_date),
                               "dd/MM/yyyy",
                               { locale: es },
                             )}
@@ -493,10 +495,18 @@ export function SupplierOrderViewSheet({
           )}
 
           {/* Información Adicional */}
-          <div className="p-4 bg-muted/50 rounded-lg text-xs">
+          <div className="grid grid-cols-2 gap-4 p-4 bg-muted/50 rounded-lg text-xs">
             <div>
               <p className="text-muted-foreground">Creado por</p>
               <p className="font-medium">{data.created_by_name}</p>
+            </div>
+            <div>
+              <p className="text-muted-foreground">Fecha de Creación</p>
+              <p className="font-medium">
+                {format(parseISO(data.created_at), "dd/MM/yyyy HH:mm", {
+                  locale: es,
+                })}
+              </p>
             </div>
           </div>
         </div>
