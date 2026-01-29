@@ -21,7 +21,7 @@ import SearchInput from "@/shared/components/SearchInput";
 interface AppointmentSelectionModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSelectAppointment: (appointmentId: string) => void;
+  onSelectAppointment: (appointment: AppointmentPlanningResource) => void;
 }
 
 export const AppointmentSelectionModal = ({
@@ -63,7 +63,7 @@ export const AppointmentSelectionModal = ({
   });
 
   const handleRowClick = (appointment: AppointmentPlanningResource) => {
-    onSelectAppointment(appointment.id.toString());
+    onSelectAppointment(appointment);
     onOpenChange(false);
   };
 

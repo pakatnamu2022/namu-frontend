@@ -36,7 +36,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { EMPRESA_AP } from "@/core/core.constants";
-import { useAllAppointmentPlanning } from "../../citas/lib/appointmentPlanning.hook";
+import { AppointmentPlanningResource } from "../../citas/lib/appointmentPlanning.interface";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import { useAllTypesPlanning } from "@/features/ap/configuraciones/postventa/tipos-planificacion/lib/typesPlanning.hook";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
@@ -88,6 +88,8 @@ export const WorkOrderForm = ({
   const [isInspectionModalOpen, setIsInspectionModalOpen] = useState(false);
   const [selectedInspection, setSelectedInspection] =
     useState<VehicleInspectionResource | null>(null);
+  const [selectedAppointment, setSelectedAppointment] =
+    useState<AppointmentPlanningResource | null>(null);
   const { ABSOLUTE_ROUTE } = WORKER_ORDER;
 
   const form = useForm({
@@ -110,8 +112,6 @@ export const WorkOrderForm = ({
     name: "items",
   });
 
-  const { data: appointments = [], isLoading: isLoadingAppointments } =
-    useAllAppointmentPlanning({ is_taken: 0 });
   const { data: sedes = [], isLoading: isLoadingSedes } = useMySedes({
     company: EMPRESA_AP.id,
     has_workshop: true,
@@ -126,7 +126,6 @@ export const WorkOrderForm = ({
     useAllCurrencyTypes();
 
   const isLoading =
-    isLoadingAppointments ||
     isLoadingSedes ||
     isLoadingTypesPlanning ||
     isLoadingTypesOperation ||
@@ -141,49 +140,37 @@ export const WorkOrderForm = ({
 
   // Effect para cargar items desde la cita seleccionada
   useEffect(() => {
-    if (
-      watchedAppointmentId &&
-      watchedHasAppointment &&
-      appointments.length > 0
-    ) {
-      const appointment = appointments.find(
-        (a) => a.id.toString() === watchedAppointmentId,
-      );
+    if (selectedAppointment && watchedHasAppointment) {
+      // Setear vehículo y sede desde la cita
+      if (selectedAppointment.ap_vehicle_id) {
+        form.setValue(
+          "vehicle_id",
+          selectedAppointment.ap_vehicle_id.toString(),
+        );
+      }
+      if (selectedAppointment.sede_id) {
+        form.setValue("sede_id", selectedAppointment.sede_id.toString());
+      }
 
-      if (appointment) {
-        // Setear vehículo y sede desde la cita
-        if (appointment.ap_vehicle_id) {
-          form.setValue("vehicle_id", appointment.ap_vehicle_id.toString());
-        }
-        if (appointment.sede_id) {
-          form.setValue("sede_id", appointment.sede_id.toString());
-        }
-
-        // Agregar item desde la cita solo si no hay items
-        if (fields.length === 0) {
-          append({
-            group_number: 1,
-            type_planning_id: appointment.type_planning_id.toString(),
-            type_operation_id:
-              appointment.type_operation_appointment_id.toString(),
-            description: appointment.description || "",
-          });
-        }
+      // Agregar item desde la cita solo si no hay items
+      if (fields.length === 0) {
+        append({
+          group_number: 1,
+          type_planning_id: selectedAppointment.type_planning_id.toString(),
+          type_operation_id:
+            selectedAppointment.type_operation_appointment_id.toString(),
+          description: selectedAppointment.description || "",
+        });
       }
     }
-  }, [
-    watchedAppointmentId,
-    watchedHasAppointment,
-    appointments,
-    append,
-    fields.length,
-    form,
-  ]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedAppointment]);
 
   // Limpiar appointment_planning_id cuando has_appointment es false
   useEffect(() => {
     if (!watchedHasAppointment && mode === "create") {
       form.setValue("appointment_planning_id", "");
+      setSelectedAppointment(null);
       form.setValue("vehicle_id", "");
       form.setValue("sede_id", "");
       // Limpiar todos los items si hay alguno
@@ -194,11 +181,16 @@ export const WorkOrderForm = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [watchedHasAppointment]);
 
-  // Limpiar vehicle_inspection_id cuando has_inspection es false
+  // Limpiar vehicle_inspection_id y vehículo cuando has_inspection es false
   useEffect(() => {
     if (!watchedHasInspection && mode === "create") {
       form.setValue("vehicle_inspection_id", "");
       setSelectedInspection(null);
+      // Limpiar el vehículo solo si no hay cita seleccionada
+      if (!watchedHasAppointment || !watchedAppointmentId) {
+        form.setValue("vehicle_id", "");
+        setSelectedVehicle(null);
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [watchedHasInspection]);
@@ -229,25 +221,39 @@ export const WorkOrderForm = ({
     });
   };
 
-  const handleSelectAppointment = (appointmentId: string) => {
-    form.setValue("appointment_planning_id", appointmentId);
+  const handleSelectAppointment = (
+    appointment: AppointmentPlanningResource,
+  ) => {
+    form.setValue("appointment_planning_id", appointment.id.toString());
+    setSelectedAppointment(appointment);
   };
 
   const handleSelectInspection = (inspection: VehicleInspectionResource) => {
     form.setValue("vehicle_inspection_id", inspection.id.toString());
     setSelectedInspection(inspection);
+
+    // Setear el vehículo desde la inspección
+    if (inspection.vehicle_id) {
+      form.setValue("vehicle_id", inspection.vehicle_id.toString());
+      // Setear el selectedVehicle para mostrar la info del vehículo
+      setSelectedVehicle({
+        id: inspection.vehicle_id,
+        plate: inspection.vehicle_plate,
+        vin: inspection.vehicle_vin,
+        model: {
+          brand: inspection.vehicle_brand,
+          version: inspection.vehicle_model,
+        },
+        year: inspection.vehicle_year,
+        vehicle_color: inspection.vehicle_color,
+      });
+    }
   };
 
   const getSelectedAppointmentLabel = () => {
-    if (!watchedAppointmentId || appointments.length === 0) return null;
+    if (!watchedAppointmentId || !selectedAppointment) return null;
 
-    const appointment = appointments.find(
-      (a) => a.id.toString() === watchedAppointmentId,
-    );
-
-    if (!appointment) return null;
-
-    return `${appointment.full_name_client} - ${appointment.date_appointment} ${appointment.time_appointment}`;
+    return `${selectedAppointment.full_name_client} - ${selectedAppointment.date_appointment} ${selectedAppointment.time_appointment}`;
   };
 
   const getSelectedInspectionLabel = () => {
@@ -477,7 +483,10 @@ export const WorkOrderForm = ({
             onValueChange={(_value, item) => {
               setSelectedVehicle(item || null);
             }}
-            disabled={watchedHasAppointment && Boolean(watchedAppointmentId)}
+            disabled={
+              (watchedHasAppointment && Boolean(watchedAppointmentId)) ||
+              (watchedHasInspection && Boolean(watchedInspectionId))
+            }
           />
 
           <FormSelect

@@ -56,10 +56,11 @@ export default function UpdateWorkOrderPage() {
   };
 
   function mapWorkOrderToForm(
-    data: WorkOrderResource
+    data: WorkOrderResource,
   ): Partial<WorkOrderSchema> {
     return {
       has_appointment: !!data.appointment_planning_id,
+      has_inspection: !!data.vehicle_inspection_id,
       appointment_planning_id: data.appointment_planning_id
         ? String(data.appointment_planning_id)
         : "",

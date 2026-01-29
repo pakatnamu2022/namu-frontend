@@ -8,7 +8,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
-import { Loader, ClipboardCheck, PenLine } from "lucide-react";
+import { Loader, ClipboardCheck, PenLine, Camera } from "lucide-react";
 import { SignaturePad } from "./SignaturePad";
 import {
   VehicleInspectionSchema,
@@ -23,6 +23,7 @@ import { FormSelect } from "@/shared/components/FormSelect";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 import { FormInput } from "@/shared/components/FormInput";
 import { FormInputText } from "@/shared/components/FormInputText";
+import { ImageUploadField } from "@/shared/components/ImageUploadField";
 
 interface VehicleInspectionFormProps {
   defaultValues: Partial<VehicleInspectionSchema>;
@@ -143,6 +144,46 @@ export const VehicleInspectionForm = ({
             disabled={isSubmitting}
           />
         </div>
+
+        {/* Fotos del Vehículo - Solo visible cuando dirty_unit está marcado */}
+        {form.watch("dirty_unit") && (
+          <GroupFormSection
+            title="Fotos del Vehículo (Unidad Sucia)"
+            icon={Camera}
+            iconColor="text-orange-600"
+            bgColor="bg-orange-50"
+            cols={{ sm: 2 }}
+          >
+            <ImageUploadField
+              form={form}
+              name="photo_front"
+              label="Foto Frontal"
+              maxSizeInMB={5}
+              required
+            />
+            <ImageUploadField
+              form={form}
+              name="photo_rear"
+              label="Foto Trasera"
+              maxSizeInMB={5}
+              required
+            />
+            <ImageUploadField
+              form={form}
+              name="photo_left"
+              label="Foto Lateral Izquierda"
+              maxSizeInMB={5}
+              required
+            />
+            <ImageUploadField
+              form={form}
+              name="photo_right"
+              label="Foto Lateral Derecha"
+              maxSizeInMB={5}
+              required
+            />
+          </GroupFormSection>
+        )}
 
         {/* Marcador de Daños */}
         <div className="space-y-4">
