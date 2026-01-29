@@ -51,13 +51,13 @@ export default function CalendarDay({
         <div className="flex flex-row gap-1">
           {/* Acciones exitosas */}
           {positiveCount > 0 && (
-            <Badge color="blue" icon={CheckCircle2} variant="outline" size="lg">
+            <Badge color="blue" icon={CheckCircle2} variant="outline">
               <span>{positiveCount}</span>
             </Badge>
           )}
           {/* Acciones sin resultado */}
           {negativeCount > 0 && (
-            <Badge color="red" icon={CircleMinus} variant="outline" size="lg">
+            <Badge color="red" icon={CircleMinus} variant="outline">
               <span>{negativeCount}</span>
             </Badge>
           )}

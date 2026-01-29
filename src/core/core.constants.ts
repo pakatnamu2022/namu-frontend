@@ -138,3 +138,5 @@ export const INCOME_SECTOR = {
 // Commercial Module ID Constants
 export const CM_COMERCIAL_ID = 794;
 export const CM_POSTVENTA_ID = 804;
+
+export const MODULE_COMERCIAL = 'comercial';

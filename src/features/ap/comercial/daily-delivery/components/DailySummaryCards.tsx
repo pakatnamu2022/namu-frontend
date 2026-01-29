@@ -1,39 +1,34 @@
 import { Package, TrendingUp, Truck } from "lucide-react";
 import {
-  DailyDeliveryHierarchyNode,
+  BrandReportSection,
   DailyDeliverySummary,
 } from "../lib/daily-delivery.interface";
 
 interface DailySummaryCardsProps {
   summary: DailyDeliverySummary;
-  hierarchy: DailyDeliveryHierarchyNode[];
+  brandReport: BrandReportSection[];
 }
 
 export default function DailySummaryCards({
   summary,
-  hierarchy,
+  brandReport,
 }: DailySummaryCardsProps) {
-  // Calcular totales por grupo de marca desde la jerarquía
-  const calculateBrandGroupTotals = () => {
-    const totals = {
-      TRADICIONAL: { entregas: 0, facturadas: 0 },
-      CHINA: { entregas: 0, facturadas: 0 },
-      INCHCAPE: { entregas: 0, facturadas: 0 },
+  // Obtener totales por grupo de marca desde brand_report
+  const getBrandGroupTotals = (groupName: string) => {
+    const section = brandReport.find(
+      (s) => s.title.toUpperCase() === groupName.toUpperCase()
+    );
+    return {
+      entregas: section?.total_entregas ?? 0,
+      facturadas: section?.total_facturadas ?? 0,
     };
-
-    hierarchy.forEach((node) => {
-      if (node.brand_group && totals[node.brand_group as keyof typeof totals]) {
-        totals[node.brand_group as keyof typeof totals].entregas +=
-          node.entregas;
-        totals[node.brand_group as keyof typeof totals].facturadas +=
-          node.facturadas;
-      }
-    });
-
-    return totals;
   };
 
-  const brandTotals = calculateBrandGroupTotals();
+  const brandTotals = {
+    TRADICIONAL: getBrandGroupTotals("TRADICIONAL"),
+    CHINA: getBrandGroupTotals("CHINA"),
+    INCHCAPE: getBrandGroupTotals("INCHCAPE"),
+  };
 
   const cards = [
     {
