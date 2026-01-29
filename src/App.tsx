@@ -237,6 +237,7 @@ import UpdateAdjustmentsProductPage from "@/app/ap/post-venta/gestion-de-almacen
 import InventoryPage from "./app/ap/post-venta/gestion-de-almacen/inventario/page.tsx";
 import InventoryKardexPage from "@/app/ap/post-venta/gestion-de-almacen/inventario/kardex/page.tsx";
 import ProductKardexPage from "@/app/ap/post-venta/gestion-de-almacen/inventario/movimientos/[productId]/[warehouseId]/page.tsx";
+import PurchaseHistoryPage from "@/app/ap/post-venta/gestion-de-almacen/inventario/historico-compras/[productId]/[warehouseId]/page.tsx";
 import PurchaseOrderProductsPage from "./app/ap/post-venta/gestion-de-almacen/recepcion-compra/page.tsx";
 import ReceptionsProductsPage from "@/app/ap/post-venta/gestion-de-almacen/recepcion-compra/recepcion/[purchaseOrderId]/page.tsx";
 import UpdateReceptionProductPage from "@/app/ap/post-venta/gestion-de-almacen/recepcion-compra/recepcion/actualizar/[purchaseOrderId]/[id]/page.tsx";
@@ -1207,6 +1208,10 @@ function App() {
               <Route
                 path="gestion-de-almacen/inventario/movimientos/:productId/:warehouseId"
                 element={<ProductKardexPage />}
+              />
+              <Route
+                path="gestion-de-almacen/inventario/historico-compras/:productId/:warehouseId"
+                element={<PurchaseHistoryPage />}
               />
               <Route
                 path="gestion-de-almacen/recepcion-compra"

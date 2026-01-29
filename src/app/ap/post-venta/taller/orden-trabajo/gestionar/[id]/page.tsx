@@ -173,7 +173,7 @@ export default function ManageWorkOrderPage() {
                   {isDownloading ? "..." : "Preliq."}
                 </span>
               </Button>
-              {!hasQuotation ? (
+              {!hasQuotation && workOrder.status.description !== "CERRADO" ? (
                 <Button
                   variant="outline"
                   size="sm"
@@ -185,7 +185,7 @@ export default function ManageWorkOrderPage() {
                   <span className="hidden sm:inline">Adjuntar Cotización</span>
                   <span className="sm:hidden">Cotización</span>
                 </Button>
-              ) : (
+              ) : hasQuotation ? (
                 <Button
                   variant="outline"
                   size="sm"
@@ -199,7 +199,7 @@ export default function ManageWorkOrderPage() {
                   </span>
                   <span className="sm:hidden">Desasociar</span>
                 </Button>
-              )}
+              ) : null}
               <Button
                 variant="outline"
                 size="sm"

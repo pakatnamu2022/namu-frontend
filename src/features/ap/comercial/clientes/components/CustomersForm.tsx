@@ -1030,8 +1030,10 @@ export const CustomersForm = ({
                   />
                 </div>
               }
-              inputMode="numeric"
               placeholder="Número de documento"
+              onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
+                e.target.value = e.target.value.replace(/\D/g, "");
+              }}
               maxLength={8}
               addonEnd={
                 <ValidationIndicator
@@ -1128,7 +1130,9 @@ export const CustomersForm = ({
                   />
                 </div>
               }
-              type="text"
+              onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
+                e.target.value = e.target.value.replace(/\D/g, "");
+              }}
               inputMode="numeric"
               placeholder="Número de documento"
               maxLength={8}
