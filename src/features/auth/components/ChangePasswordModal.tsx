@@ -16,13 +16,14 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { errorToast, successToast } from "@/core/core.function";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Info } from "lucide-react";
 import {
   changePasswordSchema,
   type ChangePasswordFormData,
 } from "../lib/change-password.schema";
 import { changePassword } from "../lib/change-password.actions";
 import { useAuthStore } from "../lib/auth.store";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 interface ChangePasswordModalProps {
   open: boolean;
@@ -66,7 +67,7 @@ export function ChangePasswordModal({
     },
     onError: (error: any) => {
       errorToast(
-        error.response?.data?.message || "Error al cambiar la contraseña"
+        error.response?.data?.message || "Error al cambiar la contraseña",
       );
     },
   });
@@ -110,7 +111,9 @@ export function ChangePasswordModal({
                       variant="ghost"
                       size="sm"
                       className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                      onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                      onClick={() =>
+                        setShowCurrentPassword(!showCurrentPassword)
+                      }
                     >
                       {showCurrentPassword ? (
                         <EyeOff className="h-4 w-4" />
@@ -178,7 +181,9 @@ export function ChangePasswordModal({
                       variant="ghost"
                       size="sm"
                       className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      onClick={() =>
+                        setShowConfirmPassword(!showConfirmPassword)
+                      }
                     >
                       {showConfirmPassword ? (
                         <EyeOff className="h-4 w-4" />
@@ -192,6 +197,17 @@ export function ChangePasswordModal({
               </FormItem>
             )}
           />
+
+          <Alert variant="info">
+            <AlertTitle>
+              <Info className="inline h-4 w-4 mr-1 mb-1 shrink-0" />
+              Importante
+            </AlertTitle>
+            <AlertDescription>
+              Esta nueva contraseña será también su nueva contraseña del sistema
+              <strong> Milla GP</strong>.
+            </AlertDescription>
+          </Alert>
 
           <div className="flex justify-end gap-2 pt-4">
             {!isForced && (
