@@ -8,7 +8,7 @@ import {
   useMyOpportunitiesByStatus,
   useUpdateOpportunity,
 } from "@/features/ap/comercial/oportunidades/lib/opportunities.hook";
-import { useMyLeads } from "@/features/ap/comercial/gestionar-leads/lib/manageLeads.hook";
+import { useMyLeadsInfinite } from "@/features/ap/comercial/gestionar-leads/lib/manageLeads.hook";
 import {
   KanbanProvider,
   KanbanBoard,
@@ -127,10 +127,17 @@ export default function OpportunitiesKanbanPage() {
 
   const updateMutation = useUpdateOpportunity();
 
-  // Get validated leads (potential buyers)
-  const { data: validatedLeads = [], isLoading: isLoadingLeads } = useMyLeads({
+  // Get validated leads (potential buyers) with infinite scroll
+  const leadsQuery = useMyLeadsInfinite({
     worker_id: canViewAdvisors ? selectedAdvisorId : undefined,
   });
+
+  const validatedLeads = useMemo(
+    () => leadsQuery.data?.pages.flatMap((page) => page.data) ?? [],
+    [leadsQuery.data],
+  );
+  const isLoadingLeads = leadsQuery.isLoading;
+  const leadsTotalCount = leadsQuery.data?.pages.at(-1)?.meta.total ?? 0;
 
   // Check if initial load is happening (first page of all queries)
   const isLoading = columnQueries.some((q) => q.isLoading);
@@ -251,6 +258,13 @@ export default function OpportunitiesKanbanPage() {
     );
   };
 
+  // Fetch next page of leads when carousel reaches the end
+  const handleLeadsScrollEnd = useCallback(() => {
+    if (leadsQuery.hasNextPage && !leadsQuery.isFetchingNextPage) {
+      leadsQuery.fetchNextPage();
+    }
+  }, [leadsQuery]);
+
   // Enable horizontal scroll with mouse wheel using Embla API
   useEffect(() => {
     if (!carouselApi) return;
@@ -275,6 +289,25 @@ export default function OpportunitiesKanbanPage() {
       emblaRoot.removeEventListener("wheel", handleWheel);
     };
   }, [carouselApi]);
+
+  // Load more leads when carousel scrolls near the end
+  useEffect(() => {
+    if (!carouselApi) return;
+
+    const onSelect = () => {
+      const snapCount = carouselApi.scrollSnapList().length;
+      const currentSnap = carouselApi.selectedScrollSnap();
+      // When within 2 snaps of the end, fetch more
+      if (snapCount - currentSnap <= 3) {
+        handleLeadsScrollEnd();
+      }
+    };
+
+    carouselApi.on("select", onSelect);
+    return () => {
+      carouselApi.off("select", onSelect);
+    };
+  }, [carouselApi, handleLeadsScrollEnd]);
 
   // Filter leads based on search term
   const filteredLeads = validatedLeads.filter((lead) => {
@@ -348,12 +381,7 @@ export default function OpportunitiesKanbanPage() {
                   <h3 className="text-sm font-medium text-tertiary">
                     Leads Validados
                   </h3>
-                  <Badge className="text-xs h-5">{filteredLeads.length}</Badge>
-                  {searchTerm && (
-                    <span className="text-xs text-muted-foreground">
-                      de {validatedLeads.length}
-                    </span>
-                  )}
+                  <Badge className="text-xs h-5">{leadsTotalCount}</Badge>
                 </div>
               </div>
 
@@ -374,6 +402,13 @@ export default function OpportunitiesKanbanPage() {
                       </div>
                     </CarouselItem>
                   ))}
+                  {leadsQuery.isFetchingNextPage && (
+                    <CarouselItem className="pl-2 basis-auto">
+                      <div className="w-72 h-full flex items-center justify-center">
+                        <div className="animate-spin h-5 w-5 border-2 border-primary border-t-transparent rounded-full" />
+                      </div>
+                    </CarouselItem>
+                  )}
                 </CarouselContent>
                 <CarouselPrevious className="left-0" />
                 <CarouselNext className="right-0" />
