@@ -55,6 +55,7 @@ export interface GetMyOpportunitiesProps {
   has_purchase_request_quote?: number;
   opportunity_id?: number;
   date_to?: string;
+  page?: number;
 }
 
 export interface GetMyAgendaProps {
@@ -75,8 +76,6 @@ export interface CommercialMaster {
 
 export interface CommercialMastersResponse {
   data: CommercialMaster[];
-  meta: Meta;
-  links: Links;
 }
 
 export type OpportunityStatusType =

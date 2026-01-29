@@ -33,7 +33,7 @@ export const getOpportunities = async ({
 // Get my opportunities
 export const getMyOpportunities = async (
   params: GetMyOpportunitiesProps,
-): Promise<OpportunityResource[]> => {
+): Promise<OpportunitiesResponse> => {
   const response = await api.get(`${ENDPOINT}/my`, {
     params,
   });
