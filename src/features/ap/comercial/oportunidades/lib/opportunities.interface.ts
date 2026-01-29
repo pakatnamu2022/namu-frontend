@@ -55,6 +55,8 @@ export interface GetMyOpportunitiesProps {
   has_purchase_request_quote?: number;
   opportunity_id?: number;
   date_to?: string;
+  page?: number;
+  search?: string;
 }
 
 export interface GetMyAgendaProps {

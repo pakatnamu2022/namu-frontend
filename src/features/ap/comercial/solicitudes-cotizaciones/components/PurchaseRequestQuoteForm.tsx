@@ -118,17 +118,21 @@ export const PurchaseRequestQuoteForm = ({
   });
   // Solo cargar oportunidades si NO viene la prop opportunity
   const shouldFetchOpportunities = !opportunity;
-  const { data: opportunitiesData = [], isLoading: isLoadingOpportunities } =
-    useMyOpportunities({
-      has_purchase_request_quote: 0,
-      opportunity_id:
-        mode === "update" && defaultValues.opportunity_id
-          ? Number(defaultValues.opportunity_id)
-          : undefined,
-    });
+  const {
+    data: opportunitiesResponse,
+    isLoading: isLoadingOpportunities,
+  } = useMyOpportunities({
+    has_purchase_request_quote: 0,
+    opportunity_id:
+      mode === "update" && defaultValues.opportunity_id
+        ? Number(defaultValues.opportunity_id)
+        : undefined,
+  });
 
   // Usar un array vacío si no debemos cargar oportunidades (cuando viene la prop opportunity)
-  const opportunities = shouldFetchOpportunities ? opportunitiesData : [];
+  const opportunities: OpportunityResource[] = shouldFetchOpportunities
+    ? (opportunitiesResponse?.data ?? [])
+    : [];
 
   // Hook para cargar el holder inicial en modo update
   const { data: loadedHolder } = useCustomersById(
