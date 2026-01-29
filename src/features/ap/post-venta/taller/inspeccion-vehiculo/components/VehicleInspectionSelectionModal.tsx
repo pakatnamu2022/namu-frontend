@@ -157,7 +157,7 @@ export const VehicleInspectionSelectionModal = ({
           </DialogTitle>
         </DialogHeader>
 
-        <div className="flex-1 overflow-auto space-y-3 sm:space-y-4">
+        <div className="flex-1 overflow-auto space-y-3 sm:space-y-4 p-2">
           {/* Filtros */}
           <div className="flex items-end gap-2 flex-wrap">
             <SearchInput

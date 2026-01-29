@@ -1,9 +1,9 @@
 import { type ModelComplete } from "@/core/core.interface.ts";
 import { OrderQuotationResource } from "./proforma.interface";
-const ROUTE = "cotizacion";
+const ROUTE = "cotizacion-taller";
 const ABSOLUTE_ROUTE = `/ap/post-venta/taller/${ROUTE}`;
 
-export const ORDER_QUOTATION: ModelComplete<OrderQuotationResource> = {
+export const ORDER_QUOTATION_TALLER: ModelComplete<OrderQuotationResource> = {
   MODEL: {
     name: "Cotización",
     plural: "Cotizaciones",

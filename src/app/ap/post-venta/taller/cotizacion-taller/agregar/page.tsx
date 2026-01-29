@@ -1,27 +1,27 @@
 "use client";
 
 import { useNavigate } from "react-router-dom";
-import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
+import { useCurrentModule } from "@/shared/hooks/useCurrentModule.ts";
 import { useMutation } from "@tanstack/react-query";
 import {
   ERROR_MESSAGE,
   errorToast,
   SUCCESS_MESSAGE,
   successToast,
-} from "@/core/core.function";
-import FormWrapper from "@/shared/components/FormWrapper";
-import TitleFormComponent from "@/shared/components/TitleFormComponent";
-import { notFound } from "@/shared/hooks/useNotFound";
-import { ORDER_QUOTATION } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.constants";
-import OrderQuotationForm from "@/features/ap/post-venta/taller/cotizacion/components/ProformaForm";
-import { storeOrderQuotation } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.actions";
-import { OrderQuotationSchema } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.schema";
-import { CURRENCY_TYPE_IDS } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.constants";
+} from "@/core/core.function.ts";
+import FormWrapper from "@/shared/components/FormWrapper.tsx";
+import TitleFormComponent from "@/shared/components/TitleFormComponent.tsx";
+import { notFound } from "@/shared/hooks/useNotFound.ts";
+import { ORDER_QUOTATION_TALLER } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.constants.ts";
+import OrderQuotationForm from "@/features/ap/post-venta/taller/cotizacion/components/ProformaForm.tsx";
+import { storeOrderQuotation } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.actions.ts";
+import { OrderQuotationSchema } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.schema.ts";
+import { CURRENCY_TYPE_IDS } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.constants.ts";
 
 export default function AddOrderQuotationPage() {
   const router = useNavigate();
   const { currentView, checkRouteExists } = useCurrentModule();
-  const { ROUTE, MODEL, ABSOLUTE_ROUTE } = ORDER_QUOTATION;
+  const { ROUTE, MODEL, ABSOLUTE_ROUTE } = ORDER_QUOTATION_TALLER;
 
   const { mutate, isPending } = useMutation({
     mutationFn: storeOrderQuotation,

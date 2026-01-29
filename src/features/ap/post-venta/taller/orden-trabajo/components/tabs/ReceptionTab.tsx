@@ -9,6 +9,7 @@ import {
   User,
   ImageIcon,
   FileText,
+  Expand,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { CHECKLIST_ITEMS } from "@/features/ap/post-venta/taller/inspeccion-vehiculo/lib/vehicleInspection.constants";
@@ -85,13 +86,16 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
   }
 
   // Agrupar items del checklist por categoría
-  const groupedItems = CHECKLIST_ITEMS.reduce((acc, item) => {
-    if (!acc[item.category]) {
-      acc[item.category] = [];
-    }
-    acc[item.category].push(item);
-    return acc;
-  }, {} as Record<string, Array<(typeof CHECKLIST_ITEMS)[number]>>);
+  const groupedItems = CHECKLIST_ITEMS.reduce(
+    (acc, item) => {
+      if (!acc[item.category]) {
+        acc[item.category] = [];
+      }
+      acc[item.category].push(item);
+      return acc;
+    },
+    {} as Record<string, Array<(typeof CHECKLIST_ITEMS)[number]>>,
+  );
 
   const categoryLabels = {
     estado: "Estado del Vehículo",
@@ -351,7 +355,7 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
                   )}
 
                   {damage.photo_url && (
-                    <div className="relative h-48 bg-gray-100 rounded overflow-hidden">
+                    <div className="relative h-48 bg-gray-100 rounded overflow-hidden group">
                       <img
                         src={damage.photo_url}
                         alt={`Daño: ${damage.damage_type}`}
@@ -372,6 +376,15 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
                           }
                         }}
                       />
+                      <Button
+                        variant="secondary"
+                        size="icon"
+                        className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8"
+                        onClick={() => window.open(damage.photo_url, "_blank")}
+                        title="Ver imagen en nueva pestaña"
+                      >
+                        <Expand className="h-4 w-4" />
+                      </Button>
                     </div>
                   )}
                 </div>
@@ -461,7 +474,7 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
                 </p>
                 <p className="text-xs text-gray-500 mt-1">
                   {new Date(inspection.inspection_date).toLocaleDateString(
-                    "es-PE"
+                    "es-PE",
                   )}
                 </p>
               </div>

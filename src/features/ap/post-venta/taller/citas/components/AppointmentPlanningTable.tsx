@@ -30,6 +30,7 @@ export default function AppointmentPlanningTable({
           time_appointment: true,
           description: false,
           is_taken: true,
+          created_by_name: true,
         }}
       >
         {children}

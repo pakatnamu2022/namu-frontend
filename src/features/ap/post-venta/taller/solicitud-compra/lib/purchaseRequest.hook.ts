@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { PURCHASE_REQUEST } from "./purchaseRequest.constants";
+import { PURCHASE_REQUEST_TALLER } from "./purchaseRequest.constants";
 import {
   getPurchaseRequests,
   deletePurchaseRequest,
@@ -17,7 +17,7 @@ import {
   PurchaseRequestResponse,
 } from "./purchaseRequest.interface";
 
-const { QUERY_KEY, MODEL } = PURCHASE_REQUEST;
+const { QUERY_KEY, MODEL } = PURCHASE_REQUEST_TALLER;
 
 export const usePurchaseRequests = (params?: Record<string, any>) => {
   return useQuery<PurchaseRequestResponse>({
@@ -28,7 +28,7 @@ export const usePurchaseRequests = (params?: Record<string, any>) => {
 };
 
 export const usePurchaseRequestsDetailsPending = (
-  params?: Record<string, any>
+  params?: Record<string, any>,
 ) => {
   return useQuery<PurchaseRequestDetailResponse>({
     queryKey: [QUERY_KEY, params, "pending-details"],

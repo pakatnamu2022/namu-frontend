@@ -56,6 +56,7 @@ export default function AppointmentCalendarView({
 
   useEffect(() => {
     loadSlots();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentWeekStart]);
 
   const loadSlots = async () => {

@@ -19,7 +19,7 @@ import { notFound } from "@/shared/hooks/useNotFound";
 import { WORKER_ORDER } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.constants";
 import { useFindWorkOrderById } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.hook";
 import { Card } from "@/components/ui/card";
-import { Car } from "lucide-react";
+import { Car, Wrench } from "lucide-react";
 
 export default function VehicleInspectionPage() {
   const { workOrderId } = useParams();
@@ -176,7 +176,7 @@ export default function VehicleInspectionPage() {
             Información de la Orden de Trabajo
           </h4>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
           <div>
             <p className="text-xs text-gray-500">Correlativo</p>
             <p className="font-semibold text-sm">{workOrder.correlative}</p>
@@ -200,6 +200,48 @@ export default function VehicleInspectionPage() {
             </p>
           </div>
         </div>
+
+        {/* Trabajo a Realizar */}
+        {workOrder.items && workOrder.items.length > 0 && (
+          <div className="mt-4 pt-4 border-t border-blue-200">
+            <div className="flex items-center gap-2 mb-3">
+              <Wrench className="h-5 w-5 text-primary" />
+              <h5 className="font-semibold text-gray-800">
+                Trabajo a Realizar
+              </h5>
+            </div>
+            <div className="space-y-2">
+              {workOrder.items.map((item) => (
+                <div
+                  key={item.id}
+                  className="p-3 bg-white rounded-lg border border-blue-100"
+                >
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-2">
+                    <div>
+                      <span className="text-xs font-medium text-gray-500">
+                        Planificación:
+                      </span>
+                      <p className="text-sm font-semibold text-gray-800">
+                        {item.type_planning_name}
+                      </p>
+                    </div>
+                    <div>
+                      <span className="text-xs font-medium text-gray-500">
+                        Operación:
+                      </span>
+                      <p className="text-sm font-semibold text-gray-800">
+                        {item.type_operation_name}
+                      </p>
+                    </div>
+                  </div>
+                  {item.description && (
+                    <p className="text-sm text-gray-600">{item.description}</p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </Card>
 
       <VehicleInspectionForm
