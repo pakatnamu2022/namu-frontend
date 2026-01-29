@@ -87,7 +87,7 @@ export default function OpportunitiesKanbanPage() {
   const dateTo = lastDay.toISOString().split("T")[0];
 
   // Load advisors only if user has permission - filters by active period (year/month)
-  const { data: workers = [], isLoading: isLoadingWorkers } = useMyConsultants({
+  const { data: workers = [] } = useMyConsultants({
     status_id: STATUS_WORKER.ACTIVE,
     sede$empresa_id: EMPRESA_AP.id,
     year: calendarYear,
@@ -148,9 +148,6 @@ export default function OpportunitiesKanbanPage() {
   );
   const isLoadingLeads = leadsQuery.isLoading;
   const leadsTotalCount = leadsQuery.data?.pages.at(-1)?.meta.total ?? 0;
-
-  // Check if initial load is happening (first page of all queries)
-  const isLoading = columnQueries.some((q) => q.isLoading);
 
   // Merge all fetched opportunities into kanban data
   const allOpportunities = useMemo(() => {
@@ -360,66 +357,68 @@ export default function OpportunitiesKanbanPage() {
         </div>
       </HeaderTableWrapper>
 
-      {isLoading || isLoadingLeads || isLoadingWorkers ? (
-        <FormSkeleton />
-      ) : (
-        <div className="space-y-4 flex-1 overflow-hidden flex flex-col">
-          {/* Leads Carousel */}
-          {(leadsTotalCount > 0 || searchTerm) && (
-            <div className="p-2 space-y-3">
-              <div className="flex items-center justify-between gap-3">
-                <Input
-                  type="text"
-                  placeholder="Buscar lead..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="max-w-xs h-8 text-sm"
-                />
-                <div className="flex items-center gap-2">
-                  <h3 className="text-sm font-medium text-tertiary">
-                    Leads Validados
-                  </h3>
-                  <Badge className="text-xs h-5">{leadsTotalCount}</Badge>
-                </div>
-              </div>
+      <div className="space-y-4 flex-1 overflow-hidden flex flex-col">
+        {/* Leads Carousel */}
+        <div className="p-2 space-y-3">
+          <div className="flex items-center justify-between gap-3">
+            <Input
+              type="text"
+              placeholder="Buscar lead..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="max-w-xs h-8 text-sm"
+            />
+            <div className="flex items-center gap-2">
+              <h3 className="text-sm font-medium text-tertiary">
+                Leads Validados
+              </h3>
+              <Badge className="text-xs h-5">{leadsTotalCount}</Badge>
+            </div>
+          </div>
 
-              <Carousel
-                opts={{
-                  align: "start",
-                  loop: false,
-                  dragFree: true,
-                }}
-                setApi={setCarouselApi}
-                className="w-full"
-              >
-                <CarouselContent className="-ml-2">
-                  {filteredLeads.map((lead) => (
+          <Carousel
+            opts={{
+              align: "start",
+              loop: false,
+              dragFree: true,
+            }}
+            setApi={setCarouselApi}
+            className="w-full"
+          >
+            <CarouselContent className="-ml-2">
+              {isLoadingLeads
+                ? (
+                    <CarouselItem className="pl-2 basis-full">
+                      <FormSkeleton />
+                    </CarouselItem>
+                  )
+                : filteredLeads.map((lead) => (
                     <CarouselItem key={lead.id} className="pl-2 basis-auto">
                       <div className="w-72">
                         <LeadCard lead={lead} onDiscard={handleDiscardLead} />
                       </div>
                     </CarouselItem>
                   ))}
-                  {leadsQuery.isFetchingNextPage && (
-                    <CarouselItem className="pl-2 basis-auto">
-                      <div className="w-72 h-full flex items-center justify-center">
-                        <div className="animate-spin h-5 w-5 border-2 border-primary border-t-transparent rounded-full" />
-                      </div>
-                    </CarouselItem>
-                  )}
-                </CarouselContent>
-                <CarouselPrevious className="left-0" />
-                <CarouselNext className="right-0" />
-              </Carousel>
-
-              {filteredLeads.length === 0 && searchTerm && (
-                <div className="text-center py-8 text-sm text-muted-foreground">
-                  No se encontraron leads que coincidan con &quot;{searchTerm}
-                  &quot;
-                </div>
+              {leadsQuery.isFetchingNextPage && (
+                <CarouselItem className="pl-2 basis-auto">
+                  <div className="w-72 h-full flex items-center justify-center">
+                    <div className="animate-spin h-5 w-5 border-2 border-primary border-t-transparent rounded-full" />
+                  </div>
+                </CarouselItem>
               )}
+            </CarouselContent>
+            <CarouselPrevious className="left-0" />
+            <CarouselNext className="right-0" />
+          </Carousel>
+
+          {!isLoadingLeads && filteredLeads.length === 0 && (
+            <div className="text-center py-4 text-sm text-muted-foreground">
+              {searchTerm
+                ? `No se encontraron leads que coincidan con "${searchTerm}"`
+                : "No hay leads validados"}
             </div>
           )}
+        </div>
 
           {/* Search + Kanban Boards */}
           <div className="px-2">
@@ -471,6 +470,9 @@ export default function OpportunitiesKanbanPage() {
                         </Badge>
                       </div>
                     </KanbanHeader>
+                    {query?.isLoading ? (
+                      <FormSkeleton />
+                    ) : (
                     <KanbanCards
                       id={column.id}
                       onScrollEnd={() => handleColumnScrollEnd(columnIndex)}
@@ -499,13 +501,13 @@ export default function OpportunitiesKanbanPage() {
                         </KanbanCard>
                       )}
                     </KanbanCards>
+                    )}
                   </KanbanBoard>
                 );
               }}
             </KanbanProvider>
           </div>
         </div>
-      )}
     </PageWrapper>
   );
 }
