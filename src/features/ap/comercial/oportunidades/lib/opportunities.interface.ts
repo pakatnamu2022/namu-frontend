@@ -75,6 +75,8 @@ export interface CommercialMaster {
 
 export interface CommercialMastersResponse {
   data: CommercialMaster[];
+  meta: Meta;
+  links: Links;
 }
 
 export type OpportunityStatusType =

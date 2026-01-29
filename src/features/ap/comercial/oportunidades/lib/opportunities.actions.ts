@@ -32,7 +32,7 @@ export const getOpportunities = async ({
 
 // Get my opportunities
 export const getMyOpportunities = async (
-  params: GetMyOpportunitiesProps
+  params: GetMyOpportunitiesProps,
 ): Promise<OpportunityResource[]> => {
   const response = await api.get(`${ENDPOINT}/my`, {
     params,
@@ -42,7 +42,7 @@ export const getMyOpportunities = async (
 
 // Get my agenda
 export const getMyAgenda = async (
-  params: GetMyAgendaProps
+  params: GetMyAgendaProps,
 ): Promise<MyAgendaResponse> => {
   const { data } = await api.get(`${ENDPOINT}/agenda/my`, {
     params,
@@ -52,7 +52,7 @@ export const getMyAgenda = async (
 
 // Get opportunity by ID
 export const getOpportunity = async (
-  id: number
+  id: number,
 ): Promise<OpportunityResource> => {
   const response = await api.get<OpportunityResource>(`${ENDPOINT}/${id}`);
   return response.data;
@@ -60,17 +60,17 @@ export const getOpportunity = async (
 
 // Get opportunity actions
 export const getOpportunityActions = async (
-  opportunityId: number
+  opportunityId: number,
 ): Promise<OpportunityActionResource[]> => {
   const response = await api.get<OpportunityActionResource[]>(
-    `${ENDPOINT}/${opportunityId}/actions`
+    `${ENDPOINT}/${opportunityId}/actions`,
   );
   return response.data;
 };
 
 // Create opportunity
 export const createOpportunity = async (
-  data: OpportunitySchema
+  data: OpportunitySchema,
 ): Promise<OpportunityResource> => {
   const response = await api.post(ENDPOINT, data);
   // Check if the response has the expected structure
@@ -84,11 +84,11 @@ export const createOpportunity = async (
 // Create opportunity from client
 export const createOpportunityFromClient = async (
   clientId: number,
-  data: Omit<OpportunitySchema, "client_id">
+  data: Omit<OpportunitySchema, "client_id">,
 ): Promise<OpportunityResource> => {
   const response = await api.post(
     `/ap/commercial/businessPartners/${clientId}/opportunities`,
-    data
+    data,
   );
   return response.data.data;
 };
@@ -96,7 +96,7 @@ export const createOpportunityFromClient = async (
 // Update opportunity
 export const updateOpportunity = async (
   id: number,
-  data: Partial<OpportunitySchema>
+  data: Partial<OpportunitySchema>,
 ): Promise<OpportunityResource> => {
   const response = await api.put(`${ENDPOINT}/${id}`, data);
   return response.data.data;
@@ -104,7 +104,7 @@ export const updateOpportunity = async (
 
 export const closeOpportunity = async (
   id: number,
-  comment: string
+  comment: string,
 ): Promise<OpportunityResource> => {
   const response = await api.put(`${ENDPOINT}/${id}/close`, { comment });
   return response.data.data;
@@ -119,7 +119,7 @@ export const deleteOpportunity = async (id: number): Promise<void> => {
 
 // Get all opportunity actions
 export const getOpportunityActionsList = async (
-  params?: Record<string, any>
+  params?: Record<string, any>,
 ): Promise<OpportunityActionResource[]> => {
   const response = await api.get(ACTIONS_ENDPOINT, { params });
   return response.data.data;
@@ -127,7 +127,7 @@ export const getOpportunityActionsList = async (
 
 // Get opportunity action by ID
 export const getOpportunityAction = async (
-  id: number
+  id: number,
 ): Promise<OpportunityActionResource> => {
   const response = await api.get(`${ACTIONS_ENDPOINT}/${id}`);
   return response.data.data;
@@ -135,7 +135,7 @@ export const getOpportunityAction = async (
 
 // Create opportunity action
 export const createOpportunityAction = async (
-  data: OpportunityActionSchema
+  data: OpportunityActionSchema,
 ): Promise<OpportunityActionResource> => {
   const response = await api.post(ACTIONS_ENDPOINT, data);
   return response.data.data;
@@ -144,7 +144,7 @@ export const createOpportunityAction = async (
 // Update opportunity action
 export const updateOpportunityAction = async (
   id: number,
-  data: Partial<OpportunityActionSchema>
+  data: Partial<OpportunityActionSchema>,
 ): Promise<OpportunityActionResource> => {
   const response = await api.put(`${ACTIONS_ENDPOINT}/${id}`, data);
   return response.data.data;

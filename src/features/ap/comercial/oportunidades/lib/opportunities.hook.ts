@@ -148,7 +148,7 @@ export const useUpdateOpportunity = () => {
     },
     onError: (error: any) => {
       errorToast(
-        error.response.data.message || "Error al crear la oportunidad"
+        error.response.data.message || "Error al crear la oportunidad",
       );
     },
   });
