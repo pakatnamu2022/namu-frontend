@@ -56,6 +56,7 @@ export interface GetMyOpportunitiesProps {
   opportunity_id?: number;
   date_to?: string;
   page?: number;
+  search?: string;
 }
 
 export interface GetMyAgendaProps {

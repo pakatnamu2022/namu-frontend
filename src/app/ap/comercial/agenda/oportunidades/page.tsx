@@ -66,6 +66,8 @@ export default function OpportunitiesKanbanPage() {
     useCommercialFiltersStore();
   const [carouselApi, setCarouselApi] = useState<CarouselApi>();
   const [searchTerm, setSearchTerm] = useState("");
+  const [opportunitySearch, setOpportunitySearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const permissions = useModulePermissions(ROUTE);
   const invalidateQuery = useInvalidateQuery();
 
@@ -91,19 +93,29 @@ export default function OpportunitiesKanbanPage() {
     month: calendarMonth + 1,
   });
 
+  // Debounce search input
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(opportunitySearch);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [opportunitySearch]);
+
   // Build base query params (without opportunity_status_id)
-  const baseParams = useMemo(
-    () =>
-      canViewAdvisors && selectedAdvisorId
-        ? {
-            worker_id: selectedAdvisorId,
-            date_from: dateFrom,
-            date_to: dateTo,
-            per_page: 5,
-          }
-        : { date_from: dateFrom, date_to: dateTo, per_page: 5 },
-    [canViewAdvisors, selectedAdvisorId, dateFrom, dateTo],
-  );
+  const baseParams = useMemo(() => {
+    const params: Record<string, any> = {
+      date_from: dateFrom,
+      date_to: dateTo,
+      per_page: 5,
+    };
+    if (canViewAdvisors && selectedAdvisorId) {
+      params.worker_id = selectedAdvisorId;
+    }
+    if (debouncedSearch) {
+      params.search = debouncedSearch;
+    }
+    return params;
+  }, [canViewAdvisors, selectedAdvisorId, dateFrom, dateTo, debouncedSearch]);
 
   // 5 independent queries, one per status column
   const columns = OPPORTUNITIES_COLUMNS;
@@ -325,6 +337,13 @@ export default function OpportunitiesKanbanPage() {
           {validatedLeads.length > 0 && (
             <div className="p-2 space-y-3">
               <div className="flex items-center justify-between gap-3">
+                <Input
+                  type="text"
+                  placeholder="Buscar lead..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="max-w-xs h-8 text-sm"
+                />
                 <div className="flex items-center gap-2">
                   <h3 className="text-sm font-medium text-tertiary">
                     Leads Validados
@@ -336,14 +355,6 @@ export default function OpportunitiesKanbanPage() {
                     </span>
                   )}
                 </div>
-
-                <Input
-                  type="text"
-                  placeholder="Buscar lead..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="max-w-xs h-8 text-sm"
-                />
               </div>
 
               <Carousel
@@ -377,7 +388,16 @@ export default function OpportunitiesKanbanPage() {
             </div>
           )}
 
-          {/* Kanban Boards */}
+          {/* Search + Kanban Boards */}
+          <div className="px-2">
+            <Input
+              type="text"
+              placeholder="Buscar oportunidad..."
+              value={opportunitySearch}
+              onChange={(e) => setOpportunitySearch(e.target.value)}
+              className="max-w-xs h-8 text-sm"
+            />
+          </div>
           <div className="flex-1 overflow-hidden overflow-x-auto lg:overflow-x-hidden">
             <KanbanProvider
               columns={columns}
