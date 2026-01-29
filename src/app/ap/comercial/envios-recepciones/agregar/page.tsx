@@ -8,13 +8,13 @@ import {
   SUCCESS_MESSAGE,
   successToast,
 } from "@/core/core.function";
-import FormWrapper from "@/shared/components/FormWrapper";
 import { SHIPMENTS_RECEPTIONS } from "@/features/ap/comercial/envios-recepciones/lib/shipmentsReceptions.constants";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import { ShipmentsReceptionsForm } from "@/features/ap/comercial/envios-recepciones/components/ShipmentsReceptionsForm";
 import { useCreateShipmentsReceptions } from "@/features/ap/comercial/envios-recepciones/lib/shipmentsReceptions.hook";
 import { ShipmentsReceptionsSchema } from "@/features/ap/comercial/envios-recepciones/lib/shipmentsReceptions.schema";
 import { notFound } from "@/shared/hooks/useNotFound";
+import PageWrapper from "@/shared/components/PageWrapper";
 
 export default function AddShipmentsReceptionsPage() {
   const router = useNavigate();
@@ -43,7 +43,7 @@ export default function AddShipmentsReceptionsPage() {
   if (!checkRouteExists(ROUTE)) notFound();
 
   return (
-    <FormWrapper>
+    <PageWrapper>
       <div className="space-y-4">
         <TitleFormComponent
           title={MODEL.name}
@@ -79,6 +79,6 @@ export default function AddShipmentsReceptionsPage() {
           onCancel={handleCancel}
         />
       </div>
-    </FormWrapper>
+    </PageWrapper>
   );
 }
