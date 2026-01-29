@@ -108,10 +108,15 @@ export default function OpeningTab({ workOrderId }: OpeningTabProps) {
               Gestiona los trabajos de servicio para esta orden
             </p>
           </div>
-          <Button onClick={handleAddItem} className="w-full sm:w-auto shrink-0">
-            <Plus className="h-4 w-4 mr-2" />
-            Agregar Trabajo
-          </Button>
+          {items.length === 0 && (
+            <Button
+              onClick={handleAddItem}
+              className="w-full sm:w-auto shrink-0"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Agregar Trabajo
+            </Button>
+          )}
         </div>
       </Card>
 
@@ -126,7 +131,10 @@ export default function OpeningTab({ workOrderId }: OpeningTabProps) {
                     Grupo
                   </th>
                   <th className="text-left py-3 px-3 sm:px-4 font-semibold text-xs sm:text-sm text-gray-700">
-                    Tipo
+                    Planificación
+                  </th>
+                  <th className="text-left py-3 px-3 sm:px-4 font-semibold text-xs sm:text-sm text-gray-700">
+                    Operación
                   </th>
                   <th className="text-left py-3 px-3 sm:px-4 font-semibold text-xs sm:text-sm text-gray-700">
                     Descripción
@@ -158,6 +166,14 @@ export default function OpeningTab({ workOrderId }: OpeningTabProps) {
                           className="text-xs whitespace-nowrap"
                         >
                           {item.type_planning_name}
+                        </Badge>
+                      </td>
+                      <td className="py-3 px-3 sm:px-4">
+                        <Badge
+                          variant="outline"
+                          className="text-xs whitespace-nowrap"
+                        >
+                          {item.type_operation_name}
                         </Badge>
                       </td>
                       <td className="py-3 px-3 sm:px-4 text-xs sm:text-sm text-gray-900 max-w-xs">

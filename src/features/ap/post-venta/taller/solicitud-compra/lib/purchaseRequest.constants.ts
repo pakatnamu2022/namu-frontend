@@ -11,10 +11,10 @@ export const PURCHASE_REQUEST_STATUS = {
 export type PurchaseRequestStatus = keyof typeof PURCHASE_REQUEST_STATUS;
 
 // RUTAS PARA TALLER - SOLICITUD DE COMPRA
-const ROUTE = "solicitud-compra";
+const ROUTE = "solicitud-compra-taller";
 const ABSOLUTE_ROUTE = `/ap/post-venta/taller/${ROUTE}`;
 
-export const PURCHASE_REQUEST: ModelComplete<PurchaseRequestResource> = {
+export const PURCHASE_REQUEST_TALLER: ModelComplete<PurchaseRequestResource> = {
   MODEL: {
     name: "Solicitud de Compra",
     plural: "Solicitudes de Compra",

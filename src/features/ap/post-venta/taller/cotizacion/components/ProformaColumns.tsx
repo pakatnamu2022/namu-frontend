@@ -34,7 +34,10 @@ export const orderQuotationColumns = ({
       const value = getValue() as string;
       return value && <p className="font-semibold">{value}</p>;
     },
-    enableSorting: false,
+  },
+  {
+    accessorKey: "client.full_name",
+    header: "Cliente",
   },
   {
     accessorKey: "quotation_date",
@@ -48,7 +51,6 @@ export const orderQuotationColumns = ({
         return date;
       }
     },
-    enableSorting: false,
   },
   {
     accessorKey: "expiration_date",
@@ -62,17 +64,14 @@ export const orderQuotationColumns = ({
         return date;
       }
     },
-    enableSorting: false,
   },
   {
     accessorKey: "vehicle.plate",
     header: "Placa",
-    enableSorting: false,
   },
   {
     accessorKey: "type_currency.name",
     header: "Moneda",
-    enableSorting: false,
   },
   {
     accessorKey: "total_amount",
@@ -82,12 +81,10 @@ export const orderQuotationColumns = ({
       const currencySymbol = row.original.type_currency?.symbol || "S/.";
       return `${currencySymbol} ${Number(amount || 0).toFixed(2)}`;
     },
-    enableSorting: false,
   },
   {
     accessorKey: "observations",
     header: "Observaciones",
-    enableSorting: false,
   },
   {
     accessorKey: "is_take",
@@ -103,7 +100,6 @@ export const orderQuotationColumns = ({
         </Badge>
       );
     },
-    enableSorting: false,
   },
   {
     id: "actions",

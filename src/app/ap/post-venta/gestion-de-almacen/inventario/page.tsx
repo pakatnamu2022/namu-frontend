@@ -114,6 +114,8 @@ export default function InventoryPage() {
         columns={inventoryColumns({
           onMovements: (id, warehouse_id) =>
             router(`${ABSOLUTE_ROUTE}/movimientos/${id}/${warehouse_id}`),
+          onPurchaseHistory: (id, warehouse_id) =>
+            router(`${ABSOLUTE_ROUTE}/historico-compras/${id}/${warehouse_id}`),
         })}
         data={data?.data || []}
         sorting={sorting}

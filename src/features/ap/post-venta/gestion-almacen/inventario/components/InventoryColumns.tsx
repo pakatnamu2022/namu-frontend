@@ -4,16 +4,18 @@ import { Badge } from "@/components/ui/badge.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { ArrowRightLeft } from "lucide-react";
+import { ArrowRightLeft, History } from "lucide-react";
 
 export type InventoryColumns = ColumnDef<InventoryResource>;
 
 interface Props {
   onMovements: (id: number, warehouse_id: number) => void;
+  onPurchaseHistory: (id: number, warehouse_id: number) => void;
 }
 
 export const inventoryColumns = ({
   onMovements,
+  onPurchaseHistory,
 }: Props): InventoryColumns[] => [
   {
     accessorKey: "product.code",
@@ -167,15 +169,26 @@ export const inventoryColumns = ({
       const warehouseId = row.original.warehouse_id;
 
       return (
-        <Button
-          variant="outline"
-          size="icon"
-          className="size-7"
-          tooltip="Ver Movimientos"
-          onClick={() => onMovements?.(productId, warehouseId)}
-        >
-          <ArrowRightLeft className="size-5" />
-        </Button>
+        <div className="flex gap-1">
+          <Button
+            variant="outline"
+            size="icon"
+            className="size-7"
+            tooltip="Ver Movimientos"
+            onClick={() => onMovements?.(productId, warehouseId)}
+          >
+            <ArrowRightLeft className="size-5" />
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            className="size-7"
+            tooltip="Ver Histórico de Compras"
+            onClick={() => onPurchaseHistory?.(productId, warehouseId)}
+          >
+            <History className="size-5" />
+          </Button>
+        </div>
       );
     },
   },

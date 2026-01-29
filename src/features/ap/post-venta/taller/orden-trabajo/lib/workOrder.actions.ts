@@ -116,3 +116,10 @@ export async function downloadPreLiquidationPdf(id: number): Promise<void> {
   link.parentNode?.removeChild(link);
   window.URL.revokeObjectURL(url);
 }
+
+export async function unlinkQuotation(id: number): Promise<WorkOrderResource> {
+  const response = await api.patch<WorkOrderResource>(
+    `${ENDPOINT}/${id}/unlink-quotation`
+  );
+  return response.data;
+}

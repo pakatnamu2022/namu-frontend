@@ -2,6 +2,7 @@ import { optionalStringId, requiredStringId } from "@/shared/lib/global.schema";
 import { z } from "zod";
 
 export const orderQuotationSchemaCreate = z.object({
+  client_id: requiredStringId("Cliente es requerido"),
   vehicle_id: requiredStringId("Vehículo es requerido"),
   sede_id: requiredStringId("Sede es requerida"),
   quotation_date: z

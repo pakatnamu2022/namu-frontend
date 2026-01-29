@@ -18,6 +18,8 @@ import { ArrowLeft } from "lucide-react";
 import BackButton from "@/shared/components/BackButton.tsx";
 import { errorToast, getMonday, getSunday } from "@/core/core.function.ts";
 import { useInventoryMovements } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.hook.ts";
+import ExportButtons from "@/shared/components/ExportButtons.tsx";
+import { exportProductMovementHistory } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.actions.ts";
 
 export default function ProductKardexPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -107,11 +109,21 @@ export default function ProductKardexPage() {
           subtitle={`Movimientos de ${productName} en ${warehouseName}`}
           icon={currentView.icon}
         />
-        <BackButton
-          route={`${ABSOLUTE_ROUTE}`}
-          name={"Inventario"}
-          fullname={false}
-        />
+        <div className="flex items-center gap-2">
+          <ExportButtons
+            onExcelDownload={() =>
+              exportProductMovementHistory(productId, warehouseId, {
+                date_from: formatDate(dateFrom),
+                date_to: formatDate(dateTo),
+              })
+            }
+          />
+          <BackButton
+            route={`${ABSOLUTE_ROUTE}`}
+            name={"Inventario"}
+            fullname={false}
+          />
+        </div>
       </HeaderTableWrapper>
       <InventoryMovementsTable
         isLoading={isLoading}

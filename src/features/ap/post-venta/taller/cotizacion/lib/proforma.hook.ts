@@ -4,7 +4,7 @@ import {
   SUCCESS_MESSAGE,
   successToast,
 } from "@/core/core.function";
-import { ORDER_QUOTATION } from "./proforma.constants";
+import { ORDER_QUOTATION_TALLER } from "./proforma.constants";
 import {
   getAllOrderQuotations,
   storeOrderQuotation,
@@ -15,7 +15,7 @@ import {
 } from "./proforma.actions";
 import { OrderQuotationRequest } from "./proforma.interface";
 
-const { MODEL, QUERY_KEY } = ORDER_QUOTATION;
+const { MODEL, QUERY_KEY } = ORDER_QUOTATION_TALLER;
 
 export const useAllOrderQuotations = (params?: Record<string, any>) => {
   return useQuery({

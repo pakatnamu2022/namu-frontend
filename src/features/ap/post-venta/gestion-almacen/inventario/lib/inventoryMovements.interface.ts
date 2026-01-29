@@ -52,3 +52,79 @@ export interface getInventoryMovementProps {
 export interface getInventoryKardexProps {
   params?: Record<string, any>;
 }
+
+export interface getProductPurchaseHistoryProps {
+  productId: number;
+  warehouseId: number;
+  params?: {
+    date_from?: string;
+    date_to?: string;
+  };
+}
+
+export interface PurchaseHistoryProduct {
+  id: number;
+  name: string;
+  code: string;
+  dyn_code: string;
+}
+
+export interface PurchaseHistoryWarehouse {
+  id: number;
+  name: string | null;
+}
+
+export interface PurchaseHistorySummary {
+  total_purchases: number;
+  total_quantity: number;
+  total_amount: number;
+  average_price: number;
+  min_price: string;
+  max_price: string;
+}
+
+export interface PurchaseHistoryPurchaseOrder {
+  id: number;
+  number: string;
+  emission_date: string;
+  invoice_series: string;
+  invoice_number: string;
+}
+
+export interface PurchaseHistorySupplier {
+  id: number;
+  name: string;
+  document: string;
+}
+
+export interface PurchaseHistoryCurrency {
+  id: number;
+  name: string;
+  symbol: string;
+}
+
+export interface PurchaseHistoryItem {
+  id: number;
+  reception_id: number;
+  reception_number: string;
+  reception_date: string;
+  purchase_order: PurchaseHistoryPurchaseOrder;
+  supplier: PurchaseHistorySupplier;
+  currency: PurchaseHistoryCurrency;
+  unit_price: string;
+  quantity_ordered: string;
+  quantity_received: string;
+  total_line: string;
+  reception_type: string;
+  batch_number: string | null;
+  expiration_date: string | null;
+  received_by: string;
+  notes: string | null;
+}
+
+export interface PurchaseHistoryResponse {
+  product: PurchaseHistoryProduct;
+  warehouse: PurchaseHistoryWarehouse;
+  summary: PurchaseHistorySummary;
+  purchases: PurchaseHistoryItem[];
+}

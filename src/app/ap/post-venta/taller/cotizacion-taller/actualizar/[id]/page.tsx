@@ -3,32 +3,32 @@
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
+import { useCurrentModule } from "@/shared/hooks/useCurrentModule.ts";
 import {
   ERROR_MESSAGE,
   errorToast,
   SUCCESS_MESSAGE,
   successToast,
-} from "@/core/core.function";
-import TitleFormComponent from "@/shared/components/TitleFormComponent";
-import FormSkeleton from "@/shared/components/FormSkeleton";
-import FormWrapper from "@/shared/components/FormWrapper";
-import { ORDER_QUOTATION } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.constants";
+} from "@/core/core.function.ts";
+import TitleFormComponent from "@/shared/components/TitleFormComponent.tsx";
+import FormSkeleton from "@/shared/components/FormSkeleton.tsx";
+import FormWrapper from "@/shared/components/FormWrapper.tsx";
+import { ORDER_QUOTATION_TALLER } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.constants.ts";
 import {
   findOrderQuotationById,
   updateOrderQuotation,
-} from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.actions";
-import { OrderQuotationSchema } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.schema";
-import { OrderQuotationResource } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.interface";
-import OrderQuotationForm from "@/features/ap/post-venta/taller/cotizacion/components/ProformaForm";
-import { notFound } from "@/shared/hooks/useNotFound";
+} from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.actions.ts";
+import { OrderQuotationSchema } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.schema.ts";
+import { OrderQuotationResource } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.interface.ts";
+import OrderQuotationForm from "@/features/ap/post-venta/taller/cotizacion/components/ProformaForm.tsx";
+import { notFound } from "@/shared/hooks/useNotFound.ts";
 
 export default function UpdateOrderQuotationPage() {
   const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();
   const { currentView, checkRouteExists } = useCurrentModule();
-  const { ROUTE, QUERY_KEY, MODEL, ABSOLUTE_ROUTE } = ORDER_QUOTATION;
+  const { ROUTE, QUERY_KEY, MODEL, ABSOLUTE_ROUTE } = ORDER_QUOTATION_TALLER;
 
   const { data: orderQuotation, isLoading: loadingOrderQuotation } = useQuery({
     queryKey: [QUERY_KEY, id],
@@ -57,9 +57,10 @@ export default function UpdateOrderQuotationPage() {
   };
 
   function mapOrderQuotationToForm(
-    data: OrderQuotationResource
+    data: OrderQuotationResource,
   ): Partial<OrderQuotationSchema> {
     return {
+      client_id: data.client.id ? String(data.client.id) : "",
       vehicle_id: data.vehicle_id ? String(data.vehicle_id) : "",
       quotation_date: data.quotation_date ? new Date(data.quotation_date) : "",
       expiration_date: data.expiration_date
@@ -93,6 +94,7 @@ export default function UpdateOrderQuotationPage() {
         isSubmitting={isPending}
         mode="update"
         onCancel={() => router(ABSOLUTE_ROUTE!)}
+        proforma={orderQuotation}
       />
     </FormWrapper>
   );

@@ -18,9 +18,8 @@ import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { notFound } from "@/shared/hooks/useNotFound";
 
-
 export default function RolePage() {
-    const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
+  const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
@@ -43,8 +42,9 @@ export default function RolePage() {
       await deleteRole(deleteId);
       await refetch();
       successToast("Rol eliminado correctamente.");
-    } catch (error) {
-      errorToast("Error al eliminar el rol.");
+    } catch (error: any) {
+      const msj = error?.response?.data?.message || "";
+      errorToast(msj || "Error al eliminar el rol.");
     } finally {
       setDeleteId(null);
     }

@@ -1,11 +1,11 @@
 "use client";
 
-import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
+import { useCurrentModule } from "@/shared/hooks/useCurrentModule.ts";
 import { useEffect, useState } from "react";
-import PageSkeleton from "@/shared/components/PageSkeleton";
-import TitleComponent from "@/shared/components/TitleComponent";
-import DataTablePagination from "@/shared/components/DataTablePagination";
-import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
+import PageSkeleton from "@/shared/components/PageSkeleton.tsx";
+import TitleComponent from "@/shared/components/TitleComponent.tsx";
+import DataTablePagination from "@/shared/components/DataTablePagination.tsx";
+import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog.tsx";
 import {
   ERROR_MESSAGE,
   errorToast,
@@ -13,20 +13,20 @@ import {
   getSunday,
   SUCCESS_MESSAGE,
   successToast,
-} from "@/core/core.function";
-import { DEFAULT_PER_PAGE } from "@/core/core.constants";
-import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
-import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import { notFound } from "@/shared/hooks/useNotFound";
+} from "@/core/core.function.ts";
+import { DEFAULT_PER_PAGE } from "@/core/core.constants.ts";
+import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper.tsx";
+import { useModulePermissions } from "@/shared/hooks/useModulePermissions.ts";
+import { notFound } from "@/shared/hooks/useNotFound.ts";
 import { useNavigate } from "react-router-dom";
-import { ORDER_QUOTATION } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.constants";
-import OrderQuotationActions from "@/features/ap/post-venta/taller/cotizacion/components/ProformaActions";
-import { orderQuotationColumns } from "@/features/ap/post-venta/taller/cotizacion/components/ProformaColumns";
-import OrderQuotationTable from "@/features/ap/post-venta/taller/cotizacion/components/ProformaTable";
-import OrderQuotationOptions from "@/features/ap/post-venta/taller/cotizacion/components/ProformaOptions";
-import { deleteOrderQuotation } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.actions";
-import { useOrderQuotations } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.hook";
-import { AREA_PM_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
+import { ORDER_QUOTATION_TALLER } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.constants.ts";
+import OrderQuotationActions from "@/features/ap/post-venta/taller/cotizacion/components/ProformaActions.tsx";
+import { orderQuotationColumns } from "@/features/ap/post-venta/taller/cotizacion/components/ProformaColumns.tsx";
+import OrderQuotationTable from "@/features/ap/post-venta/taller/cotizacion/components/ProformaTable.tsx";
+import OrderQuotationOptions from "@/features/ap/post-venta/taller/cotizacion/components/ProformaOptions.tsx";
+import { deleteOrderQuotation } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.actions.ts";
+import { useOrderQuotations } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.hook.ts";
+import { AREA_PM_ID } from "@/features/ap/ap-master/lib/apMaster.constants.ts";
 
 export default function OrderQuotationPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -34,7 +34,7 @@ export default function OrderQuotationPage() {
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
-  const { MODEL, ROUTE, ROUTE_UPDATE, ABSOLUTE_ROUTE } = ORDER_QUOTATION;
+  const { MODEL, ROUTE, ROUTE_UPDATE, ABSOLUTE_ROUTE } = ORDER_QUOTATION_TALLER;
   const permissions = useModulePermissions(ROUTE);
   const router = useNavigate();
   const currentDate = new Date();
