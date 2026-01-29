@@ -72,6 +72,7 @@ export default function SupplierOrderPage() {
       dateFrom && dateTo
         ? [formatDate(dateFrom), formatDate(dateTo)]
         : undefined,
+    sede_id: sedeId || undefined,
   });
 
   const handleDelete = async () => {
