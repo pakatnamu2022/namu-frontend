@@ -66,6 +66,7 @@ export default function OpportunitiesKanbanPage() {
     useCommercialFiltersStore();
   const [carouselApi, setCarouselApi] = useState<CarouselApi>();
   const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedLeadSearch, setDebouncedLeadSearch] = useState("");
   const [opportunitySearch, setOpportunitySearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const permissions = useModulePermissions(ROUTE);
@@ -93,7 +94,15 @@ export default function OpportunitiesKanbanPage() {
     month: calendarMonth + 1,
   });
 
-  // Debounce search input
+  // Debounce lead search input
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedLeadSearch(searchTerm);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  // Debounce opportunity search input
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(opportunitySearch);
@@ -130,6 +139,7 @@ export default function OpportunitiesKanbanPage() {
   // Get validated leads (potential buyers) with infinite scroll
   const leadsQuery = useMyLeadsInfinite({
     worker_id: canViewAdvisors ? selectedAdvisorId : undefined,
+    ...(debouncedLeadSearch && { search: debouncedLeadSearch }),
   });
 
   const validatedLeads = useMemo(
@@ -309,20 +319,8 @@ export default function OpportunitiesKanbanPage() {
     };
   }, [carouselApi, handleLeadsScrollEnd]);
 
-  // Filter leads based on search term
-  const filteredLeads = validatedLeads.filter((lead) => {
-    if (!searchTerm) return true;
-
-    const searchLower = searchTerm.toLowerCase();
-    return (
-      lead.full_name?.toLowerCase().includes(searchLower) ||
-      lead.phone?.toLowerCase().includes(searchLower) ||
-      lead.email?.toLowerCase().includes(searchLower) ||
-      lead.num_doc?.toLowerCase().includes(searchLower) ||
-      lead.model?.toLowerCase().includes(searchLower) ||
-      lead.campaign?.toLowerCase().includes(searchLower)
-    );
-  });
+  // Leads are now filtered server-side via the search param
+  const filteredLeads = validatedLeads;
 
   const handleDiscardLead = (
     leadId: number,
@@ -367,7 +365,7 @@ export default function OpportunitiesKanbanPage() {
       ) : (
         <div className="space-y-4 flex-1 overflow-hidden flex flex-col">
           {/* Leads Carousel */}
-          {validatedLeads.length > 0 && (
+          {(leadsTotalCount > 0 || searchTerm) && (
             <div className="p-2 space-y-3">
               <div className="flex items-center justify-between gap-3">
                 <Input
@@ -439,7 +437,7 @@ export default function OpportunitiesKanbanPage() {
               data={kanbanData}
               onDragEnd={handleDragEnd}
               className={cn(
-                validatedLeads.length > 0
+                leadsTotalCount > 0 || searchTerm
                   ? "h-[calc(100vh-320px)] min-w-[800px]"
                   : "h-[calc(100vh-200px)] min-w-[800px]",
                 "p-1",
