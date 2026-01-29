@@ -338,6 +338,7 @@ export function ElectronicDocumentForm({
           const vehicle = quotation.ap_vehicle;
           descripcion = `VENTA DE VEHICULO
 AÑO MODELO: ${vehicle?.year || ""}
+COLOR: ${vehicle?.vehicle_color || ""}
 SERIE: ${vehicle?.vin || ""}
 MOTOR: ${vehicle?.engine_number || ""}
 MARCA: ${vehicle?.model?.brand || ""}
