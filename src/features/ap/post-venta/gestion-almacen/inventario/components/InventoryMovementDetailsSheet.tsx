@@ -16,6 +16,18 @@ interface InventoryMovementDetailsSheetProps {
   movement: InventoryMovementResource;
 }
 
+const getStatusLabel = (status: string) => {
+  const statusLabels: Record<string, string> = {
+    APPROVED: "Aprobado",
+    PENDING: "Pendiente",
+    REJECTED: "Rechazado",
+    CANCELLED: "Cancelado",
+    COMPLETED: "Completado",
+    DRAFT: "Borrador",
+  };
+  return statusLabels[status] || status;
+};
+
 export default function InventoryMovementDetailsSheet({
   open,
   onOpenChange,
@@ -60,7 +72,7 @@ export default function InventoryMovementDetailsSheet({
                     reference.status === "APPROVED" ? "default" : "secondary"
                   }
                 >
-                  {reference.status}
+                  {getStatusLabel(reference.status)}
                 </Badge>
               </div>
               <div>

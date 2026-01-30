@@ -261,7 +261,7 @@ export default function GeneralInformationPage() {
                 <div>
                   <p className="text-sm text-gray-600">Cliente</p>
                   <p className="font-semibold">
-                    {workOrder.order_quotation.customer}
+                    {workOrder.order_quotation.client.full_name}
                   </p>
                 </div>
               </div>

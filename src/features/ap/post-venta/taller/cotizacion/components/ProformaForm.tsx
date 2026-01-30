@@ -176,7 +176,7 @@ export default function OrderQuotationForm({
           <FormSelectAsync
             placeholder="Seleccionar vehículo"
             control={form.control}
-            label={"Vehículo (Opcional)"}
+            label={"Vehículo"}
             name="vehicle_id"
             useQueryHook={useVehicles}
             mapOptionFn={(item: VehicleResource) => ({
