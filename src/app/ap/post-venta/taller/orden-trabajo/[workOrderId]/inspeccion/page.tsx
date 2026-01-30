@@ -75,6 +75,21 @@ export default function VehicleInspectionPage() {
     formData.append("tool_kit", data.tool_kit ? "1" : "0");
     formData.append("jack_and_lever", data.jack_and_lever ? "1" : "0");
     formData.append("general_observations", data.general_observations || "");
+    //photos front, back, left, right
+    if (data.photo_front) {
+      formData.append("photo_front", data.photo_front);
+    }
+    if (data.photo_back) {
+      formData.append("photo_back", data.photo_back);
+    }
+    if (data.photo_left) {
+      formData.append("photo_left", data.photo_left);
+    }
+    if (data.photo_right) {
+      formData.append("photo_right", data.photo_right);
+    }
+
+    // Daños y otros campos
     formData.append(
       "inspection_date",
       data.inspection_date instanceof Date
