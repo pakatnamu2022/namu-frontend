@@ -70,6 +70,7 @@ export default function OpportunityActions({
         onChange={handleMonthChange}
         placeholder="Mes"
         className="w-32"
+        allowClear={false}
       />
 
       <SearchableSelect
@@ -78,6 +79,7 @@ export default function OpportunityActions({
         onChange={handleYearChange}
         placeholder="Año"
         className="w-24"
+        allowClear={false}
       />
 
       {canViewAllUsers && (

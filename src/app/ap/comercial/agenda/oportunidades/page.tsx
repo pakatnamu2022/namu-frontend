@@ -5,11 +5,10 @@ import PageSkeleton from "@/shared/components/PageSkeleton";
 import TitleComponent from "@/shared/components/TitleComponent";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import {
-  useMyOpportunities,
+  useMyOpportunitiesByStatus,
   useUpdateOpportunity,
-  useOpportunityStatuses,
 } from "@/features/ap/comercial/oportunidades/lib/opportunities.hook";
-import { useMyLeads } from "@/features/ap/comercial/gestionar-leads/lib/manageLeads.hook";
+import { useMyLeadsInfinite } from "@/features/ap/comercial/gestionar-leads/lib/manageLeads.hook";
 import {
   KanbanProvider,
   KanbanBoard,
@@ -24,10 +23,12 @@ import {
   OPPORTUNITIES_COLUMNS,
   OPPORTUNITY_VENDIDA,
   OPPORTUNITY_CERRADA,
+  COLUMN_TO_STATUS_ID,
 } from "@/features/ap/comercial/oportunidades/lib/opportunities.constants";
+import { OPPORTUNITIES } from "@/features/ap/comercial/oportunidades/lib/opportunities.constants";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { ERROR_MESSAGE, errorToast, successToast } from "@/core/core.function";
+import { errorToast, ERROR_MESSAGE, successToast } from "@/core/core.function";
 import { cn } from "@/lib/utils";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { AGENDA } from "@/features/ap/comercial/agenda/lib/agenda.constants";
@@ -46,7 +47,7 @@ import {
 } from "@/components/ui/carousel";
 import { STATUS_WORKER } from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.constant";
 import { EMPRESA_AP } from "@/core/core.constants";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import type { CarouselApi } from "@/components/ui/carousel";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { notFound } from "@/shared/hooks/useNotFound";
@@ -59,12 +60,17 @@ import PageWrapper from "@/shared/components/PageWrapper";
 export default function OpportunitiesKanbanPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const { ROUTE } = AGENDA;
-  const { QUERY_KEY, MODEL } = MANAGE_LEADS;
+  const { QUERY_KEY: LEADS_QUERY_KEY, MODEL } = MANAGE_LEADS;
+  const { QUERY_KEY } = OPPORTUNITIES;
   const { selectedAdvisorId, setSelectedAdvisorId } =
     useCommercialFiltersStore();
   const [carouselApi, setCarouselApi] = useState<CarouselApi>();
   const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedLeadSearch, setDebouncedLeadSearch] = useState("");
+  const [opportunitySearch, setOpportunitySearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const permissions = useModulePermissions(ROUTE);
+  const invalidateQuery = useInvalidateQuery();
 
   // Get calendar state from atoms
   const [calendarMonth] = useCalendarMonth();
@@ -81,48 +87,113 @@ export default function OpportunitiesKanbanPage() {
   const dateTo = lastDay.toISOString().split("T")[0];
 
   // Load advisors only if user has permission - filters by active period (year/month)
-  const { data: workers = [], isLoading: isLoadingWorkers } = useMyConsultants({
+  const { data: workers = [] } = useMyConsultants({
     status_id: STATUS_WORKER.ACTIVE,
     sede$empresa_id: EMPRESA_AP.id,
     year: calendarYear,
     month: calendarMonth + 1,
   });
 
-  // Build query params based on permission and date range
-  const opportunitiesParams =
-    canViewAdvisors && selectedAdvisorId
-      ? { worker_id: selectedAdvisorId, date_from: dateFrom, date_to: dateTo }
-      : { date_from: dateFrom, date_to: dateTo };
+  // Debounce lead search input
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedLeadSearch(searchTerm);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
 
-  const { data: opportunities = [], isLoading } =
-    useMyOpportunities(opportunitiesParams);
-  const { data: statusesData } = useOpportunityStatuses();
-  const updateMutation = useUpdateOpportunity();
+  // Debounce opportunity search input
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(opportunitySearch);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [opportunitySearch]);
 
-  // Get validated leads (potential buyers)
-  const { data: validatedLeads = [], isLoading: isLoadingLeads } = useMyLeads({
-    worker_id: canViewAdvisors ? selectedAdvisorId : undefined,
-  });
+  // Build base query params (without opportunity_status_id)
+  const baseParams = useMemo(() => {
+    const params: Record<string, any> = {
+      date_from: dateFrom,
+      date_to: dateTo,
+      per_page: 5,
+    };
+    if (canViewAdvisors && selectedAdvisorId) {
+      params.worker_id = selectedAdvisorId;
+    }
+    if (debouncedSearch) {
+      params.search = debouncedSearch;
+    }
+    return params;
+  }, [canViewAdvisors, selectedAdvisorId, dateFrom, dateTo, debouncedSearch]);
 
-  const statuses = statusesData?.data || [];
-
-  // Only 4 columns: TEMPLADA, CALIENTE, GANADA, PERDIDA
+  // 5 independent queries, one per status column
   const columns = OPPORTUNITIES_COLUMNS;
 
-  // Transform opportunities to kanban items
-  const kanbanData = opportunities.map((opp) => ({
-    id: opp.id.toString(),
-    name: opp.family.description,
-    column: opp.opportunity_status,
-    opportunity: opp,
-  }));
+  const columnQueries = columns.map((col) => {
+    const statusId = COLUMN_TO_STATUS_ID[col.id];
+    return useMyOpportunitiesByStatus(statusId, baseParams);
+  });
+
+  const updateMutation = useUpdateOpportunity();
+
+  // Get validated leads (potential buyers) with infinite scroll
+  const leadsQuery = useMyLeadsInfinite({
+    worker_id: canViewAdvisors ? selectedAdvisorId : undefined,
+    ...(debouncedLeadSearch && { search: debouncedLeadSearch }),
+  });
+
+  const validatedLeads = useMemo(
+    () => leadsQuery.data?.pages.flatMap((page) => page.data) ?? [],
+    [leadsQuery.data],
+  );
+  const isLoadingLeads = leadsQuery.isLoading;
+  const leadsTotalCount = leadsQuery.data?.pages.at(-1)?.meta.total ?? 0;
+
+  // Merge all fetched opportunities into kanban data
+  const allOpportunities = useMemo(() => {
+    return columnQueries.flatMap(
+      (q) => q.data?.pages.flatMap((page) => page.data) ?? [],
+    );
+  }, [columnQueries.map((q) => q.data)]);
+
+  // Get total per column from meta
+  const columnTotals = useMemo(() => {
+    const totals: Record<string, number> = {};
+    columns.forEach((col, i) => {
+      const lastPage = columnQueries[i].data?.pages.at(-1);
+      totals[col.id] = lastPage?.meta.total ?? 0;
+    });
+    return totals;
+  }, [columnQueries.map((q) => q.data)]);
+
+  const kanbanData = useMemo(
+    () =>
+      allOpportunities.map((opp) => ({
+        id: opp.id.toString(),
+        name: opp.family.description,
+        column: opp.opportunity_status,
+        opportunity: opp,
+      })),
+    [allOpportunities],
+  );
+
+  // Scroll handler per column
+  const handleColumnScrollEnd = useCallback(
+    (columnIndex: number) => {
+      const query = columnQueries[columnIndex];
+      if (query.hasNextPage && !query.isFetchingNextPage) {
+        query.fetchNextPage();
+      }
+    },
+    [columnQueries],
+  );
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
 
     if (!over) return;
 
-    const opportunity = opportunities.find(
+    const opportunity = allOpportunities.find(
       (o) => o.id.toString() === active.id,
     );
     if (!opportunity) return;
@@ -131,7 +202,7 @@ export default function OpportunitiesKanbanPage() {
     let targetColumnId = over.id as string;
 
     // Si se soltó sobre otra tarjeta, encontrar su columna
-    const overOpportunity = opportunities.find(
+    const overOpportunity = allOpportunities.find(
       (o) => o.id.toString() === over.id,
     );
     if (overOpportunity) {
@@ -151,37 +222,27 @@ export default function OpportunitiesKanbanPage() {
       errorToast(
         "No se pueden mover oportunidades que están Vendidas o Cerradas",
       );
-      invalidateQuery([QUERY_KEY, "my"]); // Revertir UI
+      invalidateQuery([QUERY_KEY, "my", "status"]);
       return;
     }
 
     const targetColumn = columns.find((col) => col.id === targetColumnId);
     if (!targetColumn) {
-      invalidateQuery([QUERY_KEY, "my"]); // Revertir UI
+      invalidateQuery([QUERY_KEY, "my", "status"]);
       return;
     }
 
     // PREVENIR el movimiento si la columna no es editable
     if (!targetColumn.canEdit) {
       errorToast("No se puede mover a esta columna directamente");
-      invalidateQuery([QUERY_KEY, "my"]); // Revertir UI
+      invalidateQuery([QUERY_KEY, "my", "status"]);
       return;
     }
 
-    // Get the status ID from statuses - mapeo de columnas a códigos de API
-    const columnToCode: Record<string, string> = {
-      FRIO: "COLD",
-      TEMPLADA: "WARM",
-      CALIENTE: "HOT",
-      VENDIDA: "SOLD",
-      PERDIDA: "LOST",
-    };
-
-    const statusCode = columnToCode[targetColumn.id];
-    const newStatus = statuses.find((s) => s.code === statusCode);
-
-    if (!newStatus) {
-      invalidateQuery([QUERY_KEY, "my"]); // Revertir UI
+    // Usar directamente el COLUMN_TO_STATUS_ID en vez de buscar en statuses
+    const targetStatusId = COLUMN_TO_STATUS_ID[targetColumn.id];
+    if (!targetStatusId) {
+      invalidateQuery([QUERY_KEY, "my", "status"]);
       return;
     }
 
@@ -190,21 +251,26 @@ export default function OpportunitiesKanbanPage() {
       {
         id: opportunity.id,
         data: {
-          opportunity_status_id: newStatus.id.toString(),
+          opportunity_status_id: targetStatusId.toString(),
         },
       },
       {
         onSuccess: () => {
-          invalidateQuery([QUERY_KEY, "my"]);
+          invalidateQuery([QUERY_KEY, "my", "status"]);
         },
         onError: () => {
-          invalidateQuery([QUERY_KEY, "my"]);
+          invalidateQuery([QUERY_KEY, "my", "status"]);
         },
       },
     );
   };
 
-  const invalidateQuery = useInvalidateQuery();
+  // Fetch next page of leads when carousel reaches the end
+  const handleLeadsScrollEnd = useCallback(() => {
+    if (leadsQuery.hasNextPage && !leadsQuery.isFetchingNextPage) {
+      leadsQuery.fetchNextPage();
+    }
+  }, [leadsQuery]);
 
   // Enable horizontal scroll with mouse wheel using Embla API
   useEffect(() => {
@@ -231,20 +297,27 @@ export default function OpportunitiesKanbanPage() {
     };
   }, [carouselApi]);
 
-  // Filter leads based on search term
-  const filteredLeads = validatedLeads.filter((lead) => {
-    if (!searchTerm) return true;
+  // Load more leads when carousel scrolls near the end
+  useEffect(() => {
+    if (!carouselApi) return;
 
-    const searchLower = searchTerm.toLowerCase();
-    return (
-      lead.full_name?.toLowerCase().includes(searchLower) ||
-      lead.phone?.toLowerCase().includes(searchLower) ||
-      lead.email?.toLowerCase().includes(searchLower) ||
-      lead.num_doc?.toLowerCase().includes(searchLower) ||
-      lead.model?.toLowerCase().includes(searchLower) ||
-      lead.campaign?.toLowerCase().includes(searchLower)
-    );
-  });
+    const onSelect = () => {
+      const snapCount = carouselApi.scrollSnapList().length;
+      const currentSnap = carouselApi.selectedScrollSnap();
+      // When within 2 snaps of the end, fetch more
+      if (snapCount - currentSnap <= 3) {
+        handleLeadsScrollEnd();
+      }
+    };
+
+    carouselApi.on("select", onSelect);
+    return () => {
+      carouselApi.off("select", onSelect);
+    };
+  }, [carouselApi, handleLeadsScrollEnd]);
+
+  // Leads are now filtered server-side via the search param
+  const filteredLeads = validatedLeads;
 
   const handleDiscardLead = (
     leadId: number,
@@ -254,7 +327,7 @@ export default function OpportunitiesKanbanPage() {
     discardLead(leadId, comment, reasonDiscardingId)
       .then(() => {
         successToast("Lead descartado exitosamente");
-        invalidateQuery([QUERY_KEY, "my"]);
+        invalidateQuery([LEADS_QUERY_KEY, "my"]);
       })
       .catch(() => {
         errorToast(ERROR_MESSAGE(MODEL, "update"));
@@ -284,134 +357,157 @@ export default function OpportunitiesKanbanPage() {
         </div>
       </HeaderTableWrapper>
 
-      {isLoading || isLoadingLeads || isLoadingWorkers ? (
-        <FormSkeleton />
-      ) : (
-        <div className="space-y-4 flex-1 overflow-hidden flex flex-col">
-          {/* Leads Carousel */}
-          {validatedLeads.length > 0 && (
-            <div className="p-2 space-y-3">
-              <div className="flex items-center justify-between gap-3">
-                <div className="flex items-center gap-2">
-                  <h3 className="text-sm font-medium text-tertiary">
-                    Leads Validados
-                  </h3>
-                  <Badge className="text-xs h-5">{filteredLeads.length}</Badge>
-                  {searchTerm && (
-                    <span className="text-xs text-muted-foreground">
-                      de {validatedLeads.length}
-                    </span>
-                  )}
-                </div>
+      <div className="space-y-4 flex-1 overflow-hidden flex flex-col">
+        {/* Leads Carousel */}
+        <div className="p-2 space-y-3">
+          <div className="flex items-center justify-between gap-3">
+            <Input
+              type="text"
+              placeholder="Buscar lead..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="max-w-xs h-8 text-sm"
+            />
+            <div className="flex items-center gap-2">
+              <h3 className="text-sm font-medium text-tertiary">
+                Leads Validados
+              </h3>
+              <Badge className="text-xs h-5">{leadsTotalCount}</Badge>
+            </div>
+          </div>
 
-                <Input
-                  type="text"
-                  placeholder="Buscar lead..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="max-w-xs h-8 text-sm"
-                />
-              </div>
-
-              <Carousel
-                opts={{
-                  align: "start",
-                  loop: false,
-                  dragFree: true,
-                }}
-                setApi={setCarouselApi}
-                className="w-full"
-              >
-                <CarouselContent className="-ml-2">
-                  {filteredLeads.map((lead) => (
+          <Carousel
+            opts={{
+              align: "start",
+              loop: false,
+              dragFree: true,
+            }}
+            setApi={setCarouselApi}
+            className="w-full"
+          >
+            <CarouselContent className="-ml-2">
+              {isLoadingLeads
+                ? (
+                    <CarouselItem className="pl-2 basis-full">
+                      <FormSkeleton />
+                    </CarouselItem>
+                  )
+                : filteredLeads.map((lead) => (
                     <CarouselItem key={lead.id} className="pl-2 basis-auto">
                       <div className="w-72">
                         <LeadCard lead={lead} onDiscard={handleDiscardLead} />
                       </div>
                     </CarouselItem>
                   ))}
-                </CarouselContent>
-                <CarouselPrevious className="left-0" />
-                <CarouselNext className="right-0" />
-              </Carousel>
-
-              {filteredLeads.length === 0 && searchTerm && (
-                <div className="text-center py-8 text-sm text-muted-foreground">
-                  No se encontraron leads que coincidan con "{searchTerm}"
-                </div>
+              {leadsQuery.isFetchingNextPage && (
+                <CarouselItem className="pl-2 basis-auto">
+                  <div className="w-72 h-full flex items-center justify-center">
+                    <div className="animate-spin h-5 w-5 border-2 border-primary border-t-transparent rounded-full" />
+                  </div>
+                </CarouselItem>
               )}
+            </CarouselContent>
+            <CarouselPrevious className="left-0" />
+            <CarouselNext className="right-0" />
+          </Carousel>
+
+          {!isLoadingLeads && filteredLeads.length === 0 && (
+            <div className="text-center py-4 text-sm text-muted-foreground">
+              {searchTerm
+                ? `No se encontraron leads que coincidan con "${searchTerm}"`
+                : "No hay leads validados"}
             </div>
           )}
+        </div>
 
-          {/* Kanban Boards */}
+          {/* Search + Kanban Boards */}
+          <div className="px-2">
+            <Input
+              type="text"
+              placeholder="Buscar oportunidad..."
+              value={opportunitySearch}
+              onChange={(e) => setOpportunitySearch(e.target.value)}
+              className="max-w-xs h-8 text-sm"
+            />
+          </div>
           <div className="flex-1 overflow-hidden overflow-x-auto lg:overflow-x-hidden">
             <KanbanProvider
               columns={columns}
               data={kanbanData}
               onDragEnd={handleDragEnd}
               className={cn(
-                validatedLeads.length > 0
+                leadsTotalCount > 0 || searchTerm
                   ? "h-[calc(100vh-320px)] min-w-[800px]"
                   : "h-[calc(100vh-200px)] min-w-[800px]",
                 "p-1",
               )}
             >
-              {(column) => (
-                <KanbanBoard
-                  id={column.id}
-                  key={column.id}
-                  className={cn(
-                    column.bgColor,
-                    !column.canEdit && "opacity-65",
-                    "border-none shadow-none",
-                  )}
-                >
-                  <KanbanHeader className="border-none">
-                    <div className="flex items-center justify-between">
-                      <Badge
-                        variant={"ghost"}
-                        className={cn(column.textColor, column.bgTextColor)}
-                      >
-                        {column.name}
-                      </Badge>
-                      <Badge variant="ghost" className="text-xs">
-                        {
-                          kanbanData.filter((item) => item.column === column.id)
-                            .length
-                        }
-                      </Badge>
-                    </div>
-                  </KanbanHeader>
-                  <KanbanCards id={column.id}>
-                    {(item: any) => (
-                      <KanbanCard
-                        id={item.id}
-                        key={item.id}
-                        name={item.name}
-                        column={item.column}
-                        className={cn(
-                          "w-72 transition-colors duration-300",
-                          column.shadowColor,
-                          column.borderColor,
-                          column.hoverColor,
-                        )}
-                      >
-                        <OpportunityCard
-                          key={item.opportunity.id}
-                          opportunity={item.opportunity}
-                          disableClick={true}
-                          showOpenButton={true}
-                          noWrapper={true}
-                        />
-                      </KanbanCard>
+              {(column) => {
+                const columnIndex = columns.findIndex(
+                  (c) => c.id === column.id,
+                );
+                const query = columnQueries[columnIndex];
+                return (
+                  <KanbanBoard
+                    id={column.id}
+                    key={column.id}
+                    className={cn(
+                      column.bgColor,
+                      !column.canEdit && "opacity-65",
+                      "border-none shadow-none",
                     )}
-                  </KanbanCards>
-                </KanbanBoard>
-              )}
+                  >
+                    <KanbanHeader className="border-none">
+                      <div className="flex items-center justify-between">
+                        <Badge
+                          variant={"ghost"}
+                          className={cn(column.textColor, column.bgTextColor)}
+                        >
+                          {column.name}
+                        </Badge>
+                        <Badge variant="ghost" className="text-xs">
+                          {columnTotals[column.id] ?? 0}
+                        </Badge>
+                      </div>
+                    </KanbanHeader>
+                    {query?.isLoading ? (
+                      <FormSkeleton />
+                    ) : (
+                    <KanbanCards
+                      id={column.id}
+                      onScrollEnd={() => handleColumnScrollEnd(columnIndex)}
+                      isLoadingMore={query?.isFetchingNextPage}
+                    >
+                      {(item: any) => (
+                        <KanbanCard
+                          id={item.id}
+                          key={item.id}
+                          name={item.name}
+                          column={item.column}
+                          className={cn(
+                            "w-72 transition-colors duration-300",
+                            column.shadowColor,
+                            column.borderColor,
+                            column.hoverColor,
+                          )}
+                        >
+                          <OpportunityCard
+                            key={item.opportunity.id}
+                            opportunity={item.opportunity}
+                            disableClick={true}
+                            showOpenButton={true}
+                            noWrapper={true}
+                          />
+                        </KanbanCard>
+                      )}
+                    </KanbanCards>
+                    )}
+                  </KanbanBoard>
+                );
+              }}
             </KanbanProvider>
           </div>
         </div>
-      )}
     </PageWrapper>
   );
 }

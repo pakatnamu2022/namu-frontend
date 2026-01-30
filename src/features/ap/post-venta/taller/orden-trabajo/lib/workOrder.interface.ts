@@ -22,6 +22,7 @@ export interface WorkOrderResource {
   fuel_level: string;
   order_quotation_id: number | null;
   appointment_planning_id: string;
+  vehicle_inspection_id: string;
   vehicle_id: string;
   currency_id: string;
   vehicle: VehicleResource;

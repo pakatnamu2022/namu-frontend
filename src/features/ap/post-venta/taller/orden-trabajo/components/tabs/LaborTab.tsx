@@ -225,7 +225,11 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
       {/* Add Labor Button */}
       {!showForm && (
         <div className="flex justify-end">
-          <Button onClick={() => setShowForm(true)} className="gap-2">
+          <Button
+            onClick={() => setShowForm(true)}
+            className="gap-2"
+            disabled={items.length === 0}
+          >
             <Plus className="h-4 w-4" />
             Agregar Mano de Obra
           </Button>

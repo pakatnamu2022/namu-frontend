@@ -15,7 +15,7 @@ import { QuotationSelectionTable } from "../../cotizacion/components/QuotationSe
 import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { errorToast } from "@/core/core.function";
+import { errorToast, getMonday, getSunday } from "@/core/core.function";
 import { AREA_PM_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 import SearchInput from "@/shared/components/SearchInput";
 
@@ -36,8 +36,12 @@ export const WorkOrderQuotationSelectionModal = ({
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const currentDate = new Date();
   const [search, setSearch] = useState("");
-  const [dateFrom, setDateFrom] = useState<Date | undefined>(currentDate);
-  const [dateTo, setDateTo] = useState<Date | undefined>(currentDate);
+  const [dateFrom, setDateFrom] = useState<Date | undefined>(
+    getMonday(currentDate),
+  );
+  const [dateTo, setDateTo] = useState<Date | undefined>(
+    getSunday(currentDate),
+  );
 
   const formatDate = (date: Date | undefined) => {
     return date ? date.toLocaleDateString("en-CA") : undefined; // formato: YYYY-MM-DD
@@ -82,7 +86,7 @@ export const WorkOrderQuotationSelectionModal = ({
       },
     },
     {
-      accessorKey: "customer",
+      accessorKey: "client.full_name",
       header: "Cliente",
       cell: ({ getValue }) => {
         const value = getValue() as string;

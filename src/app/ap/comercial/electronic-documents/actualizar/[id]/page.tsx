@@ -18,7 +18,6 @@ import { updateElectronicDocument } from "@/features/ap/facturacion/electronic-d
 import { ElectronicDocumentSchema } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.schema";
 import { ElectronicDocumentForm } from "@/features/ap/facturacion/electronic-documents/components/ElectronicDocumentForm";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
-import FormWrapper from "@/shared/components/FormWrapper";
 import PageSkeleton from "@/shared/components/PageSkeleton";
 import { ELECTRONIC_DOCUMENT } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.constants";
 import { useAllSunatConcepts } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.hook";
@@ -28,6 +27,7 @@ import FormSkeleton from "@/shared/components/FormSkeleton";
 import { useAuthorizedSeries } from "@/features/ap/configuraciones/maestros-general/asignar-serie-usuario/lib/userSeriesAssignment.hook";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { STATUS_ACTIVE } from "@/core/core.constants";
+import PageWrapper from "@/shared/components/PageWrapper";
 
 export default function UpdateElectronicDocumentPage() {
   const { ROUTE, MODEL, ABSOLUTE_ROUTE } = ELECTRONIC_DOCUMENT;
@@ -285,7 +285,7 @@ export default function UpdateElectronicDocumentPage() {
   }
 
   return (
-    <FormWrapper maxWidth="max-w-(--breakpoint-2xl)">
+    <PageWrapper>
       <TitleFormComponent
         title={currentView.descripcion}
         mode="edit"
@@ -306,6 +306,6 @@ export default function UpdateElectronicDocumentPage() {
         debitNoteTypes={debitNoteTypes || []}
         useQuotation={true}
       />
-    </FormWrapper>
+    </PageWrapper>
   );
 }

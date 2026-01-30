@@ -61,6 +61,24 @@ export const OPPORTUNITY_CALIENTE = "CALIENTE";
 export const OPPORTUNITY_VENDIDA = "VENDIDA";
 export const OPPORTUNITY_CERRADA = "CERRADA";
 
+// IDs de estados de oportunidad del backend
+export const OPPORTUNITY_STATUS_IDS = {
+  COLD: 856,
+  WARM: 857,
+  HOT: 858,
+  SOLD: 859,
+  CLOSED: 860,
+} as const;
+
+// Mapeo de columna kanban a opportunity_status_id
+export const COLUMN_TO_STATUS_ID: Record<string, number> = {
+  [OPPORTUNITY_FRIA]: OPPORTUNITY_STATUS_IDS.COLD,
+  [OPPORTUNITY_TEMPLADA]: OPPORTUNITY_STATUS_IDS.WARM,
+  [OPPORTUNITY_CALIENTE]: OPPORTUNITY_STATUS_IDS.HOT,
+  [OPPORTUNITY_VENDIDA]: OPPORTUNITY_STATUS_IDS.SOLD,
+  [OPPORTUNITY_CERRADA]: OPPORTUNITY_STATUS_IDS.CLOSED,
+};
+
 export const BG_OPPORTUNITY: Record<string, string> = {
   [OPPORTUNITY_FRIA]: "bg-blue-500/5",
   [OPPORTUNITY_TEMPLADA]: "bg-yellow-500/5",

@@ -16,13 +16,13 @@ import { storeElectronicDocument } from "@/features/ap/facturacion/electronic-do
 import { ElectronicDocumentSchema } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.schema";
 import { ElectronicDocumentForm } from "@/features/ap/facturacion/electronic-documents/components/ElectronicDocumentForm";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
-import FormWrapper from "@/shared/components/FormWrapper";
 import { ELECTRONIC_DOCUMENT } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.constants";
 import { SUNAT_CONCEPTS_TYPE } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
 import { useAllSunatConcepts } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.hook";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { STATUS_ACTIVE } from "@/core/core.constants";
+import PageWrapper from "@/shared/components/PageWrapper";
 
 export default function AddElectronicDocumentPage() {
   const { ROUTE, MODEL, ABSOLUTE_ROUTE } = ELECTRONIC_DOCUMENT;
@@ -145,7 +145,10 @@ export default function AddElectronicDocumentPage() {
     if (currencyTypes.length > 0) {
       const currentValue = form.getValues("sunat_concept_currency_id");
       if (!currentValue) {
-        form.setValue("sunat_concept_currency_id", currencyTypes[0].id.toString());
+        form.setValue(
+          "sunat_concept_currency_id",
+          currencyTypes[0].id.toString(),
+        );
       }
     }
   }, [currencyTypes, form]);
@@ -175,7 +178,7 @@ export default function AddElectronicDocumentPage() {
   }
 
   return (
-    <FormWrapper maxWidth="max-w-(--breakpoint-2xl)">
+    <PageWrapper>
       <TitleFormComponent
         title={currentView.descripcion}
         mode="create"
@@ -196,6 +199,6 @@ export default function AddElectronicDocumentPage() {
         debitNoteTypes={debitNoteTypes || []}
         useQuotation={true}
       />
-    </FormWrapper>
+    </PageWrapper>
   );
 }

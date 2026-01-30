@@ -7,9 +7,9 @@ import {
   OrderQuotationResource,
   OrderQuotationResponse,
 } from "./proforma.interface";
-import { ORDER_QUOTATION } from "./proforma.constants";
+import { ORDER_QUOTATION_TALLER } from "./proforma.constants";
 
-const { ENDPOINT } = ORDER_QUOTATION;
+const { ENDPOINT } = ORDER_QUOTATION_TALLER;
 
 export async function getOrderQuotations({
   params,
@@ -22,7 +22,7 @@ export async function getOrderQuotations({
 }
 
 export async function getAllOrderQuotations(
-  params?: Record<string, any>
+  params?: Record<string, any>,
 ): Promise<OrderQuotationResource[]> {
   const config: AxiosRequestConfig = {
     params: {
@@ -35,14 +35,14 @@ export async function getAllOrderQuotations(
 }
 
 export async function findOrderQuotationById(
-  id: number
+  id: number,
 ): Promise<OrderQuotationResource> {
   const response = await api.get<OrderQuotationResource>(`${ENDPOINT}/${id}`);
   return response.data;
 }
 
 export async function storeOrderQuotation(
-  data: OrderQuotationRequest
+  data: OrderQuotationRequest,
 ): Promise<OrderQuotationResource> {
   const response = await api.post<OrderQuotationResource>(ENDPOINT, data);
   return response.data;
@@ -50,17 +50,17 @@ export async function storeOrderQuotation(
 
 export async function updateOrderQuotation(
   id: number,
-  data: OrderQuotationRequest
+  data: OrderQuotationRequest,
 ): Promise<OrderQuotationResource> {
   const response = await api.put<OrderQuotationResource>(
     `${ENDPOINT}/${id}`,
-    data
+    data,
   );
   return response.data;
 }
 
 export async function deleteOrderQuotation(
-  id: number
+  id: number,
 ): Promise<GeneralResponse> {
   const { data } = await api.delete<GeneralResponse>(`${ENDPOINT}/${id}`);
   return data;
@@ -91,7 +91,7 @@ export async function downloadOrderQuotationPdf(id: number): Promise<void> {
 
 export async function downloadOrderQuotationRepuestoPdf(
   id: number,
-  show_codes: boolean
+  show_codes: boolean,
 ): Promise<void> {
   const response = await api.get(`${ENDPOINT}/${id}/pdf-repuesto`, {
     responseType: "blob",

@@ -8,9 +8,9 @@ import {
   PurchaseRequestResource,
   PurchaseRequestResponse,
 } from "./purchaseRequest.interface";
-import { PURCHASE_REQUEST } from "./purchaseRequest.constants";
+import { PURCHASE_REQUEST_TALLER } from "./purchaseRequest.constants";
 
-const { ENDPOINT } = PURCHASE_REQUEST;
+const { ENDPOINT } = PURCHASE_REQUEST_TALLER;
 
 export async function getPurchaseRequests({
   params,

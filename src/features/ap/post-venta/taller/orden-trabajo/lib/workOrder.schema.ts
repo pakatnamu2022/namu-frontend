@@ -4,6 +4,7 @@ import { z } from "zod";
 const workOrderItemSchema = z.object({
   group_number: z.number().int().min(1, "Número de grupo debe ser mayor a 0"),
   type_planning_id: requiredStringId("Tipo de planificación es requerido"),
+  type_operation_id: requiredStringId("Tipo de operación es requerido"),
   description: z.string().min(0, "Descripción es requerida"),
 });
 

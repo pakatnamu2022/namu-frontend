@@ -312,7 +312,11 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
       {/* Botón Agregar Repuesto */}
       {!showAddForm && (
         <div className="flex justify-end">
-          <Button onClick={() => setShowAddForm(true)} className="gap-2">
+          <Button
+            onClick={() => setShowAddForm(true)}
+            className="gap-2"
+            disabled={items.length === 0}
+          >
             <Plus className="h-4 w-4" />
             Agregar Repuesto
           </Button>

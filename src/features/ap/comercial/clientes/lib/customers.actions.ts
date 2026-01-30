@@ -19,6 +19,7 @@ export async function getCustomers({
   const config: AxiosRequestConfig = {
     params: {
       ...params,
+      type: [TYPE_BUSINESS_PARTNERS.CLIENTE, TYPE_BUSINESS_PARTNERS.AMBOS],
     },
   };
   const { data } = await api.get<CustomersResponse>(ENDPOINT, config);
@@ -45,7 +46,7 @@ export async function getCustomersById(id: number): Promise<CustomersResource> {
 }
 
 export async function findCustomersById(
-  id: number
+  id: number,
 ): Promise<CustomersResource> {
   const response = await api.get<CustomersResource>(`${ENDPOINT}/${id}`);
   return response.data;
@@ -53,7 +54,7 @@ export async function findCustomersById(
 
 export async function findCustomerValidated(
   id: number,
-  lead_id: number
+  lead_id: number,
 ): Promise<CustomersResource> {
   const config: AxiosRequestConfig = {
     params: {
@@ -62,13 +63,13 @@ export async function findCustomerValidated(
   };
   const response = await api.get<CustomersResource>(
     `${ENDPOINT}/${id}/validateOpportunity`,
-    config
+    config,
   );
   return response.data;
 }
 
 export async function storeCustomers(
-  payload: CustomersRequest
+  payload: CustomersRequest,
 ): Promise<CustomersResource> {
   const { data } = await api.post<CustomersResource>(ENDPOINT, payload);
   return data;
@@ -76,32 +77,32 @@ export async function storeCustomers(
 
 export async function updateCustomers(
   id: number,
-  payload: CustomersRequest
+  payload: CustomersRequest,
 ): Promise<CustomersResource> {
   const { data } = await api.put<CustomersResource>(
     `${ENDPOINT}/${id}`,
-    payload
+    payload,
   );
   return data;
 }
 
 export async function deleteCustomers(
   id: number,
-  type?: string
+  type?: string,
 ): Promise<GeneralResponse> {
   const payload = { type: type || TYPE_BUSINESS_PARTNERS.CLIENTE };
   const { data } = await api.patch<GeneralResponse>(
     `${ENDPOINT}/${id}/remove-type`,
-    payload
+    payload,
   );
   return data;
 }
 
 export async function getAllOpportunitiesByCustomer(
-  id: number
+  id: number,
 ): Promise<OpportunityResource[]> {
   const { data } = await api.get<OpportunityResource[]>(
-    `${ENDPOINT}/${id}/opportunities`
+    `${ENDPOINT}/${id}/opportunities`,
   );
   return data;
 }

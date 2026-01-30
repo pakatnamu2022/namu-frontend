@@ -3,27 +3,27 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Car, User, FileText } from "lucide-react";
-import PageSkeleton from "@/shared/components/PageSkeleton";
-import TitleComponent from "@/shared/components/TitleComponent";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import PageSkeleton from "@/shared/components/PageSkeleton.tsx";
+import TitleComponent from "@/shared/components/TitleComponent.tsx";
+import { Button } from "@/components/ui/button.tsx";
+import { Card } from "@/components/ui/card.tsx";
 import {
   errorToast,
   successToast,
   ERROR_MESSAGE,
   SUCCESS_MESSAGE,
-} from "@/core/core.function";
-import { ORDER_QUOTATION } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.constants";
-import { ORDER_QUOTATION_DETAILS } from "@/features/ap/post-venta/taller/cotizacion-detalle/lib/proformaDetails.constants";
-import { findOrderQuotationById } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.actions";
+} from "@/core/core.function.ts";
+import { ORDER_QUOTATION_TALLER } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.constants.ts";
+import { ORDER_QUOTATION_DETAILS } from "@/features/ap/post-venta/taller/cotizacion-detalle/lib/proformaDetails.constants.ts";
+import { findOrderQuotationById } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.actions.ts";
 import {
   getAllOrderQuotationDetails,
   deleteOrderQuotationDetails,
-} from "@/features/ap/post-venta/taller/cotizacion-detalle/lib/proformaDetails.actions";
-import { OrderQuotationResource } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.interface";
-import { OrderQuotationDetailsResource } from "@/features/ap/post-venta/taller/cotizacion-detalle/lib/proformaDetails.interface";
-import LaborDetailsSection from "@/features/ap/post-venta/taller/cotizacion-detalle/components/LaborDetailsSection";
-import ProductDetailsSection from "@/features/ap/post-venta/taller/cotizacion-detalle/components/ProductDetailsSection";
+} from "@/features/ap/post-venta/taller/cotizacion-detalle/lib/proformaDetails.actions.ts";
+import { OrderQuotationResource } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.interface.ts";
+import { OrderQuotationDetailsResource } from "@/features/ap/post-venta/taller/cotizacion-detalle/lib/proformaDetails.interface.ts";
+import LaborDetailsSection from "@/features/ap/post-venta/taller/cotizacion-detalle/components/LaborDetailsSection.tsx";
+import ProductDetailsSection from "@/features/ap/post-venta/taller/cotizacion-detalle/components/ProductDetailsSection.tsx";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 
@@ -133,7 +133,7 @@ export default function ManageQuotationPage() {
         <Button
           variant="outline"
           size="icon"
-          onClick={() => navigate(ORDER_QUOTATION.ABSOLUTE_ROUTE)}
+          onClick={() => navigate(ORDER_QUOTATION_TALLER.ABSOLUTE_ROUTE)}
         >
           <ArrowLeft className="h-5 w-5" />
         </Button>

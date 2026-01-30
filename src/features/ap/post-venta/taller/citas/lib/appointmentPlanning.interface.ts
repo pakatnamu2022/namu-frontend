@@ -21,6 +21,7 @@ export interface AppointmentPlanningResource {
   type_operation_appointment_id: number;
   type_planning_id: number;
   type_planning_name: string;
+  type_operation_appointment_name: string;
   ap_vehicle_id: number;
   vehicle: VehicleResource;
   advisor_id: number;

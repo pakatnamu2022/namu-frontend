@@ -190,6 +190,15 @@ export default function GeneralInformationPage() {
                 </div>
               </div>
               <div className="flex items-start gap-2">
+                <MapPin className="h-5 w-5 text-gray-500 mt-0.5" />
+                <div>
+                  <p className="text-sm text-gray-600">Tipo de Operacion</p>
+                  <p className="font-semibold">
+                    {appointment.type_operation_appointment_name}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-start gap-2">
                 <User className="h-5 w-5 text-gray-500 mt-0.5" />
                 <div>
                   <p className="text-sm text-gray-600">Cliente</p>
@@ -252,7 +261,7 @@ export default function GeneralInformationPage() {
                 <div>
                   <p className="text-sm text-gray-600">Cliente</p>
                   <p className="font-semibold">
-                    {workOrder.order_quotation.customer}
+                    {workOrder.order_quotation.client.full_name}
                   </p>
                 </div>
               </div>

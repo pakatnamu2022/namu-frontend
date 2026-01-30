@@ -18,6 +18,7 @@ export async function getSuppliers({
   const config: AxiosRequestConfig = {
     params: {
       ...params,
+      type: [TYPE_BUSINESS_PARTNERS.PROVEEDOR, TYPE_BUSINESS_PARTNERS.AMBOS],
     },
   };
   const { data } = await api.get<SuppliersResponse>(ENDPOINT, config);
@@ -44,14 +45,14 @@ export async function getSuppliersById(id: number): Promise<SuppliersResource> {
 }
 
 export async function findSuppliersById(
-  id: number
+  id: number,
 ): Promise<SuppliersResource> {
   const response = await api.get<SuppliersResource>(`${ENDPOINT}/${id}`);
   return response.data;
 }
 
 export async function storeSuppliers(
-  payload: SuppliersRequest
+  payload: SuppliersRequest,
 ): Promise<SuppliersResource> {
   const { data } = await api.post<SuppliersResource>(ENDPOINT, payload);
   return data;
@@ -59,23 +60,23 @@ export async function storeSuppliers(
 
 export async function updateSuppliers(
   id: number,
-  payload: SuppliersRequest
+  payload: SuppliersRequest,
 ): Promise<SuppliersResource> {
   const { data } = await api.put<SuppliersResource>(
     `${ENDPOINT}/${id}`,
-    payload
+    payload,
   );
   return data;
 }
 
 export async function deleteSuppliers(
   id: number,
-  type?: string
+  type?: string,
 ): Promise<GeneralResponse> {
   const payload = { type: type || TYPE_BUSINESS_PARTNERS.PROVEEDOR };
   const { data } = await api.patch<GeneralResponse>(
     `${ENDPOINT}/${id}/remove-type`,
-    payload
+    payload,
   );
   return data;
 }

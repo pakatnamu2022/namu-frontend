@@ -22,7 +22,6 @@ export default function VehicleColorTable({
         data={data}
         isLoading={isLoading}
         initialColumnVisibility={{
-          code: true,
           description: true,
           status: true,
         }}

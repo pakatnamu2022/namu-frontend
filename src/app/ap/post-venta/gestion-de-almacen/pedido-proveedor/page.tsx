@@ -1,7 +1,7 @@
 "use client";
 
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule.ts";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ERROR_MESSAGE,
   errorToast,
@@ -14,7 +14,7 @@ import PageSkeleton from "@/shared/components/PageSkeleton.tsx";
 import TitleComponent from "@/shared/components/TitleComponent.tsx";
 import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog.tsx";
 import DataTablePagination from "@/shared/components/DataTablePagination.tsx";
-import { DEFAULT_PER_PAGE } from "@/core/core.constants.ts";
+import { DEFAULT_PER_PAGE, EMPRESA_AP } from "@/core/core.constants.ts";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper.tsx";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions.ts";
 import { notFound } from "@/shared/hooks/useNotFound.ts";
@@ -26,12 +26,14 @@ import { supplierOrderColumns } from "@/features/ap/post-venta/gestion-almacen/p
 import SupplierOrderOptions from "@/features/ap/post-venta/gestion-almacen/pedido-proveedor/components/SupplierOrderOptions.tsx";
 import { SUPPLIER_ORDER } from "@/features/ap/post-venta/gestion-almacen/pedido-proveedor/lib/supplierOrder.constants.ts";
 import { SupplierOrderViewSheet } from "@/features/ap/post-venta/gestion-almacen/pedido-proveedor/components/SupplierOrderViewSheet.tsx";
+import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 
 export default function SupplierOrderPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
+  const [sedeId, setSedeId] = useState<string>("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [viewOrderId, setViewOrderId] = useState<number | null>(null);
   const { MODEL, ROUTE, ROUTE_ADD, ROUTE_UPDATE, ABSOLUTE_ROUTE } =
@@ -50,6 +52,18 @@ export default function SupplierOrderPage() {
     return date ? date.toLocaleDateString("en-CA") : undefined; // formato: YYYY-MM-DD
   };
 
+  // Obtener mis almacenes físicos de postventa
+  const { data: mySedes = [], isLoading: isLoadingSedes } = useMySedes({
+    company: EMPRESA_AP.id,
+  });
+
+  useEffect(() => {
+    if (mySedes.length > 0 && !sedeId) {
+      setSedeId(mySedes[0].id.toString());
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mySedes]);
+
   const { data, isLoading, refetch } = useSupplierOrder({
     page,
     search,
@@ -58,6 +72,7 @@ export default function SupplierOrderPage() {
       dateFrom && dateTo
         ? [formatDate(dateFrom), formatDate(dateTo)]
         : undefined,
+    sede_id: sedeId || undefined,
   });
 
   const handleDelete = async () => {
@@ -78,7 +93,7 @@ export default function SupplierOrderPage() {
     setViewOrderId(id);
   };
 
-  if (isLoadingModule) return <PageSkeleton />;
+  if (isLoadingModule || isLoadingSedes) return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
   if (!currentView) notFound();
 
@@ -110,6 +125,9 @@ export default function SupplierOrderPage() {
           setDateFrom={setDateFrom}
           dateTo={dateTo}
           setDateTo={setDateTo}
+          sedes={mySedes}
+          sedeId={sedeId}
+          setSedeId={setSedeId}
         />
       </SupplierOrderTable>
 

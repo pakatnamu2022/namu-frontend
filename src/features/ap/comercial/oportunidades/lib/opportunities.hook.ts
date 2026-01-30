@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   OpportunitiesResponse,
   OpportunityResource,
@@ -57,7 +57,7 @@ export const useOpportunities = (params?: Record<string, any>) => {
 };
 
 export const useMyOpportunities = (params: GetMyOpportunitiesProps) => {
-  return useQuery<OpportunityResource[]>({
+  return useQuery<OpportunitiesResponse>({
     queryKey: [QUERY_KEY, "my", params],
     queryFn: () => getMyOpportunities(params),
     refetchOnWindowFocus: false,
@@ -89,6 +89,27 @@ export const useOpportunityActions = (opportunityId: number) => {
     queryFn: () => getOpportunityActions(opportunityId),
     refetchOnWindowFocus: false,
     enabled: !!opportunityId && opportunityId > 0,
+  });
+};
+
+export const useMyOpportunitiesByStatus = (
+  statusId: number,
+  params: Omit<GetMyOpportunitiesProps, "opportunity_status_id" | "page">,
+) => {
+  return useInfiniteQuery<OpportunitiesResponse>({
+    queryKey: [QUERY_KEY, "my", "status", statusId, params],
+    queryFn: ({ pageParam = 1 }) =>
+      getMyOpportunities({
+        ...params,
+        opportunity_status_id: statusId,
+        page: pageParam as number,
+      }),
+    getNextPageParam: (lastPage) => {
+      const { current_page, last_page } = lastPage.meta;
+      return current_page < last_page ? current_page + 1 : undefined;
+    },
+    initialPageParam: 1,
+    refetchOnWindowFocus: false,
   });
 };
 
@@ -148,7 +169,7 @@ export const useUpdateOpportunity = () => {
     },
     onError: (error: any) => {
       errorToast(
-        error.response.data.message || "Error al crear la oportunidad"
+        error.response.data.message || "Error al crear la oportunidad",
       );
     },
   });
