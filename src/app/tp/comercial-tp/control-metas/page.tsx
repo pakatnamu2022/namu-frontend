@@ -19,130 +19,134 @@ import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { useEffect, useState } from "react";
 
+export default function ControlGoalPage() {
+  const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
+  const [page, setPage] = useState(1);
+  const [per_page, setPerPage] = useState(DEFAULT_PER_PAGE);
+  const [search, setSearch] = useState("");
+  const [year, setYear] = useState("");
+  const [month, setMonth] = useState("");
+  const [status, setStatus] = useState("all");
+  const [useStatus, setUseStatus] = useState("all");
+  const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [updateId, setUpdateId] = useState<number | null>(null);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const { ROUTE } = GOALTRAVELCONTROL;
 
+  useEffect(() => {
+    setPage(1);
+  }, [search, per_page, status, useStatus, year, month]);
 
-export default function ControlGoalPage(){
-    const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
-    const [page, setPage] = useState(1);
-    const [per_page, setPerPage] = useState(DEFAULT_PER_PAGE);
-    const [search, setSearch] = useState("");
-    const [status, setStatus] = useState("all");
-    const [useStatus, setUseStatus] = useState("all");
-    const [deleteId, setDeleteId] = useState<number | null>(null);
-    const [updateId, setUpdateId] = useState<number | null>(null);
-    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-    const { ROUTE } = GOALTRAVELCONTROL;
+  const params = {
+    page,
+    per_page,
+    search,
+    year: year || undefined,
+    month: month || undefined,
+    status_id: status === "all" ? undefined : status,
+  };
 
-     useEffect(()=> {
-            setPage(1);
-    }, [search, per_page]);
+  const { data, isLoading, refetch } = useGoalTravelControl(params);
+  const handleDelete = async () => {
+    if (!deleteId) return;
 
-    const { data, isLoading, refetch } = useGoalTravelControl({
-        page,
-        search,
-        status_id: status === "all" ? undefined: status
-    });
+    try {
+      await deleteGoalTravel(deleteId);
+      await refetch();
+      successToast("Meta eliminada correctamente. ");
+    } catch (error) {
+      errorToast("Error al eliminar la meta. ");
+    } finally {
+      setDeleteId(null);
+    }
+  };
 
-    const handleDelete = async () => {
-        if(!deleteId) return;
+  const handleUpdate = (id: number) => {
+    setUpdateId(id);
+  };
 
-        try{
-            await deleteGoalTravel(deleteId);
-            await refetch();
-            successToast("Meta eliminada correctamente. ");
+  const handleCreate = () => {
+    setIsCreateModalOpen(true);
+  };
+  const handleCloseUpdateModal = () => {
+    setUpdateId(null);
+  };
 
-        }catch(error){
-            errorToast("Error al eliminar la meta. ");
-        }finally{
-            setDeleteId(null);
-        }
-    };
+  const handleCloseCreateModal = () => {
+    setIsCreateModalOpen(false);
+  };
 
-    const handleUpdate = (id: number) => {
-        setUpdateId(id);
-    };
+  const availableYears = data?.available_years || [];
 
-    const handleCreate = () => {
-        setIsCreateModalOpen(true);
-    };
-    const handleCloseUpdateModal = () => {
-        setUpdateId(null);
-    };
-    
-    const handleCloseCreateModal = () => {
-        setIsCreateModalOpen(false);
-    };
+  if (isLoadingModule) return <PageSkeleton />;
+  if (!checkRouteExists(ROUTE)) notFound();
+  if (!currentView) notFound();
 
-    if(isLoadingModule) return <PageSkeleton />;
-    if(!checkRouteExists(ROUTE)) notFound();
-    if(!currentView) notFound();
-    
-    return(
-        <div className="space-y-4">
-            <HeaderTableWrapper>
-                <TitleComponent
-                    title={currentView.descripcion}
-                    subtitle={currentView.descripcion}
-                    icon={currentView.icon}
-                />
-                <GoalTravelActions onCreate={handleCreate} />
-            </HeaderTableWrapper>
-            <GoalTravelTable
-                isLoading={isLoading}
-                columns={ goalTravelColumns({
-                   onDelete: setDeleteId,
-                   onUpdate: handleUpdate 
-                })}
-                data = {data?.data || []}
-            >
-                <GoalTravelOptions
-                    search={search}
-                    setSearch={setSearch}
-                    status={status}
-                    setStatus={setStatus}
-                    useStatus={useStatus}
-                    setUseStatus={setUseStatus} 
-                />
-            </GoalTravelTable>
+  return (
+    <div className="space-y-4">
+      <HeaderTableWrapper>
+        <TitleComponent
+          title={currentView.descripcion}
+          subtitle={currentView.descripcion}
+          icon={currentView.icon}
+        />
+        <GoalTravelActions onCreate={handleCreate} />
+      </HeaderTableWrapper>
+      <GoalTravelTable
+        isLoading={isLoading}
+        columns={goalTravelColumns({
+          onDelete: setDeleteId,
+          onUpdate: handleUpdate,
+        })}
+        data={data?.data || []}
+      >
+        <GoalTravelOptions
+          search={search}
+          setSearch={setSearch}
+          status={status}
+          setStatus={setStatus}
+          useStatus={useStatus}
+          setUseStatus={setUseStatus}
+          year={year}
+          setYear={setYear}
+          month={month}
+          setMonth={setMonth}
+          availableYears={availableYears}
+        />
+      </GoalTravelTable>
 
-            <GoalTravelModal
-                open={isCreateModalOpen}
-                onClose={handleCloseCreateModal}
-                title="Nueva Meta"
-                mode="create"
-            />
-            {updateId && (
-                <GoalTravelModal
-                    id={updateId}
-                    open={!!updateId}
-                    onClose={handleCloseUpdateModal}
-                    title="Editar Meta"
-                    mode="update"
-                />
-            )}
+      <GoalTravelModal
+        open={isCreateModalOpen}
+        onClose={handleCloseCreateModal}
+        title="Nueva Meta"
+        mode="create"
+      />
+      {updateId && (
+        <GoalTravelModal
+          id={updateId}
+          open={!!updateId}
+          onClose={handleCloseUpdateModal}
+          title="Editar Meta"
+          mode="update"
+        />
+      )}
 
-            {deleteId !== null && (
-                <SimpleDeleteDialog
-                    open={true}
-                    onOpenChange={(open) => !open && setDeleteId(null)}
-                    onConfirm={handleDelete}
-                />
-            )}
+      {deleteId !== null && (
+        <SimpleDeleteDialog
+          open={true}
+          onOpenChange={(open) => !open && setDeleteId(null)}
+          onConfirm={handleDelete}
+        />
+      )}
 
-            <DataTablePagination
-                page={page}
-                totalPages={data?.meta?.last_page || 1}
-                onPageChange={setPage}
-                per_page={per_page}
-                setPerPage={setPerPage}
-                totalData={data?.meta?.total || 0}
-            />
-
-        </div>
-    )
-
-
-
-    
-
+      <DataTablePagination
+        page={page}
+        totalPages={data?.meta?.last_page || 1}
+        onPageChange={setPage}
+        per_page={per_page}
+        setPerPage={setPerPage}
+        totalData={data?.meta?.total || 0}
+      />
+    </div>
+  );
 }
