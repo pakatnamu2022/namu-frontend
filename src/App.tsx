@@ -374,6 +374,7 @@ import AddWorkTypePage from "./app/gp/gestion-humana/planillas/tipo-dia-trabajo/
 import UpdateWorkTypePage from "./app/gp/gestion-humana/planillas/tipo-dia-trabajo/actualizar/[id]/page.tsx";
 import WorkSchedulesPage from "./app/gp/gestion-humana/planillas/dia-trabajo/page.tsx";
 import ProfileLayout from "./features/dashboard/components/ProfileLayout.tsx";
+import ControlGoalPage from "./app/tp/comercial-tp/control-metas/page.tsx";
 
 // ============================================================================
 // PROTECTED ROUTE COMPONENT
@@ -1848,6 +1849,7 @@ function App() {
             >
               <Route path="control-viajes" element={<ControlTravelPage />} />
               <Route path="control-fletes" element={<ControlFreightPage />} />
+              <Route path="control-metas" element={<ControlGoalPage/>}/>
             </Route>
 
             {/* ======================================================== */}
