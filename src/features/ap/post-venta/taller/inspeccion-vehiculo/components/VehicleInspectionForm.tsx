@@ -23,7 +23,7 @@ import { FormSelect } from "@/shared/components/FormSelect";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 import { FormInput } from "@/shared/components/FormInput";
 import { FormInputText } from "@/shared/components/FormInputText";
-import { ImageUploadField } from "@/shared/components/ImageUploadField";
+import { FileUploadWithCamera } from "@/shared/components/FileUploadWithCamera";
 
 interface VehicleInspectionFormProps {
   defaultValues: Partial<VehicleInspectionSchema>;
@@ -153,33 +153,77 @@ export const VehicleInspectionForm = ({
           bgColor="bg-orange-50"
           cols={{ sm: 2 }}
         >
-          <ImageUploadField
-            form={form}
+          <FormField
+            control={form.control}
             name="photo_front"
-            label="Foto Frontal"
-            maxSizeInMB={5}
-            required
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <FileUploadWithCamera
+                    label="Foto Frontal"
+                    accept="image/*"
+                    value={field.value}
+                    onChange={(file) => field.onChange(file)}
+                    disabled={isSubmitting}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
-          <ImageUploadField
-            form={form}
+          <FormField
+            control={form.control}
             name="photo_back"
-            label="Foto Trasera"
-            maxSizeInMB={5}
-            required
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <FileUploadWithCamera
+                    label="Foto Trasera"
+                    accept="image/*"
+                    value={field.value}
+                    onChange={(file) => field.onChange(file)}
+                    disabled={isSubmitting}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
-          <ImageUploadField
-            form={form}
+          <FormField
+            control={form.control}
             name="photo_left"
-            label="Foto Lateral Izquierda"
-            maxSizeInMB={5}
-            required
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <FileUploadWithCamera
+                    label="Foto Lateral Izquierda"
+                    accept="image/*"
+                    value={field.value}
+                    onChange={(file) => field.onChange(file)}
+                    disabled={isSubmitting}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
-          <ImageUploadField
-            form={form}
+          <FormField
+            control={form.control}
             name="photo_right"
-            label="Foto Lateral Derecha"
-            maxSizeInMB={5}
-            required
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <FileUploadWithCamera
+                    label="Foto Lateral Derecha"
+                    accept="image/*"
+                    value={field.value}
+                    onChange={(file) => field.onChange(file)}
+                    disabled={isSubmitting}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
         </GroupFormSection>
 
