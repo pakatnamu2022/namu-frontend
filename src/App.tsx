@@ -375,6 +375,7 @@ import UpdateWorkTypePage from "./app/gp/gestion-humana/planillas/tipo-dia-traba
 import WorkSchedulesPage from "./app/gp/gestion-humana/planillas/dia-trabajo/page.tsx";
 import ProfileLayout from "./features/dashboard/components/ProfileLayout.tsx";
 import ControlGoalPage from "./app/tp/comercial-tp/control-metas/page.tsx";
+import EquipmentTypePage from "./app/gp/tics/tipos-de-equipo/page.tsx";
 
 // ============================================================================
 // PROTECTED ROUTE COMPONENT
@@ -1831,6 +1832,7 @@ function App() {
                 <AddEquipmentPage />,
                 <UpdateEquipmentPage />,
               )}
+              <Route path="tipos-de-equipo" element={<EquipmentTypePage />} />
             </Route>
 
             {/* ======================================================== */}
@@ -1849,7 +1851,7 @@ function App() {
             >
               <Route path="control-viajes" element={<ControlTravelPage />} />
               <Route path="control-fletes" element={<ControlFreightPage />} />
-              <Route path="control-metas" element={<ControlGoalPage/>}/>
+              <Route path="control-metas" element={<ControlGoalPage />} />
             </Route>
 
             {/* ======================================================== */}
