@@ -15,11 +15,14 @@ interface FileUploadWithCameraProps {
   showFileInfo?: boolean;
 }
 
+// Cache para URLs de objetos para evitar recrearlas en cada render
+const objectUrlCache = new WeakMap<File, string>();
+
 export function FileUploadWithCamera({
   label = "Archivo",
   accept = "image/*,application/pdf",
   value = null,
-  previewUrl = "",
+  previewUrl: externalPreviewUrl = "",
   onChange,
   disabled = false,
   className = "",
@@ -28,6 +31,22 @@ export function FileUploadWithCamera({
 }: FileUploadWithCameraProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
+
+  // Generar preview URL usando cache para evitar memory leaks
+  const internalPreviewUrl = useMemo(() => {
+    if (value instanceof File) {
+      let url = objectUrlCache.get(value);
+      if (!url) {
+        url = URL.createObjectURL(value);
+        objectUrlCache.set(value, url);
+      }
+      return url;
+    }
+    return "";
+  }, [value]);
+
+  // Usar preview externa si se proporciona, sino usar la interna
+  const previewUrl = externalPreviewUrl || internalPreviewUrl;
 
   // Detectar si hay cámara disponible
   const hasCameraAvailable = useMemo(() => {
@@ -45,7 +64,7 @@ export function FileUploadWithCamera({
     const userAgent = navigator.userAgent || "";
     const isMobileDevice =
       /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(
-        userAgent.toLowerCase()
+        userAgent.toLowerCase(),
       );
 
     // Solo mostrar opción de cámara en dispositivos móviles
@@ -56,14 +75,14 @@ export function FileUploadWithCamera({
     const file = e.target.files?.[0];
     if (file) {
       const localPreviewUrl = URL.createObjectURL(file);
+      objectUrlCache.set(file, localPreviewUrl);
       onChange(file, localPreviewUrl);
     }
+    // Limpiar el input para permitir seleccionar el mismo archivo de nuevo
+    e.target.value = "";
   };
 
   const handleRemoveFile = () => {
-    if (previewUrl) {
-      URL.revokeObjectURL(previewUrl);
-    }
     onChange(null, "");
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
@@ -81,20 +100,20 @@ export function FileUploadWithCamera({
     cameraInputRef.current?.click();
   };
 
-  const isPdfFile = (url: string) => {
-    return (
-      url.toLowerCase().includes(".pdf") || value?.type === "application/pdf"
-    );
+  const isPdfFile = () => {
+    return value?.type === "application/pdf";
   };
+
+  const hasFile = value instanceof File || !!previewUrl;
 
   return (
     <div className={className}>
       {label && <Label>{label}</Label>}
       <div className="mt-2 space-y-2">
-        {previewUrl && showPreview ? (
+        {hasFile && showPreview ? (
           <>
             <div className="relative">
-              {isPdfFile(previewUrl) ? (
+              {isPdfFile() ? (
                 <div className="w-full h-64 rounded border-2 border-gray-200 bg-gray-50 flex items-center justify-center">
                   <div className="text-center">
                     <Upload className="h-12 w-12 mx-auto text-muted-foreground mb-2" />

@@ -129,15 +129,17 @@ export const AppointmentSelectionModal = ({
           </DialogTitle>
         </DialogHeader>
 
-        <div className="flex-1 overflow-auto space-y-3 sm:space-y-4 p-2">
+        <div className="flex-1 overflow-auto space-y-3 sm:space-y-4 p-1 sm:p-2">
           {/* Filtros */}
-          <div className="flex items-end gap-2 flex-wrap">
-            <SearchInput
-              value={search}
-              onChange={setSearch}
-              placeholder="Buscar placa o cliente..."
-              label="Buscar"
-            />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+            <div className="sm:col-span-2 lg:col-span-1">
+              <SearchInput
+                value={search}
+                onChange={setSearch}
+                placeholder="Buscar placa o cliente..."
+                label="Buscar"
+              />
+            </div>
             <DatePicker
               value={dateFrom}
               onChange={setDateFrom}
