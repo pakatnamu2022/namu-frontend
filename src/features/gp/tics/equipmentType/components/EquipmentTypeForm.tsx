@@ -36,7 +36,7 @@ export const EquipmentTypeForm = ({
 }: EquipmentTypeFormProps) => {
   const form = useForm({
     resolver: zodResolver(
-      mode === "create" ? equipmentTypeSchemaCreate : equipmentTypeSchemaUpdate
+      mode === "create" ? equipmentTypeSchemaCreate : equipmentTypeSchemaUpdate,
     ),
     defaultValues: {
       ...defaultValues,
@@ -47,20 +47,7 @@ export const EquipmentTypeForm = ({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-full">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="equipo"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Equipo</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: PC" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+        <div className="grid grid-cols-1 gap-4">
           <FormField
             control={form.control}
             name="name"
@@ -68,7 +55,10 @@ export const EquipmentTypeForm = ({
               <FormItem>
                 <FormLabel>Nombre</FormLabel>
                 <FormControl>
-                  <Input placeholder="Ej: Computadora de Escritorio" {...field} />
+                  <Input
+                    placeholder="Ej: Computadora de Escritorio"
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>

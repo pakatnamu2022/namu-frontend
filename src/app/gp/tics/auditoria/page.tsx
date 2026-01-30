@@ -17,13 +17,14 @@ import AuditChangesModal from "@/features/gp/tics/auditoria/components/AuditChan
 import { AuditLogsResource } from "@/features/gp/tics/auditoria/lib/auditLogs.interface";
 import { notFound } from "@/shared/hooks/useNotFound";
 
-
 export default function AuditLogsPage() {
-    const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
+  const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
-  const [selectedAudit, setSelectedAudit] = useState<AuditLogsResource | null>(null);
+  const [selectedAudit, setSelectedAudit] = useState<AuditLogsResource | null>(
+    null,
+  );
   const { ROUTE } = AUDIT_LOGS;
 
   useEffect(() => {
