@@ -146,44 +146,42 @@ export const VehicleInspectionForm = ({
         </div>
 
         {/* Fotos del Vehículo - Solo visible cuando dirty_unit está marcado */}
-        {form.watch("dirty_unit") && (
-          <GroupFormSection
-            title="Fotos del Vehículo (Unidad Sucia)"
-            icon={Camera}
-            iconColor="text-orange-600"
-            bgColor="bg-orange-50"
-            cols={{ sm: 2 }}
-          >
-            <ImageUploadField
-              form={form}
-              name="photo_front"
-              label="Foto Frontal"
-              maxSizeInMB={5}
-              required
-            />
-            <ImageUploadField
-              form={form}
-              name="photo_rear"
-              label="Foto Trasera"
-              maxSizeInMB={5}
-              required
-            />
-            <ImageUploadField
-              form={form}
-              name="photo_left"
-              label="Foto Lateral Izquierda"
-              maxSizeInMB={5}
-              required
-            />
-            <ImageUploadField
-              form={form}
-              name="photo_right"
-              label="Foto Lateral Derecha"
-              maxSizeInMB={5}
-              required
-            />
-          </GroupFormSection>
-        )}
+        <GroupFormSection
+          title="Fotos del estado de ingreso del vehículo (Opcional)"
+          icon={Camera}
+          iconColor="text-orange-600"
+          bgColor="bg-orange-50"
+          cols={{ sm: 2 }}
+        >
+          <ImageUploadField
+            form={form}
+            name="photo_front"
+            label="Foto Frontal"
+            maxSizeInMB={5}
+            required
+          />
+          <ImageUploadField
+            form={form}
+            name="photo_back"
+            label="Foto Trasera"
+            maxSizeInMB={5}
+            required
+          />
+          <ImageUploadField
+            form={form}
+            name="photo_left"
+            label="Foto Lateral Izquierda"
+            maxSizeInMB={5}
+            required
+          />
+          <ImageUploadField
+            form={form}
+            name="photo_right"
+            label="Foto Lateral Derecha"
+            maxSizeInMB={5}
+            required
+          />
+        </GroupFormSection>
 
         {/* Marcador de Daños */}
         <div className="space-y-4">
