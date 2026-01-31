@@ -16,6 +16,8 @@ import AvancePorSede from "./AvancePorSede";
 import { DateRangePickerFilter } from "@/shared/components/DateRangePickerFilter";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { cn } from "@/lib/utils";
+import TitleComponent from "@/shared/components/TitleComponent";
+import PageWrapper from "@/shared/components/PageWrapper";
 
 export default function DailyDeliveryDashboard() {
   const [dateFrom, setDateFrom] = useState<Date | undefined>(new Date());
@@ -28,7 +30,7 @@ export default function DailyDeliveryDashboard() {
 
   const { data, isLoading, error } = useDailyDelivery(
     formattedDateFrom,
-    formattedDateTo
+    formattedDateTo,
   );
   const { mutate: exportToExcel, isPending: isExporting } =
     useExportDailyDelivery();
@@ -62,16 +64,13 @@ export default function DailyDeliveryDashboard() {
   }
 
   return (
-    <div className="space-y-4 p-4">
+    <PageWrapper>
       <div className="flex items-center justify-between pb-1">
-        <div>
-          <h1 className="text-lg font-semibold tracking-tight">
-            Dashboard de Entregas
-          </h1>
-          <p className="text-xs text-muted-foreground">
-            Resumen de entregas y facturación del día
-          </p>
-        </div>
+        <TitleComponent
+          title="Dashboard de Entregas"
+          subtitle="Resumen de entregas y facturación del día"
+          icon="LayoutDashboard"
+        />
 
         <div className="flex items-center gap-2">
           <Button
@@ -122,7 +121,7 @@ export default function DailyDeliveryDashboard() {
             <TabsList
               className={cn(
                 "grid w-full max-w-2xl",
-                canViewBranches ? "grid-cols-3" : "grid-cols-2"
+                canViewBranches ? "grid-cols-3" : "grid-cols-2",
               )}
             >
               <TabsTrigger value="hierarchy">Por Jerarquía</TabsTrigger>
@@ -146,6 +145,6 @@ export default function DailyDeliveryDashboard() {
           </Tabs>
         </>
       ) : null}
-    </div>
+    </PageWrapper>
   );
 }

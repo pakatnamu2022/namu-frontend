@@ -28,7 +28,7 @@ export const equipmentColumns = ({
     header: "Tipo de Equipo",
     cell: ({ getValue }) => {
       const value = getValue() as string;
-      return <Badge variant="outline">{value}</Badge>;
+      return value && <Badge variant="outline">{value}</Badge>;
     },
   },
   {

@@ -13,14 +13,18 @@ import AuditLogsActions from "@/features/gp/tics/auditoria/components/AuditLogsA
 import AuditLogsTable from "@/features/gp/tics/auditoria/components/AuditLogsTable";
 import { auditLogsColumns } from "@/features/gp/tics/auditoria/components/AuditLogsColumns";
 import AuditLogsOptions from "@/features/gp/tics/auditoria/components/AuditLogsOptions";
+import AuditChangesModal from "@/features/gp/tics/auditoria/components/AuditChangesModal";
+import { AuditLogsResource } from "@/features/gp/tics/auditoria/lib/auditLogs.interface";
 import { notFound } from "@/shared/hooks/useNotFound";
 
-
 export default function AuditLogsPage() {
-    const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
+  const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
+  const [selectedAudit, setSelectedAudit] = useState<AuditLogsResource | null>(
+    null,
+  );
   const { ROUTE } = AUDIT_LOGS;
 
   useEffect(() => {
@@ -48,11 +52,19 @@ export default function AuditLogsPage() {
       </HeaderTableWrapper>
       <AuditLogsTable
         isLoading={isLoading}
-        columns={auditLogsColumns()}
+        columns={auditLogsColumns({ onViewChanges: setSelectedAudit })}
         data={data?.data || []}
       >
         <AuditLogsOptions search={search} setSearch={setSearch} />
       </AuditLogsTable>
+
+      {selectedAudit && (
+        <AuditChangesModal
+          open={true}
+          onClose={() => setSelectedAudit(null)}
+          audit={selectedAudit}
+        />
+      )}
 
       <DataTablePagination
         page={page}

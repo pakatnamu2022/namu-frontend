@@ -36,6 +36,27 @@ export interface EquipmentResource {
   fecha_garantia?: string;
 }
 
+export interface EquipmentRequest {
+  marca: string;
+  modelo: string;
+  tipo_equipo_id: string;
+  serie: string;
+  detalle: string;
+  ram: string;
+  almacenamiento: string;
+  procesador: string;
+  stock_actual: number;
+  estado_uso: "NUEVO" | "USADO" | undefined;
+  sede_id: string;
+  pertenece_sede: boolean;
+  fecha_adquisicion?: string;
+  fecha_garantia?: string;
+  tipo_adquisicion: string;
+  factura: string;
+  contrato: string;
+  proveedor: string;
+}
+
 export interface getEquipmentsProps {
   params?: Record<string, any>;
 }

@@ -98,7 +98,7 @@ export function GeneralModal({
               </DialogDescription>
             </DialogHeader>
           </div>
-          <div>{children}</div>
+          <div className="overflow-hidden">{children}</div>
         </DialogContent>
       </Dialog>
     ) : (

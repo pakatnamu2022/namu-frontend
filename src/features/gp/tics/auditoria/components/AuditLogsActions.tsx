@@ -1,18 +1,18 @@
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+// import { Button } from "@/components/ui/button";
+// import { Plus } from "lucide-react";
 import ActionsWrapper from "@/shared/components/ActionsWrapper";
 
 export default function AuditLogsActions() {
   return (
     <ActionsWrapper>
-      <Button
+      {/* <Button
         size="sm"
         variant="outline"
         className="ml-auto"
         onClick={() => alert("Funcionalidad en desarrollo")}
       >
         <Plus className="size-4 mr-2" /> Reporte
-      </Button>
+      </Button> */}
     </ActionsWrapper>
   );
 }

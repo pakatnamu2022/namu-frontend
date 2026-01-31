@@ -12,33 +12,33 @@ const BASE_ENDPOINT = "/document-validation";
 class DocumentValidationServiceImpl implements DocumentValidationService {
   async validateDni(
     dni: string,
-    isBusinessPartners?: boolean
+    isBusinessPartners?: boolean,
   ): Promise<DocumentValidationDniResponse> {
     const { data } = await api.post<DocumentValidationDniResponse>(
       `${BASE_ENDPOINT}/validate/dni`,
-      { dni, isBusinessPartners }
+      { dni, isBusinessPartners },
     );
     return data;
   }
 
   async validateRuc(
     ruc: string,
-    isBusinessPartners?: boolean
+    isBusinessPartners?: boolean,
   ): Promise<DocumentValidationRucResponse> {
     const { data } = await api.post<DocumentValidationRucResponse>(
       `${BASE_ENDPOINT}/validate/ruc`,
-      { ruc, isBusinessPartners }
+      { ruc, isBusinessPartners },
     );
     return data;
   }
 
   async validateLicense(
     license: string,
-    isBusinessPartners?: boolean
+    isBusinessPartners?: boolean,
   ): Promise<DocumentValidationLicenseResponse> {
     const { data } = await api.post<DocumentValidationLicenseResponse>(
       `${BASE_ENDPOINT}/validate/license`,
-      { license, isBusinessPartners }
+      { license, isBusinessPartners },
     );
     return data;
   }
@@ -46,7 +46,7 @@ class DocumentValidationServiceImpl implements DocumentValidationService {
   async validatePlate(plate: string): Promise<DocumentValidationPlateResponse> {
     const { data } = await api.post<DocumentValidationPlateResponse>(
       `${BASE_ENDPOINT}/validate/plate`,
-      { plate }
+      { plate },
     );
     return data;
   }

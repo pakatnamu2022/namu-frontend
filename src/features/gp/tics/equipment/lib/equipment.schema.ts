@@ -1,3 +1,4 @@
+import { optionalDate } from "@/shared/lib/global.schema";
 import { z } from "zod";
 
 export const equipmentSchemaCreate = z.object({
@@ -13,8 +14,8 @@ export const equipmentSchemaCreate = z.object({
   estado_uso: z.enum(["NUEVO", "USADO"]),
   sede_id: z.string().min(1, "Selecciona una sede"),
   pertenece_sede: z.boolean().default(false),
-  fecha_adquisicion: z.coerce.date().optional(),
-  fecha_garantia: z.coerce.date().optional(),
+  fecha_adquisicion: optionalDate(),
+  fecha_garantia: optionalDate(),
   tipo_adquisicion: z.string().max(50).optional().or(z.literal("")),
   factura: z.string().max(255).optional().or(z.literal("")),
   contrato: z.string().max(255).optional().or(z.literal("")),
