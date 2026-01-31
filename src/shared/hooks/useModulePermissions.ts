@@ -104,6 +104,18 @@ export const PERMISSION_ACTIONS: PermissionAction[] = [
     icon: "Link",
     description: "Permite asignar registros o tareas",
   },
+  {
+    value: "manage",
+    label: "Gestionar",
+    icon: "Settings",
+    description: "Permite gestionar configuraciones avanzadas",
+  },
+  {
+    value: "receive",
+    label: "Recepcionar",
+    icon: "Inbox",
+    description: "Permite recepcionar en el sistema vehículos o activos",
+  },
 ];
 
 /**
@@ -151,5 +163,7 @@ export function useModulePermissions(moduleCode: string) {
     canViewAdvisors: hasModulePermission("viewAdvisors"),
     canViewBranches: hasModulePermission("viewBranches"),
     canAssign: hasModulePermission("assign"),
+    canManage: hasModulePermission("manage"),
+    canReceive: hasModulePermission("receive"),
   };
 }

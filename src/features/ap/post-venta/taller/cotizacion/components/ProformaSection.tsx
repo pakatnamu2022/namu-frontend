@@ -86,8 +86,6 @@ export default function PartsManagementSection({
   // TODO: Replace with actual API call
   const createMutation = useMutation({
     mutationFn: async (data: PartFormData) => {
-      // Mock API call
-      console.log("Creating part item:", data);
       return {
         id: Date.now(),
         ...data,

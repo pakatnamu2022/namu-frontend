@@ -63,7 +63,7 @@ export const VehicleInspectionForm = ({
       mode === "create"
         ? vehicleInspectionSchemaCreate
         : vehicleInspectionSchemaUpdate,
-    ),
+    ) as any,
     defaultValues,
     mode: "onChange",
   });
@@ -146,95 +146,99 @@ export const VehicleInspectionForm = ({
         </div>
 
         {/* Fotos del Vehículo - Solo visible cuando dirty_unit está marcado */}
-        <GroupFormSection
-          title="Fotos del estado de ingreso del vehículo (Opcional)"
-          icon={Camera}
-          iconColor="text-orange-600"
-          bgColor="bg-orange-50"
-          cols={{ sm: 2 }}
-        >
-          <FormField
-            control={form.control}
-            name="photo_front"
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <FileUploadWithCamera
-                    label="Foto Frontal"
-                    accept="image/*"
-                    value={field.value}
-                    onChange={(file) => field.onChange(file)}
-                    disabled={isSubmitting}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="photo_back"
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <FileUploadWithCamera
-                    label="Foto Trasera"
-                    accept="image/*"
-                    value={field.value}
-                    onChange={(file) => field.onChange(file)}
-                    disabled={isSubmitting}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="photo_left"
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <FileUploadWithCamera
-                    label="Foto Lateral Izquierda"
-                    accept="image/*"
-                    value={field.value}
-                    onChange={(file) => field.onChange(file)}
-                    disabled={isSubmitting}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="photo_right"
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <FileUploadWithCamera
-                    label="Foto Lateral Derecha"
-                    accept="image/*"
-                    value={field.value}
-                    onChange={(file) => field.onChange(file)}
-                    disabled={isSubmitting}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </GroupFormSection>
+        {mode === "create" && (
+          <GroupFormSection
+            title="Fotos del estado de ingreso del vehículo (Opcional)"
+            icon={Camera}
+            iconColor="text-orange-600"
+            bgColor="bg-orange-50"
+            cols={{ sm: 2 }}
+          >
+            <FormField
+              control={form.control}
+              name="photo_front"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <FileUploadWithCamera
+                      label="Foto Frontal"
+                      accept="image/*"
+                      value={field.value}
+                      onChange={(file) => field.onChange(file)}
+                      disabled={isSubmitting}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="photo_back"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <FileUploadWithCamera
+                      label="Foto Trasera"
+                      accept="image/*"
+                      value={field.value}
+                      onChange={(file) => field.onChange(file)}
+                      disabled={isSubmitting}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="photo_left"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <FileUploadWithCamera
+                      label="Foto Lateral Izquierda"
+                      accept="image/*"
+                      value={field.value}
+                      onChange={(file) => field.onChange(file)}
+                      disabled={isSubmitting}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="photo_right"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <FileUploadWithCamera
+                      label="Foto Lateral Derecha"
+                      accept="image/*"
+                      value={field.value}
+                      onChange={(file) => field.onChange(file)}
+                      disabled={isSubmitting}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </GroupFormSection>
+        )}
 
         {/* Marcador de Daños */}
-        <div className="space-y-4">
-          <VehicleDamageMarker
-            damages={form.watch("damages") || []}
-            onChange={handleDamagesChange}
-            disabled={isSubmitting}
-          />
-        </div>
+        {mode === "create" && (
+          <div className="space-y-4">
+            <VehicleDamageMarker
+              damages={form.watch("damages") || []}
+              onChange={handleDamagesChange}
+              disabled={isSubmitting}
+            />
+          </div>
+        )}
 
         {/* Observaciones Generales */}
         <GroupFormSection
@@ -253,32 +257,34 @@ export const VehicleInspectionForm = ({
         </GroupFormSection>
 
         {/* Sección de Firmas */}
-        <GroupFormSection
-          title="Firmas de Conformidad"
-          icon={PenLine}
-          iconColor="text-primary"
-          bgColor="bg-blue-50"
-          cols={{ sm: 1 }}
-        >
-          <FormField
-            control={form.control}
-            name="customer_signature"
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <SignaturePad
-                    label="Firma del Cliente"
-                    value={field.value}
-                    onChange={field.onChange}
-                    disabled={isSubmitting}
-                    required
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </GroupFormSection>
+        {mode === "create" && (
+          <GroupFormSection
+            title="Firmas de Conformidad"
+            icon={PenLine}
+            iconColor="text-primary"
+            bgColor="bg-blue-50"
+            cols={{ sm: 1 }}
+          >
+            <FormField
+              control={form.control}
+              name="customer_signature"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <SignaturePad
+                      label="Firma del Cliente"
+                      value={field.value}
+                      onChange={field.onChange}
+                      disabled={isSubmitting}
+                      required
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </GroupFormSection>
+        )}
 
         <div className="flex gap-4 w-full justify-end">
           <Button type="button" variant="outline" onClick={onCancel}>

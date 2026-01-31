@@ -61,6 +61,14 @@ export default function PurchaseRequestRepuestoPage() {
   const { data: warehouses = [], isLoading: isLoadingWarehouses } =
     useMyPhysicalWarehouse();
 
+  // Setear automáticamente el primer almacén cuando se carguen
+  useEffect(() => {
+    if (!isLoadingWarehouses && warehouses.length > 0 && !warehouseId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setWarehouseId(warehouses[0].id.toString());
+    }
+  }, [isLoadingWarehouses, warehouses, warehouseId]);
+
   useEffect(() => {
     setPage(1);
   }, [search, per_page]);
@@ -79,6 +87,7 @@ export default function PurchaseRequestRepuestoPage() {
       dateFrom && dateTo
         ? [formatDate(dateFrom), formatDate(dateTo)]
         : undefined,
+    warehouse_id: warehouseId,
   });
 
   const handleDelete = async () => {
