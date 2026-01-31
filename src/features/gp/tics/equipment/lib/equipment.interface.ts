@@ -60,3 +60,29 @@ export interface EquipmentRequest {
 export interface getEquipmentsProps {
   params?: Record<string, any>;
 }
+
+export interface EquipmentAssignmentResource {
+  id: number;
+  equipo_id: number;
+  worker_id: number;
+  worker_name: string;
+  assigned_at: string;
+  unassigned_at?: string;
+  observacion?: string;
+  observacion_unassign?: string;
+}
+
+export interface EquipmentAssignmentRequest {
+  persona_id: number;
+  fecha: string;
+  observacion: string;
+  items: {
+    equipo_id: number;
+    observacion: string;
+  }[];
+}
+
+export interface EquipmentUnassignRequest {
+  observacion_unassign: string;
+  fecha: string;
+}
