@@ -13,7 +13,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
 import {
   EquipmentSchema,
   equipmentSchemaCreate,
@@ -25,6 +24,8 @@ import { SedeResource } from "@/features/gp/maestro-general/sede/lib/sede.interf
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 import { Link } from "react-router-dom";
 import { EQUIPMENT } from "../lib/equipment.constants";
+import { FormSwitch } from "@/shared/components/FormSwitch";
+import { FormInput } from "@/shared/components/FormInput";
 
 interface EquipmentFormProps {
   defaultValues: Partial<EquipmentSchema>;
@@ -46,7 +47,7 @@ export const EquipmentForm = ({
   const { ABSOLUTE_ROUTE } = EQUIPMENT;
   const form = useForm({
     resolver: zodResolver(
-      mode === "create" ? equipmentSchemaCreate : equipmentSchemaUpdate
+      mode === "create" ? equipmentSchemaCreate : equipmentSchemaUpdate,
     ),
     defaultValues: {
       ...defaultValues,
@@ -63,10 +64,7 @@ export const EquipmentForm = ({
 
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-4 w-full"
-      >
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-full">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormItem>
             <FormLabel>Nombre del equipo</FormLabel>
@@ -250,80 +248,48 @@ export const EquipmentForm = ({
             ]}
           />
 
-          <FormField
+          <FormInput
             control={form.control}
             name="proveedor"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Proveedor del contrato</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: Proveedor S.A." {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Proveedor del contrato"
+            placeholder="Ej: Proveedor S.A."
+            type="text"
           />
 
           {tipoAdquisicion === "CONTRATO" && (
-            <>
-              <FormField
-                control={form.control}
-                name="contrato"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Número de contrato</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Ej: 12345" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </>
+            <FormInput
+              control={form.control}
+              name="contrato"
+              label="Número de contrato"
+              placeholder="Ej: 12345"
+              type="text"
+            />
           )}
 
           {tipoAdquisicion === "COMPRA" && (
-            <>
-              <FormField
-                control={form.control}
-                name="factura"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Número de Factura</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Ej: FF01-64961" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </>
+            <FormInput
+              control={form.control}
+              name="factura"
+              label="Número de Factura"
+              placeholder="Ej: FF01-64961"
+              type="text"
+            />
           )}
+
+          <FormSwitch
+            control={form.control}
+            name="pertenece_sede"
+            label="Pertenencia a sede"
+            text="¿El equipo pertenece a la sede seleccionada?"
+          />
         </div>
 
-        <FormField
-          control={form.control}
-          name="pertenece_sede"
-          render={({ field }) => (
-            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-              <div className="space-y-0.5">
-                <FormLabel>Pertenece a la sede</FormLabel>
-              </div>
-              <FormControl>
-                <Switch
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                />
-              </FormControl>
-            </FormItem>
-          )}
-        />
-        {/* 
-        <pre>
+        {/* <pre>
           <code className="text-xs text-muted-foreground">
             {JSON.stringify(form.getValues(), null, 2)}
           </code>
         </pre> */}
+
         <div className="flex gap-4 w-full justify-end">
           <Link to={ABSOLUTE_ROUTE}>
             <Button type="button" variant="outline">

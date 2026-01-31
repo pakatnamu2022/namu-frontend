@@ -12,7 +12,6 @@ export interface EquipmentTypeResource {
 }
 
 export interface EquipmentTypeRequest {
-  equipo: string;
   name: string;
 }
 

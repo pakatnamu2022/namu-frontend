@@ -43,10 +43,9 @@ export default function EquipmentTypeModal({
     : useEquipmentTypeById(id!);
 
   function mapEquipmentTypeToForm(
-    data: EquipmentTypeResource
+    data: EquipmentTypeResource,
   ): Partial<EquipmentTypeSchema> {
     return {
-      equipo: data.name,
       name: data.name,
     };
   }

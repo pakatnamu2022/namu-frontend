@@ -375,6 +375,11 @@ import UpdateWorkTypePage from "./app/gp/gestion-humana/planillas/tipo-dia-traba
 import WorkSchedulesPage from "./app/gp/gestion-humana/planillas/dia-trabajo/page.tsx";
 import ProfileLayout from "./features/dashboard/components/ProfileLayout.tsx";
 import ControlGoalPage from "./app/tp/comercial-tp/control-metas/page.tsx";
+import EquipmentTypePage from "./app/gp/tics/tipos-de-equipo/page.tsx";
+import { PHONE_LINE } from "./features/gp/tics/phoneLine/lib/phoneLine.constants.ts";
+import PhoneLinePage from "./app/gp/tics/lineas-telefonicas/page.tsx";
+import AddPhoneLinePage from "./app/gp/tics/lineas-telefonicas/agregar/page.tsx";
+import UpdatePhoneLinePage from "./app/gp/tics/lineas-telefonicas/actualizar/[id]/page.tsx";
 
 // ============================================================================
 // PROTECTED ROUTE COMPONENT
@@ -1831,6 +1836,13 @@ function App() {
                 <AddEquipmentPage />,
                 <UpdateEquipmentPage />,
               )}
+              <Route path="tipos-de-equipo" element={<EquipmentTypePage />} />
+              {RouterCrud(
+                PHONE_LINE.ROUTE,
+                <PhoneLinePage />,
+                <AddPhoneLinePage />,
+                <UpdatePhoneLinePage />,
+              )}
             </Route>
 
             {/* ======================================================== */}
@@ -1849,7 +1861,7 @@ function App() {
             >
               <Route path="control-viajes" element={<ControlTravelPage />} />
               <Route path="control-fletes" element={<ControlFreightPage />} />
-              <Route path="control-metas" element={<ControlGoalPage/>}/>
+              <Route path="control-metas" element={<ControlGoalPage />} />
             </Route>
 
             {/* ======================================================== */}

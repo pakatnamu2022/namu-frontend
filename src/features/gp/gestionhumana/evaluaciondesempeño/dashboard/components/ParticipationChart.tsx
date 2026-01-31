@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { ChartConfig } from "@/components/ui/chart";
-import { InteractivePieChart } from "@/features/ap/comercial/dashboard-visitas-leads/components/InteractivePieChart";
+import { InteractivePieChart } from "@/shared/charts/InteractivePieChart";
 
 interface ProgressStats {
   completed_participants: number;
