@@ -11,7 +11,10 @@ import PhoneLineActions from "@/features/gp/tics/phoneLine/components/PhoneLineA
 import { phoneLineColumns } from "@/features/gp/tics/phoneLine/components/PhoneLineColumns";
 import PageSkeleton from "@/shared/components/PageSkeleton";
 import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
-import { deletePhoneLine } from "@/features/gp/tics/phoneLine/lib/phoneLine.actions";
+import {
+  deletePhoneLine,
+  updatePhoneLine,
+} from "@/features/gp/tics/phoneLine/lib/phoneLine.actions";
 import { errorToast, successToast } from "@/core/core.function";
 import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
@@ -48,6 +51,16 @@ export default function PhoneLinePage() {
     }
   };
 
+  const handleToggleStatus = async (id: number, newStatus: boolean) => {
+    try {
+      await updatePhoneLine(id, { is_active: newStatus });
+      await refetch();
+      successToast("Estado actualizado correctamente.");
+    } catch {
+      errorToast("Error al actualizar el estado.");
+    }
+  };
+
   if (isLoadingModule) return <PageSkeleton />;
   if (!checkRouteExists("lineas-telefonicas")) notFound();
   if (!currentView) notFound();
@@ -64,7 +77,10 @@ export default function PhoneLinePage() {
       </HeaderTableWrapper>
       <PhoneLineTable
         isLoading={isLoading}
-        columns={phoneLineColumns({ onDelete: setDeleteId })}
+        columns={phoneLineColumns({
+          onDelete: setDeleteId,
+          onToggleStatus: handleToggleStatus,
+        })}
         data={data?.data || []}
       >
         <PhoneLineOptions search={search} setSearch={setSearch} />

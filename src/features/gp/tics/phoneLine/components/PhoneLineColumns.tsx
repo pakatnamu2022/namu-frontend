@@ -8,44 +8,65 @@ import { CheckCircle, Pencil, XCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { PHONE_LINE } from "../lib/phoneLine.constants";
+import { Switch } from "@/components/ui/switch";
+import { useState } from "react";
 
 export type PhoneLineColumns = ColumnDef<PhoneLineResource>;
 
 export const phoneLineColumns = ({
   onDelete,
+  onToggleStatus,
 }: {
   onDelete: (id: number) => void;
+  onToggleStatus: (id: number, newStatus: boolean) => void;
 }): PhoneLineColumns[] => [
   {
-    accessorKey: "number",
+    accessorKey: "line_number",
     header: "Número",
     cell: ({ getValue }) => (
       <span className="font-semibold">{getValue() as string}</span>
     ),
   },
   {
-    accessorKey: "status",
-    header: "Estado",
-    cell: ({ getValue }) => {
-      const value = getValue() as string;
-      return <Badge variant="outline">{value}</Badge>;
-    },
+    accessorKey: "company",
+    header: "Empresa",
+    cell: ({ getValue }) => (
+      <span className="font-semibold">{getValue() as string}</span>
+    ),
   },
   {
     accessorKey: "is_active",
     header: "Activo",
     cell: ({ getValue }) => {
-      const value = getValue() as string;
-      const isActive = value === "1" || value === "true";
+      const value = getValue() as boolean | number;
+      const isActive = value === 1 || value === true;
       return (
-        <Badge variant="outline" className="capitalize gap-2">
-          {isActive ? (
-            <CheckCircle className="size-4 text-primary" />
-          ) : (
-            <XCircle className="size-4 text-secondary" />
-          )}
+        <Badge
+          icon={isActive ? CheckCircle : XCircle}
+          color={isActive ? "green" : "red"}
+          variant="outline"
+          className="capitalize gap-2"
+        >
           {isActive ? "Activo" : "Inactivo"}
         </Badge>
+      );
+    },
+  },
+  {
+    accessorKey: "is_active",
+    header: "Activo",
+    enableSorting: true,
+    cell: ({ row }) => {
+      const [is_active, setIsActive] = useState(row.original.is_active);
+      return (
+        <Switch
+          className="hover:cursor-pointer"
+          checked={is_active}
+          onCheckedChange={(checked) => {
+            setIsActive(checked);
+            onToggleStatus(row.original.id, checked);
+          }}
+        />
       );
     },
   },

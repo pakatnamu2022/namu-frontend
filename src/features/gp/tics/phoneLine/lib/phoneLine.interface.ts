@@ -8,9 +8,9 @@ export interface PhoneLineResponse {
 
 export interface PhoneLineResource {
   id: number;
-  number: string;
-  status: string;
-  is_active: string;
+  line_number: string;
+  company: string;
+  is_active: boolean;
   telephone_account_id: string;
   telephone_plan_id: string;
   company_id: string;

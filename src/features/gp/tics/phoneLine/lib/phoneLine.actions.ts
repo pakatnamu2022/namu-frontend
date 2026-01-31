@@ -23,7 +23,7 @@ export async function getPhoneLines({
 }
 
 export async function findPhoneLineById(
-  id: string
+  id: number,
 ): Promise<PhoneLineResource> {
   const response = await api.get<PhoneLineResource>(`${ENDPOINT}/${id}`);
   return response.data;
@@ -35,8 +35,8 @@ export async function storePhoneLine(data: any): Promise<PhoneLineResponse> {
 }
 
 export async function updatePhoneLine(
-  id: string,
-  data: any
+  id: number,
+  data: any,
 ): Promise<PhoneLineResponse> {
   const response = await api.put<PhoneLineResponse>(`${ENDPOINT}/${id}`, data);
   return response.data;
@@ -69,7 +69,7 @@ export async function importPhoneLines(file: File): Promise<GeneralResponse> {
       headers: {
         "Content-Type": "multipart/form-data",
       },
-    }
+    },
   );
   return data;
 }

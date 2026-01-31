@@ -13,6 +13,7 @@ import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import FormWrapper from "@/shared/components/FormWrapper";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { VIEW } from "@/features/gp/gestionsistema/vistas/lib/view.constants";
+import FormSkeleton from "@/shared/components/FormSkeleton";
 
 export default function AddViewPage() {
   const router = useNavigate();
@@ -40,9 +41,7 @@ export default function AddViewPage() {
     });
   };
 
-  if (loadingViews || loadingCompanies) {
-    return <div className="p-4 text-muted">Cargando Vistas</div>;
-  }
+  if (loadingViews || loadingCompanies) return <FormSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
   if (!currentView) notFound();
 
