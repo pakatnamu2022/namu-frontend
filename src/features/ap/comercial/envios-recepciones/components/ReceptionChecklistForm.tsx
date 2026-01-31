@@ -18,6 +18,7 @@ import {
   receptionChecklistSchemaUpdate,
 } from "../lib/shipmentsReceptions.schema";
 import { useAllDeliveryChecklist } from "@/features/ap/configuraciones/vehiculos/checklist-entrega/lib/deliveryChecklist.hook";
+import { useVehicleById } from "@/features/ap/comercial/vehiculos/lib/vehicles.hook";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { ChecklistField } from "@/shared/components/ChecklistField";
 import { useReceptionChecklistById } from "../lib/shipmentsReceptions.hook";
@@ -33,7 +34,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { SHIPMENTS_RECEPTIONS } from "../lib/shipmentsReceptions.constants";
-import { FileText } from "lucide-react";
+import { FileText, Car } from "lucide-react";
 
 interface ReceptionChecklistFormProps {
   shippingGuideId: number; // ID de la guía (requerido)
@@ -73,6 +74,10 @@ export const ReceptionChecklistForm = ({
   const { data: receptionChecklist, isLoading: isLoadingReceptionChecklist } =
     useReceptionChecklistById(shippingGuideId);
 
+  const { data: vehicle, isLoading: isLoadingVehicle } = useVehicleById(
+    receptionChecklist?.ap_vehicle_id ?? 0
+  );
+
   // Inicializar los items seleccionados desde el backend
   useEffect(() => {
     if (receptionChecklist?.data && receptionChecklist.data.length > 0) {
@@ -93,45 +98,91 @@ export const ReceptionChecklistForm = ({
     }
   }, [receptionChecklist, form]);
 
-  if (isLoadingDeliveryChecklist || isLoadingReceptionChecklist) {
+  if (isLoadingDeliveryChecklist || isLoadingReceptionChecklist || isLoadingVehicle) {
     return <FormSkeleton />;
   }
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 w-full">
-        {/* Sección: Accesorios Adjuntados */}
-        {receptionChecklist?.accessories &&
-          receptionChecklist.accessories.length > 0 && (
+        {/* Sección: Información del Vehículo y Accesorios */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Card: Información del Vehículo */}
+          {vehicle && (
             <Card className="bg-muted">
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
-                  <FileText className="h-5 w-5 text-primary" />
-                  Accesorios de la Compra
+                  <Car className="h-5 w-5 text-primary" />
+                  Información del Vehículo
                 </CardTitle>
                 <CardDescription>
-                  Estos son los accesorios con los que debe venir el vehículo
+                  Datos del vehículo a recepcionar
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-2">
-                  {receptionChecklist.accessories.map((accessory) => (
-                    <div
-                      key={accessory.id}
-                      className="flex items-center justify-between p-3 bg-background rounded-lg border border-muted hover:border-primary transition-colors"
-                    >
-                      <p className="font-medium text-foreground">
-                        {accessory.description}
-                      </p>
-                      <Badge color="secondary" className="text-xs">
-                        {accessory.quantity} {accessory.unit_measurement}
-                      </Badge>
+                <div className="space-y-3">
+                  {vehicle.model?.version && (
+                    <div className="flex justify-between items-center p-3 bg-background rounded-lg border border-muted">
+                      <span className="text-muted-foreground">Modelo</span>
+                      <span className="font-medium">{vehicle.model.version}</span>
                     </div>
-                  ))}
+                  )}
+                  {vehicle.vin && (
+                    <div className="flex justify-between items-center p-3 bg-background rounded-lg border border-muted">
+                      <span className="text-muted-foreground">VIN</span>
+                      <span className="font-medium font-mono text-sm">{vehicle.vin}</span>
+                    </div>
+                  )}
+                  {vehicle.engine_number && (
+                    <div className="flex justify-between items-center p-3 bg-background rounded-lg border border-muted">
+                      <span className="text-muted-foreground">Motor</span>
+                      <span className="font-medium font-mono text-sm">{vehicle.engine_number}</span>
+                    </div>
+                  )}
+                  {receptionChecklist?.advisor && (
+                    <div className="flex justify-between items-center p-3 bg-background rounded-lg border border-muted">
+                      <span className="text-muted-foreground">Asesor</span>
+                      <span className="font-medium">{receptionChecklist.advisor}</span>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
           )}
+
+          {/* Card: Accesorios Adjuntados */}
+          {receptionChecklist?.accessories &&
+            receptionChecklist.accessories.length > 0 && (
+              <Card className="bg-muted">
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <FileText className="h-5 w-5 text-primary" />
+                    Accesorios de la Compra
+                  </CardTitle>
+                  <CardDescription>
+                    Estos son los accesorios con los que debe venir el vehículo
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    {receptionChecklist.accessories.map((accessory) => (
+                      <div
+                        key={accessory.id}
+                        className="flex items-center justify-between p-3 bg-background rounded-lg border border-muted hover:border-primary transition-colors"
+                      >
+                        <p className="font-medium text-foreground">
+                          {accessory.description}
+                        </p>
+                        <Badge color="secondary" className="text-xs">
+                          {accessory.quantity} {accessory.unit_measurement}
+                        </Badge>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+        </div>
 
         {/* Sección: Checklist de Equipamiento */}
         <ChecklistField

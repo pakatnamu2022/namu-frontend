@@ -121,6 +121,8 @@ export interface ReceptionChecklistResponse {
   note_received: string;
   data: ReceptionChecklistResource[];
   accessories: AccessoryResource[];
+  ap_vehicle_id?: number;
+  advisor?: string;
 }
 
 export interface ReceptionChecklistResource {

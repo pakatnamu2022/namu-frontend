@@ -19,10 +19,10 @@ export interface EquipmentResource {
   detalle: string;
   sede: string;
   empresa: string;
-  ram: null | string;
+  ram?: string;
   almacenamiento: string;
-  procesador: null | string;
-  stock_actual: null;
+  procesador?: string;
+  stock_actual?: string;
   pertenece_sede: number;
   tipo_equipo_id: number;
   sede_id: number;
@@ -63,13 +63,44 @@ export interface getEquipmentsProps {
 
 export interface EquipmentAssignmentResource {
   id: number;
-  equipo_id: number;
-  worker_id: number;
+  persona_id: number;
   worker_name: string;
-  assigned_at: string;
+  fecha: string;
+  status_id: number;
+  status_deleted: number;
+  write_id: null | number;
+  conformidad: number;
+  fecha_conformidad?: string;
   unassigned_at?: string;
   observacion?: string;
   observacion_unassign?: string;
+  pdf_path?: string;
+  pdf_unassign_path?: string;
+  items: EquipmentAssignmentItemResource[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface EquipmentAssignmentItemResource {
+  id: number;
+  asig_equipo_id: number;
+  equipo_id: number;
+  equipment: Equipment;
+  observacion?: string;
+  status_id: null | number;
+  observacion_dev?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Equipment {
+  id: number;
+  equipo: string;
+  marca?: string;
+  modelo?: string;
+  serie: string;
+  tipo_equipo_id: number;
+  equipment_type: string;
 }
 
 export interface EquipmentAssignmentRequest {
