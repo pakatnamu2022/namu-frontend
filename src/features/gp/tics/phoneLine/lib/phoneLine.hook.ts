@@ -1,9 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
-import { PhoneLineResponse } from "./phoneLine.interface";
+import {
+  PhoneLineResponse,
+  PhoneLineWorkerResource,
+} from "./phoneLine.interface";
 import {
   getAllTelephoneAccounts,
   getAllTelephonePlans,
   getPhoneLines,
+  getPhoneLineHistory,
 } from "./phoneLine.actions";
 import { PHONE_LINE } from "./phoneLine.constants";
 
@@ -29,6 +33,15 @@ export const useAllTelephonePlans = () => {
   return useQuery<any[]>({
     queryKey: ["telephonePlanAll"],
     queryFn: () => getAllTelephonePlans(),
+    refetchOnWindowFocus: false,
+  });
+};
+
+export const usePhoneLineHistory = (phoneLineId: number | null) => {
+  return useQuery<PhoneLineWorkerResource[]>({
+    queryKey: ["phoneLineHistory", phoneLineId],
+    queryFn: () => getPhoneLineHistory(phoneLineId!),
+    enabled: phoneLineId !== null,
     refetchOnWindowFocus: false,
   });
 };

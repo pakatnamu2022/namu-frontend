@@ -2,6 +2,7 @@ import { api } from "@/core/api";
 import {
   PhoneLineResource,
   PhoneLineResponse,
+  PhoneLineWorkerResource,
   getPhoneLinesProps,
 } from "./phoneLine.interface";
 import { GeneralResponse } from "@/shared/lib/response.interface";
@@ -66,6 +67,15 @@ export async function assignPhoneLineWorker(
   const { data } = await api.post<GeneralResponse>(
     "/gp/tics/phoneLineWorker",
     { phone_line_id, worker_id },
+  );
+  return data;
+}
+
+export async function getPhoneLineHistory(
+  phoneLineId: number,
+): Promise<PhoneLineWorkerResource[]> {
+  const { data } = await api.get<PhoneLineWorkerResource[]>(
+    `/gp/tics/phoneLineWorker/history/${phoneLineId}`,
   );
   return data;
 }

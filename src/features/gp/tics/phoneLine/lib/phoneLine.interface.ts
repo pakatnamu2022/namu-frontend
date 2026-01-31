@@ -17,7 +17,7 @@ export interface PhoneLineResource {
   company_id: number;
 }
 
-interface PhoneLineWorkerResource {
+export interface PhoneLineWorkerResource {
   id: number;
   phone_line_id: number;
   worker_id: number;

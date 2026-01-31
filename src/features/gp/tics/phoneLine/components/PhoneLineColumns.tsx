@@ -4,7 +4,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { PhoneLineResource } from "../lib/phoneLine.interface";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, Pencil, UserPlus, XCircle } from "lucide-react";
+import { CheckCircle, History, Pencil, UserPlus, XCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { PHONE_LINE } from "../lib/phoneLine.constants";
@@ -17,10 +17,12 @@ export const phoneLineColumns = ({
   onDelete,
   onToggleStatus,
   onAssign,
+  onHistory,
 }: {
   onDelete: (id: number) => void;
   onToggleStatus: (id: number, newStatus: boolean) => void;
   onAssign: (id: number) => void;
+  onHistory: (id: number) => void;
 }): PhoneLineColumns[] => [
   {
     accessorKey: "line_number",
@@ -118,6 +120,14 @@ export const phoneLineColumns = ({
             onClick={() => onAssign(id)}
           >
             <UserPlus className="size-5" />
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            className="size-7"
+            onClick={() => onHistory(id)}
+          >
+            <History className="size-5" />
           </Button>
           <DeleteButton onClick={() => onDelete(id)} />
         </div>

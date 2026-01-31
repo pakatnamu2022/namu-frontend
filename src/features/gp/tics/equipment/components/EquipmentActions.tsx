@@ -18,7 +18,6 @@ export default function EquipmentActions() {
     <ActionsWrapper>
       <Button
         size="sm"
-        variant="outline"
         className="ml-auto"
         onClick={handleAddEquipment}
       >

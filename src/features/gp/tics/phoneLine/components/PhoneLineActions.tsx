@@ -28,7 +28,6 @@ export default function PhoneLineActions({ onImport }: Props) {
       )}
       <Button
         size="sm"
-        variant="outline"
         className={onImport ? "" : "ml-auto"}
         onClick={() => push(ROUTE_ADD)}
       >
