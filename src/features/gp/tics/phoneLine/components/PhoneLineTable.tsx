@@ -17,7 +17,14 @@ export default function PhoneLineTable({
 }: Props) {
   return (
     <div className="border-none text-muted-foreground max-w-full">
-      <DataTable columns={columns} data={data} isLoading={isLoading}>
+      <DataTable
+        columns={columns}
+        data={data}
+        isLoading={isLoading}
+        initialColumnVisibility={{
+          active_assignment_assigned_at: false,
+        }}
+      >
         {children}
       </DataTable>
     </div>

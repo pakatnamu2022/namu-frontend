@@ -20,6 +20,7 @@ import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { notFound } from "@/shared/hooks/useNotFound";
 import PhoneLineImportModal from "@/features/gp/tics/phoneLine/components/PhoneLineImportModal";
+import PhoneLineAssignModal from "@/features/gp/tics/phoneLine/components/PhoneLineAssignModal";
 
 export default function PhoneLinePage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -28,6 +29,7 @@ export default function PhoneLinePage() {
   const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [importOpen, setImportOpen] = useState(false);
+  const [assignId, setAssignId] = useState<number | null>(null);
 
   useEffect(() => {
     setPage(1);
@@ -80,6 +82,7 @@ export default function PhoneLinePage() {
         columns={phoneLineColumns({
           onDelete: setDeleteId,
           onToggleStatus: handleToggleStatus,
+          onAssign: setAssignId,
         })}
         data={data?.data || []}
       >
@@ -99,6 +102,15 @@ export default function PhoneLinePage() {
         onClose={() => setImportOpen(false)}
         onSuccess={() => refetch()}
       />
+
+      {assignId !== null && (
+        <PhoneLineAssignModal
+          open={true}
+          phoneLineId={assignId}
+          onClose={() => setAssignId(null)}
+          onSuccess={() => refetch()}
+        />
+      )}
 
       <DataTablePagination
         page={page}

@@ -10,12 +10,20 @@ export interface PhoneLineResource {
   id: number;
   line_number: string;
   company: string;
+  active_assignment: PhoneLineWorkerResource;
   is_active: boolean;
-  telephone_account_id: string;
-  telephone_plan_id: string;
-  company_id: string;
-  created_at: string;
-  updated_at: string;
+  telephone_account_id: number;
+  telephone_plan_id: number;
+  company_id: number;
+}
+
+interface PhoneLineWorkerResource {
+  id: number;
+  phone_line_id: number;
+  worker_id: number;
+  worker_name: string;
+  assigned_at: string;
+  unassigned_at?: string;
 }
 
 export interface PhoneLineRequest {

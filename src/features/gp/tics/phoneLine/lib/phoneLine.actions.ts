@@ -59,6 +59,17 @@ export async function getAllTelephonePlans(): Promise<any[]> {
   return data;
 }
 
+export async function assignPhoneLineWorker(
+  phone_line_id: number,
+  worker_id: number,
+): Promise<GeneralResponse> {
+  const { data } = await api.post<GeneralResponse>(
+    "/gp/tics/phoneLineWorker",
+    { phone_line_id, worker_id },
+  );
+  return data;
+}
+
 export async function importPhoneLines(file: File): Promise<GeneralResponse> {
   const formData = new FormData();
   formData.append("file", file);

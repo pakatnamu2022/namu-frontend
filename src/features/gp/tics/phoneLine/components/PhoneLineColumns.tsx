@@ -4,7 +4,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { PhoneLineResource } from "../lib/phoneLine.interface";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, Pencil, XCircle } from "lucide-react";
+import { CheckCircle, Pencil, UserPlus, XCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { PHONE_LINE } from "../lib/phoneLine.constants";
@@ -16,9 +16,11 @@ export type PhoneLineColumns = ColumnDef<PhoneLineResource>;
 export const phoneLineColumns = ({
   onDelete,
   onToggleStatus,
+  onAssign,
 }: {
   onDelete: (id: number) => void;
   onToggleStatus: (id: number, newStatus: boolean) => void;
+  onAssign: (id: number) => void;
 }): PhoneLineColumns[] => [
   {
     accessorKey: "line_number",
@@ -35,10 +37,31 @@ export const phoneLineColumns = ({
     ),
   },
   {
-    accessorKey: "is_active",
+    accessorKey: "active_assignment.worker_name",
+    header: "Asignado a",
+    cell: ({ getValue }) => (
+      <span className="font-semibold">{getValue() as string}</span>
+    ),
+  },
+  {
+    accessorKey: "active_assignment.assigned_at",
+    header: "Asignado el",
+    cell: ({ getValue }) =>
+      getValue() && (
+        <span className="font-semibold">
+          {new Date(getValue() as string).toLocaleDateString("es-PE", {
+            year: "numeric",
+            month: "short",
+            day: "2-digit",
+          })}
+        </span>
+      ),
+  },
+  {
+    accessorKey: "is_active_label",
     header: "Activo",
-    cell: ({ getValue }) => {
-      const value = getValue() as boolean | number;
+    cell: ({ row }) => {
+      const value = row.original.is_active as boolean | number;
       const isActive = value === 1 || value === true;
       return (
         <Badge
@@ -87,6 +110,14 @@ export const phoneLineColumns = ({
             onClick={() => router(`${ROUTE_UPDATE}/${id}`)}
           >
             <Pencil className="size-5" />
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            className="size-7"
+            onClick={() => onAssign(id)}
+          >
+            <UserPlus className="size-5" />
           </Button>
           <DeleteButton onClick={() => onDelete(id)} />
         </div>
