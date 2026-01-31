@@ -30,7 +30,7 @@ export default function UpdatePhoneLinePage() {
 
   const { data: phoneLine, isLoading: loadingPhoneLine } = useQuery({
     queryKey: [QUERY_KEY, id],
-    queryFn: () => findPhoneLineById(id as string),
+    queryFn: () => findPhoneLineById(Number(id as string)),
     refetchOnWindowFocus: false,
   });
 
@@ -41,7 +41,7 @@ export default function UpdatePhoneLinePage() {
 
   const { mutate, isPending } = useMutation({
     mutationFn: (data: PhoneLineSchema) =>
-      updatePhoneLine(id as string, data),
+      updatePhoneLine(Number(id as string), data),
     onSuccess: async () => {
       successToast("Línea telefónica actualizada correctamente");
       await queryClient.invalidateQueries({
@@ -63,14 +63,13 @@ export default function UpdatePhoneLinePage() {
   };
 
   function mapPhoneLineToForm(
-    data: PhoneLineResource
+    data: PhoneLineResource,
   ): Partial<PhoneLineSchema> {
     return {
       telephone_account_id: data.telephone_account_id?.toString() || "",
       telephone_plan_id: data.telephone_plan_id?.toString() || "",
-      line_number: data.number ?? "",
-      status: data.status ?? "",
-      is_active: data.is_active === "1" || data.is_active === "true",
+      line_number: data.line_number ?? "",
+      is_active: data.is_active ?? false,
     };
   }
 
