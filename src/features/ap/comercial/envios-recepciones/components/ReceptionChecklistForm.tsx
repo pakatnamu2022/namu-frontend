@@ -18,10 +18,9 @@ import {
   receptionChecklistSchemaUpdate,
 } from "../lib/shipmentsReceptions.schema";
 import { useAllDeliveryChecklist } from "@/features/ap/configuraciones/vehiculos/checklist-entrega/lib/deliveryChecklist.hook";
-import { useVehicleById } from "@/features/ap/comercial/vehiculos/lib/vehicles.hook";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { ChecklistField } from "@/shared/components/ChecklistField";
-import { useReceptionChecklistById } from "../lib/shipmentsReceptions.hook";
+import { useReceptionChecklistById, useVehicleByShippingGuide } from "../lib/shipmentsReceptions.hook";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { FormSubmitConfirmation } from "@/shared/components/FormSubmitConfirmation";
 import { useNavigate } from "react-router-dom";
@@ -74,9 +73,7 @@ export const ReceptionChecklistForm = ({
   const { data: receptionChecklist, isLoading: isLoadingReceptionChecklist } =
     useReceptionChecklistById(shippingGuideId);
 
-  const { data: vehicle, isLoading: isLoadingVehicle } = useVehicleById(
-    receptionChecklist?.ap_vehicle_id ?? 0
-  );
+  const { data: vehicle, isLoading: isLoadingVehicle } = useVehicleByShippingGuide(shippingGuideId);
 
   // Inicializar los items seleccionados desde el backend
   useEffect(() => {
@@ -137,12 +134,6 @@ export const ReceptionChecklistForm = ({
                     <div className="flex justify-between items-center p-3 bg-background rounded-lg border border-muted">
                       <span className="text-muted-foreground">Motor</span>
                       <span className="font-medium font-mono text-sm">{vehicle.engine_number}</span>
-                    </div>
-                  )}
-                  {receptionChecklist?.advisor && (
-                    <div className="flex justify-between items-center p-3 bg-background rounded-lg border border-muted">
-                      <span className="text-muted-foreground">Asesor</span>
-                      <span className="font-medium">{receptionChecklist.advisor}</span>
                     </div>
                   )}
                 </div>
