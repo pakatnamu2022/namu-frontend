@@ -123,6 +123,7 @@ export interface ReceptionChecklistResponse {
   accessories: AccessoryResource[];
 }
 
+
 export interface ReceptionChecklistResource {
   id: number;
   receiving_id: number;

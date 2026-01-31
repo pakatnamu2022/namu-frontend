@@ -12,6 +12,7 @@ import {
   ShipmentsReceptionsResource,
   ShipmentsReceptionsResponse,
 } from "./shipmentsReceptions.interface";
+import { VehicleResource } from "@/features/ap/comercial/vehiculos/lib/vehicles.interface";
 
 const { ENDPOINT } = SHIPMENTS_RECEPTIONS;
 
@@ -97,6 +98,15 @@ export async function getReceptionChecklistById(
 ): Promise<ReceptionChecklistResponse> {
   const { data } = await api.get<ReceptionChecklistResponse>(
     `${CHECKLIST_ENDPOINT}/byShippingGuide/${id}`
+  );
+  return data;
+}
+
+export async function getVehicleByShippingGuide(
+  shippingGuideId: number
+): Promise<VehicleResource> {
+  const { data } = await api.get<VehicleResource>(
+    `${CHECKLIST_ENDPOINT}/byShippingGuide/${shippingGuideId}/vehicle`
   );
   return data;
 }
