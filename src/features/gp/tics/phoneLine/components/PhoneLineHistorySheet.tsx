@@ -2,23 +2,23 @@
 
 import GeneralSheet from "@/shared/components/GeneralSheet";
 import { usePhoneLineHistory } from "../lib/phoneLine.hook";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Loader2 } from "lucide-react";
+import { CalendarDays, Loader2, User } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
 
 interface PhoneLineHistorySheetProps {
   open: boolean;
   phoneLineId: number | null;
   onClose: () => void;
 }
+
+const formatDate = (date: string) =>
+  new Date(date).toLocaleDateString("es-PE", {
+    year: "numeric",
+    month: "short",
+    day: "2-digit",
+  });
 
 export default function PhoneLineHistorySheet({
   open,
@@ -34,7 +34,7 @@ export default function PhoneLineHistorySheet({
       icon="History"
       title="Historial de Asignaciones"
       subtitle="Registro de todas las asignaciones realizadas a esta línea telefónica"
-      size="3xl"
+      size="xl"
     >
       {isFetching ? (
         <div className="flex items-center justify-center h-48">
@@ -46,52 +46,59 @@ export default function PhoneLineHistorySheet({
         </div>
       ) : (
         <ScrollArea className="h-[calc(100vh-200px)]">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Trabajador</TableHead>
-                <TableHead>Fecha asignación</TableHead>
-                <TableHead>Fecha desasignación</TableHead>
-                <TableHead>Estado</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {data.map((item) => (
-                <TableRow key={item.id}>
-                  <TableCell className="font-medium">
-                    {item.worker_name}
-                  </TableCell>
-                  <TableCell>
-                    {new Date(item.assigned_at).toLocaleDateString("es-PE", {
-                      year: "numeric",
-                      month: "short",
-                      day: "2-digit",
-                    })}
-                  </TableCell>
-                  <TableCell>
-                    {item.unassigned_at
-                      ? new Date(item.unassigned_at).toLocaleDateString(
-                          "es-PE",
-                          {
-                            year: "numeric",
-                            month: "short",
-                            day: "2-digit",
-                          },
-                        )
-                      : "-"}
-                  </TableCell>
-                  <TableCell>
+          <div className="space-y-3">
+            {data.map((item) => {
+              const isActive = !item.unassigned_at;
+              return (
+                <div
+                  key={item.id}
+                  className="rounded-lg border bg-card p-4 space-y-3"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <User className="size-4 text-muted-foreground" />
+                      <span className="font-semibold text-sm">
+                        {item.worker_name}
+                      </span>
+                    </div>
                     <Badge
-                      color={item.unassigned_at ? "red" : "green"}
+                      color={isActive ? "green" : "red"}
                       variant="outline"
                     >
-                      {item.unassigned_at ? "Desasignado" : "Activo"}
+                      {isActive ? "Activo" : "Desasignado"}
                     </Badge>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+                  </div>
+                  <Separator />
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div className="flex items-center gap-2">
+                      <CalendarDays className="size-3.5 text-muted-foreground" />
+                      <div>
+                        <p className="text-muted-foreground text-xs">
+                          Asignado
+                        </p>
+                        <p className="font-medium">
+                          {formatDate(item.assigned_at)}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CalendarDays className="size-3.5 text-muted-foreground" />
+                      <div>
+                        <p className="text-muted-foreground text-xs">
+                          Desasignado
+                        </p>
+                        <p className="font-medium">
+                          {item.unassigned_at
+                            ? formatDate(item.unassigned_at)
+                            : "-"}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </ScrollArea>
       )}
     </GeneralSheet>
