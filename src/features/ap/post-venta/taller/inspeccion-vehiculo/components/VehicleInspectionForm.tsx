@@ -23,7 +23,7 @@ import { FormSelect } from "@/shared/components/FormSelect";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 import { FormInput } from "@/shared/components/FormInput";
 import { FormInputText } from "@/shared/components/FormInputText";
-import { ImageUploadField } from "@/shared/components/ImageUploadField";
+import { FileUploadWithCamera } from "@/shared/components/FileUploadWithCamera";
 
 interface VehicleInspectionFormProps {
   defaultValues: Partial<VehicleInspectionSchema>;
@@ -146,44 +146,86 @@ export const VehicleInspectionForm = ({
         </div>
 
         {/* Fotos del Vehículo - Solo visible cuando dirty_unit está marcado */}
-        {form.watch("dirty_unit") && (
-          <GroupFormSection
-            title="Fotos del Vehículo (Unidad Sucia)"
-            icon={Camera}
-            iconColor="text-orange-600"
-            bgColor="bg-orange-50"
-            cols={{ sm: 2 }}
-          >
-            <ImageUploadField
-              form={form}
-              name="photo_front"
-              label="Foto Frontal"
-              maxSizeInMB={5}
-              required
-            />
-            <ImageUploadField
-              form={form}
-              name="photo_rear"
-              label="Foto Trasera"
-              maxSizeInMB={5}
-              required
-            />
-            <ImageUploadField
-              form={form}
-              name="photo_left"
-              label="Foto Lateral Izquierda"
-              maxSizeInMB={5}
-              required
-            />
-            <ImageUploadField
-              form={form}
-              name="photo_right"
-              label="Foto Lateral Derecha"
-              maxSizeInMB={5}
-              required
-            />
-          </GroupFormSection>
-        )}
+        <GroupFormSection
+          title="Fotos del estado de ingreso del vehículo (Opcional)"
+          icon={Camera}
+          iconColor="text-orange-600"
+          bgColor="bg-orange-50"
+          cols={{ sm: 2 }}
+        >
+          <FormField
+            control={form.control}
+            name="photo_front"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <FileUploadWithCamera
+                    label="Foto Frontal"
+                    accept="image/*"
+                    value={field.value}
+                    onChange={(file) => field.onChange(file)}
+                    disabled={isSubmitting}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="photo_back"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <FileUploadWithCamera
+                    label="Foto Trasera"
+                    accept="image/*"
+                    value={field.value}
+                    onChange={(file) => field.onChange(file)}
+                    disabled={isSubmitting}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="photo_left"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <FileUploadWithCamera
+                    label="Foto Lateral Izquierda"
+                    accept="image/*"
+                    value={field.value}
+                    onChange={(file) => field.onChange(file)}
+                    disabled={isSubmitting}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="photo_right"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <FileUploadWithCamera
+                    label="Foto Lateral Derecha"
+                    accept="image/*"
+                    value={field.value}
+                    onChange={(file) => field.onChange(file)}
+                    disabled={isSubmitting}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </GroupFormSection>
 
         {/* Marcador de Daños */}
         <div className="space-y-4">
