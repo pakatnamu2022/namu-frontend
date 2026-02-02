@@ -43,7 +43,7 @@ import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-gene
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook.ts";
 import { EMPRESA_AP, IGV, STATUS_ACTIVE } from "@/core/core.constants.ts";
 import { api } from "@/core/api.ts";
-import { format, parseISO } from "date-fns";
+import { format } from "date-fns";
 import { CURRENCY_TYPE_IDS } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.constants.ts";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync.tsx";
 import { SuppliersResource } from "@/features/ap/comercial/proveedores/lib/suppliers.interface.ts";
@@ -217,12 +217,11 @@ export const SupplierOrderForm = ({
     const isValidDate =
       watchedOrderDate instanceof Date ||
       (typeof watchedOrderDate === "string" && watchedOrderDate.length > 0);
-    // Usar parseISO para strings para evitar problemas de zona horaria
     const dateToUse =
       watchedOrderDate instanceof Date
         ? watchedOrderDate
-        : typeof watchedOrderDate === "string" && watchedOrderDate.length > 0
-          ? parseISO(watchedOrderDate)
+        : watchedOrderDate
+          ? new Date(watchedOrderDate)
           : null;
 
     // Solo consultar si la moneda NO es soles (id 1) y si ambos valores existen

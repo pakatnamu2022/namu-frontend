@@ -62,7 +62,7 @@ export default function ControlTravelPage() {
         <TitleComponent
           title={`${currentView.descripcion || "Control de Viajes"}`}
           subtitle={
-            userComplete?.role === "COMERCIAL Y FACTURACION TP"
+            userComplete?.role?.toUpperCase() === "COMERCIAL Y FACTURACION TP"
               ? "Gestión de Combustible"
               : "Mis Viajes"
           }
@@ -80,7 +80,7 @@ export default function ControlTravelPage() {
           setSearch={setSearch}
           status={status}
           setStatus={setStatus}
-          userRole={userComplete?.role.toUpperCase()}
+          userPosition={userComplete?.position.toUpperCase()}
         />
       </TravelControlTable>
 

@@ -174,7 +174,7 @@ export const productColumns = ({
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
-      const { id, status, has_purchase_order } = row.original;
+      const { id, status } = row.original;
 
       return (
         <div className="flex items-center gap-2">
@@ -231,7 +231,7 @@ export const productColumns = ({
             <Eye className="size-4" />
           </Button>
 
-          {permissions.canUpdate && !has_purchase_order && (
+          {permissions.canUpdate && (
             <Button
               variant="outline"
               size="icon"

@@ -12,7 +12,6 @@ interface ProgressCellProps {
   colorClass: string;
 }
 
-// eslint-disable-next-line react-refresh/only-export-components
 function ProgressCell({ value, total, colorClass }: ProgressCellProps) {
   const percentage = total > 0 ? (value / total) * 100 : 0;
 
@@ -122,6 +121,8 @@ export const dashboardAdvisorColumns = ({
       header: "Estados de Oportunidad",
       cell: ({ row }) => {
         const advisor = row.original;
+
+        console.log(advisor);
 
         return (
           <div className="flex flex-wrap gap-1">

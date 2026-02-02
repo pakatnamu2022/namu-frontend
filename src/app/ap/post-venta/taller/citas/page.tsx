@@ -69,7 +69,6 @@ export default function AppointmentPlanningPage() {
     cargo_id: POSITION_TYPE.SERVICE_ADVISOR,
     status_id: STATUS_WORKER.ACTIVE,
     sede$empresa_id: EMPRESA_AP.id,
-    sede_id: sedeId ? Number(sedeId) : undefined,
   });
 
   useEffect(() => {

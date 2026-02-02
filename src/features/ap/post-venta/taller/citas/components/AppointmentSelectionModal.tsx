@@ -15,7 +15,7 @@ import { AppointmentSelectionTable } from "./AppointmentSelectionTable";
 import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { errorToast, getMonday, getSunday } from "@/core/core.function";
+import { errorToast } from "@/core/core.function";
 import SearchInput from "@/shared/components/SearchInput";
 
 interface AppointmentSelectionModalProps {
@@ -33,12 +33,8 @@ export const AppointmentSelectionModal = ({
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const currentDate = new Date();
   const [search, setSearch] = useState("");
-  const [dateFrom, setDateFrom] = useState<Date | undefined>(
-    getMonday(currentDate),
-  );
-  const [dateTo, setDateTo] = useState<Date | undefined>(
-    getSunday(currentDate),
-  );
+  const [dateFrom, setDateFrom] = useState<Date | undefined>(currentDate);
+  const [dateTo, setDateTo] = useState<Date | undefined>(currentDate);
 
   const formatDate = (date: Date | undefined) => {
     return date ? date.toLocaleDateString("en-CA") : undefined; // formato: YYYY-MM-DD

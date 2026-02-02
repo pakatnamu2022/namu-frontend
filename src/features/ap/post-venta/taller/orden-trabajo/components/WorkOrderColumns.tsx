@@ -1,6 +1,6 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-import { Settings, ClipboardCheck, Pencil, ShieldCheck } from "lucide-react";
+import { Settings, ClipboardCheck, Pencil } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { WorkOrderResource } from "../lib/workOrder.interface";
 import { format } from "date-fns";
@@ -14,13 +14,9 @@ interface Props {
   onUpdate: (id: number) => void;
   onManage: (id: number) => void;
   onInspect: (id: number) => void;
-  onAuthorize: (workOrder: WorkOrderResource) => void;
   permissions: {
     canUpdate: boolean;
     canDelete: boolean;
-    canManage: boolean;
-    canReceive: boolean;
-    canAuthorize: boolean;
   };
 }
 
@@ -29,7 +25,6 @@ export const workOrderColumns = ({
   onUpdate,
   onManage,
   onInspect,
-  onAuthorize,
   permissions,
 }: Props): WorkOrderColumns[] => [
   {
@@ -151,7 +146,7 @@ export const workOrderColumns = ({
 
       return (
         <div className="flex items-center gap-2">
-          {permissions.canReceive && !is_inspection_completed && !isClosed && (
+          {!is_inspection_completed && !isClosed && (
             <Button
               variant="outline"
               size="icon"
@@ -163,7 +158,7 @@ export const workOrderColumns = ({
             </Button>
           )}
 
-          {permissions.canManage && (
+          {permissions.canUpdate && (
             <Button
               variant="outline"
               size="icon"
@@ -189,18 +184,6 @@ export const workOrderColumns = ({
 
           {permissions.canDelete && !isClosed && (
             <DeleteButton onClick={() => onDelete(id)} />
-          )}
-
-          {permissions.canAuthorize && (
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-7"
-              tooltip="Autorizar"
-              onClick={() => onAuthorize(row.original)}
-            >
-              <ShieldCheck className="size-5" />
-            </Button>
           )}
         </div>
       );

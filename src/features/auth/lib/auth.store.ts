@@ -123,39 +123,19 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
 
     // Token exists, proceed with authentication
-    try {
-      const { user, permissions } = await authenticate();
-      if (user) {
-        localStorage.setItem("user", JSON.stringify(user));
-        set({
-          user,
-          permissions: permissions?.access_tree || [],
-          permissionsModules: permissions?.permissions_modules || {},
-          isAuthenticated: true,
-          isHydrated: true,
-        });
-      } else {
-        // Response came back but no user data - clear everything
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-        localStorage.removeItem("permissions");
-        set({
-          user: undefined,
-          token: undefined,
-          isAuthenticated: false,
-          isHydrated: true,
-          permissions: [],
-          permissionsModules: {},
-        });
-      }
-    } catch (error) {
-      // Network error, timeout, or API error - clear everything and force re-login
-      console.error("Authentication failed:", error);
-      if (typeof window !== "undefined") {
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-        localStorage.removeItem("permissions");
-      }
+    const { user, permissions } = await authenticate();
+    if (user) {
+      localStorage.setItem("user", JSON.stringify(user));
+      set({
+        user,
+        permissions: permissions?.access_tree || [],
+        permissionsModules: permissions?.permissions_modules || {},
+        isAuthenticated: true,
+      });
+    } else {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      localStorage.removeItem("permissions");
       set({
         user: undefined,
         token: undefined,

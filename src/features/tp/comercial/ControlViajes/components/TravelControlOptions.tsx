@@ -22,7 +22,7 @@ export default function TravelControlOptions({
 }: TravelControlOptionsProps){
 
     const getFilteredOptions = () =>{
-        if(userPosition === "COMERCIAL Y FACTURACION TP"){
+        if(userPosition === "GESTOR COMERCIAL"){
             return STATUS_OPTIONS.filter(option =>
             ["all", "fuel_pending", "completed"].includes(option.value)
             );
