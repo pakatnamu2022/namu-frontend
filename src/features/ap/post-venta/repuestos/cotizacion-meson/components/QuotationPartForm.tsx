@@ -122,16 +122,32 @@ export const QuotationPartForm = ({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 w-full">
-        {/* Indicador del almacén asignado */}
+        {/* Selector o indicador de almacén */}
         {warehouses.length > 0 && (
-          <div className="flex items-center gap-2 p-3 bg-slate-50 border border-slate-200 rounded-lg">
-            <Warehouse className="h-4 w-4 text-slate-500" />
-            <span className="text-sm text-slate-600">
-              Almacén asignado:{" "}
-              <span className="font-medium text-slate-800">
-                {warehouses[0].dyn_code} - {warehouses[0].sede}
-              </span>
-            </span>
+          <div className="space-y-2">
+            {warehouses.length === 1 ? (
+              <div className="flex items-center gap-2 p-3 bg-slate-50 border border-slate-200 rounded-lg">
+                <Warehouse className="h-4 w-4 text-slate-500" />
+                <span className="text-sm text-slate-600">
+                  Almacén asignado:{" "}
+                  <span className="font-medium text-slate-800">
+                    {warehouses[0].dyn_code} - {warehouses[0].sede}
+                  </span>
+                </span>
+              </div>
+            ) : (
+              <FormSelect
+                name="warehouses.0.warehouse_id"
+                label="Almacén"
+                placeholder="Selecciona un almacén"
+                options={warehouses.map((warehouse) => ({
+                  label: `${warehouse.dyn_code} - ${warehouse.sede}`,
+                  value: warehouse.id.toString(),
+                }))}
+                control={form.control}
+                required
+              />
+            )}
           </div>
         )}
 

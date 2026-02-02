@@ -216,6 +216,7 @@ export function FormSelectAsync({
             : null);
 
         // Sincronizar selectedOption con field.value usando useEffect
+        // eslint-disable-next-line react-hooks/rules-of-hooks
         useEffect(() => {
           if (field.value && selected && selected !== selectedOption) {
             setSelectedOption(selected);

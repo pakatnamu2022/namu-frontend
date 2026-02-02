@@ -7,15 +7,7 @@ import { Plus, Trash2, Wrench, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { Form } from "@/components/ui/form";
 import {
   errorToast,
   successToast,
@@ -29,6 +21,7 @@ import {
   laborDetailSchema,
   LaborDetailSchema,
 } from "../lib/proformaDetails.schema";
+import { FormInput } from "@/shared/components/FormInput";
 
 interface LaborDetailsSectionProps {
   quotationId: number;
@@ -59,8 +52,8 @@ export default function LaborDetailsSection({
       description: "",
       quantity: 1,
       unit_measure: "Horas",
-      unit_price: 0,
-      discount: 0,
+      unit_price: undefined,
+      discount: undefined,
       total_amount: 0,
       exchange_rate: exchangeRate,
       observations: "",
@@ -88,8 +81,8 @@ export default function LaborDetailsSection({
         description: "",
         quantity: 1,
         unit_measure: "Horas",
-        unit_price: 0,
-        discount: 0,
+        unit_price: undefined,
+        discount: undefined,
         total_amount: 0,
         exchange_rate: exchangeRate,
         observations: "",
@@ -120,111 +113,59 @@ export default function LaborDetailsSection({
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           {/* Descripción - ancho completo */}
-          <FormField
+          <FormInput
             control={form.control}
             name="description"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Descripción</FormLabel>
-                <FormControl>
-                  <Input {...field} placeholder="Ej: Cambio de aceite" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Descripción"
+            placeholder="Ej: Cambio de aceite"
+            className="h-9 text-xs"
           />
 
           {/* Campos de entrada en una sola línea */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3">
             <div className="sm:col-span-1 lg:col-span-3">
-              <FormField
+              <FormInput
                 control={form.control}
                 name="quantity"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-xs">Cant. (Horas)</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        step="0.1"
-                        min="0.1"
-                        {...field}
-                        onChange={(e) => field.onChange(Number(e.target.value))}
-                        className="h-9"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+                label="Cant. (Horas)"
+                placeholder="Ej: 1.5"
+                className="h-9 text-xs"
+                inputMode="numeric"
+                type="number"
               />
             </div>
 
             <div className="sm:col-span-1 lg:col-span-3">
-              <FormField
+              <FormInput
                 control={form.control}
                 name="unit_price"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-xs">Precio/Hora</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        {...field}
-                        onChange={(e) => field.onChange(Number(e.target.value))}
-                        className="h-9"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+                label="Precio/Hora"
+                placeholder="Ej: Horas"
+                className="h-9 text-xs"
+                inputMode="numeric"
+                type="number"
               />
             </div>
 
             <div className="sm:col-span-1 lg:col-span-2">
-              <FormField
+              <FormInput
                 control={form.control}
                 name="discount"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-xs">
-                      Desc. ({currencySymbol})
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        {...field}
-                        onChange={(e) => field.onChange(Number(e.target.value))}
-                        className="h-9"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+                label={"Desc. " + currencySymbol}
+                placeholder="Ej: 0.00"
+                className="h-9 text-xs"
+                inputMode="numeric"
+                type="number"
               />
             </div>
 
             <div className="sm:col-span-1 lg:col-span-3">
-              <FormField
+              <FormInput
                 control={form.control}
                 name="observations"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-xs">Observaciones</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        value={field.value || ""}
-                        placeholder="Opcional"
-                        className="h-9"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+                label="Observaciones"
+                placeholder="Ej: Observaciones adicionales"
+                className="h-9 text-xs"
               />
             </div>
 

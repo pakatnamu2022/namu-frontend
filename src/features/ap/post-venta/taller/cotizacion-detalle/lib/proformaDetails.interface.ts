@@ -22,6 +22,8 @@ export interface OrderQuotationDetailsResource {
   discount_percentage: number;
   total_amount: number;
   observations: string | null;
+  created_by: number;
+  created_by_name: string;
   product: ProductResource | null;
   status: string;
 }

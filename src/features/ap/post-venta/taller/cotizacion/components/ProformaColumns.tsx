@@ -87,6 +87,10 @@ export const orderQuotationColumns = ({
     header: "Observaciones",
   },
   {
+    accessorKey: "created_by_name",
+    header: "Creado por",
+  },
+  {
     accessorKey: "is_take",
     header: "Tomada",
     cell: ({ getValue }) => {

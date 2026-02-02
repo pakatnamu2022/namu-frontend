@@ -24,22 +24,30 @@ export const productDetailSchema = z.object({
   item_type: z.literal("PRODUCT"),
   product_id: requiredStringId("Producto es requerido"),
   description: z.string().min(1).max(500),
-  quantity: z.number().min(0.1, "Cantidad debe ser mayor a 0"),
+  quantity: z.coerce.number().min(0.1, "Cantidad debe ser mayor a 0"),
   unit_measure: z.string().min(1),
   retail_price_external: z
-    .number()
-    .min(0, "Precio externo debe ser mayor o igual a 0"),
+    .preprocess(
+      (val) => {
+        if (typeof val === "string") {
+          const normalized = val.replace(",", ".");
+          return parseFloat(normalized);
+        }
+        return val;
+      },
+      z.number().min(0, "Precio externo debe ser mayor o igual a 0")
+    ),
   freight_commission: z
-    .number()
+    .coerce.number()
     .min(0, "Comisión de flete debe ser mayor o igual a 0")
     .default(1.05),
-  exchange_rate: z.number().min(0, "Tipo de cambio debe ser mayor o igual a 0"),
-  unit_price: z.number().min(0),
+  exchange_rate: z.coerce.number().min(0, "Tipo de cambio debe ser mayor o igual a 0"),
+  unit_price: z.coerce.number().min(0),
   discount: z
-    .number()
+    .coerce.number()
     .min(0, "Descuento debe ser mayor o igual a 0")
     .default(0),
-  total_amount: z.number().min(0, "Total debe ser mayor o igual a 0"),
+  total_amount: z.coerce.number().min(0, "Total debe ser mayor o igual a 0"),
   observations: z.string().max(500).optional(),
 });
 

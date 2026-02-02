@@ -148,6 +148,7 @@ export default function InvoiceSupplierOrderPage() {
           currency_id: supplierOrder.type_currency_id.toString(),
           emission_date: new Date(),
           due_date: new Date(),
+          payment_terms: "30_DAYS",
           items:
             supplierOrder.details?.map((detail) => ({
               product_id: detail.product_id.toString(),

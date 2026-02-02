@@ -21,7 +21,14 @@ import {
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { FormSelect } from "@/shared/components/FormSelect";
-import { Plus, Trash2, Package, PackagePlus, ExternalLink } from "lucide-react";
+import {
+  Plus,
+  Trash2,
+  Package,
+  PackagePlus,
+  ExternalLink,
+  Copy,
+} from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { useState, useEffect } from "react";
 import { EMPRESA_AP, IGV, STATUS_ACTIVE } from "@/core/core.constants";
@@ -75,6 +82,28 @@ function ProductDetailItem({
   const productId = form.watch(`details.${index}.product_id`);
   const { data: productData } = useProductById(Number(productId) || 0);
 
+  // Función para copiar código del repuesto
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text).then(() => {
+      // Opcional: podrías agregar un toast de confirmación aquí
+    });
+  };
+
+  // Función para manejar el pegado y convertir comas a puntos
+  const handlePaste = (
+    e: React.ClipboardEvent<HTMLInputElement>,
+    field: any,
+  ) => {
+    e.preventDefault();
+    const pastedText = e.clipboardData.getData("text");
+    const normalizedValue = pastedText.replace(",", ".");
+    const numericValue = parseFloat(normalizedValue);
+
+    if (!isNaN(numericValue)) {
+      field.onChange(numericValue);
+    }
+  };
+
   // Buscar el stock del producto actual
   const currentProductStock = stockData?.data?.find(
     (stock) => stock.product_id === Number(productId),
@@ -98,13 +127,16 @@ function ProductDetailItem({
     <div className="border rounded-lg bg-white transition-colors">
       {/* Vista Desktop - Formato Tabla */}
       <div className="hidden md:grid grid-cols-14 gap-3 px-4 py-3 items-start">
-        <div className="col-span-1 flex justify-center pt-2">
+        <div
+          className="col-span-1 flex justify-center pt-2"
+          style={{ maxWidth: "40px" }}
+        >
           <Badge color="secondary" className="text-xs">
-            #{index + 1}
+            {index + 1}
           </Badge>
         </div>
 
-        <div className="col-span-3">
+        <div className="col-span-4">
           <FormSelectAsync
             name={`details.${index}.product_id`}
             label=""
@@ -125,16 +157,39 @@ function ProductDetailItem({
         {currentProductStock && productId && (
           <div className="col-span-13 row-start-2 col-start-2">
             <div className="p-2.5 bg-blue-50 border border-blue-200 rounded-md">
-              <div className="flex items-center gap-1.5 mb-2">
-                <Warehouse className="h-3.5 w-3.5 text-primary" />
-                <span className="text-xs font-semibold text-primary">
-                  Stock Disponible
-                  {productData?.brand_name && (
-                    <span className="ml-1 font-normal">
-                      - Marca: {productData.brand_name}
+              <div className="flex items-center gap-2 mb-2 flex-wrap">
+                <div className="flex items-center gap-1.5">
+                  <Warehouse className="h-3.5 w-3.5 text-primary" />
+                  <span className="text-xs font-semibold text-primary">
+                    Stock Disponible
+                  </span>
+                </div>
+                {productData?.brand_name && (
+                  <span className="text-xs text-primary">
+                    Marca:{" "}
+                    <span className="font-medium">
+                      {productData.brand_name}
                     </span>
-                  )}
-                </span>
+                  </span>
+                )}
+                {productData?.code && (
+                  <div className="flex items-center gap-1">
+                    <span className="text-xs text-primary">
+                      Cod:{" "}
+                      <span className="font-medium">{productData.code}</span>
+                    </span>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="h-5 w-5 hover:bg-blue-100"
+                      onClick={() => copyToClipboard(productData.code)}
+                      title="Copiar código"
+                    >
+                      <Copy className="h-3 w-3 text-primary" />
+                    </Button>
+                  </div>
+                )}
               </div>
               {currentProductStock.warehouses.length > 0 ? (
                 <div className="space-y-2">
@@ -265,7 +320,13 @@ function ProductDetailItem({
                     min="0"
                     placeholder="P. Ext. ($)"
                     {...field}
-                    onChange={(e) => field.onChange(Number(e.target.value))}
+                    value={field.value || ""}
+                    onChange={(e) =>
+                      field.onChange(
+                        e.target.value ? Number(e.target.value) : undefined,
+                      )
+                    }
+                    onPaste={(e) => handlePaste(e, field)}
                     className="h-9"
                   />
                 </FormControl>
@@ -310,7 +371,12 @@ function ProductDetailItem({
                     max="100"
                     placeholder="Dcto %"
                     {...field}
-                    onChange={(e) => field.onChange(Number(e.target.value))}
+                    value={field.value || ""}
+                    onChange={(e) =>
+                      field.onChange(
+                        e.target.value ? Number(e.target.value) : undefined,
+                      )
+                    }
                     className="h-9"
                   />
                 </FormControl>
@@ -398,16 +464,36 @@ function ProductDetailItem({
         {/* Mostrar stock inline debajo del selector - Mobile */}
         {currentProductStock && productId && (
           <div className="p-2 bg-blue-50 border border-blue-200 rounded-md">
-            <div className="flex items-center gap-1 mb-2">
-              <Warehouse className="h-3 w-3 text-primary" />
-              <span className="text-xs font-semibold text-primary">
-                Stock Disponible
-                {productData?.brand_name && (
-                  <span className="ml-1 font-normal">
-                    - Marca: {productData.brand_name}
+            <div className="flex items-center gap-2 mb-2 flex-wrap">
+              <div className="flex items-center gap-1">
+                <Warehouse className="h-3 w-3 text-primary" />
+                <span className="text-xs font-semibold text-primary">
+                  Stock Disponible
+                </span>
+              </div>
+              {productData?.brand_name && (
+                <span className="text-xs text-primary">
+                  Marca:{" "}
+                  <span className="font-medium">{productData.brand_name}</span>
+                </span>
+              )}
+              {productData?.code && (
+                <div className="flex items-center gap-1">
+                  <span className="text-xs text-primary">
+                    Cod: <span className="font-medium">{productData.code}</span>
                   </span>
-                )}
-              </span>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="h-5 w-5 hover:bg-blue-100"
+                    onClick={() => copyToClipboard(productData.code)}
+                    title="Copiar código"
+                  >
+                    <Copy className="h-3 w-3 text-primary" />
+                  </Button>
+                </div>
+              )}
             </div>
             {currentProductStock.warehouses.length > 0 ? (
               <div className="space-y-1.5">
@@ -523,7 +609,13 @@ function ProductDetailItem({
                     step="0.01"
                     min="0"
                     {...field}
-                    onChange={(e) => field.onChange(Number(e.target.value))}
+                    value={field.value || ""}
+                    onChange={(e) =>
+                      field.onChange(
+                        e.target.value ? Number(e.target.value) : undefined,
+                      )
+                    }
+                    onPaste={(e) => handlePaste(e, field)}
                     className="h-9"
                   />
                 </FormControl>
@@ -809,7 +901,7 @@ export default function ProformaMesonForm({
       discount_percentage: 0,
       total_amount: 0,
       observations: "",
-      retail_price_external: 0,
+      retail_price_external: undefined,
       exchange_rate: exchangeRate || 0,
       freight_commission: 1.05,
     });
@@ -1089,8 +1181,13 @@ export default function ProformaMesonForm({
             <div className="space-y-3">
               {/* Cabecera de tabla - Solo Desktop */}
               <div className="hidden md:grid grid-cols-14 gap-3 bg-gray-100 px-4 py-2 rounded-t-lg text-xs font-semibold text-gray-700 border-b">
-                <div className="col-span-1 text-center">#</div>
-                <div className="col-span-3">Repuesto</div>
+                <div
+                  className="col-span-1 text-center"
+                  style={{ maxWidth: "40px" }}
+                >
+                  #
+                </div>
+                <div className="col-span-4">Repuesto</div>
                 <div className="col-span-1 text-center">Cant.</div>
                 <div className="col-span-2 text-center">P. Ext. ($)</div>
                 <div className="col-span-2 text-center">
