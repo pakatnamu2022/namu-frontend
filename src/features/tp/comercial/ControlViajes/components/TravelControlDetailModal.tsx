@@ -484,9 +484,9 @@ export function TravelControlDetailModal({
       setValue(field, sanitizedValue, { shouldValidate: true });
     };
 
-  const isDriver = userComplete?.role?.toUpperCase() === "CONDUCTOR TP";
+  const isDriver = userComplete?.position?.toUpperCase() === "CONDUCTOR DE TRACTO CAMION";
   const isComercial =
-    userComplete?.role?.toUpperCase() === "COMERCIAL Y FACTURACION TP";
+    userComplete?.position?.toUpperCase() === "COMERCIAL Y FACTURACION TP";
   const canStart =
     localTrip?.status === "pending" &&
     initialKmValue &&

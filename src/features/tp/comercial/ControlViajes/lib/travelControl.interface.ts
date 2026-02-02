@@ -8,7 +8,7 @@ export interface TravelControlOptionsProps{
     setSearch: (value: string) => void;
     status: TripStatus | "all";
     setStatus: (value: TripStatus | "all") => void;
-    userRole?: string;
+    userPosition?: string;
 }
 export interface TravelControlDetailModalProps{
   trip: TravelControlResource,
@@ -187,7 +187,7 @@ export interface GetTripsProps {
   page?: number;
   per_page?: number;
 }
-export type UserRole = 'CONDUCTOR TP' | 'COMERCIAL Y FACTURACION TP';
+export type UserPosition = 'CONDUCTOR DE TRACTO CAMION' | 'COMERCIAL Y FACTURACION TP';
 
 //API
 export interface ApiResponse<T = any>{
