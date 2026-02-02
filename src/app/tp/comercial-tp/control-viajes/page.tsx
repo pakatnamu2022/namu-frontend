@@ -62,7 +62,7 @@ export default function ControlTravelPage() {
         <TitleComponent
           title={`${currentView.descripcion || "Control de Viajes"}`}
           subtitle={
-            userComplete?.role === "COMERCIAL Y FACTURACION TP"
+            userComplete?.role?.toUpperCase() === "COMERCIAL Y FACTURACION TP"
               ? "Gestión de Combustible"
               : "Mis Viajes"
           }
