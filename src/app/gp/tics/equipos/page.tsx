@@ -17,16 +17,19 @@ import { errorToast, successToast } from "@/core/core.function";
 import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { notFound } from "@/shared/hooks/useNotFound";
-
+import EquipmentAssignModal from "@/features/gp/tics/equipment/components/EquipmentAssignModal";
+import EquipmentHistorySheet from "@/features/gp/tics/equipment/components/EquipmentHistorySheet";
 
 export default function EquipmentPage() {
-    const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
+  const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("all");
   const [useStatus, setUseStatus] = useState("all");
   const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [assignId, setAssignId] = useState<number | null>(null);
+  const [historyId, setHistoryId] = useState<number | null>(null);
 
   useEffect(() => {
     setPage(1);
@@ -68,7 +71,11 @@ export default function EquipmentPage() {
       </HeaderTableWrapper>
       <EquipmentTable
         isLoading={isLoading}
-        columns={equipmentColumns({ onDelete: setDeleteId })}
+        columns={equipmentColumns({
+          onDelete: setDeleteId,
+          onAssign: setAssignId,
+          onHistory: setHistoryId,
+        })}
         data={data?.data || []}
       >
         <EquipmentOptions
@@ -88,6 +95,22 @@ export default function EquipmentPage() {
           onConfirm={handleDelete}
         />
       )}
+
+      {assignId !== null && (
+        <EquipmentAssignModal
+          open={true}
+          equipmentId={assignId}
+          onClose={() => setAssignId(null)}
+          onSuccess={() => refetch()}
+        />
+      )}
+
+      <EquipmentHistorySheet
+        open={historyId !== null}
+        equipmentId={historyId}
+        onClose={() => setHistoryId(null)}
+        onSuccess={() => refetch()}
+      />
 
       <DataTablePagination
         page={page}

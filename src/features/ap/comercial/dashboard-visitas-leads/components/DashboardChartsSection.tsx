@@ -5,7 +5,7 @@ import { IndicatorsByDateRange } from "../lib/dashboard.interface";
 import BarChartCard from "./BarChartCard";
 import ChartLoadingSkeleton from "./ChartLoadingSkeleton";
 import { ChartConfig } from "@/components/ui/chart";
-import { InteractivePieChart } from "./InteractivePieChart";
+import { InteractivePieChart } from "@/shared/charts/InteractivePieChart";
 
 interface DashboardChartsSectionProps {
   data: IndicatorsByDateRange[];

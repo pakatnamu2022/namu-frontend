@@ -38,6 +38,10 @@ export interface VehicleInspectionResource {
   inspected_by_name: string;
   inspection_date: string | Date;
   customer_signature_url: string;
+  photo_front_url: string;
+  photo_back_url: string;
+  photo_left_url: string;
+  photo_right_url: string;
   damages?: VehicleInspectionDamageResource[];
   // Campos de vehículo (desde la orden de trabajo)
   vehicle_id?: number;
@@ -93,7 +97,7 @@ export interface VehicleInspectionRequest {
   damages: VehicleInspectionDamageRequest[];
   // Fotos del vehículo (obligatorias cuando dirty_unit es true)
   photo_front?: File | null;
-  photo_rear?: File | null;
+  photo_back?: File | null;
   photo_left?: File | null;
   photo_right?: File | null;
 }

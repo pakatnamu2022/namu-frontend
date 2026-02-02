@@ -175,19 +175,20 @@ export default function SalesManagerAdvisorTable({
         id: "states",
         header: "Estados",
         cell: ({ row }) => (
-          <div className="flex flex-col flex-wrap gap-1.5">
+          <div className="flex flex-wrap gap-1.5">
             {Object.entries(row.original.by_opportunity_status).length > 0 ? (
               Object.entries(row.original.by_opportunity_status).map(
                 ([state, count]) =>
                   count > 0 && (
                     <Badge
                       size="sm"
-                      variant="outline"
+                      variant="ghost"
                       key={`${row.original.worker_id}-${state}`}
                       color={getStatusColor(state)}
-                      className="text-xs font-normal w-fit"
+                      className="text-xs w-fit flex flex-col"
                     >
-                      {state}: {count as number}
+                      <span>{count as number}</span>
+                      <span className="font-medium">{state}</span>
                     </Badge>
                   ),
               )

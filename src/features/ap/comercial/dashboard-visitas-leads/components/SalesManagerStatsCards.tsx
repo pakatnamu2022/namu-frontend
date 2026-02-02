@@ -3,7 +3,7 @@
 import { ChartConfig } from "@/components/ui/chart";
 import { TrendingUp, Users } from "lucide-react";
 import { SalesManagerStatsResponse } from "../lib/dashboard.interface";
-import { InteractivePieChart } from "./InteractivePieChart";
+import { InteractivePieChart } from "@/shared/charts/InteractivePieChart";
 
 interface SalesManagerStatsCardsProps {
   teamTotals: SalesManagerStatsResponse["data"]["team_totals"];

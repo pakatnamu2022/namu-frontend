@@ -88,9 +88,7 @@ export default function UpdateViewPage() {
     loadingViews ||
     loadingCompanies;
 
-  if (isLoadingAny) {
-    return <FormSkeleton />;
-  }
+  if (isLoadingAny) return <FormSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
   if (!currentView) notFound();
 

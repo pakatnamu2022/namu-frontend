@@ -14,10 +14,11 @@ import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import FormWrapper from "@/shared/components/FormWrapper";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { EQUIPMENT } from "@/features/gp/tics/equipment/lib/equipment.constants";
+import FormSkeleton from "@/shared/components/FormSkeleton";
 
 export default function AddEquipmentPage() {
   const router = useNavigate();
-  const { ABSOLUTE_ROUTE } = EQUIPMENT;
+  const { ABSOLUTE_ROUTE, EMPTY } = EQUIPMENT;
   const { data: equipmentTypes, isLoading: loadingEquipmentTypes } =
     useAllEquipmentTypes();
   const { currentView, checkRouteExists } = useCurrentModule();
@@ -49,11 +50,7 @@ export default function AddEquipmentPage() {
     });
   };
 
-  if (loadingEquipmentTypes || loadingSedes) {
-    return (
-      <div className="p-4 text-muted">Cargando tipos de equipo y sedes...</div>
-    );
-  }
+  if (loadingEquipmentTypes || loadingSedes) return <FormSkeleton />;
   if (!checkRouteExists("equipos")) notFound();
   if (!currentView) notFound();
 
@@ -65,26 +62,7 @@ export default function AddEquipmentPage() {
         icon={currentView.icon}
       />
       <EquipmentForm
-        defaultValues={{
-          marca: "",
-          modelo: "",
-          tipo_equipo_id: "",
-          serie: "",
-          detalle: "",
-          ram: "",
-          almacenamiento: "",
-          procesador: "",
-          stock_actual: 0,
-          estado_uso: "NUEVO",
-          sede_id: "",
-          pertenece_sede: false,
-          fecha_adquisicion: undefined,
-          fecha_garantia: undefined,
-          tipo_adquisicion: "",
-          factura: "",
-          contrato: "",
-          proveedor: "",
-        }}
+        defaultValues={EMPTY!}
         onSubmit={handleSubmit}
         isSubmitting={isPending}
         mode="create"

@@ -1,12 +1,6 @@
 import { z } from "zod";
 
 export const equipmentTypeSchemaCreate = z.object({
-  equipo: z
-    .string()
-    .max(255)
-    .refine((value) => value.trim() !== "", {
-      message: "Equipo es requerido",
-    }),
   name: z
     .string()
     .max(255)

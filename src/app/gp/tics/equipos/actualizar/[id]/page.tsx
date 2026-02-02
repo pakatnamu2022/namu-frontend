@@ -19,6 +19,7 @@ import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import FormWrapper from "@/shared/components/FormWrapper";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { EQUIPMENT } from "@/features/gp/tics/equipment/lib/equipment.constants";
+import FormSkeleton from "@/shared/components/FormSkeleton";
 
 export default function UpdateEquipmentPage() {
   const { ABSOLUTE_ROUTE } = EQUIPMENT;
@@ -66,18 +67,18 @@ export default function UpdateEquipmentPage() {
   };
 
   function mapEquipmentToForm(
-    data: EquipmentResource
+    data: EquipmentResource,
   ): Partial<EquipmentSchema> {
     return {
       marca: data.marca ?? "",
       modelo: data.modelo ?? "",
-      tipo_equipo_id: data.tipo_equipo_id.toString(),
+      tipo_equipo_id: data.tipo_equipo_id?.toString() || "",
       serie: data.serie ?? "",
       detalle: data.detalle ?? "",
       ram: data.ram ?? "",
       almacenamiento: data.almacenamiento ?? "",
       procesador: data.procesador ?? "",
-      stock_actual: data.stock_actual ?? 0,
+      stock_actual: Number(data.stock_actual) ?? 0,
       estado_uso: data.estado_uso as "NUEVO" | "USADO",
       sede_id: data.sede_id.toString(),
       pertenece_sede: Boolean(data.pertenece_sede),
@@ -102,9 +103,7 @@ export default function UpdateEquipmentPage() {
     loadingSedes ||
     !sedes;
 
-  if (isLoadingAny) {
-    return <div className="p-4 text-muted">Cargando equipo...</div>;
-  }
+  if (isLoadingAny) return <FormSkeleton />;
   if (!checkRouteExists("equipos")) notFound();
   if (!currentView) notFound();
 

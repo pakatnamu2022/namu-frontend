@@ -100,3 +100,14 @@ export async function resetPassword(userId: number): Promise<GeneralResponse> {
   });
   return data;
 }
+
+export async function assignUserRole(
+  userId: number,
+  roleId: number
+): Promise<GeneralResponse> {
+  const { data } = await api.put<GeneralResponse>(
+    `/configuration/user-role/${userId}`,
+    { role_id: roleId }
+  );
+  return data;
+}

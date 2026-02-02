@@ -54,7 +54,7 @@ export const vehicleInspectionSchemaCreate = z
     customer_signature: z.string().min(1, "Firma del cliente es requerida"),
     // Fotos del vehículo (obligatorias cuando dirty_unit es true)
     photo_front: z.instanceof(File).nullable().optional(),
-    photo_rear: z.instanceof(File).nullable().optional(),
+    photo_back: z.instanceof(File).nullable().optional(),
     photo_left: z.instanceof(File).nullable().optional(),
     photo_right: z.instanceof(File).nullable().optional(),
   })
@@ -63,7 +63,7 @@ export const vehicleInspectionSchemaCreate = z
       if (data.dirty_unit) {
         return (
           data.photo_front instanceof File &&
-          data.photo_rear instanceof File &&
+          data.photo_back instanceof File &&
           data.photo_left instanceof File &&
           data.photo_right instanceof File
         );
@@ -74,7 +74,7 @@ export const vehicleInspectionSchemaCreate = z
       message:
         "Las 4 fotos del vehículo son obligatorias cuando la unidad está sucia",
       path: ["photo_front"],
-    }
+    },
   );
 
 export const vehicleInspectionSchemaUpdate =

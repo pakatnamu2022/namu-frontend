@@ -19,6 +19,7 @@ import { UserSedesSheet } from "@/features/gp/gestionsistema/usuarios/components
 import { UserResource } from "@/features/gp/gestionsistema/usuarios/lib/user.interface";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { ResetPasswordDialog } from "@/features/gp/gestionsistema/usuarios/components/ResetPasswordDialog";
+import { AssignRoleModal } from "@/features/gp/gestionsistema/usuarios/components/AssignRoleModal";
 
 
 export default function UserPage() {
@@ -31,6 +32,7 @@ export default function UserPage() {
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [selectedUser, setSelectedUser] = useState<UserResource | null>(null);
   const [resetPasswordId, setResetPasswordId] = useState<number | null>(null);
+  const [assignRoleUser, setAssignRoleUser] = useState<UserResource | null>(null);
 
   useEffect(() => {
     setPage(1);
@@ -87,6 +89,7 @@ export default function UserPage() {
           onDelete: setDeleteId,
           onManageSedes: setSelectedUser,
           onResetPassword: setResetPasswordId,
+          onAssignRole: setAssignRoleUser,
         })}
         data={data?.data || []}
       >
@@ -112,6 +115,15 @@ export default function UserPage() {
           onClose={() => setSelectedUser(null)}
           userId={selectedUser.id}
           userName={selectedUser.name}
+        />
+      )}
+
+      {assignRoleUser && (
+        <AssignRoleModal
+          open={true}
+          onClose={() => setAssignRoleUser(null)}
+          user={assignRoleUser}
+          onSuccess={() => refetch()}
         />
       )}
 

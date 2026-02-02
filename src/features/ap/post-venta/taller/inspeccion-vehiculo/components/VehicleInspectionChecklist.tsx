@@ -69,9 +69,12 @@ export default function VehicleInspectionChecklist({
               </h3>
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-2 md:space-y-3">
               {items.map((item) => (
-                <div key={item.key} className="flex items-center space-x-2">
+                <div
+                  key={item.key}
+                  className="flex items-center space-x-3 md:space-x-2 p-2 md:p-0 rounded-lg hover:bg-gray-100 md:hover:bg-transparent transition-colors"
+                >
                   <Checkbox
                     id={item.key}
                     checked={values[item.key] || false}
@@ -79,10 +82,11 @@ export default function VehicleInspectionChecklist({
                       onChange(item.key, checked as boolean)
                     }
                     disabled={disabled}
+                    className="h-6 w-6 md:h-4 md:w-4"
                   />
                   <Label
                     htmlFor={item.key}
-                    className="text-sm font-normal cursor-pointer"
+                    className="text-base md:text-sm font-normal cursor-pointer flex-1"
                   >
                     {item.label}
                   </Label>

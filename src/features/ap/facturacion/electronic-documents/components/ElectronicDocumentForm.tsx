@@ -115,6 +115,7 @@ export function ElectronicDocumentForm({
     type_receipt_id: documentTypes.find(
       (dt) => dt.id.toString() === selectedDocumentType,
     )?.tribute_code,
+    sede_id: quotation?.sede_id,
   });
 
   const selectedSeries = authorizedSeries.find(

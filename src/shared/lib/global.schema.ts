@@ -80,3 +80,6 @@ export const requiredDate = (message: string) =>
   z.union([z.literal(""), z.date(), z.string()]).refine((val) => val !== "", {
     message: message,
   });
+
+export const optionalDate = () =>
+  z.union([z.literal(""), z.date(), z.string()]).optional();
