@@ -27,8 +27,10 @@ import {
   deleteProduct,
   updateProduct,
 } from "@/features/ap/post-venta/gestion-almacen/productos/lib/product.actions";
+import { useNavigate } from "react-router-dom";
 
 export default function ProductRepuestoPage() {
+  const router = useNavigate();
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
@@ -36,7 +38,7 @@ export default function ProductRepuestoPage() {
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [viewProductId, setViewProductId] = useState<number | null>(null);
   const [isDetailSheetOpen, setIsDetailSheetOpen] = useState(false);
-  const { MODEL, ROUTE } = PRODUCT_REPUESTOS;
+  const { MODEL, ROUTE, ABSOLUTE_ROUTE, ROUTE_ADD } = PRODUCT_REPUESTOS;
   const permissions = useModulePermissions(ROUTE);
 
   useEffect(() => {
@@ -90,13 +92,14 @@ export default function ProductRepuestoPage() {
           subtitle={currentView.descripcion}
           icon={currentView.icon}
         />
-        <ProductActions permissions={permissions} module="REPUESTOS" />
+        <ProductActions permissions={permissions} route={ROUTE_ADD} />
       </HeaderTableWrapper>
       <ProductTable
         isLoading={isLoading}
         columns={productColumns({
           onStatusChange: handleToggleStatus,
-          onUpdate: () => {},
+          onUpdate: (id: number) =>
+            router(`${ABSOLUTE_ROUTE}/actualizar/${id}`),
           onDelete: setDeleteId,
           onView: handleView,
           permissions,

@@ -488,7 +488,7 @@ export default function GeneralInformationPage() {
                 <div>
                   <p className="text-sm text-gray-600">Nivel de Combustible</p>
                   <p className="font-semibold">
-                    {workOrder.vehicle_inspection.fuel_level}
+                    {workOrder.vehicle_inspection.fuel_level || "N/A"}
                   </p>
                 </div>
               </div>

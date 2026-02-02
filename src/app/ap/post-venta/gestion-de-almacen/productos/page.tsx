@@ -38,7 +38,7 @@ export default function ProductPVPage() {
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [viewProductId, setViewProductId] = useState<number | null>(null);
   const [isDetailSheetOpen, setIsDetailSheetOpen] = useState(false);
-  const { MODEL, ROUTE, ABSOLUTE_ROUTE } = PRODUCT;
+  const { MODEL, ROUTE, ABSOLUTE_ROUTE, ROUTE_ADD } = PRODUCT;
   const permissions = useModulePermissions(ROUTE);
 
   useEffect(() => {
@@ -96,7 +96,7 @@ export default function ProductPVPage() {
           subtitle={currentView.descripcion}
           icon={currentView.icon}
         />
-        <ProductActions permissions={permissions} module="ALMACEN" />
+        <ProductActions permissions={permissions} route={ROUTE_ADD} />
       </HeaderTableWrapper>
       <ProductTable
         isLoading={isLoading}

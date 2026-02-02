@@ -23,6 +23,8 @@ import WorkOrderActions from "@/features/ap/post-venta/taller/orden-trabajo/comp
 import WorkOrderTable from "@/features/ap/post-venta/taller/orden-trabajo/components/WorkOrderTable";
 import { workOrderColumns } from "@/features/ap/post-venta/taller/orden-trabajo/components/WorkOrderColumns";
 import WorkOrderOptions from "@/features/ap/post-venta/taller/orden-trabajo/components/WorkOrderOptions";
+import { AuthorizationModal } from "@/features/ap/post-venta/taller/orden-trabajo/components/AuthorizationModal";
+import { WorkOrderResource } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.interface";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { useNavigate } from "react-router-dom";
@@ -33,6 +35,9 @@ export default function WorkOrderPage() {
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [authWorkOrder, setAuthWorkOrder] = useState<WorkOrderResource | null>(
+    null,
+  );
   const { MODEL, ROUTE, ABSOLUTE_ROUTE, ROUTE_UPDATE } = WORKER_ORDER;
   const permissions = useModulePermissions(ROUTE);
   const router = useNavigate();
@@ -97,6 +102,10 @@ export default function WorkOrderPage() {
     router(`${ABSOLUTE_ROUTE}/${id}/inspeccion`);
   };
 
+  const handleAuthorize = (workOrder: WorkOrderResource) => {
+    setAuthWorkOrder(workOrder);
+  };
+
   if (isLoadingModule) return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
   if (!currentView) notFound();
@@ -119,6 +128,7 @@ export default function WorkOrderPage() {
           onUpdate: handleUpdate,
           onManage: handleManage,
           onInspect: handleInspect,
+          onAuthorize: handleAuthorize,
           permissions,
         })}
         data={data?.data || []}
@@ -149,6 +159,12 @@ export default function WorkOrderPage() {
           onConfirm={handleDelete}
         />
       )}
+
+      <AuthorizationModal
+        open={authWorkOrder !== null}
+        onOpenChange={(open) => !open && setAuthWorkOrder(null)}
+        workOrder={authWorkOrder}
+      />
     </div>
   );
 }
