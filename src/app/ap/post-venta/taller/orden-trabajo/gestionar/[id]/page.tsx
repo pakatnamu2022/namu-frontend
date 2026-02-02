@@ -185,7 +185,7 @@ export default function ManageWorkOrderPage() {
                   <span className="hidden sm:inline">Adjuntar Cotización</span>
                   <span className="sm:hidden">Cotización</span>
                 </Button>
-              ) : hasQuotation ? (
+              ) : hasQuotation && workOrder.allow_remove_associated_quote ? (
                 <Button
                   variant="outline"
                   size="sm"

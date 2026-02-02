@@ -36,14 +36,14 @@ export async function getAllWorkOrder({
 }
 
 export async function findWorkOrderById(
-  id: number
+  id: number,
 ): Promise<WorkOrderResource> {
   const response = await api.get<WorkOrderResource>(`${ENDPOINT}/${id}`);
   return response.data;
 }
 
 export async function storeWorkOrder(
-  data: WorkOrderRequest
+  data: WorkOrderRequest,
 ): Promise<WorkOrderResource> {
   const response = await api.post<WorkOrderResource>(ENDPOINT, data);
   return response.data;
@@ -51,7 +51,7 @@ export async function storeWorkOrder(
 
 export async function updateWorkOrder(
   id: number,
-  data: WorkOrderRequest
+  data: WorkOrderRequest,
 ): Promise<WorkOrderResource> {
   const response = await api.put<WorkOrderResource>(`${ENDPOINT}/${id}`, data);
   return response.data;
@@ -82,14 +82,14 @@ export async function downloadWorkOrderPdf(id: number): Promise<void> {
 
 export async function getPaymentSummary(
   id: number,
-  groupNumber?: number
+  groupNumber?: number,
 ): Promise<WorkOrderPaymentSummary> {
   const config: AxiosRequestConfig = {
     params: groupNumber ? { group_number: groupNumber } : {},
   };
   const { data } = await api.get<WorkOrderPaymentSummary>(
     `${ENDPOINT}/${id}/payment-summary`,
-    config
+    config,
   );
   return data;
 }
@@ -119,7 +119,18 @@ export async function downloadPreLiquidationPdf(id: number): Promise<void> {
 
 export async function unlinkQuotation(id: number): Promise<WorkOrderResource> {
   const response = await api.patch<WorkOrderResource>(
-    `${ENDPOINT}/${id}/unlink-quotation`
+    `${ENDPOINT}/${id}/unlink-quotation`,
+  );
+  return response.data;
+}
+
+export async function authorizationWorkOrder(
+  id: number,
+  data: WorkOrderRequest,
+): Promise<WorkOrderResource> {
+  const response = await api.patch<WorkOrderResource>(
+    `${ENDPOINT}/${id}/authorization`,
+    data,
   );
   return response.data;
 }
