@@ -80,7 +80,7 @@ export default function ControlTravelPage() {
           setSearch={setSearch}
           status={status}
           setStatus={setStatus}
-          userRole={userComplete?.role.toUpperCase()}
+          userPosition={userComplete?.position.toUpperCase()}
         />
       </TravelControlTable>
 
