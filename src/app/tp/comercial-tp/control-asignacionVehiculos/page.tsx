@@ -2,60 +2,54 @@
 
 import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import { errorToast, successToast } from "@/core/core.function";
-import GoalTravelActions from "@/features/tp/comercial/ControlMetas/components/GoalTravelActions";
-import { goalTravelColumns } from "@/features/tp/comercial/ControlMetas/components/GoalTravelColumns";
-import GoalTravelModal from "@/features/tp/comercial/ControlMetas/components/GoalTravelModal";
-import GoalTravelOptions from "@/features/tp/comercial/ControlMetas/components/GoalTravelOptions";
-import GoalTravelTable from "@/features/tp/comercial/ControlMetas/components/GoalTravelTable";
-import { deleteGoalTravel } from "@/features/tp/comercial/ControlMetas/lib/GoalTravelControl.actions";
-import { GOALTRAVELCONTROL } from "@/features/tp/comercial/ControlMetas/lib/GoalTravelControl.constants";
-import { useGoalTravelControl } from "@/features/tp/comercial/ControlMetas/lib/GoalTravelControl.hook";
-import DataTablePagination from "@/shared/components/DataTablePagination";
+import VehicleAssignmentActions from "@/features/tp/comercial/ControlAsignacionVehiculos/components/VehicleAssignmentActions";
+import { vehicleAssignmentColumns } from "@/features/tp/comercial/ControlAsignacionVehiculos/components/VehicleAssignmentColumns";
+import VehicleAssignmentOptions from "@/features/tp/comercial/ControlAsignacionVehiculos/components/VehicleAssignmentOptions";
+import VehicleAssignmentTable from "@/features/tp/comercial/ControlAsignacionVehiculos/components/VehicleAssignmentTable";
+import { deleteVehicleAssignment } from "@/features/tp/comercial/ControlAsignacionVehiculos/lib/vehicleAssignment.actions";
+import { useVehicleAssignmentControl } from "@/features/tp/comercial/ControlAsignacionVehiculos/lib/vehicleAssignment.hook";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import PageSkeleton from "@/shared/components/PageSkeleton";
-import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
 import TitleComponent from "@/shared/components/TitleComponent";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { useEffect, useState } from "react";
+import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
+import DataTablePagination from "@/shared/components/DataTablePagination";
+import { VEHICLEASSIGNMENTCONTROL } from "@/features/tp/comercial/ControlAsignacionVehiculos/lib/vehicleAssignment.constants";
+import VehicleAssignmentModal from "@/features/tp/comercial/ControlAsignacionVehiculos/components/VehicleAssignmentModal";
 
-export default function ControlGoalPage() {
+export default function ControlVehicleAssignmentPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
-  const [year, setYear] = useState("");
-  const [month, setMonth] = useState("");
   const [status, setStatus] = useState("all");
   const [useStatus, setUseStatus] = useState("all");
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [updateId, setUpdateId] = useState<number | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const { ROUTE } = GOALTRAVELCONTROL;
+  const { ROUTE } = VEHICLEASSIGNMENTCONTROL;
 
   useEffect(() => {
     setPage(1);
-  }, [search, per_page, status, useStatus, year, month]);
+  }, [search, per_page]);
 
-  const params = {
+  const { data, isLoading, refetch } = useVehicleAssignmentControl({
     page,
-    per_page,
     search,
-    year: year || undefined,
-    month: month || undefined,
+    per_page,
     status_id: status === "all" ? undefined : status,
-  };
-
-  const { data, isLoading, refetch } = useGoalTravelControl(params);
+  });
   const handleDelete = async () => {
     if (!deleteId) return;
 
     try {
-      await deleteGoalTravel(deleteId);
+      await deleteVehicleAssignment(deleteId);
       await refetch();
-      successToast("Meta eliminada correctamente. ");
+      successToast("Asignacion eliminado correctamente. ");
     } catch (error) {
-      errorToast("Error al eliminar la meta. ");
+      errorToast("Error al eliminar la asignacion. ");
     } finally {
       setDeleteId(null);
     }
@@ -64,10 +58,10 @@ export default function ControlGoalPage() {
   const handleUpdate = (id: number) => {
     setUpdateId(id);
   };
-
   const handleCreate = () => {
     setIsCreateModalOpen(true);
   };
+
   const handleCloseUpdateModal = () => {
     setUpdateId(null);
   };
@@ -75,8 +69,6 @@ export default function ControlGoalPage() {
   const handleCloseCreateModal = () => {
     setIsCreateModalOpen(false);
   };
-
-  const availableYears = data?.available_years || [];
 
   if (isLoadingModule) return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
@@ -90,43 +82,39 @@ export default function ControlGoalPage() {
           subtitle={currentView.descripcion}
           icon={currentView.icon}
         />
-        <GoalTravelActions onCreate={handleCreate} />
+        <VehicleAssignmentActions onCreate={handleCreate} />
       </HeaderTableWrapper>
-      <GoalTravelTable
+
+      <VehicleAssignmentTable
         isLoading={isLoading}
-        columns={goalTravelColumns({
+        columns={vehicleAssignmentColumns({
           onDelete: setDeleteId,
           onUpdate: handleUpdate,
         })}
         data={data?.data || []}
       >
-        <GoalTravelOptions
+        <VehicleAssignmentOptions
           search={search}
           setSearch={setSearch}
           status={status}
           setStatus={setStatus}
           useStatus={useStatus}
           setUseStatus={setUseStatus}
-          year={year}
-          setYear={setYear}
-          month={month}
-          setMonth={setMonth}
-          availableYears={availableYears}
         />
-      </GoalTravelTable>
+      </VehicleAssignmentTable>
 
-      <GoalTravelModal
+      <VehicleAssignmentModal
         open={isCreateModalOpen}
         onClose={handleCloseCreateModal}
-        title="Nueva Meta"
+        title="Nueva Asignación"
         mode="create"
       />
       {updateId && (
-        <GoalTravelModal
+        <VehicleAssignmentModal
           id={updateId}
           open={!!updateId}
           onClose={handleCloseUpdateModal}
-          title="Editar Meta"
+          title="Editar Asignacion"
           mode="update"
         />
       )}

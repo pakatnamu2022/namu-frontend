@@ -1,44 +1,35 @@
+"use cliente";
+
 import { ColumnDef } from "@tanstack/react-table";
-import { GoalTravelControlResource } from "../lib/GoalTravelControl.interface";
+import { VehicleAssignmentControlResource } from "../lib/vehicleAssignment.interface";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle, Pencil, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 
-export type GoalTravelColumns = ColumnDef<GoalTravelControlResource>;
+export type VehicleAssignmentColumns =
+  ColumnDef<VehicleAssignmentControlResource>;
 
 interface Props {
   onDelete: (id: number) => void;
   onUpdate: (id: number) => void;
 }
 
-export const goalTravelColumns = ({
+export const vehicleAssignmentColumns = ({
   onUpdate,
   onDelete,
-}: Props): GoalTravelColumns[] => [
+}: Props): VehicleAssignmentColumns[] => [
   {
-    accessorKey: "date",
-    header: "Periodo",
+    accessorKey: "tractor",
+    header: "Tracto",
     cell: ({ getValue }) => {
       const value = getValue() as string;
       return <Badge variant="outline">{value}</Badge>;
     },
   },
   {
-    accessorKey: "total",
-    header: "Meta Total",
-  },
-  {
-    accessorKey: "driver_goal",
-    header: "Meta Conductor",
-  },
-  {
-    accessorKey: "vehicle_goal",
-    header: "Meta Conductor",
-  },
-  {
-    accessorKey: "total_units",
-    header: "Total Unidades",
+    accessorKey: "driver",
+    header: "Conductor",
   },
   {
     accessorKey: "status_deleted",
@@ -62,7 +53,6 @@ export const goalTravelColumns = ({
     header: "Acciones",
     cell: ({ row }) => {
       const id = row.original.id;
-
       return (
         <div className="flex items-center gap-2">
           <Button
@@ -74,6 +64,7 @@ export const goalTravelColumns = ({
             <Pencil className="size-5" />
           </Button>
 
+          {/*Delete*/}
           <DeleteButton onClick={() => onDelete(id)} />
         </div>
       );
