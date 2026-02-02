@@ -4,13 +4,13 @@ import ActionsWrapper from "@/shared/components/ActionsWrapper";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 
-interface GoalTravelActionsProps {
+interface VehicleAssignmentProps {
   onCreate: () => void;
 }
 
-export default function GoalTravelActions({
+export default function VehicleAssignmentActions({
   onCreate,
-}: GoalTravelActionsProps) {
+}: VehicleAssignmentProps) {
   return (
     <ActionsWrapper>
       <Button
@@ -19,7 +19,7 @@ export default function GoalTravelActions({
         className="ml-auto"
         onClick={onCreate}
       >
-        <Plus className="size-4 mr-2" /> Agregar Meta
+        <Plus className="size-4 mr-2" /> Agregar Asignacion
       </Button>
     </ActionsWrapper>
   );

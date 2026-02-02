@@ -1,15 +1,15 @@
 import { DataTable } from "@/shared/components/DataTable";
-import { GoalTravelControlResource } from "../lib/GoalTravelControl.interface";
-import { GoalTravelColumns } from "./GoalTravelColumns";
+import { VehicleAssignmentColumns } from "./VehicleAssignmentColumns";
+import { VehicleAssignmentControlResource } from "../lib/vehicleAssignment.interface";
 
 interface Props {
-  columns: GoalTravelColumns[];
-  data: GoalTravelControlResource[];
+  columns: VehicleAssignmentColumns[];
+  data: VehicleAssignmentControlResource[];
   children?: React.ReactNode;
   isLoading?: boolean;
 }
 
-export default function GoalTravelTable({
+export default function VehicleAssignmentTable({
   columns,
   data,
   children,
