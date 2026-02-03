@@ -5,7 +5,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, FileText } from "lucide-react";
 import { findWorkOrderById } from "../../lib/workOrder.actions";
 import {
   DEFAULT_GROUP_COLOR,
@@ -22,6 +22,7 @@ import {
   successToast,
 } from "@/core/core.function";
 import { useIsTablet } from "@/hooks/use-tablet";
+import { downloadOrderReceiptPdf } from "../../../inspeccion-vehiculo/lib/vehicleInspection.actions";
 
 const getGroupColor = (groupNumber: number) => {
   return GROUP_COLORS[groupNumber] || DEFAULT_GROUP_COLOR;
@@ -35,6 +36,7 @@ export default function OpeningTab({ workOrderId }: OpeningTabProps) {
   const isTablet = useIsTablet();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<number | null>(null);
+  const [isDownloading, setIsDownloading] = useState(false);
   const queryClient = useQueryClient();
   const { MODEL } = WORKER_ORDER_ITEM;
 
@@ -61,6 +63,23 @@ export default function OpeningTab({ workOrderId }: OpeningTabProps) {
 
   const defaultGroupNumber =
     items.length > 0 ? Math.max(...items.map((i) => i.group_number)) + 1 : 1;
+
+  const inspection = workOrder?.vehicle_inspection;
+
+  const handleDownloadOrderReceipt = async () => {
+    if (!inspection?.id) return;
+
+    try {
+      setIsDownloading(true);
+      await downloadOrderReceiptPdf(inspection.id);
+      successToast("PDF descargado exitosamente");
+    } catch (error) {
+      console.error("Error al descargar PDF:", error);
+      errorToast("Error al descargar la orden de recepción");
+    } finally {
+      setIsDownloading(false);
+    }
+  };
 
   const handleAddItem = () => {
     setIsDialogOpen(true);
@@ -108,15 +127,26 @@ export default function OpeningTab({ workOrderId }: OpeningTabProps) {
               Gestiona los trabajos de servicio para esta orden
             </p>
           </div>
-          {items.length === 0 && (
-            <Button
-              onClick={handleAddItem}
-              className="w-full sm:w-auto shrink-0"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Agregar Trabajo
-            </Button>
-          )}
+          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto shrink-0">
+            {inspection?.id && (
+              <Button
+                onClick={handleDownloadOrderReceipt}
+                disabled={isDownloading}
+                className="w-full sm:w-auto gap-2"
+              >
+                <FileText className="h-4 w-4" />
+                {isDownloading
+                  ? "Generando PDF..."
+                  : "Generar Orden Recepción - Personal"}
+              </Button>
+            )}
+            {items.length === 0 && (
+              <Button onClick={handleAddItem} className="w-full sm:w-auto">
+                <Plus className="h-4 w-4 mr-2" />
+                Agregar Trabajo
+              </Button>
+            )}
+          </div>
         </div>
       </Card>
 

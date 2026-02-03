@@ -116,7 +116,9 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
             className="gap-2"
           >
             <FileText className="h-4 w-4" />
-            {isDownloading ? "Generando PDF..." : "Generar PDF para Cliente"}
+            {isDownloading
+              ? "Generando PDF..."
+              : "Generar Orden Recepción - Cliente"}
           </Button>
         </div>
 
