@@ -343,7 +343,9 @@ export function OrderQuotationBillingForm({
                 precio_unitario / (1 + porcentaje_de_igv / 100),
               );
               const subtotal = round2(valor_unitario);
-              const igvAmount = round2(subtotal * (porcentaje_de_igv / 100));
+              // IGV = total - subtotal (por residuo, no por multiplicación independiente)
+              // Esto evita que round2(subtotal) + round2(igv) != total_con_igv
+              const igvAmount = round2(total_con_igv - subtotal);
 
               // Crear item de regularización en NEGATIVO
               quotationItems.push({
