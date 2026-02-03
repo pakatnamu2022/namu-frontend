@@ -187,7 +187,7 @@ export interface GetTripsProps {
   page?: number;
   per_page?: number;
 }
-export type UserPosition = 'CONDUCTOR DE TRACTO CAMION' | 'COMERCIAL Y FACTURACION TP';
+export type UserRole = 'CONDUCTOR TP' | 'COMERCIAL Y FACTURACION TP';
 
 //API
 export interface ApiResponse<T = any>{
