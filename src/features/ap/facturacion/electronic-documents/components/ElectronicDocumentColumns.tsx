@@ -130,10 +130,16 @@ export const electronicDocumentColumns = ({
       header: "Serie - Número",
       cell: ({ row }) => {
         const fullNumber = row.original.full_number;
+        const isAdvance = row.original.is_advance_payment;
         return (
-          <Badge variant="outline" className="font-mono text-sm font-semibold">
-            {fullNumber}
-          </Badge>
+          <div className="flex flex-col items-start w-fit">
+            <span className="font-mono text-sm font-semibold">
+              <span> {fullNumber}</span>
+            </span>
+            <span className="text-xs">
+              {isAdvance ? "ANTICIPO" : "VENTA INTERNA"}
+            </span>
+          </div>
         );
       },
     },

@@ -149,6 +149,7 @@ export default function UpdateElectronicDocumentPage() {
         origin_entity_id: document.origin_entity_id?.toString() || "",
         purchase_request_quote_id:
           document.purchase_request_quote_id?.toString() || "",
+        is_advance_payment: document.is_advance_payment ?? false,
         client_id: document.client_id?.toString() || "",
         fecha_de_emision: document.fecha_de_emision || "",
         fecha_de_vencimiento: document.fecha_de_vencimiento || "",
