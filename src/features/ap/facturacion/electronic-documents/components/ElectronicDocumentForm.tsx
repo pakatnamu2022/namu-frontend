@@ -702,6 +702,7 @@ MODELO: ${vehicle?.model?.version || ``}
             isAdvancePayment={isAdvancePayment}
             quotation={quotation}
             advancePayments={advancePayments}
+            selectedCustomer={selectedCustomer}
           />
         </div>
 
