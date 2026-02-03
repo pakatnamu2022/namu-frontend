@@ -15,7 +15,7 @@ import { useUserComplete } from "@/features/gp/gestionsistema/usuarios/lib/user.
 import { useAuthStore } from "@/features/auth/lib/auth.store";
 import { useTravels } from "@/features/tp/comercial/ControlViajes/lib/travelControl.hooks";
 import TravelControlOptions from "@/features/tp/comercial/ControlViajes/components/TravelControlOptions";
-import { TRAVEL_CONTROL } from "@/features/tp/comercial/ControlViajes/controlViajesType/travelControl.constants";
+
 
 export default function ControlTravelPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -25,9 +25,8 @@ export default function ControlTravelPage() {
   const [status, setStatus] = useState<TripStatus | "all">("all");
   const { user } = useAuthStore();
   const { data: userComplete } = useUserComplete(user.id);
-  const { ROUTE } = TRAVEL_CONTROL;
 
-  const resetPage = useCallback(() => {
+ const resetPage = useCallback(() => {
     setPage(1);
   }, []);
 
@@ -35,25 +34,27 @@ export default function ControlTravelPage() {
     resetPage();
   }, [search, per_page, resetPage]);
 
-  const { data, isLoading } = useTravels({
+ const {data, isLoading} = useTravels({
     page,
     search,
     status,
-    per_page,
-  });
+    per_page
+ });
 
-  const handleSearchOrStatusChange = useCallback(() => {
+
+ const handleSearchOrStatusChange = useCallback(() => {
     if (search !== "" || status !== "all") {
       setPage(1);
     }
   }, [search, status]);
-
+  
   useEffect(() => {
     handleSearchOrStatusChange();
   }, [handleSearchOrStatusChange]);
 
+
   if (isLoadingModule) return <PageSkeleton />;
-  if (!checkRouteExists(ROUTE)) notFound();
+  if(!checkRouteExists("control-viajes")) notFound();
   if (!currentView) notFound();
 
   return (
@@ -61,15 +62,11 @@ export default function ControlTravelPage() {
       <HeaderTableWrapper>
         <TitleComponent
           title={`${currentView.descripcion || "Control de Viajes"}`}
-          subtitle={
-            userComplete?.role?.toUpperCase() === "COMERCIAL Y FACTURACION TP"
-              ? "Gestión de Combustible"
-              : "Mis Viajes"
-          }
+          subtitle={userComplete?.role === 'COMERCIAL Y FACTURACION TP' ? 'Gestión de Combustible' : 'Mis Viajes'}
           icon={currentView.icon}
         />
       </HeaderTableWrapper>
-
+      
       <TravelControlTable
         isLoading={isLoading}
         columns={TravelControlColumns({})}
@@ -84,14 +81,14 @@ export default function ControlTravelPage() {
         />
       </TravelControlTable>
 
-      <DataTablePagination
-        page={page}
-        totalPages={data?.meta?.last_page || 1}
-        onPageChange={setPage}
-        per_page={per_page}
-        setPerPage={setPerPage}
-        totalData={data?.meta?.total || 0}
-      />
+       <DataTablePagination
+          page={page}
+          totalPages={data?.meta?.last_page || 1}
+          onPageChange={setPage}
+          per_page={per_page}
+          setPerPage={setPerPage}
+          totalData={data?.meta?.total || 0}
+        />
     </div>
   );
 }
