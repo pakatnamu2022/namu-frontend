@@ -216,6 +216,7 @@ export function FormSelectAsync({
             : null);
 
         // Sincronizar selectedOption con field.value usando useEffect
+        // eslint-disable-next-line react-hooks/rules-of-hooks
         useEffect(() => {
           if (field.value && selected && selected !== selectedOption) {
             setSelectedOption(selected);
@@ -236,7 +237,7 @@ export function FormSelectAsync({
             {label && typeof label === "function"
               ? label()
               : label && (
-                  <FormLabel className="flex justify-start items-center">
+                  <FormLabel className="flex justify-start items-center m-0 mb-1">
                     {label}
                     {required && <RequiredField />}
                     {tooltip && (

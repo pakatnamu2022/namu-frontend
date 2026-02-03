@@ -30,6 +30,7 @@ import { CustomersResource } from "@/features/ap/comercial/clientes/lib/customer
 import { CUSTOMERS_PV } from "@/features/ap/comercial/clientes/lib/customers.constants";
 import { VehicleResource } from "@/features/ap/comercial/vehiculos/lib/vehicles.interface";
 import { OrderQuotationResource } from "../lib/proforma.interface";
+import { VEHICLES_TLL } from "@/features/ap/comercial/vehiculos/lib/vehicles.constants";
 
 interface OrderQuotationFormProps {
   defaultValues: Partial<OrderQuotationSchema>;
@@ -199,7 +200,7 @@ export default function OrderQuotationForm({
               variant="outline"
               size="icon-lg"
               className="aspect-square"
-              onClick={() => window.open(CUSTOMERS_PV.ROUTE_ADD, "_blank")}
+              onClick={() => window.open(VEHICLES_TLL.ROUTE_ADD, "_blank")}
               tooltip="Agregar nuevo vehículo"
             >
               <ExternalLink className="h-4 w-4" />

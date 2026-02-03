@@ -171,7 +171,7 @@ export default function VehicleInspectionPage() {
     inspection_date: getCurrentDate(),
     fuel_level: workOrder.fuel_level || "",
     oil_level: "",
-    mileage: workOrder.mileage ? Number(workOrder.mileage) : 0,
+    mileage: workOrder.mileage ? Number(workOrder.mileage) : undefined,
     damages: [],
   };
 

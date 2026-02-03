@@ -1,6 +1,6 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-import { Pencil, Download, Settings } from "lucide-react";
+import { Pencil, Download, Settings, ClipboardCheck } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { errorToast, successToast } from "@/core/core.function";
 import { OrderQuotationResource } from "../lib/proforma.interface";
@@ -15,6 +15,7 @@ interface Props {
   onDelete: (id: number) => void;
   onUpdate: (id: number) => void;
   onManage: (id: number) => void;
+  onApprove: (id: number) => void;
   permissions: {
     canUpdate: boolean;
     canDelete: boolean;
@@ -25,6 +26,7 @@ export const orderQuotationColumns = ({
   onUpdate,
   onManage,
   onDelete,
+  onApprove,
   permissions,
 }: Props): OrderQuotationColumns[] => [
   {
@@ -87,6 +89,10 @@ export const orderQuotationColumns = ({
     header: "Observaciones",
   },
   {
+    accessorKey: "created_by_name",
+    header: "Creado por",
+  },
+  {
     accessorKey: "is_take",
     header: "Tomada",
     cell: ({ getValue }) => {
@@ -126,6 +132,16 @@ export const orderQuotationColumns = ({
             tooltip="Gestionar"
           >
             <Settings className="size-5" />
+          </Button>
+
+          <Button
+            variant="outline"
+            size="icon"
+            className="size-7"
+            onClick={() => onApprove(id)}
+            tooltip="Aprobar"
+          >
+            <ClipboardCheck className="size-5" />
           </Button>
 
           <Button
