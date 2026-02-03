@@ -44,8 +44,6 @@ export interface WorkOrderResource {
   description_recall: string | null;
   type_recall: "ROJO" | "AMARILLO" | "VERDE" | null;
   is_inspection_completed: boolean;
-  allow_remove_associated_quote: boolean;
-  allow_editing_inspection: boolean;
   type_currency: CurrencyTypesResource;
   vehicle_inspection: VehicleInspectionResource | null;
   items: WorkOrderItemResource[];

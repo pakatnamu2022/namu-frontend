@@ -305,7 +305,6 @@ export default function PurchaseRequestForm({
               }))}
               control={form.control}
               strictFilter={true}
-              allowClear={false}
             />
 
             <DatePickerFormField
@@ -680,10 +679,6 @@ export default function PurchaseRequestForm({
           open={isQuotationModalOpen}
           onOpenChange={setIsQuotationModalOpen}
           onSelectQuotation={handleSelectQuotation}
-          sedeId={
-            warehouses.find((w) => w.id.toString() === selectedWarehouseId)
-              ?.sede_id
-          }
         />
 
         {/* Modal de Crear Repuesto - Solo disponible para almacén */}

@@ -34,7 +34,6 @@ export default function InventoryOptions({
         placeholder="Filtrar por almacén"
         className="min-w-72"
         classNameOption="text-xs"
-        allowClear={false}
       />
     </div>
   );

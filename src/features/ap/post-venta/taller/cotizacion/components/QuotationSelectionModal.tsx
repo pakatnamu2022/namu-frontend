@@ -8,18 +8,14 @@ import {
 import { Calendar, DollarSign } from "lucide-react";
 import { useOrderQuotations } from "../lib/proforma.hook";
 import { OrderQuotationResource } from "../lib/proforma.interface";
-import {
-  DEFAULT_PER_PAGE,
-  STATUS_ACTIVE,
-  STATUS_INACTIVE,
-} from "@/core/core.constants";
+import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import DatePicker from "@/shared/components/DatePicker";
 import DataTablePagination from "@/shared/components/DataTablePagination";
 import { QuotationSelectionTable } from "./QuotationSelectionTable";
 import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { errorToast, getMonday, getSunday } from "@/core/core.function";
+import { errorToast } from "@/core/core.function";
 import { STATUS_ORDER_QUOTATION, SUPPLY_TYPE } from "../lib/proforma.constants";
 import { AREA_PM_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 
@@ -27,24 +23,18 @@ interface QuotationSelectionModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSelectQuotation: (quotationId: string) => void;
-  sedeId?: number;
 }
 
 export const QuotationSelectionModal = ({
   open,
   onOpenChange,
   onSelectQuotation,
-  sedeId,
 }: QuotationSelectionModalProps) => {
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const currentDate = new Date();
-  const [dateFrom, setDateFrom] = useState<Date | undefined>(
-    getMonday(currentDate),
-  );
-  const [dateTo, setDateTo] = useState<Date | undefined>(
-    getSunday(currentDate),
-  );
+  const [dateFrom, setDateFrom] = useState<Date | undefined>(currentDate);
+  const [dateTo, setDateTo] = useState<Date | undefined>(currentDate);
 
   const formatDate = (date: Date | undefined) => {
     return date ? date.toLocaleDateString("en-CA") : undefined; // formato: YYYY-MM-DD
@@ -64,7 +54,7 @@ export const QuotationSelectionModal = ({
   const { data, isLoading } = useOrderQuotations({
     page,
     per_page,
-    is_take: STATUS_INACTIVE,
+    is_take: 0,
     supply_type: [SUPPLY_TYPE.LIMA, SUPPLY_TYPE.IMPORTACION],
     status: STATUS_ORDER_QUOTATION.TO_BILL,
     area_id: AREA_PM_ID.MESON,
@@ -72,8 +62,6 @@ export const QuotationSelectionModal = ({
       dateFrom && dateTo
         ? [formatDate(dateFrom), formatDate(dateTo)]
         : undefined,
-    sede_id: sedeId,
-    has_invoice_generated: STATUS_ACTIVE,
   });
 
   const handleRowClick = (quotation: OrderQuotationResource) => {
@@ -91,7 +79,7 @@ export const QuotationSelectionModal = ({
       },
     },
     {
-      accessorKey: "client.full_name",
+      accessorKey: "customer",
       header: "Cliente",
       cell: ({ getValue }) => {
         const value = getValue() as string;

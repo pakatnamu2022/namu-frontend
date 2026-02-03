@@ -78,7 +78,7 @@ export default function UpdateEquipmentPage() {
       ram: data.ram ?? "",
       almacenamiento: data.almacenamiento ?? "",
       procesador: data.procesador ?? "",
-      stock_actual: data.stock_actual ?? 0,
+      stock_actual: Number(data.stock_actual) ?? 0,
       estado_uso: data.estado_uso as "NUEVO" | "USADO",
       sede_id: data.sede_id.toString(),
       pertenece_sede: Boolean(data.pertenece_sede),

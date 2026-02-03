@@ -67,18 +67,6 @@ export default function OrderQuotationMesonPage() {
     }
   }, [dateFrom, dateTo]);
 
-  const { data: sedes = [], isLoading: isLoadingSedes } = useMySedes({
-    company: EMPRESA_AP.id,
-  });
-
-  // Setear automáticamente el primer almacén cuando se carguen
-  useEffect(() => {
-    if (!isLoadingSedes && sedes.length > 0 && !sedeId) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setSedeId(sedes[0].id.toString());
-    }
-  }, [isLoadingSedes, sedes, sedeId]);
-
   const { data, isLoading, refetch } = useOrderQuotations({
     page,
     search,
@@ -89,6 +77,10 @@ export default function OrderQuotationMesonPage() {
         : undefined,
     area_id: AREA_PM_ID.MESON,
     sede_id: sedeId,
+  });
+
+  const { data: sedes = [], isLoading: isLoadingSedes } = useMySedes({
+    company: EMPRESA_AP.id,
   });
 
   const handleDelete = async () => {

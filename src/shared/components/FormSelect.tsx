@@ -199,7 +199,6 @@ interface FormSelectProps {
   popoverWidth?: string;
   portalContainer?: HTMLElement | null;
   size?: "sm" | "default" | "lg";
-  allowClear?: boolean;
 }
 
 export function FormSelect({
@@ -225,7 +224,6 @@ export function FormSelect({
   popoverWidth = "w-(--radix-popover-trigger-width)!",
   size,
   portalContainer,
-  allowClear = true,
 }: FormSelectProps) {
   const [open, setOpen] = useState(false);
   const isMobile = useIsMobile();
@@ -238,11 +236,9 @@ export function FormSelect({
         const selected = options.find((opt) => opt.value === field.value);
 
         const handleSelect = (optionValue: string) => {
-          if (field.value === optionValue) {
-            if (allowClear && !required) field.onChange("");
-          } else {
-            field.onChange(optionValue);
-          }
+          const newValue =
+            optionValue === field.value && !required ? "" : optionValue;
+          field.onChange(newValue);
           setOpen(false);
         };
 

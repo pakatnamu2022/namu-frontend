@@ -7,6 +7,7 @@ import {
   ShipmentsReceptionsResource,
   ShipmentsReceptionsResponse,
 } from "./shipmentsReceptions.interface";
+import { VehicleResource } from "@/features/ap/comercial/vehiculos/lib/vehicles.interface";
 import {
   deleteReceptionChecklist,
   deleteShipmentsReceptions,
@@ -14,6 +15,7 @@ import {
   getAllShipmentsReceptions,
   getReceptionChecklistById,
   getShipmentsReceptions,
+  getVehicleByShippingGuide,
   queryShippingGuideFromNubefact,
   sendShippingGuideToNubefact,
   storeShipmentsReceptions,
@@ -106,6 +108,15 @@ export const useReceptionChecklistById = (id: number) => {
     queryFn: () => getReceptionChecklistById(id),
     refetchOnWindowFocus: false,
     enabled: id > 0,
+  });
+};
+
+export const useVehicleByShippingGuide = (shippingGuideId: number) => {
+  return useQuery<VehicleResource>({
+    queryKey: [CHECKLIST_QUERY_KEY, "vehicle", shippingGuideId],
+    queryFn: () => getVehicleByShippingGuide(shippingGuideId),
+    refetchOnWindowFocus: false,
+    enabled: shippingGuideId > 0,
   });
 };
 

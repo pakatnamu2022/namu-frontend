@@ -98,7 +98,6 @@ export interface ProductResource {
   total_available_stock?: number;
   price_with_tax?: number;
   cost_with_tax?: number;
-  has_purchase_order: boolean;
 
   // Nested relations (when included)
   warehouse_stocks?: WarehouseStockDetail[];

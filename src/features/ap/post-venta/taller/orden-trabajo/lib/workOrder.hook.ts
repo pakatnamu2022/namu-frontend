@@ -7,7 +7,6 @@ import {
   storeWorkOrder,
   downloadWorkOrderPdf,
   getPaymentSummary,
-  authorizationWorkOrder,
 } from "./workOrder.actions";
 import { getWorkOrderProps, WorkOrderRequest } from "./workOrder.interface";
 import { WORKER_ORDER } from "./workOrder.constants";
@@ -59,32 +58,6 @@ export function useStoreWorkOrder() {
   });
 }
 
-export function useAuthorizationWorkOrder() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({
-      id,
-      data,
-    }: {
-      id: number;
-      data: Partial<WorkOrderRequest>;
-    }) => authorizationWorkOrder(id, data as WorkOrderRequest),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
-      successToast(`${MODEL.name} actualizad${MODEL.gender ? "a" : "o"}`);
-    },
-    onError: (error: any) => {
-      const errorMessage =
-        error?.response?.data?.message ||
-        `Error al actualizar ${
-          MODEL.gender ? "la" : "el"
-        } ${MODEL.name.toLowerCase()}`;
-      errorToast(errorMessage);
-    },
-  });
-}
-
 export function useDeleteWorkOrder() {
   const queryClient = useQueryClient();
 
@@ -121,7 +94,7 @@ export function useDownloadWorkOrderPdf() {
 
 export function useGetPaymentSummary(
   workOrderId: number,
-  groupNumber?: number,
+  groupNumber?: number
 ) {
   return useQuery({
     queryKey: [QUERY_KEY, "payment-summary", workOrderId, groupNumber],

@@ -18,11 +18,11 @@ export default function TravelControlOptions({
     setSearch,
     status,
     setStatus,
-    userRole="CONDUCTOR TP",
+    userPosition="CONDUCTOR DE TRACTO CAMION",
 }: TravelControlOptionsProps){
 
     const getFilteredOptions = () =>{
-        if(userRole === "COMERCIAL Y FACTURACION TP"){
+        if(userPosition === "GESTOR COMERCIAL"){
             return STATUS_OPTIONS.filter(option =>
             ["all", "fuel_pending", "completed"].includes(option.value)
             );

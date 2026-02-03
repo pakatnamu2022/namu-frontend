@@ -2,6 +2,9 @@ import { api } from "@/core/api";
 import {
   EquipmentResource,
   EquipmentResponse,
+  EquipmentAssignmentResource,
+  EquipmentAssignmentRequest,
+  EquipmentUnassignRequest,
   getEquipmentsProps,
 } from "@/features/gp/tics/equipment/lib/equipment.interface";
 import { GeneralResponse } from "@/shared/lib/response.interface";
@@ -44,5 +47,35 @@ export async function updateEquipment(
 
 export async function deleteEquipment(id: number): Promise<GeneralResponse> {
   const { data } = await api.delete<GeneralResponse>(`${ENDPOINT}/${id}`);
+  return data;
+}
+
+export async function assignEquipment(
+  payload: EquipmentAssignmentRequest
+): Promise<GeneralResponse> {
+  const { data } = await api.post<GeneralResponse>(
+    "/gp/tics/equipmentAssigment",
+    payload
+  );
+  return data;
+}
+
+export async function getEquipmentHistory(
+  equipoId: number
+): Promise<EquipmentAssignmentResource[]> {
+  const { data } = await api.get<EquipmentAssignmentResource[]>(
+    `/gp/tics/equipmentAssigment/history/equipment/${equipoId}`
+  );
+  return data;
+}
+
+export async function unassignEquipment(
+  assignmentId: number,
+  payload: EquipmentUnassignRequest
+): Promise<GeneralResponse> {
+  const { data } = await api.post<GeneralResponse>(
+    `/gp/tics/equipmentAssigment/${assignmentId}/unassign`,
+    payload
+  );
   return data;
 }
