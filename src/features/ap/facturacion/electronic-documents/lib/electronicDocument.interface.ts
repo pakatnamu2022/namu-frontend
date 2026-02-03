@@ -4,6 +4,7 @@ import {
   VehicleMovement,
   VehicleResource,
 } from "../../../comercial/vehiculos/lib/vehicles.interface";
+import { ApBankResource } from "@/features/ap/configuraciones/maestros-general/chequeras/lib/apBank.interface";
 
 export interface ElectronicDocumentResponse {
   data: ElectronicDocumentResource[];
@@ -72,6 +73,9 @@ export interface ElectronicDocumentResource {
   sunat_concept_debit_note_type_id?: number;
   observaciones?: string;
   condiciones_de_pago?: string;
+  bank?: ApBankResource;
+  operation_number?: string;
+  financing_type?: string;
   medio_de_pago?: string;
   placa_vehiculo?: string;
   orden_compra_servicio?: string;

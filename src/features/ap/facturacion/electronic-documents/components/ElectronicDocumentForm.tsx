@@ -175,12 +175,16 @@ export function ElectronicDocumentForm({
   }, [quotation, hasVehicle, vehicleId, form]);
 
   // Limpiar campos cuando se deselecciona la cotización
+  // IMPORTANTE: No limpiar en modo edición para mantener los datos originales
   useEffect(() => {
+    // Si está en modo edición, no limpiar campos automáticamente
+    if (isEdit) return;
+
     if (!selectedQuotationId) {
       // eslint-disable-next-line react-hooks/immutability
       resetData();
     }
-  }, [selectedQuotationId, form]);
+  }, [selectedQuotationId, form, isEdit]);
 
   const resetData = () => {
     lastLoadedQuotationId.current = null;
@@ -260,7 +264,11 @@ export function ElectronicDocumentForm({
   }, [quotation, form, currencyTypes]);
 
   // Efecto separado para cargar items (se ejecuta cuando cambia cotización O isAdvancePayment)
+  // IMPORTANTE: No ejecutar en modo edición para mantener los items originales del documento
   useEffect(() => {
+    // Si está en modo edición, no recalcular items desde la cotización
+    if (isEdit) return;
+
     if (
       quotation &&
       (quotation.id !== lastLoadedQuotationId.current ||
@@ -402,10 +410,14 @@ MODELO: ${vehicle?.model?.version || ``}
     advancePayments,
     isLoadingAdvancePayments,
     pendingBalance,
+    isEdit,
   ]);
 
   // Efecto separado para procesar y actualizar anticipos cuando la consulta termine
+  // IMPORTANTE: No ejecutar en modo edición para mantener los items originales del documento
   useEffect(() => {
+    // Si está en modo edición, no agregar anticipos automáticamente
+    if (isEdit) return;
     if (!quotation) return;
     if (isAdvancePayment) return; // sólo aplica para venta total
     if (isLoadingAdvancePayments) return; // esperar a que termine la carga
@@ -462,6 +474,7 @@ MODELO: ${vehicle?.model?.version || ``}
     igvTypes,
     porcentaje_de_igv,
     form,
+    isEdit,
   ]);
 
   // Calcular totales
@@ -491,18 +504,22 @@ MODELO: ${vehicle?.model?.version || ``}
                 SUNAT_TYPE_INVOICES_ID.NOTA_CREDITO
             ) {
               total_gravada += item.subtotal;
+              total_igv += item.igv;
               total_anticipo += -item.subtotal;
             } else {
               total_gravada += -item.subtotal;
+              total_igv += -item.igv;
               total_anticipo += item.subtotal;
             }
           } else {
             total_gravada += -item.subtotal;
+            total_igv += -item.igv;
             total_anticipo += item.subtotal;
           }
         } else {
           // Gravado normal
           total_gravada += item.subtotal;
+          total_igv += item.igv;
         }
       } else if (igvType?.code_nubefact === "20") {
         if (item.anticipo_regularizacion) {
@@ -529,9 +546,7 @@ MODELO: ${vehicle?.model?.version || ``}
       }
     });
 
-    // Calcular IGV sobre la base imponible neta (después de restar anticipos)
-    total_igv = total_gravada * (porcentaje_de_igv / 100);
-
+    // El IGV ya fue sumado de los items directamente (no recalcular)
     const total = total_gravada + total_inafecta + total_exonerada + total_igv;
 
     return {
@@ -687,12 +702,13 @@ MODELO: ${vehicle?.model?.version || ``}
             isAdvancePayment={isAdvancePayment}
             quotation={quotation}
             advancePayments={advancePayments}
+            selectedCustomer={selectedCustomer}
           />
         </div>
 
-        {/* <pre>
+        <pre>
           <code>{JSON.stringify(form.getValues(), null, 2)}</code>
-        </pre> */}
+        </pre>
 
         {/* <pre>
           <code>{JSON.stringify(form.formState.errors, null, 2)}</code>
