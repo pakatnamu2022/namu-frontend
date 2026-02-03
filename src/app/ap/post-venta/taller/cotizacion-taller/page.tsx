@@ -93,6 +93,10 @@ export default function OrderQuotationPage() {
     router(`${ABSOLUTE_ROUTE}/gestionar/${id}`);
   };
 
+  const handleApprove = (id: number) => {
+    router(`${ABSOLUTE_ROUTE}/aprobar/${id}`);
+  };
+
   if (isLoadingModule) return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
   if (!currentView) notFound();
@@ -114,6 +118,7 @@ export default function OrderQuotationPage() {
           onDelete: setDeleteId,
           onUpdate: handleUpdate,
           onManage: handleManage,
+          onApprove: handleApprove,
           permissions,
         })}
         data={data?.data || []}

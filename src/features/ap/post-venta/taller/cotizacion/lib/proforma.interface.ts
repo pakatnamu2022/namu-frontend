@@ -46,6 +46,13 @@ export interface OrderQuotationResource {
   has_sufficient_stock: boolean;
   supply_type: "STOCK" | "LIMA" | "IMPORTACION";
   exchange_rate: number;
+  chief_approval_by: string | null;
+  manager_approval_by: string | null;
+}
+
+export interface ApprovalRequest {
+  chief_approval_by?: string;
+  manager_approval_by?: string;
 }
 
 export interface OrderQuotationRequest {

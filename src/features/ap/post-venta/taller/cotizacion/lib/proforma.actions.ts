@@ -2,6 +2,7 @@ import type { AxiosRequestConfig } from "axios";
 import { api } from "@/core/api";
 import { GeneralResponse } from "@/shared/lib/response.interface";
 import {
+  ApprovalRequest,
   getOrderQuotationProps,
   OrderQuotationRequest,
   OrderQuotationResource,
@@ -54,6 +55,17 @@ export async function updateOrderQuotation(
 ): Promise<OrderQuotationResource> {
   const response = await api.put<OrderQuotationResource>(
     `${ENDPOINT}/${id}`,
+    data,
+  );
+  return response.data;
+}
+
+export async function approveOrderQuotation(
+  id: number,
+  data: ApprovalRequest,
+): Promise<OrderQuotationResource> {
+  const response = await api.put<OrderQuotationResource>(
+    `${ENDPOINT}/${id}/approve`,
     data,
   );
   return response.data;

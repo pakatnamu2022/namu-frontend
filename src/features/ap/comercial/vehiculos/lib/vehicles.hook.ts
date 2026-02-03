@@ -40,6 +40,7 @@ export const useVehicleById = (id: number) => {
   return useQuery({
     queryKey: [QUERY_KEY, id],
     queryFn: () => findVehicleById(id),
+    enabled: id > 0,
     refetchOnWindowFocus: false,
   });
 };

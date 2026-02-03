@@ -53,7 +53,7 @@ export default function LaborDetailsSection({
       quantity: 1,
       unit_measure: "Horas",
       unit_price: undefined,
-      discount: undefined,
+      discount_percentage: undefined,
       total_amount: 0,
       exchange_rate: exchangeRate,
       observations: "",
@@ -66,7 +66,7 @@ export default function LaborDetailsSection({
 
       // Calcular el total: (quantity * unit_price) - discount
       const subtotal = data.quantity * data.unit_price;
-      const total_amount = subtotal - data.discount;
+      const total_amount = subtotal - data.discount_percentage;
 
       await storeOrderQuotationDetails({
         ...data,
@@ -82,7 +82,7 @@ export default function LaborDetailsSection({
         quantity: 1,
         unit_measure: "Horas",
         unit_price: undefined,
-        discount: undefined,
+        discount_percentage: undefined,
         total_amount: 0,
         exchange_rate: exchangeRate,
         observations: "",
@@ -150,8 +150,8 @@ export default function LaborDetailsSection({
             <div className="sm:col-span-1 lg:col-span-2">
               <FormInput
                 control={form.control}
-                name="discount"
-                label={"Desc. " + currencySymbol}
+                name="discount_percentage"
+                label="Desc. %"
                 placeholder="Ej: 0.00"
                 className="h-9 text-xs"
                 inputMode="numeric"
@@ -252,7 +252,7 @@ export default function LaborDetailsSection({
 
                     <div className="col-span-1 text-right">
                       <span className="text-sm text-orange-600">
-                        -{formatCurrency(detail.discount_percentage)}
+                        -{detail.discount_percentage}%
                       </span>
                     </div>
 

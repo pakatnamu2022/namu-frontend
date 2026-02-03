@@ -8,8 +8,8 @@ export const laborDetailSchema = z.object({
   description: z.string().min(1, "Descripción es requerida").max(500),
   quantity: z.number().min(0.1, "Cantidad debe ser mayor a 0"),
   unit_measure: z.string().min(1, "Unidad de medida es requerida"),
-  unit_price: z.number().min(0, "Precio debe ser mayor o igual a 0"),
-  discount: z
+  unit_price: z.number().min(0.1, "Precio debe ser mayor a 0"),
+  discount_percentage: z
     .number()
     .min(0, "Descuento debe ser mayor o igual a 0")
     .default(0),
@@ -26,29 +26,34 @@ export const productDetailSchema = z.object({
   description: z.string().min(1).max(500),
   quantity: z.coerce.number().min(0.1, "Cantidad debe ser mayor a 0"),
   unit_measure: z.string().min(1),
-  retail_price_external: z
-    .preprocess(
-      (val) => {
-        if (typeof val === "string") {
-          const normalized = val.replace(",", ".");
-          return parseFloat(normalized);
-        }
-        return val;
-      },
-      z.number().min(0, "Precio externo debe ser mayor o igual a 0")
-    ),
-  freight_commission: z
-    .coerce.number()
+  retail_price_external: z.preprocess(
+    (val) => {
+      if (typeof val === "string") {
+        const normalized = val.replace(",", ".");
+        return parseFloat(normalized);
+      }
+      return val;
+    },
+    z.number().min(0.1, "Precio externo debe ser mayor a 0"),
+  ),
+  freight_commission: z.coerce
+    .number()
     .min(0, "Comisión de flete debe ser mayor o igual a 0")
     .default(1.05),
-  exchange_rate: z.coerce.number().min(0, "Tipo de cambio debe ser mayor o igual a 0"),
+  exchange_rate: z.coerce
+    .number()
+    .min(0, "Tipo de cambio debe ser mayor o igual a 0"),
   unit_price: z.coerce.number().min(0),
-  discount: z
-    .coerce.number()
+  discount_percentage: z.coerce
+    .number()
     .min(0, "Descuento debe ser mayor o igual a 0")
     .default(0),
   total_amount: z.coerce.number().min(0, "Total debe ser mayor o igual a 0"),
   observations: z.string().max(500).optional(),
+  supply_type: z
+    .string()
+    .min(1, "Tipo de abastecimiento es requerido")
+    .max(100),
 });
 
 export type LaborDetailSchema = z.infer<typeof laborDetailSchema>;

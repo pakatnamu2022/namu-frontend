@@ -38,6 +38,12 @@ import { format } from "date-fns";
 import { CURRENCY_TYPE_IDS } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.constants";
 import { FormInput } from "@/shared/components/FormInput";
 import QuotationPartModal from "@/features/ap/post-venta/repuestos/cotizacion-meson/components/QuotationPartModal";
+import { FormSelect } from "@/shared/components/FormSelect";
+
+const onSelectSupplyType = [
+  { label: "Lima", value: "LIMA" },
+  { label: "Importación", value: "IMPORTACION" },
+];
 
 interface ProductDetailsSectionProps {
   quotationId: number;
@@ -78,9 +84,10 @@ export default function ProductDetailsSection({
       freight_commission: 1.05,
       exchange_rate: 0,
       unit_price: 0,
-      discount: 0,
+      discount_percentage: 0,
       total_amount: 0,
       observations: "",
+      supply_type: "",
     },
   });
 
@@ -187,7 +194,7 @@ export default function ProductDetailsSection({
 
       // Calcular el total: (quantity * unit_price) - discount
       const subtotal = data.quantity * data.unit_price;
-      const total_amount = subtotal - data.discount;
+      const total_amount = subtotal - data.discount_percentage;
 
       await storeOrderQuotationDetails({
         ...data,
@@ -207,9 +214,10 @@ export default function ProductDetailsSection({
         freight_commission: 1.05,
         exchange_rate: exchangeRate || 0,
         unit_price: 0,
-        discount: 0,
+        discount_percentage: 0,
         total_amount: 0,
         observations: "",
+        supply_type: "",
       });
       await onRefresh();
     } catch (error: any) {
@@ -277,8 +285,8 @@ export default function ProductDetailsSection({
           </div>
 
           {/* Primera fila: Repuesto y Precio Externo */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
-            <div className="lg:col-span-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="md:col-span-2 lg:col-span-2">
               <FormSelectAsync
                 name="product_id"
                 label="Repuesto"
@@ -294,7 +302,7 @@ export default function ProductDetailsSection({
               />
             </div>
 
-            <div className="lg:col-span-1">
+            <div className="md:col-span-2 lg:col-span-2">
               <FormInput
                 control={form.control}
                 name="retail_price_external"
@@ -308,9 +316,9 @@ export default function ProductDetailsSection({
             </div>
           </div>
 
-          {/* Segunda fila: Cantidad, Precio Unitario, Observaciones, Botón */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3">
-            <div className="sm:col-span-1 lg:col-span-2">
+          {/* Segunda fila: Cantidad, Precio Unitario y Tipo de Abastecimiento */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
               <FormInput
                 control={form.control}
                 name="quantity"
@@ -321,7 +329,7 @@ export default function ProductDetailsSection({
               />
             </div>
 
-            <div className="sm:col-span-1 lg:col-span-3">
+            <div>
               <FormInput
                 control={form.control}
                 name="unit_price"
@@ -333,7 +341,21 @@ export default function ProductDetailsSection({
               />
             </div>
 
-            <div className="sm:col-span-1 lg:col-span-6">
+            <div>
+              <FormSelect
+                control={form.control}
+                name="supply_type"
+                options={onSelectSupplyType}
+                label="Tipo de Abastecimiento"
+                placeholder="Seleccionar un tipo"
+                required
+              />
+            </div>
+          </div>
+
+          {/* Tercera fila: Observaciones y Botón */}
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+            <div className="md:col-span-11">
               <FormInput
                 control={form.control}
                 name="observations"
@@ -342,7 +364,7 @@ export default function ProductDetailsSection({
               />
             </div>
 
-            <div className="sm:col-span-2 lg:col-span-1 flex items-end">
+            <div className="md:col-span-1 flex items-end">
               <Button
                 type="submit"
                 disabled={isSaving || !selectedProductId}
@@ -377,9 +399,10 @@ export default function ProductDetailsSection({
         ) : (
           <div className="border rounded-lg overflow-hidden">
             {/* Cabecera de tabla */}
-            <div className="hidden md:grid grid-cols-14 gap-3 bg-gray-100 px-4 py-2 text-xs font-semibold text-gray-700 border-b">
+            <div className="hidden md:grid grid-cols-16 gap-3 bg-gray-100 px-4 py-2 text-xs font-semibold text-gray-700 border-b">
               <div className="col-span-4">Repuesto</div>
               <div className="col-span-2 text-center">Cantidad</div>
+              <div className="col-span-2 text-right">Tipo Abas.</div>
               <div className="col-span-2 text-right">Precio Unit.</div>
               <div className="col-span-2 text-right">Total</div>
               <div className="col-span-2 text-right">Registrado Por:</div>
@@ -391,7 +414,7 @@ export default function ProductDetailsSection({
               {productDetails.map((detail) => (
                 <div key={detail.id}>
                   {/* Vista Desktop */}
-                  <div className="hidden md:grid grid-cols-14 gap-3 px-4 py-3 hover:bg-gray-50 transition-colors items-center">
+                  <div className="hidden md:grid grid-cols-16 gap-3 px-4 py-3 hover:bg-gray-50 transition-colors items-center">
                     <div className="col-span-4">
                       {detail.product?.code && (
                         <div className="flex items-center gap-2 mb-1">
@@ -427,6 +450,10 @@ export default function ProductDetailsSection({
                           {detail.unit_measure}
                         </span>
                       </span>
+                    </div>
+
+                    <div className="col-span-2 text-right">
+                      <span className="text-sm">{detail.supply_type}</span>
                     </div>
 
                     <div className="col-span-2 text-right">
@@ -510,15 +537,21 @@ export default function ProductDetailsSection({
                         </span>
                       </div>
                       <div>
-                        <span className="text-gray-500">Descuento:</span>
-                        <span className="ml-1 font-medium text-orange-600">
-                          -{formatCurrency(detail.discount_percentage)}
+                        <span className="text-gray-500">Tipo Abas.:</span>
+                        <span className="ml-1 font-medium">
+                          {detail.supply_type}
                         </span>
                       </div>
                       <div className="text-right">
                         <span className="text-gray-500">Total:</span>
                         <span className="ml-1 font-bold text-primary">
                           {formatCurrency(detail.total_amount)}
+                        </span>
+                      </div>
+                      <div className="col-span-2">
+                        <span className="text-gray-500">Registrado por:</span>
+                        <span className="ml-1 font-medium">
+                          {detail.created_by_name}
                         </span>
                       </div>
                     </div>

@@ -282,6 +282,7 @@ import OrderQuotationPage from "./app/ap/post-venta/taller/cotizacion-taller/pag
 import AddOrderQuotationPage from "./app/ap/post-venta/taller/cotizacion-taller/agregar/page.tsx";
 import UpdateOrderQuotationPage from "@/app/ap/post-venta/taller/cotizacion-taller/actualizar/[id]/page.tsx";
 import ManageOrderQuotationPage from "@/app/ap/post-venta/taller/cotizacion-taller/gestionar/[id]/page.tsx";
+import AprobacionProductosPage from "@/app/ap/post-venta/taller/cotizacion-taller/aprobar/[id]/page.tsx";
 import PurchaseRequestPVPage from "./app/ap/post-venta/taller/solicitud-compra-taller/page.tsx";
 import AddPurchaseRequestPVPage from "./app/ap/post-venta/taller/solicitud-compra-taller/agregar/page.tsx";
 import UpdatePurchaseRequestPVPage from "@/app/ap/post-venta/taller/solicitud-compra-taller/actualizar/[id]/page.tsx";
@@ -1415,6 +1416,10 @@ function App() {
               <Route
                 path="taller/cotizacion-taller/gestionar/:id"
                 element={<ManageOrderQuotationPage />}
+              />
+              <Route
+                path="taller/cotizacion-taller/aprobar/:id"
+                element={<AprobacionProductosPage />}
               />
               <Route
                 path="taller/solicitud-compra-taller"
