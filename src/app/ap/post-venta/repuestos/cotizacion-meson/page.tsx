@@ -28,6 +28,7 @@ import OrderQuotationMesonActions from "@/features/ap/post-venta/repuestos/cotiz
 import OrderQuotationMesonOptions from "@/features/ap/post-venta/repuestos/cotizacion-meson/components/ProformaMesonOptions";
 import { orderQuotationMesonColumns } from "@/features/ap/post-venta/repuestos/cotizacion-meson/components/ProformaMesonColumns";
 import { OrderQuotationBillingSheet } from "@/features/ap/post-venta/repuestos/cotizacion-meson/components/OrderQuotationBillingSheet";
+import { OrderQuotationDeliverySheet } from "@/features/ap/post-venta/repuestos/cotizacion-meson/components/OrderQuotationDeliverySheet";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 
 export default function OrderQuotationMesonPage() {
@@ -40,6 +41,10 @@ export default function OrderQuotationMesonPage() {
     number | null
   >(null);
   const [isBillingSheetOpen, setIsBillingSheetOpen] = useState(false);
+  const [selectedDeliveryId, setSelectedDeliveryId] = useState<number | null>(
+    null,
+  );
+  const [isDeliverySheetOpen, setIsDeliverySheetOpen] = useState(false);
   const { MODEL, ROUTE, ROUTE_UPDATE, ABSOLUTE_ROUTE } = ORDER_QUOTATION_MESON;
   const permissions = useModulePermissions(ROUTE);
   const router = useNavigate();
@@ -115,6 +120,16 @@ export default function OrderQuotationMesonPage() {
     setSelectedOrderQuotationId(null);
   };
 
+  const handleViewDelivery = (orderQuotation: { id: number }) => {
+    setSelectedDeliveryId(orderQuotation.id);
+    setIsDeliverySheetOpen(true);
+  };
+
+  const handleCloseDeliverySheet = () => {
+    setIsDeliverySheetOpen(false);
+    setSelectedDeliveryId(null);
+  };
+
   if (isLoadingModule || isLoadingSedes) return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
   if (!currentView) notFound();
@@ -137,6 +152,7 @@ export default function OrderQuotationMesonPage() {
           onUpdate: handleUpdate,
           onBilling: handleBilling,
           onViewBilling: handleViewBilling,
+          onViewDelivery: handleViewDelivery,
           onRefresh: refetch,
           permissions,
         })}
@@ -176,6 +192,13 @@ export default function OrderQuotationMesonPage() {
         orderQuotationId={selectedOrderQuotationId}
         open={isBillingSheetOpen}
         onClose={handleCloseBillingSheet}
+        onRefresh={refetch}
+      />
+
+      <OrderQuotationDeliverySheet
+        orderQuotationId={selectedDeliveryId}
+        open={isDeliverySheetOpen}
+        onClose={handleCloseDeliverySheet}
         onRefresh={refetch}
       />
     </div>

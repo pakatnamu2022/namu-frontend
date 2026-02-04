@@ -51,7 +51,7 @@ export default function VehicleInspectionPage() {
     const formData = new FormData();
 
     // Agregar campos básicos
-    formData.append("work_order_id", data.work_order_id);
+    formData.append("ap_work_order_id", data.ap_work_order_id);
     formData.append("dirty_unit", data.dirty_unit ? "1" : "0");
     formData.append("unit_ok", data.unit_ok ? "1" : "0");
     formData.append("title_deed", data.title_deed ? "1" : "0");
@@ -144,7 +144,7 @@ export default function VehicleInspectionPage() {
   };
 
   const defaultValues: Partial<VehicleInspectionSchema> = {
-    work_order_id: String(workOrder.id),
+    ap_work_order_id: String(workOrder.id),
     dirty_unit: false,
     unit_ok: false,
     title_deed: false,

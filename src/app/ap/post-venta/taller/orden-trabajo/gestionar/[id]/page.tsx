@@ -35,6 +35,7 @@ import { WorkOrderProvider } from "@/features/ap/post-venta/taller/orden-trabajo
 import { WorkOrderQuotationSelectionModal } from "@/features/ap/post-venta/taller/orden-trabajo/components/WorkOrderQuotationSelectionModal";
 import { useParams, useNavigate } from "react-router-dom";
 import { successToast, errorToast } from "@/core/core.function";
+import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 
 export default function ManageWorkOrderPage() {
   const params = useParams();
@@ -45,7 +46,8 @@ export default function ManageWorkOrderPage() {
   const [isQuotationModalOpen, setIsQuotationModalOpen] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
 
-  const { ABSOLUTE_ROUTE } = WORKER_ORDER;
+  const { ABSOLUTE_ROUTE, ROUTE } = WORKER_ORDER;
+  const permissions = useModulePermissions(ROUTE);
 
   // Fetch work order data
   const { data: workOrder, isLoading } = useQuery({
@@ -227,50 +229,56 @@ export default function ManageWorkOrderPage() {
           >
             <div className="overflow-x-auto overflow-y-hidden scrollbar-hide -mx-6 px-6">
               <TabsList className="inline-flex w-auto min-w-full lg:w-full lg:grid lg:grid-cols-6 gap-1">
-                <TabsTrigger
-                  value="reception"
-                  className="flex items-center gap-2 whitespace-nowrap"
-                >
-                  <ClipboardCheck className="h-4 w-4 shrink-0" />
-                  <span>Recepción</span>
-                </TabsTrigger>
-                <TabsTrigger
-                  value="opening"
-                  className="flex items-center gap-2 whitespace-nowrap"
-                >
-                  <FolderOpen className="h-4 w-4 shrink-0" />
-                  <span>Apertura</span>
-                </TabsTrigger>
-                <TabsTrigger
-                  value="operators"
-                  className="flex items-center gap-2 whitespace-nowrap"
-                >
-                  <UserCog className="h-4 w-4 shrink-0" />
-                  <span>Operarios</span>
-                </TabsTrigger>
-                <TabsTrigger
-                  value="labor"
-                  className="flex items-center gap-2 whitespace-nowrap"
-                >
-                  <Wrench className="h-4 w-4 shrink-0" />
-                  <span className="hidden md:inline">Mano de Obra</span>
-                  <span className="md:hidden">M. Obra</span>
-                </TabsTrigger>
-                <TabsTrigger
-                  value="parts"
-                  className="flex items-center gap-2 whitespace-nowrap"
-                >
-                  <Package className="h-4 w-4 shrink-0" />
-                  <span>Repuestos</span>
-                </TabsTrigger>
-                <TabsTrigger
-                  value="billing"
-                  className="flex items-center gap-2 whitespace-nowrap"
-                >
-                  <Receipt className="h-4 w-4 shrink-0" />
-                  <span className="hidden sm:inline">Facturación</span>
-                  <span className="sm:hidden">Factura</span>
-                </TabsTrigger>
+                {permissions.canOtOptions && (
+                  <>
+                    <TabsTrigger
+                      value="reception"
+                      className="flex items-center gap-2 whitespace-nowrap"
+                    >
+                      <ClipboardCheck className="h-4 w-4 shrink-0" />
+                      <span>Recepción</span>
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="opening"
+                      className="flex items-center gap-2 whitespace-nowrap"
+                    >
+                      <FolderOpen className="h-4 w-4 shrink-0" />
+                      <span>Apertura</span>
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="operators"
+                      className="flex items-center gap-2 whitespace-nowrap"
+                    >
+                      <UserCog className="h-4 w-4 shrink-0" />
+                      <span>Operarios</span>
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="labor"
+                      className="flex items-center gap-2 whitespace-nowrap"
+                    >
+                      <Wrench className="h-4 w-4 shrink-0" />
+                      <span className="hidden md:inline">Mano de Obra</span>
+                      <span className="md:hidden">M. Obra</span>
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="parts"
+                      className="flex items-center gap-2 whitespace-nowrap"
+                    >
+                      <Package className="h-4 w-4 shrink-0" />
+                      <span>Repuestos</span>
+                    </TabsTrigger>
+                  </>
+                )}
+                {permissions.canBill && (
+                  <TabsTrigger
+                    value="billing"
+                    className="flex items-center gap-2 whitespace-nowrap"
+                  >
+                    <Receipt className="h-4 w-4 shrink-0" />
+                    <span className="hidden sm:inline">Facturación</span>
+                    <span className="sm:hidden">Factura</span>
+                  </TabsTrigger>
+                )}
               </TabsList>
             </div>
 

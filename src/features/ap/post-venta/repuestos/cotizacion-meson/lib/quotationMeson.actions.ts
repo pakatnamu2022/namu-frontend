@@ -56,3 +56,19 @@ export async function confirmOrderQuotation(
   );
   return response.data;
 }
+
+export interface DeliveryOutputData {
+  customer_signature_delivery_url: string;
+  delivery_document_number: string;
+}
+
+export async function deliverInventoryOutput(
+  id: number,
+  data: DeliveryOutputData
+): Promise<OrderQuotationResource> {
+  const response = await api.post<OrderQuotationResource>(
+    `/ap/postVenta/inventoryMovements/sales/quotation/${id}`,
+    data
+  );
+  return response.data;
+}

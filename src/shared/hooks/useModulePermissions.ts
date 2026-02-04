@@ -104,6 +104,18 @@ export const PERMISSION_ACTIONS: PermissionAction[] = [
     icon: "Link",
     description: "Permite asignar registros o tareas",
   },
+  {
+    value: "bill",
+    label: "Facturar",
+    icon: "DollarSign",
+    description: "Permite facturar cotizaciones o servicios",
+  },
+  {
+    value: "otOptions",
+    label: "Opciones OT",
+    icon: "Settings",
+    description: "Permite acceder a opciones de órdenes de trabajo",
+  },
 ];
 
 /**
@@ -151,5 +163,7 @@ export function useModulePermissions(moduleCode: string) {
     canViewAdvisors: hasModulePermission("viewAdvisors"),
     canViewBranches: hasModulePermission("viewBranches"),
     canAssign: hasModulePermission("assign"),
+    canBill: hasModulePermission("bill"),
+    canOtOptions: hasModulePermission("otOptions"),
   };
 }

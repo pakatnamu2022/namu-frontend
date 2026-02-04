@@ -150,3 +150,23 @@ export async function downloadOrderReceiptPdf(id: number): Promise<void> {
   link.parentNode?.removeChild(link);
   window.URL.revokeObjectURL(url);
 }
+
+export async function requestCancellation(
+  id: number,
+  cancellation_reason: string,
+): Promise<VehicleInspectionResource> {
+  const { data } = await api.post<VehicleInspectionResource>(
+    `${ENDPOINT}/${id}/request-cancellation`,
+    { cancellation_reason },
+  );
+  return data;
+}
+
+export async function confirmCancellation(
+  id: number,
+): Promise<VehicleInspectionResource> {
+  const { data } = await api.post<VehicleInspectionResource>(
+    `${ENDPOINT}/${id}/confirm-cancellation`,
+  );
+  return data;
+}

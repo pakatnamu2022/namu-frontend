@@ -43,6 +43,15 @@ export interface VehicleInspectionResource {
   photo_left_url: string;
   photo_right_url: string;
   damages?: VehicleInspectionDamageResource[];
+  // Cancellation fields
+  is_cancelled?: boolean;
+  cancellation_requested_by?: number | null;
+  cancellation_requested_by_name?: string | null;
+  cancellation_confirmed_by?: number | null;
+  cancellation_confirmed_by_name?: string | null;
+  cancellation_requested_at?: string | null;
+  cancellation_confirmed_at?: string | null;
+  cancellation_reason?: string | null;
   // Campos de vehículo (desde la orden de trabajo)
   vehicle_id?: number;
   vehicle_plate?: string;
@@ -52,7 +61,7 @@ export interface VehicleInspectionResource {
   vehicle_year?: string;
   vehicle_color?: string;
   work_order_correlative?: string;
-  work_order_id?: number;
+  ap_work_order_id?: number;
 }
 
 export interface VehicleInspectionDamageResource {
@@ -69,7 +78,7 @@ export interface VehicleInspectionDamageResource {
 }
 
 export interface VehicleInspectionRequest {
-  work_order_id: string;
+  ap_work_order_id: string;
   dirty_unit: boolean;
   unit_ok: boolean;
   title_deed: boolean;

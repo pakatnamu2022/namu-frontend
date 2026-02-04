@@ -48,6 +48,8 @@ export interface OrderQuotationResource {
   exchange_rate: number;
   chief_approval_by: string | null;
   manager_approval_by: string | null;
+  customer_signature_delivery_url: string | null;
+  delivery_document_number: string | null;
 }
 
 export interface ApprovalRequest {

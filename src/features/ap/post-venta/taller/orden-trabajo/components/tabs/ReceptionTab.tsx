@@ -10,17 +10,25 @@ import {
   ImageIcon,
   FileText,
   Expand,
+  Ban,
+  RotateCcw,
 } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import { CHECKLIST_ITEMS } from "@/features/ap/post-venta/taller/inspeccion-vehiculo/lib/vehicleInspection.constants";
 import {
   DAMAGE_SYMBOLS,
   DAMAGE_COLORS,
 } from "@/features/ap/post-venta/taller/inspeccion-vehiculo/lib/vehicleInspection.interface";
-import { downloadVehicleInspectionPdf } from "@/features/ap/post-venta/taller/inspeccion-vehiculo/lib/vehicleInspection.actions";
+import {
+  downloadVehicleInspectionPdf,
+  requestCancellation,
+  confirmCancellation,
+} from "@/features/ap/post-venta/taller/inspeccion-vehiculo/lib/vehicleInspection.actions";
 import { useState } from "react";
 import { errorToast, successToast } from "@/core/core.function";
 import { findWorkOrderById } from "../../lib/workOrder.actions";
+import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 
 interface ReceptionTabProps {
   workOrderId: number;
@@ -28,6 +36,13 @@ interface ReceptionTabProps {
 
 export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
   const [isDownloading, setIsDownloading] = useState(false);
+  const [isCancelling, setIsCancelling] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [cancellationReason, setCancellationReason] = useState("");
+
+  const queryClient = useQueryClient();
+  const router = useNavigate();
 
   const {
     data: workOrder,
@@ -41,6 +56,10 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
 
   const inspection = workOrder?.vehicle_inspection;
 
+  const cancellationRequested =
+    !!inspection?.cancellation_requested_at && !inspection?.is_cancelled;
+  const isCancelled = !!inspection?.is_cancelled;
+
   const handleDownloadPdf = async () => {
     if (!inspection?.id) return;
 
@@ -53,6 +72,38 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
       errorToast("Error al descargar el PDF de la inspección");
     } finally {
       setIsDownloading(false);
+    }
+  };
+
+  const handleRequestCancellation = async () => {
+    if (!inspection?.id || !cancellationReason.trim()) return;
+
+    try {
+      setIsCancelling(true);
+      await requestCancellation(inspection.id, cancellationReason.trim());
+      successToast("Solicitud de anulación enviada exitosamente");
+      setDialogOpen(false);
+      setCancellationReason("");
+      queryClient.invalidateQueries({ queryKey: ["workOrder", workOrderId] });
+    } catch (error) {
+      console.error("Error al solicitar anulación:", error);
+      errorToast("Error al solicitar la anulación");
+    } finally {
+      setIsCancelling(false);
+    }
+  };
+
+  const handleConfirmCancellation = async () => {
+    if (!inspection?.id) return;
+
+    try {
+      await confirmCancellation(inspection.id);
+      successToast("Anulación confirmada exitosamente");
+      setConfirmDialogOpen(false);
+      queryClient.invalidateQueries({ queryKey: ["workOrder", workOrderId] });
+    } catch (error) {
+      console.error("Error al confirmar anulación:", error);
+      errorToast("Error al confirmar la anulación");
     }
   };
 
@@ -85,6 +136,82 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
     );
   }
 
+  if (isCancelled) {
+    return (
+      <div className="grid gap-6">
+        <Card className="p-6 border-red-200 bg-red-50">
+          <div className="flex items-start gap-3 mb-4">
+            <div className="rounded-full bg-red-100 p-2">
+              <Ban className="h-6 w-6 text-red-600" />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-red-800">
+                Inspección Anulada
+              </h3>
+              <p className="text-sm text-red-600 mt-0.5">
+                Esta inspección de recepción ha sido anulada
+              </p>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg border border-red-200 p-4 space-y-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <p className="text-xs text-gray-500">Motivo de anulación</p>
+                <p className="text-sm font-medium text-gray-800">
+                  {inspection.cancellation_reason || "No especificado"}
+                </p>
+              </div>
+            </div>
+
+            <div className="border-t pt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <p className="text-xs text-gray-500">Solicitado por</p>
+                <p className="text-sm font-medium text-gray-800">
+                  {inspection.cancellation_requested_by_name || "N/A"}
+                </p>
+                <p className="text-xs text-gray-400">
+                  {inspection.cancellation_requested_at
+                    ? new Date(
+                        inspection.cancellation_requested_at,
+                      ).toLocaleString("es-PE")
+                    : ""}
+                </p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-500">Confirmado por</p>
+                <p className="text-sm font-medium text-gray-800">
+                  {inspection.cancellation_confirmed_by_name || "N/A"}
+                </p>
+                <p className="text-xs text-gray-400">
+                  {inspection.cancellation_confirmed_at
+                    ? new Date(
+                        inspection.cancellation_confirmed_at,
+                      ).toLocaleString("es-PE")
+                    : ""}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-5">
+            <Button
+              onClick={() =>
+                router(
+                  `/ap/post-venta/taller/orden-trabajo/${workOrderId}/inspeccion`,
+                )
+              }
+              className="gap-2"
+            >
+              <RotateCcw className="h-4 w-4" />
+              Re-recepcionar
+            </Button>
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
   // Agrupar items del checklist por categoría
   const groupedItems = CHECKLIST_ITEMS.reduce(
     (acc, item) => {
@@ -110,16 +237,38 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
       <Card className="p-6">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold">Inspección de Recepción</h3>
-          <Button
-            onClick={handleDownloadPdf}
-            disabled={isDownloading}
-            className="gap-2"
-          >
-            <FileText className="h-4 w-4" />
-            {isDownloading
-              ? "Generando PDF..."
-              : "Generar Orden Recepción - Cliente"}
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              onClick={handleDownloadPdf}
+              disabled={isDownloading}
+              className="gap-2"
+            >
+              <FileText className="h-4 w-4" />
+              {isDownloading ? "Generando PDF..." : "Generar O.R - Cliente"}
+            </Button>
+
+            {!cancellationRequested && (
+              <Button
+                variant="outline"
+                className="gap-2 text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700"
+                onClick={() => setDialogOpen(true)}
+              >
+                <Ban className="h-4 w-4" />
+                Solicitar Anulación
+              </Button>
+            )}
+
+            {cancellationRequested && (
+              <Button
+                variant="destructive"
+                className="gap-2"
+                onClick={() => setConfirmDialogOpen(true)}
+              >
+                <Ban className="h-4 w-4" />
+                Confirmar Anulación
+              </Button>
+            )}
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -152,6 +301,35 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
           </div>
         </div>
       </Card>
+
+      {/* Pending cancellation banner */}
+      {cancellationRequested && (
+        <Card className="p-4 border-amber-200 bg-amber-50">
+          <div className="flex items-center gap-3">
+            <AlertCircle className="h-5 w-5 text-amber-600 shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-amber-800">
+                Anulación solicitada — pendiente de confirmación
+              </p>
+              <p className="text-xs text-amber-700 mt-0.5">
+                Motivo: {inspection.cancellation_reason}
+              </p>
+            </div>
+            <div className="text-right shrink-0">
+              <p className="text-xs text-amber-600">
+                Solicitado por {inspection.cancellation_requested_by_name}
+              </p>
+              <p className="text-xs text-amber-500">
+                {inspection.cancellation_requested_at
+                  ? new Date(
+                      inspection.cancellation_requested_at,
+                    ).toLocaleString("es-PE")
+                  : ""}
+              </p>
+            </div>
+          </div>
+        </Card>
+      )}
 
       {/* Vehicle Photos */}
       {(inspection.photo_front_url ||
@@ -662,6 +840,43 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
           </div>
         </Card>
       )}
+
+      {/* Dialog: solicitar anulación con motivo */}
+      <ConfirmationDialog
+        trigger={<span />}
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        title="Solicitar anulación de inspección"
+        description="Ingresa el motivo por el cual se anula esta inspección de recepción."
+        confirmText="Confirmar solicitud"
+        cancelText="Cancelar"
+        variant="destructive"
+        icon="warning"
+        confirmDisabled={!cancellationReason.trim() || isCancelling}
+        onConfirm={handleRequestCancellation}
+      >
+        <textarea
+          className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
+          rows={3}
+          placeholder="Ej: Equivocación de 10 000 a 100 000 km, daño no visible en la inspección, etc."
+          value={cancellationReason}
+          onChange={(e) => setCancellationReason(e.target.value)}
+        />
+      </ConfirmationDialog>
+
+      {/* Dialog: confirmar anulación */}
+      <ConfirmationDialog
+        trigger={<span />}
+        open={confirmDialogOpen}
+        onOpenChange={setConfirmDialogOpen}
+        title="Confirmar anulación"
+        description="Esta acción anulará definitivamente la inspección de recepción. Una vez anulada, se deberá realizar una nueva recepción."
+        confirmText="Confirmar anulación"
+        cancelText="Cancelar"
+        variant="destructive"
+        icon="danger"
+        onConfirm={handleConfirmCancellation}
+      />
     </div>
   );
 }

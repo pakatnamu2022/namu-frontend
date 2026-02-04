@@ -1,14 +1,9 @@
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet.tsx";
 import { InventoryMovementResource } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventoryMovements.interface.ts";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge.tsx";
 import { Separator } from "@/components/ui/separator.tsx";
+import GeneralSheet from "@/shared/components/GeneralSheet";
 
 interface InventoryMovementDetailsSheetProps {
   open: boolean;
@@ -272,73 +267,63 @@ export default function InventoryMovementDetailsSheet({
   };
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent
-        side="right"
-        className="w-full sm:max-w-3xl overflow-y-auto"
-      >
-        <SheetHeader>
-          <SheetTitle>Detalles del Movimiento</SheetTitle>
-        </SheetHeader>
-
-        <div className="space-y-6 mt-6">
-          {/* Información General del Movimiento */}
-          <div className="space-y-4">
-            <div className="p-4 bg-muted/50 border-b rounded-t-lg">
-              <h3 className="font-semibold text-sm">Información General</h3>
-            </div>
-            <div className="grid grid-cols-2 gap-4 px-4">
-              <div>
-                <p className="text-xs text-muted-foreground">N° Movimiento</p>
-                <p className="font-semibold">{movement.movement_number}</p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Fecha</p>
-                <p className="font-medium">
-                  {format(
-                    new Date(movement.movement_date),
-                    "dd/MM/yyyy HH:mm",
-                    {
-                      locale: es,
-                    },
-                  )}
-                </p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">
-                  Cantidad Entrada
-                </p>
-                <p className="font-semibold text-green-600 text-lg">
-                  {movement.quantity_in}
-                </p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Cantidad Salida</p>
-                <p className="font-semibold text-red-600 text-lg">
-                  {movement.quantity_out}
-                </p>
-              </div>
-              {movement.user_name && (
-                <div>
-                  <p className="text-xs text-muted-foreground">Usuario</p>
-                  <p className="font-medium">{movement.user_name}</p>
-                </div>
-              )}
-              {movement.notes && (
-                <div className="col-span-2">
-                  <p className="text-xs text-muted-foreground">Observaciones</p>
-                  <p className="font-medium text-sm">{movement.notes}</p>
-                </div>
-              )}
-            </div>
+    <GeneralSheet
+      open={open}
+      onClose={() => onOpenChange(false)}
+      title="Detalles del Movimiento"
+      size="3xl"
+    >
+      <div className="space-y-6 mt-6">
+        {/* Información General del Movimiento */}
+        <div className="space-y-4">
+          <div className="p-4 bg-muted/50 border-b rounded-t-lg">
+            <h3 className="font-semibold text-sm">Información General</h3>
           </div>
-
-          <Separator />
-
-          {/* Detalles de la Referencia */}
-          {renderReferenceDetails()}
+          <div className="grid grid-cols-2 gap-4 px-4">
+            <div>
+              <p className="text-xs text-muted-foreground">N° Movimiento</p>
+              <p className="font-semibold">{movement.movement_number}</p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">Fecha</p>
+              <p className="font-medium">
+                {format(new Date(movement.movement_date), "dd/MM/yyyy HH:mm", {
+                  locale: es,
+                })}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">Cantidad Entrada</p>
+              <p className="font-semibold text-green-600 text-lg">
+                {movement.quantity_in}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">Cantidad Salida</p>
+              <p className="font-semibold text-red-600 text-lg">
+                {movement.quantity_out}
+              </p>
+            </div>
+            {movement.user_name && (
+              <div>
+                <p className="text-xs text-muted-foreground">Usuario</p>
+                <p className="font-medium">{movement.user_name}</p>
+              </div>
+            )}
+            {movement.notes && (
+              <div className="col-span-2">
+                <p className="text-xs text-muted-foreground">Observaciones</p>
+                <p className="font-medium text-sm">{movement.notes}</p>
+              </div>
+            )}
+          </div>
         </div>
-      </SheetContent>
-    </Sheet>
+
+        <Separator />
+
+        {/* Detalles de la Referencia */}
+        {renderReferenceDetails()}
+      </div>
+    </GeneralSheet>
   );
 }
