@@ -19,7 +19,10 @@ import { useGetPerDiemRequest } from "@/features/profile/viaticos/lib/perDiemReq
 import { deletePerDiemRequest } from "@/features/profile/viaticos/lib/perDiemRequest.actions";
 import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
-import { PER_DIEM_REQUEST } from "@/features/profile/viaticos/lib/perDiemRequest.constants";
+import {
+  ABSOLUTE_ROUTE_GP,
+  PER_DIEM_REQUEST,
+} from "@/features/profile/viaticos/lib/perDiemRequest.constants";
 import { notFound } from "@/shared/hooks/useNotFound";
 import HotelReservationDetailSheet from "@/features/profile/viaticos/components/HotelReservationDetailSheet";
 import { useNavigate } from "react-router-dom";
@@ -80,8 +83,7 @@ export default function PerDiemRequestPage() {
       <PerDiemRequestTable
         isLoading={isLoading}
         columns={perDiemRequestColumns({
-          onViewDetail: (id) =>
-            navigate(`/gp/gestion-humana/viaticos/solicitud-viaticos/${id}`),
+          onViewDetail: (id) => navigate(`${ABSOLUTE_ROUTE_GP}/${id}`),
           onViewHotelReservation: setHotelReservationRequestId,
           module: "gh",
           permissions: { canSend: canSend },

@@ -7,7 +7,7 @@ import FormWrapper from "@/shared/components/FormWrapper";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import { HotelReservationForm } from "@/features/profile/viaticos/components/HotelReservationForm";
 import { HotelReservationSchema } from "@/features/profile/viaticos/lib/hotelReservation.schema";
-import { PER_DIEM_REQUEST } from "@/features/profile/viaticos/lib/perDiemRequest.constants";
+import { PER_DIEM_REQUEST_AP } from "@/features/profile/viaticos/lib/perDiemRequest.constants";
 import { useFindPerDiemRequestById } from "@/features/profile/viaticos/lib/perDiemRequest.hook";
 import {
   useHotelReservation,
@@ -22,6 +22,7 @@ import { useGetAllHotelAgreement } from "@/features/gp/gestionhumana/viaticos/co
 import { Loader } from "lucide-react";
 
 export default function UpdateHotelReservationAPPage() {
+  const { ABSOLUTE_ROUTE, QUERY_KEY } = PER_DIEM_REQUEST_AP;
   const { id, reservationId } = useParams<{
     id: string;
     reservationId: string;
@@ -30,7 +31,7 @@ export default function UpdateHotelReservationAPPage() {
   const queryClient = useQueryClient();
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [pendingData, setPendingData] = useState<HotelReservationSchema | null>(
-    null
+    null,
   );
 
   // Obtener los datos de la solicitud de viáticos
@@ -51,7 +52,7 @@ export default function UpdateHotelReservationAPPage() {
 
   const { mutate, isPending } = useUpdateHotelReservation(
     Number(reservationId),
-    Number(id)
+    Number(id),
   );
 
   const handleSubmit = (data: HotelReservationSchema) => {
@@ -66,7 +67,7 @@ export default function UpdateHotelReservationAPPage() {
         onSuccess: () => {
           // Invalidar queries para refrescar los datos
           queryClient.invalidateQueries({
-            queryKey: [PER_DIEM_REQUEST.QUERY_KEY, id],
+            queryKey: [QUERY_KEY, id],
           });
           queryClient.invalidateQueries({
             queryKey: [HOTEL_RESERVATION_QUERY_KEY, reservationId],
@@ -74,17 +75,17 @@ export default function UpdateHotelReservationAPPage() {
 
           successToast(
             "Reserva actualizada",
-            "La reserva de hotel ha sido actualizada exitosamente."
+            "La reserva de hotel ha sido actualizada exitosamente.",
           );
           setShowConfirmModal(false);
           setPendingData(null);
-          navigate("/ap/contabilidad/viaticos-ap");
+          navigate(ABSOLUTE_ROUTE);
         },
         onError: (error: any) => {
           errorToast(
             "Error al actualizar",
             error.response?.data?.message ||
-              "No se pudo actualizar la reserva. Inténtalo de nuevo."
+              "No se pudo actualizar la reserva. Inténtalo de nuevo.",
           );
         },
       });
@@ -97,7 +98,7 @@ export default function UpdateHotelReservationAPPage() {
   };
 
   const handleCancel = () => {
-    navigate("/ap/contabilidad/viaticos-ap");
+    navigate(ABSOLUTE_ROUTE);
   };
 
   const isLoading =
