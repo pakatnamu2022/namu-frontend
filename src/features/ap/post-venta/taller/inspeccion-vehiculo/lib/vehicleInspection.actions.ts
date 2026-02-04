@@ -131,3 +131,22 @@ export async function downloadVehicleInspectionPdf(id: number): Promise<void> {
   link.parentNode?.removeChild(link);
   window.URL.revokeObjectURL(url);
 }
+
+export async function downloadOrderReceiptPdf(id: number): Promise<void> {
+  const response = await api.get(`${ENDPOINT}/${id}/order-receipt`, {
+    responseType: "blob",
+  });
+
+  const blob = new Blob([response.data], { type: "application/pdf" });
+
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.setAttribute("download", `orden-recepcion-personal-${id}.pdf`);
+
+  document.body.appendChild(link);
+  link.click();
+
+  link.parentNode?.removeChild(link);
+  window.URL.revokeObjectURL(url);
+}
