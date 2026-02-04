@@ -5,7 +5,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { FileDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { PER_DIEM_REQUEST } from "@/features/profile/viaticos/lib/perDiemRequest.constants";
+import { PER_DIEM_REQUEST_AP } from "@/features/profile/viaticos/lib/perDiemRequest.constants";
 import {
   findPerDiemRequestById,
   downloadExpenseTotalPdf,
@@ -31,9 +31,10 @@ export default function PerDiemRequestDetailAdminAPPage() {
   const { id } = useParams<{ id: string }>();
   const queryClient = useQueryClient();
   const [isDownloading, setIsDownloading] = useState(false);
+  const { ABSOLUTE_ROUTE, QUERY_KEY } = PER_DIEM_REQUEST_AP;
 
   const { data: request, isLoading } = useQuery({
-    queryKey: [PER_DIEM_REQUEST.QUERY_KEY, id],
+    queryKey: [QUERY_KEY, id],
     queryFn: () => findPerDiemRequestById(Number(id)),
     enabled: !!id,
   });
@@ -65,7 +66,7 @@ export default function PerDiemRequestDetailAdminAPPage() {
     } catch (error: any) {
       errorToast(
         error.response.data.message ??
-          "Error al descargar el PDF de planilla de movilidad"
+          "Error al descargar el PDF de planilla de movilidad",
       );
       console.error("Error downloading mobility payroll PDF:", error);
     } finally {
@@ -76,7 +77,7 @@ export default function PerDiemRequestDetailAdminAPPage() {
   const handleActionComplete = async () => {
     // Invalidar queries para refrescar los datos
     await queryClient.invalidateQueries({
-      queryKey: [PER_DIEM_REQUEST.QUERY_KEY, id],
+      queryKey: [QUERY_KEY, id],
     });
   };
 
@@ -114,11 +115,7 @@ export default function PerDiemRequestDetailAdminAPPage() {
         <FormWrapper>
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="flex items-center gap-3">
-              <BackButton
-                route="/ap/contabilidad/viaticos-ap"
-                size="icon"
-                name=""
-              />
+              <BackButton route={ABSOLUTE_ROUTE} size="icon" name="" />
               <TitleComponent
                 title={request.code}
                 subtitle="Detalle de Solicitud de Viáticos"

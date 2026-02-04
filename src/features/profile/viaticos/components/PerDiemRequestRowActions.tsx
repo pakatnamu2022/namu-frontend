@@ -24,7 +24,11 @@ import {
   resendPerDiemRequestEmails,
   resetApprovals,
 } from "../lib/perDiemRequest.actions";
-import { PER_DIEM_REQUEST } from "../lib/perDiemRequest.constants";
+import {
+  ABSOLUTE_ROUTE_GP,
+  PER_DIEM_REQUEST,
+  PER_DIEM_REQUEST_AP,
+} from "../lib/perDiemRequest.constants";
 import { useState } from "react";
 import { errorToast, successToast } from "@/core/core.function";
 import { Textarea } from "@/components/ui/textarea";
@@ -56,6 +60,7 @@ export function PerDiemRequestRowActions({
   permissions,
 }: PerDiemRequestRowActionsProps) {
   const { ROUTE } = PER_DIEM_REQUEST;
+  const { ABSOLUTE_ROUTE: ABSOLUTE_ROUTE_AP } = PER_DIEM_REQUEST_AP;
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
@@ -195,10 +200,7 @@ export function PerDiemRequestRowActions({
     });
   };
 
-  const prefix =
-    module === "gh"
-      ? "/gp/gestion-humana/viaticos/solicitud-viaticos"
-      : "/ap/contabilidad/viaticos-ap";
+  const prefix = module === "gh" ? ABSOLUTE_ROUTE_GP : ABSOLUTE_ROUTE_AP;
 
   const handleAddHotelReservation = () => {
     navigate(`${prefix}/${request.id}/reserva-hotel/agregar`);

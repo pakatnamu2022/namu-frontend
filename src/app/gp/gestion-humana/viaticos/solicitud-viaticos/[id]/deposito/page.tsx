@@ -14,7 +14,7 @@ import {
   findPerDiemRequestById,
   uploadDepositFile,
 } from "@/features/profile/viaticos/lib/perDiemRequest.actions";
-import { PER_DIEM_REQUEST } from "@/features/profile/viaticos/lib/perDiemRequest.constants";
+import { PER_DIEM_REQUEST_AP } from "@/features/profile/viaticos/lib/perDiemRequest.constants";
 import { errorToast, successToast } from "@/core/core.function";
 
 export default function UploadDepositPage() {
@@ -23,9 +23,10 @@ export default function UploadDepositPage() {
   const queryClient = useQueryClient();
   const [previewUrl, setPreviewUrl] = useState<string>("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const { ABSOLUTE_ROUTE, QUERY_KEY } = PER_DIEM_REQUEST_AP;
 
   const { data: request, isLoading } = useQuery({
-    queryKey: [PER_DIEM_REQUEST.QUERY_KEY, id],
+    queryKey: [QUERY_KEY, id],
     queryFn: () => findPerDiemRequestById(Number(id)),
     enabled: !!id,
   });
@@ -34,15 +35,15 @@ export default function UploadDepositPage() {
     mutationFn: (file: File) => uploadDepositFile(Number(id), file),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: [PER_DIEM_REQUEST.QUERY_KEY],
+        queryKey: [QUERY_KEY],
       });
       successToast("Archivo de depósito subido correctamente");
-      navigate(`/gp/gestion-humana/viaticos/solicitud-viaticos`);
+      navigate(ABSOLUTE_ROUTE);
     },
     onError: (error: any) => {
       errorToast(
         error?.response?.data?.message ||
-          "Error al subir el archivo de depósito"
+          "Error al subir el archivo de depósito",
       );
     },
   });
@@ -62,7 +63,7 @@ export default function UploadDepositPage() {
     if (previewUrl) {
       URL.revokeObjectURL(previewUrl);
     }
-    navigate(`/gp/gestion-humana/viaticos/solicitud-viaticos`);
+    navigate(ABSOLUTE_ROUTE);
   };
 
   if (isLoading) {

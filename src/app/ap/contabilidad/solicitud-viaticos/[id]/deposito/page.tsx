@@ -14,10 +14,14 @@ import {
   findPerDiemRequestById,
   uploadDepositFile,
 } from "@/features/profile/viaticos/lib/perDiemRequest.actions";
-import { PER_DIEM_REQUEST } from "@/features/profile/viaticos/lib/perDiemRequest.constants";
+import {
+  PER_DIEM_REQUEST,
+  PER_DIEM_REQUEST_AP,
+} from "@/features/profile/viaticos/lib/perDiemRequest.constants";
 import { errorToast, successToast } from "@/core/core.function";
 
 export default function UploadDepositPage() {
+  const { ABSOLUTE_ROUTE } = PER_DIEM_REQUEST_AP;
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -37,12 +41,12 @@ export default function UploadDepositPage() {
         queryKey: [PER_DIEM_REQUEST.QUERY_KEY],
       });
       successToast("Archivo de depósito subido correctamente");
-      navigate(`/ap/contabilidad/viaticos-ap`);
+      navigate(ABSOLUTE_ROUTE);
     },
     onError: (error: any) => {
       errorToast(
         error?.response?.data?.message ||
-          "Error al subir el archivo de depósito"
+          "Error al subir el archivo de depósito",
       );
     },
   });
@@ -62,7 +66,7 @@ export default function UploadDepositPage() {
     if (previewUrl) {
       URL.revokeObjectURL(previewUrl);
     }
-    navigate(`/ap/contabilidad/viaticos-ap`);
+    navigate(ABSOLUTE_ROUTE);
   };
 
   if (isLoading) {
@@ -91,11 +95,7 @@ export default function UploadDepositPage() {
       <div className="space-y-6">
         {/* Header */}
         <div className="flex items-center gap-3">
-          <BackButton
-            route={`/ap/contabilidad/viaticos-ap`}
-            size="icon"
-            name=""
-          />
+          <BackButton route={ABSOLUTE_ROUTE} size="icon" name="" />
           <TitleComponent
             title="Subir Archivo de Depósito"
             subtitle={`Solicitud: ${request.code}`}
