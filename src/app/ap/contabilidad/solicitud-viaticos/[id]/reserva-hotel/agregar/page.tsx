@@ -11,11 +11,13 @@ import { useFindPerDiemRequestById } from "@/features/profile/viaticos/lib/perDi
 import { Loader } from "lucide-react";
 import { useGetAllHotelAgreement } from "@/features/gp/gestionhumana/viaticos/convenios-hoteles/lib/hotelAgreement.hook";
 import { errorToast, successToast } from "@/core/core.function";
+import { PER_DIEM_REQUEST_AP } from "@/features/profile/viaticos/lib/perDiemRequest.constants";
 
 export default function AddHotelReservationPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const requestId = Number(id);
+  const { ABSOLUTE_ROUTE } = PER_DIEM_REQUEST_AP;
 
   // Obtener datos de la solicitud de viáticos
   const { data: perDiemRequest, isLoading: isLoadingRequest } =
@@ -52,7 +54,7 @@ export default function AddHotelReservationPage() {
     },
     onSuccess: () => {
       successToast("Reserva de hotel creada exitosamente");
-      navigate("/ap/contabilidad/viaticos-ap");
+      navigate(ABSOLUTE_ROUTE);
     },
     onError: (error: any) => {
       const errorMessage =
@@ -66,7 +68,7 @@ export default function AddHotelReservationPage() {
   };
 
   const handleCancel = () => {
-    navigate("/ap/contabilidad/viaticos-ap");
+    navigate(ABSOLUTE_ROUTE);
   };
 
   if (isLoadingRequest || isLoadingAgreements) {
