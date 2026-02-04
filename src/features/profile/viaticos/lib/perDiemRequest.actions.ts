@@ -355,6 +355,15 @@ export async function completeSettlement(
   return response.data;
 }
 
+export async function resetApprovals(
+  id: number
+): Promise<PerDiemRequestResource> {
+  const response = await api.post<PerDiemRequestResource>(
+    `${ENDPOINT}/${id}/reset-approvals`
+  );
+  return response.data;
+}
+
 export async function resendPerDiemRequestEmails(
   id: number,
   data: {

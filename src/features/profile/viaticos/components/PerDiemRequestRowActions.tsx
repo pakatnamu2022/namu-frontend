@@ -10,6 +10,7 @@ import {
   Download,
   Loader2,
   RotateCcwSquare,
+  RotateCcw,
   MailPlus,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -21,6 +22,7 @@ import {
   completeSettlement,
   expenseTotalWithEvidencePdf,
   resendPerDiemRequestEmails,
+  resetApprovals,
 } from "../lib/perDiemRequest.actions";
 import { PER_DIEM_REQUEST } from "../lib/perDiemRequest.constants";
 import { useState } from "react";
@@ -66,6 +68,8 @@ export function PerDiemRequestRowActions({
   const [sendToEmployee, setSendToEmployee] = useState(true);
   const [sendToB, setSendToBoss] = useState(false);
   const [sendToAccounting, setSendToAccounting] = useState(false);
+  const [isResetApprovalsDialogOpen, setIsResetApprovalsDialogOpen] =
+    useState(false);
 
   const hasHotelReservation = !!request.hotel_reservation;
   const isApproved =
@@ -75,7 +79,9 @@ export function PerDiemRequestRowActions({
   const isCancelled = request.status === "cancelled";
   const canCompleteSettlement = request.settlement_status === "approved";
   const isOnlyApproved = request.status === "approved";
-  const { canAuthorize } = useModulePermissions(ROUTE);
+  const { canAuthorize, canAnnul } = useModulePermissions(ROUTE);
+  const statusForAnnul =
+    request.status === "pending" || request.status === "approved";
 
   const confirmMutation = useMutation({
     mutationFn: (requestId: number) => confirmProgressPerDiemRequest(requestId),
@@ -88,7 +94,7 @@ export function PerDiemRequestRowActions({
     },
     onError: (error: any) => {
       errorToast(
-        error?.response?.data?.message || "Error al confirmar la solicitud "
+        error?.response?.data?.message || "Error al confirmar la solicitud ",
       );
     },
   });
@@ -113,7 +119,7 @@ export function PerDiemRequestRowActions({
     },
     onError: (error: any) => {
       errorToast(
-        error?.response?.data?.message || "Error al completar la liquidación"
+        error?.response?.data?.message || "Error al completar la liquidación",
       );
     },
   });
@@ -142,6 +148,22 @@ export function PerDiemRequestRowActions({
     },
     onError: (error: any) => {
       errorToast(error?.response?.data?.message || "Error al reenviar emails");
+    },
+  });
+
+  const resetApprovalsMutation = useMutation({
+    mutationFn: (requestId: number) => resetApprovals(requestId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [PER_DIEM_REQUEST.QUERY_KEY],
+      });
+      successToast("Aprobaciones restablecidas exitosamente");
+      setIsResetApprovalsDialogOpen(false);
+    },
+    onError: (error: any) => {
+      errorToast(
+        error?.response?.data?.message || "Error al restablecer aprobaciones",
+      );
     },
   });
 
@@ -321,7 +343,7 @@ export function PerDiemRequestRowActions({
           request.settlement_status === "approved" &&
           request.end_date &&
           new Date(
-            new Date(request.end_date).getTime() + 3 * 24 * 60 * 60 * 1000
+            new Date(request.end_date).getTime() + 3 * 24 * 60 * 60 * 1000,
           ) <= new Date() && (
             <Button
               variant="outline"
@@ -371,6 +393,30 @@ export function PerDiemRequestRowActions({
               />
             </div>
           </ConfirmationDialog>
+        )}
+
+        {module === "gh" && canAnnul && statusForAnnul && (
+          <ConfirmationDialog
+            trigger={
+              <Button
+                variant="outline"
+                size="icon-xs"
+                tooltip="Restablecer aprobaciones"
+                disabled={resetApprovalsMutation.isPending}
+              >
+                <RotateCcw className="size-4" />
+              </Button>
+            }
+            title="¿Restablecer aprobaciones?"
+            description="Esta acción restablecerá las aprobaciones de la solicitud. ¿Deseas continuar?"
+            confirmText="Sí, restablecer"
+            cancelText="Cancelar"
+            onConfirm={() => resetApprovalsMutation.mutate(request.id)}
+            variant="destructive"
+            icon="warning"
+            open={isResetApprovalsDialogOpen}
+            onOpenChange={setIsResetApprovalsDialogOpen}
+          />
         )}
 
         {permissions?.canSend && module === "gh" && (
