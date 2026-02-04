@@ -45,7 +45,6 @@ export function InvoiceDocumentInfoSection({
   const [selectedCustomer, setSelectedCustomer] = useState<
     CustomersResource | undefined
   >(defaultCustomer);
-
   // Crear defaultOption desde defaultCustomer si existe
   const defaultOption = useMemo(() => {
     if (defaultCustomer) {
@@ -163,7 +162,7 @@ export function InvoiceDocumentInfoSection({
           description="Cliente asignado desde la OT (puede modificarlo si lo desea)"
           perPage={10}
           debounceMs={500}
-          disabled={isEdit}
+          disabled={true}
           defaultOption={defaultOption}
           onValueChange={(_, customer) => {
             // Actualizar el estado con el cliente seleccionado

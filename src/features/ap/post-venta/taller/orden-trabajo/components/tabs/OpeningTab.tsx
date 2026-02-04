@@ -1,12 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { useForm, FormProvider } from "react-hook-form";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, FileText } from "lucide-react";
-import { findWorkOrderById } from "../../lib/workOrder.actions";
+import { Plus, Trash2, FileText, User } from "lucide-react";
+import {
+  findWorkOrderById,
+  updateInvoiceTo,
+} from "../../lib/workOrder.actions";
 import {
   DEFAULT_GROUP_COLOR,
   GROUP_COLORS,
@@ -23,6 +27,9 @@ import {
 } from "@/core/core.function";
 import { useIsTablet } from "@/hooks/use-tablet";
 import { downloadOrderReceiptPdf } from "../../../inspeccion-vehiculo/lib/vehicleInspection.actions";
+import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
+import { useCustomers } from "@/features/ap/comercial/clientes/lib/customers.hook";
+import { CustomersResource } from "@/features/ap/comercial/clientes/lib/customers.interface";
 
 const getGroupColor = (groupNumber: number) => {
   return GROUP_COLORS[groupNumber] || DEFAULT_GROUP_COLOR;
@@ -58,6 +65,45 @@ export default function OpeningTab({ workOrderId }: OpeningTabProps) {
       errorToast("Error al eliminar el item");
     },
   });
+
+  // Formulario mínimo solo para el FormSelectAsync de "Facturar a"
+  const invoiceToForm = useForm<{ invoice_to_id: string }>({
+    defaultValues: { invoice_to_id: "" },
+  });
+
+  // Mutación para actualizar invoice_to
+  const invoiceToMutation = useMutation({
+    mutationFn: (customerId: number | null) =>
+      updateInvoiceTo(workOrderId, customerId),
+    onSuccess: () => {
+      successToast("Cliente de facturación actualizado");
+      queryClient.invalidateQueries({ queryKey: ["workOrder", workOrderId] });
+    },
+    onError: () => {
+      errorToast("Error al actualizar el cliente de facturación");
+    },
+  });
+
+  // Si ya existe invoice_to desde el backend, precargar el select
+  const invoiceToDefaultOption = useMemo(() => {
+    if (workOrder?.invoice_to) {
+      return {
+        value: workOrder.invoice_to.toString(),
+        label: `${workOrder.invoice_to_client?.full_name} - ${workOrder.invoice_to_client?.num_doc || "S/N"}`,
+      };
+    }
+    return undefined;
+  }, [workOrder?.invoice_to, workOrder?.invoice_to_client]);
+
+  // Cuando el backend devuelve invoice_to, setear el valor del form
+  useEffect(() => {
+    if (invoiceToDefaultOption) {
+      invoiceToForm.setValue("invoice_to_id", invoiceToDefaultOption.value);
+    }
+  }, [invoiceToDefaultOption, invoiceToForm]);
+
+  // La OT ya tiene factura emitida → bloquear edición
+  const isInvoiced = workOrder?.is_invoiced === true;
 
   const items = workOrder?.items || [];
 
@@ -150,7 +196,7 @@ export default function OpeningTab({ workOrderId }: OpeningTabProps) {
 
       {/* Items by Group */}
       {items.length > 0 && (
-        <Card className="p-0 overflow-hidden">
+        <div className="border rounded-lg overflow-hidden">
           <div className="overflow-x-auto scrollbar-hide w-full">
             <table className="w-full min-w-[640px]">
               <thead>
@@ -178,7 +224,7 @@ export default function OpeningTab({ workOrderId }: OpeningTabProps) {
                   return (
                     <tr
                       key={item.id}
-                      className="border-b hover:bg-gray-50 transition-colors"
+                      className="border-b last:border-b-0 hover:bg-gray-50 transition-colors"
                     >
                       <td className="py-3 px-3 sm:px-4 whitespace-nowrap">
                         <Badge
@@ -223,8 +269,80 @@ export default function OpeningTab({ workOrderId }: OpeningTabProps) {
               </tbody>
             </table>
           </div>
-        </Card>
+        </div>
       )}
+
+      {/* Sección: Facturar a */}
+      <div className="border-t pt-6">
+        <div className="flex items-center gap-2 mb-6">
+          <div className="flex items-center justify-center h-8 w-8 rounded-full bg-primary/10">
+            <User className="h-4 w-4 text-primary" />
+          </div>
+          <div>
+            <h4 className="text-base font-semibold text-gray-900">
+              Facturar a
+            </h4>
+            <p className="text-xs text-gray-500 mt-0.5">
+              {isInvoiced
+                ? "Cliente de facturación establecido"
+                : "Selecciona el cliente para la factura"}
+            </p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <FormProvider {...invoiceToForm}>
+            <FormSelectAsync
+              name="invoice_to_id"
+              label="Cliente de facturación"
+              placeholder="Seleccionar cliente"
+              control={invoiceToForm.control}
+              useQueryHook={useCustomers}
+              mapOptionFn={(customer: CustomersResource) => ({
+                value: customer.id.toString(),
+                label: `${customer.full_name} - ${customer.num_doc || "S/N"}`,
+              })}
+              description={
+                isInvoiced
+                  ? "Ya existe una factura emitida, no se puede modificar"
+                  : "Cliente a quien se le emitirá la factura de esta OT"
+              }
+              perPage={10}
+              debounceMs={500}
+              disabled={isInvoiced || invoiceToMutation.isPending}
+              defaultOption={invoiceToDefaultOption}
+              onValueChange={(value) => {
+                invoiceToMutation.mutate(value ? Number(value) : null);
+              }}
+            />
+          </FormProvider>
+
+          {/* Info del cliente seleccionado */}
+          {workOrder?.invoice_to && (
+            <div className="flex items-start gap-3 p-4 rounded-lg bg-primary/5 border border-primary/20 h-fit">
+              <div className="flex-1 grid grid-cols-1 gap-3">
+                <div className="flex flex-col gap-1">
+                  <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                    Nombre
+                  </span>
+                  <span className="text-sm font-semibold text-gray-900">
+                    {workOrder.invoice_to_client?.full_name || "—"}
+                  </span>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                    Documento
+                  </span>
+                  <span className="text-sm font-semibold text-gray-900">
+                    {workOrder.invoice_to_client?.document_type || "—"}{" "}
+                    {workOrder.invoice_to_client?.num_doc || "S/N"}
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
 
       {/* Empty State */}
       {items.length === 0 && (

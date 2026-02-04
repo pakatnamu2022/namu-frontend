@@ -8,7 +8,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { FileText, Plus, Receipt } from "lucide-react";
+import { FileText, Plus, Receipt, AlertCircle } from "lucide-react";
 import { findWorkOrderById } from "../../lib/workOrder.actions";
 import { useGetPaymentSummary } from "../../lib/workOrder.hook";
 import GroupSelector from "../GroupSelector";
@@ -210,7 +210,7 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
       sunat_concept_transaction_type_id: "",
       origin_module: "posventa",
       is_advance_payment: false,
-      client_id: workOrder?.vehicle?.owner?.id?.toString() || "",
+      client_id: workOrder?.invoice_to_client?.id?.toString() || "",
       fecha_de_emision: new Date().toISOString().split("T")[0],
       sunat_concept_currency_id: penCurrency?.id.toString() || "",
       total_gravada: 0,
@@ -275,6 +275,24 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
       {/* Contenido del grupo seleccionado */}
       {selectedGroupNumber ? (
         <>
+          {/* Bloqueo si no hay cliente asignado para facturar */}
+          {!workOrder?.invoice_to_client && (
+            <Card className="p-4 border border-amber-300 bg-amber-50">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-semibold text-amber-800">
+                    No se puede facturar esta orden de trabajo
+                  </p>
+                  <p className="text-xs text-amber-700 mt-0.5">
+                    No se ha asignado un cliente para facturar. Asigne un cliente
+                    en la sección de apertura de la orden de trabajo y vuelva a intentar.
+                  </p>
+                </div>
+              </div>
+            </Card>
+          )}
+
           {/* Resumen de Costos - Diseño compacto tipo tabla */}
           {paymentSummary && (
             <Card className="p-2">
@@ -354,7 +372,11 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
                     )}
                   </div>
                   {!isFullyPaid && (
-                    <Button onClick={handleCreateInvoice} size="sm">
+                    <Button
+                      onClick={handleCreateInvoice}
+                      size="sm"
+                      disabled={!workOrder?.invoice_to_client}
+                    >
                       <Plus className="h-4 w-4 mr-2" />
                       Nueva Factura
                     </Button>

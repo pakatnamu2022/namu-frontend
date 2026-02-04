@@ -158,7 +158,12 @@ export function FormSelectAsync({
       const newOptions = data.data.map(mapOptionFn);
 
       if (page === 1) {
-        setAllOptions(newOptions);
+        // Preservar defaultOption si no está en los resultados nuevos
+        if (defaultOption && !newOptions.some((opt) => opt.value === defaultOption.value)) {
+          setAllOptions([defaultOption, ...newOptions]);
+        } else {
+          setAllOptions(newOptions);
+        }
       } else {
         setAllOptions((prev) => {
           // Evitar duplicados
@@ -170,7 +175,7 @@ export function FormSelectAsync({
         });
       }
     }
-  }, [data, page, mapOptionFn]);
+  }, [data, page, mapOptionFn, defaultOption]);
 
   // Manejar scroll para cargar más
   const handleScroll = useCallback(

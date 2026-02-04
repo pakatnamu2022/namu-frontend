@@ -18,7 +18,6 @@ import { ApBankResource } from "@/features/ap/configuraciones/maestros-general/c
 import { InvoiceDocumentInfoSection } from "./InvoiceDocumentInfoSection";
 import { InvoiceSummarySection } from "./InvoiceSummarySection";
 import { AdditionalConfigSection } from "@/features/ap/facturacion/electronic-documents/components/sections/AdditionalConfigSection";
-import { useCustomersById } from "@/features/ap/comercial/clientes/lib/customers.hook";
 import { ItemsSection } from "@/features/ap/facturacion/electronic-documents/components/sections/ItemsSection";
 import { WorkOrderResource } from "../lib/workOrder.interface";
 import { WorkOrderFinancialInfo } from "./WorkOrderFinancialInfo";
@@ -55,7 +54,7 @@ export default function InvoiceForm({
   workOrder,
 }: InvoiceFormProps) {
   // Cliente por defecto desde la orden de trabajo y otros datos necesarios
-  const defaultCustomer = workOrder.vehicle?.owner;
+  const defaultCustomer = workOrder.invoice_to_client;
   const labours = workOrder.labours;
   const parts = workOrder.parts;
   const advances = workOrder.advances;
@@ -67,14 +66,8 @@ export default function InvoiceForm({
   // Watch para obtener valores en tiempo real
   const selectedCurrencyId = form.watch("sunat_concept_currency_id");
   const isAdvancePayment = form.watch("is_advance_payment") || false;
-  const clientId = form.watch("client_id");
 
-  // Obtener el cliente seleccionado
-  const { data: selectedCustomerFromApi } = useCustomersById(
-    clientId ? Number(clientId) : 0,
-  );
-
-  const selectedCustomer = selectedCustomerFromApi || defaultCustomer;
+  const selectedCustomer = defaultCustomer;
 
   // Calcular porcentaje de IGV desde el cliente seleccionado
   const porcentaje_de_igv =
@@ -429,7 +422,7 @@ export default function InvoiceForm({
               documentTypes={documentTypes}
               currencyTypes={currencyTypes}
               authorizedSeries={authorizedSeries}
-              defaultCustomer={defaultCustomer}
+              defaultCustomer={defaultCustomer!}
               isAdvancePayment={isAdvancePayment}
             />
 
@@ -460,7 +453,7 @@ export default function InvoiceForm({
             selectedGroupNumber={selectedGroupNumber}
             documentTypes={documentTypes}
             authorizedSeries={authorizedSeries}
-            defaultCustomer={defaultCustomer}
+            defaultCustomer={defaultCustomer!}
             currencySymbol={currencySymbol}
             totales={totales}
             porcentaje_de_igv={porcentaje_de_igv}
