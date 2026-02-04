@@ -135,9 +135,7 @@ export default function OpeningTab({ workOrderId }: OpeningTabProps) {
                 className="w-full sm:w-auto gap-2"
               >
                 <FileText className="h-4 w-4" />
-                {isDownloading
-                  ? "Generando PDF..."
-                  : "Generar Orden Recepción - Personal"}
+                {isDownloading ? "Generando PDF..." : "Generar O.R - Personal"}
               </Button>
             )}
             {items.length === 0 && (

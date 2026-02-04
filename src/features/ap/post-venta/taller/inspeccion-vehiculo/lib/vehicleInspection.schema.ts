@@ -11,7 +11,7 @@ export const vehicleInspectionDamageSchema = z.object({
 });
 
 export const vehicleInspectionSchemaCreate = z.object({
-  work_order_id: requiredStringId("Orden de trabajo es requerida"),
+  ap_work_order_id: requiredStringId("Orden de trabajo es requerida"),
   dirty_unit: z.boolean().default(false),
   unit_ok: z.boolean().default(false),
   title_deed: z.boolean().default(false),
