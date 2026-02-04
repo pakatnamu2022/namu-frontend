@@ -53,6 +53,7 @@ export default function AssignedWorkOptions({
         placeholder="Filtrar por sede"
         className="min-w-72"
         classNameOption="text-xs"
+        allowClear={false}
       />
     </div>
   );
