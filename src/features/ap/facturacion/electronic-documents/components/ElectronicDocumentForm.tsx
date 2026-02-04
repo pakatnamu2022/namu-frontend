@@ -82,7 +82,7 @@ export function ElectronicDocumentForm({
   const { data: quotations = [], isLoading: isLoadingQuotations } =
     useAllPurchaseRequestQuote({
       status: "approved", // Solo cotizaciones aprobadas
-      // has_vehicle: 1,
+      // has_vehicle: 1, // TODO: Consultar si es que se puede facturar si es que no tiene vehículo y que SitioId se mandaria a Dynamics
       is_approved: 1,
       is_paid: 0, // Solo cotizaciones no pagadas
     });
