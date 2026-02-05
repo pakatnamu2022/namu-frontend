@@ -11,7 +11,7 @@ export const SHIPMENTS_RECEPTIONS: ModelComplete<ShipmentsReceptionsResource> =
       plural: "Guías de Remisión y Traslado",
       gender: true,
     },
-    ICON: "FileText",
+    ICON: "Package",
     ENDPOINT: "/ap/commercial/shippingGuides",
     QUERY_KEY: "shipments-receptions",
     ROUTE,

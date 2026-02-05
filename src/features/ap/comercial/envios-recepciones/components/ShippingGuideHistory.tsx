@@ -2,14 +2,6 @@
 
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -33,10 +25,15 @@ import {
   FileClock,
   RefreshCw,
 } from "lucide-react";
-import { getShippingGuideLogs, getShippingGuideHistory } from "../lib/shipmentsReceptions.actions";
+import {
+  getShippingGuideLogs,
+  getShippingGuideHistory,
+} from "../lib/shipmentsReceptions.actions";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { cn } from "@/lib/utils";
+import GeneralSheet from "@/shared/components/GeneralSheet";
+import { SHIPMENTS_RECEPTIONS } from "../lib/shipmentsReceptions.constants";
 
 interface ShippingGuideHistoryProps {
   shippingGuideId: number;
@@ -45,6 +42,7 @@ interface ShippingGuideHistoryProps {
 export default function ShippingGuideHistory({
   shippingGuideId,
 }: ShippingGuideHistoryProps) {
+  const { ICON } = SHIPMENTS_RECEPTIONS;
   const [open, setOpen] = useState(false);
 
   const {
@@ -150,7 +148,7 @@ export default function ShippingGuideHistory({
 
   const getProcesoEstadoBadge = (
     procesoEstado: number,
-    procesoEstadoName: string
+    procesoEstadoName: string,
   ) => {
     const variants: Record<
       number,
@@ -212,38 +210,39 @@ export default function ShippingGuideHistory({
   };
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
-      <SheetTrigger asChild>
-        <Button variant="outline" size="icon" className="size-7" tooltip="Ver historial">
-          <FileClock className="size-4" />
+    <div>
+      <Button
+        variant="outline"
+        size="icon"
+        className="size-7"
+        tooltip="Ver historial"
+        onClick={() => setOpen(true)}
+      >
+        <FileClock className="size-4" />
+      </Button>
+
+      <GeneralSheet
+        title="Historial de Guía de Remisión"
+        subtitle="Historial detallado del proceso de la guía de remisión"
+        open={open}
+        onClose={() => setOpen(false)}
+        icon={ICON}
+      >
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleRefresh}
+          disabled={isLoadingLogs || isLoadingHistory}
+          className="gap-2"
+        >
+          <RefreshCw
+            className={cn(
+              "h-4 w-4",
+              (isLoadingLogs || isLoadingHistory) && "animate-spin",
+            )}
+          />
+          Actualizar
         </Button>
-      </SheetTrigger>
-      <SheetContent className="!max-w-(--breakpoint-xl) w-full">
-        <SheetHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <SheetTitle>Historial de Guía de Remisión</SheetTitle>
-              <SheetDescription>
-                Historial detallado del proceso de la guía de remisión
-              </SheetDescription>
-            </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleRefresh}
-              disabled={isLoadingLogs || isLoadingHistory}
-              className="gap-2"
-            >
-              <RefreshCw
-                className={cn(
-                  "h-4 w-4",
-                  (isLoadingLogs || isLoadingHistory) && "animate-spin"
-                )}
-              />
-              Actualizar
-            </Button>
-          </div>
-        </SheetHeader>
 
         {isLoadingLogs || isLoadingHistory ? (
           <div className="flex items-center justify-center h-96">
@@ -273,8 +272,8 @@ export default function ShippingGuideHistory({
                       {getStatusBadge(
                         logsData.data.shipping_guide.migration_status,
                         getNameStatus(
-                          logsData.data.shipping_guide.migration_status
-                        )
+                          logsData.data.shipping_guide.migration_status,
+                        ),
                       )}
                     </div>
                     <Separator />
@@ -341,7 +340,7 @@ export default function ShippingGuideHistory({
                             <TableCell>
                               {getProcesoEstadoBadge(
                                 log.proceso_estado,
-                                log.proceso_estado_name
+                                log.proceso_estado_name,
                               )}
                             </TableCell>
                             <TableCell>
@@ -372,7 +371,8 @@ export default function ShippingGuideHistory({
                           {historyData.data.shipping_guide.document_number}
                         </h3>
                         <p className="text-sm text-muted-foreground">
-                          Serie: {historyData.data.shipping_guide.document_series}
+                          Serie:{" "}
+                          {historyData.data.shipping_guide.document_series}
                         </p>
                       </div>
                       {getStatusBadge(
@@ -380,7 +380,7 @@ export default function ShippingGuideHistory({
                         historyData.data.shipping_guide.migration_status ===
                           "completed"
                           ? "Completado"
-                          : "Pendiente"
+                          : "Pendiente",
                       )}
                     </div>
                   </div>
@@ -391,7 +391,7 @@ export default function ShippingGuideHistory({
                       {historyData.data.timeline.map(
                         (timelineStep: any, stepIndex: number) => (
                           <div key={stepIndex} className="relative">
-                            <div className="sticky top-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-10 pb-2">
+                            <div className="sticky top-0 bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60 z-10 pb-2">
                               <h4 className="font-semibold text-sm">
                                 {timelineStep.step_name || timelineStep.step}
                               </h4>
@@ -401,44 +401,48 @@ export default function ShippingGuideHistory({
                             </div>
 
                             <div className="ml-4 border-l-2 border-gray-200 pl-4 space-y-4 pt-2">
-                              {timelineStep.events.map((event: any, eventIndex: number) => (
-                                <div key={eventIndex} className="relative">
-                                  <div className="absolute -left-[1.6rem] top-1 bg-background">
-                                    {getEventIcon(event.event)}
-                                  </div>
-                                  <div className="rounded-lg border bg-card p-3 space-y-2">
-                                    <div className="flex items-center justify-between">
-                                      <p className="font-medium text-sm">
-                                        {event.description}
-                                      </p>
-                                      {getStatusBadge(event.status)}
+                              {timelineStep.events.map(
+                                (event: any, eventIndex: number) => (
+                                  <div key={eventIndex} className="relative">
+                                    <div className="absolute -left-[1.6rem] top-1 bg-background">
+                                      {getEventIcon(event.event)}
                                     </div>
-                                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                                      <Clock className="h-3 w-3" />
-                                      <span>{formatDate(event.timestamp)}</span>
+                                    <div className="rounded-lg border bg-card p-3 space-y-2">
+                                      <div className="flex items-center justify-between">
+                                        <p className="font-medium text-sm">
+                                          {event.description}
+                                        </p>
+                                        {getStatusBadge(event.status)}
+                                      </div>
+                                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                        <Clock className="h-3 w-3" />
+                                        <span>
+                                          {formatDate(event.timestamp)}
+                                        </span>
+                                      </div>
+                                      {event.error && (
+                                        <div className="rounded bg-red-50 p-2 text-xs text-red-800">
+                                          <p className="font-medium">Error:</p>
+                                          <p>{event.error}</p>
+                                        </div>
+                                      )}
+                                      {event.proceso_estado !== undefined && (
+                                        <div className="pt-1">
+                                          {getProcesoEstadoBadge(
+                                            event.proceso_estado,
+                                            event.proceso_estado === 1
+                                              ? "Procesado Exitosamente"
+                                              : "Error",
+                                          )}
+                                        </div>
+                                      )}
                                     </div>
-                                    {event.error && (
-                                      <div className="rounded bg-red-50 p-2 text-xs text-red-800">
-                                        <p className="font-medium">Error:</p>
-                                        <p>{event.error}</p>
-                                      </div>
-                                    )}
-                                    {event.proceso_estado !== undefined && (
-                                      <div className="pt-1">
-                                        {getProcesoEstadoBadge(
-                                          event.proceso_estado,
-                                          event.proceso_estado === 1
-                                            ? "Procesado Exitosamente"
-                                            : "Error"
-                                        )}
-                                      </div>
-                                    )}
                                   </div>
-                                </div>
-                              ))}
+                                ),
+                              )}
                             </div>
                           </div>
-                        )
+                        ),
                       )}
                     </div>
                   </ScrollArea>
@@ -447,7 +451,7 @@ export default function ShippingGuideHistory({
             </TabsContent>
           </Tabs>
         )}
-      </SheetContent>
-    </Sheet>
+      </GeneralSheet>
+    </div>
   );
 }

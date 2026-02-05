@@ -209,7 +209,12 @@ export interface BadgeProps
 export type BadgeCustomProps = BadgeProps & {
   icon?: LucideIcon;
   tooltip?: React.ReactNode;
-  tooltipVariant?: "default" | "secondary" | "tertiary";
+  tooltipVariant?:
+    | "default"
+    | "secondary"
+    | "tertiary"
+    | "muted"
+    | "background";
 };
 
 function getTooltipVariant(variant: BadgeCustomProps["tooltipVariant"]) {
@@ -218,6 +223,8 @@ function getTooltipVariant(variant: BadgeCustomProps["tooltipVariant"]) {
       return "!bg-secondary !text-secondary-foreground !fill-secondary";
     case "tertiary":
       return "!bg-tertiary !text-tertiary-foreground !fill-tertiary";
+    case "muted":
+      return "!bg-muted !text-muted-foreground !fill-muted";
     default:
       return "!bg-primary !text-primary-foreground !fill-primary";
   }
