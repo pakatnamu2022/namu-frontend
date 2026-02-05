@@ -18,7 +18,6 @@ import { ApBankResource } from "@/features/ap/configuraciones/maestros-general/c
 import { InvoiceDocumentInfoSection } from "./InvoiceDocumentInfoSection";
 import { InvoiceSummarySection } from "./InvoiceSummarySection";
 import { AdditionalConfigSection } from "@/features/ap/facturacion/electronic-documents/components/sections/AdditionalConfigSection";
-import { useCustomersById } from "@/features/ap/comercial/clientes/lib/customers.hook";
 import { ItemsSection } from "@/features/ap/facturacion/electronic-documents/components/sections/ItemsSection";
 import { WorkOrderResource } from "../lib/workOrder.interface";
 import { WorkOrderFinancialInfo } from "./WorkOrderFinancialInfo";
@@ -55,7 +54,7 @@ export default function InvoiceForm({
   workOrder,
 }: InvoiceFormProps) {
   // Cliente por defecto desde la orden de trabajo y otros datos necesarios
-  const defaultCustomer = workOrder.vehicle?.owner;
+  const defaultCustomer = workOrder.invoice_to_client;
   const labours = workOrder.labours;
   const parts = workOrder.parts;
   const advances = workOrder.advances;
@@ -67,14 +66,8 @@ export default function InvoiceForm({
   // Watch para obtener valores en tiempo real
   const selectedCurrencyId = form.watch("sunat_concept_currency_id");
   const isAdvancePayment = form.watch("is_advance_payment") || false;
-  const clientId = form.watch("client_id");
 
-  // Obtener el cliente seleccionado
-  const { data: selectedCustomerFromApi } = useCustomersById(
-    clientId ? Number(clientId) : 0,
-  );
-
-  const selectedCustomer = selectedCustomerFromApi || defaultCustomer;
+  const selectedCustomer = defaultCustomer;
 
   // Calcular porcentaje de IGV desde el cliente seleccionado
   const porcentaje_de_igv =
@@ -223,10 +216,10 @@ export default function InvoiceForm({
       const invoiceItems: ElectronicDocumentItemSchema[] = [];
 
       // Agregar items de mano de obra
+      // total_cost viene sin IGV del backend (es el subtotal)
       labours.forEach((labour) => {
-        const totalCost = parseFloat(labour.total_cost || "0");
-        const precio_unitario = totalCost;
-        const valor_unitario = precio_unitario / (1 + porcentaje_de_igv / 100);
+        const valor_unitario = parseFloat(labour.total_cost || "0");
+        const precio_unitario = valor_unitario * (1 + porcentaje_de_igv / 100);
         const subtotal = valor_unitario;
         const igvAmount = subtotal * (porcentaje_de_igv / 100);
 
@@ -241,17 +234,18 @@ export default function InvoiceForm({
           subtotal: subtotal,
           sunat_concept_igv_type_id: gravadaType?.id || 0,
           igv: igvAmount,
-          total: totalCost,
+          total: precio_unitario,
         });
       });
 
       // Agregar items de repuestos
+      // total_amount viene sin IGV del backend (es el subtotal)
       parts.forEach((part) => {
         const totalAmount = parseFloat(part.total_amount || "0");
         const cantidad = part.quantity_used;
-        const precio_unitario = totalAmount / cantidad;
-        const valor_unitario = precio_unitario / (1 + porcentaje_de_igv / 100);
-        const subtotal = valor_unitario * cantidad;
+        const valor_unitario = totalAmount / cantidad;
+        const precio_unitario = valor_unitario * (1 + porcentaje_de_igv / 100);
+        const subtotal = totalAmount;
         const igvAmount = subtotal * (porcentaje_de_igv / 100);
 
         invoiceItems.push({
@@ -265,7 +259,7 @@ export default function InvoiceForm({
           subtotal: subtotal,
           sunat_concept_igv_type_id: gravadaType?.id || 0,
           igv: igvAmount,
-          total: totalAmount,
+          total: subtotal + igvAmount,
         });
       });
 
@@ -420,6 +414,7 @@ export default function InvoiceForm({
               parts={parts}
               advances={advances}
               currencySymbol={currencySymbol}
+              porcentaje_de_igv={porcentaje_de_igv}
             />
 
             {/* Información del Documento */}
@@ -429,7 +424,7 @@ export default function InvoiceForm({
               documentTypes={documentTypes}
               currencyTypes={currencyTypes}
               authorizedSeries={authorizedSeries}
-              defaultCustomer={defaultCustomer}
+              defaultCustomer={defaultCustomer!}
               isAdvancePayment={isAdvancePayment}
             />
 
@@ -441,6 +436,7 @@ export default function InvoiceForm({
               porcentaje_de_igv={porcentaje_de_igv}
               isAdvancePayment={isAdvancePayment}
               isFromQuotation={true}
+              showActions={false}
             />
 
             {/* Configuración Adicional */}
@@ -460,7 +456,7 @@ export default function InvoiceForm({
             selectedGroupNumber={selectedGroupNumber}
             documentTypes={documentTypes}
             authorizedSeries={authorizedSeries}
-            defaultCustomer={defaultCustomer}
+            defaultCustomer={defaultCustomer!}
             currencySymbol={currencySymbol}
             totales={totales}
             porcentaje_de_igv={porcentaje_de_igv}

@@ -247,6 +247,31 @@ export const assignedWorkColumns = ({
               </DropdownMenuContent>
             </DropdownMenu>
           )}
+          {/* <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="icon" className="size-7">
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => onStart?.(planning)}>
+                <PlayCircle className="h-4 w-4 mr-2 text-green-600" />
+                Iniciar
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onContinue?.(planning)}>
+                <PlayCircle className="h-4 w-4 mr-2 text-primary" />
+                Continuar
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onPause?.(planning)}>
+                <PauseCircle className="h-4 w-4 mr-2 text-yellow-600" />
+                Pausar
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onComplete?.(planning)}>
+                <CheckCircle className="h-4 w-4 mr-2 text-primary" />
+                Completar
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu> */}
         </div>
       );
     },

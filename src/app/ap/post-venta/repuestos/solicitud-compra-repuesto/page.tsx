@@ -62,8 +62,10 @@ export default function PurchaseRequestRepuestoPage() {
     useMyPhysicalWarehouse();
 
   useEffect(() => {
-    setPage(1);
-  }, [search, per_page]);
+    if (!isLoadingWarehouses && warehouses.length > 0 && !warehouseId) {
+      setWarehouseId(warehouses[0].id.toString());
+    }
+  }, [isLoadingWarehouses, warehouses, warehouseId]);
 
   useEffect(() => {
     if (dateFrom && dateTo && dateFrom > dateTo) {

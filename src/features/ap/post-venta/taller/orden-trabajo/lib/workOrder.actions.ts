@@ -123,3 +123,14 @@ export async function unlinkQuotation(id: number): Promise<WorkOrderResource> {
   );
   return response.data;
 }
+
+export async function updateInvoiceTo(
+  id: number,
+  invoiceToId: number | null
+): Promise<WorkOrderResource> {
+  const response = await api.patch<WorkOrderResource>(
+    `${ENDPOINT}/${id}/invoice-to`,
+    { invoice_to: invoiceToId }
+  );
+  return response.data;
+}
