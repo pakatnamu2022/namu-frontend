@@ -22,8 +22,8 @@ export default function ShipmentsReceptionsTable({
         data={data}
         isLoading={isLoading}
         initialColumnVisibility={{
-          document_type: true,
-          issue_date: true,
+          document_type: false,
+          issue_date: false,
           transfer_reason_description: true,
           document_series: false,
           document_number: true,
@@ -39,7 +39,9 @@ export default function ShipmentsReceptionsTable({
           notes: false,
           note_received: false,
           cancellation_reason: false,
-          status: true,
+          status: false,
+          file_url: false,
+          created_at: false,
         }}
       >
         {children}

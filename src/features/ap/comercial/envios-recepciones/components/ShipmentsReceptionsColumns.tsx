@@ -106,7 +106,7 @@ const ImagePreview = ({ fileUrl }: { fileUrl: string }) => {
   );
 };
 
-export const shipmentsReceptionsColumns = ({
+export const ShipmentsReceptionsColumns = ({
   onDelete,
   onSendToNubefact,
   onQueryFromNubefact,
@@ -116,6 +116,24 @@ export const shipmentsReceptionsColumns = ({
   permissions,
 }: Props): ShipmentsReceptionsColumns[] => [
   {
+    accessorKey: "document_number",
+    header: "Número Doc.",
+    cell: ({ row }) => {
+      const number = row.getValue("document_number") as string;
+      const type = row.getValue("document_type") as string;
+      return (
+        <div className="flex flex-col items-start w-fit">
+          <span className="font-mono text-sm font-semibold">
+            <span> {number}</span>
+          </span>
+          <span className="text-xs">
+            {type === "GUIA_REMISION" ? "Guía Remisión" : "Guía Traslado"}
+          </span>
+        </div>
+      );
+    },
+  },
+  {
     accessorKey: "document_type",
     header: "Tipo Doc.",
     cell: ({ row }) => {
@@ -124,6 +142,30 @@ export const shipmentsReceptionsColumns = ({
         <Badge color={type === "GUIA_REMISION" ? "default" : "secondary"}>
           {type === "GUIA_REMISION" ? "Guía Remisión" : "Guía Traslado"}
         </Badge>
+      );
+    },
+  },
+  {
+    accessorKey: "dates",
+    header: "Fechas",
+    cell: ({ row }) => {
+      const createdAt = row.getValue("created_at") as string;
+      const issueDate = row.getValue("issue_date") as string;
+      return (
+        <div className="flex flex-col gap-1 text-xs">
+          <div>
+            <span className="font-semibold">Emisión: </span>
+            {createdAt
+              ? format(new Date(createdAt), "dd/MM/yyyy", { locale: es })
+              : "-"}
+          </div>
+          <div>
+            <span className="font-semibold">Traslado: </span>
+            {issueDate
+              ? format(new Date(issueDate), "dd/MM/yyyy", { locale: es })
+              : "-"}
+          </div>
+        </div>
       );
     },
   },
@@ -149,7 +191,7 @@ export const shipmentsReceptionsColumns = ({
     cell: ({ row }) => {
       const reason = row.getValue("transfer_reason_description") as string;
       return (
-        <span className="block max-w-[200px] truncate" title={reason}>
+        <span className="text-sm" title={reason}>
           {reason}
         </span>
       );
@@ -158,10 +200,6 @@ export const shipmentsReceptionsColumns = ({
   {
     accessorKey: "document_series",
     header: "Serie",
-  },
-  {
-    accessorKey: "document_number",
-    header: "Número Doc.",
   },
   {
     accessorKey: "issuer_type",

@@ -109,10 +109,7 @@ export function SheetShipmentDetailsDialog({
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <p className="text-xs text-muted-foreground">Tipo de Documento</p>
-            <Badge
-              variant="outline"
-              className={`${docType?.className} w-fit`}
-            >
+            <Badge variant="outline" className={`${docType?.className} w-fit`}>
               {docType?.label || shipment.document_type}
             </Badge>
           </div>
@@ -224,11 +221,14 @@ export function SheetShipmentDetailsDialog({
                 </p>
                 <p className="text-sm font-medium">
                   {shipment.issue_date
-                    ? new Date(shipment.issue_date).toLocaleDateString("es-PE", {
-                        day: "2-digit",
-                        month: "long",
-                        year: "numeric",
-                      })
+                    ? new Date(shipment.issue_date).toLocaleDateString(
+                        "es-PE",
+                        {
+                          day: "2-digit",
+                          month: "long",
+                          year: "numeric",
+                        },
+                      )
                     : "-"}
                 </p>
               </div>
@@ -309,9 +309,7 @@ export function SheetShipmentDetailsDialog({
               <p className="text-xs font-semibold text-secondary uppercase tracking-wide mb-2">
                 Destino
               </p>
-              <p className="text-sm font-semibold">
-                {shipment.receiver_name}
-              </p>
+              <p className="text-sm font-semibold">{shipment.receiver_name}</p>
               {shipment.receiver_establishment?.description && (
                 <p className="text-xs text-secondary mt-1">
                   {shipment.receiver_establishment.description}
@@ -336,12 +334,8 @@ export function SheetShipmentDetailsDialog({
           </div>
           <div className="grid grid-cols-2 gap-4 bg-muted/30 p-4 rounded-lg">
             <div>
-              <p className="text-xs text-muted-foreground">
-                Total de Paquetes
-              </p>
-              <p className="text-sm font-semibold">
-                {shipment.total_packages}
-              </p>
+              <p className="text-xs text-muted-foreground">Total de Paquetes</p>
+              <p className="text-sm font-semibold">{shipment.total_packages}</p>
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Peso Total</p>
@@ -351,6 +345,49 @@ export function SheetShipmentDetailsDialog({
             </div>
           </div>
         </div>
+
+        {/* Detalle de la Guía - Items */}
+        {shipment.items && shipment.items.length > 0 && (
+          <>
+            <Separator />
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <Package className="h-4 w-4 text-primary" />
+                <h3 className="font-semibold">
+                  Detalle de la Guía ({shipment.items.length})
+                </h3>
+              </div>
+              <div className="rounded-md border">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-muted/50">
+                      <TableHead>Código</TableHead>
+                      <TableHead className="text-right">Descripción</TableHead>
+                      <TableHead className="text-right">Unidad</TableHead>
+                      <TableHead className="text-right">Cantidad</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {shipment.items.map((item) => (
+                      <TableRow key={item.codigo}>
+                        <TableCell className="text-sm">{item.codigo}</TableCell>
+                        <TableCell className="text-right text-sm font-medium">
+                          {item.descripcion}
+                        </TableCell>
+                        <TableCell className="text-right text-sm">
+                          {item.unidad}
+                        </TableCell>
+                        <TableCell className="text-right text-sm font-semibold">
+                          {item.cantidad}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+          </>
+        )}
 
         {/* Checklist de Recepción */}
         {receptionData && receptionData.data.length > 0 && (

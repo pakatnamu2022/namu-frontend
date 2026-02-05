@@ -25,7 +25,7 @@ import {
   useCancelShippingGuide,
 } from "@/features/ap/comercial/envios-recepciones/lib/shipmentsReceptions.hook";
 import ShipmentsReceptionsTable from "@/features/ap/comercial/envios-recepciones/components/ShipmentsReceptionsTable";
-import { shipmentsReceptionsColumns } from "@/features/ap/comercial/envios-recepciones/components/ShipmentsReceptionsColumns";
+import { ShipmentsReceptionsColumns } from "@/features/ap/comercial/envios-recepciones/components/ShipmentsReceptionsColumns";
 import ShipmentsReceptionsActions from "@/features/ap/comercial/envios-recepciones/components/ShipmentsReceptionsActions";
 import ShipmentsReceptionsOptions from "@/features/ap/comercial/envios-recepciones/components/ShipmentsReceptionsOptions";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
@@ -42,13 +42,11 @@ export default function ShipmentsReceptionsPage() {
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
-  const [dateFrom, setDateFrom] = useState<Date | undefined>(
-    new Date(new Date().getFullYear(), new Date().getMonth(), 1),
-  );
-  const [dateTo, setDateTo] = useState<Date | undefined>(new Date());
+  const [dateFrom, setDateFrom] = useState<Date | undefined>(undefined);
+  const [dateTo, setDateTo] = useState<Date | undefined>(undefined);
 
-  const formattedDateFrom = dateFrom ? format(dateFrom, "yyyy-MM-dd") : "";
-  const formattedDateTo = dateTo ? format(dateTo, "yyyy-MM-dd") : "";
+  const formattedDateFrom = dateFrom ? format(dateFrom, "yyyy-MM-dd") : undefined;
+  const formattedDateTo = dateTo ? format(dateTo, "yyyy-MM-dd") : undefined;
 
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [sendToNubefactId, setSendToNubefactId] = useState<number | null>(null);
@@ -153,7 +151,7 @@ export default function ShipmentsReceptionsPage() {
 
       <ShipmentsReceptionsTable
         isLoading={isLoading}
-        columns={shipmentsReceptionsColumns({
+        columns={ShipmentsReceptionsColumns({
           onDelete: setDeleteId,
           onSendToNubefact: setSendToNubefactId,
           onQueryFromNubefact: handleQueryFromNubefact,
