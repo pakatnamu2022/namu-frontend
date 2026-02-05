@@ -29,8 +29,9 @@ export const startSessionSchema = z.object({
 export const pauseWorkSchema = z.object({
   pause_reason: z
     .string()
-    .max(255, "La razón de pausa no puede exceder 255 caracteres")
-    .optional(),
+    .trim()
+    .min(1, "La razón de pausa es requerida")
+    .max(255, "La razón de pausa no puede exceder 255 caracteres"),
 });
 
 export const exceptionalCaseSchema = z.object({

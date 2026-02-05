@@ -8,6 +8,7 @@ import { WorkOrderLabourResource } from "../../orden-trabajo-labor/lib/workOrder
 import { WorkOrderPartsResource } from "../../orden-trabajo-repuesto/lib/workOrderParts.interface";
 import { ApMastersResource } from "@/features/ap/ap-master/lib/apMasters.interface";
 import { CurrencyTypesResource } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.interface";
+import { CustomersResource } from "@/features/ap/comercial/clientes/lib/customers.interface";
 
 export interface WorkOrderResponse {
   data: WorkOrderResource[];
@@ -52,6 +53,8 @@ export interface WorkOrderResource {
   parts: WorkOrderPartsResource[];
   advances: ElectronicDocumentResource[];
   status: ApMastersResource;
+  invoice_to: number | null;
+  invoice_to_client: CustomersResource | null;
 }
 
 export interface WorkOrderRequest {

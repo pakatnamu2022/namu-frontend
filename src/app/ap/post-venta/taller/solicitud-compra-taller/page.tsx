@@ -48,10 +48,6 @@ export default function PurchaseRequestPVPage() {
   );
 
   useEffect(() => {
-    setPage(1);
-  }, [search, per_page]);
-
-  useEffect(() => {
     if (dateFrom && dateTo && dateFrom > dateTo) {
       errorToast("La fecha 'Desde' no puede ser mayor que la fecha 'Hasta'.");
     }
@@ -74,6 +70,12 @@ export default function PurchaseRequestPVPage() {
         ? [formatDate(dateFrom), formatDate(dateTo)]
         : undefined,
   });
+
+  useEffect(() => {
+    if (!isLoadingWarehouses && warehouses.length > 0 && !warehouseId) {
+      setWarehouseId(warehouses[0].id.toString());
+    }
+  }, [isLoadingWarehouses, warehouses, warehouseId]);
 
   const handleDelete = async () => {
     if (!deleteId) return;

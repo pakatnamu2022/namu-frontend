@@ -108,7 +108,7 @@ import DashboardLayout from "./features/dashboard/components/DashboardLayout";
 import MainLayout from "./features/dashboard/components/MainLayout";
 import APComercialLayout from "./app/ap/comercial/layout";
 import APConfiguracionesLayout from "./app/ap/configuraciones/layout";
-import APPostVentaLayout from "./app/ap/post-venta/layout";
+import APPostVentaLayout from "./app/ap/post-venta/layout.tsx";
 import GPGestionSistemaLayout from "./app/gp/gestion-del-sistema/layout";
 import GPGestionHumanaLayout from "./app/gp/gestion-humana/layout";
 import GPMaestroGeneralLayout from "./app/gp/maestro-general/layout";
@@ -218,6 +218,7 @@ import ApGoalSellOutInPage from "./app/ap/configuraciones/ventas/metas-venta/pag
 import AddApGoalSellOutInPage from "./app/ap/configuraciones/ventas/metas-venta/gestionar/page.tsx";
 import ApGoalSellOutInSummaryPage from "./app/ap/configuraciones/ventas/metas-venta/resumen/page.tsx";
 import ShopPage from "./app/ap/configuraciones/ventas/tiendas/page.tsx";
+import WarehouseManagementPage from "@/app/ap/post-venta/gestion-de-almacen/page.tsx";
 import ProductCategoryPage from "@/app/ap/post-venta/gestion-de-almacen/categorias-producto/page.tsx";
 import BrandsPVPage from "./app/ap/post-venta/gestion-de-almacen/marcas-producto/page.tsx";
 import AddBrandsPVPage from "@/app/ap/post-venta/gestion-de-almacen/marcas-producto/agregar/page.tsx";
@@ -249,6 +250,7 @@ import InvoiceSupplierOrderPage from "@/app/ap/post-venta/gestion-de-almacen/ped
 import WarehousePurchaseRequestPage from "./app/ap/post-venta/gestion-de-almacen/solicitud-compra-almacen/page.tsx";
 import AddWarehousePurchaseRequestPage from "@/app/ap/post-venta/gestion-de-almacen/solicitud-compra-almacen/agregar/page.tsx";
 import UpdateWarehousePurchaseRequestPage from "@/app/ap/post-venta/gestion-de-almacen/solicitud-compra-almacen/actualizar/[id]/page.tsx";
+import SparePartsPage from "./app/ap/post-venta/repuestos/page.tsx";
 import ApprovedAccesoriesPage from "./app/ap/post-venta/repuestos/accesorios-homologados/page.tsx";
 import AddApprovedAccesoriesPage from "./app/ap/post-venta/repuestos/accesorios-homologados/agregar/page.tsx";
 import UpdateApprovedAccesoriesPage from "./app/ap/post-venta/repuestos/accesorios-homologados/actualizar/[id]/page.tsx";
@@ -274,6 +276,7 @@ import UpdateCustomersRpPage from "./app/ap/post-venta/repuestos/clientes-repues
 import CustomerRpEstablishmentsListPage from "./app/ap/post-venta/repuestos/clientes-repuestos/establecimientos/[id]/page.tsx";
 import AddCustomerRpEstablishmentPage from "./app/ap/post-venta/repuestos/clientes-repuestos/establecimientos/[id]/agregar/page.tsx";
 import UpdateCustomerRpEstablishmentPage from "./app/ap/post-venta/repuestos/clientes-repuestos/establecimientos/[id]/actualizar/[establishmentId]/page.tsx";
+import WorkshopPage from "./app/ap/post-venta/taller/page.tsx";
 import CardWashPage from "./app/ap/post-venta/taller/lavado-vehiculo/page.tsx";
 import AppointmentPlanningPage from "./app/ap/post-venta/taller/citas/page.tsx";
 import AddAppointmentPlanningPage from "./app/ap/post-venta/taller/citas/agregar/page.tsx";
@@ -1140,6 +1143,8 @@ function App() {
             >
               {/* Dashboard Principal */}
               <Route index element={<ModulePage />} />
+              {/* Gestión de Almacén */}
+              <Route path="gestion-de-almacen" element={<WarehouseManagementPage />} />
               {/* Gestión de Productos */}
               <Route
                 path="gestion-de-almacen/categorias-producto"
@@ -1267,6 +1272,7 @@ function App() {
                 element={<UpdateWarehousePurchaseRequestPage />}
               />
               {/* Repuestos */}
+              <Route path="repuestos" element={<SparePartsPage />} />
               <Route
                 path="repuestos/accesorios-homologados"
                 element={<ApprovedAccesoriesPage />}
@@ -1380,6 +1386,7 @@ function App() {
                 element={<UpdateModelsVnRepuestosPage />}
               />
               {/* Taller */}
+              <Route path="taller" element={<WorkshopPage />} />
               <Route path="taller/lavado-vehiculo" element={<CardWashPage />} />
               <Route path="taller/modelos-vn-pv" element={<ModelsVnPvPage />} />
               <Route
