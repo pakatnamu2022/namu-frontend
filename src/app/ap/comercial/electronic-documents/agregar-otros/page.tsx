@@ -22,6 +22,7 @@ import FormSkeleton from "@/shared/components/FormSkeleton";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { useMemo } from "react";
 import PageWrapper from "@/shared/components/PageWrapper";
+import { AREA_COMERCIAL, AREAS_ID } from "@/core/core.constants";
 
 export default function AddGeneralElectronicDocumentPage() {
   const { ROUTE, MODEL, ABSOLUTE_ROUTE } = ELECTRONIC_DOCUMENT;
@@ -119,7 +120,7 @@ export default function AddGeneralElectronicDocumentPage() {
       numero: "",
       sunat_concept_document_type_id: "",
       sunat_concept_transaction_type_id: "",
-      origin_module: "comercial",
+      area_id: AREA_COMERCIAL.toString(),
       client_id: "",
       fecha_de_emision: new Date().toISOString().split("T")[0],
       total: 0,

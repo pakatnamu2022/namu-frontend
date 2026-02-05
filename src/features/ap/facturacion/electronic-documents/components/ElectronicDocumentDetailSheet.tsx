@@ -31,6 +31,7 @@ import { queryElectronicDocumentStatus } from "../lib/electronicDocument.actions
 import { successToast, errorToast } from "@/core/core.function";
 import { Link } from "react-router-dom";
 import GeneralSheet from "@/shared/components/GeneralSheet";
+import { AREA_COMERCIAL } from "@/core/core.constants";
 
 interface ElectronicDocumentDetailSheetProps {
   document: ElectronicDocumentResource | null;
@@ -306,7 +307,7 @@ export function ElectronicDocumentDetailSheet({
                   Módulo de Origen
                 </p>
                 <Badge variant="outline">
-                  {document.origin_module === "comercial"
+                  {document.area_id === AREA_COMERCIAL
                     ? "Comercial"
                     : "Posventa"}
                 </Badge>

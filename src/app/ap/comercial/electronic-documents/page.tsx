@@ -7,7 +7,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import TitleComponent from "@/shared/components/TitleComponent";
 import DataTablePagination from "@/shared/components/DataTablePagination";
 import { errorToast, successToast } from "@/core/core.function";
-import { DEFAULT_PER_PAGE, MODULE_COMERCIAL } from "@/core/core.constants";
+import { AREA_COMERCIAL, DEFAULT_PER_PAGE } from "@/core/core.constants";
 import {
   sendElectronicDocumentToSunat,
   cancelElectronicDocument,
@@ -51,7 +51,7 @@ export default function ElectronicDocumentsPage() {
     per_page,
     search,
     status: statusFilter,
-    origin_module: MODULE_COMERCIAL,
+    area_id: AREA_COMERCIAL,
     sunat_concept_document_type_id: documentTypeFilter
       ? parseInt(documentTypeFilter)
       : undefined,

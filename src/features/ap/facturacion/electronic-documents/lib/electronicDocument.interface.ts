@@ -5,6 +5,7 @@ import {
   VehicleResource,
 } from "../../../comercial/vehiculos/lib/vehicles.interface";
 import { ApBankResource } from "@/features/ap/configuraciones/maestros-general/chequeras/lib/apBank.interface";
+import { AreaType } from "@/core/core.constants";
 
 export interface ElectronicDocumentResponse {
   data: ElectronicDocumentResource[];
@@ -21,7 +22,7 @@ export interface ElectronicDocumentResource {
   full_number: string;
   sunat_concept_transaction_type_id: number;
   is_advance_payment: boolean;
-  origin_module: "comercial" | "posventa";
+  area_id: AreaType;
   origin_entity_type?: string;
   origin_entity_id: number;
   ap_vehicle_movement_id?: number;
