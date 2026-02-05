@@ -65,6 +65,7 @@ interface FormSelectAsyncProps {
   defaultOption?: Option; // Opción inicial para mostrar cuando se edita
   additionalParams?: Record<string, any>; // Parámetros adicionales para el hook
   onValueChange?: (value: string, item?: any) => void; // Callback cuando cambia el valor
+  allowClear?: boolean;
 }
 
 export function FormSelectAsync({
@@ -88,6 +89,7 @@ export function FormSelectAsync({
   defaultOption,
   additionalParams = {},
   onValueChange,
+  allowClear = true,
 }: FormSelectAsyncProps) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -159,7 +161,10 @@ export function FormSelectAsync({
 
       if (page === 1) {
         // Preservar defaultOption si no está en los resultados nuevos
-        if (defaultOption && !newOptions.some((opt) => opt.value === defaultOption.value)) {
+        if (
+          defaultOption &&
+          !newOptions.some((opt) => opt.value === defaultOption.value)
+        ) {
           setAllOptions([defaultOption, ...newOptions]);
         } else {
           setAllOptions(newOptions);
@@ -327,7 +332,7 @@ export function FormSelectAsync({
                               className="cursor-pointer"
                               onSelect={() => {
                                 const newValue =
-                                  option.value === field.value
+                                  option.value === field.value && allowClear
                                     ? ""
                                     : option.value;
                                 field.onChange(newValue);

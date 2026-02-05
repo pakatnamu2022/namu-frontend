@@ -333,6 +333,30 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
                     </span>
                   </div>
                 </div>
+
+                {/* Subtotal, Descuento, IGV */}
+                <div className="text-sm">
+                  <div className="flex justify-between px-4 py-1.5">
+                    <span className="text-gray-600">Subtotal</span>
+                    <span className="font-medium">
+                      S/ {paymentSummary.payment_summary.subtotal.toFixed(2)}
+                    </span>
+                  </div>
+                  {paymentSummary.payment_summary.discount_amount > 0 && (
+                    <div className="flex justify-between px-4 py-1.5">
+                      <span className="text-green-700">Descuento</span>
+                      <span className="font-medium text-green-700">
+                        - S/ {paymentSummary.payment_summary.discount_amount.toFixed(2)}
+                      </span>
+                    </div>
+                  )}
+                  <div className="flex justify-between px-4 py-1.5">
+                    <span className="text-gray-600">IGV (18%)</span>
+                    <span className="font-medium">
+                      S/ {paymentSummary.payment_summary.tax_amount.toFixed(2)}
+                    </span>
+                  </div>
+                </div>
               </div>
             </Card>
           )}

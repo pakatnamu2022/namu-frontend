@@ -11,6 +11,7 @@ interface WorkOrderFinancialInfoProps {
   parts: WorkOrderPartsResource[];
   advances: ElectronicDocumentResource[];
   currencySymbol: string;
+  porcentaje_de_igv: number;
 }
 
 export function WorkOrderFinancialInfo({
@@ -18,8 +19,9 @@ export function WorkOrderFinancialInfo({
   parts,
   advances,
   currencySymbol,
+  porcentaje_de_igv,
 }: WorkOrderFinancialInfoProps) {
-  // Calcular total de la orden de trabajo desde labours y parts
+  // Calcular subtotal de la orden de trabajo desde labours y parts (sin IGV)
   const laboursTotal = labours.reduce(
     (sum, labour) => sum + (parseFloat(labour.total_cost || "0")),
     0,
@@ -30,7 +32,9 @@ export function WorkOrderFinancialInfo({
     0,
   );
 
-  const workOrderTotal = laboursTotal + partsTotal;
+  const subtotal = laboursTotal + partsTotal;
+  const igvAmount = subtotal * (porcentaje_de_igv / 100);
+  const workOrderTotal = subtotal + igvAmount;
 
   // Calcular total de TODOS los pagos previos
   const totalAdvances = advances.reduce((sum, advance) => {

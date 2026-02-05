@@ -314,6 +314,7 @@ export default function OpeningTab({ workOrderId }: OpeningTabProps) {
               onValueChange={(value) => {
                 invoiceToMutation.mutate(value ? Number(value) : null);
               }}
+              allowClear={false}
             />
           </FormProvider>
 

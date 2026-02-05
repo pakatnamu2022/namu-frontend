@@ -216,10 +216,10 @@ export default function InvoiceForm({
       const invoiceItems: ElectronicDocumentItemSchema[] = [];
 
       // Agregar items de mano de obra
+      // total_cost viene sin IGV del backend (es el subtotal)
       labours.forEach((labour) => {
-        const totalCost = parseFloat(labour.total_cost || "0");
-        const precio_unitario = totalCost;
-        const valor_unitario = precio_unitario / (1 + porcentaje_de_igv / 100);
+        const valor_unitario = parseFloat(labour.total_cost || "0");
+        const precio_unitario = valor_unitario * (1 + porcentaje_de_igv / 100);
         const subtotal = valor_unitario;
         const igvAmount = subtotal * (porcentaje_de_igv / 100);
 
@@ -234,17 +234,18 @@ export default function InvoiceForm({
           subtotal: subtotal,
           sunat_concept_igv_type_id: gravadaType?.id || 0,
           igv: igvAmount,
-          total: totalCost,
+          total: precio_unitario,
         });
       });
 
       // Agregar items de repuestos
+      // total_amount viene sin IGV del backend (es el subtotal)
       parts.forEach((part) => {
         const totalAmount = parseFloat(part.total_amount || "0");
         const cantidad = part.quantity_used;
-        const precio_unitario = totalAmount / cantidad;
-        const valor_unitario = precio_unitario / (1 + porcentaje_de_igv / 100);
-        const subtotal = valor_unitario * cantidad;
+        const valor_unitario = totalAmount / cantidad;
+        const precio_unitario = valor_unitario * (1 + porcentaje_de_igv / 100);
+        const subtotal = totalAmount;
         const igvAmount = subtotal * (porcentaje_de_igv / 100);
 
         invoiceItems.push({
@@ -258,7 +259,7 @@ export default function InvoiceForm({
           subtotal: subtotal,
           sunat_concept_igv_type_id: gravadaType?.id || 0,
           igv: igvAmount,
-          total: totalAmount,
+          total: subtotal + igvAmount,
         });
       });
 
@@ -413,6 +414,7 @@ export default function InvoiceForm({
               parts={parts}
               advances={advances}
               currencySymbol={currencySymbol}
+              porcentaje_de_igv={porcentaje_de_igv}
             />
 
             {/* Información del Documento */}
@@ -434,6 +436,7 @@ export default function InvoiceForm({
               porcentaje_de_igv={porcentaje_de_igv}
               isAdvancePayment={isAdvancePayment}
               isFromQuotation={true}
+              showActions={false}
             />
 
             {/* Configuración Adicional */}
