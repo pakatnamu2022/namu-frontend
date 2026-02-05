@@ -22,7 +22,7 @@ import FormSkeleton from "@/shared/components/FormSkeleton";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { useMemo } from "react";
 import PageWrapper from "@/shared/components/PageWrapper";
-import { AREA_COMERCIAL, AREAS_ID } from "@/core/core.constants";
+import { AREA_COMERCIAL } from "@/core/core.constants";
 
 export default function AddGeneralElectronicDocumentPage() {
   const { ROUTE, MODEL, ABSOLUTE_ROUTE } = ELECTRONIC_DOCUMENT;
