@@ -178,3 +178,26 @@ export const getSunday = (date: Date) => {
   sunday.setHours(23, 59, 59, 999);
   return sunday;
 };
+
+// Calcular el primer día del mes actual
+export const getFirstDayOfMonth = (date: Date) => {
+  const firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+  firstDay.setHours(0, 0, 0, 0);
+  return firstDay;
+};
+
+// Calcular el día actual (hasta el momento actual del mes)
+export const getCurrentDayOfMonth = (date: Date) => {
+  const currentDay = new Date(date);
+  currentDay.setHours(23, 59, 59, 999);
+  return currentDay;
+};
+
+// Obtener la fecha actual en formato local YYYY-MM-DD sin problemas de zona horaria
+export const getTodayLocalDateString = () => {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const day = String(today.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};

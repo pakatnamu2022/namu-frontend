@@ -69,7 +69,7 @@ export default function UpdateReceptionProductPage() {
   };
 
   function mapReceptionToForm(
-    data: ReceptionResource
+    data: ReceptionResource,
   ): Partial<ReceptionSchema> {
     return {
       purchase_order_id: String(data.purchase_order_id),

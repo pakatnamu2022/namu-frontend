@@ -39,6 +39,7 @@ import { useSuppliers } from "@/features/ap/comercial/proveedores/lib/suppliers.
 import { SuppliersResource } from "@/features/ap/comercial/proveedores/lib/suppliers.interface.ts";
 import { FormInput } from "@/shared/components/FormInput";
 import { FormInputText } from "@/shared/components/FormInputText";
+import { SupplierOrderDetailsResource } from "../../pedido-proveedor/lib/supplierOrder.interface";
 
 interface ReceptionsProductsFormProps {
   defaultValues: Partial<ReceptionSchema>;
@@ -46,14 +47,8 @@ interface ReceptionsProductsFormProps {
   isSubmitting?: boolean;
   mode?: "create" | "update";
   onCancel?: () => void;
-  purchaseOrderNumber?: string;
-  purchaseOrderItems?: Array<{
-    id: number;
-    product_id: number;
-    product_name?: string;
-    quantity: number;
-    unit_price: number;
-  }>;
+  supplierOrderNumber?: string;
+  supplierOrderItems?: SupplierOrderDetailsResource[];
 }
 
 export const ReceptionsProductsForm = ({
@@ -62,7 +57,7 @@ export const ReceptionsProductsForm = ({
   isSubmitting = false,
   mode = "create",
   onCancel,
-  purchaseOrderItems = [],
+  supplierOrderItems = [],
 }: ReceptionsProductsFormProps) => {
   const form = useForm({
     resolver: zodResolver(
@@ -91,10 +86,10 @@ export const ReceptionsProductsForm = ({
   useEffect(() => {
     if (
       mode === "create" &&
-      purchaseOrderItems.length > 0 &&
+      supplierOrderItems.length > 0 &&
       fields.length === 0
     ) {
-      const initialDetails = purchaseOrderItems.map((item) => ({
+      const initialDetails = supplierOrderItems.map((item) => ({
         purchase_order_item_id: String(item.id),
         product_id: item.product_id.toString(),
         quantity_received: item.quantity,
@@ -108,7 +103,7 @@ export const ReceptionsProductsForm = ({
 
       form.setValue("details", initialDetails);
     }
-  }, [mode, purchaseOrderItems, fields.length, form]);
+  }, [mode, supplierOrderItems, fields.length, form]);
 
   if (isLoadingWarehouses) {
     return <FormSkeleton />;
@@ -228,7 +223,7 @@ export const ReceptionsProductsForm = ({
                 // Determinar si es producto de la orden
                 const isOrderedProduct = detail?.purchase_order_item_id != null;
 
-                const productItem = purchaseOrderItems.find(
+                const productItem = supplierOrderItems.find(
                   (item) => item.product_id.toString() === detail?.product_id,
                 );
 
@@ -241,7 +236,8 @@ export const ReceptionsProductsForm = ({
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-2 flex-1 min-w-0">
                         <h4 className="font-semibold text-sm truncate text-slate-700">
-                          {productItem?.product_name || `Producto ${index + 1}`}
+                          {productItem?.product?.name ||
+                            `Producto ${index + 1}`}
                         </h4>
                         {isOrderedProduct && (
                           <Badge
@@ -287,7 +283,7 @@ export const ReceptionsProductsForm = ({
                             </FormLabel>
                             <div className="h-auto min-h-10 w-full rounded-md border border-input bg-muted/50 px-3 py-2 text-sm flex items-center">
                               <span className="font-medium text-sm truncate">
-                                {productItem?.product_name ||
+                                {productItem?.product?.name ||
                                   "Producto no disponible"}
                               </span>
                             </div>

@@ -217,12 +217,21 @@ export const SupplierOrderForm = ({
     const isValidDate =
       watchedOrderDate instanceof Date ||
       (typeof watchedOrderDate === "string" && watchedOrderDate.length > 0);
-    const dateToUse =
-      watchedOrderDate instanceof Date
-        ? watchedOrderDate
-        : watchedOrderDate
-          ? new Date(watchedOrderDate)
-          : null;
+
+    let dateToUse: Date | null = null;
+
+    if (watchedOrderDate instanceof Date) {
+      dateToUse = watchedOrderDate;
+    } else if (typeof watchedOrderDate === "string" && watchedOrderDate.length > 0) {
+      // Para evitar problemas de zona horaria, parseamos manualmente la fecha en formato YYYY-MM-DD
+      const parts = watchedOrderDate.split("-");
+      if (parts.length === 3) {
+        const year = parseInt(parts[0], 10);
+        const month = parseInt(parts[1], 10) - 1; // Los meses en JS empiezan en 0
+        const day = parseInt(parts[2], 10);
+        dateToUse = new Date(year, month, day);
+      }
+    }
 
     // Solo consultar si la moneda NO es soles (id 1) y si ambos valores existen
     if (

@@ -5,8 +5,8 @@ import { useEffect, useState } from "react";
 import {
   ERROR_MESSAGE,
   errorToast,
-  getMonday,
-  getSunday,
+  getCurrentDayOfMonth,
+  getFirstDayOfMonth,
   SUCCESS_MESSAGE,
   successToast,
 } from "@/core/core.function.ts";
@@ -50,10 +50,10 @@ export default function ProductTransferPage() {
   const currentDate = new Date();
 
   const [dateFrom, setDateFrom] = useState<Date | undefined>(
-    getMonday(currentDate),
+    getFirstDayOfMonth(currentDate),
   );
   const [dateTo, setDateTo] = useState<Date | undefined>(
-    getSunday(currentDate),
+    getCurrentDayOfMonth(currentDate),
   );
 
   // Obtener mis almacenes físicos de postventa

@@ -44,7 +44,7 @@ export interface ReceptionDetailResource {
 export interface ReceptionResource {
   id: number;
   reception_number?: string;
-  purchase_order_id: number;
+  ap_supplier_order_id: number;
   reception_date: string;
   warehouse_id: number;
   freight_cost: number;
@@ -56,6 +56,7 @@ export interface ReceptionResource {
   total_items?: number;
   total_quantity?: string;
   status?: string;
+  has_invoice?: boolean;
   purchase_order?: {
     id: number;
     number: string;
@@ -86,7 +87,7 @@ export interface ReceptionResource {
 export interface ReceptionListItem {
   id: number;
   reception_number?: string;
-  purchase_order_id: number;
+  ap_supplier_order_id: number;
   reception_date: string;
   warehouse_id: number;
   shipping_guide_number?: string;
@@ -125,7 +126,7 @@ export interface ReceptionDetailRequest {
 }
 
 export interface ReceptionRequest {
-  purchase_order_id: string;
+  ap_supplier_order_id: string;
   reception_date: string | Date;
   warehouse_id: string;
   shipping_guide_number?: string;

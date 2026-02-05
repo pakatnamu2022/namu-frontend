@@ -8,6 +8,7 @@ import {
   errorToast,
   SUCCESS_MESSAGE,
   successToast,
+  getTodayLocalDateString,
 } from "@/core/core.function.ts";
 import TitleFormComponent from "@/shared/components/TitleFormComponent.tsx";
 import FormWrapper from "@/shared/components/FormWrapper.tsx";
@@ -54,7 +55,7 @@ export default function AddSupplierOrderPage() {
           sede_id: "",
           warehouse_id: "",
           type_currency_id: CURRENCY_TYPE_IDS.DOLLARS,
-          order_date: new Date().toISOString().split("T")[0] || "",
+          order_date: getTodayLocalDateString(),
           supply_type: "LIMA",
           details: [],
         }}

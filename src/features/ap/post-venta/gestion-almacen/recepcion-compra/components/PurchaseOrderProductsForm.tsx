@@ -65,8 +65,10 @@ interface PurchaseOrderProductsFormProps {
   mode?: "create" | "update";
   onCancel?: () => void;
   PurchaseOrderProductsData?: PurchaseOrderProductsResource;
-  supplierOrderId: number;
+  supplierOrderId?: number;
   supplierOrderData?: SupplierOrderResource;
+  receptionId?: number;
+  receptionData?: any;
 }
 
 export const PurchaseOrderProductsForm = ({
@@ -78,6 +80,8 @@ export const PurchaseOrderProductsForm = ({
   PurchaseOrderProductsData,
   supplierOrderId,
   supplierOrderData,
+  receptionId,
+  receptionData,
 }: PurchaseOrderProductsFormProps) => {
   const form = useForm({
     resolver: zodResolver(
@@ -87,7 +91,7 @@ export const PurchaseOrderProductsForm = ({
     ),
     defaultValues: {
       ...defaultValues,
-      ap_supplier_order_id: String(supplierOrderId),
+      ...(supplierOrderId && { ap_supplier_order_id: String(supplierOrderId) }),
       items: defaultValues.items || [],
       status: defaultValues.status || "PENDING",
     },

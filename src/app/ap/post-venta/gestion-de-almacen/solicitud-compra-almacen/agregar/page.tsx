@@ -8,6 +8,7 @@ import {
   errorToast,
   SUCCESS_MESSAGE,
   successToast,
+  getTodayLocalDateString,
 } from "@/core/core.function";
 import FormWrapper from "@/shared/components/FormWrapper";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
@@ -51,7 +52,7 @@ export default function AddWarehousePurchaseRequestPage() {
       <PurchaseRequestForm
         defaultValues={{
           supply_type: "LIMA",
-          requested_date: new Date().toISOString().split("T")[0] || "",
+          requested_date: getTodayLocalDateString(),
           observations: "",
         }}
         onSubmit={handleSubmit}
