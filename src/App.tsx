@@ -375,6 +375,7 @@ import UpdatePayrollPeriodPage from "./app/gp/gestion-humana/planillas/periodos/
 import WorkTypePage from "./app/gp/gestion-humana/planillas/tipo-dia-trabajo/page.tsx";
 import AddWorkTypePage from "./app/gp/gestion-humana/planillas/tipo-dia-trabajo/agregar/page.tsx";
 import UpdateWorkTypePage from "./app/gp/gestion-humana/planillas/tipo-dia-trabajo/actualizar/[id]/page.tsx";
+import ManageSegmentsPage from "./app/gp/gestion-humana/planillas/tipo-dia-trabajo/segmentos/[id]/page.tsx";
 import WorkSchedulesPage from "./app/gp/gestion-humana/planillas/dia-trabajo/page.tsx";
 import ProfileLayout from "./features/dashboard/components/ProfileLayout.tsx";
 import ControlGoalPage from "./app/tp/comercial-tp/control-metas/page.tsx";
@@ -1799,6 +1800,10 @@ function App() {
                 <AddWorkTypePage />,
                 <UpdateWorkTypePage />,
               )}
+              <Route
+                path="planillas/tipo-dia-trabajo/segmentos/:id"
+                element={<ManageSegmentsPage />}
+              />
             </Route>
 
             {/* ======================================================== */}

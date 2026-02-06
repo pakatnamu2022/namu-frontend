@@ -158,36 +158,26 @@ export const TimelineSegmentEditor = ({
   };
 
   const handleSaveSegment = (segment: WorkTypeSegmentSchema) => {
-    console.log("handleSaveSegment called with:", segment);
-    console.log("editingSegment:", editingSegment);
-    console.log("current segments:", segments);
-
     // Check if the segment exists in the array
     const segmentExists = segments.some(
       (s) => (s.id || s.tempId) === (editingSegment?.id || editingSegment?.tempId)
     );
 
-    console.log("segmentExists:", segmentExists);
-
     if (segmentExists) {
       // Update existing segment
-      console.log("Updating existing segment");
       const newSegments = segments.map((s) =>
         (s.id || s.tempId) === (editingSegment?.id || editingSegment?.tempId)
           ? { ...segment, id: s.id, tempId: s.tempId }
           : s
       );
-      console.log("New segments after update:", newSegments);
       onChange(newSegments);
     } else {
       // Add new segment
-      console.log("Adding new segment");
       const newSegmentWithId = {
         ...segment,
         id: editingSegment?.id,
         tempId: editingSegment?.tempId || `temp-${Date.now()}`,
       };
-      console.log("New segment with ID:", newSegmentWithId);
       onChange([...segments, newSegmentWithId]);
     }
     setEditingSegment(null);

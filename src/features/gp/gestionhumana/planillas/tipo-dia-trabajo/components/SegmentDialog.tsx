@@ -81,7 +81,6 @@ export const SegmentDialog = ({
       duration_hours: duration > 0 ? duration : duration + 24,
     };
 
-    console.log("Saving segment:", segmentData);
     onSave(segmentData);
     onOpenChange(false);
   };

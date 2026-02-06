@@ -25,15 +25,11 @@ import {
   WorkTypeSchema,
   workTypeSchemaCreate,
   workTypeSchemaUpdate,
-  WorkTypeSegmentSchema,
 } from "../lib/work-type.schema";
 import { Loader } from "lucide-react";
 import { Link } from "react-router-dom";
 import { WORK_TYPE } from "../lib/work-type.constant";
 import { Textarea } from "@/components/ui/textarea";
-import { TimelineSegmentEditor } from "./TimelineSegmentEditor";
-import { ShiftType } from "../lib/work-type.interface";
-import { useEffect } from "react";
 
 interface WorkTypeFormProps {
   defaultValues: Partial<WorkTypeSchema>;
@@ -67,25 +63,9 @@ export const WorkTypeForm = ({
       active: defaultValues.active ?? true,
       order: defaultValues.order ?? 0,
       shift_type: defaultValues.shift_type ?? "MORNING",
-      segments: defaultValues.segments ?? [],
     },
     mode: "onChange",
   });
-
-  const shiftType = form.watch("shift_type") as ShiftType;
-  const segments = form.watch("segments") as WorkTypeSegmentSchema[];
-
-  // Reset segments when shift type changes
-  useEffect(() => {
-    if (shiftType) {
-      form.setValue("segments", []);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [shiftType]);
-
-  const handleSegmentsChange = (newSegments: WorkTypeSegmentSchema[]) => {
-    form.setValue("segments", newSegments, { shouldValidate: true });
-  };
 
   return (
     <Form {...form}>
@@ -220,17 +200,6 @@ export const WorkTypeForm = ({
             )}
           />
         </div>
-
-        {/* Timeline Segment Editor */}
-        {shiftType && (
-          <div className="pt-6">
-            <TimelineSegmentEditor
-              shiftType={shiftType}
-              segments={segments}
-              onChange={handleSegmentsChange}
-            />
-          </div>
-        )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 gap-y-6 pt-4">
           <FormField

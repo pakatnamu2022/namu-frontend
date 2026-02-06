@@ -68,34 +68,31 @@ export async function getWorkTypeSegments(
 }
 
 export async function storeWorkTypeSegment(
-  workTypeId: number,
   segmentData: any
 ): Promise<any> {
   const response = await api.post(
-    `${ENDPOINT}/${workTypeId}/segments`,
+    `${ENDPOINT}/segments`,
     segmentData
   );
   return response.data;
 }
 
 export async function updateWorkTypeSegment(
-  workTypeId: number,
   segmentId: number,
   segmentData: any
 ): Promise<any> {
   const response = await api.put(
-    `${ENDPOINT}/${workTypeId}/segments/${segmentId}`,
+    `${ENDPOINT}/segments/${segmentId}`,
     segmentData
   );
   return response.data;
 }
 
 export async function deleteWorkTypeSegment(
-  workTypeId: number,
   segmentId: number
 ): Promise<GeneralResponse> {
   const { data } = await api.delete<GeneralResponse>(
-    `${ENDPOINT}/${workTypeId}/segments/${segmentId}`
+    `${ENDPOINT}/segments/${segmentId}`
   );
   return data;
 }
