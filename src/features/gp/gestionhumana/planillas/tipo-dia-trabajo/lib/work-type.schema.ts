@@ -11,7 +11,7 @@ export const workTypeSegmentSchema = z.object({
     .number()
     .min(0)
     .max(24, "La duración no puede exceder 24 horas"),
-  multiplier: z
+  multiplier: z.coerce
     .number()
     .min(0, "El multiplicador debe ser mayor o igual a 0")
     .max(10, "El multiplicador no puede exceder 10"),

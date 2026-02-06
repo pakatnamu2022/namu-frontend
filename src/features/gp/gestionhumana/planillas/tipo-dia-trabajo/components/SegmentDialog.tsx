@@ -67,7 +67,7 @@ export const SegmentDialog = ({
   };
 
   const form = useForm<WorkTypeSegmentSchema>({
-    resolver: zodResolver(workTypeSegmentSchema),
+    resolver: zodResolver(workTypeSegmentSchema) as any,
     defaultValues: getDefaultValues(),
     mode: "onChange",
   });

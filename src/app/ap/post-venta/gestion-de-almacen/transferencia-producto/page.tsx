@@ -30,7 +30,7 @@ import {
   useSendShippingGuideToNubefact,
   useQueryShippingGuideFromNubefact,
 } from "@/features/ap/post-venta/gestion-almacen/transferencia-producto/lib/productTransfer.hook.ts";
-import { ProductTransferViewSheet } from "@/features/ap/post-venta/gestion-almacen/recepcion-transferencia/components/ProductTransferViewSheet.tsx";
+import { ProductTransferViewSheet } from "@/features/ap/post-venta/gestion-almacen/transferencia-producto/components/ProductTransferViewSheet";
 import { useMyPhysicalWarehouse } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
 
 export default function ProductTransferPage() {
@@ -41,7 +41,7 @@ export default function ProductTransferPage() {
   const [warehouseId, setWarehouseId] = useState<string>("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [sendToNubefactId, setSendToNubefactId] = useState<number | null>(null);
-  const [viewId, setViewId] = useState<number | null>(null);
+  const [viewId, setViewId] = useState<number>(0);
   const [isViewSheetOpen, setIsViewSheetOpen] = useState(false);
   const { MODEL, ROUTE, ROUTE_UPDATE } = PRODUCT_TRANSFER;
   const permissions = useModulePermissions(ROUTE);
