@@ -26,6 +26,7 @@ import InvoiceForm from "../InvoiceForm";
 import { errorToast, successToast } from "@/core/core.function";
 import { SUNAT_CONCEPTS_TYPE } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
 import { WORKER_ORDER } from "../../lib/workOrder.constants";
+import { AREA_TALLER } from "@/core/core.constants";
 
 interface BillingTabProps {
   workOrderId: number;
@@ -91,7 +92,7 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
       sunat_concept_document_type_id: "",
       serie: "",
       sunat_concept_transaction_type_id: "",
-      origin_module: "posventa",
+      area_id: AREA_TALLER.toString(),
       is_advance_payment: false,
       client_id: "",
       fecha_de_emision: new Date().toISOString().split("T")[0],
@@ -208,7 +209,7 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
       sunat_concept_document_type_id: "",
       serie: "",
       sunat_concept_transaction_type_id: "",
-      origin_module: "posventa",
+      area_id: AREA_TALLER.toString(),
       is_advance_payment: false,
       client_id: workOrder?.invoice_to_client?.id?.toString() || "",
       fecha_de_emision: new Date().toISOString().split("T")[0],

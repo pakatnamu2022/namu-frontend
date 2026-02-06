@@ -24,6 +24,7 @@ import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { AnnulDocumentDialog } from "./CancelDocumentDialog";
 import ElectronicDocumentMigrationHistory from "./ElectronicDocumentMigrationHistory";
 import { SUNAT_TYPE_INVOICES_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
+import { AREA_COMERCIAL } from "@/core/core.constants";
 
 export type ElectronicDocumentColumn = ColumnDef<ElectronicDocumentResource>;
 
@@ -279,13 +280,13 @@ export const electronicDocumentColumns = ({
       },
     },
     {
-      accessorKey: "origin_module",
-      header: "Módulo",
+      accessorKey: "area_id",
+      header: "Área",
       cell: ({ getValue }) => {
-        const value = getValue() as string;
+        const value = getValue() as number;
         return (
           <Badge variant="outline">
-            {value === "comercial" ? "Comercial" : "Posventa"}
+            {value === AREA_COMERCIAL ? "Comercial" : "Posventa"}
           </Badge>
         );
       },

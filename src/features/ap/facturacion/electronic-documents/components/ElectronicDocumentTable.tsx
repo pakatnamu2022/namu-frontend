@@ -31,7 +31,7 @@ export default function ElectronicDocumentTable({
           total: true,
           aceptada_por_sunat: true,
           anulado: false,
-          origin_module: false,
+          area_id: false,
           actions: true,
         }}
       >

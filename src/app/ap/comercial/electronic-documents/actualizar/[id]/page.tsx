@@ -144,7 +144,7 @@ export default function UpdateElectronicDocumentPage() {
         numero: document.numero.toString(),
         sunat_concept_transaction_type_id:
           document.sunat_concept_transaction_type_id.toString(),
-        origin_module: document.origin_module,
+        area_id: document.area_id.toString(),
         origin_entity_type: document.origin_entity_type || "",
         origin_entity_id: document.origin_entity_id?.toString() || "",
         purchase_request_quote_id:
@@ -206,7 +206,8 @@ export default function UpdateElectronicDocumentPage() {
         generado_por_contingencia: document.generado_por_contingencia ?? false,
         items:
           document.items?.map((item) => ({
-            reference_document_id: item.reference_document_id?.toString() || undefined,
+            reference_document_id:
+              item.reference_document_id?.toString() || undefined,
             account_plan_id: item.account_plan_id?.toString() || "",
             unidad_de_medida: item.unidad_de_medida || "",
             codigo: item.codigo || "",
@@ -221,8 +222,10 @@ export default function UpdateElectronicDocumentPage() {
             igv: item.igv ?? 0,
             total: item.total ?? 0,
             anticipo_regularizacion: item.anticipo_regularizacion ?? undefined,
-            anticipo_documento_serie: item.anticipo_documento_serie || undefined,
-            anticipo_documento_numero: item.anticipo_documento_numero ?? undefined,
+            anticipo_documento_serie:
+              item.anticipo_documento_serie || undefined,
+            anticipo_documento_numero:
+              item.anticipo_documento_numero ?? undefined,
           })) || [],
         guias: document.guides?.map((guide) => ({
           guia_tipo: guide.guia_tipo,

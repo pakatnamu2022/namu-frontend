@@ -21,7 +21,7 @@ import { SUNAT_CONCEPTS_TYPE } from "@/features/gp/maestro-general/conceptos-sun
 import { useAllSunatConcepts } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.hook";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { notFound } from "@/shared/hooks/useNotFound";
-import { STATUS_ACTIVE } from "@/core/core.constants";
+import { AREA_COMERCIAL, STATUS_ACTIVE } from "@/core/core.constants";
 import PageWrapper from "@/shared/components/PageWrapper";
 
 export default function AddElectronicDocumentPage() {
@@ -121,7 +121,7 @@ export default function AddElectronicDocumentPage() {
       numero: "",
       sunat_concept_document_type_id: "",
       sunat_concept_transaction_type_id: "",
-      origin_module: "comercial",
+      area_id: AREA_COMERCIAL.toString(),
       client_id: "",
       fecha_de_emision: new Date().toISOString().split("T")[0],
       total: 0,

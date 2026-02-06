@@ -64,7 +64,7 @@ export const parameterColumns = ({
             variant="outline"
             size="icon"
             className="size-7"
-            onClick={() => router(`/${ROUTE_UPDATE}/${id}`)}
+            onClick={() => router(`${ROUTE_UPDATE}/${id}`)}
           >
             <Pencil className="size-5" />
           </Button>

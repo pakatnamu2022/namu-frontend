@@ -11,7 +11,7 @@ export default function ParameterActions() {
   const push = useNavigate();
 
   const handleAddCompetence = () => {
-    push(`./${ROUTE_ADD}`);
+    push(ROUTE_ADD);
   };
 
   return (
