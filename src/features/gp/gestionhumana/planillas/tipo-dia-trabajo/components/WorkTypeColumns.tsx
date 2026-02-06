@@ -3,7 +3,7 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { WorkTypeResource } from "../lib/work-type.interface";
 import { Button } from "@/components/ui/button";
-import { Pencil, Check, X, ListTree } from "lucide-react";
+import { Pencil, ListTree } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
@@ -37,6 +37,10 @@ export const workTypeColumns = ({
     ),
   },
   {
+    accessorKey: "description",
+    header: "Descripción",
+  },
+  {
     accessorKey: "multiplier",
     header: "Multiplicador",
     cell: ({ getValue }) => (
@@ -51,54 +55,6 @@ export const workTypeColumns = ({
     ),
   },
   {
-    accessorKey: "is_extra_hours",
-    header: "Horas Extra",
-    cell: ({ getValue }) => {
-      const value = getValue() as boolean;
-      return value ? (
-        <Check className="size-4 text-green-600" />
-      ) : (
-        <X className="size-4 text-muted-foreground" />
-      );
-    },
-  },
-  {
-    accessorKey: "is_night_shift",
-    header: "Nocturno",
-    cell: ({ getValue }) => {
-      const value = getValue() as boolean;
-      return value ? (
-        <Check className="size-4 text-green-600" />
-      ) : (
-        <X className="size-4 text-muted-foreground" />
-      );
-    },
-  },
-  {
-    accessorKey: "is_holiday",
-    header: "Feriado",
-    cell: ({ getValue }) => {
-      const value = getValue() as boolean;
-      return value ? (
-        <Check className="size-4 text-green-600" />
-      ) : (
-        <X className="size-4 text-muted-foreground" />
-      );
-    },
-  },
-  {
-    accessorKey: "is_sunday",
-    header: "Domingo",
-    cell: ({ getValue }) => {
-      const value = getValue() as boolean;
-      return value ? (
-        <Check className="size-4 text-green-600" />
-      ) : (
-        <X className="size-4 text-muted-foreground" />
-      );
-    },
-  },
-  {
     accessorKey: "active",
     header: "Estado",
     cell: ({ getValue }) => {
@@ -109,10 +65,6 @@ export const workTypeColumns = ({
         </Badge>
       );
     },
-  },
-  {
-    accessorKey: "order",
-    header: "Orden",
   },
   {
     id: "actions",

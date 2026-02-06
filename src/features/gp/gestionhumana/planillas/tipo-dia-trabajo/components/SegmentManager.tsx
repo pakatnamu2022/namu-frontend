@@ -161,9 +161,20 @@ export const SegmentManager = ({
   const isValid = validationErrors.length === 0 && segments.length > 0;
 
   const formatHour = (hour: number) => {
-    const period = hour >= 12 ? "PM" : "AM";
-    const displayHour = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
-    return `${displayHour}:00 ${period}`;
+    const hours = Math.floor(hour);
+    const minutes = Math.round((hour - hours) * 60);
+    const period = hours >= 12 ? "PM" : "AM";
+    const displayHour = hours > 12 ? hours - 12 : hours === 0 ? 12 : hours;
+    return `${displayHour}:${minutes.toString().padStart(2, '0')} ${period}`;
+  };
+
+  const formatDuration = (hours: number) => {
+    const wholeHours = Math.floor(hours);
+    const minutes = Math.round((hours - wholeHours) * 60);
+    if (minutes === 0) {
+      return `${wholeHours}h`;
+    }
+    return `${wholeHours}h ${minutes}m`;
   };
 
   const getSegmentColor = (segment: WorkTypeSegmentSchema) => {
@@ -369,7 +380,7 @@ export const SegmentManager = ({
                           {formatHour(segment.end_hour)}
                         </p>
                         <p className="text-muted-foreground">
-                          {segment.duration_hours}h • Multiplicador:{" "}
+                          {formatDuration(segment.duration_hours)} • Multiplicador:{" "}
                           {segment.multiplier}x
                           {segment.description && ` • ${segment.description}`}
                         </p>
