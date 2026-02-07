@@ -13,7 +13,7 @@ import {
   SUCCESS_MESSAGE,
   successToast,
 } from "@/core/core.function";
-import { DEFAULT_PER_PAGE } from "@/core/core.constants";
+import { AREA_COMERCIAL, DEFAULT_PER_PAGE } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { SHIPMENTS_RECEPTIONS } from "@/features/ap/comercial/envios-recepciones/lib/shipmentsReceptions.constants";
 import {
@@ -45,7 +45,9 @@ export default function ShipmentsReceptionsPage() {
   const [dateFrom, setDateFrom] = useState<Date | undefined>(undefined);
   const [dateTo, setDateTo] = useState<Date | undefined>(undefined);
 
-  const formattedDateFrom = dateFrom ? format(dateFrom, "yyyy-MM-dd") : undefined;
+  const formattedDateFrom = dateFrom
+    ? format(dateFrom, "yyyy-MM-dd")
+    : undefined;
   const formattedDateTo = dateTo ? format(dateTo, "yyyy-MM-dd") : undefined;
 
   const [deleteId, setDeleteId] = useState<number | null>(null);
@@ -72,6 +74,7 @@ export default function ShipmentsReceptionsPage() {
     search,
     per_page,
     issue_date: [formattedDateFrom, formattedDateTo],
+    area_id: AREA_COMERCIAL,
   });
 
   const handleDelete = async () => {
