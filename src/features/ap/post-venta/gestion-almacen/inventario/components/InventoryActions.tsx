@@ -28,7 +28,7 @@ export default function InventoryActions({ permissions }: Props) {
         className="ml-auto"
         onClick={() => router(`${ABSOLUTE_ROUTE}/kardex`)}
       >
-        <FileBox className="size-4 mr-2" /> Kardex
+        <FileBox className="size-4 mr-2" /> Movimiento de Inventario
       </Button>
     </ActionsWrapper>
   );

@@ -182,7 +182,9 @@ export default function OrderQuotationForm({
             useQueryHook={useVehicles}
             mapOptionFn={(item: VehicleResource) => ({
               value: item.id.toString(),
-              label: `${item.plate || item.vin} - ${item.model?.code || ""}`,
+              label: item.plate
+                ? `${item.plate} - ${item.vin || ""}`
+                : item.vin || "-",
             })}
             perPage={10}
             debounceMs={500}
@@ -190,7 +192,9 @@ export default function OrderQuotationForm({
               proforma
                 ? {
                     value: proforma.vehicle.id.toString(),
-                    label: `${proforma.vehicle.plate || proforma.vehicle.vin} - ${proforma.vehicle.model?.code || ""}`,
+                    label: proforma.vehicle.plate
+                      ? `${proforma.vehicle.plate} - ${proforma.vehicle.vin || ""}`
+                      : proforma.vehicle.vin || "-",
                   }
                 : undefined
             }

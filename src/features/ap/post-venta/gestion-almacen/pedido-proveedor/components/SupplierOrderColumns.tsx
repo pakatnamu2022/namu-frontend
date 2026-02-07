@@ -1,7 +1,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { SupplierOrderResource } from "@/features/ap/post-venta/gestion-almacen/pedido-proveedor/lib/supplierOrder.interface.ts";
 import { Button } from "@/components/ui/button.tsx";
-import { Eye, Pencil, FileCheck } from "lucide-react";
+import { Eye, Pencil, PackageCheck } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog.tsx";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge.tsx";
@@ -17,7 +17,7 @@ interface Props {
     canView: boolean;
   };
   routeUpdate?: string;
-  routeInvoice?: string;
+  routeReception: string;
 }
 
 export const supplierOrderColumns = ({
@@ -25,7 +25,7 @@ export const supplierOrderColumns = ({
   onView,
   permissions,
   routeUpdate,
-  routeInvoice,
+  routeReception,
 }: Props): SupplierOrderColumns[] => [
   {
     accessorKey: "order_number",
@@ -107,6 +107,7 @@ export const supplierOrderColumns = ({
     cell: ({ row }) => {
       const { id, is_take, has_invoice } = row.original;
       const canEditDelete = !is_take; // Disable edit/delete if already taken
+      console.log("Row Data:", row.original); // Debugging line
 
       return (
         <div className="flex items-center gap-2">
@@ -122,15 +123,15 @@ export const supplierOrderColumns = ({
             </Button>
           )}
 
-          {routeInvoice && !has_invoice && (
-            <Link to={`${routeInvoice}/${id}`}>
+          {permissions.canUpdate && (
+            <Link to={`${routeReception}/${id}`}>
               <Button
                 variant="outline"
                 size="icon"
                 className="size-7"
-                tooltip="Facturación de la Orden"
+                tooltip="Recepcionar"
               >
-                <FileCheck className="size-4" />
+                <PackageCheck className="size-4" />
               </Button>
             </Link>
           )}

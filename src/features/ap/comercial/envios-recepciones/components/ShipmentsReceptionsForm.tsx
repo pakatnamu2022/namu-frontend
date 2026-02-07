@@ -770,7 +770,7 @@ export const ShipmentsReceptionsForm = ({
           <FormSelect
             key={`vehicle-${watchSedeTransmitterId}-${watchTransferReasonId}-${vehiclesIsReceived}`}
             name="ap_vehicle_id"
-            label="Vehículo VN"
+            label="Vehículo"
             placeholder="Selecciona vehículo"
             options={vehiclesVn.map((item) => ({
               label: item.vin ?? "",

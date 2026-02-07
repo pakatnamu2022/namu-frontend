@@ -247,7 +247,7 @@ export function FormSelectAsync({
             {label && typeof label === "function"
               ? label()
               : label && (
-                  <FormLabel className="flex justify-start items-center m-0 mb-1">
+                  <FormLabel className="flex justify-start items-center">
                     {label}
                     {required && <RequiredField />}
                     {tooltip && (

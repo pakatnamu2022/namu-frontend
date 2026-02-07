@@ -30,8 +30,9 @@ import { useProduct } from "@/features/ap/post-venta/gestion-almacen/productos/l
 import { ProductResource } from "@/features/ap/post-venta/gestion-almacen/productos/lib/product.interface.ts";
 import { GroupFormSection } from "@/shared/components/GroupFormSection.tsx";
 import { Card } from "@/components/ui/card.tsx";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge.tsx";
+import { SimpleConfirmDialog } from "@/shared/components/SimpleConfirmDialog.tsx";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField.tsx";
 import { OBSERVATION_REASONS } from "@/features/ap/configuraciones/postventa/motivos-ajuste/lib/reasonsAdjustment.constants.ts";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync.tsx";
@@ -39,6 +40,7 @@ import { useSuppliers } from "@/features/ap/comercial/proveedores/lib/suppliers.
 import { SuppliersResource } from "@/features/ap/comercial/proveedores/lib/suppliers.interface.ts";
 import { FormInput } from "@/shared/components/FormInput";
 import { FormInputText } from "@/shared/components/FormInputText";
+import { SupplierOrderDetailsResource } from "../../pedido-proveedor/lib/supplierOrder.interface";
 
 interface ReceptionsProductsFormProps {
   defaultValues: Partial<ReceptionSchema>;
@@ -46,14 +48,8 @@ interface ReceptionsProductsFormProps {
   isSubmitting?: boolean;
   mode?: "create" | "update";
   onCancel?: () => void;
-  purchaseOrderNumber?: string;
-  purchaseOrderItems?: Array<{
-    id: number;
-    product_id: number;
-    product_name?: string;
-    quantity: number;
-    unit_price: number;
-  }>;
+  supplierOrderNumber?: string;
+  supplierOrderItems?: SupplierOrderDetailsResource[];
 }
 
 export const ReceptionsProductsForm = ({
@@ -62,7 +58,7 @@ export const ReceptionsProductsForm = ({
   isSubmitting = false,
   mode = "create",
   onCancel,
-  purchaseOrderItems = [],
+  supplierOrderItems = [],
 }: ReceptionsProductsFormProps) => {
   const form = useForm({
     resolver: zodResolver(
@@ -80,6 +76,9 @@ export const ReceptionsProductsForm = ({
     name: "details",
   });
 
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [productToDelete, setProductToDelete] = useState<number | null>(null);
+
   const { data: warehouses = [], isLoading: isLoadingWarehouses } =
     useAllWarehouse({
       is_physical_warehouse: 1,
@@ -91,10 +90,10 @@ export const ReceptionsProductsForm = ({
   useEffect(() => {
     if (
       mode === "create" &&
-      purchaseOrderItems.length > 0 &&
+      supplierOrderItems.length > 0 &&
       fields.length === 0
     ) {
-      const initialDetails = purchaseOrderItems.map((item) => ({
+      const initialDetails = supplierOrderItems.map((item) => ({
         purchase_order_item_id: String(item.id),
         product_id: item.product_id.toString(),
         quantity_received: item.quantity,
@@ -108,7 +107,33 @@ export const ReceptionsProductsForm = ({
 
       form.setValue("details", initialDetails);
     }
-  }, [mode, purchaseOrderItems, fields.length, form]);
+  }, [mode, supplierOrderItems, fields.length, form]);
+
+  // Limpiar motivo y notas de observación cuando la cantidad observada sea 0
+  useEffect(() => {
+    const subscription = form.watch((value, { name }) => {
+      // Detectar cambios en observed_quantity
+      if (name?.includes("observed_quantity")) {
+        const match = name.match(/details\.(\d+)\.observed_quantity/);
+        if (match) {
+          const index = parseInt(match[1]);
+          const observedQuantity =
+            value.details?.[index]?.observed_quantity || 0;
+
+          if (observedQuantity === 0) {
+            form.setValue(`details.${index}.reason_observation`, undefined, {
+              shouldValidate: true,
+            });
+            form.setValue(`details.${index}.observation_notes`, "", {
+              shouldValidate: true,
+            });
+          }
+        }
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [form]);
 
   if (isLoadingWarehouses) {
     return <FormSkeleton />;
@@ -194,8 +219,8 @@ export const ReceptionsProductsForm = ({
         </GroupFormSection>
 
         {/* Detalles de Productos Recibidos */}
-        <Card className="p-4">
-          <div className="flex items-center justify-between mb-4">
+        <Card className="p-3">
+          <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <PackageCheck className="h-5 w-5 text-primary" />
               <h3 className="text-lg font-semibold">Productos Recibidos</h3>
@@ -218,7 +243,7 @@ export const ReceptionsProductsForm = ({
               <p>No hay productos agregados</p>
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-2.5">
               {fields.map((field, index) => {
                 const detail = watchedDetails?.[index];
                 const receptionType = detail?.reception_type;
@@ -228,20 +253,21 @@ export const ReceptionsProductsForm = ({
                 // Determinar si es producto de la orden
                 const isOrderedProduct = detail?.purchase_order_item_id != null;
 
-                const productItem = purchaseOrderItems.find(
+                const productItem = supplierOrderItems.find(
                   (item) => item.product_id.toString() === detail?.product_id,
                 );
 
                 return (
                   <Card
                     key={field.id}
-                    className="p-4 bg-linear-to-br from-slate-50 to-slate-100/50 border-slate-200 hover:border-slate-300 transition-colors"
+                    className="p-3 bg-linear-to-br from-slate-50 to-slate-100/50 border-slate-200 hover:border-slate-300 transition-colors"
                   >
                     {/* Header compacto */}
-                    <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2 flex-1 min-w-0">
                         <h4 className="font-semibold text-sm truncate text-slate-700">
-                          {productItem?.product_name || `Producto ${index + 1}`}
+                          {productItem?.product?.name ||
+                            `Producto ${index + 1}`}
                         </h4>
                         {isOrderedProduct && (
                           <Badge
@@ -257,121 +283,69 @@ export const ReceptionsProductsForm = ({
                           </span>
                         )}
                       </div>
-                      {!isOrderedProduct && (
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          className="h-7 w-7 shrink-0 text-destructive hover:bg-destructive/10"
-                          onClick={() => remove(index)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      )}
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7 shrink-0 text-destructive hover:bg-destructive/10"
+                        onClick={() => {
+                          setProductToDelete(index);
+                          setDeleteDialogOpen(true);
+                        }}
+                        disabled={mode === "update"}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
                     </div>
 
                     {/* Campos en grid responsivo */}
-                    <div
-                      className={`grid gap-3 mb-3 ${
-                        isOrderedProduct
-                          ? "grid-cols-2 md:grid-cols-2"
-                          : "grid-cols-1 md:grid-cols-2"
-                      }`}
-                    >
-                      {!isOrderedProduct &&
-                        (mode === "update" ? (
-                          // Modo edición: Mostrar nombre del producto (solo lectura)
-                          <div className="space-y-1">
-                            <FormLabel className="text-xs font-medium">
-                              Producto *
-                            </FormLabel>
-                            <div className="h-auto min-h-10 w-full rounded-md border border-input bg-muted/50 px-3 py-2 text-sm flex items-center">
-                              <span className="font-medium text-sm truncate">
-                                {productItem?.product_name ||
-                                  "Producto no disponible"}
-                              </span>
+                    <div className="space-y-2">
+                      {/* Fila 1: Producto (si no es ordenado) o Cantidades + Notas */}
+                      <div
+                        className={`grid gap-2 ${
+                          isOrderedProduct
+                            ? "grid-cols-2 md:grid-cols-[minmax(100px,140px)_minmax(100px,140px)_1fr]"
+                            : "grid-cols-1 md:grid-cols-2"
+                        }`}
+                      >
+                        {!isOrderedProduct &&
+                          (mode === "update" ? (
+                            // Modo edición: Mostrar nombre del producto (solo lectura)
+                            <div className="space-y-1">
+                              <FormLabel className="text-xs font-medium">
+                                Producto *
+                              </FormLabel>
+                              <div className="h-auto min-h-10 w-full rounded-md border border-input bg-muted/50 px-3 py-2 text-sm flex items-center">
+                                <span className="font-medium text-sm truncate">
+                                  {productItem?.product?.name ||
+                                    "Producto no disponible"}
+                                </span>
+                              </div>
                             </div>
-                          </div>
-                        ) : (
-                          // Modo creación: Selector asíncrono
-                          <FormSelectAsync
-                            name={`details.${index}.product_id`}
-                            label="Producto *"
-                            placeholder="Buscar producto..."
-                            control={form.control}
-                            useQueryHook={useProduct}
-                            mapOptionFn={(product: ProductResource) => ({
-                              value: product.id.toString(),
-                              label: `${product.name} (${product.code})`,
-                            })}
-                            perPage={10}
-                            debounceMs={500}
-                          />
-                        ))}
+                          ) : (
+                            // Modo creación: Selector asíncrono
+                            <FormSelectAsync
+                              name={`details.${index}.product_id`}
+                              label="Producto *"
+                              placeholder="Buscar producto..."
+                              control={form.control}
+                              useQueryHook={useProduct}
+                              mapOptionFn={(product: ProductResource) => ({
+                                value: product.id.toString(),
+                                label: `${product.name} (${product.code})`,
+                              })}
+                              perPage={10}
+                              debounceMs={500}
+                            />
+                          ))}
 
-                      <FormField
-                        control={form.control}
-                        name={`details.${index}.quantity_received`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-xs font-medium">
-                              Cant. Recibida *
-                            </FormLabel>
-                            <FormControl>
-                              <Input
-                                type="number"
-                                min="0"
-                                className="text-center"
-                                placeholder="0"
-                                disabled={mode === "update"}
-                                value={
-                                  typeof field.value === "number"
-                                    ? field.value
-                                    : ""
-                                }
-                                onChange={(e) => {
-                                  const num = parseFloat(e.target.value);
-                                  const newQuantityReceived = isNaN(num)
-                                    ? 0
-                                    : num;
-
-                                  // Si es producto ordenado, calcular cantidad observada
-                                  if (isOrderedProduct && productItem) {
-                                    const orderedQuantity =
-                                      productItem.quantity;
-
-                                    // No permitir que la cantidad recibida supere la ordenada
-                                    const finalQuantityReceived = Math.min(
-                                      newQuantityReceived,
-                                      orderedQuantity,
-                                    );
-                                    const observedQuantity =
-                                      orderedQuantity - finalQuantityReceived;
-
-                                    field.onChange(finalQuantityReceived);
-                                    form.setValue(
-                                      `details.${index}.observed_quantity`,
-                                      observedQuantity,
-                                    );
-                                  } else {
-                                    field.onChange(newQuantityReceived);
-                                  }
-                                }}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      {isOrderedProduct && (
                         <FormField
                           control={form.control}
-                          name={`details.${index}.observed_quantity`}
+                          name={`details.${index}.quantity_received`}
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel className="text-xs font-medium">
-                                Cant. Observada
+                                Cant. Recibida *
                               </FormLabel>
                               <FormControl>
                                 <Input
@@ -387,30 +361,30 @@ export const ReceptionsProductsForm = ({
                                   }
                                   onChange={(e) => {
                                     const num = parseFloat(e.target.value);
-                                    const newObservedQuantity = isNaN(num)
+                                    const newQuantityReceived = isNaN(num)
                                       ? 0
                                       : num;
 
-                                    // Si es producto ordenado, calcular cantidad recibida
-                                    if (productItem) {
+                                    // Si es producto ordenado, calcular cantidad observada
+                                    if (isOrderedProduct && productItem) {
                                       const orderedQuantity =
                                         productItem.quantity;
 
-                                      // No permitir que la cantidad observada supere la ordenada
-                                      const finalObservedQuantity = Math.min(
-                                        newObservedQuantity,
+                                      // No permitir que la cantidad recibida supere la ordenada
+                                      const finalQuantityReceived = Math.min(
+                                        newQuantityReceived,
                                         orderedQuantity,
                                       );
-                                      const receivedQuantity =
-                                        orderedQuantity - finalObservedQuantity;
+                                      const observedQuantity =
+                                        orderedQuantity - finalQuantityReceived;
 
-                                      field.onChange(finalObservedQuantity);
+                                      field.onChange(finalQuantityReceived);
                                       form.setValue(
-                                        `details.${index}.quantity_received`,
-                                        receivedQuantity,
+                                        `details.${index}.observed_quantity`,
+                                        observedQuantity,
                                       );
                                     } else {
-                                      field.onChange(newObservedQuantity);
+                                      field.onChange(newQuantityReceived);
                                     }
                                   }}
                                 />
@@ -419,38 +393,91 @@ export const ReceptionsProductsForm = ({
                             </FormItem>
                           )}
                         />
-                      )}
 
-                      {/* <FormField
-                        control={form.control}
-                        name={`details.${index}.reception_type`}
-                        render={() => (
-                          <FormItem>
-                            <FormLabel className="text-xs font-medium">
-                              Tipo *
-                            </FormLabel>
-                            <FormControl>
-                              <FormSelect
-                                name={`details.${index}.reception_type`}
-                                placeholder="Tipo"
-                                options={
-                                  isOrderedProduct
-                                    ? [{ label: "Ordenado", value: "ORDERED" }]
-                                    : RECEPTION_TYPES.filter(
-                                        (type) => type.value !== "ORDERED"
-                                      ).map((type) => ({
-                                        label: type.label,
-                                        value: type.value,
-                                      }))
-                                }
-                                control={form.control}
-                                disabled={isOrderedProduct || mode === "update"}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
+                        {isOrderedProduct && (
+                          <FormField
+                            control={form.control}
+                            name={`details.${index}.observed_quantity`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-xs font-medium">
+                                  Cant. Observada
+                                </FormLabel>
+                                <FormControl>
+                                  <Input
+                                    type="number"
+                                    min="0"
+                                    className="text-center"
+                                    placeholder="0"
+                                    disabled={mode === "update"}
+                                    value={
+                                      typeof field.value === "number"
+                                        ? field.value
+                                        : ""
+                                    }
+                                    onChange={(e) => {
+                                      const num = parseFloat(e.target.value);
+                                      const newObservedQuantity = isNaN(num)
+                                        ? 0
+                                        : num;
+
+                                      // Si es producto ordenado, calcular cantidad recibida
+                                      if (productItem) {
+                                        const orderedQuantity =
+                                          productItem.quantity;
+
+                                        // No permitir que la cantidad observada supere la ordenada
+                                        const finalObservedQuantity = Math.min(
+                                          newObservedQuantity,
+                                          orderedQuantity,
+                                        );
+                                        const receivedQuantity =
+                                          orderedQuantity -
+                                          finalObservedQuantity;
+
+                                        field.onChange(finalObservedQuantity);
+                                        form.setValue(
+                                          `details.${index}.quantity_received`,
+                                          receivedQuantity,
+                                        );
+                                      } else {
+                                        field.onChange(newObservedQuantity);
+                                      }
+                                    }}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
                         )}
-                      /> */}
+
+                        {/* Notas adicionales en la misma fila para productos ordenados */}
+                        {isOrderedProduct && (
+                          <FormField
+                            control={form.control}
+                            name={`details.${index}.notes`}
+                            render={({ field }) => (
+                              <FormItem className="col-span-2 md:col-span-1">
+                                <FormLabel className="text-xs font-medium">
+                                  Notas Adicionales
+                                </FormLabel>
+                                <FormControl>
+                                  <Input
+                                    placeholder="Comentarios..."
+                                    disabled={mode === "update"}
+                                    {...field}
+                                    value={field.value || ""}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        )}
+                      </div>
+
+                      {/* Campo oculto para reception_type */}
                       <FormField
                         control={form.control}
                         name={`details.${index}.reception_type`}
@@ -462,13 +489,11 @@ export const ReceptionsProductsForm = ({
                           </FormItem>
                         )}
                       />
-                    </div>
 
-                    {/* Motivo bonificación */}
-                    {(receptionType === "BONUS" ||
-                      receptionType === "GIFT" ||
-                      receptionType === "SAMPLE") && (
-                      <div className="mb-3">
+                      {/* Motivo bonificación */}
+                      {(receptionType === "BONUS" ||
+                        receptionType === "GIFT" ||
+                        receptionType === "SAMPLE") && (
                         <FormField
                           control={form.control}
                           name={`details.${index}.bonus_reason`}
@@ -494,90 +519,66 @@ export const ReceptionsProductsForm = ({
                             </FormItem>
                           )}
                         />
-                      </div>
-                    )}
+                      )}
 
-                    {/* Observaciones */}
-                    {hasObservation && (
-                      <div className="bg-orange-50 border border-orange-200 rounded-md p-3 mb-3">
-                        <p className="text-xs font-semibold text-orange-700 mb-2">
-                          Observación Detectada
-                        </p>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                          <FormField
-                            control={form.control}
-                            name={`details.${index}.reason_observation`}
-                            render={() => (
-                              <FormItem>
-                                <FormLabel className="text-xs font-medium">
-                                  Motivo de Observación *
-                                </FormLabel>
-                                <FormControl>
-                                  <FormSelect
-                                    name={`details.${index}.reason_observation`}
-                                    placeholder="Selecciona motivo"
-                                    options={OBSERVATION_REASONS.map(
-                                      (reason) => ({
-                                        label: reason.label,
-                                        value: reason.value,
-                                      }),
-                                    )}
-                                    control={form.control}
-                                    disabled={mode === "update"}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
+                      {/* Observaciones */}
+                      {hasObservation && (
+                        <div className="bg-orange-50 border border-orange-200 rounded-md p-2.5">
+                          <p className="text-xs font-semibold text-orange-700 mb-1.5">
+                            Observación Detectada
+                          </p>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                            <FormField
+                              control={form.control}
+                              name={`details.${index}.reason_observation`}
+                              render={() => (
+                                <FormItem>
+                                  <FormLabel className="text-xs font-medium">
+                                    Motivo de Observación *
+                                  </FormLabel>
+                                  <FormControl>
+                                    <FormSelect
+                                      name={`details.${index}.reason_observation`}
+                                      placeholder="Selecciona motivo"
+                                      options={OBSERVATION_REASONS.map(
+                                        (reason) => ({
+                                          label: reason.label,
+                                          value: reason.value,
+                                        }),
+                                      )}
+                                      control={form.control}
+                                      disabled={mode === "update"}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
 
-                          <FormField
-                            control={form.control}
-                            name={`details.${index}.observation_notes`}
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel className="text-xs font-medium">
-                                  Notas de Observación
-                                </FormLabel>
-                                <FormControl>
-                                  <Input
-                                    placeholder="Detalles adicionales..."
-                                    disabled={mode === "update"}
-                                    {...field}
-                                    value={field.value || ""}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
+                            <FormField
+                              control={form.control}
+                              name={`details.${index}.observation_notes`}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-xs font-medium">
+                                    Notas de Observación
+                                  </FormLabel>
+                                  <FormControl>
+                                    <Input
+                                      placeholder="Detalles adicionales..."
+                                      disabled={mode === "update"}
+                                      {...field}
+                                      value={field.value || ""}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
                         </div>
-                      </div>
-                    )}
-
-                    {/* Notas del producto - solo para productos ordenados */}
-                    {isOrderedProduct && (
-                      <FormField
-                        control={form.control}
-                        name={`details.${index}.notes`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-xs font-medium">
-                              Notas Adicionales
-                            </FormLabel>
-                            <FormControl>
-                              <Input
-                                placeholder="Comentarios sobre este producto..."
-                                disabled={mode === "update"}
-                                {...field}
-                                value={field.value || ""}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    )}
+                      )}
+                    </div>
                   </Card>
                 );
               })}
@@ -613,6 +614,24 @@ export const ReceptionsProductsForm = ({
             {isSubmitting ? "Guardando" : "Guardar Recepción"}
           </Button>
         </div>
+
+        <SimpleConfirmDialog
+          open={deleteDialogOpen}
+          onOpenChange={setDeleteDialogOpen}
+          onConfirm={() => {
+            if (productToDelete !== null) {
+              remove(productToDelete);
+              setProductToDelete(null);
+            }
+            setDeleteDialogOpen(false);
+          }}
+          title="¿Eliminar producto?"
+          description="¿Estás seguro de que deseas eliminar este producto de la recepción? Esta acción no se puede deshacer."
+          confirmText="Eliminar"
+          cancelText="Cancelar"
+          variant="destructive"
+          icon="danger"
+        />
       </form>
     </Form>
   );

@@ -282,8 +282,8 @@ export default function PurchaseRequestForm({
     // Validar si existe vehículo
     const vehicle = quotation?.vehicle;
     const vehicleInfo = vehicle
-      ? `${vehicle.plate || "Sin placa"} (${vehicle.model?.brand || ""} ${vehicle.model?.family || ""})`
-      : "Sin vehículo";
+      ? `${vehicle.plate || vehicle.vin} (${vehicle.model?.brand || ""} ${vehicle.model?.family || ""})`
+      : "-";
 
     return `${quotation.quotation_number} - ${vehicleInfo} - S/ ${quotation.total_amount.toFixed(2)}`;
   };

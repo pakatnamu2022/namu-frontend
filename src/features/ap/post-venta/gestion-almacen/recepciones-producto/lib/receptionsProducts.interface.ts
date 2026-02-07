@@ -1,4 +1,5 @@
 import { SuppliersResource } from "@/features/ap/comercial/proveedores/lib/suppliers.interface.ts";
+import { WarehouseResource } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.interface";
 import { type Links, type Meta } from "@/shared/lib/pagination.interface.ts";
 
 export interface ReceptionDetailResource {
@@ -44,7 +45,11 @@ export interface ReceptionDetailResource {
 export interface ReceptionResource {
   id: number;
   reception_number?: string;
-  purchase_order_id: number;
+  supplier_id: number;
+  supplier_num_doc: string;
+  supplier_name: string;
+  type_currency_id: number;
+  ap_supplier_order_id: number;
   reception_date: string;
   warehouse_id: number;
   freight_cost: number;
@@ -56,6 +61,7 @@ export interface ReceptionResource {
   total_items?: number;
   total_quantity?: string;
   status?: string;
+  has_invoice?: boolean;
   purchase_order?: {
     id: number;
     number: string;
@@ -72,10 +78,7 @@ export interface ReceptionResource {
       unit_price: number;
     }>;
   };
-  warehouse?: {
-    id: number;
-    description: string;
-  };
+  warehouse: WarehouseResource;
   carrier: SuppliersResource;
   details?: ReceptionDetailResource[];
   created_at?: string;
@@ -86,7 +89,7 @@ export interface ReceptionResource {
 export interface ReceptionListItem {
   id: number;
   reception_number?: string;
-  purchase_order_id: number;
+  ap_supplier_order_id: number;
   reception_date: string;
   warehouse_id: number;
   shipping_guide_number?: string;
@@ -125,7 +128,7 @@ export interface ReceptionDetailRequest {
 }
 
 export interface ReceptionRequest {
-  purchase_order_id: string;
+  ap_supplier_order_id: string;
   reception_date: string | Date;
   warehouse_id: string;
   shipping_guide_number?: string;

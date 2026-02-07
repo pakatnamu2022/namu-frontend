@@ -11,11 +11,14 @@ import {
   Building2,
   Coins,
   Tag,
+  FileCheck,
 } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog.tsx";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge.tsx";
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button.tsx";
 import {
   translateReasonObservation,
   translateReceptionTypeStatus,
@@ -30,7 +33,8 @@ interface Props {
     canDelete: boolean;
   };
   routeUpdate?: string;
-  purchaseOrderNumber?: string;
+  routeInvoice?: string;
+  supplierOrderNumber?: string;
   warehouseName?: string;
 }
 
@@ -38,7 +42,8 @@ export default function ReceptionsProductsCards({
   data,
   onDelete,
   permissions,
-  purchaseOrderNumber,
+  routeInvoice,
+  supplierOrderNumber,
   warehouseName,
 }: Props) {
   if (data.length === 0) {
@@ -100,10 +105,22 @@ export default function ReceptionsProductsCards({
                     isSingleCard ? "text-sm mt-1" : "text-xs mt-0.5"
                   }`}
                 >
-                  OC: {purchaseOrderNumber || "-"}
+                  OC: {supplierOrderNumber || "-"}
                 </p>
               </div>
               <div className="flex gap-2">
+                {routeInvoice && !reception.has_invoice && (
+                  <Link to={`${routeInvoice}/${reception.id}`}>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="size-7"
+                      tooltip="Facturar Guía de Remisión"
+                    >
+                      <FileCheck className="size-4" />
+                    </Button>
+                  </Link>
+                )}
                 {permissions.canDelete && (
                   <DeleteButton onClick={() => onDelete(reception.id)} />
                 )}

@@ -21,6 +21,7 @@ export interface EstablishmentsResource {
   department_id?: string;
   province_id?: string;
   district_id?: string;
+  warehouse_id: number | null;
   status: boolean;
 }
 

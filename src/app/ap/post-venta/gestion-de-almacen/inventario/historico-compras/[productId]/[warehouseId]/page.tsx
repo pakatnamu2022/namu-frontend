@@ -19,7 +19,11 @@ import {
   Activity,
 } from "lucide-react";
 import BackButton from "@/shared/components/BackButton.tsx";
-import { errorToast, getMonday, getSunday } from "@/core/core.function.ts";
+import {
+  errorToast,
+  getCurrentDayOfMonth,
+  getFirstDayOfMonth,
+} from "@/core/core.function.ts";
 import { useProductPurchaseHistory } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.hook.ts";
 import PurchaseHistoryTable from "@/features/ap/post-venta/gestion-almacen/inventario/components/PurchaseHistoryTable.tsx";
 import { purchaseHistoryColumns } from "@/features/ap/post-venta/gestion-almacen/inventario/components/PurchaseHistoryColumns.tsx";
@@ -35,10 +39,10 @@ export default function PurchaseHistoryPage() {
   const currentDate = new Date();
 
   const [dateFrom, setDateFrom] = useState<Date | undefined>(
-    getMonday(currentDate),
+    getFirstDayOfMonth(currentDate),
   );
   const [dateTo, setDateTo] = useState<Date | undefined>(
-    getSunday(currentDate),
+    getCurrentDayOfMonth(currentDate),
   );
 
   const productId = parseInt(params.productId as string);

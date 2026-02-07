@@ -21,6 +21,7 @@ import {
   Trash2,
   Box,
   FileText,
+  Search,
 } from "lucide-react";
 import {
   ProductTransferSchema,
@@ -35,21 +36,22 @@ import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog.tsx";
 import { useNavigate } from "react-router-dom";
 import { PRODUCT_TRANSFER } from "@/features/ap/post-venta/gestion-almacen/transferencia-producto/lib/productTransfer.constants.ts";
 import {
-  useAllWarehouse,
-  useWarehousesByCompany,
-} from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook.ts";
-import { useSuppliers } from "@/features/ap/comercial/proveedores/lib/suppliers.hook.ts";
+  useAllSuppliers,
+  useSuppliers,
+} from "@/features/ap/comercial/proveedores/lib/suppliers.hook.ts";
 import { useAllSunatConcepts } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.hook.ts";
-import { SUNAT_CONCEPTS_TYPE } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants.ts";
+import { useAllCustomers } from "@/features/ap/comercial/clientes/lib/customers.hook.ts";
+import { EstablishmentsResource } from "@/features/ap/comercial/establecimientos/lib/establishments.interface.ts";
+import { EstablishmentSelectorModal } from "@/features/ap/comercial/envios-recepciones/components/EstablishmentSelectorModal.tsx";
+import {
+  SUNAT_CONCEPTS_ID,
+  SUNAT_CONCEPTS_TYPE,
+} from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants.ts";
 import { ValidationIndicator } from "@/shared/components/ValidationIndicator.tsx";
 import { DocumentValidationStatus } from "@/shared/components/DocumentValidationStatus.tsx";
 import { useLicenseValidation } from "@/shared/hooks/useDocumentValidation.ts";
 import { Card } from "@/components/ui/card.tsx";
-import {
-  EMPRESA_AP,
-  CM_POSTVENTA_ID,
-  BUSINESS_PARTNERS,
-} from "@/core/core.constants.ts";
+import { BUSINESS_PARTNERS } from "@/core/core.constants.ts";
 import { TYPE_RECEIPT_SERIES } from "@/features/ap/configuraciones/maestros-general/asignar-serie-venta/lib/assignSalesSeries.constants.ts";
 import { useAuthorizedSeries } from "@/features/ap/configuraciones/maestros-general/asignar-serie-usuario/lib/userSeriesAssignment.hook.ts";
 import { useAllTypeClient } from "@/features/ap/configuraciones/maestros-general/tipos-persona/lib/typeClient.hook.ts";
@@ -100,8 +102,29 @@ export const ProductTransferForm = ({
   const conductorDni = form.watch("driver_doc");
   const typePersonId = form.watch("type_person_id");
   const transferType = form.watch("item_type");
-  const selectedWarehouseId = form.watch("warehouse_origin_id");
   const prevTransferTypeRef = useRef(transferType);
+
+  // Estados para los modales de establecimientos
+  const [isOriginModalOpen, setIsOriginModalOpen] = useState(false);
+  const [isDestinationModalOpen, setIsDestinationModalOpen] = useState(false);
+
+  // Estados para almacenar los establecimientos seleccionados
+  const [selectedOriginEstablishment, setSelectedOriginEstablishment] =
+    useState<EstablishmentsResource | null>(null);
+  const [
+    selectedDestinationEstablishment,
+    setSelectedDestinationEstablishment,
+  ] = useState<EstablishmentsResource | null>(null);
+
+  // Estados para almacenar el proveedor/cliente seleccionado
+  const [selectedSupplier, setSelectedSupplier] = useState<{
+    id: number;
+    name: string;
+  } | null>(null);
+  const [selectedCustomer, setSelectedCustomer] = useState<{
+    id: number;
+    name: string;
+  } | null>(null);
 
   // Determinar si es persona natural o jurídica
   const isPersonaNatural =
@@ -112,6 +135,13 @@ export const ProductTransferForm = ({
   // Determinar si es producto o servicio
   const isProducto = transferType === "PRODUCTO";
   const isServicio = transferType === "SERVICIO";
+
+  // Validar si ambos establecimientos tienen almacén para habilitar "Producto"
+  const bothEstablishmentsHaveWarehouse =
+    selectedOriginEstablishment?.warehouse_id !== null &&
+    selectedOriginEstablishment?.warehouse_id !== undefined &&
+    selectedDestinationEstablishment?.warehouse_id !== null &&
+    selectedDestinationEstablishment?.warehouse_id !== undefined;
 
   const {
     data: conductorDniData,
@@ -130,29 +160,22 @@ export const ProductTransferForm = ({
     name: "details",
   });
 
-  const watchWarehouseOriginId = form.watch("warehouse_origin_id");
+  const watchTransmitterOriginId = form.watch("transmitter_origin_id");
+  const watchReceiverDestinationId = form.watch("receiver_destination_id");
+  const watchTransferReasonId = form.watch("transfer_reason_id");
 
-  // Obtener almacenes
-  const { data: warehouses = [], isLoading: isLoadingWarehouses } =
-    useWarehousesByCompany({
-      my: 1,
-      is_received: 1,
-      empresa_id: EMPRESA_AP.id,
-      type_operation_id: CM_POSTVENTA_ID,
-      only_physical: 1,
+  // Obtener clientes y proveedores
+  const { data: customers = [], isLoading: isLoadingCustomers } =
+    useAllCustomers({
+      type_person_id: BUSINESS_PARTNERS.TYPE_PERSON_JURIDICA_ID,
+      status_ap: 1,
     });
 
-  // Obtener almacenes destino
-  const {
-    data: warehousesDestination = [],
-    isLoading: isLoadingWarehousesDestination,
-  } = useAllWarehouse({
-    is_physical_warehouse: 1,
-    type_operation_id: CM_POSTVENTA_ID,
-  });
-
-  // Obtener productos solo en modo create
-  // En modo update, los productos se muestran desde transferData
+  const { data: suppliers = [], isLoading: isLoadingSuppliers } =
+    useAllSuppliers({
+      type_person_id: BUSINESS_PARTNERS.TYPE_PERSON_JURIDICA_ID,
+      status_ap: 1,
+    });
 
   const { data: typesPerson = [], isLoading: isLoadingTypesPerson } =
     useAllTypeClient();
@@ -164,13 +187,10 @@ export const ProductTransferForm = ({
     },
   );
 
-  // Filtrar series según la sede del almacén origen seleccionado
+  // Filtrar series según la sede del establecimiento origen seleccionado
   const filteredSeries = series.filter((serie) => {
-    if (!watchWarehouseOriginId) return true;
-    const warehouse = warehouses.find(
-      (w) => w.id.toString() === watchWarehouseOriginId,
-    );
-    return warehouse ? serie.sede_id === warehouse.sede_id : true;
+    if (!selectedOriginEstablishment?.sede_id) return true;
+    return serie.sede_id === Number(selectedOriginEstablishment.sede_id);
   });
 
   // Obtener conceptos SUNAT
@@ -189,6 +209,13 @@ export const ProductTransferForm = ({
   const typeTransportation = sunatConcepts.filter(
     (concept) => concept.type === SUNAT_CONCEPTS_TYPE.TYPE_TRANSPORTATION,
   );
+
+  const filterReasonTransfer = reasonTransfer.filter((reason) => {
+    return (
+      reason.id.toString() === SUNAT_CONCEPTS_ID.TRANSFER_REASON_OTROS ||
+      reason.id.toString() === SUNAT_CONCEPTS_ID.TRANSFER_REASON_TRASLADO_SEDE
+    );
+  });
 
   // UseEffect para conductor
   useEffect(() => {
@@ -254,13 +281,6 @@ export const ProductTransferForm = ({
   useEffect(() => {
     if (mode !== "create") return;
 
-    // Setear primer almacén como origen si no hay valor
-    if (warehouses.length > 0 && !form.getValues("warehouse_origin_id")) {
-      form.setValue("warehouse_origin_id", warehouses[0].id.toString(), {
-        shouldValidate: true,
-      });
-    }
-
     // Setear fecha de movimiento a hoy si no hay valor
     if (!form.getValues("movement_date")) {
       form.setValue("movement_date", new Date(), {
@@ -274,12 +294,12 @@ export const ProductTransferForm = ({
         shouldValidate: true,
       });
     }
-  }, [warehouses, mode, form]);
+  }, [mode, form]);
 
-  // Limpiar serie cuando cambia el almacén origen
+  // Limpiar serie cuando cambia el establecimiento origen
   useEffect(() => {
     const currentSeriesId = form.getValues("document_series_id");
-    if (currentSeriesId && watchWarehouseOriginId) {
+    if (currentSeriesId && selectedOriginEstablishment?.sede_id) {
       const isValidSeries = filteredSeries.some(
         (serie) => serie.id.toString() === currentSeriesId,
       );
@@ -287,7 +307,61 @@ export const ProductTransferForm = ({
         form.setValue("document_series_id", "");
       }
     }
-  }, [watchWarehouseOriginId, filteredSeries, form, mode]);
+  }, [selectedOriginEstablishment?.sede_id, filteredSeries, form, mode]);
+
+  // Actualizar el proveedor seleccionado cuando cambie el campo
+  useEffect(() => {
+    if (watchTransmitterOriginId && suppliers.length > 0) {
+      const supplier = suppliers.find(
+        (s) => s.id.toString() === watchTransmitterOriginId,
+      );
+      if (supplier && selectedSupplier?.id !== supplier.id) {
+        setSelectedSupplier({
+          id: supplier.id,
+          name: supplier.full_name,
+        });
+      }
+    } else if (!watchTransmitterOriginId && selectedSupplier !== null) {
+      setSelectedSupplier(null);
+      setSelectedOriginEstablishment(null);
+      // Limpiar transmitter_id
+      const currentTransmitterId = form.getValues("transmitter_id");
+      if (currentTransmitterId !== "") {
+        form.setValue("transmitter_id", "", {
+          shouldValidate: false,
+          shouldDirty: false,
+          shouldTouch: false,
+        });
+      }
+    }
+  }, [watchTransmitterOriginId, suppliers, selectedSupplier]);
+
+  // Actualizar el cliente seleccionado cuando cambie el campo
+  useEffect(() => {
+    if (watchReceiverDestinationId && customers.length > 0) {
+      const customer = customers.find(
+        (c) => c.id.toString() === watchReceiverDestinationId,
+      );
+      if (customer && selectedCustomer?.id !== customer.id) {
+        setSelectedCustomer({
+          id: customer.id,
+          name: customer.full_name,
+        });
+      }
+    } else if (!watchReceiverDestinationId && selectedCustomer !== null) {
+      setSelectedCustomer(null);
+      setSelectedDestinationEstablishment(null);
+      // Limpiar receiver_id
+      const currentReceiverId = form.getValues("receiver_id");
+      if (currentReceiverId !== "") {
+        form.setValue("receiver_id", "", {
+          shouldValidate: false,
+          shouldDirty: false,
+          shouldTouch: false,
+        });
+      }
+    }
+  }, [watchReceiverDestinationId, customers, selectedCustomer]);
 
   // Limpiar detalles cuando cambia el tipo de transferencia (PRODUCTO <-> SERVICIO)
   useEffect(() => {
@@ -305,6 +379,27 @@ export const ProductTransferForm = ({
     // Actualizar la referencia al tipo actual
     prevTransferTypeRef.current = transferType;
   }, [transferType, isFirstLoad, mode, form, fields.length]);
+
+  // Forzar cambio a SERVICIO si no ambos establecimientos tienen almacén
+  useEffect(() => {
+    if (mode === "update") return;
+
+    if (!bothEstablishmentsHaveWarehouse && transferType === "PRODUCTO") {
+      form.setValue("item_type", "SERVICIO", {
+        shouldValidate: true,
+      });
+      // Limpiar detalles de productos
+      if (fields.length > 0) {
+        form.setValue("details", []);
+      }
+    }
+  }, [
+    bothEstablishmentsHaveWarehouse,
+    transferType,
+    mode,
+    form,
+    fields.length,
+  ]);
 
   const handleAddDetail = () => {
     if (isProducto) {
@@ -324,11 +419,11 @@ export const ProductTransferForm = ({
   };
 
   if (
-    isLoadingWarehouses ||
     isLoadingSunatConcepts ||
     isLoadingSeries ||
     isLoadingTypesPerson ||
-    isLoadingWarehousesDestination
+    isLoadingCustomers ||
+    isLoadingSuppliers
   ) {
     return <FormSkeleton />;
   }
@@ -349,30 +444,97 @@ export const ProductTransferForm = ({
           }}
         >
           <FormSelect
-            name="warehouse_origin_id"
-            label="Almacén de Origen"
-            placeholder="Selecciona almacén"
-            options={warehouses.map((item) => ({
+            name="transfer_reason_id"
+            label="Motivo de Traslado"
+            placeholder="Selecciona motivo"
+            options={filterReasonTransfer.map((item) => ({
               label: item.description,
               value: item.id.toString(),
             }))}
             control={form.control}
             strictFilter={true}
-            disabled={mode === "update"}
           />
 
-          <FormSelect
-            name="warehouse_destination_id"
-            label="Almacén de Destino"
-            placeholder="Selecciona almacén"
-            options={warehousesDestination.map((item) => ({
-              label: item.description,
-              value: item.id.toString(),
-            }))}
-            control={form.control}
-            strictFilter={true}
-            disabled={mode === "update"}
-          />
+          {/* Ubicación Origen */}
+          <div className="space-y-2">
+            <FormSelect
+              name="transmitter_origin_id"
+              label={() => (
+                <div className="flex items-center gap-2 relative">
+                  <FormLabel>Ubicación Origen</FormLabel>
+                  {selectedSupplier && (
+                    <button
+                      type="button"
+                      onClick={() => setIsOriginModalOpen(true)}
+                      className="p-1 rounded-md hover:bg-primary/10 transition-colors absolute -top-1 right-0"
+                      title="Seleccionar establecimiento"
+                    >
+                      <Search className="h-4 w-4 text-primary" />
+                    </button>
+                  )}
+                </div>
+              )}
+              placeholder="Selecciona proveedor"
+              options={suppliers.map((item) => ({
+                label: item.full_name,
+                value: item.id.toString(),
+              }))}
+              control={form.control}
+              strictFilter={true}
+              disabled={true}
+            />
+            {selectedOriginEstablishment && (
+              <div className="text-xs text-primary space-y-0.5">
+                <p className="font-medium">
+                  {selectedOriginEstablishment.description ||
+                    selectedOriginEstablishment.code}
+                </p>
+                <p>{selectedOriginEstablishment.full_address}</p>
+              </div>
+            )}
+          </div>
+
+          {/* Ubicación Destino */}
+          <div className="space-y-2">
+            <FormSelect
+              name="receiver_destination_id"
+              label={() => (
+                <div className="flex items-center gap-2 relative">
+                  <FormLabel>Ubicación Destino</FormLabel>
+                  {selectedCustomer && (
+                    <button
+                      type="button"
+                      onClick={() => setIsDestinationModalOpen(true)}
+                      className="p-1 rounded-md hover:bg-primary/10 transition-colors absolute -top-1 right-0"
+                      title="Seleccionar establecimiento"
+                    >
+                      <Search className="h-4 w-4 text-primary" />
+                    </button>
+                  )}
+                </div>
+              )}
+              placeholder="Selecciona cliente"
+              options={customers.map((item) => ({
+                label: item.full_name,
+                value: item.id.toString(),
+              }))}
+              control={form.control}
+              strictFilter={true}
+              disabled={
+                watchTransferReasonId ===
+                SUNAT_CONCEPTS_ID.TRANSFER_REASON_TRASLADO_SEDE
+              }
+            />
+            {selectedDestinationEstablishment && (
+              <div className="text-xs text-primary space-y-0.5">
+                <p className="font-medium">
+                  {selectedDestinationEstablishment.description ||
+                    selectedDestinationEstablishment.code}
+                </p>
+                <p>{selectedDestinationEstablishment.full_address}</p>
+              </div>
+            )}
+          </div>
 
           <DatePickerFormField
             control={form.control}
@@ -391,20 +553,7 @@ export const ProductTransferForm = ({
             }))}
             control={form.control}
             strictFilter={true}
-            disabled={!watchWarehouseOriginId}
-          />
-
-          <FormSelect
-            name="transfer_reason_id"
-            label="Motivo de Traslado"
-            placeholder="Selecciona motivo"
-            options={reasonTransfer.map((item) => ({
-              label: item.description,
-              value: item.id.toString(),
-            }))}
-            control={form.control}
-            strictFilter={true}
-            disabled={true}
+            disabled={!selectedOriginEstablishment?.sede_id}
           />
 
           <FormSelect
@@ -617,13 +766,20 @@ export const ProductTransferForm = ({
                 <button
                   type="button"
                   onClick={() => form.setValue("item_type", "PRODUCTO")}
-                  disabled={mode === "update"}
+                  disabled={
+                    mode === "update" || !bothEstablishmentsHaveWarehouse
+                  }
+                  title={
+                    !bothEstablishmentsHaveWarehouse
+                      ? "Ambos establecimientos deben tener almacén para transferir productos"
+                      : ""
+                  }
                   className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all ${
                     isProducto
                       ? "bg-primary text-primary-foreground shadow-sm"
                       : "text-muted-foreground hover:text-foreground"
                   } ${
-                    mode === "update"
+                    mode === "update" || !bothEstablishmentsHaveWarehouse
                       ? "opacity-50 cursor-not-allowed"
                       : "cursor-pointer"
                   }`}
@@ -649,6 +805,16 @@ export const ProductTransferForm = ({
                   <span className="font-medium text-sm">Servicio</span>
                 </button>
               </div>
+
+              {/* Mensaje de advertencia si no tienen almacén */}
+              {!bothEstablishmentsHaveWarehouse && mode === "create" && (
+                <div className="text-xs text-amber-600 dark:text-amber-400 flex items-center gap-1">
+                  <span>
+                    Ambos establecimientos deben tener almacén para transferir
+                    productos
+                  </span>
+                </div>
+              )}
 
               <Button
                 type="button"
@@ -733,7 +899,8 @@ export const ProductTransferForm = ({
                             value: inventory.product_id.toString(),
                           })}
                           additionalParams={{
-                            warehouse_id: selectedWarehouseId,
+                            warehouse_id:
+                              selectedOriginEstablishment?.warehouse_id,
                           }}
                           perPage={10}
                           debounceMs={500}
@@ -873,6 +1040,37 @@ export const ProductTransferForm = ({
                 : "Actualizar Transferencia"}
           </Button>
         </div>
+
+        {/* Modales para seleccionar establecimientos */}
+        <EstablishmentSelectorModal
+          open={isOriginModalOpen}
+          onOpenChange={setIsOriginModalOpen}
+          businessPartnerId={selectedSupplier?.id || null}
+          businessPartnerName={selectedSupplier?.name || ""}
+          onSelectEstablishment={(establishment: EstablishmentsResource) => {
+            setSelectedOriginEstablishment(establishment);
+            // Guardar el establishment_id en transmitter_id (el campo que va a la API)
+            form.setValue("transmitter_id", establishment.id.toString(), {
+              shouldValidate: true,
+            });
+          }}
+          sede_id={selectedOriginEstablishment?.sede_id?.toString()}
+        />
+
+        <EstablishmentSelectorModal
+          open={isDestinationModalOpen}
+          onOpenChange={setIsDestinationModalOpen}
+          businessPartnerId={selectedCustomer?.id || null}
+          businessPartnerName={selectedCustomer?.name || ""}
+          onSelectEstablishment={(establishment: EstablishmentsResource) => {
+            setSelectedDestinationEstablishment(establishment);
+            // Guardar el establishment_id en receiver_id (el campo que va a la API)
+            form.setValue("receiver_id", establishment.id.toString(), {
+              shouldValidate: true,
+            });
+          }}
+          sede_id={selectedDestinationEstablishment?.sede_id?.toString()}
+        />
       </form>
     </Form>
   );
