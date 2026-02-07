@@ -28,9 +28,8 @@ import { useAllCompetences } from "@/features/gp/gestionhumana/evaluaciondesempe
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { notFound } from "@/shared/hooks/useNotFound";
 
-
 export default function HierarchicalCategoryPage() {
-    const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
+  const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
@@ -66,7 +65,9 @@ export default function HierarchicalCategoryPage() {
   });
 
   const { data: positions = [] } = useAllPositions();
-  const { data: objectives = [] } = useAllObjectives();
+  const { data: objectives = [] } = useAllObjectives({
+    active: 1,
+  });
   const { data: competences = [] } = useAllCompetences();
 
   const handleDelete = async () => {
@@ -83,7 +84,7 @@ export default function HierarchicalCategoryPage() {
   };
 
   const handleSelectedCategory = (
-    category: HierarchicalCategoryResource | null
+    category: HierarchicalCategoryResource | null,
   ) => {
     if (!category) return;
     setSelectedCategory(category);
@@ -91,7 +92,7 @@ export default function HierarchicalCategoryPage() {
   };
 
   const handleSelectedForObjective = (
-    category: HierarchicalCategoryResource | null
+    category: HierarchicalCategoryResource | null,
   ) => {
     if (!category) return;
     setSelectedForObjective(category);
@@ -99,7 +100,7 @@ export default function HierarchicalCategoryPage() {
   };
 
   const handleSelectedForCompetence = (
-    category: HierarchicalCategoryResource | null
+    category: HierarchicalCategoryResource | null,
   ) => {
     if (!category) return;
     setSelectedForCompetence(category);
@@ -115,7 +116,8 @@ export default function HierarchicalCategoryPage() {
 
     // juntar y quitar duplicados
     const merged = [...existing, ...positions].filter(
-      (p, i, arr) => arr.findIndex((x) => x.position_id === p.position_id) === i
+      (p, i, arr) =>
+        arr.findIndex((x) => x.position_id === p.position_id) === i,
     );
 
     try {
@@ -126,7 +128,7 @@ export default function HierarchicalCategoryPage() {
       successToast("Posiciones agregadas correctamente.");
     } catch (error: any) {
       errorToast(
-        error?.response?.data?.message ?? "Error al actualizar posiciones."
+        error?.response?.data?.message ?? "Error al actualizar posiciones.",
       );
     }
   };
