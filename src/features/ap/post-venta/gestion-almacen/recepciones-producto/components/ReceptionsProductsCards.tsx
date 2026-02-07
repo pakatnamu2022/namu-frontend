@@ -115,7 +115,7 @@ export default function ReceptionsProductsCards({
                       variant="outline"
                       size="icon"
                       className="size-7"
-                      tooltip="Facturar Guía de Remisión"
+                      tooltip="Asociar Factura de Compra"
                     >
                       <FileCheck className="size-4" />
                     </Button>

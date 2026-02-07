@@ -128,7 +128,6 @@ export default function ReceptionsProductsPage() {
               canDelete: permissions.canDelete,
             }}
             routeUpdate={`${ROUTE_UPDATE}/${purchaseOrderId}`}
-            purchaseOrderNumber={purchaseOrder?.number}
             warehouseName={purchaseOrder?.warehouse}
           />
         }
