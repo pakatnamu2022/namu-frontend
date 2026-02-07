@@ -229,7 +229,9 @@ export default function InvoiceReceptionPage() {
           items:
             reception.details?.map((detail) => ({
               product_id: detail.product_id.toString(),
-              quantity: Number(detail.quantity_received),
+              quantity:
+                Number(detail.quantity_received) +
+                Number(detail.observed_quantity),
               unit_price: Number(detail.product?.cost_price || 0),
               item_total:
                 Number(detail.quantity_received) *
