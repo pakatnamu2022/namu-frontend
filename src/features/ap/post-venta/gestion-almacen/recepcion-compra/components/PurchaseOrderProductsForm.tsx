@@ -86,7 +86,12 @@ export const PurchaseOrderProductsForm = ({
     mode: "onChange",
   });
 
-  const { fields, append, remove } = useFieldArray({
+  // const { fields, append, remove } = useFieldArray({
+  //   control: form.control,
+  //   name: "items",
+  // });
+
+  const { fields } = useFieldArray({
     control: form.control,
     name: "items",
   });
