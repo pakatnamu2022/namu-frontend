@@ -51,8 +51,6 @@ export default function AddProductTransferPage() {
       />
       <ProductTransferForm
         defaultValues={{
-          warehouse_origin_id: "",
-          warehouse_destination_id: "",
           document_series_id: "",
           movement_date: "",
           notes: "",

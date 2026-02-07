@@ -1034,12 +1034,14 @@ export default function ProformaMesonForm({
             <FormSelectAsync
               placeholder="Seleccionar vehículo"
               control={form.control}
-              label={"Vehículo (Opcional)"}
+              label={"Vehículo"}
               name="vehicle_id"
               useQueryHook={useVehicles}
               mapOptionFn={(item: VehicleResource) => ({
                 value: item.id.toString(),
-                label: `${item.plate || item.vin} - ${item.model?.code || ""}`,
+                label: item.plate
+                  ? `${item.plate} - ${item.vin || ""}`
+                  : item.vin || "-",
               })}
               perPage={10}
               debounceMs={500}
@@ -1047,7 +1049,9 @@ export default function ProformaMesonForm({
                 vehicleData
                   ? {
                       value: vehicleData.id.toString(),
-                      label: `${vehicleData.plate || vehicleData.vin} - ${vehicleData.model?.code || ""}`,
+                      label: vehicleData.plate
+                        ? `${vehicleData.plate} - ${vehicleData.vin || ""}`
+                        : vehicleData.vin || "-",
                     }
                   : undefined
               }

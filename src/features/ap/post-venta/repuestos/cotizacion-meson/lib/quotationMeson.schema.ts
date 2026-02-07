@@ -34,7 +34,7 @@ export const quotationMesonWithProductsSchemaCreate = z.object({
   // Campos de la cotización
   area_id: requiredStringId("Área es requerida"),
   client_id: requiredStringId("Cliente es requerido"),
-  vehicle_id: z.string().optional(),
+  vehicle_id: requiredStringId("Vehículo es requerido"),
   sede_id: requiredStringId("Sede es requerida"),
   currency_id: requiredStringId("Moneda es requerida"),
   quotation_date: requiredDate("Fecha de cotización es requerida"),

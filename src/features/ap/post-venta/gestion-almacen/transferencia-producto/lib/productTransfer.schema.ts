@@ -25,14 +25,10 @@ export const productTransferDetailSchema = z.object({
 // Schema base para transferencia de productos
 const productTransferSchemaBase = z.object({
   item_type: z.enum(["PRODUCTO", "SERVICIO"]),
-  warehouse_origin_id: requiredStringId("El almacén de origen es requerido"),
   document_type: z.string().min(1, "El tipo de documento es requerido"),
   issuer_type: z.string().min(1, "El tipo de emisor es requerido"),
   issue_date: z.union([z.literal(""), z.date()]).optional(),
   document_series_id: requiredStringId("La serie del documento es requerida"),
-  warehouse_destination_id: requiredStringId(
-    "El almacén de destino es requerido",
-  ),
   movement_date: z.union([z.literal(""), z.date()]).optional(),
   notes: z.string().optional(),
   type_person_id: requiredStringId("El tipo de persona es requerido"),
@@ -51,25 +47,17 @@ const productTransferSchemaBase = z.object({
     .array(productTransferDetailSchema)
     .min(1, "Debe actualizar al menos un producto"),
   transmitter_origin_id: requiredStringId(
-    "El remitente en el origen es requerido",
+    "La ubicación de origen es requerida",
   ),
   receiver_destination_id: requiredStringId(
-    "El receptor en el destino es requerido",
+    "La ubicación de destino es requerida",
   ),
+  transmitter_id: requiredStringId("El establecimiento de origen es requerido"),
+  receiver_id: requiredStringId("El establecimiento de destino es requerido"),
 });
 
 // Schema para creación con validaciones condicionales
 export const productTransferSchemaCreate = productTransferSchemaBase
-  .refine(
-    (data) => {
-      // El almacén de origen no puede ser igual al de destino
-      return data.warehouse_origin_id !== data.warehouse_destination_id;
-    },
-    {
-      message: "El almacén de origen no puede ser igual al almacén de destino",
-      path: ["warehouse_destination_id"],
-    },
-  )
   .refine(
     (data) => {
       // Si es PRODUCTO, todos los detalles deben tener product_id

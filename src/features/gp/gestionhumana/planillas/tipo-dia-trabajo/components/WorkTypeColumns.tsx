@@ -3,11 +3,17 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { WorkTypeResource } from "../lib/work-type.interface";
 import { Button } from "@/components/ui/button";
-import { Pencil, Check, X } from "lucide-react";
+import { Pencil, ListTree } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { WORK_TYPE } from "../lib/work-type.constant";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export type WorkTypeColumns = ColumnDef<WorkTypeResource>;
 
@@ -31,6 +37,10 @@ export const workTypeColumns = ({
     ),
   },
   {
+    accessorKey: "description",
+    header: "Descripción",
+  },
+  {
     accessorKey: "multiplier",
     header: "Multiplicador",
     cell: ({ getValue }) => (
@@ -45,54 +55,6 @@ export const workTypeColumns = ({
     ),
   },
   {
-    accessorKey: "is_extra_hours",
-    header: "Horas Extra",
-    cell: ({ getValue }) => {
-      const value = getValue() as boolean;
-      return value ? (
-        <Check className="size-4 text-green-600" />
-      ) : (
-        <X className="size-4 text-muted-foreground" />
-      );
-    },
-  },
-  {
-    accessorKey: "is_night_shift",
-    header: "Nocturno",
-    cell: ({ getValue }) => {
-      const value = getValue() as boolean;
-      return value ? (
-        <Check className="size-4 text-green-600" />
-      ) : (
-        <X className="size-4 text-muted-foreground" />
-      );
-    },
-  },
-  {
-    accessorKey: "is_holiday",
-    header: "Feriado",
-    cell: ({ getValue }) => {
-      const value = getValue() as boolean;
-      return value ? (
-        <Check className="size-4 text-green-600" />
-      ) : (
-        <X className="size-4 text-muted-foreground" />
-      );
-    },
-  },
-  {
-    accessorKey: "is_sunday",
-    header: "Domingo",
-    cell: ({ getValue }) => {
-      const value = getValue() as boolean;
-      return value ? (
-        <Check className="size-4 text-green-600" />
-      ) : (
-        <X className="size-4 text-muted-foreground" />
-      );
-    },
-  },
-  {
     accessorKey: "active",
     header: "Estado",
     cell: ({ getValue }) => {
@@ -105,27 +67,52 @@ export const workTypeColumns = ({
     },
   },
   {
-    accessorKey: "order",
-    header: "Orden",
-  },
-  {
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
       const router = useNavigate();
       const { id } = row.original;
-      const { ROUTE_UPDATE } = WORK_TYPE;
+      const { ROUTE_UPDATE, ABSOLUTE_ROUTE } = WORK_TYPE;
 
       return (
         <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="icon"
-            className="size-7"
-            onClick={() => router(`${ROUTE_UPDATE}/${id}`)}
-          >
-            <Pencil className="size-4" />
-          </Button>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="size-7"
+                  onClick={() => router(`${ABSOLUTE_ROUTE}/segmentos/${id}`)}
+                >
+                  <ListTree className="size-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Gestionar Segmentos</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="size-7"
+                  onClick={() => router(`${ROUTE_UPDATE}/${id}`)}
+                >
+                  <Pencil className="size-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Editar</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
           <DeleteButton onClick={() => onDelete(id)} />
         </div>
       );

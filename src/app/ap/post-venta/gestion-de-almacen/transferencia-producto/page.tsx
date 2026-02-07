@@ -5,8 +5,8 @@ import { useEffect, useState } from "react";
 import {
   ERROR_MESSAGE,
   errorToast,
-  getMonday,
-  getSunday,
+  getCurrentDayOfMonth,
+  getFirstDayOfMonth,
   SUCCESS_MESSAGE,
   successToast,
 } from "@/core/core.function.ts";
@@ -30,7 +30,7 @@ import {
   useSendShippingGuideToNubefact,
   useQueryShippingGuideFromNubefact,
 } from "@/features/ap/post-venta/gestion-almacen/transferencia-producto/lib/productTransfer.hook.ts";
-import { ProductTransferViewSheet } from "@/features/ap/post-venta/gestion-almacen/recepcion-transferencia/components/ProductTransferViewSheet.tsx";
+import { ProductTransferViewSheet } from "@/features/ap/post-venta/gestion-almacen/transferencia-producto/components/ProductTransferViewSheet";
 import { useMyPhysicalWarehouse } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
 
 export default function ProductTransferPage() {
@@ -41,7 +41,7 @@ export default function ProductTransferPage() {
   const [warehouseId, setWarehouseId] = useState<string>("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [sendToNubefactId, setSendToNubefactId] = useState<number | null>(null);
-  const [viewId, setViewId] = useState<number | null>(null);
+  const [viewId, setViewId] = useState<number>(0);
   const [isViewSheetOpen, setIsViewSheetOpen] = useState(false);
   const { MODEL, ROUTE, ROUTE_UPDATE } = PRODUCT_TRANSFER;
   const permissions = useModulePermissions(ROUTE);
@@ -50,10 +50,10 @@ export default function ProductTransferPage() {
   const currentDate = new Date();
 
   const [dateFrom, setDateFrom] = useState<Date | undefined>(
-    getMonday(currentDate),
+    getFirstDayOfMonth(currentDate),
   );
   const [dateTo, setDateTo] = useState<Date | undefined>(
-    getSunday(currentDate),
+    getCurrentDayOfMonth(currentDate),
   );
 
   // Obtener mis almacenes físicos de postventa

@@ -1,4 +1,4 @@
-import GeneralSheet from "@/shared/components/GeneralSheet";
+  import GeneralSheet from "@/shared/components/GeneralSheet";
 import {
   Table,
   TableBody,

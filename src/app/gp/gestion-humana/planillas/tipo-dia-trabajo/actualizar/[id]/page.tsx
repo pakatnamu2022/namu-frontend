@@ -68,6 +68,7 @@ export default function UpdateWorkTypePage() {
       is_sunday: data.is_sunday,
       active: data.active,
       order: data.order,
+      shift_type: data.shift_type || "MORNING",
     };
   }
 

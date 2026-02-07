@@ -36,7 +36,6 @@ const purchaseOrderProductsSchemaBase = z.object({
     .refine((value) => value.trim() !== "", {
       message: "Número de factura es requerido",
     }),
-  ap_supplier_order_id: requiredStringId("Orden de compra es requerida"),
   supplier_id: requiredStringId("Cliente es requerido"),
   sede_id: requiredStringId("Sede es requerido"),
   emission_date: z.union([z.literal(""), z.date()]).optional(),
@@ -83,13 +82,13 @@ export type PurchaseOrderProductItemSchema = z.infer<
 >;
 
 export function validatePurchaseOrderProductsFormData(
-  data: any
+  data: any,
 ): PurchaseOrderProductsSchema {
   return purchaseOrderProductsSchemaCreate.parse(data);
 }
 
 export function validatePurchaseOrderProductsUpdateFormData(
-  data: any
+  data: any,
 ): Partial<PurchaseOrderProductsSchema> {
   return purchaseOrderProductsSchemaUpdate.parse(data);
 }

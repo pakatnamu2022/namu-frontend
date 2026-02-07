@@ -20,28 +20,28 @@ import ReceptionsProductsTable from "@/features/ap/post-venta/gestion-almacen/re
 import ReceptionsProductsCards from "@/features/ap/post-venta/gestion-almacen/recepciones-producto/components/ReceptionsProductsCards.tsx";
 import { RECEPTION } from "@/features/ap/post-venta/gestion-almacen/recepciones-producto/lib/receptionsProducts.constants.ts";
 import { useParams, useNavigate } from "react-router-dom";
-import { usePurchaseOrderProductsById } from "@/features/ap/post-venta/gestion-almacen/recepcion-compra/lib/purchaseOrderProducts.hook.ts";
 import { Button } from "@/components/ui/button.tsx";
 import { ArrowLeft, Plus } from "lucide-react";
 import { Card } from "@/components/ui/card.tsx";
-import { PURCHASE_ORDER_PRODUCT } from "@/features/ap/post-venta/gestion-almacen/recepcion-compra/lib/purchaseOrderProducts.constants.ts";
+import { useSupplierOrderById } from "@/features/ap/post-venta/gestion-almacen/pedido-proveedor/lib/supplierOrder.hook";
+import { SUPPLIER_ORDER } from "@/features/ap/post-venta/gestion-almacen/pedido-proveedor/lib/supplierOrder.constants";
 
 export default function ReceptionsProductsPage() {
   const { checkRouteExists, isLoadingModule } = useCurrentModule();
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const { MODEL, ROUTE_ADD, ROUTE_UPDATE } = RECEPTION;
-  const { ROUTE, ABSOLUTE_ROUTE } = PURCHASE_ORDER_PRODUCT;
+  const { ROUTE, ABSOLUTE_ROUTE } = SUPPLIER_ORDER;
   const permissions = useModulePermissions(ROUTE);
   const navigate = useNavigate();
-  const { purchaseOrderId } = useParams<{ purchaseOrderId: string }>();
-  const purchaseOrderIdNum = purchaseOrderId
-    ? parseInt(purchaseOrderId)
+  const { supplierOrderId } = useParams<{ supplierOrderId: string }>();
+  const supplierOrderIdNum = supplierOrderId
+    ? parseInt(supplierOrderId)
     : undefined;
 
-  const { data: purchaseOrder, isLoading: isLoadingPurchaseOrder } =
-    usePurchaseOrderProductsById(purchaseOrderIdNum || 0);
+  const { data: supplierOrder, isLoading: isLoadingSupplierOrder } =
+    useSupplierOrderById(supplierOrderIdNum || 0);
 
-  const { data, isLoading, refetch } = useAllReceptions({}, purchaseOrderIdNum);
+  const { data, isLoading, refetch } = useAllReceptions({}, supplierOrderIdNum);
 
   const handleDelete = async () => {
     if (!deleteId) return;
@@ -62,12 +62,12 @@ export default function ReceptionsProductsPage() {
   };
 
   const handleAddReception = () => {
-    navigate(`${ROUTE_ADD}/${purchaseOrderId}`);
+    navigate(`${ROUTE_ADD}/${supplierOrderId}`);
   };
 
-  if (isLoadingModule || isLoadingPurchaseOrder) return <PageSkeleton />;
+  if (isLoadingModule || isLoadingSupplierOrder) return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) return <NotFound />;
-  if (!purchaseOrder) return <NotFound />;
+  if (!supplierOrder) return <NotFound />;
 
   return (
     <div className="space-y-4">
@@ -83,7 +83,7 @@ export default function ReceptionsProductsPage() {
           </Button>
           <div className="flex-1">
             <TitleComponent
-              title={`Recepciones - ${purchaseOrder.number}`}
+              title={`Recepciones - ${supplierOrder.order_number}`}
               subtitle="Gestión de recepciones de productos"
               icon="PackageCheck"
             />
@@ -100,17 +100,19 @@ export default function ReceptionsProductsPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           <div>
             <p className="text-sm text-muted-foreground">Proveedor</p>
-            <p className="font-semibold">{purchaseOrder.supplier}</p>
+            <p className="font-semibold">{supplierOrder.supplier?.full_name}</p>
           </div>
           <div>
             <p className="text-sm text-muted-foreground">Almacén</p>
-            <p className="font-semibold">{purchaseOrder.warehouse || "N/A"}</p>
+            <p className="font-semibold">
+              {supplierOrder.warehouse?.description || "N/A"}
+            </p>
           </div>
           <div>
             <p className="text-sm text-muted-foreground">Total Orden</p>
             <p className="font-semibold">
-              {purchaseOrder.currency_code === "USD" ? "$" : "S/."}
-              {purchaseOrder.total.toFixed(2)}
+              {supplierOrder.type_currency?.symbol}
+              {Number(supplierOrder.total_amount).toFixed(2)}
             </p>
           </div>
         </div>
@@ -127,8 +129,10 @@ export default function ReceptionsProductsPage() {
               canUpdate: permissions.canUpdate,
               canDelete: permissions.canDelete,
             }}
-            routeUpdate={`${ROUTE_UPDATE}/${purchaseOrderId}`}
-            warehouseName={purchaseOrder?.warehouse}
+            routeUpdate={`${ROUTE_UPDATE}/${supplierOrderId}`}
+            routeInvoice={`${ABSOLUTE_ROUTE}/recepcionar/facturar`}
+            supplierOrderNumber={supplierOrder.order_number}
+            warehouseName={supplierOrder?.warehouse?.description || ""}
           />
         }
       ></ReceptionsProductsTable>

@@ -55,15 +55,15 @@ export const productTransferColumns = ({
   },
   {
     accessorKey: "warehouse_code",
-    header: "Almacén Origen",
+    header: "Origen",
   },
   {
     accessorKey: "warehouse_destination_code",
-    header: "Almacén Destino",
-  },
-  {
-    accessorKey: "user_name",
-    header: "Registrado Por",
+    header: "Destino",
+    cell: ({ row }) => {
+      const value = row.getValue("warehouse_destination_code");
+      return value ?? "-";
+    },
   },
   {
     accessorKey: "notes",

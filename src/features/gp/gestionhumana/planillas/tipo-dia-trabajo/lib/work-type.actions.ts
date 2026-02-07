@@ -32,27 +32,58 @@ export async function getAllWorkTypes(): Promise<WorkTypeResource[]> {
   return data;
 }
 
-export async function findWorkTypeById(
-  id: number
-): Promise<WorkTypeResource> {
+export async function findWorkTypeById(id: number): Promise<WorkTypeResource> {
   const response = await api.get<WorkTypeResource>(`${ENDPOINT}/${id}`);
   return response.data;
 }
 
-export async function storeWorkType(data: any): Promise<WorkTypeResponse> {
-  const response = await api.post<WorkTypeResponse>(ENDPOINT, data);
+export async function storeWorkType(data: any): Promise<WorkTypeResource> {
+  const response = await api.post<WorkTypeResource>(ENDPOINT, data);
   return response.data;
 }
 
 export async function updateWorkType(
   id: number,
-  data: any
-): Promise<WorkTypeResponse> {
-  const response = await api.put<WorkTypeResponse>(`${ENDPOINT}/${id}`, data);
+  data: any,
+): Promise<WorkTypeResource> {
+  const response = await api.put<WorkTypeResource>(`${ENDPOINT}/${id}`, data);
   return response.data;
 }
 
 export async function deleteWorkType(id: number): Promise<GeneralResponse> {
   const { data } = await api.delete<GeneralResponse>(`${ENDPOINT}/${id}`);
+  return data;
+}
+
+// Work Type Segments Actions
+export async function getWorkTypeSegments(
+  workTypeId: number,
+): Promise<WorkTypeResource> {
+  const response = await api.get<WorkTypeResource>(`${ENDPOINT}/${workTypeId}`);
+  return response.data;
+}
+
+export async function storeWorkTypeSegment(segmentData: any): Promise<any> {
+  const response = await api.post(`${ENDPOINT}/segments`, segmentData);
+  return response.data;
+}
+
+export async function updateWorkTypeSegment(
+  segmentId: number,
+  segmentData: any,
+): Promise<any> {
+  const response = await api.put(
+    `${ENDPOINT}/segments/${segmentId}`,
+    segmentData,
+  );
+  return response.data;
+}
+
+export async function deleteWorkTypeSegment(
+  segmentId: number,
+): Promise<GeneralResponse> {
+  const { data } = await api.delete<GeneralResponse>(
+    `${ENDPOINT}/segments/${segmentId}`,
+  );
   return data;
 }

@@ -8,7 +8,9 @@ import {
   SUCCESS_MESSAGE,
   successToast,
 } from "@/core/core.function";
-import { storeWorkType } from "@/features/gp/gestionhumana/planillas/tipo-dia-trabajo/lib/work-type.actions";
+import {
+  storeWorkType,
+} from "@/features/gp/gestionhumana/planillas/tipo-dia-trabajo/lib/work-type.actions";
 import { WorkTypeForm } from "@/features/gp/gestionhumana/planillas/tipo-dia-trabajo/components/WorkTypeForm";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
@@ -55,13 +57,14 @@ export default function AddWorkTypePage() {
           name: "",
           description: "",
           multiplier: 1,
-          base_hours: 8,
+          base_hours: 12,
           is_extra_hours: false,
           is_night_shift: false,
           is_holiday: false,
           is_sunday: false,
           active: true,
           order: 0,
+          shift_type: "MORNING",
         }}
         onSubmit={handleSubmit}
         isSubmitting={isPending}

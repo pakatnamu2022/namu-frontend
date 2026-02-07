@@ -239,14 +239,13 @@ import InventoryPage from "./app/ap/post-venta/gestion-de-almacen/inventario/pag
 import InventoryKardexPage from "@/app/ap/post-venta/gestion-de-almacen/inventario/kardex/page.tsx";
 import ProductKardexPage from "@/app/ap/post-venta/gestion-de-almacen/inventario/movimientos/[productId]/[warehouseId]/page.tsx";
 import PurchaseHistoryPage from "@/app/ap/post-venta/gestion-de-almacen/inventario/historico-compras/[productId]/[warehouseId]/page.tsx";
-import PurchaseOrderProductsPage from "./app/ap/post-venta/gestion-de-almacen/recepcion-compra/page.tsx";
-import ReceptionsProductsPage from "@/app/ap/post-venta/gestion-de-almacen/recepcion-compra/recepcion/[purchaseOrderId]/page.tsx";
-import UpdateReceptionProductPage from "@/app/ap/post-venta/gestion-de-almacen/recepcion-compra/recepcion/actualizar/[purchaseOrderId]/[id]/page.tsx";
-import AddReceptionProductPage from "@/app/ap/post-venta/gestion-de-almacen/recepcion-compra/recepcion/agregar/[purchaseOrderId]/page.tsx";
+import ReceptionsProductsPage from "@/app/ap/post-venta/gestion-de-almacen/pedido-proveedor/recepcionar/[supplierOrderId]/page.tsx";
+import UpdateReceptionProductPage from "@/app/ap/post-venta/gestion-de-almacen/pedido-proveedor/recepcionar/actualizar/[supplierOrderId]/[id]/page.tsx";
+import AddReceptionProductPage from "@/app/ap/post-venta/gestion-de-almacen/pedido-proveedor/recepcionar/agregar/[supplierOrderId]/page.tsx";
 import SupplierOrderPage from "./app/ap/post-venta/gestion-de-almacen/pedido-proveedor/page.tsx";
 import AddSupplierOrderPage from "@/app/ap/post-venta/gestion-de-almacen/pedido-proveedor/agregar/page.tsx";
 import UpdateSupplierOrderPage from "@/app/ap/post-venta/gestion-de-almacen/pedido-proveedor/actualizar/[id]/page.tsx";
-import InvoiceSupplierOrderPage from "@/app/ap/post-venta/gestion-de-almacen/pedido-proveedor/facturar/[id]/page.tsx";
+import InvoiceReceptionPage from "@/app/ap/post-venta/gestion-de-almacen/pedido-proveedor/recepcionar/facturar/[receptionId]/page.tsx";
 import WarehousePurchaseRequestPage from "./app/ap/post-venta/gestion-de-almacen/solicitud-compra-almacen/page.tsx";
 import AddWarehousePurchaseRequestPage from "@/app/ap/post-venta/gestion-de-almacen/solicitud-compra-almacen/agregar/page.tsx";
 import UpdateWarehousePurchaseRequestPage from "@/app/ap/post-venta/gestion-de-almacen/solicitud-compra-almacen/actualizar/[id]/page.tsx";
@@ -376,6 +375,7 @@ import UpdatePayrollPeriodPage from "./app/gp/gestion-humana/planillas/periodos/
 import WorkTypePage from "./app/gp/gestion-humana/planillas/tipo-dia-trabajo/page.tsx";
 import AddWorkTypePage from "./app/gp/gestion-humana/planillas/tipo-dia-trabajo/agregar/page.tsx";
 import UpdateWorkTypePage from "./app/gp/gestion-humana/planillas/tipo-dia-trabajo/actualizar/[id]/page.tsx";
+import ManageSegmentsPage from "./app/gp/gestion-humana/planillas/tipo-dia-trabajo/segmentos/[id]/page.tsx";
 import WorkSchedulesPage from "./app/gp/gestion-humana/planillas/dia-trabajo/page.tsx";
 import ProfileLayout from "./features/dashboard/components/ProfileLayout.tsx";
 import ControlGoalPage from "./app/tp/comercial-tp/control-metas/page.tsx";
@@ -1144,7 +1144,10 @@ function App() {
               {/* Dashboard Principal */}
               <Route index element={<ModulePage />} />
               {/* Gestión de Almacén */}
-              <Route path="gestion-de-almacen" element={<WarehouseManagementPage />} />
+              <Route
+                path="gestion-de-almacen"
+                element={<WarehouseManagementPage />}
+              />
               {/* Gestión de Productos */}
               <Route
                 path="gestion-de-almacen/categorias-producto"
@@ -1228,22 +1231,6 @@ function App() {
                 element={<PurchaseHistoryPage />}
               />
               <Route
-                path="gestion-de-almacen/recepcion-compra"
-                element={<PurchaseOrderProductsPage />}
-              />
-              <Route
-                path="gestion-de-almacen/recepcion-compra/recepcion/:purchaseOrderId"
-                element={<ReceptionsProductsPage />}
-              />
-              <Route
-                path="gestion-de-almacen/recepcion-compra/recepcion/agregar/:purchaseOrderId"
-                element={<AddReceptionProductPage />}
-              />
-              <Route
-                path="gestion-de-almacen/recepcion-compra/recepcion/actualizar/:purchaseOrderId/:id"
-                element={<UpdateReceptionProductPage />}
-              />
-              <Route
                 path="gestion-de-almacen/pedido-proveedor"
                 element={<SupplierOrderPage />}
               />
@@ -1256,8 +1243,20 @@ function App() {
                 element={<UpdateSupplierOrderPage />}
               />
               <Route
-                path="gestion-de-almacen/pedido-proveedor/facturar/:id"
-                element={<InvoiceSupplierOrderPage />}
+                path="gestion-de-almacen/pedido-proveedor/recepcionar/facturar/:receptionId"
+                element={<InvoiceReceptionPage />}
+              />
+              <Route
+                path="gestion-de-almacen/pedido-proveedor/recepcionar/:supplierOrderId"
+                element={<ReceptionsProductsPage />}
+              />
+              <Route
+                path="gestion-de-almacen/pedido-proveedor/recepcionar/agregar/:supplierOrderId"
+                element={<AddReceptionProductPage />}
+              />
+              <Route
+                path="gestion-de-almacen/pedido-proveedor/recepcionar/actualizar/:supplierOrderId/:id"
+                element={<UpdateReceptionProductPage />}
               />
               <Route
                 path="gestion-de-almacen/solicitud-compra-almacen"
@@ -1801,6 +1800,10 @@ function App() {
                 <AddWorkTypePage />,
                 <UpdateWorkTypePage />,
               )}
+              <Route
+                path="planillas/tipo-dia-trabajo/segmentos/:id"
+                element={<ManageSegmentsPage />}
+              />
             </Route>
 
             {/* ======================================================== */}
@@ -1875,7 +1878,10 @@ function App() {
               <Route path="control-viajes" element={<ControlTravelPage />} />
               <Route path="control-fletes" element={<ControlFreightPage />} />
               <Route path="control-metas" element={<ControlGoalPage />} />
-              <Route path="control-asignacionVehiculos" element={<ControlVehicleAssignmentPage/>} />
+              <Route
+                path="control-asignacionVehiculos"
+                element={<ControlVehicleAssignmentPage />}
+              />
             </Route>
 
             {/* ======================================================== */}

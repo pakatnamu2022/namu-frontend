@@ -79,7 +79,7 @@ export const QuotationSelectionModal = ({
       },
     },
     {
-      accessorKey: "customer",
+      accessorKey: "client.full_name",
       header: "Cliente",
       cell: ({ getValue }) => {
         const value = getValue() as string;
@@ -96,7 +96,7 @@ export const QuotationSelectionModal = ({
           return <span className="text-muted-foreground">-</span>;
         }
 
-        const plate = vehicle?.plate || "-";
+        const plate = vehicle?.plate || vehicle?.vin || "-";
         const brand = vehicle?.model?.brand || "";
         const family = vehicle?.model?.family || "";
 

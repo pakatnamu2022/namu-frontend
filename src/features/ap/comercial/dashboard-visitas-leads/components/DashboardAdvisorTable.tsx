@@ -15,7 +15,8 @@ export default function DashboardAdvisorTable({
   selectedSedeId,
 }: DashboardAdvisorTableProps) {
   const sortedData = useMemo(
-    () => [...data].sort((a, b) => b.total_visitas - a.total_visitas),
+    () =>
+      [...data].sort((a, b) => a.worker_nombre.localeCompare(b.worker_nombre)),
     [data],
   );
 
