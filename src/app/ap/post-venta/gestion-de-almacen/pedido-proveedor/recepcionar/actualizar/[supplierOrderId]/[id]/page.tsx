@@ -72,7 +72,6 @@ export default function UpdateReceptionProductPage() {
     data: ReceptionResource,
   ): Partial<ReceptionSchema> {
     return {
-      purchase_order_id: String(data.purchase_order_id),
       reception_date: data.reception_date
         ? new Date(data.reception_date)
         : undefined,
@@ -129,8 +128,6 @@ export default function UpdateReceptionProductPage() {
         isSubmitting={isPending}
         mode="update"
         onCancel={() => router(`${ABSOLUTE_ROUTE}/${purchaseOrderId}`)}
-        purchaseOrderNumber={purchaseOrder.number}
-        purchaseOrderItems={purchaseOrder.items || []}
       />
     </FormWrapper>
   );

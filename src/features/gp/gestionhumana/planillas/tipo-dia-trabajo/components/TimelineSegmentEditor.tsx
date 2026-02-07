@@ -28,13 +28,14 @@ export const TimelineSegmentEditor = ({
   onChange,
 }: TimelineSegmentEditorProps) => {
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [editingSegment, setEditingSegment] = useState<WorkTypeSegmentSchema | null>(null);
+  const [editingSegment, setEditingSegment] =
+    useState<WorkTypeSegmentSchema | null>(null);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
   const shiftStart = shiftType === "MORNING" ? 7 : 19;
-  const shiftEnd = shiftType === "MORNING" ? 19 : 7; // Next day for night shift
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/immutability
     validateSegments();
   }, [segments]);
 
@@ -48,7 +49,9 @@ export const TimelineSegmentEditor = ({
     }
 
     // Sort segments by start_hour
-    const sortedSegments = [...segments].sort((a, b) => a.start_hour - b.start_hour);
+    const sortedSegments = [...segments].sort(
+      (a, b) => a.start_hour - b.start_hour,
+    );
 
     // Check for overlaps
     for (let i = 0; i < sortedSegments.length - 1; i++) {
@@ -56,14 +59,21 @@ export const TimelineSegmentEditor = ({
       const next = sortedSegments[i + 1];
 
       if (current.end_hour > next.start_hour) {
-        errors.push(`Los segmentos se traslapan entre ${formatHour(current.start_hour)} y ${formatHour(next.start_hour)}`);
+        errors.push(
+          `Los segmentos se traslapan entre ${formatHour(current.start_hour)} y ${formatHour(next.start_hour)}`,
+        );
       }
     }
 
     // Check if segments cover the full 12 hours
-    const totalDuration = segments.reduce((sum, seg) => sum + seg.duration_hours, 0);
+    const totalDuration = segments.reduce(
+      (sum, seg) => sum + seg.duration_hours,
+      0,
+    );
     if (Math.abs(totalDuration - 12) > 0.01) {
-      errors.push(`Los segmentos deben sumar exactamente 12 horas (actualmente: ${totalDuration.toFixed(2)}h)`);
+      errors.push(
+        `Los segmentos deben sumar exactamente 12 horas (actualmente: ${totalDuration.toFixed(2)}h)`,
+      );
     }
 
     // Check if there are gaps
@@ -71,7 +81,9 @@ export const TimelineSegmentEditor = ({
       let currentHour = shiftStart;
       for (const segment of sortedSegments) {
         if (segment.start_hour !== currentHour) {
-          errors.push(`Hay un espacio sin cubrir entre ${formatHour(currentHour)} y ${formatHour(segment.start_hour)}`);
+          errors.push(
+            `Hay un espacio sin cubrir entre ${formatHour(currentHour)} y ${formatHour(segment.start_hour)}`,
+          );
         }
         currentHour = segment.end_hour;
       }
@@ -79,7 +91,9 @@ export const TimelineSegmentEditor = ({
       // Check last segment
       const expectedEnd = shiftType === "MORNING" ? 19 : 7;
       if (sortedSegments[sortedSegments.length - 1].end_hour !== expectedEnd) {
-        errors.push(`El último segmento debe terminar a las ${formatHour(expectedEnd)}`);
+        errors.push(
+          `El último segmento debe terminar a las ${formatHour(expectedEnd)}`,
+        );
       }
     }
 
@@ -122,7 +136,9 @@ export const TimelineSegmentEditor = ({
 
   const handleAddSegment = () => {
     // Find the next available hour
-    const sortedSegments = [...segments].sort((a, b) => a.start_hour - b.start_hour);
+    const sortedSegments = [...segments].sort(
+      (a, b) => a.start_hour - b.start_hour,
+    );
     let nextStartHour = shiftStart;
 
     if (sortedSegments.length > 0) {
@@ -152,7 +168,7 @@ export const TimelineSegmentEditor = ({
 
   const handleDeleteSegment = (segment: WorkTypeSegmentSchema) => {
     const newSegments = segments.filter(
-      (s) => (s.id || s.tempId) !== (segment.id || segment.tempId)
+      (s) => (s.id || s.tempId) !== (segment.id || segment.tempId),
     );
     onChange(newSegments);
   };
@@ -160,7 +176,8 @@ export const TimelineSegmentEditor = ({
   const handleSaveSegment = (segment: WorkTypeSegmentSchema) => {
     // Check if the segment exists in the array
     const segmentExists = segments.some(
-      (s) => (s.id || s.tempId) === (editingSegment?.id || editingSegment?.tempId)
+      (s) =>
+        (s.id || s.tempId) === (editingSegment?.id || editingSegment?.tempId),
     );
 
     if (segmentExists) {
@@ -168,7 +185,7 @@ export const TimelineSegmentEditor = ({
       const newSegments = segments.map((s) =>
         (s.id || s.tempId) === (editingSegment?.id || editingSegment?.tempId)
           ? { ...segment, id: s.id, tempId: s.tempId }
-          : s
+          : s,
       );
       onChange(newSegments);
     } else {
@@ -191,18 +208,25 @@ export const TimelineSegmentEditor = ({
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle className="text-lg">
-              Configuración de Segmentos - Turno {shiftType === "MORNING" ? "Mañana" : "Noche"}
+              Configuración de Segmentos - Turno{" "}
+              {shiftType === "MORNING" ? "Mañana" : "Noche"}
             </CardTitle>
-            <Badge variant={isValid ? "default" : "destructive"}>
+            <Badge>
               {isValid ? (
-                <><CheckCircle2 className="w-3 h-3 mr-1" /> Válido</>
+                <>
+                  <CheckCircle2 className="w-3 h-3 mr-1" /> Válido
+                </>
               ) : (
-                <><AlertCircle className="w-3 h-3 mr-1" /> Incompleto</>
+                <>
+                  <AlertCircle className="w-3 h-3 mr-1" /> Incompleto
+                </>
               )}
             </Badge>
           </div>
           <p className="text-sm text-muted-foreground">
-            {shiftType === "MORNING" ? "7:00 AM - 7:00 PM" : "7:00 PM - 7:00 AM"}
+            {shiftType === "MORNING"
+              ? "7:00 AM - 7:00 PM"
+              : "7:00 PM - 7:00 AM"}
           </p>
         </CardHeader>
 
@@ -226,7 +250,10 @@ export const TimelineSegmentEditor = ({
             {/* Segments */}
             <div className="absolute top-2 left-0 right-0 h-12">
               {segments.map((segment, index) => {
-                const position = getSegmentPosition(segment.start_hour, segment.end_hour);
+                const position = getSegmentPosition(
+                  segment.start_hour,
+                  segment.end_hour,
+                );
                 return (
                   <TooltipProvider key={segment.id || segment.tempId || index}>
                     <Tooltip>
@@ -242,7 +269,10 @@ export const TimelineSegmentEditor = ({
                         >
                           <div className="absolute inset-0 flex items-center justify-center text-white text-xs font-medium px-2">
                             <span className="truncate">
-                              {segment.segment_type === "WORK" ? "Trabajo" : "Descanso"} x{segment.multiplier}
+                              {segment.segment_type === "WORK"
+                                ? "Trabajo"
+                                : "Descanso"}{" "}
+                              x{segment.multiplier}
                             </span>
                           </div>
                           <div className="absolute right-1 top-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -264,15 +294,20 @@ export const TimelineSegmentEditor = ({
                       <TooltipContent>
                         <div className="space-y-1">
                           <p className="font-medium">
-                            {formatHour(segment.start_hour)} - {formatHour(segment.end_hour)}
+                            {formatHour(segment.start_hour)} -{" "}
+                            {formatHour(segment.end_hour)}
                           </p>
                           <p className="text-xs">
-                            {segment.segment_type === "WORK" ? "Trabajo" : "Descanso"} •
-                            Multiplicador: {segment.multiplier} •
-                            Duración: {segment.duration_hours}h
+                            {segment.segment_type === "WORK"
+                              ? "Trabajo"
+                              : "Descanso"}{" "}
+                            • Multiplicador: {segment.multiplier} • Duración:{" "}
+                            {segment.duration_hours}h
                           </p>
                           {segment.description && (
-                            <p className="text-xs italic">{segment.description}</p>
+                            <p className="text-xs italic">
+                              {segment.description}
+                            </p>
                           )}
                         </div>
                       </TooltipContent>
@@ -300,7 +335,9 @@ export const TimelineSegmentEditor = ({
           {/* Segments list */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <h4 className="text-sm font-medium">Segmentos ({segments.length})</h4>
+              <h4 className="text-sm font-medium">
+                Segmentos ({segments.length})
+              </h4>
               <Button
                 type="button"
                 size="sm"
@@ -321,17 +358,19 @@ export const TimelineSegmentEditor = ({
                     className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors"
                   >
                     <div className="flex items-center gap-3">
-                      <Badge
-                        variant={segment.segment_type === "WORK" ? "default" : "secondary"}
-                      >
-                        {segment.segment_type === "WORK" ? "Trabajo" : "Descanso"}
+                      <Badge>
+                        {segment.segment_type === "WORK"
+                          ? "Trabajo"
+                          : "Descanso"}
                       </Badge>
                       <div className="text-sm">
                         <p className="font-medium">
-                          {formatHour(segment.start_hour)} - {formatHour(segment.end_hour)}
+                          {formatHour(segment.start_hour)} -{" "}
+                          {formatHour(segment.end_hour)}
                         </p>
                         <p className="text-muted-foreground">
-                          {segment.duration_hours}h • Multiplicador: {segment.multiplier}x
+                          {segment.duration_hours}h • Multiplicador:{" "}
+                          {segment.multiplier}x
                           {segment.description && ` • ${segment.description}`}
                         </p>
                       </div>
@@ -360,7 +399,9 @@ export const TimelineSegmentEditor = ({
               {segments.length === 0 && (
                 <div className="text-center py-8 text-muted-foreground">
                   <p>No hay segmentos configurados</p>
-                  <p className="text-sm">Agregue segmentos para definir el turno</p>
+                  <p className="text-sm">
+                    Agregue segmentos para definir el turno
+                  </p>
                 </div>
               )}
             </div>

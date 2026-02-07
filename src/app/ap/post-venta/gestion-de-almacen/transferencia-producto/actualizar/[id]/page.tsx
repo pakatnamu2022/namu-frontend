@@ -62,8 +62,6 @@ export default function UpdateProductTransferPage() {
     data: ProductTransferResource,
   ): Partial<ProductTransferSchema> {
     return {
-      warehouse_origin_id: String(data.warehouse_origin_id),
-      warehouse_destination_id: String(data.warehouse_destination_id),
       document_series_id: String(data.reference.document_series_id),
       movement_date: data.movement_date
         ? new Date(data.movement_date)
@@ -74,7 +72,7 @@ export default function UpdateProductTransferPage() {
       license: data.reference.license,
       plate: data.reference.plate,
       issuer_type: "NOSOTROS",
-      item_type: data.item_type,
+      item_type: data.item_type === "PRODUCTO" ? "PRODUCTO" : "SERVICIO",
       document_type: "GUIA_REMISION",
       transfer_reason_id: SUNAT_CONCEPTS_ID.TRANSFER_REASON_TRASLADO_SEDE,
       type_person_id:
