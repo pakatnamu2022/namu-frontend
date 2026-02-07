@@ -1,4 +1,5 @@
 import { SuppliersResource } from "@/features/ap/comercial/proveedores/lib/suppliers.interface.ts";
+import { WarehouseResource } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.interface";
 import { type Links, type Meta } from "@/shared/lib/pagination.interface.ts";
 
 export interface ReceptionDetailResource {
@@ -44,6 +45,10 @@ export interface ReceptionDetailResource {
 export interface ReceptionResource {
   id: number;
   reception_number?: string;
+  supplier_id: number;
+  supplier_num_doc: string;
+  supplier_name: string;
+  type_currency_id: number;
   ap_supplier_order_id: number;
   reception_date: string;
   warehouse_id: number;
@@ -73,10 +78,7 @@ export interface ReceptionResource {
       unit_price: number;
     }>;
   };
-  warehouse?: {
-    id: number;
-    description: string;
-  };
+  warehouse: WarehouseResource;
   carrier: SuppliersResource;
   details?: ReceptionDetailResource[];
   created_at?: string;

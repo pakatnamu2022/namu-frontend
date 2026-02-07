@@ -22,14 +22,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table.tsx";
-import {
-  FileText,
-  Loader,
-  Package,
-  Plus,
-  Trash2,
-  Calculator,
-} from "lucide-react";
+import { FileText, Loader, Package, Calculator } from "lucide-react";
 import FormSkeleton from "@/shared/components/FormSkeleton.tsx";
 import { FormSelect } from "@/shared/components/FormSelect.tsx";
 import { useSuppliers } from "@/features/ap/comercial/proveedores/lib/suppliers.hook.ts";
@@ -57,6 +50,7 @@ import { PurchaseOrderProductsResource } from "@/features/ap/post-venta/gestion-
 import { SupplierOrderResource } from "@/features/ap/post-venta/gestion-almacen/pedido-proveedor/lib/supplierOrder.interface.ts";
 import { FormInput } from "@/shared/components/FormInput";
 import { FormInputText } from "@/shared/components/FormInputText";
+import { ReceptionResource } from "../../recepciones-producto/lib/receptionsProducts.interface";
 
 interface PurchaseOrderProductsFormProps {
   defaultValues: Partial<PurchaseOrderProductsSchema>;
@@ -65,10 +59,8 @@ interface PurchaseOrderProductsFormProps {
   mode?: "create" | "update";
   onCancel?: () => void;
   PurchaseOrderProductsData?: PurchaseOrderProductsResource;
-  supplierOrderId?: number;
   supplierOrderData?: SupplierOrderResource;
-  receptionId?: number;
-  receptionData?: any;
+  receptionData?: ReceptionResource;
 }
 
 export const PurchaseOrderProductsForm = ({
@@ -77,10 +69,7 @@ export const PurchaseOrderProductsForm = ({
   isSubmitting = false,
   mode = "create",
   onCancel,
-  PurchaseOrderProductsData,
-  supplierOrderId,
   supplierOrderData,
-  receptionId,
   receptionData,
 }: PurchaseOrderProductsFormProps) => {
   const form = useForm({
@@ -91,7 +80,6 @@ export const PurchaseOrderProductsForm = ({
     ),
     defaultValues: {
       ...defaultValues,
-      ...(supplierOrderId && { ap_supplier_order_id: String(supplierOrderId) }),
       items: defaultValues.items || [],
       status: defaultValues.status || "PENDING",
     },
@@ -243,21 +231,21 @@ export const PurchaseOrderProductsForm = ({
     return <FormSkeleton />;
   }
 
-  const handleAddItem = () => {
-    append({
-      product_id: "",
-      quantity: 1,
-      item_total: 0,
-      unit_price: 0,
-      discount: 0,
-      tax_rate: 18,
-      notes: "",
-    });
-  };
+  // const handleAddItem = () => {
+  //   append({
+  //     product_id: "",
+  //     quantity: 1,
+  //     item_total: 0,
+  //     unit_price: 0,
+  //     discount: 0,
+  //     tax_rate: 18,
+  //     notes: "",
+  //   });
+  // };
 
-  const handleRemoveItem = (index: number) => {
-    remove(index);
-  };
+  // const handleRemoveItem = (index: number) => {
+  //   remove(index);
+  // };
 
   const handleSubmit = (data: any) => {
     // Transformar fechas a formato Y-m-d antes de enviar
@@ -273,7 +261,6 @@ export const PurchaseOrderProductsForm = ({
           : data.due_date,
       igv: data.total_tax || 0, // Enviar el monto del IGV calculado
       type_operation_id: data.type_operation_id || TYPES_OPERATION_ID.POSTVENTA,
-      ap_supplier_order_id: supplierOrderId || undefined,
     };
 
     onSubmit(transformedData);
@@ -305,23 +292,16 @@ export const PurchaseOrderProductsForm = ({
               })}
               perPage={10}
               debounceMs={500}
-              disabled={Boolean(supplierOrderData)}
+              disabled={Boolean(receptionData)}
               defaultOption={
-                PurchaseOrderProductsData?.supplier_id
+                receptionData?.supplier_id
                   ? {
-                      value: PurchaseOrderProductsData.supplier_id.toString(),
+                      value: receptionData.supplier_id.toString(),
                       label: `${
-                        PurchaseOrderProductsData.supplier_num_doc || "S/N"
-                      } | ${PurchaseOrderProductsData.supplier || "S/N"}`,
+                        receptionData.supplier_num_doc || "S/N"
+                      } | ${receptionData.supplier_name || "S/N"}`,
                     }
-                  : supplierOrderData?.supplier_id
-                    ? {
-                        value: supplierOrderData.supplier_id.toString(),
-                        label: `${
-                          supplierOrderData.supplier?.num_doc || "S/N"
-                        } | ${supplierOrderData.supplier?.full_name || "S/N"}`,
-                      }
-                    : undefined
+                  : undefined
               }
             ></FormSelectAsync>
 
@@ -347,9 +327,9 @@ export const PurchaseOrderProductsForm = ({
               dateFormat="dd/MM/yyyy"
               captionLayout="dropdown"
               disabledRange={
-                supplierOrderData?.order_date
+                receptionData?.reception_date
                   ? [
-                      { before: parseISO(supplierOrderData.order_date) },
+                      { before: parseISO(receptionData.reception_date) },
                       { after: new Date() },
                     ]
                   : { after: new Date() }
@@ -378,7 +358,7 @@ export const PurchaseOrderProductsForm = ({
                 value: item.id.toString(),
               }))}
               control={form.control}
-              disabled={Boolean(supplierOrderData)}
+              disabled={Boolean(receptionData)}
             />
 
             <FormSelect
@@ -394,7 +374,7 @@ export const PurchaseOrderProductsForm = ({
               disabled={
                 !form.watch("sede_id") ||
                 isLoadingWarehouses ||
-                Boolean(supplierOrderData)
+                Boolean(receptionData)
               }
             />
 
@@ -414,7 +394,7 @@ export const PurchaseOrderProductsForm = ({
                 value: item.id.toString(),
               }))}
               control={form.control}
-              disabled={Boolean(supplierOrderData)}
+              disabled={Boolean(receptionData)}
             />
 
             <FormSelect
@@ -543,7 +523,7 @@ export const PurchaseOrderProductsForm = ({
                             Total Soles
                           </TableHead>
                         )}
-                      <TableHead className="w-20 text-center">Acción</TableHead>
+                      {/* <TableHead className="w-20 text-center">Acción</TableHead> */}
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -564,50 +544,25 @@ export const PurchaseOrderProductsForm = ({
                           </TableCell>
                           <TableCell className="align-middle p-1.5">
                             <div className="space-y-1">
-                              {mode === "update" ? (
-                                // Modo edición: Mostrar nombre del producto (solo lectura)
-                                <div className="h-auto min-h-10 w-full rounded-md border border-input bg-muted/50 px-3 py-2 text-sm flex items-center">
-                                  <span className="font-medium text-sm truncate">
-                                    {PurchaseOrderProductsData?.items?.[index]
-                                      ?.product_name ||
-                                      "Producto no disponible"}
-                                  </span>
-                                </div>
-                              ) : supplierOrderData ? (
-                                // Modo creación desde pedido proveedor: Mostrar nombre del producto (solo lectura)
-                                <div className="h-auto min-h-10 w-full rounded-md border border-input bg-muted/50 px-3 py-2 text-sm flex items-center">
-                                  <span className="font-medium text-sm truncate">
-                                    {supplierOrderData.details?.[index]?.product
-                                      ?.name ||
-                                      supplierOrderData.details?.[index]
-                                        ?.product?.code ||
-                                      "Producto no disponible"}
-                                  </span>
-                                </div>
-                              ) : (
-                                // Modo creación: Selector asíncrono
-                                <>
-                                  <FormSelectAsync
-                                    name={`items.${index}.product_id`}
-                                    placeholder="Buscar producto..."
-                                    control={form.control}
-                                    useQueryHook={useProduct}
-                                    mapOptionFn={(
-                                      product: ProductResource,
-                                    ) => ({
-                                      value: product.id.toString(),
-                                      label: `${product.name} - ${
-                                        product.code
-                                      } - ${
-                                        product.unit_measurement_name ||
-                                        "Sin unidad"
-                                      }`,
-                                    })}
-                                    perPage={10}
-                                    debounceMs={500}
-                                  />
-                                </>
-                              )}
+                              {
+                                <FormSelectAsync
+                                  name={`items.${index}.product_id`}
+                                  placeholder="Buscar producto..."
+                                  control={form.control}
+                                  useQueryHook={useProduct}
+                                  mapOptionFn={(product: ProductResource) => ({
+                                    value: product.id.toString(),
+                                    label: `${product.name} - ${
+                                      product.code
+                                    } - ${
+                                      product.unit_measurement_name ||
+                                      "Sin unidad"
+                                    }`,
+                                  })}
+                                  perPage={10}
+                                  debounceMs={500}
+                                />
+                              }
                             </div>
                           </TableCell>
                           <TableCell className="align-middle p-1.5 text-center">
@@ -720,7 +675,7 @@ export const PurchaseOrderProductsForm = ({
                                 </div>
                               </TableCell>
                             )}
-                          <TableCell className="align-middle text-center p-1.5">
+                          {/* <TableCell className="align-middle text-center p-1.5">
                             <Button
                               type="button"
                               variant="ghost"
@@ -733,7 +688,7 @@ export const PurchaseOrderProductsForm = ({
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>
-                          </TableCell>
+                          </TableCell> */}
                         </TableRow>
                       );
                     })}
@@ -742,7 +697,7 @@ export const PurchaseOrderProductsForm = ({
               </div>
 
               {/* Botón para actualizar items */}
-              <Button
+              {/* <Button
                 type="button"
                 variant="outline"
                 onClick={handleAddItem}
@@ -751,7 +706,7 @@ export const PurchaseOrderProductsForm = ({
               >
                 <Plus className="mr-2 h-4 w-4" />
                 Agregar Producto
-              </Button>
+              </Button> */}
 
               {/* Campo de notas dentro de items */}
               {fields.length > 0 && (

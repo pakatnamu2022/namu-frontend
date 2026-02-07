@@ -12,6 +12,7 @@ import {
   errorToast,
   SUCCESS_MESSAGE,
   successToast,
+  formatDate,
 } from "@/core/core.function.ts";
 import { useState } from "react";
 import { PURCHASE_ORDER_PRODUCT } from "@/features/ap/post-venta/gestion-almacen/recepcion-compra/lib/purchaseOrderProducts.constants.ts";
@@ -80,8 +81,7 @@ export default function InvoiceReceptionPage() {
         <Card>
           <CardContent className="pt-6">
             <p className="text-destructive">
-              {error?.message ||
-                "La recepción no existe o no se pudo cargar"}
+              {error?.message || "La recepción no existe o no se pudo cargar"}
             </p>
           </CardContent>
         </Card>
@@ -101,7 +101,8 @@ export default function InvoiceReceptionPage() {
         <Card>
           <CardContent className="pt-6">
             <p className="text-muted-foreground">
-              La guía de remisión {reception.shipping_guide_number} ya tiene una factura registrada.
+              La guía de remisión {reception.shipping_guide_number} ya tiene una
+              factura registrada.
             </p>
           </CardContent>
         </Card>
@@ -147,7 +148,7 @@ export default function InvoiceReceptionPage() {
               Fecha de Recepción
             </p>
             <p className="text-sm font-semibold text-foreground">
-              {reception.reception_date}
+              {formatDate(reception.reception_date)}
             </p>
           </div>
           <div className="space-y-1">
@@ -201,12 +202,12 @@ export default function InvoiceReceptionPage() {
             </div>
             <div className="space-y-1">
               <p className="text-xs text-muted-foreground font-medium">Sede</p>
-              <Badge variant="outline">
-                {reception.purchase_order.sede}
-              </Badge>
+              <Badge variant="outline">{reception.purchase_order.sede}</Badge>
             </div>
             <div className="space-y-1">
-              <p className="text-xs text-muted-foreground font-medium">Moneda</p>
+              <p className="text-xs text-muted-foreground font-medium">
+                Moneda
+              </p>
               <Badge variant="outline">
                 {reception.purchase_order.currency_code}
               </Badge>
@@ -218,10 +219,10 @@ export default function InvoiceReceptionPage() {
       {/* Formulario de Orden de Compra */}
       <PurchaseOrderProductsForm
         defaultValues={{
-          supplier_id: reception.purchase_order?.supplier || "",
-          sede_id: reception.purchase_order?.sede || "",
+          supplier_id: String(reception.supplier_id) || "",
+          sede_id: String(reception.warehouse.sede_id) || "",
           warehouse_id: reception.warehouse_id.toString(),
-          currency_id: reception.purchase_order?.currency || "",
+          currency_id: String(reception.type_currency_id) || "",
           emission_date: new Date(),
           due_date: new Date(),
           payment_terms: "30_DAYS",
@@ -230,7 +231,9 @@ export default function InvoiceReceptionPage() {
               product_id: detail.product_id.toString(),
               quantity: Number(detail.quantity_received),
               unit_price: Number(detail.product?.cost_price || 0),
-              item_total: Number(detail.quantity_received) * Number(detail.product?.cost_price || 0),
+              item_total:
+                Number(detail.quantity_received) *
+                Number(detail.product?.cost_price || 0),
               discount: 0,
               tax_rate: 18,
               notes: detail.notes || "",
@@ -240,7 +243,6 @@ export default function InvoiceReceptionPage() {
         isSubmitting={isSubmitting}
         mode="create"
         onCancel={handleCancel}
-        receptionId={reception.id}
         receptionData={reception}
       />
     </div>

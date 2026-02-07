@@ -6,7 +6,7 @@ const receptionDetailSchema = z.object({
   product_id: requiredStringId("Producto es requerido"),
   quantity_received: z
     .number()
-    .min(0.01, { message: "La cantidad recibida debe ser mayor a 0" }),
+    .min(0, { message: "La cantidad recibida debe ser mayor o igual a 0" }),
   observed_quantity: z
     .number()
     .min(0, { message: "La cantidad observada debe ser mayor o igual a 0" })
