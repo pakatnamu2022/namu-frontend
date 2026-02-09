@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-import { FileText, Pencil, Check, Car, Link2Off } from "lucide-react";
+import { FileText, Pencil, Check, Car, Link2Off, Eye } from "lucide-react";
 import { NumberFormat } from "@/shared/components/NumberFormat";
 import { PurchaseRequestQuoteResource } from "../lib/purchaseRequestQuote.interface";
 import { PURCHASE_REQUEST_QUOTE } from "../lib/purchaseRequestQuote.constants";
@@ -15,6 +15,7 @@ interface Props {
   onDownloadPdf: (id: number) => void;
   onAssignVehicle: (purchaseRequestQuote: PurchaseRequestQuoteResource) => void;
   onUnassignVehicle: (id: number) => void;
+  onViewDetail: (purchaseRequestQuote: PurchaseRequestQuoteResource) => void;
   permissions: {
     canUpdate: boolean;
     canApprove: boolean;
@@ -28,6 +29,7 @@ export const purchaseRequestQuoteColumns = ({
   onDownloadPdf,
   onAssignVehicle,
   onUnassignVehicle,
+  onViewDetail,
   permissions,
 }: Props): PurchaseRequestQuoteColumns[] => [
   {
@@ -130,6 +132,17 @@ export const purchaseRequestQuoteColumns = ({
 
       return (
         <div className="flex items-center gap-2">
+          {/* View Detail */}
+          <Button
+            variant="outline"
+            size="icon"
+            className="size-7"
+            tooltip="Ver Detalle"
+            onClick={() => onViewDetail(row.original)}
+          >
+            <Eye className="size-5" />
+          </Button>
+
           {/* Assign Vehicle */}
           {permissions.canAssign && !hasVehicle && (
             <Button

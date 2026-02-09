@@ -74,6 +74,8 @@ const basePurchaseOrderSchema = z.object({
 
 // Schema base sin el refine para poder usar .partial()
 const vehiclePurchaseOrderSchemaBase = basePurchaseOrderSchema.extend({
+  // Quotation (optional)
+  quotation_id: z.string().optional(),
   // Vehicle information - REQUERIDOS cuando isVehiclePurchase = true
   vin: z
     .string()
@@ -122,6 +124,8 @@ export const vehiclePurchaseOrderSchemaCreate =
 
 // Schema base genérico sin el refine
 const genericPurchaseOrderSchemaBase = basePurchaseOrderSchema.extend({
+  // Quotation (optional)
+  quotation_id: z.string().optional(),
   // Vehicle information - OPCIONALES cuando isVehiclePurchase = false
   vin: z
     .string()

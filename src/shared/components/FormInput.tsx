@@ -32,6 +32,7 @@ interface FormInputProps extends Omit<
   addonStart?: React.ReactNode;
   addonEnd?: React.ReactNode;
   error?: string;
+  uppercase?: boolean;
 }
 
 export function FormInput({
@@ -48,6 +49,7 @@ export function FormInput({
   error,
   value,
   onChange,
+  uppercase,
   ...inputProps
 }: FormInputProps) {
   const isNumberType = inputProps.type === "number";
@@ -68,7 +70,15 @@ export function FormInput({
           } as React.ChangeEvent<HTMLInputElement>;
           onChange(syntheticEvent);
         } else {
-          onChange(e);
+          const val = uppercase ? e.target.value.toUpperCase() : e.target.value;
+          const syntheticEvent = {
+            ...e,
+            target: {
+              ...e.target,
+              value: val,
+            },
+          } as React.ChangeEvent<HTMLInputElement>;
+          onChange(syntheticEvent);
         }
       }
     };
@@ -76,7 +86,7 @@ export function FormInput({
     return (
       <div className="flex flex-col justify-between">
         {label && (
-          <label className="flex justify-start items-center text-xs md:text-sm mb-1 leading-none h-fit font-medium">
+          <label className="flex justify-start items-center text-xs md:text-sm mb-1 leading-none h-fit font-medium text-muted-foreground">
             {label}
             {required && <RequiredField />}
             {tooltip && (
@@ -144,13 +154,14 @@ export function FormInput({
             // Permitir string vacío temporalmente
             field.onChange(val === "" ? "" : Number(val));
           } else {
-            field.onChange(e);
+            const val = uppercase ? e.target.value.toUpperCase() : e.target.value;
+            field.onChange(val);
           }
         };
 
         return (
           <FormItem className="flex flex-col justify-between">
-            <FormLabel className="flex justify-start items-center text-xs md:text-sm mb-1 leading-none h-fit">
+            <FormLabel className="flex justify-start items-center text-xs md:text-sm mb-1 leading-none h-fit dark:text-muted-foreground">
               {label}
               {required && <RequiredField />}
               {tooltip && (

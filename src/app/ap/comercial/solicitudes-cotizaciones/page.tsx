@@ -34,6 +34,7 @@ import PurchaseRequestQuoteTable from "@/features/ap/comercial/solicitudes-cotiz
 import { purchaseRequestQuoteColumns } from "@/features/ap/comercial/solicitudes-cotizaciones/components/PurchaseRequestQuoteColumns";
 import PurchaseRequestQuoteOptions from "@/features/ap/comercial/solicitudes-cotizaciones/components/PurchaseRequestQuoteOptions";
 import AssignVehicleModal from "@/features/ap/comercial/solicitudes-cotizaciones/components/AssignVehicleModal";
+import PurchaseRequestQuoteDetailModal from "@/features/ap/comercial/solicitudes-cotizaciones/components/PurchaseRequestQuoteDetailModal";
 import { PurchaseRequestQuoteResource } from "@/features/ap/comercial/solicitudes-cotizaciones/lib/purchaseRequestQuote.interface";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { format } from "date-fns";
@@ -51,6 +52,8 @@ export default function PurchaseRequestQuotePage() {
   const [unassignVehicleId, setUnassignVehicleId] = useState<number | null>(
     null,
   );
+  const [detailQuote, setDetailQuote] =
+    useState<PurchaseRequestQuoteResource | null>(null);
   const [dateFrom, setDateFrom] = useState<Date | undefined>(
     new Date(new Date().getFullYear(), new Date().getMonth(), 1),
   );
@@ -135,6 +138,7 @@ export default function PurchaseRequestQuotePage() {
           onDownloadPdf: handleDownloadPdf,
           onAssignVehicle: setAssignVehicleQuote,
           onUnassignVehicle: setUnassignVehicleId,
+          onViewDetail: setDetailQuote,
           permissions,
         })}
         data={data?.data || []}
@@ -168,6 +172,14 @@ export default function PurchaseRequestQuotePage() {
           open={true}
           onOpenChange={(open) => !open && setAssignVehicleQuote(null)}
           quote={assignVehicleQuote}
+        />
+      )}
+
+      {detailQuote !== null && (
+        <PurchaseRequestQuoteDetailModal
+          open={true}
+          onOpenChange={(open) => !open && setDetailQuote(null)}
+          quote={detailQuote}
         />
       )}
 

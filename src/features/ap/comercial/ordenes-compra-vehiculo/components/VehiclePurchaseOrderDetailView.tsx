@@ -2,13 +2,7 @@
 
 import { VehiclePurchaseOrderResource } from "../lib/vehiclePurchaseOrder.interface";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
-import {
-  Car,
-  FileText,
-  Package,
-  Warehouse,
-  Info,
-} from "lucide-react";
+import { Car, FileText, Package, Info } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
   Table,
@@ -36,7 +30,7 @@ export default function VehiclePurchaseOrderDetailView({
       <GroupFormSection
         title="Información General"
         icon={Info}
-        cols={{ sm: 1, md: 2, lg: 3 }}
+        cols={{ sm: 1, md: 2, lg: 4 }}
       >
         <div>
           <p className="text-xs text-muted-foreground">Estado</p>
@@ -67,7 +61,7 @@ export default function VehiclePurchaseOrderDetailView({
           <p className="font-medium">
             {format(
               parse(purchaseOrder.emission_date, "yyyy-MM-dd", new Date()),
-              "dd/MM/yyyy"
+              "dd/MM/yyyy",
             )}
           </p>
         </div>
@@ -77,7 +71,7 @@ export default function VehiclePurchaseOrderDetailView({
             <p className="font-medium">
               {format(
                 parse(purchaseOrder.due_date, "yyyy-MM-dd", new Date()),
-                "dd/MM/yyyy"
+                "dd/MM/yyyy",
               )}
             </p>
           </div>
@@ -89,7 +83,7 @@ export default function VehiclePurchaseOrderDetailView({
         <GroupFormSection
           title="Información del Vehículo"
           icon={Car}
-          cols={{ sm: 1, md: 2, lg: 3 }}
+          cols={{ sm: 1, md: 2, lg: 4 }}
         >
           <div>
             <p className="text-xs text-muted-foreground">VIN</p>
@@ -134,12 +128,21 @@ export default function VehiclePurchaseOrderDetailView({
           </div>
           {purchaseOrder.vehicle.warehouse_name && (
             <div>
-              <p className="text-xs text-muted-foreground">Almacén Físico</p>
+              <p className="text-xs text-muted-foreground">Almacén Vehículo</p>
               <p className="font-medium">
                 {purchaseOrder.vehicle.warehouse_name}
               </p>
             </div>
           )}
+          <div>
+            <p className="text-xs text-muted-foreground">Almacén Compra</p>
+            <div className="flex gap-4">
+              <p className="font-medium">{purchaseOrder.warehouse}</p>
+            </div>
+            <Badge color="default" className="h-6">
+              {purchaseOrder.article_class?.description}
+            </Badge>
+          </div>
         </GroupFormSection>
       )}
 
@@ -147,7 +150,7 @@ export default function VehiclePurchaseOrderDetailView({
       <GroupFormSection
         title="Información de la Factura"
         icon={FileText}
-        cols={{ sm: 1, md: 2, lg: 3 }}
+        cols={{ sm: 1, md: 2, lg: 4 }}
       >
         <div>
           <p className="text-xs text-muted-foreground">Proveedor</p>
@@ -209,7 +212,7 @@ export default function VehiclePurchaseOrderDetailView({
         <GroupFormSection
           title="Items de la Orden de Compra"
           icon={Package}
-          cols={{ sm: 1 }}
+          cols={{ sm: 1, md: 2, lg: 4 }}
         >
           <div className="col-span-full">
             <Table>
@@ -345,23 +348,6 @@ export default function VehiclePurchaseOrderDetailView({
           </div>
         </div>
       </GroupFormSection> */}
-
-      {/* Información de Almacén */}
-      <GroupFormSection
-        title="Información de Almacén"
-        icon={Warehouse}
-        cols={{ sm: 1 }}
-      >
-        <div>
-          <p className="text-xs text-muted-foreground">Almacén</p>
-          <div className="flex gap-4">
-            <p className="font-medium">{purchaseOrder.warehouse}</p>
-            <Badge color="default" className="h-6">
-              {purchaseOrder.article_class?.description}
-            </Badge>
-          </div>
-        </div>
-      </GroupFormSection>
     </div>
   );
 }

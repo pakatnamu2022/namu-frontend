@@ -27,13 +27,13 @@ export default function TitleFormComponent({
     <div
       className={cn(
         "flex flex-row gap-4 items-center md:items-center justify-between w-full md:w-full",
-        className
+        className,
       )}
     >
       <div
         className={cn(
           "flex flex-row gap-4 items-center md:items-center w-full md:w-full",
-          className
+          className,
         )}
       >
         {backRoute && <BackButton route={backRoute} name={""} size="icon" />}
@@ -44,7 +44,9 @@ export default function TitleFormComponent({
           </div>
         )}
         <div className="flex flex-col items-start">
-          <h1 className="md:text-xl font-bold text-primary">{title}</h1>
+          <h1 className="md:text-xl font-bold text-primary dark:text-primary-foreground">
+            {title}
+          </h1>
 
           <p className="text-muted-foreground text-xs md:text-sm">{`${
             mode === "create" ? "Agregar" : "Actualizar"

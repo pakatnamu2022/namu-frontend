@@ -45,6 +45,12 @@ import { FormInput } from "@/shared/components/FormInput";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { useNavigate } from "react-router-dom";
+import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
+import {
+  usePurchaseRequestQuote,
+  usePurchaseRequestQuoteById,
+} from "../../solicitudes-cotizaciones/lib/purchaseRequestQuote.hook";
+import { PurchaseRequestQuoteResource } from "../../solicitudes-cotizaciones/lib/purchaseRequestQuote.interface";
 
 interface VehiclePurchaseOrderFormProps {
   defaultValues: Partial<VehiclePurchaseOrderSchema>;
@@ -68,6 +74,9 @@ export const VehiclePurchaseOrderForm = ({
   const [isColorModalOpen, setIsColorModalOpen] = useState(false);
   const [hasIsc, setHasIsc] = useState(false);
   const hasAddedInitialItem = useRef(false);
+  const [selectedQuotationId, setSelectedQuotationId] = useState<
+    number | undefined
+  >(undefined);
 
   const form = useForm({
     resolver: zodResolver(
@@ -265,12 +274,20 @@ export const VehiclePurchaseOrderForm = ({
   const { data: unitMeasurements = [], isLoading: isLoadingUnitMeasurements } =
     useAllUnitMeasurement();
 
+  // Quotation hooks
+  const {
+    data: selectedQuotation,
+    isLoading: isLoadingQuotation,
+    isFetching: isFetchingQuotation,
+  } = usePurchaseRequestQuoteById(selectedQuotationId || 0);
+
   // Watch valores ingresados por el usuario (no calculados)
   const subtotalInput = form.watch("subtotal") || 0;
   const igvInput = form.watch("igv") || 0;
   const iscInput = form.watch("isc") || 0;
   const totalInput = form.watch("total") || 0;
   const emissionDate = form.watch("emission_date");
+  const quotationWatch = form.watch("quotation_id");
 
   // Watch all items to trigger recalculation on any change
   const watchedItems = useWatch({
@@ -324,6 +341,60 @@ export const VehiclePurchaseOrderForm = ({
   useEffect(() => {
     setHasIsc(Number(iscInput) > 0);
   }, [iscInput]);
+
+  // Effect para sincronizar la cotización seleccionada
+  useEffect(() => {
+    if (quotationWatch) {
+      setSelectedQuotationId(Number(quotationWatch));
+    } else {
+      setSelectedQuotationId(undefined);
+    }
+  }, [quotationWatch]);
+
+  // Paso 1: Auto-completar SOLO la sede cuando se selecciona una cotización
+  useEffect(() => {
+    if (selectedQuotation && selectedQuotation.sede_id) {
+      const currentSedeId = form.getValues("sede_id");
+      if (currentSedeId !== selectedQuotation.sede_id.toString()) {
+        form.setValue("sede_id", selectedQuotation.sede_id.toString());
+      }
+    }
+  }, [selectedQuotation, form]);
+
+  // Paso 2: Auto-completar la marca cuando las marcas se hayan cargado
+  useEffect(() => {
+    if (selectedQuotation && selectedQuotation.brand_id && brands.length > 0) {
+      const currentBrandId = form.getValues("ap_brand_id");
+      if (currentBrandId !== selectedQuotation.brand_id.toString()) {
+        form.setValue("ap_brand_id", selectedQuotation.brand_id.toString());
+      }
+    }
+  }, [selectedQuotation, brands, form]);
+
+  // Paso 3: Auto-completar el modelo cuando los modelos se hayan cargado
+  useEffect(() => {
+    if (
+      selectedQuotation &&
+      selectedQuotation.ap_models_vn_id &&
+      modelsVn.length > 0
+    ) {
+      const currentModelId = form.getValues("ap_models_vn_id");
+      if (currentModelId !== selectedQuotation.ap_models_vn_id.toString()) {
+        // Verificar que el modelo esté en la lista de modelos cargados
+        const modelExists = modelsVn.some(
+          (model) =>
+            model.id.toString() ===
+            selectedQuotation.ap_models_vn_id?.toString(),
+        );
+        if (modelExists) {
+          form.setValue(
+            "ap_models_vn_id",
+            selectedQuotation.ap_models_vn_id.toString(),
+          );
+        }
+      }
+    }
+  }, [selectedQuotation, modelsVn, form]);
 
   // El subtotal SIEMPRE se calcula como: Total / 1.18 (redondeado a 2 decimales)
   // La validación es diferente según haya ISC o no:
@@ -433,9 +504,30 @@ export const VehiclePurchaseOrderForm = ({
               title="Información del Vehículo"
               icon={Car}
               className="xl:col-span-3"
-              cols={{ sm: 1, md: 2, lg: 3, xl: 5 }}
-              gap="gap-2"
+              cols={{ sm: 1, md: 2, lg: 3, xl: 4 }}
+              gap="gap-3"
             >
+              <div className="sm:col-span-1 md:col-span-1 lg:col-span-1 xl:col-span-2">
+                <FormSelectAsync
+                  name="quotation_id"
+                  label="Cotización (Opcional)"
+                  placeholder="Selecciona una cotización aprobada"
+                  control={form.control}
+                  useQueryHook={usePurchaseRequestQuote}
+                  mapOptionFn={(quotation: PurchaseRequestQuoteResource) => ({
+                    value: quotation.id.toString(),
+                    label: `${quotation.correlative} - ${quotation.holder}`,
+                    description: quotation.ap_model_vn || "Sin modelo",
+                  })}
+                  additionalParams={{
+                    is_approved: 1,
+                  }}
+                  perPage={10}
+                  debounceMs={500}
+                  allowClear={true}
+                />
+              </div>
+
               <FormSelect
                 name="sede_id"
                 label="Sede"
@@ -445,13 +537,24 @@ export const VehiclePurchaseOrderForm = ({
                   value: item.id.toString(),
                 }))}
                 control={form.control}
+                disabled={
+                  !!selectedQuotation ||
+                  isLoadingQuotation ||
+                  isFetchingQuotation
+                }
               />
 
               <FormSelect
                 name="ap_brand_id"
                 label="Marca"
                 placeholder="Selecciona una marca"
-                disabled={isLoadingBrands || !selectedSede}
+                disabled={
+                  isLoadingBrands ||
+                  !selectedSede ||
+                  !!selectedQuotation ||
+                  isLoadingQuotation ||
+                  isFetchingQuotation
+                }
                 options={brands.map((item) => ({
                   label: item.name,
                   value: item.id.toString(),
@@ -459,7 +562,7 @@ export const VehiclePurchaseOrderForm = ({
                 control={form.control}
               />
 
-              <div className="md:col-span-2 lg:col-span-1 xl:col-span-2">
+              <div className="sm:col-span-1 md:col-span-1 lg:col-span-2 xl:col-span-2">
                 <FormSelect
                   name="ap_models_vn_id"
                   label="Modelo VN"
@@ -470,14 +573,20 @@ export const VehiclePurchaseOrderForm = ({
                     description: item.code,
                   }))}
                   control={form.control}
-                  disabled={isLoadingModelsVn || !selectedBrand}
-                  // isLoadingOptions={isFetchingModelsVn}
+                  disabled={
+                    isLoadingModelsVn ||
+                    !selectedBrand ||
+                    !!selectedQuotation ||
+                    isLoadingQuotation ||
+                    isFetchingQuotation
+                  }
                 />
               </div>
 
               <FormInput
                 control={form.control}
                 name="vin"
+                uppercase={true}
                 label="VIN"
                 maxLength={17}
                 placeholder="Ej: 1HGBH41AX1N109186"
@@ -544,6 +653,7 @@ export const VehiclePurchaseOrderForm = ({
                 control={form.control}
                 name="engine_number"
                 label="Núm. Motor"
+                uppercase={true}
                 maxLength={25}
                 placeholder="Ej: ENG32345XYZ"
                 type="text"
@@ -569,6 +679,60 @@ export const VehiclePurchaseOrderForm = ({
                   }
                 }}
               />
+
+              {selectedQuotation && (
+                <div className="col-span-full mt-2">
+                  <div className="p-3 bg-blue-50 border border-blue-200 rounded-md">
+                    <p className="text-xs font-semibold text-blue-900 mb-2">
+                      Información de la Cotización Seleccionada
+                    </p>
+                    <div className="flex flex-wrap gap-6 text-sm">
+                      <div>
+                        <span className="font-medium text-muted-foreground text-xs">
+                          Correlativo
+                        </span>
+                        <p className="text-gray-900">
+                          {selectedQuotation.correlative}
+                        </p>
+                      </div>
+                      {selectedQuotation.ap_model_vn && (
+                        <div>
+                          <span className="font-medium text-muted-foreground text-xs">
+                            Modelo
+                          </span>
+                          <p className="text-gray-900">
+                            {selectedQuotation.ap_model_vn}
+                          </p>
+                        </div>
+                      )}
+                      {selectedQuotation.vehicle_color && (
+                        <div>
+                          <span className="font-medium text-muted-foreground text-xs">
+                            Color
+                          </span>
+                          <p className="text-gray-900">
+                            {selectedQuotation.vehicle_color}
+                          </p>
+                        </div>
+                      )}
+                      <div>
+                        <span className="font-medium text-muted-foreground text-xs">
+                          Precio de Venta
+                        </span>
+                        <p className="text-gray-900">
+                          {selectedQuotation.doc_type_currency_symbol}{" "}
+                          {Number(
+                            selectedQuotation.doc_sale_price,
+                          ).toLocaleString("es-PE", {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </GroupFormSection>
           )}
 
@@ -578,7 +742,7 @@ export const VehiclePurchaseOrderForm = ({
             icon={Package}
             className="w-full col-span-full"
             cols={{ sm: 1 }}
-            gap="gap-2"
+            gap="gap-3"
           >
             <div className="w-full space-y-4 col-span-full">
               {/* DataTable de Items */}
@@ -616,7 +780,7 @@ export const VehiclePurchaseOrderForm = ({
             icon={FileText}
             className="xl:col-span-2"
             cols={{ sm: 1, md: 2, lg: 2, xl: 3 }}
-            gap="gap-2"
+            gap="gap-3"
           >
             <FormSelect
               name="supplier_id"
@@ -634,7 +798,9 @@ export const VehiclePurchaseOrderForm = ({
               name="invoice_series"
               label="Serie Factura"
               placeholder="Ej: F001"
+              maxLength={4}
               type="text"
+              uppercase={true}
             />
 
             <FormInput
@@ -813,6 +979,7 @@ export const VehiclePurchaseOrderForm = ({
             icon={Calculator}
             className="xl:col-span-1"
             cols={{ sm: 1, md: 1 }}
+            gap="gap-3"
           >
             <div className="space-y-3">
               <div className="text-xs text-muted-foreground bg-blue-50 p-2 rounded-md mb-3">
@@ -882,6 +1049,7 @@ export const VehiclePurchaseOrderForm = ({
             icon={FileEdit}
             className="mt-6"
             cols={{ sm: 1 }}
+            gap="gap-3"
           >
             <div className="space-y-2 col-span-full">
               {changedFields.map((change, index) => (

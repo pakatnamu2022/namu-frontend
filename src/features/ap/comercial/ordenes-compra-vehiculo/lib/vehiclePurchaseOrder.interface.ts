@@ -70,6 +70,7 @@ export interface VehiclePurchaseOrderResource {
   total: string | number;
   discount?: string | number;
   isc?: string | number;
+  quotation_id?: string | null;
   sede_id: number;
   sede: string;
   supplier: string;
@@ -129,6 +130,7 @@ export interface VehiclePurchaseOrderRequest {
   supplier_order_type_id: string;
   engine_type_id: string;
   sede_id: string;
+  quotation_id?: string;
   // Invoice
   invoice_series: string;
   invoice_number: string;
