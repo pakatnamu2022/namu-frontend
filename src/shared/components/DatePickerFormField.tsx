@@ -121,7 +121,7 @@ export function DatePickerFormField<T extends FieldValues>({
   return (
     <FormItem className="flex flex-col justify-between">
       {label && (
-        <FormLabel className="flex justify-start items-center text-xs md:text-sm mb-1">
+        <FormLabel className="flex justify-start items-center text-xs md:text-sm mb-1 leading-none">
           {label}
           {tooltip && (
             <Tooltip>

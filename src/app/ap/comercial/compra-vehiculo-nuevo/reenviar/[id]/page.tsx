@@ -7,7 +7,6 @@ import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import { ERROR_MESSAGE, errorToast, successToast } from "@/core/core.function";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import FormSkeleton from "@/shared/components/FormSkeleton";
-import FormWrapper from "@/shared/components/FormWrapper";
 import { VEHICLE_PURCHASE_ORDER } from "@/features/ap/comercial/ordenes-compra-vehiculo/lib/vehiclePurchaseOrder.constants";
 import {
   findVehiclePurchaseOrderById,
@@ -19,6 +18,7 @@ import { VehiclePurchaseOrderForm } from "@/features/ap/comercial/ordenes-compra
 import { format, parse } from "date-fns";
 import { useEffect } from "react";
 import { notFound } from "@/shared/hooks/useNotFound";
+import PageWrapper from "@/shared/components/PageWrapper";
 
 export default function ResendVehiclePurchaseOrderPage() {
   const { id } = useParams();
@@ -162,7 +162,7 @@ export default function ResendVehiclePurchaseOrderPage() {
   }
 
   return (
-    <FormWrapper>
+    <PageWrapper>
       <TitleFormComponent
         title="Reenviar Orden de Compra de Vehículo"
         mode="edit"
@@ -175,6 +175,6 @@ export default function ResendVehiclePurchaseOrderPage() {
         mode="resend"
         isVehiclePurchase={true}
       />
-    </FormWrapper>
+    </PageWrapper>
   );
 }

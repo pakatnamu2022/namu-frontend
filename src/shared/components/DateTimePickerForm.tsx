@@ -89,7 +89,7 @@ export function DateTimePickerForm<T extends FieldValues>({
 
   const handleTimeChange = (
     type: "hour" | "minute" | "ampm",
-    value: string
+    value: string,
   ) => {
     const date = selectedDate || new Date();
     const newDate = new Date(date);
@@ -162,7 +162,7 @@ export function DateTimePickerForm<T extends FieldValues>({
 
   return (
     <FormItem>
-      {label && <FormLabel>{label}</FormLabel>}
+      {label && <FormLabel className="leading-none">{label}</FormLabel>}
       <FormControl>
         <Popover open={isOpen} onOpenChange={setIsOpen}>
           <PopoverTrigger asChild>
@@ -171,7 +171,7 @@ export function DateTimePickerForm<T extends FieldValues>({
               disabled={disabled}
               className={cn(
                 "w-full justify-start text-left font-normal",
-                !selectedDate && "text-muted-foreground"
+                !selectedDate && "text-muted-foreground",
               )}
             >
               <CalendarIcon className="mr-2 h-4 w-4" />
@@ -189,7 +189,7 @@ export function DateTimePickerForm<T extends FieldValues>({
                 selected={selectedDate}
                 onSelect={handleDateSelect}
                 disabled={buildDisabledMatcher()}
-                initialFocus
+                autoFocus
                 locale={es}
               />
               <div className="flex flex-col sm:flex-row sm:h-[300px] divide-y sm:divide-y-0 sm:divide-x">

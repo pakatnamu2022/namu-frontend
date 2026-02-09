@@ -76,8 +76,8 @@ export const VehiclePurchaseOrderForm = ({
           ? vehiclePurchaseOrderSchemaCreate
           : genericPurchaseOrderSchemaCreate
         : isVehiclePurchase
-        ? vehiclePurchaseOrderSchemaUpdate
-        : genericPurchaseOrderSchemaUpdate
+          ? vehiclePurchaseOrderSchemaUpdate
+          : genericPurchaseOrderSchemaUpdate,
     ) as any,
     defaultValues: {
       ...defaultValues,
@@ -221,7 +221,7 @@ export const VehiclePurchaseOrderForm = ({
     isLoading: isLoadingBrands,
     isFetching: isFetchingBrands,
   } = useAllBrandsBySede(
-    form.watch("sede_id") ? Number(form.watch("sede_id")) : undefined
+    form.watch("sede_id") ? Number(form.watch("sede_id")) : undefined,
   );
 
   // Vehicle hooks
@@ -315,7 +315,7 @@ export const VehiclePurchaseOrderForm = ({
     if (emissionDate) {
       form.setValue(
         "due_date",
-        new Date(emissionDate.getTime() + 30 * 24 * 60 * 60 * 1000)
+        new Date(emissionDate.getTime() + 30 * 24 * 60 * 60 * 1000),
       );
     }
   }, [emissionDate]);
@@ -433,7 +433,8 @@ export const VehiclePurchaseOrderForm = ({
               title="Información del Vehículo"
               icon={Car}
               className="xl:col-span-3"
-              cols={{ sm: 1, md: 2, lg: 3, xl: 4 }}
+              cols={{ sm: 1, md: 2, lg: 3, xl: 5 }}
+              gap="gap-2"
             >
               <FormSelect
                 name="sede_id"
@@ -575,8 +576,9 @@ export const VehiclePurchaseOrderForm = ({
           <GroupFormSection
             title="Items de la Orden de Compra"
             icon={Package}
-            className="mt-6 w-full col-span-full"
+            className="w-full col-span-full"
             cols={{ sm: 1 }}
+            gap="gap-2"
           >
             <div className="w-full space-y-4 col-span-full">
               {/* DataTable de Items */}
@@ -613,7 +615,8 @@ export const VehiclePurchaseOrderForm = ({
             title="Información de la Factura"
             icon={FileText}
             className="xl:col-span-2"
-            cols={{ sm: 1, md: 2 }}
+            cols={{ sm: 1, md: 2, lg: 2, xl: 3 }}
+            gap="gap-2"
           >
             <FormSelect
               name="supplier_id"
@@ -713,8 +716,8 @@ export const VehiclePurchaseOrderForm = ({
                     getDifferenceAlertColor(subtotalDifference) === "green"
                       ? "bg-green-50 border-green-200"
                       : getDifferenceAlertColor(subtotalDifference) === "yellow"
-                      ? "bg-yellow-50 border-yellow-200"
-                      : "bg-red-50 border-red-200"
+                        ? "bg-yellow-50 border-yellow-200"
+                        : "bg-red-50 border-red-200"
                   }`}
                 >
                   <div className="flex-1">
@@ -723,9 +726,9 @@ export const VehiclePurchaseOrderForm = ({
                         getDifferenceAlertColor(subtotalDifference) === "green"
                           ? "text-green-900"
                           : getDifferenceAlertColor(subtotalDifference) ===
-                            "yellow"
-                          ? "text-yellow-900"
-                          : "text-red-900"
+                              "yellow"
+                            ? "text-yellow-900"
+                            : "text-red-900"
                       }`}
                     >
                       Validación de Subtotal
@@ -735,9 +738,9 @@ export const VehiclePurchaseOrderForm = ({
                         getDifferenceAlertColor(subtotalDifference) === "green"
                           ? "text-green-700"
                           : getDifferenceAlertColor(subtotalDifference) ===
-                            "yellow"
-                          ? "text-yellow-700"
-                          : "text-red-700"
+                              "yellow"
+                            ? "text-yellow-700"
+                            : "text-red-700"
                       }`}
                     >
                       {getDifferenceMessage(subtotalDifference)}
@@ -947,8 +950,8 @@ export const VehiclePurchaseOrderForm = ({
                       ? "Actualizando..."
                       : "Guardando..."
                     : mode === "resend"
-                    ? "Reenviar Orden de Compra"
-                    : "Guardar Orden de Compra"}
+                      ? "Reenviar Orden de Compra"
+                      : "Guardar Orden de Compra"}
                 </Button>
               }
               title={
