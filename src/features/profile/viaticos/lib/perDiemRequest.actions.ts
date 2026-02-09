@@ -291,6 +291,31 @@ export async function uploadDepositFile(
   return response.data;
 }
 
+export async function uploadDepositFiles(
+  id: number,
+  files: File[]
+): Promise<PerDiemRequestResource> {
+  const formData = new FormData();
+
+  // Agregar hasta 3 archivos con los nombres voucher_1, voucher_2, voucher_3
+  files.forEach((file, index) => {
+    if (index < 3) {
+      formData.append(`voucher_${index + 1}`, file);
+    }
+  });
+
+  const response = await api.post<PerDiemRequestResource>(
+    `${ENDPOINT}/${id}/agregar-deposito`,
+    formData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }
+  );
+  return response.data;
+}
+
 export async function cancelPerDiemRequest(
   id: number
 ): Promise<PerDiemRequestResource> {

@@ -21,10 +21,18 @@ import ReceptionsProductsCards from "@/features/ap/post-venta/gestion-almacen/re
 import { RECEPTION } from "@/features/ap/post-venta/gestion-almacen/recepciones-producto/lib/receptionsProducts.constants.ts";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button.tsx";
-import { ArrowLeft, Plus } from "lucide-react";
+import {
+  ArrowLeft,
+  Plus,
+  DollarSign,
+  AlertCircle,
+  CheckCircle,
+} from "lucide-react";
 import { Card } from "@/components/ui/card.tsx";
 import { useSupplierOrderById } from "@/features/ap/post-venta/gestion-almacen/pedido-proveedor/lib/supplierOrder.hook";
 import { SUPPLIER_ORDER } from "@/features/ap/post-venta/gestion-almacen/pedido-proveedor/lib/supplierOrder.constants";
+import { useMemo } from "react";
+import { Badge } from "@/components/ui/badge.tsx";
 
 export default function ReceptionsProductsPage() {
   const { checkRouteExists, isLoadingModule } = useCurrentModule();
@@ -42,6 +50,40 @@ export default function ReceptionsProductsPage() {
     useSupplierOrderById(supplierOrderIdNum || 0);
 
   const { data, isLoading, refetch } = useAllReceptions({}, supplierOrderIdNum);
+
+  // Calcular el total de facturas de todas las recepciones
+  const invoicesTotals = useMemo(() => {
+    if (!data) return { total: 0, count: 0 };
+
+    const total = data.reduce((sum, reception) => {
+      if (reception.purchase_order) {
+        return sum + Number(reception.purchase_order.total);
+      }
+      return sum;
+    }, 0);
+
+    const count = data.filter((r) => r.purchase_order).length;
+
+    return { total, count };
+  }, [data]);
+
+  // Comparar totales
+  const comparison = useMemo(() => {
+    if (!supplierOrder)
+      return {
+        difference: 0,
+        isExact: true,
+        hasInvoices: false,
+        orderTotal: 0,
+      };
+
+    const orderTotal = Number(supplierOrder.total_amount);
+    const difference = invoicesTotals.total - orderTotal;
+    const isExact = Math.abs(difference) < 0.01; // Tolerancia de 1 centavo
+    const hasInvoices = invoicesTotals.count > 0;
+
+    return { difference, isExact, hasInvoices, orderTotal };
+  }, [supplierOrder, invoicesTotals]);
 
   const handleDelete = async () => {
     if (!deleteId) return;
@@ -89,7 +131,7 @@ export default function ReceptionsProductsPage() {
             />
           </div>
         </div>
-        {permissions.canCreate && data && data.length === 0 && (
+        {permissions.canCreate && (
           <Button size="sm" variant="outline" onClick={handleAddReception}>
             <Plus className="size-4 mr-2" /> Agregar Recepción
           </Button>
@@ -117,6 +159,85 @@ export default function ReceptionsProductsPage() {
           </div>
         </div>
       </Card>
+
+      {/* Comparativa de Montos */}
+      {comparison.hasInvoices && (
+        <Card className="p-4">
+          <div className="flex items-start gap-3">
+            <div className="p-2 bg-primary/10 rounded-lg">
+              <DollarSign className="size-5 text-primary" />
+            </div>
+            <div className="flex-1">
+              <h3 className="font-semibold text-base mb-3">
+                Comparativa de Montos
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {/* Total del Pedido */}
+                <div className="space-y-1">
+                  <p className="text-xs text-muted-foreground font-medium">
+                    Total Pedido Original
+                  </p>
+                  <p className="text-lg font-bold text-foreground">
+                    {supplierOrder.type_currency?.symbol}
+                    {comparison.orderTotal.toFixed(2)}
+                  </p>
+                </div>
+
+                {/* Total Facturado */}
+                <div className="space-y-1">
+                  <p className="text-xs text-muted-foreground font-medium">
+                    Total Facturado ({invoicesTotals.count}{" "}
+                    {invoicesTotals.count === 1 ? "factura" : "facturas"})
+                  </p>
+                  <p className="text-lg font-bold text-foreground">
+                    {supplierOrder.type_currency?.symbol}
+                    {invoicesTotals.total.toFixed(2)}
+                  </p>
+                </div>
+
+                {/* Diferencia */}
+                <div className="space-y-1">
+                  <p className="text-xs text-muted-foreground font-medium">
+                    Diferencia
+                  </p>
+                  <div className="flex items-center gap-2">
+                    {comparison.isExact ? (
+                      <>
+                        <CheckCircle className="size-5 text-green-600" />
+                        <Badge
+                          variant="outline"
+                          className="bg-green-50 text-green-700 border-green-200"
+                        >
+                          Correcto
+                        </Badge>
+                      </>
+                    ) : (
+                      <>
+                        <AlertCircle className="size-5 text-amber-600" />
+                        <div>
+                          <Badge
+                            variant="outline"
+                            color={comparison.difference > 0 ? "red" : "green"}
+                          >
+                            {comparison.difference > 0 ? "+" : ""}
+                            {supplierOrder.type_currency?.symbol}
+                            {Math.abs(comparison.difference).toFixed(2)}
+                          </Badge>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {comparison.difference > 0
+                              ? "Se está cobrando de más"
+                              : "Hay un descuento aplicado"}
+                          </p>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </Card>
+      )}
 
       <ReceptionsProductsTable
         isLoading={isLoading}

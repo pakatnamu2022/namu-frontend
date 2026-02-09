@@ -42,6 +42,7 @@ export default function WorkOrderLabourForm({
       description: "",
       time_spent: "",
       hourly_rate: "",
+      discount_percentage: "0",
       work_order_id: workOrderId.toString(),
       group_number: groupNumber,
     },
@@ -73,6 +74,7 @@ export default function WorkOrderLabourForm({
       description: data.description,
       time_spent: data.time_spent,
       hourly_rate: data.hourly_rate,
+      discount_percentage: data.discount_percentage,
       work_order_id: data.work_order_id,
       worker_id: Number(data.worker_id),
       group_number: data.group_number,
@@ -98,7 +100,7 @@ export default function WorkOrderLabourForm({
           allowCreate={true}
         />
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           <FormInput
             name="time_spent"
             label="Horas"
@@ -110,6 +112,13 @@ export default function WorkOrderLabourForm({
             name="hourly_rate"
             label={`Tarifa/Hora (${currencySymbol})`}
             placeholder="Ej: 50.00"
+            control={form.control}
+          />
+
+          <FormInput
+            name="discount_percentage"
+            label="Descuento (%)"
+            placeholder="0.0"
             control={form.control}
           />
 

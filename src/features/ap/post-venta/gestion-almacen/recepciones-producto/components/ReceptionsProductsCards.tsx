@@ -12,6 +12,7 @@ import {
   Coins,
   Tag,
   FileCheck,
+  Eye,
 } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog.tsx";
 import { format } from "date-fns";
@@ -24,6 +25,9 @@ import {
   translateReceptionTypeStatus,
   translateStatus,
 } from "@/features/ap/post-venta/gestion-almacen/recepcion-transferencia/lib/transferReception.constants.ts";
+import { useState } from "react";
+import { InvoiceDetailSheet } from "@/features/ap/post-venta/gestion-almacen/recepcion-compra/components/InvoiceDetailSheet.tsx";
+import { VehiclePurchaseOrderResource } from "@/features/ap/comercial/ordenes-compra-vehiculo/lib/vehiclePurchaseOrder.interface.ts";
 
 interface Props {
   data: ReceptionResource[];
@@ -46,6 +50,9 @@ export default function ReceptionsProductsCards({
   supplierOrderNumber,
   warehouseName,
 }: Props) {
+  const [selectedInvoice, setSelectedInvoice] =
+    useState<VehiclePurchaseOrderResource | null>(null);
+
   if (data.length === 0) {
     return (
       <div className="text-center py-12 text-muted-foreground">
@@ -109,17 +116,30 @@ export default function ReceptionsProductsCards({
                 </p>
               </div>
               <div className="flex gap-2">
-                {routeInvoice && !reception.has_invoice && (
+                {routeInvoice && !reception.purchase_order && (
                   <Link to={`${routeInvoice}/${reception.id}`}>
                     <Button
                       variant="outline"
                       size="icon"
                       className="size-7"
-                      tooltip="Asociar Factura de Compra"
+                      tooltip="Registrar Factura de Compra"
                     >
                       <FileCheck className="size-4" />
                     </Button>
                   </Link>
+                )}
+                {reception.purchase_order && (
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="size-7"
+                    tooltip="Ver Factura"
+                    onClick={() =>
+                      setSelectedInvoice(reception.purchase_order!)
+                    }
+                  >
+                    <Eye className="size-4" />
+                  </Button>
                 )}
                 {permissions.canDelete && (
                   <DeleteButton onClick={() => onDelete(reception.id)} />
@@ -587,6 +607,15 @@ export default function ReceptionsProductsCards({
           </CardContent>
         </Card>
       ))}
+
+      {/* Sheet para mostrar el detalle de la factura */}
+      {selectedInvoice && (
+        <InvoiceDetailSheet
+          open={!!selectedInvoice}
+          onClose={() => setSelectedInvoice(null)}
+          invoice={selectedInvoice}
+        />
+      )}
     </div>
   );
 }

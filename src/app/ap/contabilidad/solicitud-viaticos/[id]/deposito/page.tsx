@@ -9,10 +9,13 @@ import { useState } from "react";
 import TitleComponent from "@/shared/components/TitleComponent";
 import FormWrapper from "@/shared/components/FormWrapper";
 import BackButton from "@/shared/components/BackButton";
-import { FileUploadWithCamera } from "@/shared/components/FileUploadWithCamera";
+import {
+  MultipleFileUploadWithCamera,
+  type UploadedFile,
+} from "@/shared/components/MultipleFileUploadWithCamera";
 import {
   findPerDiemRequestById,
-  uploadDepositFile,
+  uploadDepositFiles,
 } from "@/features/profile/viaticos/lib/perDiemRequest.actions";
 import {
   PER_DIEM_REQUEST,
@@ -25,8 +28,7 @@ export default function UploadDepositPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const [previewUrl, setPreviewUrl] = useState<string>("");
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedFiles, setSelectedFiles] = useState<UploadedFile[]>([]);
 
   const { data: request, isLoading } = useQuery({
     queryKey: [PER_DIEM_REQUEST.QUERY_KEY, id],
@@ -35,37 +37,43 @@ export default function UploadDepositPage() {
   });
 
   const uploadMutation = useMutation({
-    mutationFn: (file: File) => uploadDepositFile(Number(id), file),
+    mutationFn: (files: File[]) => uploadDepositFiles(Number(id), files),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: [PER_DIEM_REQUEST.QUERY_KEY],
       });
-      successToast("Archivo de depósito subido correctamente");
+      successToast(
+        selectedFiles.length === 1
+          ? "Archivo de depósito subido correctamente"
+          : "Archivos de depósito subidos correctamente",
+      );
       navigate(ABSOLUTE_ROUTE);
     },
     onError: (error: any) => {
       errorToast(
         error?.response?.data?.message ||
-          "Error al subir el archivo de depósito",
+          "Error al subir los archivos de depósito",
       );
     },
   });
 
-  const handleFileChange = (file: File | null, url: string) => {
-    setSelectedFile(file);
-    setPreviewUrl(url);
+  const handleFilesChange = (files: UploadedFile[]) => {
+    setSelectedFiles(files);
   };
 
   const handleSave = () => {
-    if (selectedFile) {
-      uploadMutation.mutate(selectedFile);
+    if (selectedFiles.length > 0) {
+      // Extraer solo los archivos del arreglo de UploadedFile
+      const files = selectedFiles.map((uploadedFile) => uploadedFile.file);
+      uploadMutation.mutate(files);
     }
   };
 
   const handleCancel = () => {
-    if (previewUrl) {
-      URL.revokeObjectURL(previewUrl);
-    }
+    // Limpiar URLs de objetos
+    selectedFiles.forEach((file) => {
+      URL.revokeObjectURL(file.previewUrl);
+    });
     navigate(ABSOLUTE_ROUTE);
   };
 
@@ -119,23 +127,24 @@ export default function UploadDepositPage() {
           </div>
         </FormWrapper>
 
-        {/* Upload de archivo */}
+        {/* Upload de archivos */}
         <FormWrapper>
           <div className="space-y-4">
-            <FileUploadWithCamera
-              label="Archivo de Depósito *"
+            <MultipleFileUploadWithCamera
+              label="Archivos de Depósito *"
               accept="image/*,application/pdf"
-              value={selectedFile}
-              previewUrl={previewUrl}
-              onChange={handleFileChange}
+              value={selectedFiles}
+              onChange={handleFilesChange}
               disabled={uploadMutation.isPending}
               showPreview={true}
               showFileInfo={true}
+              maxFiles={3}
+              maxSize={5}
             />
 
             <p className="text-xs text-muted-foreground">
-              Sube el comprobante de depósito en formato PDF o imagen. Tamaño
-              máximo: 5MB.
+              Sube los comprobantes de depósito en formato PDF o imagen. Máximo
+              3 archivos de 5MB cada uno.
             </p>
           </div>
         </FormWrapper>
@@ -155,7 +164,7 @@ export default function UploadDepositPage() {
           <Button
             type="button"
             onClick={handleSave}
-            disabled={!selectedFile || uploadMutation.isPending}
+            disabled={selectedFiles.length === 0 || uploadMutation.isPending}
             className="w-full sm:w-auto"
           >
             {uploadMutation.isPending ? (

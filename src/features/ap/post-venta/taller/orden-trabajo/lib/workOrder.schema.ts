@@ -29,7 +29,9 @@ export const workOrderSchemaCreate = z
         message: "Fecha de diagnóstico es requerida",
       }),
     observations: z.string().max(250),
-    items: z.array(workOrderItemSchema).optional(),
+    items: z
+      .array(workOrderItemSchema)
+      .min(1, "Debe agregar al menos un trabajo"),
     is_guarantee: z.boolean().default(true),
     is_recall: z.boolean().default(true),
     description_recall: z.string().max(500).optional(),

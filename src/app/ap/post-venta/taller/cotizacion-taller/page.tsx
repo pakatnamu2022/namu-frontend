@@ -9,8 +9,8 @@ import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog.tsx";
 import {
   ERROR_MESSAGE,
   errorToast,
-  getMonday,
-  getSunday,
+  getCurrentDayOfMonth,
+  getFirstDayOfMonth,
   SUCCESS_MESSAGE,
   successToast,
 } from "@/core/core.function.ts";
@@ -40,10 +40,10 @@ export default function OrderQuotationPage() {
   const currentDate = new Date();
 
   const [dateFrom, setDateFrom] = useState<Date | undefined>(
-    getMonday(currentDate),
+    getFirstDayOfMonth(currentDate),
   );
   const [dateTo, setDateTo] = useState<Date | undefined>(
-    getSunday(currentDate),
+    getCurrentDayOfMonth(currentDate),
   );
 
   const formatDate = (date: Date | undefined) => {

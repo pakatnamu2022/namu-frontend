@@ -316,8 +316,8 @@ export default function ProductDetailsSection({
             </div>
           </div>
 
-          {/* Segunda fila: Cantidad, Precio Unitario y Tipo de Abastecimiento */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Segunda fila: Cantidad, Precio Unitario, Descuento y Tipo de Abastecimiento */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
               <FormInput
                 control={form.control}
@@ -338,6 +338,17 @@ export default function ProductDetailsSection({
                 inputMode="numeric"
                 type="number"
                 disabled
+              />
+            </div>
+
+            <div>
+              <FormInput
+                control={form.control}
+                name="discount_percentage"
+                label="Desc. %"
+                placeholder="Ej: 0.00"
+                inputMode="numeric"
+                type="number"
               />
             </div>
 
@@ -400,10 +411,11 @@ export default function ProductDetailsSection({
           <div className="border rounded-lg overflow-hidden">
             {/* Cabecera de tabla */}
             <div className="hidden md:grid grid-cols-16 gap-3 bg-gray-100 px-4 py-2 text-xs font-semibold text-gray-700 border-b">
-              <div className="col-span-4">Repuesto</div>
+              <div className="col-span-3">Repuesto</div>
               <div className="col-span-2 text-center">Cantidad</div>
               <div className="col-span-2 text-right">Tipo Abas.</div>
               <div className="col-span-2 text-right">Precio Unit.</div>
+              <div className="col-span-1 text-right">Desc.</div>
               <div className="col-span-2 text-right">Total</div>
               <div className="col-span-2 text-right">Registrado Por:</div>
               <div className="col-span-2 text-right">Acción</div>
@@ -415,7 +427,7 @@ export default function ProductDetailsSection({
                 <div key={detail.id}>
                   {/* Vista Desktop */}
                   <div className="hidden md:grid grid-cols-16 gap-3 px-4 py-3 hover:bg-gray-50 transition-colors items-center">
-                    <div className="col-span-4">
+                    <div className="col-span-3">
                       {detail.product?.code && (
                         <div className="flex items-center gap-2 mb-1">
                           <span className="text-xs font-mono bg-blue-100 text-blue-800 px-2 py-0.5 rounded">
@@ -459,6 +471,12 @@ export default function ProductDetailsSection({
                     <div className="col-span-2 text-right">
                       <span className="text-sm">
                         {formatCurrency(detail.unit_price)}
+                      </span>
+                    </div>
+
+                    <div className="col-span-1 text-right">
+                      <span className="text-sm text-orange-600">
+                        -{detail.discount_percentage}%
                       </span>
                     </div>
 
@@ -543,6 +561,12 @@ export default function ProductDetailsSection({
                         </span>
                       </div>
                       <div className="text-right">
+                        <span className="text-gray-500">Desc.:</span>
+                        <span className="ml-1 font-medium text-orange-600">
+                          -{formatCurrency(detail.discount_percentage)}
+                        </span>
+                      </div>
+                      <div className="col-span-2 text-right">
                         <span className="text-gray-500">Total:</span>
                         <span className="ml-1 font-bold text-primary">
                           {formatCurrency(detail.total_amount)}

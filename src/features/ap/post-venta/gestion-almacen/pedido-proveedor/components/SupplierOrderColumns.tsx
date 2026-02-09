@@ -105,7 +105,7 @@ export const supplierOrderColumns = ({
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
-      const { id, is_take, has_invoice } = row.original;
+      const { id, is_take, has_receptions } = row.original;
       const canEditDelete = !is_take; // Disable edit/delete if already taken
       console.log("Row Data:", row.original); // Debugging line
 
@@ -137,7 +137,7 @@ export const supplierOrderColumns = ({
           )}
 
           {permissions.canUpdate &&
-            !has_invoice &&
+            !has_receptions &&
             canEditDelete &&
             routeUpdate && (
               <Link to={`${routeUpdate}/${id}`}>
@@ -152,7 +152,7 @@ export const supplierOrderColumns = ({
               </Link>
             )}
 
-          {permissions.canDelete && !has_invoice && canEditDelete && (
+          {permissions.canDelete && !has_receptions && canEditDelete && (
             <DeleteButton onClick={() => onDelete(id)} />
           )}
         </div>

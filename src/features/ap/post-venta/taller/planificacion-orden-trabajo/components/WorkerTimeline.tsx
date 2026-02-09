@@ -142,6 +142,7 @@ export function WorkerTimeline({
           AT_WORK_WORK_ORDER_ID,
           FINISHED_WORK_ORDER_ID,
         ],
+        sede_id: sedeId,
       },
     });
 

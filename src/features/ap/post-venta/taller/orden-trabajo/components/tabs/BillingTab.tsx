@@ -285,8 +285,9 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
                     No se puede facturar esta orden de trabajo
                   </p>
                   <p className="text-xs text-amber-700 mt-0.5">
-                    No se ha asignado un cliente para facturar. Asigne un cliente
-                    en la sección de apertura de la orden de trabajo y vuelva a intentar.
+                    No se ha asignado un cliente para facturar. Asigne un
+                    cliente en la sección de apertura de la orden de trabajo y
+                    vuelva a intentar.
                   </p>
                 </div>
               </div>
@@ -319,14 +320,14 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
               {/* Contenido en formato de tabla simple */}
               <div className="divide-y divide-gray-100">
                 {/* Costos principales */}
-                <div className="grid grid-cols-2 text-sm">
-                  <div className="flex justify-between px-4 py-2 border-r border-gray-100">
+                <div className="text-sm">
+                  <div className="flex justify-between px-4 py-1.5">
                     <span className="text-gray-600">Mano de Obra</span>
                     <span className="font-medium">
                       S/ {paymentSummary.payment_summary.labour_cost.toFixed(2)}
                     </span>
                   </div>
-                  <div className="flex justify-between px-4 py-2">
+                  <div className="flex justify-between px-4 py-1.5">
                     <span className="text-gray-600">Repuestos</span>
                     <span className="font-medium">
                       S/ {paymentSummary.payment_summary.parts_cost.toFixed(2)}
@@ -346,7 +347,10 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
                     <div className="flex justify-between px-4 py-1.5">
                       <span className="text-green-700">Descuento</span>
                       <span className="font-medium text-green-700">
-                        - S/ {paymentSummary.payment_summary.discount_amount.toFixed(2)}
+                        - S/{" "}
+                        {paymentSummary.payment_summary.discount_amount.toFixed(
+                          2,
+                        )}
                       </span>
                     </div>
                   )}
