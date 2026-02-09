@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/tooltip";
 
 import { cn } from "@/lib/utils";
+import { LucideIcon } from "lucide-react";
 
 // Color map: define cada color UNA vez con todas sus variantes
 const colorClasses = {
@@ -385,6 +386,7 @@ export interface ButtonProps
   asChild?: boolean;
   tooltip?: React.ReactNode; // ✅ puede ser string o JSX
   delayDuration?: number;
+  icon?: LucideIcon;
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
@@ -397,17 +399,22 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       asChild = false,
       tooltip,
       delayDuration,
+      icon: Icon,
       ...props
     },
     ref,
   ) => {
     const Comp = asChild ? SlotPrimitive.Slot : "button";
+
     const button = (
       <Comp
         className={cn(buttonVariants({ variant, size, color, className }))}
         ref={ref}
         {...props}
-      />
+      >
+        {Icon && <Icon className="mr-1 h-3 w-3" />}
+        {props.children}
+      </Comp>
     );
 
     return tooltip ? (
