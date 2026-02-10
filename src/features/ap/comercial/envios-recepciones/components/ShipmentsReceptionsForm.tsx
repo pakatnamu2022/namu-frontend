@@ -56,6 +56,7 @@ import { useWarehousesByCompany } from "@/features/ap/configuraciones/maestros-g
 import { useAllClassArticle } from "@/features/ap/configuraciones/maestros-general/clase-articulo/lib/classArticle.hook";
 import { useAllVehicles } from "../../vehiculos/lib/vehicles.hook";
 import { TYPES_OPERATION_ID } from "@/features/ap/configuraciones/maestros-general/tipos-operacion/lib/typesOperation.constants";
+import { FormInput } from "@/shared/components/FormInput";
 
 interface ShipmentsReceptionsFormProps {
   defaultValues: Partial<ShipmentsReceptionsSchema> & {
@@ -942,45 +943,34 @@ export const ShipmentsReceptionsForm = ({
             strictFilter={true}
           />
 
-          <FormField
+          <FormInput
             control={form.control}
             name="driver_doc"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="flex items-center gap-2 relative">
-                  DNI del Conductor
-                  <DocumentValidationStatus
-                    shouldValidate={true}
-                    documentNumber={conductorDni || ""}
-                    expectedDigits={8}
-                    isValidating={isConductorDniLoading}
-                    leftPosition="right-0"
-                  />
-                </FormLabel>
-                <FormControl>
-                  <div className="relative">
-                    <Input
-                      placeholder="Número de documento"
-                      {...field}
-                      maxLength={8}
-                      type="number"
-                    />
-                    <ValidationIndicator
-                      show={!!conductorDni}
-                      isValidating={isConductorDniLoading}
-                      isValid={
-                        conductorDniData?.success && !!conductorDniData.data
-                      }
-                      hasError={
-                        !!conductorDniError ||
-                        (conductorDniData && !conductorDniData.success)
-                      }
-                    />
-                  </div>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label={
+              <div className="flex items-center gap-2 relative">
+                DNI del Conductor
+                <DocumentValidationStatus
+                  shouldValidate={true}
+                  documentNumber={conductorDni || ""}
+                  expectedDigits={8}
+                  isValidating={isConductorDniLoading}
+                  leftPosition="right-0"
+                />
+              </div>
+            }
+            placeholder="Ej: ABC-123"
+            maxLength={8}
+            addonEnd={
+              <ValidationIndicator
+                show={!!conductorDni}
+                isValidating={isConductorDniLoading}
+                isValid={conductorDniData?.success && !!conductorDniData.data}
+                hasError={
+                  !!conductorDniError ||
+                  (conductorDniData && !conductorDniData.success)
+                }
+              />
+            }
           />
 
           <FormField

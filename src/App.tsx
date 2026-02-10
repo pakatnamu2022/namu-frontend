@@ -385,6 +385,10 @@ import PhoneLinePage from "./app/gp/tics/lineas-telefonicas/page.tsx";
 import AddPhoneLinePage from "./app/gp/tics/lineas-telefonicas/agregar/page.tsx";
 import UpdatePhoneLinePage from "./app/gp/tics/lineas-telefonicas/actualizar/[id]/page.tsx";
 import ControlVehicleAssignmentPage from "./app/tp/comercial-tp/control-asignacionVehiculos/page.tsx";
+import AddControlUnitsPage from "./app/ap/comercial/control-unidades/agregar/page.tsx";
+import UpdateControlUnitsPage from "./app/ap/comercial/control-unidades/actualizar/[id]/page.tsx";
+import ControlUnitCheckListPage from "./app/ap/comercial/control-unidades/checklist/[id]/page.tsx";
+import ControlUnitsPage from "./app/ap/comercial/control-unidades/page.tsx";
 
 // ============================================================================
 // PROTECTED ROUTE COMPONENT
@@ -702,6 +706,18 @@ function App() {
               <Route
                 path="envios-recepciones/checklist/:id"
                 element={<ReceptionCheckListPage />}
+              />
+
+              {/* Control de Unidades */}
+              {RouterCrud(
+                "control-unidades",
+                <ControlUnitsPage />,
+                <AddControlUnitsPage />,
+                <UpdateControlUnitsPage />,
+              )}
+              <Route
+                path="control-unidades/checklist/:id"
+                element={<ControlUnitCheckListPage />}
               />
 
               {/* Ventas & Leads */}

@@ -13,12 +13,14 @@ interface Props {
   };
   isFetching?: boolean;
   onRefresh: () => void;
+  send_dynamics?: boolean;
 }
 
 export default function ShipmentsReceptionsActions({
   permissions,
   onRefresh,
   isFetching,
+  send_dynamics,
 }: Props) {
   const router = useNavigate();
   const { ROUTE_ADD } = SHIPMENTS_RECEPTIONS;
