@@ -296,7 +296,7 @@ export const orderQuotationMesonColumns = ({
               </Button>
             )}
 
-            {!isDiscarded && !isForInvoicing && !has_invoice_generated && (
+            {!isDiscarded && !has_invoice_generated && (
               <Button
                 variant="outline"
                 size="icon"
