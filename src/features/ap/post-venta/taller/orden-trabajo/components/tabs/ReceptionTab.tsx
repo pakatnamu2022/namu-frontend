@@ -12,6 +12,7 @@ import {
   Expand,
   Ban,
   RotateCcw,
+  RefreshCw,
 } from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
@@ -37,6 +38,7 @@ interface ReceptionTabProps {
 export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
   const [isDownloading, setIsDownloading] = useState(false);
   const [isCancelling, setIsCancelling] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [cancellationReason, setCancellationReason] = useState("");
@@ -104,6 +106,21 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
     } catch (error) {
       console.error("Error al confirmar anulación:", error);
       errorToast("Error al confirmar la anulación");
+    }
+  };
+
+  const handleRefresh = async () => {
+    try {
+      setIsRefreshing(true);
+      await queryClient.invalidateQueries({
+        queryKey: ["workOrder", workOrderId],
+      });
+      successToast("Información actualizada");
+    } catch (error) {
+      console.error("Error al actualizar:", error);
+      errorToast("Error al actualizar la información");
+    } finally {
+      setIsRefreshing(false);
     }
   };
 
@@ -238,6 +255,18 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold">Inspección de Recepción</h3>
           <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={handleRefresh}
+              disabled={isRefreshing}
+              tooltip="Actualizar información"
+            >
+              <RefreshCw
+                className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`}
+              />
+            </Button>
+
             <Button
               onClick={handleDownloadPdf}
               disabled={isDownloading}

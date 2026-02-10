@@ -718,15 +718,17 @@ export const WorkOrderForm = ({
               })}
 
               {fields.length === 0 && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={handleAddItem}
-                  className="w-full"
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Agregar Trabajo
-                </Button>
+                <div className="space-y-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleAddItem}
+                    className="w-full"
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Agregar Trabajo
+                  </Button>
+                </div>
               )}
             </div>
           </GroupFormSection>
@@ -777,6 +779,7 @@ export const WorkOrderForm = ({
         {/* Modal de Selección de Cita */}
         <AppointmentSelectionModal
           open={isAppointmentModalOpen}
+          sedeId={Number(form.getValues("sede_id"))}
           onOpenChange={setIsAppointmentModalOpen}
           onSelectAppointment={handleSelectAppointment}
         />
@@ -784,6 +787,7 @@ export const WorkOrderForm = ({
         {/* Modal de Selección de Inspección */}
         <VehicleInspectionSelectionModal
           open={isInspectionModalOpen}
+          sedeId={Number(form.getValues("sede_id"))}
           onOpenChange={setIsInspectionModalOpen}
           onSelectInspection={handleSelectInspection}
         />

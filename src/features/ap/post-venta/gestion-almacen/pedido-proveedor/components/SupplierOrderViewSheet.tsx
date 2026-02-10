@@ -107,9 +107,9 @@ export function SupplierOrderViewSheet({
               {data.supply_type}
             </div>
             <div>
-              <p className="text-xs text-muted-foreground">Tiene Factura</p>
-              <Badge color={data.has_invoice ? "default" : "destructive"}>
-                {data.has_invoice ? "Sí" : "No"}
+              <p className="text-xs text-muted-foreground">Tiene Recepiones</p>
+              <Badge color={data.has_receptions ? "default" : "destructive"}>
+                {data.has_receptions ? "Sí" : "No"}
               </Badge>
             </div>
           </div>

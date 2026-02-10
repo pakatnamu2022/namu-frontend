@@ -163,7 +163,16 @@ export default function PerDiemRequestDetailAdminAPPage() {
         <BudgetSection request={request} />
 
         {/* Comprobante de Depósito */}
-        {request.settled && <DepositVoucherSection request={request} />}
+        {request.settled && (
+          <DepositVoucherSection
+            request={request}
+            onVoucherDeleted={() => {
+              queryClient.invalidateQueries({
+                queryKey: [QUERY_KEY, id],
+              });
+            }}
+          />
+        )}
 
         {/* Resumen Financiero */}
         <FinancialSummarySection request={request} />

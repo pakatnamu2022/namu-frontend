@@ -583,7 +583,7 @@ export const PurchaseOrderProductsForm = ({
                                       step="1"
                                       placeholder="1"
                                       className="text-center"
-                                      disabled={Boolean(supplierOrderData)}
+                                      disabled={true}
                                       value={
                                         typeof field.value === "number"
                                           ? field.value

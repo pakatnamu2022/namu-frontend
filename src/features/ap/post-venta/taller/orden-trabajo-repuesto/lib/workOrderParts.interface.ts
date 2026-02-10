@@ -20,6 +20,7 @@ export interface WorkOrderPartsResource {
   unit_price?: string;
   subtotal?: string;
   tax_amount?: string;
+  discount_percentage: number;
   total_amount?: string;
 }
 

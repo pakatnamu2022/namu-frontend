@@ -68,7 +68,7 @@ export default function PerDiemRequestDetailAdminPage() {
     } catch (error: any) {
       errorToast(
         error.response.data.message ??
-          "Error al descargar el PDF de planilla de movilidad"
+          "Error al descargar el PDF de planilla de movilidad",
       );
     } finally {
       setIsDownloadingMobilityPayroll(false);
@@ -168,7 +168,16 @@ export default function PerDiemRequestDetailAdminPage() {
         <BudgetSection request={request} />
 
         {/* Comprobante de Depósito */}
-        {request.settled && <DepositVoucherSection request={request} />}
+        {
+          <DepositVoucherSection
+            request={request}
+            onVoucherDeleted={() => {
+              queryClient.invalidateQueries({
+                queryKey: [PER_DIEM_REQUEST.QUERY_KEY, id],
+              });
+            }}
+          />
+        }
 
         {/* Resumen Financiero */}
         <FinancialSummarySection request={request} />
@@ -180,29 +189,6 @@ export default function PerDiemRequestDetailAdminPage() {
           cols={{ sm: 1 }}
         >
           {/* Botón para actualizar pasajes aéreos si with_active es false */}
-          {/* {!request.with_active && (
-            <div className="mb-4 flex justify-end">
-              <Button
-                onClick={() => setIsAddFlightTicketModalOpen(true)}
-                size="sm"
-                variant="outline"
-                className="gap-2"
-                disabled={
-                  (request.expenses?.filter(
-                    (e) =>
-                      e.expense_type?.code?.toLowerCase().includes("boleto") ||
-                      e.expense_type?.code?.toLowerCase().includes("aereo") ||
-                      e.expense_type?.name?.toLowerCase().includes("boleto") ||
-                      e.expense_type?.name?.toLowerCase().includes("aéreo")
-                  ).length || 0) >= 2
-                }
-              >
-                <Plane className="h-4 w-4" />
-                Agregar Pasaje Aéreo
-              </Button>
-            </div>
-          )} */}
-
           <div className="md:col-span-1">
             <ExpensesTable
               expenses={request.expenses || []}
@@ -230,7 +216,7 @@ export default function PerDiemRequestDetailAdminPage() {
                   e.expense_type?.code?.toLowerCase().includes("boleto") ||
                   e.expense_type?.code?.toLowerCase().includes("aereo") ||
                   e.expense_type?.name?.toLowerCase().includes("boleto") ||
-                  e.expense_type?.name?.toLowerCase().includes("aéreo")
+                  e.expense_type?.name?.toLowerCase().includes("aéreo"),
               ).length || 0
             }
           />

@@ -161,7 +161,14 @@ export interface PerDiemRequestResource {
   days_without_settlement: number;
   with_active: boolean;
   with_request: boolean;
-  deposit_voucher_url?: string;
+  deposit_vouchers: [
+    {
+      id: number;
+      url: string;
+      description?: string;
+      mimeType?: string;
+    },
+  ];
   mobility_payroll_generated: boolean;
   employee: Employee;
   company: Company;

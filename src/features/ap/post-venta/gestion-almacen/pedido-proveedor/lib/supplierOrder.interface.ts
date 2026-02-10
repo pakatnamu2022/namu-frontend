@@ -43,7 +43,7 @@ export interface SupplierOrderResource {
   tax_amount: number;
   total_amount: number;
   is_take: boolean;
-  has_invoice: boolean;
+  has_receptions: boolean;
   status: boolean;
   supplier?: SuppliersResource;
   sede?: SedeResource;

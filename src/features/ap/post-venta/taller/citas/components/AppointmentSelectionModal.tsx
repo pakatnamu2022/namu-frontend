@@ -15,17 +15,19 @@ import { AppointmentSelectionTable } from "./AppointmentSelectionTable";
 import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { errorToast } from "@/core/core.function";
+import { errorToast, getMonday, getSunday } from "@/core/core.function";
 import SearchInput from "@/shared/components/SearchInput";
 
 interface AppointmentSelectionModalProps {
   open: boolean;
+  sedeId: number;
   onOpenChange: (open: boolean) => void;
   onSelectAppointment: (appointment: AppointmentPlanningResource) => void;
 }
 
 export const AppointmentSelectionModal = ({
   open,
+  sedeId,
   onOpenChange,
   onSelectAppointment,
 }: AppointmentSelectionModalProps) => {
@@ -33,8 +35,12 @@ export const AppointmentSelectionModal = ({
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const currentDate = new Date();
   const [search, setSearch] = useState("");
-  const [dateFrom, setDateFrom] = useState<Date | undefined>(currentDate);
-  const [dateTo, setDateTo] = useState<Date | undefined>(currentDate);
+  const [dateFrom, setDateFrom] = useState<Date | undefined>(
+    getMonday(currentDate),
+  );
+  const [dateTo, setDateTo] = useState<Date | undefined>(
+    getSunday(currentDate),
+  );
 
   const formatDate = (date: Date | undefined) => {
     return date ? date.toLocaleDateString("en-CA") : undefined; // formato: YYYY-MM-DD
@@ -60,6 +66,7 @@ export const AppointmentSelectionModal = ({
       dateFrom && dateTo
         ? [formatDate(dateFrom), formatDate(dateTo)]
         : undefined,
+    sede_id: sedeId,
   });
 
   const handleRowClick = (appointment: AppointmentPlanningResource) => {
@@ -131,8 +138,8 @@ export const AppointmentSelectionModal = ({
 
         <div className="flex-1 overflow-auto space-y-3 sm:space-y-4 p-1 sm:p-2">
           {/* Filtros */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-            <div className="sm:col-span-2 lg:col-span-1">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
+            <div className="w-full">
               <SearchInput
                 value={search}
                 onChange={setSearch}
@@ -140,22 +147,26 @@ export const AppointmentSelectionModal = ({
                 label="Buscar"
               />
             </div>
-            <DatePicker
-              value={dateFrom}
-              onChange={setDateFrom}
-              label="Fecha Desde"
-              placeholder="Fecha Desde"
-              showClearButton={false}
-              captionLayout="dropdown"
-            />
-            <DatePicker
-              value={dateTo}
-              onChange={setDateTo}
-              label="Fecha Hasta"
-              placeholder="Fecha Hasta"
-              showClearButton={false}
-              captionLayout="dropdown"
-            />
+            <div className="w-full">
+              <DatePicker
+                value={dateFrom}
+                onChange={setDateFrom}
+                label="Fecha Desde"
+                placeholder="Fecha Desde"
+                showClearButton={false}
+                captionLayout="dropdown"
+              />
+            </div>
+            <div className="w-full">
+              <DatePicker
+                value={dateTo}
+                onChange={setDateTo}
+                label="Fecha Hasta"
+                placeholder="Fecha Hasta"
+                showClearButton={false}
+                captionLayout="dropdown"
+              />
+            </div>
           </div>
 
           {/* Tabla */}

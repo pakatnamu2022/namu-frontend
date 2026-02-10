@@ -27,7 +27,6 @@ import {
   getAllWorkOrderParts,
   storeBulkFromQuotation,
   storeWorkOrderParts,
-  updateWorkOrderParts,
   deleteWorkOrderParts,
 } from "@/features/ap/post-venta/taller/orden-trabajo-repuesto/lib/workOrderParts.actions";
 import { errorToast, successToast } from "@/core/core.function";
@@ -218,35 +217,35 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
     }
   };
 
-  const updateGroupMutation = useMutation({
-    mutationFn: ({
-      partId,
-      newGroupNumber,
-      part,
-    }: {
-      partId: number;
-      newGroupNumber: number;
-      part: any;
-    }) =>
-      updateWorkOrderParts(partId, {
-        id: part.id,
-        work_order_id: workOrderId,
-        group_number: newGroupNumber,
-        warehouse_id: part.warehouse_id,
-        product_id: part.product_id,
-        quantity_used: part.quantity_used,
-      }),
-    onSuccess: () => {
-      successToast("Grupo actualizado exitosamente");
-      queryClient.invalidateQueries({
-        queryKey: ["workOrderParts", workOrderId],
-      });
-    },
-    onError: (error: any) => {
-      const msg = error?.response?.data?.message || "";
-      errorToast(msg || "Error al actualizar el grupo");
-    },
-  });
+  // const updateGroupMutation = useMutation({
+  //   mutationFn: ({
+  //     partId,
+  //     newGroupNumber,
+  //     part,
+  //   }: {
+  //     partId: number;
+  //     newGroupNumber: number;
+  //     part: any;
+  //   }) =>
+  //     updateWorkOrderParts(partId, {
+  //       id: part.id,
+  //       work_order_id: workOrderId,
+  //       group_number: newGroupNumber,
+  //       warehouse_id: part.warehouse_id,
+  //       product_id: part.product_id,
+  //       quantity_used: part.quantity_used,
+  //     }),
+  //   onSuccess: () => {
+  //     successToast("Grupo actualizado exitosamente");
+  //     queryClient.invalidateQueries({
+  //       queryKey: ["workOrderParts", workOrderId],
+  //     });
+  //   },
+  //   onError: (error: any) => {
+  //     const msg = error?.response?.data?.message || "";
+  //     errorToast(msg || "Error al actualizar el grupo");
+  //   },
+  // });
 
   // Mutación para eliminar repuesto
   const deleteMutation = useMutation({
@@ -272,18 +271,18 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
     deleteMutation.mutate(deleteId);
   };
 
-  const handleGroupChange = (part: any, newGroupNumber: number) => {
-    updateGroupMutation.mutate({
-      partId: part.id,
-      newGroupNumber,
-      part,
-    });
-  };
+  // const handleGroupChange = (part: any, newGroupNumber: number) => {
+  //   updateGroupMutation.mutate({
+  //     partId: part.id,
+  //     newGroupNumber,
+  //     part,
+  //   });
+  // };
 
-  // Obtener los números de grupos únicos disponibles
-  const availableGroups = useMemo(() => {
-    return Array.from(new Set(items.map((item) => item.group_number))).sort();
-  }, [items]);
+  // // Obtener los números de grupos únicos disponibles
+  // const availableGroups = useMemo(() => {
+  //   return Array.from(new Set(items.map((item) => item.group_number))).sort();
+  // }, [items]);
 
   const filteredParts = parts.filter(
     (part) => part.group_number === selectedGroupNumber,
@@ -562,6 +561,7 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
                       <TableHead>Descripción</TableHead>
                       <TableHead className="text-center">Cantidad</TableHead>
                       <TableHead className="text-right">P. Unitario</TableHead>
+                      <TableHead className="text-right">Desc.</TableHead>
                       <TableHead className="text-right">Total</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -597,6 +597,15 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
                               <p className="text-sm">
                                 {currencySymbol}{" "}
                                 {Number(detail.unit_price || 0).toFixed(2)}
+                              </p>
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <p className="text-sm text-orange-600">
+                                -
+                                {Number(
+                                  detail.discount_percentage || 0,
+                                ).toFixed(2)}{" "}
+                                %
                               </p>
                             </TableCell>
                             <TableCell className="text-right">
@@ -638,8 +647,9 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
                 <TableHead>Registrado por</TableHead>
                 <TableHead className="text-center">Cantidad</TableHead>
                 <TableHead className="text-right">Precio Unit.</TableHead>
-                <TableHead className="text-right">Total</TableHead>
-                <TableHead className="text-center">Grupo</TableHead>
+                <TableHead className="text-right">Desc.</TableHead>
+                <TableHead className="text-right">Costo Total</TableHead>
+                {/* <TableHead className="text-center">Grupo</TableHead> */}
                 <TableHead className="text-center w-[100px]">
                   Acciones
                 </TableHead>
@@ -672,13 +682,16 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
                       ? Number(part.unit_price).toFixed(2)
                       : "0.00"}
                   </TableCell>
+                  <TableCell className="text-right text-orange-600">
+                    -{part.discount_percentage}%
+                  </TableCell>
                   <TableCell className="text-right font-semibold">
                     {workOrder?.type_currency?.symbol || "S/"}{" "}
                     {part.total_amount
                       ? Number(part.total_amount).toFixed(2)
                       : "0.00"}
                   </TableCell>
-                  <TableCell className="text-center">
+                  {/* <TableCell className="text-center">
                     <Select
                       value={part.group_number.toString()}
                       onValueChange={(value) =>
@@ -699,7 +712,7 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
                         ))}
                       </SelectContent>
                     </Select>
-                  </TableCell>
+                  </TableCell> */}
                   <TableCell className="text-center">
                     <Button
                       variant="ghost"

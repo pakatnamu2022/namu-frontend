@@ -342,11 +342,9 @@ export function PerDiemRequestRowActions({
         )}
 
         {module === "contabilidad" &&
-          request.settlement_status === "approved" &&
-          request.end_date &&
-          new Date(
-            new Date(request.end_date).getTime() + 3 * 24 * 60 * 60 * 1000,
-          ) <= new Date() && (
+          ["approved", "in_progress", "pending_settlement"].includes(
+            request.status,
+          ) && (
             <Button
               variant="outline"
               size="icon-xs"

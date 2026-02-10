@@ -18,7 +18,6 @@ import { useState } from "react";
 import { PURCHASE_ORDER_PRODUCT } from "@/features/ap/post-venta/gestion-almacen/recepcion-compra/lib/purchaseOrderProducts.constants.ts";
 import { Card, CardContent } from "@/components/ui/card.tsx";
 import { FileText, Package, TruckIcon } from "lucide-react";
-import { SUPPLIER_ORDER } from "@/features/ap/post-venta/gestion-almacen/pedido-proveedor/lib/supplierOrder.constants.ts";
 import { useReceptionById } from "@/features/ap/post-venta/gestion-almacen/recepciones-producto/lib/receptionsProducts.hook.ts";
 import { Badge } from "@/components/ui/badge.tsx";
 
@@ -30,7 +29,6 @@ export default function InvoiceReceptionPage() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { MODEL, ROUTE } = PURCHASE_ORDER_PRODUCT;
-  const { ABSOLUTE_ROUTE } = SUPPLIER_ORDER;
 
   // Consultar la recepción
   const {
@@ -45,11 +43,11 @@ export default function InvoiceReceptionPage() {
       // Agregar el ID de la recepción al payload
       const payload = {
         ...data,
-        ap_purchase_reception_id: receptionId,
+        purchase_reception_id: receptionId,
       };
       await storePurchaseOrderProducts(payload);
       successToast(SUCCESS_MESSAGE(MODEL, "create"));
-      router(ABSOLUTE_ROUTE!);
+      router(-1);
     } catch (error: any) {
       const msg = error?.response?.data?.message || "";
       errorToast(ERROR_MESSAGE(MODEL, "create", msg));
@@ -229,7 +227,9 @@ export default function InvoiceReceptionPage() {
           items:
             reception.details?.map((detail) => ({
               product_id: detail.product_id.toString(),
-              quantity: Number(detail.quantity_received),
+              quantity:
+                Number(detail.quantity_received) +
+                Number(detail.observed_quantity),
               unit_price: Number(detail.product?.cost_price || 0),
               item_total:
                 Number(detail.quantity_received) *
