@@ -23,6 +23,7 @@ import { Button } from "@/components/ui/button";
 import { ORDER_QUOTATION_MESON } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.constants";
 import PageSkeleton from "@/shared/components/PageSkeleton";
 import TitleComponent from "@/shared/components/TitleComponent";
+import { AREA_MESON } from "@/core/core.constants";
 
 export default function BillOrderQuotationPage() {
   const { id } = useParams<{ id: string }>();
@@ -37,7 +38,7 @@ export default function BillOrderQuotationPage() {
   const form = useForm<ElectronicDocumentSchemaType>({
     resolver: zodResolver(ElectronicDocumentSchema) as any,
     defaultValues: {
-      origin_module: "posventa",
+      area_id: AREA_MESON.toString(),
       origin_entity_type: "order_quotation",
       origin_entity_id: quotationId.toString(),
       sunat_concept_document_type_id: "",

@@ -6,6 +6,7 @@ import { Check, RefreshCw, X } from "lucide-react";
 import { VehiclePurchaseOrderResource } from "../lib/vehiclePurchaseOrder.interface";
 import VehiclePurchaseOrderMigrationHistory from "./VehiclePurchaseOrderMigrationHistory";
 import VehiclePurchaseOrderDetailButton from "./VehiclePurchaseOrderDetailButton";
+import { VEHICLE_PURCHASE_ORDER } from "../lib/vehiclePurchaseOrder.constants";
 
 export type VehiclePurchaseOrderColumns =
   ColumnDef<VehiclePurchaseOrderResource>;
@@ -143,6 +144,7 @@ export const vehiclePurchaseOrderColumns =
         const router = useNavigate();
         const purchaseOrder = row.original;
         const { id } = purchaseOrder;
+        const { ABSOLUTE_ROUTE } = VEHICLE_PURCHASE_ORDER;
 
         // Check if resend button should be shown
         const canResend =
@@ -166,7 +168,7 @@ export const vehiclePurchaseOrderColumns =
                 size="icon"
                 className="size-7"
                 tooltip="Reenviar Orden de Compra"
-                onClick={() => router(`compra-vehiculo-nuevo/reenviar/${id}`)}
+                onClick={() => router(`${ABSOLUTE_ROUTE}/reenviar/${id}`)}
               >
                 <RefreshCw className="size-4" />
               </Button>

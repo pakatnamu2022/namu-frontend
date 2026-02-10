@@ -68,6 +68,15 @@ export interface ShipmentsReceptionsResource {
   ruc_transport?: string;
   company_name_transport?: string;
   status?: boolean;
+  receiving_checklists: any[];
+  items: ShipmentItemResource[];
+}
+
+export interface ShipmentItemResource {
+  codigo: string;
+  descripcion: string;
+  unidad: string;
+  cantidad: string;
 }
 
 export interface EstablishmentResource {
@@ -122,7 +131,6 @@ export interface ReceptionChecklistResponse {
   data: ReceptionChecklistResource[];
   accessories: AccessoryResource[];
 }
-
 
 export interface ReceptionChecklistResource {
   id: number;

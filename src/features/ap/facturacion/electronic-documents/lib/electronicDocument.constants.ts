@@ -59,11 +59,6 @@ export const ELECTRONIC_DOCUMENT_TALLER: ModelComplete<ElectronicDocumentResourc
     ROUTE_UPDATE: `${ABSOLUTE_ROUTE_TALLER}/actualizar`,
   };
 
-export const ORIGIN_MODULES = [
-  { value: "comercial", label: "Comercial" },
-  { value: "posventa", label: "Posventa" },
-];
-
 export const DOCUMENT_MODIFIED_TYPES = [
   { value: 1, label: "Factura" },
   { value: 2, label: "Boleta" },
