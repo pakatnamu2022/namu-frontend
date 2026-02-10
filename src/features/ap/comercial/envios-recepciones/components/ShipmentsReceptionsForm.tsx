@@ -433,7 +433,7 @@ export const ShipmentsReceptionsForm = ({
       return;
     }
 
-    if (watchIssuerType === "NOSOTROS") {
+    if (watchIssuerType === "SYSTEM") {
       const currentTransmitterOriginId = form.getValues(
         "transmitter_origin_id",
       );
@@ -489,8 +489,8 @@ export const ShipmentsReceptionsForm = ({
         "receiver_destination_id",
       );
 
-      if (currentIssuerType !== "NOSOTROS") {
-        form.setValue("issuer_type", "NOSOTROS", {
+      if (currentIssuerType !== "SYSTEM") {
+        form.setValue("issuer_type", "SYSTEM", {
           shouldValidate: true,
         });
       }
@@ -630,7 +630,7 @@ export const ShipmentsReceptionsForm = ({
             lg: 3,
             xl: 4,
           }}
-          gap="gap-4"
+          gap="gap-3"
         >
           <FormSelect
             control={form.control}
@@ -710,7 +710,7 @@ export const ShipmentsReceptionsForm = ({
               }))}
               control={form.control}
               strictFilter={true}
-              disabled={watchIssuerType !== "NOSOTROS"}
+              disabled={watchIssuerType !== "SYSTEM"}
             />
           )}
 
@@ -844,7 +844,7 @@ export const ShipmentsReceptionsForm = ({
             lg: 3,
             xl: 4,
           }}
-          gap="gap-4"
+          gap="gap-3"
         >
           {/* Ubicación Origen */}
           <div className="space-y-2">

@@ -20,7 +20,10 @@ import {
 import { useAllDeliveryChecklist } from "@/features/ap/configuraciones/vehiculos/checklist-entrega/lib/deliveryChecklist.hook";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { ChecklistField } from "@/shared/components/ChecklistField";
-import { useReceptionChecklistById, useVehicleByShippingGuide } from "../lib/shipmentsReceptions.hook";
+import {
+  useReceptionChecklistById,
+  useVehicleByShippingGuide,
+} from "../lib/shipmentsReceptions.hook";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { FormSubmitConfirmation } from "@/shared/components/FormSubmitConfirmation";
 import { useNavigate } from "react-router-dom";
@@ -73,7 +76,8 @@ export const ReceptionChecklistForm = ({
   const { data: receptionChecklist, isLoading: isLoadingReceptionChecklist } =
     useReceptionChecklistById(shippingGuideId);
 
-  const { data: vehicle, isLoading: isLoadingVehicle } = useVehicleByShippingGuide(shippingGuideId);
+  const { data: vehicle, isLoading: isLoadingVehicle } =
+    useVehicleByShippingGuide(shippingGuideId);
 
   // Inicializar los items seleccionados desde el backend
   useEffect(() => {
@@ -83,7 +87,7 @@ export const ReceptionChecklistForm = ({
       receptionChecklist.data.forEach((item) => {
         // Si tiene cantidad, usar esa cantidad, sino usar 0 (convertido a string)
         itemsReceiving[String(item.receiving_id)] = String(
-          (item as any).quantity || 0
+          (item as any).quantity || 0,
         );
       });
       form.setValue("items_receiving", itemsReceiving);
@@ -95,7 +99,11 @@ export const ReceptionChecklistForm = ({
     }
   }, [receptionChecklist, form]);
 
-  if (isLoadingDeliveryChecklist || isLoadingReceptionChecklist || isLoadingVehicle) {
+  if (
+    isLoadingDeliveryChecklist ||
+    isLoadingReceptionChecklist ||
+    isLoadingVehicle
+  ) {
     return <FormSkeleton />;
   }
 
@@ -103,10 +111,10 @@ export const ReceptionChecklistForm = ({
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 w-full">
         {/* Sección: Información del Vehículo y Accesorios */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="flex flex-wrap gap-4">
           {/* Card: Información del Vehículo */}
           {vehicle && (
-            <Card className="bg-muted">
+            <Card className="bg-muted flex-1">
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
                   <Car className="h-5 w-5 text-primary" />
@@ -121,19 +129,25 @@ export const ReceptionChecklistForm = ({
                   {vehicle.model?.version && (
                     <div className="flex justify-between items-center p-3 bg-background rounded-lg border border-muted">
                       <span className="text-muted-foreground">Modelo</span>
-                      <span className="font-medium">{vehicle.model.version}</span>
+                      <span className="font-medium">
+                        {vehicle.model.version}
+                      </span>
                     </div>
                   )}
                   {vehicle.vin && (
                     <div className="flex justify-between items-center p-3 bg-background rounded-lg border border-muted">
                       <span className="text-muted-foreground">VIN</span>
-                      <span className="font-medium font-mono text-sm">{vehicle.vin}</span>
+                      <span className="font-medium font-mono text-sm">
+                        {vehicle.vin}
+                      </span>
                     </div>
                   )}
                   {vehicle.engine_number && (
                     <div className="flex justify-between items-center p-3 bg-background rounded-lg border border-muted">
                       <span className="text-muted-foreground">Motor</span>
-                      <span className="font-medium font-mono text-sm">{vehicle.engine_number}</span>
+                      <span className="font-medium font-mono text-sm">
+                        {vehicle.engine_number}
+                      </span>
                     </div>
                   )}
                 </div>
@@ -144,7 +158,7 @@ export const ReceptionChecklistForm = ({
           {/* Card: Accesorios Adjuntados */}
           {receptionChecklist?.accessories &&
             receptionChecklist.accessories.length > 0 && (
-              <Card className="bg-muted">
+              <Card className="bg-muted flex-1">
                 <CardHeader>
                   <CardTitle className="text-lg flex items-center gap-2">
                     <FileText className="h-5 w-5 text-primary" />

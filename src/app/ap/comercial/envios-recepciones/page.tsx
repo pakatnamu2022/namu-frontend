@@ -69,7 +69,7 @@ export default function ShipmentsReceptionsPage() {
     setPage(1);
   }, [search, per_page]);
 
-  const { data, isLoading, refetch } = useShipmentsReceptions({
+  const { data, isLoading, refetch, isFetching } = useShipmentsReceptions({
     page,
     search,
     per_page,
@@ -149,7 +149,11 @@ export default function ShipmentsReceptionsPage() {
           subtitle={currentView.descripcion}
           icon={currentView.icon}
         />
-        <ShipmentsReceptionsActions permissions={permissions} />
+        <ShipmentsReceptionsActions
+          isFetching={isFetching && !isLoading}
+          onRefresh={refetch}
+          permissions={permissions}
+        />
       </HeaderTableWrapper>
 
       <ShipmentsReceptionsTable

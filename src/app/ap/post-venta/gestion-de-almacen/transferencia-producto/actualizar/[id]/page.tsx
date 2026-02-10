@@ -71,7 +71,7 @@ export default function UpdateProductTransferPage() {
       driver_doc: data.reference.driver_doc,
       license: data.reference.license,
       plate: data.reference.plate,
-      issuer_type: "NOSOTROS",
+      issuer_type: "SYSTEM",
       item_type: data.item_type === "PRODUCTO" ? "PRODUCTO" : "SERVICIO",
       document_type: "GUIA_REMISION",
       transfer_reason_id: SUNAT_CONCEPTS_ID.TRANSFER_REASON_TRASLADO_SEDE,

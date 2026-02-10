@@ -28,6 +28,6 @@ export const DOCUMENT_TYPES = [
 
 // Tipos de emisor
 export const ISSUER_TYPES = [
-  { value: "NOSOTROS", label: "Automotores" },
+  { value: "SYSTEM", label: "Automotores" },
   { value: "PROVEEDOR", label: "Proveedor" },
 ];
