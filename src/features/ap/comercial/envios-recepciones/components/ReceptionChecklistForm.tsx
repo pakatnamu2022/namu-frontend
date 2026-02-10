@@ -27,14 +27,7 @@ import {
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { FormSubmitConfirmation } from "@/shared/components/FormSubmitConfirmation";
 import { useNavigate } from "react-router-dom";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SHIPMENTS_RECEPTIONS } from "../lib/shipmentsReceptions.constants";
 import { FileText, Car } from "lucide-react";
 
@@ -111,41 +104,84 @@ export const ReceptionChecklistForm = ({
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 w-full">
         {/* Sección: Información del Vehículo y Accesorios */}
-        <div className="flex flex-wrap gap-4">
+        <div className="flex flex-wrap gap-3">
           {/* Card: Información del Vehículo */}
           {vehicle && (
-            <Card className="bg-muted flex-1">
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Car className="h-5 w-5 text-primary" />
+            <Card className="bg-muted gap-1 p-2 flex-1">
+              <CardHeader className="pb-2 pt-3 px-3">
+                <CardTitle className="font-semibold flex items-center gap-1.5">
+                  <Car className="h-4 w-4 shrink-0" />
                   Información del Vehículo
                 </CardTitle>
-                <CardDescription>
-                  Datos del vehículo a recepcionar
-                </CardDescription>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
+              <CardContent className="pt-0 px-3 pb-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-1.5">
                   {vehicle.model?.version && (
-                    <div className="flex justify-between items-center p-3 bg-background rounded-lg border border-muted">
-                      <span className="text-muted-foreground">Modelo</span>
-                      <span className="font-medium">
+                    <div className="flex flex-col gap-0.5 p-1.5 bg-background rounded border border-muted">
+                      <span className="text-muted-foreground text-[10px]">
+                        Modelo
+                      </span>
+                      <span className="font-medium text-xs wrap-break-word">
                         {vehicle.model.version}
                       </span>
                     </div>
                   )}
+                  {vehicle.year && (
+                    <div className="flex flex-col gap-0.5 p-1.5 bg-background rounded border border-muted">
+                      <span className="text-muted-foreground text-[10px]">
+                        Año
+                      </span>
+                      <span className="font-medium text-xs">
+                        {vehicle.year}
+                      </span>
+                    </div>
+                  )}
+                  {vehicle.vehicle_color && (
+                    <div className="flex flex-col gap-0.5 p-1.5 bg-background rounded border border-muted">
+                      <span className="text-muted-foreground text-[10px]">
+                        Color
+                      </span>
+                      <span className="font-medium text-xs">
+                        {vehicle.vehicle_color}
+                      </span>
+                    </div>
+                  )}
+                  {vehicle.model?.transmission && (
+                    <div className="flex flex-col gap-0.5 p-1.5 bg-background rounded border border-muted">
+                      <span className="text-muted-foreground text-[10px]">
+                        Transmisión
+                      </span>
+                      <span className="font-medium text-xs">
+                        {vehicle.model.transmission}
+                      </span>
+                    </div>
+                  )}
+                  {vehicle.engine_type && (
+                    <div className="flex flex-col gap-0.5 p-1.5 bg-background rounded border border-muted">
+                      <span className="text-muted-foreground text-[10px]">
+                        Tipo de Motor
+                      </span>
+                      <span className="font-medium text-xs">
+                        {vehicle.engine_type}
+                      </span>
+                    </div>
+                  )}
                   {vehicle.vin && (
-                    <div className="flex justify-between items-center p-3 bg-background rounded-lg border border-muted">
-                      <span className="text-muted-foreground">VIN</span>
-                      <span className="font-medium font-mono text-sm">
+                    <div className="flex flex-col gap-0.5 p-1.5 bg-background rounded border border-muted md:col-span-2">
+                      <span className="text-muted-foreground text-[10px]">
+                        VIN
+                      </span>
+                      <span className="font-medium font-mono text-xs break-all">
                         {vehicle.vin}
                       </span>
                     </div>
                   )}
                   {vehicle.engine_number && (
-                    <div className="flex justify-between items-center p-3 bg-background rounded-lg border border-muted">
-                      <span className="text-muted-foreground">Motor</span>
-                      <span className="font-medium font-mono text-sm">
+                    <div className="flex flex-col gap-0.5 p-1.5 bg-background rounded border border-muted md:col-span-2">
+                      <span className="text-muted-foreground text-[10px]">
+                        Motor
+                      </span>
+                      <span className="font-medium font-mono text-xs break-all">
                         {vehicle.engine_number}
                       </span>
                     </div>
@@ -158,29 +194,26 @@ export const ReceptionChecklistForm = ({
           {/* Card: Accesorios Adjuntados */}
           {receptionChecklist?.accessories &&
             receptionChecklist.accessories.length > 0 && (
-              <Card className="bg-muted flex-1">
-                <CardHeader>
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <FileText className="h-5 w-5 text-primary" />
+              <Card className="bg-muted gap-1 p-2 flex-1">
+                <CardHeader className="pb-2 pt-3 px-3">
+                  <CardTitle className="font-semibold flex items-center gap-1.5">
+                    <FileText className="h-4 w-4 shrink-0" />
                     Accesorios de la Compra
                   </CardTitle>
-                  <CardDescription>
-                    Estos son los accesorios con los que debe venir el vehículo
-                  </CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <div className="space-y-2">
+                <CardContent className="pt-0 px-3 pb-3">
+                  <div className="space-y-1.5">
                     {receptionChecklist.accessories.map((accessory) => (
                       <div
                         key={accessory.id}
-                        className="flex items-center justify-between p-3 bg-background rounded-lg border border-muted hover:border-primary transition-colors"
+                        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5 p-1.5 bg-background rounded border border-muted"
                       >
-                        <p className="font-medium text-foreground">
+                        <p className="font-medium text-foreground text-xs wrap-break-word">
                           {accessory.description}
                         </p>
-                        <Badge color="secondary" className="text-xs">
+                        <span className="text-muted-foreground text-[10px] shrink-0">
                           {accessory.quantity} {accessory.unit_measurement}
-                        </Badge>
+                        </span>
                       </div>
                     ))}
                   </div>
@@ -223,11 +256,15 @@ export const ReceptionChecklistForm = ({
         />
 
         {/* Botones de Acción */}
-        <div className="flex gap-4 w-full justify-end">
+        <div className="flex flex-col-reverse sm:flex-row gap-3 sm:gap-4 w-full sm:justify-end">
           {onCancel && (
             <ConfirmationDialog
               trigger={
-                <Button type="button" variant="outline">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full sm:w-auto"
+                >
                   Cancelar
                 </Button>
               }
