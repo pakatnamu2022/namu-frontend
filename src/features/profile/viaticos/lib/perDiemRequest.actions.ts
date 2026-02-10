@@ -293,14 +293,22 @@ export async function uploadDepositFile(
 
 export async function uploadDepositFiles(
   id: number,
-  files: File[]
+  files: File[],
+  descriptions: string[]
 ): Promise<PerDiemRequestResource> {
   const formData = new FormData();
 
-  // Agregar hasta 3 archivos con los nombres voucher_1, voucher_2, voucher_3
+  // Agregar hasta 3 archivos usando vouchers[] array
   files.forEach((file, index) => {
     if (index < 3) {
-      formData.append(`voucher_${index + 1}`, file);
+      formData.append("vouchers[]", file);
+    }
+  });
+
+  // Agregar descripciones correspondientes usando descriptions[] array
+  descriptions.forEach((description, index) => {
+    if (index < 3) {
+      formData.append("descriptions[]", description);
     }
   });
 
@@ -403,4 +411,14 @@ export async function resendPerDiemRequestEmails(
     data
   );
   return response.data;
+}
+
+export async function deleteDepositFile(
+  requestId: number,
+  fileId: number
+): Promise<GeneralResponse> {
+  const { data } = await api.delete<GeneralResponse>(
+    `${ENDPOINT}/${requestId}/eliminar-deposito/${fileId}`
+  );
+  return data;
 }

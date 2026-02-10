@@ -2,11 +2,13 @@ import { useRef, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Upload, Camera, X, FileText, Plus } from "lucide-react";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
 export interface UploadedFile {
   id: string;
   file: File;
   previewUrl: string;
+  description?: string; // Descripción opcional para cada archivo
 }
 
 interface MultipleFileUploadWithCameraProps {
@@ -122,6 +124,13 @@ export function MultipleFileUploadWithCamera({
     setError("");
   };
 
+  const handleDescriptionChange = (id: string, description: string) => {
+    const updatedFiles = value.map((f) =>
+      f.id === id ? { ...f, description } : f
+    );
+    onChange(updatedFiles);
+  };
+
   const handleUploadClick = () => {
     if (value.length >= maxFiles) {
       setError(`Ya has alcanzado el límite de ${maxFiles} archivos`);
@@ -165,45 +174,62 @@ export function MultipleFileUploadWithCamera({
       <div className="space-y-2">
         {/* Lista de archivos subidos como items */}
         {value.length > 0 && (
-          <div className="space-y-2">
+          <div className="space-y-3">
             {value.map((uploadedFile) => (
               <div
                 key={uploadedFile.id}
-                className="flex items-center gap-2 p-2 sm:p-3 bg-muted rounded-md group hover:bg-muted/80 transition-colors"
+                className="p-3 bg-muted rounded-md space-y-2"
               >
-                {isPdfFile(uploadedFile.file) ? (
-                  <FileText className="h-8 w-8 shrink-0 text-primary" />
-                ) : showPreview ? (
-                  <img
-                    src={uploadedFile.previewUrl}
-                    alt="Vista previa"
-                    className="h-12 w-12 object-cover rounded shrink-0"
-                  />
-                ) : (
-                  <FileText className="h-8 w-8 shrink-0 text-primary" />
-                )}
-
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">
-                    {uploadedFile.file.name}
-                  </p>
-                  {showFileInfo && (
-                    <p className="text-xs text-muted-foreground">
-                      {(uploadedFile.file.size / 1024 / 1024).toFixed(2)} MB
-                    </p>
+                <div className="flex items-center gap-2">
+                  {isPdfFile(uploadedFile.file) ? (
+                    <FileText className="h-8 w-8 shrink-0 text-primary" />
+                  ) : showPreview ? (
+                    <img
+                      src={uploadedFile.previewUrl}
+                      alt="Vista previa"
+                      className="h-12 w-12 object-cover rounded shrink-0"
+                    />
+                  ) : (
+                    <FileText className="h-8 w-8 shrink-0 text-primary" />
                   )}
+
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate">
+                      {uploadedFile.file.name}
+                    </p>
+                    {showFileInfo && (
+                      <p className="text-xs text-muted-foreground">
+                        {(uploadedFile.file.size / 1024 / 1024).toFixed(2)} MB
+                      </p>
+                    )}
+                  </div>
+
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="shrink-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+                    onClick={() => handleRemoveFile(uploadedFile.id)}
+                    disabled={disabled}
+                    type="button"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
                 </div>
 
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  className="shrink-0 text-destructive hover:text-destructive hover:bg-destructive/10"
-                  onClick={() => handleRemoveFile(uploadedFile.id)}
-                  disabled={disabled}
-                  type="button"
-                >
-                  <X className="h-4 w-4" />
-                </Button>
+                {/* Campo de descripción */}
+                <div className="space-y-1">
+                  <Label className="text-xs">Descripción</Label>
+                  <Textarea
+                    placeholder="Ej: Transferencia del 50% del monto total"
+                    value={uploadedFile.description || ""}
+                    onChange={(e) =>
+                      handleDescriptionChange(uploadedFile.id, e.target.value)
+                    }
+                    disabled={disabled}
+                    rows={2}
+                    className="resize-none text-sm"
+                  />
+                </div>
               </div>
             ))}
           </div>
