@@ -2,7 +2,7 @@ import {
   SupplierOrderSchema,
   supplierOrderSchemaCreate,
   supplierOrderSchemaUpdate,
-} from "@/features/ap/post-venta/gestion-almacen/pedido-proveedor/lib/supplierOrder.schema.ts";
+} from "@/features/ap/post-venta/gestion-almacen/compra-proveedor/lib/supplierOrder.schema.ts";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -47,7 +47,7 @@ import { format } from "date-fns";
 import { CURRENCY_TYPE_IDS } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.constants.ts";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync.tsx";
 import { SuppliersResource } from "@/features/ap/comercial/proveedores/lib/suppliers.interface.ts";
-import { SupplierOrderResource } from "@/features/ap/post-venta/gestion-almacen/pedido-proveedor/lib/supplierOrder.interface.ts";
+import { SupplierOrderResource } from "@/features/ap/post-venta/gestion-almacen/compra-proveedor/lib/supplierOrder.interface.ts";
 import { useUnitMeasurement } from "@/features/ap/configuraciones/maestros-general/unidad-medida/lib/unitMeasurement.hook.ts";
 import { UnitMeasurementResource } from "@/features/ap/configuraciones/maestros-general/unidad-medida/lib/unitMeasurement.interface.ts";
 import { FormInput } from "@/shared/components/FormInput.tsx";

@@ -2,7 +2,7 @@ import { ModelComplete } from "@/core/core.interface.ts";
 import { ReceptionResource } from "./receptionsProducts.interface.ts";
 
 const ROUTE = "recepcionar";
-const ABSOLUTE_ROUTE = `/ap/post-venta/gestion-de-almacen/pedido-proveedor/${ROUTE}`;
+const ABSOLUTE_ROUTE = `/ap/post-venta/gestion-de-almacen/compra-proveedor/${ROUTE}`;
 
 export const RECEPTION: ModelComplete<ReceptionResource> = {
   MODEL: {

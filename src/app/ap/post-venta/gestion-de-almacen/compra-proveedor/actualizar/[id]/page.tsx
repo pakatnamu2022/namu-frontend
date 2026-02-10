@@ -17,11 +17,11 @@ import { notFound } from "@/shared/hooks/useNotFound.ts";
 import {
   getSupplierOrderById,
   updateSupplierOrder,
-} from "@/features/ap/post-venta/gestion-almacen/pedido-proveedor/lib/supplierOrder.actions.ts";
-import { SupplierOrderSchema } from "@/features/ap/post-venta/gestion-almacen/pedido-proveedor/lib/supplierOrder.schema.ts";
-import { SupplierOrderResource } from "@/features/ap/post-venta/gestion-almacen/pedido-proveedor/lib/supplierOrder.interface.ts";
-import { SupplierOrderForm } from "@/features/ap/post-venta/gestion-almacen/pedido-proveedor/components/SupplierOrderForm.tsx";
-import { SUPPLIER_ORDER } from "@/features/ap/post-venta/gestion-almacen/pedido-proveedor/lib/supplierOrder.constants.ts";
+} from "@/features/ap/post-venta/gestion-almacen/compra-proveedor/lib/supplierOrder.actions.ts";
+import { SupplierOrderSchema } from "@/features/ap/post-venta/gestion-almacen/compra-proveedor/lib/supplierOrder.schema.ts";
+import { SupplierOrderResource } from "@/features/ap/post-venta/gestion-almacen/compra-proveedor/lib/supplierOrder.interface.ts";
+import { SupplierOrderForm } from "@/features/ap/post-venta/gestion-almacen/compra-proveedor/components/SupplierOrderForm.tsx";
+import { SUPPLIER_ORDER } from "@/features/ap/post-venta/gestion-almacen/compra-proveedor/lib/supplierOrder.constants.ts";
 
 export default function UpdateSupplierOrderPage() {
   const { id } = useParams();

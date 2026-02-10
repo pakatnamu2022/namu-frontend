@@ -18,15 +18,15 @@ import { DEFAULT_PER_PAGE, EMPRESA_AP } from "@/core/core.constants.ts";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper.tsx";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions.ts";
 import { notFound } from "@/shared/hooks/useNotFound.ts";
-import { useSupplierOrder } from "@/features/ap/post-venta/gestion-almacen/pedido-proveedor/lib/supplierOrder.hook.ts";
-import { deleteSupplierOrder } from "@/features/ap/post-venta/gestion-almacen/pedido-proveedor/lib/supplierOrder.actions.ts";
-import SupplierOrderActions from "@/features/ap/post-venta/gestion-almacen/pedido-proveedor/components/SupplierOrderActions.tsx";
-import SupplierOrderTable from "@/features/ap/post-venta/gestion-almacen/pedido-proveedor/components/SupplierOrderTable.tsx";
-import { supplierOrderColumns } from "@/features/ap/post-venta/gestion-almacen/pedido-proveedor/components/SupplierOrderColumns.tsx";
-import SupplierOrderOptions from "@/features/ap/post-venta/gestion-almacen/pedido-proveedor/components/SupplierOrderOptions.tsx";
-import { SUPPLIER_ORDER } from "@/features/ap/post-venta/gestion-almacen/pedido-proveedor/lib/supplierOrder.constants.ts";
-import { SupplierOrderViewSheet } from "@/features/ap/post-venta/gestion-almacen/pedido-proveedor/components/SupplierOrderViewSheet.tsx";
-import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
+import { useSupplierOrder } from "@/features/ap/post-venta/gestion-almacen/compra-proveedor/lib/supplierOrder.hook.ts";
+import { deleteSupplierOrder } from "@/features/ap/post-venta/gestion-almacen/compra-proveedor/lib/supplierOrder.actions.ts";
+import SupplierOrderActions from "@/features/ap/post-venta/gestion-almacen/compra-proveedor/components/SupplierOrderActions.tsx";
+import SupplierOrderTable from "@/features/ap/post-venta/gestion-almacen/compra-proveedor/components/SupplierOrderTable.tsx";
+import { supplierOrderColumns } from "@/features/ap/post-venta/gestion-almacen/compra-proveedor/components/SupplierOrderColumns.tsx";
+import SupplierOrderOptions from "@/features/ap/post-venta/gestion-almacen/compra-proveedor/components/SupplierOrderOptions.tsx";
+import { SUPPLIER_ORDER } from "@/features/ap/post-venta/gestion-almacen/compra-proveedor/lib/supplierOrder.constants.ts";
+import { SupplierOrderViewSheet } from "@/features/ap/post-venta/gestion-almacen/compra-proveedor/components/SupplierOrderViewSheet.tsx";
+import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook.ts";
 
 export default function SupplierOrderPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();

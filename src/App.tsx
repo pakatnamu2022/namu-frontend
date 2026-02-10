@@ -239,13 +239,13 @@ import InventoryPage from "./app/ap/post-venta/gestion-de-almacen/inventario/pag
 import InventoryKardexPage from "@/app/ap/post-venta/gestion-de-almacen/inventario/kardex/page.tsx";
 import ProductKardexPage from "@/app/ap/post-venta/gestion-de-almacen/inventario/movimientos/[productId]/[warehouseId]/page.tsx";
 import PurchaseHistoryPage from "@/app/ap/post-venta/gestion-de-almacen/inventario/historico-compras/[productId]/[warehouseId]/page.tsx";
-import ReceptionsProductsPage from "@/app/ap/post-venta/gestion-de-almacen/pedido-proveedor/recepcionar/[supplierOrderId]/page.tsx";
-import UpdateReceptionProductPage from "@/app/ap/post-venta/gestion-de-almacen/pedido-proveedor/recepcionar/actualizar/[supplierOrderId]/[id]/page.tsx";
-import AddReceptionProductPage from "@/app/ap/post-venta/gestion-de-almacen/pedido-proveedor/recepcionar/agregar/[supplierOrderId]/page.tsx";
-import SupplierOrderPage from "./app/ap/post-venta/gestion-de-almacen/pedido-proveedor/page.tsx";
-import AddSupplierOrderPage from "@/app/ap/post-venta/gestion-de-almacen/pedido-proveedor/agregar/page.tsx";
-import UpdateSupplierOrderPage from "@/app/ap/post-venta/gestion-de-almacen/pedido-proveedor/actualizar/[id]/page.tsx";
-import InvoiceReceptionPage from "@/app/ap/post-venta/gestion-de-almacen/pedido-proveedor/recepcionar/facturar/[receptionId]/page.tsx";
+import ReceptionsProductsPage from "@/app/ap/post-venta/gestion-de-almacen/compra-proveedor/recepcionar/[supplierOrderId]/page.tsx";
+import UpdateReceptionProductPage from "@/app/ap/post-venta/gestion-de-almacen/compra-proveedor/recepcionar/actualizar/[supplierOrderId]/[id]/page.tsx";
+import AddReceptionProductPage from "@/app/ap/post-venta/gestion-de-almacen/compra-proveedor/recepcionar/agregar/[supplierOrderId]/page.tsx";
+import SupplierOrderPage from "./app/ap/post-venta/gestion-de-almacen/compra-proveedor/page.tsx";
+import AddSupplierOrderPage from "@/app/ap/post-venta/gestion-de-almacen/compra-proveedor/agregar/page.tsx";
+import UpdateSupplierOrderPage from "@/app/ap/post-venta/gestion-de-almacen/compra-proveedor/actualizar/[id]/page.tsx";
+import InvoiceReceptionPage from "@/app/ap/post-venta/gestion-de-almacen/compra-proveedor/recepcionar/facturar/[receptionId]/page.tsx";
 import WarehousePurchaseRequestPage from "./app/ap/post-venta/gestion-de-almacen/solicitud-compra-almacen/page.tsx";
 import AddWarehousePurchaseRequestPage from "@/app/ap/post-venta/gestion-de-almacen/solicitud-compra-almacen/agregar/page.tsx";
 import UpdateWarehousePurchaseRequestPage from "@/app/ap/post-venta/gestion-de-almacen/solicitud-compra-almacen/actualizar/[id]/page.tsx";
@@ -993,7 +993,7 @@ function App() {
                 element={<EngineTypesPage />}
               />
               <Route
-                path="vehiculos/tipos-pedido-proveedor"
+                path="vehiculos/tipos-compra-proveedor"
                 element={<SupplierOrderTypePage />}
               />
               <Route
@@ -1231,31 +1231,31 @@ function App() {
                 element={<PurchaseHistoryPage />}
               />
               <Route
-                path="gestion-de-almacen/pedido-proveedor"
+                path="gestion-de-almacen/compra-proveedor"
                 element={<SupplierOrderPage />}
               />
               <Route
-                path="gestion-de-almacen/pedido-proveedor/agregar"
+                path="gestion-de-almacen/compra-proveedor/agregar"
                 element={<AddSupplierOrderPage />}
               />
               <Route
-                path="gestion-de-almacen/pedido-proveedor/actualizar/:id"
+                path="gestion-de-almacen/compra-proveedor/actualizar/:id"
                 element={<UpdateSupplierOrderPage />}
               />
               <Route
-                path="gestion-de-almacen/pedido-proveedor/recepcionar/facturar/:receptionId"
+                path="gestion-de-almacen/compra-proveedor/recepcionar/facturar/:receptionId"
                 element={<InvoiceReceptionPage />}
               />
               <Route
-                path="gestion-de-almacen/pedido-proveedor/recepcionar/:supplierOrderId"
+                path="gestion-de-almacen/compra-proveedor/recepcionar/:supplierOrderId"
                 element={<ReceptionsProductsPage />}
               />
               <Route
-                path="gestion-de-almacen/pedido-proveedor/recepcionar/agregar/:supplierOrderId"
+                path="gestion-de-almacen/compra-proveedor/recepcionar/agregar/:supplierOrderId"
                 element={<AddReceptionProductPage />}
               />
               <Route
-                path="gestion-de-almacen/pedido-proveedor/recepcionar/actualizar/:supplierOrderId/:id"
+                path="gestion-de-almacen/compra-proveedor/recepcionar/actualizar/:supplierOrderId/:id"
                 element={<UpdateReceptionProductPage />}
               />
               <Route

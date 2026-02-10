@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import GeneralSheet from "@/shared/components/GeneralSheet.tsx";
-import { SupplierOrderResource } from "@/features/ap/post-venta/gestion-almacen/pedido-proveedor/lib/supplierOrder.interface.ts";
-import { getSupplierOrderById } from "@/features/ap/post-venta/gestion-almacen/pedido-proveedor/lib/supplierOrder.actions.ts";
+import { SupplierOrderResource } from "@/features/ap/post-venta/gestion-almacen/compra-proveedor/lib/supplierOrder.interface.ts";
+import { getSupplierOrderById } from "@/features/ap/post-venta/gestion-almacen/compra-proveedor/lib/supplierOrder.actions.ts";
 import { format, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
 import {

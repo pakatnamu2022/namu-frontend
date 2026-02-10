@@ -1,7 +1,7 @@
 import SearchInput from "@/shared/components/SearchInput.tsx";
 import DatePicker from "@/shared/components/DatePicker.tsx";
-import { SedeResource } from "@/features/gp/maestro-general/sede/lib/sede.interface";
-import { SearchableSelect } from "@/shared/components/SearchableSelect";
+import { SedeResource } from "@/features/gp/maestro-general/sede/lib/sede.interface.ts";
+import { SearchableSelect } from "@/shared/components/SearchableSelect.tsx";
 
 interface SupplierOrderOptionsProps {
   search: string;

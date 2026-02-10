@@ -17,8 +17,8 @@ import { ReceptionSchema } from "@/features/ap/post-venta/gestion-almacen/recepc
 import { ReceptionsProductsForm } from "@/features/ap/post-venta/gestion-almacen/recepciones-producto/components/ReceptionsProductsForm.tsx";
 import { RECEPTION } from "@/features/ap/post-venta/gestion-almacen/recepciones-producto/lib/receptionsProducts.constants.ts";
 import PageSkeleton from "@/shared/components/PageSkeleton.tsx";
-import { useSupplierOrderById } from "@/features/ap/post-venta/gestion-almacen/pedido-proveedor/lib/supplierOrder.hook";
-import { SUPPLIER_ORDER } from "@/features/ap/post-venta/gestion-almacen/pedido-proveedor/lib/supplierOrder.constants";
+import { useSupplierOrderById } from "@/features/ap/post-venta/gestion-almacen/compra-proveedor/lib/supplierOrder.hook.ts";
+import { SUPPLIER_ORDER } from "@/features/ap/post-venta/gestion-almacen/compra-proveedor/lib/supplierOrder.constants.ts";
 
 export default function AddReceptionProductPage() {
   const router = useNavigate();

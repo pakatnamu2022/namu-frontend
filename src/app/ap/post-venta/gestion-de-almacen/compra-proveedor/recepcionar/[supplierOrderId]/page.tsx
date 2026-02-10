@@ -29,8 +29,8 @@ import {
   CheckCircle,
 } from "lucide-react";
 import { Card } from "@/components/ui/card.tsx";
-import { useSupplierOrderById } from "@/features/ap/post-venta/gestion-almacen/pedido-proveedor/lib/supplierOrder.hook";
-import { SUPPLIER_ORDER } from "@/features/ap/post-venta/gestion-almacen/pedido-proveedor/lib/supplierOrder.constants";
+import { useSupplierOrderById } from "@/features/ap/post-venta/gestion-almacen/compra-proveedor/lib/supplierOrder.hook.ts";
+import { SUPPLIER_ORDER } from "@/features/ap/post-venta/gestion-almacen/compra-proveedor/lib/supplierOrder.constants.ts";
 import { useMemo } from "react";
 import { Badge } from "@/components/ui/badge.tsx";
 

@@ -4,7 +4,7 @@ import { WarehouseResource } from "@/features/ap/configuraciones/maestros-genera
 import { CurrencyTypesResource } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.interface.ts";
 import { SedeResource } from "@/features/gp/maestro-general/sede/lib/sede.interface.ts";
 import { type Links, type Meta } from "@/shared/lib/pagination.interface.ts";
-import { ProductResource } from "../../productos/lib/product.interface";
+import { ProductResource } from "../../productos/lib/product.interface.ts";
 
 export interface SupplierOrderResponse {
   data: SupplierOrderResource[];

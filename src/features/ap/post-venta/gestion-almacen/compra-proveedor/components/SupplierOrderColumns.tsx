@@ -1,5 +1,5 @@
 import type { ColumnDef } from "@tanstack/react-table";
-import { SupplierOrderResource } from "@/features/ap/post-venta/gestion-almacen/pedido-proveedor/lib/supplierOrder.interface.ts";
+import { SupplierOrderResource } from "@/features/ap/post-venta/gestion-almacen/compra-proveedor/lib/supplierOrder.interface.ts";
 import { Button } from "@/components/ui/button.tsx";
 import { Eye, Pencil, PackageCheck } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog.tsx";

@@ -1,5 +1,5 @@
 import { DataTable } from "@/shared/components/DataTable.tsx";
-import { SupplierOrderResource } from "@/features/ap/post-venta/gestion-almacen/pedido-proveedor/lib/supplierOrder.interface.ts";
+import { SupplierOrderResource } from "@/features/ap/post-venta/gestion-almacen/compra-proveedor/lib/supplierOrder.interface.ts";
 import { SupplierOrderColumns } from "./SupplierOrderColumns.tsx";
 
 interface Props {
