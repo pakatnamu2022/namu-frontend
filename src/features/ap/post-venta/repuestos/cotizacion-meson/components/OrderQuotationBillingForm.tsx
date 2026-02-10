@@ -312,7 +312,10 @@ export function OrderQuotationBillingForm({
             return {
               account_plan_id: QUOTATION_ACCOUNT_PLAN_IDS.FULL_SALE,
               unidad_de_medida: "NIU",
-              codigo: detail.id?.toString(),
+              codigo:
+                detail.product_id && detail.product?.code
+                  ? detail.product.code
+                  : detail.id?.toString(),
               descripcion: detail.description || "SERVICIO DE TALLER",
               cantidad: cantidad,
               valor_unitario: valor_unitario,
