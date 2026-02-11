@@ -1,47 +1,50 @@
 "use client";
 
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import PageSkeleton from "@/shared/components/PageSkeleton";
 import TitleComponent from "@/shared/components/TitleComponent";
 import DataTablePagination from "@/shared/components/DataTablePagination";
-import { CM_COMERCIAL_ID, DEFAULT_PER_PAGE } from "@/core/core.constants";
+import {
+  CM_POSTVENTA_ID,
+  DEFAULT_PER_PAGE,
+  EMPRESA_AP,
+} from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
-import { VEHICLE_PURCHASE_ORDER } from "@/features/ap/comercial/ordenes-compra-vehiculo/lib/vehiclePurchaseOrder.constants";
 import { useVehiclePurchaseOrder } from "@/features/ap/comercial/ordenes-compra-vehiculo/lib/vehiclePurchaseOrder.hook";
-import VehiclePurchaseOrderActions from "@/features/ap/comercial/ordenes-compra-vehiculo/components/VehiclePurchaseOrderActions";
 import { vehiclePurchaseOrderColumns } from "@/features/ap/comercial/ordenes-compra-vehiculo/components/VehiclePurchaseOrderColumns";
 import VehiclePurchaseOrderTable from "@/features/ap/comercial/ordenes-compra-vehiculo/components/VehiclePurchaseOrderTable";
-import VehiclePurchaseOrderOptions from "@/features/ap/comercial/ordenes-compra-vehiculo/components/VehiclePurchaseOrderOptions";
 import { notFound } from "@/shared/hooks/useNotFound";
+import { PURCHASE_INVOICE_PV } from "@/features/ap/comercial/ordenes-compra-vehiculo/lib/vehiclePurchaseOrder.constants";
+import PurchaseOrderWarehouseActions from "@/features/ap/post-venta/gestion-almacen/factura-compra/components/PurchaseOrderWarehouseActions";
+import PurchaseOrderWarehouseOptions from "@/features/ap/post-venta/gestion-almacen/factura-compra/components/PurchaseOrderWarehouseOptions";
+import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 
-export default function VehiclePurchaseOrderPage() {
+export default function PurchaseOrderWarehousePage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
-  const [sedeId, setSedeId] = useState("all");
-  const [warehouseId, setWarehouseId] = useState("all");
-  const [supplierId, setSupplierId] = useState("all");
-  const [year, setYear] = useState("all");
-  const [modelId, setModelId] = useState("all");
-  const [colorId, setColorId] = useState("all");
-  const [statusId, setStatusId] = useState("all");
-  const { ROUTE } = VEHICLE_PURCHASE_ORDER;
+  const [sedeId, setSedeId] = useState<string>("");
+  const { ROUTE } = PURCHASE_INVOICE_PV;
 
   const { data, isLoading, isFetching, refetch } = useVehiclePurchaseOrder({
     page,
     search,
     per_page,
     sede_id: sedeId !== "all" ? sedeId : undefined,
-    warehouse_id: warehouseId !== "all" ? warehouseId : undefined,
-    supplier_id: supplierId !== "all" ? supplierId : undefined,
-    year: year !== "all" ? year : undefined,
-    vehicle$ap_models_vn_id: modelId !== "all" ? modelId : undefined,
-    vehicle_color_id: colorId !== "all" ? colorId : undefined,
-    vehicle$ap_vehicle_status_id: statusId !== "all" ? statusId : undefined,
-    type_operation_id: CM_COMERCIAL_ID,
+    type_operation_id: CM_POSTVENTA_ID,
   });
+
+  const { data: sedes = [] } = useMySedes({ company: EMPRESA_AP.id });
+
+  // Setear el primer almacén por defecto
+  useEffect(() => {
+    if (sedes.length > 0 && !sedeId) {
+      setSedeId(sedes[0].id.toString());
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sedes]);
 
   if (isLoadingModule) return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
@@ -55,7 +58,7 @@ export default function VehiclePurchaseOrderPage() {
           subtitle={currentView.descripcion}
           icon={currentView.icon}
         />
-        <VehiclePurchaseOrderActions
+        <PurchaseOrderWarehouseActions
           isFetching={isFetching && !isLoading}
           onRefresh={refetch}
         />
@@ -65,23 +68,12 @@ export default function VehiclePurchaseOrderPage() {
         columns={vehiclePurchaseOrderColumns()}
         data={data?.data || []}
       >
-        <VehiclePurchaseOrderOptions
+        <PurchaseOrderWarehouseOptions
           search={search}
           setSearch={setSearch}
+          sedes={sedes}
           sedeId={sedeId}
           setSedeId={setSedeId}
-          warehouseId={warehouseId}
-          setWarehouseId={setWarehouseId}
-          supplierId={supplierId}
-          setSupplierId={setSupplierId}
-          year={year}
-          setYear={setYear}
-          modelId={modelId}
-          setModelId={setModelId}
-          colorId={colorId}
-          setColorId={setColorId}
-          statusId={statusId}
-          setStatusId={setStatusId}
         />
       </VehiclePurchaseOrderTable>
 
