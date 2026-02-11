@@ -44,6 +44,7 @@ export default function CyclePersonDetailPage() {
   const [positionId, setPositionId] = useState<string | null>(null);
   const [categoryId, setCategoryId] = useState<string | null>(null);
   const [chiefDni, setChiefDni] = useState<string | null>(null);
+  const [objectiveId, setObjectiveId] = useState<string | null>(null);
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [openAssign, setOpenAssign] = useState(false);
 
@@ -62,6 +63,7 @@ export default function CyclePersonDetailPage() {
     position_id: positionId,
     category_id: categoryId,
     chief_id: chiefDni,
+    objective_id: objectiveId,
     per_page,
   });
 
@@ -71,11 +73,8 @@ export default function CyclePersonDetailPage() {
     refetch: refetchCategories,
   } = useAllCategoriesWithBosses(idCycle);
 
-  const {
-    data: persons,
-    isLoading: isLoadingPersons,
-    refetch: refetchPersons,
-  } = usePersonsInCycle(idCycle);
+  const { isLoading: isLoadingPersons, refetch: refetchPersons } =
+    usePersonsInCycle(idCycle);
 
   const {
     data: positions = [],
@@ -181,9 +180,9 @@ export default function CyclePersonDetailPage() {
         data={data?.data || []}
       >
         <CyclePersonDetailOptions
+          idCycle={idCycle}
           search={search}
           setSearch={setSearch}
-          persons={persons || []}
           personId={personId}
           setPersonId={setPersonId}
           positions={positions}
@@ -195,6 +194,8 @@ export default function CyclePersonDetailPage() {
           chiefs={chiefs}
           chiefDni={chiefDni}
           setChiefDni={setChiefDni}
+          objectiveId={objectiveId}
+          setObjectiveId={setObjectiveId}
         />
       </CyclePersonDetailTable>
 

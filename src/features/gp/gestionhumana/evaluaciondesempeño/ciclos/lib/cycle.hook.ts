@@ -37,7 +37,7 @@ export const useCycle = (id: number) => {
 
 export const useCycleDetails = (
   idCycle: number,
-  params?: Record<string, any>
+  params?: Record<string, any>,
 ) => {
   return useQuery({
     queryKey: ["cycle", idCycle, params],
@@ -46,10 +46,10 @@ export const useCycleDetails = (
   });
 };
 
-export const usePersonsInCycle = (idCycle: number) => {
+export const usePersonsInCycle = (params?: Record<string, any>) => {
   return useQuery({
-    queryKey: ["cycle", idCycle, "persons"],
-    queryFn: () => getPersonsInCycle(idCycle.toString()),
+    queryKey: ["cycle", params, "persons"],
+    queryFn: () => getPersonsInCycle({ params }),
     refetchOnWindowFocus: false,
   });
 };

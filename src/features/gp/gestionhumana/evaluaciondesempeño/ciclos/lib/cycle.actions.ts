@@ -48,7 +48,7 @@ export async function findCycleById(id: string): Promise<CycleResource> {
 
 export async function getCyclePersonDetails(
   id: string,
-  params?: Record<string, any>
+  params?: Record<string, any>,
 ): Promise<CyclePersonDetailResponse> {
   const config: AxiosRequestConfig = {
     params: {
@@ -57,23 +57,29 @@ export async function getCyclePersonDetails(
   };
   const { data } = await api.get<CyclePersonDetailResponse>(
     `${ENDPOINT}/${id}/details`,
-    config
+    config,
   );
   return data;
 }
 
-export async function getPersonsInCycle(id: string): Promise<WorkerResource[]> {
-  const { data } = await api.get<WorkerResource[]>(
-    `${ENDPOINT}/${id}/participants`
+interface WorkerResponseInCycle {
+  data: WorkerResource[];
+}
+
+export async function getPersonsInCycle(
+  id: string,
+): Promise<WorkerResponseInCycle> {
+  const { data } = await api.get<WorkerResponseInCycle>(
+    `${ENDPOINT}/${id}/participants`,
   );
   return data;
 }
 
 export async function getPositionsInCycle(
-  id: string
+  id: string,
 ): Promise<PositionResource[]> {
   const { data } = await api.get<PositionResource[]>(
-    `${ENDPOINT}/${id}/positions`
+    `${ENDPOINT}/${id}/positions`,
   );
   return data;
 }
@@ -91,14 +97,14 @@ export async function getCategoriesInCycle(id: string): Promise<RootObject[]> {
   };
   const { data } = await api.get<RootObject[]>(
     `${ENDPOINT}/${id}/categories`,
-    config
+    config,
   );
   return data;
 }
 
 export async function getChiefsInCycle(id: string): Promise<WorkerResource[]> {
   const { data } = await api.get<WorkerResource[]>(
-    `/gp/gh/performanceEvaluation/cycle/${id}/chiefs`
+    `/gp/gh/performanceEvaluation/cycle/${id}/chiefs`,
   );
   return data;
 }
@@ -110,7 +116,7 @@ export async function storeCycle(data: any): Promise<CycleResponse> {
 
 export async function assignCategoriesToCycle(
   id: number,
-  data: { categories: string[] }
+  data: { categories: string[] },
 ): Promise<any> {
   const response = await api.post<any>(`${ENDPOINT}/${id}/categories`, data);
   return response.data;
@@ -118,7 +124,7 @@ export async function assignCategoriesToCycle(
 
 export async function updateCycle(
   id: string,
-  data: any
+  data: any,
 ): Promise<CycleResponse> {
   const response = await api.put<CycleResponse>(`${ENDPOINT}/${id}`, data);
   return response.data;
@@ -126,11 +132,11 @@ export async function updateCycle(
 
 export async function updateGoalCyclePersonDetail(
   id: number,
-  data: { goal?: number; weight?: number }
+  data: { goal?: number; weight?: number },
 ): Promise<CyclePersonDetailResource> {
   const response = await api.put<CyclePersonDetailResource>(
     `${ENDPOINT_DETAIL}/${id}`,
-    data
+    data,
   );
   return response.data;
 }
@@ -141,10 +147,10 @@ export async function deleteCycle(id: number): Promise<GeneralResponse> {
 }
 
 export async function deleteCyclePersonDetail(
-  id: number
+  id: number,
 ): Promise<GeneralResponse> {
   const { data } = await api.delete<GeneralResponse>(
-    `${ENDPOINT_DETAIL}/${id}`
+    `${ENDPOINT_DETAIL}/${id}`,
   );
   return data;
 }
