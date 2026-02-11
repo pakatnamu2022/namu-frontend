@@ -237,6 +237,10 @@ export default function InvoiceReceptionPage() {
               discount: 0,
               tax_rate: 18,
               notes: detail.notes || "",
+              product_name: detail.product?.name || "",
+              product_code: detail.product?.code || "",
+              product_unit_measurement:
+                detail.product?.unit_measurement_name || "",
             })) || [],
         }}
         onSubmit={handleSubmit}

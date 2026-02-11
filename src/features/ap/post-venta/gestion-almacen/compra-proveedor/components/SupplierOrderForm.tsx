@@ -37,7 +37,7 @@ import { useAllWarehouse } from "@/features/ap/configuraciones/maestros-general/
 import { useProduct } from "@/features/ap/post-venta/gestion-almacen/productos/lib/product.hook.ts";
 import { ProductResource } from "@/features/ap/post-venta/gestion-almacen/productos/lib/product.interface.ts";
 import { GroupFormSection } from "@/shared/components/GroupFormSection.tsx";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField.tsx";
 import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.hook.ts";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook.ts";
@@ -135,6 +135,8 @@ export const SupplierOrderForm = ({
       }
     >
   >({});
+  // Cache de productos completos para acceder a sus datos
+  const productsCache = useRef<Record<string, ProductResource>>({});
 
   // Inicializar defaultOptions desde SupplierOrderData al editar
   useEffect(() => {
@@ -222,7 +224,10 @@ export const SupplierOrderForm = ({
 
     if (watchedOrderDate instanceof Date) {
       dateToUse = watchedOrderDate;
-    } else if (typeof watchedOrderDate === "string" && watchedOrderDate.length > 0) {
+    } else if (
+      typeof watchedOrderDate === "string" &&
+      watchedOrderDate.length > 0
+    ) {
       // Para evitar problemas de zona horaria, parseamos manualmente la fecha en formato YYYY-MM-DD
       const parts = watchedOrderDate.split("-");
       if (parts.length === 3) {
@@ -776,24 +781,74 @@ export const SupplierOrderForm = ({
                                     placeholder="Buscar producto..."
                                     control={form.control}
                                     useQueryHook={useProduct}
-                                    mapOptionFn={(
-                                      product: ProductResource,
-                                    ) => ({
-                                      value: product.id.toString(),
-                                      label: `${product.name} - ${product.code}`,
-                                    })}
+                                    mapOptionFn={(product: ProductResource) => {
+                                      // Cachear el producto cuando se mapea
+                                      productsCache.current[
+                                        product.id.toString()
+                                      ] = product;
+                                      return {
+                                        value: product.id.toString(),
+                                        label: `${product.name} - ${product.code}`,
+                                      };
+                                    }}
                                     perPage={10}
                                     debounceMs={500}
                                     defaultOption={rowDefaults?.product}
-                                    onValueChange={(_, selectedProduct) => {
+                                    onValueChange={(value) => {
+                                      // Buscar el producto en el cache
+                                      const selectedProduct =
+                                        productsCache.current[value];
+
                                       // Setear el unit_measurement_id del producto seleccionado
                                       if (
                                         selectedProduct?.unit_measurement_id
                                       ) {
+                                        const productId =
+                                          selectedProduct.id.toString();
+                                        const unitId =
+                                          selectedProduct.unit_measurement_id.toString();
+
+                                        // Actualizar el form value
                                         form.setValue(
                                           `details.${index}.unit_measurement_id`,
-                                          selectedProduct.unit_measurement_id.toString(),
+                                          unitId,
                                         );
+
+                                        // Determinar el label de la unidad de medida desde diferentes fuentes
+                                        let unitLabel = "";
+                                        if (
+                                          selectedProduct.unit_measurement
+                                            ?.description
+                                        ) {
+                                          unitLabel =
+                                            selectedProduct.unit_measurement
+                                              .description;
+                                        } else if (
+                                          selectedProduct.unit_measurement_name
+                                        ) {
+                                          unitLabel =
+                                            selectedProduct.unit_measurement_name;
+                                        }
+
+                                        // Actualizar defaultOptions para que se muestre la unidad de medida
+                                        setDetailDefaultOptions((prev) => {
+                                          const updated = {
+                                            ...prev,
+                                            [productId]: {
+                                              product: {
+                                                value: productId,
+                                                label: `${selectedProduct.name} - ${selectedProduct.code}`,
+                                              },
+                                              unit: unitLabel
+                                                ? {
+                                                    value: unitId,
+                                                    label: unitLabel,
+                                                  }
+                                                : prev[productId]?.unit,
+                                            },
+                                          };
+                                          return updated;
+                                        });
                                       }
                                     }}
                                   />

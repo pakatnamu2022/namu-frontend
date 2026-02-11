@@ -19,6 +19,10 @@ const purchaseOrderProductItemSchema = z.object({
     .max(100, { message: "La tasa de impuesto no puede ser mayor a 100" })
     .optional(),
   notes: z.string().optional(),
+  // Campos adicionales para mostrar información del producto (no se envían al backend)
+  product_name: z.string().optional(),
+  product_code: z.string().optional(),
+  product_unit_measurement: z.string().optional(),
 });
 
 const purchaseOrderProductsSchemaBase = z.object({

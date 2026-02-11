@@ -537,6 +537,7 @@ export const PurchaseOrderProductsForm = ({
                         Number(form.watch(`items.${index}.unit_price`)) || 0;
                       const itemTotal =
                         Number(form.watch(`items.${index}.item_total`)) || 0;
+                      const currentItem = form.watch(`items.${index}`);
 
                       return (
                         <TableRow key={field.id}>
@@ -566,6 +567,15 @@ export const PurchaseOrderProductsForm = ({
                                   })}
                                   perPage={10}
                                   debounceMs={500}
+                                  defaultOption={
+                                    currentItem?.product_name &&
+                                    currentItem?.product_code
+                                      ? {
+                                          value: currentItem.product_id,
+                                          label: `${currentItem.product_name} - ${currentItem.product_code} - ${currentItem.product_unit_measurement || "Sin unidad"}`,
+                                        }
+                                      : undefined
+                                  }
                                 />
                               }
                             </div>
