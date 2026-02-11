@@ -8,6 +8,7 @@ const purchaseOrderProductItemSchema = z.object({
   unit_price: z
     .number()
     .min(0, { message: "El precio unitario debe ser mayor o igual a 0" }),
+  unit_measurement_id: z.string().optional(),
   discount: z
     .number()
     .min(0, { message: "El descuento debe ser mayor o igual a 0" })
@@ -22,7 +23,6 @@ const purchaseOrderProductItemSchema = z.object({
   // Campos adicionales para mostrar información del producto (no se envían al backend)
   product_name: z.string().optional(),
   product_code: z.string().optional(),
-  product_unit_measurement: z.string().optional(),
 });
 
 const purchaseOrderProductsSchemaBase = z.object({

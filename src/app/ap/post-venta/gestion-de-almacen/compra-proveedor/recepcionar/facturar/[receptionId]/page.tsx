@@ -231,6 +231,8 @@ export default function InvoiceReceptionPage() {
                 Number(detail.quantity_received) +
                 Number(detail.observed_quantity),
               unit_price: Number(detail.product?.cost_price || 0),
+              unit_measurement_id:
+                detail.product?.unit_measurement_id?.toString() || "",
               item_total:
                 Number(detail.quantity_received) *
                 Number(detail.product?.cost_price || 0),
@@ -239,8 +241,6 @@ export default function InvoiceReceptionPage() {
               notes: detail.notes || "",
               product_name: detail.product?.name || "",
               product_code: detail.product?.code || "",
-              product_unit_measurement:
-                detail.product?.unit_measurement_name || "",
             })) || [],
         }}
         onSubmit={handleSubmit}

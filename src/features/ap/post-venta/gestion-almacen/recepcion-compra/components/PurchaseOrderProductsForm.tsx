@@ -589,7 +589,7 @@ export const PurchaseOrderProductsForm = ({
                                   currentItem?.product_code
                                     ? {
                                         value: currentItem.product_id,
-                                        label: `${currentItem.product_name} - ${currentItem.product_code} - ${currentItem.product_unit_measurement || "Sin unidad"}`,
+                                        label: `${currentItem.product_name} - ${currentItem.product_code} - ${currentItem.unit_measurement_id || "Sin unidad"}`,
                                       }
                                     : undefined
                                 }
