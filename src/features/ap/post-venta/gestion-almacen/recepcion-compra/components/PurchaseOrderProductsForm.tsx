@@ -22,7 +22,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table.tsx";
-import { FileText, Loader, Package, Calculator } from "lucide-react";
+import {
+  FileText,
+  Loader,
+  Package,
+  Calculator,
+  Copy,
+  Check,
+} from "lucide-react";
 import FormSkeleton from "@/shared/components/FormSkeleton.tsx";
 import { FormSelect } from "@/shared/components/FormSelect.tsx";
 import { useSuppliers } from "@/features/ap/comercial/proveedores/lib/suppliers.hook.ts";
@@ -51,6 +58,7 @@ import { SupplierOrderResource } from "@/features/ap/post-venta/gestion-almacen/
 import { FormInput } from "@/shared/components/FormInput";
 import { FormInputText } from "@/shared/components/FormInputText";
 import { ReceptionResource } from "../../recepciones-producto/lib/receptionsProducts.interface";
+import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog.tsx";
 
 interface PurchaseOrderProductsFormProps {
   defaultValues: Partial<PurchaseOrderProductsSchema>;
@@ -121,6 +129,8 @@ export const PurchaseOrderProductsForm = ({
   const [exchangeRateError, setExchangeRateError] = useState<string>("");
   const [isLoadingExchangeRate, setIsLoadingExchangeRate] = useState(false);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+  const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
 
   // Watch con suscripción completa al formulario
   const formValues = form.watch();
@@ -251,6 +261,16 @@ export const PurchaseOrderProductsForm = ({
   // const handleRemoveItem = (index: number) => {
   //   remove(index);
   // };
+
+  const handleCopyCode = async (code: string, index: number) => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopiedIndex(index);
+      setTimeout(() => setCopiedIndex(null), 2000);
+    } catch (err) {
+      console.error("Error al copiar:", err);
+    }
+  };
 
   const handleSubmit = (data: any) => {
     // Transformar fechas a formato Y-m-d antes de enviar
@@ -549,35 +569,58 @@ export const PurchaseOrderProductsForm = ({
                             </div>
                           </TableCell>
                           <TableCell className="align-middle p-1.5">
-                            <div className="space-y-1">
-                              {
-                                <FormSelectAsync
-                                  name={`items.${index}.product_id`}
-                                  placeholder="Buscar producto..."
-                                  control={form.control}
-                                  useQueryHook={useProduct}
-                                  mapOptionFn={(product: ProductResource) => ({
-                                    value: product.id.toString(),
-                                    label: `${product.name} - ${
-                                      product.code
-                                    } - ${
-                                      product.unit_measurement_name ||
-                                      "Sin unidad"
-                                    }`,
-                                  })}
-                                  perPage={10}
-                                  debounceMs={500}
-                                  defaultOption={
-                                    currentItem?.product_name &&
-                                    currentItem?.product_code
-                                      ? {
-                                          value: currentItem.product_id,
-                                          label: `${currentItem.product_name} - ${currentItem.product_code} - ${currentItem.product_unit_measurement || "Sin unidad"}`,
-                                        }
-                                      : undefined
-                                  }
-                                />
-                              }
+                            <div className="space-y-2">
+                              <FormSelectAsync
+                                name={`items.${index}.product_id`}
+                                placeholder="Buscar producto..."
+                                control={form.control}
+                                useQueryHook={useProduct}
+                                mapOptionFn={(product: ProductResource) => ({
+                                  value: product.id.toString(),
+                                  label: `${product.name} - ${product.code} - ${
+                                    product.unit_measurement_name ||
+                                    "Sin unidad"
+                                  }`,
+                                })}
+                                perPage={10}
+                                debounceMs={500}
+                                defaultOption={
+                                  currentItem?.product_name &&
+                                  currentItem?.product_code
+                                    ? {
+                                        value: currentItem.product_id,
+                                        label: `${currentItem.product_name} - ${currentItem.product_code} - ${currentItem.product_unit_measurement || "Sin unidad"}`,
+                                      }
+                                    : undefined
+                                }
+                              />
+                              {currentItem?.product_code && (
+                                <div className="flex items-center gap-2 px-2 py-1.5">
+                                  <span className="text-xs font-mono text-slate-700">
+                                    Código: {currentItem.product_code}
+                                  </span>
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-6 w-6 p-0 hover:bg-slate-200"
+                                    onClick={() => {
+                                      if (currentItem.product_code) {
+                                        handleCopyCode(
+                                          currentItem.product_code,
+                                          index,
+                                        );
+                                      }
+                                    }}
+                                  >
+                                    {copiedIndex === index ? (
+                                      <Check className="h-3 w-3 text-green-600" />
+                                    ) : (
+                                      <Copy className="h-3 w-3" />
+                                    )}
+                                  </Button>
+                                </div>
+                              )}
                             </div>
                           </TableCell>
                           <TableCell className="align-middle p-1.5 text-center">
@@ -744,23 +787,85 @@ export const PurchaseOrderProductsForm = ({
             Cancelar
           </Button>
 
-          <Button
-            type="submit"
-            disabled={
-              isSubmitting ||
-              !form.formState.isValid ||
-              Boolean(
-                watchedCurrencyTypeId &&
-                watchedCurrencyTypeId !== CURRENCY_TYPE_IDS.SOLES &&
-                !exchangeRate,
-              )
+          <ConfirmationDialog
+            trigger={
+              <Button
+                type="button"
+                disabled={
+                  isSubmitting ||
+                  !form.formState.isValid ||
+                  Boolean(
+                    watchedCurrencyTypeId &&
+                    watchedCurrencyTypeId !== CURRENCY_TYPE_IDS.SOLES &&
+                    !exchangeRate,
+                  )
+                }
+              >
+                <Loader
+                  className={`mr-2 h-4 w-4 ${!isSubmitting ? "hidden" : ""}`}
+                />
+                {isSubmitting ? "Guardando..." : "Guardar Orden de Compra"}
+              </Button>
             }
+            title="Confirmar Orden de Compra"
+            description="¿Estás seguro de que deseas guardar esta orden de compra con los siguientes montos?"
+            confirmText="Sí, guardar"
+            cancelText="Cancelar"
+            onConfirm={() => form.handleSubmit(handleSubmit)()}
+            icon="info"
+            open={isConfirmDialogOpen}
+            onOpenChange={setIsConfirmDialogOpen}
           >
-            <Loader
-              className={`mr-2 h-4 w-4 ${!isSubmitting ? "hidden" : ""}`}
-            />
-            {isSubmitting ? "Guardando..." : "Guardar Orden de Compra"}
-          </Button>
+            <div className="space-y-3 border rounded-md p-4 bg-slate-50">
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-muted-foreground">
+                  Valor de Venta Neta:
+                </span>
+                <span className="font-medium">
+                  {currencyTypes.find(
+                    (ct) => ct.id.toString() === watchedCurrencyTypeId,
+                  )?.symbol || "S/."}{" "}
+                  {(form.watch("subtotal") || 0).toFixed(2)}
+                </span>
+              </div>
+
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-muted-foreground">IGV (18%):</span>
+                <span className="font-medium">
+                  {currencyTypes.find(
+                    (ct) => ct.id.toString() === watchedCurrencyTypeId,
+                  )?.symbol || "S/."}{" "}
+                  {(form.watch("total_tax") || 0).toFixed(2)}
+                </span>
+              </div>
+
+              <div className="border-t pt-2 mt-2"></div>
+
+              <div className="flex justify-between items-center">
+                <span className="font-semibold text-lg">Importe Total:</span>
+                <span className="font-bold text-xl text-primary">
+                  {currencyTypes.find(
+                    (ct) => ct.id.toString() === watchedCurrencyTypeId,
+                  )?.symbol || "S/."}{" "}
+                  {(form.watch("total") || 0).toFixed(2)}
+                </span>
+              </div>
+
+              {watchedCurrencyTypeId &&
+                watchedCurrencyTypeId !== CURRENCY_TYPE_IDS.SOLES &&
+                exchangeRate && (
+                  <div className="flex justify-between items-center pt-2 border-t">
+                    <span className="text-sm text-muted-foreground">
+                      Equivalente en Soles (T.C. S/. {exchangeRate.toFixed(4)}):
+                    </span>
+                    <span className="text-sm font-semibold text-green-700">
+                      S/.{" "}
+                      {((form.watch("total") || 0) * exchangeRate).toFixed(2)}
+                    </span>
+                  </div>
+                )}
+            </div>
+          </ConfirmationDialog>
         </div>
       </form>
     </Form>
