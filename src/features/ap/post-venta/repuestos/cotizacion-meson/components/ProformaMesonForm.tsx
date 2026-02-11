@@ -28,6 +28,7 @@ import {
   PackagePlus,
   ExternalLink,
   Copy,
+  Check,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { useState, useEffect } from "react";
@@ -81,12 +82,17 @@ function ProductDetailItem({
 }) {
   const productId = form.watch(`details.${index}.product_id`);
   const { data: productData } = useProductById(Number(productId) || 0);
+  const [isCopied, setIsCopied] = useState(false);
 
   // Función para copiar código del repuesto
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text).then(() => {
-      // Opcional: podrías agregar un toast de confirmación aquí
-    });
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000);
+    } catch (err) {
+      console.error("Error al copiar:", err);
+    }
   };
 
   // Función para manejar el pegado y convertir comas a puntos
@@ -186,7 +192,11 @@ function ProductDetailItem({
                       onClick={() => copyToClipboard(productData.code)}
                       title="Copiar código"
                     >
-                      <Copy className="h-3 w-3 text-primary" />
+                      {isCopied ? (
+                        <Check className="h-3 w-3 text-green-600" />
+                      ) : (
+                        <Copy className="h-3 w-3 text-primary" />
+                      )}
                     </Button>
                   </div>
                 )}
@@ -490,7 +500,11 @@ function ProductDetailItem({
                     onClick={() => copyToClipboard(productData.code)}
                     title="Copiar código"
                   >
-                    <Copy className="h-3 w-3 text-primary" />
+                    {isCopied ? (
+                      <Check className="h-3 w-3 text-green-600" />
+                    ) : (
+                      <Copy className="h-3 w-3 text-primary" />
+                    )}
                   </Button>
                 </div>
               )}
