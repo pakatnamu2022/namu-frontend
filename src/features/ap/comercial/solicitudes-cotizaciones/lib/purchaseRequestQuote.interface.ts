@@ -37,8 +37,8 @@ export interface PurchaseRequestQuoteResource {
   quote_deadline?: string;
   exchange_rate_id: number;
   exchange_rate: number;
-  base_selling_price: number;
-  sale_price: number;
+  base_selling_price: string;
+  sale_price: string;
   doc_sale_price: number;
   type_currency_id: number;
   type_currency: string;
