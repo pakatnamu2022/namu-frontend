@@ -43,6 +43,14 @@ export default function VehiclePurchaseOrderPage() {
     statusId,
   ]);
 
+  const handleRequestCreditNote = (purchaseOrderId: number) => {
+    // Aquí puedes implementar la lógica para solicitar la nota de crédito
+    console.log(
+      "Solicitar nota de crédito para la orden de compra ID:",
+      purchaseOrderId,
+    );
+  };
+
   const { data, isLoading, isFetching, refetch } = useVehiclePurchaseOrder({
     page,
     search,
@@ -76,7 +84,9 @@ export default function VehiclePurchaseOrderPage() {
       </HeaderTableWrapper>
       <VehiclePurchaseOrderTable
         isLoading={isLoading}
-        columns={vehiclePurchaseOrderColumns()}
+        columns={vehiclePurchaseOrderColumns({
+          onRequestCreditNote: handleRequestCreditNote,
+        })}
         data={data?.data || []}
       >
         <VehiclePurchaseOrderOptions
