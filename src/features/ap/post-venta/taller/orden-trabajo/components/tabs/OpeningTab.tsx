@@ -6,7 +6,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, FileText, User } from "lucide-react";
+import { Plus, FileText, User } from "lucide-react";
 import {
   findWorkOrderById,
   updateInvoiceTo,
@@ -139,9 +139,9 @@ export default function OpeningTab({ workOrderId }: OpeningTabProps) {
     setIsDialogOpen(false);
   };
 
-  const handleDeleteClick = (itemId: number) => {
-    setItemToDelete(itemId);
-  };
+  // const handleDeleteClick = (itemId: number) => {
+  //   setItemToDelete(itemId);
+  // };
 
   const handleConfirmDelete = async () => {
     if (itemToDelete) {
@@ -213,9 +213,9 @@ export default function OpeningTab({ workOrderId }: OpeningTabProps) {
                   <th className="text-left py-3 px-3 sm:px-4 font-semibold text-xs sm:text-sm text-gray-700">
                     Descripción
                   </th>
-                  <th className="text-center py-3 px-3 sm:px-4 font-semibold text-xs sm:text-sm text-gray-700">
+                  {/* <th className="text-center py-3 px-3 sm:px-4 font-semibold text-xs sm:text-sm text-gray-700">
                     Acciones
-                  </th>
+                  </th> */}
                 </tr>
               </thead>
               <tbody>
@@ -253,7 +253,7 @@ export default function OpeningTab({ workOrderId }: OpeningTabProps) {
                       <td className="py-3 px-3 sm:px-4 text-xs sm:text-sm text-gray-900 max-w-xs">
                         <div className="line-clamp-2">{item.description}</div>
                       </td>
-                      <td className="py-3 px-3 sm:px-4 text-center">
+                      {/* <td className="py-3 px-3 sm:px-4 text-center">
                         <Button
                           variant="ghost"
                           size="icon"
@@ -262,7 +262,7 @@ export default function OpeningTab({ workOrderId }: OpeningTabProps) {
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
-                      </td>
+                      </td> */}
                     </tr>
                   );
                 })}

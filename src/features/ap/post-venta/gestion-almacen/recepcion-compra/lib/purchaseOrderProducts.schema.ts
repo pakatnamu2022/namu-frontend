@@ -4,9 +4,7 @@ import { z } from "zod";
 const purchaseOrderProductItemSchema = z.object({
   product_id: requiredStringId("Producto es requerido"),
   quantity: z.number().min(1, { message: "La cantidad debe ser mayor a 0" }),
-  item_total: z
-    .number()
-    .min(0, { message: "El total debe ser mayor o igual a 0" }),
+  item_total: z.number().min(0.1, { message: "El total debe ser mayor a 0" }),
   unit_price: z
     .number()
     .min(0, { message: "El precio unitario debe ser mayor o igual a 0" }),

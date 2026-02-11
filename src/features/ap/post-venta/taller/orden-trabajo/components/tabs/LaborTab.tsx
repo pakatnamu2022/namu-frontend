@@ -67,9 +67,9 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
   }, [associatedQuotation]);
 
   // Obtener los números de grupos únicos disponibles
-  const availableGroups = useMemo(() => {
-    return Array.from(new Set(items.map((item) => item.group_number))).sort();
-  }, [items]);
+  // const availableGroups = useMemo(() => {
+  //   return Array.from(new Set(items.map((item) => item.group_number))).sort();
+  // }, [items]);
 
   // Obtener operarios consolidados
   const {
@@ -79,19 +79,20 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
 
   const updateGroupMutation = useUpdateWorkOrderLabour();
 
-  const handleGroupChange = (labour: any, newGroupNumber: number) => {
-    updateGroupMutation.mutate({
-      id: labour.id,
-      data: {
-        description: labour.description,
-        time_spent: labour.time_spent,
-        hourly_rate: labour.hourly_rate,
-        work_order_id: labour.work_order_id,
-        worker_id: Number(labour.worker_id),
-        group_number: newGroupNumber,
-      },
-    });
-  };
+  // const handleGroupChange = (labour: any, newGroupNumber: number) => {
+  //   updateGroupMutation.mutate({
+  //     id: labour.id,
+  //     data: {
+  //       description: labour.description,
+  //       time_spent: labour.time_spent,
+  //       hourly_rate: labour.hourly_rate,
+  //       discount_percentage: labour.discount_percentage,
+  //       work_order_id: labour.work_order_id,
+  //       worker_id: Number(labour.worker_id),
+  //       group_number: newGroupNumber,
+  //     },
+  //   });
+  // };
 
   const handleWorkerChange = (labour: any, newWorkerId: number) => {
     updateGroupMutation.mutate({
@@ -100,6 +101,7 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
         description: labour.description,
         time_spent: labour.time_spent,
         hourly_rate: labour.hourly_rate,
+        discount_percentage: labour.discount_percentage,
         work_order_id: labour.work_order_id,
         worker_id: newWorkerId,
         group_number: labour.group_number,
@@ -157,8 +159,8 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
 
       {/* Información de Mano de Obra de la Cotización (Compacta) */}
       {hasAssociatedQuotation && laborItems.length > 0 && (
-        <Card className="p-4 bg-blue-50 border-blue-200">
-          <div className="flex items-center justify-between mb-3 pb-3 border-b border-blue-200">
+        <Card className="p-4 bg-blue-50 border-blue-200 gap-1">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-3 border-b border-blue-200">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-primary/10 rounded-lg">
                 <FileText className="h-5 w-5 text-primary" />
@@ -194,30 +196,68 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
               </div>
             )}
           </div>
-          <div className="space-y-1 text-sm">
-            {laborItems.map((item: any, index: number) => (
-              <div
-                key={item.id}
-                className="flex items-center gap-3 py-1 border-b border-blue-100 last:border-0"
-              >
-                <div className="flex items-center gap-2 flex-1">
-                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-semibold flex-shrink-0">
-                    {index + 1}
-                  </span>
-                  <span className="text-gray-700 truncate">
-                    {item.description}
-                  </span>
+
+          {/* Wrapper con scroll horizontal en móvil */}
+          <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
+            <div className="min-w-[600px] sm:min-w-0">
+              <div className="space-y-1 text-sm">
+                {/* Cabecera de columnas */}
+                <div className="flex items-center gap-3 py-2 border-b-2 border-blue-200">
+                  <div className="flex items-center gap-2 flex-1">
+                    <span className="w-6 shrink-0"></span>
+                    <span className="text-xs font-semibold text-gray-600">
+                      Descripción
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs font-semibold text-gray-600 whitespace-nowrap">
+                    <span className="text-center min-w-[60px]">Horas</span>
+                    <span className="w-3"></span>
+                    <span className="text-left min-w-20">Precio/Hora</span>
+                    <span className="text-center min-w-[60px]">Desc.</span>
+                    <span className="w-3"></span>
+                    <span className="text-left min-w-20">Total</span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2 text-primary font-medium whitespace-nowrap">
-                  <span>{Number(item.quantity || 0).toFixed(2)} hrs</span>
-                  <span className="text-muted-foreground">×</span>
-                  <span>
-                    {associatedQuotation!.type_currency?.symbol || "S/"}{" "}
-                    {Number(item.total_amount || 0).toFixed(2)}
-                  </span>
-                </div>
+
+                {laborItems.map((item: any, index: number) => (
+                  <div
+                    key={item.id}
+                    className="flex items-center gap-3 py-1 border-b border-blue-100 last:border-0"
+                  >
+                    <div className="flex items-center gap-2 flex-1">
+                      <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-semibold shrink-0">
+                        {index + 1}
+                      </span>
+                      <span className="text-gray-700 truncate">
+                        {item.description}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 text-primary font-medium whitespace-nowrap">
+                      <span className="text-center min-w-[60px]">
+                        {Number(item.quantity || 0).toFixed(2)} hrs
+                      </span>
+                      <span className="text-muted-foreground w-3 text-center">
+                        x
+                      </span>
+                      <span className="text-left min-w-20">
+                        {associatedQuotation!.type_currency?.symbol || "S/"}{" "}
+                        {Number(item.unit_price || 0).toFixed(2)}
+                      </span>
+                      <span className="text-center min-w-[60px]">
+                        - {Number(item.discount_percentage || 0).toFixed(2)}%
+                      </span>
+                      <span className="text-muted-foreground w-3 text-center">
+                        =
+                      </span>
+                      <span className="text-left min-w-20">
+                        {associatedQuotation!.type_currency?.symbol || "S/"}{" "}
+                        {Number(item.total_amount || 0).toFixed(2)}
+                      </span>
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
+            </div>
           </div>
         </Card>
       )}
@@ -276,8 +316,9 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
                   <TableHead className="text-left">Operario</TableHead>
                   <TableHead className="text-right">Tiempo (hrs)</TableHead>
                   <TableHead className="text-right">Tarifa/Hora</TableHead>
+                  <TableHead className="text-right">Desc.</TableHead>
                   <TableHead className="text-right">Costo Total</TableHead>
-                  <TableHead className="text-center">Grupo</TableHead>
+                  {/* <TableHead className="text-center">Grupo</TableHead> */}
                   <TableHead className="text-center w-[100px]">
                     Acciones
                   </TableHead>
@@ -319,11 +360,14 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
                       {workOrder?.type_currency?.symbol || "S/"}{" "}
                       {labour.hourly_rate}
                     </TableCell>
+                    <TableCell className="text-right text-orange-600">
+                      -{labour.discount_percentage}%
+                    </TableCell>
                     <TableCell className="text-right font-semibold">
                       {workOrder?.type_currency?.symbol || "S/"}{" "}
                       {labour.total_cost}
                     </TableCell>
-                    <TableCell className="text-center">
+                    {/* <TableCell className="text-center">
                       <Select
                         value={labour.group_number?.toString() || ""}
                         onValueChange={(value) =>
@@ -344,7 +388,7 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
                           ))}
                         </SelectContent>
                       </Select>
-                    </TableCell>
+                    </TableCell> */}
                     <TableCell className="text-center">
                       <Button
                         variant="ghost"

@@ -1,3 +1,4 @@
+import { VehiclePurchaseOrderResource } from "@/features/ap/comercial/ordenes-compra-vehiculo/lib/vehiclePurchaseOrder.interface";
 import { SuppliersResource } from "@/features/ap/comercial/proveedores/lib/suppliers.interface.ts";
 import { WarehouseResource } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.interface";
 import { type Links, type Meta } from "@/shared/lib/pagination.interface.ts";
@@ -62,22 +63,7 @@ export interface ReceptionResource {
   total_quantity?: string;
   status?: string;
   has_invoice?: boolean;
-  purchase_order?: {
-    id: number;
-    number: string;
-    supplier?: string;
-    supplier_num_doc?: string;
-    sede?: string;
-    currency?: string;
-    currency_code?: string;
-    items?: Array<{
-      id: number;
-      product_id: number;
-      product_name?: string;
-      quantity: number;
-      unit_price: number;
-    }>;
-  };
+  purchase_order?: VehiclePurchaseOrderResource;
   warehouse: WarehouseResource;
   carrier: SuppliersResource;
   details?: ReceptionDetailResource[];

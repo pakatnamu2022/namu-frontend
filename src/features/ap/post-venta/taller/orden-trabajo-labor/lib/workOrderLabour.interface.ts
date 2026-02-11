@@ -11,6 +11,7 @@ export interface WorkOrderLabourResource {
   description: string;
   time_spent: string;
   hourly_rate: string;
+  discount_percentage?: string;
   total_cost: string;
   worker_id: string;
   work_order_id: string;
@@ -22,6 +23,7 @@ export interface WorkOrderLabourRequest {
   description: string;
   time_spent: string;
   hourly_rate: string;
+  discount_percentage?: string;
   work_order_id: string;
   worker_id: number;
   group_number: number;

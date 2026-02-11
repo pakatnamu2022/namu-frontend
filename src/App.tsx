@@ -340,7 +340,7 @@ import ApproveSettlementPage from "./app/perfil/viaticos/aprobar-liquidaciones/p
 import PerDiemRequestDetailPage from "./app/perfil/viaticos/[id]/page.tsx";
 import AddExpensePage from "./app/perfil/viaticos/[id]/gastos/agregar/page.tsx";
 import UpdateExpensePage from "./app/perfil/viaticos/[id]/gastos/actualizar/[expenseId]/page.tsx";
-import UploadDepositPage from "./app/gp/gestion-humana/viaticos/solicitud-viaticos/[id]/deposito/page.tsx";
+import UploadDepositPage from "./app/ap/contabilidad/solicitud-viaticos/[id]/deposito/page.tsx";
 import AccountantDistrictAssignmentPage from "./app/gp/gestion-humana/viaticos/asignacion-asistentes/page.tsx";
 import UpdatePositionPage from "./app/gp/gestion-humana/configuraciones/posiciones/actualizar/[id]/page";
 import UpdateHierarchicalCategoryPage from "./app/gp/gestion-humana/evaluaciones-de-desempeno/categorias-jerarquicas/actualizar/[id]/page";

@@ -15,27 +15,33 @@ import { VehicleInspectionSelectionTable } from "./VehicleInspectionSelectionTab
 import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { errorToast } from "@/core/core.function";
+import { errorToast, getMonday, getSunday } from "@/core/core.function";
 import SearchInput from "@/shared/components/SearchInput";
 import { Badge } from "@/components/ui/badge";
 
 interface VehicleInspectionSelectionModalProps {
   open: boolean;
+  sedeId: number;
   onOpenChange: (open: boolean) => void;
   onSelectInspection: (inspection: VehicleInspectionResource) => void;
 }
 
 export const VehicleInspectionSelectionModal = ({
   open,
+  sedeId,
   onOpenChange,
   onSelectInspection,
 }: VehicleInspectionSelectionModalProps) => {
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
-  const currently = new Date();
-  const [dateFrom, setDateFrom] = useState<Date | undefined>(currently);
-  const [dateTo, setDateTo] = useState<Date | undefined>(currently);
+  const currentDate = new Date();
+  const [dateFrom, setDateFrom] = useState<Date | undefined>(
+    getMonday(currentDate),
+  );
+  const [dateTo, setDateTo] = useState<Date | undefined>(
+    getSunday(currentDate),
+  );
 
   const formatDate = (date: Date | undefined) => {
     return date ? date.toLocaleDateString("en-CA") : undefined;
@@ -56,10 +62,12 @@ export const VehicleInspectionSelectionModal = ({
     page,
     per_page,
     search,
+    is_cancelled: 0,
     inspection_date:
       dateFrom || dateTo
         ? [formatDate(dateFrom), formatDate(dateTo)]
         : undefined,
+    workOrder$sede_id: sedeId,
   });
 
   const handleRowClick = (inspection: VehicleInspectionResource) => {
@@ -159,31 +167,35 @@ export const VehicleInspectionSelectionModal = ({
 
         <div className="flex-1 overflow-auto space-y-3 sm:space-y-4 p-1 sm:p-2">
           {/* Filtros */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-            <div className="sm:col-span-2 lg:col-span-1">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
+            <div className="w-full">
               <SearchInput
                 value={search}
                 onChange={setSearch}
-                placeholder="Buscar por placa..."
+                placeholder="Buscar placa o cliente..."
                 label="Buscar"
               />
             </div>
-            <DatePicker
-              value={dateFrom}
-              onChange={setDateFrom}
-              label="Fecha Desde"
-              placeholder="Fecha Desde"
-              showClearButton={false}
-              captionLayout="dropdown"
-            />
-            <DatePicker
-              value={dateTo}
-              onChange={setDateTo}
-              label="Fecha Hasta"
-              placeholder="Fecha Hasta"
-              showClearButton={false}
-              captionLayout="dropdown"
-            />
+            <div className="w-full">
+              <DatePicker
+                value={dateFrom}
+                onChange={setDateFrom}
+                label="Fecha Desde"
+                placeholder="Fecha Desde"
+                showClearButton={false}
+                captionLayout="dropdown"
+              />
+            </div>
+            <div className="w-full">
+              <DatePicker
+                value={dateTo}
+                onChange={setDateTo}
+                label="Fecha Hasta"
+                placeholder="Fecha Hasta"
+                showClearButton={false}
+                captionLayout="dropdown"
+              />
+            </div>
           </div>
 
           {/* Tabla */}
