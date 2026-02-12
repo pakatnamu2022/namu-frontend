@@ -478,9 +478,7 @@ export default function ReceptionsProductsCards({
                               isSingleCard ? "text-base" : "text-sm"
                             }`}
                           >
-                            {detail.product?.name ||
-                              detail.purchase_order_item?.product_name ||
-                              "Producto sin nombre"}
+                            {detail.product?.name || "Producto sin nombre"}
                           </p>
                           <div className="flex items-center gap-2 mt-1 flex-wrap">
                             {detail.product?.code && (
