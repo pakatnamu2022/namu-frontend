@@ -6,22 +6,22 @@ import { GeneralResponse } from "@/shared/lib/response.interface";
 const ENDPOINT = "/ap/postVenta/orderQuotations";
 
 export async function storeOrderQuotationWithProducts(
-  data: QuotationMesonWithProductsSchema
+  data: QuotationMesonWithProductsSchema,
 ): Promise<OrderQuotationResource> {
   const response = await api.post<OrderQuotationResource>(
     `${ENDPOINT}/with-products`,
-    data
+    data,
   );
   return response.data;
 }
 
 export async function updateOrderQuotationWithProducts(
   id: number,
-  data: QuotationMesonWithProductsSchema
+  data: QuotationMesonWithProductsSchema,
 ): Promise<OrderQuotationResource> {
   const response = await api.put<OrderQuotationResource>(
     `${ENDPOINT}/${id}/with-products`,
-    data
+    data,
   );
   return response.data;
 }
@@ -33,11 +33,11 @@ export interface DiscardQuotationData {
 
 export async function discardOrderQuotation(
   id: number,
-  data: DiscardQuotationData
+  data: DiscardQuotationData,
 ): Promise<GeneralResponse> {
   const response = await api.put<GeneralResponse>(
     `${ENDPOINT}/${id}/discard`,
-    data
+    data,
   );
   return response.data;
 }
@@ -48,11 +48,27 @@ export interface ConfirmQuotationData {
 
 export async function confirmOrderQuotation(
   id: number,
-  data: ConfirmQuotationData
+  data: ConfirmQuotationData,
 ): Promise<OrderQuotationResource> {
   const response = await api.put<OrderQuotationResource>(
     `${ENDPOINT}/${id}/confirm`,
-    data
+    data,
+  );
+  return response.data;
+}
+
+export interface DeliveryOutputData {
+  customer_signature_delivery_url: string;
+  delivery_document_number: string;
+}
+
+export async function deliverInventoryOutput(
+  id: number,
+  data: DeliveryOutputData,
+): Promise<OrderQuotationResource> {
+  const response = await api.put<OrderQuotationResource>(
+    `${ENDPOINT}/${id}/delivery-info`,
+    data,
   );
   return response.data;
 }

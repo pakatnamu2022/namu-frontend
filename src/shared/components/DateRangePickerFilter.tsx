@@ -22,6 +22,7 @@ interface DateRangePickerFilterProps {
   placeholder?: string;
   dateFormat?: string;
   className?: string;
+  size?: "sm" | "default" | "lg";
 }
 
 export function DateRangePickerFilter({
@@ -31,9 +32,9 @@ export function DateRangePickerFilter({
   placeholder = "Selecciona un rango",
   dateFormat = "dd/MM/yyyy",
   className,
+  size,
 }: DateRangePickerFilterProps) {
   const [open, setOpen] = React.useState(false);
-
   const dateRange: DateRange = {
     from: dateFrom,
     to: dateTo,
@@ -61,7 +62,7 @@ export function DateRangePickerFilter({
       <PopoverTrigger asChild>
         <Button
           variant="outline"
-          size="sm"
+          size={size ? size : "sm"}
           className={cn(
             "w-full justify-start text-left font-normal",
             !dateRange.from && "text-muted-foreground",

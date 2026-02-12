@@ -6,20 +6,14 @@ import { PanelLeft, RefreshCw } from "lucide-react";
 import { EvaluationPersonResultResource } from "../lib/evaluationPerson.interface";
 import { WorkerResource } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.interface";
 import { Badge } from "@/components/ui/badge";
-import { useState } from "react";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { useNavigate } from "react-router-dom";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { EVALUATION_PERSON } from "../lib/evaluationPerson.constans";
+import {
+  getProgressColorBadge,
+  getResultRateColorBadge,
+} from "../lib/evaluationPerson.function";
 
 export type EvaluationPersonColumn = ColumnDef<EvaluationPersonResultResource>;
 const { ABSOLUTE_ROUTE } = EVALUATION_PERSON;
@@ -41,6 +35,15 @@ export const EvaluationPersonColumns = ({
     ),
   },
   {
+    accessorKey: "supervisor",
+    header: "Jefe Inmediato",
+    cell: ({ getValue }) => (
+      <span className="font-semibold">
+        {(getValue() as WorkerResource)?.name}
+      </span>
+    ),
+  },
+  {
     accessorKey: "resultsPercentage",
     header: "Proporción (Obj - Com)",
     cell: ({ row }) => {
@@ -49,7 +52,7 @@ export const EvaluationPersonColumns = ({
 
       return (
         <div className="flex justify-center items-center gap-2 w-full">
-          <Badge className="min-w-16 justify-end" variant={"tertiary"}>
+          <Badge className="min-w-16 justify-end" color="sky">
             {objectivesPercentage.toFixed(0) ?? 0}% -{" "}
             {competencesPercentage.toFixed(0) ?? 0}%
           </Badge>
@@ -64,7 +67,10 @@ export const EvaluationPersonColumns = ({
       const objectivesResult = row.original.objectivesResult;
       return (
         <div className="flex justify-center items-center gap-2 w-full">
-          <Badge className="min-w-16 justify-end" variant={"outline"}>
+          <Badge
+            className="min-w-16 justify-end"
+            color={getResultRateColorBadge(objectivesResult)}
+          >
             {objectivesResult.toFixed(2) ?? 0} %
           </Badge>
         </div>
@@ -78,7 +84,10 @@ export const EvaluationPersonColumns = ({
       const competencesResult = row.original.competencesResult;
       return (
         <div className="flex justify-center items-center gap-2 w-full">
-          <Badge className="min-w-16 justify-end" variant={"outline"}>
+          <Badge
+            className="min-w-16 justify-end"
+            color={getResultRateColorBadge(competencesResult)}
+          >
             {competencesResult.toFixed(2) ?? 0} %
           </Badge>
         </div>
@@ -92,7 +101,10 @@ export const EvaluationPersonColumns = ({
       const objectivesResult = row.original.result;
       return (
         <div className="flex justify-center items-center gap-2 w-full ">
-          <Badge className="min-w-16 justify-end" variant={"default"}>
+          <Badge
+            className="min-w-16 justify-end"
+            color={getResultRateColorBadge(objectivesResult)}
+          >
             {objectivesResult.toFixed(2) ?? 0} %
           </Badge>
         </div>
@@ -106,7 +118,10 @@ export const EvaluationPersonColumns = ({
       const total_progress = row.original.total_progress.completion_rate;
       return (
         <div className="flex justify-center items-center gap-2 w-full ">
-          <Badge className="min-w-16 justify-end" variant={"default"}>
+          <Badge
+            className="min-w-16 justify-end"
+            color={getProgressColorBadge(total_progress)}
+          >
             {total_progress.toFixed(2) ?? 0} %
           </Badge>
         </div>
@@ -119,13 +134,11 @@ export const EvaluationPersonColumns = ({
     size: 60,
     cell: ({ row }) => {
       const router = useNavigate();
-      const id = row.original.person_id;
+      const id = row.original.id;
+      const person_id = row.original.person_id;
       const evaluationId = row.original.evaluation_id;
-      const [showRegenerateDialog, setShowRegenerateDialog] = useState(false);
-
       const handleRegenerate = () => {
-        onRegenerate(id, evaluationId);
-        setShowRegenerateDialog(false);
+        onRegenerate(person_id, evaluationId);
       };
 
       return (
@@ -136,47 +149,34 @@ export const EvaluationPersonColumns = ({
             size="sm"
             className="h-7 text-xs!"
             tooltip="Ver Evaluación"
-            onClick={() => router(`${ABSOLUTE_ROUTE}/${evaluationId}/${id}`)}
+            onClick={() => router(`${ABSOLUTE_ROUTE}/${evaluationId}/${person_id}`)}
           >
             Evaluación
             <PanelLeft className="size-5" />
           </Button>
 
           {/* Regenerar */}
-          <Button
-            variant="outline"
-            size="icon"
-            className="h-7"
-            onClick={() => setShowRegenerateDialog(true)}
-            tooltip="Restablecer Evaluación"
-          >
-            <RefreshCw className="size-5" />
-          </Button>
+          <ConfirmationDialog
+            trigger={
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-7"
+                tooltip="Restablecer Evaluación"
+              >
+                <RefreshCw className="size-5" />
+              </Button>
+            }
+            title="Restablecer Evaluación"
+            description="¿Estás seguro de que deseas regenerar la evaluación? Esta acción sobrescribirá los datos actuales de la evaluación."
+            confirmText="Regenerar"
+            cancelText="Cancelar"
+            onConfirm={handleRegenerate}
+            icon="warning"
+          />
 
           {/* Delete */}
           <DeleteButton onClick={() => onDelete(id)} />
-
-          {/* Confirmation Dialog */}
-          <AlertDialog
-            open={showRegenerateDialog}
-            onOpenChange={setShowRegenerateDialog}
-          >
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Restablecer Evaluación</AlertDialogTitle>
-                <AlertDialogDescription>
-                  ¿Estás seguro de que deseas regenerar la evaluación? Esta
-                  acción sobrescribirá los datos actuales de la evaluación.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                <AlertDialogAction onClick={handleRegenerate}>
-                  Regenerar
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
         </div>
       );
     },

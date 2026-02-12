@@ -26,16 +26,16 @@ export async function getManageLeads({
 
 export async function getMyLeads({
   params,
-}: getManageLeadsProps): Promise<ManageLeadsResource[]> {
+}: getManageLeadsProps): Promise<ManageLeadsResponse> {
   const config: AxiosRequestConfig = {
     params: {
       ...params,
     },
   };
 
-  const { data } = await api.get<ManageLeadsResource[]>(
+  const { data } = await api.get<ManageLeadsResponse>(
     `${ENDPOINT}/my`,
-    config
+    config,
   );
   return data;
 }
@@ -59,7 +59,7 @@ export async function getManageLead(id: number): Promise<ManageLeadsResource> {
 }
 
 export async function storeManageLeads(
-  data: any
+  data: any,
 ): Promise<ManageLeadsResource> {
   const response = await api.post<ManageLeadsResource>(ENDPOINT, data);
   return response.data;
@@ -73,7 +73,7 @@ export async function deleteManageLeads(id: number): Promise<GeneralResponse> {
 export async function discardLead(
   id: number,
   comment: string,
-  reasonDiscardingId: number
+  reasonDiscardingId: number,
 ): Promise<GeneralResponse> {
   const { data } = await api.put<GeneralResponse>(`${ENDPOINT}/${id}/discard`, {
     comment,
@@ -83,7 +83,7 @@ export async function discardLead(
 }
 
 export async function importManageLeadsDerco(
-  file: File
+  file: File,
 ): Promise<ImportLeadsResponse> {
   const formData = new FormData();
   formData.append("file", file);
@@ -95,13 +95,13 @@ export async function importManageLeadsDerco(
       headers: {
         "Content-Type": "multipart/form-data",
       },
-    }
+    },
   );
   return data;
 }
 
 export async function importManageLeadsSocialNetworks(
-  file: File
+  file: File,
 ): Promise<ImportLeadsResponse> {
   const formData = new FormData();
   formData.append("file", file);
@@ -113,14 +113,14 @@ export async function importManageLeadsSocialNetworks(
       headers: {
         "Content-Type": "multipart/form-data",
       },
-    }
+    },
   );
   return data;
 }
 
 export async function assignWorkersToLeads(): Promise<AssignWorkersResponse> {
   const { data } = await api.post<AssignWorkersResponse>(
-    `${ENDPOINT}/assign-workers`
+    `${ENDPOINT}/assign-workers`,
   );
   return data;
 }

@@ -7,7 +7,6 @@ import TitleComponent from "@/shared/components/TitleComponent";
 import DataTablePagination from "@/shared/components/DataTablePagination";
 import VehicleDeliveryActions from "@/features/ap/comercial/entrega-vehiculo/components/VehicleDeliveryActions";
 import VehicleDeliveryTable from "@/features/ap/comercial/entrega-vehiculo/components/VehicleDeliveryTable";
-import VehicleDeliveryOptions from "@/features/ap/comercial/entrega-vehiculo/components/VehicleDeliveryOptions";
 import {
   useVehicleDelivery,
   useUpdateVehicleDelivery,
@@ -24,7 +23,6 @@ export default function CardWashPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
-  const [search, setSearch] = useState("");
   const ROUTE = CARD_WASH_ROUTE;
   const permissions = useModulePermissions(ROUTE);
 
@@ -33,11 +31,10 @@ export default function CardWashPage() {
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setPage(1);
-  }, [search, per_page]);
+  }, [per_page]);
 
   const { data, isLoading } = useVehicleDelivery({
     page,
-    search,
     per_page,
   });
 
@@ -75,9 +72,7 @@ export default function CardWashPage() {
           onConfirmWash: handleConfirmWash,
         })}
         data={data?.data || []}
-      >
-        <VehicleDeliveryOptions search={search} setSearch={setSearch} />
-      </VehicleDeliveryTable>
+      ></VehicleDeliveryTable>
 
       <DataTablePagination
         page={page}

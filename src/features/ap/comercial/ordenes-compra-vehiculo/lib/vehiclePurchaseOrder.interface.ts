@@ -1,6 +1,7 @@
 import { type Links, type Meta } from "@/shared/lib/pagination.interface";
 import { VehicleResource } from "../../vehiculos/lib/vehicles.interface";
 import { ClassArticleResource } from "../../../configuraciones/maestros-general/clase-articulo/lib/classArticle.interface";
+import { UserResource } from "@/features/gp/gestionsistema/usuarios/lib/user.interface";
 
 export interface VehiclePurchaseOrderResponse {
   data: VehiclePurchaseOrderResource[];
@@ -21,6 +22,8 @@ export interface VehiclePurchaseOrderMovement {
 export interface PurchaseOrderItem {
   id?: number;
   unit_measurement_id?: number;
+  product_code: string;
+  product_name: string;
   description: string;
   unit_price: string | number;
   quantity: number;
@@ -76,17 +79,15 @@ export interface VehiclePurchaseOrderResource {
   supplier_order_type: string;
   currency: string;
   currency_code: string;
+  currency_symbol: string;
   warehouse: string;
-  article_class: ClassArticleResource;
-  vehicle?: VehicleResource;
-  items?: PurchaseOrderItem[];
   resent: boolean;
   status: boolean;
   migration_status: string;
   invoice_dynamics: string;
   receipt_dynamics: string;
   credit_note_dynamics?: string;
-  vehicleMovement?: VehiclePurchaseOrderMovement;
+  payment_terms: string;
   migrated_at: string;
   created_at: string;
   updated_at: string;
@@ -114,7 +115,12 @@ export interface VehiclePurchaseOrderResource {
   status_color?: string;
   warehouse_physical?: string;
   taxClassType?: string;
+  article_class: ClassArticleResource;
+  vehicle?: VehicleResource;
+  items?: PurchaseOrderItem[];
+  vehicleMovement?: VehiclePurchaseOrderMovement;
   movements?: VehiclePurchaseOrderMovement[];
+  creator: UserResource;
 }
 
 export interface VehiclePurchaseOrderRequest {

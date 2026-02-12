@@ -13,7 +13,7 @@ import { format, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
 import { Clock, User, FileText, PlayCircle } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
-import { useIsTablet } from "@/hooks/use-mobile";
+import { useIsTablet } from "@/hooks/use-tablet";
 
 interface AssignedWorkDetailProps {
   planning: WorkOrderPlanningResource | null;
@@ -38,7 +38,7 @@ export function AssignedWorkDetail({
       onClose={onClose}
       title={`Detalle de  - ${planning.work_order_correlative}`}
       type={isTablet ? "tablet" : "default"}
-      className="sm:max-w-3xl"
+      size="4xl"
     >
       <div className="space-y-6 max-h-[calc(100vh-200px)] overflow-y-auto pr-2">
         {/* Estado */}
@@ -132,7 +132,7 @@ export function AssignedWorkDetail({
                     ? format(
                         parseISO(planning.planned_start_datetime),
                         "dd/MM/yyyy HH:mm",
-                        { locale: es }
+                        { locale: es },
                       )
                     : "-"}
                 </p>
@@ -144,7 +144,7 @@ export function AssignedWorkDetail({
                     ? format(
                         parseISO(planning.planned_end_datetime),
                         "dd/MM/yyyy HH:mm",
-                        { locale: es }
+                        { locale: es },
                       )
                     : "-"}
                 </p>
@@ -156,7 +156,7 @@ export function AssignedWorkDetail({
                     ? format(
                         parseISO(planning.actual_start_datetime),
                         "dd/MM/yyyy HH:mm",
-                        { locale: es }
+                        { locale: es },
                       )
                     : "-"}
                 </p>
@@ -168,7 +168,7 @@ export function AssignedWorkDetail({
                     ? format(
                         parseISO(planning.actual_end_datetime),
                         "dd/MM/yyyy HH:mm",
-                        { locale: es }
+                        { locale: es },
                       )
                     : "-"}
                 </p>
@@ -196,12 +196,12 @@ export function AssignedWorkDetail({
                     <div className="flex items-center justify-between">
                       <h4 className="font-semibold">Sesión {index + 1}</h4>
                       <Badge
-                        variant={
+                        color={
                           session.status === "in_progress"
-                            ? "default"
+                            ? "blue"
                             : session.status === "completed"
-                            ? "secondary"
-                            : "outline"
+                              ? "green"
+                              : "gray"
                         }
                       >
                         {SESSION_STATUS_LABELS[session.status]}
@@ -215,7 +215,7 @@ export function AssignedWorkDetail({
                           {format(
                             parseISO(session.start_datetime),
                             "dd/MM/yyyy HH:mm",
-                            { locale: es }
+                            { locale: es },
                           )}
                         </p>
                       </div>
@@ -226,7 +226,7 @@ export function AssignedWorkDetail({
                             ? format(
                                 parseISO(session.end_datetime),
                                 "dd/MM/yyyy HH:mm",
-                                { locale: es }
+                                { locale: es },
                               )
                             : "En curso..."}
                         </p>

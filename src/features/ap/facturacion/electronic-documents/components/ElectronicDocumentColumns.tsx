@@ -24,6 +24,7 @@ import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { AnnulDocumentDialog } from "./CancelDocumentDialog";
 import ElectronicDocumentMigrationHistory from "./ElectronicDocumentMigrationHistory";
 import { SUNAT_TYPE_INVOICES_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
+import { AREA_COMERCIAL } from "@/core/core.constants";
 
 export type ElectronicDocumentColumn = ColumnDef<ElectronicDocumentResource>;
 
@@ -55,8 +56,8 @@ export const electronicDocumentColumns = ({
     module === "COMERCIAL"
       ? ELECTRONIC_DOCUMENT
       : module === "TALLER"
-      ? ELECTRONIC_DOCUMENT_TALLER
-      : ELECTRONIC_DOCUMENT_REPUESTOS;
+        ? ELECTRONIC_DOCUMENT_TALLER
+        : ELECTRONIC_DOCUMENT_REPUESTOS;
 
   return [
     {
@@ -130,10 +131,16 @@ export const electronicDocumentColumns = ({
       header: "Serie - Número",
       cell: ({ row }) => {
         const fullNumber = row.original.full_number;
+        const isAdvance = row.original.is_advance_payment;
         return (
-          <Badge variant="outline" className="font-mono text-sm font-semibold">
-            {fullNumber}
-          </Badge>
+          <div className="flex flex-col items-start w-fit">
+            <span className="font-mono text-sm font-semibold">
+              <span> {fullNumber}</span>
+            </span>
+            <span className="text-xs">
+              {isAdvance ? "ANTICIPO" : "VENTA INTERNA"}
+            </span>
+          </div>
         );
       },
     },
@@ -189,8 +196,8 @@ export const electronicDocumentColumns = ({
           currency?.iso_code === "PEN"
             ? "S/"
             : currency?.iso_code === "USD"
-            ? "$"
-            : "";
+              ? "$"
+              : "";
 
         return (
           <span className="font-semibold text-sm">
@@ -273,13 +280,13 @@ export const electronicDocumentColumns = ({
       },
     },
     {
-      accessorKey: "origin_module",
-      header: "Módulo",
+      accessorKey: "area_id",
+      header: "Área",
       cell: ({ getValue }) => {
-        const value = getValue() as string;
+        const value = getValue() as number;
         return (
           <Badge variant="outline">
-            {value === "comercial" ? "Comercial" : "Posventa"}
+            {value === AREA_COMERCIAL ? "Comercial" : "Posventa"}
           </Badge>
         );
       },
@@ -326,7 +333,7 @@ export const electronicDocumentColumns = ({
           document.migrated_at &&
           document.migration_status === "completed" &&
           document.items?.some(
-            (item) => item.anticipo_regularizacion === true
+            (item) => item.anticipo_regularizacion === true,
           ) &&
           permissions.canCreateDebitNote;
 
@@ -337,9 +344,9 @@ export const electronicDocumentColumns = ({
           SUNAT_TYPE_INVOICES_ID.NOTA_DEBITO
             ? `${ABSOLUTE_ROUTE}/${document.original_document_id}/debit-note/actualizar/${document.id}`
             : document.sunat_concept_document_type_id ===
-              SUNAT_TYPE_INVOICES_ID.NOTA_CREDITO
-            ? `${ABSOLUTE_ROUTE}/${document.original_document_id}/credit-note/actualizar/${document.id}`
-            : `${ABSOLUTE_ROUTE}/actualizar/${document.id}`;
+                SUNAT_TYPE_INVOICES_ID.NOTA_CREDITO
+              ? `${ABSOLUTE_ROUTE}/${document.original_document_id}/credit-note/actualizar/${document.id}`
+              : `${ABSOLUTE_ROUTE}/actualizar/${document.id}`;
 
         return (
           <div className="flex items-center gap-1">

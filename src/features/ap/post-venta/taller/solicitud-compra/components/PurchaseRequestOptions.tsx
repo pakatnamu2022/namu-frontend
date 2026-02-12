@@ -1,4 +1,6 @@
+import { WarehouseResource } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.interface";
 import DatePicker from "@/shared/components/DatePicker";
+import { SearchableSelect } from "@/shared/components/SearchableSelect";
 import SearchInput from "@/shared/components/SearchInput";
 
 interface PurchaseRequestOptionsProps {
@@ -8,6 +10,9 @@ interface PurchaseRequestOptionsProps {
   setDateFrom: (date: Date | undefined) => void;
   dateTo: Date | undefined;
   setDateTo: (date: Date | undefined) => void;
+  warehouses: WarehouseResource[];
+  warehouseId: string;
+  setWarehouseId: (value: string) => void;
 }
 
 export default function PurchaseRequestOptions({
@@ -17,6 +22,9 @@ export default function PurchaseRequestOptions({
   setDateFrom,
   dateTo,
   setDateTo,
+  warehouses = [],
+  warehouseId,
+  setWarehouseId,
 }: PurchaseRequestOptionsProps) {
   return (
     <div className="flex items-center gap-2 flex-wrap">
@@ -24,6 +32,18 @@ export default function PurchaseRequestOptions({
         value={search}
         onChange={setSearch}
         placeholder="Buscar solicitud de compra..."
+      />
+      <SearchableSelect
+        options={warehouses.map((item) => ({
+          value: item.id.toString(),
+          label: item.dyn_code,
+        }))}
+        value={warehouseId}
+        onChange={setWarehouseId}
+        placeholder="Filtrar por almacén"
+        className="min-w-72"
+        classNameOption="text-xs"
+        allowClear={false}
       />
       <DatePicker
         value={dateFrom}

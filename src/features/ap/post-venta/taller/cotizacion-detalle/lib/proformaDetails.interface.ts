@@ -1,5 +1,5 @@
 import { type Links, type Meta } from "@/shared/lib/pagination.interface.ts";
-import { ProductResource } from "../../../gestion-productos/productos/lib/product.interface";
+import { ProductResource } from "@/features/ap/post-venta/gestion-almacen/productos/lib/product.interface";
 
 export interface OrderQuotationDetailsResponse {
   data: OrderQuotationDetailsResource[];
@@ -19,10 +19,14 @@ export interface OrderQuotationDetailsResource {
   freight_commission: number;
   exchange_rate: number;
   unit_price: number;
-  discount: number;
+  discount_percentage: number;
   total_amount: number;
   observations: string | null;
+  created_by: number;
+  created_by_name: string;
+  supply_type: string;
   product: ProductResource | null;
+  status: string;
 }
 
 export interface OrderQuotationDetailsRequest {
@@ -36,7 +40,7 @@ export interface OrderQuotationDetailsRequest {
   freight_commission?: number;
   exchange_rate?: number;
   unit_price: number;
-  discount: number;
+  discount_percentage: number;
   total_amount: number;
   observations?: string;
 }

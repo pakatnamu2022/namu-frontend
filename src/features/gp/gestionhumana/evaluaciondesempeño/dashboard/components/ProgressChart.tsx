@@ -33,19 +33,19 @@ export const ProgressChart: React.FC<ProgressChartProps> = ({
       category: "Completados",
       value: progressStats.completed_participants,
       total: progressStats.total_participants,
-      color: "hsl(var(--primary))",
+      color: "var(--chart-2)",
     },
     {
       category: "En Progreso",
       value: progressStats.in_progress_participants,
       total: progressStats.total_participants,
-      color: "hsl(var(--muted-foreground))",
+      color: "var(--chart-4)",
     },
     {
       category: "Sin Iniciar",
       value: progressStats.not_started_participants,
       total: progressStats.total_participants,
-      color: "hsl(var(--secondary))",
+      color: "var(--chart-1)",
     },
   ];
 

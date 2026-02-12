@@ -10,13 +10,13 @@ export const optionalNumericId = (message: string) =>
     z
       .number()
       .optional()
-      .refine((val) => val !== undefined, { message })
+      .refine((val) => val !== undefined, { message }),
   );
 
 export const optionalStringId = (message: string) =>
   z.preprocess(
     (val) => (val === "" ? undefined : val),
-    z.string().min(1, message).optional()
+    z.string().min(1, message).optional(),
   );
 
 export const requiredStringId = (message: string) =>
@@ -43,14 +43,14 @@ export const requiredDecimalNumber = (object: string, minValue: number = 0) => {
         const num = Number(val);
         return !isNaN(num) && num >= 0.1;
       },
-      { message: `${object} debe ser un número mayor o igual a ${minValue}` }
+      { message: `${object} debe ser un número mayor o igual a ${minValue}` },
     );
 };
 
 export const requiredText = (
   object: string,
   minLength: number = 3,
-  maxLength: number = 255
+  maxLength: number = 255,
 ) => {
   return z
     .string()
@@ -75,3 +75,11 @@ export const phoneSchemaOptional = () =>
     })
     .optional()
     .or(z.literal(""));
+
+export const requiredDate = (message: string) =>
+  z.union([z.literal(""), z.date(), z.string()]).refine((val) => val !== "", {
+    message: message,
+  });
+
+export const optionalDate = () =>
+  z.union([z.literal(""), z.date(), z.string()]).optional();

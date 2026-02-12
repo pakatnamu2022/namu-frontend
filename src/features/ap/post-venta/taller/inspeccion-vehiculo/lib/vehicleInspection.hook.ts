@@ -2,7 +2,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   deleteVehicleInspection,
   findVehicleInspectionById,
-  findVehicleInspectionByWorkOrderId,
   getAllVehicleInspection,
   getVehicleInspection,
   storeVehicleInspection,
@@ -17,6 +16,23 @@ import { VEHICLE_INSPECTION } from "./vehicleInspection.constants";
 import { errorToast, successToast } from "@/core/core.function";
 
 const { QUERY_KEY, MODEL } = VEHICLE_INSPECTION;
+
+export interface UseVehicleInspectionParams {
+  page?: number;
+  per_page?: number;
+  search?: string;
+  inspection_date?: [string | undefined, string | undefined];
+  is_associated?: number;
+  is_cancelled: number;
+  workOrder$sede_id: number;
+}
+
+export function useVehicleInspection(params: UseVehicleInspectionParams) {
+  return useQuery({
+    queryKey: [QUERY_KEY, "paginated", params],
+    queryFn: () => getVehicleInspection({ params }),
+  });
+}
 
 export function useGetVehicleInspection(props: getVehicleInspectionProps) {
   return useQuery({
@@ -40,14 +56,6 @@ export function useFindVehicleInspectionById(id: number) {
   });
 }
 
-export function useFindVehicleInspectionByWorkOrderId(workOrderId?: number) {
-  return useQuery({
-    queryKey: [QUERY_KEY, "work-order", workOrderId],
-    queryFn: () => findVehicleInspectionByWorkOrderId(workOrderId!),
-    enabled: !!workOrderId,
-  });
-}
-
 export function useStoreVehicleInspection() {
   const queryClient = useQueryClient();
 
@@ -61,7 +69,9 @@ export function useStoreVehicleInspection() {
     onError: (error: any) => {
       const errorMessage =
         error?.response?.data?.message ||
-        `Error al registrar ${MODEL.gender ? "la" : "el"} ${MODEL.name.toLowerCase()}`;
+        `Error al registrar ${
+          MODEL.gender ? "la" : "el"
+        } ${MODEL.name.toLowerCase()}`;
       errorToast(errorMessage);
     },
   });
@@ -71,8 +81,13 @@ export function useUpdateVehicleInspection() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, data }: { id: number; data: VehicleInspectionRequest }) =>
-      updateVehicleInspection(id, data),
+    mutationFn: ({
+      id,
+      data,
+    }: {
+      id: number;
+      data: VehicleInspectionRequest;
+    }) => updateVehicleInspection(id, data),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY, variables.id] });
@@ -81,7 +96,9 @@ export function useUpdateVehicleInspection() {
     onError: (error: any) => {
       const errorMessage =
         error?.response?.data?.message ||
-        `Error al actualizar ${MODEL.gender ? "la" : "el"} ${MODEL.name.toLowerCase()}`;
+        `Error al actualizar ${
+          MODEL.gender ? "la" : "el"
+        } ${MODEL.name.toLowerCase()}`;
       errorToast(errorMessage);
     },
   });
@@ -99,7 +116,9 @@ export function useDeleteVehicleInspection() {
     onError: (error: any) => {
       const errorMessage =
         error?.response?.data?.message ||
-        `Error al eliminar ${MODEL.gender ? "la" : "el"} ${MODEL.name.toLowerCase()}`;
+        `Error al eliminar ${
+          MODEL.gender ? "la" : "el"
+        } ${MODEL.name.toLowerCase()}`;
       errorToast(errorMessage);
     },
   });

@@ -3,30 +3,16 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  CheckCircle,
-  Clock,
-  Play,
-  Fuel,
-  Pencil,
-  Eye,
-  Truck,
-  MapPin,
-  User,
-} from "lucide-react";
-import {
-  TravelControlColumnsProps,
-  TravelControlResource,
-} from "../lib/travelControl.interface";
+import { CheckCircle, Clock, Play, Fuel, Pencil, Eye, Truck, MapPin, User} from "lucide-react";
+import { TravelControlColumnsProps, TravelControlResource } from "../lib/travelControl.interface";
 import { TravelControlDetailModal } from "./TravelControlDetailModal";
 
 export type TravelControlColumns = ColumnDef<TravelControlResource>;
 
 export const TravelControlColumns = ({
-  onStatusChange,
+  onStatusChange
 }: TravelControlColumnsProps): TravelControlColumns[] => [
   {
-    enableSorting: false,
     accessorKey: "tripNumber",
     header: "N° Viaje",
     cell: ({ getValue }) => (
@@ -37,7 +23,6 @@ export const TravelControlColumns = ({
     ),
   },
   {
-    enableSorting: false,
     accessorKey: "plate",
     header: "Placa",
     cell: ({ getValue }) => (
@@ -47,7 +32,6 @@ export const TravelControlColumns = ({
     ),
   },
   {
-    enableSorting: false,
     accessorKey: "driver.name",
     header: "Conductor",
     cell: ({ row }) => {
@@ -61,7 +45,6 @@ export const TravelControlColumns = ({
     },
   },
   {
-    enableSorting: false,
     accessorKey: "route",
     header: "Ruta",
     cell: ({ getValue }) => (
@@ -72,58 +55,55 @@ export const TravelControlColumns = ({
     ),
   },
   {
-    enableSorting: false,
     accessorKey: "client",
     header: "Cliente",
   },
   {
-    enableSorting: false,
     accessorKey: "status",
     header: "Estado",
     cell: ({ getValue }) => {
       const value = getValue() as TravelControlResource["status"];
-
+      
       if (value === "pending") {
         return (
-          <Badge variant="amber" className="capitalize gap-2">
-            <Clock className="size-4" />
+          <Badge variant="outline" className="capitalize gap-2">
+            <Clock className="size-4 text-amber-500" />
             Pendiente
           </Badge>
         );
       }
-
+      
       if (value === "in_progress") {
         return (
-          <Badge variant="blue" className="capitalize gap-2">
-            <Play className="size-4" />
+          <Badge variant="outline" className="capitalize gap-2">
+            <Play className="size-4 text-green-500" />
             En Ruta
           </Badge>
         );
       }
-
+      
       if (value === "completed") {
         return (
-          <Badge variant="green" className="capitalize gap-2">
-            <CheckCircle className="size-4" />
+          <Badge variant="outline" className="capitalize gap-2">
+            <CheckCircle className="size-4 text-blue-500" />
             Completado
           </Badge>
         );
       }
-
+      
       if (value === "fuel_pending") {
         return (
-          <Badge variant="orange" className="capitalize gap-2">
-            <Fuel className="size-4" />
+          <Badge variant="outline" className="capitalize gap-2">
+            <Fuel className="size-4 text-orange-500" />
             Combustible
           </Badge>
         );
       }
-
+      
       return <Badge variant="outline">Desconocido</Badge>;
     },
   },
   {
-    enableSorting: false,
     accessorKey: "totalKm",
     header: "Km",
     cell: ({ getValue }) => {
@@ -136,7 +116,6 @@ export const TravelControlColumns = ({
     },
   },
   {
-    enableSorting: false,
     accessorKey: "totalHours",
     header: "Horas",
     cell: ({ getValue }) => {
@@ -149,7 +128,6 @@ export const TravelControlColumns = ({
     },
   },
   {
-    enableSorting: false,
     accessorKey: "tonnage",
     header: "Toneladas",
     cell: ({ getValue }) => {
@@ -163,7 +141,6 @@ export const TravelControlColumns = ({
   },
   {
     id: "actions",
-    enableSorting: false,
     header: "Acciones",
     cell: ({ row }) => {
       const trip = row.original;
@@ -198,6 +175,12 @@ export const TravelControlColumns = ({
             >
               <Pencil className="size-4" />
             </Button>
+          )}
+          {status === "completed" && (
+            <div className="flex items-center text-xs text-muted-foreground ml-2">
+              <CheckCircle className="size-4 mr-1 text-green-600" />
+              <span>Completado</span>
+            </div>
           )}
         </div>
       );

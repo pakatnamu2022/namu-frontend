@@ -105,17 +105,10 @@ const TimelineItem = ({
 };
 
 // Timeline List Component
-const TimelineList = ({
-  movements,
-}: {
-  movements: VehicleMovement[];
-}) => (
+const TimelineList = ({ movements }: { movements: VehicleMovement[] }) => (
   <div className="space-y-4">
     <div className="flex items-center justify-between">
-      <Badge
-        variant="secondary"
-        className="bg-blue-100 text-blue-800 hover:bg-blue-200"
-      >
+      <Badge color="blue">
         {movements.length}{" "}
         {movements.length === 1 ? "movimiento" : "movimientos"}
       </Badge>
@@ -155,7 +148,7 @@ export default function VehicleMovements({
           <History className={cn("size-4", { "animate-spin": loading })} />
         </Button>
       </SheetTrigger>
-      <SheetContent className="!max-w-(--breakpoint-md) overflow-y-auto">
+      <SheetContent className="max-w-(--breakpoint-md)! overflow-y-auto">
         <SheetHeader>
           <SheetTitle className="flex items-center gap-2">
             <History className="size-5 text-primary" />

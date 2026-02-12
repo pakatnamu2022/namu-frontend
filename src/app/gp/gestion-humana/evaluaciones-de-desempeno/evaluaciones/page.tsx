@@ -28,6 +28,7 @@ import EvaluationOptions from "@/features/gp/gestionhumana/evaluaciondesempeño/
 import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
 import { EVALUATION } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluaciones/lib/evaluation.constans";
 import { notFound } from "@/shared/hooks/useNotFound";
+import PageWrapper from "@/shared/components/PageWrapper";
 
 const { MODEL } = EVALUATION;
 
@@ -134,7 +135,7 @@ export default function EvaluationPage() {
   if (!currentView) return <div>No hay</div>;
 
   return (
-    <div className="space-y-4">
+    <PageWrapper>
       <HeaderTableWrapper>
         <TitleComponent
           title={currentView.descripcion}
@@ -178,6 +179,6 @@ export default function EvaluationPage() {
         setPerPage={setPerPage}
         totalData={data?.meta?.total || 0}
       />
-    </div>
+    </PageWrapper>
   );
 }

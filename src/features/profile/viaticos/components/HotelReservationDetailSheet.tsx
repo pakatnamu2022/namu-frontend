@@ -20,6 +20,7 @@ import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { PER_DIEM_REQUEST_AP } from "../lib/perDiemRequest.constants";
 
 interface HotelReservationDetailSheetProps {
   hotelReservation: HotelReservationResource | null;
@@ -37,6 +38,7 @@ export default function HotelReservationDetailSheet({
   module = "gh",
 }: HotelReservationDetailSheetProps) {
   const navigate = useNavigate();
+  const { ABSOLUTE_ROUTE: ABSOLUTE_ROUTE_AP } = PER_DIEM_REQUEST_AP;
 
   if (!hotelReservation) return null;
 
@@ -44,9 +46,9 @@ export default function HotelReservationDetailSheet({
     const prefix =
       module === "gh"
         ? "/gp/gestion-humana/viaticos/solicitud-viaticos"
-        : "/ap/contabilidad/viaticos-ap";
+        : ABSOLUTE_ROUTE_AP;
     navigate(
-      `${prefix}/${requestId}/reserva-hotel/actualizar/${hotelReservation.id}`
+      `${prefix}/${requestId}/reserva-hotel/actualizar/${hotelReservation.id}`,
     );
   };
 
@@ -77,7 +79,7 @@ export default function HotelReservationDetailSheet({
         <div className="flex justify-between items-center">
           <div>
             {hotelReservation.attended && (
-              <Badge variant="default" className="gap-1">
+              <Badge color="default" className="gap-1">
                 Asistido
               </Badge>
             )}
@@ -153,7 +155,7 @@ export default function HotelReservationDetailSheet({
                   {format(
                     new Date(hotelReservation.checkin_date),
                     "dd/MM/yyyy",
-                    { locale: es }
+                    { locale: es },
                   )}
                 </p>
               </div>
@@ -169,7 +171,7 @@ export default function HotelReservationDetailSheet({
                   {format(
                     new Date(hotelReservation.checkout_date),
                     "dd/MM/yyyy",
-                    { locale: es }
+                    { locale: es },
                   )}
                 </p>
               </div>
@@ -324,7 +326,7 @@ export default function HotelReservationDetailSheet({
                 "dd/MM/yyyy HH:mm",
                 {
                   locale: es,
-                }
+                },
               )}
             </p>
             <p>
@@ -334,7 +336,7 @@ export default function HotelReservationDetailSheet({
                 "dd/MM/yyyy HH:mm",
                 {
                   locale: es,
-                }
+                },
               )}
             </p>
           </div>

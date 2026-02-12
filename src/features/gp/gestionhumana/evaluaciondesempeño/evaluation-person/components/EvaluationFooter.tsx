@@ -2,6 +2,7 @@
 
 import { Badge } from "@/components/ui/badge";
 import { EvaluationPersonResultResource } from "../lib/evaluationPerson.interface";
+import { getResultRateColorBadge } from "../lib/evaluationPerson.function";
 
 interface EvaluationFooterProps {
   evaluationPersonResult: EvaluationPersonResultResource;
@@ -14,14 +15,6 @@ export default function EvaluationFooter({
   totalObjectives,
   completedObjectives,
 }: EvaluationFooterProps) {
-  // Función para obtener el color del badge de cumplimiento
-  const getComplianceBadgeVariant = (compliance: number) => {
-    if (compliance >= 100) return "default";
-    if (compliance >= 80) return "tertiary";
-    if (compliance >= 60) return "outline";
-    return "destructive";
-  };
-
   return (
     <div className="bg-muted/20 p-4 border rounded-lg">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
@@ -36,8 +29,8 @@ export default function EvaluationFooter({
         <div className="flex items-center justify-start gap-3">
           <span className="text-muted-foreground">Calificación:</span>
           <Badge
-            variant={getComplianceBadgeVariant(
-              evaluationPersonResult.objectivesResult || 0
+            color={getResultRateColorBadge(
+              evaluationPersonResult.objectivesResult || 0,
             )}
           >
             {evaluationPersonResult.objectivesResult.toFixed(1)}%

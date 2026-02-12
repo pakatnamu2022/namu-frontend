@@ -13,13 +13,13 @@ import { ExpenseResource } from "../lib/perDiemRequest.interface";
 import { useState } from "react";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { validateExpense, rejectExpense } from "../lib/perDiemRequest.actions";
-import { useToast } from "@/hooks/use-toast";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useNavigate } from "react-router-dom";
 import { useDeletePerDiemExpense } from "../lib/perDiemExpense.hook";
 import { useQueryClient } from "@tanstack/react-query";
 import { PER_DIEM_REQUEST } from "../lib/perDiemRequest.constants";
+import { errorToast, successToast, warningToast } from "@/core/core.function";
 
 interface ExpenseRowActionsProps {
   expense: ExpenseResource;
@@ -38,7 +38,6 @@ export default function ExpenseRowActions({
 }: ExpenseRowActionsProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [rejectionReason, setRejectionReason] = useState("");
-  const { toast } = useToast();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -54,10 +53,7 @@ export default function ExpenseRowActions({
     try {
       setIsLoading(true);
       await validateExpense(expense.id);
-      toast({
-        title: "Gasto validado",
-        description: "El gasto ha sido validado exitosamente.",
-      });
+      successToast("Gasto validado", "El gasto ha sido validado exitosamente.");
       // Invalidar queries para refrescar los datos
       if (requestId) {
         await queryClient.invalidateQueries({
@@ -66,13 +62,11 @@ export default function ExpenseRowActions({
       }
       onActionComplete?.();
     } catch (error: any) {
-      toast({
-        title: "Error",
-        description:
-          error.response?.data?.message ||
+      errorToast(
+        "Error",
+        error.response?.data?.message ||
           "No se pudo validar el gasto. Inténtalo de nuevo.",
-        variant: "destructive",
-      });
+      );
     } finally {
       setIsLoading(false);
     }
@@ -80,21 +74,18 @@ export default function ExpenseRowActions({
 
   const handleReject = async () => {
     if (!rejectionReason.trim()) {
-      toast({
-        title: "Error",
-        description: "Debes ingresar un motivo de rechazo.",
-        variant: "destructive",
-      });
+      warningToast("Error", "Debes ingresar un motivo de rechazo.");
       return;
     }
 
     try {
       setIsLoading(true);
       await rejectExpense(expense.id, rejectionReason);
-      toast({
-        title: "Gasto rechazado",
-        description: "El gasto ha sido rechazado exitosamente.",
-      });
+      warningToast(
+        "Gasto rechazado",
+        "El gasto ha sido rechazado exitosamente.",
+      );
+
       // Invalidar queries para refrescar los datos
       if (requestId) {
         await queryClient.invalidateQueries({
@@ -104,13 +95,11 @@ export default function ExpenseRowActions({
       setRejectionReason("");
       onActionComplete?.();
     } catch (error: any) {
-      toast({
-        title: "Error",
-        description:
-          error.response?.data?.message ||
+      errorToast(
+        "Error",
+        error.response?.data?.message ||
           "No se pudo rechazar el gasto. Inténtalo de nuevo.",
-        variant: "destructive",
-      });
+      );
     } finally {
       setIsLoading(false);
     }
@@ -119,7 +108,7 @@ export default function ExpenseRowActions({
   const handleEdit = () => {
     if (requestId) {
       navigate(
-        `${PER_DIEM_REQUEST_ROUTE}/${requestId}/gastos/actualizar/${expense.id}`
+        `${PER_DIEM_REQUEST_ROUTE}/${requestId}/gastos/actualizar/${expense.id}`,
       );
     }
   };
@@ -178,7 +167,7 @@ export default function ExpenseRowActions({
           }
           title="¿Eliminar este gasto?"
           description={`Estás a punto de eliminar el gasto de S/ ${expense.receipt_amount.toFixed(
-            2
+            2,
           )} por ${
             expense.expense_type?.name
           }. Esta acción no se puede deshacer.`}
@@ -211,7 +200,7 @@ export default function ExpenseRowActions({
             }
             title="¿Validar este gasto?"
             description={`Estás a punto de validar el gasto de S/ ${expense.receipt_amount.toFixed(
-              2
+              2,
             )} por ${
               expense.expense_type?.name
             }. Esta acción confirmará que el gasto es correcto y cumple con las políticas de la empresa.`}
@@ -241,7 +230,7 @@ export default function ExpenseRowActions({
             }
             title="¿Rechazar este gasto?"
             description={`Estás a punto de rechazar el gasto de S/ ${expense.receipt_amount.toFixed(
-              2
+              2,
             )} por ${
               expense.expense_type?.name
             }. Esta acción indicará que el gasto no cumple con las políticas o tiene problemas que necesitan corrección.`}

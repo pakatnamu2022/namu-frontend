@@ -81,7 +81,7 @@ export const ShipmentsReceptionsForm = ({
     resolver: zodResolver(
       mode === "create"
         ? shipmentsReceptionsSchemaCreate
-        : shipmentsReceptionsSchemaUpdate
+        : shipmentsReceptionsSchemaUpdate,
     ) as any,
     defaultValues: {
       ...defaultValues,
@@ -139,7 +139,7 @@ export const ShipmentsReceptionsForm = ({
     error: conductorDniError,
   } = useLicenseValidation(
     conductorDni,
-    !isFirstLoad && !!conductorDni && conductorDni.length === 8
+    !isFirstLoad && !!conductorDni && conductorDni.length === 8,
   );
 
   // Estados para almacenar el proveedor/cliente seleccionado
@@ -182,7 +182,7 @@ export const ShipmentsReceptionsForm = ({
     {
       type_operation_id: TYPES_OPERATION_ID.COMERCIAL,
       type_receipt_id: TYPE_RECEIPT_SERIES.GUIA_REMISION,
-    }
+    },
   );
 
   const { data: articleClass = [], isLoading: isLoadingArticleClass } =
@@ -238,11 +238,11 @@ export const ShipmentsReceptionsForm = ({
 
   // Distribuir los conceptos según el tipo
   const reasonTransfer = sunatConcepts.filter(
-    (concept) => concept.type === SUNAT_CONCEPTS_TYPE.TRANSFER_REASON
+    (concept) => concept.type === SUNAT_CONCEPTS_TYPE.TRANSFER_REASON,
   );
 
   const typeTransportation = sunatConcepts.filter(
-    (concept) => concept.type === SUNAT_CONCEPTS_TYPE.TYPE_TRANSPORTATION
+    (concept) => concept.type === SUNAT_CONCEPTS_TYPE.TYPE_TRANSPORTATION,
   );
 
   // Cargar establecimientos cuando estemos en modo update
@@ -257,7 +257,7 @@ export const ShipmentsReceptionsForm = ({
   // Inicializar establecimientos desde defaultValues al montar (solo en modo update)
   useEffect(() => {
     if (mode === "update" && defaultValues) {
-      // Inicializar establecimiento origen
+      // Inicializar establecimientos origen
       if (
         defaultValues.transmitter_establishment &&
         !selectedOriginEstablishment
@@ -270,7 +270,7 @@ export const ShipmentsReceptionsForm = ({
         } as EstablishmentsResource);
       }
 
-      // Inicializar establecimiento destino
+      // Inicializar establecimientos destino
       if (
         defaultValues.receiver_establishment &&
         !selectedDestinationEstablishment
@@ -289,7 +289,7 @@ export const ShipmentsReceptionsForm = ({
   useEffect(() => {
     if (watchTransmitterOriginId && suppliers.length > 0) {
       const supplier = suppliers.find(
-        (s) => s.id.toString() === watchTransmitterOriginId
+        (s) => s.id.toString() === watchTransmitterOriginId,
       );
       if (supplier && selectedSupplier?.id !== supplier.id) {
         setSelectedSupplier({
@@ -315,7 +315,7 @@ export const ShipmentsReceptionsForm = ({
   useEffect(() => {
     if (watchTransmitterDestinoId && customers.length > 0) {
       const customer = customers.find(
-        (c) => c.id.toString() === watchTransmitterDestinoId
+        (c) => c.id.toString() === watchTransmitterDestinoId,
       );
       if (customer && selectedCustomer?.id !== customer.id) {
         setSelectedCustomer({
@@ -337,7 +337,7 @@ export const ShipmentsReceptionsForm = ({
     }
   }, [watchTransmitterDestinoId, customers.length]);
 
-  // Cargar establecimiento origen cuando watchTransmitterId cambia
+  // Cargar establecimientos origen cuando watchTransmitterId cambia
   useEffect(() => {
     if (!watchTransmitterId) {
       if (selectedOriginEstablishment !== null) {
@@ -349,7 +349,7 @@ export const ShipmentsReceptionsForm = ({
     // Buscar en la lista de establecimientos disponibles
     if (originEstablishments.length > 0) {
       const establishment = originEstablishments.find(
-        (e) => e.id.toString() === watchTransmitterId
+        (e) => e.id.toString() === watchTransmitterId,
       );
       if (
         establishment &&
@@ -360,7 +360,7 @@ export const ShipmentsReceptionsForm = ({
     }
   }, [watchTransmitterId, originEstablishments.length]);
 
-  // Cargar establecimiento destino cuando watchReceiverId cambia
+  // Cargar establecimientos destino cuando watchReceiverId cambia
   useEffect(() => {
     if (!watchReceiverId) {
       if (selectedDestinationEstablishment !== null) {
@@ -372,7 +372,7 @@ export const ShipmentsReceptionsForm = ({
     // Buscar en la lista de establecimientos disponibles
     if (destinationEstablishments.length > 0) {
       const establishment = destinationEstablishments.find(
-        (e) => e.id.toString() === watchReceiverId
+        (e) => e.id.toString() === watchReceiverId,
       );
       if (
         establishment &&
@@ -435,10 +435,10 @@ export const ShipmentsReceptionsForm = ({
 
     if (watchIssuerType === "NOSOTROS") {
       const currentTransmitterOriginId = form.getValues(
-        "transmitter_origin_id"
+        "transmitter_origin_id",
       );
       const currentReceiverDestinationId = form.getValues(
-        "receiver_destination_id"
+        "receiver_destination_id",
       );
 
       if (currentTransmitterOriginId !== AUTOMOTORES_PAKATNAMU_ID) {
@@ -454,7 +454,7 @@ export const ShipmentsReceptionsForm = ({
 
       if (watchDocumentSeriesId) {
         const selectedSeries = series.find(
-          (s) => s.id.toString() === watchDocumentSeriesId
+          (s) => s.id.toString() === watchDocumentSeriesId,
         );
         if (selectedSeries && selectedSeries.sede_id) {
           const sedeId = selectedSeries.sede_id.toString();
@@ -483,10 +483,10 @@ export const ShipmentsReceptionsForm = ({
     ) {
       const currentIssuerType = form.getValues("issuer_type");
       const currentTransmitterOriginId = form.getValues(
-        "transmitter_origin_id"
+        "transmitter_origin_id",
       );
       const currentReceiverDestinationId = form.getValues(
-        "receiver_destination_id"
+        "receiver_destination_id",
       );
 
       if (currentIssuerType !== "NOSOTROS") {
@@ -539,7 +539,7 @@ export const ShipmentsReceptionsForm = ({
 
     if (currentVehicleId && vehiclesVn.length > 0) {
       const vehicleExists = vehiclesVn.some(
-        (v) => v.id.toString() === currentVehicleId
+        (v) => v.id.toString() === currentVehicleId,
       );
 
       if (!vehicleExists) {
@@ -565,7 +565,7 @@ export const ShipmentsReceptionsForm = ({
   ]);
 
   const selectedVIN = vehiclesVn.find(
-    (v) => v.id.toString() === form.getValues("ap_vehicle_id")
+    (v) => v.id.toString() === form.getValues("ap_vehicle_id"),
   );
 
   useEffect(() => {
@@ -628,7 +628,9 @@ export const ShipmentsReceptionsForm = ({
             sm: 1,
             md: 2,
             lg: 3,
+            xl: 4,
           }}
+          gap="gap-4"
         >
           <FormSelect
             control={form.control}
@@ -768,7 +770,7 @@ export const ShipmentsReceptionsForm = ({
           <FormSelect
             key={`vehicle-${watchSedeTransmitterId}-${watchTransferReasonId}-${vehiclesIsReceived}`}
             name="ap_vehicle_id"
-            label="Vehículo VN"
+            label="Vehículo"
             placeholder="Selecciona vehículo"
             options={vehiclesVn.map((item) => ({
               label: item.vin ?? "",
@@ -840,7 +842,9 @@ export const ShipmentsReceptionsForm = ({
             sm: 1,
             md: 2,
             lg: 3,
+            xl: 4,
           }}
+          gap="gap-4"
         >
           {/* Ubicación Origen */}
           <div className="space-y-2">
@@ -1102,8 +1106,8 @@ export const ShipmentsReceptionsForm = ({
             {isSubmitting
               ? "Guardando..."
               : mode === "create"
-              ? "Crear Guía de Remisión"
-              : "Actualizar Guía de Remisión"}
+                ? "Crear Guía de Remisión"
+                : "Actualizar Guía de Remisión"}
           </Button>
         </div>
 

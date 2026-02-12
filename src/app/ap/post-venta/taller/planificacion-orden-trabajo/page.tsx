@@ -71,7 +71,21 @@ export default function PlanningPage() {
     return stored || "";
   });
 
+  const { data: mySedes = [], isLoading: isLoadingMySedes } = useMySedes({
+    company: EMPRESA_AP.id,
+  });
+
   const { ROUTE, MODEL, ABSOLUTE_ROUTE } = WORK_ORDER_PLANNING;
+
+  // Seleccionar la primera sede cuando se cargan las sedes y no hay una seleccionada
+  useEffect(() => {
+    if (mySedes.length > 0 && !sedeId) {
+      const firstSedeId = mySedes[0].id.toString();
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setSedeId(firstSedeId);
+      localStorage.setItem("planningPage_selectedSedeId", firstSedeId);
+    }
+  }, [mySedes, sedeId]);
 
   // Reiniciar página cuando cambian los filtros
   useEffect(() => {
@@ -135,10 +149,6 @@ export default function PlanningPage() {
     }
   };
 
-  const { data: mySedes = [], isLoading: isLoadingMySedes } = useMySedes({
-    company: EMPRESA_AP.id,
-  });
-
   const handleOpenCreatePlanning = () => {
     navigate(`${ABSOLUTE_ROUTE}/agregar`);
   };
@@ -173,6 +183,7 @@ export default function PlanningPage() {
             placeholder="Filtrar por sede"
             className="min-w-72"
             classNameOption="text-xs"
+            allowClear={false}
           />
           <Button onClick={handleOpenCreatePlanning}>
             <Plus className="h-4 w-4 mr-2" />

@@ -1,8 +1,14 @@
-import { ModelsVnResource } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.interface";
 import { type Links, type Meta } from "@/shared/lib/pagination.interface.ts";
 import { VehicleInspectionResource } from "../../inspeccion-vehiculo/lib/vehicleInspection.interface";
 import { WorkOrderItemResource } from "../../orden-trabajo-item/lib/workOrderItem.interface";
 import { ElectronicDocumentResource } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.interface";
+import { OrderQuotationResource } from "../../cotizacion/lib/proforma.interface";
+import { VehicleResource } from "@/features/ap/comercial/vehiculos/lib/vehicles.interface";
+import { WorkOrderLabourResource } from "../../orden-trabajo-labor/lib/workOrderLabour.interface";
+import { WorkOrderPartsResource } from "../../orden-trabajo-repuesto/lib/workOrderParts.interface";
+import { ApMastersResource } from "@/features/ap/ap-master/lib/apMasters.interface";
+import { CurrencyTypesResource } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.interface";
+import { CustomersResource } from "@/features/ap/comercial/clientes/lib/customers.interface";
 
 export interface WorkOrderResponse {
   data: WorkOrderResource[];
@@ -15,9 +21,12 @@ export interface WorkOrderResource {
   correlative: string;
   mileage: string;
   fuel_level: string;
+  order_quotation_id: number | null;
   appointment_planning_id: string;
+  vehicle_inspection_id: string;
   vehicle_id: string;
-  vehicle: WorkerOrderVehicleResource;
+  currency_id: string;
+  vehicle: VehicleResource;
   vehicle_plate: string;
   vehicle_vin: string;
   status_id: string;
@@ -36,8 +45,16 @@ export interface WorkOrderResource {
   description_recall: string | null;
   type_recall: "ROJO" | "AMARILLO" | "VERDE" | null;
   is_inspection_completed: boolean;
+  type_currency: CurrencyTypesResource;
   vehicle_inspection: VehicleInspectionResource | null;
   items: WorkOrderItemResource[];
+  order_quotation?: OrderQuotationResource;
+  labours: WorkOrderLabourResource[];
+  parts: WorkOrderPartsResource[];
+  advances: ElectronicDocumentResource[];
+  status: ApMastersResource;
+  invoice_to: number | null;
+  invoice_to_client: CustomersResource | null;
 }
 
 export interface WorkOrderRequest {
@@ -48,14 +65,6 @@ export interface WorkOrderRequest {
   estimated_delivery_date: string | Date;
   diagnosis_date: string | Date;
   observations: string;
-}
-
-export interface WorkerOrderVehicleResource {
-  id: number;
-  plate: string;
-  vin: string;
-  model: ModelsVnResource;
-  year: string;
 }
 
 export interface WorkOrderPaymentSummary {
@@ -71,7 +80,6 @@ export interface WorkOrderPaymentSummary {
     total_advances: number;
     remaining_balance: number;
   };
-  advances: ElectronicDocumentResource[];
 }
 
 export const GROUP_COLORS: Record<number, { badge: string; input: string }> = {

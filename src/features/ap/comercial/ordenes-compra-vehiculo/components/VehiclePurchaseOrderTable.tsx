@@ -34,6 +34,7 @@ export default function VehiclePurchaseOrderTable({
           sede: false,
           status: true,
           credit_note_dynamics: false,
+          creator_name: false,
         }}
       >
         {children}

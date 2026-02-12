@@ -52,6 +52,7 @@ export interface ShipmentsReceptionsResource {
   enlace_del_cdr?: string | null;
   cadena_para_codigo_qr?: string | null;
   aceptada_por_sunat?: boolean | null;
+  sunat_description?: string | null;
   status_dynamic?: boolean | null;
   is_received?: boolean | null;
   ap_class_article_id?: string | null;
@@ -67,6 +68,15 @@ export interface ShipmentsReceptionsResource {
   ruc_transport?: string;
   company_name_transport?: string;
   status?: boolean;
+  receiving_checklists: any[];
+  items: ShipmentItemResource[];
+}
+
+export interface ShipmentItemResource {
+  codigo: string;
+  descripcion: string;
+  unidad: string;
+  cantidad: string;
 }
 
 export interface EstablishmentResource {

@@ -50,7 +50,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         localStorage.setItem("user", JSON.stringify(response.user));
         localStorage.setItem(
           "permissions",
-          JSON.stringify(response.permissions)
+          JSON.stringify(response.permissions),
         );
       }
       set({

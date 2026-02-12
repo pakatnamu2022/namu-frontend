@@ -52,6 +52,7 @@ interface FormSelectAsyncProps {
     search?: string;
     page?: number;
     per_page?: number;
+    has_sede?: number;
     [key: string]: any;
   }) => {
     data?: { data: any[]; meta?: { last_page?: number } };
@@ -64,6 +65,7 @@ interface FormSelectAsyncProps {
   defaultOption?: Option; // Opción inicial para mostrar cuando se edita
   additionalParams?: Record<string, any>; // Parámetros adicionales para el hook
   onValueChange?: (value: string, item?: any) => void; // Callback cuando cambia el valor
+  allowClear?: boolean;
 }
 
 export function FormSelectAsync({
@@ -87,20 +89,36 @@ export function FormSelectAsync({
   defaultOption,
   additionalParams = {},
   onValueChange,
+  allowClear = true,
 }: FormSelectAsyncProps) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [page, setPage] = useState(1);
   const [allOptions, setAllOptions] = useState<Option[]>(
-    defaultOption ? [defaultOption] : []
+    defaultOption ? [defaultOption] : [],
   );
   const [selectedOption, setSelectedOption] = useState<Option | null>(
-    defaultOption || null
+    defaultOption || null,
   );
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Sincronizar cuando defaultOption cambie (ej. al seleccionar cotización)
+  useEffect(() => {
+    if (defaultOption) {
+      setSelectedOption(defaultOption);
+      setAllOptions((prev) => {
+        // Verificar si ya existe la opción
+        const exists = prev.some((opt) => opt.value === defaultOption.value);
+        if (!exists) {
+          return [defaultOption, ...prev];
+        }
+        return prev;
+      });
+    }
+  }, [defaultOption?.value]);
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(
-    undefined
+    undefined,
   );
 
   // Hook de consulta con parámetros dinámicos
@@ -142,19 +160,27 @@ export function FormSelectAsync({
       const newOptions = data.data.map(mapOptionFn);
 
       if (page === 1) {
-        setAllOptions(newOptions);
+        // Preservar defaultOption si no está en los resultados nuevos
+        if (
+          defaultOption &&
+          !newOptions.some((opt) => opt.value === defaultOption.value)
+        ) {
+          setAllOptions([defaultOption, ...newOptions]);
+        } else {
+          setAllOptions(newOptions);
+        }
       } else {
         setAllOptions((prev) => {
           // Evitar duplicados
           const existingIds = new Set(prev.map((opt) => opt.value));
           const uniqueNew = newOptions.filter(
-            (opt) => !existingIds.has(opt.value)
+            (opt) => !existingIds.has(opt.value),
           );
           return [...prev, ...uniqueNew];
         });
       }
     }
-  }, [data, page, mapOptionFn]);
+  }, [data, page, mapOptionFn, defaultOption]);
 
   // Manejar scroll para cargar más
   const handleScroll = useCallback(
@@ -173,7 +199,7 @@ export function FormSelectAsync({
         setPage((prev) => prev + 1);
       }
     },
-    [isLoading, isFetching, data?.meta?.last_page, page]
+    [isLoading, isFetching, data?.meta?.last_page, page],
   );
 
   // Reset cuando se cierra el popover
@@ -199,15 +225,22 @@ export function FormSelectAsync({
             ? selectedOption
             : null);
 
-        // Actualizar cache cuando se encuentra la opción seleccionada
-        if (field.value && selected && selected !== selectedOption) {
-          setSelectedOption(selected);
-        }
-
-        // Limpiar cache si no hay valor seleccionado
-        if (!field.value && selectedOption) {
-          setSelectedOption(null);
-        }
+        // Sincronizar selectedOption con field.value usando useEffect
+        // eslint-disable-next-line react-hooks/rules-of-hooks
+        useEffect(() => {
+          if (field.value && selected && selected !== selectedOption) {
+            setSelectedOption(selected);
+          } else if (
+            field.value === "" ||
+            field.value === null ||
+            field.value === undefined
+          ) {
+            // Limpiar selectedOption cuando el valor está vacío (deselección)
+            if (selectedOption) {
+              setSelectedOption(null);
+            }
+          }
+        }, [field.value, selected?.value, selectedOption?.value]);
 
         return (
           <FormItem className="flex flex-col justify-between">
@@ -221,7 +254,7 @@ export function FormSelectAsync({
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <Badge
-                            variant="tertiary"
+                            color="tertiary"
                             className="ml-2 p-0 aspect-square w-4 h-4 text-center justify-center"
                           >
                             ?
@@ -244,7 +277,7 @@ export function FormSelectAsync({
                       className={cn(
                         "w-full justify-between min-h-10 flex",
                         !field.value && "text-muted-foreground",
-                        className
+                        className,
                       )}
                     >
                       <span className="text-nowrap! line-clamp-1">
@@ -299,7 +332,7 @@ export function FormSelectAsync({
                               className="cursor-pointer"
                               onSelect={() => {
                                 const newValue =
-                                  option.value === field.value
+                                  option.value === field.value && allowClear
                                     ? ""
                                     : option.value;
                                 field.onChange(newValue);
@@ -307,7 +340,7 @@ export function FormSelectAsync({
                                 if (onValueChange) {
                                   const selectedItem = data?.data?.find(
                                     (item) =>
-                                      mapOptionFn(item).value === option.value
+                                      mapOptionFn(item).value === option.value,
                                   );
                                   onValueChange(newValue, selectedItem);
                                 }
@@ -319,7 +352,7 @@ export function FormSelectAsync({
                                   "mr-2 h-4 w-4 shrink-0",
                                   option.value === field.value
                                     ? "opacity-100"
-                                    : "opacity-0"
+                                    : "opacity-0",
                                 )}
                               />
                               <div className="flex flex-col min-w-0 flex-1">

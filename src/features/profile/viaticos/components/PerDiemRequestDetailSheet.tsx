@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { FileDown } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -30,6 +30,7 @@ export default function PerDiemRequestDetailSheet({
   open,
   onOpenChange,
 }: Props) {
+  const queryClient = useQueryClient();
   const [isDownloading, setIsDownloading] = useState(false);
   const [isDownloadingMobilityPayroll, setIsDownloadingMobilityPayroll] =
     useState(false);
@@ -137,7 +138,16 @@ export default function PerDiemRequestDetailSheet({
         <BudgetSection request={request} />
 
         {/* Comprobante de Depósito */}
-        {request.settled && <DepositVoucherSection request={request} />}
+        {request.settled && (
+          <DepositVoucherSection
+            request={request}
+            onVoucherDeleted={() => {
+              queryClient.invalidateQueries({
+                queryKey: [PER_DIEM_REQUEST.QUERY_KEY, requestId],
+              });
+            }}
+          />
+        )}
 
         {/* Resumen Financiero */}
         <FinancialSummarySection request={request} mode="sheet" />

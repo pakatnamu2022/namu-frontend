@@ -2,7 +2,7 @@
 
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Users, TrendingUp, Clock, Loader2 } from "lucide-react";
+import { Users, TrendingUp, Clock } from "lucide-react";
 import {
   DEFAULT_GROUP_COLOR,
   GROUP_COLORS,
@@ -28,10 +28,12 @@ export default function OperatorsTab({ workOrderId }: OperatorsTabProps) {
 
   if (isLoadingConsolidated) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
-        <span className="ml-2 text-gray-600">Cargando información...</span>
-      </div>
+      <Card className="p-12">
+        <div className="flex flex-col items-center justify-center text-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mb-4"></div>
+          <p className="text-gray-500">Cargando trabajadores asignados...</p>
+        </div>
+      </Card>
     );
   }
 
@@ -191,7 +193,7 @@ export default function OperatorsTab({ workOrderId }: OperatorsTabProps) {
                             planning.workers.map((worker, idx) => (
                               <Badge
                                 key={`${worker.worker_id}-${idx}`}
-                                variant="secondary"
+                                color="secondary"
                                 className="text-xs"
                               >
                                 {worker.worker_name}

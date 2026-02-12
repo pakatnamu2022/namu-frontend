@@ -37,13 +37,13 @@ export const ConfigurationCard: React.FC<ConfigurationCardProps> = ({
           <div className="space-y-3">
             <div className="flex justify-between items-center">
               <span className="text-sm">Objetivos</span>
-              <Badge variant="default">
+              <Badge color="default">
                 {evaluationData.objectivesPercentage}%
               </Badge>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-sm">Competencias</span>
-              <Badge variant="secondary">
+              <Badge color="secondary">
                 {evaluationData.competencesPercentage}%
               </Badge>
             </div>

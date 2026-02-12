@@ -22,8 +22,8 @@ import { FormSelect } from "@/shared/components/FormSelect";
 import { useAllTypesOperationsAppointment } from "@/features/ap/configuraciones/postventa/tipos-operacion-cita/lib/typesOperationsAppointment.hook";
 import { useAllTypesPlanning } from "@/features/ap/configuraciones/postventa/tipos-planificacion/lib/typesPlanning.hook";
 import {
-  useAllVehicles,
   useVehicles,
+  useVehicleById,
 } from "@/features/ap/comercial/vehiculos/lib/vehicles.hook";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { Textarea } from "@/components/ui/textarea";
@@ -36,7 +36,7 @@ import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { APPOINTMENT_PLANNING } from "../lib/appointmentPlanning.constants";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import { VehicleResource } from "@/features/ap/comercial/vehiculos/lib/vehicles.interface";
-import { VEHICLES_PV } from "@/features/ap/comercial/vehiculos/lib/vehicles.constants";
+import { VEHICLES_TLL } from "@/features/ap/comercial/vehiculos/lib/vehicles.constants";
 import { AppointmentPlanningResource } from "../lib/appointmentPlanning.interface";
 import { DocumentValidationStatus } from "@/shared/components/DocumentValidationStatus";
 import { ValidationIndicator } from "@/shared/components/ValidationIndicator";
@@ -72,7 +72,7 @@ export const AppointmentPlanningForm = ({
     resolver: zodResolver(
       mode === "create"
         ? appointmentPlanningSchemaCreate
-        : appointmentPlanningSchemaUpdate
+        : appointmentPlanningSchemaUpdate,
     ),
     defaultValues: {
       ...defaultValues,
@@ -84,22 +84,29 @@ export const AppointmentPlanningForm = ({
     useAllTypesOperationsAppointment();
   const { data: typesPlanning = [], isLoading: isLoadingPlanning } =
     useAllTypesPlanning();
-  const { data: vehicles = [], isLoading: isLoadingVehicles } =
-    useAllVehicles();
   const { data: sedes = [], isLoading: isLoadingSedes } = useMySedes({
     company: EMPRESA_AP.id,
     has_workshop: true,
   });
 
-  const isLoading =
-    isLoadingOperations ||
-    isLoadingPlanning ||
-    isLoadingVehicles ||
-    isLoadingSedes;
+  useEffect(() => {
+    if (sedes.length > 0 && !defaultValues.sede_id) {
+      form.setValue("sede_id", sedes[0].id.toString());
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sedes]);
+
+  const isLoading = isLoadingOperations || isLoadingPlanning || isLoadingSedes;
 
   // Watch vehicle selection
   const watchVehicleId = form.watch("ap_vehicle_id");
   const watchCustomer = form.watch("num_doc_client");
+  const watchTypeOperationId = form.watch("type_operation_appointment_id");
+
+  // Fetch del vehículo seleccionado individualmente (trae owner actualizado)
+  const { data: fetchedVehicle } = useVehicleById(
+    watchVehicleId ? Number(watchVehicleId) : 0,
+  );
 
   // Detectar el tipo de documento basado en la longitud
   const isDni = watchCustomer?.length === 8;
@@ -113,7 +120,7 @@ export const AppointmentPlanningForm = ({
   } = useDniValidation(
     watchCustomer,
     !isFirstLoad && !!watchCustomer && isDni,
-    true
+    true,
   );
 
   // Validación RUC (11 dígitos)
@@ -124,7 +131,7 @@ export const AppointmentPlanningForm = ({
   } = useRucValidation(
     watchCustomer,
     !isFirstLoad && !!watchCustomer && isRuc,
-    true
+    true,
   );
 
   // Datos consolidados
@@ -139,13 +146,12 @@ export const AppointmentPlanningForm = ({
       return;
     }
 
-    if (watchVehicleId && vehicles.length > 0) {
-      const vehicle = vehicles.find((v) => v.id.toString() === watchVehicleId);
-      setSelectedVehicle(vehicle);
+    if (watchVehicleId && fetchedVehicle) {
+      setSelectedVehicle(fetchedVehicle);
 
       // Si el vehículo tiene cliente (owner), autocompletar los campos
-      if (vehicle?.owner && vehicle.owner !== null) {
-        const client = vehicle.owner;
+      if (fetchedVehicle.owner && fetchedVehicle.owner !== null) {
+        const client = fetchedVehicle.owner;
         form.setValue("num_doc_client", client.num_doc || "");
         form.setValue("full_name_client", client.full_name || "");
         form.setValue("email_client", client.email || "");
@@ -156,10 +162,10 @@ export const AppointmentPlanningForm = ({
         form.setValue("email_client", "");
         form.setValue("phone_client", "");
       }
-    } else {
+    } else if (!watchVehicleId) {
       setSelectedVehicle(null);
     }
-  }, [watchVehicleId, vehicles, form]);
+  }, [watchVehicleId, fetchedVehicle, form, isFirstLoad]);
 
   // UseEffect para autocompletar datos del cliente
   useEffect(() => {
@@ -183,8 +189,22 @@ export const AppointmentPlanningForm = ({
 
   // Deshabilitar campos de cliente si se encontró información
   const shouldDisableCustomerFields = Boolean(
-    customerData?.success && customerData.data
+    customerData?.success && customerData.data,
   );
+
+  // Setear descripción cuando cambia el tipo de operación
+  useEffect(() => {
+    if (isFirstLoad) return;
+
+    if (watchTypeOperationId && typesOperations.length > 0) {
+      const selectedOperation = typesOperations.find(
+        (op) => op.id.toString() === watchTypeOperationId,
+      );
+      if (selectedOperation) {
+        form.setValue("description", selectedOperation.description);
+      }
+    }
+  }, [watchTypeOperationId, typesOperations, form, isFirstLoad]);
 
   // Normalizar formato de hora a HH:mm
   const normalizeTime = (time: string): string => {
@@ -267,7 +287,7 @@ export const AppointmentPlanningForm = ({
               variant="outline"
               size="icon-lg"
               className="aspect-square"
-              onClick={() => window.open(VEHICLES_PV.ROUTE_ADD, "_blank")}
+              onClick={() => window.open(VEHICLES_TLL.ROUTE_ADD, "_blank")}
               tooltip="Agregar nuevo vehículo"
             >
               <ExternalLink className="h-4 w-4" />
@@ -386,10 +406,10 @@ export const AppointmentPlanningForm = ({
         >
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             <FormSelect
-              name="type_operation_appointment_id"
-              label="Tipo de Operación"
+              name="type_planning_id"
+              label="Tipo de Planificación"
               placeholder="Seleccione tipo"
-              options={typesOperations.map((item) => ({
+              options={typesPlanning.map((item) => ({
                 label: item.description,
                 value: item.id.toString(),
               }))}
@@ -398,10 +418,10 @@ export const AppointmentPlanningForm = ({
             />
 
             <FormSelect
-              name="type_planning_id"
-              label="Tipo de Planificación"
+              name="type_operation_appointment_id"
+              label="Tipo de Operación"
               placeholder="Seleccione tipo"
-              options={typesPlanning.map((item) => ({
+              options={typesOperations.map((item) => ({
                 label: item.description,
                 value: item.id.toString(),
               }))}

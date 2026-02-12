@@ -1,4 +1,3 @@
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   TrendingUp,
@@ -80,16 +79,18 @@ function MetricCard({
           <ModalParameter parameter={parameter} />
         </div>
 
-        <div className="flex flex-col items-center justify-center gap-2">
+        <div className="flex items-end justify-center gap-2 flex-wrap">
           <Badge
+            size="lg"
             variant="ghost"
-            className={cn("text-2xl font-bold px-4 py-2", scaleClass)}
+            className={cn("text-xl font-bold", scaleClass)}
           >
             {score}/{maxScore}%
           </Badge>
           <Badge
+            size="sm"
             variant="ghost"
-            className={cn("text-lg font-semibold px-3 py-1", scaleClass)}
+            className={cn("text-sm font-semibold", scaleClass)}
           >
             {labelRange}
           </Badge>
@@ -110,10 +111,11 @@ function MetricCard({
       </div>
 
       {/* Score y Nivel */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-end gap-2 flex-wrap justify-between">
         <div className="space-y-1">
           <div className="text-xs text-muted-foreground">Puntuación</div>
           <Badge
+            size="lg"
             variant="ghost"
             className={cn("text-base font-bold", scaleClass)}
           >
@@ -123,6 +125,7 @@ function MetricCard({
         <div className="space-y-1 text-right">
           <div className="text-xs text-muted-foreground">Nivel</div>
           <Badge
+            size="sm"
             variant="ghost"
             className={cn("text-sm font-semibold", scaleClass)}
           >
@@ -145,7 +148,7 @@ function MetricCard({
         </div>
         <div className="flex items-center justify-between text-xs">
           <span className="text-muted-foreground">Tasa de finalización</span>
-          <Badge variant="outline" className="text-xs h-5">
+          <Badge variant="outline" size="sm" className="text-xs h-5">
             {completionRate}%
           </Badge>
         </div>
@@ -162,88 +165,55 @@ export default function EvaluationSummaryCard({ evaluationResult }: Props) {
   const competenceMaxScore = evaluationResult.statistics.competences.max_score;
 
   return (
-    <Card className="mb-4">
-      <CardContent className="p-4">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          {evaluationResult.objectivesPercentage > 0 && (
-            <MetricCard
-              icon={CheckCircle2}
-              title="Objetivos"
-              score={evaluationResult.objectivesResult}
-              maxScore={evaluationResult.statistics.objectives.max_score}
-              labelRange={evaluationResult.statistics.objectives.label_range}
-              percentage={evaluationResult.objectivesPercentage}
-              parameter={evaluationResult.objectiveParameter}
-              indexRange={
-                evaluationResult.statistics.objectives.index_range_result
-              }
-              completed={evaluationResult.statistics.objectives.completed}
-              total={evaluationResult.statistics.objectives.total}
-              completionRate={
-                evaluationResult.statistics.objectives.completion_rate
-              }
-            />
-          )}
+    <div className="grid grid-cols-1 gap-4 h-fit w-full row-start-1 md:row-start-auto col-span-3 md:col-span-1">
+      <MetricCard
+        icon={TrendingUp}
+        title="Resultado Final"
+        score={evaluationResult.result}
+        maxScore={evaluationResult.maxFinalParameter}
+        labelRange={evaluationResult.statistics.final.label_range}
+        parameter={evaluationResult.finalParameter}
+        indexRange={evaluationResult.statistics.final.index_range_result}
+        isFinal
+      />
 
-          {evaluationResult.competencesPercentage > 0 && (
-            <MetricCard
-              icon={Target}
-              title="Competencias"
-              score={evaluationResult.statistics.competences.average_score}
-              maxScore={competenceMaxScore}
-              labelRange={evaluationResult.statistics.competences.label_range}
-              percentage={evaluationResult.competencesPercentage}
-              parameter={evaluationResult.competenceParameter}
-              indexRange={
-                evaluationResult.statistics.competences.index_range_result
-              }
-              completed={evaluationResult.statistics.competences.completed}
-              total={evaluationResult.statistics.competences.total}
-              completionRate={
-                evaluationResult.statistics.competences.completion_rate
-              }
-            />
-          )}
+      {evaluationResult.objectivesPercentage > 0 && (
+        <MetricCard
+          icon={CheckCircle2}
+          title="Objetivos"
+          score={evaluationResult.objectivesResult}
+          maxScore={evaluationResult.statistics.objectives.max_score}
+          labelRange={evaluationResult.statistics.objectives.label_range}
+          percentage={evaluationResult.objectivesPercentage}
+          parameter={evaluationResult.objectiveParameter}
+          indexRange={evaluationResult.statistics.objectives.index_range_result}
+          completed={evaluationResult.statistics.objectives.completed}
+          total={evaluationResult.statistics.objectives.total}
+          completionRate={
+            evaluationResult.statistics.objectives.completion_rate
+          }
+        />
+      )}
 
-          <MetricCard
-            icon={TrendingUp}
-            title="Resultado Final"
-            score={evaluationResult.result}
-            maxScore={evaluationResult.maxFinalParameter}
-            labelRange={evaluationResult.statistics.final.label_range}
-            parameter={evaluationResult.finalParameter}
-            indexRange={evaluationResult.statistics.final.index_range_result}
-            isFinal
-          />
-        </div>
-
-        {evaluationResult.evaluation && (
-          <div className="mt-4 pt-4 border-t">
-            <div className="flex items-center justify-between text-sm">
-              <div className="flex items-center gap-4">
-                <Badge variant="outline">
-                  {evaluationResult.evaluation.typeEvaluationName}
-                </Badge>
-                <span className="text-muted-foreground">
-                  {evaluationResult.evaluation.period} -{" "}
-                  {evaluationResult.evaluation.cycle}
-                </span>
-              </div>
-              <Badge
-                variant={
-                  evaluationResult.evaluation.status === 2
-                    ? "secondary"
-                    : evaluationResult.evaluation.status === 1
-                    ? "default"
-                    : "tertiary"
-                }
-              >
-                {evaluationResult.evaluation.statusName}
-              </Badge>
-            </div>
-          </div>
-        )}
-      </CardContent>
-    </Card>
+      {evaluationResult.competencesPercentage > 0 && (
+        <MetricCard
+          icon={Target}
+          title="Competencias"
+          score={evaluationResult.statistics.competences.average_score}
+          maxScore={competenceMaxScore}
+          labelRange={evaluationResult.statistics.competences.label_range}
+          percentage={evaluationResult.competencesPercentage}
+          parameter={evaluationResult.competenceParameter}
+          indexRange={
+            evaluationResult.statistics.competences.index_range_result
+          }
+          completed={evaluationResult.statistics.competences.completed}
+          total={evaluationResult.statistics.competences.total}
+          completionRate={
+            evaluationResult.statistics.competences.completion_rate
+          }
+        />
+      )}
+    </div>
   );
 }

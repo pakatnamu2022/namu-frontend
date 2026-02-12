@@ -1,6 +1,6 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-import { Pencil, Download, Settings } from "lucide-react";
+import { Pencil, Download, Settings, ClipboardCheck } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { errorToast, successToast } from "@/core/core.function";
 import { OrderQuotationResource } from "../lib/proforma.interface";
@@ -15,6 +15,7 @@ interface Props {
   onDelete: (id: number) => void;
   onUpdate: (id: number) => void;
   onManage: (id: number) => void;
+  onApprove: (id: number) => void;
   permissions: {
     canUpdate: boolean;
     canDelete: boolean;
@@ -25,6 +26,7 @@ export const orderQuotationColumns = ({
   onUpdate,
   onManage,
   onDelete,
+  onApprove,
   permissions,
 }: Props): OrderQuotationColumns[] => [
   {
@@ -34,7 +36,10 @@ export const orderQuotationColumns = ({
       const value = getValue() as string;
       return value && <p className="font-semibold">{value}</p>;
     },
-    enableSorting: false,
+  },
+  {
+    accessorKey: "client.full_name",
+    header: "Cliente",
   },
   {
     accessorKey: "quotation_date",
@@ -48,7 +53,6 @@ export const orderQuotationColumns = ({
         return date;
       }
     },
-    enableSorting: false,
   },
   {
     accessorKey: "expiration_date",
@@ -62,26 +66,31 @@ export const orderQuotationColumns = ({
         return date;
       }
     },
-    enableSorting: false,
   },
   {
     accessorKey: "vehicle.plate",
     header: "Placa",
-    enableSorting: false,
+  },
+  {
+    accessorKey: "type_currency.name",
+    header: "Moneda",
   },
   {
     accessorKey: "total_amount",
     header: "Total Monto",
-    cell: ({ getValue }) => {
+    cell: ({ getValue, row }) => {
       const amount = getValue() as number;
-      return `S/. ${Number(amount || 0).toFixed(2)}`;
+      const currencySymbol = row.original.type_currency?.symbol || "S/.";
+      return `${currencySymbol} ${Number(amount || 0).toFixed(2)}`;
     },
-    enableSorting: false,
   },
   {
     accessorKey: "observations",
     header: "Observaciones",
-    enableSorting: false,
+  },
+  {
+    accessorKey: "created_by_name",
+    header: "Creado por",
   },
   {
     accessorKey: "is_take",
@@ -90,14 +99,13 @@ export const orderQuotationColumns = ({
       const value = getValue() as boolean;
       return (
         <Badge
-          variant={value ? "default" : "secondary"}
+          color={value ? "default" : "secondary"}
           className="capitalize w-8 flex items-center justify-center"
         >
           {value ? "Sí" : "No"}
         </Badge>
       );
     },
-    enableSorting: false,
   },
   {
     id: "actions",
@@ -124,6 +132,16 @@ export const orderQuotationColumns = ({
             tooltip="Gestionar"
           >
             <Settings className="size-5" />
+          </Button>
+
+          <Button
+            variant="outline"
+            size="icon"
+            className="size-7"
+            onClick={() => onApprove(id)}
+            tooltip="Aprobar"
+          >
+            <ClipboardCheck className="size-5" />
           </Button>
 
           <Button

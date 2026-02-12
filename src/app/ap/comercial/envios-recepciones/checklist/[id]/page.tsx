@@ -47,8 +47,9 @@ export default function ReceptionCheckListPage() {
       router(ABSOLUTE_ROUTE);
     },
     onError: (error: any) => {
-      const msg = error?.response?.data?.message || "";
-      errorToast(ERROR_MESSAGE(MODEL, "update", msg));
+      const msg =
+        error?.response?.data?.message || ERROR_MESSAGE(MODEL, "update");
+      errorToast(msg);
     },
   });
 

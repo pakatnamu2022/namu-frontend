@@ -17,10 +17,9 @@ import {
   Car,
   Building,
   Plus,
-  Trash2,
   List,
   Search,
-  CarFront,
+  ClipboardCheck,
 } from "lucide-react";
 import {
   WorkOrderSchema,
@@ -28,25 +27,34 @@ import {
   workOrderSchemaUpdate,
 } from "../lib/workOrder.schema";
 import { FormSelect } from "@/shared/components/FormSelect";
-import { useAllVehicles } from "@/features/ap/comercial/vehiculos/lib/vehicles.hook";
+import { useVehicles } from "@/features/ap/comercial/vehiculos/lib/vehicles.hook";
+import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
+import { VehicleResource } from "@/features/ap/comercial/vehiculos/lib/vehicles.interface";
 import FormSkeleton from "@/shared/components/FormSkeleton";
-import { Input } from "@/components/ui/input";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { EMPRESA_AP } from "@/core/core.constants";
-import { useAllAppointmentPlanning } from "../../citas/lib/appointmentPlanning.hook";
+import { AppointmentPlanningResource } from "../../citas/lib/appointmentPlanning.interface";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import { useAllTypesPlanning } from "@/features/ap/configuraciones/postventa/tipos-planificacion/lib/typesPlanning.hook";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
-import { DEFAULT_GROUP_COLOR, GROUP_COLORS } from "../lib/workOrder.interface";
+import {
+  DEFAULT_GROUP_COLOR,
+  GROUP_COLORS,
+  WorkOrderResource,
+} from "../lib/workOrder.interface";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { WORKER_ORDER } from "../lib/workOrder.constants";
 import { AppointmentSelectionModal } from "../../citas/components/AppointmentSelectionModal";
+import { VehicleInspectionSelectionModal } from "../../inspeccion-vehiculo/components/VehicleInspectionSelectionModal";
+import { VehicleInspectionResource } from "../../inspeccion-vehiculo/lib/vehicleInspection.interface";
 import { FormSwitch } from "@/shared/components/FormSwitch";
 import { FormInput } from "@/shared/components/FormInput";
 import { FormInputText } from "@/shared/components/FormInputText";
+import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.hook";
+import { useAllTypesOperationsAppointment } from "@/features/ap/configuraciones/postventa/tipos-operacion-cita/lib/typesOperationsAppointment.hook";
 
 const getGroupColor = (groupNumber: number) => {
   return GROUP_COLORS[groupNumber] || DEFAULT_GROUP_COLOR;
@@ -57,6 +65,7 @@ interface WorkOrderFormProps {
   onSubmit: (data: any) => void;
   isSubmitting?: boolean;
   mode?: "create" | "update";
+  workOrderData?: WorkOrderResource;
 }
 
 // Tipo Recall
@@ -71,19 +80,26 @@ export const WorkOrderForm = ({
   onSubmit,
   isSubmitting = false,
   mode = "create",
+  workOrderData,
 }: WorkOrderFormProps) => {
   const router = useNavigate();
   const [selectedVehicle, setSelectedVehicle] = useState<any>(null);
   const [isAppointmentModalOpen, setIsAppointmentModalOpen] = useState(false);
+  const [isInspectionModalOpen, setIsInspectionModalOpen] = useState(false);
+  const [selectedInspection, setSelectedInspection] =
+    useState<VehicleInspectionResource | null>(null);
+  const [selectedAppointment, setSelectedAppointment] =
+    useState<AppointmentPlanningResource | null>(null);
   const { ABSOLUTE_ROUTE } = WORKER_ORDER;
 
   const form = useForm({
     resolver: zodResolver(
-      mode === "create" ? workOrderSchemaCreate : workOrderSchemaUpdate
+      mode === "create" ? workOrderSchemaCreate : workOrderSchemaUpdate,
     ),
     defaultValues: {
       ...defaultValues,
       has_appointment: defaultValues.has_appointment ?? false,
+      has_inspection: defaultValues.has_inspection ?? false,
       items: defaultValues.items ?? [],
       diagnosis_date:
         defaultValues.diagnosis_date || defaultValues.opening_date,
@@ -91,15 +107,11 @@ export const WorkOrderForm = ({
     mode: "onChange",
   });
 
-  const { fields, append, remove } = useFieldArray({
+  const { fields, append } = useFieldArray({
     control: form.control,
     name: "items",
   });
 
-  const { data: vehicles = [], isLoading: isLoadingVehicles } =
-    useAllVehicles();
-  const { data: appointments = [], isLoading: isLoadingAppointments } =
-    useAllAppointmentPlanning({ is_taken: 0 });
   const { data: sedes = [], isLoading: isLoadingSedes } = useMySedes({
     company: EMPRESA_AP.id,
     has_workshop: true,
@@ -107,72 +119,58 @@ export const WorkOrderForm = ({
   const { data: typesPlanning = [], isLoading: isLoadingTypesPlanning } =
     useAllTypesPlanning();
 
+  const { data: typesOperation = [], isLoading: isLoadingTypesOperation } =
+    useAllTypesOperationsAppointment();
+
+  const { data: currencyTypes = [], isLoading: isLoadingCurrencyTypes } =
+    useAllCurrencyTypes();
+
   const isLoading =
-    isLoadingVehicles ||
-    isLoadingAppointments ||
     isLoadingSedes ||
-    isLoadingTypesPlanning;
+    isLoadingTypesPlanning ||
+    isLoadingTypesOperation ||
+    isLoadingCurrencyTypes;
 
   // Watch fields
-  const watchedVehicleId = form.watch("vehicle_id");
+  const watchedIsRecall = form.watch("is_recall");
   const watchedHasAppointment = form.watch("has_appointment");
   const watchedAppointmentId = form.watch("appointment_planning_id");
-
-  // Effect para cargar información del vehículo cuando se selecciona
-  useEffect(() => {
-    if (watchedVehicleId && vehicles.length > 0) {
-      const vehicle = vehicles.find(
-        (v) => v.id.toString() === watchedVehicleId
-      );
-      setSelectedVehicle(vehicle);
-    } else {
-      setSelectedVehicle(null);
-    }
-  }, [watchedVehicleId, vehicles]);
+  const watchedHasInspection = form.watch("has_inspection");
+  const watchedInspectionId = form.watch("vehicle_inspection_id");
 
   // Effect para cargar items desde la cita seleccionada
   useEffect(() => {
-    if (
-      watchedAppointmentId &&
-      watchedHasAppointment &&
-      appointments.length > 0
-    ) {
-      const appointment = appointments.find(
-        (a) => a.id.toString() === watchedAppointmentId
-      );
+    if (selectedAppointment && watchedHasAppointment) {
+      // Setear vehículo y sede desde la cita
+      if (selectedAppointment.ap_vehicle_id) {
+        form.setValue(
+          "vehicle_id",
+          selectedAppointment.ap_vehicle_id.toString(),
+        );
+      }
+      if (selectedAppointment.sede_id) {
+        form.setValue("sede_id", selectedAppointment.sede_id.toString());
+      }
 
-      if (appointment) {
-        // Setear vehículo y sede desde la cita
-        if (appointment.ap_vehicle_id) {
-          form.setValue("vehicle_id", appointment.ap_vehicle_id.toString());
-        }
-        if (appointment.sede_id) {
-          form.setValue("sede_id", appointment.sede_id.toString());
-        }
-
-        // Agregar item desde la cita solo si no hay items
-        if (fields.length === 0) {
-          append({
-            group_number: 1,
-            type_planning_id: appointment.type_planning_id.toString(),
-            description: appointment.description || "",
-          });
-        }
+      // Agregar item desde la cita solo si no hay items
+      if (fields.length === 0) {
+        append({
+          group_number: 1,
+          type_planning_id: selectedAppointment.type_planning_id.toString(),
+          type_operation_id:
+            selectedAppointment.type_operation_appointment_id.toString(),
+          description: selectedAppointment.description || "",
+        });
       }
     }
-  }, [
-    watchedAppointmentId,
-    watchedHasAppointment,
-    appointments,
-    append,
-    fields.length,
-    form,
-  ]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedAppointment]);
 
   // Limpiar appointment_planning_id cuando has_appointment es false
   useEffect(() => {
     if (!watchedHasAppointment && mode === "create") {
       form.setValue("appointment_planning_id", "");
+      setSelectedAppointment(null);
       form.setValue("vehicle_id", "");
       form.setValue("sede_id", "");
       // Limpiar todos los items si hay alguno
@@ -183,30 +181,90 @@ export const WorkOrderForm = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [watchedHasAppointment]);
 
+  // Limpiar vehicle_inspection_id y vehículo cuando has_inspection es false
+  useEffect(() => {
+    if (!watchedHasInspection && mode === "create") {
+      form.setValue("vehicle_inspection_id", "");
+      setSelectedInspection(null);
+      // Limpiar el vehículo solo si no hay cita seleccionada
+      if (!watchedHasAppointment || !watchedAppointmentId) {
+        form.setValue("vehicle_id", "");
+        setSelectedVehicle(null);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [watchedHasInspection]);
+
+  // Setear sede por defecto (primera sede taller disponible)
+  useEffect(() => {
+    if (mode === "create" && sedes.length > 0 && !form.getValues("sede_id")) {
+      form.setValue("sede_id", sedes[0].id.toString());
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sedes, mode]);
+
+  // Limpiar campos de recall cuando is_recall es false
+  useEffect(() => {
+    if (!watchedIsRecall) {
+      form.setValue("type_recall", undefined);
+      form.setValue("description_recall", "");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [watchedIsRecall]);
+
   const handleAddItem = () => {
-    const lastGroup =
-      fields.length > 0 ? fields[fields.length - 1].group_number : 0;
     append({
-      group_number: lastGroup + 1,
+      group_number: 1,
       type_planning_id: "",
+      type_operation_id: "",
       description: "-",
     });
   };
 
-  const handleSelectAppointment = (appointmentId: string) => {
-    form.setValue("appointment_planning_id", appointmentId);
+  const handleSelectAppointment = (
+    appointment: AppointmentPlanningResource,
+  ) => {
+    form.setValue("appointment_planning_id", appointment.id.toString());
+    setSelectedAppointment(appointment);
+  };
+
+  const handleSelectInspection = (inspection: VehicleInspectionResource) => {
+    form.setValue("vehicle_inspection_id", inspection.id.toString());
+    setSelectedInspection(inspection);
+
+    // Setear el vehículo desde la inspección
+    if (inspection.vehicle_id) {
+      form.setValue("vehicle_id", inspection.vehicle_id.toString());
+      // Setear el selectedVehicle para mostrar la info del vehículo
+      setSelectedVehicle({
+        id: inspection.vehicle_id,
+        plate: inspection.vehicle_plate,
+        vin: inspection.vehicle_vin,
+        model: {
+          brand: inspection.vehicle_brand,
+          version: inspection.vehicle_model,
+        },
+        year: inspection.vehicle_year,
+        vehicle_color: inspection.vehicle_color,
+      });
+    }
   };
 
   const getSelectedAppointmentLabel = () => {
-    if (!watchedAppointmentId || appointments.length === 0) return null;
+    if (!watchedAppointmentId || !selectedAppointment) return null;
 
-    const appointment = appointments.find(
-      (a) => a.id.toString() === watchedAppointmentId
-    );
+    return `${selectedAppointment.full_name_client} - ${selectedAppointment.date_appointment} ${selectedAppointment.time_appointment}`;
+  };
 
-    if (!appointment) return null;
+  const getSelectedInspectionLabel = () => {
+    if (!watchedInspectionId || !selectedInspection) return null;
 
-    return `${appointment.full_name_client} - ${appointment.date_appointment} ${appointment.time_appointment}`;
+    const dateStr =
+      typeof selectedInspection.inspection_date === "string"
+        ? selectedInspection.inspection_date
+        : selectedInspection.inspection_date?.toISOString().split("T")[0];
+
+    return `${selectedInspection.vehicle_plate || "S/N"} - ${dateStr || "Sin fecha"}`;
   };
 
   if (isLoading) return <FormSkeleton />;
@@ -274,6 +332,122 @@ export const WorkOrderForm = ({
           )}
         </GroupFormSection>
 
+        {/* Inspección de Vehículo */}
+        <GroupFormSection
+          title="Inspección de Vehículo"
+          icon={ClipboardCheck}
+          iconColor="text-primary"
+          bgColor="bg-blue-50"
+          cols={{ sm: 1 }}
+        >
+          {/* Checkbox Tiene Inspección */}
+          <FormField
+            control={form.control}
+            name="has_inspection"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                <FormControl>
+                  <Checkbox
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+                <div className="space-y-1 leading-none">
+                  <FormLabel>¿Tiene inspección registrada?</FormLabel>
+                  <p className="text-sm text-muted-foreground">
+                    Marque esta opción si ya existe una inspección de vehículo
+                    que desea asociar a esta orden de trabajo
+                  </p>
+                </div>
+              </FormItem>
+            )}
+          />
+
+          {/* Selector de Inspección - Solo visible si has_inspection es true */}
+          {watchedHasInspection && (
+            <FormField
+              control={form.control}
+              name="vehicle_inspection_id"
+              render={() => (
+                <FormItem>
+                  <FormLabel>Inspección de Vehículo</FormLabel>
+                  <FormControl>
+                    <div className="space-y-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="w-full justify-start"
+                        onClick={() => setIsInspectionModalOpen(true)}
+                      >
+                        <Search className="h-4 w-4 mr-2" />
+                        {getSelectedInspectionLabel() ||
+                          "Buscar y seleccionar inspección"}
+                      </Button>
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
+
+          {/* Información de la Inspección Seleccionada */}
+          {selectedInspection && watchedHasInspection && (
+            <Card className="p-4 bg-green-50 border-green-200">
+              <div className="flex items-center gap-2 mb-3">
+                <ClipboardCheck className="h-5 w-5 text-green-600" />
+                <h4 className="font-semibold text-gray-800">
+                  Información de la Inspección
+                </h4>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div>
+                  <p className="text-xs text-gray-500">Placa</p>
+                  <p className="font-semibold text-sm">
+                    {selectedInspection.vehicle_plate || "N/A"}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500">VIN</p>
+                  <p className="font-semibold text-sm">
+                    {selectedInspection.vehicle_vin || "N/A"}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500">Fecha Inspección</p>
+                  <p className="font-semibold text-sm">
+                    {typeof selectedInspection.inspection_date === "string"
+                      ? selectedInspection.inspection_date
+                      : selectedInspection.inspection_date
+                          ?.toISOString()
+                          .split("T")[0] || "N/A"}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500">Kilometraje</p>
+                  <p className="font-semibold text-sm">
+                    {selectedInspection.mileage
+                      ? `${selectedInspection.mileage} km`
+                      : "N/A"}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500">OT Origen</p>
+                  <p className="font-semibold text-sm">
+                    {selectedInspection.work_order_correlative || "N/A"}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500">Inspeccionado por</p>
+                  <p className="font-semibold text-sm">
+                    {selectedInspection.inspected_by_name || "N/A"}
+                  </p>
+                </div>
+              </div>
+            </Card>
+          )}
+        </GroupFormSection>
+
         {/* Datos del Servicio */}
         <GroupFormSection
           title="Datos del Servicio"
@@ -282,18 +456,37 @@ export const WorkOrderForm = ({
           bgColor="bg-gray-50"
           cols={{ sm: 2 }}
         >
-          <FormSelect
+          <FormSelectAsync
             name="vehicle_id"
             label="Vehículo"
             placeholder="Seleccione vehículo"
-            options={vehicles.map((item) => ({
-              label: `(${item.plate || "S/N"}) ${item.model?.brand || ""} ${
-                item.model?.version || ""
-              } (${item.year || ""})`,
-              value: item.id.toString(),
-            }))}
             control={form.control}
-            strictFilter={true}
+            useQueryHook={useVehicles}
+            mapOptionFn={(item: VehicleResource) => ({
+              value: item.id.toString(),
+              label: `${item.vin || "S/N"} | ${item.plate || ""} | ${
+                item.model?.brand || ""
+              }`,
+            })}
+            perPage={10}
+            debounceMs={500}
+            defaultOption={
+              workOrderData?.vehicle
+                ? {
+                    value: workOrderData.vehicle.id.toString(),
+                    label: `${workOrderData.vehicle.vin || "S/N"} | ${
+                      workOrderData.vehicle.plate || ""
+                    } | ${workOrderData.vehicle.model?.brand || ""}`,
+                  }
+                : undefined
+            }
+            onValueChange={(_value, item) => {
+              setSelectedVehicle(item || null);
+            }}
+            disabled={
+              (watchedHasAppointment && Boolean(watchedAppointmentId)) ||
+              (watchedHasInspection && Boolean(watchedInspectionId))
+            }
           />
 
           <FormSelect
@@ -306,6 +499,7 @@ export const WorkOrderForm = ({
             }))}
             control={form.control}
             strictFilter={true}
+            disabled={watchedHasAppointment && Boolean(watchedAppointmentId)}
           />
         </GroupFormSection>
 
@@ -371,6 +565,66 @@ export const WorkOrderForm = ({
           </Card>
         )}
 
+        {/* Información de la OT */}
+        <GroupFormSection
+          title="Información de la OT"
+          icon={Building}
+          iconColor="text-gray-800"
+          bgColor="bg-gray-50"
+          cols={{ sm: 2, lg: 3 }}
+        >
+          <FormSelect
+            control={form.control}
+            name="currency_id"
+            options={currencyTypes.map((type) => ({
+              value: type.id.toString(),
+              label: type.name,
+            }))}
+            label="Moneda"
+            placeholder="Seleccionar moneda"
+            required
+          />
+          <DatePickerFormField
+            control={form.control}
+            name="estimated_delivery_date"
+            label="Fecha Estimada de Entrega"
+            placeholder="Selecciona una fecha"
+            dateFormat="dd/MM/yyyy"
+            captionLayout="dropdown"
+            disabledRange={{ before: new Date() }}
+          />
+          <FormSwitch
+            name="is_guarantee"
+            label="Vehículo en Garantía"
+            text={form.watch("is_guarantee") ? "Sí" : "No"}
+            control={form.control}
+          />
+          <FormSwitch
+            name="is_recall"
+            label="Recall"
+            text={form.watch("is_recall") ? "Sí" : "No"}
+            control={form.control}
+          />
+          {watchedIsRecall && (
+            <>
+              <FormSelect
+                name="type_recall"
+                label="Tipo Recall"
+                placeholder="Seleccione tipo"
+                options={typeRecall}
+                control={form.control}
+                strictFilter={true}
+              />
+              <FormInput
+                name="description_recall"
+                label="Descripción Recall"
+                placeholder="Ingrese el detalle del recall"
+                control={form.control}
+              />
+            </>
+          )}
+        </GroupFormSection>
+
         {/* Items de Servicio */}
         {mode === "create" && (
           <GroupFormSection
@@ -405,53 +659,43 @@ export const WorkOrderForm = ({
                           Trabajo #{index + 1}
                         </h5>
                       </div>
-                      {fields.length > 1 && (
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => remove(index)}
-                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      )}
                     </div>
 
                     <div className="grid grid-cols-1 gap-4">
-                      {/* Fila 1: Grupo y Tipo de Planificación */}
+                      {/* Fila 1: Grupo, Tipo de Planificación y Tipo de Operación */}
                       <div className="grid grid-cols-12 gap-4">
                         <div className="col-span-2">
-                          <FormField
-                            control={form.control}
+                          <FormInput
                             name={`items.${index}.group_number`}
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel className="text-xs">Grupo</FormLabel>
-                                <FormControl>
-                                  <Input
-                                    type="number"
-                                    min="1"
-                                    max="20"
-                                    className={`text-center h-10 ${colors.input}`}
-                                    {...field}
-                                    onChange={(e) =>
-                                      field.onChange(parseInt(e.target.value))
-                                    }
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
+                            label="Grupo"
+                            type="number"
+                            min={1}
+                            max={20}
+                            className={`text-center h-10 ${colors.input}`}
+                            control={form.control}
                           />
                         </div>
 
-                        <div className="col-span-10">
+                        <div className="col-span-5">
                           <FormSelect
                             name={`items.${index}.type_planning_id`}
                             label="Tipo de Planificación"
                             placeholder="Seleccione tipo"
                             options={typesPlanning.map((item) => ({
+                              label: item.description,
+                              value: item.id.toString(),
+                            }))}
+                            control={form.control}
+                            strictFilter={true}
+                          />
+                        </div>
+
+                        <div className="col-span-5">
+                          <FormSelect
+                            name={`items.${index}.type_operation_id`}
+                            label="Tipo de Operación"
+                            placeholder="Seleccione operación"
+                            options={typesOperation.map((item) => ({
                               label: item.description,
                               value: item.id.toString(),
                             }))}
@@ -473,83 +717,22 @@ export const WorkOrderForm = ({
                 );
               })}
 
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleAddItem}
-                className="w-full"
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Agregar Trabajo
-              </Button>
+              {fields.length === 0 && (
+                <div className="space-y-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleAddItem}
+                    className="w-full"
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Agregar Trabajo
+                  </Button>
+                </div>
+              )}
             </div>
           </GroupFormSection>
         )}
-
-        {/* Fechas */}
-        <GroupFormSection
-          title="Fechas"
-          icon={Building}
-          iconColor="text-gray-800"
-          bgColor="bg-gray-50"
-          cols={{ sm: 2 }}
-        >
-          <DatePickerFormField
-            control={form.control}
-            name="opening_date"
-            label="Fecha de Apertura"
-            placeholder="Selecciona una fecha"
-            dateFormat="dd/MM/yyyy"
-            captionLayout="dropdown"
-            disabled={true}
-          />
-
-          <DatePickerFormField
-            control={form.control}
-            name="estimated_delivery_date"
-            label="Fecha Estimada de Entrega"
-            placeholder="Selecciona una fecha"
-            dateFormat="dd/MM/yyyy"
-            captionLayout="dropdown"
-            disabledRange={{ before: new Date() }}
-          />
-
-          <FormSwitch
-            name="is_guarantee"
-            label="Vehículo en Garantía"
-            text={form.watch("is_guarantee") ? "Sí" : "No"}
-            control={form.control}
-          />
-        </GroupFormSection>
-
-        <GroupFormSection
-          title="Recall"
-          icon={CarFront}
-          iconColor="text-gray-800"
-          bgColor="bg-gray-50"
-          cols={{ sm: 2 }}
-        >
-          <FormSwitch
-            name="is_recall"
-            label="Recall"
-            text={form.watch("is_recall") ? "Sí" : "No"}
-            control={form.control}
-          />
-          <FormInput
-            name="description_recall"
-            label="Descripción Recall"
-            placeholder="Ingrese el detalle del recall"
-            control={form.control}
-          />
-          <FormSelect
-            name="type_recall"
-            label="Tipo Recall"
-            placeholder="Seleccione tipo"
-            options={typeRecall}
-            control={form.control}
-            strictFilter={true}
-          />
-        </GroupFormSection>
 
         {/* Observaciones */}
         <GroupFormSection
@@ -596,8 +779,17 @@ export const WorkOrderForm = ({
         {/* Modal de Selección de Cita */}
         <AppointmentSelectionModal
           open={isAppointmentModalOpen}
+          sedeId={Number(form.getValues("sede_id"))}
           onOpenChange={setIsAppointmentModalOpen}
           onSelectAppointment={handleSelectAppointment}
+        />
+
+        {/* Modal de Selección de Inspección */}
+        <VehicleInspectionSelectionModal
+          open={isInspectionModalOpen}
+          sedeId={Number(form.getValues("sede_id"))}
+          onOpenChange={setIsInspectionModalOpen}
+          onSelectInspection={handleSelectInspection}
         />
       </form>
     </Form>

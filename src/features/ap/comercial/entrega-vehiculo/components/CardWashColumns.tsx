@@ -57,7 +57,7 @@ export const cardWashColumns = ({
       const value = getValue() as string;
       return (
         <Badge
-          variant={value == "Completado" ? "default" : "secondary"}
+          color={value == "Completado" ? "default" : "secondary"}
           className="capitalize w-24 flex items-center justify-center"
         >
           {value}
@@ -104,7 +104,7 @@ export const cardWashColumns = ({
             />
           )}
           {isCompleted && (
-            <Badge variant="default" className="gap-1">
+            <Badge color="default" className="gap-1">
               <CheckCircle2 className="h-3 w-3" />
               Completado
             </Badge>

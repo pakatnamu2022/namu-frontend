@@ -7,9 +7,18 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { parse } from "date-fns";
 import { EditableCell } from "@/shared/components/EditableCell";
-import { Flag, Clock, ChevronUp, ChevronDown } from "lucide-react";
+import {
+  Flag,
+  Clock,
+  ChevronUp,
+  ChevronDown,
+  MessageCircleMore,
+  MessageCirclePlus,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { getScales } from "../../parametros/lib/parameter.hook";
 import { cn } from "@/lib/utils";
+import { getResultRateColorBadge } from "../lib/evaluationPerson.function";
 
 export type EvaluationPersonObjectiveColumns =
   ColumnDef<EvaluationPersonResource>;
@@ -17,10 +26,12 @@ export type EvaluationPersonObjectiveColumns =
 export const evaluationPersonObjectiveColumns = ({
   evaluationPersonResult,
   onUpdateCell,
+  onToggleComment,
   readOnly = false,
 }: {
   evaluationPersonResult: EvaluationPersonResultResource;
   onUpdateCell: (id: number, value: number) => void;
+  onToggleComment?: (id: number) => void;
   readOnly?: boolean;
 }): EvaluationPersonObjectiveColumns[] => [
   {
@@ -77,13 +88,13 @@ export const evaluationPersonObjectiveColumns = ({
               )}
             </Badge>
             {overdue && !wasEvaluated && (
-              <Badge variant="destructive" className="text-xs gap-1">
+              <Badge color="destructive" className="text-xs gap-1">
                 <Clock className="size-3" />
                 Vencido
               </Badge>
             )}
             {!overdue && !wasEvaluated && (
-              <Badge variant="default" className="text-xs gap-1">
+              <Badge color="default" className="text-xs gap-1">
                 <Clock className="size-3" />
                 Pendiente
               </Badge>
@@ -114,20 +125,12 @@ export const evaluationPersonObjectiveColumns = ({
       const detail = row.original;
       const result = detail.result;
 
-      // Función para obtener el color del resultado
-      const getResultVariant = (result: string | number) => {
-        const numResult =
-          typeof result === "string" ? parseFloat(result) : result;
-        if (numResult >= 4) return "default";
-        if (numResult >= 3) return "tertiary";
-        if (numResult >= 2) return "outline";
-        return "secondary";
-      };
-
       return (
         <div className="flex items-center justify-center">
           {readOnly ? (
-            <Badge variant={getResultVariant(result)}>{result || "0.00"}</Badge>
+            <Badge color={getResultRateColorBadge(Number(result))}>
+              {result || "0.00"}
+            </Badge>
           ) : (
             <EditableCell
               variant="outline"
@@ -150,19 +153,15 @@ export const evaluationPersonObjectiveColumns = ({
     cell: ({ row }) => {
       const compliance = Number(row.original.compliance) || 0;
 
-      // Función para obtener el color del badge de cumplimiento
-      const getComplianceBadgeVariant = (compliance: number) => {
-        if (compliance >= 100) return "default";
-        else if (compliance >= 80) return "tertiary";
-        else if (compliance >= 40 && compliance <= 60) return "secondary";
-        else return "outline";
-      };
-
       return (
         <div className="text-center">
           <Badge
-            variant={getComplianceBadgeVariant(compliance)}
-            className="font-medium"
+            variant={"ghost"}
+            className={cn(
+              getScales(
+                evaluationPersonResult?.objectiveParameter.details.length,
+              )[row.original.index_range_result],
+            )}
           >
             {compliance.toFixed(1)}%
           </Badge>
@@ -176,19 +175,15 @@ export const evaluationPersonObjectiveColumns = ({
     cell: ({ row }) => {
       const qualification = Number(row.original.qualification) || 0;
 
-      // Función para obtener el color del badge de calificación
-      const getQualificationBadgeVariant = (qualification: number) => {
-        if (qualification >= 80 && qualification <= 120) return "default";
-        else if (qualification >= 60 && qualification <= 80) return "outline";
-        else if (qualification >= 40 && qualification <= 60) return "secondary";
-        else return "tertiary";
-      };
-
       return (
-        <div className="flex justify-center items-center gap-1">
+        <div className="flex flex-col justify-center items-center gap-1">
           <Badge
-            variant={getQualificationBadgeVariant(qualification)}
-            className="font-medium"
+            variant={"ghost"}
+            className={cn(
+              getScales(
+                evaluationPersonResult?.objectiveParameter.details.length,
+              )[row.original.index_range_result],
+            )}
           >
             {qualification.toFixed(1)}%
           </Badge>
@@ -196,8 +191,8 @@ export const evaluationPersonObjectiveColumns = ({
             variant={"ghost"}
             className={cn(
               getScales(
-                evaluationPersonResult?.objectiveParameter.details.length
-              )[row.original.index_range_result]
+                evaluationPersonResult?.objectiveParameter.details.length,
+              )[row.original.index_range_result],
             )}
           >
             {row.original.label_range}
@@ -206,74 +201,36 @@ export const evaluationPersonObjectiveColumns = ({
       );
     },
   },
-  // {
-  //   accessorKey: "end_date_objectives",
-  //   header: "Fecha Límite",
-  //   cell: ({ row }) => {
-  //     const endDate = row.original.personCycleDetail?.end_date_objectives;
+  {
+    id: "actions",
+    header: "",
+    size: 60,
+    cell: ({ row }) => {
+      const detail = row.original;
+      const hasComment = !!detail.comment;
 
-  //     // Función para obtener días restantes
-  //     const getDaysRemaining = (endDate: string) => {
-  //       if (!endDate) return 0;
-  //       try {
-  //         const today = new Date();
-  //         const deadline = parse(endDate, "yyyy-MM-dd", new Date());
-  //         const diffTime = deadline.getTime() - today.getTime();
-  //         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  //         return diffDays;
-  //       } catch (error) {
-  //         return 0;
-  //       }
-  //     };
-
-  //     // Función para verificar si está vencido
-  //     const isOverdue = (endDate: string) => {
-  //       if (!endDate) return false;
-  //       try {
-  //         const today = new Date();
-  //         const deadline = parse(endDate, "yyyy-MM-dd", new Date());
-  //         return today > deadline;
-  //       } catch (error) {
-  //         return false;
-  //       }
-  //     };
-
-  //     const daysRemaining = getDaysRemaining(endDate || "");
-  //     const overdue = isOverdue(endDate || "");
-
-  //     return (
-  //       <div className="text-center">
-  //         <div className="flex flex-col items-center gap-1">
-  //           {endDate ? (
-  //             <>
-  //               <Badge
-  //                 variant={overdue ? "secondary" : "outline"}
-  //                 className="text-xs gap-1"
-  //               >
-  //                 <Calendar className="size-3" />
-  //                 {format(
-  //                   parse(endDate, "yyyy-MM-dd", new Date()),
-  //                   "dd/MM/yyyy"
-  //                 )}
-  //               </Badge>
-  //               {!overdue && daysRemaining >= 0 && (
-  //                 <span className="text-xs text-muted-foreground">
-  //                   {daysRemaining === 0
-  //                     ? "Hoy"
-  //                     : daysRemaining === 1
-  //                     ? "1 día"
-  //                     : `${daysRemaining} días`}
-  //                 </span>
-  //               )}
-  //             </>
-  //           ) : (
-  //             <Badge variant="outline" className="text-xs">
-  //               Sin fecha
-  //             </Badge>
-  //           )}
-  //         </div>
-  //       </div>
-  //     );
-  //   },
-  // },
+      return (
+        <div className="flex items-center justify-center">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7"
+            onClick={() => onToggleComment?.(detail.id)}
+            aria-label={
+              hasComment ? "Ver/editar comentario" : "Agregar comentario"
+            }
+            tooltip={
+              hasComment ? "Ver/editar comentario" : "Agregar comentario"
+            }
+          >
+            {hasComment ? (
+              <MessageCircleMore className="h-4 w-4 text-primary" />
+            ) : (
+              <MessageCirclePlus className="h-4 w-4 text-muted-foreground" />
+            )}
+          </Button>
+        </div>
+      );
+    },
+  },
 ];

@@ -1,9 +1,9 @@
 import { type ModelComplete } from "@/core/core.interface.ts";
 import { OrderQuotationResource } from "./proforma.interface";
-const ROUTE = "cotizacion";
+const ROUTE = "cotizacion-taller";
 const ABSOLUTE_ROUTE = `/ap/post-venta/taller/${ROUTE}`;
 
-export const ORDER_QUOTATION: ModelComplete<OrderQuotationResource> = {
+export const ORDER_QUOTATION_TALLER: ModelComplete<OrderQuotationResource> = {
   MODEL: {
     name: "Cotización",
     plural: "Cotizaciones",
@@ -34,4 +34,17 @@ export const ORDER_QUOTATION_MESON: ModelComplete<OrderQuotationResource> = {
   ABSOLUTE_ROUTE: ABSOLUTE_ROUTE_MESON,
   ROUTE_ADD: `${ABSOLUTE_ROUTE_MESON}/agregar`,
   ROUTE_UPDATE: `${ABSOLUTE_ROUTE_MESON}/actualizar`,
+};
+
+export const SUPPLY_TYPE = {
+  STOCK: "REPUESTO",
+  LIMA: "LIMA",
+  IMPORTACION: "IMPORTACION",
+};
+
+export const STATUS_ORDER_QUOTATION = {
+  OPEN: "Aperturado",
+  DISCARDED: "Descartado",
+  TO_BILL: "Por Facturar",
+  BILLED: "Facturado",
 };

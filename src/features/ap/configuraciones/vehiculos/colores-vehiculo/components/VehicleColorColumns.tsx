@@ -26,16 +26,12 @@ export const vehicleColorColumns = ({
   permissions,
 }: Props): VehicleColorColumns[] => [
   {
-    accessorKey: "code",
-    header: "Cod.",
+    accessorKey: "description",
+    header: "Descripción",
     cell: ({ getValue }) => {
       const value = getValue() as string;
       return value && <p className="font-semibold">{value}</p>;
     },
-  },
-  {
-    accessorKey: "description",
-    header: "Descripción",
   },
   {
     accessorKey: "status",
@@ -44,7 +40,7 @@ export const vehicleColorColumns = ({
       const value = getValue() as boolean;
       return (
         <Badge
-          variant={value ? "default" : "secondary"}
+          color={value ? "default" : "secondary"}
           className="capitalize w-20 flex items-center justify-center"
         >
           {value ? "Activo" : "Inactivo"}

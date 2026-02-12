@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Plus, Trash2, Package, Search } from "lucide-react";
+import { Plus, Trash2, Package, Search, PackagePlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -27,15 +27,20 @@ import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import FormSkeleton from "@/shared/components/FormSkeleton";
-import { useWarehousesByCompany } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
-import { useInventory } from "@/features/ap/post-venta/gestion-compras/inventario/lib/inventory.hook";
-import { InventoryResource } from "@/features/ap/post-venta/gestion-compras/inventario/lib/inventory.interface";
+import { useMyPhysicalWarehouse } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
+import { useInventory } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.hook";
+import { InventoryResource } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.interface";
 import { getAllOrderQuotations } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.actions";
 import { OrderQuotationResource } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.interface";
 import { QuotationSelectionModal } from "../../cotizacion/components/QuotationSelectionModal";
 import { errorToast } from "@/core/core.function";
 import { FormInputText } from "@/shared/components/FormInputText";
-import { CM_POSTVENTA_ID, EMPRESA_AP } from "@/core/core.constants";
+import QuotationPartModal from "@/features/ap/post-venta/repuestos/cotizacion-meson/components/QuotationPartModal";
+
+const onSelectSupplyType = [
+  { label: "Lima", value: "LIMA" },
+  { label: "Importación", value: "IMPORTACION" },
+];
 
 interface PurchaseRequestFormProps {
   defaultValues: Partial<PurchaseRequestSchema>;
@@ -43,6 +48,8 @@ interface PurchaseRequestFormProps {
   isSubmitting?: boolean;
   mode?: "create" | "update";
   onCancel?: () => void;
+  showQuotationOption?: boolean;
+  allowCreateProduct?: boolean;
 }
 
 export default function PurchaseRequestForm({
@@ -51,13 +58,16 @@ export default function PurchaseRequestForm({
   isSubmitting = false,
   mode = "create",
   onCancel,
+  showQuotationOption = true,
+  allowCreateProduct = false,
 }: PurchaseRequestFormProps) {
   const [details, setDetails] = useState<PurchaseRequestDetailSchema[]>(() => {
     // Transformar los detalles del backend al formato esperado
     if (defaultValues.details && defaultValues.details.length > 0) {
       const transformed = defaultValues.details.map((detail: any) => ({
         product_id: detail.product_id?.toString() || "",
-        product_name: detail.product?.name || "",
+        product_name: detail.product_name || "",
+        product_code: detail.product_code || "",
         quantity: Number(detail.quantity) || 1,
         notes: detail.notes || "",
       }));
@@ -68,22 +78,17 @@ export default function PurchaseRequestForm({
   const [quotations, setQuotations] = useState<OrderQuotationResource[]>([]);
   const [isLoadingQuotations, setIsLoadingQuotations] = useState(false);
   const [isQuotationModalOpen, setIsQuotationModalOpen] = useState(false);
+  const [isPartModalOpen, setIsPartModalOpen] = useState(false);
 
   // Obtener mis almacenes físicos de postventa
   const { data: warehouses = [], isLoading: isLoadingWarehouses } =
-    useWarehousesByCompany({
-      my: 1,
-      is_received: 1,
-      empresa_id: EMPRESA_AP.id,
-      type_operation_id: CM_POSTVENTA_ID,
-      only_physical: 1,
-    });
+    useMyPhysicalWarehouse();
 
   const form = useForm({
     resolver: zodResolver(
       mode === "create"
         ? purchaseRequestSchemaCreate
-        : purchaseRequestSchemaUpdate
+        : purchaseRequestSchemaUpdate,
     ),
     defaultValues: {
       warehouse_id: "",
@@ -114,6 +119,18 @@ export default function PurchaseRequestForm({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [details]);
 
+  // Setear valores por defecto en modo create
+  useEffect(() => {
+    if (mode !== "create") return;
+
+    // Setear primer almacén si no hay valor
+    if (warehouses.length > 0 && !form.getValues("warehouse_id")) {
+      form.setValue("warehouse_id", warehouses[0].id.toString(), {
+        shouldValidate: true,
+      });
+    }
+  }, [warehouses, mode, form]);
+
   useEffect(() => {
     if (!hasAppointment) {
       form.setValue("ap_order_quotation_id", "");
@@ -142,36 +159,42 @@ export default function PurchaseRequestForm({
   const loadQuotationDetails = useCallback(
     async (
       quotationId: string,
-      quotationsToSearch?: OrderQuotationResource[]
+      quotationsToSearch?: OrderQuotationResource[],
     ) => {
       // Usar quotationsToSearch si se proporciona, sino usar el estado quotations
       const quotationsArray = quotationsToSearch || quotations;
 
       const selectedQuotation = quotationsArray.find(
-        (q) => q.id.toString() === quotationId
+        (q) => q.id.toString() === quotationId,
       );
 
       if (!selectedQuotation || !selectedQuotation.details) return;
 
       // Filtrar solo los productos (item_type = "PRODUCT")
       const productDetails = selectedQuotation.details.filter(
-        (detail) => detail.item_type === "PRODUCT"
+        (detail) => detail.item_type === "PRODUCT",
       );
 
       // Mapear a PurchaseRequestDetailSchema
       const newDetails: PurchaseRequestDetailSchema[] = productDetails.map(
         (detail) => ({
           product_id: detail.product_id!.toString(),
-          product_name: detail.description,
+          product_name: detail.product?.name || "",
+          product_code: detail.product?.code || "",
           quantity: Number(detail.quantity) || 1, // Asegurar que sea number
           notes: "",
-        })
+        }),
       );
 
       // Setear los detalles en la tabla
       setDetails(newDetails);
+
+      // Setear el supply_type si existe en la cotización
+      if (selectedQuotation.supply_type) {
+        form.setValue("supply_type", selectedQuotation.supply_type);
+      }
     },
-    [quotations]
+    [quotations, form],
   );
 
   useEffect(() => {
@@ -194,7 +217,7 @@ export default function PurchaseRequestForm({
 
   const handleAddProduct = (
     productId: string,
-    productData?: InventoryResource
+    productData?: InventoryResource,
   ) => {
     if (!productId) {
       return;
@@ -202,7 +225,7 @@ export default function PurchaseRequestForm({
 
     // Verificar si el producto ya está en la lista
     const productExists = details.some(
-      (detail) => detail.product_id === productId
+      (detail) => detail.product_id === productId,
     );
 
     if (productExists) {
@@ -213,6 +236,7 @@ export default function PurchaseRequestForm({
     const newDetail: PurchaseRequestDetailSchema = {
       product_id: productId,
       product_name: productData?.product.name,
+      product_code: productData?.product.code || "",
       quantity: 1,
       notes: "",
     };
@@ -250,16 +274,18 @@ export default function PurchaseRequestForm({
     if (!selectedQuotationId || quotations.length === 0) return null;
 
     const quotation = quotations.find(
-      (q) => q.id.toString() === selectedQuotationId
+      (q) => q.id.toString() === selectedQuotationId,
     );
 
     if (!quotation) return null;
 
-    return `${quotation.quotation_number} - ${quotation.vehicle.plate} (${
-      quotation.vehicle.model.brand
-    } ${quotation.vehicle.model.family}) - S/ ${quotation.total_amount.toFixed(
-      2
-    )}`;
+    // Validar si existe vehículo
+    const vehicle = quotation?.vehicle;
+    const vehicleInfo = vehicle
+      ? `${vehicle.plate || vehicle.vin} (${vehicle.model?.brand || ""} ${vehicle.model?.family || ""})`
+      : "-";
+
+    return `${quotation.quotation_number} - ${vehicleInfo} - S/ ${quotation.total_amount.toFixed(2)}`;
   };
 
   return (
@@ -268,7 +294,7 @@ export default function PurchaseRequestForm({
         {/* Información General */}
         <Card className="p-6">
           <h3 className="text-lg font-semibold mb-4">Información General</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <FormSelect
               name="warehouse_id"
               label="Almacén"
@@ -290,35 +316,47 @@ export default function PurchaseRequestForm({
               captionLayout="dropdown"
               disabledRange={{ before: new Date() }}
             />
-          </div>
 
-          {/* Checkbox para adjuntar cotización */}
-          <div className="mt-4">
-            <FormField
+            <FormSelect
               control={form.control}
-              name="has_appointment"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel>¿Adjuntar Cotización?</FormLabel>
-                    <p className="text-sm text-muted-foreground">
-                      Marque esta opción si desea adjuntar una cotización a la
-                      solicitud de compra.
-                    </p>
-                  </div>
-                </FormItem>
-              )}
+              name="supply_type"
+              options={onSelectSupplyType}
+              label="Tipo de Abastecimiento"
+              placeholder="Seleccionar un tipo"
+              disabled={!!selectedQuotationId}
+              required
             />
           </div>
 
+          {/* Checkbox para adjuntar cotización */}
+          {showQuotationOption && (
+            <div className="mt-4">
+              <FormField
+                control={form.control}
+                name="has_appointment"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel>¿Adjuntar Cotización?</FormLabel>
+                      <p className="text-sm text-muted-foreground">
+                        Marque esta opción si desea adjuntar una cotización a la
+                        solicitud de compra.
+                      </p>
+                    </div>
+                  </FormItem>
+                )}
+              />
+            </div>
+          )}
+
           {/* Selector de Cotización - Solo visible si has_appointment es true */}
-          {hasAppointment && (
+          {showQuotationOption && hasAppointment && (
             <div className="mt-4">
               <FormField
                 control={form.control}
@@ -365,9 +403,22 @@ export default function PurchaseRequestForm({
 
         {/* Productos */}
         <Card className="p-6">
-          <div className="flex items-center gap-2 mb-4">
-            <Package className="h-5 w-5 text-primary" />
-            <h3 className="text-lg font-semibold">Productos Solicitados</h3>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <Package className="h-5 w-5 text-primary" />
+              <h3 className="text-lg font-semibold">Productos Solicitados</h3>
+            </div>
+            {allowCreateProduct && (
+              <Button
+                type="button"
+                onClick={() => setIsPartModalOpen(true)}
+                size="sm"
+                variant="outline"
+              >
+                <PackagePlus className="h-4 w-4 mr-2" />
+                Crear Repuesto
+              </Button>
+            )}
           </div>
 
           {!selectedWarehouseId ? (
@@ -379,70 +430,68 @@ export default function PurchaseRequestForm({
             </div>
           ) : (
             <>
-              {/* Selector de productos con búsqueda */}
-              <div className="mb-6">
-                <label className="text-sm font-medium mb-2 block">
-                  Seleccionar Producto
-                </label>
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <div className="flex-1">
-                    <FormSelectAsync
-                      name="temp_product_selector"
-                      placeholder="Buscar y seleccionar producto para agregar"
-                      control={form.control}
-                      useQueryHook={useInventory}
-                      additionalParams={{
-                        warehouse_id: selectedWarehouseId,
+              {/* Selector de productos con búsqueda - Solo visible si NO hay cotización */}
+              {!selectedQuotationId && (
+                <div className="mb-6">
+                  <label className="text-sm font-medium mb-2 block">
+                    Seleccionar Producto
+                  </label>
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <div className="flex-1">
+                      <FormSelectAsync
+                        name="temp_product_selector"
+                        placeholder="Buscar y seleccionar producto para agregar"
+                        control={form.control}
+                        useQueryHook={useInventory}
+                        additionalParams={{
+                          warehouse_id: selectedWarehouseId,
+                        }}
+                        mapOptionFn={(inventory: InventoryResource) => ({
+                          label: () => (
+                            <div className="flex items-center justify-between gap-2 w-full">
+                              <span className="font-medium truncate">
+                                {inventory.product.code} -{" "}
+                                {inventory.product.name}
+                              </span>
+                              <span
+                                className={`text-xs font-semibold px-2 py-0.5 rounded shrink-0 ${
+                                  inventory.available_quantity > 0
+                                    ? "bg-green-100 text-green-700"
+                                    : "bg-red-100 text-red-700"
+                                }`}
+                              >
+                                Stock: {inventory.available_quantity}
+                              </span>
+                            </div>
+                          ),
+                          value: inventory.product_id.toString(),
+                        })}
+                        perPage={10}
+                        onValueChange={(value, item) => {
+                          setTempProductId(value);
+                          setTempProductData(item || null);
+                        }}
+                      />
+                    </div>
+                    <Button
+                      type="button"
+                      onClick={() => {
+                        if (tempProductId && tempProductData) {
+                          handleAddProduct(tempProductId, tempProductData);
+                          setTempProductId("");
+                          setTempProductData(null);
+                          form.setValue("temp_product_selector" as any, "");
+                        }
                       }}
-                      mapOptionFn={(inventory: InventoryResource) => ({
-                        label: () => (
-                          <div className="flex items-center justify-between gap-2 w-full">
-                            <span className="font-medium truncate">
-                              {inventory.product_name}
-                            </span>
-                            <span
-                              className={`text-xs font-semibold px-2 py-0.5 rounded shrink-0 ${
-                                inventory.available_quantity > 0
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-red-100 text-red-700"
-                              }`}
-                            >
-                              Stock: {inventory.available_quantity}
-                            </span>
-                          </div>
-                        ),
-                        value: inventory.product_id.toString(),
-                      })}
-                      perPage={10}
-                      onValueChange={(value, item) => {
-                        setTempProductId(value);
-                        setTempProductData(item || null);
-                      }}
-                    />
+                      disabled={!tempProductId}
+                      className="self-end sm:w-auto w-full"
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Agregar
+                    </Button>
                   </div>
-                  <Button
-                    type="button"
-                    onClick={() => {
-                      if (tempProductId && tempProductData) {
-                        const inventoryResource: InventoryResource = {
-                          product: {
-                            name: tempProductData.product_name,
-                          },
-                        } as InventoryResource;
-                        handleAddProduct(tempProductId, inventoryResource);
-                        setTempProductId("");
-                        setTempProductData(null);
-                        form.setValue("temp_product_selector" as any, "");
-                      }
-                    }}
-                    disabled={!tempProductId}
-                    className="self-end sm:w-auto w-full"
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Agregar
-                  </Button>
                 </div>
-              </div>
+              )}
 
               {/* Lista de Productos */}
               <div className="mt-6">
@@ -450,7 +499,7 @@ export default function PurchaseRequestForm({
                   <h4 className="font-semibold text-gray-700">
                     Items de Productos
                   </h4>
-                  <Badge variant="secondary" className="font-semibold">
+                  <Badge color="secondary" className="font-semibold">
                     {details.length} item(s)
                   </Badge>
                 </div>
@@ -466,9 +515,10 @@ export default function PurchaseRequestForm({
                   <div className="border rounded-lg overflow-hidden">
                     {/* Cabecera de tabla - Desktop */}
                     <div className="hidden md:grid grid-cols-12 gap-3 bg-gray-100 px-4 py-2 text-xs font-semibold text-gray-700 border-b">
-                      <div className="col-span-5">Producto</div>
+                      <div className="col-span-2">Código</div>
+                      <div className="col-span-4">Producto</div>
                       <div className="col-span-2">Cantidad</div>
-                      <div className="col-span-4">Notas</div>
+                      <div className="col-span-3">Notas</div>
                       <div className="col-span-1"></div>
                     </div>
 
@@ -479,7 +529,13 @@ export default function PurchaseRequestForm({
                           <div key={index}>
                             {/* Vista Desktop */}
                             <div className="hidden md:grid grid-cols-12 gap-3 px-4 py-3 hover:bg-gray-50 transition-colors items-center">
-                              <div className="col-span-5">
+                              <div className="col-span-2">
+                                <p className="text-sm font-medium text-gray-900 truncate">
+                                  {detail.product_code ||
+                                    `Producto #${detail.product_id}`}
+                                </p>
+                              </div>
+                              <div className="col-span-4">
                                 <p className="text-sm font-medium text-gray-900 truncate">
                                   {detail.product_name ||
                                     `Producto #${detail.product_id}`}
@@ -495,14 +551,15 @@ export default function PurchaseRequestForm({
                                   onChange={(e) =>
                                     handleUpdateQuantity(
                                       index,
-                                      Number(e.target.value)
+                                      Number(e.target.value),
                                     )
                                   }
                                   className="h-9 text-sm"
+                                  disabled={!!selectedQuotationId}
                                 />
                               </div>
 
-                              <div className="col-span-4">
+                              <div className="col-span-3">
                                 <Input
                                   type="text"
                                   value={detail.notes || ""}
@@ -521,6 +578,7 @@ export default function PurchaseRequestForm({
                                   size="icon"
                                   className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
                                   onClick={() => handleRemoveProduct(index)}
+                                  disabled={!!selectedQuotationId}
                                 >
                                   <Trash2 className="h-4 w-4" />
                                 </Button>
@@ -542,6 +600,7 @@ export default function PurchaseRequestForm({
                                   size="icon"
                                   className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50 shrink-0"
                                   onClick={() => handleRemoveProduct(index)}
+                                  disabled={!!selectedQuotationId}
                                 >
                                   <Trash2 className="h-4 w-4" />
                                 </Button>
@@ -560,10 +619,11 @@ export default function PurchaseRequestForm({
                                     onChange={(e) =>
                                       handleUpdateQuantity(
                                         index,
-                                        Number(e.target.value)
+                                        Number(e.target.value),
                                       )
                                     }
                                     className="h-9 text-sm w-full"
+                                    disabled={!!selectedQuotationId}
                                   />
                                 </div>
 
@@ -609,8 +669,8 @@ export default function PurchaseRequestForm({
             {isSubmitting
               ? "Guardando..."
               : mode === "create"
-              ? "Crear Solicitud"
-              : "Actualizar Solicitud"}
+                ? "Crear Solicitud"
+                : "Actualizar Solicitud"}
           </Button>
         </div>
 
@@ -620,6 +680,14 @@ export default function PurchaseRequestForm({
           onOpenChange={setIsQuotationModalOpen}
           onSelectQuotation={handleSelectQuotation}
         />
+
+        {/* Modal de Crear Repuesto - Solo disponible para almacén */}
+        {allowCreateProduct && (
+          <QuotationPartModal
+            open={isPartModalOpen}
+            onClose={() => setIsPartModalOpen(false)}
+          />
+        )}
       </form>
     </Form>
   );

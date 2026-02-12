@@ -48,7 +48,8 @@ export default function BreadCrumbHeader() {
     key: "empresas",
     link: "/companies",
     label: "Empresas",
-    isLast: !currentCompany && !currentModule && !currentSubmodule && !currentView,
+    isLast:
+      !currentCompany && !currentModule && !currentSubmodule && !currentView,
   });
 
   // 2. Empresa
@@ -92,9 +93,7 @@ export default function BreadCrumbHeader() {
   }
 
   // Si es mobile, tomar solo los últimos 2
-  const visibleBreadcrumbs = isMobile
-    ? breadcrumbs.slice(-2)
-    : breadcrumbs;
+  const visibleBreadcrumbs = isMobile ? breadcrumbs.slice(-2) : breadcrumbs;
 
   if (isMobile) {
     return (
@@ -102,13 +101,13 @@ export default function BreadCrumbHeader() {
         {visibleBreadcrumbs.map((breadcrumb) => (
           <div key={breadcrumb.key} className="flex items-center">
             {breadcrumb.isLast ? (
-              <span className="text-secondary font-semibold text-xs">
+              <span className="text-secondary dark:text-destructive font-semibold text-xs">
                 {breadcrumb.label}
               </span>
             ) : (
               <Link
                 to={breadcrumb.link!}
-                className="text-primary hover:text-secondary text-xs"
+                className="text-primary dark:text-primary-foreground hover:text-secondary text-xs"
               >
                 {breadcrumb.label}
               </Link>

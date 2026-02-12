@@ -1,6 +1,5 @@
 "use client";
 
-import { useNavigate } from "react-router-dom";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import { useEffect, useState } from "react";
 import {
@@ -16,21 +15,20 @@ import DataTablePagination from "@/shared/components/DataTablePagination";
 import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import { PRODUCT_REPUESTOS } from "@/features/ap/post-venta/gestion-productos/productos/lib/product.constants";
-import ProductActions from "@/features/ap/post-venta/gestion-productos/productos/components/ProductActions";
-import ProductTable from "@/features/ap/post-venta/gestion-productos/productos/components/ProductTable";
-import { productColumns } from "@/features/ap/post-venta/gestion-productos/productos/components/ProductColumns";
-import ProductOptions from "@/features/ap/post-venta/gestion-productos/productos/components/ProductOptions";
-import ProductDetailSheet from "@/features/ap/post-venta/gestion-productos/productos/components/ProductDetailSheet";
-import { useProduct } from "@/features/ap/post-venta/gestion-productos/productos/lib/product.hook";
+import { PRODUCT_REPUESTOS } from "@/features/ap/post-venta/gestion-almacen/productos/lib/product.constants";
+import ProductActions from "@/features/ap/post-venta/gestion-almacen/productos/components/ProductActions";
+import ProductTable from "@/features/ap/post-venta/gestion-almacen/productos/components/ProductTable";
+import { productColumns } from "@/features/ap/post-venta/gestion-almacen/productos/components/ProductColumns";
+import ProductOptions from "@/features/ap/post-venta/gestion-almacen/productos/components/ProductOptions";
+import ProductDetailSheet from "@/features/ap/post-venta/gestion-almacen/productos/components/ProductDetailSheet";
+import { useProduct } from "@/features/ap/post-venta/gestion-almacen/productos/lib/product.hook";
 import { notFound } from "@/shared/hooks/useNotFound";
 import {
   deleteProduct,
   updateProduct,
-} from "@/features/ap/post-venta/gestion-productos/productos/lib/product.actions";
+} from "@/features/ap/post-venta/gestion-almacen/productos/lib/product.actions";
 
 export default function ProductRepuestoPage() {
-  const router = useNavigate();
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
@@ -38,7 +36,7 @@ export default function ProductRepuestoPage() {
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [viewProductId, setViewProductId] = useState<number | null>(null);
   const [isDetailSheetOpen, setIsDetailSheetOpen] = useState(false);
-  const { MODEL, ROUTE, ROUTE_UPDATE } = PRODUCT_REPUESTOS;
+  const { MODEL, ROUTE } = PRODUCT_REPUESTOS;
   const permissions = useModulePermissions(ROUTE);
 
   useEffect(() => {
@@ -98,8 +96,8 @@ export default function ProductRepuestoPage() {
         isLoading={isLoading}
         columns={productColumns({
           onStatusChange: handleToggleStatus,
+          onUpdate: () => {},
           onDelete: setDeleteId,
-          onUpdate: (id) => router(`${ROUTE_UPDATE}/${id}`),
           onView: handleView,
           permissions,
         })}

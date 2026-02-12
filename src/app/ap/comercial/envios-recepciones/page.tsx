@@ -25,7 +25,7 @@ import {
   useCancelShippingGuide,
 } from "@/features/ap/comercial/envios-recepciones/lib/shipmentsReceptions.hook";
 import ShipmentsReceptionsTable from "@/features/ap/comercial/envios-recepciones/components/ShipmentsReceptionsTable";
-import { shipmentsReceptionsColumns } from "@/features/ap/comercial/envios-recepciones/components/ShipmentsReceptionsColumns";
+import { ShipmentsReceptionsColumns } from "@/features/ap/comercial/envios-recepciones/components/ShipmentsReceptionsColumns";
 import ShipmentsReceptionsActions from "@/features/ap/comercial/envios-recepciones/components/ShipmentsReceptionsActions";
 import ShipmentsReceptionsOptions from "@/features/ap/comercial/envios-recepciones/components/ShipmentsReceptionsOptions";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
@@ -35,12 +35,19 @@ import { Ban } from "lucide-react";
 import { ShipmentsReceptionsResource } from "@/features/ap/comercial/envios-recepciones/lib/shipmentsReceptions.interface";
 import { SheetShipmentDetailsDialog } from "@/features/ap/comercial/envios-recepciones/components/SheetShipmentDetailsDialog";
 import { notFound } from "@/shared/hooks/useNotFound";
+import { format } from "date-fns";
 
 export default function ShipmentsReceptionsPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
+  const [dateFrom, setDateFrom] = useState<Date | undefined>(undefined);
+  const [dateTo, setDateTo] = useState<Date | undefined>(undefined);
+
+  const formattedDateFrom = dateFrom ? format(dateFrom, "yyyy-MM-dd") : undefined;
+  const formattedDateTo = dateTo ? format(dateTo, "yyyy-MM-dd") : undefined;
+
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [sendToNubefactId, setSendToNubefactId] = useState<number | null>(null);
   const [markAsReceivedId, setMarkAsReceivedId] = useState<number | null>(null);
@@ -64,6 +71,7 @@ export default function ShipmentsReceptionsPage() {
     page,
     search,
     per_page,
+    issue_date: [formattedDateFrom, formattedDateTo],
   });
 
   const handleDelete = async () => {
@@ -109,7 +117,7 @@ export default function ShipmentsReceptionsPage() {
           refetch();
           setMarkAsReceivedId(null);
         },
-      }
+      },
     );
   };
 
@@ -122,7 +130,7 @@ export default function ShipmentsReceptionsPage() {
           refetch();
           setCancelId(null);
         },
-      }
+      },
     );
   };
 
@@ -143,7 +151,7 @@ export default function ShipmentsReceptionsPage() {
 
       <ShipmentsReceptionsTable
         isLoading={isLoading}
-        columns={shipmentsReceptionsColumns({
+        columns={ShipmentsReceptionsColumns({
           onDelete: setDeleteId,
           onSendToNubefact: setSendToNubefactId,
           onQueryFromNubefact: handleQueryFromNubefact,
@@ -154,7 +162,16 @@ export default function ShipmentsReceptionsPage() {
         })}
         data={data?.data || []}
       >
-        <ShipmentsReceptionsOptions search={search} setSearch={setSearch} />
+        <ShipmentsReceptionsOptions
+          search={search}
+          setSearch={setSearch}
+          dateFrom={dateFrom}
+          dateTo={dateTo}
+          setDateRange={(from, to) => {
+            setDateFrom(from);
+            setDateTo(to);
+          }}
+        />
       </ShipmentsReceptionsTable>
 
       {deleteId !== null && (

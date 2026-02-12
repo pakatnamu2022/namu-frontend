@@ -1,4 +1,4 @@
-import type { MonthOption } from "./core.interface";
+import type { MonthOption, Option } from "./core.interface";
 
 export const ACTIONS_NAMES: Record<string, string> = {
   create: "cread",
@@ -31,17 +31,13 @@ export const STATUS_INACTIVE = 0;
 
 export const LEGAL_AGE = 18;
 
-export const TAX = {
-  RATE: 0.18,
-  FACTOR: 1.18,
-};
-
 export const ACTIONS: Record<string, string> = {
   create: "crear",
   update: "actualizar",
   delete: "eliminar",
   fetch: "obtener",
   close: "cerrar",
+  manage: "gestionar",
 };
 
 export const EMPRESA_TP = {
@@ -50,6 +46,7 @@ export const EMPRESA_TP = {
   label: "TP",
   src: "/logos/tplogo.svg",
   scrWhite: "/logos/tplogowhite.svg",
+  image: "/images/modules/transportes.webp",
 };
 export const EMPRESA_DP = {
   id: 2,
@@ -57,6 +54,7 @@ export const EMPRESA_DP = {
   label: "DP",
   src: "/logos/dplogo.svg",
   scrWhite: "/logos/dplogowhite.svg",
+  image: "/images/modules/deposito.webp",
 };
 export const EMPRESA_AP = {
   id: 3,
@@ -64,6 +62,7 @@ export const EMPRESA_AP = {
   label: "AP",
   src: "/logos/aplogo.svg",
   scrWhite: "/logos/aplogowhite.svg",
+  image: "/images/modules/automotores.webp",
 };
 export const EMPRESA_GP = {
   id: 4,
@@ -71,15 +70,16 @@ export const EMPRESA_GP = {
   label: "GP",
   src: "/logos/gplogo.svg",
   scrWhite: "/logos/gplogowhite.svg",
+  image: "/images/modules/grupo.webp",
 };
 
 export const CONSTANTS: any = {
   // LOGO: "/logos/millagp.svg",
   // LOGO_ICON: "/logos/millagplogo.svg",
-  LOGO: "/logos/siam.svg",
-  LOGO_WHITE: "/logos/siamwhite.svg",
-  LOGO_ICON: "/logos/siamlogo.svg",
-  EMPRESAS: [EMPRESA_GP, EMPRESA_DP, EMPRESA_AP, EMPRESA_TP],
+  LOGO: "/logos/sian.svg",
+  LOGO_WHITE: "/logos/sianwhite.svg",
+  LOGO_ICON: "/logos/sianlogo.svg",
+  EMPRESAS: [EMPRESA_AP, EMPRESA_DP, EMPRESA_GP, EMPRESA_TP],
 };
 
 export const AP_CHECKLIST = {
@@ -93,7 +93,8 @@ export const IGV = {
 };
 
 export const BUSINESS_PARTNERS = {
-  MARITAL_STATUS_ID: "700",
+  MARRIED_ID: "700",
+  CO_OWNER_ID: "955",
   TYPE_PERSON_NATURAL_ID: "704",
   TYPE_PERSON_JURIDICA_ID: "705",
   TYPE_DOCUMENT_DNI_ID: "809",
@@ -137,3 +138,28 @@ export const INCOME_SECTOR = {
 // Commercial Module ID Constants
 export const CM_COMERCIAL_ID = 794;
 export const CM_POSTVENTA_ID = 804;
+
+export const AREA_COMERCIAL = 826;
+export const AREA_POSTVENTA = 825;
+export const AREA_TALLER = 881;
+export const AREA_MESON = 882;
+
+export const AREAS_ID = [
+  AREA_COMERCIAL,
+  AREA_POSTVENTA,
+  AREA_TALLER,
+  AREA_MESON,
+];
+
+export const AREA_OPTIONS: Option[] = [
+  { value: AREA_COMERCIAL.toString(), label: "Comercial" },
+  { value: AREA_POSTVENTA.toString(), label: "Post Venta" },
+  { value: AREA_TALLER.toString(), label: "Taller" },
+  { value: AREA_MESON.toString(), label: "Mesón" },
+];
+
+export type AreaType =
+  | typeof AREA_COMERCIAL
+  | typeof AREA_POSTVENTA
+  | typeof AREA_TALLER
+  | typeof AREA_MESON;

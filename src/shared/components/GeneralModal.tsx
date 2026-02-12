@@ -7,7 +7,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useIsMobile, useIsTablet } from "@/hooks/use-mobile";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { DialogDescription } from "@radix-ui/react-dialog";
 import type { ReactNode } from "react";
 
@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/drawer";
 import { cn } from "@/lib/utils";
 import * as LucideReact from "lucide-react";
+import { useIsTablet } from "@/hooks/use-tablet";
 
 interface GeneralModalProps {
   open: boolean;
@@ -97,7 +98,7 @@ export function GeneralModal({
               </DialogDescription>
             </DialogHeader>
           </div>
-          <div>{children}</div>
+          <div className="overflow-hidden">{children}</div>
         </DialogContent>
       </Dialog>
     ) : (

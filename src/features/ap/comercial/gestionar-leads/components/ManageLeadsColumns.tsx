@@ -1,7 +1,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { ManageLeadsResource } from "../lib/manageLeads.interface";
-import { Badge } from "@/components/ui/badge";
+import { Badge, BadgeColor } from "@/components/ui/badge";
 
 export type ManageLeadsColumns = ColumnDef<ManageLeadsResource>;
 
@@ -42,21 +42,25 @@ export const manageLeadsColumns = ({
         string,
         {
           label: string;
-          variant: "default" | "secondary" | "destructive" | "outline";
+          color: BadgeColor;
         }
       > = {
-        PENDIENTE: { label: "Pendiente", variant: "secondary" },
-        VALIDADO: { label: "Validado", variant: "default" },
-        ERRADO: { label: "Errado", variant: "destructive" },
-        NO_ENCONTRADO: { label: "No Encontrado", variant: "outline" },
+        PENDIENTE: { label: "Pendiente", color: "gray" },
+        VALIDADO: { label: "Validado", color: "green" },
+        ERRADO: { label: "Errado", color: "orange" },
+        NO_ENCONTRADO: { label: "No Encontrado", color: "red" },
       };
 
       const config = statusConfig[status] || {
         label: status,
-        variant: "secondary",
+        color: "default",
       };
 
-      return <Badge variant={config.variant}>{config.label}</Badge>;
+      return (
+        <Badge color={config.color} variant="outline">
+          {config.label}
+        </Badge>
+      );
     },
   },
   {
@@ -113,34 +117,30 @@ export const manageLeadsColumns = ({
         string,
         {
           label: string;
-          variant: "default" | "secondary" | "destructive" | "outline";
-          className?: string;
+          color: BadgeColor;
         }
       > = {
         Subido: {
           label: "Subido",
-          variant: "secondary",
-          className: "bg-blue-100 text-blue-700 hover:bg-blue-200",
+          color: "sky",
         },
         Atendido: {
           label: "Atendido",
-          variant: "default",
-          className: "bg-green-100 text-green-700 hover:bg-green-200",
+          color: "green",
         },
         Descartado: {
           label: "Descartado",
-          variant: "destructive",
-          className: "bg-red-100 text-red-700 hover:bg-red-200",
+          color: "orange",
         },
       };
 
       const config = conditionConfig[condition] || {
         label: condition,
-        variant: "secondary",
+        color: "sky",
       };
 
       return (
-        <Badge variant={config.variant} className={config.className}>
+        <Badge color={config.color} variant="outline">
           {config.label}
         </Badge>
       );

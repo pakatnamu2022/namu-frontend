@@ -3,19 +3,18 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Plus, Trash2, Package, Loader2 } from "lucide-react";
+import {
+  Plus,
+  Trash2,
+  Package,
+  Loader2,
+  Copy,
+  PackagePlus,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { Form } from "@/components/ui/form";
 import {
   errorToast,
   successToast,
@@ -32,11 +31,19 @@ import {
 import {
   useProduct,
   useProductById,
-} from "@/features/ap/post-venta/gestion-productos/productos/lib/product.hook";
+} from "@/features/ap/post-venta/gestion-almacen/productos/lib/product.hook";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import { api } from "@/core/api";
 import { format } from "date-fns";
 import { CURRENCY_TYPE_IDS } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.constants";
+import { FormInput } from "@/shared/components/FormInput";
+import QuotationPartModal from "@/features/ap/post-venta/repuestos/cotizacion-meson/components/QuotationPartModal";
+import { FormSelect } from "@/shared/components/FormSelect";
+
+const onSelectSupplyType = [
+  { label: "Lima", value: "LIMA" },
+  { label: "Importación", value: "IMPORTACION" },
+];
 
 interface ProductDetailsSectionProps {
   quotationId: number;
@@ -45,6 +52,8 @@ interface ProductDetailsSectionProps {
   isLoadingDetails: boolean;
   onRefresh: () => Promise<void>;
   onDelete: (id: number) => Promise<void>;
+  currencySymbol: string;
+  currencyId: number;
 }
 
 export default function ProductDetailsSection({
@@ -54,10 +63,13 @@ export default function ProductDetailsSection({
   isLoadingDetails,
   onRefresh,
   onDelete,
+  currencySymbol,
+  currencyId,
 }: ProductDetailsSectionProps) {
   const [isSaving, setIsSaving] = useState(false);
   const [exchangeRate, setExchangeRate] = useState<number | null>(null);
   const [isLoadingExchangeRate, setIsLoadingExchangeRate] = useState(false);
+  const [isPartModalOpen, setIsPartModalOpen] = useState(false);
 
   const form = useForm({
     resolver: zodResolver(productDetailSchema),
@@ -68,13 +80,14 @@ export default function ProductDetailsSection({
       description: "",
       quantity: 1,
       unit_measure: "UND",
-      retail_price_external: 0,
+      retail_price_external: undefined,
       freight_commission: 1.05,
       exchange_rate: 0,
       unit_price: 0,
-      discount: 0,
+      discount_percentage: 0,
       total_amount: 0,
       observations: "",
+      supply_type: "",
     },
   });
 
@@ -84,6 +97,37 @@ export default function ProductDetailsSection({
 
   // Obtener datos del producto seleccionado
   const { data: productData } = useProductById(Number(selectedProductId) || 0);
+
+  // Función para copiar código del repuesto
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text).then(() => {
+      successToast("Código copiado al portapapeles");
+    });
+  };
+
+  // Función para manejar el pegado y convertir comas a puntos
+  const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    const pastedText = e.clipboardData.getData("text");
+    const normalizedValue = pastedText.replace(",", ".");
+    const numericValue = parseFloat(normalizedValue);
+
+    if (!isNaN(numericValue)) {
+      form.setValue("retail_price_external", numericValue);
+    }
+  };
+
+  // Función para normalizar el input mientras se escribe (convierte comas a puntos)
+  const handleNumericChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(",", ".");
+    const numericValue = parseFloat(value);
+
+    if (!isNaN(numericValue)) {
+      form.setValue("retail_price_external", numericValue);
+    } else if (value === "") {
+      form.setValue("retail_price_external", 0);
+    }
+  };
 
   // Llenar automáticamente los campos cuando se selecciona un producto
   useEffect(() => {
@@ -100,7 +144,7 @@ export default function ProductDetailsSection({
       try {
         const formattedDate = format(new Date(quotationDate), "yyyy-MM-dd");
         const response = await api.get(
-          `/gp/mg/exchange-rate/by-date-and-currency?to_currency_id=${CURRENCY_TYPE_IDS.DOLLARS}&date=${formattedDate}`
+          `/gp/mg/exchange-rate/by-date-and-currency?to_currency_id=${CURRENCY_TYPE_IDS.DOLLARS}&date=${formattedDate}`,
         );
 
         if (response.data?.data?.rate) {
@@ -120,17 +164,29 @@ export default function ProductDetailsSection({
     fetchExchangeRate();
   }, [quotationDate, form]);
 
-  // Calcular automáticamente el precio unitario
-  // Fórmula: unit_price = retail_price_external * freight_commission * tipo_cambio (redondeado a 2 decimales)
-  useEffect(() => {
-    const retail = retailPriceExternal || 0;
-    const comision = comisionFlete || 1.05;
-    const tipoCambio = exchangeRate || 1;
+  // Verificar si la cotización está en dólares
+  const isInDollars = currencyId === Number(CURRENCY_TYPE_IDS.DOLLARS);
 
-    const calculatedUnitPrice =
-      Math.round(retail * comision * tipoCambio * 100) / 100;
+  // Calcular automáticamente el precio unitario
+  // Si la cotización está en dólares: unit_price = retail_price_external * freight_commission
+  // Si la cotización está en soles: unit_price = retail_price_external * freight_commission * tipo_cambio
+  useEffect(() => {
+    const retail = Number(retailPriceExternal) || 0;
+    const comision = Number(comisionFlete) || 1.05;
+
+    let calculatedUnitPrice: number;
+    if (isInDollars) {
+      // En dólares: solo precio externo * comisión de flete
+      calculatedUnitPrice = Math.round(retail * comision * 100) / 100;
+    } else {
+      // En soles: precio externo * comisión de flete * tipo de cambio
+      const tipoCambio = exchangeRate || 1;
+      calculatedUnitPrice =
+        Math.round(retail * comision * tipoCambio * 100) / 100;
+    }
+
     form.setValue("unit_price", calculatedUnitPrice);
-  }, [retailPriceExternal, comisionFlete, exchangeRate, form]);
+  }, [retailPriceExternal, comisionFlete, exchangeRate, form, isInDollars]);
 
   const onSubmit = async (data: ProductDetailSchema) => {
     try {
@@ -138,7 +194,7 @@ export default function ProductDetailsSection({
 
       // Calcular el total: (quantity * unit_price) - discount
       const subtotal = data.quantity * data.unit_price;
-      const total_amount = subtotal - data.discount;
+      const total_amount = subtotal - data.discount_percentage;
 
       await storeOrderQuotationDetails({
         ...data,
@@ -154,13 +210,14 @@ export default function ProductDetailsSection({
         description: "",
         quantity: 1,
         unit_measure: "UND",
-        retail_price_external: 0,
+        retail_price_external: undefined,
         freight_commission: 1.05,
         exchange_rate: exchangeRate || 0,
         unit_price: 0,
-        discount: 0,
+        discount_percentage: 0,
         total_amount: 0,
         observations: "",
+        supply_type: "",
       });
       await onRefresh();
     } catch (error: any) {
@@ -173,16 +230,27 @@ export default function ProductDetailsSection({
 
   const formatCurrency = (amount: string | number | null | undefined) => {
     const value = Number(amount) || 0;
-    return `S/. ${value.toFixed(2)}`;
+    return `${currencySymbol} ${value.toFixed(2)}`;
   };
 
   const productDetails = details.filter((d) => d.item_type === "PRODUCT");
 
   return (
     <Card className="p-6">
-      <div className="flex items-center gap-2 mb-4">
-        <Package className="h-5 w-5 text-primary" />
-        <h3 className="text-lg font-semibold">Repuestos</h3>
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <Package className="h-5 w-5 text-primary" />
+          <h3 className="text-lg font-semibold">Repuestos</h3>
+        </div>
+        <Button
+          type="button"
+          onClick={() => setIsPartModalOpen(true)}
+          size="sm"
+          variant="outline"
+        >
+          <PackagePlus className="h-4 w-4 mr-2" />
+          Crear Repuesto
+        </Button>
       </div>
 
       <Form {...form}>
@@ -190,30 +258,35 @@ export default function ProductDetailsSection({
           {/* Mensaje de tipo de cambio y comisión */}
           <div className="bg-blue-50 border border-blue-200 rounded-md px-3 py-2 space-y-1">
             <p className="text-xs text-primary">
-              <span className="font-semibold">Comisión de flete:</span>{" "}
-              {comisionFlete || 1.05}
+              <span className="font-semibold">Moneda de cotización:</span>{" "}
+              {currencySymbol}
             </p>
-            {isLoadingExchangeRate ? (
-              <p className="text-xs text-primary">
-                <span className="font-semibold">Tipo de cambio:</span>{" "}
-                Cargando...
-              </p>
-            ) : exchangeRate ? (
-              <p className="text-xs text-primary">
-                <span className="font-semibold">Tipo de cambio:</span> S/.{" "}
-                {exchangeRate.toFixed(4)}
-              </p>
-            ) : (
-              <p className="text-xs text-red-600">
-                <span className="font-semibold">Tipo de cambio:</span> No
-                disponible
-              </p>
-            )}
+            <p className="text-xs text-primary">
+              <span className="font-semibold">Comisión de flete:</span>{" "}
+              {Number(comisionFlete) || 1.05}
+            </p>
+            {!isInDollars &&
+              (isLoadingExchangeRate ? (
+                <p className="text-xs text-primary">
+                  <span className="font-semibold">Tipo de cambio:</span>{" "}
+                  Cargando...
+                </p>
+              ) : exchangeRate ? (
+                <p className="text-xs text-primary">
+                  <span className="font-semibold">Tipo de cambio:</span> S/.{" "}
+                  {exchangeRate.toFixed(4)}
+                </p>
+              ) : (
+                <p className="text-xs text-red-600">
+                  <span className="font-semibold">Tipo de cambio:</span> No
+                  disponible
+                </p>
+              ))}
           </div>
 
           {/* Primera fila: Repuesto y Precio Externo */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
-            <div className="lg:col-span-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="md:col-span-2 lg:col-span-2">
               <FormSelectAsync
                 name="product_id"
                 label="Repuesto"
@@ -221,7 +294,7 @@ export default function ProductDetailsSection({
                 control={form.control}
                 useQueryHook={useProduct}
                 mapOptionFn={(product) => ({
-                  label: product.name,
+                  label: `${product.code} - ${product.name}`,
                   value: product.id.toString(),
                 })}
                 perPage={10}
@@ -229,104 +302,80 @@ export default function ProductDetailsSection({
               />
             </div>
 
-            <div className="lg:col-span-1">
-              <FormField
+            <div className="md:col-span-2 lg:col-span-2">
+              <FormInput
                 control={form.control}
                 name="retail_price_external"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-xs">
-                      Precio Externo ($)
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        {...field}
-                        onChange={(e) => field.onChange(Number(e.target.value))}
-                        className="h-9"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+                label="Precio Externo ($)"
+                placeholder="Ej: 1.5"
+                inputMode="decimal"
+                type="text"
+                onPaste={handlePaste}
+                onChange={handleNumericChange}
               />
             </div>
           </div>
 
-          {/* Segunda fila: Cantidad, Precio Unitario, Observaciones, Botón */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3">
-            <div className="sm:col-span-1 lg:col-span-2">
-              <FormField
+          {/* Segunda fila: Cantidad, Precio Unitario, Descuento y Tipo de Abastecimiento */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div>
+              <FormInput
                 control={form.control}
                 name="quantity"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-xs">Cantidad</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        min="1"
-                        {...field}
-                        onChange={(e) => field.onChange(Number(e.target.value))}
-                        className="h-9"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+                label="Cantidad"
+                placeholder="Ej: 1"
+                inputMode="numeric"
+                type="number"
               />
             </div>
 
-            <div className="sm:col-span-1 lg:col-span-3">
-              <FormField
+            <div>
+              <FormInput
                 control={form.control}
                 name="unit_price"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-xs">
-                      Precio Unit. (Calculado)
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        {...field}
-                        onChange={(e) => field.onChange(Number(e.target.value))}
-                        className="h-9 bg-gray-50"
-                        disabled
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+                label="Precio Unit. (Calculado)"
+                placeholder="Ej: 10.00"
+                inputMode="numeric"
+                type="number"
+                disabled
               />
             </div>
 
-            <div className="sm:col-span-1 lg:col-span-6">
-              <FormField
+            <div>
+              <FormInput
+                control={form.control}
+                name="discount_percentage"
+                label="Desc. %"
+                placeholder="Ej: 0.00"
+                inputMode="numeric"
+                type="number"
+              />
+            </div>
+
+            <div>
+              <FormSelect
+                control={form.control}
+                name="supply_type"
+                options={onSelectSupplyType}
+                label="Tipo de Abastecimiento"
+                placeholder="Seleccionar un tipo"
+                required
+              />
+            </div>
+          </div>
+
+          {/* Tercera fila: Observaciones y Botón */}
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+            <div className="md:col-span-11">
+              <FormInput
                 control={form.control}
                 name="observations"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-xs">Observaciones</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        value={field.value || ""}
-                        placeholder="Opcional"
-                        className="h-9"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+                label="Observaciones"
+                placeholder="Ej: Observaciones adicionales"
               />
             </div>
 
-            <div className="sm:col-span-2 lg:col-span-1 flex items-end">
+            <div className="md:col-span-1 flex items-end">
               <Button
                 type="submit"
                 disabled={isSaving || !selectedProductId}
@@ -344,7 +393,7 @@ export default function ProductDetailsSection({
       <div className="mt-6">
         <div className="flex items-center justify-between mb-3 pb-2 border-b">
           <h4 className="font-semibold text-gray-700">Items de Repuestos</h4>
-          <Badge variant="secondary" className="font-semibold">
+          <Badge color="secondary" className="font-semibold">
             {productDetails.length} item(s)
           </Badge>
         </div>
@@ -361,12 +410,14 @@ export default function ProductDetailsSection({
         ) : (
           <div className="border rounded-lg overflow-hidden">
             {/* Cabecera de tabla */}
-            <div className="hidden md:grid grid-cols-12 gap-3 bg-gray-100 px-4 py-2 text-xs font-semibold text-gray-700 border-b">
-              <div className="col-span-4">Repuesto</div>
+            <div className="hidden md:grid grid-cols-16 gap-3 bg-gray-100 px-4 py-2 text-xs font-semibold text-gray-700 border-b">
+              <div className="col-span-3">Repuesto</div>
               <div className="col-span-2 text-center">Cantidad</div>
+              <div className="col-span-2 text-right">Tipo Abas.</div>
               <div className="col-span-2 text-right">Precio Unit.</div>
-              {/* <div className="col-span-1 text-right">Desc.</div> */}
+              <div className="col-span-1 text-right">Desc.</div>
               <div className="col-span-2 text-right">Total</div>
+              <div className="col-span-2 text-right">Registrado Por:</div>
               <div className="col-span-2 text-right">Acción</div>
             </div>
 
@@ -375,8 +426,25 @@ export default function ProductDetailsSection({
               {productDetails.map((detail) => (
                 <div key={detail.id}>
                   {/* Vista Desktop */}
-                  <div className="hidden md:grid grid-cols-12 gap-3 px-4 py-3 hover:bg-gray-50 transition-colors items-center">
-                    <div className="col-span-4">
+                  <div className="hidden md:grid grid-cols-16 gap-3 px-4 py-3 hover:bg-gray-50 transition-colors items-center">
+                    <div className="col-span-3">
+                      {detail.product?.code && (
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-xs font-mono bg-blue-100 text-blue-800 px-2 py-0.5 rounded">
+                            {detail.product.code}
+                          </span>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-5 w-5 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                            onClick={() =>
+                              copyToClipboard(detail.product?.code || "")
+                            }
+                          >
+                            <Copy className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      )}
                       <p className="text-sm font-medium text-gray-900 truncate">
                         {detail.description}
                       </p>
@@ -397,21 +465,29 @@ export default function ProductDetailsSection({
                     </div>
 
                     <div className="col-span-2 text-right">
+                      <span className="text-sm">{detail.supply_type}</span>
+                    </div>
+
+                    <div className="col-span-2 text-right">
                       <span className="text-sm">
                         {formatCurrency(detail.unit_price)}
                       </span>
                     </div>
 
-                    {/* <div className="col-span-1 text-right">
+                    <div className="col-span-1 text-right">
                       <span className="text-sm text-orange-600">
-                        -{formatCurrency(detail.discount)}
+                        -{detail.discount_percentage}%
                       </span>
-                    </div> */}
+                    </div>
 
                     <div className="col-span-2 text-right">
                       <span className="text-sm font-bold text-primary">
                         {formatCurrency(detail.total_amount)}
                       </span>
+                    </div>
+
+                    <div className="col-span-2 text-right">
+                      <span className="text-sm">{detail.created_by_name}</span>
                     </div>
 
                     <div className="col-span-2 flex justify-end">
@@ -430,6 +506,23 @@ export default function ProductDetailsSection({
                   <div className="md:hidden px-4 py-3 space-y-2">
                     <div className="flex justify-between items-start">
                       <div className="flex-1">
+                        {detail.product?.code && (
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="text-xs font-mono bg-blue-100 text-blue-800 px-2 py-0.5 rounded">
+                              {detail.product.code}
+                            </span>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-5 w-5 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                              onClick={() =>
+                                copyToClipboard(detail.product?.code || "")
+                              }
+                            >
+                              <Copy className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        )}
                         <p className="text-sm font-medium text-gray-900">
                           {detail.description}
                         </p>
@@ -462,15 +555,27 @@ export default function ProductDetailsSection({
                         </span>
                       </div>
                       <div>
-                        <span className="text-gray-500">Descuento:</span>
-                        <span className="ml-1 font-medium text-orange-600">
-                          -{formatCurrency(detail.discount)}
+                        <span className="text-gray-500">Tipo Abas.:</span>
+                        <span className="ml-1 font-medium">
+                          {detail.supply_type}
                         </span>
                       </div>
                       <div className="text-right">
+                        <span className="text-gray-500">Desc.:</span>
+                        <span className="ml-1 font-medium text-orange-600">
+                          -{formatCurrency(detail.discount_percentage)}
+                        </span>
+                      </div>
+                      <div className="col-span-2 text-right">
                         <span className="text-gray-500">Total:</span>
                         <span className="ml-1 font-bold text-primary">
                           {formatCurrency(detail.total_amount)}
+                        </span>
+                      </div>
+                      <div className="col-span-2">
+                        <span className="text-gray-500">Registrado por:</span>
+                        <span className="ml-1 font-medium">
+                          {detail.created_by_name}
                         </span>
                       </div>
                     </div>
@@ -481,6 +586,12 @@ export default function ProductDetailsSection({
           </div>
         )}
       </div>
+
+      {/* Modal para crear repuesto */}
+      <QuotationPartModal
+        open={isPartModalOpen}
+        onClose={() => setIsPartModalOpen(false)}
+      />
     </Card>
   );
 }

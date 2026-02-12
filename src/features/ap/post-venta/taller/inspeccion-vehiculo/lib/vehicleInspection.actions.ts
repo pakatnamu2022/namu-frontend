@@ -43,15 +43,6 @@ export async function findVehicleInspectionById(
   return response.data;
 }
 
-export async function findVehicleInspectionByWorkOrderId(
-  workOrderId: number
-): Promise<VehicleInspectionResource> {
-  const response = await api.get<{ data: VehicleInspectionResource }>(
-    `${ENDPOINT}/by-work-order/${workOrderId}`
-  );
-  return response.data.data;
-}
-
 export async function storeVehicleInspection(
   data: VehicleInspectionRequest | FormData
 ): Promise<VehicleInspectionResource> {
@@ -139,4 +130,43 @@ export async function downloadVehicleInspectionPdf(id: number): Promise<void> {
   // Limpiar
   link.parentNode?.removeChild(link);
   window.URL.revokeObjectURL(url);
+}
+
+export async function downloadOrderReceiptPdf(id: number): Promise<void> {
+  const response = await api.get(`${ENDPOINT}/${id}/order-receipt`, {
+    responseType: "blob",
+  });
+
+  const blob = new Blob([response.data], { type: "application/pdf" });
+
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.setAttribute("download", `orden-recepcion-personal-${id}.pdf`);
+
+  document.body.appendChild(link);
+  link.click();
+
+  link.parentNode?.removeChild(link);
+  window.URL.revokeObjectURL(url);
+}
+
+export async function requestCancellation(
+  id: number,
+  cancellation_reason: string,
+): Promise<VehicleInspectionResource> {
+  const { data } = await api.post<VehicleInspectionResource>(
+    `${ENDPOINT}/${id}/request-cancellation`,
+    { cancellation_reason },
+  );
+  return data;
+}
+
+export async function confirmCancellation(
+  id: number,
+): Promise<VehicleInspectionResource> {
+  const { data } = await api.post<VehicleInspectionResource>(
+    `${ENDPOINT}/${id}/confirm-cancellation`,
+  );
+  return data;
 }

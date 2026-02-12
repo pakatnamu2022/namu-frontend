@@ -33,7 +33,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useState, useMemo, useEffect, useRef } from "react";
+import { useState, useMemo, useEffect, useRef, useReducer } from "react";
 import { cn } from "@/lib/utils";
 import { ExceptionalCaseSheet } from "./ExceptionalCaseSheet";
 import { useAllWorkers } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
@@ -45,6 +45,7 @@ import { EMPRESA_AP } from "@/core/core.constants";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import { Building2, RefreshCw } from "lucide-react";
 import { useGetWorkOrder } from "../../orden-trabajo/lib/workOrder.hook";
+import { WorkOrderResource } from "../../orden-trabajo/lib/workOrder.interface";
 import {
   Popover,
   PopoverTrigger,
@@ -60,6 +61,12 @@ import {
 import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  AT_WORK_WORK_ORDER_ID,
+  FINISHED_WORK_ORDER_ID,
+  OPENING_WORK_ORDER_ID,
+  RECEIVED_WORK_ORDER_ID,
+} from "@/features/ap/ap-master/lib/apMaster.constants";
 
 interface WorkerTimelineProps {
   open?: boolean;
@@ -75,7 +82,7 @@ interface WorkerTimelineProps {
     hours: number,
     workOrderId: number,
     description: string,
-    groupNumber: number
+    groupNumber: number,
   ) => void;
   onEstimatedHoursChange?: (hours: number) => void;
   fullPage?: boolean;
@@ -114,7 +121,7 @@ export function WorkerTimeline({
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [pageWorkOrder, setPageWorkOrder] = useState(1);
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(
-    undefined
+    undefined,
   );
 
   // Obtener sedes disponibles
@@ -122,20 +129,60 @@ export function WorkerTimeline({
     company: EMPRESA_AP.id,
   });
 
-  // Obtener órdenes de trabajo con búsqueda
+  // Obtener órdenes de trabajo con búsqueda y paginación
   const { data: workOrdersData, isLoading: isLoadingWorkOrders } =
     useGetWorkOrder({
       params: {
         search: debouncedSearch,
         page: pageWorkOrder,
         per_page: 20,
+        status_id: [
+          OPENING_WORK_ORDER_ID,
+          RECEIVED_WORK_ORDER_ID,
+          AT_WORK_WORK_ORDER_ID,
+          FINISHED_WORK_ORDER_ID,
+        ],
+        sede_id: sedeId,
       },
     });
 
-  const workOrders = useMemo(
-    () => workOrdersData?.data || [],
-    [workOrdersData?.data]
+  // Acumular órdenes de trabajo de todas las páginas usando reducer pattern
+  const [accumulatedWorkOrders, dispatchWorkOrders] = useReducer(
+    (
+      state: WorkOrderResource[],
+      action: { type: "set" | "append" | "reset"; data?: WorkOrderResource[] },
+    ) => {
+      switch (action.type) {
+        case "set":
+          return action.data || [];
+        case "append": {
+          const existingIds = new Set(state.map((wo) => wo.id));
+          const uniqueNew = (action.data || []).filter(
+            (wo) => !existingIds.has(wo.id),
+          );
+          return uniqueNew.length > 0 ? [...state, ...uniqueNew] : state;
+        }
+        case "reset":
+          return [];
+        default:
+          return state;
+      }
+    },
+    [],
   );
+
+  // Sincronizar datos paginados del query al estado acumulado
+  useEffect(() => {
+    if (workOrdersData?.data) {
+      if (pageWorkOrder === 1) {
+        dispatchWorkOrders({ type: "set", data: workOrdersData.data });
+      } else {
+        dispatchWorkOrders({ type: "append", data: workOrdersData.data });
+      }
+    }
+  }, [workOrdersData?.data, pageWorkOrder]);
+
+  const workOrders = accumulatedWorkOrders;
 
   // Debounce para búsqueda
   useEffect(() => {
@@ -170,7 +217,7 @@ export function WorkerTimeline({
   const availableGroups = useMemo(() => {
     if (!selectedWorkOrder?.items) return [];
     const groups = new Set(
-      selectedWorkOrder.items.map((item) => item.group_number)
+      selectedWorkOrder.items.map((item) => item.group_number),
     );
     return Array.from(groups).sort();
   }, [selectedWorkOrder]);
@@ -186,7 +233,7 @@ export function WorkerTimeline({
     if (!selectedWorkOrder?.items) return [];
     if (activeGroup === null) return selectedWorkOrder.items;
     return selectedWorkOrder.items.filter(
-      (item) => item.group_number === activeGroup
+      (item) => item.group_number === activeGroup,
     );
   }, [selectedWorkOrder, activeGroup]);
 
@@ -312,7 +359,7 @@ export function WorkerTimeline({
 
   const isSlotAvailable = (
     startTime: Date,
-    workerPlannings: WorkOrderPlanningResource[]
+    workerPlannings: WorkOrderPlanningResource[],
   ) => {
     const endTime = addHours(startTime, estimatedHours);
     const endHour = endTime.getHours();
@@ -353,7 +400,7 @@ export function WorkerTimeline({
   const handleTimelineClick = (
     event: React.MouseEvent<HTMLDivElement>,
     workerId: number,
-    workerPlannings: WorkOrderPlanningResource[]
+    workerPlannings: WorkOrderPlanningResource[],
   ) => {
     if (!selectionMode) return;
     const rect = event.currentTarget.getBoundingClientRect();
@@ -369,7 +416,7 @@ export function WorkerTimeline({
   const handleTimelineHover = (
     event: React.MouseEvent<HTMLDivElement>,
     workerId: number,
-    workerPlannings: WorkOrderPlanningResource[]
+    workerPlannings: WorkOrderPlanningResource[],
   ) => {
     if (!selectionMode) return;
     const rect = event.currentTarget.getBoundingClientRect();
@@ -394,7 +441,7 @@ export function WorkerTimeline({
     ) {
       // Obtener la descripción del item seleccionado
       const selectedItem = filteredItems.find(
-        (item) => item.id === selectedItemId
+        (item) => item.id === selectedItemId,
       );
       const description = selectedItem?.description || "";
 
@@ -404,7 +451,7 @@ export function WorkerTimeline({
         estimatedHours,
         Number(selectedWorkOrderId),
         description,
-        activeGroup
+        activeGroup,
       );
 
       // Limpiar selecciones
@@ -573,7 +620,7 @@ export function WorkerTimeline({
                                 "mr-2 h-4 w-4",
                                 selectedWorkOrderId === wo.id.toString()
                                   ? "opacity-100"
-                                  : "opacity-0"
+                                  : "opacity-0",
                               )}
                             />
                             <div className="flex items-center gap-2">
@@ -614,7 +661,7 @@ export function WorkerTimeline({
                 <div className="flex flex-wrap gap-2">
                   {availableGroups.map((group) => {
                     const itemCount = selectedWorkOrder.items.filter(
-                      (item) => item.group_number === group
+                      (item) => item.group_number === group,
                     ).length;
                     return (
                       <div key={group} className="flex items-center space-x-2">
@@ -771,7 +818,7 @@ export function WorkerTimeline({
         </div>
         <div className="flex items-center gap-2">
           <div className="w-4 h-4 bg-green-500 rounded"></div>
-          <span className="text-sm">Ejecutado</span>
+          <span className="text-sm">Completado</span>
         </div>
         <div className="flex items-center gap-2">
           <TrendingUp className="h-4 w-4 text-green-600" />
@@ -851,12 +898,12 @@ export function WorkerTimeline({
                 {/* Barras de planificación */}
                 {plannings.map((planning, index) => {
                   const startPos = calculatePosition(
-                    planning.planned_start_datetime!
+                    planning.planned_start_datetime!,
                   );
                   const width = calculateWidth(planning);
                   const isExternal = planning.type === "external";
 
-                  // Verificar si el planning anterior era interno y este es externo para agregar espacio
+                  // Verificar si el planning anterior era interno y este es externo para actualizar espacio
                   const previousPlanning =
                     index > 0 ? plannings[index - 1] : null;
                   const needsTopMargin =
@@ -887,8 +934,8 @@ export function WorkerTimeline({
                                 !isExternal && planning.actual_start_datetime
                                   ? PLANNING_STATUS_COLORS[planning.status].bg
                                   : !isExternal
-                                  ? "bg-blue-200 opacity-50"
-                                  : ""
+                                    ? "bg-blue-200 opacity-50"
+                                    : ""
                               }`}
                             ></div>
 
@@ -935,13 +982,13 @@ export function WorkerTimeline({
                                   {planning.planned_start_datetime &&
                                     format(
                                       parseISO(planning.planned_start_datetime),
-                                      "HH:mm"
+                                      "HH:mm",
                                     )}{" "}
                                   -{" "}
                                   {planning.planned_end_datetime &&
                                     format(
                                       parseISO(planning.planned_end_datetime),
-                                      "HH:mm"
+                                      "HH:mm",
                                     )}
                                 </p>
                               </div>
@@ -953,16 +1000,16 @@ export function WorkerTimeline({
                                   {planning.actual_start_datetime
                                     ? `${format(
                                         parseISO(
-                                          planning.actual_start_datetime
+                                          planning.actual_start_datetime,
                                         ),
-                                        "HH:mm"
+                                        "HH:mm",
                                       )} - ${
                                         planning.actual_end_datetime
                                           ? format(
                                               parseISO(
-                                                planning.actual_end_datetime
+                                                planning.actual_end_datetime,
                                               ),
-                                              "HH:mm"
+                                              "HH:mm",
                                             )
                                           : "En curso"
                                       }`
@@ -1019,7 +1066,7 @@ export function WorkerTimeline({
                         left: `${calculatePositionFromDate(hoveredSlot.time)}%`,
                         width: `${
                           calculatePositionFromDate(
-                            addHours(hoveredSlot.time, estimatedHours)
+                            addHours(hoveredSlot.time, estimatedHours),
                           ) - calculatePositionFromDate(hoveredSlot.time)
                         }%`,
                       }}
@@ -1034,11 +1081,11 @@ export function WorkerTimeline({
                       className="absolute top-0 h-full bg-blue-500 opacity-50 pointer-events-none border-2 border-primary z-30"
                       style={{
                         left: `${calculatePositionFromDate(
-                          selectedTime.time
+                          selectedTime.time,
                         )}%`,
                         width: `${
                           calculatePositionFromDate(
-                            addHours(selectedTime.time, estimatedHours)
+                            addHours(selectedTime.time, estimatedHours),
                           ) - calculatePositionFromDate(selectedTime.time)
                         }%`,
                       }}
@@ -1048,7 +1095,7 @@ export function WorkerTimeline({
                           {format(selectedTime.time, "HH:mm")} -{" "}
                           {format(
                             addHours(selectedTime.time, estimatedHours),
-                            "HH:mm"
+                            "HH:mm",
                           )}
                         </span>
                       </div>

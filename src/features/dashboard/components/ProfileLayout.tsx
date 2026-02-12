@@ -7,7 +7,7 @@ import {
   SidebarInset,
   SidebarRail,
 } from "@/components/ui/sidebar";
-import { ProfileCard } from "../../users/components/profile-card";
+import { ProfileCard } from "@/features/users/components/profile-card";
 import Header from "@/shared/components/header";
 
 export default function ProfileLayout({
@@ -19,16 +19,16 @@ export default function ProfileLayout({
     <SidebarProvider
       style={
         {
-          "--sidebar-width": "20rem",
+          "--sidebar-width": "19rem",
           // "--sidebar-width-icon": SIDEBAR_WIDTH_ICON,
         } as React.CSSProperties
       }
     >
       <SidebarLeft />
-      <SidebarInset className="bg-linear-to-br from-slate-50 to-blue-50/30">
+      <SidebarInset className="bg-background">
         <Header />
-        <div className="p-3 flex gap-8 w-full h-[calc(100vh-3.5rem)] overflow-auto">
-          {children}
+        <div className="flex gap-8 w-full h-[calc(100vh-4.5rem)] overflow-auto">
+          <div className="p-3 w-full">{children}</div>
         </div>
       </SidebarInset>
     </SidebarProvider>
@@ -37,7 +37,7 @@ export default function ProfileLayout({
 
 function SidebarLeft({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
-    <Sidebar {...props}>
+    <Sidebar {...props} variant="inset">
       <SidebarContent>
         <ProfileCard variant="sidebar" />
       </SidebarContent>

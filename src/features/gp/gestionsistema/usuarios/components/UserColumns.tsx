@@ -2,23 +2,27 @@
 
 import type { ColumnDef } from "@tanstack/react-table";
 import { UserResource } from "../lib/user.interface";
-import { Button } from "@/components/ui/button";
-import { Building2, KeyRound } from "lucide-react";
+import { Building2, KeyRound, UserCog } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ButtonAction } from "@/shared/components/ButtonAction";
 
 export type UserColumns = ColumnDef<UserResource>;
+
+interface Props {
+  onDelete: (id: number) => void;
+  onManageSedes?: (user: UserResource) => void;
+  onResetPassword?: (id: number) => void;
+  onAssignRole: (user: UserResource) => void;
+}
 
 export const userColumns = ({
   onDelete,
   onManageSedes,
   onResetPassword,
-}: {
-  onDelete: (id: number) => void;
-  onManageSedes?: (user: UserResource) => void;
-  onResetPassword?: (id: number) => void;
-}): UserColumns[] => [
+  onAssignRole,
+}: Props): UserColumns[] => [
   {
     id: "userInfo",
     header: "Usuario",
@@ -62,7 +66,7 @@ export const userColumns = ({
       const value = getValue() as string;
       return (
         value && (
-          <Badge variant="default" className="capitalize gap-2">
+          <Badge color="default" className="capitalize gap-2">
             {value}
           </Badge>
         )
@@ -76,7 +80,7 @@ export const userColumns = ({
       const value = getValue() as string;
       return (
         value && (
-          <Badge variant={"tertiary"} className="capitalize gap-2">
+          <Badge color={"tertiary"} className="capitalize gap-2">
             {value}
           </Badge>
         )
@@ -104,7 +108,7 @@ export const userColumns = ({
       const value = getValue() as string;
       return (
         value && (
-          <Badge variant="tertiary" className="capitalize gap-2">
+          <Badge color="tertiary" className="capitalize gap-2">
             {value}
           </Badge>
         )
@@ -122,54 +126,28 @@ export const userColumns = ({
 
       return (
         <div className="flex items-center gap-2">
-          {/* Gestionar Sedes */}
           {onManageSedes && (
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-7"
-              onClick={() => onManageSedes(user)}
+            <ButtonAction
+              icon={Building2}
               tooltip="Gestionar Sedes"
-            >
-              <Building2 className="size-5" />
-            </Button>
+              onClick={() => onManageSedes(user)}
+            />
           )}
 
-          {/* Restablecer Contraseña */}
           {onResetPassword && (
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-7"
-              onClick={() => onResetPassword(id)}
+            <ButtonAction
+              icon={KeyRound}
               tooltip="Restablecer Contraseña"
-            >
-              <KeyRound className="size-5" />
-            </Button>
+              onClick={() => onResetPassword(id)}
+            />
           )}
 
-          {/* Rol */}
-          {/* <Button
-            variant="outline"
-            size="icon"
-            className="size-7"
-            onClick={() => router(`${ROUTE_UPDATE}/${id}`)}
-            tooltip="Gestionar Rol"
-          >
-            <UserRoundCog className="size-5" />
-          </Button> */}
+          <ButtonAction
+            icon={UserCog}
+            tooltip="Asignar Rol"
+            onClick={() => onAssignRole(user)}
+          />
 
-          {/* Edit */}
-          {/* <Button
-            variant="outline"
-            size="icon"
-            className="size-7"
-            onClick={() => router(`${ROUTE_UPDATE}/${id}`)}
-            tooltip="Editar Usuario"
-          >
-            <Pencil className="size-5" />
-          </Button> */}
-          {/* Delete */}
           <DeleteButton onClick={() => onDelete(id)} />
         </div>
       );

@@ -34,8 +34,8 @@ export function FileForm({
       ? value
       : []
     : value
-    ? [value as File]
-    : [];
+      ? [value as File]
+      : [];
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const fileList = e.target.files;
@@ -85,13 +85,13 @@ export function FileForm({
               {files.map((file, index) => (
                 <div
                   key={`${file.name}-${index}`}
-                  className="flex items-center gap-2 p-3 bg-muted rounded-lg"
+                  className="flex items-center gap-2 p-3 bg-muted rounded-lg overflow-hidden"
                 >
-                  <FileUp className="h-5 w-5 text-primary flex-shrink-0" />
-                  <span className="flex-1 text-sm font-medium truncate">
+                  <FileUp className="h-5 w-5 text-primary shrink-0" />
+                  <span className="flex-1 min-w-0 text-sm font-medium truncate">
                     {file.name}
                   </span>
-                  <span className="text-xs text-muted-foreground flex-shrink-0">
+                  <span className="text-xs text-muted-foreground shrink-0">
                     {(file.size / 1024).toFixed(2)} KB
                   </span>
                   <Button
@@ -99,7 +99,7 @@ export function FileForm({
                     variant="ghost"
                     size="sm"
                     onClick={() => handleRemoveFile(index)}
-                    className="h-6 w-6 p-0 flex-shrink-0"
+                    className="h-6 w-6 p-0 shrink-0"
                     disabled={disabled}
                   >
                     <X className="h-4 w-4" />

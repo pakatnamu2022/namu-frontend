@@ -153,7 +153,7 @@ export const planningColumns = ({
 
       return (
         <>
-          <Badge variant={variantMap[status]}>
+          <Badge color={variantMap[status]}>
             {PLANNING_STATUS_LABELS[status]}
           </Badge>
         </>

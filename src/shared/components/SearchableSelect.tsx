@@ -41,6 +41,7 @@ interface SearchableSelectProps {
   disabled?: boolean;
   buttonSize?: "icon" | "sm" | "lg" | "default" | "xs" | "icon-sm" | "icon-lg";
   showSearch?: boolean;
+  allowClear?: boolean;
 }
 
 export function SearchableSelect({
@@ -57,6 +58,7 @@ export function SearchableSelect({
   disabled = false,
   buttonSize = "sm",
   showSearch = true,
+  allowClear = true,
 }: SearchableSelectProps) {
   const [open, setOpen] = React.useState(false);
   const [searchValue, setSearchValue] = React.useState("");
@@ -70,6 +72,14 @@ export function SearchableSelect({
     if (!searchValue) return options;
 
     return options.filter((option) => {
+      const searchLower = searchValue.toLowerCase();
+
+      // Si existe searchValue personalizado, usar solo ese para la búsqueda
+      if (option.searchValue) {
+        return option.searchValue.toLowerCase().includes(searchLower);
+      }
+
+      // Sino, buscar por label, value y description como antes
       // Obtener el label como string
       let labelText = "";
       if (typeof option.label === "function") {
@@ -81,8 +91,6 @@ export function SearchableSelect({
 
       // Convertir value a string para búsqueda
       const valueText = String(option.value);
-
-      const searchLower = searchValue.toLowerCase();
 
       return (
         labelText.toLowerCase().includes(searchLower) ||
@@ -102,7 +110,7 @@ export function SearchableSelect({
 
   const handleSelect = (optionValue: string) => {
     if (value === optionValue) {
-      onChange("");
+      if (allowClear) onChange("");
     } else {
       onChange(optionValue);
     }

@@ -8,7 +8,7 @@ export interface TravelControlOptionsProps{
     setSearch: (value: string) => void;
     status: TripStatus | "all";
     setStatus: (value: TripStatus | "all") => void;
-    userRole?: string;
+    userPosition?: string;
 }
 export interface TravelControlDetailModalProps{
   trip: TravelControlResource,

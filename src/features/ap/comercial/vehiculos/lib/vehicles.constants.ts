@@ -21,10 +21,10 @@ export const VEHICLES: ModelComplete<VehicleResource> = {
 };
 
 // VEHICULOS TALLER
-const ROUTE_PV = "vehiculos-post-venta";
-const ABSOLUTE_ROUTE_PV = `/ap/post-venta/taller/${ROUTE_PV}`;
+const ROUTE_TLL = "vehiculos-taller";
+const ABSOLUTE_ROUTE_TLL = `/ap/post-venta/taller/${ROUTE_TLL}`;
 
-export const VEHICLES_PV: ModelComplete<VehicleResource> = {
+export const VEHICLES_TLL: ModelComplete<VehicleResource> = {
   MODEL: {
     name: "Vehículo Post Venta",
     plural: "Vehículos Post Venta",
@@ -33,10 +33,10 @@ export const VEHICLES_PV: ModelComplete<VehicleResource> = {
   ICON: "Car",
   ENDPOINT: "/ap/commercial/vehicles",
   QUERY_KEY: "vehicles-post-venta",
-  ROUTE: ROUTE_PV,
-  ABSOLUTE_ROUTE: ABSOLUTE_ROUTE_PV,
-  ROUTE_ADD: `${ABSOLUTE_ROUTE_PV}/agregar`,
-  ROUTE_UPDATE: `${ABSOLUTE_ROUTE_PV}/actualizar`,
+  ROUTE: ROUTE_TLL,
+  ABSOLUTE_ROUTE: ABSOLUTE_ROUTE_TLL,
+  ROUTE_ADD: `${ABSOLUTE_ROUTE_TLL}/agregar`,
+  ROUTE_UPDATE: `${ABSOLUTE_ROUTE_TLL}/actualizar`,
 };
 
 // VEHICULOS REPUESTOS

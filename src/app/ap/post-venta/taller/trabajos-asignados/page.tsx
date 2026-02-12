@@ -51,15 +51,28 @@ export default function AssignedWorkPage() {
   const pauseWork = usePauseWork();
   const completeWork = useCompleteWork(); // Reutilizando la mutación de inicio para completar (ajustar según sea necesario)
 
+  const { data: mySedes = [], isLoading: isLoadingMySedes } = useMySedes({
+    company: EMPRESA_AP.id,
+  });
+
+  // Seleccionar la primera sede cuando se cargan las sedes y no hay una seleccionada
+  useEffect(() => {
+    if (mySedes.length > 0 && !sedeId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setSedeId(mySedes[0].id.toString());
+    }
+  }, [mySedes, sedeId]);
+
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setPage(1);
-  }, [search, per_page, workerId]);
+  }, [search, per_page, workerId, sedeId]);
 
   const { data: workers = [], isLoading: isLoadingWorkers } = useAllWorkers({
     cargo_id: POSITION_TYPE.OPERATORS,
     status_id: STATUS_WORKER.ACTIVE,
     sede$empresa_id: EMPRESA_AP.id,
+    sede_id: sedeId || undefined,
   });
 
   const { data, isLoading, refetch } = useGetWorkOrderPlanning({
@@ -68,10 +81,6 @@ export default function AssignedWorkPage() {
     per_page,
     worker_id: workerId,
     workOrder$sede_id: sedeId,
-  });
-
-  const { data: mySedes = [], isLoading: isLoadingMySedes } = useMySedes({
-    company: EMPRESA_AP.id,
   });
 
   const handleViewWork = (work: WorkOrderPlanningResource) => {
@@ -99,7 +108,7 @@ export default function AssignedWorkPage() {
     if (!actionWork) return;
     try {
       await startSession.mutateAsync({ id: actionWork.id });
-      successToast("Sesión iniciada exitosamente");
+      successToast("Trabajo iniciado exitosamente");
       refetch();
       setOpenStartAlert(false);
       setActionWork(null);
@@ -136,7 +145,7 @@ export default function AssignedWorkPage() {
     } catch (error: any) {
       errorToast(
         "Error al completar el trabajo",
-        error.response?.data?.message
+        error.response?.data?.message,
       );
       return;
     }

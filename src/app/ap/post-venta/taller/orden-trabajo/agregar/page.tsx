@@ -16,6 +16,7 @@ import { WorkOrderSchema } from "@/features/ap/post-venta/taller/orden-trabajo/l
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import { WorkOrderForm } from "@/features/ap/post-venta/taller/orden-trabajo/components/WorkOrderForm";
 import { notFound } from "@/shared/hooks/useNotFound";
+import { CURRENCY_TYPE_IDS } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.constants";
 
 export default function AddWorkOrderPage() {
   const router = useNavigate();
@@ -55,6 +56,7 @@ export default function AddWorkOrderPage() {
         defaultValues={{
           appointment_planning_id: "",
           vehicle_id: "",
+          currency_id: CURRENCY_TYPE_IDS.SOLES,
           sede_id: "",
           opening_date: new Date(),
           estimated_delivery_date: "",

@@ -126,7 +126,7 @@ export async function updateCycle(
 
 export async function updateGoalCyclePersonDetail(
   id: number,
-  data: { goal: number; weight?: number }
+  data: { goal?: number; weight?: number }
 ): Promise<CyclePersonDetailResource> {
   const response = await api.put<CyclePersonDetailResource>(
     `${ENDPOINT_DETAIL}/${id}`,

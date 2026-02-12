@@ -96,7 +96,7 @@ export const vehicleDeliveryColumns = ({
       const value = getValue() as string;
       return (
         <Badge
-          variant={value == "Completado" ? "default" : "secondary"}
+          color={value == "Completado" ? "default" : "secondary"}
           className="capitalize w-24 flex items-center justify-center"
         >
           {value}
@@ -111,7 +111,7 @@ export const vehicleDeliveryColumns = ({
       const value = getValue() as string;
       return (
         <Badge
-          variant={value == "Completado" ? "default" : "secondary"}
+          color={value == "Completado" ? "default" : "secondary"}
           className="capitalize w-24 flex items-center justify-center"
         >
           {value}

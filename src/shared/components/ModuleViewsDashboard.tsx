@@ -3,9 +3,19 @@
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import { useNavigate } from "react-router-dom";
 import DashboardSkeleton from "@/shared/components/DashboardSkeleton";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { ViewsResponseMenuChild } from "@/features/views/lib/views.interface";
 import * as LucideReact from "lucide-react";
+import TitleComponent from "./TitleComponent";
+import PageWrapper from "./PageWrapper";
+import { SUBTITLE } from "@/core/core.function";
+import { ModelInterface } from "@/core/core.interface";
 
 interface ModuleViewsDashboardProps {
   /**
@@ -26,13 +36,13 @@ interface ModuleViewsDashboardProps {
  * o submódulo basándose en la ruta actual.
  *
  * @example
- * // Dashboard básico (detecta automáticamente módulo/submódulo):
+ * Dashboard básico (detecta automáticamente módulo/submódulo):
  * export default function MiModuloPage() {
  *   return <ModuleViewsDashboard />;
  * }
  *
  * @example
- * // Dashboard con título personalizado:
+ * Dashboard con título personalizado:
  * export default function MiModuloPage() {
  *   return (
  *     <ModuleViewsDashboard
@@ -71,13 +81,14 @@ export default function ModuleViewsDashboard({
 
   // Separar submódulos y vistas
   const submodules = children.filter(
-    (child) => child.children && child.children.length > 0
+    (child) => child.children && child.children.length > 0,
   );
   const views = children.filter(
-    (child) => !child.children || child.children.length === 0
+    (child) => !child.children || child.children.length === 0,
   );
 
   const displayTitle = title || context?.descripcion || "Dashboard";
+  const icon = (context?.icon as keyof typeof LucideReact) || "FolderDot";
 
   const handleItemClick = (item: ViewsResponseMenuChild) => {
     const itemRoute = item.route || item.slug || item.ruta;
@@ -95,18 +106,15 @@ export default function ModuleViewsDashboard({
     const Icon = (LucideReact as any)[iconName];
     if (!Icon) return null;
 
-    return <Icon className="w-8 h-8" />;
+    return <Icon className="h-5 w-5 md:w-6 md:h-6" />;
   };
 
   const hasContent = submodules.length > 0 || views.length > 0;
 
   return (
-    <div className="space-y-6 p-6">
+    <PageWrapper>
       {/* Header */}
-      <div className="space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight">{displayTitle}</h1>
-        {subtitle && <p className="text-muted-foreground">{subtitle}</p>}
-      </div>
+      <TitleComponent title={displayTitle} subtitle={subtitle} icon={icon} />
 
       {/* Content */}
       {!hasContent ? (
@@ -118,7 +126,7 @@ export default function ModuleViewsDashboard({
           </div>
         </div>
       ) : (
-        <div className="space-y-8">
+        <div className="md:space-y-8">
           {/* Submódulos */}
           {submodules.length > 0 && (
             <div className="space-y-4">
@@ -129,14 +137,14 @@ export default function ModuleViewsDashboard({
                 {submodules.map((submodule) => (
                   <Card
                     key={submodule.id}
-                    className="cursor-pointer transition-all hover:shadow-lg hover:scale-105 active:scale-95 border-2"
+                    className="py-0 gap-0 cursor-pointer transition-all hover:shadow-lg hover:scale-105 active:scale-95 border-2"
                     onClick={() => handleItemClick(submodule)}
                   >
                     <CardHeader className="space-y-1">
                       <div className="flex items-center gap-3">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-secondary/20 text-secondary-foreground">
-                          {getIcon(submodule.icono) || (
-                            <LucideReact.FolderOpen className="w-6 h-6" />
+                        <div className="flex h-10 w-10 md:h-12 md:w-12 items-center justify-center rounded-lg bg-secondary/20 text-secondary-foreground">
+                          {getIcon(submodule.icon ?? "FolderOpen") || (
+                            <LucideReact.FolderOpen className="h-5 w-5 md:w-6 md:h-6" />
                           )}
                         </div>
                         <CardTitle className="text-base line-clamp-2">
@@ -149,7 +157,7 @@ export default function ModuleViewsDashboard({
                         <p className="text-xs text-muted-foreground">
                           {submodule.children?.length || 0} opciones
                         </p>
-                        <LucideReact.ChevronRight className="w-4 h-4 text-muted-foreground" />
+                        <LucideReact.ChevronRight className="h-5 w-5 text-muted-foreground" />
                       </div>
                     </CardContent>
                   </Card>
@@ -170,26 +178,31 @@ export default function ModuleViewsDashboard({
                 {views.map((view) => (
                   <Card
                     key={view.id}
-                    className="cursor-pointer transition-all hover:shadow-lg hover:scale-105 active:scale-95"
+                    className="py-0 cursor-pointer transition-all hover:shadow-lg hover:scale-105 active:scale-95"
                     onClick={() => handleItemClick(view)}
                   >
-                    <CardHeader className="space-y-1">
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                          {getIcon(view.icono) || (
-                            <LucideReact.FileText className="w-6 h-6" />
+                    <CardHeader className="space-y-1 p-2 gap-0! md:p-6 h-full">
+                      <div className="flex items-center gap-3 h-full">
+                        <div className="flex h-10 w-10 md:h-12 md:w-12 items-center justify-center rounded-lg bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-foreground">
+                          {getIcon(view.icon ?? "FileText") || (
+                            <LucideReact.FileText className="h-5 w-5 md:w-6 md:h-6" />
                           )}
                         </div>
-                        <CardTitle className="text-base line-clamp-2">
-                          {view.descripcion}
-                        </CardTitle>
+                        <div>
+                          <CardTitle className="text-base line-clamp-2">
+                            {view.descripcion}
+                          </CardTitle>
+                          <CardDescription className="text-xs md:text-sm">
+                            {SUBTITLE(
+                              {
+                                name: view.descripcion,
+                              } as ModelInterface,
+                              "manage",
+                            )}
+                          </CardDescription>
+                        </div>
                       </div>
                     </CardHeader>
-                    <CardContent>
-                      <p className="text-xs text-muted-foreground">
-                        Click para acceder
-                      </p>
-                    </CardContent>
                   </Card>
                 ))}
               </div>
@@ -197,6 +210,6 @@ export default function ModuleViewsDashboard({
           )}
         </div>
       )}
-    </div>
+    </PageWrapper>
   );
 }

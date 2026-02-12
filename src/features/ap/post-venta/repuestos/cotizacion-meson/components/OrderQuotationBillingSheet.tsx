@@ -18,6 +18,10 @@ import {
   FileText,
   Loader2,
   PenLine,
+  AlertTriangle,
+  User,
+  Calendar,
+  MessageSquare,
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { findOrderQuotationById } from "../../../taller/cotizacion/lib/proforma.actions";
@@ -89,7 +93,7 @@ export function OrderQuotationBillingSheet({
     <GeneralSheet
       open={open}
       onClose={onClose}
-      title="Facturas Asociadas"
+      title="Detalle de Cotización"
       subtitle={
         orderQuotation
           ? `Cotización ${orderQuotation.quotation_number}`
@@ -147,7 +151,7 @@ function BillingSheetContent({
   const advances = orderQuotation.advances || [];
   const hasAdvances = advances.length > 0;
   const totalAdvances = advances.reduce((sum, doc) => sum + doc.total, 0);
-  const currencySymbol = orderQuotation.currency?.symbol || "S/.";
+  const currencySymbol = orderQuotation.type_currency?.symbol || "S/.";
 
   // Verificar si debe mostrar la sección de firma
   const shouldShowSignature =
@@ -178,7 +182,7 @@ function BillingSheetContent({
     onError: (error: any) => {
       errorToast(
         error?.response?.data?.message ||
-          "Error al registrar la firma. Intente nuevamente."
+          "Error al registrar la firma. Intente nuevamente.",
       );
     },
   });
@@ -189,6 +193,149 @@ function BillingSheetContent({
 
   return (
     <div className="space-y-6 px-6">
+      {/* Estado de la Cotización */}
+      <div className="space-y-3">
+        <h3 className="font-semibold text-lg">Estado de la Cotización</h3>
+        <div className="bg-muted/30 p-4 rounded-lg">
+          <div className="flex items-center gap-3">
+            {orderQuotation.status === "Descartado" ? (
+              <div className="flex items-center justify-center w-10 h-10 rounded-full bg-red-100">
+                <XCircle className="h-5 w-5 text-red-600" />
+              </div>
+            ) : orderQuotation.status === "Aperturado" ? (
+              <div className="flex items-center justify-center w-10 h-10 rounded-full bg-indigo-100">
+                <FileText className="h-5 w-5 text-indigo-600" />
+              </div>
+            ) : orderQuotation.status === "Por Facturar" ? (
+              <div className="flex items-center justify-center w-10 h-10 rounded-full bg-orange-100">
+                <Clock className="h-5 w-5 text-orange-600" />
+              </div>
+            ) : orderQuotation.status === "Facturado" ? (
+              <div className="flex items-center justify-center w-10 h-10 rounded-full bg-green-100">
+                <CheckCircle className="h-5 w-5 text-green-600" />
+              </div>
+            ) : (
+              <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-100">
+                <FileText className="h-5 w-5 text-gray-600" />
+              </div>
+            )}
+            <div>
+              <Badge
+                variant="outline"
+                color={
+                  orderQuotation.status === "Descartado"
+                    ? "destructive"
+                    : orderQuotation.status === "Aperturado"
+                      ? "default"
+                      : orderQuotation.status === "Por Facturar"
+                        ? "secondary"
+                        : orderQuotation.status === "Facturado"
+                          ? "default"
+                          : "default"
+                }
+                className={
+                  orderQuotation.status === "Descartado"
+                    ? "bg-red-100 text-red-700 border-red-300"
+                    : orderQuotation.status === "Aperturado"
+                      ? "bg-indigo-100 text-indigo-700 border-indigo-300"
+                      : orderQuotation.status === "Por Facturar"
+                        ? "bg-orange-100 text-orange-700 border-orange-300"
+                        : orderQuotation.status === "Facturado"
+                          ? "bg-green-100 text-green-700 border-green-300"
+                          : ""
+                }
+              >
+                {orderQuotation.status}
+              </Badge>
+              <p className="text-xs text-muted-foreground mt-1">
+                {orderQuotation.status === "Descartado"
+                  ? "Esta cotización ha sido descartada"
+                  : orderQuotation.status === "Aperturado"
+                    ? "Cotización abierta, pendiente de confirmación"
+                    : orderQuotation.status === "Por Facturar"
+                      ? "Cotización confirmada, lista para facturar"
+                      : orderQuotation.status === "Facturado"
+                        ? "Cotización completamente facturada"
+                        : "Estado de la cotización"}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Información de Descarte (solo si fue descartada) */}
+      {orderQuotation.status === "Descartado" && (
+        <>
+          <Separator />
+          <div className="space-y-3">
+            <h3 className="font-semibold text-lg flex items-center gap-2 text-red-700">
+              <AlertTriangle className="h-5 w-5" />
+              Información de Descarte
+            </h3>
+            <div className="bg-red-50 border border-red-200 p-4 rounded-lg space-y-3">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex items-start gap-2">
+                  <MessageSquare className="h-4 w-4 text-red-600 mt-0.5" />
+                  <div>
+                    <p className="text-xs text-muted-foreground">
+                      Motivo de Descarte
+                    </p>
+                    <p className="text-sm font-medium text-red-700">
+                      {(orderQuotation as any).discard_reason ||
+                        "No especificado"}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-2">
+                  <User className="h-4 w-4 text-red-600 mt-0.5" />
+                  <div>
+                    <p className="text-xs text-muted-foreground">
+                      Descartado Por
+                    </p>
+                    <p className="text-sm font-medium">
+                      {(orderQuotation as any).discarded_by_name || "N/A"}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-2">
+                  <Calendar className="h-4 w-4 text-red-600 mt-0.5" />
+                  <div>
+                    <p className="text-xs text-muted-foreground">
+                      Fecha de Descarte
+                    </p>
+                    <p className="text-sm font-medium">
+                      {(orderQuotation as any).discarded_at
+                        ? new Date(
+                            (orderQuotation as any).discarded_at,
+                          ).toLocaleDateString("es-PE", {
+                            day: "2-digit",
+                            month: "2-digit",
+                            year: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })
+                        : "N/A"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+              {(orderQuotation as any).discarded_note && (
+                <div className="pt-2 border-t border-red-200">
+                  <p className="text-xs text-muted-foreground mb-1">
+                    Notas Adicionales
+                  </p>
+                  <p className="text-sm text-red-700 bg-red-100/50 p-2 rounded">
+                    {(orderQuotation as any).discarded_note}
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        </>
+      )}
+
+      <Separator />
+
       {/* Información del Cliente */}
       <div className="space-y-3">
         <h3 className="font-semibold text-lg">Información del Cliente</h3>
@@ -196,80 +343,83 @@ function BillingSheetContent({
           <div className="col-span-2">
             <p className="text-xs text-muted-foreground">Cliente</p>
             <p className="text-sm font-semibold">
-              {orderQuotation.vehicle?.owner?.full_name || "N/A"}
+              {orderQuotation.client?.full_name || "N/A"}
             </p>
           </div>
           <div>
             <p className="text-xs text-muted-foreground">Documento</p>
             <p className="text-sm font-medium">
-              {orderQuotation.vehicle?.owner?.num_doc || "N/A"}
+              {orderQuotation.client.num_doc || "N/A"}
             </p>
           </div>
           <div>
             <p className="text-xs text-muted-foreground">Teléfono</p>
             <p className="text-sm font-medium">
-              {orderQuotation.vehicle?.owner?.phone || "N/A"}
+              {orderQuotation.client.phone || "N/A"}
             </p>
           </div>
           <div>
             <p className="text-xs text-muted-foreground">Email</p>
             <p className="text-sm font-medium">
-              {orderQuotation.vehicle?.owner?.email || "N/A"}
+              {orderQuotation.client.email || "N/A"}
             </p>
           </div>
           <div>
             <p className="text-xs text-muted-foreground">Dirección</p>
             <p className="text-sm font-medium">
-              {orderQuotation.vehicle?.owner?.direction || "N/A"}
+              {orderQuotation.client.direction || "N/A"}
             </p>
           </div>
         </div>
       </div>
 
-      <Separator />
-
-      {/* Información del Vehículo */}
-      <div className="space-y-3">
-        <h3 className="font-semibold text-lg">Información del Vehículo</h3>
-        <div className="grid grid-cols-2 gap-4 bg-muted/30 p-4 rounded-lg">
-          <div>
-            <p className="text-xs text-muted-foreground">Placa</p>
-            <p className="text-sm font-semibold">
-              {orderQuotation.vehicle?.plate || "N/A"}
-            </p>
+      {/* Información del Vehículo (solo si hay vehículo asociado) */}
+      {orderQuotation.vehicle && (
+        <>
+          <Separator />
+          <div className="space-y-3">
+            <h3 className="font-semibold text-lg">Información del Vehículo</h3>
+            <div className="grid grid-cols-2 gap-4 bg-muted/30 p-4 rounded-lg">
+              <div>
+                <p className="text-xs text-muted-foreground">Placa</p>
+                <p className="text-sm font-semibold">
+                  {orderQuotation.vehicle.plate || "-"}
+                </p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">VIN</p>
+                <p className="text-sm font-medium">
+                  {orderQuotation.vehicle.vin || "-"}
+                </p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Marca</p>
+                <p className="text-sm font-medium">
+                  {orderQuotation.vehicle.model?.brand || "-"}
+                </p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Modelo</p>
+                <p className="text-sm font-medium">
+                  {orderQuotation.vehicle.model?.version || "-"}
+                </p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Año</p>
+                <p className="text-sm font-medium">
+                  {orderQuotation.vehicle.year || "-"}
+                </p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Color</p>
+                <p className="text-sm font-medium">
+                  {orderQuotation.vehicle.vehicle_color || "-"}
+                </p>
+              </div>
+            </div>
           </div>
-          <div>
-            <p className="text-xs text-muted-foreground">VIN</p>
-            <p className="text-sm font-medium">
-              {orderQuotation.vehicle?.vin || "N/A"}
-            </p>
-          </div>
-          <div>
-            <p className="text-xs text-muted-foreground">Marca</p>
-            <p className="text-sm font-medium">
-              {orderQuotation.vehicle?.model?.brand || "N/A"}
-            </p>
-          </div>
-          <div>
-            <p className="text-xs text-muted-foreground">Modelo</p>
-            <p className="text-sm font-medium">
-              {orderQuotation.vehicle?.model?.version || "N/A"}
-            </p>
-          </div>
-          <div>
-            <p className="text-xs text-muted-foreground">Año</p>
-            <p className="text-sm font-medium">
-              {orderQuotation.vehicle?.year || "N/A"}
-            </p>
-          </div>
-          <div>
-            <p className="text-xs text-muted-foreground">Color</p>
-            <p className="text-sm font-medium">
-              {orderQuotation.vehicle?.vehicle_color || "N/A"}
-            </p>
-          </div>
-        </div>
-      </div>
+        </>
+      )}
 
       <Separator />
 
@@ -295,7 +445,7 @@ function BillingSheetContent({
                       day: "2-digit",
                       month: "2-digit",
                       year: "numeric",
-                    }
+                    },
                   )
                 : "N/A"}
             </p>
@@ -310,7 +460,7 @@ function BillingSheetContent({
                       day: "2-digit",
                       month: "2-digit",
                       year: "numeric",
-                    }
+                    },
                   )
                 : "N/A"}
             </p>
@@ -318,7 +468,7 @@ function BillingSheetContent({
           <div>
             <p className="text-xs text-muted-foreground">Moneda</p>
             <Badge variant="outline">
-              {orderQuotation.currency?.name || "N/A"}
+              {orderQuotation.type_currency?.name || "N/A"}
             </Badge>
           </div>
           {orderQuotation.observations && (
@@ -345,7 +495,8 @@ function BillingSheetContent({
                 <TableHead>Descripción</TableHead>
                 <TableHead className="text-center">Cantidad</TableHead>
                 <TableHead className="text-right">P. Unitario</TableHead>
-                <TableHead className="text-right">Subtotal</TableHead>
+                <TableHead className="text-right">% Dto.</TableHead>
+                <TableHead className="text-right">Neto</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -368,6 +519,16 @@ function BillingSheetContent({
                       {Number(detail.unit_price).toLocaleString("es-PE", {
                         minimumFractionDigits: 2,
                       })}
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="text-sm font-medium">
+                      {Number(detail.discount_percentage).toLocaleString(
+                        "es-PE",
+                        {
+                          minimumFractionDigits: 2,
+                        },
+                      )}
                     </div>
                   </TableCell>
                   <TableCell className="text-right">
@@ -395,24 +556,26 @@ function BillingSheetContent({
               })}
             </span>
           </div>
-          {orderQuotation.discount_amount &&
-            orderQuotation.discount_amount > 0 && (
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">
-                  Descuento ({orderQuotation.discount_percentage}%)
-                </span>
-                <span className="font-medium text-red-600">
-                  - {currencySymbol}{" "}
-                  {orderQuotation.discount_amount.toLocaleString("es-PE", {
-                    minimumFractionDigits: 2,
-                  })}
-                </span>
-              </div>
-            )}
           <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">
-              IGV ({orderQuotation.tax_amount}%)
+            <span className="text-muted-foreground">Descuento</span>
+            <span className="font-medium">
+              {currencySymbol}{" "}
+              {orderQuotation.discount_amount.toLocaleString("es-PE", {
+                minimumFractionDigits: 2,
+              })}
             </span>
+          </div>
+          <div className="flex justify-between text-sm">
+            <span className="text-muted-foreground">OP. Gravadas</span>
+            <span className="font-medium">
+              {currencySymbol}{" "}
+              {orderQuotation.op_gravada.toLocaleString("es-PE", {
+                minimumFractionDigits: 2,
+              })}
+            </span>
+          </div>
+          <div className="flex justify-between text-sm">
+            <span className="text-muted-foreground">IGV (18%)</span>
             <span className="font-medium">
               {currencySymbol}{" "}
               {(
@@ -472,6 +635,7 @@ function BillingSheetContent({
                     <TableHead>Tipo</TableHead>
                     <TableHead>Cliente</TableHead>
                     <TableHead>Fecha Emisión</TableHead>
+                    <TableHead>Observaciones</TableHead>
                     <TableHead>Estado</TableHead>
                     <TableHead className="text-right">Monto</TableHead>
                   </TableRow>
@@ -497,7 +661,7 @@ function BillingSheetContent({
                             {doc.document_type?.description || "N/A"}
                           </div>
                           {doc.is_advance_payment && (
-                            <Badge variant="secondary" className="text-xs mt-1">
+                            <Badge color="secondary" className="text-xs mt-1">
                               Anticipo
                             </Badge>
                           )}
@@ -518,8 +682,13 @@ function BillingSheetContent({
                                 day: "2-digit",
                                 month: "2-digit",
                                 year: "numeric",
-                              }
+                              },
                             )}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="text-sm text-muted-foreground max-w-[200px]">
+                            {doc.observaciones || "-"}
                           </div>
                         </TableCell>
                         <TableCell>
@@ -532,7 +701,7 @@ function BillingSheetContent({
                           </Badge>
                         </TableCell>
                         <TableCell className="text-right">
-                          <div className="font-semibold">
+                          <div className="font-semibold w-20">
                             {currencySymbol}{" "}
                             {doc.total.toLocaleString("es-PE", {
                               minimumFractionDigits: 2,
@@ -575,7 +744,7 @@ function BillingSheetContent({
                     "es-PE",
                     {
                       minimumFractionDigits: 2,
-                    }
+                    },
                   )}
                 </span>
               </div>

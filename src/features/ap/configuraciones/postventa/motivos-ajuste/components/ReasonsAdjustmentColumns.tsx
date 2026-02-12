@@ -45,7 +45,7 @@ export const reasonsAdjustmentColumns = ({
       const value = getValue() as string;
       return (
         <Badge
-          variant={
+          color={
             value == AP_MASTER_TYPE.TYPE_ADJUSTMENT_IN ? "default" : "secondary"
           }
           className="capitalize w-20 flex items-center justify-center"
@@ -62,7 +62,7 @@ export const reasonsAdjustmentColumns = ({
       const value = getValue() as boolean;
       return (
         <Badge
-          variant={value ? "default" : "secondary"}
+          color={value ? "default" : "secondary"}
           className="capitalize w-20 flex items-center justify-center"
         >
           {value ? "Activo" : "Inactivo"}

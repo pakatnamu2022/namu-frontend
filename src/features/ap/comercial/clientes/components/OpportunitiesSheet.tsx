@@ -1,16 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-  SheetFooter,
-} from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import {
@@ -18,23 +9,15 @@ import {
   Loader2,
   AlertCircle,
   BriefcaseBusiness,
-  User,
-  Car,
-  Tag,
-  Calendar,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { OpportunityResource } from "../../oportunidades/lib/opportunities.interface";
 import { getAllOpportunitiesByCustomer } from "../lib/customers.actions";
-import {
-  BG_OPPORTUNITY,
-  BG_TEXT_OPPORTUNITY,
-  TEXT_OPPORTUNITY,
-  BORDER_OPPORTUNITY,
-  OPPORTUNITIES,
-} from "../../oportunidades/lib/opportunities.constants";
+import { OPPORTUNITIES } from "../../oportunidades/lib/opportunities.constants";
 import { errorToast } from "@/core/core.function";
+import { OpportunityInfoCard } from "../../solicitudes-cotizaciones/components/OpportunityInfoCard";
+import GeneralSheet from "@/shared/components/GeneralSheet";
 
 interface Props {
   customerId: number;
@@ -66,7 +49,7 @@ export default function OpportunitiesSheet({
     } catch (error: any) {
       errorToast(
         "Error al cargar las oportunidades",
-        error.response?.data?.message
+        error.response?.data?.message,
       );
     } finally {
       setLoadingOpportunities(false);
@@ -80,37 +63,29 @@ export default function OpportunitiesSheet({
   }, [open, customerId]);
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
-      <SheetTrigger asChild>
-        <Button
-          size="icon"
-          variant="outline"
-          className="size-7"
-          disabled={loading}
-          tooltip="Oportunidades"
-        >
-          <BriefcaseBusiness
-            className={cn("size-4", { "animate-spin": loading })}
-          />
-        </Button>
-      </SheetTrigger>
-      <SheetContent className="sm:max-w-[600px]">
-        <SheetHeader>
-          <SheetTitle className="flex flex-col gap-2">
-            <div className="flex items-center gap-2">
-              <Building2 className="size-5 text-primary" />
-              <span>Oportunidades</span>
-            </div>
-            {clientName && (
-              <div className="flex items-center gap-2 text-base font-medium text-gray-700">
-                <User className="size-4" />
-                <span>{clientName}</span>
-              </div>
-            )}
-          </SheetTitle>
-        </SheetHeader>
+    <>
+      <Button
+        size="icon"
+        variant="outline"
+        className="size-7"
+        disabled={loading}
+        tooltip="Oportunidades"
+        onClick={() => setOpen(true)}
+      >
+        <BriefcaseBusiness
+          className={cn("size-4", { "animate-spin": loading })}
+        />
+      </Button>
 
-        <div className="py-6 space-y-6">
+      <GeneralSheet
+        open={open}
+        onClose={() => setOpen(false)}
+        title="Oportunidades"
+        subtitle={clientName}
+        icon="BriefcaseBusiness"
+        size="2xl"
+      >
+        <div className="space-y-6">
           {/* Loading State */}
           {loadingOpportunities && (
             <div className="flex items-center justify-center py-12">
@@ -145,10 +120,7 @@ export default function OpportunitiesSheet({
           {!loadingOpportunities && !error && opportunities.length > 0 && (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <Badge
-                  variant="secondary"
-                  className="bg-green-100 text-green-800 hover:bg-green-200"
-                >
+                <Badge color="green" variant="outline">
                   {opportunities.length}{" "}
                   {opportunities.length === 1 ? "oportunidad" : "oportunidades"}
                 </Badge>
@@ -156,21 +128,8 @@ export default function OpportunitiesSheet({
 
               <Separator />
 
-              <div className="grid gap-4 max-h-[400px] overflow-y-auto pr-2">
+              <div className="grid gap-4 max-h-[400px] overflow-y-auto p-2">
                 {opportunities.map((opportunity) => {
-                  const bgColor =
-                    BG_OPPORTUNITY[opportunity.opportunity_status] ||
-                    BG_OPPORTUNITY["FRIO"];
-                  const bgTextColor =
-                    BG_TEXT_OPPORTUNITY[opportunity.opportunity_status] ||
-                    BG_TEXT_OPPORTUNITY["FRIO"];
-                  const textColor =
-                    TEXT_OPPORTUNITY[opportunity.opportunity_status] ||
-                    TEXT_OPPORTUNITY["FRIO"];
-                  const borderColor =
-                    BORDER_OPPORTUNITY[opportunity.opportunity_status] ||
-                    BORDER_OPPORTUNITY["FRIO"];
-
                   const isClosed = opportunity.is_closed;
                   const canClick = isClosed;
 
@@ -181,114 +140,18 @@ export default function OpportunitiesSheet({
                   };
 
                   return (
-                    <Card
+                    <div
                       key={opportunity.id}
                       onClick={handleCardClick}
                       className={cn(
-                        "relative transition-all duration-200",
-                        bgColor,
-                        borderColor,
-                        "border-2",
+                        "transition-all duration-200",
                         canClick
-                          ? "cursor-pointer hover:shadow-md"
-                          : "cursor-not-allowed opacity-60"
+                          ? "cursor-pointer hover:shadow-lg"
+                          : "cursor-not-allowed opacity-60",
                       )}
                     >
-                      <CardHeader className="pb-3">
-                        <CardTitle className="text-base flex items-start justify-between gap-2">
-                          <div className="flex items-center gap-2 min-w-0">
-                            <Car className={cn("size-5 shrink-0", textColor)} />
-                            <span className="font-semibold truncate">
-                              {opportunity.family.brand}{" "}
-                              {opportunity.family.description}
-                            </span>
-                          </div>
-                          <Badge
-                            className={cn("shrink-0", bgTextColor, textColor)}
-                          >
-                            {opportunity.opportunity_status}
-                          </Badge>
-                        </CardTitle>
-                      </CardHeader>
-
-                      <CardContent className="space-y-3">
-                        <div className="grid gap-3">
-                          {/* Advisor/Worker */}
-                          <div className="flex items-start gap-3">
-                            <BriefcaseBusiness
-                              className={cn(
-                                "size-4 mt-0.5 shrink-0",
-                                textColor
-                              )}
-                            />
-                            <div className="min-w-0 flex-1">
-                              <p className="text-sm font-medium text-gray-900">
-                                Asesor Asignado
-                              </p>
-                              <p className="text-sm text-gray-600 wrap-break-word">
-                                {opportunity.worker.name}
-                              </p>
-                            </div>
-                          </div>
-
-                          {/* Opportunity Type */}
-                          <div className="flex items-start gap-3">
-                            <Tag
-                              className={cn(
-                                "size-4 mt-0.5 shrink-0",
-                                textColor
-                              )}
-                            />
-                            <div className="min-w-0 flex-1">
-                              <p className="text-sm font-medium text-gray-900">
-                                Tipo de Oportunidad
-                              </p>
-                              <p className="text-sm text-gray-600 wrap-break-word">
-                                {opportunity.opportunity_type}
-                              </p>
-                            </div>
-                          </div>
-
-                          {/* Client Status */}
-                          <div className="flex items-start gap-3">
-                            <Calendar
-                              className={cn(
-                                "size-4 mt-0.5 shrink-0",
-                                textColor
-                              )}
-                            />
-                            <div className="min-w-0 flex-1">
-                              <p className="text-sm font-medium text-gray-900">
-                                Estado del Cliente
-                              </p>
-                              <p className="text-sm text-gray-600 wrap-break-word">
-                                {opportunity.client_status}
-                              </p>
-                            </div>
-                          </div>
-
-                          {/* Actions Count */}
-                          {opportunity.actions &&
-                            opportunity.actions.length > 0 && (
-                              <div
-                                className={cn(
-                                  "rounded-lg p-3 mt-2",
-                                  bgTextColor
-                                )}
-                              >
-                                <p className="text-sm font-medium">
-                                  <span className={cn("font-bold", textColor)}>
-                                    {opportunity.actions.length}
-                                  </span>{" "}
-                                  {opportunity.actions.length === 1
-                                    ? "acción registrada"
-                                    : "acciones registradas"}
-                                </p>
-                              </div>
-                            )}
-                        </div>
-                      </CardContent>
-                    </Card>
+                      <OpportunityInfoCard opportunity={opportunity} />
+                    </div>
                   );
                 })}
               </div>
@@ -312,17 +175,7 @@ export default function OpportunitiesSheet({
             </div>
           )}
         </div>
-
-        <SheetFooter>
-          <Button
-            variant="outline"
-            onClick={() => setOpen(false)}
-            disabled={loading || loadingOpportunities}
-          >
-            Cerrar
-          </Button>
-        </SheetFooter>
-      </SheetContent>
-    </Sheet>
+      </GeneralSheet>
+    </>
   );
 }

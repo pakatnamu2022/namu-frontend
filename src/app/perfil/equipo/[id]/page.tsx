@@ -1,25 +1,14 @@
 "use client";
 
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import {
   Tabs,
   TabsContent,
   TabsContents,
   TabsList,
   TabsTrigger,
 } from "@/shared/components/animateTabs";
-import { SearchableSelect } from "@/shared/components/SearchableSelect";
 import FormSkeleton from "@/shared/components/FormSkeleton";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useEffect, useState } from "react";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
   ERROR_MESSAGE,
   errorToast,
@@ -27,7 +16,7 @@ import {
   successToast,
 } from "@/core/core.function";
 import { Badge } from "@/components/ui/badge";
-import { TrendingUp, Target, Calendar, RefreshCw } from "lucide-react";
+import { TrendingUp, Target } from "lucide-react";
 import { EVALUATION_PERSON } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/lib/evaluationPerson.constans";
 import { useAllEvaluations } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluaciones/lib/evaluation.hook";
 import { useActivePerformanceEvaluation } from "@/features/gp/gestionhumana/evaluaciondesempeño/dashboard/lib/performance-evaluation.hook";
@@ -39,13 +28,17 @@ import {
 import EvaluationSummaryCard from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/components/EvaluationSummaryCard";
 import EvaluationPersonObjectiveTable from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/components/EvaluationPersonObjetiveTable";
 import EvaluationPersonCompetenceTableWithColumns from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/components/EvaluationPersonCompetenceTable";
+import EvaluationSelector from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/components/EvaluationSelector";
+import NoEvaluationMessage from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/components/NoEvaluationMessage";
+import PersonTitleComponent from "@/shared/components/PersonTitleComponent";
 import { useQueryClient, useQuery } from "@tanstack/react-query";
-import { useParams } from 'react-router-dom';
+import { useParams } from "react-router-dom";
 import { EVALUATION_OBJECTIVE } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluaciones/lib/evaluation.constans";
+import PageWrapper from "@/shared/components/PageWrapper";
 
 const { QUERY_KEY, MODEL } = EVALUATION_PERSON;
 
-export default function NamuPerformancePage() {
+export default function EvaluationDetailPersonPage() {
   const { id } = useParams();
 
   const personId = Number(id);
@@ -165,7 +158,7 @@ export default function NamuPerformancePage() {
   if (isLoadingEvaluations || isLoadingActiveEvaluation)
     return <FormSkeleton />;
 
-  // Si no hay resultado de evaluación para esta persona, mostrar mensaje
+  // Si no hay resultado de evaluación para esta persona
   if (
     !isLoadingEvaluationPerson &&
     (!evaluationPersonResult || evaluationPersonError) &&
@@ -175,295 +168,119 @@ export default function NamuPerformancePage() {
       (evaluation) => evaluation.id === selectedEvaluationId
     );
     return (
-      <div className="w-full">
-        <Card className="border-none shadow-none">
-          <CardContent className="mx-auto max-w-7xl">
-            <CardHeader className="space-y-4 p-0">
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle className="text-2xl">
-                    Sin evaluación en este periodo
-                  </CardTitle>
-                  <CardDescription>
-                    Esta persona no tuvo evaluación en el periodo{" "}
-                    {selectedEvaluation
-                      ? `"${selectedEvaluation.name}"`
-                      : "seleccionado"}
-                    .
-                  </CardDescription>
-                </div>
-                <div className="flex items-center gap-2">
-                  {isLoadingEvaluations ? (
-                    <Skeleton className="h-8 w-80" />
-                  ) : (
-                    <SearchableSelect
-                      options={evaluations.map((evaluation) => ({
-                        value: evaluation.id.toString(),
-                        label: () => (
-                          <span className="flex items-center gap-2">
-                            {evaluation.name}{" "}
-                            <Badge variant={"tertiary"} className="text-[10px]">
-                              {evaluation.period}
-                            </Badge>
-                            {/* {activeEvaluation?.id === evaluation.id && (
-                              <Badge
-                                variant={"default"}
-                                className="text-[10px]"
-                              >
-                                Activa
-                              </Badge>
-                            )} */}
-                          </span>
-                        ),
-                      }))}
-                      onChange={(value: string) => {
-                        setSelectedEvaluationId(Number(value));
-                      }}
-                      value={selectedEvaluationId?.toString() ?? ""}
-                      placeholder="Selecciona la Evaluación..."
-                      className="w-80!"
-                    />
-                  )}
-                </div>
-              </div>
-            </CardHeader>
-          </CardContent>
-        </Card>
-      </div>
+      <NoEvaluationMessage
+        title="Sin evaluación en este periodo"
+        description={`Esta persona no tuvo evaluación en el periodo ${
+          selectedEvaluation ? `"${selectedEvaluation.name}"` : "seleccionado"
+        }.`}
+        evaluations={evaluations}
+        selectedEvaluationId={selectedEvaluationId}
+        onEvaluationChange={setSelectedEvaluationId}
+        isLoadingEvaluations={isLoadingEvaluations}
+      />
     );
   }
 
   if (!evaluationPersonResult) return <FormSkeleton />;
 
   return (
-    <div className="w-full">
-      <Card className="border-none shadow-none">
-        <CardContent className="mx-auto max-w-7xl">
-          <CardHeader className="space-y-4 p-0">
-            {/* Header principal */}
-            <div className="flex items-center gap-4">
-              <Avatar className="h-16 w-16">
-                <AvatarImage
-                  src={evaluationPersonResult.person.photo}
-                  alt={evaluationPersonResult.person.name}
-                />
-                <AvatarFallback className="bg-primary text-white text-lg">
-                  {evaluationPersonResult.person.name
-                    .split(" ")
-                    .map((n) => n[0])
-                    .join("")
-                    .substring(0, 2)}
-                </AvatarFallback>
-              </Avatar>
-              <div className="flex-1">
-                <CardTitle className="text-2xl capitalize">
-                  {evaluationPersonResult.person.name.toLowerCase()}
-                </CardTitle>
-                <CardDescription className="capitalize text-base">
-                  {evaluationPersonResult.person.position.toLowerCase()}
-                </CardDescription>
-              </div>
-              <div className="text-right">
-                <div className="text-2xl font-bold text-primary">
-                  {evaluationPersonResult.statistics.overall_completion_rate}%
-                </div>
-                <div className="text-xs text-muted-foreground">
-                  Progreso general
-                </div>
-              </div>
+    <PageWrapper>
+      <div className="space-y-4 p-0">
+        {/* Header principal */}
+        <PersonTitleComponent
+          name={evaluationPersonResult.person.name}
+          position={evaluationPersonResult.person.position}
+          photo={evaluationPersonResult.person.photo}
+          backButtonRoute="/perfil/equipo"
+          backButtonName="Ver Equipo"
+        >
+          <div className="ml-auto text-right">
+            <div className="text-2xl font-bold text-primary">
+              {evaluationPersonResult.statistics.overall_completion_rate}%
             </div>
-
-            {/* Selector de evaluación y controles */}
-            <div className="flex items-center justify-between gap-4">
-              {isLoadingEvaluations ? (
-                <Skeleton className="h-8 w-80" />
-              ) : (
-                <SearchableSelect
-                  options={evaluations.map((evaluation) => ({
-                    value: evaluation.id.toString(),
-                    label: () => (
-                      <span className="flex items-center gap-2">
-                        {evaluation.name}{" "}
-                        <Badge variant={"tertiary"} className="text-[10px]">
-                          {evaluation.period}
-                        </Badge>
-                        {/* {activeEvaluation?.id === evaluation.id && (
-                          <Badge variant={"default"} className="text-[10px]">
-                            Activa
-                          </Badge>
-                        )} */}
-                      </span>
-                    ),
-                  }))}
-                  onChange={(value: string) => {
-                    setSelectedEvaluationId(Number(value));
-                  }}
-                  value={selectedEvaluationId?.toString() ?? ""}
-                  placeholder="Selecciona la Evaluación..."
-                  className="w-80!"
-                />
-              )}
-
-              <div className="flex items-center gap-2">
-                {saving && (
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
-                    Actualizando...
-                  </div>
-                )}
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleRefresh}
-                  disabled={saving}
-                  className="gap-2"
-                >
-                  <RefreshCw
-                    className={`size-4 ${saving ? "animate-spin" : ""}`}
-                  />
-                  Actualizar
-                </Button>
-              </div>
-            </div>
-          </CardHeader>
-
-          <div className="mt-6 space-y-4">
-            {/* Resumen de estadísticas */}
-            {!isLoadingEvaluationPerson && evaluationPersonResult && (
-              <EvaluationSummaryCard
-                evaluationResult={evaluationPersonResult}
-              />
-            )}
-
-            {/* Tabs de contenido */}
-            <Tabs
-              defaultValue={
-                evaluationPersonResult?.hasObjectives
-                  ? "objectives"
-                  : "competences"
-              }
-              className="p-2 w-full bg-muted rounded-lg"
-            >
-              <TabsList className="grid w-full grid-cols-2">
-                {evaluationPersonResult?.hasObjectives && (
-                  <TabsTrigger value="objectives" className="gap-2">
-                    <Target className="size-4" />
-                    Objetivos
-                    <Badge variant="outline" className="ml-2 text-xs">
-                      {evaluationPersonResult.statistics.objectives.completed}/
-                      {evaluationPersonResult.statistics.objectives.total}
-                    </Badge>
-                  </TabsTrigger>
-                )}
-                {evaluationPersonResult?.evaluation.typeEvaluation.toString() !==
-                  EVALUATION_OBJECTIVE.ID && (
-                  <TabsTrigger value="competences" className="gap-2">
-                    <TrendingUp className="size-4" />
-                    Competencias
-                    <Badge variant="outline" className="ml-2 text-xs">
-                      {evaluationPersonResult.statistics.competences.completed}/
-                      {evaluationPersonResult.statistics.competences.total}
-                    </Badge>
-                  </TabsTrigger>
-                )}
-              </TabsList>
-              <TabsContents className="rounded-sm bg-background w-full">
-                <TabsContent value="objectives" className="space-y-6 p-6">
-                  {isLoadingEvaluationPerson ? (
-                    <FormSkeleton />
-                  ) : (
-                    <>
-                      <div className="flex items-center justify-between">
-                        <h3 className="text-lg font-semibold">
-                          Evaluación de Objetivos
-                        </h3>
-                        {evaluationPersonResult?.objectivesPercentage && (
-                          <Badge variant="outline">
-                            Peso: {evaluationPersonResult.objectivesPercentage}%
-                            del total
-                          </Badge>
-                        )}
-                      </div>
-                      <EvaluationPersonObjectiveTable
-                        evaluationPersonResult={evaluationPersonResult}
-                        details={evaluationPersonResult?.details}
-                        onUpdateCell={handleUpdateResultCell}
-                        onCommentCell={handleCommentSubmit}
-                        readOnly={activeEvaluation?.id !== selectedEvaluationId}
-                      />
-                    </>
-                  )}
-                </TabsContent>
-                <TabsContent value="competences" className="space-y-6 p-6">
-                  {isLoadingEvaluationPerson ? (
-                    <FormSkeleton />
-                  ) : (
-                    <>
-                      <div className="flex items-center justify-between">
-                        <h3 className="text-lg font-semibold">
-                          Evaluación de Competencias
-                        </h3>
-                        <div className="flex items-center gap-2">
-                          {evaluationPersonResult?.competencesPercentage && (
-                            <Badge variant="outline">
-                              Peso:{" "}
-                              {evaluationPersonResult.competencesPercentage}%
-                              del total
-                            </Badge>
-                          )}
-                          {evaluationPersonResult?.evaluation
-                            ?.typeEvaluationName && (
-                            <Badge variant="secondary">
-                              {
-                                evaluationPersonResult.evaluation
-                                  .typeEvaluationName
-                              }
-                            </Badge>
-                          )}
-                        </div>
-                      </div>
-                      <EvaluationPersonCompetenceTableWithColumns
-                        evaluationPersonResult={evaluationPersonResult}
-                        competenceGroups={
-                          evaluationPersonResult?.competenceGroups
-                        }
-                        onUpdateCell={handleUpdateResultCellCompetence}
-                        showProgress={true}
-                        readOnly={activeEvaluation?.id !== selectedEvaluationId}
-                      />
-                    </>
-                  )}
-                </TabsContent>
-              </TabsContents>
-            </Tabs>
-
-            {/* Footer con acciones */}
-            <div className="flex items-center justify-between pt-4 border-t">
-              <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                {evaluationPersonResult?.evaluation && (
-                  <>
-                    <div className="flex items-center gap-2">
-                      <Calendar className="size-4" />
-                      <span>
-                        {new Date(
-                          evaluationPersonResult.evaluation.start_date
-                        ).toLocaleDateString("es-ES")}{" "}
-                        -
-                        {new Date(
-                          evaluationPersonResult.evaluation.end_date
-                        ).toLocaleDateString("es-ES")}
-                      </span>
-                    </div>
-                    <Badge variant="outline" className="text-xs">
-                      {evaluationPersonResult.evaluation.period}
-                    </Badge>
-                  </>
-                )}
-              </div>
+            <div className="text-xs text-muted-foreground">
+              Progreso general
             </div>
           </div>
-        </CardContent>
-      </Card>
-    </div>
+        </PersonTitleComponent>
+
+        {/* Selector de evaluación y controles */}
+        <EvaluationSelector
+          evaluations={evaluations}
+          selectedEvaluationId={selectedEvaluationId}
+          onEvaluationChange={setSelectedEvaluationId}
+          onRefresh={handleRefresh}
+          isLoadingEvaluations={isLoadingEvaluations}
+          isSaving={saving}
+        />
+      </div>
+
+      <div className="mt-6 space-y-4 grid grid-cols-1 md:grid-cols-4 gap-6">
+        {/* Tabs de contenido */}
+        <Tabs
+          defaultValue={
+            evaluationPersonResult?.hasObjectives ? "objectives" : "competences"
+          }
+          className="w-full rounded-lg col-span-3"
+        >
+          <TabsList>
+            {evaluationPersonResult?.hasObjectives && (
+              <TabsTrigger value="objectives" className="gap-2 px-8">
+                <Target className="size-4" />
+                Objetivos
+                <Badge variant="outline" className="ml-2 text-xs">
+                  {evaluationPersonResult.statistics.objectives.completed}/
+                  {evaluationPersonResult.statistics.objectives.total}
+                </Badge>
+              </TabsTrigger>
+            )}
+            {evaluationPersonResult?.evaluation.typeEvaluation.toString() !==
+              EVALUATION_OBJECTIVE.ID && (
+              <TabsTrigger value="competences" className="gap-2 px-8">
+                <TrendingUp className="size-4" />
+                Competencias
+                <Badge variant="outline" className="ml-2 text-xs">
+                  {evaluationPersonResult.statistics.competences.completed}/
+                  {evaluationPersonResult.statistics.competences.total}
+                </Badge>
+              </TabsTrigger>
+            )}
+          </TabsList>
+          <TabsContents className="rounded-sm bg-background w-full">
+            <TabsContent value="objectives" className="space-y-6">
+              {isLoadingEvaluationPerson ? (
+                <FormSkeleton />
+              ) : (
+                <EvaluationPersonObjectiveTable
+                  evaluationPersonResult={evaluationPersonResult}
+                  details={evaluationPersonResult?.details}
+                  onUpdateCell={handleUpdateResultCell}
+                  onCommentCell={handleCommentSubmit}
+                  readOnly={activeEvaluation?.id !== selectedEvaluationId}
+                />
+              )}
+            </TabsContent>
+            <TabsContent value="competences" className="space-y-6 p-6">
+              {isLoadingEvaluationPerson ? (
+                <FormSkeleton />
+              ) : (
+                <EvaluationPersonCompetenceTableWithColumns
+                  evaluationPersonResult={evaluationPersonResult}
+                  competenceGroups={evaluationPersonResult?.competenceGroups}
+                  onUpdateCell={handleUpdateResultCellCompetence}
+                  showProgress={true}
+                  readOnly={activeEvaluation?.id !== selectedEvaluationId}
+                />
+              )}
+            </TabsContent>
+          </TabsContents>
+        </Tabs>
+
+        {/* Resumen de estadísticas */}
+        {!isLoadingEvaluationPerson && evaluationPersonResult && (
+          <EvaluationSummaryCard evaluationResult={evaluationPersonResult} />
+        )}
+      </div>
+    </PageWrapper>
   );
 }

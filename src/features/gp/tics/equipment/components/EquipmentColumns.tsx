@@ -4,7 +4,14 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { EquipmentResource } from "../lib/equipment.interface";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, History, Pencil, Sparkles, XCircle } from "lucide-react";
+import {
+  CheckCircle,
+  History,
+  Pencil,
+  Sparkles,
+  UserPlus,
+  XCircle,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { EQUIPMENT } from "../lib/equipment.constants";
@@ -13,8 +20,12 @@ export type EquipmentColumns = ColumnDef<EquipmentResource>;
 
 export const equipmentColumns = ({
   onDelete,
+  onAssign,
+  onHistory,
 }: {
   onDelete: (id: number) => void;
+  onAssign: (id: number) => void;
+  onHistory: (id: number) => void;
 }): EquipmentColumns[] => [
   {
     accessorKey: "equipo",
@@ -28,7 +39,7 @@ export const equipmentColumns = ({
     header: "Tipo de Equipo",
     cell: ({ getValue }) => {
       const value = getValue() as string;
-      return <Badge variant="outline">{value}</Badge>;
+      return value && <Badge variant="outline">{value}</Badge>;
     },
   },
   {
@@ -83,7 +94,6 @@ export const equipmentColumns = ({
 
       return (
         <div className="flex items-center gap-2">
-          {/* Edit */}
           <Button
             variant="outline"
             size="icon"
@@ -92,7 +102,22 @@ export const equipmentColumns = ({
           >
             <Pencil className="size-5" />
           </Button>
-          {/* Delete */}
+          <Button
+            variant="outline"
+            size="icon"
+            className="size-7"
+            onClick={() => onAssign(id)}
+          >
+            <UserPlus className="size-5" />
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            className="size-7"
+            onClick={() => onHistory(id)}
+          >
+            <History className="size-5" />
+          </Button>
           <DeleteButton onClick={() => onDelete(id)} />
         </div>
       );

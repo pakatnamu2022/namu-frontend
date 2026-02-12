@@ -11,7 +11,7 @@ import {
   SUCCESS_MESSAGE,
   successToast,
 } from "@/core/core.function";
-import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
+// import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
 import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { notFound } from "@/shared/hooks/useNotFound";
@@ -21,7 +21,7 @@ import ParEvaluatorTable from "@/features/gp/gestionhumana/evaluaciondesempeño/
 import ParEvaluatorOptions from "@/features/gp/gestionhumana/evaluaciondesempeño/asignacion-pares/components/ParEvaluatorOptions";
 import { useWorkers } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
 import {
-  deleteParEvaluator,
+  // deleteParEvaluator,
   storeMultipleParEvaluators,
 } from "@/features/gp/gestionhumana/evaluaciondesempeño/asignacion-pares/lib/par-evaluator.actions";
 import { STATUS_WORKER } from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.constant";
@@ -35,7 +35,7 @@ export default function EvaluatorParPage() {
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
-  const [deleteId, setDeleteId] = useState<number | null>(null);
+  // const [deleteId, setDeleteId] = useState<number | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [selectedWorkerId, setSelectedWorkerId] = useState<number | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -51,18 +51,18 @@ export default function EvaluatorParPage() {
     status_id: STATUS_WORKER.ACTIVE,
   });
 
-  const handleDelete = async () => {
-    if (!deleteId) return;
-    try {
-      await deleteParEvaluator(deleteId);
-      await refetch();
-      successToast(SUCCESS_MESSAGE(MODEL, "delete"));
-    } catch (error) {
-      errorToast(ERROR_MESSAGE(MODEL, "delete"));
-    } finally {
-      setDeleteId(null);
-    }
-  };
+  // const handleDelete = async () => {
+  //   if (!deleteId) return;
+  //   try {
+  //     await deleteParEvaluator(deleteId);
+  //     await refetch();
+  //     successToast(SUCCESS_MESSAGE(MODEL, "delete"));
+  //   } catch (error) {
+  //     errorToast(ERROR_MESSAGE(MODEL, "delete"));
+  //   } finally {
+  //     setDeleteId(null);
+  //   }
+  // };
 
   const handleOpenAddModal = (workerId?: number) => {
     setSelectedWorkerId(workerId || null);
@@ -87,7 +87,7 @@ export default function EvaluatorParPage() {
       handleCloseAddModal();
     } catch (error: any) {
       errorToast(
-        ERROR_MESSAGE(MODEL, "create", error?.response?.data?.message)
+        ERROR_MESSAGE(MODEL, "create", error?.response?.data?.message),
       );
     } finally {
       setIsSubmitting(false);
@@ -110,7 +110,7 @@ export default function EvaluatorParPage() {
       <ParEvaluatorTable
         isLoading={isLoading}
         columns={parEvaluatorColumns({
-          onDelete: setDeleteId,
+          // onDelete: setDeleteId,
           onAssign: handleOpenAddModal,
         })}
         data={data?.data || []}
@@ -118,13 +118,13 @@ export default function EvaluatorParPage() {
         <ParEvaluatorOptions search={search} setSearch={setSearch} />
       </ParEvaluatorTable>
 
-      {deleteId !== null && (
+      {/* {deleteId !== null && (
         <SimpleDeleteDialog
           open={true}
           onOpenChange={(open) => !open && setDeleteId(null)}
           onConfirm={handleDelete}
         />
-      )}
+      )} */}
 
       {showAddModal && (
         <ParEvaluatorAddModal

@@ -29,7 +29,6 @@ import {
 import { createPortal } from "react-dom";
 import tunnel from "tunnel-rat";
 import { Card } from "@/components/ui/card";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 const t = tunnel();
 export type { DragEndEvent } from "@dnd-kit/core";
@@ -172,27 +171,48 @@ export type KanbanCardsProps<T extends KanbanItemProps = KanbanItemProps> =
   Omit<HTMLAttributes<HTMLDivElement>, "children" | "id"> & {
     children: (item: T) => ReactNode;
     id: string;
+    onScrollEnd?: () => void;
+    isLoadingMore?: boolean;
   };
 export const KanbanCards = <T extends KanbanItemProps = KanbanItemProps>({
   children,
   className,
+  onScrollEnd,
+  isLoadingMore,
   ...props
 }: KanbanCardsProps<T>) => {
   const { data } = useContext(KanbanContext) as KanbanContextProps<T>;
   const filteredData = data.filter((item) => item.column === props.id);
   const items = filteredData.map((item) => item.id);
+
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    if (!onScrollEnd) return;
+    const target = e.currentTarget;
+    const threshold = 100;
+    if (
+      target.scrollHeight - target.scrollTop - target.clientHeight <
+      threshold
+    ) {
+      onScrollEnd();
+    }
+  };
+
   return (
-    <ScrollArea className="overflow-hidden">
+    <div className="overflow-y-auto flex-1" onScroll={handleScroll}>
       <SortableContext items={items}>
         <div
           className={cn("flex grow flex-col gap-2 p-2", className)}
           {...props}
         >
           {filteredData.map(children)}
+          {isLoadingMore && (
+            <div className="flex justify-center py-2">
+              <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+            </div>
+          )}
         </div>
       </SortableContext>
-      <ScrollBar orientation="vertical" />
-    </ScrollArea>
+    </div>
   );
 };
 export type KanbanHeaderProps = HTMLAttributes<HTMLDivElement>;

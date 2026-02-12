@@ -62,7 +62,7 @@ export const workOrderColumns = ({
       const value = getValue() as string;
       if (!value) return "-";
       try {
-        const date = new Date(value + "T00:00:00");
+        const date = new Date(value.replace(" ", "T"));
         return format(date, "dd/MM/yyyy", { locale: es });
       } catch {
         return value;
@@ -76,7 +76,7 @@ export const workOrderColumns = ({
       const value = getValue() as string;
       if (!value) return "-";
       try {
-        const date = new Date(value + "T00:00:00");
+        const date = new Date(value.replace(" ", "T"));
         return format(date, "dd/MM/yyyy", { locale: es });
       } catch {
         return value;
@@ -90,7 +90,7 @@ export const workOrderColumns = ({
       const value = getValue() as string;
       if (!value) return "-";
       try {
-        const date = new Date(value + "T00:00:00");
+        const date = new Date(value.replace(" ", "T"));
         return format(date, "dd/MM/yyyy", { locale: es });
       } catch {
         return value;
@@ -103,7 +103,7 @@ export const workOrderColumns = ({
     cell: ({ getValue }) => {
       const value = getValue() as boolean;
       return (
-        <Badge variant={value ? "default" : "secondary"}>
+        <Badge color={value ? "default" : "secondary"}>
           {value ? "Sí" : "No"}
         </Badge>
       );
@@ -115,7 +115,7 @@ export const workOrderColumns = ({
     cell: ({ getValue }) => {
       const value = getValue() as boolean;
       return (
-        <Badge variant={value ? "default" : "secondary"}>
+        <Badge color={value ? "default" : "secondary"}>
           {value ? "Sí" : "No"}
         </Badge>
       );
@@ -127,29 +127,26 @@ export const workOrderColumns = ({
     cell: ({ getValue }) => {
       const value = getValue() as boolean;
       return (
-        <Badge variant={value ? "default" : "secondary"}>
+        <Badge color={value ? "default" : "secondary"}>
           {value ? "Sí" : "No"}
         </Badge>
       );
     },
   },
   {
+    accessorKey: "status.description",
+    header: "Estado",
+  },
+  {
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
-      const { id, is_inspection_completed } = row.original;
-
-      // const handleDownloadPdf = async () => {
-      //   try {
-      //     await downloadWorkOrderPdf(id);
-      //   } catch {
-      //     errorToast("Error al descargar el PDF");
-      //   }
-      // };
+      const { id, is_inspection_completed, status } = row.original;
+      const isClosed = status?.description === "CERRADO";
 
       return (
         <div className="flex items-center gap-2">
-          {!is_inspection_completed && (
+          {!is_inspection_completed && !isClosed && (
             <Button
               variant="outline"
               size="icon"
@@ -173,27 +170,7 @@ export const workOrderColumns = ({
             </Button>
           )}
 
-          {/* <Button
-            variant="outline"
-            size="icon"
-            className="size-7"
-            onClick={handleDownloadPdf}
-            tooltip="PDF"
-          >
-            <Download className="size-5" />
-          </Button> */}
-
-          {/* <Button
-            variant="outline"
-            size="icon"
-            className="size-7"
-            onClick={() => onRequestParts(id)}
-            tooltip="Solicitar Repuestos"
-          >
-            <Package className="size-5" />
-          </Button> */}
-
-          {permissions.canUpdate && (
+          {permissions.canUpdate && !isClosed && (
             <Button
               variant="outline"
               size="icon"
@@ -205,7 +182,7 @@ export const workOrderColumns = ({
             </Button>
           )}
 
-          {permissions.canDelete && (
+          {permissions.canDelete && !isClosed && (
             <DeleteButton onClick={() => onDelete(id)} />
           )}
         </div>

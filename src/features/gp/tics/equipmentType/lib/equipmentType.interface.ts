@@ -11,6 +11,10 @@ export interface EquipmentTypeResource {
   name: string;
 }
 
+export interface EquipmentTypeRequest {
+  name: string;
+}
+
 export interface getEquipmentTypesProps {
   params?: Record<string, any>;
 }

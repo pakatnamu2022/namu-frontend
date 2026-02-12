@@ -18,12 +18,66 @@ import { ApBankResource } from "@/features/ap/configuraciones/maestros-general/c
 interface AdditionalConfigSectionProps {
   form: UseFormReturn<ElectronicDocumentSchema>;
   checkbooks: ApBankResource[];
+  isModuleCommercial?: boolean;
 }
 
 export function AdditionalConfigSection({
   form,
   checkbooks,
+  isModuleCommercial = true,
 }: AdditionalConfigSectionProps) {
+  const medioDePago = form.watch("medio_de_pago");
+
+  // Filtrar chequeras: si medio de pago es EFECTIVO, solo mostrar las que contengan "CAJ"
+  const filteredCheckbooks =
+    medioDePago === "EFECTIVO"
+      ? checkbooks.filter((checkbook) =>
+          checkbook.code.toUpperCase().includes("CAJ"),
+        )
+      : checkbooks;
+
+  const paymentMethodOptions = [
+    {
+      label: "EFECTIVO",
+      value: "EFECTIVO",
+    },
+    {
+      label: "TARJETA",
+      value: "TARJETA",
+    },
+    {
+      label: "TRANSFERENCIA BANCARIA",
+      value: "TRANSFERENCIA BANCARIA",
+    },
+    {
+      label: "DEPÓSITO BANCARIO",
+      value: "DEPOSITO BANCARIO",
+    },
+    {
+      label: "OTRO",
+      value: "OTRO",
+    },
+  ];
+
+  const financingTypeOptions = [
+    {
+      label: "CREDITO POR CONVENIO",
+      value: "CONVENIO",
+    },
+    {
+      label: "CREDITO VEHICULAR",
+      value: "VEHICULAR",
+    },
+    {
+      label: "CONTADO",
+      value: "CONTADO",
+    },
+  ];
+
+  const filteredFinancingTypeOptions = financingTypeOptions.filter((option) => {
+    return option.label.includes(form.watch("condiciones_de_pago") || "");
+  });
+
   return (
     <GroupFormSection
       title="Configuración Adicional"
@@ -54,40 +108,7 @@ export function AdditionalConfigSection({
         control={form.control}
         label="Medio de Pago *"
         name="medio_de_pago"
-        options={[
-          {
-            label: "EFECTIVO",
-            value: "EFECTIVO",
-          },
-          {
-            label: "TARJETA DE DÉBITO",
-            value: "TARJETA DE DEBITO",
-          },
-          {
-            label: "TARJETA DE CRÉDITO",
-            value: "TARJETA DE CREDITO",
-          },
-          {
-            label: "CHEQUE",
-            value: "CHEQUE",
-          },
-          {
-            label: "TRANSFERENCIA BANCARIA",
-            value: "TRANSFERENCIA BANCARIA",
-          },
-          {
-            label: "DEPÓSITO BANCARIO",
-            value: "DEPOSITO BANCARIO",
-          },
-          {
-            label: "GIRO",
-            value: "GIRO",
-          },
-          {
-            label: "OTRO",
-            value: "OTRO",
-          },
-        ]}
+        options={paymentMethodOptions}
         placeholder="Seleccione una opción"
         description="Medio de pago utilizado en el documento."
       />
@@ -96,7 +117,7 @@ export function AdditionalConfigSection({
         control={form.control}
         label="Entidad"
         name="bank_id"
-        options={checkbooks.map((checkbook) => ({
+        options={filteredCheckbooks.map((checkbook) => ({
           label: checkbook.code,
           value: String(checkbook.id),
           description: checkbook.account_number,
@@ -126,27 +147,17 @@ export function AdditionalConfigSection({
         )}
       />
 
-      <FormSelect
-        control={form.control}
-        label="Tipo de Financiamiento"
-        name="financing_type"
-        options={[
-          {
-            label: "CREDITO POR CONVENIO",
-            value: "CONVENIO",
-          },
-          {
-            label: "CREDITO VEHICULAR",
-            value: "VEHICULAR",
-          },
-          {
-            label: "CONTADO",
-            value: "CONTADO",
-          },
-        ]}
-        placeholder="Seleccione una opción"
-        description="Tipo de financiamiento del documento."
-      />
+      {isModuleCommercial && (
+        <FormSelect
+          control={form.control}
+          label="Tipo de Financiamiento"
+          name="financing_type"
+          options={filteredFinancingTypeOptions}
+          placeholder="Seleccione una opción"
+          description="Tipo de financiamiento del documento."
+        />
+      )}
+
       <FormField
         control={form.control}
         name="observaciones"

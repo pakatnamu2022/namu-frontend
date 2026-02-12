@@ -8,7 +8,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
-import { Loader, ClipboardCheck, PenLine } from "lucide-react";
+import { Loader, ClipboardCheck, PenLine, Camera } from "lucide-react";
 import { SignaturePad } from "./SignaturePad";
 import {
   VehicleInspectionSchema,
@@ -23,6 +23,7 @@ import { FormSelect } from "@/shared/components/FormSelect";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 import { FormInput } from "@/shared/components/FormInput";
 import { FormInputText } from "@/shared/components/FormInputText";
+import { FileUploadWithCamera } from "@/shared/components/FileUploadWithCamera";
 
 interface VehicleInspectionFormProps {
   defaultValues: Partial<VehicleInspectionSchema>;
@@ -61,7 +62,7 @@ export const VehicleInspectionForm = ({
     resolver: zodResolver(
       mode === "create"
         ? vehicleInspectionSchemaCreate
-        : vehicleInspectionSchemaUpdate
+        : vehicleInspectionSchemaUpdate,
     ),
     defaultValues,
     mode: "onChange",
@@ -75,10 +76,13 @@ export const VehicleInspectionForm = ({
     form.setValue("damages", damages);
   };
 
-  const checklistValues = CHECKLIST_ITEMS.reduce((acc, item) => {
-    acc[item.key] = form.watch(item.key as any) || false;
-    return acc;
-  }, {} as Record<string, boolean>);
+  const checklistValues = CHECKLIST_ITEMS.reduce(
+    (acc, item) => {
+      acc[item.key] = form.watch(item.key as any) || false;
+      return acc;
+    },
+    {} as Record<string, boolean>,
+  );
 
   return (
     <Form {...form}>
@@ -105,6 +109,7 @@ export const VehicleInspectionForm = ({
             name="mileage"
             label="Kilometraje"
             placeholder="Ingrese el kilometraje"
+            type="number"
             control={form.control}
           />
 
@@ -139,6 +144,88 @@ export const VehicleInspectionForm = ({
             disabled={isSubmitting}
           />
         </div>
+
+        {/* Fotos del Vehículo - Solo visible cuando dirty_unit está marcado */}
+        <GroupFormSection
+          title="Fotos del estado de ingreso del vehículo (Opcional)"
+          icon={Camera}
+          iconColor="text-orange-600"
+          bgColor="bg-orange-50"
+          cols={{ sm: 2 }}
+        >
+          <FormField
+            control={form.control}
+            name="photo_front"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <FileUploadWithCamera
+                    label="Foto Frontal"
+                    accept="image/*"
+                    value={field.value}
+                    onChange={(file) => field.onChange(file)}
+                    disabled={isSubmitting}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="photo_back"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <FileUploadWithCamera
+                    label="Foto Trasera"
+                    accept="image/*"
+                    value={field.value}
+                    onChange={(file) => field.onChange(file)}
+                    disabled={isSubmitting}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="photo_left"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <FileUploadWithCamera
+                    label="Foto Lateral Izquierda"
+                    accept="image/*"
+                    value={field.value}
+                    onChange={(file) => field.onChange(file)}
+                    disabled={isSubmitting}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="photo_right"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <FileUploadWithCamera
+                    label="Foto Lateral Derecha"
+                    accept="image/*"
+                    value={field.value}
+                    onChange={(file) => field.onChange(file)}
+                    disabled={isSubmitting}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </GroupFormSection>
 
         {/* Marcador de Daños */}
         <div className="space-y-4">

@@ -8,11 +8,9 @@ import {
   FormItem,
   FormLabel,
   FormControl,
-  FormMessage,
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Building2, Loader, MapPin } from "lucide-react";
-import { Input } from "@/components/ui/input";
 import {
   EstablishmentsSchema,
   establishmentsSchema,
@@ -20,7 +18,6 @@ import {
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
-import { Link } from "react-router-dom";
 import { useEffect } from "react";
 import {
   useAllDepartment,
@@ -30,11 +27,7 @@ import {
 import { useAllSedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import { EMPRESA_AP } from "@/core/core.constants";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  ESTABLISHMENTS,
-  ESTABLISHMENTS_PV,
-  SUPPLIER_ESTABLISHMENTS,
-} from "../lib/establishments.constants";
+import { FormInput } from "@/shared/components/FormInput";
 
 const AUTOMOTORES_PAKATNAMU_ID = 17;
 
@@ -44,8 +37,7 @@ interface EstablishmentsFormProps {
   isSubmitting?: boolean;
   mode?: "create" | "update";
   businessPartnerId: number;
-  isCustomer: boolean;
-  isCommercial?: boolean;
+  onCancel: () => void;
 }
 
 export const EstablishmentsForm = ({
@@ -54,11 +46,8 @@ export const EstablishmentsForm = ({
   isSubmitting = false,
   mode = "create",
   businessPartnerId,
-  isCustomer,
-  isCommercial = true,
+  onCancel,
 }: EstablishmentsFormProps) => {
-  const { ABSOLUTE_ROUTE } = isCommercial ? ESTABLISHMENTS : ESTABLISHMENTS_PV;
-  const { ABSOLUTE_ROUTE: SUPPLIER_ABSOLUTE_ROUTE } = SUPPLIER_ESTABLISHMENTS;
   const form = useForm<EstablishmentsSchema>({
     resolver: zodResolver(establishmentsSchema),
     defaultValues: {
@@ -142,62 +131,36 @@ export const EstablishmentsForm = ({
           title="Información del Establecimiento"
           cols={{ sm: 1, md: 2 }}
         >
-          <FormField
-            control={form.control}
+          <FormInput
             name="code"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Código *</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: 001" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
+            label="Código"
+            placeholder="Ej: 001"
             control={form.control}
+            required
+          />
+
+          <FormInput
             name="type"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Tipo *</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: Sede Leguia" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Tipo"
+            placeholder="Ej: Sede Leguia"
+            control={form.control}
+            required
           />
 
-          <FormField
-            control={form.control}
+          <FormInput
             name="description"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Descripción</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: Comercial" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Descripción"
+            placeholder="Ej: AP_LEGUIA"
+            control={form.control}
+            required
           />
 
-          <FormField
-            control={form.control}
+          <FormInput
             name="activity_economic"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Actividad Económica</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="Ingrese la actividad económica"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Actividad Económica"
+            placeholder="Ingrese la actividad económica"
+            control={form.control}
+            required
           />
         </GroupFormSection>
 
@@ -207,18 +170,12 @@ export const EstablishmentsForm = ({
           title="Ubicación"
           cols={{ sm: 1, md: 2 }}
         >
-          <FormField
-            control={form.control}
+          <FormInput
             name="address"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Dirección *</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ingrese la dirección" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Dirección"
+            placeholder="Ingrese la dirección"
+            control={form.control}
+            required
           />
 
           <FormSelect
@@ -238,8 +195,8 @@ export const EstablishmentsForm = ({
               !selectedDepartmentId
                 ? "Seleccione Departamento"
                 : isLoadingProvinces
-                ? "Cargando..."
-                : "Selecciona una Provincia"
+                  ? "Cargando..."
+                  : "Selecciona una Provincia"
             }
             options={provinces.map((province) => ({
               label: province.name,
@@ -255,8 +212,8 @@ export const EstablishmentsForm = ({
               !selectedProvinceId
                 ? "Seleccione Provincia"
                 : isLoadingDistricts
-                ? "Cargando..."
-                : "Selecciona un Distrito"
+                  ? "Cargando..."
+                  : "Selecciona un Distrito"
             }
             options={districts.map((district) => ({
               label: district.name,
@@ -310,15 +267,14 @@ export const EstablishmentsForm = ({
 
         {/* Buttons */}
         <div className="flex gap-4 w-full justify-end">
-          <Link
-            to={`${
-              isCustomer ? ABSOLUTE_ROUTE : SUPPLIER_ABSOLUTE_ROUTE
-            }/${businessPartnerId}`}
+          <Button
+            variant="outline"
+            type="button"
+            disabled={isSubmitting}
+            onClick={onCancel}
           >
-            <Button type="button" variant="outline">
-              Cancelar
-            </Button>
-          </Link>
+            Cancelar
+          </Button>
 
           <Button
             type="submit"

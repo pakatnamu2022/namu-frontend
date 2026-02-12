@@ -13,13 +13,13 @@ import {
 } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { notFound } from "@/shared/hooks/useNotFound";
-import InventoryOptions from "@/features/ap/post-venta/gestion-compras/inventario/components/InventoryOptions";
+import InventoryOptions from "@/features/ap/post-venta/gestion-almacen/inventario/components/InventoryOptions";
 import { useWarehousesByCompany } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
-import { INVENTORY_REPUESTOS } from "@/features/ap/post-venta/gestion-compras/inventario/lib/inventory.constants";
-import { useInventory } from "@/features/ap/post-venta/gestion-compras/inventario/lib/inventory.hook";
-import InventoryTable from "@/features/ap/post-venta/gestion-compras/inventario/components/InventoryTable";
-import { inventoryColumns } from "@/features/ap/post-venta/gestion-compras/inventario/components/InventoryColumns";
-import InventoryActions from "@/features/ap/post-venta/gestion-compras/inventario/components/InventoryActions";
+import { INVENTORY_REPUESTOS } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.constants";
+import { useInventory } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.hook";
+import InventoryTable from "@/features/ap/post-venta/gestion-almacen/inventario/components/InventoryTable";
+import { inventoryColumns } from "@/features/ap/post-venta/gestion-almacen/inventario/components/InventoryColumns";
+import InventoryActions from "@/features/ap/post-venta/gestion-almacen/inventario/components/InventoryActions";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import type { SortingState } from "@tanstack/react-table";
 
@@ -75,7 +75,7 @@ export default function InventoryRepuestoPage() {
     },
     {
       enabled: !!warehouseId,
-    }
+    },
   );
 
   if (isLoadingModule || isLoadingWarehouses) return <PageSkeleton />;
@@ -123,6 +123,8 @@ export default function InventoryRepuestoPage() {
         columns={inventoryColumns({
           onMovements: (id, warehouse_id) =>
             router(`${ABSOLUTE_ROUTE}/movimientos/${id}/${warehouse_id}`),
+          onPurchaseHistory: (id, warehouse_id) =>
+            router(`${ABSOLUTE_ROUTE}/historico-compras/${id}/${warehouse_id}`),
         })}
         data={data?.data || []}
         sorting={sorting}

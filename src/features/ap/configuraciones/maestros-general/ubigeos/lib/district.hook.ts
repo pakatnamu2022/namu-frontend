@@ -37,10 +37,23 @@ export const useDistricts = (params?: {
   search?: string;
   page?: number;
   per_page?: number;
+  has_sede?: number;
 }) => {
   return useQuery<DistrictResponse>({
     queryKey: [QUERY_KEY, params],
     queryFn: () => getDistrict({ params }),
+    refetchOnWindowFocus: false,
+  });
+};
+
+export const useDistrictsSedes = (params?: {
+  search?: string;
+  page?: number;
+  per_page?: number;
+}) => {
+  return useQuery<DistrictResponse>({
+    queryKey: [QUERY_KEY, params],
+    queryFn: () => getDistrict({ params: { ...params, has_sede: 1 } }),
     refetchOnWindowFocus: false,
   });
 };

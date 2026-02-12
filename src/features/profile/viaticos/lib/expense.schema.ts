@@ -36,6 +36,7 @@ export const expenseSchema = z
       })
       .optional(),
     notes: z.string().optional(),
+    reason: z.string().optional(),
     expense_type_id: requiredStringId("El tipo de gasto es requerido"),
   })
   .refine(
@@ -83,8 +84,24 @@ export const expenseSchema = z
       return true;
     },
     {
-      message: "Las notas son requeridas para gastos de Movilidad Local",
+      message: "El destino es requerido para gastos de Movilidad Local",
       path: ["notes"],
+    }
+  )
+  .refine(
+    (data) => {
+      // El motivo es requerido cuando el tipo de gasto es TYPE_EXPENSE_LOCAL_MOBILITY (Movilidad Local)
+      if (
+        data.expense_type_id === TYPE_EXPENSE_LOCAL_MOBILITY &&
+        (!data.reason || data.reason.trim() === "")
+      ) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: "El motivo es requerido para gastos de Movilidad Local",
+      path: ["reason"],
     }
   );
 

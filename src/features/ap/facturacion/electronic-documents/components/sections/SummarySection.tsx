@@ -9,6 +9,7 @@ import { SunatConceptsResource } from "@/features/gp/maestro-general/conceptos-s
 import { PurchaseRequestQuoteResource } from "@/features/ap/comercial/solicitudes-cotizaciones/lib/purchaseRequestQuote.interface";
 import { AssignSalesSeriesResource } from "@/features/ap/configuraciones/maestros-general/asignar-serie-venta/lib/assignSalesSeries.interface";
 import { useAllCustomers } from "@/features/ap/comercial/clientes/lib/customers.hook";
+import { CustomersResource } from "@/features/ap/comercial/clientes/lib/customers.interface";
 import { ElectronicDocumentResource } from "../../lib/electronicDocument.interface";
 import { SUNAT_TYPE_INVOICES_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
 
@@ -33,6 +34,7 @@ interface SummarySectionProps {
   isAdvancePayment: boolean;
   quotation?: PurchaseRequestQuoteResource | null;
   advancePayments?: ElectronicDocumentResource[];
+  selectedCustomer?: CustomersResource;
 }
 
 export function SummarySection({
@@ -47,16 +49,19 @@ export function SummarySection({
   isAdvancePayment,
   quotation,
   advancePayments = [],
+  selectedCustomer: selectedCustomerProp,
 }: SummarySectionProps) {
   const items = form.watch("items") || [];
   const selectedDocumentType = form.watch("sunat_concept_document_type_id");
   const series = form.watch("serie");
   const clientId = form.watch("client_id");
 
+  // Usar el cliente pasado como prop si está disponible, de lo contrario buscarlo en la lista
   const { data: customers = [] } = useAllCustomers();
-  const selectedCustomer = customers.find(
+  const selectedCustomerFromList = customers.find(
     (customer) => customer.id.toString() === clientId
   );
+  const selectedCustomer = selectedCustomerProp || selectedCustomerFromList;
 
   return (
     <div className="lg:col-span-1 lg:row-start-1 lg:col-start-3 h-full">
@@ -81,7 +86,7 @@ export function SummarySection({
             -{form.watch("numero") || "########"}
           </p>
           {isAdvancePayment && (
-            <Badge variant="secondary" className="w-fit">
+            <Badge color="secondary" className="w-fit">
               Anticipo
             </Badge>
           )}

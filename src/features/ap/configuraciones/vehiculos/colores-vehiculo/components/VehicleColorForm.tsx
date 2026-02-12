@@ -34,7 +34,7 @@ export const VehicleColorForm = ({
 }: VehicleColorFormProps) => {
   const form = useForm({
     resolver: zodResolver(
-      mode === "create" ? vehicleColorSchemaCreate : vehicleColorSchemaUpdate
+      mode === "create" ? vehicleColorSchemaCreate : vehicleColorSchemaUpdate,
     ),
     defaultValues: {
       ...defaultValues,
@@ -45,20 +45,7 @@ export const VehicleColorForm = ({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-full">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="code"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Cod.</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: DI" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+        <div className="grid grid-cols-1 gap-4">
           <FormField
             control={form.control}
             name="description"

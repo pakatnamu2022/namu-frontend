@@ -13,26 +13,13 @@ import { AdvisorStats } from "../lib/dashboard.interface";
 import { Eye } from "lucide-react";
 import { DataTable } from "@/shared/components/DataTable";
 import { useMemo } from "react";
+import { getStatusColor } from "../../oportunidades/lib/opportunities.constants";
 
 interface SalesManagerAdvisorTableProps {
   advisors: AdvisorStats[];
   type: "VISITA" | "LEADS";
   onAdvisorClick?: (workerId: number) => void;
 }
-
-const getStatusColor = (status: string) => {
-  switch (status.toUpperCase()) {
-    case "CALIENTE":
-      return "destructive";
-    case "TEMPLADA":
-    case "TEMPLADO":
-      return "default";
-    case "FRIO":
-      return "secondary";
-    default:
-      return "outline";
-  }
-};
 
 const renderMetricsBar = (advisor: AdvisorStats, type: "VISITA" | "LEADS") => {
   const total = advisor.total_visits;
@@ -64,8 +51,8 @@ const renderMetricsBar = (advisor: AdvisorStats, type: "VISITA" | "LEADS") => {
                   advisor.attention_percentage >= 50
                     ? "bg-green-100 text-green-700"
                     : advisor.attention_percentage >= 25
-                    ? "bg-amber-100 text-amber-700"
-                    : "bg-red-100 text-red-700"
+                      ? "bg-amber-100 text-amber-700"
+                      : "bg-red-100 text-red-700"
                 }`}
               >
                 {advisor.attention_percentage.toFixed(1)}% atención
@@ -194,13 +181,16 @@ export default function SalesManagerAdvisorTable({
                 ([state, count]) =>
                   count > 0 && (
                     <Badge
+                      size="sm"
+                      variant="ghost"
                       key={`${row.original.worker_id}-${state}`}
-                      variant={getStatusColor(state)}
-                      className="text-xs font-normal"
+                      color={getStatusColor(state)}
+                      className="text-xs w-fit flex flex-col"
                     >
-                      {state}: {count as number}
+                      <span>{count as number}</span>
+                      <span className="font-medium">{state}</span>
                     </Badge>
-                  )
+                  ),
               )
             ) : (
               <span className="text-xs text-muted-foreground">—</span>
@@ -225,20 +215,19 @@ export default function SalesManagerAdvisorTable({
         ),
       },
     ],
-    [onAdvisorClick]
+    [onAdvisorClick],
   );
 
   // Sort by total visits descending
   const sortedAdvisors = useMemo(
     () => [...advisors].sort((a, b) => b.total_visits - a.total_visits),
-    [advisors]
+    [advisors],
   );
 
   return (
     <DataTable
       columns={columns}
       data={sortedAdvisors}
-      variant="simple"
       isVisibleColumnFilter={false}
     />
   );

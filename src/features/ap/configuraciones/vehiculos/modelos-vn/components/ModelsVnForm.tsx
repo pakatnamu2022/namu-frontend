@@ -35,9 +35,7 @@ import { calculateIGV } from "@/core/core.function";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.hook";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
-import { useNavigate } from "react-router-dom";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
-import { MODELS_VN, MODELS_VN_POSTVENTA } from "../lib/modelsVn.constanst";
 import { CM_COMERCIAL_ID } from "@/core/core.constants";
 
 interface ModelsVnFormProps {
@@ -45,6 +43,7 @@ interface ModelsVnFormProps {
   onSubmit: (data: any) => void;
   isSubmitting?: boolean;
   mode?: "create" | "update";
+  onCancel: () => void;
 }
 
 export const ModelsVnForm = ({
@@ -52,11 +51,11 @@ export const ModelsVnForm = ({
   onSubmit,
   isSubmitting = false,
   mode = "create",
+  onCancel,
 }: ModelsVnFormProps) => {
-  const router = useNavigate();
   const form = useForm({
     resolver: zodResolver(
-      mode === "create" ? modelsVnSchemaCreate : (modelsVnSchemaUpdate as any)
+      mode === "create" ? modelsVnSchemaCreate : (modelsVnSchemaUpdate as any),
     ),
     defaultValues: {
       ...defaultValues,
@@ -74,13 +73,16 @@ export const ModelsVnForm = ({
   const { data: brands = [], isLoading: isLoadingbrands } = useAllBrands(
     typeOperationId === String(CM_COMERCIAL_ID)
       ? { type_operation_id: typeOperationId }
-      : {}
+      : {},
   );
   const { data: families = [], isLoading: isLoadingFamilies } = useAllFamilies({
     brand_id: marcaSeleccionada,
   });
   const { data: articleClasses = [], isLoading: isLoadingArticleClasses } =
-    useAllClassArticle({ type: "VEHICULO" });
+    useAllClassArticle({
+      type: "VEHICULO",
+      type_operation_id: CM_COMERCIAL_ID,
+    });
   const { data: fuelTypes = [], isLoading: isLoadingFuelTypes } =
     useAllFuelType();
   const { data: typesVehicles = [], isLoading: isLoadingTypesVehicles } =
@@ -95,10 +97,6 @@ export const ModelsVnForm = ({
   } = useAllGearShiftType();
   const { data: currencyTypes = [], isLoading: isLoadingCurrencyTypes } =
     useAllCurrencyTypes();
-  const { ABSOLUTE_ROUTE } =
-    typeOperationId === String(CM_COMERCIAL_ID)
-      ? MODELS_VN
-      : MODELS_VN_POSTVENTA;
 
   useEffect(() => {
     if (!familiaSeleccionada || !yearModelo) return;
@@ -119,7 +117,7 @@ export const ModelsVnForm = ({
     }
 
     const familiaObj = families.find(
-      (family) => family.id.toString() === familiaSeleccionada
+      (family) => family.id.toString() === familiaSeleccionada,
     );
     if (!familiaObj) return;
     const year2Digitos = yearModelo.toString().slice(-2);
@@ -182,7 +180,7 @@ export const ModelsVnForm = ({
             shouldDirty: true,
           });
         }
-      }
+      },
     );
   }, [precioDistribuidor, form]);
 
@@ -235,10 +233,7 @@ export const ModelsVnForm = ({
 
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-4 w-full formlayout"
-      >
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-full">
         <div className="space-y-8">
           {/* Sección: Datos Generales */}
           <GroupFormSection
@@ -246,6 +241,11 @@ export const ModelsVnForm = ({
             icon={ClipboardMinus}
             iconColor="text-secondary"
             bgColor="bg-red-50"
+            cols={{
+              xl: 4,
+              "2xl": 5,
+            }}
+            gap="gap-3"
           >
             <FormField
               control={form.control}
@@ -326,6 +326,11 @@ export const ModelsVnForm = ({
             icon={Settings}
             iconColor="text-primary"
             bgColor="bg-blue-50"
+            cols={{
+              xl: 4,
+              "2xl": 5,
+            }}
+            gap="gap-3"
           >
             <FormSelect
               name="fuel_id"
@@ -656,6 +661,11 @@ export const ModelsVnForm = ({
               icon={CircleDollarSign}
               iconColor="text-gray-600"
               bgColor="bg-gray-50"
+              cols={{
+                xl: 4,
+                "2xl": 5,
+              }}
+              gap="gap-3"
             >
               <FormSelect
                 name="currency_type_id"
@@ -830,9 +840,7 @@ export const ModelsVnForm = ({
             title="¿Cancelar registro?"
             variant="destructive"
             icon="warning"
-            onConfirm={() => {
-              router(ABSOLUTE_ROUTE!);
-            }}
+            onConfirm={onCancel}
           />
 
           <Button

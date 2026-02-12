@@ -4,8 +4,12 @@ import {
   getEvaluationPersonResult,
   getEvaluationPersonResultByPersonAndEvaluation,
   getEvaluationsByPersonToEvaluate,
+  getLeadersStatus,
 } from "./evaluationPerson.actions";
-import type { EvaluationPersonResultResource } from "./evaluationPerson.interface";
+import type {
+  EvaluationPersonResultResource,
+  LeaderStatusEvaluationResponse,
+} from "./evaluationPerson.interface";
 
 const { QUERY_KEY } = EVALUATION_PERSON;
 
@@ -40,5 +44,14 @@ export const useEvaluationsByPersonToEvaluate = (
     queryFn: () => getEvaluationsByPersonToEvaluate(id, params),
     refetchOnWindowFocus: false,
     enabled: enabled,
+  });
+};
+
+export const useLeadersStatus = (evaluationId: number, enabled: boolean = true) => {
+  return useQuery<LeaderStatusEvaluationResponse>({
+    queryKey: [QUERY_KEY, "leaders-status", evaluationId],
+    queryFn: () => getLeadersStatus(evaluationId),
+    refetchOnWindowFocus: false,
+    enabled: !!evaluationId && enabled,
   });
 };

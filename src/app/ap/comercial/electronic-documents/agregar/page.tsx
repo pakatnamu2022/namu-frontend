@@ -5,7 +5,7 @@ import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMemo } from "react";
+import { useMemo, useEffect } from "react";
 import {
   ERROR_MESSAGE,
   errorToast,
@@ -16,12 +16,13 @@ import { storeElectronicDocument } from "@/features/ap/facturacion/electronic-do
 import { ElectronicDocumentSchema } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.schema";
 import { ElectronicDocumentForm } from "@/features/ap/facturacion/electronic-documents/components/ElectronicDocumentForm";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
-import FormWrapper from "@/shared/components/FormWrapper";
 import { ELECTRONIC_DOCUMENT } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.constants";
 import { SUNAT_CONCEPTS_TYPE } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
 import { useAllSunatConcepts } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.hook";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { notFound } from "@/shared/hooks/useNotFound";
+import { AREA_COMERCIAL, STATUS_ACTIVE } from "@/core/core.constants";
+import PageWrapper from "@/shared/components/PageWrapper";
 
 export default function AddElectronicDocumentPage() {
   const { ROUTE, MODEL, ABSOLUTE_ROUTE } = ELECTRONIC_DOCUMENT;
@@ -41,74 +42,76 @@ export default function AddElectronicDocumentPage() {
         SUNAT_CONCEPTS_TYPE.BILLING_CREDIT_NOTE_TYPE,
         SUNAT_CONCEPTS_TYPE.BILLING_DEBIT_NOTE_TYPE,
       ],
+      enable_commercial: STATUS_ACTIVE,
     });
 
   // Filter concepts by type locally
   const documentTypes = useMemo(
     () =>
       sunatConcepts.filter(
-        (concept) => concept.type === SUNAT_CONCEPTS_TYPE.BILLING_DOCUMENT_TYPE
+        (concept) => concept.type === SUNAT_CONCEPTS_TYPE.BILLING_DOCUMENT_TYPE,
       ),
-    [sunatConcepts]
+    [sunatConcepts],
   );
 
   const transactionTypes = useMemo(
     () =>
       sunatConcepts.filter(
         (concept) =>
-          concept.type === SUNAT_CONCEPTS_TYPE.BILLING_TRANSACTION_TYPE
+          concept.type === SUNAT_CONCEPTS_TYPE.BILLING_TRANSACTION_TYPE,
       ),
-    [sunatConcepts]
+    [sunatConcepts],
   );
 
   const identityDocumentTypes = useMemo(
     () =>
       sunatConcepts.filter(
-        (concept) => concept.type === SUNAT_CONCEPTS_TYPE.TYPE_DOCUMENT
+        (concept) => concept.type === SUNAT_CONCEPTS_TYPE.TYPE_DOCUMENT,
       ),
-    [sunatConcepts]
+    [sunatConcepts],
   );
 
   const currencyTypes = useMemo(
     () =>
       sunatConcepts.filter(
-        (concept) => concept.type === SUNAT_CONCEPTS_TYPE.BILLING_CURRENCY
+        (concept) => concept.type === SUNAT_CONCEPTS_TYPE.BILLING_CURRENCY,
       ),
-    [sunatConcepts]
+    [sunatConcepts],
   );
 
   const igvTypes = useMemo(
     () =>
       sunatConcepts.filter(
-        (concept) => concept.type === SUNAT_CONCEPTS_TYPE.BILLING_IGV_TYPE
+        (concept) => concept.type === SUNAT_CONCEPTS_TYPE.BILLING_IGV_TYPE,
       ),
-    [sunatConcepts]
+    [sunatConcepts],
   );
 
   const detractionTypes = useMemo(
     () =>
       sunatConcepts.filter(
         (concept) =>
-          concept.type === SUNAT_CONCEPTS_TYPE.BILLING_DETRACTION_TYPE
+          concept.type === SUNAT_CONCEPTS_TYPE.BILLING_DETRACTION_TYPE,
       ),
-    [sunatConcepts]
+    [sunatConcepts],
   );
 
   const creditNoteTypes = useMemo(
     () =>
       sunatConcepts.filter(
         (concept) =>
-          concept.type === SUNAT_CONCEPTS_TYPE.BILLING_CREDIT_NOTE_TYPE
+          concept.type === SUNAT_CONCEPTS_TYPE.BILLING_CREDIT_NOTE_TYPE,
       ),
-    [sunatConcepts]
+    [sunatConcepts],
   );
 
   const debitNoteTypes = useMemo(
     () =>
       sunatConcepts.filter(
-        (concept) => concept.type === SUNAT_CONCEPTS_TYPE.BILLING_DEBIT_NOTE_TYPE
+        (concept) =>
+          concept.type === SUNAT_CONCEPTS_TYPE.BILLING_DEBIT_NOTE_TYPE,
       ),
-    [sunatConcepts]
+    [sunatConcepts],
   );
 
   const form = useForm<ElectronicDocumentSchema>({
@@ -118,7 +121,7 @@ export default function AddElectronicDocumentPage() {
       numero: "",
       sunat_concept_document_type_id: "",
       sunat_concept_transaction_type_id: "",
-      origin_module: "comercial",
+      area_id: AREA_COMERCIAL.toString(),
       client_id: "",
       fecha_de_emision: new Date().toISOString().split("T")[0],
       total: 0,
@@ -136,6 +139,19 @@ export default function AddElectronicDocumentPage() {
     },
     mode: "onChange",
   });
+
+  // Set default currency to first option
+  useEffect(() => {
+    if (currencyTypes.length > 0) {
+      const currentValue = form.getValues("sunat_concept_currency_id");
+      if (!currentValue) {
+        form.setValue(
+          "sunat_concept_currency_id",
+          currencyTypes[0].id.toString(),
+        );
+      }
+    }
+  }, [currencyTypes, form]);
 
   const { mutate, isPending } = useMutation({
     mutationFn: storeElectronicDocument,
@@ -162,7 +178,7 @@ export default function AddElectronicDocumentPage() {
   }
 
   return (
-    <FormWrapper maxWidth="max-w-(--breakpoint-2xl)">
+    <PageWrapper>
       <TitleFormComponent
         title={currentView.descripcion}
         mode="create"
@@ -183,6 +199,6 @@ export default function AddElectronicDocumentPage() {
         debitNoteTypes={debitNoteTypes || []}
         useQuotation={true}
       />
-    </FormWrapper>
+    </PageWrapper>
   );
 }

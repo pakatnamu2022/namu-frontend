@@ -33,31 +33,30 @@ export const appointmentPlanningColumns = ({
       const value = getValue() as string;
       return value && <p className="font-semibold">{value}</p>;
     },
-    enableSorting: false,
-  },
-  {
-    accessorKey: "sede_name",
-    header: "Sede",
-    enableSorting: false,
   },
   {
     accessorKey: "plate",
     header: "Placa",
-    enableSorting: false,
+  },
+  {
+    accessorKey: "type_planning_name",
+    header: "Planiﬁcación",
+  },
+  {
+    accessorKey: "type_operation_appointment_name",
+    header: "Operación",
   },
   {
     accessorKey: "email_client",
     header: "Email",
-    enableSorting: false,
   },
   {
     accessorKey: "phone_client",
     header: "Teléfono",
-    enableSorting: false,
   },
   {
     id: "appointment_datetime",
-    header: "Fecha y Hora de Cita",
+    header: "Atención",
     cell: ({ row }) => {
       const date = row.original.date_appointment;
       const time = row.original.time_appointment;
@@ -68,7 +67,7 @@ export const appointmentPlanningColumns = ({
         const formattedDate = format(
           new Date(date + "T00:00:00"),
           "dd/MM/yyyy",
-          { locale: es }
+          { locale: es },
         );
         return (
           <div className="flex flex-col gap-1">
@@ -88,11 +87,10 @@ export const appointmentPlanningColumns = ({
         return date;
       }
     },
-    enableSorting: false,
   },
   {
     id: "delivery_datetime",
-    header: "Fecha y Hora de Entrega",
+    header: "Entrega",
     cell: ({ row }) => {
       const date = row.original.delivery_date;
       const time = row.original.delivery_time;
@@ -103,7 +101,7 @@ export const appointmentPlanningColumns = ({
         const formattedDate = format(
           new Date(date + "T00:00:00"),
           "dd/MM/yyyy",
-          { locale: es }
+          { locale: es },
         );
         return (
           <div className="flex flex-col gap-1">
@@ -123,7 +121,14 @@ export const appointmentPlanningColumns = ({
         return date;
       }
     },
-    enableSorting: false,
+  },
+  {
+    accessorKey: "description",
+    header: "Descripción",
+  },
+  {
+    accessorKey: "created_by_name",
+    header: "Creado Por",
   },
   {
     accessorKey: "is_taken",
@@ -132,14 +137,13 @@ export const appointmentPlanningColumns = ({
       const value = getValue() as boolean;
       return (
         <Badge
-          variant={value ? "default" : "secondary"}
+          color={value ? "default" : "secondary"}
           className="capitalize w-8 flex items-center justify-center"
         >
           {value ? "Sí" : "No"}
         </Badge>
       );
     },
-    enableSorting: false,
   },
   {
     id: "actions",

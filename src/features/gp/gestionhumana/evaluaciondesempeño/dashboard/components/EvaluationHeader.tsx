@@ -10,7 +10,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { Badge, BadgeColor } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { EvaluationResource } from "../../evaluaciones/lib/evaluation.interface";
 import { parse } from "date-fns";
@@ -33,9 +33,7 @@ export const EvaluationHeader: React.FC<EvaluationHeaderProps> = ({
   onRefresh,
   onDownloadReport,
 }) => {
-  const getStatusVariant = (
-    status: number
-  ): "default" | "secondary" | "outline" | "tertiary" => {
+  const getStatusVariant = (status: number): BadgeColor => {
     switch (status) {
       case 0:
         return "tertiary";
@@ -44,7 +42,7 @@ export const EvaluationHeader: React.FC<EvaluationHeaderProps> = ({
       case 2:
         return "secondary";
       default:
-        return "outline";
+        return "muted";
     }
   };
 
@@ -68,20 +66,20 @@ export const EvaluationHeader: React.FC<EvaluationHeaderProps> = ({
         day: "2-digit",
         month: "short",
         year: "numeric",
-      }
+      },
     );
   };
 
   const formatDateLong = (dateString: string): string => {
     return parse(dateString, "yyyy-MM-dd", new Date()).toLocaleDateString(
       "es-ES",
-      { weekday: "long" }
+      { weekday: "long" },
     );
   };
 
   const calculateDurationDays = (
     startDateString: string,
-    endDateString: string
+    endDateString: string,
   ): number => {
     const startDate = parse(startDateString, "yyyy-MM-dd", new Date());
     const endDate = parse(endDateString, "yyyy-MM-dd", new Date());
@@ -95,24 +93,25 @@ export const EvaluationHeader: React.FC<EvaluationHeaderProps> = ({
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
         {/* Información Principal */}
         <div className="space-y-3">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full">
             <TitleComponent
               title={evaluationData.name}
               subtitle={`${evaluationData.typeEvaluationName} • ${evaluationData.period}`}
               icon="BarChart3"
               isTruncate={false}
-            />
-            <Badge variant={getStatusVariant(evaluationData.status)} size="sm">
-              {getStatusIcon(evaluationData.status)}
-              <span className="ml-2">{evaluationData.statusName}</span>
-            </Badge>
+            >
+              <Badge color={getStatusVariant(evaluationData.status)} size="sm">
+                {getStatusIcon(evaluationData.status)}
+                <span className="ml-2">{evaluationData.statusName}</span>
+              </Badge>
+            </TitleComponent>
           </div>
         </div>
 
         {/* Acciones */}
         <div className="flex flex-col sm:flex-row gap-3">
           <Button
-            variant="tertiary"
+            color="orange"
             size="sm"
             onClick={onRefresh}
             disabled={refetching}
@@ -121,7 +120,7 @@ export const EvaluationHeader: React.FC<EvaluationHeaderProps> = ({
             <RefreshCw
               className={`size-4 ${refetching ? "animate-spin" : ""}`}
             />
-            Actualizar
+            Calibrar
           </Button>
           <Link to={`${ABSOLUTE_ROUTE}/${evaluationData.id}`}>
             <Button variant="outline" size="sm" className="order-2 sm:order-1">
@@ -141,8 +140,8 @@ export const EvaluationHeader: React.FC<EvaluationHeaderProps> = ({
       </div>
 
       {/* Información de Fechas Mejorada */}
-      <Card className="">
-        <CardContent className="p-6">
+      <Card>
+        <CardContent>
           <div className="space-y-4">
             {/* Título de Fechas */}
             <div className="flex items-center gap-2 mb-4">
@@ -187,7 +186,7 @@ export const EvaluationHeader: React.FC<EvaluationHeaderProps> = ({
                     <p className="text-lg font-bold text-foreground">
                       {calculateDurationDays(
                         evaluationData.start_date,
-                        evaluationData.end_date
+                        evaluationData.end_date,
                       )}{" "}
                       días
                     </p>

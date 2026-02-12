@@ -42,7 +42,7 @@ export default function ObjectiveOptions({
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger>
-            <Badge variant={"destructive"}>
+            <Badge color="destructive">
               <ArrowDown className="size-4" />
               Descendente
             </Badge>

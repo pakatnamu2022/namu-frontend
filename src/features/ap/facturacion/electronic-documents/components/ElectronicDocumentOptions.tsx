@@ -1,18 +1,16 @@
 import SearchInput from "@/shared/components/SearchInput";
-import {
-  DOCUMENT_STATUS,
-  ORIGIN_MODULES,
-} from "../lib/electronicDocument.constants";
+import { DOCUMENT_STATUS } from "../lib/electronicDocument.constants";
 import { SunatConceptsResource } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.interface";
 import { SearchableSelect } from "@/shared/components/SearchableSelect";
+import { AREA_OPTIONS } from "@/core/core.constants";
 
 interface Props {
   search: string;
   setSearch: (value: string) => void;
   statusFilter: string;
   setStatusFilter: (value: string) => void;
-  moduleFilter: string;
-  setModuleFilter: (value: string) => void;
+  areaFilter?: string;
+  setAreaFilter?: (value: string) => void;
   documentTypeFilter: string;
   setDocumentTypeFilter: (value: string) => void;
   documentTypes: SunatConceptsResource[];
@@ -23,8 +21,8 @@ export default function ElectronicDocumentOptions({
   setSearch,
   statusFilter,
   setStatusFilter,
-  moduleFilter,
-  setModuleFilter,
+  areaFilter,
+  setAreaFilter,
   documentTypeFilter,
   setDocumentTypeFilter,
   documentTypes = [],
@@ -52,15 +50,15 @@ export default function ElectronicDocumentOptions({
         />
       )}
 
-      {setModuleFilter && (
+      {areaFilter && setAreaFilter && (
         <SearchableSelect
-          onChange={setModuleFilter}
-          value={moduleFilter}
+          onChange={setAreaFilter}
+          value={areaFilter}
           className="md:min-w-44"
-          placeholder="Seleccionar Módulo"
-          options={ORIGIN_MODULES.map((module) => ({
-            value: module.value,
-            label: module.label,
+          placeholder="Seleccionar Área"
+          options={AREA_OPTIONS.map((area) => ({
+            value: area.value,
+            label: area.label,
           }))}
         />
       )}

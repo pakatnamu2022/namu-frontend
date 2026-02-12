@@ -45,7 +45,7 @@ export const workerColumns = ({
       const offerLetterConfirmation = row.original.offerLetterConfirmation;
       return (
         <Badge
-          variant={offerLetterConfirmationId === 21 ? "outline" : "tertiary"}
+          color={offerLetterConfirmationId === 21 ? "green" : "orange"}
           className="flex gap-2 w-fit"
         >
           {offerLetterConfirmationId === 21 ? (
@@ -66,7 +66,7 @@ export const workerColumns = ({
       const emailOfferLetterStatus = row.original.emailOfferLetterStatus;
       return (
         <Badge
-          variant={emailOfferLetterStatusId === 21 ? "outline" : "tertiary"}
+          color={emailOfferLetterStatusId === 21 ? "green" : "orange"}
           className="flex gap-2 w-fit"
         >
           {emailOfferLetterStatusId === 21 ? (

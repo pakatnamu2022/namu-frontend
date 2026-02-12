@@ -1,27 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Clock,
@@ -30,78 +14,62 @@ import {
   AlertCircle,
   Database,
   Loader2,
-  FileClock,
   RefreshCw,
+  FileClock,
 } from "lucide-react";
 import {
   getMigrationLogs,
   getMigrationHistory,
 } from "../lib/vehiclePurchaseOrder.actions";
+import { MigrationLog } from "../lib/vehiclePurchaseOrder.interface";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { cn } from "@/lib/utils";
+import GeneralSheet from "@/shared/components/GeneralSheet";
+import { DataTable } from "@/shared/components/DataTable";
+import { ColumnDef } from "@tanstack/react-table";
 
 interface VehiclePurchaseOrderMigrationHistoryProps {
   purchaseOrderId: number;
 }
 
-export default function VehiclePurchaseOrderMigrationHistory({
-  purchaseOrderId,
-}: VehiclePurchaseOrderMigrationHistoryProps) {
-  const [open, setOpen] = useState(false);
-  const queryClient = useQueryClient();
+const getStatusIcon = (status: string) => {
+  switch (status) {
+    case "pending":
+      return <Clock className="h-4 w-4 text-yellow-600" />;
+    case "in_progress":
+      return <CheckCircle2 className="h-4 w-4 text-blue-600" />;
+    case "completed":
+      return <CheckCircle2 className="h-4 w-4 text-green-600" />;
+    case "failed":
+      return <XCircle className="h-4 w-4 text-red-600" />;
+    case "updated_with_nc":
+      return <CheckCircle2 className="h-4 w-4 text-purple-600" />;
+    default:
+      return <AlertCircle className="h-4 w-4 text-gray-600" />;
+  }
+};
 
-  const { data: logsData, isFetching: isLoadingLogs } = useQuery({
-    queryKey: ["vehiclePurchaseOrderMigrationLogs", purchaseOrderId],
-    queryFn: () => getMigrationLogs(purchaseOrderId),
-    enabled: open,
-  });
+const getNameStatus = (status: string) => {
+  switch (status) {
+    case "pending":
+      return "Pendiente";
+    case "in_progress":
+      return "En Proceso";
+    case "completed":
+      return "Completado";
+    case "failed":
+      return "Fallido";
+    case "updated_with_nc":
+      return "Actualizado con NC";
+    default:
+      return status;
+  }
+};
 
-  const { data: historyData, isFetching: isLoadingHistory } = useQuery({
-    queryKey: ["vehiclePurchaseOrderMigrationHistory", purchaseOrderId],
-    queryFn: () => getMigrationHistory(purchaseOrderId),
-    enabled: open,
-  });
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "pending":
-        return <Clock className="h-4 w-4 text-yellow-600" />;
-      case "in_progress":
-        return <CheckCircle2 className="h-4 w-4 text-blue-600" />;
-      case "completed":
-        return <CheckCircle2 className="h-4 w-4 text-green-600" />;
-      case "failed":
-        return <XCircle className="h-4 w-4 text-red-600" />;
-      case "updated_with_nc":
-        return <CheckCircle2 className="h-4 w-4 text-purple-600" />;
-      default:
-        return <AlertCircle className="h-4 w-4 text-gray-600" />;
-    }
-  };
-
-  const getNameStatus = (status: string) => {
-    switch (status) {
-      case "pending":
-        return "Pendiente";
-      case "in_progress":
-        return "En Proceso";
-      case "completed":
-        return "Completado";
-      case "failed":
-        return "Fallido";
-      case "updated_with_nc":
-        return "Actualizado con NC";
-      default:
-        return status;
-    }
-  };
-
-  const getStatusBadge = (status: string, statusName?: string) => {
-    const variants: Record<
-      string,
-      { bg: string; text: string; hover: string }
-    > = {
+const getStatusBadge = (status: string, statusName?: string) => {
+  const variants: Record<string, { bg: string; text: string; hover: string }> =
+    {
       pending: {
         bg: "bg-yellow-100",
         text: "text-yellow-800",
@@ -129,29 +97,25 @@ export default function VehiclePurchaseOrderMigrationHistory({
       },
     };
 
-    const variant = variants[status] || {
-      bg: "bg-gray-100",
-      text: "text-gray-800",
-      hover: "hover:bg-gray-200",
-    };
-
-    return (
-      <Badge
-        className={cn(variant.bg, variant.text, variant.hover, "border-0")}
-      >
-        {statusName || status}
-      </Badge>
-    );
+  const variant = variants[status] || {
+    bg: "bg-gray-100",
+    text: "text-gray-800",
+    hover: "hover:bg-gray-200",
   };
 
-  const getProcesoEstadoBadge = (
-    procesoEstado: number,
-    procesoEstadoName: string
-  ) => {
-    const variants: Record<
-      number,
-      { bg: string; text: string; hover: string }
-    > = {
+  return (
+    <Badge className={cn(variant.bg, variant.text, variant.hover, "border-0")}>
+      {statusName || status}
+    </Badge>
+  );
+};
+
+const getProcesoEstadoBadge = (
+  procesoEstado: number,
+  procesoEstadoName: string,
+) => {
+  const variants: Record<number, { bg: string; text: string; hover: string }> =
+    {
       1: {
         bg: "bg-green-100",
         text: "text-green-800",
@@ -165,43 +129,128 @@ export default function VehiclePurchaseOrderMigrationHistory({
       },
     };
 
-    const variant = variants[procesoEstado] || {
-      bg: "bg-gray-100",
-      text: "text-gray-800",
-      hover: "hover:bg-gray-200",
-    };
-
-    return (
-      <Badge
-        className={cn(variant.bg, variant.text, variant.hover, "border-0")}
-      >
-        {procesoEstadoName}
-      </Badge>
-    );
+  const variant = variants[procesoEstado] || {
+    bg: "bg-gray-100",
+    text: "text-gray-800",
+    hover: "hover:bg-gray-200",
   };
 
-  const formatDate = (dateString: string) => {
-    try {
-      return format(new Date(dateString), "dd/MM/yyyy HH:mm:ss", {
-        locale: es,
-      });
-    } catch {
-      return dateString;
-    }
-  };
+  return (
+    <Badge className={cn(variant.bg, variant.text, variant.hover, "border-0")}>
+      {procesoEstadoName}
+    </Badge>
+  );
+};
 
-  const getEventIcon = (event: string) => {
-    switch (event) {
-      case "completed":
-        return <CheckCircle2 className="h-5 w-5 text-green-600" />;
-      case "attempt":
-        return <Clock className="h-5 w-5 text-blue-600" />;
-      case "created":
-        return <AlertCircle className="h-5 w-5 text-gray-600" />;
-      default:
-        return <AlertCircle className="h-5 w-5 text-gray-600" />;
-    }
-  };
+const formatDate = (dateString: string) => {
+  try {
+    return format(new Date(dateString), "dd/MM/yyyy HH:mm:ss", {
+      locale: es,
+    });
+  } catch {
+    return dateString;
+  }
+};
+
+const migrationLogsColumns: ColumnDef<MigrationLog>[] = [
+  {
+    accessorKey: "step",
+    header: "Paso",
+    cell: ({ row }) => (
+      <div className="flex items-center gap-2">
+        {getStatusIcon(row.original.status)}
+        <div>
+          <p className="font-medium">{row.original.step_name}</p>
+          <p className="text-xs text-muted-foreground">{row.original.step}</p>
+        </div>
+      </div>
+    ),
+  },
+  {
+    accessorKey: "table_name",
+    header: "Tabla",
+    cell: ({ row }) => (
+      <div className="flex items-center gap-1">
+        <Database className="h-3 w-3 text-muted-foreground" />
+        <span className="text-xs font-mono">{row.original.table_name}</span>
+      </div>
+    ),
+  },
+  {
+    accessorKey: "external_id",
+    header: "ID Externo",
+    cell: ({ row }) => (
+      <span className="text-xs font-mono">{row.original.external_id}</span>
+    ),
+  },
+  {
+    accessorKey: "status",
+    header: "Estado",
+    cell: ({ row }) =>
+      getStatusBadge(row.original.status, row.original.status_name),
+  },
+  {
+    accessorKey: "proceso_estado",
+    header: "Proceso",
+    cell: ({ row }) =>
+      getProcesoEstadoBadge(
+        row.original.proceso_estado,
+        row.original.proceso_estado_name,
+      ),
+  },
+  {
+    accessorKey: "attempts",
+    header: "Intentos",
+    cell: ({ row }) => <Badge variant="outline">{row.original.attempts}</Badge>,
+  },
+  {
+    accessorKey: "completed_at",
+    header: "Completado",
+    cell: ({ row }) => (
+      <span className="text-xs">
+        {row.original.completed_at
+          ? formatDate(row.original.completed_at)
+          : "-"}
+      </span>
+    ),
+  },
+];
+
+const getEventIcon = (event: string) => {
+  switch (event) {
+    case "completed":
+      return <CheckCircle2 className="h-5 w-5 text-green-600" />;
+    case "attempt":
+      return <Clock className="h-5 w-5 text-blue-600" />;
+    case "created":
+      return <AlertCircle className="h-5 w-5 text-gray-600" />;
+    default:
+      return <AlertCircle className="h-5 w-5 text-gray-600" />;
+  }
+};
+
+export default function VehiclePurchaseOrderMigrationHistory({
+  purchaseOrderId,
+}: VehiclePurchaseOrderMigrationHistoryProps) {
+  const [open, setOpen] = useState(false);
+  const queryClient = useQueryClient();
+
+  const { data: logsData, isFetching: isLoadingLogs } = useQuery({
+    queryKey: ["vehiclePurchaseOrderMigrationLogs", purchaseOrderId],
+    queryFn: () => getMigrationLogs(purchaseOrderId),
+    enabled: open,
+  });
+
+  const { data: historyData, isFetching: isLoadingHistory } = useQuery({
+    queryKey: ["vehiclePurchaseOrderMigrationHistory", purchaseOrderId],
+    queryFn: () => getMigrationHistory(purchaseOrderId),
+    enabled: open,
+  });
+
+  const logsTableData = useMemo(
+    () => logsData?.data.logs ?? [],
+    [logsData?.data.logs],
+  );
 
   const handleRefresh = async () => {
     await Promise.all([
@@ -215,55 +264,55 @@ export default function VehiclePurchaseOrderMigrationHistory({
   };
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
-      <SheetTrigger asChild>
-        <Button
-          tooltip="Historial de Migración"
-          variant="outline"
-          size="icon"
-          className="size-7"
-        >
-          <FileClock className="size-4" />
-        </Button>
-      </SheetTrigger>
-      <SheetContent className="!max-w-(--breakpoint-xl) w-full">
-        <SheetHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <SheetTitle>Historial de Migración</SheetTitle>
-              <SheetDescription>
-                Historial detallado del proceso de migración de la orden de
-                compra
-              </SheetDescription>
-            </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleRefresh}
-              disabled={isLoadingLogs || isLoadingHistory}
-              className="gap-2"
-            >
-              <RefreshCw
-                className={cn(
-                  "h-4 w-4",
-                  (isLoadingLogs || isLoadingHistory) && "animate-spin"
-                )}
-              />
-              Actualizar
-            </Button>
-          </div>
-        </SheetHeader>
+    <>
+      <Button
+        variant="outline"
+        size="icon"
+        className="size-7"
+        tooltip="Ver Historial de Migración"
+        onClick={() => setOpen(true)}
+      >
+        <FileClock className="size-4" />
+      </Button>
 
+      <GeneralSheet
+        open={open}
+        onClose={() => setOpen(false)}
+        icon="FileClock"
+        title="Historial de Migración"
+        subtitle="Historial detallado del proceso de migración de la orden de compra"
+        size="7xl"
+      >
         {isLoadingLogs || isLoadingHistory ? (
           <div className="flex items-center justify-center h-96">
             <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
           </div>
         ) : (
-          <Tabs defaultValue="resumen" className="mt-6">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="resumen">Resumen</TabsTrigger>
-              <TabsTrigger value="timeline">Línea de Tiempo</TabsTrigger>
-            </TabsList>
+          <Tabs defaultValue="resumen">
+            <div className="flex items-center justify-between">
+              <TabsList>
+                <TabsTrigger value="resumen">Resumen</TabsTrigger>
+                <TabsTrigger value="timeline">Línea de Tiempo</TabsTrigger>
+              </TabsList>
+              <div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  color="primary"
+                  onClick={handleRefresh}
+                  disabled={isLoadingLogs || isLoadingHistory}
+                  className="gap-2"
+                >
+                  <RefreshCw
+                    className={cn(
+                      "h-4 w-4",
+                      (isLoadingLogs || isLoadingHistory) && "animate-spin",
+                    )}
+                  />
+                  Actualizar
+                </Button>
+              </div>
+            </div>
 
             <TabsContent value="resumen" className="space-y-4">
               {logsData && (
@@ -282,8 +331,8 @@ export default function VehiclePurchaseOrderMigrationHistory({
                       {getStatusBadge(
                         logsData.data.purchase_order.migration_status,
                         getNameStatus(
-                          logsData.data.purchase_order.migration_status
-                        )
+                          logsData.data.purchase_order.migration_status,
+                        ),
                       )}
                     </div>
                     <Separator />
@@ -304,68 +353,12 @@ export default function VehiclePurchaseOrderMigrationHistory({
                   </div>
 
                   {/* Logs Table */}
-                  <ScrollArea className="h-[calc(100vh-300px)]">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Paso</TableHead>
-                          <TableHead>Tabla</TableHead>
-                          <TableHead>ID Externo</TableHead>
-                          <TableHead>Estado</TableHead>
-                          <TableHead>Proceso</TableHead>
-                          <TableHead>Intentos</TableHead>
-                          <TableHead>Completado</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {logsData.data.logs.map((log) => (
-                          <TableRow key={log.id}>
-                            <TableCell>
-                              <div className="flex items-center gap-2">
-                                {getStatusIcon(log.status)}
-                                <div>
-                                  <p className="font-medium">{log.step_name}</p>
-                                  <p className="text-xs text-muted-foreground">
-                                    {log.step}
-                                  </p>
-                                </div>
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              <div className="flex items-center gap-1">
-                                <Database className="h-3 w-3 text-muted-foreground" />
-                                <span className="text-xs font-mono">
-                                  {log.table_name}
-                                </span>
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              <span className="text-xs font-mono">
-                                {log.external_id}
-                              </span>
-                            </TableCell>
-                            <TableCell>
-                              {getStatusBadge(log.status, log.status_name)}
-                            </TableCell>
-                            <TableCell>
-                              {getProcesoEstadoBadge(
-                                log.proceso_estado,
-                                log.proceso_estado_name
-                              )}
-                            </TableCell>
-                            <TableCell>
-                              <Badge variant="outline">{log.attempts}</Badge>
-                            </TableCell>
-                            <TableCell className="text-xs">
-                              {log.completed_at
-                                ? formatDate(log.completed_at)
-                                : "-"}
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </ScrollArea>
+                  <DataTable
+                    columns={migrationLogsColumns}
+                    data={logsTableData}
+                    variant="simple"
+                    isVisibleColumnFilter={false}
+                  />
                 </>
               )}
             </TabsContent>
@@ -389,7 +382,7 @@ export default function VehiclePurchaseOrderMigrationHistory({
                         historyData.data.purchase_order.migration_status ===
                           "completed"
                           ? "Completado"
-                          : "Pendiente"
+                          : "Pendiente",
                       )}
                     </div>
                   </div>
@@ -400,7 +393,7 @@ export default function VehiclePurchaseOrderMigrationHistory({
                       {historyData.data.timeline.map(
                         (timelineStep, stepIndex) => (
                           <div key={stepIndex} className="relative">
-                            <div className="sticky top-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-10 pb-2">
+                            <div className="sticky top-0 bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60 z-10 pb-2">
                               <h4 className="font-semibold text-sm">
                                 {timelineStep.step_name || timelineStep.step}
                               </h4>
@@ -438,7 +431,7 @@ export default function VehiclePurchaseOrderMigrationHistory({
                                           event.proceso_estado,
                                           event.proceso_estado === 1
                                             ? "Procesado Exitosamente"
-                                            : "Error"
+                                            : "Error",
                                         )}
                                       </div>
                                     )}
@@ -447,7 +440,7 @@ export default function VehiclePurchaseOrderMigrationHistory({
                               ))}
                             </div>
                           </div>
-                        )
+                        ),
                       )}
                     </div>
                   </ScrollArea>
@@ -456,7 +449,7 @@ export default function VehiclePurchaseOrderMigrationHistory({
             </TabsContent>
           </Tabs>
         )}
-      </SheetContent>
-    </Sheet>
+      </GeneralSheet>
+    </>
   );
 }

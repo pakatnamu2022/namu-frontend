@@ -9,6 +9,8 @@ import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
 import {
   ERROR_MESSAGE,
   errorToast,
+  getCurrentDayOfMonth,
+  getFirstDayOfMonth,
   SUCCESS_MESSAGE,
   successToast,
 } from "@/core/core.function";
@@ -32,12 +34,14 @@ import {
   STATUS_WORKER,
 } from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.constant";
 import { useAllWorkers } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
+import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 
 export default function AppointmentPlanningPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
+  const [sedeId, setSedeId] = useState<string>("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [viewMode, setViewMode] = useState<"table" | "calendar">("table");
   const { MODEL, ROUTE, ROUTE_UPDATE } = APPOINTMENT_PLANNING;
@@ -45,22 +49,34 @@ export default function AppointmentPlanningPage() {
   const router = useNavigate();
   const currentDate = new Date();
 
-  const [dateFrom, setDateFrom] = useState<Date | undefined>(currentDate);
-  const [dateTo, setDateTo] = useState<Date | undefined>(currentDate);
+  const [dateFrom, setDateFrom] = useState<Date | undefined>(
+    getFirstDayOfMonth(currentDate),
+  );
+  const [dateTo, setDateTo] = useState<Date | undefined>(
+    getCurrentDayOfMonth(currentDate),
+  );
+
+  // Obtener mis almacenes físicos de postventa
+  const { data: mySedes = [], isLoading: isLoadingSedes } = useMySedes({
+    company: EMPRESA_AP.id,
+  });
 
   const formatDate = (date: Date | undefined) => {
     return date ? date.toLocaleDateString("en-CA") : undefined; // formato: YYYY-MM-DD
   };
 
   const { data: asesores = [], isLoading: isLoadingAsesores } = useAllWorkers({
-    cargo_id: POSITION_TYPE.CONSULTANT,
+    cargo_id: POSITION_TYPE.SERVICE_ADVISOR,
     status_id: STATUS_WORKER.ACTIVE,
     sede$empresa_id: EMPRESA_AP.id,
   });
 
   useEffect(() => {
-    setPage(1);
-  }, [search, per_page]);
+    if (mySedes.length > 0 && !sedeId) {
+      setSedeId(mySedes[0].id.toString());
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mySedes]);
 
   const { data, isLoading, refetch } = useAppointmentPlanning({
     page,
@@ -96,7 +112,7 @@ export default function AppointmentPlanningPage() {
     router(`${ROUTE_UPDATE}/${id}`);
   };
 
-  if (isLoadingModule) return <PageSkeleton />;
+  if (isLoadingModule || isLoadingSedes) return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
   if (!currentView) notFound();
 
@@ -151,6 +167,9 @@ export default function AppointmentPlanningPage() {
               setDateFrom={setDateFrom}
               dateTo={dateTo}
               setDateTo={setDateTo}
+              sedes={mySedes}
+              sedeId={sedeId}
+              setSedeId={setSedeId}
             />
           </AppointmentPlanningTable>
 

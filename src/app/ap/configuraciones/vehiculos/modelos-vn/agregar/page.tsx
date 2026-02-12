@@ -13,10 +13,10 @@ import { storeModelsVn } from "@/features/ap/configuraciones/vehiculos/modelos-v
 import { ModelsVnSchema } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.schema";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import { ModelsVnForm } from "@/features/ap/configuraciones/vehiculos/modelos-vn/components/ModelsVnForm";
-import FormWrapper from "@/shared/components/FormWrapper";
 import { MODELS_VN } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.constanst";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { CM_COMERCIAL_ID } from "@/core/core.constants";
+import PageWrapper from "@/shared/components/PageWrapper";
 
 export default function AddModelsVnPage() {
   const router = useNavigate();
@@ -42,7 +42,7 @@ export default function AddModelsVnPage() {
   if (!currentView) notFound();
 
   return (
-    <FormWrapper>
+    <PageWrapper>
       <TitleFormComponent
         title={currentView.descripcion}
         mode="create"
@@ -90,7 +90,8 @@ export default function AddModelsVnPage() {
         onSubmit={handleSubmit}
         isSubmitting={isPending}
         mode="create"
+        onCancel={() => router(ABSOLUTE_ROUTE!)}
       />
-    </FormWrapper>
+    </PageWrapper>
   );
 }

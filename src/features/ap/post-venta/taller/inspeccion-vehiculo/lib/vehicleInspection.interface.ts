@@ -8,7 +8,6 @@ export interface VehicleInspectionResponse {
 
 export interface VehicleInspectionResource {
   id: number;
-  work_order_id: number;
   mileage: string;
   fuel_level: string;
   oil_level: string;
@@ -39,7 +38,30 @@ export interface VehicleInspectionResource {
   inspected_by_name: string;
   inspection_date: string | Date;
   customer_signature_url: string;
+  photo_front_url: string;
+  photo_back_url: string;
+  photo_left_url: string;
+  photo_right_url: string;
   damages?: VehicleInspectionDamageResource[];
+  // Cancellation fields
+  is_cancelled?: boolean;
+  cancellation_requested_by?: number | null;
+  cancellation_requested_by_name?: string | null;
+  cancellation_confirmed_by?: number | null;
+  cancellation_confirmed_by_name?: string | null;
+  cancellation_requested_at?: string | null;
+  cancellation_confirmed_at?: string | null;
+  cancellation_reason?: string | null;
+  // Campos de vehículo (desde la orden de trabajo)
+  vehicle_id?: number;
+  vehicle_plate?: string;
+  vehicle_vin?: string;
+  vehicle_model?: string;
+  vehicle_brand?: string;
+  vehicle_year?: string;
+  vehicle_color?: string;
+  work_order_correlative?: string;
+  ap_work_order_id?: number;
 }
 
 export interface VehicleInspectionDamageResource {
@@ -56,7 +78,7 @@ export interface VehicleInspectionDamageResource {
 }
 
 export interface VehicleInspectionRequest {
-  work_order_id: string;
+  ap_work_order_id: string;
   dirty_unit: boolean;
   unit_ok: boolean;
   title_deed: boolean;
@@ -82,6 +104,11 @@ export interface VehicleInspectionRequest {
   general_observations?: string;
   inspection_date: string | Date;
   damages: VehicleInspectionDamageRequest[];
+  // Fotos del vehículo (obligatorias cuando dirty_unit es true)
+  photo_front?: File | null;
+  photo_back?: File | null;
+  photo_left?: File | null;
+  photo_right?: File | null;
 }
 
 export interface VehicleInspectionDamageRequest {

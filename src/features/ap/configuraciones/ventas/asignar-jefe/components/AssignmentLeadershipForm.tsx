@@ -111,7 +111,7 @@ export const AssignmentLeadershipForm = ({
       </div>
       <form
         onSubmit={form.handleSubmit(handleSubmit)}
-        className="space-y-4 w-full formlayout"
+        className="space-y-4 w-full"
       >
         <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
           <FormSelect
