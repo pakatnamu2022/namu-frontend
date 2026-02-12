@@ -15,6 +15,8 @@ interface Props {
   onManage: (id: number) => void;
   onInspect: (id: number) => void;
   permissions: {
+    canReceive: boolean;
+    canManage: boolean;
     canUpdate: boolean;
     canDelete: boolean;
   };
@@ -146,19 +148,19 @@ export const workOrderColumns = ({
 
       return (
         <div className="flex items-center gap-2">
-          {!is_inspection_completed && !isClosed && (
+          {permissions.canReceive && !is_inspection_completed && !isClosed && (
             <Button
               variant="outline"
               size="icon"
               className="size-7"
               onClick={() => onInspect(id)}
-              tooltip="Inspección de Vehículo"
+              tooltip="Recepción de Vehículo"
             >
               <ClipboardCheck className="size-5" />
             </Button>
           )}
 
-          {permissions.canUpdate && (
+          {permissions.canManage && (
             <Button
               variant="outline"
               size="icon"

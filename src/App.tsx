@@ -308,6 +308,11 @@ import AddWorkOrderPlanningPage from "./app/ap/post-venta/taller/planificacion-o
 import AssignedWorkPage from "./app/ap/post-venta/taller/trabajos-asignados/page.tsx";
 import VehicleInspectionPage from "./app/ap/post-venta/taller/orden-trabajo/[workOrderId]/inspeccion/page.tsx";
 import SalesReceiptsTallerPage from "./app/ap/post-venta/taller/comprobante-venta-taller/page.tsx";
+import SalesReceiptsCajaPage from "./app/ap/post-venta/caja/comprante-venta-caja/page.tsx";
+import OrderQuotationMesonCajaPage from "./app/ap/post-venta/caja/cotizacion-repuesto-caja/page.tsx";
+import WorkOrderCajaPage from "./app/ap/post-venta/caja/order-trabajo-taller-caja/page.tsx";
+import ManageWorkOrderCajaPage from "./app/ap/post-venta/caja/order-trabajo-taller-caja/gestionar/[id]/page.tsx";
+import BillOrderQuotationMesonCajaPage from "./app/ap/post-venta/caja/cotizacion-repuesto-caja/facturar/[id]/page.tsx";
 import RolePage from "./app/gp/gestion-del-sistema/roles/page.tsx";
 import PermissionPage from "./app/gp/gestion-del-sistema/roles/permisos/[id]/page.tsx";
 import AddUserPage from "./app/gp/gestion-del-sistema/usuarios/agregar/page.tsx";
@@ -1521,6 +1526,27 @@ function App() {
               <Route
                 path="taller/comprobante-venta-taller"
                 element={<SalesReceiptsTallerPage />}
+              />
+              {/* CAJA */}
+              <Route
+                path="caja/comprobante-venta-caja"
+                element={<SalesReceiptsCajaPage />}
+              />
+              <Route
+                path="caja/cotizacion-repuesto-caja"
+                element={<OrderQuotationMesonCajaPage />}
+              />
+              <Route
+                path="caja/cotizacion-repuesto-caja/facturar/:id"
+                element={<BillOrderQuotationMesonCajaPage />}
+              />
+              <Route
+                path="caja/orden-trabajo-taller-caja"
+                element={<WorkOrderCajaPage />}
+              />
+              <Route
+                path="caja/orden-trabajo-taller-caja/gestionar/:id"
+                element={<ManageWorkOrderCajaPage />}
               />
             </Route>
 

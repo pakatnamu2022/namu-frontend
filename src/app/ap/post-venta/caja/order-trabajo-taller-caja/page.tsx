@@ -16,32 +16,24 @@ import {
 } from "@/core/core.function";
 import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
+import { WORKER_ORDER_CAJA } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.constants";
+import { useGetWorkOrder } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.hook";
+import { deleteWorkOrder } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.actions";
+import WorkOrderActions from "@/features/ap/post-venta/taller/orden-trabajo/components/WorkOrderActions";
+import WorkOrderTable from "@/features/ap/post-venta/taller/orden-trabajo/components/WorkOrderTable";
+import { workOrderColumns } from "@/features/ap/post-venta/taller/orden-trabajo/components/WorkOrderColumns";
+import WorkOrderOptions from "@/features/ap/post-venta/taller/orden-trabajo/components/WorkOrderOptions";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { useNavigate } from "react-router-dom";
-import { PURCHASE_REQUEST_REPUESTOS } from "@/features/ap/post-venta/taller/solicitud-compra/lib/purchaseRequest.constants";
-import PurchaseRequestActions from "@/features/ap/post-venta/taller/solicitud-compra/components/PurchaseRequestActions";
-import { purchaseRequestColumns } from "@/features/ap/post-venta/taller/solicitud-compra/components/PurchaseRequestColumns";
-import PurchaseRequestTable from "@/features/ap/post-venta/taller/solicitud-compra/components/PurchaseRequestTable";
-import PurchaseRequestOptions from "@/features/ap/post-venta/taller/solicitud-compra/components/PurchaseRequestOptions";
-import { deletePurchaseRequest } from "@/features/ap/post-venta/taller/solicitud-compra/lib/purchaseRequest.actions";
-import { usePurchaseRequests } from "@/features/ap/post-venta/taller/solicitud-compra/lib/purchaseRequest.hook";
-import { PurchaseRequestDetailSheet } from "@/features/ap/post-venta/taller/solicitud-compra/components/PurchaseRequestDetailSheet";
-import type { PurchaseRequestResource } from "@/features/ap/post-venta/taller/solicitud-compra/lib/purchaseRequest.interface";
-import { useMyPhysicalWarehouse } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
 
-export default function PurchaseRequestRepuestoPage() {
+export default function WorkOrderCajaPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
-  const [warehouseId, setWarehouseId] = useState<string>("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
-  const [selectedPurchaseRequestId, setSelectedPurchaseRequestId] = useState<
-    number | null
-  >(null);
-  const [isDetailSheetOpen, setIsDetailSheetOpen] = useState(false);
-  const { MODEL, ROUTE, ROUTE_UPDATE, ROUTE_ADD } = PURCHASE_REQUEST_REPUESTOS;
+  const { MODEL, ROUTE, ABSOLUTE_ROUTE, ROUTE_UPDATE } = WORKER_ORDER_CAJA;
   const permissions = useModulePermissions(ROUTE);
   const router = useNavigate();
   const currentDate = new Date();
@@ -57,16 +49,6 @@ export default function PurchaseRequestRepuestoPage() {
     return date ? date.toLocaleDateString("en-CA") : undefined; // formato: YYYY-MM-DD
   };
 
-  // Obtener mis almacenes físicos de postventa
-  const { data: warehouses = [], isLoading: isLoadingWarehouses } =
-    useMyPhysicalWarehouse();
-
-  useEffect(() => {
-    if (!isLoadingWarehouses && warehouses.length > 0 && !warehouseId) {
-      setWarehouseId(warehouses[0].id.toString());
-    }
-  }, [isLoadingWarehouses, warehouses, warehouseId]);
-
   useEffect(() => {
     if (dateFrom && dateTo && dateFrom > dateTo) {
       setDateTo(dateFrom);
@@ -74,20 +56,22 @@ export default function PurchaseRequestRepuestoPage() {
     }
   }, [dateFrom, dateTo]);
 
-  const { data, isLoading, refetch } = usePurchaseRequests({
-    page,
-    search,
-    per_page,
-    requested_date:
-      dateFrom && dateTo
-        ? [formatDate(dateFrom), formatDate(dateTo)]
-        : undefined,
+  const { data, isLoading, refetch } = useGetWorkOrder({
+    params: {
+      page,
+      search,
+      per_page,
+      opening_date:
+        dateFrom && dateTo
+          ? [formatDate(dateFrom), formatDate(dateTo)]
+          : undefined,
+    },
   });
 
   const handleDelete = async () => {
     if (!deleteId) return;
     try {
-      await deletePurchaseRequest(deleteId);
+      await deleteWorkOrder(deleteId);
       await refetch();
       successToast(SUCCESS_MESSAGE(MODEL, "delete"));
     } catch (error: any) {
@@ -102,17 +86,15 @@ export default function PurchaseRequestRepuestoPage() {
     router(`${ROUTE_UPDATE}/${id}`);
   };
 
-  const handleViewDetail = (purchaseRequest: PurchaseRequestResource) => {
-    setSelectedPurchaseRequestId(purchaseRequest.id);
-    setIsDetailSheetOpen(true);
+  const handleManage = (id: number) => {
+    router(`${ABSOLUTE_ROUTE}/gestionar/${id}`);
   };
 
-  const handleCloseDetailSheet = () => {
-    setIsDetailSheetOpen(false);
-    setSelectedPurchaseRequestId(null);
+  const handleInspect = (id: number) => {
+    router(`${ABSOLUTE_ROUTE}/${id}/inspeccion`);
   };
 
-  if (isLoadingModule || isLoadingWarehouses) return <PageSkeleton />;
+  if (isLoadingModule) return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
   if (!currentView) notFound();
 
@@ -124,34 +106,29 @@ export default function PurchaseRequestRepuestoPage() {
           subtitle={currentView.descripcion}
           icon={currentView.icon}
         />
-        <PurchaseRequestActions
-          permissions={permissions}
-          onAdd={() => router(ROUTE_ADD!)}
-        />
+        <WorkOrderActions permissions={permissions} />
       </HeaderTableWrapper>
 
-      <PurchaseRequestTable
+      <WorkOrderTable
         isLoading={isLoading}
-        columns={purchaseRequestColumns({
+        columns={workOrderColumns({
           onDelete: setDeleteId,
           onUpdate: handleUpdate,
-          onViewDetail: handleViewDetail,
+          onManage: handleManage,
+          onInspect: handleInspect,
           permissions,
         })}
         data={data?.data || []}
       >
-        <PurchaseRequestOptions
+        <WorkOrderOptions
           search={search}
           setSearch={setSearch}
           dateFrom={dateFrom}
           setDateFrom={setDateFrom}
           dateTo={dateTo}
           setDateTo={setDateTo}
-          warehouses={warehouses}
-          warehouseId={warehouseId}
-          setWarehouseId={setWarehouseId}
         />
-      </PurchaseRequestTable>
+      </WorkOrderTable>
 
       <DataTablePagination
         page={page}
@@ -169,13 +146,6 @@ export default function PurchaseRequestRepuestoPage() {
           onConfirm={handleDelete}
         />
       )}
-
-      <PurchaseRequestDetailSheet
-        purchaseRequestId={selectedPurchaseRequestId}
-        open={isDetailSheetOpen}
-        onClose={handleCloseDetailSheet}
-        onRefresh={refetch}
-      />
     </div>
   );
 }

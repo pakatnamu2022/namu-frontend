@@ -20,17 +20,17 @@ import {
 } from "@/core/core.function";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ORDER_QUOTATION_MESON } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.constants";
+import { ORDER_QUOTATION_CAJA } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.constants";
 import PageSkeleton from "@/shared/components/PageSkeleton";
 import TitleComponent from "@/shared/components/TitleComponent";
 import { AREA_MESON } from "@/core/core.constants";
 
-export default function BillOrderQuotationMesonPage() {
+export default function BillOrderQuotationCajaPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const quotationId = id ? parseInt(id) : 0;
-  const { ABSOLUTE_ROUTE } = ORDER_QUOTATION_MESON;
+  const { ABSOLUTE_ROUTE } = ORDER_QUOTATION_CAJA;
 
   const { data: quotation, isLoading: isLoadingQuotation } =
     useOrderQuotationById(quotationId);

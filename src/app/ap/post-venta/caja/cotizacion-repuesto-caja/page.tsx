@@ -19,7 +19,10 @@ import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { useNavigate } from "react-router-dom";
-import { ORDER_QUOTATION_MESON } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.constants";
+import {
+  ORDER_QUOTATION_CAJA,
+  STATUS_ORDER_QUOTATION,
+} from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.constants";
 import { deleteOrderQuotation } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.actions";
 import { useOrderQuotations } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.hook";
 import { AREA_PM_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
@@ -31,7 +34,7 @@ import { OrderQuotationBillingSheet } from "@/features/ap/post-venta/repuestos/c
 import { OrderQuotationDeliverySheet } from "@/features/ap/post-venta/repuestos/cotizacion-meson/components/OrderQuotationDeliverySheet";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 
-export default function OrderQuotationMesonPage() {
+export default function OrderQuotationMesonCajaPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
@@ -45,7 +48,7 @@ export default function OrderQuotationMesonPage() {
     null,
   );
   const [isDeliverySheetOpen, setIsDeliverySheetOpen] = useState(false);
-  const { MODEL, ROUTE, ROUTE_UPDATE, ABSOLUTE_ROUTE } = ORDER_QUOTATION_MESON;
+  const { MODEL, ROUTE, ROUTE_UPDATE, ABSOLUTE_ROUTE } = ORDER_QUOTATION_CAJA;
   const permissions = useModulePermissions(ROUTE);
   const router = useNavigate();
   const currentDate = new Date();
@@ -79,6 +82,7 @@ export default function OrderQuotationMesonPage() {
         : undefined,
     area_id: AREA_PM_ID.MESON,
     sede_id: sedeId,
+    status: STATUS_ORDER_QUOTATION.TO_BILL, // Solo mostrar cotizaciones finalizadas
   });
 
   const { data: sedes = [], isLoading: isLoadingSedes } = useMySedes({

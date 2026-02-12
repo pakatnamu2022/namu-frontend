@@ -24,7 +24,7 @@ import {
   updateWorkOrder,
   unlinkQuotation,
 } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.actions";
-import { WORKER_ORDER } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.constants";
+import { WORKER_ORDER_CAJA } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.constants";
 import LaborTab from "@/features/ap/post-venta/taller/orden-trabajo/components/tabs/LaborTab";
 import ReceptionTab from "@/features/ap/post-venta/taller/orden-trabajo/components/tabs/ReceptionTab";
 import OpeningTab from "@/features/ap/post-venta/taller/orden-trabajo/components/tabs/OpeningTab";
@@ -37,7 +37,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { successToast, errorToast } from "@/core/core.function";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 
-export default function ManageWorkOrderPage() {
+export default function ManageWorkOrderCajaPage() {
   const params = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();
@@ -45,7 +45,7 @@ export default function ManageWorkOrderPage() {
   const [isQuotationModalOpen, setIsQuotationModalOpen] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
 
-  const { ABSOLUTE_ROUTE, ROUTE } = WORKER_ORDER;
+  const { ABSOLUTE_ROUTE, ROUTE } = WORKER_ORDER_CAJA;
   const permissions = useModulePermissions(ROUTE);
 
   // Determinar el tab inicial según los permisos
@@ -167,63 +167,67 @@ export default function ManageWorkOrderPage() {
             </div>
 
             {/* Segunda fila: Botones de acción */}
-            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-              <Button
-                onClick={handleDownloadPdf}
-                disabled={isDownloading}
-                size="sm"
-                className="gap-2"
-              >
-                <FileText className="h-4 w-4" />
-                <span className="hidden sm:inline">
-                  {isDownloading ? "Generando..." : "Preliquidación"}
-                </span>
-                <span className="sm:hidden">
-                  {isDownloading ? "..." : "Preliq."}
-                </span>
-              </Button>
-              {!hasQuotation && workOrder.status.description !== "CERRADO" ? (
+            {permissions.canOtOptions && (
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                 <Button
-                  variant="outline"
+                  onClick={handleDownloadPdf}
+                  disabled={isDownloading}
                   size="sm"
-                  onClick={() => setIsQuotationModalOpen(true)}
                   className="gap-2"
-                  disabled={attachQuotationMutation.isPending}
                 >
-                  <Paperclip className="h-4 w-4" />
-                  <span className="hidden sm:inline">Adjuntar Cotización</span>
-                  <span className="sm:hidden">Cotización</span>
-                </Button>
-              ) : hasQuotation ? (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => unlinkQuotationMutation.mutate()}
-                  className="gap-2"
-                  disabled={unlinkQuotationMutation.isPending}
-                >
-                  <Unlink className="h-4 w-4" />
+                  <FileText className="h-4 w-4" />
                   <span className="hidden sm:inline">
-                    Desasociar Cotización
+                    {isDownloading ? "Generando..." : "Preliquidación"}
                   </span>
-                  <span className="sm:hidden">Desasociar</span>
+                  <span className="sm:hidden">
+                    {isDownloading ? "..." : "Preliq."}
+                  </span>
                 </Button>
-              ) : null}
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() =>
-                  router(
-                    `/ap/post-venta/taller/orden-trabajo/gestionar/${id}/informacion-general`,
-                  )
-                }
-                className="gap-2"
-              >
-                <FileText className="h-4 w-4" />
-                <span className="hidden sm:inline">Información General</span>
-                <span className="sm:hidden">Info. Gen.</span>
-              </Button>
-            </div>
+                {!hasQuotation && workOrder.status.description !== "CERRADO" ? (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setIsQuotationModalOpen(true)}
+                    className="gap-2"
+                    disabled={attachQuotationMutation.isPending}
+                  >
+                    <Paperclip className="h-4 w-4" />
+                    <span className="hidden sm:inline">
+                      Adjuntar Cotización
+                    </span>
+                    <span className="sm:hidden">Cotización</span>
+                  </Button>
+                ) : hasQuotation ? (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => unlinkQuotationMutation.mutate()}
+                    className="gap-2"
+                    disabled={unlinkQuotationMutation.isPending}
+                  >
+                    <Unlink className="h-4 w-4" />
+                    <span className="hidden sm:inline">
+                      Desasociar Cotización
+                    </span>
+                    <span className="sm:hidden">Desasociar</span>
+                  </Button>
+                ) : null}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() =>
+                    router(
+                      `/ap/post-venta/taller/orden-trabajo/gestionar/${id}/informacion-general`,
+                    )
+                  }
+                  className="gap-2"
+                >
+                  <FileText className="h-4 w-4" />
+                  <span className="hidden sm:inline">Información General</span>
+                  <span className="sm:hidden">Info. Gen.</span>
+                </Button>
+              </div>
+            )}
           </div>
         </Card>
 

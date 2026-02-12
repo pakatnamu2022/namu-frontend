@@ -116,6 +116,18 @@ export const PERMISSION_ACTIONS: PermissionAction[] = [
     icon: "Settings",
     description: "Permite acceder a opciones de órdenes de trabajo",
   },
+  {
+    value: "manage",
+    label: "Gestionar",
+    icon: "Settings",
+    description: "Permite gestionar registros con opciones avanzadas",
+  },
+  {
+    value: "receive",
+    label: "Recepcionar",
+    icon: "Download",
+    description: "Permite recepcionar vehículos o productos",
+  },
 ];
 
 /**
@@ -165,5 +177,7 @@ export function useModulePermissions(moduleCode: string) {
     canAssign: hasModulePermission("assign"),
     canBill: hasModulePermission("bill"),
     canOtOptions: hasModulePermission("otOptions"),
+    canManage: hasModulePermission("manage"),
+    canReceive: hasModulePermission("receive"),
   };
 }
