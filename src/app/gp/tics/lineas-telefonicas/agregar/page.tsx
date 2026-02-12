@@ -9,7 +9,7 @@ import {
   useAllTelephoneAccounts,
   useAllTelephonePlans,
 } from "@/features/gp/tics/phoneLine/lib/phoneLine.hook";
-import { errorToast, successToast } from "@/core/core.function";
+import { ERROR_MESSAGE, errorToast, successToast } from "@/core/core.function";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import FormWrapper from "@/shared/components/FormWrapper";
@@ -19,7 +19,7 @@ import FormSkeleton from "@/shared/components/FormSkeleton";
 
 export default function AddPhoneLinePage() {
   const router = useNavigate();
-  const { ABSOLUTE_ROUTE, EMPTY } = PHONE_LINE;
+  const { ABSOLUTE_ROUTE, EMPTY, MODEL } = PHONE_LINE;
   const { currentView, checkRouteExists } = useCurrentModule();
 
   const { data: telephoneAccounts, isLoading: loadingAccounts } =
@@ -33,8 +33,10 @@ export default function AddPhoneLinePage() {
       successToast("Línea telefónica creada exitosamente");
       router(ABSOLUTE_ROUTE);
     },
-    onError: () => {
-      errorToast("Hubo un error al crear la línea telefónica");
+    onError: (error: any) => {
+      errorToast(
+        error.response?.data?.message || ERROR_MESSAGE(MODEL, "create"),
+      );
     },
   });
 
