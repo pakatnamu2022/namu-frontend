@@ -46,6 +46,13 @@ export const phoneLineColumns = ({
     ),
   },
   {
+    accessorKey: "telephone_account.operator",
+    header: "Operador",
+    cell: ({ getValue }) => (
+      <span className="font-semibold">{getValue() as string}</span>
+    ),
+  },
+  {
     accessorKey: "active_assignment.worker_name",
     header: "Asignado a",
     cell: ({ getValue }) => (
