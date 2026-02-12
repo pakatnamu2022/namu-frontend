@@ -390,6 +390,7 @@ import { PHONE_LINE } from "./features/gp/tics/phoneLine/lib/phoneLine.constants
 import PhoneLinePage from "./app/gp/tics/lineas-telefonicas/page.tsx";
 import AddPhoneLinePage from "./app/gp/tics/lineas-telefonicas/agregar/page.tsx";
 import UpdatePhoneLinePage from "./app/gp/tics/lineas-telefonicas/actualizar/[id]/page.tsx";
+import TelephoneAccountPage from "./app/gp/tics/cuentas-telefonicas/page.tsx";
 import ControlVehicleAssignmentPage from "./app/tp/comercial-tp/control-asignacionVehiculos/page.tsx";
 
 // ============================================================================
@@ -1890,6 +1891,10 @@ function App() {
                 <AddPhoneLinePage />,
                 <UpdatePhoneLinePage />,
               )}
+              <Route
+                path="cuentas-telefonicas"
+                element={<TelephoneAccountPage />}
+              />
             </Route>
 
             {/* ======================================================== */}

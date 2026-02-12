@@ -4,30 +4,32 @@ import { CompanyResource } from "@/features/gp/gestionsistema/empresa/lib/compan
 import { SearchableSelect } from "@/shared/components/SearchableSelect";
 import SearchInput from "@/shared/components/SearchInput";
 
-export default function PhoneLineOptions({
-  search,
-  setSearch,
-  companies,
-  companyId,
-  setCompanyId,
-}: {
+interface TelephoneAccountOptionsProps {
   search: string;
   setSearch: (value: string) => void;
   companies: CompanyResource[];
   companyId: string;
   setCompanyId: (value: string) => void;
-}) {
+}
+
+export default function TelephoneAccountOptions({
+  search,
+  setSearch,
+  companies,
+  companyId,
+  setCompanyId,
+}: TelephoneAccountOptionsProps) {
   return (
     <div className="flex items-center gap-2 flex-wrap">
       <SearchInput
         value={search}
         onChange={setSearch}
-        placeholder="Buscar línea telefónica..."
+        placeholder="Buscar por número de cuenta u operador..."
       />
       <SearchableSelect
         onChange={setCompanyId}
         options={companies.map((company) => ({
-          label: company.name,
+          label: company.businessName || company.name,
           value: company.id.toString(),
         }))}
         value={companyId}
