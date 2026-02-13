@@ -36,7 +36,8 @@ export default function GeneralMastersModal({
     refetch,
   } = mode === "create"
     ? { data: EMPTY, isLoading: false, refetch: () => {} }
-    : useGeneralMastersById(id!);
+    : // eslint-disable-next-line react-hooks/rules-of-hooks
+      useGeneralMastersById(id!);
 
   const createMutation = useCreateGeneralMasters();
   const updateMutation = useUpdateGeneralMasters();
@@ -55,7 +56,7 @@ export default function GeneralMastersModal({
     } catch (error: any) {
       errorToast(
         error?.response?.data?.message ||
-          ERROR_MESSAGE(MODEL, mode === "create" ? "create" : "update")
+          ERROR_MESSAGE(MODEL, mode === "create" ? "create" : "update"),
       );
     }
   };

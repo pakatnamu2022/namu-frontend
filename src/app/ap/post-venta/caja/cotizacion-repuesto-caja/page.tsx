@@ -64,6 +64,9 @@ export default function OrderQuotationMesonCajaPage() {
   const formatDate = (date: Date | undefined) => {
     return date ? date.toLocaleDateString("en-CA") : undefined; // formato: YYYY-MM-DD
   };
+  const { data: sedes = [], isLoading: isLoadingSedes } = useMySedes({
+    company: EMPRESA_AP.id,
+  });
 
   useEffect(() => {
     if (dateFrom && dateTo && dateFrom > dateTo) {
@@ -71,6 +74,13 @@ export default function OrderQuotationMesonCajaPage() {
       errorToast("La fecha 'Desde' no puede ser mayor que la fecha 'Hasta'.");
     }
   }, [dateFrom, dateTo]);
+
+  useEffect(() => {
+    if (sedes.length > 0 && !sedeId) {
+      setSedeId(sedes[0].id.toString());
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sedes, setSedeId]);
 
   const { data, isLoading, refetch } = useOrderQuotations({
     page,
@@ -84,17 +94,6 @@ export default function OrderQuotationMesonCajaPage() {
     sede_id: sedeId,
     status: STATUS_ORDER_QUOTATION.TO_BILL, // Solo mostrar cotizaciones finalizadas
   });
-
-  const { data: sedes = [], isLoading: isLoadingSedes } = useMySedes({
-    company: EMPRESA_AP.id,
-  });
-
-  useEffect(() => {
-    if (sedes.length > 0 && !sedeId) {
-      setSedeId(sedes[0].id.toString());
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sedes, setSedeId]);
 
   const handleDelete = async () => {
     if (!deleteId) return;

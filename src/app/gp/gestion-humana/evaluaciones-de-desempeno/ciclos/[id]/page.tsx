@@ -116,8 +116,10 @@ export default function CyclePersonDetailPage() {
       await updateGoalCyclePersonDetail(id, { goal });
       await refetch();
       successToast("Meta actualizada correctamente.");
-    } catch (error) {
-      errorToast("Error al actualizar la meta.");
+    } catch (error: any) {
+      const message =
+        error.response?.data?.message || "Error al actualizar la meta.";
+      errorToast(message);
     }
   };
 
@@ -126,8 +128,10 @@ export default function CyclePersonDetailPage() {
       await updateGoalCyclePersonDetail(id, { weight });
       await refetch();
       successToast("Peso actualizado correctamente.");
-    } catch (error) {
-      errorToast("Error al actualizar el peso.");
+    } catch (error: any) {
+      const message =
+        error.response?.data?.message || "Error al actualizar el peso.";
+      errorToast(message);
     }
   };
 
@@ -137,8 +141,11 @@ export default function CyclePersonDetailPage() {
       await deleteCyclePersonDetail(deleteId);
       await refetch();
       successToast("Detalle de Ciclo eliminado correctamente.");
-    } catch (error) {
-      errorToast("Error al eliminar el objetivo.");
+    } catch (error: any) {
+      const message =
+        error.response?.data?.message ||
+        "Error al eliminar el detalle de ciclo.";
+      errorToast(message);
     } finally {
       setDeleteId(null);
     }

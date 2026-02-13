@@ -19,10 +19,6 @@ export const generalMastersColumns = ({
   permissions,
 }: GeneralMastersColumnsProps): ColumnDef<GeneralMastersResource>[] => [
   {
-    accessorKey: "id",
-    header: "ID",
-  },
-  {
     accessorKey: "code",
     header: "Código",
   },
