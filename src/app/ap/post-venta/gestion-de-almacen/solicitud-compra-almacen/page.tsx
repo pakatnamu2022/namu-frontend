@@ -69,10 +69,6 @@ export default function WarehousePurchaseRequestPage() {
   }, [warehouses]);
 
   useEffect(() => {
-    setPage(1);
-  }, [search, per_page]);
-
-  useEffect(() => {
     if (dateFrom && dateTo && dateFrom > dateTo) {
       setDateTo(dateFrom);
       errorToast("La fecha 'Desde' no puede ser mayor que la fecha 'Hasta'.");

@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { FileDown } from "lucide-react";
+import { FileDown, Receipt } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { PER_DIEM_REQUEST } from "@/features/profile/viaticos/lib/perDiemRequest.constants";
@@ -18,6 +18,8 @@ import {
 import GeneralSheet from "@/shared/components/GeneralSheet";
 import { errorToast, successToast } from "@/core/core.function";
 import FormSkeleton from "@/shared/components/FormSkeleton";
+import { GroupFormSection } from "@/shared/components/GroupFormSection";
+import ExpensesTable from "@/features/profile/viaticos/components/ExpensesTable";
 
 interface Props {
   requestId: number | null;
@@ -151,6 +153,22 @@ export default function PerDiemRequestDetailSheet({
 
         {/* Resumen Financiero */}
         <FinancialSummarySection request={request} mode="sheet" />
+
+        {/* Gastos Registrados */}
+        {request.expenses && request.expenses.length > 0 && (
+          <GroupFormSection
+            title="Gastos Registrados"
+            icon={Receipt}
+            cols={{ sm: 1 }}
+          >
+            <div className="md:col-span-1">
+              <ExpensesTable
+                expenses={request.expenses}
+                module="profile"
+              />
+            </div>
+          </GroupFormSection>
+        )}
       </div>
     </GeneralSheet>
   );

@@ -24,6 +24,7 @@ export interface UserResource {
   subordinates: number;
   sedes: SedeUserResource[];
   verified_at?: string;
+  discount_percentage: number | null;
 }
 
 export interface UserCompleteResource {

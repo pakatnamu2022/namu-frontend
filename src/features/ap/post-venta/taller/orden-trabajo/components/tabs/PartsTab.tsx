@@ -3,6 +3,8 @@
 import { useState, useEffect, useMemo } from "react";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { Package, Loader2, Plus, Trash2 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -39,6 +41,7 @@ import GroupSelector from "../GroupSelector";
 import { useWorkOrderContext } from "../../contexts/WorkOrderContext";
 import { findWorkOrderById } from "../../lib/workOrder.actions";
 import { FormInput } from "@/shared/components/FormInput";
+import { useAuthStore } from "@/features/auth/lib/auth.store";
 
 interface PartsTabProps {
   workOrderId: number;
@@ -51,9 +54,23 @@ interface AddPartFormValues {
   discount_percentage: number;
 }
 
+// Función para crear el schema con validación dinámica de descuento
+const createPartFormSchema = (maxDiscount: number) => {
+  return z.object({
+    product_id: z.string().min(1, "El producto es requerido"),
+    quantity_used: z.number().min(0.01, "La cantidad debe ser mayor a 0"),
+    unit_price: z.number().min(0, "El precio debe ser mayor o igual a 0"),
+    discount_percentage: z
+      .number()
+      .min(0, "El descuento no puede ser negativo")
+      .max(maxDiscount, `El descuento no puede ser mayor a ${maxDiscount}%`),
+  });
+};
+
 export default function PartsTab({ workOrderId }: PartsTabProps) {
   const queryClient = useQueryClient();
   const { selectedGroupNumber, setSelectedGroupNumber } = useWorkOrderContext();
+  const { user } = useAuthStore();
   const [selectedWarehouseForBulk, setSelectedWarehouseForBulk] =
     useState<string>("");
   const [selectedProductIds, setSelectedProductIds] = useState<number[]>([]);
@@ -62,8 +79,13 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
     useState<string>("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
 
+  // Obtener el porcentaje máximo de descuento del usuario (default 5%)
+  const maxDiscountPercentage = user?.discount_percentage ?? 5;
+
   // Formulario para actualizar repuesto
   const form = useForm<AddPartFormValues>({
+    resolver: zodResolver(createPartFormSchema(maxDiscountPercentage)),
+    mode: "onChange", // Validar en tiempo real
     defaultValues: {
       product_id: "",
       quantity_used: 1,
@@ -404,8 +426,11 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
 
                 <FormInput
                   name="discount_percentage"
-                  label="Descuento (%)"
+                  label={`Descuento (% máx: ${maxDiscountPercentage})`}
                   type="number"
+                  min={0}
+                  max={maxDiscountPercentage}
+                  step="0.01"
                   control={form.control}
                   placeholder="0.0"
                 />
