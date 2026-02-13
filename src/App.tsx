@@ -308,6 +308,7 @@ import AddWorkOrderPlanningPage from "./app/ap/post-venta/taller/planificacion-o
 import AssignedWorkPage from "./app/ap/post-venta/taller/trabajos-asignados/page.tsx";
 import VehicleInspectionPage from "./app/ap/post-venta/taller/orden-trabajo/[workOrderId]/inspeccion/page.tsx";
 import SalesReceiptsTallerPage from "./app/ap/post-venta/taller/comprobante-venta-taller/page.tsx";
+import BoxPage from "./app/ap/post-venta/caja/page.tsx";
 import SalesReceiptsCajaPage from "./app/ap/post-venta/caja/comprante-venta-caja/page.tsx";
 import OrderQuotationMesonCajaPage from "./app/ap/post-venta/caja/cotizacion-repuesto-caja/page.tsx";
 import WorkOrderCajaPage from "./app/ap/post-venta/caja/order-trabajo-taller-caja/page.tsx";
@@ -1529,6 +1530,7 @@ function App() {
                 element={<SalesReceiptsTallerPage />}
               />
               {/* CAJA */}
+              <Route path="caja" element={<BoxPage />} />
               <Route
                 path="caja/comprobante-venta-caja"
                 element={<SalesReceiptsCajaPage />}
