@@ -8,6 +8,7 @@ export interface HotelAgreementResponse {
 
 export interface HotelAgreementResource {
   id: number;
+  ruc: string;
   city: string;
   name: string;
   corporate_rate: string;
