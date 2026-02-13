@@ -22,6 +22,10 @@ export default function MyPerDiemPage() {
     queryFn: () => getMyPerDiemRequests({}),
   });
 
+<<<<<<< Updated upstream
+=======
+  // Agrupar solicitudes por estado
+>>>>>>> Stashed changes
   // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const groupedRequests = useMemo(() => {
     if (!data?.data) return { active: [], completed: [] };

@@ -14,14 +14,13 @@ import {
   FormItem,
   FormLabel,
   FormControl,
-  FormMessage,
   FormDescription,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
-import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
+import { FormInput } from "@/shared/components/FormInput";
+import { FormInputText } from "@/shared/components/FormInputText";
 
 interface HotelAgreementFormProps {
   defaultValues: Partial<HotelAgreementSchema | HotelAgreementSchemaUpdate>;
@@ -42,7 +41,7 @@ export const HotelAgreementForm = ({
     resolver: zodResolver(
       mode === "create"
         ? hotelAgreementSchemaCreate
-        : hotelAgreementSchemaUpdate
+        : hotelAgreementSchemaUpdate,
     ) as any,
     defaultValues: {
       ...defaultValues,
@@ -54,137 +53,77 @@ export const HotelAgreementForm = ({
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 w-full">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
+          <FormInput
+            control={form.control}
+            name="ruc"
+            label="RUC"
+            placeholder="Ej: 20123456789"
+            type="text"
+          />
+
+          <FormInput
             control={form.control}
             name="city"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Ciudad</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: Lima" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Ciudad"
+            placeholder="Ej: Lima"
+            type="text"
           />
 
-          <FormField
+          <FormInput
             control={form.control}
             name="name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Nombre del Hotel</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: Hotel Costa del Sol" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Nombre del Hotel"
+            placeholder="Ej: Hotel Costa del Sol"
+            type="text"
           />
 
-          <FormField
+          <FormInput
             control={form.control}
             name="corporate_rate"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Tarifa Corporativa (S/)</FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    step="0.01"
-                    placeholder="Ej: 150.00"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Tarifa Corporativa (S/)"
+            placeholder="Ej: 150.00"
+            type="number"
           />
 
-          <FormField
+          <FormInput
             control={form.control}
             name="phone"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Teléfono</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: (01) 123-4567" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Teléfono"
+            placeholder="Ej: (01) 123-4567"
+            type="text"
           />
 
-          <FormField
+          <FormInput
             control={form.control}
             name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email</FormLabel>
-                <FormControl>
-                  <Input
-                    type="email"
-                    placeholder="Ej: reservas@hotel.com"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Email"
+            placeholder="Ej: reservas@hotel.com"
+            type="email"
           />
 
-          <FormField
+          <FormInput
             control={form.control}
             name="website"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Sitio Web (Opcional)</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: https://www.hotel.com" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Sitio Web"
+            placeholder="Ej: https://www.hotel.com"
+            type="text"
           />
         </div>
 
-        <FormField
+        <FormInput
           control={form.control}
           name="address"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Dirección</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="Ej: Av. Principal 123, Distrito"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          label="Dirección"
+          placeholder="Ej: Av. Principal 123, Distrito"
+          type="text"
         />
 
-        <FormField
+        <FormInputText
           control={form.control}
           name="features"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Características (Opcional)</FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder="Ej: WiFi, Piscina, Gimnasio, Room Service..."
-                  className="resize-none"
-                  rows={3}
-                  {...field}
-                />
-              </FormControl>
-              <FormDescription>
-                Describe las amenidades y servicios del hotel
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
+          label="Características (Opcional)"
+          placeholder="Ej: WiFi, Piscina, Gimnasio, Room Service..."
+          description="Describe las amenidades y servicios del hotel"
         />
 
         <div className="space-y-4 rounded-md border p-4">
