@@ -27,6 +27,9 @@ export default function MyPerDiemPage() {
   // Agrupar solicitudes por estado
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
