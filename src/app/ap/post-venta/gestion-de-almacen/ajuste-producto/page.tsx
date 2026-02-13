@@ -1,7 +1,7 @@
 "use client";
 
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule.ts";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ERROR_MESSAGE,
   errorToast,
@@ -55,6 +55,13 @@ export default function AdjustmentsProductPage() {
   const formatDate = (date: Date | undefined) => {
     return date ? date.toLocaleDateString("en-CA") : undefined; // formato: YYYY-MM-DD
   };
+
+  useEffect(() => {
+    if (dateFrom && dateTo && dateFrom > dateTo) {
+      setDateTo(dateFrom);
+      errorToast("La fecha 'Desde' no puede ser mayor que la fecha 'Hasta'.");
+    }
+  }, [dateFrom, dateTo]);
 
   const { data, isLoading, refetch } = useAdjustmentsProduct({
     page,

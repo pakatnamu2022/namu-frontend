@@ -63,11 +63,8 @@ export default function OrderQuotationMesonPage() {
   };
 
   useEffect(() => {
-    setPage(1);
-  }, [search, per_page]);
-
-  useEffect(() => {
     if (dateFrom && dateTo && dateFrom > dateTo) {
+      setDateTo(dateFrom);
       errorToast("La fecha 'Desde' no puede ser mayor que la fecha 'Hasta'.");
     }
   }, [dateFrom, dateTo]);
@@ -87,6 +84,13 @@ export default function OrderQuotationMesonPage() {
   const { data: sedes = [], isLoading: isLoadingSedes } = useMySedes({
     company: EMPRESA_AP.id,
   });
+
+  useEffect(() => {
+    if (sedes.length > 0 && !sedeId) {
+      setSedeId(sedes[0].id.toString());
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sedes, setSedeId]);
 
   const handleDelete = async () => {
     if (!deleteId) return;

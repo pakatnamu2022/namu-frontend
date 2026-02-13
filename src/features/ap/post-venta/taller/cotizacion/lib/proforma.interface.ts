@@ -13,7 +13,6 @@ export interface OrderQuotationResponse {
 
 export interface OrderQuotationResource {
   id: number;
-  customer: string;
   created_by_name: string;
   vehicle_id: number;
   vehicle: VehicleResource;
@@ -42,7 +41,6 @@ export interface OrderQuotationResource {
   is_fully_paid: boolean;
   output_generation_warehouse: boolean;
   status: string;
-  customer_signature: string | null;
   has_sufficient_stock: boolean;
   supply_type: "STOCK" | "LIMA" | "IMPORTACION";
   exchange_rate: number;

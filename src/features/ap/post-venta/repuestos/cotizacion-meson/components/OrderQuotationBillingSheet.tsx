@@ -154,9 +154,7 @@ function BillingSheetContent({
   const currencySymbol = orderQuotation.type_currency?.symbol || "S/.";
 
   // Verificar si debe mostrar la sección de firma
-  const shouldShowSignature =
-    orderQuotation.status === "Aperturado" &&
-    !orderQuotation.customer_signature;
+  const shouldShowSignature = orderQuotation.status === "Aperturado";
 
   const form = useForm<SignatureFormData>({
     resolver: zodResolver(signatureSchema),

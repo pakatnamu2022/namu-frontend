@@ -40,7 +40,7 @@ import { useSuppliers } from "@/features/ap/comercial/proveedores/lib/suppliers.
 import { SuppliersResource } from "@/features/ap/comercial/proveedores/lib/suppliers.interface.ts";
 import { FormInput } from "@/shared/components/FormInput";
 import { FormInputText } from "@/shared/components/FormInputText";
-import { SupplierOrderDetailsResource } from "../../pedido-proveedor/lib/supplierOrder.interface";
+import { SupplierOrderDetailsResource } from "@/features/ap/post-venta/gestion-almacen/compra-proveedor/lib/supplierOrder.interface";
 
 interface ReceptionsProductsFormProps {
   defaultValues: Partial<ReceptionSchema>;

@@ -9,6 +9,7 @@ export interface WorkOrderPartsResponse {
 export interface WorkOrderPartsResource {
   id: number;
   work_order_id: number;
+  work_order_correlative: string;
   group_number: number;
   product_id: string;
   product_name: string;

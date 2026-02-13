@@ -42,12 +42,19 @@ export default function ManageWorkOrderPage() {
   const router = useNavigate();
   const queryClient = useQueryClient();
   const id = Number(params.id);
-  const [activeTab, setActiveTab] = useState("reception");
   const [isQuotationModalOpen, setIsQuotationModalOpen] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
 
   const { ABSOLUTE_ROUTE, ROUTE } = WORKER_ORDER;
   const permissions = useModulePermissions(ROUTE);
+
+  // Determinar el tab inicial según los permisos
+  const initialTab = permissions.canOtOptions
+    ? "reception"
+    : permissions.canBill
+      ? "billing"
+      : "reception";
+  const [activeTab, setActiveTab] = useState(initialTab);
 
   // Fetch work order data
   const { data: workOrder, isLoading } = useQuery({

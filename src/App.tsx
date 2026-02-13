@@ -239,13 +239,14 @@ import InventoryPage from "./app/ap/post-venta/gestion-de-almacen/inventario/pag
 import InventoryKardexPage from "@/app/ap/post-venta/gestion-de-almacen/inventario/kardex/page.tsx";
 import ProductKardexPage from "@/app/ap/post-venta/gestion-de-almacen/inventario/movimientos/[productId]/[warehouseId]/page.tsx";
 import PurchaseHistoryPage from "@/app/ap/post-venta/gestion-de-almacen/inventario/historico-compras/[productId]/[warehouseId]/page.tsx";
-import ReceptionsProductsPage from "@/app/ap/post-venta/gestion-de-almacen/pedido-proveedor/recepcionar/[supplierOrderId]/page.tsx";
-import UpdateReceptionProductPage from "@/app/ap/post-venta/gestion-de-almacen/pedido-proveedor/recepcionar/actualizar/[supplierOrderId]/[id]/page.tsx";
-import AddReceptionProductPage from "@/app/ap/post-venta/gestion-de-almacen/pedido-proveedor/recepcionar/agregar/[supplierOrderId]/page.tsx";
-import SupplierOrderPage from "./app/ap/post-venta/gestion-de-almacen/pedido-proveedor/page.tsx";
-import AddSupplierOrderPage from "@/app/ap/post-venta/gestion-de-almacen/pedido-proveedor/agregar/page.tsx";
-import UpdateSupplierOrderPage from "@/app/ap/post-venta/gestion-de-almacen/pedido-proveedor/actualizar/[id]/page.tsx";
-import InvoiceReceptionPage from "@/app/ap/post-venta/gestion-de-almacen/pedido-proveedor/recepcionar/facturar/[receptionId]/page.tsx";
+import ReceptionsProductsPage from "@/app/ap/post-venta/gestion-de-almacen/compra-proveedor/recepcionar/[supplierOrderId]/page.tsx";
+import UpdateReceptionProductPage from "@/app/ap/post-venta/gestion-de-almacen/compra-proveedor/recepcionar/actualizar/[supplierOrderId]/[id]/page.tsx";
+import AddReceptionProductPage from "@/app/ap/post-venta/gestion-de-almacen/compra-proveedor/recepcionar/agregar/[supplierOrderId]/page.tsx";
+import SupplierOrderPage from "./app/ap/post-venta/gestion-de-almacen/compra-proveedor/page.tsx";
+import AddSupplierOrderPage from "@/app/ap/post-venta/gestion-de-almacen/compra-proveedor/agregar/page.tsx";
+import UpdateSupplierOrderPage from "@/app/ap/post-venta/gestion-de-almacen/compra-proveedor/actualizar/[id]/page.tsx";
+import InvoiceReceptionPage from "@/app/ap/post-venta/gestion-de-almacen/compra-proveedor/recepcionar/facturar/[receptionId]/page.tsx";
+import PurchaseOrderWarehousePage from "@/app/ap/post-venta/gestion-de-almacen/factura-compra/page.tsx";
 import WarehousePurchaseRequestPage from "./app/ap/post-venta/gestion-de-almacen/solicitud-compra-almacen/page.tsx";
 import AddWarehousePurchaseRequestPage from "@/app/ap/post-venta/gestion-de-almacen/solicitud-compra-almacen/agregar/page.tsx";
 import UpdateWarehousePurchaseRequestPage from "@/app/ap/post-venta/gestion-de-almacen/solicitud-compra-almacen/actualizar/[id]/page.tsx";
@@ -307,6 +308,12 @@ import AddWorkOrderPlanningPage from "./app/ap/post-venta/taller/planificacion-o
 import AssignedWorkPage from "./app/ap/post-venta/taller/trabajos-asignados/page.tsx";
 import VehicleInspectionPage from "./app/ap/post-venta/taller/orden-trabajo/[workOrderId]/inspeccion/page.tsx";
 import SalesReceiptsTallerPage from "./app/ap/post-venta/taller/comprobante-venta-taller/page.tsx";
+import BoxPage from "./app/ap/post-venta/caja/page.tsx";
+import SalesReceiptsCajaPage from "./app/ap/post-venta/caja/comprante-venta-caja/page.tsx";
+import OrderQuotationMesonCajaPage from "./app/ap/post-venta/caja/cotizacion-repuesto-caja/page.tsx";
+import WorkOrderCajaPage from "./app/ap/post-venta/caja/order-trabajo-taller-caja/page.tsx";
+import ManageWorkOrderCajaPage from "./app/ap/post-venta/caja/order-trabajo-taller-caja/gestionar/[id]/page.tsx";
+import BillOrderQuotationMesonCajaPage from "./app/ap/post-venta/caja/cotizacion-repuesto-caja/facturar/[id]/page.tsx";
 import RolePage from "./app/gp/gestion-del-sistema/roles/page.tsx";
 import PermissionPage from "./app/gp/gestion-del-sistema/roles/permisos/[id]/page.tsx";
 import AddUserPage from "./app/gp/gestion-del-sistema/usuarios/agregar/page.tsx";
@@ -994,7 +1001,7 @@ function App() {
                 element={<EngineTypesPage />}
               />
               <Route
-                path="vehiculos/tipos-pedido-proveedor"
+                path="vehiculos/tipos-compra-proveedor"
                 element={<SupplierOrderTypePage />}
               />
               <Route
@@ -1232,31 +1239,35 @@ function App() {
                 element={<PurchaseHistoryPage />}
               />
               <Route
-                path="gestion-de-almacen/pedido-proveedor"
+                path="gestion-de-almacen/compra-proveedor"
                 element={<SupplierOrderPage />}
               />
               <Route
-                path="gestion-de-almacen/pedido-proveedor/agregar"
+                path="gestion-de-almacen/compra-proveedor/agregar"
                 element={<AddSupplierOrderPage />}
               />
               <Route
-                path="gestion-de-almacen/pedido-proveedor/actualizar/:id"
+                path="gestion-de-almacen/compra-proveedor/actualizar/:id"
                 element={<UpdateSupplierOrderPage />}
               />
               <Route
-                path="gestion-de-almacen/pedido-proveedor/recepcionar/facturar/:receptionId"
+                path="gestion-de-almacen/compra-proveedor/recepcionar/facturar/:receptionId"
                 element={<InvoiceReceptionPage />}
               />
               <Route
-                path="gestion-de-almacen/pedido-proveedor/recepcionar/:supplierOrderId"
+                path="gestion-de-almacen/factura-compra"
+                element={<PurchaseOrderWarehousePage />}
+              />
+              <Route
+                path="gestion-de-almacen/compra-proveedor/recepcionar/:supplierOrderId"
                 element={<ReceptionsProductsPage />}
               />
               <Route
-                path="gestion-de-almacen/pedido-proveedor/recepcionar/agregar/:supplierOrderId"
+                path="gestion-de-almacen/compra-proveedor/recepcionar/agregar/:supplierOrderId"
                 element={<AddReceptionProductPage />}
               />
               <Route
-                path="gestion-de-almacen/pedido-proveedor/recepcionar/actualizar/:supplierOrderId/:id"
+                path="gestion-de-almacen/compra-proveedor/recepcionar/actualizar/:supplierOrderId/:id"
                 element={<UpdateReceptionProductPage />}
               />
               <Route
@@ -1517,6 +1528,28 @@ function App() {
               <Route
                 path="taller/comprobante-venta-taller"
                 element={<SalesReceiptsTallerPage />}
+              />
+              {/* CAJA */}
+              <Route path="caja" element={<BoxPage />} />
+              <Route
+                path="caja/comprobante-venta-caja"
+                element={<SalesReceiptsCajaPage />}
+              />
+              <Route
+                path="caja/cotizacion-repuesto-caja"
+                element={<OrderQuotationMesonCajaPage />}
+              />
+              <Route
+                path="caja/cotizacion-repuesto-caja/facturar/:id"
+                element={<BillOrderQuotationMesonCajaPage />}
+              />
+              <Route
+                path="caja/orden-trabajo-taller-caja"
+                element={<WorkOrderCajaPage />}
+              />
+              <Route
+                path="caja/orden-trabajo-taller-caja/gestionar/:id"
+                element={<ManageWorkOrderCajaPage />}
               />
             </Route>
 

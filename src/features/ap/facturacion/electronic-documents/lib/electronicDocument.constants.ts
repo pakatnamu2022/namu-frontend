@@ -59,48 +59,24 @@ export const ELECTRONIC_DOCUMENT_TALLER: ModelComplete<ElectronicDocumentResourc
     ROUTE_UPDATE: `${ABSOLUTE_ROUTE_TALLER}/actualizar`,
   };
 
-export const DOCUMENT_MODIFIED_TYPES = [
-  { value: 1, label: "Factura" },
-  { value: 2, label: "Boleta" },
-];
-
-export const PERCEPTION_TYPES = [
-  { value: 1, label: "Percepción Venta Interna" },
-  { value: 2, label: "Percepción a la Adquisición de Combustible" },
-  { value: 3, label: "Percepción Realizada al Agente de Percepción" },
-];
-
-export const RETENTION_TYPES = [
-  { value: 1, label: "Retención" },
-  { value: 2, label: "Retención de Segunda Categoría" },
-];
-
-export const DETRACTION_PAYMENT_METHODS = [
-  { value: 1, label: "Depósito en cuenta" },
-  { value: 2, label: "Giro" },
-  { value: 3, label: "Transferencia de fondos" },
-  { value: 4, label: "Orden de pago" },
-  { value: 5, label: "Tarjeta de débito" },
-  { value: 6, label: "Tarjeta de crédito" },
-  { value: 7, label: "Cheques con la cláusula de «no negociable»" },
-  { value: 8, label: "Efectivo" },
-  { value: 9, label: "Otros medios de pago" },
+// RUTA PARA CAJA - POST VENTA
+const ROUTE_CAJA = "comprobante-venta-caja";
+const ABSOLUTE_ROUTE_CAJA = `/ap/post-venta/caja/${ROUTE_CAJA}`;
+export const ELECTRONIC_DOCUMENT_CAJA: ModelComplete<ElectronicDocumentResource> =
   {
-    value: 10,
-    label: "Tarjeta de crédito emitida en el país o en el exterior",
-  },
-  { value: 11, label: "Tarjeta de débito emitida en el país o en el exterior" },
-  {
-    value: 12,
-    label:
-      "Tarjeta de débito emitida en el país o en el exterior por empresas del sistema financiero",
-  },
-];
-
-export const GUIDE_TYPES = [
-  { value: 1, label: "Guía de Remisión - Remitente" },
-  { value: 2, label: "Guía de Remisión - Transportista" },
-];
+    MODEL: {
+      name: "Comprobante de Venta Caja",
+      plural: "Comprobantes de Venta Caja",
+      gender: false,
+    },
+    ICON: "FileText",
+    ENDPOINT: "/ap/facturacion/electronic-documents",
+    QUERY_KEY: "electronic-documents-caja",
+    ROUTE: ROUTE_CAJA,
+    ABSOLUTE_ROUTE: ABSOLUTE_ROUTE_CAJA,
+    ROUTE_ADD: `${ABSOLUTE_ROUTE_CAJA}/agregar`,
+    ROUTE_UPDATE: `${ABSOLUTE_ROUTE_CAJA}/actualizar`,
+  };
 
 export const DOCUMENT_STATUS = [
   { value: "draft", label: "Borrador", color: "bg-gray-500" },

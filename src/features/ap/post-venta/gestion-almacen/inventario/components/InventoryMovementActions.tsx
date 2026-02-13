@@ -13,9 +13,12 @@ export default function InventoryMovementActions({
 }: InventoryMovementActionsProps) {
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  // Verificar si el movimiento tiene referencia para habilitar el botón
-  const hasReference =
-    movement.reference !== null && movement.reference !== undefined;
+  // Verificar si el movimiento tiene información para mostrar
+  const hasDetails =
+    movement.reference !== null ||
+    movement.reference !== undefined ||
+    movement.reason_in_out !== null ||
+    movement.reason_in_out !== undefined;
 
   return (
     <>
@@ -24,7 +27,8 @@ export default function InventoryMovementActions({
         size="sm"
         onClick={() => setDialogOpen(true)}
         className="h-8 w-8 p-0"
-        disabled={!hasReference}
+        disabled={!hasDetails}
+        title={hasDetails ? "Ver detalles" : "Sin detalles disponibles"}
       >
         <Eye className="h-4 w-4" />
       </Button>

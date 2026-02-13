@@ -2,13 +2,7 @@
 
 import { VehiclePurchaseOrderResource } from "../lib/vehiclePurchaseOrder.interface";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
-import {
-  Car,
-  FileText,
-  Package,
-  Warehouse,
-  Info,
-} from "lucide-react";
+import { Car, FileText, Package, Warehouse, Info } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
   Table,
@@ -67,7 +61,7 @@ export default function VehiclePurchaseOrderDetailView({
           <p className="font-medium">
             {format(
               parse(purchaseOrder.emission_date, "yyyy-MM-dd", new Date()),
-              "dd/MM/yyyy"
+              "dd/MM/yyyy",
             )}
           </p>
         </div>
@@ -77,7 +71,7 @@ export default function VehiclePurchaseOrderDetailView({
             <p className="font-medium">
               {format(
                 parse(purchaseOrder.due_date, "yyyy-MM-dd", new Date()),
-                "dd/MM/yyyy"
+                "dd/MM/yyyy",
               )}
             </p>
           </div>
@@ -168,10 +162,12 @@ export default function VehiclePurchaseOrderDetailView({
             {purchaseOrder.invoice_number}
           </p>
         </div>
-        <div>
-          <p className="text-xs text-muted-foreground">Tipo de Pedido</p>
-          <p className="font-medium">{purchaseOrder.supplier_order_type}</p>
-        </div>
+        {hasVehicle && (
+          <div>
+            <p className="text-xs text-muted-foreground">Tipo de Pedido</p>
+            <p className="font-medium">{purchaseOrder.supplier_order_type}</p>
+          </div>
+        )}
         <div>
           <p className="text-xs text-muted-foreground">Moneda</p>
           <p className="font-medium">
@@ -242,7 +238,10 @@ export default function VehiclePurchaseOrderDetailView({
                           ? `${item.unit_measurement.dyn_code} - ${item.unit_measurement.description}`
                           : "-"}
                       </TableCell>
-                      <TableCell>{item.description}</TableCell>
+                      <TableCell>
+                        {item.product_name || item.description}
+                        {item.product_code || ""}
+                      </TableCell>
                       <TableCell>
                         {new Intl.NumberFormat("es-PE", {
                           minimumFractionDigits: 2,
@@ -265,7 +264,7 @@ export default function VehiclePurchaseOrderDetailView({
                           </Badge>
                         ) : (
                           <Badge color="secondary" className="text-xs">
-                            Item
+                            Producto
                           </Badge>
                         )}
                       </TableCell>
@@ -278,74 +277,6 @@ export default function VehiclePurchaseOrderDetailView({
         </GroupFormSection>
       )}
 
-      {/* Resumen Financiero */}
-      {/* <GroupFormSection
-        title="Resumen Financiero"
-        icon={Calculator}
-        cols={{ sm: 1, md: 2 }}
-      >
-        <div className="col-span-full space-y-3">
-          <div className="flex justify-between items-center py-2 border-b">
-            <span className="text-sm text-muted-foreground">Subtotal:</span>
-            <span className="font-medium">
-              {purchaseOrder.currency_code}{" "}
-              {new Intl.NumberFormat("es-PE", {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              }).format(Number(purchaseOrder.subtotal))}
-            </span>
-          </div>
-
-          <div className="flex justify-between items-center py-2 border-b">
-            <span className="text-sm text-muted-foreground">IGV:</span>
-            <span className="font-medium">
-              {purchaseOrder.currency_code}{" "}
-              {new Intl.NumberFormat("es-PE", {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              }).format(Number(purchaseOrder.igv))}
-            </span>
-          </div>
-
-          {Number(purchaseOrder.isc) > 0 && (
-            <div className="flex justify-between items-center py-2 border-b">
-              <span className="text-sm text-muted-foreground">ISC:</span>
-              <span className="font-medium">
-                {purchaseOrder.currency_code}{" "}
-                {new Intl.NumberFormat("es-PE", {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                }).format(Number(purchaseOrder.isc))}
-              </span>
-            </div>
-          )}
-
-          {Number(purchaseOrder.discount) > 0 && (
-            <div className="flex justify-between items-center py-2 border-b">
-              <span className="text-sm text-muted-foreground">Descuento:</span>
-              <span className="font-medium text-destructive">
-                - {purchaseOrder.currency_code}{" "}
-                {new Intl.NumberFormat("es-PE", {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                }).format(Number(purchaseOrder.discount))}
-              </span>
-            </div>
-          )}
-
-          <div className="flex justify-between items-center py-3 bg-primary/5 px-3 rounded-md">
-            <span className="font-semibold">Total:</span>
-            <span className="font-bold text-lg text-primary">
-              {purchaseOrder.currency_code}{" "}
-              {new Intl.NumberFormat("es-PE", {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              }).format(Number(purchaseOrder.total))}
-            </span>
-          </div>
-        </div>
-      </GroupFormSection> */}
-
       {/* Información de Almacén */}
       <GroupFormSection
         title="Información de Almacén"
@@ -356,9 +287,11 @@ export default function VehiclePurchaseOrderDetailView({
           <p className="text-xs text-muted-foreground">Almacén</p>
           <div className="flex gap-4">
             <p className="font-medium">{purchaseOrder.warehouse}</p>
-            <Badge color="default" className="h-6">
-              {purchaseOrder.article_class?.description}
-            </Badge>
+            {hasVehicle && (
+              <Badge color="default" className="h-6">
+                {purchaseOrder.article_class?.description}
+              </Badge>
+            )}
           </div>
         </div>
       </GroupFormSection>

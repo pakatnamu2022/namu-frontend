@@ -1,7 +1,7 @@
 "use client";
 
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import PageSkeleton from "@/shared/components/PageSkeleton";
 import TitleComponent from "@/shared/components/TitleComponent";
 import DataTablePagination from "@/shared/components/DataTablePagination";
@@ -28,20 +28,6 @@ export default function VehiclePurchaseOrderPage() {
   const [colorId, setColorId] = useState("all");
   const [statusId, setStatusId] = useState("all");
   const { ROUTE } = VEHICLE_PURCHASE_ORDER;
-
-  useEffect(() => {
-    setPage(1);
-  }, [
-    search,
-    per_page,
-    sedeId,
-    warehouseId,
-    supplierId,
-    year,
-    modelId,
-    colorId,
-    statusId,
-  ]);
 
   const { data, isLoading, isFetching, refetch } = useVehiclePurchaseOrder({
     page,

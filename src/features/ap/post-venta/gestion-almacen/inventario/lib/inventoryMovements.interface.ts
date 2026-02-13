@@ -4,6 +4,9 @@ import { type Links, type Meta } from "@/shared/lib/pagination.interface.ts";
 import { ReceptionResource } from "@/features/ap/post-venta/gestion-almacen/recepciones-producto/lib/receptionsProducts.interface.ts";
 import { ProductResource } from "@/features/ap/post-venta/gestion-almacen/productos/lib/product.interface.ts";
 import { WorkOrderPartsResource } from "../../../taller/orden-trabajo-repuesto/lib/workOrderParts.interface.ts";
+import { OrderQuotationResource } from "../../../taller/cotizacion/lib/proforma.interface.ts";
+import { ApMastersResource } from "@/features/ap/ap-master/lib/apMasters.interface.ts";
+import { TransferReceptionResource } from "../../recepcion-transferencia/lib/transferReception.interface.ts";
 
 export interface InventoryMovementDetail {
   id: number;
@@ -29,12 +32,17 @@ export interface InventoryMovementResource {
   is_inbound?: boolean;
   is_outbound?: boolean;
   created_at: string;
+  reference_type: string;
   reference?:
     | ReceptionResource // type = PURCHASE_RECEPTION
     | ShipmentsReceptionsResource // type = TRANSFER_OUT
     | WorkOrderPartsResource // type = ADJUSTMENT_OUT
+    | OrderQuotationResource // type = SALE, ADJUSTMENT_OUT
+    | TransferReceptionResource // type = TRANSFER_IN
     | Record<string, any>;
   details?: InventoryMovementDetail[];
+  reason_in_out_id: number; // type = ADJUSTMENT_OUT, ADJUSTMENT_IN
+  reason_in_out: ApMastersResource; // type = ADJUSTMENT_OUT, ADJUSTMENT_IN
 }
 
 export interface InventoryMovementResponse {

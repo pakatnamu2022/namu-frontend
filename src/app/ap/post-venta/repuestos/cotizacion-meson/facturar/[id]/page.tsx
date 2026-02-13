@@ -25,7 +25,7 @@ import PageSkeleton from "@/shared/components/PageSkeleton";
 import TitleComponent from "@/shared/components/TitleComponent";
 import { AREA_MESON } from "@/core/core.constants";
 
-export default function BillOrderQuotationPage() {
+export default function BillOrderQuotationMesonPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
