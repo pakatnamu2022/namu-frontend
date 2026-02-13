@@ -25,6 +25,9 @@ export default function MyPerDiemPage() {
 <<<<<<< Updated upstream
 =======
   // Agrupar solicitudes por estado
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
   // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const groupedRequests = useMemo(() => {
