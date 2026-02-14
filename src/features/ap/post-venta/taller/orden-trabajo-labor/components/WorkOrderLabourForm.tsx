@@ -8,7 +8,7 @@ import { Form } from "@/components/ui/form";
 import { useStoreWorkOrderLabour } from "../lib/workOrderLabour.hook";
 import { WorkOrderLabourRequest } from "../lib/workOrderLabour.interface";
 import {
-  workOrderLabourSchema,
+  createWorkOrderLabourSchema,
   WorkOrderLabourFormValues,
 } from "../lib/workOrderLabour.schema";
 import { useGetConsolidatedWorkers } from "../../planificacion-orden-trabajo/lib/workOrderPlanning.hook";
@@ -16,6 +16,7 @@ import { FormSelect } from "@/shared/components/FormSelect";
 import { FormInput } from "@/shared/components/FormInput";
 import { FormCombobox } from "@/shared/components/FormCombobox";
 import { WorkOrderItemResource } from "../../orden-trabajo-item/lib/workOrderItem.interface";
+import { useAuthStore } from "@/features/auth/lib/auth.store";
 
 interface WorkOrderLabourFormProps {
   workOrderId: number;
@@ -35,9 +36,14 @@ export default function WorkOrderLabourForm({
   currencySymbol = "S/",
 }: WorkOrderLabourFormProps) {
   const storeMutation = useStoreWorkOrderLabour();
+  const { user } = useAuthStore();
+
+  // Obtener el porcentaje máximo de descuento del usuario (default 5%)
+  const maxDiscountPercentage = user?.discount_percentage ?? 5;
 
   const form = useForm<WorkOrderLabourFormValues>({
-    resolver: zodResolver(workOrderLabourSchema),
+    resolver: zodResolver(createWorkOrderLabourSchema(maxDiscountPercentage)),
+    mode: "onChange", // Validar en tiempo real
     defaultValues: {
       description: "",
       time_spent: "",
@@ -74,7 +80,7 @@ export default function WorkOrderLabourForm({
       description: data.description,
       time_spent: data.time_spent,
       hourly_rate: data.hourly_rate,
-      discount_percentage: data.discount_percentage,
+      discount_percentage: String(data.discount_percentage),
       work_order_id: data.work_order_id,
       worker_id: Number(data.worker_id),
       group_number: data.group_number,
@@ -117,8 +123,12 @@ export default function WorkOrderLabourForm({
 
           <FormInput
             name="discount_percentage"
-            label="Descuento (%)"
+            label={`Descuento (% máx: ${maxDiscountPercentage})`}
             placeholder="0.0"
+            type="number"
+            min={0}
+            max={maxDiscountPercentage}
+            step="0.01"
             control={form.control}
           />
 

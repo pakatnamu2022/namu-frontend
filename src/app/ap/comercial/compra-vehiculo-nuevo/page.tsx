@@ -1,7 +1,7 @@
 "use client";
 
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import PageSkeleton from "@/shared/components/PageSkeleton";
 import TitleComponent from "@/shared/components/TitleComponent";
 import DataTablePagination from "@/shared/components/DataTablePagination";

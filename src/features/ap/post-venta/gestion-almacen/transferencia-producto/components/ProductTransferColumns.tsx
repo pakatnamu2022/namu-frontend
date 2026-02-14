@@ -1,7 +1,17 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { ProductTransferResource } from "@/features/ap/post-venta/gestion-almacen/transferencia-producto/lib/productTransfer.interface.ts";
 import { Button } from "@/components/ui/button.tsx";
-import { Eye, Pencil, PackageCheck, Send, RefreshCw } from "lucide-react";
+import {
+  Eye,
+  Pencil,
+  PackageCheck,
+  Send,
+  RefreshCw,
+  CheckCircle2,
+  XCircle,
+  Info,
+  type LucideIcon,
+} from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog.tsx";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge.tsx";
@@ -37,20 +47,51 @@ export const productTransferColumns = ({
   warehouseId,
 }: Props): ProductTransferColumns[] => [
   {
-    accessorKey: "movement_number",
-    header: "N° Movimiento",
+    id: "guia_info",
+    header: "Guía de Remisión",
+    cell: ({ row }) => {
+      const { reference } = row.original;
+      if (!reference) return "-";
+
+      return (
+        <div className="flex flex-col gap-1">
+          <span className="font-mono text-sm font-semibold">
+            {reference.document_number}
+          </span>
+          <span className="text-xs text-muted-foreground">
+            {reference.document_type === "GUIA_REMISION"
+              ? "Guía Remisión"
+              : "Guía Traslado"}
+          </span>
+        </div>
+      );
+    },
   },
   {
-    accessorKey: "movement_date",
-    header: "Fecha de Movimiento",
-    cell: ({ getValue }) => {
-      const date = getValue() as string;
-      if (!date) return "-";
-      try {
-        return format(new Date(date), "dd/MM/yyyy", { locale: es });
-      } catch {
-        return date;
-      }
+    id: "fechas_guia",
+    header: "Fechas",
+    cell: ({ row }) => {
+      const { reference, movement_date } = row.original;
+      if (!reference) return "-";
+
+      const issueDate = reference.issue_date;
+
+      return (
+        <div className="flex flex-col gap-1 text-xs">
+          <div>
+            <span className="font-semibold">Emisión: </span>
+            {movement_date
+              ? format(new Date(movement_date), "dd/MM/yyyy", { locale: es })
+              : "-"}
+          </div>
+          <div>
+            <span className="font-semibold">Traslado: </span>
+            {issueDate
+              ? format(new Date(issueDate), "dd/MM/yyyy", { locale: es })
+              : "-"}
+          </div>
+        </div>
+      );
     },
   },
   {
@@ -66,57 +107,168 @@ export const productTransferColumns = ({
     },
   },
   {
-    accessorKey: "notes",
-    header: "Observaciones",
+    id: "transporte_info",
+    header: "Transporte",
+    cell: ({ row }) => {
+      const { reference } = row.original;
+      if (!reference) return "-";
+
+      return (
+        <div className="flex flex-col gap-1 text-xs">
+          <div className="flex items-center gap-1">
+            <span className="font-semibold">Placa:</span>
+            <span className="font-mono">{reference.plate || "-"}</span>
+          </div>
+          <div className="truncate max-w-[200px]" title={reference.driver_name}>
+            <span className="font-semibold">Conductor:</span>{" "}
+            {reference.driver_name || "-"}
+          </div>
+        </div>
+      );
+    },
   },
   {
-    accessorKey: "movement_type",
-    header: "Tipo Movimiento",
-    cell: () => {
+    id: "motivo_traslado",
+    header: "Motivo Traslado",
+    cell: ({ row }) => {
+      const { reference } = row.original;
+      if (!reference?.transfer_reason_description) return "-";
+
       return (
-        <Badge
-          color="default"
-          className="capitalize w-28 flex items-center justify-center"
+        <span
+          className="text-sm truncate max-w-[180px] block"
+          title={reference.transfer_reason_description}
         >
-          TRANSFERENCIA
+          {reference.transfer_reason_description}
+        </span>
+      );
+    },
+  },
+  {
+    id: "status_sunat",
+    header: () => (
+      <div className="flex items-center gap-1.5">
+        <span>Estado SUNAT</span>
+        <Badge
+          variant="ghost"
+          tooltipVariant="muted"
+          tooltip={
+            <div className="space-y-2">
+              <h4 className="font-semibold text-sm mb-2">Estados de SUNAT</h4>
+              <div className="space-y-1.5 text-xs">
+                <div className="flex items-center gap-2">
+                  <div className="size-2 rounded-full bg-green-600" />
+                  <span>Aceptado por SUNAT</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="size-2 rounded-full bg-primary" />
+                  <span>En espera de respuesta</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="size-2 rounded-full bg-destructive" />
+                  <span>Rechazado (&gt;5h sin respuesta)</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="size-2 rounded-full bg-gray-400" />
+                  <span>No enviado</span>
+                </div>
+              </div>
+            </div>
+          }
+        >
+          <Info className="size-3.5 text-muted-foreground hover:text-foreground transition-colors" />
+        </Badge>
+      </div>
+    ),
+    cell: ({ row }) => {
+      const { reference } = row.original;
+      if (!reference) return "-";
+
+      const sentAt = reference.sent_at;
+      const aceptadaPorSunat = reference.aceptada_por_sunat;
+      const WAITING_TIME_HOURS = 5;
+
+      if (sentAt) {
+        const sentDate = new Date(sentAt);
+        const now = new Date();
+        const hoursDiff =
+          (now.getTime() - sentDate.getTime()) / (1000 * 60 * 60);
+
+        let variant: "green" | "destructive" | "blue";
+        let label: string;
+        let icon: LucideIcon;
+
+        if (aceptadaPorSunat === true) {
+          variant = "green";
+          label = "Aceptado";
+          icon = CheckCircle2;
+        } else if (
+          aceptadaPorSunat === false &&
+          hoursDiff > WAITING_TIME_HOURS
+        ) {
+          variant = "destructive";
+          label = "Rechazado";
+          icon = XCircle;
+        } else {
+          variant = "blue";
+          label = "En espera";
+          icon = CheckCircle2;
+        }
+
+        return (
+          <div className="flex flex-col gap-1">
+            <Badge icon={icon} color={variant} className="w-fit">
+              {label}
+            </Badge>
+            <span className="text-xs text-muted-foreground font-mono">
+              {format(sentDate, "dd/MM/yyyy HH:mm", { locale: es })}
+            </span>
+          </div>
+        );
+      }
+
+      return (
+        <Badge color="gray">
+          <XCircle className="size-3" />
+          No enviado
         </Badge>
       );
     },
   },
   {
-    id: "status",
-    header: "Estado",
+    id: "status_recepcion",
+    header: "Recepción",
     cell: ({ row }) => {
       const { reference } = row.original;
-      const isSent = !!reference?.sent_at;
-      const isAcceptedBySunat = reference?.aceptada_por_sunat === true;
-      const isReceived = reference?.is_received === true;
+      if (!reference) return "-";
 
-      if (isReceived) {
-        return (
-          <Badge variant="default" color="blue">
-            RECEPCIONADO
-          </Badge>
-        );
-      }
-      if (isSent && isAcceptedBySunat) {
-        return (
-          <Badge variant="default" color="green">
-            ACEPTADO POR SUNAT
-          </Badge>
-        );
-      }
-      if (isSent) {
-        return (
-          <Badge variant="default" color="orange">
-            ENVIADO
-          </Badge>
-        );
-      }
-      return (
-        <Badge variant="default" color="gray">
-          PENDIENTE
+      const isReceived = reference.is_received;
+
+      return isReceived ? (
+        <Badge color="green" icon={CheckCircle2}>
+          Recepcionado
         </Badge>
+      ) : (
+        <Badge color="blue" icon={XCircle}>
+          Pendiente
+        </Badge>
+      );
+    },
+  },
+  {
+    id: "notas_guia",
+    header: "Observaciones",
+    cell: ({ row }) => {
+      const { reference } = row.original;
+      if (!reference?.notes) return "-";
+
+      return (
+        <span
+          className="text-sm text-muted-foreground truncate max-w-[200px] block"
+          title={reference.notes}
+        >
+          {reference.notes}
+        </span>
       );
     },
   },

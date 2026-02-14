@@ -22,16 +22,19 @@ import { notFound } from "@/shared/hooks/useNotFound";
 import PhoneLineImportModal from "@/features/gp/tics/phoneLine/components/PhoneLineImportModal";
 import PhoneLineAssignModal from "@/features/gp/tics/phoneLine/components/PhoneLineAssignModal";
 import PhoneLineHistorySheet from "@/features/gp/tics/phoneLine/components/PhoneLineHistorySheet";
+import { useAllCompanies } from "@/features/gp/gestionsistema/empresa/lib/company.hook";
 
 export default function PhoneLinePage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
+  const [companyId, setCompanyId] = useState("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [importOpen, setImportOpen] = useState(false);
   const [assignId, setAssignId] = useState<number | null>(null);
   const [historyId, setHistoryId] = useState<number | null>(null);
+  const { data: companies = [] } = useAllCompanies();
 
   useEffect(() => {
     setPage(1);
@@ -40,6 +43,7 @@ export default function PhoneLinePage() {
   const { data, isLoading, refetch } = usePhoneLines({
     page,
     search,
+    telephoneAccount$company_id: companyId,
   });
 
   const handleDelete = async () => {
@@ -89,7 +93,13 @@ export default function PhoneLinePage() {
         })}
         data={data?.data || []}
       >
-        <PhoneLineOptions search={search} setSearch={setSearch} />
+        <PhoneLineOptions
+          search={search}
+          setSearch={setSearch}
+          companies={companies}
+          companyId={companyId}
+          setCompanyId={setCompanyId}
+        />
       </PhoneLineTable>
 
       {deleteId !== null && (

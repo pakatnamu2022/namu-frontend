@@ -44,11 +44,6 @@ export default function ProductKardexPage() {
   const productId = parseInt(params.productId as string);
   const warehouseId = parseInt(params.warehouseId as string);
 
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setPage(1);
-  }, [search, per_page, dateFrom, dateTo]);
-
   const formatDate = (date: Date | undefined) => {
     return date ? date.toLocaleDateString("en-CA") : undefined; // formato: YYYY-MM-DD
   };

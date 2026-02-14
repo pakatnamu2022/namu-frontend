@@ -142,7 +142,7 @@ export function ProductTransferViewSheet({
 
           {/* Información de Almacenes */}
           <div className="space-y-4">
-            <h3 className="font-semibold text-lg">Almacenes</h3>
+            <h3 className="font-semibold text-lg">Ubicaciones</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="border rounded-lg p-4">
                 <p className="text-sm text-muted-foreground mb-2">Origen</p>

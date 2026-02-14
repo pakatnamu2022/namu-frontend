@@ -2,6 +2,7 @@ import { VehiclePurchaseOrderResource } from "@/features/ap/comercial/ordenes-co
 import { SuppliersResource } from "@/features/ap/comercial/proveedores/lib/suppliers.interface.ts";
 import { WarehouseResource } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.interface";
 import { type Links, type Meta } from "@/shared/lib/pagination.interface.ts";
+import { ProductResource } from "../../productos/lib/product.interface";
 
 export interface ReceptionDetailResource {
   id: number;
@@ -24,23 +25,7 @@ export interface ReceptionDetailResource {
   batch_number?: string;
   expiration_date?: string;
   notes?: string;
-  product?: {
-    id: number;
-    code: string;
-    name: string;
-    brand_name?: string;
-    category_name?: string;
-    unit_measurement_name?: string;
-    cost_price?: string | number;
-    sale_price?: string | number;
-  };
-  purchase_order_item?: {
-    id: number;
-    product_id: number;
-    product_name?: string;
-    quantity: number;
-    unit_price?: number;
-  };
+  product?: ProductResource;
 }
 
 export interface ReceptionResource {

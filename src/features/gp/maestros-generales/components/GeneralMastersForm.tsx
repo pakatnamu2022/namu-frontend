@@ -8,7 +8,6 @@ import {
   GeneralMastersSchema,
 } from "../lib/generalMasters.schema";
 import { FormInput } from "@/shared/components/FormInput";
-import { FormSwitch } from "@/shared/components/FormSwitch";
 import { FormCombobox } from "@/shared/components/FormCombobox";
 import { useGeneralMastersTypes } from "../lib/generalMasters.hook";
 import { useMemo } from "react";
@@ -84,15 +83,6 @@ export default function GeneralMastersForm({
           label="Valor"
           placeholder="Ingrese el valor (opcional)"
         />
-
-        {mode === "update" && (
-          <FormSwitch
-            label="Estado"
-            control={form.control}
-            text={form.watch("status") ? "Activo" : "Inactivo"}
-            name="status"
-          />
-        )}
 
         <div className="flex justify-end gap-4">
           <Button type="button" variant="outline" onClick={onCancel}>

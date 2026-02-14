@@ -62,6 +62,7 @@ export default function VehiclePurchaseOrderDetailView({
             {format(
               parse(purchaseOrder.emission_date, "yyyy-MM-dd", new Date()),
               "dd/MM/yyyy",
+              "dd/MM/yyyy",
             )}
           </p>
         </div>
@@ -71,6 +72,7 @@ export default function VehiclePurchaseOrderDetailView({
             <p className="font-medium">
               {format(
                 parse(purchaseOrder.due_date, "yyyy-MM-dd", new Date()),
+                "dd/MM/yyyy",
                 "dd/MM/yyyy",
               )}
             </p>
@@ -171,10 +173,12 @@ export default function VehiclePurchaseOrderDetailView({
             {purchaseOrder.invoice_number}
           </p>
         </div>
-        <div>
-          <p className="text-xs text-muted-foreground">Tipo de Pedido</p>
-          <p className="font-medium">{purchaseOrder.supplier_order_type}</p>
-        </div>
+        {hasVehicle && (
+          <div>
+            <p className="text-xs text-muted-foreground">Tipo de Pedido</p>
+            <p className="font-medium">{purchaseOrder.supplier_order_type}</p>
+          </div>
+        )}
         <div>
           <p className="text-xs text-muted-foreground">Moneda</p>
           <p className="font-medium">
@@ -245,7 +249,10 @@ export default function VehiclePurchaseOrderDetailView({
                           ? `${item.unit_measurement.dyn_code} - ${item.unit_measurement.description}`
                           : "-"}
                       </TableCell>
-                      <TableCell>{item.description}</TableCell>
+                      <TableCell>
+                        {item.product_name || item.description}
+                        {item.product_code || ""}
+                      </TableCell>
                       <TableCell>
                         {new Intl.NumberFormat("es-PE", {
                           minimumFractionDigits: 2,
@@ -268,7 +275,7 @@ export default function VehiclePurchaseOrderDetailView({
                           </Badge>
                         ) : (
                           <Badge color="secondary" className="text-xs">
-                            Item
+                            Producto
                           </Badge>
                         )}
                       </TableCell>

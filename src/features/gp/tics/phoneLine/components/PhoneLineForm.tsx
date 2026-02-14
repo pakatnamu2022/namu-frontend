@@ -35,7 +35,7 @@ export const PhoneLineForm = ({
   const { ABSOLUTE_ROUTE } = PHONE_LINE;
   const form = useForm({
     resolver: zodResolver(
-      mode === "create" ? phoneLineSchemaCreate : phoneLineSchemaUpdate
+      mode === "create" ? phoneLineSchemaCreate : phoneLineSchemaUpdate,
     ),
     defaultValues: {
       ...defaultValues,
@@ -54,7 +54,8 @@ export const PhoneLineForm = ({
             label="Cuenta telefónica"
             placeholder="Selecciona una cuenta"
             options={telephoneAccounts.map((account: any) => ({
-              label: account.name || account.description || `Cuenta ${account.id}`,
+              label: account.account_number,
+              description: account.company,
               value: account.id.toString(),
             }))}
           />
@@ -76,6 +77,7 @@ export const PhoneLineForm = ({
             label="Número de línea"
             placeholder="Ej: 999999999"
             type="text"
+            maxLength={9}
           />
 
           <FormSelect
@@ -84,9 +86,8 @@ export const PhoneLineForm = ({
             label="Estado"
             placeholder="Selecciona el estado"
             options={[
-              { label: "Activo", value: "ACTIVO" },
-              { label: "Inactivo", value: "INACTIVO" },
-              { label: "Suspendido", value: "SUSPENDIDO" },
+              { label: "Activo", value: "active" },
+              { label: "Inactivo", value: "inactive" },
             ]}
           />
 

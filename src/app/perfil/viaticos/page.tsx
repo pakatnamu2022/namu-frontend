@@ -22,7 +22,7 @@ export default function MyPerDiemPage() {
     queryFn: () => getMyPerDiemRequests({}),
   });
 
-  // Agrupar solicitudes por estado
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const groupedRequests = useMemo(() => {
     if (!data?.data) return { active: [], completed: [] };
 
@@ -50,7 +50,7 @@ export default function MyPerDiemPage() {
     });
 
     return { active, completed };
-  }, [data?.data]);
+  }, [data]);
 
   return (
     <PageWrapper>
