@@ -62,7 +62,6 @@ export default function VehiclePurchaseOrderDetailView({
             {format(
               parse(purchaseOrder.emission_date, "yyyy-MM-dd", new Date()),
               "dd/MM/yyyy",
-              "dd/MM/yyyy",
             )}
           </p>
         </div>
@@ -72,7 +71,6 @@ export default function VehiclePurchaseOrderDetailView({
             <p className="font-medium">
               {format(
                 parse(purchaseOrder.due_date, "yyyy-MM-dd", new Date()),
-                "dd/MM/yyyy",
                 "dd/MM/yyyy",
               )}
             </p>
