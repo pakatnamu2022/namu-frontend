@@ -25,13 +25,13 @@ import {
   useChiefsInCycle,
   useCycle,
   useCycleDetails,
-  usePersonsInCycle,
   usePositionsInCycle,
 } from "@/features/gp/gestionhumana/evaluaciondesempeño/ciclos/lib/cycle.hook";
 import CyclePersonDetailOptions from "@/features/gp/gestionhumana/evaluaciondesempeño/ciclos/components/CyclePersonDetailOptions";
 import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { notFound } from "@/shared/hooks/useNotFound";
+import { QueryClient } from "@tanstack/react-query";
 
 export default function CyclePersonDetailPage() {
   const { id } = useParams();
@@ -73,9 +73,6 @@ export default function CyclePersonDetailPage() {
     refetch: refetchCategories,
   } = useAllCategoriesWithBosses(idCycle);
 
-  const { isLoading: isLoadingPersons, refetch: refetchPersons } =
-    usePersonsInCycle(idCycle);
-
   const {
     data: positions = [],
     isLoading: isLoadingPositions,
@@ -91,15 +88,19 @@ export default function CyclePersonDetailPage() {
   const { data: chiefs = [], isLoading: isLoadingChiefs } =
     useChiefsInCycle(idCycle);
 
+  const queryClient = new QueryClient();
+
   const handleAssign = async (data: CycleCategoryDetailFormType) => {
     if (!id) return;
     try {
       await assignCategoriesToCycle(idCycle, data);
       await refetch();
       await refetchCategories();
-      await refetchPersons();
       await refetchPositions();
       await refetchCategoriesCycle();
+      await queryClient.invalidateQueries({
+        queryKey: ["cycle", idCycle, "persons"],
+      });
       successToast("Participantes asignados correctamente.");
     } catch (error: any) {
       errorToast(
@@ -152,7 +153,6 @@ export default function CyclePersonDetailPage() {
 
   if (
     isLoadingModule ||
-    isLoadingPersons ||
     isLoadingCategories ||
     isLoadingPositions ||
     isLoadingCategoriesCycle ||

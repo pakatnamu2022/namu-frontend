@@ -46,10 +46,11 @@ export const useCycleDetails = (
   });
 };
 
-export const usePersonsInCycle = (params?: Record<string, any>) => {
+export const usePersonsInCycle = (params: Record<string, any>) => {
+  const { idCycle } = params;
   return useQuery({
-    queryKey: ["cycle", params, "persons"],
-    queryFn: () => getPersonsInCycle({ params }),
+    queryKey: ["cycle", idCycle, "persons"],
+    queryFn: () => getPersonsInCycle(idCycle.toString()),
     refetchOnWindowFocus: false,
   });
 };
