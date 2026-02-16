@@ -2,26 +2,24 @@
 
 import { api } from "@/core/api";
 import type { AxiosRequestConfig } from "axios";
-import {
-  HotelReservationRequest,
-  ActiveHotelAgreement,
-} from "./hotelReservation.interface";
+import { HotelReservationRequest } from "./hotelReservation.interface";
 import { HotelReservationResource } from "./perDiemRequest.interface";
+import { HotelAgreementResource } from "@/features/gp/gestionhumana/viaticos/convenios-hoteles/lib/hotelAgreement.interface";
 
 /**
  * Obtiene los convenios de hotel activos
  */
 export async function getActiveHotelAgreements(): Promise<
-  ActiveHotelAgreement[]
+  HotelAgreementResource[]
 > {
   const config: AxiosRequestConfig = {
     params: {
       all: "true",
     },
   };
-  const { data } = await api.get<ActiveHotelAgreement[]>(
+  const { data } = await api.get<HotelAgreementResource[]>(
     "gp/gestion-humana/viaticos/hotel-agreements/active",
-    config
+    config,
   );
   return data;
 }
@@ -33,7 +31,7 @@ export async function getActiveHotelAgreements(): Promise<
  */
 export async function createHotelReservation(
   requestId: number,
-  requestData: HotelReservationRequest
+  requestData: HotelReservationRequest,
 ): Promise<HotelReservationResource> {
   const formData = new FormData();
 
@@ -44,7 +42,7 @@ export async function createHotelReservation(
   ) {
     formData.append(
       "hotel_agreement_id",
-      requestData.hotel_agreement_id.toString()
+      requestData.hotel_agreement_id.toString(),
     );
   }
   formData.append("ruc", requestData.ruc);
@@ -86,7 +84,7 @@ export async function createHotelReservation(
       headers: {
         "Content-Type": "multipart/form-data",
       },
-    }
+    },
   );
 
   return data;
@@ -97,10 +95,10 @@ export async function createHotelReservation(
  * @param reservationId - ID de la reserva
  */
 export async function findHotelReservationById(
-  reservationId: number
+  reservationId: number,
 ): Promise<HotelReservationResource> {
   const { data } = await api.get<HotelReservationResource>(
-    `gp/gestion-humana/viaticos/hotel-reservations/${reservationId}`
+    `gp/gestion-humana/viaticos/hotel-reservations/${reservationId}`,
   );
   return data;
 }
@@ -112,7 +110,7 @@ export async function findHotelReservationById(
  */
 export async function updateHotelReservation(
   reservationId: number,
-  formData: FormData
+  formData: FormData,
 ): Promise<HotelReservationResource> {
   const { data } = await api.post<HotelReservationResource>(
     `gp/gestion-humana/viaticos/hotel-reservations/${reservationId}`,
@@ -121,7 +119,7 @@ export async function updateHotelReservation(
       headers: {
         "Content-Type": "multipart/form-data",
       },
-    }
+    },
   );
 
   return data;

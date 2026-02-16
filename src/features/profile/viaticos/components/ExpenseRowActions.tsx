@@ -116,8 +116,12 @@ export default function ExpenseRowActions({
   const handleDelete = async () => {
     try {
       await deleteExpenseMutation.mutateAsync(expense.id);
-    } catch (error) {
-      // El error ya está manejado por el hook
+    } catch (error: any) {
+      errorToast(
+        "Error",
+        error.response?.data?.message ||
+          "No se pudo eliminar el gasto. Inténtalo de nuevo.",
+      );
     }
   };
 

@@ -18,20 +18,20 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Loader, Upload } from "lucide-react";
-import { ActiveHotelAgreement } from "../lib/hotelReservation.interface";
 import { useEffect, useState, useMemo } from "react";
 import { DateTimePickerForm } from "@/shared/components/DateTimePickerForm";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { Option } from "@/core/core.interface";
 import { FormInput } from "@/shared/components/FormInput";
 import { FormInputText } from "@/shared/components/FormInputText";
+import { HotelAgreementResource } from "@/features/gp/gestionhumana/viaticos/convenios-hoteles/lib/hotelAgreement.interface";
 
 interface HotelReservationFormProps {
   defaultValues?: Partial<HotelReservationSchema>;
   onSubmit: (data: HotelReservationSchema) => void;
   isSubmitting?: boolean;
   onCancel?: () => void;
-  hotelAgreements: ActiveHotelAgreement[];
+  hotelAgreements: HotelAgreementResource[];
   perDiemStartDate?: string | Date;
   perDiemEndDate?: string | Date;
   mode?: "create" | "update";
@@ -79,7 +79,7 @@ export const HotelReservationForm = ({
   const form = useForm<HotelReservationSchema>({
     resolver: zodResolver(hotelReservationSchema) as any,
     defaultValues: {
-      hotel_agreement_id: null,
+      hotel_agreement_id: "",
       hotel_name: "",
       address: "",
       phone: "",
@@ -103,6 +103,7 @@ export const HotelReservationForm = ({
           !agreementValue ||
           (typeof agreementValue === "string" && agreementValue === "none")
         ) {
+          form.setValue("ruc", "");
           form.setValue("hotel_name", "");
           form.setValue("address", "");
           form.setValue("phone", "");
@@ -116,6 +117,7 @@ export const HotelReservationForm = ({
         const agreement = hotelAgreements.find((a) => a.id === agreementId);
 
         if (agreement) {
+          form.setValue("ruc", agreement.ruc);
           form.setValue("hotel_name", agreement.name);
           form.setValue("address", agreement.address);
           form.setValue("phone", agreement.phone);
@@ -128,7 +130,7 @@ export const HotelReservationForm = ({
             const checkoutDate = new Date(checkout);
             const nights = Math.ceil(
               (checkoutDate.getTime() - checkinDate.getTime()) /
-                (1000 * 60 * 60 * 24)
+                (1000 * 60 * 60 * 24),
             );
             const corporateRate = parseFloat(agreement.corporate_rate);
             if (!isNaN(corporateRate) && nights > 0) {
@@ -149,10 +151,12 @@ export const HotelReservationForm = ({
           const checkoutDate = new Date(checkout);
           const nights = Math.ceil(
             (checkoutDate.getTime() - checkinDate.getTime()) /
-              (1000 * 60 * 60 * 24)
+              (1000 * 60 * 60 * 24),
           );
 
-          const agreement = hotelAgreements.find((a) => a.id === agreementId);
+          const agreement = hotelAgreements.find(
+            (a) => a.id === Number(agreementId),
+          );
           if (agreement && nights > 0) {
             const corporateRate = parseFloat(agreement.corporate_rate);
             if (!isNaN(corporateRate)) {
@@ -349,8 +353,8 @@ export const HotelReservationForm = ({
             {isSubmitting
               ? "Guardando..."
               : mode === "update"
-              ? "Actualizar Reserva"
-              : "Crear Reserva"}
+                ? "Actualizar Reserva"
+                : "Crear Reserva"}
           </Button>
         </div>
       </form>

@@ -7,6 +7,14 @@ export const hotelAgreementSchemaCreate = z.object({
     .refine((value) => value.trim() !== "", {
       message: "Ciudad es requerida",
     }),
+  ruc: z
+    .string()
+    .length(11, {
+      message: "El RUC debe tener exactamente 11 dígitos",
+    })
+    .regex(/^\d{11}$/, {
+      message: "El RUC debe contener solo números",
+    }),
   name: z
     .string()
     .max(255)
@@ -31,7 +39,6 @@ export const hotelAgreementSchemaCreate = z.object({
   includes_dinner: z.boolean().optional().default(false),
   includes_parking: z.boolean().optional().default(false),
   email: z
-    .string()
     .email("Email inválido")
     .max(100)
     .refine((value) => value.trim() !== "", {
@@ -49,12 +56,7 @@ export const hotelAgreementSchemaCreate = z.object({
     .refine((value) => value.trim() !== "", {
       message: "Dirección es requerida",
     }),
-  website: z
-    .string()
-    .url("URL inválida")
-    .max(255)
-    .optional()
-    .or(z.literal("")),
+  website: z.string().max(255).optional().or(z.literal("")),
   active: z.boolean().optional().default(true),
 });
 
