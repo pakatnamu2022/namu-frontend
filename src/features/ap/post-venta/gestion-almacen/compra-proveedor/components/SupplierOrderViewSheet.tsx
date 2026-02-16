@@ -13,8 +13,9 @@ import {
   TableRow,
 } from "@/components/ui/table.tsx";
 import { Badge } from "@/components/ui/badge.tsx";
-import { Loader2, FileText } from "lucide-react";
+import { Loader2, FileText, Copy, Check } from "lucide-react";
 import { Separator } from "@/components/ui/separator.tsx";
+import { Button } from "@/components/ui/button.tsx";
 
 interface SupplierOrderViewSheetProps {
   open: boolean;
@@ -29,6 +30,8 @@ export function SupplierOrderViewSheet({
 }: SupplierOrderViewSheetProps) {
   const [data, setData] = useState<SupplierOrderResource | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+  const [copiedField, setCopiedField] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -53,6 +56,26 @@ export function SupplierOrderViewSheet({
     onOpenChange(false);
     // Limpiamos los datos cuando se cierra
     setTimeout(() => setData(null), 300);
+  };
+
+  const handleCopyCode = async (
+    code: string,
+    field: string,
+    index?: number,
+  ) => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopiedField(field);
+      if (index !== undefined) {
+        setCopiedIndex(index);
+      }
+      setTimeout(() => {
+        setCopiedField(null);
+        setCopiedIndex(null);
+      }, 2000);
+    } catch (err) {
+      console.error("Error al copiar:", err);
+    }
   };
 
   if (!open) return null;
@@ -96,7 +119,24 @@ export function SupplierOrderViewSheet({
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4 p-4 bg-muted/50 rounded-lg">
             <div>
               <p className="text-xs text-muted-foreground">Nº Pedido</p>
-              <p className="font-semibold">{data.order_number}</p>
+              <div className="flex items-center gap-2">
+                <p className="font-semibold">{data.order_number}</p>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 w-6 p-0 hover:bg-slate-200"
+                  onClick={() =>
+                    handleCopyCode(data.order_number, "order_number")
+                  }
+                >
+                  {copiedField === "order_number" ? (
+                    <Check className="h-3 w-3 text-green-600" />
+                  ) : (
+                    <Copy className="h-3 w-3" />
+                  )}
+                </Button>
+              </div>
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Fecha de Pedido</p>
@@ -234,10 +274,32 @@ export function SupplierOrderViewSheet({
                         <p className="text-xs text-muted-foreground mb-1">
                           N° Factura
                         </p>
-                        <p className="text-sm font-semibold">
-                          {data.invoice.invoice_series}-
-                          {data.invoice.invoice_number}
-                        </p>
+                        <div className="flex items-center gap-2">
+                          <p className="text-sm font-semibold">
+                            {data.invoice.invoice_series}-
+                            {data.invoice.invoice_number}
+                          </p>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="h-5 w-5 p-0 hover:bg-slate-200"
+                            onClick={() => {
+                              if (data.invoice) {
+                                handleCopyCode(
+                                  `${data.invoice.invoice_series}-${data.invoice.invoice_number}`,
+                                  "invoice_number",
+                                );
+                              }
+                            }}
+                          >
+                            {copiedField === "invoice_number" ? (
+                              <Check className="h-3 w-3 text-green-600" />
+                            ) : (
+                              <Copy className="h-3 w-3" />
+                            )}
+                          </Button>
+                        </div>
                       </div>
                       <div>
                         <p className="text-xs text-muted-foreground mb-1">
@@ -342,9 +404,35 @@ export function SupplierOrderViewSheet({
                           <span className="font-medium text-sm">
                             {item.product?.name || "N/A"}
                           </span>
-                          <span className="text-xs text-muted-foreground">
-                            Código: {item.product?.code || "N/A"}
-                          </span>
+                          <div className="flex items-center gap-1">
+                            <span className="text-xs text-muted-foreground">
+                              Código: {item.product?.code || "N/A"}
+                            </span>
+                            {item.product?.code && (
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                className="h-5 w-5 p-0 hover:bg-slate-200"
+                                onClick={() => {
+                                  if (item.product?.code) {
+                                    handleCopyCode(
+                                      item.product.code,
+                                      "product_code",
+                                      index,
+                                    );
+                                  }
+                                }}
+                              >
+                                {copiedIndex === index &&
+                                copiedField === "product_code" ? (
+                                  <Check className="h-3 w-3 text-green-600" />
+                                ) : (
+                                  <Copy className="h-3 w-3" />
+                                )}
+                              </Button>
+                            )}
+                          </div>
                           {item.note && (
                             <span className="text-xs text-muted-foreground italic">
                               Nota: {item.note}

@@ -157,9 +157,12 @@ export const purchaseRequestColumns = ({
             </Button>
           )}
 
-          {permissions.canDelete && !supplier_order_numbers && (
-            <DeleteButton onClick={() => onDelete(id)} />
-          )}
+          {permissions.canDelete &&
+            (!supplier_order_numbers ||
+              (Array.isArray(supplier_order_numbers) &&
+                supplier_order_numbers.length === 0)) && (
+              <DeleteButton onClick={() => onDelete(id)} />
+            )}
         </div>
       );
     },
