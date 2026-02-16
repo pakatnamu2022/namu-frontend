@@ -1,4 +1,4 @@
-import { AREAS_ID } from "@/core/core.constants";
+import { AREAS_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 import { optionalStringId, requiredStringId } from "@/shared/lib/global.schema";
 import { z } from "zod";
 

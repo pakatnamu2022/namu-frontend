@@ -31,11 +31,7 @@ import {
 } from "../lib/shipmentsReceptions.constants";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { useNavigate } from "react-router-dom";
-import {
-  BUSINESS_PARTNERS,
-  CM_COMERCIAL_ID,
-  EMPRESA_AP,
-} from "@/core/core.constants";
+import { BUSINESS_PARTNERS, EMPRESA_AP } from "@/core/core.constants";
 import { useAllCustomers } from "../../clientes/lib/customers.hook";
 import { useAllSuppliers } from "../../proveedores/lib/suppliers.hook";
 import { EstablishmentSelectorModal } from "./EstablishmentSelectorModal";
@@ -56,6 +52,7 @@ import { useWarehousesByCompany } from "@/features/ap/configuraciones/maestros-g
 import { useAllClassArticle } from "@/features/ap/configuraciones/maestros-general/clase-articulo/lib/classArticle.hook";
 import { useAllVehicles } from "../../vehiculos/lib/vehicles.hook";
 import { TYPES_OPERATION_ID } from "@/features/ap/configuraciones/maestros-general/tipos-operacion/lib/typesOperation.constants";
+import { CM_COMERCIAL_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 interface ShipmentsReceptionsFormProps {
   defaultValues: Partial<ShipmentsReceptionsSchema> & {

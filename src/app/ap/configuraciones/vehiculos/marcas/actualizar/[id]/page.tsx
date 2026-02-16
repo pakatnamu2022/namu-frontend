@@ -20,7 +20,7 @@ import { BrandsForm } from "@/features/ap/configuraciones/vehiculos/marcas/compo
 import { BRAND } from "@/features/ap/configuraciones/vehiculos/marcas/lib/brands.constants";
 import FormWrapper from "@/shared/components/FormWrapper";
 import { notFound } from "@/shared/hooks/useNotFound";
-import { CM_COMERCIAL_ID } from "@/core/core.constants";
+import { CM_COMERCIAL_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 export default function UpdateBrandPage() {
   const { id } = useParams();

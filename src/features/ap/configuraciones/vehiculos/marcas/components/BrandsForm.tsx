@@ -22,7 +22,7 @@ import {
 import { BrandsRequest } from "../lib/brands.interface";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { BRAND } from "../lib/brands.constants";
-import { CM_COMERCIAL_ID } from "@/core/core.constants";
+import { CM_COMERCIAL_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 interface BrandsFormProps {
   defaultValues: Partial<BrandsSchema>;

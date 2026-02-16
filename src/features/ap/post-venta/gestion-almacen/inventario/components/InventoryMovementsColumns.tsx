@@ -107,18 +107,15 @@ export const inventoryMovementsColumns = (): InventoryMovementColumns[] => [
         const purchaseOrder = reception.purchase_order;
 
         if (purchaseOrder) {
-          const invoice =
-            purchaseOrder.invoice_series && purchaseOrder.invoice_number
-              ? `${purchaseOrder.invoice_series}-${purchaseOrder.invoice_number}`
-              : "-";
-
           return (
             <div className="flex flex-col text-sm">
-              <span className="font-medium">{reception.supplier_name}</span>
+              <span className="font-medium">{purchaseOrder.supplier}</span>
               <span className="text-xs text-gray-500">
-                RUC: {reception.supplier_num_doc}
+                RUC: {purchaseOrder.supplier_num_doc}
               </span>
-              <span className="text-xs text-gray-500">Factura: {invoice}</span>
+              <span className="text-xs text-gray-500">
+                Factura: {purchaseOrder.invoice_number}
+              </span>
             </div>
           );
         }
@@ -180,7 +177,10 @@ export const inventoryMovementsColumns = (): InventoryMovementColumns[] => [
       }
 
       // SALE - Mostrar cliente de la cotización
-      if (movementType === "SALE" && referenceType?.includes("ApOrderQuotations")) {
+      if (
+        movementType === "SALE" &&
+        referenceType?.includes("ApOrderQuotations")
+      ) {
         const quotation = reference as OrderQuotationResource;
 
         return (

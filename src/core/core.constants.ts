@@ -1,4 +1,4 @@
-import type { MonthOption, Option } from "./core.interface";
+import type { MonthOption } from "./core.interface";
 
 export const ACTIONS_NAMES: Record<string, string> = {
   create: "cread",
@@ -134,32 +134,3 @@ export const INCOME_SECTOR = {
   TALLER_ID: "828",
   SITIO_WEB_ID: "829",
 };
-
-// Commercial Module ID Constants
-export const CM_COMERCIAL_ID = 794;
-export const CM_POSTVENTA_ID = 804;
-
-export const AREA_COMERCIAL = 826;
-export const AREA_POSTVENTA = 825;
-export const AREA_TALLER = 881;
-export const AREA_MESON = 882;
-
-export const AREAS_ID = [
-  AREA_COMERCIAL,
-  AREA_POSTVENTA,
-  AREA_TALLER,
-  AREA_MESON,
-];
-
-export const AREA_OPTIONS: Option[] = [
-  { value: AREA_COMERCIAL.toString(), label: "Comercial" },
-  { value: AREA_POSTVENTA.toString(), label: "Post Venta" },
-  { value: AREA_TALLER.toString(), label: "Taller" },
-  { value: AREA_MESON.toString(), label: "Mesón" },
-];
-
-export type AreaType =
-  | typeof AREA_COMERCIAL
-  | typeof AREA_POSTVENTA
-  | typeof AREA_TALLER
-  | typeof AREA_MESON;

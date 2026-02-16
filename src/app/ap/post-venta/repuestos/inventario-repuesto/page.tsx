@@ -6,11 +6,7 @@ import { useEffect, useState } from "react";
 import PageSkeleton from "@/shared/components/PageSkeleton";
 import TitleComponent from "@/shared/components/TitleComponent";
 import DataTablePagination from "@/shared/components/DataTablePagination";
-import {
-  CM_POSTVENTA_ID,
-  DEFAULT_PER_PAGE,
-  EMPRESA_AP,
-} from "@/core/core.constants";
+import { DEFAULT_PER_PAGE, EMPRESA_AP } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { notFound } from "@/shared/hooks/useNotFound";
 import InventoryOptions from "@/features/ap/post-venta/gestion-almacen/inventario/components/InventoryOptions";
@@ -22,6 +18,7 @@ import { inventoryColumns } from "@/features/ap/post-venta/gestion-almacen/inven
 import InventoryActions from "@/features/ap/post-venta/gestion-almacen/inventario/components/InventoryActions";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import type { SortingState } from "@tanstack/react-table";
+import { CM_POSTVENTA_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 export default function InventoryRepuestoPage() {
   const router = useNavigate();

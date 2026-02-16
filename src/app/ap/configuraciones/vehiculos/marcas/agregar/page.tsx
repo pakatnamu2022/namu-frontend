@@ -16,7 +16,7 @@ import { storeBrands } from "@/features/ap/configuraciones/vehiculos/marcas/lib/
 import FormWrapper from "@/shared/components/FormWrapper";
 import { BRAND } from "@/features/ap/configuraciones/vehiculos/marcas/lib/brands.constants";
 import { notFound } from "@/shared/hooks/useNotFound";
-import { CM_COMERCIAL_ID } from "@/core/core.constants";
+import { CM_COMERCIAL_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 export default function AddBrandsPage() {
   const router = useNavigate();

@@ -34,7 +34,6 @@ import { Card } from "@/components/ui/card";
 import { useState, useEffect } from "react";
 import { EMPRESA_AP, IGV, STATUS_ACTIVE } from "@/core/core.constants";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
-import { AREA_PM_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import {
   useProduct,
@@ -57,6 +56,7 @@ import { useVehicles } from "@/features/ap/comercial/vehiculos/lib/vehicles.hook
 import { VehicleResource } from "@/features/ap/comercial/vehiculos/lib/vehicles.interface";
 import { VEHICLES_RP } from "@/features/ap/comercial/vehiculos/lib/vehicles.constants";
 import { FormInputText } from "@/shared/components/FormInputText";
+import { AREA_MESON } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 const onSelectSupplyType = [
   { label: "Stock", value: "STOCK" },
@@ -763,7 +763,7 @@ export default function ProformaMesonForm({
         : quotationMesonWithProductsSchemaUpdate,
     ) as any,
     defaultValues: {
-      area_id: AREA_PM_ID.MESON,
+      area_id: AREA_MESON.toString(),
       sede_id: "",
       currency_id: CURRENCY_TYPE_IDS.SOLES,
       quotation_date: "",

@@ -251,16 +251,17 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
   return (
     <div className="grid gap-6">
       {/* Inspection Header */}
-      <Card className="p-6">
-        <div className="flex items-center justify-between mb-4">
+      <Card className="p-4 sm:p-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
           <h3 className="text-lg font-semibold">Inspección de Recepción</h3>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <Button
               variant="outline"
               size="icon"
               onClick={handleRefresh}
               disabled={isRefreshing}
               tooltip="Actualizar información"
+              className="shrink-0"
             >
               <RefreshCw
                 className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`}
@@ -270,60 +271,78 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
             <Button
               onClick={handleDownloadPdf}
               disabled={isDownloading}
-              className="gap-2"
+              className="gap-2 text-xs sm:text-sm flex-1 sm:flex-none"
+              size="sm"
             >
               <FileText className="h-4 w-4" />
-              {isDownloading ? "Generando PDF..." : "Generar O.R - Cliente"}
+              <span className="hidden sm:inline">
+                {isDownloading ? "Generando PDF..." : "Generar O.R - Cliente"}
+              </span>
+              <span className="sm:hidden">
+                {isDownloading ? "Generando..." : "O.R Cliente"}
+              </span>
             </Button>
 
             {!cancellationRequested && (
               <Button
                 variant="outline"
-                className="gap-2 text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700"
+                className="gap-2 text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700 text-xs sm:text-sm flex-1 sm:flex-none"
                 onClick={() => setDialogOpen(true)}
+                size="sm"
               >
                 <Ban className="h-4 w-4" />
-                Solicitar Anulación
+                <span className="hidden sm:inline">Solicitar Anulación</span>
+                <span className="sm:hidden">Anular</span>
               </Button>
             )}
 
             {cancellationRequested && (
               <Button
                 variant="destructive"
-                className="gap-2"
+                className="gap-2 text-xs sm:text-sm flex-1 sm:flex-none"
                 onClick={() => setConfirmDialogOpen(true)}
+                size="sm"
               >
                 <Ban className="h-4 w-4" />
-                Confirmar Anulación
+                <span className="hidden sm:inline">Confirmar Anulación</span>
+                <span className="sm:hidden">Confirmar</span>
               </Button>
             )}
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <div className="flex items-start gap-2">
-            <Calendar className="h-5 w-5 text-gray-500 mt-0.5" />
-            <div>
-              <p className="text-sm text-gray-600">Fecha de Inspección</p>
-              <p className="font-semibold">
+            <Calendar className="h-5 w-5 text-gray-500 mt-0.5 shrink-0" />
+            <div className="min-w-0">
+              <p className="text-xs sm:text-sm text-gray-600">
+                Fecha de Inspección
+              </p>
+              <p className="font-semibold text-sm sm:text-base truncate">
                 {new Date(inspection.inspection_date).toLocaleString("es-PE")}
               </p>
             </div>
           </div>
 
           <div className="flex items-start gap-2">
-            <User className="h-5 w-5 text-gray-500 mt-0.5" />
-            <div>
-              <p className="text-sm text-gray-600">Inspeccionado por</p>
-              <p className="font-semibold">{inspection.inspected_by_name}</p>
+            <User className="h-5 w-5 text-gray-500 mt-0.5 shrink-0" />
+            <div className="min-w-0">
+              <p className="text-xs sm:text-sm text-gray-600">
+                Inspeccionado por
+              </p>
+              <p className="font-semibold text-sm sm:text-base truncate">
+                {inspection.inspected_by_name}
+              </p>
             </div>
           </div>
 
           <div className="flex items-start gap-2">
-            <ImageIcon className="h-5 w-5 text-gray-500 mt-0.5" />
-            <div>
-              <p className="text-sm text-gray-600">Daños Registrados</p>
-              <p className="font-semibold">
+            <ImageIcon className="h-5 w-5 text-gray-500 mt-0.5 shrink-0" />
+            <div className="min-w-0">
+              <p className="text-xs sm:text-sm text-gray-600">
+                Daños Registrados
+              </p>
+              <p className="font-semibold text-sm sm:text-base">
                 {inspection.damages?.length || 0} daños
               </p>
             </div>
@@ -334,7 +353,7 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
       {/* Pending cancellation banner */}
       {cancellationRequested && (
         <Card className="p-4 border-amber-200 bg-amber-50">
-          <div className="flex items-center gap-3">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
             <AlertCircle className="h-5 w-5 text-amber-600 shrink-0" />
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-amber-800">
@@ -344,7 +363,7 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
                 Motivo: {inspection.cancellation_reason}
               </p>
             </div>
-            <div className="text-right shrink-0">
+            <div className="text-left sm:text-right shrink-0">
               <p className="text-xs text-amber-600">
                 Solicitado por {inspection.cancellation_requested_by_name}
               </p>
@@ -365,18 +384,18 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
         inspection.photo_back_url ||
         inspection.photo_left_url ||
         inspection.photo_right_url) && (
-        <Card className="p-6">
-          <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+        <Card className="p-4 sm:p-6">
+          <h3 className="text-base sm:text-lg font-semibold mb-4 flex items-center gap-2">
             <ImageIcon className="h-5 w-5 text-gray-600" />
             Fotos del Vehículo
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {inspection.photo_front_url && (
               <div className="space-y-2">
-                <p className="text-sm font-medium text-gray-700">
+                <p className="text-xs sm:text-sm font-medium text-gray-700">
                   Vista Frontal
                 </p>
-                <div className="relative h-64 bg-gray-100 rounded-lg overflow-hidden group">
+                <div className="relative h-48 sm:h-64 bg-gray-100 rounded-lg overflow-hidden group">
                   <img
                     src={inspection.photo_front_url}
                     alt="Vista frontal del vehículo"
@@ -414,10 +433,10 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
 
             {inspection.photo_back_url && (
               <div className="space-y-2">
-                <p className="text-sm font-medium text-gray-700">
+                <p className="text-xs sm:text-sm font-medium text-gray-700">
                   Vista Trasera
                 </p>
-                <div className="relative h-64 bg-gray-100 rounded-lg overflow-hidden group">
+                <div className="relative h-48 sm:h-64 bg-gray-100 rounded-lg overflow-hidden group">
                   <img
                     src={inspection.photo_back_url}
                     alt="Vista trasera del vehículo"
@@ -455,10 +474,10 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
 
             {inspection.photo_left_url && (
               <div className="space-y-2">
-                <p className="text-sm font-medium text-gray-700">
+                <p className="text-xs sm:text-sm font-medium text-gray-700">
                   Vista Lateral Izquierda
                 </p>
-                <div className="relative h-64 bg-gray-100 rounded-lg overflow-hidden group">
+                <div className="relative h-48 sm:h-64 bg-gray-100 rounded-lg overflow-hidden group">
                   <img
                     src={inspection.photo_left_url}
                     alt="Vista lateral izquierda del vehículo"
@@ -496,10 +515,10 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
 
             {inspection.photo_right_url && (
               <div className="space-y-2">
-                <p className="text-sm font-medium text-gray-700">
+                <p className="text-xs sm:text-sm font-medium text-gray-700">
                   Vista Lateral Derecha
                 </p>
-                <div className="relative h-64 bg-gray-100 rounded-lg overflow-hidden group">
+                <div className="relative h-48 sm:h-64 bg-gray-100 rounded-lg overflow-hidden group">
                   <img
                     src={inspection.photo_right_url}
                     alt="Vista lateral derecha del vehículo"
@@ -539,10 +558,10 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
       )}
 
       {/* Checklist by Category */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {Object.entries(groupedItems).map(([category, items]) => (
-          <Card key={category} className="p-6">
-            <h3 className="text-lg font-semibold mb-4">
+          <Card key={category} className="p-4 sm:p-6">
+            <h3 className="text-base sm:text-lg font-semibold mb-4">
               {categoryLabels[category as keyof typeof categoryLabels]}
             </h3>
             <div className="space-y-2">
@@ -553,13 +572,13 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
                 return (
                   <div
                     key={item.key}
-                    className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                    className="flex items-center justify-between p-2 sm:p-3 bg-gray-50 rounded-lg gap-2"
                   >
-                    <p className="text-sm">{item.label}</p>
+                    <p className="text-xs sm:text-sm flex-1">{item.label}</p>
                     {isChecked ? (
-                      <CheckCircle2 className="h-5 w-5 text-green-600" />
+                      <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5 text-green-600 shrink-0" />
                     ) : (
-                      <XCircle className="h-5 w-5 text-red-600" />
+                      <XCircle className="h-4 w-4 sm:h-5 sm:w-5 text-red-600 shrink-0" />
                     )}
                   </div>
                 );
@@ -571,11 +590,11 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
 
       {/* Vehicle Diagram with Damage Markers */}
       {inspection.damages && inspection.damages.length > 0 && (
-        <Card className="p-6">
-          <h3 className="text-lg font-semibold mb-4">
+        <Card className="p-4 sm:p-6">
+          <h3 className="text-base sm:text-lg font-semibold mb-4">
             Diagrama del Vehículo con Daños Marcados
           </h3>
-          <div className="relative w-full bg-gray-50 rounded-lg p-8">
+          <div className="relative w-full bg-gray-50 rounded-lg p-4 sm:p-8">
             <div className="relative mx-auto" style={{ maxWidth: "800px" }}>
               <img
                 src="/images/body_car.png"
@@ -624,7 +643,7 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
                   >
                     {/* Marker */}
                     <div
-                      className="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg transition-transform group-hover:scale-125"
+                      className="w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-white font-bold text-sm sm:text-lg shadow-lg transition-transform group-hover:scale-125"
                       style={{
                         backgroundColor:
                           DAMAGE_COLORS[
@@ -640,7 +659,7 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
                     </div>
 
                     {/* Tooltip on hover */}
-                    <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-1 hidden group-hover:block w-64 z-10">
+                    <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-1 hidden group-hover:block w-48 sm:w-64 z-10">
                       <div className="bg-gray-900 text-white p-3 rounded-lg shadow-xl text-sm">
                         <p className="font-bold mb-1">{damage.damage_type}</p>
                         {damage.description && (
@@ -663,16 +682,18 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
             </div>
 
             {/* Legend */}
-            <div className="mt-6 flex flex-wrap gap-4 justify-center">
+            <div className="mt-6 flex flex-wrap gap-2 sm:gap-4 justify-center">
               {Object.entries(DAMAGE_COLORS).map(([type, color]) => (
-                <div key={type} className="flex items-center gap-2">
+                <div key={type} className="flex items-center gap-1.5 sm:gap-2">
                   <div
-                    className="w-6 h-6 rounded-full flex items-center justify-center text-white text-sm font-bold"
+                    className="w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-white text-xs sm:text-sm font-bold shrink-0"
                     style={{ backgroundColor: color }}
                   >
                     {DAMAGE_SYMBOLS[type as keyof typeof DAMAGE_SYMBOLS]}
                   </div>
-                  <span className="text-sm text-gray-700">{type}</span>
+                  <span className="text-xs sm:text-sm text-gray-700">
+                    {type}
+                  </span>
                 </div>
               ))}
             </div>
@@ -682,9 +703,11 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
 
       {/* Vehicle Damages */}
       {inspection.damages && inspection.damages.length > 0 && (
-        <Card className="p-6">
-          <h3 className="text-lg font-semibold mb-4">Daños del Vehículo</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Card className="p-4 sm:p-6">
+          <h3 className="text-base sm:text-lg font-semibold mb-4">
+            Daños del Vehículo
+          </h3>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {inspection.damages.map((damage) => {
               const xCoord =
                 typeof damage.x_coordinate === "string"
@@ -698,11 +721,11 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
               return (
                 <div
                   key={damage.id}
-                  className="border rounded-lg p-4 space-y-3"
+                  className="border rounded-lg p-3 sm:p-4 space-y-3"
                 >
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     <span
-                      className="text-xl font-bold"
+                      className="text-lg sm:text-xl font-bold"
                       style={{
                         color:
                           DAMAGE_COLORS[
@@ -724,13 +747,14 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
                           ],
                         color: "white",
                       }}
+                      className="text-xs"
                     >
                       {damage.damage_type}
                     </Badge>
                   </div>
 
                   {damage.description && (
-                    <p className="text-sm text-gray-700">
+                    <p className="text-xs sm:text-sm text-gray-700">
                       {damage.description}
                     </p>
                   )}
@@ -742,7 +766,7 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
                   )}
 
                   {damage.photo_url && (
-                    <div className="relative h-48 bg-gray-100 rounded overflow-hidden group">
+                    <div className="relative h-40 sm:h-48 bg-gray-100 rounded overflow-hidden group">
                       <img
                         src={damage.photo_url}
                         alt={`Daño: ${damage.damage_type}`}
@@ -808,11 +832,11 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
 
       {/* General Observations */}
       {inspection.general_observations && (
-        <Card className="p-6">
-          <h3 className="text-lg font-semibold mb-4">
+        <Card className="p-4 sm:p-6">
+          <h3 className="text-base sm:text-lg font-semibold mb-4">
             Observaciones Generales
           </h3>
-          <p className="text-gray-700 whitespace-pre-wrap bg-gray-50 p-4 rounded-lg">
+          <p className="text-sm sm:text-base text-gray-700 whitespace-pre-wrap bg-gray-50 p-3 sm:p-4 rounded-lg">
             {inspection.general_observations}
           </p>
         </Card>
@@ -820,12 +844,12 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
 
       {/* Customer Signature */}
       {inspection.customer_signature_url && (
-        <Card className="p-6">
-          <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+        <Card className="p-4 sm:p-6">
+          <h3 className="text-base sm:text-lg font-semibold mb-4 flex items-center gap-2">
             <User className="h-5 w-5 text-gray-600" />
             Firma de Conformidad del Cliente
           </h3>
-          <div className="bg-gray-50 rounded-lg p-6">
+          <div className="bg-gray-50 rounded-lg p-4 sm:p-6">
             <p className="text-sm text-gray-600 mb-4 text-center">
               El cliente confirma que la información registrada en la inspección
               de recepción es correcta

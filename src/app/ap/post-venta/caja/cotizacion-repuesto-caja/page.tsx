@@ -25,7 +25,6 @@ import {
 } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.constants";
 import { deleteOrderQuotation } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.actions";
 import { useOrderQuotations } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.hook";
-import { AREA_PM_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 import OrderQuotationMesonTable from "@/features/ap/post-venta/repuestos/cotizacion-meson/components/ProformaMesonTable";
 import OrderQuotationMesonActions from "@/features/ap/post-venta/repuestos/cotizacion-meson/components/ProformaMesonActions";
 import OrderQuotationMesonOptions from "@/features/ap/post-venta/repuestos/cotizacion-meson/components/ProformaMesonOptions";
@@ -33,6 +32,7 @@ import { orderQuotationMesonColumns } from "@/features/ap/post-venta/repuestos/c
 import { OrderQuotationBillingSheet } from "@/features/ap/post-venta/repuestos/cotizacion-meson/components/OrderQuotationBillingSheet";
 import { OrderQuotationDeliverySheet } from "@/features/ap/post-venta/repuestos/cotizacion-meson/components/OrderQuotationDeliverySheet";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
+import { AREA_MESON } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 export default function OrderQuotationMesonCajaPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -90,7 +90,7 @@ export default function OrderQuotationMesonCajaPage() {
       dateFrom && dateTo
         ? [formatDate(dateFrom), formatDate(dateTo)]
         : undefined,
-    area_id: AREA_PM_ID.MESON,
+    area_id: AREA_MESON.toString(),
     sede_id: sedeId,
     status: STATUS_ORDER_QUOTATION.TO_BILL, // Solo mostrar cotizaciones finalizadas
   });

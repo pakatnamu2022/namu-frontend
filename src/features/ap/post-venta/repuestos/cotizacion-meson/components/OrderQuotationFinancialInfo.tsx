@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { TrendingUp } from "lucide-react";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { Progress } from "@/components/ui/progress";
@@ -9,12 +10,18 @@ interface OrderQuotationFinancialInfoProps {
   quotation: OrderQuotationResource;
   advances: ElectronicDocumentResource[];
   currencySymbol: string;
+  onClientIdDetected?: (
+    clientId: number | null,
+    clientName?: string,
+    clientDoc?: string,
+  ) => void;
 }
 
 export function OrderQuotationFinancialInfo({
   quotation,
   advances,
   currencySymbol,
+  onClientIdDetected,
 }: OrderQuotationFinancialInfoProps) {
   // Calcular total de la cotización desde OrderQuotationResource
   const quotationTotal = quotation.total_amount || 0;
@@ -41,6 +48,19 @@ export function OrderQuotationFinancialInfo({
   // Calcular porcentaje de pago
   const paymentPercentage =
     quotationTotal > 0 ? (totalAdvances / quotationTotal) * 100 : 0;
+
+  // Detectar y notificar el client_id cuando hay anticipos
+  useEffect(() => {
+    if (onClientIdDetected && advances.length > 0 && advances[0].client_id) {
+      onClientIdDetected(
+        advances[0].client_id,
+        advances[0].cliente_denominacion || "",
+        advances[0].cliente_numero_de_documento || "",
+      );
+    } else if (onClientIdDetected && advances.length === 0) {
+      onClientIdDetected(null);
+    }
+  }, [advances, onClientIdDetected]);
 
   return (
     <GroupFormSection
@@ -111,25 +131,35 @@ export function OrderQuotationFinancialInfo({
         {/* Lista de Pagos */}
         {advances.length > 0 && (
           <div className="space-y-2 pt-4 border-t">
-            <p className="text-xs font-medium text-muted-foreground">
+            <p className="text-xs font-medium text-muted-foreground mb-2">
               Pagos aplicados
             </p>
-            <div className="space-y-1">
+            <div className="space-y-2">
               {advances.map((advance) => (
                 <div
                   key={advance.id}
-                  className="flex items-center justify-between text-xs py-1 px-2 rounded bg-muted/30"
+                  className="p-2 rounded bg-muted/20 border border-muted space-y-1.5"
                 >
-                  <span className="text-foreground">
-                    {advance.serie}-{advance.numero}
-                  </span>
-                  <span className="font-medium text-foreground">
-                    {advance.sunat_concept_document_type_id ===
-                    SUNAT_TYPE_INVOICES_ID.NOTA_CREDITO
-                      ? "- "
-                      : ""}
-                    {currencySymbol} {Number(advance.total).toFixed(2)}
-                  </span>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-medium text-foreground">
+                      {advance.serie}-{advance.numero}
+                    </span>
+                    <span className="text-xs font-bold text-foreground">
+                      {advance.sunat_concept_document_type_id ===
+                      SUNAT_TYPE_INVOICES_ID.NOTA_CREDITO
+                        ? "- "
+                        : ""}
+                      {currencySymbol} {Number(advance.total).toFixed(2)}
+                    </span>
+                  </div>
+                  {advance.cliente_denominacion && (
+                    <div className="text-xs text-muted-foreground">
+                      <p className="font-medium">
+                        {advance.cliente_denominacion}
+                      </p>
+                      <p>RUC: {advance.cliente_numero_de_documento}</p>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

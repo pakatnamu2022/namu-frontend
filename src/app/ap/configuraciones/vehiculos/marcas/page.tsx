@@ -21,11 +21,12 @@ import {
   deleteBrand,
   updateBrands,
 } from "@/features/ap/configuraciones/vehiculos/marcas/lib/brands.actions";
-import { CM_COMERCIAL_ID, DEFAULT_PER_PAGE } from "@/core/core.constants";
+import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { BRAND } from "@/features/ap/configuraciones/vehiculos/marcas/lib/brands.constants";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { notFound } from "@/shared/hooks/useNotFound";
+import { CM_COMERCIAL_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 export default function BrandsPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();

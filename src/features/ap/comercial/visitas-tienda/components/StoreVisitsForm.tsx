@@ -41,7 +41,7 @@ import {
   useAllWorkersBySedeAndBrand,
 } from "@/features/ap/configuraciones/ventas/asignar-marca/lib/assignBrandConsultant.hook";
 import { STORE_VISITS } from "../lib/storeVisits.constants";
-import { AREA_CM_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
+import { AREA_COMERCIAL } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 interface StoreVisitsFormProps {
   defaultValues: Partial<StoreVisitsSchema>;
@@ -59,11 +59,11 @@ export const StoreVisitsForm = ({
   const { ABSOLUTE_ROUTE } = STORE_VISITS;
   const form = useForm({
     resolver: zodResolver(
-      mode === "create" ? storeVisitsSchemaCreate : storeVisitsSchemaUpdate
+      mode === "create" ? storeVisitsSchemaCreate : storeVisitsSchemaUpdate,
     ),
     defaultValues: {
       ...defaultValues,
-      area_id: AREA_CM_ID.COMERCIAL,
+      area_id: AREA_COMERCIAL.toString(),
       type: TIPO_LEADS.VISITA,
       campaign: TIPO_LEADS.VISITA,
     },
@@ -91,11 +91,11 @@ export const StoreVisitsForm = ({
   const { data: workers = [], isLoading: isLoadingWorkers } =
     useAllWorkersBySedeAndBrand(
       selectedSedeId ? Number(selectedSedeId) : undefined,
-      selectedBrandId ? Number(selectedBrandId) : undefined
+      selectedBrandId ? Number(selectedBrandId) : undefined,
     );
 
   const selectedDocumentType = documentTypes.find(
-    (type) => type.id.toString() === documentTypeId
+    (type) => type.id.toString() === documentTypeId,
   );
 
   const shouldValidate = VALIDATABLE_DOCUMENT.IDS.includes(documentTypeId!);
@@ -107,7 +107,7 @@ export const StoreVisitsForm = ({
     documentNumber && documentNumber.length === expectedDigits;
 
   const shouldTriggerValidation = Boolean(
-    shouldValidate && isValidLength && validationType
+    shouldValidate && isValidLength && validationType,
   );
 
   // Hooks de validación condicional
@@ -117,7 +117,7 @@ export const StoreVisitsForm = ({
     error: dniError,
   } = useDniValidation(
     documentNumber,
-    validationType === "dni" && shouldTriggerValidation
+    validationType === "dni" && shouldTriggerValidation,
   );
 
   const {
@@ -126,7 +126,7 @@ export const StoreVisitsForm = ({
     error: rucError,
   } = useRucValidation(
     documentNumber,
-    validationType === "ruc" && shouldTriggerValidation
+    validationType === "ruc" && shouldTriggerValidation,
   );
 
   // Datos consolidados
@@ -185,7 +185,7 @@ export const StoreVisitsForm = ({
   }, [selectedBrandId, form]);
 
   const shouldDisableMainFields = Boolean(
-    validationData?.success && validationData.data
+    validationData?.success && validationData.data,
   );
 
   if (isLoadingSedes || isLoadingTypesDocument || isLoadingIncomeSector)
@@ -193,10 +193,7 @@ export const StoreVisitsForm = ({
 
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-4 w-full"
-      >
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-full">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <FormSelect
             name="income_sector_id"

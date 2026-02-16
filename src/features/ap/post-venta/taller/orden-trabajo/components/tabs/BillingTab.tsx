@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -26,7 +27,7 @@ import InvoiceForm from "../InvoiceForm";
 import { errorToast, successToast } from "@/core/core.function";
 import { SUNAT_CONCEPTS_TYPE } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
 import { WORKER_ORDER } from "../../lib/workOrder.constants";
-import { AREA_TALLER } from "@/core/core.constants";
+import { AREA_TALLER } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 interface BillingTabProps {
   workOrderId: number;
@@ -34,6 +35,7 @@ interface BillingTabProps {
 
 export default function BillingTab({ workOrderId }: BillingTabProps) {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const { selectedGroupNumber, setSelectedGroupNumber } = useWorkOrderContext();
   const [showForm, setShowForm] = useState(false);
   const { QUERY_KEY } = WORKER_ORDER;
@@ -190,6 +192,8 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
       });
       setShowForm(false);
       form.reset();
+      // Redirigir a comprobante de venta en caja
+      navigate("/ap/post-venta/caja/comprobante-venta-caja");
     },
     onError: (error: any) => {
       errorToast(error?.message || "Error al crear la factura");
@@ -231,6 +235,34 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
   };
 
   const handleSubmitInvoice = (data: ElectronicDocumentSchemaType) => {
+    // Validar que el monto del anticipo no sea mayor al total o saldo pendiente
+    if (data.is_advance_payment && paymentSummary) {
+      // Redondear a 2 decimales para evitar problemas de precisión de punto flotante
+      const totalAnticipo = Number(data.total.toFixed(2));
+      const totalOrdenTrabajo = Number(
+        paymentSummary.payment_summary.total_amount.toFixed(2),
+      );
+      const saldoPendiente = Number(
+        paymentSummary.payment_summary.remaining_balance.toFixed(2),
+      );
+
+      // Validar que el anticipo no sea mayor al total de la orden
+      if (totalAnticipo > totalOrdenTrabajo) {
+        errorToast(
+          `El monto del anticipo (S/ ${totalAnticipo.toFixed(2)}) no puede ser mayor al total de la orden (S/ ${totalOrdenTrabajo.toFixed(2)})`,
+        );
+        return;
+      }
+
+      // Validar que el anticipo no sea mayor al saldo pendiente
+      if (totalAnticipo > saldoPendiente) {
+        errorToast(
+          `El monto del anticipo (S/ ${totalAnticipo.toFixed(2)}) no puede ser mayor al saldo pendiente (S/ ${saldoPendiente.toFixed(2)})`,
+        );
+        return;
+      }
+    }
+
     createInvoiceMutation.mutate({
       ...data,
       work_order_id: String(workOrderId),

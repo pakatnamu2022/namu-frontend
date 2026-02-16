@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button.tsx";
 import { Plus } from "lucide-react";
 import ActionsWrapper from "@/shared/components/ActionsWrapper.tsx";
 import { useNavigate } from "react-router-dom";
-import { PRODUCT_TRANSFER } from "@/features/ap/post-venta/gestion-almacen/transferencia-producto/lib/productTransfer.constants.ts";
+import { PRODUCT_TRANSFER } from "@/features/ap/post-venta/gestion-almacen/guia-remision/lib/productTransfer.constants.ts";
 
 interface Props {
   permissions: {

@@ -22,9 +22,9 @@ import {
   CreditCard,
 } from "lucide-react";
 import { Link } from "react-router-dom";
-import { ProductTransferDetailResource } from "@/features/ap/post-venta/gestion-almacen/transferencia-producto/lib/productTransfer.interface.ts";
-import GeneralSheet from "@/shared/components/GeneralSheet";
-import { findProductTransferById } from "../lib/productTransfer.actions";
+import { ProductTransferDetailResource } from "@/features/ap/post-venta/gestion-almacen/guia-remision/lib/productTransfer.interface.ts";
+import GeneralSheet from "@/shared/components/GeneralSheet.tsx";
+import { findProductTransferById } from "@/features/ap/post-venta/gestion-almacen/guia-remision/lib/productTransfer.actions.ts";
 
 interface ProductTransferViewSheetProps {
   open: boolean;

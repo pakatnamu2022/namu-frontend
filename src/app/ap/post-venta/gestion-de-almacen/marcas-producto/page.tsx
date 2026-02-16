@@ -21,11 +21,12 @@ import {
   deleteBrand,
   updateBrands,
 } from "@/features/ap/configuraciones/vehiculos/marcas/lib/brands.actions.ts";
-import { CM_POSTVENTA_ID, DEFAULT_PER_PAGE } from "@/core/core.constants.ts";
+import { DEFAULT_PER_PAGE } from "@/core/core.constants.ts";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper.tsx";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions.ts";
 import { BRAND_POSTVENTA } from "@/features/ap/configuraciones/vehiculos/marcas/lib/brands.constants.ts";
 import { notFound } from "@/shared/hooks/useNotFound.ts";
+import { CM_POSTVENTA_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 export default function BrandsPVPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();

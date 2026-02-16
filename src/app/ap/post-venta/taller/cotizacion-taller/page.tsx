@@ -26,7 +26,7 @@ import OrderQuotationTable from "@/features/ap/post-venta/taller/cotizacion/comp
 import OrderQuotationOptions from "@/features/ap/post-venta/taller/cotizacion/components/ProformaOptions.tsx";
 import { deleteOrderQuotation } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.actions.ts";
 import { useOrderQuotations } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.hook.ts";
-import { AREA_PM_ID } from "@/features/ap/ap-master/lib/apMaster.constants.ts";
+import { AREA_TALLER } from "@/features/ap/ap-master/lib/apMaster.constants.ts";
 
 export default function OrderQuotationPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -65,7 +65,7 @@ export default function OrderQuotationPage() {
       dateFrom && dateTo
         ? [formatDate(dateFrom), formatDate(dateTo)]
         : undefined,
-    area_id: AREA_PM_ID.TALLER,
+    area_id: AREA_TALLER.toString(),
   });
 
   const handleDelete = async () => {

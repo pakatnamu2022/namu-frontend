@@ -9,7 +9,7 @@ import TitleComponent from "@/shared/components/TitleComponent.tsx";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper.tsx";
 import { notFound } from "@/shared/hooks/useNotFound.ts";
 import { useWarehousesByCompany } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook.ts";
-import { CM_POSTVENTA_ID, EMPRESA_AP } from "@/core/core.constants.ts";
+import { EMPRESA_AP } from "@/core/core.constants.ts";
 import { Button } from "@/components/ui/button.tsx";
 import { Warehouse, ArrowLeft } from "lucide-react";
 import {
@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/card.tsx";
 import { PRODUCT } from "@/features/ap/post-venta/gestion-almacen/productos/lib/product.constants.ts";
 import { assignToWarehouse } from "@/features/ap/post-venta/gestion-almacen/productos/lib/product.actions.ts";
+import { CM_POSTVENTA_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 export default function AssignWarehousePage() {
   const router = useNavigate();

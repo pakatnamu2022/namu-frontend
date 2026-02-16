@@ -36,7 +36,7 @@ import FormSkeleton from "@/shared/components/FormSkeleton";
 import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.hook";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
-import { CM_COMERCIAL_ID } from "@/core/core.constants";
+import { CM_COMERCIAL_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 interface ModelsVnFormProps {
   defaultValues: Partial<ModelsVnSchema>;

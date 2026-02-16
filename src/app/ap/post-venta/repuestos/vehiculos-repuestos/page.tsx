@@ -12,7 +12,7 @@ import {
   SUCCESS_MESSAGE,
   successToast,
 } from "@/core/core.function";
-import { CM_POSTVENTA_ID, DEFAULT_PER_PAGE } from "@/core/core.constants";
+import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { deleteVehicle } from "@/features/ap/comercial/vehiculos/lib/vehicles.actions";
 import VehicleActionsPV from "@/features/ap/comercial/vehiculos/components/VehicleActionsPV";
@@ -23,6 +23,7 @@ import { notFound } from "@/shared/hooks/useNotFound";
 import { VEHICLES_RP } from "@/features/ap/comercial/vehiculos/lib/vehicles.constants";
 import { useNavigate } from "react-router-dom";
 import { useVehicles } from "@/features/ap/comercial/vehiculos/lib/vehicles.hook";
+import { CM_POSTVENTA_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 export default function VehiclesRepuestoPage() {
   const router = useNavigate();

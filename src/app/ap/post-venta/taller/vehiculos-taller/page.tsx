@@ -12,7 +12,7 @@ import {
   SUCCESS_MESSAGE,
   successToast,
 } from "@/core/core.function.ts";
-import { CM_POSTVENTA_ID, DEFAULT_PER_PAGE } from "@/core/core.constants.ts";
+import { DEFAULT_PER_PAGE } from "@/core/core.constants.ts";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper.tsx";
 import { deleteVehicle } from "@/features/ap/comercial/vehiculos/lib/vehicles.actions.ts";
 import VehicleActionsPV from "@/features/ap/comercial/vehiculos/components/VehicleActionsPV.tsx";
@@ -23,6 +23,7 @@ import { notFound } from "@/shared/hooks/useNotFound.ts";
 import { VEHICLES_TLL } from "@/features/ap/comercial/vehiculos/lib/vehicles.constants.ts";
 import { useNavigate } from "react-router-dom";
 import { useVehicles } from "@/features/ap/comercial/vehiculos/lib/vehicles.hook.ts";
+import { CM_POSTVENTA_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 export default function VehiclesPostVentaPage() {
   const router = useNavigate();

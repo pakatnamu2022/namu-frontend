@@ -34,6 +34,9 @@ interface OrderQuotationDocumentInfoSectionProps {
   defaultCustomer?: CustomersResource;
   hasSufficientStock?: boolean;
   pendingBalance?: number;
+  lockedClientId?: number | null;
+  lockedClientName?: string;
+  lockedClientDoc?: string;
 }
 
 export function OrderQuotationDocumentInfoSection({
@@ -47,24 +50,37 @@ export function OrderQuotationDocumentInfoSection({
   defaultCustomer,
   hasSufficientStock = true,
   pendingBalance = 0,
+  lockedClientId = null,
+  lockedClientName = "",
+  lockedClientDoc = "",
 }: OrderQuotationDocumentInfoSectionProps) {
   // Estado para almacenar el cliente seleccionado
   const [selectedCustomer, setSelectedCustomer] = useState<
     CustomersResource | undefined
   >(defaultCustomer);
 
-  // Crear defaultOption desde defaultCustomer si existe
+  // Crear defaultOption desde lockedClient o defaultCustomer
   const defaultOption = useMemo(() => {
+    // Prioridad 1: Cliente bloqueado desde anticipos
+    if (lockedClientId && lockedClientName) {
+      const option = {
+        value: lockedClientId.toString(),
+        label: `${lockedClientName} - ${lockedClientDoc || "S/N"}`,
+      };
+      return option;
+    }
+    // Prioridad 2: Cliente por defecto de la cotización
     if (defaultCustomer) {
-      return {
+      const option = {
         value: defaultCustomer.id.toString(),
         label: `${defaultCustomer.full_name} - ${
           defaultCustomer.num_doc || "S/N"
         }`,
       };
+      return option;
     }
     return undefined;
-  }, [defaultCustomer]);
+  }, [defaultCustomer, lockedClientId, lockedClientName, lockedClientDoc]);
 
   // Filtrar series según is_advance_payment
   const filteredSeries = useMemo(() => {
@@ -82,12 +98,21 @@ export function OrderQuotationDocumentInfoSection({
 
   // Setear el cliente por defecto cuando se monta el componente
   useEffect(() => {
-    if (defaultCustomer && !clientId) {
+    // Si hay un cliente bloqueado desde los anticipos, tiene prioridad ABSOLUTA
+    if (lockedClientId) {
+      const lockedIdString = lockedClientId.toString();
+      // Solo actualizar si es diferente al actual
+      if (clientId !== lockedIdString) {
+        form.setValue("client_id", lockedIdString, {
+          shouldValidate: false,
+        });
+      }
+    } else if (defaultCustomer && !clientId) {
       form.setValue("client_id", defaultCustomer.id.toString(), {
         shouldValidate: false,
       });
     }
-  }, [defaultCustomer, clientId, form]);
+  }, [defaultCustomer, clientId, form, lockedClientId]);
 
   // Forzar el switch a true (anticipo) cuando no hay stock suficiente
   useEffect(() => {
@@ -127,13 +152,13 @@ export function OrderQuotationDocumentInfoSection({
     if (!selectedCustomer) return;
 
     const currentDocumentTypeId = form.getValues(
-      "sunat_concept_document_type_id"
+      "sunat_concept_document_type_id",
     );
 
     // Si hay un tipo de documento seleccionado, verificar si sigue siendo válido
     if (currentDocumentTypeId) {
       const isValid = filteredDocumentTypes.some(
-        (type) => type.id.toString() === currentDocumentTypeId
+        (type) => type.id.toString() === currentDocumentTypeId,
       );
 
       // Si el tipo de documento actual no es válido, limpiarlo
@@ -151,7 +176,7 @@ export function OrderQuotationDocumentInfoSection({
     // Si hay una serie seleccionada, verificar si sigue siendo válida
     if (currentSerieId) {
       const isValid = filteredSeries.some(
-        (series) => series.id.toString() === currentSerieId
+        (series) => series.id.toString() === currentSerieId,
       );
 
       // Si la serie actual no es válida, limpiarla
@@ -200,13 +225,15 @@ export function OrderQuotationDocumentInfoSection({
               label: `${customer.full_name} - ${customer.num_doc || "S/N"}`,
             })}
             description={
-              isFromQuotation
-                ? "Cliente asignado desde la cotización (puede modificarlo si lo desea)"
-                : "Seleccione el cliente"
+              lockedClientId
+                ? "Cliente bloqueado: Ya existen pagos aplicados para este cliente"
+                : isFromQuotation
+                  ? "Cliente asignado desde la cotización (puede modificarlo si lo desea)"
+                  : "Seleccione el cliente"
             }
             perPage={10}
             debounceMs={500}
-            disabled={isEdit}
+            disabled={isEdit || !!lockedClientId}
             defaultOption={defaultOption}
             onValueChange={(_, customer) => {
               // Actualizar el estado con el cliente seleccionado
@@ -243,10 +270,10 @@ export function OrderQuotationDocumentInfoSection({
             !hasSufficientStock && pendingBalance > 0
               ? "Sin stock suficiente: Solo se permite anticipo"
               : pendingBalance === 0
-              ? "Pago completo realizado: Puede generar documento de venta final"
-              : isAdvancePayment
-              ? "Tipo de operación: Venta Interna - Anticipos (código 04)"
-              : "Tipo de operación: Venta Interna (código 01)"
+                ? "Pago completo realizado: Puede generar documento de venta final"
+                : isAdvancePayment
+                  ? "Tipo de operación: Venta Interna - Anticipos (código 04)"
+                  : "Tipo de operación: Venta Interna (código 01)"
           }
         />
 
@@ -274,7 +301,7 @@ export function OrderQuotationDocumentInfoSection({
             before: new Date(
               new Date().getFullYear(),
               new Date().getMonth(),
-              1
+              1,
             ),
             after: new Date(),
           }}

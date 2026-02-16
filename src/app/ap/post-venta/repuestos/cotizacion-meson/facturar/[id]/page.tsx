@@ -23,7 +23,7 @@ import { Button } from "@/components/ui/button";
 import { ORDER_QUOTATION_MESON } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.constants";
 import PageSkeleton from "@/shared/components/PageSkeleton";
 import TitleComponent from "@/shared/components/TitleComponent";
-import { AREA_MESON } from "@/core/core.constants";
+import { AREA_MESON } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 export default function BillOrderQuotationMesonPage() {
   const { id } = useParams<{ id: string }>();
