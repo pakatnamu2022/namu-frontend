@@ -102,7 +102,7 @@ export const TransferReceptionForm = ({
         observed_quantity: 0,
         reception_type: "ORDERED" as const,
         reason_observation: undefined,
-        observation_notes: item.notes || "",
+        observation_notes: "",
         bonus_reason: "",
         notes: "",
       }));
@@ -245,111 +245,55 @@ export const TransferReceptionForm = ({
                       )}
                     </div>
 
-                    {/* Campos en grid responsivo */}
-                    <div
-                      className={`grid gap-3 mb-3 ${
-                        isOrderedProduct || isServiceItem
-                          ? "grid-cols-2 md:grid-cols-3"
-                          : "grid-cols-1 md:grid-cols-3"
-                      }`}
-                    >
+                    {/* Campos en una sola fila en desktop, columna en móvil */}
+                    <div className="grid grid-cols-12 gap-3 mb-3 items-end">
                       {!isOrderedProduct && !isServiceItem && (
-                        <FormSelectAsync
-                          name={`details.${index}.product_id`}
-                          label="Producto *"
-                          placeholder="Buscar producto..."
-                          useQueryHook={useProduct}
-                          mapOptionFn={(product) => ({
-                            label: `${product.name} (${product.code})`,
-                            value: product.id.toString(),
-                          })}
-                          control={form.control}
-                          disabled={mode === "update"}
-                          perPage={20}
-                        />
+                        <div className="col-span-12 md:col-span-8">
+                          <FormSelectAsync
+                            name={`details.${index}.product_id`}
+                            label="Producto *"
+                            placeholder="Buscar producto..."
+                            useQueryHook={useProduct}
+                            mapOptionFn={(product) => ({
+                              label: `${product.name} (${product.code})`,
+                              value: product.id.toString(),
+                            })}
+                            control={form.control}
+                            disabled={mode === "update"}
+                            perPage={20}
+                          />
+                        </div>
                       )}
 
                       {(isOrderedProduct || isServiceItem) && transferItem && (
-                        <FormItem>
-                          <FormLabel className="text-xs font-medium">
-                            Cant. Enviada
-                          </FormLabel>
-                          <FormControl>
-                            <Input
-                              type="number"
-                              className="text-center bg-slate-100"
-                              value={transferItem.quantity}
-                              disabled
-                              readOnly
-                            />
-                          </FormControl>
-                        </FormItem>
-                      )}
-
-                      <FormField
-                        control={form.control}
-                        name={`details.${index}.quantity_received`}
-                        render={({ field }) => (
+                        <div className="col-span-12 md:col-span-2">
                           <FormItem>
                             <FormLabel className="text-xs font-medium">
-                              Cant. Recibida *
+                              Cant. Enviada
                             </FormLabel>
                             <FormControl>
                               <Input
                                 type="number"
-                                min="0"
-                                className="text-center"
-                                placeholder="0"
-                                disabled={mode === "update"}
-                                value={
-                                  typeof field.value === "number"
-                                    ? field.value
-                                    : ""
-                                }
-                                onChange={(e) => {
-                                  const num = parseFloat(e.target.value);
-                                  const newQuantityReceived = isNaN(num)
-                                    ? 0
-                                    : num;
-
-                                  // Si es ítem transferido (producto o servicio), calcular cantidad observada
-                                  if (isOrderedProduct && transferItem) {
-                                    const transferredQuantity =
-                                      transferItem.quantity;
-
-                                    // No permitir que la cantidad recibida supere la transferida
-                                    const finalQuantityReceived = Math.min(
-                                      newQuantityReceived,
-                                      transferredQuantity,
-                                    );
-                                    const observedQuantity =
-                                      transferredQuantity -
-                                      finalQuantityReceived;
-
-                                    field.onChange(finalQuantityReceived);
-                                    form.setValue(
-                                      `details.${index}.observed_quantity`,
-                                      observedQuantity,
-                                    );
-                                  } else {
-                                    field.onChange(newQuantityReceived);
-                                  }
-                                }}
+                                className="text-center bg-slate-100"
+                                value={transferItem.quantity}
+                                disabled
+                                readOnly
                               />
                             </FormControl>
-                            <FormMessage />
                           </FormItem>
-                        )}
-                      />
+                        </div>
+                      )}
 
-                      {isOrderedProduct && (
+                      <div
+                        className={`col-span-12 ${isOrderedProduct || isServiceItem ? "md:col-span-2" : "md:col-span-4"}`}
+                      >
                         <FormField
                           control={form.control}
-                          name={`details.${index}.observed_quantity`}
+                          name={`details.${index}.quantity_received`}
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel className="text-xs font-medium">
-                                Cant. Observada
+                                Cant. Recibida *
                               </FormLabel>
                               <FormControl>
                                 <Input
@@ -365,31 +309,31 @@ export const TransferReceptionForm = ({
                                   }
                                   onChange={(e) => {
                                     const num = parseFloat(e.target.value);
-                                    const newObservedQuantity = isNaN(num)
+                                    const newQuantityReceived = isNaN(num)
                                       ? 0
                                       : num;
 
-                                    // Si es ítem transferido (producto o servicio), calcular cantidad recibida
-                                    if (transferItem) {
+                                    // Si es ítem transferido (producto o servicio), calcular cantidad observada
+                                    if (isOrderedProduct && transferItem) {
                                       const transferredQuantity =
                                         transferItem.quantity;
 
-                                      // No permitir que la cantidad observada supere la transferida
-                                      const finalObservedQuantity = Math.min(
-                                        newObservedQuantity,
+                                      // No permitir que la cantidad recibida supere la transferida
+                                      const finalQuantityReceived = Math.min(
+                                        newQuantityReceived,
                                         transferredQuantity,
                                       );
-                                      const receivedQuantity =
+                                      const observedQuantity =
                                         transferredQuantity -
-                                        finalObservedQuantity;
+                                        finalQuantityReceived;
 
-                                      field.onChange(finalObservedQuantity);
+                                      field.onChange(finalQuantityReceived);
                                       form.setValue(
-                                        `details.${index}.quantity_received`,
-                                        receivedQuantity,
+                                        `details.${index}.observed_quantity`,
+                                        observedQuantity,
                                       );
                                     } else {
-                                      field.onChange(newObservedQuantity);
+                                      field.onChange(newQuantityReceived);
                                     }
                                   }}
                                 />
@@ -398,6 +342,92 @@ export const TransferReceptionForm = ({
                             </FormItem>
                           )}
                         />
+                      </div>
+
+                      {isOrderedProduct && (
+                        <div className="col-span-12 md:col-span-2">
+                          <FormField
+                            control={form.control}
+                            name={`details.${index}.observed_quantity`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-xs font-medium">
+                                  Cant. Observada
+                                </FormLabel>
+                                <FormControl>
+                                  <Input
+                                    type="number"
+                                    min="0"
+                                    className="text-center"
+                                    placeholder="0"
+                                    disabled={mode === "update"}
+                                    value={
+                                      typeof field.value === "number"
+                                        ? field.value
+                                        : ""
+                                    }
+                                    onChange={(e) => {
+                                      const num = parseFloat(e.target.value);
+                                      const newObservedQuantity = isNaN(num)
+                                        ? 0
+                                        : num;
+
+                                      // Si es ítem transferido (producto o servicio), calcular cantidad recibida
+                                      if (transferItem) {
+                                        const transferredQuantity =
+                                          transferItem.quantity;
+
+                                        // No permitir que la cantidad observada supere la transferida
+                                        const finalObservedQuantity = Math.min(
+                                          newObservedQuantity,
+                                          transferredQuantity,
+                                        );
+                                        const receivedQuantity =
+                                          transferredQuantity -
+                                          finalObservedQuantity;
+
+                                        field.onChange(finalObservedQuantity);
+                                        form.setValue(
+                                          `details.${index}.quantity_received`,
+                                          receivedQuantity,
+                                        );
+                                      } else {
+                                        field.onChange(newObservedQuantity);
+                                      }
+                                    }}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                      )}
+
+                      {/* Notas Adicionales con más espacio - solo para productos ordenados no servicios */}
+                      {isOrderedProduct && !isServiceItem && (
+                        <div className="col-span-12 md:col-span-6">
+                          <FormField
+                            control={form.control}
+                            name={`details.${index}.observation_notes`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-xs font-medium">
+                                  Notas Adicionales
+                                </FormLabel>
+                                <FormControl>
+                                  <Input
+                                    placeholder="Comentarios sobre este producto..."
+                                    disabled={mode === "update"}
+                                    {...field}
+                                    value={field.value || ""}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
                       )}
                     </div>
 
@@ -472,30 +502,6 @@ export const TransferReceptionForm = ({
                             {...field}
                             value={field.value || ""}
                           />
-                        )}
-                      />
-                    )}
-
-                    {/* Notas del producto - solo para productos (no servicios) */}
-                    {isOrderedProduct && !isServiceItem && (
-                      <FormField
-                        control={form.control}
-                        name={`details.${index}.observation_notes`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-xs font-medium">
-                              Notas Adicionales
-                            </FormLabel>
-                            <FormControl>
-                              <Input
-                                placeholder="Comentarios sobre este producto..."
-                                disabled={mode === "update"}
-                                {...field}
-                                value={field.value || ""}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
                         )}
                       />
                     )}

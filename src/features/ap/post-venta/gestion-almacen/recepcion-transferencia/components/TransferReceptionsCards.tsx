@@ -1,6 +1,12 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card.tsx";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card.tsx";
 import { Badge } from "@/components/ui/badge.tsx";
 import { TransferReceptionResource } from "@/features/ap/post-venta/gestion-almacen/recepcion-transferencia/lib/transferReception.interface.ts";
+import { translateStatus } from "@/features/ap/post-venta/gestion-almacen/recepcion-transferencia/lib/transferReception.constants.ts";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog.tsx";
@@ -89,7 +95,7 @@ export default function TransferReceptionsCards({
                   ) : (
                     <AlertCircle className="h-3 w-3" />
                   )}
-                  {reception.status}
+                  {translateStatus(reception.status)}
                 </Badge>
                 {hasObservations && (
                   <Badge

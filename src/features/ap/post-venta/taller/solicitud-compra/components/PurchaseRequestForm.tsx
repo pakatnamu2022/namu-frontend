@@ -3,7 +3,15 @@
 import { useState, useEffect, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Plus, Trash2, Package, Search, PackagePlus } from "lucide-react";
+import {
+  Plus,
+  Trash2,
+  Package,
+  Search,
+  PackagePlus,
+  Copy,
+  Check,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -79,6 +87,7 @@ export default function PurchaseRequestForm({
   const [isLoadingQuotations, setIsLoadingQuotations] = useState(false);
   const [isQuotationModalOpen, setIsQuotationModalOpen] = useState(false);
   const [isPartModalOpen, setIsPartModalOpen] = useState(false);
+  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
 
   // Obtener mis almacenes físicos de postventa
   const { data: warehouses = [], isLoading: isLoadingWarehouses } =
@@ -268,6 +277,16 @@ export default function PurchaseRequestForm({
 
   const handleSelectQuotation = (quotationId: string) => {
     form.setValue("ap_order_quotation_id", quotationId);
+  };
+
+  const handleCopyCode = async (code: string, index: number) => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopiedIndex(index);
+      setTimeout(() => setCopiedIndex(null), 2000);
+    } catch (err) {
+      console.error("Error al copiar:", err);
+    }
   };
 
   const getSelectedQuotationLabel = () => {
@@ -530,10 +549,33 @@ export default function PurchaseRequestForm({
                             {/* Vista Desktop */}
                             <div className="hidden md:grid grid-cols-12 gap-3 px-4 py-3 hover:bg-gray-50 transition-colors items-center">
                               <div className="col-span-2">
-                                <p className="text-sm font-medium text-gray-900 truncate">
-                                  {detail.product_code ||
-                                    `Producto #${detail.product_id}`}
-                                </p>
+                                <div className="flex items-center gap-1">
+                                  <p className="text-sm font-medium text-gray-900 truncate">
+                                    {detail.product_code ||
+                                      `Producto #${detail.product_id}`}
+                                  </p>
+                                  {detail.product_code && (
+                                    <Button
+                                      type="button"
+                                      variant="ghost"
+                                      size="icon"
+                                      className="h-5 w-5 hover:bg-blue-100 shrink-0"
+                                      onClick={() =>
+                                        handleCopyCode(
+                                          detail.product_code!,
+                                          index,
+                                        )
+                                      }
+                                      tooltip="Copiar código"
+                                    >
+                                      {copiedIndex === index ? (
+                                        <Check className="h-3 w-3 text-green-600" />
+                                      ) : (
+                                        <Copy className="h-3 w-3 text-primary" />
+                                      )}
+                                    </Button>
+                                  )}
+                                </div>
                               </div>
                               <div className="col-span-4">
                                 <p className="text-sm font-medium text-gray-900 truncate">
@@ -593,6 +635,32 @@ export default function PurchaseRequestForm({
                                     {detail.product_name ||
                                       `Producto #${detail.product_id}`}
                                   </p>
+                                  {detail.product_code && (
+                                    <div className="flex items-center gap-1 mt-1">
+                                      <span className="text-xs font-mono text-slate-700">
+                                        Código: {detail.product_code}
+                                      </span>
+                                      <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-5 w-5 hover:bg-blue-100"
+                                        onClick={() =>
+                                          handleCopyCode(
+                                            detail.product_code!,
+                                            index,
+                                          )
+                                        }
+                                        tooltip="Copiar código"
+                                      >
+                                        {copiedIndex === index ? (
+                                          <Check className="h-3 w-3 text-green-600" />
+                                        ) : (
+                                          <Copy className="h-3 w-3 text-primary" />
+                                        )}
+                                      </Button>
+                                    </div>
+                                  )}
                                 </div>
                                 <Button
                                   type="button"

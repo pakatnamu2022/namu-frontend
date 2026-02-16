@@ -190,7 +190,7 @@ function ProductDetailItem({
                       size="icon"
                       className="h-5 w-5 hover:bg-blue-100"
                       onClick={() => copyToClipboard(productData.code)}
-                      title="Copiar código"
+                      tooltip="Copiar código"
                     >
                       {isCopied ? (
                         <Check className="h-3 w-3 text-green-600" />
@@ -498,7 +498,7 @@ function ProductDetailItem({
                     size="icon"
                     className="h-5 w-5 hover:bg-blue-100"
                     onClick={() => copyToClipboard(productData.code)}
-                    title="Copiar código"
+                    tooltip="Copiar código"
                   >
                     {isCopied ? (
                       <Check className="h-3 w-3 text-green-600" />
