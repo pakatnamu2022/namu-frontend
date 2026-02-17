@@ -163,6 +163,7 @@ export default function CyclePersonDetailPage() {
   if (!currentView) notFound();
   if (!idCycle) notFound();
 
+
   return (
     <div className="space-y-4">
       <HeaderTableWrapper>
