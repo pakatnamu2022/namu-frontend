@@ -6,6 +6,7 @@ import type {
   EvaluationPersonResultResource,
   LeaderStatusEvaluationResponse,
   TeamMembersResponse,
+  RegeneratePreviewResponse,
 } from "./evaluationPerson.interface";
 import type { AxiosRequestConfig } from "axios";
 import type { MessageResponse } from "@/core/core.interface";
@@ -108,6 +109,16 @@ export async function updateEvaluationPersonCompetence(
   return data;
 }
 
+export async function getRegeneratePreview(
+  person_id: number,
+  evaluation_id: number,
+): Promise<RegeneratePreviewResponse> {
+  const { data } = await api.get<RegeneratePreviewResponse>(
+    `${ENDPOINT}/preview-regenerate/${person_id}/${evaluation_id}`,
+  );
+  return data;
+}
+
 export async function regenerateEvaluationPerson(
   person_id: number,
   evaluation_id: number,
@@ -118,6 +129,7 @@ export async function regenerateEvaluationPerson(
   );
   return data;
 }
+
 
 export async function deleteEvaluationPerson(
   id: number,
