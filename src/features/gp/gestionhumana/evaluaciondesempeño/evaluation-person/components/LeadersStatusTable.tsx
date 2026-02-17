@@ -1,10 +1,8 @@
 import { DataTable } from "@/shared/components/DataTable";
 import { LeaderStatusColumn } from "./LeadersStatusColumns";
-import type {
-  LeaderStatusEvaluationResource,
-} from "../lib/evaluationPerson.interface";
-import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
+import type { LeaderStatusEvaluationResource } from "../lib/evaluationPerson.interface";
+import FilterWrapper from "@/shared/components/FilterWrapper";
+import SearchInput from "@/shared/components/SearchInput";
 
 interface Props {
   columns: LeaderStatusColumn[];
@@ -35,20 +33,16 @@ export default function LeadersStatusTable({
           area: false,
         }}
       >
-        <div className="flex items-center gap-2">
+        <FilterWrapper>
           {setSearch && (
-            <div className="relative w-full max-w-sm">
-              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Buscar líder..."
-                value={search || ""}
-                onChange={(e) => setSearch(e.target.value)}
-                className="pl-8"
-              />
-            </div>
+            <SearchInput
+              onChange={setSearch}
+              placeholder="Buscar líder..."
+              value={search || ""}
+            />
           )}
           {children}
-        </div>
+        </FilterWrapper>
       </DataTable>
     </div>
   );

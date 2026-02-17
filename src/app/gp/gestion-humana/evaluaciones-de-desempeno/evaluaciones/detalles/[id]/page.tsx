@@ -103,7 +103,7 @@ export default function EvaluationDetailPage() {
       page: leadersPage,
       per_page: leadersPerPage,
       search: leadersSearch,
-    }
+    },
   );
 
   const handleDelete = async () => {
