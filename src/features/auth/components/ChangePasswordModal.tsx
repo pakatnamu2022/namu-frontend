@@ -198,7 +198,7 @@ export function ChangePasswordModal({
             )}
           />
 
-          <Alert variant="info">
+          <Alert>
             <AlertTitle>
               <Info className="inline h-4 w-4 mr-1 mb-1 shrink-0" />
               Importante
