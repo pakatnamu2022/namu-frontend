@@ -37,7 +37,7 @@ import { SheetShipmentDetailsDialog } from "@/features/ap/comercial/envios-recep
 import { notFound } from "@/shared/hooks/useNotFound";
 import { format } from "date-fns";
 
-export default function ShipmentsReceptionsPage() {
+export default function ControlUnitsPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
@@ -75,7 +75,7 @@ export default function ShipmentsReceptionsPage() {
     per_page,
     issue_date: [formattedDateFrom, formattedDateTo],
     area_id: AREA_COMERCIAL,
-    send_dynamics: 1,
+    send_dynamics: 0,
   });
 
   const handleDelete = async () => {

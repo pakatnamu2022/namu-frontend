@@ -90,7 +90,7 @@ export const ProductTransferForm = ({
     defaultValues: {
       ...defaultValues,
       item_type: defaultValues.item_type || "PRODUCTO",
-      issuer_type: defaultValues.issuer_type || "NOSOTROS",
+      issuer_type: defaultValues.issuer_type || "SYSTEM",
       transmitter_origin_id: defaultValues.transmitter_origin_id || "",
       receiver_destination_id: defaultValues.receiver_destination_id || "",
       details: defaultValues.details || [],

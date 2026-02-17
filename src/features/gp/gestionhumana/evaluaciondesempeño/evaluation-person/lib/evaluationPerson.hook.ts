@@ -5,10 +5,12 @@ import {
   getEvaluationPersonResultByPersonAndEvaluation,
   getEvaluationsByPersonToEvaluate,
   getLeadersStatus,
+  getTeamMembersByLeader,
 } from "./evaluationPerson.actions";
 import type {
   EvaluationPersonResultResource,
   LeaderStatusEvaluationResponse,
+  TeamMembersResponse,
 } from "./evaluationPerson.interface";
 
 const { QUERY_KEY } = EVALUATION_PERSON;
@@ -47,11 +49,29 @@ export const useEvaluationsByPersonToEvaluate = (
   });
 };
 
-export const useLeadersStatus = (evaluationId: number, enabled: boolean = true) => {
+export const useLeadersStatus = (
+  evaluationId: number,
+  enabled: boolean = true,
+  params?: Record<string, any>
+) => {
   return useQuery<LeaderStatusEvaluationResponse>({
-    queryKey: [QUERY_KEY, "leaders-status", evaluationId],
-    queryFn: () => getLeadersStatus(evaluationId),
+    queryKey: [QUERY_KEY, "leaders-status", evaluationId, params],
+    queryFn: () => getLeadersStatus(evaluationId, params),
     refetchOnWindowFocus: false,
     enabled: !!evaluationId && enabled,
+  });
+};
+
+export const useTeamMembersByLeader = (
+  evaluationId: number,
+  leaderId: number,
+  enabled: boolean = true,
+  params?: Record<string, any>
+) => {
+  return useQuery<TeamMembersResponse>({
+    queryKey: [QUERY_KEY, "team-members", evaluationId, leaderId, params],
+    queryFn: () => getTeamMembersByLeader(evaluationId, leaderId, params),
+    refetchOnWindowFocus: false,
+    enabled: !!evaluationId && !!leaderId && enabled,
   });
 };

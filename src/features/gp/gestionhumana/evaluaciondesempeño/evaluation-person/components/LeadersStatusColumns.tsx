@@ -3,7 +3,7 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Bell } from "lucide-react";
+import { Bell, Users } from "lucide-react";
 import { useState } from "react";
 import {
   AlertDialog,
@@ -15,15 +15,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import type { Leader } from "../lib/evaluationPerson.interface";
-import {
-  getProgressColorBadge,
-  getResultRateColorBadge,
-} from "../lib/evaluationPerson.function";
+import type { LeaderStatusEvaluationResource } from "../lib/evaluationPerson.interface";
+import { getResultRateColorBadge } from "../lib/evaluationPerson.function";
 import { sendReminderToLeader } from "../lib/evaluationPerson.actions";
 import { errorToast, successToast } from "@/core/core.function";
+import TeamMembersModal from "./TeamMembersModal";
 
-export type LeaderStatusColumn = ColumnDef<Leader>;
+export type LeaderStatusColumn = ColumnDef<LeaderStatusEvaluationResource>;
 
 export const LeadersStatusColumns = ({
   evaluationId,
@@ -58,87 +56,83 @@ export const LeadersStatusColumns = ({
     cell: ({ getValue }) => <span>{getValue() as string}</span>,
   },
   {
-    accessorKey: "team_info",
+    accessorKey: "team_evaluation_stats.total_team_members",
     header: "Subordinados",
     cell: ({ row }) => {
-      const teamInfo = row.original.team_info;
+      const count = row.original.team_evaluation_stats.total_team_members ?? 0;
+      const [showTeamModal, setShowTeamModal] = useState(false);
+
       return (
-        <div className="flex justify-center items-center">
-          <Badge color="sky">{teamInfo.subordinates_count}</Badge>
-        </div>
+        <>
+          <div className="flex justify-center items-center">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 gap-1.5"
+              onClick={() => setShowTeamModal(true)}
+            >
+              <Users className="size-4" />
+              <Badge color="sky">{count}</Badge>
+            </Button>
+          </div>
+
+          <TeamMembersModal
+            open={showTeamModal}
+            onOpenChange={setShowTeamModal}
+            evaluationId={evaluationId}
+            leaderId={row.original.person_id}
+            leaderName={row.original.name}
+          />
+        </>
       );
     },
   },
   {
-    accessorKey: "evaluation_status.progress_status_label",
-    header: "Estado",
+    accessorKey: "team_evaluation_stats.completion_percentage",
+    header: "Progreso General",
     cell: ({ row }) => {
-      const status = row.original.evaluation_status;
-      const colorMap: Record<string, "green" | "amber" | "orange" | "red" | "gray"> = {
-        completed: "green",
-        in_progress: "amber",
-        not_started: "gray",
-      };
+      const percentage =
+        row.original.team_evaluation_stats?.completion_percentage ?? 0;
+      const completed =
+        row.original.team_evaluation_stats?.completed_members ?? 0;
+      const total = row.original.team_evaluation_stats?.total_team_members ?? 0;
       return (
-        <div className="flex justify-center items-center">
-          <Badge color={colorMap[status.progress_status] || "gray"}>
-            {status.progress_status_label}
-          </Badge>
-        </div>
-      );
-    },
-  },
-  {
-    accessorKey: "evaluation_status.completion_percentage",
-    header: "Progreso",
-    cell: ({ row }) => {
-      const percentage = row.original.evaluation_status.completion_percentage;
-      return (
-        <div className="flex justify-center items-center">
-          <Badge color={getProgressColorBadge(percentage)}>
+        <div className="flex justify-center items-center gap-1">
+          <Badge color={getResultRateColorBadge(percentage)}>
             {percentage.toFixed(0)}%
           </Badge>
+          <Badge color="muted">
+            {completed}/{total}
+          </Badge>
         </div>
       );
     },
   },
   {
-    accessorKey: "evaluation_status.objectives_result",
+    accessorKey: "team_evaluation_stats.objectives_evaluated",
     header: "Objetivos",
     cell: ({ row }) => {
-      const result = row.original.evaluation_status.objectives_result;
+      const stats = row.original.team_evaluation_stats;
+      const evaluated = stats?.objectives_evaluated ?? 0;
       return (
-        <div className="flex justify-center items-center">
-          <Badge color={getResultRateColorBadge(result)}>
-            {result.toFixed(2)}%
+        <div className="flex justify-center items-center gap-1">
+          <Badge color="blue" className="text-xs">
+            {evaluated}
           </Badge>
         </div>
       );
     },
   },
   {
-    accessorKey: "evaluation_status.competences_result",
+    accessorKey: "team_evaluation_stats.competences_evaluated",
     header: "Competencias",
     cell: ({ row }) => {
-      const result = row.original.evaluation_status.competences_result;
+      const stats = row.original.team_evaluation_stats;
+      const evaluated = stats?.competences_evaluated ?? 0;
       return (
-        <div className="flex justify-center items-center">
-          <Badge color={getResultRateColorBadge(result)}>
-            {result.toFixed(2)}%
-          </Badge>
-        </div>
-      );
-    },
-  },
-  {
-    accessorKey: "evaluation_status.final_result",
-    header: "Resultado Final",
-    cell: ({ row }) => {
-      const result = row.original.evaluation_status.final_result;
-      return (
-        <div className="flex justify-center items-center">
-          <Badge color={getResultRateColorBadge(result)}>
-            {result.toFixed(2)}%
+        <div className="flex justify-center items-center gap-1">
+          <Badge color="purple" className="text-xs">
+            {evaluated}
           </Badge>
         </div>
       );
@@ -158,10 +152,12 @@ export const LeadersStatusColumns = ({
         setIsLoading(true);
         try {
           const response = await sendReminderToLeader(evaluationId, leaderId);
-          successToast(response.message ?? "Recordatorio enviado correctamente.");
+          successToast(
+            response.message ?? "Recordatorio enviado correctamente.",
+          );
         } catch (error: any) {
           errorToast(
-            error.response?.data?.message ?? "Error al enviar el recordatorio."
+            error.response?.data?.message ?? "Error al enviar el recordatorio.",
           );
         } finally {
           setIsLoading(false);
@@ -199,7 +195,10 @@ export const LeadersStatusColumns = ({
                 <AlertDialogCancel disabled={isLoading}>
                   Cancelar
                 </AlertDialogCancel>
-                <AlertDialogAction onClick={handleSendReminder} disabled={isLoading}>
+                <AlertDialogAction
+                  onClick={handleSendReminder}
+                  disabled={isLoading}
+                >
                   {isLoading ? "Enviando..." : "Enviar"}
                 </AlertDialogAction>
               </AlertDialogFooter>

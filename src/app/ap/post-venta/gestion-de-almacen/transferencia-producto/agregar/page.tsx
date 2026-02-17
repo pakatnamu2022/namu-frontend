@@ -59,7 +59,7 @@ export default function AddProductTransferPage() {
           license: "",
           plate: "",
           issue_date: "",
-          issuer_type: "NOSOTROS",
+          issuer_type: "SYSTEM",
           document_type: "GUIA_REMISION",
           transfer_reason_id: SUNAT_CONCEPTS_ID.TRANSFER_REASON_TRASLADO_SEDE,
           transfer_modality_id: "",

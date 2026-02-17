@@ -5,6 +5,7 @@ import type {
   EvaluationPersonResultByPersonAndEvaluationResponse,
   EvaluationPersonResultResource,
   LeaderStatusEvaluationResponse,
+  TeamMembersResponse,
 } from "./evaluationPerson.interface";
 import type { AxiosRequestConfig } from "axios";
 import type { MessageResponse } from "@/core/core.interface";
@@ -127,9 +128,23 @@ export async function deleteEvaluationPerson(
 
 export async function getLeadersStatus(
   evaluationId: number,
+  params?: Record<string, any>,
 ): Promise<LeaderStatusEvaluationResponse> {
   const { data } = await api.get<LeaderStatusEvaluationResponse>(
     `${ENDPOINT}/evaluation/${evaluationId}/leaders-status`,
+    { params },
+  );
+  return data;
+}
+
+export async function getTeamMembersByLeader(
+  evaluationId: number,
+  leaderId: number,
+  params?: Record<string, any>,
+): Promise<TeamMembersResponse> {
+  const { data } = await api.get<TeamMembersResponse>(
+    `${ENDPOINT}/evaluation/${evaluationId}/leader/${leaderId}/team-members`,
+    { params },
   );
   return data;
 }

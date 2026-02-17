@@ -33,6 +33,7 @@ import {
 import { useAllSunatConcepts } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.hook";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
+import { FormInput } from "@/shared/components/FormInput";
 
 interface ShippingGuideFormProps {
   defaultValues?: Partial<ShippingGuideSchema>;
@@ -269,10 +270,10 @@ export const ShippingGuideForm = ({
   }, [rucData, isPublicTransport]);
 
   const shouldDisableRucFields = Boolean(
-    rucData?.success && rucData.data && rucData.data.valid
+    rucData?.success && rucData.data && rucData.data.valid,
   );
   const shouldDisableLicenseFields = Boolean(
-    conductorDniData?.success && conductorDniData.data
+    conductorDniData?.success && conductorDniData.data,
   );
 
   if (isLoadingTypeTransportation) {
@@ -305,6 +306,36 @@ export const ShippingGuideForm = ({
             cols={{ sm: 1, md: 2 }}
             gap="gap-4"
           >
+            <FormInput
+              control={form.control}
+              name="driver_doc"
+              label={
+                <div className="flex items-center gap-2 relative">
+                  DNI del Conductor
+                  <DocumentValidationStatus
+                    shouldValidate={true}
+                    documentNumber={conductorDni || ""}
+                    expectedDigits={8}
+                    isValidating={isConductorDniLoading}
+                    leftPosition="right-0"
+                  />
+                </div>
+              }
+              placeholder="Ej: 12345678"
+              type="number"
+              maxLength={8}
+              addonEnd={
+                <ValidationIndicator
+                  show={!!conductorDni}
+                  isValidating={isConductorDniLoading}
+                  isValid={conductorDniData?.success && !!conductorDniData.data}
+                  hasError={
+                    !!conductorDniError ||
+                    (conductorDniData && !conductorDniData.success)
+                  }
+                />
+              }
+            />
             <FormField
               control={form.control}
               name="driver_doc"
