@@ -65,7 +65,9 @@ export default function PurchaseOrderWarehousePage() {
       </HeaderTableWrapper>
       <VehiclePurchaseOrderTable
         isLoading={isLoading}
-        columns={vehiclePurchaseOrderColumns()}
+        columns={vehiclePurchaseOrderColumns({
+          onRequestCreditNote: () => {}, // No se maneja en esta vista
+        })}
         data={data?.data || []}
       >
         <PurchaseOrderWarehouseOptions

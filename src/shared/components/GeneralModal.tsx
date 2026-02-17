@@ -15,6 +15,7 @@ import {
   Drawer,
   DrawerClose,
   DrawerContent,
+  DrawerDescription,
   DrawerFooter,
   DrawerHeader,
   DrawerTitle,
@@ -138,13 +139,16 @@ export function GeneralModal({
                 </div>
               )}
               <div className="flex flex-col items-start">
-                {title && <DrawerTitle>{title}</DrawerTitle>}
+                {title && (
+                  <DrawerTitle className="text-start">{title}</DrawerTitle>
+                )}
                 {subtitle && (
                   <p className="text-xs text-start text-muted-foreground">
                     {subtitle}
                   </p>
                 )}
               </div>
+              <DrawerDescription className="hidden" />
             </div>
             <DrawerClose onClick={onClose} />
           </DrawerHeader>
