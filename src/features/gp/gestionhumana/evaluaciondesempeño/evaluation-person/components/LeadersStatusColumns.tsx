@@ -15,18 +15,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import type { LeaderStatusEvaluationResource, Teammember } from "../lib/evaluationPerson.interface";
-import {
-  getProgressColorBadge,
-} from "../lib/evaluationPerson.function";
+import type { LeaderStatusEvaluationResource } from "../lib/evaluationPerson.interface";
+import { getResultRateColorBadge } from "../lib/evaluationPerson.function";
 import { sendReminderToLeader } from "../lib/evaluationPerson.actions";
 import { errorToast, successToast } from "@/core/core.function";
+import TeamMembersModal from "./TeamMembersModal";
 
 export type LeaderStatusColumn = ColumnDef<LeaderStatusEvaluationResource>;
 
@@ -66,9 +59,8 @@ export const LeadersStatusColumns = ({
     accessorKey: "team_evaluation_stats.total_team_members",
     header: "Subordinados",
     cell: ({ row }) => {
-      const count = row.original.team_members_count ?? 0;
-      const [showTeamDialog, setShowTeamDialog] = useState(false);
-      const teamMembers = row.original.team_members ?? [];
+      const count = row.original.team_evaluation_stats.total_team_members ?? 0;
+      const [showTeamModal, setShowTeamModal] = useState(false);
 
       return (
         <>
@@ -77,93 +69,20 @@ export const LeadersStatusColumns = ({
               variant="ghost"
               size="sm"
               className="h-7 gap-1.5"
-              onClick={() => setShowTeamDialog(true)}
+              onClick={() => setShowTeamModal(true)}
             >
               <Users className="size-4" />
               <Badge color="sky">{count}</Badge>
             </Button>
           </div>
 
-          <Dialog open={showTeamDialog} onOpenChange={setShowTeamDialog}>
-            <DialogContent className="max-w-5xl max-h-[80vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle>
-                  Miembros del Equipo - {row.original.name}
-                </DialogTitle>
-              </DialogHeader>
-              <div className="mt-4">
-                {teamMembers.length === 0 ? (
-                  <p className="text-center text-muted-foreground py-8">
-                    No hay miembros en el equipo
-                  </p>
-                ) : (
-                  <div className="space-y-4">
-                    {teamMembers.map((member: Teammember) => (
-                      <div
-                        key={member.id}
-                        className="border rounded-lg p-4 space-y-3"
-                      >
-                        <div className="flex items-start justify-between">
-                          <div className="space-y-1">
-                            <h4 className="font-semibold">{member.name}</h4>
-                            <div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
-                              <span>DNI: {member.dni}</span>
-                              <span>•</span>
-                              <span>{member.position}</span>
-                              <span>•</span>
-                              <span>{member.area}</span>
-                            </div>
-                          </div>
-                          <Badge
-                            color={
-                              member.evaluation_progress.progress_status === "completed"
-                                ? "green"
-                                : member.evaluation_progress.progress_status === "in_progress"
-                                ? "amber"
-                                : "gray"
-                            }
-                          >
-                            {member.evaluation_progress.progress_status_label}
-                          </Badge>
-                        </div>
-
-                        <div className="grid grid-cols-3 gap-4 pt-2 border-t">
-                          <div className="text-center">
-                            <p className="text-xs text-muted-foreground mb-1">
-                              Progreso
-                            </p>
-                            <Badge
-                              color={getProgressColorBadge(
-                                member.evaluation_progress.completion_percentage
-                              )}
-                            >
-                              {member.evaluation_progress.completion_percentage.toFixed(0)}%
-                            </Badge>
-                          </div>
-                          <div className="text-center">
-                            <p className="text-xs text-muted-foreground mb-1">
-                              Objetivos
-                            </p>
-                            <span className="font-semibold">
-                              {member.evaluation_results.objectives_result.toFixed(2)}
-                            </span>
-                          </div>
-                          <div className="text-center">
-                            <p className="text-xs text-muted-foreground mb-1">
-                              Competencias
-                            </p>
-                            <span className="font-semibold">
-                              {member.evaluation_results.competences_result.toFixed(2)}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </DialogContent>
-          </Dialog>
+          <TeamMembersModal
+            open={showTeamModal}
+            onOpenChange={setShowTeamModal}
+            evaluationId={evaluationId}
+            leaderId={row.original.person_id}
+            leaderName={row.original.name}
+          />
         </>
       );
     },
@@ -172,17 +91,19 @@ export const LeadersStatusColumns = ({
     accessorKey: "team_evaluation_stats.completion_percentage",
     header: "Progreso General",
     cell: ({ row }) => {
-      const percentage = row.original.team_evaluation_stats?.completion_percentage ?? 0;
-      const completed = row.original.team_evaluation_stats?.completed_members ?? 0;
+      const percentage =
+        row.original.team_evaluation_stats?.completion_percentage ?? 0;
+      const completed =
+        row.original.team_evaluation_stats?.completed_members ?? 0;
       const total = row.original.team_evaluation_stats?.total_team_members ?? 0;
       return (
-        <div className="flex flex-col justify-center items-center gap-1">
-          <Badge color={getProgressColorBadge(percentage)}>
+        <div className="flex justify-center items-center gap-1">
+          <Badge color={getResultRateColorBadge(percentage)}>
             {percentage.toFixed(0)}%
           </Badge>
-          <span className="text-xs text-muted-foreground">
+          <Badge color="muted">
             {completed}/{total}
-          </span>
+          </Badge>
         </div>
       );
     },
@@ -193,16 +114,11 @@ export const LeadersStatusColumns = ({
     cell: ({ row }) => {
       const stats = row.original.team_evaluation_stats;
       const evaluated = stats?.objectives_evaluated ?? 0;
-      const total = stats?.total_team_members ?? 0;
-      const percentage = total > 0 ? (evaluated / total) * 100 : 0;
       return (
-        <div className="flex flex-col justify-center items-center gap-1">
-          <Badge color={getProgressColorBadge(percentage)}>
-            {percentage.toFixed(0)}%
+        <div className="flex justify-center items-center gap-1">
+          <Badge color="blue" className="text-xs">
+            {evaluated}
           </Badge>
-          <span className="text-xs text-muted-foreground">
-            {evaluated}/{total}
-          </span>
         </div>
       );
     },
@@ -213,16 +129,11 @@ export const LeadersStatusColumns = ({
     cell: ({ row }) => {
       const stats = row.original.team_evaluation_stats;
       const evaluated = stats?.competences_evaluated ?? 0;
-      const total = stats?.total_team_members ?? 0;
-      const percentage = total > 0 ? (evaluated / total) * 100 : 0;
       return (
-        <div className="flex flex-col justify-center items-center gap-1">
-          <Badge color={getProgressColorBadge(percentage)}>
-            {percentage.toFixed(0)}%
+        <div className="flex justify-center items-center gap-1">
+          <Badge color="purple" className="text-xs">
+            {evaluated}
           </Badge>
-          <span className="text-xs text-muted-foreground">
-            {evaluated}/{total}
-          </span>
         </div>
       );
     },
@@ -241,10 +152,12 @@ export const LeadersStatusColumns = ({
         setIsLoading(true);
         try {
           const response = await sendReminderToLeader(evaluationId, leaderId);
-          successToast(response.message ?? "Recordatorio enviado correctamente.");
+          successToast(
+            response.message ?? "Recordatorio enviado correctamente.",
+          );
         } catch (error: any) {
           errorToast(
-            error.response?.data?.message ?? "Error al enviar el recordatorio."
+            error.response?.data?.message ?? "Error al enviar el recordatorio.",
           );
         } finally {
           setIsLoading(false);
@@ -282,7 +195,10 @@ export const LeadersStatusColumns = ({
                 <AlertDialogCancel disabled={isLoading}>
                   Cancelar
                 </AlertDialogCancel>
-                <AlertDialogAction onClick={handleSendReminder} disabled={isLoading}>
+                <AlertDialogAction
+                  onClick={handleSendReminder}
+                  disabled={isLoading}
+                >
                   {isLoading ? "Enviando..." : "Enviar"}
                 </AlertDialogAction>
               </AlertDialogFooter>

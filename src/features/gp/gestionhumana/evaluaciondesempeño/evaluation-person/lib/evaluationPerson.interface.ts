@@ -170,7 +170,6 @@ export interface LeaderStatusEvaluationResponse {
   data: LeaderStatusEvaluationResource[];
   links: Links;
   meta: Meta;
-  summary?: LeaderStatusSummary;
 }
 
 export interface LeaderStatusEvaluationResource {
@@ -182,39 +181,7 @@ export interface LeaderStatusEvaluationResource {
   sede: string;
   hierarchical_category: string;
   team_evaluation_stats: Teamevaluationstats;
-  team_members: Teammember[];
   team_members_count: number;
-}
-
-export interface Teammember {
-  id: number;
-  person_id: number;
-  name: string;
-  dni: string;
-  position: string;
-  area: string;
-  sede: string;
-  hierarchical_category: string;
-  evaluation_results: Evaluationresults;
-  evaluation_progress: Evaluationprogress;
-  has_objectives: number;
-  comments: null;
-  last_updated: string;
-}
-
-export interface Evaluationprogress {
-  is_completed: boolean;
-  completion_percentage: number;
-  progress_status: string;
-  progress_status_label: string;
-}
-
-export interface Evaluationresults {
-  objectives_result: number;
-  competences_result: number;
-  final_result: number;
-  objectives_percentage: string;
-  competences_percentage: string;
 }
 
 export interface Teamevaluationstats {
@@ -269,4 +236,54 @@ export interface LeaderStatusEvaluation {
   status: number;
   start_date: string;
   end_date: string;
+}
+
+// Team Members Response
+
+export interface TeamMembersResponse {
+  data: TeamMembersResource[];
+  links: Links;
+  meta: Meta;
+  leader: LeaderInfo;
+}
+
+export interface LeaderInfo {
+  person_id: number;
+  name: string;
+  dni: string;
+  position: string;
+  area: string;
+  sede: string;
+  hierarchical_category: string;
+}
+
+export interface TeamMembersResource {
+  id: number;
+  person_id: number;
+  name: string;
+  dni: string;
+  position: string;
+  area: string;
+  sede: string;
+  hierarchical_category: string;
+  evaluation_results: Evaluationresults;
+  evaluation_progress: Evaluationprogress;
+  has_objectives: number;
+  comments: null;
+  last_updated: string;
+}
+
+export interface Evaluationprogress {
+  is_completed: boolean;
+  completion_percentage: number;
+  progress_status: string;
+  progress_status_label: string;
+}
+
+export interface Evaluationresults {
+  objectives_result: number;
+  competences_result: number;
+  final_result: number;
+  objectives_percentage: string;
+  competences_percentage: string;
 }
