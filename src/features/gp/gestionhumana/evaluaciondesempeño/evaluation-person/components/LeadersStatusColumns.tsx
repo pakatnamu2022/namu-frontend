@@ -3,7 +3,7 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Bell } from "lucide-react";
+import { Bell, Users } from "lucide-react";
 import { useState } from "react";
 import {
   AlertDialog,
@@ -15,15 +15,20 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import type { Leader } from "../lib/evaluationPerson.interface";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import type { LeaderStatusEvaluationResource, Teammember } from "../lib/evaluationPerson.interface";
 import {
   getProgressColorBadge,
-  getResultRateColorBadge,
 } from "../lib/evaluationPerson.function";
 import { sendReminderToLeader } from "../lib/evaluationPerson.actions";
 import { errorToast, successToast } from "@/core/core.function";
 
-export type LeaderStatusColumn = ColumnDef<Leader>;
+export type LeaderStatusColumn = ColumnDef<LeaderStatusEvaluationResource>;
 
 export const LeadersStatusColumns = ({
   evaluationId,
@@ -58,88 +63,166 @@ export const LeadersStatusColumns = ({
     cell: ({ getValue }) => <span>{getValue() as string}</span>,
   },
   {
-    accessorKey: "team_info",
+    accessorKey: "team_evaluation_stats.total_team_members",
     header: "Subordinados",
     cell: ({ row }) => {
-      const teamInfo = row.original.team_info;
+      const count = row.original.team_members_count ?? 0;
+      const [showTeamDialog, setShowTeamDialog] = useState(false);
+      const teamMembers = row.original.team_members ?? [];
+
       return (
-        <div className="flex justify-center items-center">
-          <Badge color="sky">{teamInfo.subordinates_count}</Badge>
-        </div>
+        <>
+          <div className="flex justify-center items-center">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 gap-1.5"
+              onClick={() => setShowTeamDialog(true)}
+            >
+              <Users className="size-4" />
+              <Badge color="sky">{count}</Badge>
+            </Button>
+          </div>
+
+          <Dialog open={showTeamDialog} onOpenChange={setShowTeamDialog}>
+            <DialogContent className="max-w-5xl max-h-[80vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>
+                  Miembros del Equipo - {row.original.name}
+                </DialogTitle>
+              </DialogHeader>
+              <div className="mt-4">
+                {teamMembers.length === 0 ? (
+                  <p className="text-center text-muted-foreground py-8">
+                    No hay miembros en el equipo
+                  </p>
+                ) : (
+                  <div className="space-y-4">
+                    {teamMembers.map((member: Teammember) => (
+                      <div
+                        key={member.id}
+                        className="border rounded-lg p-4 space-y-3"
+                      >
+                        <div className="flex items-start justify-between">
+                          <div className="space-y-1">
+                            <h4 className="font-semibold">{member.name}</h4>
+                            <div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
+                              <span>DNI: {member.dni}</span>
+                              <span>•</span>
+                              <span>{member.position}</span>
+                              <span>•</span>
+                              <span>{member.area}</span>
+                            </div>
+                          </div>
+                          <Badge
+                            color={
+                              member.evaluation_progress.progress_status === "completed"
+                                ? "green"
+                                : member.evaluation_progress.progress_status === "in_progress"
+                                ? "amber"
+                                : "gray"
+                            }
+                          >
+                            {member.evaluation_progress.progress_status_label}
+                          </Badge>
+                        </div>
+
+                        <div className="grid grid-cols-3 gap-4 pt-2 border-t">
+                          <div className="text-center">
+                            <p className="text-xs text-muted-foreground mb-1">
+                              Progreso
+                            </p>
+                            <Badge
+                              color={getProgressColorBadge(
+                                member.evaluation_progress.completion_percentage
+                              )}
+                            >
+                              {member.evaluation_progress.completion_percentage.toFixed(0)}%
+                            </Badge>
+                          </div>
+                          <div className="text-center">
+                            <p className="text-xs text-muted-foreground mb-1">
+                              Objetivos
+                            </p>
+                            <span className="font-semibold">
+                              {member.evaluation_results.objectives_result.toFixed(2)}
+                            </span>
+                          </div>
+                          <div className="text-center">
+                            <p className="text-xs text-muted-foreground mb-1">
+                              Competencias
+                            </p>
+                            <span className="font-semibold">
+                              {member.evaluation_results.competences_result.toFixed(2)}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </DialogContent>
+          </Dialog>
+        </>
       );
     },
   },
   {
-    accessorKey: "evaluation_status.progress_status_label",
-    header: "Estado",
+    accessorKey: "team_evaluation_stats.completion_percentage",
+    header: "Progreso General",
     cell: ({ row }) => {
-      const status = row.original.evaluation_status;
-      const colorMap: Record<string, "green" | "amber" | "orange" | "red" | "gray"> = {
-        completed: "green",
-        in_progress: "amber",
-        not_started: "gray",
-      };
+      const percentage = row.original.team_evaluation_stats?.completion_percentage ?? 0;
+      const completed = row.original.team_evaluation_stats?.completed_members ?? 0;
+      const total = row.original.team_evaluation_stats?.total_team_members ?? 0;
       return (
-        <div className="flex justify-center items-center">
-          <Badge color={colorMap[status.progress_status] || "gray"}>
-            {status.progress_status_label}
-          </Badge>
-        </div>
-      );
-    },
-  },
-  {
-    accessorKey: "evaluation_status.completion_percentage",
-    header: "Progreso",
-    cell: ({ row }) => {
-      const percentage = row.original.evaluation_status.completion_percentage;
-      return (
-        <div className="flex justify-center items-center">
+        <div className="flex flex-col justify-center items-center gap-1">
           <Badge color={getProgressColorBadge(percentage)}>
             {percentage.toFixed(0)}%
           </Badge>
+          <span className="text-xs text-muted-foreground">
+            {completed}/{total}
+          </span>
         </div>
       );
     },
   },
   {
-    accessorKey: "evaluation_status.objectives_result",
+    accessorKey: "team_evaluation_stats.objectives_evaluated",
     header: "Objetivos",
     cell: ({ row }) => {
-      const result = row.original.evaluation_status.objectives_result;
+      const stats = row.original.team_evaluation_stats;
+      const evaluated = stats?.objectives_evaluated ?? 0;
+      const total = stats?.total_team_members ?? 0;
+      const percentage = total > 0 ? (evaluated / total) * 100 : 0;
       return (
-        <div className="flex justify-center items-center">
-          <Badge color={getResultRateColorBadge(result)}>
-            {result.toFixed(2)}%
+        <div className="flex flex-col justify-center items-center gap-1">
+          <Badge color={getProgressColorBadge(percentage)}>
+            {percentage.toFixed(0)}%
           </Badge>
+          <span className="text-xs text-muted-foreground">
+            {evaluated}/{total}
+          </span>
         </div>
       );
     },
   },
   {
-    accessorKey: "evaluation_status.competences_result",
+    accessorKey: "team_evaluation_stats.competences_evaluated",
     header: "Competencias",
     cell: ({ row }) => {
-      const result = row.original.evaluation_status.competences_result;
+      const stats = row.original.team_evaluation_stats;
+      const evaluated = stats?.competences_evaluated ?? 0;
+      const total = stats?.total_team_members ?? 0;
+      const percentage = total > 0 ? (evaluated / total) * 100 : 0;
       return (
-        <div className="flex justify-center items-center">
-          <Badge color={getResultRateColorBadge(result)}>
-            {result.toFixed(2)}%
+        <div className="flex flex-col justify-center items-center gap-1">
+          <Badge color={getProgressColorBadge(percentage)}>
+            {percentage.toFixed(0)}%
           </Badge>
-        </div>
-      );
-    },
-  },
-  {
-    accessorKey: "evaluation_status.final_result",
-    header: "Resultado Final",
-    cell: ({ row }) => {
-      const result = row.original.evaluation_status.final_result;
-      return (
-        <div className="flex justify-center items-center">
-          <Badge color={getResultRateColorBadge(result)}>
-            {result.toFixed(2)}%
-          </Badge>
+          <span className="text-xs text-muted-foreground">
+            {evaluated}/{total}
+          </span>
         </div>
       );
     },

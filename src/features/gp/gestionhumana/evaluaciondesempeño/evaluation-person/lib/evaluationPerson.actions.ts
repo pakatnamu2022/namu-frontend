@@ -127,9 +127,11 @@ export async function deleteEvaluationPerson(
 
 export async function getLeadersStatus(
   evaluationId: number,
+  params?: Record<string, any>,
 ): Promise<LeaderStatusEvaluationResponse> {
   const { data } = await api.get<LeaderStatusEvaluationResponse>(
     `${ENDPOINT}/evaluation/${evaluationId}/leaders-status`,
+    { params },
   );
   return data;
 }

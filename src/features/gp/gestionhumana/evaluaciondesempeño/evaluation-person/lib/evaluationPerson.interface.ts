@@ -167,9 +167,65 @@ export interface Evaluator {
 
 // Leader Status Interfaces
 export interface LeaderStatusEvaluationResponse {
-  evaluation: LeaderStatusEvaluation;
-  leaders: Leader[];
-  summary: LeaderStatusSummary;
+  data: LeaderStatusEvaluationResource[];
+  links: Links;
+  meta: Meta;
+  summary?: LeaderStatusSummary;
+}
+
+export interface LeaderStatusEvaluationResource {
+  person_id: number;
+  name: string;
+  dni: string;
+  position: string;
+  area: string;
+  sede: string;
+  hierarchical_category: string;
+  team_evaluation_stats: Teamevaluationstats;
+  team_members: Teammember[];
+  team_members_count: number;
+}
+
+export interface Teammember {
+  id: number;
+  person_id: number;
+  name: string;
+  dni: string;
+  position: string;
+  area: string;
+  sede: string;
+  hierarchical_category: string;
+  evaluation_results: Evaluationresults;
+  evaluation_progress: Evaluationprogress;
+  has_objectives: number;
+  comments: null;
+  last_updated: string;
+}
+
+export interface Evaluationprogress {
+  is_completed: boolean;
+  completion_percentage: number;
+  progress_status: string;
+  progress_status_label: string;
+}
+
+export interface Evaluationresults {
+  objectives_result: number;
+  competences_result: number;
+  final_result: number;
+  objectives_percentage: string;
+  competences_percentage: string;
+}
+
+export interface Teamevaluationstats {
+  total_team_members: number;
+  completed_members: number;
+  in_progress_members: number;
+  not_started_members: number;
+  objectives_evaluated: number;
+  competences_evaluated: number;
+  completion_percentage: number;
+  evaluation_progress_percentage: number;
 }
 
 export interface LeaderStatusSummary {
