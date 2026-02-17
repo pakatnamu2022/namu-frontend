@@ -62,77 +62,101 @@ export default function TeamMembersModal({
       {isLoading ? (
         <FormSkeleton />
       ) : (
-        <div className="space-y-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {teamMembers.map((member) => (
             <div
               key={member.id}
-              className="border rounded-lg p-4 space-y-3 hover:bg-muted/30 transition-colors"
+              className="border rounded-lg overflow-hidden hover:shadow-md transition-all"
             >
-              <div className="flex items-start justify-between gap-4">
-                <div className="space-y-1 flex-1">
-                  <h4 className="font-semibold text-base">{member.name}</h4>
-                  <div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
-                    <span>DNI: {member.dni}</span>
-                    <span>•</span>
-                    <span>{member.position}</span>
-                    <span>•</span>
-                    <span>{member.area}</span>
+              {/* Header Section */}
+              <div className="bg-muted/50 px-6 py-4 border-b">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="space-y-2 flex-1 min-w-0">
+                    <h4 className="font-semibold text-lg leading-tight">
+                      {member.name}
+                    </h4>
+                    <div className="flex flex-wrap gap-x-3 gap-y-1 text-sm text-muted-foreground">
+                      <span className="font-medium">DNI:</span>
+                      <span>{member.dni}</span>
+                    </div>
                   </div>
-                </div>
-                <Badge
-                  color={
-                    member.evaluation_progress.progress_status === "completado"
-                      ? "green"
-                      : member.evaluation_progress.progress_status ===
-                          "in_progress"
-                        ? "amber"
-                        : "gray"
-                  }
-                >
-                  {member.evaluation_progress.progress_status_label}
-                </Badge>
-              </div>
-
-              <div className="grid grid-cols-3 gap-4 pt-2 border-t">
-                <div className="text-center">
-                  <p className="text-xs text-muted-foreground mb-1.5">
-                    Progreso
-                  </p>
                   <Badge
-                    color={getProgressColorBadge(
-                      member.evaluation_progress.completion_percentage,
-                    )}
+                    className="shrink-0"
+                    color={
+                      member.evaluation_progress.progress_status === "completado"
+                        ? "green"
+                        : member.evaluation_progress.progress_status ===
+                            "en_proceso"
+                          ? "amber"
+                          : "red"
+                    }
                   >
-                    {member.evaluation_progress.completion_percentage.toFixed(
-                      0,
-                    )}
-                    %
+                    {member.evaluation_progress.progress_status_label}
                   </Badge>
                 </div>
-                <div className="text-center">
-                  <p className="text-xs text-muted-foreground mb-1.5">
-                    Objetivos
-                  </p>
-                  <div className="space-y-0.5">
-                    <p className="font-semibold text-base">
-                      {member.evaluation_results.objectives_result.toFixed(2)}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {member.evaluation_results.objectives_percentage}%
-                    </p>
+              </div>
+
+              {/* Info Section */}
+              <div className="px-6 py-3 bg-background">
+                <div className="flex flex-wrap gap-2 text-sm">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-muted-foreground">Cargo:</span>
+                    <span className="font-medium">{member.position}</span>
+                  </div>
+                  <span className="text-muted-foreground">•</span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-muted-foreground">Área:</span>
+                    <span className="font-medium">{member.area}</span>
                   </div>
                 </div>
-                <div className="text-center">
-                  <p className="text-xs text-muted-foreground mb-1.5">
-                    Competencias
-                  </p>
-                  <div className="space-y-0.5">
-                    <p className="font-semibold text-base">
-                      {member.evaluation_results.competences_result.toFixed(2)}
+              </div>
+
+              {/* Metrics Section */}
+              <div className="px-6 py-5 bg-background border-t">
+                <div className="grid grid-cols-3 gap-6">
+                  <div className="text-center space-y-2.5">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                      Progreso
                     </p>
-                    <p className="text-xs text-muted-foreground">
-                      {member.evaluation_results.competences_percentage}%
+                    <Badge
+                      className="text-base px-3 py-1"
+                      color={getProgressColorBadge(
+                        member.evaluation_progress.completion_percentage,
+                      )}
+                    >
+                      {member.evaluation_progress.completion_percentage.toFixed(
+                        0,
+                      )}
+                      %
+                    </Badge>
+                  </div>
+
+                  <div className="text-center space-y-2.5 border-x px-2">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                      Objetivos
                     </p>
+                    <div className="space-y-1">
+                      <p className="font-bold text-xl leading-none">
+                        {member.evaluation_results.objectives_result.toFixed(2)}
+                      </p>
+                      <p className="text-xs font-medium text-muted-foreground">
+                        Peso: {member.evaluation_results.objectives_percentage}%
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="text-center space-y-2.5">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                      Competencias
+                    </p>
+                    <div className="space-y-1">
+                      <p className="font-bold text-xl leading-none">
+                        {member.evaluation_results.competences_result.toFixed(2)}
+                      </p>
+                      <p className="text-xs font-medium text-muted-foreground">
+                        Peso: {member.evaluation_results.competences_percentage}%
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
