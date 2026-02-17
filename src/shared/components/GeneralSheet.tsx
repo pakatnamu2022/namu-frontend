@@ -101,7 +101,7 @@ const GeneralSheet: React.FC<GeneralSheetProps> = ({
       <Sheet open={open} onOpenChange={(v) => !v && onClose()} modal={modal}>
         <SheetContent
           side={side}
-          className={cn(sizes[size], className, "rounded-tl-xl rounded-bl-xl")}
+          className={cn(sizes[size], className, "rounded-tl-xl rounded-bl-xl gap-0")}
         >
           <SheetHeader>
             <div className="flex items-center gap-2">

@@ -7,6 +7,7 @@ import type {
   LeaderStatusEvaluationResponse,
   TeamMembersResponse,
   RegeneratePreviewResponse,
+  RegenerateEvaluationPreviewResponse,
 } from "./evaluationPerson.interface";
 import type { AxiosRequestConfig } from "axios";
 import type { MessageResponse } from "@/core/core.interface";
@@ -115,6 +116,27 @@ export async function getRegeneratePreview(
 ): Promise<RegeneratePreviewResponse> {
   const { data } = await api.get<RegeneratePreviewResponse>(
     `${ENDPOINT}/preview-regenerate/${person_id}/${evaluation_id}`,
+  );
+  return data;
+}
+
+export async function getRegenerateEvaluationPreview(
+  evaluation_id: number,
+  params?: {
+    mode?: string;
+    reset_progress?: boolean;
+    force?: boolean;
+  },
+): Promise<RegenerateEvaluationPreviewResponse> {
+  const { data } = await api.get<RegenerateEvaluationPreviewResponse>(
+    `/gp/gh/performanceEvaluation/evaluation/${evaluation_id}/preview-regenerate`,
+    {
+      params: {
+        mode: params?.mode || "sync_with_cycle",
+        reset_progress: params?.reset_progress || false,
+        force: params?.force || false,
+      },
+    },
   );
   return data;
 }

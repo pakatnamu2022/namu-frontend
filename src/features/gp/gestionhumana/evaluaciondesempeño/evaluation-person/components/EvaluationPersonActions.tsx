@@ -34,6 +34,7 @@ export default function EvaluationPersonActions({
         </Button>
       </Link>
       <RegenerateEvaluationSheet
+        evaluationId={idEvaluation!}
         onRegenerate={handleRegenerate}
         loadingRegenerate={loadingRegenerate}
       />
