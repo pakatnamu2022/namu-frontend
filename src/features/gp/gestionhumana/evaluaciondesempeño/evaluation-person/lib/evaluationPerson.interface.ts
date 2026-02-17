@@ -313,3 +313,85 @@ export interface RegenerateChanges {
   person_cycle_details: number;
   competence_details?: number;
 }
+
+// Regenerate Evaluation Preview Interfaces
+export interface RegenerateEvaluationPreviewResponse {
+  evaluation: RegenerateEvaluation;
+  parameters: RegenerateParameters;
+  current_state: RegenerateCurrentState;
+  cycle_analysis: CycleAnalysis;
+  validations: string[];
+  warnings: string[];
+  errors: string[];
+  will_execute: boolean;
+  affected_persons: AffectedPersons;
+}
+
+export interface RegenerateEvaluation {
+  id: number;
+  name: string;
+  cycle_id: number;
+  type: number;
+}
+
+export interface RegenerateParameters {
+  mode: string;
+  reset_progress: boolean | string;
+  force: boolean | string;
+}
+
+export interface RegenerateCurrentState {
+  total_persons: number;
+  statistics: RegenerateStatistics;
+}
+
+export interface RegenerateStatistics {
+  person_results: number;
+  competence_details: number;
+  evaluation_persons: number;
+  dashboards: number;
+}
+
+export interface CycleAnalysis {
+  expected_persons_in_cycle: number;
+  changes_detected: boolean;
+  persons_to_add_count: number;
+  persons_to_remove_count: number;
+}
+
+export interface AffectedPersons {
+  mode: string;
+  description: string;
+  impact: string;
+  summary: AffectedPersonsSummary;
+  persons_to_remove?: PersonAffected[];
+  persons_to_add?: PersonToAdd[];
+  warnings: string[];
+}
+
+export interface AffectedPersonsSummary {
+  total_will_remove?: number;
+  total_will_add: number;
+  total_will_keep?: number;
+  will_reset_progress?: boolean;
+  persons_with_progress_lost?: number;
+  no_deletions?: boolean;
+  no_modifications?: boolean;
+}
+
+export interface PersonAffected {
+  person_id: number;
+  name: string;
+  dni: string;
+  position: string;
+  area: string;
+  sede: string;
+  hierarchical_category: string;
+  reason: string;
+}
+
+export interface PersonToAdd extends PersonAffected {
+  will_have?: {
+    objectives: number;
+  };
+}
