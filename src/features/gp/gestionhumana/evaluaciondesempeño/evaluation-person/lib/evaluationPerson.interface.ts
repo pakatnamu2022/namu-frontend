@@ -287,3 +287,29 @@ export interface Evaluationresults {
   objectives_percentage: string;
   competences_percentage: string;
 }
+
+// Regenerate Preview Interfaces
+export interface RegeneratePreviewResponse {
+  person: RegeneratePreviewPerson;
+  validations: string[];
+  warnings: string[];
+  errors: string[];
+  can_regenerate: boolean;
+  what_will_be_deleted: RegenerateChanges;
+  what_will_be_created: RegenerateChanges;
+}
+
+export interface RegeneratePreviewPerson {
+  id: number;
+  name: string;
+  dni: string;
+  position: string;
+  hierarchical_category: string;
+}
+
+export interface RegenerateChanges {
+  competences: number;
+  evaluation_persons: number;
+  person_cycle_details: number;
+  competence_details?: number;
+}
