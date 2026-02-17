@@ -21,7 +21,7 @@ export interface PurchaseRequestResource {
   observations: string | null;
   status: string;
   status_color?: string;
-  supplier_order_numbers: string;
+  supplier_order_numbers: [];
   created_at: string;
   updated_at: string;
   supply_type: "STOCK" | "LIMA" | "IMPORTACION";

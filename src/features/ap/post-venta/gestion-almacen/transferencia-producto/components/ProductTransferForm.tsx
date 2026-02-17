@@ -539,7 +539,7 @@ export const ProductTransferForm = ({
           <DatePickerFormField
             control={form.control}
             name="movement_date"
-            label="Fecha de Movimiento"
+            label="Fecha de Emisión"
             disabledRange={{ before: new Date() }}
           />
 

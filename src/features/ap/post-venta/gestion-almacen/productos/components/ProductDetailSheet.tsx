@@ -117,9 +117,7 @@ export default function ProductDetailSheet({
                     <div className="flex items-center gap-2">
                       {product.brand.logo_min && (
                         <img
-                          src={`${
-                            import.meta.env.VITE_API_BASE_URL
-                          }/storage/${product.brand.logo_min}`}
+                          src={product.brand.logo_min}
                           alt={product.brand.name}
                           className="h-8 w-8 object-contain"
                         />

@@ -39,7 +39,7 @@ export default function AddHotelReservationPage() {
       }
 
       return createHotelReservation(requestId, {
-        hotel_agreement_id: data.hotel_agreement_id || null,
+        hotel_agreement_id: Number(data.hotel_agreement_id) || null,
         hotel_name: data.hotel_name,
         address: data.address,
         phone: data.phone,

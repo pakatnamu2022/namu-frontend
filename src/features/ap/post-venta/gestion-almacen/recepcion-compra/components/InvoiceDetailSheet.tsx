@@ -2,8 +2,17 @@ import GeneralSheet from "@/shared/components/GeneralSheet.tsx";
 import { VehiclePurchaseOrderResource } from "@/features/ap/comercial/ordenes-compra-vehiculo/lib/vehiclePurchaseOrder.interface.ts";
 import { formatDate } from "@/core/core.function.ts";
 import { Badge } from "@/components/ui/badge.tsx";
-import { Calendar, DollarSign, FileText, Package } from "lucide-react";
+import {
+  Calendar,
+  DollarSign,
+  FileText,
+  Package,
+  Copy,
+  Check,
+} from "lucide-react";
 import { PAYMENT_TERMS_OPTIONS } from "../lib/purchaseOrderProducts.constants";
+import { Button } from "@/components/ui/button.tsx";
+import { useState } from "react";
 
 interface InvoiceDetailSheetProps {
   open: boolean;
@@ -16,10 +25,33 @@ export function InvoiceDetailSheet({
   onClose,
   invoice,
 }: InvoiceDetailSheetProps) {
+  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+  const [copiedField, setCopiedField] = useState<string | null>(null);
+
   const getPaymentTermsLabel = (value: string | undefined | null) => {
     if (!value) return "N/A";
     const option = PAYMENT_TERMS_OPTIONS.find((opt) => opt.value === value);
     return option ? option.label : value;
+  };
+
+  const handleCopyCode = async (
+    code: string,
+    field: string,
+    index?: number,
+  ) => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopiedField(field);
+      if (index !== undefined) {
+        setCopiedIndex(index);
+      }
+      setTimeout(() => {
+        setCopiedField(null);
+        setCopiedIndex(null);
+      }, 2000);
+    } catch (err) {
+      console.error("Error al copiar:", err);
+    }
   };
 
   return (
@@ -43,17 +75,51 @@ export function InvoiceDetailSheet({
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <div className="space-y-1">
               <p className="text-xs text-muted-foreground font-medium">Serie</p>
-              <p className="text-sm font-semibold text-foreground">
-                {invoice.invoice_series}
-              </p>
+              <div className="flex items-center gap-2">
+                <p className="text-sm font-semibold text-foreground">
+                  {invoice.invoice_series}
+                </p>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 w-6 p-0 hover:bg-slate-200"
+                  onClick={() =>
+                    handleCopyCode(invoice.invoice_series, "invoice_series")
+                  }
+                >
+                  {copiedField === "invoice_series" ? (
+                    <Check className="h-3 w-3 text-green-600" />
+                  ) : (
+                    <Copy className="h-3 w-3" />
+                  )}
+                </Button>
+              </div>
             </div>
             <div className="space-y-1">
               <p className="text-xs text-muted-foreground font-medium">
                 Número
               </p>
-              <p className="text-sm font-semibold text-foreground">
-                {invoice.invoice_number}
-              </p>
+              <div className="flex items-center gap-2">
+                <p className="text-sm font-semibold text-foreground">
+                  {invoice.invoice_number}
+                </p>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 w-6 p-0 hover:bg-slate-200"
+                  onClick={() =>
+                    handleCopyCode(invoice.invoice_number, "invoice_number")
+                  }
+                >
+                  {copiedField === "invoice_number" ? (
+                    <Check className="h-3 w-3 text-green-600" />
+                  ) : (
+                    <Copy className="h-3 w-3" />
+                  )}
+                </Button>
+              </div>
             </div>
             <div className="space-y-1">
               <p className="text-xs text-muted-foreground font-medium flex items-center gap-1">
@@ -77,13 +143,45 @@ export function InvoiceDetailSheet({
               <p className="text-xs text-muted-foreground font-medium">
                 Orden de Compra
               </p>
-              <Badge variant="outline">{invoice.number}</Badge>
+              <div className="flex items-center gap-2">
+                <Badge variant="outline">{invoice.number}</Badge>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 w-6 p-0 hover:bg-slate-200"
+                  onClick={() => handleCopyCode(invoice.number, "order_number")}
+                >
+                  {copiedField === "order_number" ? (
+                    <Check className="h-3 w-3 text-green-600" />
+                  ) : (
+                    <Copy className="h-3 w-3" />
+                  )}
+                </Button>
+              </div>
             </div>
             <div className="space-y-1">
               <p className="text-xs text-muted-foreground font-medium">
                 Guía de Remisión
               </p>
-              <Badge variant="outline">{invoice.number_guide}</Badge>
+              <div className="flex items-center gap-2">
+                <Badge variant="outline">{invoice.number_guide}</Badge>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 w-6 p-0 hover:bg-slate-200"
+                  onClick={() =>
+                    handleCopyCode(invoice.number_guide, "guide_number")
+                  }
+                >
+                  {copiedField === "guide_number" ? (
+                    <Check className="h-3 w-3 text-green-600" />
+                  ) : (
+                    <Copy className="h-3 w-3" />
+                  )}
+                </Button>
+              </div>
             </div>
             <div className="space-y-1">
               <p className="text-xs text-muted-foreground font-medium">
@@ -125,9 +223,26 @@ export function InvoiceDetailSheet({
             </div>
             <div className="space-y-1">
               <p className="text-xs text-muted-foreground font-medium">RUC</p>
-              <p className="text-sm font-semibold text-foreground">
-                {invoice.supplier_num_doc}
-              </p>
+              <div className="flex items-center gap-2">
+                <p className="text-sm font-semibold text-foreground">
+                  {invoice.supplier_num_doc}
+                </p>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 w-6 p-0 hover:bg-slate-200"
+                  onClick={() =>
+                    handleCopyCode(invoice.supplier_num_doc, "supplier_ruc")
+                  }
+                >
+                  {copiedField === "supplier_ruc" ? (
+                    <Check className="h-3 w-3 text-green-600" />
+                  ) : (
+                    <Copy className="h-3 w-3" />
+                  )}
+                </Button>
+              </div>
             </div>
             <div className="space-y-1">
               <p className="text-xs text-muted-foreground font-medium">Sede</p>
@@ -180,7 +295,31 @@ export function InvoiceDetailSheet({
                     <tr key={item.id || index} className="border-b">
                       <td className="py-2 px-3 text-sm">{index + 1}</td>
                       <td className="py-2 px-3 text-sm">
-                        {item.product_code || "N/A"}
+                        <div className="flex items-center gap-1">
+                          <span>{item.product_code || "N/A"}</span>
+                          {item.product_code && (
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              className="h-5 w-5 p-0 hover:bg-slate-200"
+                              onClick={() =>
+                                handleCopyCode(
+                                  item.product_code,
+                                  "product_code",
+                                  index,
+                                )
+                              }
+                            >
+                              {copiedIndex === index &&
+                              copiedField === "product_code" ? (
+                                <Check className="h-3 w-3 text-green-600" />
+                              ) : (
+                                <Copy className="h-3 w-3" />
+                              )}
+                            </Button>
+                          )}
+                        </div>
                       </td>
                       <td className="py-2 px-3 text-sm">
                         <div>
