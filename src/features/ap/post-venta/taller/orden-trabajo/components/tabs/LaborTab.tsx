@@ -32,6 +32,7 @@ import { findWorkOrderById } from "../../lib/workOrder.actions";
 import { useQuery } from "@tanstack/react-query";
 import { useGetConsolidatedWorkers } from "../../../planificacion-orden-trabajo/lib/workOrderPlanning.hook";
 import { CURRENCY_TYPE_IDS } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.constants";
+import { ITEM_TYPE_LABOR } from "../../../cotizacion-detalle/lib/proformaDetails.constants";
 
 interface LaborTabProps {
   workOrderId: number;
@@ -62,7 +63,7 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
   const laborItems = useMemo(() => {
     if (!associatedQuotation?.details) return [];
     return associatedQuotation.details.filter(
-      (detail: any) => detail.item_type === "LABOR",
+      (detail: any) => detail.item_type === ITEM_TYPE_LABOR,
     );
   }, [associatedQuotation]);
 

@@ -44,6 +44,7 @@ import { QuotationSelectionModal } from "../../cotizacion/components/QuotationSe
 import { errorToast } from "@/core/core.function";
 import { FormInputText } from "@/shared/components/FormInputText";
 import QuotationPartModal from "@/features/ap/post-venta/repuestos/cotizacion-meson/components/QuotationPartModal";
+import { ITEM_TYPE_PRODUCT } from "../../cotizacion-detalle/lib/proformaDetails.constants";
 
 const onSelectSupplyType = [
   { label: "Lima", value: "LIMA" },
@@ -181,7 +182,7 @@ export default function PurchaseRequestForm({
 
       // Filtrar solo los productos (item_type = "PRODUCT")
       const productDetails = selectedQuotation.details.filter(
-        (detail) => detail.item_type === "PRODUCT",
+        (detail) => detail.item_type === ITEM_TYPE_PRODUCT,
       );
 
       // Mapear a PurchaseRequestDetailSchema

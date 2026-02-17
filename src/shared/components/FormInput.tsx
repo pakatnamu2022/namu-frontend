@@ -58,12 +58,30 @@ export function FormInput({
       if (onChange) {
         if (isNumberType) {
           const val = e.target.value;
+          let numValue = val === "" ? "" : Number(val);
+
+          // Aplicar límites min/max si están definidos
+          if (typeof numValue === "number" && !isNaN(numValue)) {
+            if (
+              inputProps.max !== undefined &&
+              numValue > Number(inputProps.max)
+            ) {
+              numValue = Number(inputProps.max);
+            }
+            if (
+              inputProps.min !== undefined &&
+              numValue < Number(inputProps.min)
+            ) {
+              numValue = Number(inputProps.min);
+            }
+          }
+
           // Crear un evento sintético con el valor numérico
           const syntheticEvent = {
             ...e,
             target: {
               ...e.target,
-              value: val === "" ? "" : Number(val),
+              value: numValue,
             },
           } as React.ChangeEvent<HTMLInputElement>;
           onChange(syntheticEvent);
@@ -141,8 +159,25 @@ export function FormInput({
         const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
           if (isNumberType) {
             const val = e.target.value;
-            // Permitir string vacío temporalmente
-            field.onChange(val === "" ? "" : Number(val));
+            let numValue = val === "" ? "" : Number(val);
+
+            // Aplicar límites min/max si están definidos
+            if (typeof numValue === "number" && !isNaN(numValue)) {
+              if (
+                inputProps.max !== undefined &&
+                numValue > Number(inputProps.max)
+              ) {
+                numValue = Number(inputProps.max);
+              }
+              if (
+                inputProps.min !== undefined &&
+                numValue < Number(inputProps.min)
+              ) {
+                numValue = Number(inputProps.min);
+              }
+            }
+
+            field.onChange(numValue);
           } else {
             field.onChange(e);
           }

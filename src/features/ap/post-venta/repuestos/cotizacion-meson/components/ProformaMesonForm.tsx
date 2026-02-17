@@ -57,6 +57,7 @@ import { VehicleResource } from "@/features/ap/comercial/vehiculos/lib/vehicles.
 import { VEHICLES_RP } from "@/features/ap/comercial/vehiculos/lib/vehicles.constants";
 import { FormInputText } from "@/shared/components/FormInputText";
 import { AREA_MESON } from "@/features/ap/ap-master/lib/apMaster.constants";
+import { ITEM_TYPE_PRODUCT } from "../../../taller/cotizacion-detalle/lib/proformaDetails.constants";
 
 const onSelectSupplyType = [
   { label: "Stock", value: "STOCK" },
@@ -1223,7 +1224,7 @@ export default function ProformaMesonForm({
                 {fields.map((field, index) => {
                   // Buscar el detalle original para obtener el defaultOption del producto
                   const originalDetail = quotationData?.details?.filter(
-                    (d) => d.item_type === "PRODUCT",
+                    (d) => d.item_type === ITEM_TYPE_PRODUCT,
                   )[index];
                   const defaultProductOption = originalDetail?.product
                     ? {

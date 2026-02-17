@@ -28,11 +28,11 @@ import { useOrderQuotations } from "@/features/ap/post-venta/taller/cotizacion/l
 import OrderQuotationMesonTable from "@/features/ap/post-venta/repuestos/cotizacion-meson/components/ProformaMesonTable";
 import OrderQuotationMesonActions from "@/features/ap/post-venta/repuestos/cotizacion-meson/components/ProformaMesonActions";
 import OrderQuotationMesonOptions from "@/features/ap/post-venta/repuestos/cotizacion-meson/components/ProformaMesonOptions";
-import { orderQuotationMesonColumns } from "@/features/ap/post-venta/repuestos/cotizacion-meson/components/ProformaMesonColumns";
 import { OrderQuotationBillingSheet } from "@/features/ap/post-venta/repuestos/cotizacion-meson/components/OrderQuotationBillingSheet";
 import { OrderQuotationDeliverySheet } from "@/features/ap/post-venta/repuestos/cotizacion-meson/components/OrderQuotationDeliverySheet";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import { AREA_MESON } from "@/features/ap/ap-master/lib/apMaster.constants";
+import { orderQuotationMesonCajaColumns } from "@/features/ap/post-venta/repuestos/cotizacion-meson/components/ProformaMesonCajaColumns";
 
 export default function OrderQuotationMesonCajaPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -48,7 +48,7 @@ export default function OrderQuotationMesonCajaPage() {
     null,
   );
   const [isDeliverySheetOpen, setIsDeliverySheetOpen] = useState(false);
-  const { MODEL, ROUTE, ROUTE_UPDATE, ABSOLUTE_ROUTE } = ORDER_QUOTATION_CAJA;
+  const { MODEL, ROUTE, ABSOLUTE_ROUTE } = ORDER_QUOTATION_CAJA;
   const permissions = useModulePermissions(ROUTE);
   const router = useNavigate();
   const currentDate = new Date();
@@ -109,10 +109,6 @@ export default function OrderQuotationMesonCajaPage() {
     }
   };
 
-  const handleUpdate = (id: number) => {
-    router(`${ROUTE_UPDATE}/${id}`);
-  };
-
   const handleBilling = (id: number) => {
     router(`${ABSOLUTE_ROUTE}/facturar/${id}`);
   };
@@ -125,11 +121,6 @@ export default function OrderQuotationMesonCajaPage() {
   const handleCloseBillingSheet = () => {
     setIsBillingSheetOpen(false);
     setSelectedOrderQuotationId(null);
-  };
-
-  const handleViewDelivery = (orderQuotation: { id: number }) => {
-    setSelectedDeliveryId(orderQuotation.id);
-    setIsDeliverySheetOpen(true);
   };
 
   const handleCloseDeliverySheet = () => {
@@ -154,12 +145,9 @@ export default function OrderQuotationMesonCajaPage() {
 
       <OrderQuotationMesonTable
         isLoading={isLoading}
-        columns={orderQuotationMesonColumns({
-          onDelete: setDeleteId,
-          onUpdate: handleUpdate,
+        columns={orderQuotationMesonCajaColumns({
           onBilling: handleBilling,
           onViewBilling: handleViewBilling,
-          onViewDelivery: handleViewDelivery,
           onRefresh: refetch,
           permissions,
         })}

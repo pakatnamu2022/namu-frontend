@@ -1,10 +1,14 @@
 import { requiredStringId } from "@/shared/lib/global.schema";
 import { z } from "zod";
+import {
+  ITEM_TYPE_LABOR,
+  ITEM_TYPE_PRODUCT,
+} from "./proformaDetails.constants";
 
 // Schema para mano de obra
 export const laborDetailSchema = z.object({
   order_quotation_id: z.number(),
-  item_type: z.literal("LABOR"),
+  item_type: z.literal(ITEM_TYPE_LABOR),
   description: z.string().min(1, "Descripción es requerida").max(500),
   quantity: z.number().min(0.1, "Cantidad debe ser mayor a 0"),
   unit_measure: z.string().min(1, "Unidad de medida es requerida"),
@@ -21,7 +25,7 @@ export const laborDetailSchema = z.object({
 // Schema para productos
 export const productDetailSchema = z.object({
   order_quotation_id: z.number(),
-  item_type: z.literal("PRODUCT"),
+  item_type: z.literal(ITEM_TYPE_PRODUCT),
   product_id: requiredStringId("Producto es requerido"),
   description: z.string().min(1).max(500),
   quantity: z.coerce.number().min(0.1, "Cantidad debe ser mayor a 0"),

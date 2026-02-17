@@ -114,6 +114,10 @@ export default function OrderQuotationMesonPage() {
     router(`${ABSOLUTE_ROUTE}/facturar/${id}`);
   };
 
+  const handleRequestDiscount = (id: number) => {
+    router(`${ABSOLUTE_ROUTE}/solicitar-descuento/${id}`);
+  };
+
   const handleViewBilling = (orderQuotation: { id: number }) => {
     setSelectedOrderQuotationId(orderQuotation.id);
     setIsBillingSheetOpen(true);
@@ -157,6 +161,7 @@ export default function OrderQuotationMesonPage() {
           onBilling: handleBilling,
           onViewBilling: handleViewBilling,
           onViewDelivery: handleViewDelivery,
+          onRequestDiscount: handleRequestDiscount,
           onRefresh: refetch,
           permissions,
         })}

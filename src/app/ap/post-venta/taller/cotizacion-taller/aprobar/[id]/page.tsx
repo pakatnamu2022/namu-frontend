@@ -10,11 +10,15 @@ import { Card } from "@/components/ui/card.tsx";
 import { Badge } from "@/components/ui/badge.tsx";
 import { errorToast, successToast } from "@/core/core.function.ts";
 import { ORDER_QUOTATION_TALLER } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.constants.ts";
-import { findOrderQuotationById, approveOrderQuotation } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.actions.ts";
+import {
+  findOrderQuotationById,
+  approveOrderQuotation,
+} from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.actions.ts";
 import { OrderQuotationResource } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.interface.ts";
 import { OrderQuotationDetailsResource } from "@/features/ap/post-venta/taller/cotizacion-detalle/lib/proformaDetails.interface.ts";
 import { getAllOrderQuotationDetails } from "@/features/ap/post-venta/taller/cotizacion-detalle/lib/proformaDetails.actions.ts";
 import { SimpleConfirmDialog } from "@/shared/components/SimpleConfirmDialog.tsx";
+import { ITEM_TYPE_PRODUCT } from "@/features/ap/post-venta/taller/cotizacion-detalle/lib/proformaDetails.constants";
 
 export default function AprobacionProductosPage() {
   const params = useParams();
@@ -22,8 +26,12 @@ export default function AprobacionProductosPage() {
   const quotationId = Number(params.id);
 
   const [isLoading, setIsLoading] = useState(true);
-  const [quotation, setQuotation] = useState<OrderQuotationResource | null>(null);
-  const [productDetails, setProductDetails] = useState<OrderQuotationDetailsResource[]>([]);
+  const [quotation, setQuotation] = useState<OrderQuotationResource | null>(
+    null,
+  );
+  const [productDetails, setProductDetails] = useState<
+    OrderQuotationDetailsResource[]
+  >([]);
 
   const [confirmChief, setConfirmChief] = useState(false);
   const [confirmManager, setConfirmManager] = useState(false);
@@ -39,10 +47,14 @@ export default function AprobacionProductosPage() {
       setIsLoading(true);
       const [quotationData, detailsData] = await Promise.all([
         findOrderQuotationById(quotationId),
-        getAllOrderQuotationDetails({ params: { order_quotation_id: quotationId } }),
+        getAllOrderQuotationDetails({
+          params: { order_quotation_id: quotationId },
+        }),
       ]);
       setQuotation(quotationData);
-      setProductDetails(detailsData.filter((d) => d.item_type === "PRODUCT"));
+      setProductDetails(
+        detailsData.filter((d) => d.item_type === ITEM_TYPE_PRODUCT),
+      );
     } catch {
       errorToast("Error al cargar los datos");
     } finally {
@@ -105,7 +117,11 @@ export default function AprobacionProductosPage() {
         <Button
           variant="outline"
           size="icon"
-          onClick={() => navigate(`${ORDER_QUOTATION_TALLER.ABSOLUTE_ROUTE}/gestionar/${quotationId}`)}
+          onClick={() =>
+            navigate(
+              `${ORDER_QUOTATION_TALLER.ABSOLUTE_ROUTE}/gestionar/${quotationId}`,
+            )
+          }
         >
           <ArrowLeft className="h-5 w-5" />
         </Button>
@@ -126,7 +142,9 @@ export default function AprobacionProductosPage() {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
           <div>
             <p className="text-xs text-gray-500">Cliente</p>
-            <p className="font-medium">{quotation.client?.full_name || "N/A"}</p>
+            <p className="font-medium">
+              {quotation.client?.full_name || "N/A"}
+            </p>
           </div>
           <div>
             <p className="text-xs text-gray-500">Vehículo</p>
@@ -134,11 +152,15 @@ export default function AprobacionProductosPage() {
           </div>
           <div>
             <p className="text-xs text-gray-500">Moneda</p>
-            <p className="font-medium">{quotation.type_currency?.name || "N/A"}</p>
+            <p className="font-medium">
+              {quotation.type_currency?.name || "N/A"}
+            </p>
           </div>
           <div>
             <p className="text-xs text-gray-500">Total Repuestos</p>
-            <p className="font-bold text-primary">{formatCurrency(totalProducts)}</p>
+            <p className="font-bold text-primary">
+              {formatCurrency(totalProducts)}
+            </p>
           </div>
         </div>
       </Card>
@@ -156,7 +178,9 @@ export default function AprobacionProductosPage() {
         {productDetails.length === 0 ? (
           <div className="text-center py-8 border rounded-lg bg-gray-50">
             <Package className="h-10 w-10 text-gray-400 mx-auto mb-2" />
-            <p className="text-sm text-gray-600">No hay repuestos en esta cotización</p>
+            <p className="text-sm text-gray-600">
+              No hay repuestos en esta cotización
+            </p>
           </div>
         ) : (
           <div className="border rounded-lg overflow-hidden">
@@ -185,15 +209,23 @@ export default function AprobacionProductosPage() {
                         {detail.description}
                       </p>
                       {detail.observations && (
-                        <p className="text-xs text-gray-500 mt-0.5">{detail.observations}</p>
+                        <p className="text-xs text-gray-500 mt-0.5">
+                          {detail.observations}
+                        </p>
                       )}
                     </div>
                     <div className="col-span-2 text-center text-sm">
                       {detail.quantity}{" "}
-                      <span className="text-xs text-gray-500">{detail.unit_measure}</span>
+                      <span className="text-xs text-gray-500">
+                        {detail.unit_measure}
+                      </span>
                     </div>
-                    <div className="col-span-2 text-right text-sm">{detail.supply_type}</div>
-                    <div className="col-span-1 text-right text-sm">{formatCurrency(detail.unit_price)}</div>
+                    <div className="col-span-2 text-right text-sm">
+                      {detail.supply_type}
+                    </div>
+                    <div className="col-span-1 text-right text-sm">
+                      {formatCurrency(detail.unit_price)}
+                    </div>
                     <div className="col-span-2 text-right text-sm font-bold text-primary">
                       {formatCurrency(detail.total_amount)}
                     </div>
@@ -208,19 +240,33 @@ export default function AprobacionProductosPage() {
                         </span>
                       )}
                     </div>
-                    <p className="text-sm font-medium text-gray-900">{detail.description}</p>
+                    <p className="text-sm font-medium text-gray-900">
+                      {detail.description}
+                    </p>
                     <div className="grid grid-cols-2 gap-1 text-xs">
                       <span className="text-gray-500">
-                        Cantidad: <span className="font-medium text-gray-900">{detail.quantity} {detail.unit_measure}</span>
+                        Cantidad:{" "}
+                        <span className="font-medium text-gray-900">
+                          {detail.quantity} {detail.unit_measure}
+                        </span>
                       </span>
                       <span className="text-gray-500 text-right">
-                        Tipo: <span className="font-medium text-gray-900">{detail.supply_type}</span>
+                        Tipo:{" "}
+                        <span className="font-medium text-gray-900">
+                          {detail.supply_type}
+                        </span>
                       </span>
                       <span className="text-gray-500">
-                        Precio Unit.: <span className="font-medium text-gray-900">{formatCurrency(detail.unit_price)}</span>
+                        Precio Unit.:{" "}
+                        <span className="font-medium text-gray-900">
+                          {formatCurrency(detail.unit_price)}
+                        </span>
                       </span>
                       <span className="text-gray-500 text-right">
-                        Total: <span className="font-bold text-primary">{formatCurrency(detail.total_amount)}</span>
+                        Total:{" "}
+                        <span className="font-bold text-primary">
+                          {formatCurrency(detail.total_amount)}
+                        </span>
                       </span>
                     </div>
                   </div>
@@ -247,9 +293,13 @@ export default function AprobacionProductosPage() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {/* Aprobación por Jefe */}
-          <div className={`border rounded-lg p-4 ${chiefApproved ? "bg-green-50 border-green-200" : "bg-gray-50 border-gray-200"}`}>
+          <div
+            className={`border rounded-lg p-4 ${chiefApproved ? "bg-green-50 border-green-200" : "bg-gray-50 border-gray-200"}`}
+          >
             <div className="flex items-center justify-between mb-3">
-              <h4 className="text-sm font-semibold text-gray-700">Aprobar por Jefe</h4>
+              <h4 className="text-sm font-semibold text-gray-700">
+                Aprobar por Jefe
+              </h4>
               {chiefApproved && (
                 <Badge className="bg-green-100 text-green-800 border-green-200">
                   <CheckCircle2 className="h-3 w-3 mr-1" />
@@ -282,9 +332,13 @@ export default function AprobacionProductosPage() {
           </div>
 
           {/* Aprobación por Gerente */}
-          <div className={`border rounded-lg p-4 ${managerApproved ? "bg-green-50 border-green-200" : "bg-gray-50 border-gray-200"}`}>
+          <div
+            className={`border rounded-lg p-4 ${managerApproved ? "bg-green-50 border-green-200" : "bg-gray-50 border-gray-200"}`}
+          >
             <div className="flex items-center justify-between mb-3">
-              <h4 className="text-sm font-semibold text-gray-700">Aprobar por Gerente</h4>
+              <h4 className="text-sm font-semibold text-gray-700">
+                Aprobar por Gerente
+              </h4>
               {managerApproved && (
                 <Badge className="bg-green-100 text-green-800 border-green-200">
                   <CheckCircle2 className="h-3 w-3 mr-1" />
