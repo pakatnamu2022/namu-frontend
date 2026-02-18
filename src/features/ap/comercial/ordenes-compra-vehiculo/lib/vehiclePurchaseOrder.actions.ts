@@ -114,7 +114,7 @@ interface SyncCreditNoteResponse {
 export async function dispatchSyncCreditNote(
   id: number,
 ): Promise<SyncCreditNoteResponse> {
-  const response = await api.post<SyncCreditNoteResponse>(
+  const response = await api.get<SyncCreditNoteResponse>(
     `${ENDPOINT}/${id}/dispatchSyncCreditNoteJob`,
   );
   return response.data;

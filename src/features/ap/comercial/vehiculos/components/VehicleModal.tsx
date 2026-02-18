@@ -1,5 +1,3 @@
-"use client";
-
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   ERROR_MESSAGE,
@@ -9,7 +7,7 @@ import {
 } from "@/core/core.function";
 import { VEHICLES } from "../lib/vehicles.constants";
 import { storeVehicle } from "../lib/vehicles.actions";
-import { CM_COMERCIAL_ID, EMPRESA_AP } from "@/core/core.constants";
+import { EMPRESA_AP } from "@/core/core.constants";
 import { GeneralModal } from "@/shared/components/GeneralModal";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -35,13 +33,17 @@ import { useWarehouseByModelSede } from "@/features/ap/configuraciones/maestros-
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import { ModelsVnResource } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.interface";
 import { useEffect } from "react";
+import { CM_COMERCIAL_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 // Schema para vehículos comerciales
 const vehicleComercialSchema = z.object({
   sede_id: z.string().min(1, "La sede es requerida"),
   plate: z.string().length(6, "La placa debe tener 6 caracteres"),
   vin: z.string().length(17, "El VIN debe tener 17 caracteres"),
-  year: z.number().min(1900).max(new Date().getFullYear() + 1),
+  year: z
+    .number()
+    .min(1900)
+    .max(new Date().getFullYear() + 1),
   engine_number: z.string().min(1, "El número de motor es requerido"),
   ap_models_vn_id: z.string().min(1, "El modelo es requerido"),
   vehicle_color_id: z.string().min(1, "El color es requerido"),
@@ -292,7 +294,9 @@ export default function VehicleModal({
                 label: warehouse.description,
               }))}
               label="Almacén Físico"
-              disabled={!form.watch("ap_models_vn_id") || !form.watch("sede_id")}
+              disabled={
+                !form.watch("ap_models_vn_id") || !form.watch("sede_id")
+              }
             />
           </div>
 

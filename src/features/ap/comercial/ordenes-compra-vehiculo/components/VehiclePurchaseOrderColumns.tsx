@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Check, RefreshCw, X } from "lucide-react";
+import { Check, RefreshCw, Search, X } from "lucide-react";
 import { VehiclePurchaseOrderResource } from "../lib/vehiclePurchaseOrder.interface";
 import VehiclePurchaseOrderMigrationHistory from "./VehiclePurchaseOrderMigrationHistory";
 import VehiclePurchaseOrderDetailButton from "./VehiclePurchaseOrderDetailButton";
@@ -95,11 +95,12 @@ export const vehiclePurchaseOrderColumns = ({
         </Badge>
       ) : (
         <Button
-          variant="ghost"
+          variant="outline"
           size="xs"
-          color="orange"
+          color="indigo"
           onClick={() => onRequestCreditNote(row.original.id)}
         >
+          <Search />
           Consultar
         </Button>
       );
