@@ -14,7 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader, Truck, Search } from "lucide-react";
+import { Loader, Truck, Search, Plus } from "lucide-react";
 import {
   ControlUnitsSchema,
   controlUnitsSchemaCreate,
@@ -57,6 +57,9 @@ import { useAllClassArticle } from "@/features/ap/configuraciones/maestros-gener
 import { useAllVehicles } from "../../vehiculos/lib/vehicles.hook";
 import { TYPES_OPERATION_ID } from "@/features/ap/configuraciones/maestros-general/tipos-operacion/lib/typesOperation.constants";
 import { FormInput } from "@/shared/components/FormInput";
+import { VEHICLES } from "../../vehiculos/lib/vehicles.constants";
+import VehicleModal from "../../vehiculos/components/VehicleModal";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface ControlUnitsFormProps {
   defaultValues: Partial<ControlUnitsSchema> & {
@@ -78,11 +81,11 @@ export const ControlUnitsForm = ({
 }: ControlUnitsFormProps) => {
   const { ABSOLUTE_ROUTE } = CONTROL_UNITS;
   const router = useNavigate();
+  const queryClient = useQueryClient();
+  const [isVehicleModalOpen, setIsVehicleModalOpen] = useState(false);
   const form = useForm({
     resolver: zodResolver(
-      mode === "create"
-        ? controlUnitsSchemaCreate
-        : controlUnitsSchemaUpdate,
+      mode === "create" ? controlUnitsSchemaCreate : controlUnitsSchemaUpdate,
     ) as any,
     defaultValues: {
       ...defaultValues,
@@ -239,7 +242,8 @@ export const ControlUnitsForm = ({
 
   // Distribuir los conceptos según el tipo
   const reasonTransfer = sunatConcepts.filter(
-    (concept) => concept.type === SUNAT_CONCEPTS_TYPE.TRANSFER_REASON,
+    (concept) =>
+      concept.id.toString() === SUNAT_CONCEPTS_ID.TRANSFER_REASON_OTROS,
   );
 
   const typeTransportation = sunatConcepts.filter(
@@ -768,22 +772,39 @@ export const ControlUnitsForm = ({
               />
             )}
 
-          <FormSelect
-            key={`vehicle-${watchSedeTransmitterId}-${watchTransferReasonId}-${vehiclesIsReceived}`}
-            name="ap_vehicle_id"
-            label="Vehículo"
-            placeholder="Selecciona vehículo"
-            options={vehiclesVn.map((item) => ({
-              label: item.vin ?? "",
-              value: item.id.toString(),
-              description:
-                item.sede_name_warehouse + " - " + item.warehouse_name || "",
-            }))}
-            control={form.control}
-            strictFilter={true}
-            withValue={false}
-            disabled={!watchSedeTransmitterId || isLoadingVehicles}
-          />
+          <div className="flex gap-2">
+            <div className="flex-1">
+              <FormSelect
+                key={`vehicle-${watchSedeTransmitterId}-${watchTransferReasonId}-${vehiclesIsReceived}`}
+                name="ap_vehicle_id"
+                label="Vehículo"
+                placeholder="Selecciona vehículo"
+                options={vehiclesVn.map((item) => ({
+                  label: item.vin ?? "",
+                  value: item.id.toString(),
+                  description:
+                    item.sede_name_warehouse + " - " + item.warehouse_name ||
+                    "",
+                }))}
+                control={form.control}
+                strictFilter={true}
+                withValue={false}
+                disabled={!watchSedeTransmitterId || isLoadingVehicles}
+              />
+            </div>
+            <div className="flex items-end">
+              <Button
+                type="button"
+                variant="outline"
+                size="icon-lg"
+                className="aspect-square"
+                onClick={() => setIsVehicleModalOpen(true)}
+                tooltip="Agregar nuevo vehículo comercial"
+              >
+                <Plus className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
 
           <FormSelect
             name="transfer_modality_id"
@@ -1130,6 +1151,18 @@ export const ControlUnitsForm = ({
             });
           }}
           sede_id={form.watch("sede_receiver_id")}
+        />
+
+        <VehicleModal
+          open={isVehicleModalOpen}
+          onClose={() => {
+            setIsVehicleModalOpen(false);
+            queryClient.invalidateQueries({
+              queryKey: [VEHICLES.QUERY_KEY],
+            });
+          }}
+          title="Agregar Vehículo Comercial"
+          typeOperationId={CM_COMERCIAL_ID}
         />
       </form>
     </Form>

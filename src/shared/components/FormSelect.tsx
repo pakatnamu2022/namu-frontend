@@ -221,7 +221,7 @@ export function FormSelect({
   isLoadingOptions = false,
   className,
   required = false,
-  popoverWidth = "w-(--radix-popover-trigger-width)!",
+  popoverWidth = "min-w-(--radix-popover-trigger-width)! w-auto",
   size,
   portalContainer,
 }: FormSelectProps) {
