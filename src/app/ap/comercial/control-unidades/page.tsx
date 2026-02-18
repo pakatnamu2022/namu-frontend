@@ -12,7 +12,7 @@ import {
   SUCCESS_MESSAGE,
   successToast,
 } from "@/core/core.function";
-import { AREA_COMERCIAL, DEFAULT_PER_PAGE } from "@/core/core.constants";
+import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { CONTROL_UNITS } from "@/features/ap/comercial/control-unidades/lib/controlUnits.constants";
 import {
@@ -33,6 +33,7 @@ import { ControlUnitsResource } from "@/features/ap/comercial/control-unidades/l
 import { SheetShipmentDetailsDialog } from "@/features/ap/comercial/control-unidades/components/SheetShipmentDetailsDialog";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { format } from "date-fns";
+import { AREA_COMERCIAL } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 export default function ControlUnitsPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();

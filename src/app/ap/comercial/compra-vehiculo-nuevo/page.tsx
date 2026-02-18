@@ -15,6 +15,8 @@ import VehiclePurchaseOrderTable from "@/features/ap/comercial/ordenes-compra-ve
 import VehiclePurchaseOrderOptions from "@/features/ap/comercial/ordenes-compra-vehiculo/components/VehiclePurchaseOrderOptions";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { CM_COMERCIAL_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
+import { dispatchSyncCreditNote } from "@/features/ap/comercial/ordenes-compra-vehiculo/lib/vehiclePurchaseOrder.actions";
+import { ERROR_MESSAGE, errorToast } from "@/core/core.function";
 
 export default function VehiclePurchaseOrderPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -28,7 +30,7 @@ export default function VehiclePurchaseOrderPage() {
   const [modelId, setModelId] = useState("all");
   const [colorId, setColorId] = useState("all");
   const [statusId, setStatusId] = useState("all");
-  const { ROUTE } = VEHICLE_PURCHASE_ORDER;
+  const { MODEL, ROUTE } = VEHICLE_PURCHASE_ORDER;
 
   useEffect(() => {
     setPage(1);
@@ -44,12 +46,17 @@ export default function VehiclePurchaseOrderPage() {
     statusId,
   ]);
 
-  const handleRequestCreditNote = (purchaseOrderId: number) => {
-    // Aquí puedes implementar la lógica para solicitar la nota de crédito
-    console.log(
-      "Solicitar nota de crédito para la orden de compra ID:",
-      purchaseOrderId,
-    );
+  const handleRequestCreditNote = async (purchaseOrderId: number) => {
+    await dispatchSyncCreditNote(purchaseOrderId)
+      .then((response) => {
+        if (response.success) {
+          refetch();
+        }
+      })
+      .catch((error: any) => {
+        errorToast(ERROR_MESSAGE(MODEL, "fetch"));
+        console.error("Error al solicitar nota de crédito:", error);
+      });
   };
 
   const { data, isLoading, isFetching, refetch } = useVehiclePurchaseOrder({

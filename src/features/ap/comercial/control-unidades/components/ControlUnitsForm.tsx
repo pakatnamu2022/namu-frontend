@@ -30,11 +30,7 @@ import {
 } from "../lib/controlUnits.constants";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { useNavigate } from "react-router-dom";
-import {
-  BUSINESS_PARTNERS,
-  CM_COMERCIAL_ID,
-  EMPRESA_AP,
-} from "@/core/core.constants";
+import { BUSINESS_PARTNERS, EMPRESA_AP } from "@/core/core.constants";
 import { useAllCustomers } from "../../clientes/lib/customers.hook";
 import { useAllSuppliers } from "../../proveedores/lib/suppliers.hook";
 import { EstablishmentSelectorModal } from "./EstablishmentSelectorModal";
@@ -59,6 +55,7 @@ import { FormInput } from "@/shared/components/FormInput";
 import { VEHICLES } from "../../vehiculos/lib/vehicles.constants";
 import VehicleModal from "../../vehiculos/components/VehicleModal";
 import { useQueryClient } from "@tanstack/react-query";
+import { CM_COMERCIAL_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 interface ControlUnitsFormProps {
   defaultValues: Partial<ControlUnitsSchema> & {
