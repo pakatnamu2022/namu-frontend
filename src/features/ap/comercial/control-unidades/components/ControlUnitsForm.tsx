@@ -31,11 +31,7 @@ import {
 } from "../lib/controlUnits.constants";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { useNavigate } from "react-router-dom";
-import {
-  BUSINESS_PARTNERS,
-  CM_COMERCIAL_ID,
-  EMPRESA_AP,
-} from "@/core/core.constants";
+import { BUSINESS_PARTNERS, EMPRESA_AP } from "@/core/core.constants";
 import { useAllCustomers } from "../../clientes/lib/customers.hook";
 import { useAllSuppliers } from "../../proveedores/lib/suppliers.hook";
 import { EstablishmentSelectorModal } from "./EstablishmentSelectorModal";
@@ -57,6 +53,7 @@ import { useAllClassArticle } from "@/features/ap/configuraciones/maestros-gener
 import { useAllVehicles } from "../../vehiculos/lib/vehicles.hook";
 import { TYPES_OPERATION_ID } from "@/features/ap/configuraciones/maestros-general/tipos-operacion/lib/typesOperation.constants";
 import { FormInput } from "@/shared/components/FormInput";
+import { CM_COMERCIAL_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 interface ControlUnitsFormProps {
   defaultValues: Partial<ControlUnitsSchema> & {
@@ -80,9 +77,7 @@ export const ControlUnitsForm = ({
   const router = useNavigate();
   const form = useForm({
     resolver: zodResolver(
-      mode === "create"
-        ? controlUnitsSchemaCreate
-        : controlUnitsSchemaUpdate,
+      mode === "create" ? controlUnitsSchemaCreate : controlUnitsSchemaUpdate,
     ) as any,
     defaultValues: {
       ...defaultValues,
