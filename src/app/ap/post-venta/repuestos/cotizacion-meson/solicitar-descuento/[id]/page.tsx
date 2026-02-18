@@ -43,6 +43,7 @@ export default function RequestDiscountOrderQuotationMesonPage() {
   const { data: discountRequests = [], isLoading: isLoadingRequests } =
     useDiscountRequestsByQuotation(Number(id));
 
+  // Local state
   const [modalOpen, setModalOpen] = useState(false);
   const [modalType, setModalType] = useState<"GLOBAL" | "PARTIAL">(TYPE_GLOBAL);
   const [selectedDetail, setSelectedDetail] =
