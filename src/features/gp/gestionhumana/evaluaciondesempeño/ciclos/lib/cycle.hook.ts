@@ -1,5 +1,9 @@
-import { useQuery } from "@tanstack/react-query";
-import { CycleResource, CycleResponse } from "./cycle.interface";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  CycleResource,
+  CycleResponse,
+  WeightsPreviewResponse,
+} from "./cycle.interface";
 import {
   findCycleById,
   getAllCycle,
@@ -7,8 +11,10 @@ import {
   getChiefsInCycle,
   getCycle,
   getCyclePersonDetails,
+  getCycleWeightsPreview,
   getPersonsInCycle,
   getPositionsInCycle,
+  regenerateCycleWeights,
 } from "./cycle.actions";
 
 export const useCycles = (params?: Record<string, any>) => {
@@ -37,7 +43,7 @@ export const useCycle = (id: number) => {
 
 export const useCycleDetails = (
   idCycle: number,
-  params?: Record<string, any>
+  params?: Record<string, any>,
 ) => {
   return useQuery({
     queryKey: ["cycle", idCycle, params],
@@ -46,7 +52,8 @@ export const useCycleDetails = (
   });
 };
 
-export const usePersonsInCycle = (idCycle: number) => {
+export const usePersonsInCycle = (params: Record<string, any>) => {
+  const { idCycle } = params;
   return useQuery({
     queryKey: ["cycle", idCycle, "persons"],
     queryFn: () => getPersonsInCycle(idCycle.toString()),
@@ -75,5 +82,27 @@ export const useChiefsInCycle = (idCycle: number) => {
     queryKey: ["cycle", idCycle, "chiefs"],
     queryFn: () => getChiefsInCycle(idCycle.toString()),
     refetchOnWindowFocus: false,
+  });
+};
+
+export const useCycleWeightsPreview = (cycleId: number, enabled = false) => {
+  return useQuery<WeightsPreviewResponse>({
+    queryKey: ["cycle", cycleId, "weights-preview"],
+    queryFn: () => getCycleWeightsPreview(cycleId),
+    refetchOnWindowFocus: false,
+    enabled,
+  });
+};
+
+export const useRegenerateCycleWeights = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (cycleId: number) => regenerateCycleWeights(cycleId),
+    onSuccess: (_, cycleId) => {
+      queryClient.invalidateQueries({
+        queryKey: ["cycle", cycleId, "weights-preview"],
+      });
+    },
   });
 };

@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -27,6 +28,8 @@ import { CompanyResource } from "../../empresa/lib/company.interface";
 import RequiredField from "@/shared/components/RequiredField";
 import { IconPicker } from "@/components/ui/icon-picker";
 import { VIEW } from "../lib/view.constants";
+import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
+import { useViews } from "../lib/view.hook";
 
 interface ViewFormProps {
   defaultValues: Partial<ViewSchema>;
@@ -42,12 +45,11 @@ export const ViewForm = ({
   onSubmit,
   isSubmitting = false,
   mode = "create",
-  views = [],
   companies = [],
 }: ViewFormProps) => {
   const form = useForm({
     resolver: zodResolver(
-      mode === "create" ? viewSchemaCreate : viewSchemaUpdate
+      mode === "create" ? viewSchemaCreate : viewSchemaUpdate,
     ),
     defaultValues: {
       ...defaultValues,
@@ -56,12 +58,32 @@ export const ViewForm = ({
   });
   const { ABSOLUTE_ROUTE } = VIEW;
 
+  // Función para generar slug desde texto
+  const generateSlug = (text: string): string => {
+    return text
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "") // Eliminar acentos
+      .replace(/[^a-z0-9\s-]/g, "") // Eliminar caracteres especiales
+      .trim()
+      .replace(/\s+/g, "-") // Reemplazar espacios con guiones
+      .replace(/-+/g, "-"); // Reemplazar múltiples guiones con uno solo
+  };
+
+  // Observar cambios en el campo descripcion
+  const descripcion = form.watch("descripcion");
+
+  // Auto-generar slug para el campo route cuando cambia descripcion
+  useEffect(() => {
+    if (descripcion && mode === "create") {
+      const slug = generateSlug(descripcion);
+      form.setValue("route", slug, { shouldValidate: true });
+    }
+  }, [descripcion, mode, form]);
+
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-4 w-full"
-      >
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-full">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormInput
             control={form.control}
@@ -99,20 +121,19 @@ export const ViewForm = ({
             )}
           />
 
-          <FormSelect
+          <FormSelectAsync
             control={form.control}
             name="parent_id"
             description="Selecciona el módulo padre al que pertenece esta vista"
             label="Módulo Superior"
             required={true}
             placeholder="Selecciona la vista padre"
-            options={views.map((v) => ({
+            useQueryHook={useViews}
+            mapOptionFn={(v) => ({
               label: v.descripcion,
               value: String(v.id),
-              description: v.parent ?? v.company,
-            }))}
-            withValue={false}
-            strictFilter={true}
+              description: `${v.parent ? v.parent + " | " : ""} ${v.company}`,
+            })}
           />
 
           <FormSelect
@@ -158,43 +179,46 @@ export const ViewForm = ({
             description="Clase del ícono FontAwesome para Milla"
           />
 
-          <FormSelect
+          <FormSelectAsync
             control={form.control}
             name="idPadre"
             label="Padre"
             description="Módulo padre en la jerarquía de Milla"
             placeholder="Seleccionar padre"
-            options={views.map((v) => ({
+            useQueryHook={useViews}
+            mapOptionFn={(v) => ({
               label: v.descripcion,
               value: String(v.id),
-              description: v.parent ?? v.company,
-            }))}
+              description: `${v.parent ? v.parent + " | " : ""} ${v.company}`,
+            })}
           />
 
-          <FormSelect
+          <FormSelectAsync
             control={form.control}
             name="idSubPadre"
             label="Sub Padre"
             description="Módulo sub-padre en la jerarquía de Milla"
             placeholder="Seleccionar sub padre"
-            options={views.map((v) => ({
+            useQueryHook={useViews}
+            mapOptionFn={(v) => ({
               label: v.descripcion,
               value: String(v.id),
-              description: v.parent ?? v.company,
-            }))}
+              description: `${v.parent ? v.parent + " | " : ""} ${v.company}`,
+            })}
           />
 
-          <FormSelect
+          <FormSelectAsync
             control={form.control}
             name="idHijo"
             label="Hijo"
             description="Módulo hijo en la jerarquía de Milla"
             placeholder="Seleccionar hijo"
-            options={views.map((v) => ({
+            useQueryHook={useViews}
+            mapOptionFn={(v) => ({
               label: v.descripcion,
               value: String(v.id),
-              description: v.parent ?? v.company,
-            }))}
+              description: `${v.parent ? v.parent + " | " : ""} ${v.company}`,
+            })}
           />
         </div>
 

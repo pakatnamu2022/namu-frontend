@@ -81,8 +81,8 @@ const shipmentsReceptionsSchemaBase = z.object({
 export const shipmentsReceptionsSchemaCreate = shipmentsReceptionsSchemaBase
   .refine(
     (data) => {
-      // Si es Automotores (NOSOTROS), debe tener document_series_id
-      if (data.issuer_type === "NOSOTROS") {
+      // Si es Automotores (SYSTEM), debe tener document_series_id
+      if (data.issuer_type === "SYSTEM") {
         return !!data.document_series_id;
       }
       // Si es Proveedor, debe tener manual_series y correlative

@@ -23,7 +23,7 @@ import {
   useSendVehicleDeliveryToDynamic,
 } from "@/features/ap/comercial/entrega-vehiculo/lib/vehicleDelivery.hook";
 import { deleteVehicleDelivery } from "@/features/ap/comercial/entrega-vehiculo/lib/vehicleDelivery.actions";
-import { DEFAULT_PER_PAGE } from "@/core/core.constants";
+import { AREA_COMERCIAL, DEFAULT_PER_PAGE } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { VEHICLE_DELIVERY } from "@/features/ap/comercial/entrega-vehiculo/lib/vehicleDelivery.constants";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
@@ -65,6 +65,7 @@ export default function VehicleDeliveryPage() {
     search,
     per_page,
     real_delivery_date: [formattedDateFrom, formattedDateTo],
+    area_id: AREA_COMERCIAL
   });
 
   const handleDelete = async () => {

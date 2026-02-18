@@ -286,7 +286,7 @@ export function FormSelect({
             {label && typeof label === "function"
               ? label()
               : label && (
-                  <FormLabel className="flex justify-start items-center text-xs md:text-sm mb-1">
+                  <FormLabel className="flex justify-start items-center text-xs md:text-sm mb-1 leading-none dark:text-muted-foreground">
                     {label}
                     {required && <RequiredField />}
                     {tooltip && (

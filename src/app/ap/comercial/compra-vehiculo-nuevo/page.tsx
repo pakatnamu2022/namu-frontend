@@ -1,7 +1,7 @@
 "use client";
 
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import PageSkeleton from "@/shared/components/PageSkeleton";
 import TitleComponent from "@/shared/components/TitleComponent";
 import DataTablePagination from "@/shared/components/DataTablePagination";
@@ -29,6 +29,28 @@ export default function VehiclePurchaseOrderPage() {
   const [colorId, setColorId] = useState("all");
   const [statusId, setStatusId] = useState("all");
   const { ROUTE } = VEHICLE_PURCHASE_ORDER;
+
+  useEffect(() => {
+    setPage(1);
+  }, [
+    search,
+    per_page,
+    sedeId,
+    warehouseId,
+    supplierId,
+    year,
+    modelId,
+    colorId,
+    statusId,
+  ]);
+
+  const handleRequestCreditNote = (purchaseOrderId: number) => {
+    // Aquí puedes implementar la lógica para solicitar la nota de crédito
+    console.log(
+      "Solicitar nota de crédito para la orden de compra ID:",
+      purchaseOrderId,
+    );
+  };
 
   const { data, isLoading, isFetching, refetch } = useVehiclePurchaseOrder({
     page,
@@ -63,7 +85,9 @@ export default function VehiclePurchaseOrderPage() {
       </HeaderTableWrapper>
       <VehiclePurchaseOrderTable
         isLoading={isLoading}
-        columns={vehiclePurchaseOrderColumns()}
+        columns={vehiclePurchaseOrderColumns({
+          onRequestCreditNote: handleRequestCreditNote,
+        })}
         data={data?.data || []}
       >
         <VehiclePurchaseOrderOptions

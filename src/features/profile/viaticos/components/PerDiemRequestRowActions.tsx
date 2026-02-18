@@ -450,6 +450,7 @@ export function PerDiemRequestRowActions({
                     options={[
                       { value: "created", label: "Solicitud creada" },
                       { value: "approved", label: "Solicitud aprobada" },
+                      { value: "hotel_reservation", label: "Reserva de hotel" },
                       { value: "in_progress", label: "Solicitud en progreso" },
                       { value: "settlement", label: "Inicio de Liquidación" },
                       { value: "settled", label: "Liquidada" },

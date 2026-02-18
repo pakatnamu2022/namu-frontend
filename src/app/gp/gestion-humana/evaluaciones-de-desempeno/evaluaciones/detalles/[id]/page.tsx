@@ -60,11 +60,20 @@ export default function EvaluationDetailPage() {
   const [loadingRegenerate, setLoadingRegenerate] = useState(false);
   const [activeTab, setActiveTab] = useState<string>("persons");
 
+  // Leaders pagination states
+  const [leadersPage, setLeadersPage] = useState(1);
+  const [leadersPerPage, setLeadersPerPage] = useState(DEFAULT_PER_PAGE);
+  const [leadersSearch, setLeadersSearch] = useState("");
+
   const idEvaluation = Number(id);
 
   useEffect(() => {
     setPage(1);
   }, [search, per_page]);
+
+  useEffect(() => {
+    setLeadersPage(1);
+  }, [leadersSearch, leadersPerPage]);
 
   const { data: evaluation } = useEvaluation(idEvaluation);
 
@@ -90,6 +99,11 @@ export default function EvaluationDetailPage() {
   const { data: leadersData, isLoading: isLoadingLeaders } = useLeadersStatus(
     idEvaluation,
     activeTab === "leaders",
+    {
+      page: leadersPage,
+      per_page: leadersPerPage,
+      search: leadersSearch,
+    },
   );
 
   const handleDelete = async () => {
@@ -221,10 +235,22 @@ export default function EvaluationDetailPage() {
         <TabsContent value="leaders">
           <LeadersStatusTable
             columns={LeadersStatusColumns({ evaluationId: idEvaluation })}
-            data={leadersData?.leaders || []}
-            summary={leadersData?.summary}
+            data={leadersData?.data || []}
             isLoading={isLoadingLeaders}
+            search={leadersSearch}
+            setSearch={setLeadersSearch}
           />
+
+          <div className="mt-4">
+            <DataTablePagination
+              page={leadersPage}
+              totalPages={leadersData?.meta?.last_page || 1}
+              onPageChange={setLeadersPage}
+              per_page={leadersPerPage}
+              setPerPage={setLeadersPerPage}
+              totalData={leadersData?.meta?.total || 0}
+            />
+          </div>
         </TabsContent>
       </Tabs>
 

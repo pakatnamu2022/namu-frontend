@@ -267,7 +267,7 @@ export function ItemsSection({
       >
         <div className="flex items-end justify-between gap-4">
           {isAdvancePayment && (
-            <Alert variant="info" className="text-sm p-2 w-fit">
+            <Alert className="text-sm p-2 w-fit">
               <AlertTitle className="flex items-center gap-2">
                 <Info className="size-5" />
                 Modo Anticipo: Solo puede agregar una línea.
