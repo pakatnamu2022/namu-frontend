@@ -45,6 +45,15 @@ export interface ControlUnitsResource {
   transport_company_id?: string;
   transmitter_establishment?: EstablishmentResource;
   receiver_establishment?: EstablishmentResource;
+  sent_at?: string | null;
+  enlace_del_pdf?: string | null;
+  enlace_del_xml?: string | null;
+  enlace_de_la_cdr?: string | null;
+  enlace_del_cdr?: string | null;
+  cadena_para_codigo_qr?: string | null;
+  aceptada_por_sunat?: boolean | null;
+  sunat_description?: string | null;
+  status_dynamic?: boolean | null;
   is_received?: boolean | null;
   ap_class_article_id?: string | null;
   sede_transmitter?: string;

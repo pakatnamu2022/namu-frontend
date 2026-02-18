@@ -756,7 +756,6 @@ export const VehiclePurchaseOrderForm = ({
               {/* Botón para actualizar items */}
               <Button
                 type="button"
-                variant="outline"
                 onClick={() =>
                   append({
                     unit_measurement_id: UNIT_MEASUREMENT_ID.UNIDAD.toString(),
