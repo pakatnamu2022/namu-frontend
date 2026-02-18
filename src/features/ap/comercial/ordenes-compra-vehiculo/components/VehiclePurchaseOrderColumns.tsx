@@ -13,10 +13,12 @@ export type VehiclePurchaseOrderColumns =
 
 interface Props {
   onRequestCreditNote: (purchaseOrderId: number) => void;
+  onRequestInvoice: (purchaseOrderId: number) => void;
 }
 
 export const vehiclePurchaseOrderColumns = ({
   onRequestCreditNote,
+  onRequestInvoice,
 }: Props): VehiclePurchaseOrderColumns[] => [
   {
     accessorKey: "status",
@@ -79,6 +81,24 @@ export const vehiclePurchaseOrderColumns = ({
   {
     accessorKey: "invoice_dynamics",
     header: "Factura Dynamics",
+    cell: ({ row }) => {
+      const value = row.original.invoice_dynamics;
+      return value ? (
+        <Badge variant="outline" className="font-mono text-sm font-normal">
+          {value}
+        </Badge>
+      ) : (
+        <Button
+          variant="outline"
+          size="xs"
+          color="blue"
+          onClick={() => onRequestInvoice(row.original.id)}
+        >
+          <Search />
+          Consultar
+        </Button>
+      );
+    },
   },
   {
     accessorKey: "receipt_dynamics",

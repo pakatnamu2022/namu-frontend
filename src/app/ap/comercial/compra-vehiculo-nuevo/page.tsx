@@ -15,7 +15,10 @@ import VehiclePurchaseOrderTable from "@/features/ap/comercial/ordenes-compra-ve
 import VehiclePurchaseOrderOptions from "@/features/ap/comercial/ordenes-compra-vehiculo/components/VehiclePurchaseOrderOptions";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { CM_COMERCIAL_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
-import { dispatchSyncCreditNote } from "@/features/ap/comercial/ordenes-compra-vehiculo/lib/vehiclePurchaseOrder.actions";
+import {
+  dispatchSyncCreditNote,
+  dispatchSyncInvoice,
+} from "@/features/ap/comercial/ordenes-compra-vehiculo/lib/vehiclePurchaseOrder.actions";
 import { ERROR_MESSAGE, errorToast } from "@/core/core.function";
 
 export default function VehiclePurchaseOrderPage() {
@@ -45,6 +48,19 @@ export default function VehiclePurchaseOrderPage() {
     colorId,
     statusId,
   ]);
+
+  const handleRequestInvoice = async (purchaseOrderId: number) => {
+    await dispatchSyncInvoice(purchaseOrderId)
+      .then((response) => {
+        if (response.success) {
+          refetch();
+        }
+      })
+      .catch((error: any) => {
+        errorToast(ERROR_MESSAGE(MODEL, "fetch"));
+        console.error("Error al solicitar factura:", error);
+      });
+  };
 
   const handleRequestCreditNote = async (purchaseOrderId: number) => {
     await dispatchSyncCreditNote(purchaseOrderId)
@@ -93,6 +109,7 @@ export default function VehiclePurchaseOrderPage() {
       <VehiclePurchaseOrderTable
         isLoading={isLoading}
         columns={vehiclePurchaseOrderColumns({
+          onRequestInvoice: handleRequestInvoice,
           onRequestCreditNote: handleRequestCreditNote,
         })}
         data={data?.data || []}
