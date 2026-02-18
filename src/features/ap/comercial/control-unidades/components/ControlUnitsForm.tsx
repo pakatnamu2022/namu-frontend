@@ -54,6 +54,8 @@ import { TYPES_OPERATION_ID } from "@/features/ap/configuraciones/maestros-gener
 import { FormInput } from "@/shared/components/FormInput";
 import { CM_COMERCIAL_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 import { useQueryClient } from "@tanstack/react-query";
+import VehicleModal from "../../vehiculos/components/VehicleModal";
+import { VEHICLES } from "../../vehiculos/lib/vehicles.constants";
 
 interface ControlUnitsFormProps {
   defaultValues: Partial<ControlUnitsSchema> & {
