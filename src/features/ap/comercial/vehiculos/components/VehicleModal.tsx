@@ -124,7 +124,12 @@ export default function VehicleModal({
     },
   });
 
-  const handleSubmit = (data: VehicleComercialSchema): void => {
+  const handleSubmit = (
+    data: VehicleComercialSchema,
+    e?: React.BaseSyntheticEvent,
+  ): void => {
+    e?.preventDefault();
+    e?.stopPropagation();
     createVehicle({
       ...data,
       type_operation_id: String(typeOperationId),

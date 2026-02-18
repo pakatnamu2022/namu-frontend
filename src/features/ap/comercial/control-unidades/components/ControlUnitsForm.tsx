@@ -12,7 +12,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader, Truck, Search, Plus } from "lucide-react";
 import {
@@ -120,6 +119,7 @@ export const ControlUnitsForm = ({
       }
     });
     formData.append("requires_sunat", requiresSunat ? "1" : "0");
+    formData.append("send_dynamics", "0");
     onSubmit(formData);
   };
   const [isFirstLoad, setIsFirstLoad] = useState(mode === "update");
@@ -584,23 +584,14 @@ export const ControlUnitsForm = ({
     if (watchTransferReasonId) {
       const currentSedeReceiver = form.getValues("sede_receiver_id");
 
-      // Si es COMPRA, setear sede destino igual a sede origen
-      if (watchTransferReasonId === SUNAT_CONCEPTS_ID.TRANSFER_REASON_COMPRA) {
-        if (
-          watchSedeTransmitterId &&
-          currentSedeReceiver !== watchSedeTransmitterId
-        ) {
-          form.setValue("sede_receiver_id", watchSedeTransmitterId, {
-            shouldValidate: false,
-          });
-        }
-      }
-      // Si es OTROS, limpiar sede destino ya que no se muestra
-      else if (
-        watchTransferReasonId === SUNAT_CONCEPTS_ID.TRANSFER_REASON_OTROS &&
-        currentSedeReceiver
+      // Si es COMPRA u OTROS, setear sede destino igual a sede origen
+      if (
+        (watchTransferReasonId === SUNAT_CONCEPTS_ID.TRANSFER_REASON_COMPRA ||
+          watchTransferReasonId === SUNAT_CONCEPTS_ID.TRANSFER_REASON_OTROS) &&
+        watchSedeTransmitterId &&
+        currentSedeReceiver !== watchSedeTransmitterId
       ) {
-        form.setValue("sede_receiver_id", "", {
+        form.setValue("sede_receiver_id", watchSedeTransmitterId, {
           shouldValidate: false,
         });
       }
@@ -621,7 +612,7 @@ export const ControlUnitsForm = ({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(handleFormSubmit)}
-        className="space-y-6 w-full"
+        className="space-y-6 w-full grid grid-cols-1 lg:grid-cols-2 gap-3"
       >
         {/* Sección: Información del Traslado */}
         <GroupFormSection
@@ -633,9 +624,7 @@ export const ControlUnitsForm = ({
             sm: 1,
             md: 2,
             lg: 3,
-            xl: 4,
           }}
-          gap="gap-3"
         >
           <FormSelect
             control={form.control}
@@ -683,26 +672,13 @@ export const ControlUnitsForm = ({
 
           {/* Serie - Condicional según Tipo de Emisor */}
           {watchIssuerType === "PROVEEDOR" ? (
-            <FormField
+            <FormInput
               control={form.control}
               name="series"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Serie</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Ej: T001"
-                      className="uppercase"
-                      maxLength={4}
-                      {...field}
-                      onChange={(e) =>
-                        field.onChange(e.target.value.toUpperCase())
-                      }
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              label="Serie"
+              placeholder="Ej: T001"
+              maxLength={4}
+              uppercase
             />
           ) : (
             <FormSelect
@@ -721,18 +697,12 @@ export const ControlUnitsForm = ({
 
           {/* Correlativo - Condicional según Tipo de Emisor */}
           {watchIssuerType === "PROVEEDOR" && (
-            <FormField
+            <FormInput
               control={form.control}
               name="correlative"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Correlativo</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Ej: 00001234" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              label="Correlativo"
+              placeholder="Ej: 00001234"
+              uppercase
             />
           )}
 
@@ -752,6 +722,31 @@ export const ControlUnitsForm = ({
               disabled={!watchArticleClassId || isLoadingMySedes}
             />
           ) : null}
+
+          {/* Sede Destino - Mostrar siempre pero con diferentes comportamientos */}
+          {(watchTransferReasonId === SUNAT_CONCEPTS_ID.TRANSFER_REASON_OTROS ||
+            watchTransferReasonId ===
+              SUNAT_CONCEPTS_ID.TRANSFER_REASON_COMPRA) && (
+            <div className="space-y-1">
+              <FormSelect
+                key={`sede-receiver-same-${watchTransferReasonId}`}
+                name="sede_receiver_id"
+                label="Sede Destino"
+                placeholder="Selecciona sede"
+                options={mySedes.map((item) => ({
+                  label: item.sede,
+                  description: item.description,
+                  value: item.sede_id.toString(),
+                }))}
+                control={form.control}
+                strictFilter={true}
+                disabled={true}
+              />
+              <p className="text-xs text-muted-foreground italic">
+                La sede de destino es la misma que la sede de origen
+              </p>
+            </div>
+          )}
 
           {watchTransferReasonId !== SUNAT_CONCEPTS_ID.TRANSFER_REASON_OTROS &&
             watchTransferReasonId !==
@@ -809,7 +804,7 @@ export const ControlUnitsForm = ({
           <FormSelect
             name="transfer_modality_id"
             label="Modalidad de Traslado"
-            placeholder="Selecciona tipo de transporte"
+            placeholder="Selecciona modalidad"
             options={typeTransportation.map((item) => ({
               label: item.description,
               value: item.id.toString(),
@@ -825,33 +820,42 @@ export const ControlUnitsForm = ({
             disabledRange={{ before: new Date() }}
           />
 
-          <FormField
+          <FormInput
             control={form.control}
             name="total_packages"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Núm. Bultos</FormLabel>
-                <FormControl>
-                  <Input type="number" placeholder="1" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Núm. Bultos"
+            placeholder="1"
+            type="number"
           />
 
-          <FormField
+          <FormInput
             control={form.control}
             name="total_weight"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Peso Total</FormLabel>
-                <FormControl>
-                  <Input placeholder="779.55" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Peso Total"
+            placeholder="100"
+            type="number"
           />
+
+          <div className="space-y-4 col-span-full">
+            <FormField
+              control={form.control}
+              name="notes"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Notas u Observaciones</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Observaciones adicionales sobre el traslado..."
+                      className="resize-none"
+                      rows={4}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
         </GroupFormSection>
 
         {/* Sección: Información del Conductor y Vehículo */}
@@ -864,12 +868,10 @@ export const ControlUnitsForm = ({
             sm: 1,
             md: 2,
             lg: 3,
-            xl: 4,
           }}
-          gap="gap-3"
         >
           {/* Ubicación Origen */}
-          <div className="space-y-2">
+          <div className="space-y-2 col-span-full">
             <FormSelect
               name="transmitter_origin_id"
               label={() => (
@@ -911,7 +913,7 @@ export const ControlUnitsForm = ({
           </div>
 
           {/* Ubicación Destino */}
-          <div className="space-y-2">
+          <div className="space-y-2 col-span-full">
             <FormSelect
               name="receiver_destination_id"
               label={() => (
@@ -952,17 +954,19 @@ export const ControlUnitsForm = ({
             )}
           </div>
 
-          <FormSelect
-            name="transport_company_id"
-            label="Empresa Transporte"
-            placeholder="Selecciona empresa"
-            options={suppliers.map((item) => ({
-              label: item.full_name,
-              value: item.id.toString(),
-            }))}
-            control={form.control}
-            strictFilter={true}
-          />
+          <div className="md:col-span-2">
+            <FormSelect
+              name="transport_company_id"
+              label="Empresa Transporte"
+              placeholder="Selecciona empresa"
+              options={suppliers.map((item) => ({
+                label: item.full_name,
+                value: item.id.toString(),
+              }))}
+              control={form.control}
+              strictFilter={true}
+            />
+          </div>
 
           <FormInput
             control={form.control}
@@ -994,85 +998,40 @@ export const ControlUnitsForm = ({
             }
           />
 
-          <FormField
+          <FormInput
             control={form.control}
             name="driver_name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Nombre del Conductor</FormLabel>
-                <FormControl>
-                  <Input placeholder="Nombre completo" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Nombre del Conductor"
+            placeholder="Nombre completo"
+            uppercase
           />
 
-          <FormField
+          <FormInput
             control={form.control}
             name="license"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="flex items-center gap-2 relative">
-                  Licencia de Conducir
-                  {conductorDniData?.success &&
-                    conductorDniData.data?.licencia?.estado && (
-                      <span className="text-xs font-normal text-primary absolute right-0">
-                        {conductorDniData.data.licencia.estado}
-                      </span>
-                    )}
-                </FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: Q12345678" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label={
+              <div className="flex items-center gap-2 relative">
+                Licencia de Conducir
+                {conductorDniData?.success &&
+                  conductorDniData.data?.licencia?.estado && (
+                    <span className="text-xs font-normal text-primary absolute right-0">
+                      {conductorDniData.data.licencia.estado}
+                    </span>
+                  )}
+              </div>
+            }
+            uppercase
+            placeholder="Ej: Q12345678"
           />
 
-          <FormField
+          <FormInput
             control={form.control}
             name="plate"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Placa del Vehículo (cigueña)</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="Ej: ABC-123"
-                    className="uppercase"
-                    {...field}
-                    onChange={(e) =>
-                      field.onChange(e.target.value.toUpperCase())
-                    }
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Placa del Vehículo (cigueña)"
+            placeholder="Ej: ABC-123"
+            uppercase
           />
         </GroupFormSection>
-
-        {/* Sección: Observaciones */}
-        <div className="space-y-4">
-          <FormField
-            control={form.control}
-            name="notes"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Notas u Observaciones</FormLabel>
-                <FormControl>
-                  <Textarea
-                    placeholder="Observaciones adicionales sobre el traslado..."
-                    className="resize-none"
-                    rows={4}
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
 
         {/* Sección: Imagen de la Guía */}
         <div className="space-y-4">

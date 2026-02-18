@@ -277,6 +277,7 @@ export function FormSelectAsync({
                       className={cn(
                         "w-full justify-between min-h-10 flex",
                         !field.value && "text-muted-foreground",
+                        field.value && "bg-muted",
                         className,
                       )}
                     >

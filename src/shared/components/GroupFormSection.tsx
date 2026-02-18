@@ -71,7 +71,7 @@ export const GroupFormSection = ({
   children,
   cols = { sm: 2, md: 3, lg: 4 },
   className,
-  gap = "gap-3 md:gap-6",
+  gap = "gap-3",
   headerExtra,
 }: FormSectionProps) => {
   const gridClasses = [
@@ -95,7 +95,7 @@ export const GroupFormSection = ({
         className,
       )}
     >
-      <div className={`${bgColor} px-6 py-2.5 border-b border-muted`}>
+      <div className={`${bgColor} px-3 py-1.5 border-b border-muted`}>
         <div className="flex flex-row flex-wrap justify-between sm:items-center gap-3">
           <h3
             className={cn(
@@ -109,7 +109,7 @@ export const GroupFormSection = ({
           {headerExtra}
         </div>
       </div>
-      <div className="p-4 md:p-6">
+      <div className="p-3">
         <div className={cn(gridClasses)}>{children}</div>
       </div>
     </div>

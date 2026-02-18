@@ -144,7 +144,7 @@ export function DatePickerFormField<T extends FieldValues>({
           <DrawerTrigger asChild>
             <FormControl>
               <Button
-                size={size ? size : isMobile ? "sm" : "lg"}
+                size={size ? size : isMobile ? "sm" : "default"}
                 variant="outline"
                 className="w-full justify-between font-normal text-xs"
                 disabled={disabled}
@@ -178,7 +178,7 @@ export function DatePickerFormField<T extends FieldValues>({
             <FormControl>
               <Button
                 variant="outline"
-                size={size ? size : isMobile ? "sm" : "lg"}
+                size={size ? size : isMobile ? "sm" : "default"}
                 className={cn(
                   "w-full justify-start text-left font-normal",
                   !parsedDate && "text-muted-foreground",

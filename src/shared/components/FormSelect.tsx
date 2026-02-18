@@ -267,13 +267,14 @@ export function FormSelect({
 
         const triggerButton = (
           <Button
-            size={size ? size : isMobile ? "sm" : "lg"}
+            size={size ? size : isMobile ? "sm" : "default"}
             variant="outline"
             role="combobox"
             disabled={disabled}
             className={cn(
               "w-full justify-between flex",
               !field.value && "text-muted-foreground",
+              field.value && "bg-muted",
               className,
             )}
           >
