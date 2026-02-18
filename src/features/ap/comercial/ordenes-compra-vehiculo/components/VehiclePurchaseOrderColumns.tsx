@@ -84,9 +84,19 @@ export const vehiclePurchaseOrderColumns = ({
     cell: ({ row }) => {
       const value = row.original.invoice_dynamics;
       return value ? (
-        <Badge variant="outline" className="font-mono text-sm font-normal">
-          {value}
-        </Badge>
+        <div className="flex items-center gap-2">
+          <Badge variant="outline" className="font-mono text-sm font-normal">
+            {value}
+          </Badge>
+          <Button
+            variant="outline"
+            size="icon-xs"
+            color="blue"
+            onClick={() => onRequestInvoice(row.original.id)}
+          >
+            <Search />
+          </Button>
+        </div>
       ) : (
         <Button
           variant="outline"

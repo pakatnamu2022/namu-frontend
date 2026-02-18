@@ -13,6 +13,7 @@ import {
   Ban,
   PackageCheck,
   Loader2,
+  Info,
 } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import type { ControlUnitsResource } from "../lib/controlUnits.interface";
@@ -28,6 +29,8 @@ import {
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { useState } from "react";
 import { SUNAT_CONCEPTS_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
+import { Popover } from "@radix-ui/react-popover";
+import { PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 export type ControlUnitsColumns = ColumnDef<ControlUnitsResource>;
 
@@ -317,17 +320,133 @@ export const ControlUnitsColumns = ({
     },
   },
   {
+    accessorKey: "sent_at",
+    id: "sent_at",
+    meta: {
+      title: "Enviado SUNAT",
+    },
+    header: () => (
+      <div className="flex items-center gap-1.5">
+        <span>Enviado SUNAT</span>
+        <Popover>
+          <PopoverTrigger asChild>
+            <button className="focus:outline-none">
+              <Info className="size-3.5 text-muted-foreground hover:text-foreground transition-colors" />
+            </button>
+          </PopoverTrigger>
+          <PopoverContent className="w-72 p-3" align="start">
+            <div className="space-y-2">
+              <h4 className="font-semibold text-sm mb-2">Estados de SUNAT</h4>
+              <div className="space-y-1.5 text-xs">
+                <div className="flex items-center gap-2">
+                  <div className="size-2 rounded-full bg-green-600" />
+                  <span>Aceptado por SUNAT</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="size-2 rounded-full bg-primary" />
+                  <span>En espera de respuesta</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="size-2 rounded-full bg-destructive" />
+                  <span>Rechazado (&gt;5h sin respuesta)</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="size-2 rounded-full bg-gray-400" />
+                  <span>No enviado</span>
+                </div>
+              </div>
+            </div>
+          </PopoverContent>
+        </Popover>
+      </div>
+    ),
+    cell: ({ row }) => {
+      const sentAt = row.getValue("sent_at") as string | null;
+      const aceptadaPorSunat = row.original.aceptada_por_sunat;
+      const WAITING_TIME_HOURS = 5;
+
+      // Configuración de estados con estilos modernos
+      const statusConfig = {
+        accepted: {
+          label: "Aceptado",
+          icon: <CheckCircle2 className="size-3" />,
+          className:
+            "bg-emerald-100 text-emerald-700 hover:bg-emerald-200 border-emerald-300",
+        },
+        rejected: {
+          label: "Rechazado",
+          icon: <XCircle className="size-3" />,
+          className: "bg-red-100 text-red-700 hover:bg-red-200 border-red-300",
+        },
+        pending: {
+          label: "En espera",
+          icon: <CheckCircle2 className="size-3" />,
+          className:
+            "bg-blue-100 text-blue-700 hover:bg-blue-200 border-blue-300",
+        },
+        notSent: {
+          label: "No enviado",
+          icon: <XCircle className="size-3" />,
+          className:
+            "bg-gray-100 text-gray-600 hover:bg-gray-200 border-gray-300",
+        },
+      };
+
+      if (sentAt) {
+        const sentDate = new Date(sentAt);
+        const now = new Date();
+        const hoursDiff =
+          (now.getTime() - sentDate.getTime()) / (1000 * 60 * 60);
+
+        // Determinar estado
+        let status: keyof typeof statusConfig;
+
+        if (aceptadaPorSunat === true) {
+          status = "accepted";
+        } else if (
+          aceptadaPorSunat === false &&
+          hoursDiff > WAITING_TIME_HOURS
+        ) {
+          status = "rejected";
+        } else {
+          status = "pending";
+        }
+
+        const config = statusConfig[status];
+
+        return (
+          <div className="flex flex-col gap-1">
+            <div
+              className={`inline-flex items-center gap-1.5 w-fit px-2.5 py-1 rounded-full text-xs font-medium border transition-colors ${config.className}`}
+            >
+              {config.icon}
+              <span>{config.label}</span>
+            </div>
+            <span className="text-xs text-muted-foreground">
+              {format(sentDate, "dd/MM/yyyy HH:mm", { locale: es })}
+            </span>
+          </div>
+        );
+      }
+
+      const config = statusConfig.notSent;
+      return (
+        <div
+          className={`inline-flex items-center gap-1.5 w-fit px-2.5 py-1 rounded-full text-xs font-medium border transition-colors ${config.className}`}
+        >
+          {config.icon}
+          <span>{config.label}</span>
+        </div>
+      );
+    },
+  },
+  {
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
       // eslint-disable-next-line react-hooks/rules-of-hooks
       const router = useNavigate();
-      const {
-        id,
-        is_received,
-        transfer_reason_id,
-        status,
-      } = row.original;
+      const { id, is_received, transfer_reason_id, status } = row.original;
       const { ROUTE_UPDATE, ABSOLUTE_ROUTE } = CONTROL_UNITS;
       const isPurchase =
         transfer_reason_id.toString() ===
