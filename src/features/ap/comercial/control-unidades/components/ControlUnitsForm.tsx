@@ -52,10 +52,8 @@ import { useAllClassArticle } from "@/features/ap/configuraciones/maestros-gener
 import { useAllVehicles } from "../../vehiculos/lib/vehicles.hook";
 import { TYPES_OPERATION_ID } from "@/features/ap/configuraciones/maestros-general/tipos-operacion/lib/typesOperation.constants";
 import { FormInput } from "@/shared/components/FormInput";
-import { VEHICLES } from "../../vehiculos/lib/vehicles.constants";
-import VehicleModal from "../../vehiculos/components/VehicleModal";
-import { useQueryClient } from "@tanstack/react-query";
 import { CM_COMERCIAL_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface ControlUnitsFormProps {
   defaultValues: Partial<ControlUnitsSchema> & {
