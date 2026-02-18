@@ -9,6 +9,7 @@ import {
   VehiclePurchaseOrderResource,
   VehiclePurchaseOrderResponse,
 } from "./vehiclePurchaseOrder.interface";
+import { SuccessResponse } from "@/core/core.interface";
 
 const { ENDPOINT } = VEHICLE_PURCHASE_ORDER;
 
@@ -106,16 +107,20 @@ export async function resendVehiclePurchaseOrder(
   return response.data;
 }
 
-interface SyncCreditNoteResponse {
-  success: boolean;
-  message: string;
-}
-
 export async function dispatchSyncCreditNote(
   id: number,
-): Promise<SyncCreditNoteResponse> {
-  const response = await api.get<SyncCreditNoteResponse>(
+): Promise<SuccessResponse> {
+  const response = await api.get<SuccessResponse>(
     `${ENDPOINT}/${id}/dispatchSyncCreditNoteJob`,
+  );
+  return response.data;
+}
+
+export async function dispatchSyncInvoice(
+  id: number,
+): Promise<SuccessResponse> {
+  const response = await api.get<SuccessResponse>(
+    `${ENDPOINT}/${id}/dispatchSyncInvoiceJob`,
   );
   return response.data;
 }
