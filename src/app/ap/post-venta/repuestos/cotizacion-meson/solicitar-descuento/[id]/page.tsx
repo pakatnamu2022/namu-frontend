@@ -39,6 +39,7 @@ export default function RequestDiscountOrderQuotationMesonPage() {
   const { id } = useParams();
   const queryClient = useQueryClient();
 
+  // Hooks para obtener datos
   const { data: quotation, isLoading } = useOrderQuotationById(Number(id));
   const { data: discountRequests = [], isLoading: isLoadingRequests } =
     useDiscountRequestsByQuotation(Number(id));
