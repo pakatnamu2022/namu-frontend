@@ -19,7 +19,7 @@ import {
   dispatchSyncCreditNote,
   dispatchSyncInvoice,
 } from "@/features/ap/comercial/ordenes-compra-vehiculo/lib/vehiclePurchaseOrder.actions";
-import { ERROR_MESSAGE, errorToast } from "@/core/core.function";
+import { ERROR_MESSAGE, errorToast, successToast } from "@/core/core.function";
 
 export default function VehiclePurchaseOrderPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -52,9 +52,10 @@ export default function VehiclePurchaseOrderPage() {
   const handleRequestInvoice = async (purchaseOrderId: number) => {
     await dispatchSyncInvoice(purchaseOrderId)
       .then((response) => {
-        if (response.success) {
-          refetch();
+        if (response.message) {
+          successToast(response.message);
         }
+        refetch();
       })
       .catch((error: any) => {
         errorToast(ERROR_MESSAGE(MODEL, "fetch"));
@@ -65,9 +66,10 @@ export default function VehiclePurchaseOrderPage() {
   const handleRequestCreditNote = async (purchaseOrderId: number) => {
     await dispatchSyncCreditNote(purchaseOrderId)
       .then((response) => {
-        if (response.success) {
-          refetch();
+        if (response.message) {
+          successToast(response.message);
         }
+        refetch();
       })
       .catch((error: any) => {
         errorToast(ERROR_MESSAGE(MODEL, "fetch"));
