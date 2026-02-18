@@ -52,7 +52,7 @@ export default function ElectronicDocumentsPage() {
     per_page,
     search,
     status: statusFilter,
-    area_id: AREA_COMERCIAL,
+    area_id: [AREA_COMERCIAL],
     sunat_concept_document_type_id: documentTypeFilter
       ? parseInt(documentTypeFilter)
       : undefined,

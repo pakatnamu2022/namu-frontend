@@ -38,3 +38,10 @@ export async function deleteDiscountRequestOrderQuotation(
   const response = await api.delete<GeneralResponse>(`${ENDPOINT}/${id}`);
   return response.data;
 }
+
+export async function approveDiscountRequestOrderQuotation(
+  id: number,
+): Promise<GeneralResponse> {
+  const response = await api.put<GeneralResponse>(`${ENDPOINT}/${id}/approve`);
+  return response.data;
+}

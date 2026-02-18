@@ -52,7 +52,7 @@ export default function SalesReceiptsRepuestoPage() {
     per_page,
     search,
     status: statusFilter,
-    area_id: AREA_MESON.toString(),
+    area_id: [String(AREA_MESON)],
     sunat_concept_document_type_id: documentTypeFilter
       ? parseInt(documentTypeFilter)
       : undefined,

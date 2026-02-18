@@ -185,7 +185,12 @@ export const inventoryMovementsColumns = (): InventoryMovementColumns[] => [
 
         return (
           <div className="flex flex-col text-sm">
-            <span className="font-medium">{quotation.client.full_name}</span>
+            <span className="font-medium">
+              {quotation.advances[0].cliente_denominacion}
+            </span>
+            <span className="text-xs text-gray-500">
+              RUC: {quotation.advances[0].cliente_numero_de_documento}
+            </span>
             <span className="text-xs text-gray-500">
               Cotización: {quotation.quotation_number}
             </span>

@@ -52,7 +52,7 @@ export default function SalesReceiptsTallerPage() {
     per_page,
     search,
     status: statusFilter,
-    area_id: AREA_TALLER.toString(),
+    area_id: [String(AREA_TALLER)],
     sunat_concept_document_type_id: documentTypeFilter
       ? parseInt(documentTypeFilter)
       : undefined,

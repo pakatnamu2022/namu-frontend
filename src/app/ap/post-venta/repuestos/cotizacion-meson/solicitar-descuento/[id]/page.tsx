@@ -16,10 +16,13 @@ import { DiscountRequestModal } from "@/features/ap/post-venta/repuestos/descuen
 import { OrderQuotationDetailsResource } from "@/features/ap/post-venta/taller/cotizacion-detalle/lib/proformaDetails.interface";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { Pencil, Percent, Tag, Trash2 } from "lucide-react";
+import { CheckCircle, Pencil, Percent, Tag, Trash2 } from "lucide-react";
 import { useDiscountRequestsByQuotation } from "@/features/ap/post-venta/repuestos/descuento-cotizacion-meson/lib/discountRequestMeson.hook";
 import { DiscountRequestOrderQuotationResource } from "@/features/ap/post-venta/repuestos/descuento-cotizacion-meson/lib/discountRequestMeson.interface";
-import { deleteDiscountRequestOrderQuotation } from "@/features/ap/post-venta/repuestos/descuento-cotizacion-meson/lib/discountRequestMeson.actions";
+import {
+  approveDiscountRequestOrderQuotation,
+  deleteDiscountRequestOrderQuotation,
+} from "@/features/ap/post-venta/repuestos/descuento-cotizacion-meson/lib/discountRequestMeson.actions";
 import {
   DISCOUNT_REQUEST_MESON,
   TYPE_GLOBAL,
@@ -47,6 +50,21 @@ export default function RequestDiscountOrderQuotationMesonPage() {
   const [editingRequest, setEditingRequest] =
     useState<DiscountRequestOrderQuotationResource | null>(null);
   const [deleteId, setDeleteId] = useState<number | null>(null);
+
+  const { mutate: doApprove, isPending: isApproving } = useMutation({
+    mutationFn: approveDiscountRequestOrderQuotation,
+    onSuccess: () => {
+      successToast("Solicitud aprobada correctamente");
+      queryClient.invalidateQueries({
+        queryKey: [DISCOUNT_REQUEST_MESON.QUERY_KEY],
+      });
+    },
+    onError: (error: any) => {
+      const message =
+        error?.response?.data?.message || "Error al aprobar la solicitud";
+      errorToast(message);
+    },
+  });
 
   const { mutate: doDelete } = useMutation({
     mutationFn: deleteDiscountRequestOrderQuotation,
@@ -159,6 +177,16 @@ export default function RequestDiscountOrderQuotationMesonPage() {
                 </Badge>
                 {!globalRequest.is_approved && (
                   <>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="size-7 text-green-600 hover:text-green-600 hover:bg-green-50"
+                      tooltip="Aprobar solicitud global"
+                      onClick={() => doApprove(globalRequest.id)}
+                      disabled={isApproving}
+                    >
+                      <CheckCircle className="size-4" />
+                    </Button>
                     <Button
                       variant="outline"
                       size="icon"
@@ -310,6 +338,16 @@ export default function RequestDiscountOrderQuotationMesonPage() {
                         </Badge>
                         {!partialRequest.is_approved && (
                           <>
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              className="size-7 text-green-600 hover:text-green-600 hover:bg-green-50"
+                              tooltip="Aprobar solicitud"
+                              onClick={() => doApprove(partialRequest.id)}
+                              disabled={isApproving}
+                            >
+                              <CheckCircle className="size-4" />
+                            </Button>
                             <Button
                               variant="outline"
                               size="icon"
