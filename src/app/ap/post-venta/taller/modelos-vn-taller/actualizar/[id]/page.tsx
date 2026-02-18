@@ -22,7 +22,7 @@ import { ModelsVnForm } from "@/features/ap/configuraciones/vehiculos/modelos-vn
 import FormWrapper from "@/shared/components/FormWrapper.tsx";
 import { MODELS_VN_POSTVENTA } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.constanst.ts";
 import { notFound } from "@/shared/hooks/useNotFound.ts";
-import { CM_POSTVENTA_ID } from "@/core/core.constants.ts";
+import { CM_POSTVENTA_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 export default function UpdateModelsVnPage() {
   const { id } = useParams();

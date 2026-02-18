@@ -42,6 +42,7 @@ import { useWorkOrderContext } from "../../contexts/WorkOrderContext";
 import { findWorkOrderById } from "../../lib/workOrder.actions";
 import { FormInput } from "@/shared/components/FormInput";
 import { useAuthStore } from "@/features/auth/lib/auth.store";
+import { ITEM_TYPE_PRODUCT } from "../../../cotizacion-detalle/lib/proformaDetails.constants";
 
 interface PartsTabProps {
   workOrderId: number;
@@ -229,7 +230,7 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
   const handleToggleAll = () => {
     if (associatedQuotation?.details) {
       const productDetails = associatedQuotation.details.filter(
-        (d: any) => d.item_type === "PRODUCT" && d.status === "pending",
+        (d: any) => d.item_type === ITEM_TYPE_PRODUCT && d.status === "pending",
       );
       if (selectedProductIds.length === productDetails.length) {
         setSelectedProductIds([]);
@@ -477,7 +478,8 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
       {hasAssociatedQuotation &&
         associatedQuotation &&
         associatedQuotation.details?.filter(
-          (d: any) => d.item_type === "PRODUCT" && d.status === "pending",
+          (d: any) =>
+            d.item_type === ITEM_TYPE_PRODUCT && d.status === "pending",
         ).length > 0 && (
           <Card className="p-6">
             <div className="space-y-4">
@@ -493,7 +495,8 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
                     <p className="text-sm text-gray-600">
                       {associatedQuotation.details?.filter(
                         (d: any) =>
-                          d.item_type === "PRODUCT" && d.status === "pending",
+                          d.item_type === ITEM_TYPE_PRODUCT &&
+                          d.status === "pending",
                       ).length || 0}{" "}
                       producto(s)
                     </p>
@@ -570,13 +573,13 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
                           checked={
                             associatedQuotation.details?.filter(
                               (d: any) =>
-                                d.item_type === "PRODUCT" &&
+                                d.item_type === ITEM_TYPE_PRODUCT &&
                                 d.status === "pending",
                             ).length > 0 &&
                             selectedProductIds.length ===
                               associatedQuotation.details?.filter(
                                 (d: any) =>
-                                  d.item_type === "PRODUCT" &&
+                                  d.item_type === ITEM_TYPE_PRODUCT &&
                                   d.status === "pending",
                               ).length
                           }
@@ -594,7 +597,7 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
                     {associatedQuotation.details
                       ?.filter(
                         (detail: any) =>
-                          detail.item_type === "PRODUCT" &&
+                          detail.item_type === ITEM_TYPE_PRODUCT &&
                           detail.status === "pending",
                       )
                       .map((detail: any) => {

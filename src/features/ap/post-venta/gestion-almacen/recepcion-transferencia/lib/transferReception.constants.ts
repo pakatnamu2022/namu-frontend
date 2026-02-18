@@ -2,8 +2,7 @@ import { ModelComplete } from "@/core/core.interface.ts";
 import { TransferReceptionResource } from "./transferReception.interface.ts";
 
 const ROUTE = "recepcion";
-const ABSOLUTE_ROUTE =
-  "/ap/post-venta/gestion-de-almacen/transferencia-producto";
+const ABSOLUTE_ROUTE = "/ap/post-venta/gestion-de-almacen/guia-remision";
 
 export const TRANSFER_RECEPTION: ModelComplete<TransferReceptionResource> = {
   MODEL: {

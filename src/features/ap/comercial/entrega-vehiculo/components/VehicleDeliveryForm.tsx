@@ -22,7 +22,7 @@ import { Loader } from "lucide-react";
 import { DateTimePickerForm } from "@/shared/components/DateTimePickerForm";
 import { FormSelect } from "@/shared/components/FormSelect";
 import FormSkeleton from "@/shared/components/FormSkeleton";
-import { CM_COMERCIAL_ID, EMPRESA_AP } from "@/core/core.constants";
+import { EMPRESA_AP } from "@/core/core.constants";
 import { Card } from "@/components/ui/card";
 import { useWarehousesByCompany } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
 import { useAllClassArticle } from "@/features/ap/configuraciones/maestros-general/clase-articulo/lib/classArticle.hook";
@@ -31,6 +31,7 @@ import {
   useVehicleClientDebtInfo,
 } from "../../vehiculos/lib/vehicles.hook";
 import { AlertCircle, CheckCircle2 } from "lucide-react";
+import { CM_COMERCIAL_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 interface VehicleDeliveryFormProps {
   defaultValues: Partial<VehicleDeliverySchema>;
@@ -51,7 +52,7 @@ export const VehicleDeliveryForm = ({
     resolver: zodResolver(
       mode === "create"
         ? vehicleDeliverySchemaCreate
-        : (vehicleDeliverySchemaUpdate as any)
+        : (vehicleDeliverySchemaUpdate as any),
     ),
     defaultValues: {
       ...defaultValues,
@@ -93,7 +94,7 @@ export const VehicleDeliveryForm = ({
   // Obtener información de deuda del cliente
   const { data: debtInfo, isLoading: isLoadingDebtInfo } =
     useVehicleClientDebtInfo(
-      selectedVehicleId ? Number(selectedVehicleId) : null
+      selectedVehicleId ? Number(selectedVehicleId) : null,
     );
 
   // Verificar si puede guardar (deuda pagada)
@@ -105,7 +106,7 @@ export const VehicleDeliveryForm = ({
 
     if (currentVehicleId && vehiclesVn.length > 0) {
       const vehicleExists = vehiclesVn.some(
-        (v) => v.id.toString() === currentVehicleId
+        (v) => v.id.toString() === currentVehicleId,
       );
 
       if (!vehicleExists) {

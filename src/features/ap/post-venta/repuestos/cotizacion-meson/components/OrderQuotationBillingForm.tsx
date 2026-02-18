@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useMemo } from "react";
+import { useEffect, useRef, useMemo, useState } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { Form } from "@/components/ui/form";
 import {
@@ -45,6 +45,22 @@ export function OrderQuotationBillingForm({
   const lastLoadedAdvancePaymentState = useRef<boolean | null>(null);
   const processedAdvancePaymentsForQuotationKey = useRef<string | null>(null);
   const currencyAlreadySet = useRef<boolean>(false);
+
+  // Estado para controlar el cliente bloqueado desde anticipos
+  const [lockedClientId, setLockedClientId] = useState<number | null>(null);
+  const [lockedClientName, setLockedClientName] = useState<string>("");
+  const [lockedClientDoc, setLockedClientDoc] = useState<string>("");
+
+  // Callback para recibir los datos del cliente bloqueado
+  const handleClientIdDetected = (
+    clientId: number | null,
+    clientName?: string,
+    clientDoc?: string,
+  ) => {
+    setLockedClientId(clientId);
+    setLockedClientName(clientName || "");
+    setLockedClientDoc(clientDoc || "");
+  };
 
   // Obtener todos los conceptos SUNAT necesarios en una sola consulta
   const { data: sunatConcepts = [] } = useAllSunatConcepts({
@@ -537,6 +553,7 @@ export function OrderQuotationBillingForm({
                 quotation={quotation}
                 advances={quotation.advances}
                 currencySymbol={currencySymbol}
+                onClientIdDetected={handleClientIdDetected}
               />
             )}
 
@@ -552,6 +569,9 @@ export function OrderQuotationBillingForm({
               defaultCustomer={quotation.client}
               hasSufficientStock={quotation.has_sufficient_stock}
               pendingBalance={pendingBalance}
+              lockedClientId={lockedClientId}
+              lockedClientName={lockedClientName}
+              lockedClientDoc={lockedClientDoc}
             />
 
             {/* Agregar Items */}

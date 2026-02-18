@@ -7,6 +7,7 @@ import {
   Eye,
   PackageOpen,
   XCircle,
+  BadgePercent,
 } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import {
@@ -32,6 +33,7 @@ interface Props {
   onBilling: (id: number) => void;
   onViewBilling: (orderQuotation: OrderQuotationResource) => void;
   onViewDelivery: (orderQuotation: OrderQuotationResource) => void;
+  onRequestDiscount: (id: number) => void;
   onRefresh?: () => void;
   permissions: {
     canUpdate: boolean;
@@ -45,6 +47,7 @@ export const orderQuotationMesonColumns = ({
   onBilling,
   onViewBilling,
   onViewDelivery,
+  onRequestDiscount,
   onRefresh,
   permissions,
 }: Props): OrderQuotationMesonColumns[] => [
@@ -293,6 +296,18 @@ export const orderQuotationMesonColumns = ({
                 onClick={() => onViewDelivery(row.original)}
               >
                 <PackageOpen className="size-5" />
+              </Button>
+            )}
+
+            {!isDiscarded && !has_invoice_generated && (
+              <Button
+                variant="outline"
+                size="icon"
+                className="size-7 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                tooltip="Solicitar Descuento"
+                onClick={() => onRequestDiscount(id)}
+              >
+                <BadgePercent className="size-5" />
               </Button>
             )}
 

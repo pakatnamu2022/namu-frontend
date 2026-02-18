@@ -10,6 +10,9 @@ import {
   Loader2,
   Copy,
   PackagePlus,
+  Pencil,
+  Tag,
+  Percent,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -21,7 +24,10 @@ import {
   ERROR_MESSAGE,
   SUCCESS_MESSAGE,
 } from "@/core/core.function";
-import { ORDER_QUOTATION_DETAILS } from "../lib/proformaDetails.constants";
+import {
+  ITEM_TYPE_PRODUCT,
+  ORDER_QUOTATION_DETAILS,
+} from "../lib/proformaDetails.constants";
 import { storeOrderQuotationDetails } from "../lib/proformaDetails.actions";
 import { OrderQuotationDetailsResource } from "../lib/proformaDetails.interface";
 import {
@@ -39,6 +45,12 @@ import { CURRENCY_TYPE_IDS } from "@/features/ap/configuraciones/maestros-genera
 import { FormInput } from "@/shared/components/FormInput";
 import QuotationPartModal from "@/features/ap/post-venta/repuestos/cotizacion-meson/components/QuotationPartModal";
 import { FormSelect } from "@/shared/components/FormSelect";
+import { DiscountRequestOrderQuotationResource } from "@/features/ap/post-venta/repuestos/descuento-cotizacion-meson/lib/discountRequestMeson.interface";
+import { DiscountRequestModal } from "@/features/ap/post-venta/repuestos/descuento-cotizacion-meson/components/DiscountRequestModal";
+import { deleteDiscountRequestOrderQuotation } from "@/features/ap/post-venta/repuestos/descuento-cotizacion-meson/lib/discountRequestMeson.actions";
+import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
+import { TYPE_GLOBAL, TYPE_PARTIAL, DISCOUNT_REQUEST_MESON } from "@/features/ap/post-venta/repuestos/descuento-cotizacion-meson/lib/discountRequestMeson.constants";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 const onSelectSupplyType = [
   { label: "Lima", value: "LIMA" },
@@ -54,6 +66,7 @@ interface ProductDetailsSectionProps {
   onDelete: (id: number) => Promise<void>;
   currencySymbol: string;
   currencyId: number;
+  discountRequests: DiscountRequestOrderQuotationResource[];
 }
 
 export default function ProductDetailsSection({
@@ -65,8 +78,54 @@ export default function ProductDetailsSection({
   onDelete,
   currencySymbol,
   currencyId,
+  discountRequests,
 }: ProductDetailsSectionProps) {
   const [isSaving, setIsSaving] = useState(false);
+  const queryClient = useQueryClient();
+
+  // Estado del modal de descuento
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalType, setModalType] = useState<"GLOBAL" | "PARTIAL">(TYPE_GLOBAL);
+  const [selectedDetail, setSelectedDetail] = useState<OrderQuotationDetailsResource | null>(null);
+  const [editingRequest, setEditingRequest] = useState<DiscountRequestOrderQuotationResource | null>(null);
+  const [deleteDiscountId, setDeleteDiscountId] = useState<number | null>(null);
+
+  const { mutate: doDeleteDiscount } = useMutation({
+    mutationFn: deleteDiscountRequestOrderQuotation,
+    onSuccess: () => {
+      successToast("Solicitud eliminada correctamente");
+      queryClient.invalidateQueries({ queryKey: [DISCOUNT_REQUEST_MESON.QUERY_KEY] });
+      setDeleteDiscountId(null);
+    },
+    onError: (error: any) => {
+      const message = error?.response?.data?.message || "Error al eliminar la solicitud";
+      errorToast(message);
+      setDeleteDiscountId(null);
+    },
+  });
+
+  const handleOpenCreate = (type: "GLOBAL" | "PARTIAL", detail?: OrderQuotationDetailsResource) => {
+    setEditingRequest(null);
+    setModalType(type);
+    setSelectedDetail(detail ?? null);
+    setModalOpen(true);
+  };
+
+  const handleOpenEdit = (
+    request: DiscountRequestOrderQuotationResource,
+    detail?: OrderQuotationDetailsResource,
+  ) => {
+    setEditingRequest(request);
+    setModalType(request.type);
+    setSelectedDetail(detail ?? null);
+    setModalOpen(true);
+  };
+
+  const handleClose = () => {
+    setModalOpen(false);
+    setSelectedDetail(null);
+    setEditingRequest(null);
+  };
   const [exchangeRate, setExchangeRate] = useState<number | null>(null);
   const [isLoadingExchangeRate, setIsLoadingExchangeRate] = useState(false);
   const [isPartModalOpen, setIsPartModalOpen] = useState(false);
@@ -75,7 +134,7 @@ export default function ProductDetailsSection({
     resolver: zodResolver(productDetailSchema),
     defaultValues: {
       order_quotation_id: quotationId,
-      item_type: "PRODUCT" as const,
+      item_type: ITEM_TYPE_PRODUCT,
       product_id: "",
       description: "",
       quantity: 1,
@@ -205,7 +264,7 @@ export default function ProductDetailsSection({
       successToast(SUCCESS_MESSAGE(ORDER_QUOTATION_DETAILS.MODEL, "create"));
       form.reset({
         order_quotation_id: quotationId,
-        item_type: "PRODUCT",
+        item_type: ITEM_TYPE_PRODUCT,
         product_id: "",
         description: "",
         quantity: 1,
@@ -233,7 +292,28 @@ export default function ProductDetailsSection({
     return `${currencySymbol} ${value.toFixed(2)}`;
   };
 
-  const productDetails = details.filter((d) => d.item_type === "PRODUCT");
+  const productDetails = details.filter(
+    (d) => d.item_type === ITEM_TYPE_PRODUCT,
+  );
+
+  const globalBaseAmount = productDetails.reduce(
+    (sum, d) => sum + Number(d.total_amount || 0),
+    0,
+  );
+  const hasMultipleItems = productDetails.length > 1;
+
+  const globalRequest = discountRequests.find((r) => r.type === TYPE_GLOBAL);
+  const hasPartialRequests = discountRequests.some((r) => r.type === TYPE_PARTIAL);
+
+  const getPartialRequest = (detailId: number) =>
+    discountRequests.find(
+      (r) => r.type === TYPE_PARTIAL && r.ap_order_quotation_detail_id === detailId,
+    );
+
+  const baseAmountForModal =
+    modalType === TYPE_GLOBAL
+      ? globalBaseAmount
+      : Number(selectedDetail?.total_amount || 0);
 
   return (
     <Card className="p-6">
@@ -391,11 +471,64 @@ export default function ProductDetailsSection({
 
       {/* Lista de Productos en formato tabla */}
       <div className="mt-6">
-        <div className="flex items-center justify-between mb-3 pb-2 border-b">
-          <h4 className="font-semibold text-gray-700">Items de Repuestos</h4>
-          <Badge color="secondary" className="font-semibold">
-            {productDetails.length} item(s)
-          </Badge>
+        {/* Header con botón de descuento global */}
+        <div className="flex items-center justify-between mb-3 pb-2 border-b flex-wrap gap-2">
+          <div className="flex items-center gap-2">
+            <h4 className="font-semibold text-gray-700">Items de Repuestos</h4>
+            <Badge color="secondary" className="font-semibold">
+              {productDetails.length} item(s)
+            </Badge>
+          </div>
+
+          {hasMultipleItems && productDetails.length > 0 && (
+            <div className="flex items-center gap-2 flex-wrap">
+              {globalRequest ? (
+                <div className="flex items-center gap-2 text-sm border rounded-md px-3 py-1.5">
+                  <span className="text-muted-foreground text-xs">Desc. global:</span>
+                  <span className="font-semibold">
+                    {Number(globalRequest.requested_discount_percentage).toFixed(2)}%
+                  </span>
+                  <Badge color={globalRequest.is_approved ? "green" : "orange"}>
+                    {globalRequest.is_approved ? "Aprobado" : "Pendiente"}
+                  </Badge>
+                  {!globalRequest.is_approved && (
+                    <>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="size-7"
+                        tooltip="Editar solicitud global"
+                        onClick={() => handleOpenEdit(globalRequest)}
+                      >
+                        <Pencil className="size-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="size-7 text-destructive hover:text-destructive hover:bg-destructive/10"
+                        tooltip="Eliminar solicitud global"
+                        onClick={() => setDeleteDiscountId(globalRequest.id)}
+                      >
+                        <Trash2 className="size-4" />
+                      </Button>
+                    </>
+                  )}
+                </div>
+              ) : (
+                !hasPartialRequests && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleOpenCreate(TYPE_GLOBAL)}
+                    className="gap-2"
+                  >
+                    <Percent className="size-4" />
+                    Desc. global
+                  </Button>
+                )
+              )}
+            </div>
+          )}
         </div>
 
         {isLoadingDetails ? (
@@ -414,98 +547,22 @@ export default function ProductDetailsSection({
               <div className="col-span-3">Repuesto</div>
               <div className="col-span-2 text-center">Cantidad</div>
               <div className="col-span-2 text-right">Tipo Abas.</div>
-              <div className="col-span-2 text-right">Precio Unit.</div>
+              <div className="col-span-1 text-right">Precio Unit.</div>
               <div className="col-span-1 text-right">Desc.</div>
               <div className="col-span-2 text-right">Total</div>
               <div className="col-span-2 text-right">Registrado Por:</div>
-              <div className="col-span-2 text-right">Acción</div>
+              <div className="col-span-3 text-left">Desc. parcial</div>
             </div>
 
             {/* Items */}
             <div className="divide-y">
-              {productDetails.map((detail) => (
-                <div key={detail.id}>
-                  {/* Vista Desktop */}
-                  <div className="hidden md:grid grid-cols-16 gap-3 px-4 py-3 hover:bg-gray-50 transition-colors items-center">
-                    <div className="col-span-3">
-                      {detail.product?.code && (
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="text-xs font-mono bg-blue-100 text-blue-800 px-2 py-0.5 rounded">
-                            {detail.product.code}
-                          </span>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-5 w-5 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
-                            onClick={() =>
-                              copyToClipboard(detail.product?.code || "")
-                            }
-                          >
-                            <Copy className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      )}
-                      <p className="text-sm font-medium text-gray-900 truncate">
-                        {detail.description}
-                      </p>
-                      {detail.observations && (
-                        <p className="text-xs text-gray-500 truncate mt-0.5">
-                          {detail.observations}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="col-span-2 text-center">
-                      <span className="text-sm font-medium">
-                        {detail.quantity}{" "}
-                        <span className="text-xs text-gray-500">
-                          {detail.unit_measure}
-                        </span>
-                      </span>
-                    </div>
-
-                    <div className="col-span-2 text-right">
-                      <span className="text-sm">{detail.supply_type}</span>
-                    </div>
-
-                    <div className="col-span-2 text-right">
-                      <span className="text-sm">
-                        {formatCurrency(detail.unit_price)}
-                      </span>
-                    </div>
-
-                    <div className="col-span-1 text-right">
-                      <span className="text-sm text-orange-600">
-                        -{detail.discount_percentage}%
-                      </span>
-                    </div>
-
-                    <div className="col-span-2 text-right">
-                      <span className="text-sm font-bold text-primary">
-                        {formatCurrency(detail.total_amount)}
-                      </span>
-                    </div>
-
-                    <div className="col-span-2 text-right">
-                      <span className="text-sm">{detail.created_by_name}</span>
-                    </div>
-
-                    <div className="col-span-2 flex justify-end">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
-                        onClick={() => onDelete(detail.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-
-                  {/* Vista Mobile */}
-                  <div className="md:hidden px-4 py-3 space-y-2">
-                    <div className="flex justify-between items-start">
-                      <div className="flex-1">
+              {productDetails.map((detail) => {
+                const partialRequest = getPartialRequest(detail.id);
+                return (
+                  <div key={detail.id}>
+                    {/* Vista Desktop */}
+                    <div className="hidden md:grid grid-cols-16 gap-3 px-4 py-3 hover:bg-gray-50 transition-colors items-center">
+                      <div className="col-span-3">
                         {detail.product?.code && (
                           <div className="flex items-center gap-2 mb-1">
                             <span className="text-xs font-mono bg-blue-100 text-blue-800 px-2 py-0.5 rounded">
@@ -523,65 +580,214 @@ export default function ProductDetailsSection({
                             </Button>
                           </div>
                         )}
-                        <p className="text-sm font-medium text-gray-900">
+                        <p className="text-sm font-medium text-gray-900 truncate">
                           {detail.description}
                         </p>
                         {detail.observations && (
-                          <p className="text-xs text-gray-500 mt-0.5">
+                          <p className="text-xs text-gray-500 truncate mt-0.5">
                             {detail.observations}
                           </p>
                         )}
                       </div>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50 ml-2"
-                        onClick={() => onDelete(detail.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                    <div className="grid grid-cols-2 gap-2 text-xs">
-                      <div>
-                        <span className="text-gray-500">Cantidad:</span>
-                        <span className="ml-1 font-medium">
-                          {detail.quantity} {detail.unit_measure}
+
+                      <div className="col-span-2 text-center">
+                        <span className="text-sm font-medium">
+                          {detail.quantity}{" "}
+                          <span className="text-xs text-gray-500">
+                            {detail.unit_measure}
+                          </span>
                         </span>
                       </div>
-                      <div className="text-right">
-                        <span className="text-gray-500">Precio Unit.:</span>
-                        <span className="ml-1 font-medium">
+
+                      <div className="col-span-2 text-right">
+                        <span className="text-sm">{detail.supply_type}</span>
+                      </div>
+
+                      <div className="col-span-1 text-right">
+                        <span className="text-sm">
                           {formatCurrency(detail.unit_price)}
                         </span>
                       </div>
-                      <div>
-                        <span className="text-gray-500">Tipo Abas.:</span>
-                        <span className="ml-1 font-medium">
-                          {detail.supply_type}
+
+                      <div className="col-span-1 text-right">
+                        <span className="text-sm text-orange-600">
+                          -{detail.discount_percentage}%
                         </span>
                       </div>
-                      <div className="text-right">
-                        <span className="text-gray-500">Desc.:</span>
-                        <span className="ml-1 font-medium text-orange-600">
-                          -{formatCurrency(detail.discount_percentage)}
-                        </span>
-                      </div>
+
                       <div className="col-span-2 text-right">
-                        <span className="text-gray-500">Total:</span>
-                        <span className="ml-1 font-bold text-primary">
+                        <span className="text-sm font-bold text-primary">
                           {formatCurrency(detail.total_amount)}
                         </span>
                       </div>
-                      <div className="col-span-2">
-                        <span className="text-gray-500">Registrado por:</span>
-                        <span className="ml-1 font-medium">
-                          {detail.created_by_name}
-                        </span>
+
+                      <div className="col-span-2 text-right">
+                        <span className="text-sm">{detail.created_by_name}</span>
+                      </div>
+
+                      <div className="col-span-3">
+                        {partialRequest ? (
+                          <div className="flex items-center gap-1 flex-wrap">
+                            <span className="text-xs font-semibold">
+                              {Number(partialRequest.requested_discount_percentage).toFixed(2)}%
+                            </span>
+                            <Badge color={partialRequest.is_approved ? "green" : "orange"}>
+                              {partialRequest.is_approved ? "Aprobado" : "Pendiente"}
+                            </Badge>
+                            {!partialRequest.is_approved && (
+                              <>
+                                <Button
+                                  variant="outline"
+                                  size="icon"
+                                  className="size-7"
+                                  tooltip="Editar solicitud"
+                                  onClick={() => handleOpenEdit(partialRequest, detail)}
+                                >
+                                  <Pencil className="size-4" />
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="icon"
+                                  className="size-7 text-destructive hover:text-destructive hover:bg-destructive/10"
+                                  tooltip="Eliminar solicitud"
+                                  onClick={() => setDeleteDiscountId(partialRequest.id)}
+                                >
+                                  <Trash2 className="size-4" />
+                                </Button>
+                              </>
+                            )}
+                          </div>
+                        ) : (
+                          !globalRequest && (
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              className="size-7"
+                              tooltip="Solicitar descuento parcial"
+                              onClick={() => handleOpenCreate(TYPE_PARTIAL, detail)}
+                            >
+                              <Tag className="size-4" />
+                            </Button>
+                          )
+                        )}
                       </div>
                     </div>
+
+                    {/* Vista Mobile */}
+                    <div className="md:hidden px-4 py-3 space-y-2">
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          {detail.product?.code && (
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="text-xs font-mono bg-blue-100 text-blue-800 px-2 py-0.5 rounded">
+                                {detail.product.code}
+                              </span>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-5 w-5 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                                onClick={() =>
+                                  copyToClipboard(detail.product?.code || "")
+                                }
+                              >
+                                <Copy className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          )}
+                          <p className="text-sm font-medium text-gray-900">
+                            {detail.description}
+                          </p>
+                          {detail.observations && (
+                            <p className="text-xs text-gray-500 mt-0.5">
+                              {detail.observations}
+                            </p>
+                          )}
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50 ml-2"
+                          onClick={() => onDelete(detail.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2 text-xs">
+                        <div>
+                          <span className="text-gray-500">Cantidad:</span>
+                          <span className="ml-1 font-medium">
+                            {detail.quantity} {detail.unit_measure}
+                          </span>
+                        </div>
+                        <div className="text-right">
+                          <span className="text-gray-500">Precio Unit.:</span>
+                          <span className="ml-1 font-medium">
+                            {formatCurrency(detail.unit_price)}
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-gray-500">Tipo Abas.:</span>
+                          <span className="ml-1 font-medium">
+                            {detail.supply_type}
+                          </span>
+                        </div>
+                        <div className="text-right">
+                          <span className="text-gray-500">Desc.:</span>
+                          <span className="ml-1 font-medium text-orange-600">
+                            -{formatCurrency(detail.discount_percentage)}
+                          </span>
+                        </div>
+                        <div className="col-span-2 text-right">
+                          <span className="text-gray-500">Total:</span>
+                          <span className="ml-1 font-bold text-primary">
+                            {formatCurrency(detail.total_amount)}
+                          </span>
+                        </div>
+                        <div className="col-span-2">
+                          <span className="text-gray-500">Registrado por:</span>
+                          <span className="ml-1 font-medium">
+                            {detail.created_by_name}
+                          </span>
+                        </div>
+                      </div>
+                      {/* Descuento parcial mobile */}
+                      {!globalRequest && (
+                        <div className="pt-1">
+                          {partialRequest ? (
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="text-xs font-semibold">
+                                Desc. solicitado: {Number(partialRequest.requested_discount_percentage).toFixed(2)}%
+                              </span>
+                              <Badge color={partialRequest.is_approved ? "green" : "orange"}>
+                                {partialRequest.is_approved ? "Aprobado" : "Pendiente"}
+                              </Badge>
+                              {!partialRequest.is_approved && (
+                                <>
+                                  <Button variant="outline" size="icon" className="size-7"
+                                    onClick={() => handleOpenEdit(partialRequest, detail)}>
+                                    <Pencil className="size-4" />
+                                  </Button>
+                                  <Button variant="outline" size="icon"
+                                    className="size-7 text-destructive hover:text-destructive hover:bg-destructive/10"
+                                    onClick={() => setDeleteDiscountId(partialRequest.id)}>
+                                    <Trash2 className="size-4" />
+                                  </Button>
+                                </>
+                              )}
+                            </div>
+                          ) : (
+                            <Button variant="outline" size="sm" className="gap-2"
+                              onClick={() => handleOpenCreate(TYPE_PARTIAL, detail)}>
+                              <Tag className="size-4" />
+                              Solicitar descuento parcial
+                            </Button>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}
@@ -592,6 +798,26 @@ export default function ProductDetailsSection({
         open={isPartModalOpen}
         onClose={() => setIsPartModalOpen(false)}
       />
+
+      <DiscountRequestModal
+        open={modalOpen}
+        onClose={handleClose}
+        type={modalType}
+        quotationId={quotationId}
+        baseAmount={baseAmountForModal}
+        detail={selectedDetail ?? undefined}
+        currencySymbol={currencySymbol}
+        existingRequest={editingRequest ?? undefined}
+        itemType="PRODUCT"
+      />
+
+      {deleteDiscountId !== null && (
+        <SimpleDeleteDialog
+          open={true}
+          onOpenChange={(open) => !open && setDeleteDiscountId(null)}
+          onConfirm={() => Promise.resolve(doDeleteDiscount(deleteDiscountId))}
+        />
+      )}
     </Card>
   );
 }

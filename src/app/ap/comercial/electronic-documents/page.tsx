@@ -7,7 +7,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import TitleComponent from "@/shared/components/TitleComponent";
 import DataTablePagination from "@/shared/components/DataTablePagination";
 import { errorToast, successToast } from "@/core/core.function";
-import { AREA_COMERCIAL, DEFAULT_PER_PAGE } from "@/core/core.constants";
+import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import {
   sendElectronicDocumentToSunat,
   cancelElectronicDocument,
@@ -26,6 +26,7 @@ import { SUNAT_CONCEPTS_TYPE } from "@/features/gp/maestro-general/conceptos-sun
 import ElectronicDocumentActions from "@/features/ap/facturacion/electronic-documents/components/ElectronicDocumentActions";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { notFound } from "@/shared/hooks/useNotFound";
+import { AREA_COMERCIAL } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 export default function ElectronicDocumentsPage() {
   const { ROUTE } = ELECTRONIC_DOCUMENT;
@@ -51,7 +52,7 @@ export default function ElectronicDocumentsPage() {
     per_page,
     search,
     status: statusFilter,
-    area_id: AREA_COMERCIAL,
+    area_id: [AREA_COMERCIAL],
     sunat_concept_document_type_id: documentTypeFilter
       ? parseInt(documentTypeFilter)
       : undefined,

@@ -14,10 +14,13 @@ import { useAllProductCategory } from "@/features/ap/post-venta/gestion-almacen/
 import { useAllUnitMeasurement } from "@/features/ap/configuraciones/maestros-general/unidad-medida/lib/unitMeasurement.hook";
 import { useAllClassArticle } from "@/features/ap/configuraciones/maestros-general/clase-articulo/lib/classArticle.hook";
 import { useMyPhysicalWarehouse } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
-import { CM_COMERCIAL_ID, CM_POSTVENTA_ID } from "@/core/core.constants";
 import { useEffect } from "react";
 import { FormInput } from "@/shared/components/FormInput";
 import { FormInputText } from "@/shared/components/FormInputText";
+import {
+  CM_COMERCIAL_ID,
+  CM_POSTVENTA_ID,
+} from "@/features/ap/ap-master/lib/apMaster.constants";
 
 interface QuotationPartFormProps {
   defaultValues?: Partial<ProductSchema>;

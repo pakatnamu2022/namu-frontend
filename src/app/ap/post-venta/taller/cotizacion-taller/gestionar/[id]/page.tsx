@@ -26,6 +26,7 @@ import LaborDetailsSection from "@/features/ap/post-venta/taller/cotizacion-deta
 import ProductDetailsSection from "@/features/ap/post-venta/taller/cotizacion-detalle/components/ProductDetailsSection.tsx";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
+import { useDiscountRequestsByQuotation } from "@/features/ap/post-venta/repuestos/descuento-cotizacion-meson/lib/discountRequestMeson.hook";
 
 export default function ManageQuotationPage() {
   const params = useParams();
@@ -37,6 +38,8 @@ export default function ManageQuotationPage() {
     null,
   );
   const [details, setDetails] = useState<OrderQuotationDetailsResource[]>([]);
+
+  const { data: discountRequests = [] } = useDiscountRequestsByQuotation(quotationId);
 
   useEffect(() => {
     loadData();
@@ -279,6 +282,7 @@ export default function ManageQuotationPage() {
         onDelete={handleDelete}
         currencySymbol={quotation.type_currency.symbol}
         exchangeRate={quotation.exchange_rate}
+        discountRequests={discountRequests.filter((r) => r.item_type === "LABOR")}
       />
 
       {/* Sección de Productos */}
@@ -291,6 +295,7 @@ export default function ManageQuotationPage() {
         quotationDate={quotation.quotation_date}
         currencySymbol={quotation.type_currency.symbol}
         currencyId={quotation.currency_id}
+        discountRequests={discountRequests.filter((r) => r.item_type === "PRODUCT")}
       />
     </div>
   );

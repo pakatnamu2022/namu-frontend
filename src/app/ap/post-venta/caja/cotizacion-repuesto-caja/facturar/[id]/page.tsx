@@ -23,7 +23,7 @@ import { Button } from "@/components/ui/button";
 import { ORDER_QUOTATION_CAJA } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.constants";
 import PageSkeleton from "@/shared/components/PageSkeleton";
 import TitleComponent from "@/shared/components/TitleComponent";
-import { AREA_MESON } from "@/core/core.constants";
+import { AREA_MESON } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 export default function BillOrderQuotationCajaPage() {
   const { id } = useParams<{ id: string }>();
@@ -73,7 +73,7 @@ export default function BillOrderQuotationCajaPage() {
       queryClient.invalidateQueries({
         queryKey: ["orderQuotation", quotationId],
       });
-      navigate(ABSOLUTE_ROUTE);
+      navigate("/ap/post-venta/caja/comprobante-venta-caja");
     },
     onError: (error: any) => {
       const msg = error?.response?.data?.message || "";

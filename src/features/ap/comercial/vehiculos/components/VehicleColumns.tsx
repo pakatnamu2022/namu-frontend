@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import VehicleMovements from "./VehicleMovements";
-import { CM_POSTVENTA_ID } from "@/core/core.constants";
+import { CM_POSTVENTA_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 export type VehicleColumns = ColumnDef<VehicleResource>;
 

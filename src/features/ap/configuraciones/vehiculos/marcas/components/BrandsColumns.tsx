@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 import { BRAND, BRAND_POSTVENTA } from "../lib/brands.constants";
-import { CM_COMERCIAL_ID } from "@/core/core.constants";
+import { CM_COMERCIAL_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 export type BrandColumns = ColumnDef<BrandsResource>;
 

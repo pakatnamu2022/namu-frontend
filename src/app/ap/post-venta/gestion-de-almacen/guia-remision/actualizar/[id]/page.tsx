@@ -17,11 +17,11 @@ import { notFound } from "@/shared/hooks/useNotFound.ts";
 import {
   findProductTransferById,
   updateProductTransfer,
-} from "@/features/ap/post-venta/gestion-almacen/transferencia-producto/lib/productTransfer.actions.ts";
-import { ProductTransferSchema } from "@/features/ap/post-venta/gestion-almacen/transferencia-producto/lib/productTransfer.schema.ts";
-import { ProductTransferResource } from "@/features/ap/post-venta/gestion-almacen/transferencia-producto/lib/productTransfer.interface.ts";
-import { ProductTransferForm } from "@/features/ap/post-venta/gestion-almacen/transferencia-producto/components/ProductTransferForm.tsx";
-import { PRODUCT_TRANSFER } from "@/features/ap/post-venta/gestion-almacen/transferencia-producto/lib/productTransfer.constants.ts";
+} from "@/features/ap/post-venta/gestion-almacen/guia-remision/lib/productTransfer.actions.ts";
+import { ProductTransferSchema } from "@/features/ap/post-venta/gestion-almacen/guia-remision/lib/productTransfer.schema.ts";
+import { ProductTransferResource } from "@/features/ap/post-venta/gestion-almacen/guia-remision/lib/productTransfer.interface.ts";
+import { ProductTransferForm } from "@/features/ap/post-venta/gestion-almacen/guia-remision/components/ProductTransferForm.tsx";
+import { PRODUCT_TRANSFER } from "@/features/ap/post-venta/gestion-almacen/guia-remision/lib/productTransfer.constants.ts";
 import { SUNAT_CONCEPTS_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants.ts";
 import { BUSINESS_PARTNERS } from "@/core/core.constants.ts";
 

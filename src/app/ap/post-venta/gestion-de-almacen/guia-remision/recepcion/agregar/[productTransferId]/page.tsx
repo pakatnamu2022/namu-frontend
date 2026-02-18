@@ -14,7 +14,7 @@ import FormWrapper from "@/shared/components/FormWrapper.tsx";
 import NotFound from "@/app/not-found.tsx";
 import { TransferReceptionSchema } from "@/features/ap/post-venta/gestion-almacen/recepcion-transferencia/lib/transferReception.schema.ts";
 import { TransferReceptionForm } from "@/features/ap/post-venta/gestion-almacen/recepcion-transferencia/components/TransferReceptionForm.tsx";
-import { useProductTransferById } from "@/features/ap/post-venta/gestion-almacen/transferencia-producto/lib/productTransfer.hook.ts";
+import { useProductTransferById } from "@/features/ap/post-venta/gestion-almacen/guia-remision/lib/productTransfer.hook.ts";
 import PageSkeleton from "@/shared/components/PageSkeleton.tsx";
 import { TRANSFER_RECEPTION } from "@/features/ap/post-venta/gestion-almacen/recepcion-transferencia/lib/transferReception.constants.ts";
 import { storeTransferReception } from "@/features/ap/post-venta/gestion-almacen/recepcion-transferencia/lib/transferReception.actions.ts";
@@ -36,7 +36,7 @@ export default function CreateTransferReceptionPage() {
     onSuccess: () => {
       successToast(SUCCESS_MESSAGE(MODEL, "create"));
       router(
-        `/ap/post-venta/gestion-de-almacen/transferencia-producto/recepcion/${productTransferId}`,
+        `/ap/post-venta/gestion-de-almacen/guia-remision/recepcion/${productTransferId}`,
       );
     },
     onError: (error: any) => {
@@ -50,7 +50,7 @@ export default function CreateTransferReceptionPage() {
   };
 
   if (isLoadingTransfer) return <PageSkeleton />;
-  if (!checkRouteExists("transferencia-producto")) return <NotFound />;
+  if (!checkRouteExists("guia-remision")) return <NotFound />;
   if (!currentView) return <NotFound />;
   if (!productTransfer) return <NotFound />;
 
@@ -77,7 +77,7 @@ export default function CreateTransferReceptionPage() {
         mode="create"
         onCancel={() =>
           router(
-            `/ap/post-venta/gestion-de-almacen/transferencia-producto/recepcion/${productTransferId}`,
+            `/ap/post-venta/gestion-de-almacen/guia-remision/recepcion/${productTransferId}`,
           )
         }
         itemType={productTransfer.item_type as "PRODUCTO" | "SERVICIO"}

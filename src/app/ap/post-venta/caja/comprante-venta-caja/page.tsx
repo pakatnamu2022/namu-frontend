@@ -7,7 +7,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import TitleComponent from "@/shared/components/TitleComponent";
 import DataTablePagination from "@/shared/components/DataTablePagination";
 import { errorToast, successToast } from "@/core/core.function";
-import { AREA_TALLER, DEFAULT_PER_PAGE } from "@/core/core.constants";
+import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import {
   sendElectronicDocumentToSunat,
   cancelElectronicDocument,
@@ -26,6 +26,10 @@ import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { notFound } from "@/shared/hooks/useNotFound";
 import SalesReceiptsActions from "@/features/ap/post-venta/comprobante-venta/components/SalesReceiptsActions";
 import SalesReceiptsOptions from "@/features/ap/post-venta/comprobante-venta/components/SalesReceiptsOptions";
+import {
+  AREA_MESON,
+  AREA_TALLER,
+} from "@/features/ap/ap-master/lib/apMaster.constants";
 
 export default function SalesReceiptsCajaPage() {
   const { ROUTE } = ELECTRONIC_DOCUMENT_CAJA;
@@ -51,7 +55,7 @@ export default function SalesReceiptsCajaPage() {
     per_page,
     search,
     status: statusFilter,
-    area_id: AREA_TALLER.toString(),
+    area_id: [AREA_TALLER, AREA_MESON], // Filtrar por ambas áreas
     sunat_concept_document_type_id: documentTypeFilter
       ? parseInt(documentTypeFilter)
       : undefined,

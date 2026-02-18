@@ -12,7 +12,7 @@ import {
   SUCCESS_MESSAGE,
   successToast,
 } from "@/core/core.function";
-import { CM_COMERCIAL_ID, DEFAULT_PER_PAGE } from "@/core/core.constants";
+import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { VEHICLES } from "@/features/ap/comercial/vehiculos/lib/vehicles.constants";
 import { useVehicles } from "@/features/ap/comercial/vehiculos/lib/vehicles.hook";
@@ -22,6 +22,7 @@ import { vehicleColumns } from "@/features/ap/comercial/vehiculos/components/Veh
 import VehicleTable from "@/features/ap/comercial/vehiculos/components/VehicleTable";
 import VehicleOptions from "@/features/ap/comercial/vehiculos/components/VehicleOptions";
 import { notFound } from "@/shared/hooks/useNotFound";
+import { CM_COMERCIAL_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 export default function VehiclesPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();

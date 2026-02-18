@@ -23,11 +23,14 @@ import { useAllProductCategory } from "@/features/ap/post-venta/gestion-almacen/
 import { useAllUnitMeasurement } from "@/features/ap/configuraciones/maestros-general/unidad-medida/lib/unitMeasurement.hook.ts";
 import { useAllClassArticle } from "@/features/ap/configuraciones/maestros-general/clase-articulo/lib/classArticle.hook.ts";
 import { GroupFormSection } from "@/shared/components/GroupFormSection.tsx";
-import { CM_COMERCIAL_ID, CM_POSTVENTA_ID } from "@/core/core.constants.ts";
 import { useMyPhysicalWarehouse } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook.ts";
 import { useEffect } from "react";
 import { FormInput } from "@/shared/components/FormInput.tsx";
 import { FormInputText } from "@/shared/components/FormInputText.tsx";
+import {
+  CM_COMERCIAL_ID,
+  CM_POSTVENTA_ID,
+} from "@/features/ap/ap-master/lib/apMaster.constants";
 
 interface ProductFormProps {
   defaultValues: Partial<ProductSchema>;

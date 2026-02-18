@@ -21,7 +21,6 @@ import { Card } from "@/components/ui/card";
 import { useState, useEffect } from "react";
 import { EMPRESA_AP, STATUS_ACTIVE } from "@/core/core.constants";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
-import { AREA_PM_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 import { FormInputText } from "@/shared/components/FormInputText";
 import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.hook";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
@@ -31,6 +30,7 @@ import { CUSTOMERS_PV } from "@/features/ap/comercial/clientes/lib/customers.con
 import { VehicleResource } from "@/features/ap/comercial/vehiculos/lib/vehicles.interface";
 import { OrderQuotationResource } from "../lib/proforma.interface";
 import { VEHICLES_TLL } from "@/features/ap/comercial/vehiculos/lib/vehicles.constants";
+import { AREA_TALLER } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 interface OrderQuotationFormProps {
   defaultValues: Partial<OrderQuotationSchema>;
@@ -59,7 +59,7 @@ export default function OrderQuotationForm({
     ),
     defaultValues: {
       ...defaultValues,
-      area_id: AREA_PM_ID.TALLER,
+      area_id: AREA_TALLER.toString(),
     },
     mode: "onChange",
   });

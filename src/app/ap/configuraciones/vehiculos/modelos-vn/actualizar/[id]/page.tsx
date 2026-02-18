@@ -21,8 +21,8 @@ import { ModelsVnResource } from "@/features/ap/configuraciones/vehiculos/modelo
 import { ModelsVnForm } from "@/features/ap/configuraciones/vehiculos/modelos-vn/components/ModelsVnForm";
 import { MODELS_VN } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.constanst";
 import { notFound } from "@/shared/hooks/useNotFound";
-import { CM_COMERCIAL_ID } from "@/core/core.constants";
 import PageWrapper from "@/shared/components/PageWrapper";
+import { CM_COMERCIAL_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 export default function UpdateModelsVnPage() {
   const { id } = useParams();

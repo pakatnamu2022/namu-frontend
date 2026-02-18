@@ -16,7 +16,7 @@ import { ModelsVnForm } from "@/features/ap/configuraciones/vehiculos/modelos-vn
 import FormWrapper from "@/shared/components/FormWrapper";
 import { MODELS_VN_REPUESTOS } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.constanst";
 import { notFound } from "@/shared/hooks/useNotFound";
-import { CM_POSTVENTA_ID } from "@/core/core.constants";
+import { CM_POSTVENTA_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 export default function AddModelsVnRepuestosPage() {
   const router = useNavigate();

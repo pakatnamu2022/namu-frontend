@@ -5,11 +5,7 @@ import { useEffect, useState } from "react";
 import PageSkeleton from "@/shared/components/PageSkeleton";
 import TitleComponent from "@/shared/components/TitleComponent";
 import DataTablePagination from "@/shared/components/DataTablePagination";
-import {
-  CM_POSTVENTA_ID,
-  DEFAULT_PER_PAGE,
-  EMPRESA_AP,
-} from "@/core/core.constants";
+import { DEFAULT_PER_PAGE, EMPRESA_AP } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { useVehiclePurchaseOrder } from "@/features/ap/comercial/ordenes-compra-vehiculo/lib/vehiclePurchaseOrder.hook";
 import { vehiclePurchaseOrderColumns } from "@/features/ap/comercial/ordenes-compra-vehiculo/components/VehiclePurchaseOrderColumns";
@@ -19,6 +15,7 @@ import { PURCHASE_INVOICE_PV } from "@/features/ap/comercial/ordenes-compra-vehi
 import PurchaseOrderWarehouseActions from "@/features/ap/post-venta/gestion-almacen/factura-compra/components/PurchaseOrderWarehouseActions";
 import PurchaseOrderWarehouseOptions from "@/features/ap/post-venta/gestion-almacen/factura-compra/components/PurchaseOrderWarehouseOptions";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
+import { CM_POSTVENTA_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 export default function PurchaseOrderWarehousePage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();

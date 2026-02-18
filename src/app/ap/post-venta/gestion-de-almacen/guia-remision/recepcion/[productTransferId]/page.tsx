@@ -18,7 +18,7 @@ import { useAllTransferReceptions } from "@/features/ap/post-venta/gestion-almac
 import TransferReceptionsTable from "@/features/ap/post-venta/gestion-almacen/recepcion-transferencia/components/TransferReceptionsTable.tsx";
 import TransferReceptionsCards from "@/features/ap/post-venta/gestion-almacen/recepcion-transferencia/components/TransferReceptionsCards.tsx";
 import { useParams, useNavigate } from "react-router-dom";
-import { useProductTransferById } from "@/features/ap/post-venta/gestion-almacen/transferencia-producto/lib/productTransfer.hook.ts";
+import { useProductTransferById } from "@/features/ap/post-venta/gestion-almacen/guia-remision/lib/productTransfer.hook.ts";
 import { Button } from "@/components/ui/button.tsx";
 import { ArrowLeft, Plus } from "lucide-react";
 import { Card } from "@/components/ui/card.tsx";
@@ -29,7 +29,7 @@ export default function TransferReceptionsPage() {
   const { checkRouteExists, isLoadingModule } = useCurrentModule();
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const { MODEL, ROUTE_ADD } = TRANSFER_RECEPTION;
-  const permissions = useModulePermissions("transferencia-producto");
+  const permissions = useModulePermissions("guia-remision");
   const navigate = useNavigate();
   const { productTransferId } = useParams<{ productTransferId: string }>();
   const productTransferIdNum = productTransferId
@@ -59,7 +59,7 @@ export default function TransferReceptionsPage() {
   };
 
   const handleBack = () => {
-    navigate("/ap/post-venta/gestion-de-almacen/transferencia-producto");
+    navigate("/ap/post-venta/gestion-de-almacen/guia-remision");
   };
 
   const handleAddReception = () => {
@@ -67,7 +67,7 @@ export default function TransferReceptionsPage() {
   };
 
   if (isLoadingModule || isLoadingTransfer) return <PageSkeleton />;
-  if (!checkRouteExists("transferencia-producto")) return <NotFound />;
+  if (!checkRouteExists("guia-remision")) return <NotFound />;
   if (!productTransfer) return <NotFound />;
 
   return (

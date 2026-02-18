@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 import { MODELS_VN, MODELS_VN_POSTVENTA } from "../lib/modelsVn.constanst";
-import { CM_COMERCIAL_ID } from "@/core/core.constants";
+import { CM_COMERCIAL_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 export type ModelsVnColumns = ColumnDef<ModelsVnResource>;
 

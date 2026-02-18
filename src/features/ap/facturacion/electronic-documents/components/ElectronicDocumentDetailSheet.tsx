@@ -30,7 +30,7 @@ import { queryElectronicDocumentStatus } from "../lib/electronicDocument.actions
 import { successToast, errorToast } from "@/core/core.function";
 import { Link } from "react-router-dom";
 import GeneralSheet from "@/shared/components/GeneralSheet";
-import { AREA_COMERCIAL } from "@/core/core.constants";
+import { AREA_COMERCIAL } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 interface ElectronicDocumentDetailSheetProps {
   document: ElectronicDocumentResource | null;

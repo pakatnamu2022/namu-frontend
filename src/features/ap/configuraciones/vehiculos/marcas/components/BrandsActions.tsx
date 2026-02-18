@@ -5,7 +5,7 @@ import { Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import ActionsWrapper from "@/shared/components/ActionsWrapper";
 import { BRAND, BRAND_POSTVENTA } from "../lib/brands.constants";
-import { CM_COMERCIAL_ID } from "@/core/core.constants";
+import { CM_COMERCIAL_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 interface BrandActionsProps {
   isCommercial: number;

@@ -1,6 +1,6 @@
-import { WarehouseResource } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.interface";
+import { WarehouseResource } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.interface.ts";
 import DatePicker from "@/shared/components/DatePicker.tsx";
-import { SearchableSelect } from "@/shared/components/SearchableSelect";
+import { SearchableSelect } from "@/shared/components/SearchableSelect.tsx";
 import SearchInput from "@/shared/components/SearchInput.tsx";
 
 interface Props {

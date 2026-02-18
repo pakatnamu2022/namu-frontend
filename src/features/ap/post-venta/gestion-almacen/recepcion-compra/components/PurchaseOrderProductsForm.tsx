@@ -54,7 +54,6 @@ import { TYPES_OPERATION_ID } from "@/features/ap/configuraciones/maestros-gener
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync.tsx";
 import { SuppliersResource } from "@/features/ap/comercial/proveedores/lib/suppliers.interface.ts";
 import { PurchaseOrderProductsResource } from "@/features/ap/post-venta/gestion-almacen/recepcion-compra/lib/purchaseOrderProducts.interface.ts";
-import { SupplierOrderResource } from "@/features/ap/post-venta/gestion-almacen/compra-proveedor/lib/supplierOrder.interface.ts";
 import { FormInput } from "@/shared/components/FormInput";
 import { FormInputText } from "@/shared/components/FormInputText";
 import { ReceptionResource } from "../../recepciones-producto/lib/receptionsProducts.interface";
@@ -67,7 +66,6 @@ interface PurchaseOrderProductsFormProps {
   mode?: "create" | "update";
   onCancel?: () => void;
   PurchaseOrderProductsData?: PurchaseOrderProductsResource;
-  supplierOrderData?: SupplierOrderResource;
   receptionData?: ReceptionResource;
 }
 
@@ -77,9 +75,36 @@ export const PurchaseOrderProductsForm = ({
   isSubmitting = false,
   mode = "create",
   onCancel,
-  supplierOrderData,
   receptionData,
 }: PurchaseOrderProductsFormProps) => {
+  // Procesar los items iniciales si hay receptionData
+  const processedItems = (() => {
+    if (defaultValues.items && receptionData?.supplier_order?.details) {
+      return defaultValues.items.map((item: any) => {
+        // Buscar el precio del producto en supplier_order.details
+        const orderDetail = receptionData.supplier_order.details.find(
+          (detail) =>
+            detail.product_id.toString() === item.product_id?.toString(),
+        );
+
+        if (orderDetail) {
+          // Calcular el total basado en la cantidad del item y el precio unitario del pedido
+          const itemTotal =
+            Number(item.quantity || 0) * Number(orderDetail.unit_price || 0);
+
+          return {
+            ...item,
+            unit_price: Number(orderDetail.unit_price || 0),
+            item_total: itemTotal,
+          };
+        }
+
+        return item;
+      });
+    }
+    return defaultValues.items || [];
+  })();
+
   const form = useForm({
     resolver: zodResolver(
       mode === "create"
@@ -88,7 +113,7 @@ export const PurchaseOrderProductsForm = ({
     ),
     defaultValues: {
       ...defaultValues,
-      items: defaultValues.items || [],
+      items: processedItems,
       status: defaultValues.status || "PENDING",
     },
     mode: "onChange",
@@ -593,6 +618,7 @@ export const PurchaseOrderProductsForm = ({
                                       }
                                     : undefined
                                 }
+                                disabled={Boolean(receptionData)}
                               />
                               {currentItem?.product_code && (
                                 <div className="flex items-center gap-2 px-2 py-1.5">
@@ -713,7 +739,6 @@ export const PurchaseOrderProductsForm = ({
                                           );
                                         }
                                       }}
-                                      disabled={Boolean(supplierOrderData)}
                                     />
                                   </FormControl>
                                   <FormMessage />

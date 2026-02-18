@@ -1,6 +1,6 @@
+import { CM_COMERCIAL_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 import { optionalStringId, requiredStringId } from "@/shared/lib/global.schema";
 import { z } from "zod";
-import { CM_COMERCIAL_ID } from "@/core/core.constants";
 
 export const modelsVnSchemaCreate = z
   .object({
@@ -25,7 +25,7 @@ export const modelsVnSchemaCreate = z
       .min(1900, "El año no puede ser menor a 1900")
       .max(
         new Date().getFullYear() + 500,
-        `El año no puede ser mayor a ${new Date().getFullYear() + 500}`
+        `El año no puede ser mayor a ${new Date().getFullYear() + 500}`,
       ),
     wheelbase: z.string().max(50).default("0"),
     axles_number: z.string().max(50).default("0"),
@@ -86,14 +86,22 @@ export const modelsVnSchemaCreate = z
           path: ["power"],
         });
       }
-      if (!data.wheelbase || data.wheelbase.trim() === "" || data.wheelbase === "0") {
+      if (
+        !data.wheelbase ||
+        data.wheelbase.trim() === "" ||
+        data.wheelbase === "0"
+      ) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: "Distancia de ejes es requerido",
           path: ["wheelbase"],
         });
       }
-      if (!data.axles_number || data.axles_number.trim() === "" || data.axles_number === "0") {
+      if (
+        !data.axles_number ||
+        data.axles_number.trim() === "" ||
+        data.axles_number === "0"
+      ) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: "Número de ejes es requerido",
@@ -121,21 +129,33 @@ export const modelsVnSchemaCreate = z
           path: ["height"],
         });
       }
-      if (!data.seats_number || data.seats_number.trim() === "" || data.seats_number === "0") {
+      if (
+        !data.seats_number ||
+        data.seats_number.trim() === "" ||
+        data.seats_number === "0"
+      ) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: "Número de asientos es requerido",
           path: ["seats_number"],
         });
       }
-      if (!data.net_weight || data.net_weight.trim() === "" || data.net_weight === "0") {
+      if (
+        !data.net_weight ||
+        data.net_weight.trim() === "" ||
+        data.net_weight === "0"
+      ) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: "Peso neto es requerida",
           path: ["net_weight"],
         });
       }
-      if (!data.gross_weight || data.gross_weight.trim() === "" || data.gross_weight === "0") {
+      if (
+        !data.gross_weight ||
+        data.gross_weight.trim() === "" ||
+        data.gross_weight === "0"
+      ) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: "Peso bruto es requerida",
@@ -149,14 +169,22 @@ export const modelsVnSchemaCreate = z
           path: ["payload"],
         });
       }
-      if (!data.displacement || data.displacement.trim() === "" || data.displacement === "0") {
+      if (
+        !data.displacement ||
+        data.displacement.trim() === "" ||
+        data.displacement === "0"
+      ) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: "Cilindrada es requerido",
           path: ["displacement"],
         });
       }
-      if (!data.cylinders_number || data.cylinders_number.trim() === "" || data.cylinders_number === "0") {
+      if (
+        !data.cylinders_number ||
+        data.cylinders_number.trim() === "" ||
+        data.cylinders_number === "0"
+      ) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: "Número de cilindros es requerido",
