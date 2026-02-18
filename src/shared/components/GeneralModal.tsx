@@ -105,7 +105,7 @@ export function GeneralModal({
         >
           <div className="flex items-center gap-2">
             {icon && IconComponent && (
-              <div className="mr-2 bg-primary text-primary-foreground rounded-md p-2">
+              <div className="mr-2 bg-primary text-primaryform-foreground rounded-md p-2">
                 <IconComponent className="size-5" />
               </div>
             )}
@@ -116,7 +116,7 @@ export function GeneralModal({
               </DialogDescription>
             </DialogHeader>
           </div>
-          <div className="no-scrollbar overflow-y-auto py-2 px-4 max-h-[60vh]">
+          <div className="no-scrollbar overflow-y-auto py-2 px-4">
             {children}
           </div>
           <SheetFooter>{childrenFooter}</SheetFooter>

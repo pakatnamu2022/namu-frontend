@@ -69,7 +69,7 @@ export default function AddControlUnitsPage() {
             transport_company_id: "",
             driver_name: "",
             notes: "",
-            transfer_reason_id: "",
+            transfer_reason_id: "23",
             transfer_modality_id: "",
             ap_class_article_id: "",
           }}
