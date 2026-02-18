@@ -10,17 +10,17 @@ import {
   successToast,
 } from "@/core/core.function";
 import FormWrapper from "@/shared/components/FormWrapper";
-import { SHIPMENTS_RECEPTIONS } from "@/features/ap/comercial/envios-recepciones/lib/shipmentsReceptions.constants";
+import { CONTROL_UNITS } from "@/features/ap/comercial/control-unidades/lib/controlUnits.constants";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
-import { ShipmentsReceptionsForm } from "@/features/ap/comercial/envios-recepciones/components/ShipmentsReceptionsForm";
-import { ShipmentsReceptionsSchema } from "@/features/ap/comercial/envios-recepciones/lib/shipmentsReceptions.schema";
+import { ControlUnitsForm } from "@/features/ap/comercial/control-unidades/components/ControlUnitsForm";
+import { ControlUnitsSchema } from "@/features/ap/comercial/control-unidades/lib/controlUnits.schema";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  findShipmentsReceptionsById,
-  updateShipmentsReceptions,
-} from "@/features/ap/comercial/envios-recepciones/lib/shipmentsReceptions.actions";
-import { ShipmentsReceptionsResource } from "@/features/ap/comercial/envios-recepciones/lib/shipmentsReceptions.interface";
+  findControlUnitsById,
+  updateControlUnits,
+} from "@/features/ap/comercial/control-unidades/lib/controlUnits.actions";
+import { ControlUnitsResource } from "@/features/ap/comercial/control-unidades/lib/controlUnits.interface";
 import { notFound } from "@/shared/hooks/useNotFound";
 
 export default function UpdateControlUnitsPage() {
@@ -28,18 +28,17 @@ export default function UpdateControlUnitsPage() {
   const router = useNavigate();
   const queryClient = useQueryClient();
   const { currentView, checkRouteExists } = useCurrentModule();
-  const { ROUTE, QUERY_KEY, MODEL, ABSOLUTE_ROUTE } = SHIPMENTS_RECEPTIONS;
+  const { ROUTE, QUERY_KEY, MODEL, ABSOLUTE_ROUTE } = CONTROL_UNITS;
 
-  const { data: ShipmentsReceptions, isLoading: loadingShipmentsReceptions } =
-    useQuery({
-      queryKey: [QUERY_KEY, id],
-      queryFn: () => findShipmentsReceptionsById(Number(id)),
-      refetchOnWindowFocus: false,
-    });
+  const { data: ControlUnits, isLoading: loadingControlUnits } = useQuery({
+    queryKey: [QUERY_KEY, id],
+    queryFn: () => findControlUnitsById(Number(id)),
+    refetchOnWindowFocus: false,
+  });
 
   const { mutate, isPending } = useMutation({
-    mutationFn: (data: ShipmentsReceptionsSchema) =>
-      updateShipmentsReceptions(Number(id), data),
+    mutationFn: (data: ControlUnitsSchema) =>
+      updateControlUnits(Number(id), data),
     onSuccess: async () => {
       successToast(SUCCESS_MESSAGE(MODEL, "update"));
       await queryClient.invalidateQueries({
@@ -53,13 +52,13 @@ export default function UpdateControlUnitsPage() {
     },
   });
 
-  const handleSubmit = (data: ShipmentsReceptionsSchema) => {
+  const handleSubmit = (data: ControlUnitsSchema) => {
     mutate(data);
   };
 
-  function mapShipmentsReceptionsToForm(
-    data: ShipmentsReceptionsResource
-  ): Partial<ShipmentsReceptionsSchema> & {
+  function mapControlUnitsToForm(
+    data: ControlUnitsResource
+  ): Partial<ControlUnitsSchema> & {
     transmitter_establishment?: any;
     receiver_establishment?: any;
   } {
@@ -99,7 +98,7 @@ export default function UpdateControlUnitsPage() {
     };
   }
 
-  const isLoadingAny = loadingShipmentsReceptions || !ShipmentsReceptions;
+  const isLoadingAny = loadingControlUnits || !ControlUnits;
 
   if (isLoadingAny) {
     return <FormSkeleton />;
@@ -114,9 +113,9 @@ export default function UpdateControlUnitsPage() {
           title={MODEL.name}
           icon={currentView?.icon || "FileText"}
         />
-        <ShipmentsReceptionsForm
-          key={`shipment-form-${id}`}
-          defaultValues={mapShipmentsReceptionsToForm(ShipmentsReceptions)}
+        <ControlUnitsForm
+          key={`control-units-form-${id}`}
+          defaultValues={mapControlUnitsToForm(ControlUnits)}
           onSubmit={handleSubmit}
           isSubmitting={isPending}
           mode="update"

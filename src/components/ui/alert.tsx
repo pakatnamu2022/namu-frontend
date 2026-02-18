@@ -10,11 +10,11 @@ const alertVariants = cva(
       variant: {
         default: "bg-card text-card-foreground",
         destructive:
-          "text-destructive bg-card *:data-[slot=alert-description]:text-destructive/90 *:[svg]:text-current border-destructive",
+          "text-destructive bg-card *:data-[slot=alert-description]:text-destructive/90 *:[svg]:text-current border-destructive dark:border-destructive/50 dark:bg-destructive/10 dark:text-destructive dark:*:[svg]:text-destructive",
         warning:
-          "text-yellow-600 bg-yellow-50 *:data-[slot=alert-description]:text-yellow-600/90 *:[svg]:text-yellow-600 border-yellow-200",
+          "text-amber-600 bg-amber-50 *:data-[slot=alert-description]:text-amber-600/90 *:[svg]:text-amber-600 border-amber-200 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-50 dark:*:[svg]:text-amber-50",
         success:
-          "text-green-600 bg-green-50 *:data-[slot=alert-description]:text-green-600/90 *:[svg]:text-green-600 border-green-200",
+          "text-green-600 bg-green-50 *:data-[slot=alert-description]:text-green-600/90 *:[svg]:text-green-600 border-green-200 dark:border-green-900 dark:bg-green-950 dark:text-green-50 dark:*:[svg]:text-green-50",
       },
     },
     defaultVariants: {
@@ -59,7 +59,7 @@ function AlertDescription({
     <div
       data-slot="alert-description"
       className={cn(
-        "text-muted-foreground text-sm text-balance md:text-pretty [&_p:not(:last-child)]:mb-4 [&_a]:hover:text-foreground [&_a]:underline [&_a]:underline-offset-3",
+        "text-muted-foreground! text-sm text-balance md:text-pretty [&_p:not(:last-child)]:mb-4 [&_a]:hover:text-foreground [&_a]:underline [&_a]:underline-offset-3",
         className,
       )}
       {...props}

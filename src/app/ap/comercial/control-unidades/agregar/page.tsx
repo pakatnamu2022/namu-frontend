@@ -8,22 +8,22 @@ import {
   SUCCESS_MESSAGE,
   successToast,
 } from "@/core/core.function";
-import { SHIPMENTS_RECEPTIONS } from "@/features/ap/comercial/envios-recepciones/lib/shipmentsReceptions.constants";
+import { CONTROL_UNITS } from "@/features/ap/comercial/control-unidades/lib/controlUnits.constants";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
-import { ShipmentsReceptionsForm } from "@/features/ap/comercial/envios-recepciones/components/ShipmentsReceptionsForm";
-import { useCreateShipmentsReceptions } from "@/features/ap/comercial/envios-recepciones/lib/shipmentsReceptions.hook";
-import { ShipmentsReceptionsSchema } from "@/features/ap/comercial/envios-recepciones/lib/shipmentsReceptions.schema";
+import { ControlUnitsForm } from "@/features/ap/comercial/control-unidades/components/ControlUnitsForm";
+import { useCreateControlUnits } from "@/features/ap/comercial/control-unidades/lib/controlUnits.hook";
+import { ControlUnitsSchema } from "@/features/ap/comercial/control-unidades/lib/controlUnits.schema";
 import { notFound } from "@/shared/hooks/useNotFound";
 import PageWrapper from "@/shared/components/PageWrapper";
 
 export default function AddControlUnitsPage() {
   const router = useNavigate();
   const { currentView, checkRouteExists } = useCurrentModule();
-  const { ROUTE, MODEL, ABSOLUTE_ROUTE } = SHIPMENTS_RECEPTIONS;
+  const { ROUTE, MODEL, ABSOLUTE_ROUTE } = CONTROL_UNITS;
 
-  const createMutation = useCreateShipmentsReceptions();
+  const createMutation = useCreateControlUnits();
 
-  const handleSubmit = (data: ShipmentsReceptionsSchema) => {
+  const handleSubmit = (data: ControlUnitsSchema) => {
     createMutation.mutate(data as any, {
       onSuccess: () => {
         successToast(SUCCESS_MESSAGE(MODEL, "create"));
@@ -49,7 +49,7 @@ export default function AddControlUnitsPage() {
           title={MODEL.name}
           icon={currentView?.icon || "FileText"}
         />
-        <ShipmentsReceptionsForm
+        <ControlUnitsForm
           defaultValues={{
             document_type: "GUIA_REMISION",
             issuer_type: "",

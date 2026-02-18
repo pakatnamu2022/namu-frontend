@@ -6,7 +6,6 @@ import PageSkeleton from "@/shared/components/PageSkeleton";
 import TitleComponent from "@/shared/components/TitleComponent";
 import DataTablePagination from "@/shared/components/DataTablePagination";
 import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
-import { SimpleConfirmDialog } from "@/shared/components/SimpleConfirmDialog";
 import {
   ERROR_MESSAGE,
   errorToast,
@@ -15,25 +14,23 @@ import {
 } from "@/core/core.function";
 import { AREA_COMERCIAL, DEFAULT_PER_PAGE } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
-import { SHIPMENTS_RECEPTIONS } from "@/features/ap/comercial/envios-recepciones/lib/shipmentsReceptions.constants";
+import { CONTROL_UNITS } from "@/features/ap/comercial/control-unidades/lib/controlUnits.constants";
 import {
-  useDeleteShipmentsReceptions,
-  useQueryShippingGuideFromNubefact,
-  useSendShippingGuideToNubefact,
-  useShipmentsReceptions,
+  useDeleteControlUnits,
+  useControlUnits,
   useMarkAsReceived,
   useCancelShippingGuide,
-} from "@/features/ap/comercial/envios-recepciones/lib/shipmentsReceptions.hook";
-import ShipmentsReceptionsTable from "@/features/ap/comercial/envios-recepciones/components/ShipmentsReceptionsTable";
-import { ShipmentsReceptionsColumns } from "@/features/ap/comercial/envios-recepciones/components/ShipmentsReceptionsColumns";
-import ShipmentsReceptionsActions from "@/features/ap/comercial/envios-recepciones/components/ShipmentsReceptionsActions";
-import ShipmentsReceptionsOptions from "@/features/ap/comercial/envios-recepciones/components/ShipmentsReceptionsOptions";
+} from "@/features/ap/comercial/control-unidades/lib/controlUnits.hook";
+import ControlUnitsTable from "@/features/ap/comercial/control-unidades/components/ControlUnitsTable";
+import { ControlUnitsColumns } from "@/features/ap/comercial/control-unidades/components/ControlUnitsColumns";
+import ControlUnitsActions from "@/features/ap/comercial/control-unidades/components/ControlUnitsActions";
+import ControlUnitsOptions from "@/features/ap/comercial/control-unidades/components/ControlUnitsOptions";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
-import { MarkAsReceivedDialog } from "@/features/ap/comercial/envios-recepciones/components/MarkAsReceivedDialog";
+import { MarkAsReceivedDialog } from "@/features/ap/comercial/control-unidades/components/MarkAsReceivedDialog";
 import { ReasonDialog } from "@/shared/components/ReasonDialog";
 import { Ban } from "lucide-react";
-import { ShipmentsReceptionsResource } from "@/features/ap/comercial/envios-recepciones/lib/shipmentsReceptions.interface";
-import { SheetShipmentDetailsDialog } from "@/features/ap/comercial/envios-recepciones/components/SheetShipmentDetailsDialog";
+import { ControlUnitsResource } from "@/features/ap/comercial/control-unidades/lib/controlUnits.interface";
+import { SheetShipmentDetailsDialog } from "@/features/ap/comercial/control-unidades/components/SheetShipmentDetailsDialog";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { format } from "date-fns";
 
@@ -51,15 +48,12 @@ export default function ControlUnitsPage() {
   const formattedDateTo = dateTo ? format(dateTo, "yyyy-MM-dd") : undefined;
 
   const [deleteId, setDeleteId] = useState<number | null>(null);
-  const [sendToNubefactId, setSendToNubefactId] = useState<number | null>(null);
   const [markAsReceivedId, setMarkAsReceivedId] = useState<number | null>(null);
   const [cancelId, setCancelId] = useState<number | null>(null);
   const [selectedShipment, setSelectedShipment] =
-    useState<ShipmentsReceptionsResource | null>(null);
-  const { MODEL, ROUTE } = SHIPMENTS_RECEPTIONS;
-  const deleteMutation = useDeleteShipmentsReceptions();
-  const sendToNubefactMutation = useSendShippingGuideToNubefact();
-  const queryFromNubefactMutation = useQueryShippingGuideFromNubefact();
+    useState<ControlUnitsResource | null>(null);
+  const { MODEL, ROUTE } = CONTROL_UNITS;
+  const deleteMutation = useDeleteControlUnits();
   const markAsReceivedMutation = useMarkAsReceived();
   const cancelMutation = useCancelShippingGuide();
   const permissions = useModulePermissions(ROUTE);
@@ -69,7 +63,7 @@ export default function ControlUnitsPage() {
     setPage(1);
   }, [search, per_page]);
 
-  const { data, isLoading, refetch, isFetching } = useShipmentsReceptions({
+  const { data, isLoading, refetch, isFetching } = useControlUnits({
     page,
     search,
     per_page,
@@ -90,24 +84,6 @@ export default function ControlUnitsPage() {
         const msg = error?.response?.data?.message || "";
         errorToast(ERROR_MESSAGE(MODEL, "delete", msg));
         setDeleteId(null);
-      },
-    });
-  };
-
-  const handleSendToNubefact = async () => {
-    if (!sendToNubefactId) return;
-    sendToNubefactMutation.mutate(sendToNubefactId, {
-      onSettled: () => {
-        refetch();
-        setSendToNubefactId(null);
-      },
-    });
-  };
-
-  const handleQueryFromNubefact = (id: number) => {
-    queryFromNubefactMutation.mutate(id, {
-      onSettled: () => {
-        refetch();
       },
     });
   };
@@ -150,19 +126,17 @@ export default function ControlUnitsPage() {
           subtitle={currentView.descripcion}
           icon={currentView.icon}
         />
-        <ShipmentsReceptionsActions
+        <ControlUnitsActions
           isFetching={isFetching && !isLoading}
           onRefresh={refetch}
           permissions={permissions}
         />
       </HeaderTableWrapper>
 
-      <ShipmentsReceptionsTable
+      <ControlUnitsTable
         isLoading={isLoading}
-        columns={ShipmentsReceptionsColumns({
+        columns={ControlUnitsColumns({
           onDelete: setDeleteId,
-          onSendToNubefact: setSendToNubefactId,
-          onQueryFromNubefact: handleQueryFromNubefact,
           onMarkAsReceived: setMarkAsReceivedId,
           onViewDetails: setSelectedShipment,
           onCancel: setCancelId,
@@ -170,7 +144,7 @@ export default function ControlUnitsPage() {
         })}
         data={data?.data || []}
       >
-        <ShipmentsReceptionsOptions
+        <ControlUnitsOptions
           search={search}
           setSearch={setSearch}
           dateFrom={dateFrom}
@@ -180,28 +154,13 @@ export default function ControlUnitsPage() {
             setDateTo(to);
           }}
         />
-      </ShipmentsReceptionsTable>
+      </ControlUnitsTable>
 
       {deleteId !== null && (
         <SimpleDeleteDialog
           open={true}
           onOpenChange={(open) => !open && setDeleteId(null)}
           onConfirm={handleDelete}
-        />
-      )}
-
-      {sendToNubefactId !== null && (
-        <SimpleConfirmDialog
-          open={true}
-          onOpenChange={(open) => !open && setSendToNubefactId(null)}
-          onConfirm={handleSendToNubefact}
-          title="Enviar a Nubefact"
-          description="¿Está seguro de que desea enviar esta guía de remisión a Nubefact? Una vez enviada, no podrá editarla ni eliminarla."
-          confirmText="Sí, enviar"
-          cancelText="Cancelar"
-          variant="default"
-          icon="warning"
-          isLoading={sendToNubefactMutation.isPending}
         />
       )}
 

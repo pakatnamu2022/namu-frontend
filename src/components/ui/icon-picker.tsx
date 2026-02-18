@@ -4,15 +4,6 @@ import { useState, useMemo, useRef, useEffect } from "react";
 import * as LucideIcons from "lucide-react";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
   Select,
   SelectContent,
   SelectItem,
@@ -22,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { GeneralModal } from "@/shared/components/GeneralModal";
 
 // Exportaciones que no son componentes de iconos
 const EXCLUDED_EXPORTS = [
@@ -289,7 +281,7 @@ export function IconPicker({ value, onChange }: IconPickerProps) {
     if (searchQuery) {
       // Si hay búsqueda, buscar en todos los iconos
       return allIcons.filter((iconName: string) =>
-        iconName.toLowerCase().includes(searchQuery.toLowerCase())
+        iconName.toLowerCase().includes(searchQuery.toLowerCase()),
       );
     }
 
@@ -336,26 +328,67 @@ export function IconPicker({ value, onChange }: IconPickerProps) {
   const isMobile = useIsMobile();
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button
-          type="button"
-          variant="outline"
-          size={isMobile ? "sm" : "lg"}
-          className="w-full justify-start gap-2"
-        >
-          {CurrentIcon && <CurrentIcon className="h-4 w-4" />}
-          <span>{value || "Seleccionar icono"}</span>
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="max-w-3xl max-h-[85vh]">
-        <DialogHeader>
-          <DialogTitle>Seleccionar Icono</DialogTitle>
-          <DialogDescription>
-            Selecciona un icono de la lista o busca por nombre
-          </DialogDescription>
-        </DialogHeader>
-
+    <>
+      <Button
+        type="button"
+        variant="outline"
+        size={isMobile ? "sm" : "lg"}
+        className="w-full justify-start gap-2"
+        onClick={() => setOpen(true)}
+      >
+        {CurrentIcon && <CurrentIcon className="h-4 w-4" />}
+        <span>{value || "Seleccionar icono"}</span>
+      </Button>
+      <GeneralModal
+        open={open}
+        onClose={() => setOpen(false)}
+        title="Seleccionar Icono"
+        subtitle="Selecciona un icono de la lista o busca por nombre"
+        icon="PictureInPicture"
+        childrenFooter={
+          <div className="flex items-center justify-between w-full text-sm text-muted-foreground">
+            <div className="flex items-center gap-2">
+              <LucideIcons.Info className="h-4 w-4" />
+              <span>
+                {searchQuery ? (
+                  <>
+                    Mostrando{" "}
+                    <strong className="text-foreground">
+                      {filteredIcons.length}
+                    </strong>{" "}
+                    de{" "}
+                    <strong className="text-foreground">
+                      {allIcons.length}
+                    </strong>{" "}
+                    iconos
+                  </>
+                ) : (
+                  <>
+                    {selectedCategory}:{" "}
+                    <strong className="text-foreground">
+                      {filteredIcons.length}
+                    </strong>{" "}
+                    iconos
+                    {" · "}Total:{" "}
+                    <strong className="text-foreground">
+                      {allIcons.length}
+                    </strong>
+                  </>
+                )}
+              </span>
+            </div>
+            <a
+              href="https://lucide.dev/icons"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 hover:underline flex items-center gap-1"
+            >
+              Ver todos en lucide.dev
+              <LucideIcons.ExternalLink className="h-3 w-3" />
+            </a>
+          </div>
+        }
+      >
         <div className="space-y-4">
           {/* Barra de búsqueda y filtro de categoría */}
           <div className="flex gap-2">
@@ -412,7 +445,7 @@ export function IconPicker({ value, onChange }: IconPickerProps) {
                   const startIdx = virtualRow.index * COLUMNS;
                   const rowIcons = filteredIcons.slice(
                     startIdx,
-                    startIdx + COLUMNS
+                    startIdx + COLUMNS,
                   );
 
                   return (
@@ -467,51 +500,7 @@ export function IconPicker({ value, onChange }: IconPickerProps) {
             )}
           </div>
         </div>
-
-        <DialogFooter className="border-t pt-4">
-          <div className="flex items-center justify-between w-full text-sm text-muted-foreground">
-            <div className="flex items-center gap-2">
-              <LucideIcons.Info className="h-4 w-4" />
-              <span>
-                {searchQuery ? (
-                  <>
-                    Mostrando{" "}
-                    <strong className="text-foreground">
-                      {filteredIcons.length}
-                    </strong>{" "}
-                    de{" "}
-                    <strong className="text-foreground">
-                      {allIcons.length}
-                    </strong>{" "}
-                    iconos
-                  </>
-                ) : (
-                  <>
-                    {selectedCategory}:{" "}
-                    <strong className="text-foreground">
-                      {filteredIcons.length}
-                    </strong>{" "}
-                    iconos
-                    {" · "}Total:{" "}
-                    <strong className="text-foreground">
-                      {allIcons.length}
-                    </strong>
-                  </>
-                )}
-              </span>
-            </div>
-            <a
-              href="https://lucide.dev/icons"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-600 hover:underline flex items-center gap-1"
-            >
-              Ver todos en lucide.dev
-              <LucideIcons.ExternalLink className="h-3 w-3" />
-            </a>
-          </div>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+      </GeneralModal>
+    </>
   );
 }
