@@ -5,7 +5,7 @@ import {
   VehicleResource,
 } from "../../../comercial/vehiculos/lib/vehicles.interface";
 import { ApBankResource } from "@/features/ap/configuraciones/maestros-general/chequeras/lib/apBank.interface";
-import { AreaType } from "@/core/core.constants";
+import { AreaType } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 export interface ElectronicDocumentResponse {
   data: ElectronicDocumentResource[];

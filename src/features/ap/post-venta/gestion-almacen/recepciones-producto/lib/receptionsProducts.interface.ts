@@ -3,6 +3,7 @@ import { SuppliersResource } from "@/features/ap/comercial/proveedores/lib/suppl
 import { WarehouseResource } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.interface";
 import { type Links, type Meta } from "@/shared/lib/pagination.interface.ts";
 import { ProductResource } from "../../productos/lib/product.interface";
+import { SupplierOrderResource } from "../../compra-proveedor/lib/supplierOrder.interface";
 
 export interface ReceptionDetailResource {
   id: number;
@@ -48,6 +49,7 @@ export interface ReceptionResource {
   total_quantity?: string;
   status?: string;
   has_invoice?: boolean;
+  supplier_order: SupplierOrderResource;
   purchase_order?: VehiclePurchaseOrderResource;
   warehouse: WarehouseResource;
   carrier: SuppliersResource;

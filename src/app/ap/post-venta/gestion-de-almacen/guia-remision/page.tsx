@@ -19,19 +19,19 @@ import { DEFAULT_PER_PAGE } from "@/core/core.constants.ts";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper.tsx";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions.ts";
 import { notFound } from "@/shared/hooks/useNotFound.ts";
-import { deleteProductTransfer } from "@/features/ap/post-venta/gestion-almacen/transferencia-producto/lib/productTransfer.actions.ts";
-import ProductTransferActions from "@/features/ap/post-venta/gestion-almacen/transferencia-producto/components/ProductTransferActions.tsx";
-import ProductTransferTable from "@/features/ap/post-venta/gestion-almacen/transferencia-producto/components/ProductTransferTable.tsx";
-import { productTransferColumns } from "@/features/ap/post-venta/gestion-almacen/transferencia-producto/components/ProductTransferColumns.tsx";
-import ProductTransferOptions from "@/features/ap/post-venta/gestion-almacen/transferencia-producto/components/ProductTransferOptions.tsx";
-import { PRODUCT_TRANSFER } from "@/features/ap/post-venta/gestion-almacen/transferencia-producto/lib/productTransfer.constants.ts";
+import { deleteProductTransfer } from "@/features/ap/post-venta/gestion-almacen/guia-remision/lib/productTransfer.actions.ts";
+import ProductTransferActions from "@/features/ap/post-venta/gestion-almacen/guia-remision/components/ProductTransferActions.tsx";
+import ProductTransferTable from "@/features/ap/post-venta/gestion-almacen/guia-remision/components/ProductTransferTable.tsx";
+import { productTransferColumns } from "@/features/ap/post-venta/gestion-almacen/guia-remision/components/ProductTransferColumns.tsx";
+import ProductTransferOptions from "@/features/ap/post-venta/gestion-almacen/guia-remision/components/ProductTransferOptions.tsx";
+import { PRODUCT_TRANSFER } from "@/features/ap/post-venta/gestion-almacen/guia-remision/lib/productTransfer.constants.ts";
 import {
   useProductTransfers,
   useSendShippingGuideToNubefact,
   useQueryShippingGuideFromNubefact,
-} from "@/features/ap/post-venta/gestion-almacen/transferencia-producto/lib/productTransfer.hook.ts";
-import { ProductTransferViewSheet } from "@/features/ap/post-venta/gestion-almacen/transferencia-producto/components/ProductTransferViewSheet";
-import { useMyPhysicalWarehouse } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
+} from "@/features/ap/post-venta/gestion-almacen/guia-remision/lib/productTransfer.hook.ts";
+import { ProductTransferViewSheet } from "@/features/ap/post-venta/gestion-almacen/guia-remision/components/ProductTransferViewSheet.tsx";
+import { useMyPhysicalWarehouse } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook.ts";
 
 export default function ProductTransferPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -154,7 +154,7 @@ export default function ProductTransferPage() {
           },
           routeUpdate: ROUTE_UPDATE,
           routeReception:
-            "/ap/post-venta/gestion-de-almacen/transferencia-producto/recepcion",
+            "/ap/post-venta/gestion-de-almacen/guia-remision/recepcion",
           warehouseId,
         })}
         data={data?.data || []}

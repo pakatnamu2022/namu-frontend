@@ -21,8 +21,9 @@ import { SUNAT_CONCEPTS_TYPE } from "@/features/gp/maestro-general/conceptos-sun
 import { useAllSunatConcepts } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.hook";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { notFound } from "@/shared/hooks/useNotFound";
-import { AREA_COMERCIAL, STATUS_ACTIVE } from "@/core/core.constants";
+import { STATUS_ACTIVE } from "@/core/core.constants";
 import PageWrapper from "@/shared/components/PageWrapper";
+import { AREA_COMERCIAL } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 export default function AddElectronicDocumentPage() {
   const { ROUTE, MODEL, ABSOLUTE_ROUTE } = ELECTRONIC_DOCUMENT;

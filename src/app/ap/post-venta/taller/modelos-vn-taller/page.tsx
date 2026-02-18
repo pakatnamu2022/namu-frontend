@@ -12,7 +12,7 @@ import {
   SUCCESS_MESSAGE,
   successToast,
 } from "@/core/core.function.ts";
-import { CM_POSTVENTA_ID, DEFAULT_PER_PAGE } from "@/core/core.constants.ts";
+import { DEFAULT_PER_PAGE } from "@/core/core.constants.ts";
 import { useModelsVn } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.hook.ts";
 import {
   deleteModelsVn,
@@ -27,6 +27,7 @@ import { MODELS_VN_POSTVENTA } from "@/features/ap/configuraciones/vehiculos/mod
 import { useAllBrands } from "@/features/ap/configuraciones/vehiculos/marcas/lib/brands.hook.ts";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions.ts";
 import { notFound } from "@/shared/hooks/useNotFound.ts";
+import { CM_POSTVENTA_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 export default function ModelsVnPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();

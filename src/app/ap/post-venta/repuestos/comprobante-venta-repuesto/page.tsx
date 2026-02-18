@@ -7,7 +7,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import TitleComponent from "@/shared/components/TitleComponent";
 import DataTablePagination from "@/shared/components/DataTablePagination";
 import { errorToast, successToast } from "@/core/core.function";
-import { AREA_MESON, DEFAULT_PER_PAGE } from "@/core/core.constants";
+import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import {
   sendElectronicDocumentToSunat,
   cancelElectronicDocument,
@@ -26,6 +26,7 @@ import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { notFound } from "@/shared/hooks/useNotFound";
 import SalesReceiptsActions from "@/features/ap/post-venta/comprobante-venta/components/SalesReceiptsActions";
 import SalesReceiptsOptions from "@/features/ap/post-venta/comprobante-venta/components/SalesReceiptsOptions";
+import { AREA_MESON } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 export default function SalesReceiptsRepuestoPage() {
   const { ROUTE } = ELECTRONIC_DOCUMENT_REPUESTOS;
@@ -51,7 +52,7 @@ export default function SalesReceiptsRepuestoPage() {
     per_page,
     search,
     status: statusFilter,
-    area_id: AREA_MESON.toString(),
+    area_id: [String(AREA_MESON)],
     sunat_concept_document_type_id: documentTypeFilter
       ? parseInt(documentTypeFilter)
       : undefined,

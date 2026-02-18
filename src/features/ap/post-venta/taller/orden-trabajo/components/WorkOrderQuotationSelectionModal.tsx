@@ -16,8 +16,8 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { errorToast, getMonday, getSunday } from "@/core/core.function";
-import { AREA_PM_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 import SearchInput from "@/shared/components/SearchInput";
+import { AREA_TALLER } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 interface WorkOrderQuotationSelectionModalProps {
   open: boolean;
@@ -63,7 +63,7 @@ export const WorkOrderQuotationSelectionModal = ({
     per_page,
     search,
     is_take: 0,
-    area_id: AREA_PM_ID.TALLER,
+    area_id: AREA_TALLER.toString(),
     vehicle_id: vehicleId,
     quotation_date:
       dateFrom && dateTo

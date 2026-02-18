@@ -227,11 +227,11 @@ import ProductPVPage from "./app/ap/post-venta/gestion-de-almacen/productos/page
 import AddProductPVPage from "@/app/ap/post-venta/gestion-de-almacen/productos/agregar/page.tsx";
 import UpdateProductPVPage from "@/app/ap/post-venta/gestion-de-almacen/productos/actualizar/[id]/page.tsx";
 import AssignWarehousePage from "@/app/ap/post-venta/gestion-de-almacen/productos/asignar-almacen/[id]/page.tsx";
-import ProductTransferPage from "./app/ap/post-venta/gestion-de-almacen/transferencia-producto/page.tsx";
-import AddProductTransferPage from "@/app/ap/post-venta/gestion-de-almacen/transferencia-producto/agregar/page.tsx";
-import UpdateProductTransferPage from "@/app/ap/post-venta/gestion-de-almacen/transferencia-producto/actualizar/[id]/page.tsx";
-import TransferReceptionsPage from "@/app/ap/post-venta/gestion-de-almacen/transferencia-producto/recepcion/[productTransferId]/page.tsx";
-import CreateTransferReceptionPage from "@/app/ap/post-venta/gestion-de-almacen/transferencia-producto/recepcion/agregar/[productTransferId]/page.tsx";
+import ProductTransferPage from "./app/ap/post-venta/gestion-de-almacen/guia-remision/page.tsx";
+import AddProductTransferPage from "@/app/ap/post-venta/gestion-de-almacen/guia-remision/agregar/page.tsx";
+import UpdateProductTransferPage from "@/app/ap/post-venta/gestion-de-almacen/guia-remision/actualizar/[id]/page.tsx";
+import TransferReceptionsPage from "@/app/ap/post-venta/gestion-de-almacen/guia-remision/recepcion/[productTransferId]/page.tsx";
+import CreateTransferReceptionPage from "@/app/ap/post-venta/gestion-de-almacen/guia-remision/recepcion/agregar/[productTransferId]/page.tsx";
 import AdjustmentsProductPage from "./app/ap/post-venta/gestion-de-almacen/ajuste-producto/page.tsx";
 import AddAdjustmentsProductPage from "@/app/ap/post-venta/gestion-de-almacen/ajuste-producto/agregar/page.tsx";
 import UpdateAdjustmentsProductPage from "@/app/ap/post-venta/gestion-de-almacen/ajuste-producto/actualizar/[id]/page.tsx";
@@ -258,6 +258,7 @@ import OrderQuotationMesonPage from "./app/ap/post-venta/repuestos/cotizacion-me
 import AddOrderQuotationMesonPage from "./app/ap/post-venta/repuestos/cotizacion-meson/agregar/page.tsx";
 import UpdateOrderQuotationMesonPage from "./app/ap/post-venta/repuestos/cotizacion-meson/actualizar/[id]/page.tsx";
 import BillOrderQuotationMesonPage from "./app/ap/post-venta/repuestos/cotizacion-meson/facturar/[id]/page.tsx";
+import RequestDiscountOrderQuotationMesonPage from "./app/ap/post-venta/repuestos/cotizacion-meson/solicitar-descuento/[id]/page.tsx";
 import SalesReceiptsRepuestoPage from "./app/ap/post-venta/repuestos/comprobante-venta-repuesto/page.tsx";
 import PurchaseRequestRepuestoPage from "./app/ap/post-venta/repuestos/solicitud-compra-repuesto/page.tsx";
 import AddPurchaseRequestRepuestoPage from "./app/ap/post-venta/repuestos/solicitud-compra-repuesto/agregar/page.tsx";
@@ -1207,23 +1208,23 @@ function App() {
               />
               {/* Gestion Compra */}
               <Route
-                path="gestion-de-almacen/transferencia-producto"
+                path="gestion-de-almacen/guia-remision"
                 element={<ProductTransferPage />}
               />
               <Route
-                path="gestion-de-almacen/transferencia-producto/agregar"
+                path="gestion-de-almacen/guia-remision/agregar"
                 element={<AddProductTransferPage />}
               />
               <Route
-                path="gestion-de-almacen/transferencia-producto/actualizar/:id"
+                path="gestion-de-almacen/guia-remision/actualizar/:id"
                 element={<UpdateProductTransferPage />}
               />
               <Route
-                path="gestion-de-almacen/transferencia-producto/recepcion/:productTransferId"
+                path="gestion-de-almacen/guia-remision/recepcion/:productTransferId"
                 element={<TransferReceptionsPage />}
               />
               <Route
-                path="gestion-de-almacen/transferencia-producto/recepcion/agregar/:productTransferId"
+                path="gestion-de-almacen/guia-remision/recepcion/agregar/:productTransferId"
                 element={<CreateTransferReceptionPage />}
               />
               <Route
@@ -1327,6 +1328,10 @@ function App() {
               <Route
                 path="repuestos/cotizacion-meson/facturar/:id"
                 element={<BillOrderQuotationMesonPage />}
+              />
+              <Route
+                path="repuestos/cotizacion-meson/solicitar-descuento/:id"
+                element={<RequestDiscountOrderQuotationMesonPage />}
               />
               <Route
                 path="repuestos/comprobante-venta-repuesto"

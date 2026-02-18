@@ -12,7 +12,7 @@ import {
   SUCCESS_MESSAGE,
   successToast,
 } from "@/core/core.function";
-import { CM_COMERCIAL_ID, DEFAULT_PER_PAGE } from "@/core/core.constants";
+import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import { useModelsVn } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.hook";
 import {
   deleteModelsVn,
@@ -27,6 +27,7 @@ import { MODELS_VN } from "@/features/ap/configuraciones/vehiculos/modelos-vn/li
 import { useAllBrands } from "@/features/ap/configuraciones/vehiculos/marcas/lib/brands.hook";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { notFound } from "@/shared/hooks/useNotFound";
+import { CM_COMERCIAL_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 export default function ModelsVnPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();

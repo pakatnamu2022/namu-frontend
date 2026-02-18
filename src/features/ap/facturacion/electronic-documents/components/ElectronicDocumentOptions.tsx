@@ -2,7 +2,7 @@ import SearchInput from "@/shared/components/SearchInput";
 import { DOCUMENT_STATUS } from "../lib/electronicDocument.constants";
 import { SunatConceptsResource } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.interface";
 import { SearchableSelect } from "@/shared/components/SearchableSelect";
-import { AREA_OPTIONS } from "@/core/core.constants";
+import { AREA_OPTIONS } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 interface Props {
   search: string;

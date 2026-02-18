@@ -24,7 +24,7 @@ import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { AnnulDocumentDialog } from "./CancelDocumentDialog";
 import ElectronicDocumentMigrationHistory from "./ElectronicDocumentMigrationHistory";
 import { SUNAT_TYPE_INVOICES_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
-import { AREA_COMERCIAL } from "@/core/core.constants";
+import { AREA_COMERCIAL } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 export type ElectronicDocumentColumn = ColumnDef<ElectronicDocumentResource>;
 

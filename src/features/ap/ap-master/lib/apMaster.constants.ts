@@ -1,5 +1,6 @@
 import { type ModelComplete } from "@/core/core.interface";
 import { ApMastersResource } from "./apMasters.interface";
+import type { Option } from "@/core/core.interface";
 
 const ROUTE = "maestros-generales";
 const ABSOLUTE_ROUTE = `/ap/comercial/${ROUTE}`;
@@ -63,19 +64,38 @@ export const AP_MASTER_TYPE = {
   DISCARDING_SPAREPART: "MOTIVO_DESCARTE_REPUESTO",
 };
 
-export const AREA_CM_ID = {
-  COMERCIAL: "826",
-  POSTVENTA: "825",
-};
+// Commercial Module ID Constants
+export const CM_COMERCIAL_ID = 794;
+export const CM_POSTVENTA_ID = 804;
 
-export const AREA_PM_ID = {
-  TALLER: "881",
-  MESON: "882",
-};
+export const AREA_COMERCIAL = 826;
+export const AREA_POSTVENTA = 825;
+export const AREA_TALLER = 881;
+export const AREA_MESON = 882;
+
+export const AREAS_ID = [
+  AREA_COMERCIAL,
+  AREA_POSTVENTA,
+  AREA_TALLER,
+  AREA_MESON,
+];
+
+export const AREA_OPTIONS: Option[] = [
+  { value: AREA_COMERCIAL.toString(), label: "Comercial" },
+  { value: AREA_POSTVENTA.toString(), label: "Post Venta" },
+  { value: AREA_TALLER.toString(), label: "Taller" },
+  { value: AREA_MESON.toString(), label: "Mesón" },
+];
+
+export type AreaType =
+  | typeof AREA_COMERCIAL
+  | typeof AREA_POSTVENTA
+  | typeof AREA_TALLER
+  | typeof AREA_MESON;
 
 export const ON_SELECT_AREA = [
-  { label: "COMERCIAL", value: AREA_CM_ID.COMERCIAL },
-  { label: "POSTVENTA", value: AREA_CM_ID.POSTVENTA },
+  { label: "COMERCIAL", value: AREA_COMERCIAL.toString() },
+  { label: "POSTVENTA", value: AREA_POSTVENTA.toString() },
 ];
 
 // ESTADOS DE ORDEN DE TRABAJO

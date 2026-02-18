@@ -1,5 +1,5 @@
 import type { ColumnDef } from "@tanstack/react-table";
-import { ProductTransferResource } from "@/features/ap/post-venta/gestion-almacen/transferencia-producto/lib/productTransfer.interface.ts";
+import { ProductTransferResource } from "@/features/ap/post-venta/gestion-almacen/guia-remision/lib/productTransfer.interface.ts";
 import { Button } from "@/components/ui/button.tsx";
 import {
   Eye,
@@ -17,6 +17,7 @@ import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge.tsx";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
+import { SUNAT_CONCEPTS_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
 
 export type ProductTransferColumns = ColumnDef<ProductTransferResource>;
 
@@ -97,13 +98,41 @@ export const productTransferColumns = ({
   {
     accessorKey: "warehouse_code",
     header: "Origen",
+    cell: ({ row }) => {
+      const { reference, warehouse_code } = row.original;
+      if (!reference) return warehouse_code ?? "-";
+
+      // Si el motivo es "OTROS", mostrar transmitter_name
+      const isOtros =
+        reference.transfer_reason_id?.toString() ===
+        SUNAT_CONCEPTS_ID.TRANSFER_REASON_OTROS;
+
+      if (isOtros) {
+        return reference.transmitter_name ?? "-";
+      }
+
+      // Si es TRASLADO_SEDE, mostrar warehouse_code (almacén)
+      return warehouse_code ?? "-";
+    },
   },
   {
     accessorKey: "warehouse_destination_code",
     header: "Destino",
     cell: ({ row }) => {
-      const value = row.getValue("warehouse_destination_code");
-      return value ?? "-";
+      const { reference, warehouse_destination_code } = row.original;
+      if (!reference) return warehouse_destination_code ?? "-";
+
+      // Si el motivo es "OTROS", mostrar receiver_name
+      const isOtros =
+        reference.transfer_reason_id?.toString() ===
+        SUNAT_CONCEPTS_ID.TRANSFER_REASON_OTROS;
+
+      if (isOtros) {
+        return reference.receiver_name ?? "-";
+      }
+
+      // Si es TRASLADO_SEDE, mostrar warehouse_destination_code (almacén)
+      return warehouse_destination_code ?? "-";
     },
   },
   {

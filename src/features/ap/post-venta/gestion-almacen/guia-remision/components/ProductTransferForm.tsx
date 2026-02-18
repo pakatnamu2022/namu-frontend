@@ -27,14 +27,14 @@ import {
   ProductTransferSchema,
   productTransferSchemaCreate,
   productTransferSchemaUpdate,
-} from "@/features/ap/post-venta/gestion-almacen/transferencia-producto/lib/productTransfer.schema.ts";
+} from "@/features/ap/post-venta/gestion-almacen/guia-remision/lib/productTransfer.schema.ts";
 import { FormSelect } from "@/shared/components/FormSelect.tsx";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField.tsx";
 import { GroupFormSection } from "@/shared/components/GroupFormSection.tsx";
 import FormSkeleton from "@/shared/components/FormSkeleton.tsx";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog.tsx";
 import { useNavigate } from "react-router-dom";
-import { PRODUCT_TRANSFER } from "@/features/ap/post-venta/gestion-almacen/transferencia-producto/lib/productTransfer.constants.ts";
+import { PRODUCT_TRANSFER } from "@/features/ap/post-venta/gestion-almacen/guia-remision/lib/productTransfer.constants.ts";
 import {
   useAllSuppliers,
   useSuppliers,
@@ -60,8 +60,8 @@ import { SuppliersResource } from "@/features/ap/comercial/proveedores/lib/suppl
 import { useInventory } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.hook.ts";
 import { InventoryResource } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.interface.ts";
 import { TYPES_OPERATION_ID } from "@/features/ap/configuraciones/maestros-general/tipos-operacion/lib/typesOperation.constants.ts";
-import { FormInput } from "@/shared/components/FormInput";
-import { FormInputText } from "@/shared/components/FormInputText";
+import { FormInput } from "@/shared/components/FormInput.tsx";
+import { FormInputText } from "@/shared/components/FormInputText.tsx";
 
 interface ProductTransferFormProps {
   defaultValues: Partial<ProductTransferSchema>;

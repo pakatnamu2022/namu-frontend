@@ -19,6 +19,7 @@ import { useOrderQuotationById } from "@/features/ap/post-venta/taller/cotizacio
 import { useQueryClient } from "@tanstack/react-query";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import FormWrapper from "@/shared/components/FormWrapper";
+import { ITEM_TYPE_PRODUCT } from "@/features/ap/post-venta/taller/cotizacion-detalle/lib/proformaDetails.constants";
 
 export default function UpdateOrderQuotationMesonPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -79,7 +80,7 @@ export default function UpdateOrderQuotationMesonPage() {
     supply_type: quotation.supply_type || "STOCK",
     details:
       quotation.details
-        ?.filter((d) => d.item_type === "PRODUCT")
+        ?.filter((d) => d.item_type === ITEM_TYPE_PRODUCT)
         .map((detail) => ({
           product_id: detail.product_id?.toString() || "",
           description: detail.description || "",

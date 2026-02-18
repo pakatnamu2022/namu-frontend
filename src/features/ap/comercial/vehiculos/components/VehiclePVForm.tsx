@@ -27,7 +27,7 @@ import { VehicleColorResource } from "@/features/ap/configuraciones/vehiculos/co
 import { useAllEngineTypes } from "@/features/ap/configuraciones/vehiculos/tipos-motor/lib/engineTypes.hook";
 import { useWarehouseByModelSede } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
-import { CM_POSTVENTA_ID, EMPRESA_AP } from "@/core/core.constants";
+import { EMPRESA_AP } from "@/core/core.constants";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import { DocumentValidationStatus } from "@/shared/components/DocumentValidationStatus";
 import { ValidationIndicator } from "@/shared/components/ValidationIndicator";
@@ -42,6 +42,7 @@ import { CUSTOMERS_PV } from "../../clientes/lib/customers.constants";
 import { CustomersResource } from "../../clientes/lib/customers.interface";
 import { VehicleResource } from "../lib/vehicles.interface";
 import { MODELS_VN_REPUESTOS } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.constanst";
+import { CM_POSTVENTA_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 interface VehiclePVFormProps {
   defaultValues: Partial<VehicleSchema>;
