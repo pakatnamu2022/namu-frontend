@@ -35,11 +35,6 @@ export interface MessageResponse {
   message: string;
 }
 
-export interface SuccessResponse {
-  success: boolean;
-  message: string;
-}
-
 export interface ParamsProps {
   params?: Record<string, any>;
 }
