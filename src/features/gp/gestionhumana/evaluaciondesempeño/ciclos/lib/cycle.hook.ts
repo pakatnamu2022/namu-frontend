@@ -48,7 +48,6 @@ export const useCycleDetails = (
   return useQuery({
     queryKey: ["cycle", idCycle, params],
     queryFn: () => getCyclePersonDetails(idCycle.toString(), params),
-    refetchOnWindowFocus: false,
   });
 };
 

@@ -37,7 +37,7 @@ import { EVALUATION_PERSON } from "../lib/evaluationPerson.constans";
 import EvaluationPersonObjetiveTable from "./EvaluationPersonObjetiveTable";
 import EvaluationPersonCompetenceTable from "./EvaluationPersonCompetenceTable";
 import { Badge } from "@/components/ui/badge";
-import { TrendingUp, Target, Calendar, RefreshCw } from "lucide-react";
+import { TrendingUp, Target, Calendar } from "lucide-react";
 import EvaluationSummaryCard from "./EvaluationSummaryCard";
 import { EVALUATION_OBJECTIVE } from "../../evaluaciones/lib/evaluation.constans";
 
@@ -85,7 +85,7 @@ export function EvaluationPersonResultModal({
       successToast(SUCCESS_MESSAGE(MODEL, "update"));
     } catch (error: any) {
       errorToast(
-        error?.response?.data?.message || ERROR_MESSAGE(MODEL, "update")
+        error?.response?.data?.message || ERROR_MESSAGE(MODEL, "update"),
       );
     } finally {
       setSaving(false);
@@ -100,7 +100,7 @@ export function EvaluationPersonResultModal({
       successToast(SUCCESS_MESSAGE(MODEL, "update"));
     } catch (error: any) {
       errorToast(
-        error?.response?.data?.message || ERROR_MESSAGE(MODEL, "update")
+        error?.response?.data?.message || ERROR_MESSAGE(MODEL, "update"),
       );
     } finally {
       setSaving(false);
@@ -109,7 +109,7 @@ export function EvaluationPersonResultModal({
 
   const handleUpdateResultCellCompetence = async (
     id: number,
-    result: number
+    result: number,
   ) => {
     try {
       setSaving(true);
@@ -118,7 +118,7 @@ export function EvaluationPersonResultModal({
       successToast(SUCCESS_MESSAGE(MODEL, "update"));
     } catch (error: any) {
       errorToast(
-        error?.response?.data?.message || ERROR_MESSAGE(MODEL, "update")
+        error?.response?.data?.message || ERROR_MESSAGE(MODEL, "update"),
       );
     } finally {
       setSaving(false);
@@ -132,7 +132,7 @@ export function EvaluationPersonResultModal({
       successToast("Datos actualizados correctamente");
     } catch (error: any) {
       errorToast(
-        error?.response?.data?.message || "Error al actualizar los datos"
+        error?.response?.data?.message || "Error al actualizar los datos",
       );
     } finally {
       setSaving(false);
@@ -146,17 +146,17 @@ export function EvaluationPersonResultModal({
     const totalCompetences =
       evaluationPersonResult.competenceGroups?.reduce(
         (sum, group) => sum + group.total_sub_competences,
-        0
+        0,
       ) || 0;
     const completedCompetences =
       evaluationPersonResult.competenceGroups?.reduce(
         (sum, group) => sum + group.completed_evaluations,
-        0
+        0,
       ) || 0;
     const totalObjectives = evaluationPersonResult.details?.length || 0;
     const completedObjectives =
       evaluationPersonResult.details?.filter(
-        (detail) => parseFloat(detail.result) > 0
+        (detail) => parseFloat(detail.result) > 0,
       ).length || 0;
 
     return {
@@ -166,7 +166,7 @@ export function EvaluationPersonResultModal({
         Math.round(
           ((completedCompetences + completedObjectives) /
             (totalCompetences + totalObjectives)) *
-            100
+            100,
         ) || 0,
     };
   };
@@ -239,18 +239,6 @@ export function EvaluationPersonResultModal({
                   Guardando...
                 </div>
               )}
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleRefresh}
-                disabled={saving}
-                className="gap-2"
-              >
-                <RefreshCw
-                  className={`size-4 ${saving ? "animate-spin" : ""}`}
-                />
-                Actualizar
-              </Button>
             </div>
           </div>
         </SheetHeader>
@@ -258,7 +246,11 @@ export function EvaluationPersonResultModal({
         <div className="mt-6 space-y-4">
           {/* Resumen de estadísticas */}
           {!isLoadingEvaluationPerson && evaluationPersonResult && (
-            <EvaluationSummaryCard evaluationResult={evaluationPersonResult} />
+            <EvaluationSummaryCard
+              evaluationResult={evaluationPersonResult}
+              isSaving={saving}
+              onRefresh={handleRefresh}
+            />
           )}
           {/* Tabs de contenido */}
           <Tabs
@@ -369,11 +361,11 @@ export function EvaluationPersonResultModal({
                     <Calendar className="size-4" />
                     <span>
                       {new Date(
-                        evaluationPersonResult.evaluation.start_date
+                        evaluationPersonResult.evaluation.start_date,
                       ).toLocaleDateString("es-ES")}{" "}
                       -
                       {new Date(
-                        evaluationPersonResult.evaluation.end_date
+                        evaluationPersonResult.evaluation.end_date,
                       ).toLocaleDateString("es-ES")}
                     </span>
                   </div>

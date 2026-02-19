@@ -60,7 +60,7 @@ export default function EvaluationDetailPersonPage() {
     queryFn: () =>
       getEvaluationPersonResultByPersonAndEvaluation(
         personId,
-        selectedEvaluationId
+        selectedEvaluationId,
       ),
     enabled: !!selectedEvaluationId && !!personId,
     refetchOnWindowFocus: false,
@@ -101,7 +101,7 @@ export default function EvaluationDetailPersonPage() {
       successToast(SUCCESS_MESSAGE(MODEL, "update"));
     } catch (error: any) {
       errorToast(
-        error?.response?.data?.message || ERROR_MESSAGE(MODEL, "update")
+        error?.response?.data?.message || ERROR_MESSAGE(MODEL, "update"),
       );
     } finally {
       setSaving(false);
@@ -116,7 +116,7 @@ export default function EvaluationDetailPersonPage() {
       successToast(SUCCESS_MESSAGE(MODEL, "update"));
     } catch (error: any) {
       errorToast(
-        error?.response?.data?.message || ERROR_MESSAGE(MODEL, "update")
+        error?.response?.data?.message || ERROR_MESSAGE(MODEL, "update"),
       );
     } finally {
       setSaving(false);
@@ -125,7 +125,7 @@ export default function EvaluationDetailPersonPage() {
 
   const handleUpdateResultCellCompetence = async (
     id: number,
-    result: number
+    result: number,
   ) => {
     try {
       setSaving(true);
@@ -134,7 +134,7 @@ export default function EvaluationDetailPersonPage() {
       successToast(SUCCESS_MESSAGE(MODEL, "update"));
     } catch (error: any) {
       errorToast(
-        error?.response?.data?.message || ERROR_MESSAGE(MODEL, "update")
+        error?.response?.data?.message || ERROR_MESSAGE(MODEL, "update"),
       );
     } finally {
       setSaving(false);
@@ -148,7 +148,7 @@ export default function EvaluationDetailPersonPage() {
       successToast("Datos actualizados correctamente");
     } catch (error: any) {
       errorToast(
-        error?.response?.data?.message || "Error al actualizar los datos"
+        error?.response?.data?.message || "Error al actualizar los datos",
       );
     } finally {
       setSaving(false);
@@ -165,7 +165,7 @@ export default function EvaluationDetailPersonPage() {
     selectedEvaluationId
   ) {
     const selectedEvaluation = evaluations.find(
-      (evaluation) => evaluation.id === selectedEvaluationId
+      (evaluation) => evaluation.id === selectedEvaluationId,
     );
     return (
       <NoEvaluationMessage
@@ -215,7 +215,7 @@ export default function EvaluationDetailPersonPage() {
         />
       </div>
 
-      <div className="mt-6 space-y-4 grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="space-y-4 grid grid-cols-1 md:grid-cols-4 gap-6">
         {/* Tabs de contenido */}
         <Tabs
           defaultValue={
@@ -278,7 +278,11 @@ export default function EvaluationDetailPersonPage() {
 
         {/* Resumen de estadísticas */}
         {!isLoadingEvaluationPerson && evaluationPersonResult && (
-          <EvaluationSummaryCard evaluationResult={evaluationPersonResult} />
+          <EvaluationSummaryCard
+            evaluationResult={evaluationPersonResult}
+            isSaving={saving}
+            onRefresh={handleRefresh}
+          />
         )}
       </div>
     </PageWrapper>
