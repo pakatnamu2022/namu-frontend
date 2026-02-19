@@ -37,21 +37,21 @@ export async function getAllSupplierOrder({
 }
 
 export async function getSupplierOrderById(
-  id: number
+  id: number,
 ): Promise<SupplierOrderResource> {
   const { data } = await api.get<SupplierOrderResource>(`${ENDPOINT}/${id}`);
   return data;
 }
 
 export async function findSupplierOrderById(
-  id: number
+  id: number,
 ): Promise<SupplierOrderResource> {
   const response = await api.get<SupplierOrderResource>(`${ENDPOINT}/${id}`);
   return response.data;
 }
 
 export async function storeSupplierOrder(
-  payload: SupplierOrderRequest
+  payload: SupplierOrderRequest,
 ): Promise<SupplierOrderResource> {
   const { data } = await api.post<SupplierOrderResource>(ENDPOINT, payload);
   return data;
@@ -59,17 +59,17 @@ export async function storeSupplierOrder(
 
 export async function updateSupplierOrder(
   id: number,
-  payload: Partial<SupplierOrderRequest>
+  payload: Partial<SupplierOrderRequest>,
 ): Promise<SupplierOrderResource> {
   const { data } = await api.put<SupplierOrderResource>(
     `${ENDPOINT}/${id}`,
-    payload
+    payload,
   );
   return data;
 }
 
 export async function deleteSupplierOrder(
-  id: number
+  id: number,
 ): Promise<GeneralResponse> {
   const { data } = await api.delete<GeneralResponse>(`${ENDPOINT}/${id}`);
   return data;

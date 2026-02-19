@@ -15,40 +15,35 @@ import { Loader } from "lucide-react";
 import { errorToast, successToast } from "@/core/core.function";
 import { FormInput } from "@/shared/components/FormInput";
 import {
-  discountRequestSchema,
-  DiscountRequestSchema,
-} from "../lib/discountRequestMeson.schema";
+  discountRequestTallerSchema,
+  DiscountRequestTallerSchema,
+} from "../lib/discountRequestTaller.schema";
 import {
-  storeDiscountRequestOrderQuotation,
-  updateDiscountRequestOrderQuotation,
-} from "../lib/discountRequestMeson.actions";
+  storeDiscountRequestWorkOrderQuotation,
+  updateDiscountRequestWorkOrderQuotation,
+} from "../lib/discountRequestTaller.actions";
 import {
-  DISCOUNT_REQUEST_MESON,
+  DISCOUNT_REQUEST_TALLER,
   TYPE_GLOBAL,
   TYPE_PARTIAL,
-} from "../lib/discountRequestMeson.constants";
+} from "../lib/discountRequestTaller.constants";
 import { OrderQuotationDetailsResource } from "@/features/ap/post-venta/taller/cotizacion-detalle/lib/proformaDetails.interface";
-import { DiscountRequestOrderQuotationResource } from "../lib/discountRequestMeson.interface";
+import { DiscountRequestWorkOrderQuotationResource } from "../lib/discountRequestTaller.interface";
 
-interface DiscountRequestModalProps {
+interface DiscountRequestTallerModalProps {
   open: boolean;
   onClose: () => void;
   type: "GLOBAL" | "PARTIAL";
   quotationId: number;
-  /** Monto base: total del ítem (PARTIAL) o suma total de ítems (GLOBAL) */
   baseAmount: number;
   detail?: OrderQuotationDetailsResource;
   currencySymbol?: string;
-  /** Si se pasa, el modal trabaja en modo edición */
-  existingRequest?: DiscountRequestOrderQuotationResource;
+  existingRequest?: DiscountRequestWorkOrderQuotationResource;
   onSuccess?: () => void;
-  /** Tipo de ítem al que aplica el descuento */
   itemType?: "PRODUCT" | "LABOR";
-  /** Descuento máximo permitido (0-100). Por defecto 100. */
-  maxDiscount?: number;
 }
 
-export const DiscountRequestModal = ({
+export const DiscountRequestTallerModal = ({
   open,
   onClose,
   type,
@@ -59,24 +54,17 @@ export const DiscountRequestModal = ({
   existingRequest,
   onSuccess,
   itemType = "PRODUCT",
-  maxDiscount = 100,
-}: DiscountRequestModalProps) => {
+}: DiscountRequestTallerModalProps) => {
   const queryClient = useQueryClient();
   const isEditing = !!existingRequest;
 
-  // Descuento mínimo: el porcentaje ya aplicado al ítem (para PARTIAL) o 0 (para GLOBAL)
-  const minDiscount =
-    type === TYPE_PARTIAL ? Number(detail?.discount_percentage ?? 0) : 0;
-
-  const defaultPct = existingRequest
-    ? Number(existingRequest.requested_discount_percentage)
-    : Math.max(5, minDiscount);
-
-  const form = useForm<DiscountRequestSchema>({
-    resolver: zodResolver(discountRequestSchema),
+  const form = useForm<DiscountRequestTallerSchema>({
+    resolver: zodResolver(discountRequestTallerSchema),
     defaultValues: {
       type,
-      requested_discount_percentage: defaultPct,
+      requested_discount_percentage: existingRequest
+        ? Number(existingRequest.requested_discount_percentage)
+        : 0,
       requested_discount_amount: existingRequest
         ? Number(existingRequest.requested_discount_amount)
         : 0,
@@ -89,12 +77,11 @@ export const DiscountRequestModal = ({
 
   useEffect(() => {
     if (!open) return;
-    const pct = existingRequest
-      ? Number(existingRequest.requested_discount_percentage)
-      : Math.max(5, minDiscount);
     form.reset({
       type,
-      requested_discount_percentage: pct,
+      requested_discount_percentage: existingRequest
+        ? Number(existingRequest.requested_discount_percentage)
+        : 0,
       requested_discount_amount: existingRequest
         ? Number(existingRequest.requested_discount_amount)
         : 0,
@@ -103,7 +90,7 @@ export const DiscountRequestModal = ({
         type === TYPE_PARTIAL && detail ? detail.id : null,
       item_type: existingRequest?.item_type ?? itemType,
     });
-  }, [detail, existingRequest, form, itemType, minDiscount, open, quotationId, type]);
+  }, [detail, existingRequest, form, itemType, open, quotationId, type]);
 
   const discountPercentage = useWatch({
     control: form.control,
@@ -117,13 +104,13 @@ export const DiscountRequestModal = ({
   const totalConDescuento = baseAmount - computedDiscountMonto;
 
   const { mutate: submitRequest, isPending } = useMutation({
-    mutationFn: (data: DiscountRequestSchema) =>
+    mutationFn: (data: DiscountRequestTallerSchema) =>
       isEditing
-        ? updateDiscountRequestOrderQuotation(existingRequest!.id, {
+        ? updateDiscountRequestWorkOrderQuotation(existingRequest!.id, {
             ...data,
             requested_discount_amount: computedDiscountMonto,
           })
-        : storeDiscountRequestOrderQuotation({
+        : storeDiscountRequestWorkOrderQuotation({
             ...data,
             requested_discount_amount: computedDiscountMonto,
           }),
@@ -134,7 +121,7 @@ export const DiscountRequestModal = ({
           : "Solicitud de descuento enviada correctamente",
       );
       queryClient.invalidateQueries({
-        queryKey: [DISCOUNT_REQUEST_MESON.QUERY_KEY],
+        queryKey: [DISCOUNT_REQUEST_TALLER.QUERY_KEY],
       });
       onSuccess?.();
       form.reset();
@@ -148,9 +135,8 @@ export const DiscountRequestModal = ({
     },
   });
 
-  const handleSubmit = (data: DiscountRequestSchema) => {
-    const payload = { ...data, item_type: itemType };
-    submitRequest(payload);
+  const handleSubmit = (data: DiscountRequestTallerSchema) => {
+    submitRequest({ ...data, item_type: itemType });
   };
 
   const handleCancel = () => {
@@ -183,7 +169,6 @@ export const DiscountRequestModal = ({
             onSubmit={form.handleSubmit(handleSubmit)}
             className="space-y-4"
           >
-            {/* Info base */}
             <div className="rounded-md border bg-muted/40 p-3 text-sm space-y-1">
               {!isGlobal && detail && (
                 <p className="font-medium">{detail.description}</p>
@@ -196,37 +181,18 @@ export const DiscountRequestModal = ({
               </div>
             </div>
 
-            {/* Porcentaje — único campo editable */}
-            <div className="space-y-1">
-              <FormInput
-                control={form.control}
-                name="requested_discount_percentage"
-                label="Porcentaje de descuento solicitado"
-                type="number"
-                min={minDiscount}
-                max={maxDiscount}
-                step={0.01}
-                addonEnd={<span className="text-xs font-medium">%</span>}
-                required
-              />
-              <p className="text-xs text-muted-foreground">
-                Máximo permitido:{" "}
-                <span className="font-semibold text-foreground">
-                  {maxDiscount.toFixed(2)}%
-                </span>
-                {minDiscount > 0 && (
-                  <>
-                    {" "}
-                    · Mínimo:{" "}
-                    <span className="font-semibold text-foreground">
-                      {minDiscount.toFixed(2)}%
-                    </span>
-                  </>
-                )}
-              </p>
-            </div>
+            <FormInput
+              control={form.control}
+              name="requested_discount_percentage"
+              label="Porcentaje de descuento solicitado"
+              type="number"
+              min={0}
+              max={100}
+              step={0.01}
+              addonEnd={<span className="text-xs font-medium">%</span>}
+              required
+            />
 
-            {/* Monto — solo referencia visual, calculado del porcentaje */}
             <div className="flex flex-col gap-1">
               <label className="text-xs md:text-sm font-medium leading-none">
                 Monto de descuento solicitado
@@ -241,7 +207,6 @@ export const DiscountRequestModal = ({
               </div>
             </div>
 
-            {/* Resultado con descuento */}
             <div className="rounded-md border bg-muted/40 p-3 text-sm space-y-1">
               <div className="flex justify-between text-xs text-muted-foreground">
                 <span>Descuento</span>

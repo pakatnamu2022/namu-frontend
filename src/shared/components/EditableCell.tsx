@@ -42,6 +42,7 @@ export function EditableCell({
   const [initial, setInitial] = useState<string>(String(value ?? "")); // valor al entrar a actualizar
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setVal(String(value ?? ""));
     setInitial(String(value ?? ""));
     setEditing(false);

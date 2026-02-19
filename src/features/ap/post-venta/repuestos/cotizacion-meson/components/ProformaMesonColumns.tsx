@@ -7,7 +7,7 @@ import {
   Eye,
   PackageOpen,
   XCircle,
-  BadgePercent,
+  Percent,
 } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import {
@@ -307,7 +307,7 @@ export const orderQuotationMesonColumns = ({
                 tooltip="Solicitar Descuento"
                 onClick={() => onRequestDiscount(id)}
               >
-                <BadgePercent className="size-5" />
+                <Percent className="size-5" />
               </Button>
             )}
 
