@@ -39,6 +39,7 @@ export default function OrderQuotationMesonCajaPage() {
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
+  const [sedeId, setSedeId] = useState<string>("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [selectedOrderQuotationId, setSelectedOrderQuotationId] = useState<
     number | null
@@ -59,7 +60,6 @@ export default function OrderQuotationMesonCajaPage() {
   const [dateTo, setDateTo] = useState<Date | undefined>(
     getCurrentDayOfMonth(currentDate),
   );
-  const [sedeId, setSedeId] = useState<string>("");
 
   const formatDate = (date: Date | undefined) => {
     return date ? date.toLocaleDateString("en-CA") : undefined; // formato: YYYY-MM-DD

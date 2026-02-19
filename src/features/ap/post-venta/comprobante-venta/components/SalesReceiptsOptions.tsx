@@ -2,10 +2,14 @@ import SearchInput from "@/shared/components/SearchInput";
 import { SunatConceptsResource } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.interface";
 import { SearchableSelect } from "@/shared/components/SearchableSelect";
 import { DOCUMENT_STATUS } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.constants";
+import { SedeResource } from "@/features/gp/maestro-general/sede/lib/sede.interface";
 
 interface Props {
   search: string;
   setSearch: (value: string) => void;
+  sedes: SedeResource[];
+  sedeId: string;
+  setSedeId: (value: string) => void;
   statusFilter: string;
   setStatusFilter: (value: string) => void;
   documentTypeFilter: string;
@@ -16,6 +20,9 @@ interface Props {
 export default function SalesReceiptsOptions({
   search,
   setSearch,
+  sedes = [],
+  sedeId,
+  setSedeId,
   statusFilter,
   setStatusFilter,
   documentTypeFilter,
@@ -24,13 +31,22 @@ export default function SalesReceiptsOptions({
 }: Props) {
   return (
     <div className="flex items-end gap-4 flex-wrap">
-      <div className="flex-1 min-w-[200px]">
-        <SearchInput
-          value={search}
-          onChange={setSearch}
-          placeholder="Buscar por cliente, serie, número..."
-        />
-      </div>
+      <SearchInput
+        value={search}
+        onChange={setSearch}
+        placeholder="Buscar por cliente, serie, número..."
+      />
+      <SearchableSelect
+        options={sedes.map((item) => ({
+          value: item.id.toString(),
+          label: item.abreviatura,
+        }))}
+        value={sedeId}
+        onChange={setSedeId}
+        placeholder="Filtrar por sede"
+        className="min-w-56"
+        classNameOption="text-xs"
+      />
 
       {setStatusFilter && (
         <SearchableSelect
