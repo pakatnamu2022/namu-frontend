@@ -103,7 +103,16 @@ export const DiscountRequestModal = ({
         type === TYPE_PARTIAL && detail ? detail.id : null,
       item_type: existingRequest?.item_type ?? itemType,
     });
-  }, [detail, existingRequest, form, itemType, minDiscount, open, quotationId, type]);
+  }, [
+    detail,
+    existingRequest,
+    form,
+    itemType,
+    minDiscount,
+    open,
+    quotationId,
+    type,
+  ]);
 
   const discountPercentage = useWatch({
     control: form.control,
@@ -203,7 +212,7 @@ export const DiscountRequestModal = ({
                 name="requested_discount_percentage"
                 label="Porcentaje de descuento solicitado"
                 type="number"
-                min={minDiscount}
+                min={0}
                 max={maxDiscount}
                 step={0.01}
                 addonEnd={<span className="text-xs font-medium">%</span>}
@@ -214,15 +223,6 @@ export const DiscountRequestModal = ({
                 <span className="font-semibold text-foreground">
                   {maxDiscount.toFixed(2)}%
                 </span>
-                {minDiscount > 0 && (
-                  <>
-                    {" "}
-                    · Mínimo:{" "}
-                    <span className="font-semibold text-foreground">
-                      {minDiscount.toFixed(2)}%
-                    </span>
-                  </>
-                )}
               </p>
             </div>
 

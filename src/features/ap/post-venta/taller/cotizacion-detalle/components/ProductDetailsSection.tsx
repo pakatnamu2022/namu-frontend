@@ -357,15 +357,21 @@ export default function ProductDetailsSection({
         r.type === TYPE_PARTIAL && r.ap_order_quotation_detail_id === detailId,
     );
 
+  // Calcular descuento máximo permitido (para formulario y modal)
+  const globalApprovedRequest = discountRequests.find(
+    (r) => r.type === TYPE_GLOBAL && r.status === STATUS_APPROVED,
+  );
+  const maxDiscountAllowed = globalApprovedRequest
+    ? Number(globalApprovedRequest.requested_discount_percentage)
+    : 5;
+
   const baseAmountForModal =
     modalType === TYPE_GLOBAL
       ? globalBaseAmount
       : Number(selectedDetail?.total_amount || 0);
 
-  const maxDiscountForModal =
-    modalType === TYPE_PARTIAL
-      ? 100 - Number(selectedDetail?.discount_percentage ?? 0)
-      : 100;
+  // Para el modal siempre permitir solicitar hasta 100% (es una solicitud, no aplicación directa)
+  const maxDiscountForModal = 100;
 
   return (
     <Card className="p-6">
@@ -473,7 +479,7 @@ export default function ProductDetailsSection({
               />
             </div>
 
-            <div>
+            <div className="space-y-1">
               <FormInput
                 control={form.control}
                 name="discount_percentage"
@@ -481,7 +487,24 @@ export default function ProductDetailsSection({
                 placeholder="Ej: 0.00"
                 inputMode="numeric"
                 type="number"
+                min={0}
+                max={maxDiscountAllowed}
+                className={
+                  globalApprovedRequest ? "border-green-400" : undefined
+                }
+                onChange={(e) => {
+                  const val = e.target.value ? Number(e.target.value) : 0;
+                  if (val > maxDiscountAllowed) {
+                    form.setValue("discount_percentage", maxDiscountAllowed);
+                  } else {
+                    form.setValue("discount_percentage", val);
+                  }
+                }}
               />
+              <p className="text-[10px] font-medium text-green-600">
+                Máx. {globalApprovedRequest ? "aprobado" : "permitido"}:{" "}
+                {maxDiscountAllowed.toFixed(2)}%
+              </p>
             </div>
 
             <div>
@@ -642,15 +665,15 @@ export default function ProductDetailsSection({
         ) : (
           <div className="border rounded-lg overflow-hidden">
             {/* Cabecera de tabla */}
-            <div className="hidden md:grid grid-cols-16 gap-2 bg-gray-100 px-4 py-2 text-xs font-semibold text-gray-700 border-b">
-              <div className="col-span-3">Repuesto</div>
-              <div className="col-span-1 text-center">Cant.</div>
-              <div className="col-span-2 text-right">Tipo Abas.</div>
-              <div className="col-span-2 text-right">Precio Unit.</div>
-              <div className="col-span-1 text-right">Desc.</div>
-              <div className="col-span-2 text-right">Total</div>
-              <div className="col-span-1 text-right">Reg. por</div>
-              <div className="col-span-4 text-left">Desc. parcial</div>
+            <div className="hidden md:grid grid-cols-20 gap-3 bg-gray-100 px-4 py-3 text-xs font-semibold text-gray-700 border-b">
+              <div className="col-span-4">Repuesto</div>
+              <div className="col-span-2 text-center">Cant.</div>
+              <div className="col-span-2 text-center">Tipo Abas.</div>
+              <div className="col-span-3 text-center">Precio Unit.</div>
+              <div className="col-span-2 text-center">Desc.</div>
+              <div className="col-span-3 text-center">Total</div>
+              <div className="col-span-2 text-center">Reg. por</div>
+              <div className="col-span-2 text-right">Desc. parcial</div>
             </div>
 
             {/* Items */}
@@ -666,8 +689,8 @@ export default function ProductDetailsSection({
                 return (
                   <div key={detail.id}>
                     {/* Vista Desktop */}
-                    <div className="hidden md:grid grid-cols-16 gap-2 px-4 py-3 hover:bg-gray-50 transition-colors items-center">
-                      <div className="col-span-3">
+                    <div className="hidden md:grid grid-cols-20 gap-3 px-4 py-3 hover:bg-gray-50 transition-colors items-center">
+                      <div className="col-span-4">
                         {detail.product?.code && (
                           <div className="flex items-center gap-2 mb-1">
                             <span className="text-xs font-mono bg-blue-100 text-blue-800 px-2 py-0.5 rounded">
@@ -695,7 +718,7 @@ export default function ProductDetailsSection({
                         )}
                       </div>
 
-                      <div className="col-span-1 text-center">
+                      <div className="col-span-2 text-center">
                         <span className="text-sm font-medium">
                           {detail.quantity}{" "}
                           <span className="text-xs text-gray-500">
@@ -704,23 +727,25 @@ export default function ProductDetailsSection({
                         </span>
                       </div>
 
-                      <div className="col-span-2 text-right">
+                      <div className="col-span-2 text-center">
                         <span className="text-sm">{detail.supply_type}</span>
                       </div>
 
-                      <div className="col-span-2 text-right">
-                        <span className="text-sm">
+                      <div className="col-span-3 text-center">
+                        <span className="text-sm font-medium">
                           {formatCurrency(detail.unit_price)}
                         </span>
                       </div>
 
-                      <div className="col-span-1 flex justify-end">
+                      <div className="col-span-2 flex justify-center">
                         {approvedRequest ? (
                           <EditableCell
                             id={detail.id}
                             value={detail.discount_percentage}
                             min={0}
-                            max={100}
+                            max={Number(
+                              approvedRequest.requested_discount_percentage,
+                            )}
                             widthClass="w-16"
                             onUpdate={(_id, val) =>
                               handleDiscountUpdate(detail, Number(val))
@@ -733,19 +758,19 @@ export default function ProductDetailsSection({
                         )}
                       </div>
 
-                      <div className="col-span-2 text-right">
+                      <div className="col-span-3 text-center">
                         <span className="text-sm font-bold text-primary">
                           {formatCurrency(detail.total_amount)}
                         </span>
                       </div>
 
-                      <div className="col-span-1 text-right">
-                        <span className="text-xs text-gray-600 truncate block">
+                      <div className="col-span-2 text-center">
+                        <span className="text-xs text-gray-600 wrap-break-word">
                           {detail.created_by_name}
                         </span>
                       </div>
 
-                      <div className="col-span-4">
+                      <div className="col-span-2 flex justify-end">
                         {partialRequest ? (
                           <div className="flex items-center gap-1 flex-wrap">
                             <span className="text-xs font-semibold">
@@ -907,7 +932,9 @@ export default function ProductDetailsSection({
                               id={detail.id}
                               value={detail.discount_percentage}
                               min={0}
-                              max={100}
+                              max={Number(
+                                approvedRequest.requested_discount_percentage,
+                              )}
                               widthClass="w-16"
                               onUpdate={(_id, val) =>
                                 handleDiscountUpdate(detail, Number(val))

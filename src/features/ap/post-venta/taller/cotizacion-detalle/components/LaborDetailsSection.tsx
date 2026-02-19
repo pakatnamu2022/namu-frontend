@@ -247,16 +247,21 @@ export default function LaborDetailsSection({
         r.type === TYPE_PARTIAL && r.ap_order_quotation_detail_id === detailId,
     );
 
+  // Calcular descuento máximo permitido (para formulario)
+  const globalApprovedRequest = discountRequests.find(
+    (r) => r.type === TYPE_GLOBAL && r.status === STATUS_APPROVED,
+  );
+  const maxDiscountAllowed = globalApprovedRequest
+    ? Number(globalApprovedRequest.requested_discount_percentage)
+    : 5;
+
   const baseAmountForModal =
     modalType === TYPE_GLOBAL
       ? globalBaseAmount
       : Number(selectedDetail?.total_amount || 0);
 
-  // maxDiscount para modal: 100 menos el descuento ya aplicado al ítem seleccionado
-  const maxDiscountForModal =
-    modalType === TYPE_PARTIAL
-      ? 100 - Number(selectedDetail?.discount_percentage ?? 0)
-      : 100;
+  // Para el modal siempre permitir solicitar hasta 100% (es una solicitud, no aplicación directa)
+  const maxDiscountForModal = 100;
 
   return (
     <Card className="p-6">
@@ -302,16 +307,34 @@ export default function LaborDetailsSection({
               />
             </div>
 
-            <div className="sm:col-span-1 lg:col-span-2">
+            <div className="sm:col-span-1 lg:col-span-2 space-y-1">
               <FormInput
                 control={form.control}
                 name="discount_percentage"
                 label="Desc. %"
                 placeholder="Ej: 0.00"
-                className="h-9 text-xs"
+                className={
+                  globalApprovedRequest
+                    ? "h-9 text-xs border-green-400"
+                    : "h-9 text-xs"
+                }
                 inputMode="numeric"
                 type="number"
+                min={0}
+                max={maxDiscountAllowed}
+                onChange={(e) => {
+                  const val = e.target.value ? Number(e.target.value) : 0;
+                  if (val > maxDiscountAllowed) {
+                    form.setValue("discount_percentage", maxDiscountAllowed);
+                  } else {
+                    form.setValue("discount_percentage", val);
+                  }
+                }}
               />
+              <p className="text-[10px] font-medium text-green-600">
+                Máx. {globalApprovedRequest ? "aprobado" : "permitido"}:{" "}
+                {maxDiscountAllowed.toFixed(2)}%
+              </p>
             </div>
 
             <div className="sm:col-span-1 lg:col-span-3">
@@ -466,10 +489,10 @@ export default function LaborDetailsSection({
             <div className="hidden md:grid grid-cols-12 gap-2 bg-gray-100 px-4 py-2 text-xs font-semibold text-gray-700 border-b">
               <div className="col-span-3">Descripción</div>
               <div className="col-span-1 text-center">Horas</div>
-              <div className="col-span-2 text-right">Precio/Hora</div>
-              <div className="col-span-1 text-right">Desc.</div>
-              <div className="col-span-2 text-right">Total</div>
-              <div className="col-span-3 text-left">Desc. parcial</div>
+              <div className="col-span-2 text-center">Precio/Hora</div>
+              <div className="col-span-1 text-center">Desc.</div>
+              <div className="col-span-2 text-center">Total</div>
+              <div className="col-span-3 text-right">Desc. parcial</div>
             </div>
 
             {/* Items */}
@@ -509,20 +532,22 @@ export default function LaborDetailsSection({
                         </span>
                       </div>
 
-                      <div className="col-span-2 text-right">
+                      <div className="col-span-2 text-center">
                         <span className="text-sm">
                           {formatCurrency(detail.unit_price)}
                         </span>
                       </div>
 
                       {/* Columna Desc. — editable si hay solicitud aprobada */}
-                      <div className="col-span-1 flex justify-end">
+                      <div className="col-span-1 text-center">
                         {approvedRequest ? (
                           <EditableCell
                             id={detail.id}
                             value={detail.discount_percentage}
                             min={0}
-                            max={100}
+                            max={Number(
+                              approvedRequest.requested_discount_percentage,
+                            )}
                             widthClass="w-16"
                             onUpdate={(_id, val) =>
                               handleDiscountUpdate(detail, Number(val))
@@ -535,13 +560,13 @@ export default function LaborDetailsSection({
                         )}
                       </div>
 
-                      <div className="col-span-2 text-right">
+                      <div className="col-span-2 text-center">
                         <span className="text-sm font-bold text-primary">
                           {formatCurrency(detail.total_amount)}
                         </span>
                       </div>
 
-                      <div className="col-span-3">
+                      <div className="col-span-3 flex justify-end">
                         {partialRequest ? (
                           <div className="flex items-center gap-1 flex-wrap">
                             <span className="text-xs font-semibold">
@@ -680,7 +705,9 @@ export default function LaborDetailsSection({
                               id={detail.id}
                               value={detail.discount_percentage}
                               min={0}
-                              max={100}
+                              max={Number(
+                                approvedRequest.requested_discount_percentage,
+                              )}
                               widthClass="w-16"
                               onUpdate={(_id, val) =>
                                 handleDiscountUpdate(detail, Number(val))
