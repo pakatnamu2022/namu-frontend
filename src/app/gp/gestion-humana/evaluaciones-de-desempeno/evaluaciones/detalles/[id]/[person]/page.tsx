@@ -1,6 +1,5 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import {
   Tabs,
   TabsContent,
@@ -19,7 +18,7 @@ import {
   successToast,
 } from "@/core/core.function";
 import { Badge } from "@/components/ui/badge";
-import { TrendingUp, Target, RefreshCw } from "lucide-react";
+import { TrendingUp, Target } from "lucide-react";
 import { EVALUATION_PERSON } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluation-person/lib/evaluationPerson.constans";
 import { useAllEvaluations } from "@/features/gp/gestionhumana/evaluaciondesempeño/evaluaciones/lib/evaluation.hook";
 import {
@@ -243,20 +242,11 @@ export default function EvaluationDetailPersonPage() {
                 )}
               />
             </div>
-            <Button
-              variant="default"
-              size="icon-lg"
-              onClick={handleRefresh}
-              disabled={saving}
-              className="gap-2"
-            >
-              <RefreshCw className={`size-4 ${saving ? "animate-spin" : ""}`} />
-            </Button>
           </div>
         </PersonTitleComponent>
       </div>
 
-      <div className="mt-6 space-y-4 grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="space-y-4 grid grid-cols-1 md:grid-cols-4 gap-6">
         {/* Tabs de contenido */}
         <Tabs
           defaultValue={
@@ -318,7 +308,11 @@ export default function EvaluationDetailPersonPage() {
 
         {/* Resumen de estadísticas */}
         {!isLoadingEvaluationPerson && evaluationPersonResult && (
-          <EvaluationSummaryCard evaluationResult={evaluationPersonResult} />
+          <EvaluationSummaryCard
+            evaluationResult={evaluationPersonResult}
+            isSaving={saving}
+            onRefresh={handleRefresh}
+          />
         )}
       </div>
     </PageWrapper>

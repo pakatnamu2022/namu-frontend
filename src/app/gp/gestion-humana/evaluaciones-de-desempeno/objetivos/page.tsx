@@ -12,7 +12,9 @@ import PageSkeleton from "@/shared/components/PageSkeleton";
 import { objectiveColumns } from "@/features/gp/gestionhumana/evaluaciondesempeño/objetivos/components/ObjectiveColumns";
 import {
   deleteObjective,
+  storeObjective,
   updateGoalObjective,
+  updateObjective,
   updateWeightObjective,
 } from "@/features/gp/gestionhumana/evaluaciondesempeño/objetivos/lib/objective.actions";
 import { errorToast, successToast } from "@/core/core.function";
@@ -20,14 +22,20 @@ import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
 import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { notFound } from "@/shared/hooks/useNotFound";
+import { ObjectiveModal } from "@/features/gp/gestionhumana/evaluaciondesempeño/objetivos/components/ObjectiveModal";
+import { ObjectiveResource } from "@/features/gp/gestionhumana/evaluaciondesempeño/objetivos/lib/objective.interface";
+import { ObjectiveSchema } from "@/features/gp/gestionhumana/evaluaciondesempeño/objetivos/lib/objective.schema";
 
 export default function ObjectivePage() {
-  // const router = useNavigate();
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editingObjective, setEditingObjective] =
+    useState<ObjectiveResource | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     setPage(1);
@@ -38,6 +46,44 @@ export default function ObjectivePage() {
     search,
     per_page,
   });
+
+  const handleOpenAdd = () => {
+    setEditingObjective(null);
+    setModalOpen(true);
+  };
+
+  const handleOpenEdit = (objective: ObjectiveResource) => {
+    setEditingObjective(objective);
+    setModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setModalOpen(false);
+    setEditingObjective(null);
+  };
+
+  const handleSubmit = async (formData: ObjectiveSchema) => {
+    setIsSubmitting(true);
+    try {
+      if (editingObjective) {
+        await updateObjective(editingObjective.id.toString(), formData);
+        successToast("Objetivo actualizado correctamente.");
+      } else {
+        await storeObjective(formData);
+        successToast("Objetivo creado correctamente.");
+      }
+      await refetch();
+      handleCloseModal();
+    } catch (error) {
+      errorToast(
+        editingObjective
+          ? "Error al actualizar el objetivo."
+          : "Error al crear el objetivo."
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const handleDelete = async () => {
     if (!deleteId) return;
@@ -84,12 +130,13 @@ export default function ObjectivePage() {
           subtitle={"Inventario de equipos"}
           icon={currentView.icon}
         />
-        <ObjectiveActions />
+        <ObjectiveActions onAdd={handleOpenAdd} />
       </HeaderTableWrapper>
       <ObjectiveTable
         isLoading={isLoading}
         columns={objectiveColumns({
           onDelete: setDeleteId,
+          onEdit: handleOpenEdit,
           onUpdateGoal: handleUpdateGoalCell,
           onUpdateWeight: handleUpdateWeightCell,
         })}
@@ -113,6 +160,24 @@ export default function ObjectivePage() {
         onPageChange={setPage}
         per_page={per_page}
         setPerPage={setPerPage}
+      />
+
+      <ObjectiveModal
+        open={modalOpen}
+        onClose={handleCloseModal}
+        defaultValues={
+          editingObjective
+            ? {
+                name: editingObjective.name,
+                description: editingObjective.description,
+                metric_id: editingObjective.metric_id?.toString(),
+                isAscending: editingObjective.isAscending,
+              }
+            : {}
+        }
+        onSubmit={handleSubmit}
+        isSubmitting={isSubmitting}
+        mode={editingObjective ? "update" : "create"}
       />
     </div>
   );
