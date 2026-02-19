@@ -31,7 +31,8 @@
       "Bash(if not exist \"c:\\\\Users\\\\david\\\\Documents\\\\data\\\\front\\\\namu-frontend\\\\src\\\\app\\\\perfil\\\\viaticos\\\\aprobar-liquidaciones\" mkdir \"c:\\\\Users\\\\david\\\\Documents\\\\data\\\\front\\\\namu-frontend\\\\src\\\\app\\\\perfil\\\\viaticos\\\\aprobar-liquidaciones\")",
       "Bash(if not exist \"c:\\\\Users\\\\david\\\\Documents\\\\data\\\\front\\\\namu-frontend\\\\src\\\\app\\\\perfil\\\\viaticos\\\\[id]\\\\reserva-hotel\\\\actualizar\\\\[reservationId]\" mkdir \"c:\\\\Users\\\\david\\\\Documents\\\\data\\\\front\\\\namu-frontend\\\\src\\\\app\\\\perfil\\\\viaticos\\\\[id]\\\\reserva-hotel\\\\actualizar\\\\[reservationId]\")",
       "Bash(grep:*)",
-      "Bash(Select-String -Pattern \"KPICards|PersonResultsAccordion\")"
+      "Bash(Select-String -Pattern \"KPICards|PersonResultsAccordion\")",
+      "Bash(powershell -Command \"Remove-Item -Recurse -Force ''d:\\\\front\\\\namu-frontend\\\\src\\\\app\\\\ap\\\\comercial\\\\control-unidades\\\\consignacion''\")"
     ],
     "deny": [],
     "ask": []

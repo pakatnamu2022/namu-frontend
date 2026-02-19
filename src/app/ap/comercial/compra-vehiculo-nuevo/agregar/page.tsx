@@ -1,6 +1,6 @@
 "use client";
 
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import { useMutation } from "@tanstack/react-query";
 import {
@@ -21,6 +21,12 @@ import PageWrapper from "@/shared/components/PageWrapper";
 
 export default function AddVehiclePurchaseOrderPage() {
   const router = useNavigate();
+  const [searchParams] = useSearchParams();
+  const consignmentId = searchParams.get("consignment_id");
+  const consignmentShippingGuideId = consignmentId
+    ? Number(consignmentId)
+    : undefined;
+  const isConsignmentOrder = !!consignmentShippingGuideId;
   const { currentView, checkRouteExists } = useCurrentModule();
   const { ROUTE, MODEL, ABSOLUTE_ROUTE } = VEHICLE_PURCHASE_ORDER;
 
@@ -47,14 +53,17 @@ export default function AddVehiclePurchaseOrderPage() {
       total: Number(data.total),
       discount: data.discount ? Number(data.discount) : undefined,
       isc: data.isc ? Number(data.isc) : undefined,
+      ...(consignmentShippingGuideId && {
+        consignment_shipping_guide_id: consignmentShippingGuideId,
+      }),
       // Convertir los items
       items: data.items.map((item, index) => ({
         ...item,
         unit_price: Number(item.unit_price),
         quantity: Number(item.quantity),
         unit_measurement_id: Number(item.unit_measurement_id),
-        // El primer item es el vehículo si isVehiclePurchase es true
-        is_vehicle: index === 0,
+        // El primer item es el vehículo si isVehiclePurchase es true y no es consignación
+        is_vehicle: !isConsignmentOrder && index === 0,
       })),
     });
   };
@@ -98,7 +107,8 @@ export default function AddVehiclePurchaseOrderPage() {
         onSubmit={handleSubmit}
         isSubmitting={isPending}
         mode="create"
-        isVehiclePurchase={true}
+        isVehiclePurchase={!isConsignmentOrder}
+        consignmentShippingGuideId={consignmentShippingGuideId}
       />
     </PageWrapper>
   );

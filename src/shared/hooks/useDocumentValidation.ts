@@ -8,7 +8,7 @@ import {
 export const useDniValidation = (
   dni?: string,
   enabled = false,
-  isBusinessPartners = false
+  isBusinessPartners = false,
 ) => {
   return useQuery<DocumentValidationDniResponse>({
     queryKey: ["dniValidation", dni, isBusinessPartners],
@@ -26,7 +26,7 @@ export const useDniValidation = (
 export const useRucValidation = (
   ruc?: string,
   enabled = false,
-  isBusinessPartners = false
+  isBusinessPartners = false,
 ) => {
   return useQuery<DocumentValidationRucResponse>({
     queryKey: ["rucValidation", ruc, isBusinessPartners],
@@ -44,7 +44,7 @@ export const useRucValidation = (
 export const useLicenseValidation = (
   license?: string,
   enabled = false,
-  isBusinessPartners = false
+  isBusinessPartners = false,
 ) => {
   return useQuery({
     queryKey: ["licenseValidation", license, isBusinessPartners],
@@ -52,7 +52,7 @@ export const useLicenseValidation = (
       if (!license) throw new Error("License is required");
       return documentValidationService.validateLicense(
         license,
-        isBusinessPartners
+        isBusinessPartners,
       );
     },
     enabled: enabled && !!license && license.length > 0,

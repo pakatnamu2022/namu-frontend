@@ -20,6 +20,9 @@ import {
   useControlUnits,
   useMarkAsReceived,
   useCancelShippingGuide,
+  useSendControlUnitsToNubefact,
+  useQueryControlUnitsFromNubefact,
+  useSendControlUnitsToDynamic,
 } from "@/features/ap/comercial/control-unidades/lib/controlUnits.hook";
 import ControlUnitsTable from "@/features/ap/comercial/control-unidades/components/ControlUnitsTable";
 import { ControlUnitsColumns } from "@/features/ap/comercial/control-unidades/components/ControlUnitsColumns";
@@ -57,6 +60,9 @@ export default function ControlUnitsPage() {
   const deleteMutation = useDeleteControlUnits();
   const markAsReceivedMutation = useMarkAsReceived();
   const cancelMutation = useCancelShippingGuide();
+  const sendToNubefactMutation = useSendControlUnitsToNubefact();
+  const queryFromNubefactMutation = useQueryControlUnitsFromNubefact();
+  const sendToDynamicMutation = useSendControlUnitsToDynamic();
   const permissions = useModulePermissions(ROUTE);
 
   useEffect(() => {
@@ -141,6 +147,9 @@ export default function ControlUnitsPage() {
           onMarkAsReceived: setMarkAsReceivedId,
           onViewDetails: setSelectedShipment,
           onCancel: setCancelId,
+          onSendToNubefact: (id) => sendToNubefactMutation.mutate(id),
+          onQueryFromNubefact: (id) => queryFromNubefactMutation.mutate(id),
+          onSendToDynamic: (id) => sendToDynamicMutation.mutate(id),
           permissions,
         })}
         data={data?.data || []}

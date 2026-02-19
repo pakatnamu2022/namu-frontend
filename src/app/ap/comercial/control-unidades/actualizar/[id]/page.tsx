@@ -22,6 +22,8 @@ import {
 } from "@/features/ap/comercial/control-unidades/lib/controlUnits.actions";
 import { ControlUnitsResource } from "@/features/ap/comercial/control-unidades/lib/controlUnits.interface";
 import { notFound } from "@/shared/hooks/useNotFound";
+import { useEffect } from "react";
+import { useSidebar } from "@/components/ui/sidebar";
 
 export default function UpdateControlUnitsPage() {
   const { id } = useParams();
@@ -29,6 +31,7 @@ export default function UpdateControlUnitsPage() {
   const queryClient = useQueryClient();
   const { currentView, checkRouteExists } = useCurrentModule();
   const { ROUTE, QUERY_KEY, MODEL, ABSOLUTE_ROUTE } = CONTROL_UNITS;
+  const { setOpen, setOpenMobile } = useSidebar();
 
   const { data: ControlUnits, isLoading: loadingControlUnits } = useQuery({
     queryKey: [QUERY_KEY, id],
@@ -57,7 +60,7 @@ export default function UpdateControlUnitsPage() {
   };
 
   function mapControlUnitsToForm(
-    data: ControlUnitsResource
+    data: ControlUnitsResource,
   ): Partial<ControlUnitsSchema> & {
     transmitter_establishment?: any;
     receiver_establishment?: any;
@@ -97,6 +100,11 @@ export default function UpdateControlUnitsPage() {
         : "",
     };
   }
+
+  useEffect(() => {
+    setOpen(false);
+    setOpenMobile(false);
+  }, []);
 
   const isLoadingAny = loadingControlUnits || !ControlUnits;
 

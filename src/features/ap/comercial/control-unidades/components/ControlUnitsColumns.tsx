@@ -14,10 +14,15 @@ import {
   PackageCheck,
   Loader2,
   Info,
+  Send,
+  RefreshCw,
+  Database,
+  ShoppingCart,
 } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import type { ControlUnitsResource } from "../lib/controlUnits.interface";
 import { CONTROL_UNITS } from "../lib/controlUnits.constants";
+import { VEHICLE_PURCHASE_ORDER } from "../../ordenes-compra-vehiculo/lib/vehiclePurchaseOrder.constants";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import {
@@ -31,6 +36,7 @@ import { useState } from "react";
 import { SUNAT_CONCEPTS_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
 import { Popover } from "@radix-ui/react-popover";
 import { PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import ShippingGuideHistory from "@/features/ap/comercial/envios-recepciones/components/ShippingGuideHistory";
 
 export type ControlUnitsColumns = ColumnDef<ControlUnitsResource>;
 
@@ -39,6 +45,9 @@ interface Props {
   onMarkAsReceived: (id: number) => void;
   onViewDetails: (shipment: ControlUnitsResource) => void;
   onCancel: (id: number) => void;
+  onSendToNubefact: (id: number) => void;
+  onQueryFromNubefact: (id: number) => void;
+  onSendToDynamic: (id: number) => void;
   permissions: {
     canUpdate: boolean;
     canDelete: boolean;
@@ -106,6 +115,9 @@ export const ControlUnitsColumns = ({
   onMarkAsReceived,
   onViewDetails,
   onCancel,
+  onSendToNubefact,
+  onQueryFromNubefact,
+  onSendToDynamic,
   permissions,
 }: Props): ControlUnitsColumns[] => [
   {
@@ -131,10 +143,14 @@ export const ControlUnitsColumns = ({
     header: "Tipo Doc.",
     cell: ({ row }) => {
       const type = row.getValue("document_type") as string;
+      const isConsignment = !!row.original.is_consignment;
       return (
-        <Badge color={type === "GUIA_REMISION" ? "default" : "secondary"}>
-          {type === "GUIA_REMISION" ? "Guía Remisión" : "Guía Traslado"}
-        </Badge>
+        <div className="flex flex-col gap-1">
+          <Badge color={type === "GUIA_REMISION" ? "default" : "secondary"}>
+            {type === "GUIA_REMISION" ? "Guía Remisión" : "Guía Traslado"}
+          </Badge>
+          {isConsignment && <Badge color="purple">Consignación</Badge>}
+        </div>
       );
     },
   },
@@ -446,7 +462,17 @@ export const ControlUnitsColumns = ({
     cell: ({ row }) => {
       // eslint-disable-next-line react-hooks/rules-of-hooks
       const router = useNavigate();
-      const { id, is_received, transfer_reason_id, status } = row.original;
+      const {
+        id,
+        is_received,
+        transfer_reason_id,
+        status,
+        sent_at,
+        aceptada_por_sunat,
+        status_dynamic,
+        requires_sunat,
+      } = row.original;
+      const isConsignment = !!row.original.is_consignment;
       const { ROUTE_UPDATE, ABSOLUTE_ROUTE } = CONTROL_UNITS;
       const isPurchase =
         transfer_reason_id.toString() ===
@@ -455,14 +481,18 @@ export const ControlUnitsColumns = ({
         transfer_reason_id.toString() ===
         SUNAT_CONCEPTS_ID.TRANSFER_REASON_TRASLADO_SEDE;
       const isAlreadyReceived = !!is_received;
+      const isAcceptedBySunat = !!(sent_at && aceptada_por_sunat === true);
 
-      // Para COMPRA: NO estar recibido
-      const canReceive = isPurchase && !isAlreadyReceived;
+      // Para COMPRA o CONSIGNACIÓN: aceptada por SUNAT y NO estar recibido
+      const canReceive =
+        (isPurchase || isConsignment) && isAcceptedBySunat && !isAlreadyReceived;
 
       // Tooltip dinámico para recepcionar
       const receiveTooltip = isAlreadyReceived
         ? "Ya ha sido recepcionado"
-        : "Recepcionar";
+        : !isAcceptedBySunat
+          ? "Debe ser aceptado por SUNAT primero"
+          : "Recepcionar";
 
       return (
         <div className="flex items-center gap-2">
@@ -477,7 +507,51 @@ export const ControlUnitsColumns = ({
             <Eye className="size-4" />
           </Button>
 
-          {/* Marcar como Recibido - Solo para TRASLADO ENTRE SEDES (ID: 21) */}
+          {/* Historial - Solo cuando fue aceptada por SUNAT */}
+          {isAcceptedBySunat && (
+            <ShippingGuideHistory shippingGuideId={id} />
+          )}
+
+          {/* Enviar a Nubefact - Solo si requiere SUNAT y aún no fue enviado */}
+          {requires_sunat && !sent_at && (
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-7"
+              tooltip="Enviar a Nubefact"
+              onClick={() => onSendToNubefact(id)}
+            >
+              <Send className="size-4" />
+            </Button>
+          )}
+
+          {/* Consultar estado en SUNAT - Si fue enviado pero no aceptado */}
+          {requires_sunat && sent_at && !isAcceptedBySunat && (
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-7"
+              tooltip="Consultar estado en SUNAT"
+              onClick={() => onQueryFromNubefact(id)}
+            >
+              <RefreshCw className="size-4" />
+            </Button>
+          )}
+
+          {/* Enviar a Dynamic - Solo si fue aceptado por SUNAT */}
+          {isAcceptedBySunat && !status_dynamic && (
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-7"
+              tooltip="Enviar a Dynamic"
+              onClick={() => onSendToDynamic(id)}
+            >
+              <Database className="size-4" />
+            </Button>
+          )}
+
+          {/* Marcar como Recibido - Solo para TRASLADO ENTRE SEDES */}
           {isTrasladoSede && (
             <Button
               variant="outline"
@@ -495,8 +569,8 @@ export const ControlUnitsColumns = ({
             </Button>
           )}
 
-          {/* Checklist de Recepción - Solo para COMPRA */}
-          {isPurchase && (
+          {/* Checklist de Recepción - Para COMPRA o CONSIGNACIÓN, solo si aceptada por SUNAT */}
+          {(isPurchase || isConsignment) && (
             <Button
               variant="outline"
               size="icon"
@@ -511,7 +585,24 @@ export const ControlUnitsColumns = ({
             </Button>
           )}
 
-          {/* Edit - Oculto si ya está recepcionado */}
+          {/* Generar OC de Consignación */}
+          {isConsignment && isAcceptedBySunat && (
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-7"
+              tooltip="Generar Orden de Compra de Consignación"
+              onClick={() =>
+                router(
+                  `${VEHICLE_PURCHASE_ORDER.ROUTE_ADD}?consignment_id=${id}`,
+                )
+              }
+            >
+              <ShoppingCart className="size-4" />
+            </Button>
+          )}
+
+          {/* Edit */}
           {permissions.canUpdate && !isAlreadyReceived && (
             <Button
               variant="outline"

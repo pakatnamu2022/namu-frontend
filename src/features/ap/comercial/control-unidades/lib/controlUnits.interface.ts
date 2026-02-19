@@ -68,6 +68,7 @@ export interface ControlUnitsResource {
   ruc_transport?: string;
   company_name_transport?: string;
   status?: boolean;
+  is_consignment?: boolean | null;
   receiving_checklists: any[];
   items: ShipmentItemResource[];
 }

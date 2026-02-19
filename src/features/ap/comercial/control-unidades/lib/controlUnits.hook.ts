@@ -17,10 +17,14 @@ import {
   getControlUnits,
   getVehicleByShippingGuide,
   storeControlUnits,
+  storeConsignment,
   updateReceptionChecklist,
   updateControlUnits,
   markAsReceived,
   cancelShippingGuide,
+  sendControlUnitsToNubefact,
+  queryControlUnitsFromNubefact,
+  sendControlUnitsToDynamic,
 } from "./controlUnits.actions";
 import { successToast, errorToast } from "@/core/core.function";
 import { toast } from "sonner";
@@ -186,6 +190,84 @@ export const useMarkAsReceived = () => {
           errorToast(`${key}: ${errors[key].join(", ")}`);
         });
       }
+    },
+  });
+};
+
+// Hook para crear guía de consignación
+export const useCreateConsignment = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: ControlUnitsRequest) => storeConsignment(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
+    },
+  });
+};
+
+// Hooks SUNAT / Dynamic
+export const useSendControlUnitsToNubefact = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => sendControlUnitsToNubefact(id),
+    onSuccess: (response) => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
+      if (response.success) {
+        successToast(response.message);
+      } else {
+        errorToast(response.message || "Error al enviar a Nubefact");
+      }
+    },
+    onError: (error: any) => {
+      errorToast(
+        error?.response?.data?.message ||
+          error?.response?.data?.error ||
+          "Error al enviar a Nubefact"
+      );
+    },
+  });
+};
+
+export const useQueryControlUnitsFromNubefact = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => queryControlUnitsFromNubefact(id),
+    onSuccess: (response) => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
+      if (response.success) {
+        successToast(response.message);
+      } else {
+        errorToast(response.message || "Error al consultar estado en SUNAT");
+      }
+    },
+    onError: (error: any) => {
+      errorToast(
+        error?.response?.data?.message ||
+          error?.response?.data?.error ||
+          "Error al consultar estado en SUNAT"
+      );
+    },
+  });
+};
+
+export const useSendControlUnitsToDynamic = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => sendControlUnitsToDynamic(id),
+    onSuccess: (response) => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
+      if (response.success) {
+        successToast(response.message);
+      } else {
+        errorToast(response.message || "Error al enviar a Dynamic");
+      }
+    },
+    onError: (error: any) => {
+      errorToast(
+        error?.response?.data?.message ||
+          error?.response?.data?.error ||
+          "Error al enviar a Dynamic"
+      );
     },
   });
 };

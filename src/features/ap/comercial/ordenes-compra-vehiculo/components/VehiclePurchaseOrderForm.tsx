@@ -58,6 +58,7 @@ interface VehiclePurchaseOrderFormProps {
   isSubmitting?: boolean;
   mode?: "create" | "update" | "resend";
   isVehiclePurchase?: boolean; // Nuevo parámetro para determinar si es compra de vehículo
+  consignmentShippingGuideId?: number; // ID de guía de consignación para OC de consignación
 }
 
 export const VehiclePurchaseOrderForm = ({
@@ -66,7 +67,9 @@ export const VehiclePurchaseOrderForm = ({
   isSubmitting = false,
   mode = "create",
   isVehiclePurchase = true, // Por defecto es compra de vehículo
+  consignmentShippingGuideId,
 }: VehiclePurchaseOrderFormProps) => {
+  const isConsignmentOrder = !!consignmentShippingGuideId;
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const { ABSOLUTE_ROUTE } = VEHICLE_PURCHASE_ORDER;
@@ -849,17 +852,19 @@ export const VehiclePurchaseOrderForm = ({
               control={form.control}
             />
 
-            <FormSelect
-              name="warehouse_id"
-              label="Almacén"
-              placeholder="Selecciona un almacén"
-              options={warehouses.map((item) => ({
-                label: item.description,
-                value: item.id.toString(),
-              }))}
-              control={form.control}
-              disabled={isLoadingWarehouses || warehouses.length === 0}
-            />
+            {!isConsignmentOrder && (
+              <FormSelect
+                name="warehouse_id"
+                label="Almacén"
+                placeholder="Selecciona un almacén"
+                options={warehouses.map((item) => ({
+                  label: item.description,
+                  value: item.id.toString(),
+                }))}
+                control={form.control}
+                disabled={isLoadingWarehouses || warehouses.length === 0}
+              />
+            )}
 
             <FormInput
               control={form.control}

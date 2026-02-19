@@ -15,12 +15,14 @@ import { useCreateControlUnits } from "@/features/ap/comercial/control-unidades/
 import { ControlUnitsSchema } from "@/features/ap/comercial/control-unidades/lib/controlUnits.schema";
 import { notFound } from "@/shared/hooks/useNotFound";
 import PageWrapper from "@/shared/components/PageWrapper";
+import { useSidebar } from "@/components/ui/sidebar";
+import { useEffect } from "react";
 
 export default function AddControlUnitsPage() {
   const router = useNavigate();
   const { currentView, checkRouteExists } = useCurrentModule();
   const { ROUTE, MODEL, ABSOLUTE_ROUTE } = CONTROL_UNITS;
-
+  const { setOpen, setOpenMobile } = useSidebar();
   const createMutation = useCreateControlUnits();
 
   const handleSubmit = (data: ControlUnitsSchema) => {
@@ -35,6 +37,11 @@ export default function AddControlUnitsPage() {
       },
     });
   };
+
+  useEffect(() => {
+    setOpen(false);
+    setOpenMobile(false);
+  }, []);
 
   const handleCancel = () => {
     router(ABSOLUTE_ROUTE);
