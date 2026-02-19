@@ -24,9 +24,13 @@ import {
   cancelShippingGuide,
   sendControlUnitsToNubefact,
   queryControlUnitsFromNubefact,
-  sendControlUnitsToDynamic,
 } from "./controlUnits.actions";
-import { successToast, errorToast } from "@/core/core.function";
+import {
+  successToast,
+  errorToast,
+  SUCCESS_MESSAGE,
+  ERROR_MESSAGE,
+} from "@/core/core.function";
 import { toast } from "sonner";
 
 const { QUERY_KEY } = CONTROL_UNITS;
@@ -91,13 +95,11 @@ export const useDeleteControlUnits = () => {
     mutationFn: (id: number) => deleteControlUnits(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
-      successToast("Control de unidades eliminado exitosamente");
+      successToast(SUCCESS_MESSAGE(CONTROL_UNITS.MODEL, "delete"));
     },
     onError: (error: any) => {
-      toast.error(
-        error?.response?.data?.message ||
-          "Error al eliminar el control de unidades"
-      );
+      const msg = error?.response?.data?.message || "";
+      errorToast(ERROR_MESSAGE(CONTROL_UNITS.MODEL, "delete", msg));
     },
   });
 };
@@ -139,7 +141,7 @@ export const useUpdateReceptionChecklist = () => {
     onError: (error: any) => {
       toast.error(
         error?.response?.data?.message ||
-          "Error al actualizar el checklist de recepción"
+          "Error al actualizar el checklist de recepción",
       );
     },
   });
@@ -157,7 +159,7 @@ export const useDeleteReceptionChecklist = () => {
     onError: (error: any) => {
       toast.error(
         error?.response?.data?.message ||
-          "Error al eliminar el checklist de recepción"
+          "Error al eliminar el checklist de recepción",
       );
     },
   });
@@ -172,7 +174,7 @@ export const useMarkAsReceived = () => {
     onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
       successToast(
-        response.message || "Guía marcada como recibida exitosamente"
+        response.message || "Guía marcada como recibida exitosamente",
       );
     },
     onError: (error: any) => {
@@ -222,7 +224,7 @@ export const useSendControlUnitsToNubefact = () => {
       errorToast(
         error?.response?.data?.message ||
           error?.response?.data?.error ||
-          "Error al enviar a Nubefact"
+          "Error al enviar a Nubefact",
       );
     },
   });
@@ -244,29 +246,7 @@ export const useQueryControlUnitsFromNubefact = () => {
       errorToast(
         error?.response?.data?.message ||
           error?.response?.data?.error ||
-          "Error al consultar estado en SUNAT"
-      );
-    },
-  });
-};
-
-export const useSendControlUnitsToDynamic = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (id: number) => sendControlUnitsToDynamic(id),
-    onSuccess: (response) => {
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
-      if (response.success) {
-        successToast(response.message);
-      } else {
-        errorToast(response.message || "Error al enviar a Dynamic");
-      }
-    },
-    onError: (error: any) => {
-      errorToast(
-        error?.response?.data?.message ||
-          error?.response?.data?.error ||
-          "Error al enviar a Dynamic"
+          "Error al consultar estado en SUNAT",
       );
     },
   });

@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { Badge, BadgeColor } from "@/components/ui/badge";
 import {
   CheckCircle2,
   Pencil,
@@ -16,8 +16,8 @@ import {
   Info,
   Send,
   RefreshCw,
-  Database,
   ShoppingCart,
+  LucideIcon,
 } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import type { ControlUnitsResource } from "../lib/controlUnits.interface";
@@ -37,6 +37,7 @@ import { SUNAT_CONCEPTS_ID } from "@/features/gp/maestro-general/conceptos-sunat
 import { Popover } from "@radix-ui/react-popover";
 import { PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import ShippingGuideHistory from "@/features/ap/comercial/envios-recepciones/components/ShippingGuideHistory";
+import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 
 export type ControlUnitsColumns = ColumnDef<ControlUnitsResource>;
 
@@ -47,7 +48,6 @@ interface Props {
   onCancel: (id: number) => void;
   onSendToNubefact: (id: number) => void;
   onQueryFromNubefact: (id: number) => void;
-  onSendToDynamic: (id: number) => void;
   permissions: {
     canUpdate: boolean;
     canDelete: boolean;
@@ -117,7 +117,6 @@ export const ControlUnitsColumns = ({
   onCancel,
   onSendToNubefact,
   onQueryFromNubefact,
-  onSendToDynamic,
   permissions,
 }: Props): ControlUnitsColumns[] => [
   {
@@ -382,29 +381,32 @@ export const ControlUnitsColumns = ({
       const WAITING_TIME_HOURS = 5;
 
       // Configuración de estados con estilos modernos
-      const statusConfig = {
+      const statusConfig: {
+        [key: string]: {
+          label: string;
+          icon: LucideIcon;
+          color: BadgeColor;
+        };
+      } = {
         accepted: {
           label: "Aceptado",
-          icon: <CheckCircle2 className="size-3" />,
-          className:
-            "bg-emerald-100 text-emerald-700 hover:bg-emerald-200 border-emerald-300",
+          icon: CheckCircle2,
+          color: "green",
         },
         rejected: {
           label: "Rechazado",
-          icon: <XCircle className="size-3" />,
-          className: "bg-red-100 text-red-700 hover:bg-red-200 border-red-300",
+          icon: XCircle,
+          color: "red",
         },
         pending: {
           label: "En espera",
-          icon: <CheckCircle2 className="size-3" />,
-          className:
-            "bg-blue-100 text-blue-700 hover:bg-blue-200 border-blue-300",
+          icon: CheckCircle2,
+          color: "blue",
         },
         notSent: {
           label: "No enviado",
-          icon: <XCircle className="size-3" />,
-          className:
-            "bg-gray-100 text-gray-600 hover:bg-gray-200 border-gray-300",
+          icon: XCircle,
+          color: "gray",
         },
       };
 
@@ -431,13 +433,10 @@ export const ControlUnitsColumns = ({
         const config = statusConfig[status];
 
         return (
-          <div className="flex flex-col gap-1">
-            <div
-              className={`inline-flex items-center gap-1.5 w-fit px-2.5 py-1 rounded-full text-xs font-medium border transition-colors ${config.className}`}
-            >
-              {config.icon}
+          <div className="flex flex-col gap-1 w-fit">
+            <Badge icon={config.icon} color={config.color}>
               <span>{config.label}</span>
-            </div>
+            </Badge>
             <span className="text-xs text-muted-foreground">
               {format(sentDate, "dd/MM/yyyy HH:mm", { locale: es })}
             </span>
@@ -447,12 +446,9 @@ export const ControlUnitsColumns = ({
 
       const config = statusConfig.notSent;
       return (
-        <div
-          className={`inline-flex items-center gap-1.5 w-fit px-2.5 py-1 rounded-full text-xs font-medium border transition-colors ${config.className}`}
-        >
-          {config.icon}
+        <Badge color={config.color} icon={config.icon}>
           <span>{config.label}</span>
-        </div>
+        </Badge>
       );
     },
   },
@@ -469,7 +465,6 @@ export const ControlUnitsColumns = ({
         status,
         sent_at,
         aceptada_por_sunat,
-        status_dynamic,
         requires_sunat,
       } = row.original;
       const isConsignment = !!row.original.is_consignment;
@@ -485,7 +480,9 @@ export const ControlUnitsColumns = ({
 
       // Para COMPRA o CONSIGNACIÓN: aceptada por SUNAT y NO estar recibido
       const canReceive =
-        (isPurchase || isConsignment) && isAcceptedBySunat && !isAlreadyReceived;
+        (isPurchase || isConsignment) &&
+        isAcceptedBySunat &&
+        !isAlreadyReceived;
 
       // Tooltip dinámico para recepcionar
       const receiveTooltip = isAlreadyReceived
@@ -508,21 +505,28 @@ export const ControlUnitsColumns = ({
           </Button>
 
           {/* Historial - Solo cuando fue aceptada por SUNAT */}
-          {isAcceptedBySunat && (
-            <ShippingGuideHistory shippingGuideId={id} />
-          )}
+          {isAcceptedBySunat && <ShippingGuideHistory shippingGuideId={id} />}
 
           {/* Enviar a Nubefact - Solo si requiere SUNAT y aún no fue enviado */}
           {requires_sunat && !sent_at && (
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-7"
-              tooltip="Enviar a Nubefact"
-              onClick={() => onSendToNubefact(id)}
-            >
-              <Send className="size-4" />
-            </Button>
+            <ConfirmationDialog
+              title="Confirmar envío a Nubefact"
+              description="¿Está seguro de que desea enviar esta guía a Nubefact/SUNAT? Esta acción no se puede deshacer."
+              onConfirm={() => onSendToNubefact(id)}
+              icon="info"
+              confirmText="Sí, enviar"
+              cancelText="No, cancelar"
+              trigger={
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="size-7"
+                  tooltip="Enviar a Nubefact"
+                >
+                  <Send className="size-4" />
+                </Button>
+              }
+            />
           )}
 
           {/* Consultar estado en SUNAT - Si fue enviado pero no aceptado */}
@@ -535,19 +539,6 @@ export const ControlUnitsColumns = ({
               onClick={() => onQueryFromNubefact(id)}
             >
               <RefreshCw className="size-4" />
-            </Button>
-          )}
-
-          {/* Enviar a Dynamic - Solo si fue aceptado por SUNAT */}
-          {isAcceptedBySunat && !status_dynamic && (
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-7"
-              tooltip="Enviar a Dynamic"
-              onClick={() => onSendToDynamic(id)}
-            >
-              <Database className="size-4" />
             </Button>
           )}
 
@@ -570,7 +561,7 @@ export const ControlUnitsColumns = ({
           )}
 
           {/* Checklist de Recepción - Para COMPRA o CONSIGNACIÓN, solo si aceptada por SUNAT */}
-          {(isPurchase || isConsignment) && (
+          {(isPurchase || isConsignment) && canReceive && (
             <Button
               variant="outline"
               size="icon"
@@ -586,7 +577,7 @@ export const ControlUnitsColumns = ({
           )}
 
           {/* Generar OC de Consignación */}
-          {isConsignment && isAcceptedBySunat && (
+          {isConsignment && isAcceptedBySunat && isAlreadyReceived && (
             <Button
               variant="outline"
               size="icon"
@@ -603,22 +594,24 @@ export const ControlUnitsColumns = ({
           )}
 
           {/* Edit */}
-          {permissions.canUpdate && !isAlreadyReceived && (
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-7"
-              tooltip="Editar"
-              onClick={() => router(`${ROUTE_UPDATE}/${id}`)}
-            >
-              <Pencil className="size-4" />
-            </Button>
-          )}
+          {permissions.canUpdate &&
+            !isAlreadyReceived &&
+            !isAcceptedBySunat && (
+              <Button
+                variant="outline"
+                size="icon"
+                className="size-7"
+                tooltip="Editar"
+                onClick={() => router(`${ROUTE_UPDATE}/${id}`)}
+              >
+                <Pencil className="size-4" />
+              </Button>
+            )}
 
           {/* Delete - Oculto si ya está recepcionado */}
-          {permissions.canDelete && !isAlreadyReceived && (
-            <DeleteButton onClick={() => onDelete(id)} />
-          )}
+          {permissions.canDelete &&
+            !isAlreadyReceived &&
+            !isAcceptedBySunat && <DeleteButton onClick={() => onDelete(id)} />}
 
           {/* Cancelar guía - Solo cuando ya fue recepcionado y está ACTIVO */}
           {isAlreadyReceived && status && (

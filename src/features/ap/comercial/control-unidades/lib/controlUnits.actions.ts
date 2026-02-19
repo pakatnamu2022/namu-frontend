@@ -60,7 +60,7 @@ export async function findControlUnitsById(
 export async function storeControlUnits(
   payload: ControlUnitsRequest
 ): Promise<ControlUnitsResource> {
-  const { data } = await api.post<ControlUnitsResource>(ENDPOINT, payload);
+  const { data } = await api.post<ControlUnitsResource>(`${ENDPOINT}/consignment`, payload);
   return data;
 }
 

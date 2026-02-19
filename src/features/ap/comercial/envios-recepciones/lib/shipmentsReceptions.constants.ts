@@ -1,7 +1,7 @@
 import { type ModelComplete } from "@/core/core.interface";
 import { ShipmentsReceptionsResource } from "./shipmentsReceptions.interface";
 
-const ROUTE = "envios-recepciones";
+const ROUTE = "control-unidades";
 const ABSOLUTE_ROUTE = `/ap/comercial/${ROUTE}`;
 const ROUTE_UNIT_CONTROL = "control-unidades";
 const ABSOLUTE_ROUTE_UNIT_CONTROL = `/ap/comercial/${ROUTE_UNIT_CONTROL}`;

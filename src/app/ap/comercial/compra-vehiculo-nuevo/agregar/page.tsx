@@ -18,6 +18,9 @@ import { VehiclePurchaseOrderForm } from "@/features/ap/comercial/ordenes-compra
 import { format } from "date-fns";
 import { notFound } from "@/shared/hooks/useNotFound";
 import PageWrapper from "@/shared/components/PageWrapper";
+import { useControlUnitsById } from "@/features/ap/comercial/control-unidades/lib/controlUnits.hook";
+import { UNIT_MEASUREMENT_ID } from "@/features/ap/configuraciones/maestros-general/unidad-medida/lib/unitMeasurement.constants";
+import FormSkeleton from "@/shared/components/FormSkeleton";
 
 export default function AddVehiclePurchaseOrderPage() {
   const router = useNavigate();
@@ -29,6 +32,10 @@ export default function AddVehiclePurchaseOrderPage() {
   const isConsignmentOrder = !!consignmentShippingGuideId;
   const { currentView, checkRouteExists } = useCurrentModule();
   const { ROUTE, MODEL, ABSOLUTE_ROUTE } = VEHICLE_PURCHASE_ORDER;
+
+  // Fetch consignment data to pre-populate vehicle item
+  const { data: consignmentData, isLoading: isLoadingConsignment } =
+    useControlUnitsById(consignmentShippingGuideId || 0);
 
   const { mutate, isPending } = useMutation({
     mutationFn: storeVehiclePurchaseOrder,
@@ -62,7 +69,6 @@ export default function AddVehiclePurchaseOrderPage() {
         unit_price: Number(item.unit_price),
         quantity: Number(item.quantity),
         unit_measurement_id: Number(item.unit_measurement_id),
-        // El primer item es el vehículo si isVehiclePurchase es true y no es consignación
         is_vehicle: !isConsignmentOrder && index === 0,
       })),
     });
@@ -70,6 +76,27 @@ export default function AddVehiclePurchaseOrderPage() {
 
   if (!checkRouteExists(ROUTE)) notFound();
   if (!currentView) notFound();
+
+  // Esperar datos de consignación antes de renderizar el form
+  if (isConsignmentOrder && isLoadingConsignment) {
+    return (
+      <PageWrapper>
+        <FormSkeleton />
+      </PageWrapper>
+    );
+  }
+
+  // Pre-poblar el item del vehículo desde la guía de consignación
+  const consignmentVehicleItem =
+    isConsignmentOrder && consignmentData?.items?.[0]
+      ? {
+          unit_measurement_id: UNIT_MEASUREMENT_ID.UNIDAD.toString(),
+          description: `${consignmentData.items[0].codigo} - ${consignmentData.items[0].descripcion}`,
+          unit_price: 0,
+          quantity: 1,
+          is_vehicle: false,
+        }
+      : null;
 
   return (
     <PageWrapper>
@@ -98,7 +125,7 @@ export default function AddVehiclePurchaseOrderPage() {
           supplier_id: "",
           currency_id: "",
           warehouse_id: "",
-          items: [],
+          items: consignmentVehicleItem ? [consignmentVehicleItem] : [],
           discount: 0,
           isc: 0,
           // eslint-disable-next-line react-hooks/purity

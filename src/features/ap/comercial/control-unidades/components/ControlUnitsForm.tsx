@@ -140,7 +140,11 @@ export const ControlUnitsForm = ({
     formData.append("send_dynamics", "0");
     formData.append("is_consignment", isConsignment ? "1" : "0");
     if (isConsignment && accessories.length > 0) {
-      formData.append("accessories", JSON.stringify(accessories));
+      accessories.forEach((acc, index) => {
+        formData.append(`accessories[${index}][description]`, acc.description);
+        formData.append(`accessories[${index}][quantity]`, String(acc.quantity));
+        formData.append(`accessories[${index}][unit]`, acc.unit);
+      });
     }
     onSubmit(formData);
   };

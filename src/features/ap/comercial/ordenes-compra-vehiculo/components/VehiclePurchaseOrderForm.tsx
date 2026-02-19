@@ -110,10 +110,10 @@ export const VehiclePurchaseOrderForm = ({
     name: "items",
   });
 
-  // Si es compra de vehículo y no hay items, actualizar el primer item automáticamente
+  // Si es compra de vehículo o consignación y no hay items, agregar el primer item automáticamente
   useEffect(() => {
     if (
-      isVehiclePurchase &&
+      (isVehiclePurchase || isConsignmentOrder) &&
       fields.length === 0 &&
       mode === "create" &&
       !hasAddedInitialItem.current
@@ -124,10 +124,10 @@ export const VehiclePurchaseOrderForm = ({
         description: "",
         unit_price: 0,
         quantity: 1,
-        is_vehicle: true,
+        is_vehicle: isVehiclePurchase,
       });
     }
-  }, [isVehiclePurchase, fields.length, append, mode]);
+  }, [isVehiclePurchase, isConsignmentOrder, fields.length, append, mode]);
 
   // Sincronizar el precio unitario del vehículo con el primer item
   const vehicleUnitPrice = form.watch("vehicle_unit_price");
@@ -469,6 +469,17 @@ export const VehiclePurchaseOrderForm = ({
     return `Diferencia excesiva de ${diff.toFixed(2)}`;
   };
 
+  // Sync items.0.unit_price → vehicle_unit_price para órdenes de consignación
+  useEffect(() => {
+    if (isConsignmentOrder && watchedItems && watchedItems[0] !== undefined) {
+      const tablePrice = Number(watchedItems[0]?.unit_price) || 0;
+      const currentVehiclePrice = form.getValues("vehicle_unit_price");
+      if (currentVehiclePrice !== tablePrice) {
+        form.setValue("vehicle_unit_price", tablePrice);
+      }
+    }
+  }, [isConsignmentOrder, watchedItems, form]);
+
   // Usar hook personalizado que memoriza las columnas automáticamente
   const columns = usePurchaseOrderItemsColumns({
     control: form.control,
@@ -476,6 +487,7 @@ export const VehiclePurchaseOrderForm = ({
     setValue: form.setValue,
     onRemove: remove,
     isVehiclePurchase,
+    isConsignmentOrder,
     unitMeasurements,
   });
 
@@ -666,22 +678,24 @@ export const VehiclePurchaseOrderForm = ({
                 }}
               />
 
-              <FormInput
-                control={form.control}
-                name="vehicle_unit_price"
-                label="Precio Unitario Vehículo (Sin IGV)"
-                placeholder="Ej: 25000.00"
-                min={0}
-                step="0.01"
-                type="number"
-                onChange={(e) => {
-                  const value = e.target.value;
-                  form.setValue("vehicle_unit_price", Number(value));
-                  if (fields.length > 0) {
-                    form.setValue("items.0.unit_price", Number(value) || 0);
-                  }
-                }}
-              />
+              {!isConsignmentOrder && (
+                <FormInput
+                  control={form.control}
+                  name="vehicle_unit_price"
+                  label="Precio Unitario Vehículo (Sin IGV)"
+                  placeholder="Ej: 25000.00"
+                  min={0}
+                  step="0.01"
+                  type="number"
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    form.setValue("vehicle_unit_price", Number(value));
+                    if (fields.length > 0) {
+                      form.setValue("items.0.unit_price", Number(value) || 0);
+                    }
+                  }}
+                />
+              )}
 
               {selectedQuotation && (
                 <div className="col-span-full mt-2">
@@ -1109,7 +1123,7 @@ export const VehiclePurchaseOrderForm = ({
                   type="button"
                   disabled={
                     isSubmitting ||
-                    !form.formState.isValid ||
+                    (isConsignmentOrder && !form.formState.isValid) ||
                     (mode === "resend" && !hasChanges) ||
                     subtotalDifference > 1
                   }
