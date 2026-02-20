@@ -5,6 +5,7 @@ import {
   WeightsPreviewResponse,
 } from "./cycle.interface";
 import {
+  assignWorkersToCycle,
   findCycleById,
   getAllCycle,
   getCategoriesInCycle,
@@ -12,10 +13,12 @@ import {
   getCycle,
   getCyclePersonDetails,
   getCycleWeightsPreview,
+  getEligibleWorkers,
   getPersonsInCycle,
   getPositionsInCycle,
   regenerateCycleWeights,
 } from "./cycle.actions";
+import { WorkerResource } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.interface";
 
 export const useCycles = (params?: Record<string, any>) => {
   return useQuery<CycleResponse>({
@@ -101,6 +104,35 @@ export const useRegenerateCycleWeights = () => {
     onSuccess: (_, cycleId) => {
       queryClient.invalidateQueries({
         queryKey: ["cycle", cycleId, "weights-preview"],
+      });
+    },
+  });
+};
+
+export const useEligibleWorkers = (cycleId: number, enabled = false) => {
+  return useQuery<WorkerResource[]>({
+    queryKey: ["cycle", cycleId, "eligible-workers"],
+    queryFn: () => getEligibleWorkers(cycleId),
+    refetchOnWindowFocus: false,
+    enabled,
+  });
+};
+
+export const useAssignWorkersToCycle = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      cycleId,
+      workerIds,
+    }: {
+      cycleId: number;
+      workerIds: number[];
+    }) => assignWorkersToCycle(cycleId, workerIds),
+    onSuccess: (_, { cycleId }) => {
+      queryClient.invalidateQueries({ queryKey: ["cycle", cycleId] });
+      queryClient.invalidateQueries({
+        queryKey: ["cycle", cycleId, "eligible-workers"],
       });
     },
   });

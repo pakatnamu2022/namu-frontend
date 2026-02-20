@@ -173,3 +173,23 @@ export async function regenerateCycleWeights(
   );
   return data;
 }
+
+export async function getEligibleWorkers(
+  cycleId: number,
+): Promise<WorkerResource[]> {
+  const { data } = await api.get<WorkerResource[]>(
+    `${ENDPOINT}/${cycleId}/eligible-workers`,
+  );
+  return data;
+}
+
+export async function assignWorkersToCycle(
+  cycleId: number,
+  workerIds: number[],
+): Promise<GeneralResponse> {
+  const { data } = await api.post<GeneralResponse>(
+    `${ENDPOINT}/${cycleId}/workers`,
+    { worker_ids: workerIds },
+  );
+  return data;
+}
