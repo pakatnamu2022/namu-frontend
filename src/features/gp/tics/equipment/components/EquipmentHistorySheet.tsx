@@ -3,12 +3,12 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import GeneralSheet from "@/shared/components/GeneralSheet";
+import ExportButtons from "@/shared/components/ExportButtons";
 import { useEquipmentHistory } from "../lib/equipment.hook";
 import { unassignEquipment } from "../lib/equipment.actions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CalendarDays, Loader2, User, UserMinus } from "lucide-react";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { errorToast, successToast } from "@/core/core.function";
 import {
@@ -102,92 +102,100 @@ export default function EquipmentHistorySheet({
             No hay asignaciones registradas.
           </div>
         ) : (
-          <ScrollArea className="h-[calc(100vh-200px)]">
-            <div className="space-y-3">
-              {data.map((item) => {
-                const isActive = !item.unassigned_at;
-                return (
-                  <div
-                    key={item.id}
-                    className="rounded-lg border bg-card p-4 space-y-3"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <User className="size-4 text-muted-foreground" />
-                        <span className="font-semibold text-sm">
-                          {item.worker_name}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Badge
-                          color={isActive ? "green" : "red"}
+          <div className="space-y-3">
+            {data.map((item) => {
+              const isActive = !item.unassigned_at;
+              return (
+                <div
+                  key={item.id}
+                  className="rounded-lg border bg-card p-4 space-y-3"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <User className="size-4 text-muted-foreground" />
+                      <span className="font-semibold text-sm">
+                        {item.worker_name}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge
+                        color={isActive ? "green" : "red"}
+                        variant="outline"
+                      >
+                        {isActive ? "Activo" : "Desasignado"}
+                      </Badge>
+                      {isActive && (
+                        <ExportButtons
+                          variant="separate"
+                          pdfEndpoint={`gp/tics/equipmentAssigment/${item.id}/pdf/assignment`}
+                          pdfFileName="acta-asignacion.pdf"
+                        />
+                      )}
+                      {!isActive && (
+                        <ExportButtons
+                          variant="separate"
+                          pdfEndpoint={`gp/tics/equipmentAssigment/${item.id}/pdf/unassignment`}
+                          pdfFileName="acta-devolucion.pdf"
+                        />
+                      )}
+                      {isActive && (
+                        <Button
                           variant="outline"
+                          size="sm"
+                          className="h-7 px-2"
+                          onClick={() => handleUnassignClick(item.id)}
                         >
-                          {isActive ? "Activo" : "Desasignado"}
-                        </Badge>
-                        {isActive && (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="h-7 px-2"
-                            onClick={() => handleUnassignClick(item.id)}
-                          >
-                            <UserMinus className="size-4 mr-1" />
-                            Desasignar
-                          </Button>
-                        )}
-                      </div>
+                          <UserMinus className="size-4 mr-1" />
+                          Desasignar
+                        </Button>
+                      )}
                     </div>
-                    <Separator />
-                    <div className="grid grid-cols-2 gap-4 text-sm">
-                      <div className="flex items-center gap-2">
-                        <CalendarDays className="size-3.5 text-muted-foreground" />
-                        <div>
-                          <p className="text-muted-foreground text-xs">
-                            Asignado
-                          </p>
-                          <p className="font-medium">
-                            {formatDate(item.fecha)}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <CalendarDays className="size-3.5 text-muted-foreground" />
-                        <div>
-                          <p className="text-muted-foreground text-xs">
-                            Desasignado
-                          </p>
-                          <p className="font-medium">
-                            {item.unassigned_at
-                              ? formatDate(item.unassigned_at)
-                              : "-"}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                    {item.observacion && (
-                      <div className="text-sm">
+                  </div>
+                  <Separator />
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div className="flex items-center gap-2">
+                      <CalendarDays className="size-3.5 text-muted-foreground" />
+                      <div>
                         <p className="text-muted-foreground text-xs">
-                          Observación
+                          Asignado
                         </p>
-                        <p className="font-medium">{item.observacion}</p>
+                        <p className="font-medium">{formatDate(item.fecha)}</p>
                       </div>
-                    )}
-                    {item.observacion_unassign && (
-                      <div className="text-sm">
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CalendarDays className="size-3.5 text-muted-foreground" />
+                      <div>
                         <p className="text-muted-foreground text-xs">
-                          Observación de desasignación
+                          Desasignado
                         </p>
                         <p className="font-medium">
-                          {item.observacion_unassign}
+                          {item.unassigned_at
+                            ? formatDate(item.unassigned_at)
+                            : "-"}
                         </p>
                       </div>
-                    )}
+                    </div>
                   </div>
-                );
-              })}
-            </div>
-          </ScrollArea>
+                  {item.observacion && (
+                    <div className="text-sm">
+                      <p className="text-muted-foreground text-xs">
+                        Observación
+                      </p>
+                      <p className="font-medium">{item.observacion}</p>
+                    </div>
+                  )}
+                  {item.observacion_unassign && (
+                    <div className="text-sm">
+                      <p className="text-muted-foreground text-xs">
+                        Observación de desasignación
+                      </p>
+                      <p className="font-medium">{item.observacion_unassign}</p>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
         )}
       </GeneralSheet>
 
