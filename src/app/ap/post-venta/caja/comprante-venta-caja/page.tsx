@@ -67,6 +67,7 @@ export default function SalesReceiptsCajaPage() {
     sunat_concept_document_type_id: documentTypeFilter
       ? parseInt(documentTypeFilter)
       : undefined,
+    seriesModel$sede_id: sedeId ? parseInt(sedeId) : undefined,
   });
 
   const canUpdate = permissions.canUpdate || false;
