@@ -175,6 +175,30 @@ export const genericPurchaseOrderSchemaCreate =
     }
   );
 
+// Schema para órdenes de consignación (warehouse_id no requerido)
+const consignmentPurchaseOrderSchemaBase = genericPurchaseOrderSchemaBase.extend({
+  warehouse_id: z.string().optional().or(z.literal("")),
+  ap_brand_id: z.string().optional().or(z.literal("")),
+});
+
+export const consignmentPurchaseOrderSchemaCreate =
+  consignmentPurchaseOrderSchemaBase.refine(
+    (data) => {
+      if (data.due_date && data.emission_date) {
+        return data.due_date >= data.emission_date;
+      }
+      return true;
+    },
+    {
+      message:
+        "La fecha de vencimiento debe ser igual o posterior a la fecha de emisión",
+      path: ["due_date"],
+    }
+  );
+
+export const consignmentPurchaseOrderSchemaUpdate =
+  consignmentPurchaseOrderSchemaBase.partial();
+
 // Para update usamos los schemas base sin refine, y luego aplicamos partial
 export const vehiclePurchaseOrderSchemaUpdate =
   vehiclePurchaseOrderSchemaBase.partial();
