@@ -36,6 +36,7 @@ export default function VehiclePurchaseOrderPage() {
   const { MODEL, ROUTE } = VEHICLE_PURCHASE_ORDER;
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setPage(1);
   }, [
     search,

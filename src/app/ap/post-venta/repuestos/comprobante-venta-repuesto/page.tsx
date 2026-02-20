@@ -44,11 +44,6 @@ export default function SalesReceiptsRepuestoPage() {
     useState<ElectronicDocumentResource | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
 
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setPage(1);
-  }, [search, per_page, statusFilter, documentTypeFilter]);
-
   const { data, isLoading, isFetching, refetch } = useElectronicDocuments({
     page,
     per_page,
@@ -149,10 +144,6 @@ export default function SalesReceiptsRepuestoPage() {
           isLoading={isFetching && !isLoading}
         />
       </HeaderTableWrapper>
-
-      {/* <pre>
-        <code>{JSON.stringify(permissions, null, 2)}</code>
-      </pre> */}
 
       <ElectronicDocumentTable
         isLoading={isLoading}

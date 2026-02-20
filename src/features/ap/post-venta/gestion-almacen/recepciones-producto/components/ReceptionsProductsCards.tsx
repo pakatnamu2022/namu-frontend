@@ -13,6 +13,8 @@ import {
   Tag,
   FileCheck,
   Eye,
+  Copy,
+  Check,
 } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog.tsx";
 import { format } from "date-fns";
@@ -52,6 +54,19 @@ export default function ReceptionsProductsCards({
 }: Props) {
   const [selectedInvoice, setSelectedInvoice] =
     useState<VehiclePurchaseOrderResource | null>(null);
+  const [copiedCode, setCopiedCode] = useState<string | null>(null);
+
+  const handleCopyCode = async (code: string, identifier: string) => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopiedCode(identifier);
+      setTimeout(() => {
+        setCopiedCode(null);
+      }, 2000);
+    } catch (err) {
+      console.error("Error al copiar:", err);
+    }
+  };
 
   if (data.length === 0) {
     return (
@@ -482,15 +497,36 @@ export default function ReceptionsProductsCards({
                           </p>
                           <div className="flex items-center gap-2 mt-1 flex-wrap">
                             {detail.product?.code && (
-                              <Badge
-                                variant="outline"
-                                className={
-                                  isSingleCard ? "text-xs" : "text-[10px]"
-                                }
-                              >
-                                <Tag className="size-3 mr-1" />
-                                {detail.product.code}
-                              </Badge>
+                              <div className="flex items-center gap-1">
+                                <Badge
+                                  variant="outline"
+                                  className={
+                                    isSingleCard ? "text-xs" : "text-[10px]"
+                                  }
+                                >
+                                  <Tag className="size-3 mr-1" />
+                                  {detail.product.code}
+                                </Badge>
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-5 w-5 p-0 hover:bg-slate-200"
+                                  onClick={() =>
+                                    handleCopyCode(
+                                      detail.product!.code,
+                                      `product-${reception.id}-${idx}`,
+                                    )
+                                  }
+                                >
+                                  {copiedCode ===
+                                  `product-${reception.id}-${idx}` ? (
+                                    <Check className="h-3 w-3 text-green-600" />
+                                  ) : (
+                                    <Copy className="h-3 w-3" />
+                                  )}
+                                </Button>
+                              </div>
                             )}
                             {detail.product?.brand_name && (
                               <Badge
