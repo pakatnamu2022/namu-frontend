@@ -6,12 +6,6 @@ import PageSkeleton from "@/shared/components/PageSkeleton";
 import TitleComponent from "@/shared/components/TitleComponent";
 import DataTablePagination from "@/shared/components/DataTablePagination";
 import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
-import {
-  ERROR_MESSAGE,
-  errorToast,
-  SUCCESS_MESSAGE,
-  successToast,
-} from "@/core/core.function";
 import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { CONTROL_UNITS } from "@/features/ap/comercial/control-unidades/lib/controlUnits.constants";
@@ -20,6 +14,8 @@ import {
   useControlUnits,
   useMarkAsReceived,
   useCancelShippingGuide,
+  useSendControlUnitsToNubefact,
+  useQueryControlUnitsFromNubefact,
 } from "@/features/ap/comercial/control-unidades/lib/controlUnits.hook";
 import ControlUnitsTable from "@/features/ap/comercial/control-unidades/components/ControlUnitsTable";
 import { ControlUnitsColumns } from "@/features/ap/comercial/control-unidades/components/ControlUnitsColumns";
@@ -53,10 +49,12 @@ export default function ControlUnitsPage() {
   const [cancelId, setCancelId] = useState<number | null>(null);
   const [selectedShipment, setSelectedShipment] =
     useState<ControlUnitsResource | null>(null);
-  const { MODEL, ROUTE } = CONTROL_UNITS;
+  const { ROUTE } = CONTROL_UNITS;
   const deleteMutation = useDeleteControlUnits();
   const markAsReceivedMutation = useMarkAsReceived();
   const cancelMutation = useCancelShippingGuide();
+  const sendToNubefactMutation = useSendControlUnitsToNubefact();
+  const queryFromNubefactMutation = useQueryControlUnitsFromNubefact();
   const permissions = useModulePermissions(ROUTE);
 
   useEffect(() => {
@@ -78,12 +76,6 @@ export default function ControlUnitsPage() {
     deleteMutation.mutate(deleteId, {
       onSuccess: () => {
         refetch();
-        successToast(SUCCESS_MESSAGE(MODEL, "delete"));
-        setDeleteId(null);
-      },
-      onError: (error: any) => {
-        const msg = error?.response?.data?.message || "";
-        errorToast(ERROR_MESSAGE(MODEL, "delete", msg));
         setDeleteId(null);
       },
     });
@@ -141,6 +133,8 @@ export default function ControlUnitsPage() {
           onMarkAsReceived: setMarkAsReceivedId,
           onViewDetails: setSelectedShipment,
           onCancel: setCancelId,
+          onSendToNubefact: (id) => sendToNubefactMutation.mutate(id),
+          onQueryFromNubefact: (id) => queryFromNubefactMutation.mutate(id),
           permissions,
         })}
         data={data?.data || []}

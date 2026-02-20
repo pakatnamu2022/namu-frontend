@@ -1,4 +1,5 @@
 import { type Links, type Meta } from "@/shared/lib/pagination.interface";
+import { VehicleResource } from "../../vehiculos/lib/vehicles.interface";
 
 export interface ControlUnitsResponse {
   data: ControlUnitsResource[];
@@ -45,6 +46,15 @@ export interface ControlUnitsResource {
   transport_company_id?: string;
   transmitter_establishment?: EstablishmentResource;
   receiver_establishment?: EstablishmentResource;
+  sent_at?: string | null;
+  enlace_del_pdf?: string | null;
+  enlace_del_xml?: string | null;
+  enlace_de_la_cdr?: string | null;
+  enlace_del_cdr?: string | null;
+  cadena_para_codigo_qr?: string | null;
+  aceptada_por_sunat?: boolean | null;
+  sunat_description?: string | null;
+  status_dynamic?: boolean | null;
   is_received?: boolean | null;
   ap_class_article_id?: string | null;
   sede_transmitter?: string;
@@ -59,8 +69,10 @@ export interface ControlUnitsResource {
   ruc_transport?: string;
   company_name_transport?: string;
   status?: boolean;
+  is_consignment?: boolean | null;
   receiving_checklists: any[];
   items: ShipmentItemResource[];
+  vehicle?: VehicleResource;
 }
 
 export interface ShipmentItemResource {

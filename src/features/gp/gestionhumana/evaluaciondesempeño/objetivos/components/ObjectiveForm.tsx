@@ -2,15 +2,7 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import {
   ObjectiveSchema,
@@ -18,15 +10,16 @@ import {
   objectiveSchemaUpdate,
 } from "../lib/objective.schema";
 import { Loader } from "lucide-react";
-import { Link } from "react-router-dom";
 import { FormSelect } from "@/shared/components/FormSelect";
+import { FormSwitch } from "@/shared/components/FormSwitch";
 import { useAllMetrics } from "../../metricas/lib/metric.hook";
 import FormSkeleton from "@/shared/components/FormSkeleton";
-import { OBJECTIVE } from "../lib/objective.constants";
+import { FormTextArea } from "@/shared/components/FormTextArea";
 
 interface ObjectiveFormProps {
   defaultValues: Partial<ObjectiveSchema>;
   onSubmit: (data: any) => void;
+  onCancel?: () => void;
   isSubmitting?: boolean;
   mode?: "create" | "update";
 }
@@ -34,15 +27,16 @@ interface ObjectiveFormProps {
 export const ObjectiveForm = ({
   defaultValues,
   onSubmit,
+  onCancel,
   isSubmitting = false,
   mode = "create",
 }: ObjectiveFormProps) => {
-  const { ABSOLUTE_ROUTE } = OBJECTIVE;
   const form = useForm({
     resolver: zodResolver(
-      mode === "create" ? objectiveSchemaCreate : objectiveSchemaUpdate
+      mode === "create" ? objectiveSchemaCreate : objectiveSchemaUpdate,
     ),
     defaultValues: {
+      isAscending: true,
       ...defaultValues,
     },
     mode: "onChange",
@@ -56,36 +50,21 @@ export const ObjectiveForm = ({
 
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-4 w-full"
-      >
-        <FormField
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-full">
+        <FormTextArea
           control={form.control}
           name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Nombre</FormLabel>
-              <FormControl>
-                <Input placeholder="Ej: Productividad" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          label="Nombre"
+          placeholder="Ej: Productividad"
         />
-        <FormField
+
+        <FormTextArea
           control={form.control}
           name="description"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Descripción</FormLabel>
-              <FormControl>
-                <Input placeholder="Ej: Productividad del equipo" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          label="Descripción"
+          placeholder="Ej: Productividad del equipo"
         />
+
         <FormSelect
           control={form.control}
           name="metric_id"
@@ -96,19 +75,25 @@ export const ObjectiveForm = ({
             label: metric.name,
           }))}
         />
-
-        {/* <pre>
-          <code className="text-xs text-muted-foreground">
-            {JSON.stringify(form.getValues(), null, 2)}
-          </code>
-        </pre> */}
+        <FormSwitch
+          control={form.control}
+          name="isAscending"
+          label="Lógica de evaluación"
+          text={form.watch("isAscending") ? "Ascendente" : "Descendente"}
+          textDescription={
+            form.watch("isAscending")
+              ? "A mayor valor, mejor desempeño"
+              : "A menor valor, mejor desempeño"
+          }
+          autoHeight
+        />
 
         <div className="flex gap-4 w-full justify-end">
-          <Link to={ABSOLUTE_ROUTE}>
-            <Button type="button" variant="outline">
+          {onCancel && (
+            <Button type="button" variant="outline" onClick={onCancel}>
               Cancelar
             </Button>
-          </Link>
+          )}
 
           <Button
             type="submit"

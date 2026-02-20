@@ -9,6 +9,7 @@ import {
   VehiclePurchaseOrderResource,
   VehiclePurchaseOrderResponse,
 } from "./vehiclePurchaseOrder.interface";
+import { MessageResponse } from "@/core/core.interface";
 
 const { ENDPOINT } = VEHICLE_PURCHASE_ORDER;
 
@@ -22,7 +23,7 @@ export async function getVehiclePurchaseOrder({
   };
   const { data } = await api.get<VehiclePurchaseOrderResponse>(
     ENDPOINT,
-    config
+    config,
   );
   return data;
 }
@@ -38,22 +39,22 @@ export async function getAllVehiclePurchaseOrder({
   };
   const { data } = await api.get<VehiclePurchaseOrderResource[]>(
     ENDPOINT,
-    config
+    config,
   );
   return data;
 }
 
 export async function findVehiclePurchaseOrderById(
-  id: number
+  id: number,
 ): Promise<VehiclePurchaseOrderResource> {
   const response = await api.get<VehiclePurchaseOrderResource>(
-    `${ENDPOINT}/${id}`
+    `${ENDPOINT}/${id}`,
   );
   return response.data;
 }
 
 export async function storeVehiclePurchaseOrder(
-  data: any
+  data: any,
 ): Promise<VehiclePurchaseOrderResource> {
   const response = await api.post<VehiclePurchaseOrderResource>(ENDPOINT, data);
   return response.data;
@@ -61,47 +62,65 @@ export async function storeVehiclePurchaseOrder(
 
 export async function updateVehiclePurchaseOrder(
   id: number,
-  data: any
+  data: any,
 ): Promise<VehiclePurchaseOrderResource> {
   const response = await api.put<VehiclePurchaseOrderResource>(
     `${ENDPOINT}/${id}`,
-    data
+    data,
   );
   return response.data;
 }
 
 export async function deleteVehiclePurchaseOrder(
-  id: number
+  id: number,
 ): Promise<GeneralResponse> {
   const { data } = await api.delete<GeneralResponse>(`${ENDPOINT}/${id}`);
   return data;
 }
 
 export async function getMigrationLogs(
-  purchaseOrderId: number
+  purchaseOrderId: number,
 ): Promise<MigrationLogsResponse> {
   const { data } = await api.get<MigrationLogsResponse>(
-    `${ENDPOINT}/migration/${purchaseOrderId}/logs`
+    `${ENDPOINT}/migration/${purchaseOrderId}/logs`,
   );
   return data;
 }
 
 export async function getMigrationHistory(
-  purchaseOrderId: number
+  purchaseOrderId: number,
 ): Promise<MigrationHistoryResponse> {
   const { data } = await api.get<MigrationHistoryResponse>(
-    `${ENDPOINT}/migration/${purchaseOrderId}/history`
+    `${ENDPOINT}/migration/${purchaseOrderId}/history`,
   );
   return data;
 }
 
 export async function resendVehiclePurchaseOrder(
   id: number,
-  data: any
+  data: any,
 ): Promise<VehiclePurchaseOrderResource> {
   const response = await api.post<VehiclePurchaseOrderResource>(
     `${ENDPOINT}/${id}/resend`,
-    data
+    data,
+  );
+  return response.data;
+}
+
+export async function dispatchSyncCreditNote(
+  id: number,
+): Promise<MessageResponse> {
+  const response = await api.get<MessageResponse>(
+    `${ENDPOINT}/${id}/dispatchSyncCreditNoteJob`,
+  );
+  return response.data;
+}
+
+export async function dispatchSyncInvoice(
+  id: number,
+): Promise<MessageResponse> {
+  const response = await api.get<MessageResponse>(
+    `${ENDPOINT}/${id}/dispatchSyncInvoiceJob`,
   );
   return response.data;
 }

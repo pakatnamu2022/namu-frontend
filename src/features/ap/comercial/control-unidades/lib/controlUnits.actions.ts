@@ -11,6 +11,10 @@ import {
   ControlUnitsResponse,
 } from "./controlUnits.interface";
 import { VehicleResource } from "@/features/ap/comercial/vehiculos/lib/vehicles.interface";
+import {
+  SendToNubefactResponse,
+  QueryFromNubefactResponse,
+} from "../../envios-recepciones/lib/shipmentsReceptions.interface";
 
 const { ENDPOINT } = CONTROL_UNITS;
 
@@ -56,7 +60,7 @@ export async function findControlUnitsById(
 export async function storeControlUnits(
   payload: ControlUnitsRequest
 ): Promise<ControlUnitsResource> {
-  const { data } = await api.post<ControlUnitsResource>(ENDPOINT, payload);
+  const { data } = await api.post<ControlUnitsResource>(`${ENDPOINT}/consignment`, payload);
   return data;
 }
 
@@ -129,6 +133,17 @@ export async function markAsReceived(
   return data;
 }
 
+// Función para crear guía de consignación
+export async function storeConsignment(
+  payload: ControlUnitsRequest
+): Promise<ControlUnitsResource> {
+  const { data } = await api.post<ControlUnitsResource>(
+    `${ENDPOINT}/consignment`,
+    payload
+  );
+  return data;
+}
+
 // Función para cancelar guía de remisión
 export async function cancelShippingGuide(
   id: number,
@@ -137,6 +152,34 @@ export async function cancelShippingGuide(
   const { data } = await api.post<{ success: boolean; message: string }>(
     `/ap/commercial/shippingGuides/${id}/cancel`,
     { cancellation_reason }
+  );
+  return data;
+}
+
+// Funciones SUNAT / Dynamic
+export async function sendControlUnitsToNubefact(
+  id: number
+): Promise<SendToNubefactResponse> {
+  const { data } = await api.post<SendToNubefactResponse>(
+    `${ENDPOINT}/${id}/send-to-nubefact`
+  );
+  return data;
+}
+
+export async function queryControlUnitsFromNubefact(
+  id: number
+): Promise<QueryFromNubefactResponse> {
+  const { data } = await api.post<QueryFromNubefactResponse>(
+    `${ENDPOINT}/${id}/query-from-nubefact`
+  );
+  return data;
+}
+
+export async function sendControlUnitsToDynamic(
+  id: number
+): Promise<SendToNubefactResponse> {
+  const { data } = await api.post<SendToNubefactResponse>(
+    `${ENDPOINT}/${id}/send-to-dynamic`
   );
   return data;
 }

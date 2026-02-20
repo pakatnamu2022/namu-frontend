@@ -39,4 +39,10 @@ export interface ParamsProps {
   params?: Record<string, any>;
 }
 
-export type Action = "create" | "update" | "delete" | "fetch" | "close" | "manage";
+export type Action =
+  | "create"
+  | "update"
+  | "delete"
+  | "fetch"
+  | "close"
+  | "manage";

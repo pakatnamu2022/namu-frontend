@@ -63,6 +63,7 @@ export default function PurchaseOrderWarehousePage() {
       <VehiclePurchaseOrderTable
         isLoading={isLoading}
         columns={vehiclePurchaseOrderColumns({
+          onRequestInvoice: () => {}, // No se maneja en esta vista
           onRequestCreditNote: () => {}, // No se maneja en esta vista
         })}
         data={data?.data || []}

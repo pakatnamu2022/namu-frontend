@@ -116,10 +116,12 @@ export function GeneralModal({
               </DialogDescription>
             </DialogHeader>
           </div>
-          <div className="no-scrollbar overflow-y-auto py-2 px-4 max-h-[60vh]">
+          <div className="no-scrollbar overflow-y-auto py-2 px-4">
             {children}
           </div>
-          <SheetFooter>{childrenFooter}</SheetFooter>
+          <SheetFooter className={!!childrenFooter ? "block" : "hidden"}>
+            {childrenFooter}
+          </SheetFooter>
         </DialogContent>
       </Dialog>
     ) : (
@@ -158,7 +160,9 @@ export function GeneralModal({
           >
             {children}
           </div>
-          <DrawerFooter>{childrenFooter}</DrawerFooter>
+          <DrawerFooter className={!!childrenFooter ? "block" : "hidden"}>
+            {childrenFooter}
+          </DrawerFooter>
         </DrawerContent>
       </Drawer>
     );

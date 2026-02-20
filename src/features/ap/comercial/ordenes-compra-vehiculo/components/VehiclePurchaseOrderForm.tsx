@@ -4,6 +4,8 @@ import {
   vehiclePurchaseOrderSchemaUpdate,
   genericPurchaseOrderSchemaCreate,
   genericPurchaseOrderSchemaUpdate,
+  consignmentPurchaseOrderSchemaCreate,
+  consignmentPurchaseOrderSchemaUpdate,
 } from "../lib/vehiclePurchaseOrder.schema";
 import { useForm, useFieldArray, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -58,6 +60,7 @@ interface VehiclePurchaseOrderFormProps {
   isSubmitting?: boolean;
   mode?: "create" | "update" | "resend";
   isVehiclePurchase?: boolean; // Nuevo parámetro para determinar si es compra de vehículo
+  consignmentShippingGuideId?: number; // ID de guía de consignación para OC de consignación
 }
 
 export const VehiclePurchaseOrderForm = ({
@@ -66,7 +69,9 @@ export const VehiclePurchaseOrderForm = ({
   isSubmitting = false,
   mode = "create",
   isVehiclePurchase = true, // Por defecto es compra de vehículo
+  consignmentShippingGuideId,
 }: VehiclePurchaseOrderFormProps) => {
+  const isConsignmentOrder = !!consignmentShippingGuideId;
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const { ABSOLUTE_ROUTE } = VEHICLE_PURCHASE_ORDER;
@@ -80,13 +85,17 @@ export const VehiclePurchaseOrderForm = ({
 
   const form = useForm({
     resolver: zodResolver(
-      mode === "create"
-        ? isVehiclePurchase
-          ? vehiclePurchaseOrderSchemaCreate
-          : genericPurchaseOrderSchemaCreate
-        : isVehiclePurchase
-          ? vehiclePurchaseOrderSchemaUpdate
-          : genericPurchaseOrderSchemaUpdate,
+      isConsignmentOrder
+        ? mode === "create"
+          ? consignmentPurchaseOrderSchemaCreate
+          : consignmentPurchaseOrderSchemaUpdate
+        : mode === "create"
+          ? isVehiclePurchase
+            ? vehiclePurchaseOrderSchemaCreate
+            : genericPurchaseOrderSchemaCreate
+          : isVehiclePurchase
+            ? vehiclePurchaseOrderSchemaUpdate
+            : genericPurchaseOrderSchemaUpdate,
     ) as any,
     defaultValues: {
       ...defaultValues,
@@ -107,10 +116,10 @@ export const VehiclePurchaseOrderForm = ({
     name: "items",
   });
 
-  // Si es compra de vehículo y no hay items, actualizar el primer item automáticamente
+  // Si es compra de vehículo o consignación y no hay items, agregar el primer item automáticamente
   useEffect(() => {
     if (
-      isVehiclePurchase &&
+      (isVehiclePurchase || isConsignmentOrder) &&
       fields.length === 0 &&
       mode === "create" &&
       !hasAddedInitialItem.current
@@ -121,10 +130,10 @@ export const VehiclePurchaseOrderForm = ({
         description: "",
         unit_price: 0,
         quantity: 1,
-        is_vehicle: true,
+        is_vehicle: isVehiclePurchase,
       });
     }
-  }, [isVehiclePurchase, fields.length, append, mode]);
+  }, [isVehiclePurchase, isConsignmentOrder, fields.length, append, mode]);
 
   // Sincronizar el precio unitario del vehículo con el primer item
   const vehicleUnitPrice = form.watch("vehicle_unit_price");
@@ -466,6 +475,17 @@ export const VehiclePurchaseOrderForm = ({
     return `Diferencia excesiva de ${diff.toFixed(2)}`;
   };
 
+  // Sync items.0.unit_price → vehicle_unit_price para órdenes de consignación
+  useEffect(() => {
+    if (isConsignmentOrder && watchedItems && watchedItems[0] !== undefined) {
+      const tablePrice = Number(watchedItems[0]?.unit_price) || 0;
+      const currentVehiclePrice = form.getValues("vehicle_unit_price");
+      if (currentVehiclePrice !== tablePrice) {
+        form.setValue("vehicle_unit_price", tablePrice);
+      }
+    }
+  }, [isConsignmentOrder, watchedItems, form]);
+
   // Usar hook personalizado que memoriza las columnas automáticamente
   const columns = usePurchaseOrderItemsColumns({
     control: form.control,
@@ -473,6 +493,7 @@ export const VehiclePurchaseOrderForm = ({
     setValue: form.setValue,
     onRemove: remove,
     isVehiclePurchase,
+    isConsignmentOrder,
     unitMeasurements,
   });
 
@@ -663,22 +684,24 @@ export const VehiclePurchaseOrderForm = ({
                 }}
               />
 
-              <FormInput
-                control={form.control}
-                name="vehicle_unit_price"
-                label="Precio Unitario Vehículo (Sin IGV)"
-                placeholder="Ej: 25000.00"
-                min={0}
-                step="0.01"
-                type="number"
-                onChange={(e) => {
-                  const value = e.target.value;
-                  form.setValue("vehicle_unit_price", Number(value));
-                  if (fields.length > 0) {
-                    form.setValue("items.0.unit_price", Number(value) || 0);
-                  }
-                }}
-              />
+              {!isConsignmentOrder && (
+                <FormInput
+                  control={form.control}
+                  name="vehicle_unit_price"
+                  label="Precio Unitario Vehículo (Sin IGV)"
+                  placeholder="Ej: 25000.00"
+                  min={0}
+                  step="0.01"
+                  type="number"
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    form.setValue("vehicle_unit_price", Number(value));
+                    if (fields.length > 0) {
+                      form.setValue("items.0.unit_price", Number(value) || 0);
+                    }
+                  }}
+                />
+              )}
 
               {selectedQuotation && (
                 <div className="col-span-full mt-2">
@@ -756,7 +779,6 @@ export const VehiclePurchaseOrderForm = ({
               {/* Botón para actualizar items */}
               <Button
                 type="button"
-                variant="outline"
                 onClick={() =>
                   append({
                     unit_measurement_id: UNIT_MEASUREMENT_ID.UNIDAD.toString(),
@@ -850,17 +872,19 @@ export const VehiclePurchaseOrderForm = ({
               control={form.control}
             />
 
-            <FormSelect
-              name="warehouse_id"
-              label="Almacén"
-              placeholder="Selecciona un almacén"
-              options={warehouses.map((item) => ({
-                label: item.description,
-                value: item.id.toString(),
-              }))}
-              control={form.control}
-              disabled={isLoadingWarehouses || warehouses.length === 0}
-            />
+            {
+              <FormSelect
+                name="warehouse_id"
+                label="Almacén"
+                placeholder="Selecciona un almacén"
+                options={warehouses.map((item) => ({
+                  label: item.description,
+                  value: item.id.toString(),
+                }))}
+                control={form.control}
+                disabled={isLoadingWarehouses || warehouses.length === 0}
+              />
+            }
 
             <FormInput
               control={form.control}

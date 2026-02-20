@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Check, RefreshCw, X } from "lucide-react";
+import { Check, RefreshCw, Search, X } from "lucide-react";
 import { VehiclePurchaseOrderResource } from "../lib/vehiclePurchaseOrder.interface";
 import VehiclePurchaseOrderMigrationHistory from "./VehiclePurchaseOrderMigrationHistory";
 import VehiclePurchaseOrderDetailButton from "./VehiclePurchaseOrderDetailButton";
@@ -13,10 +13,12 @@ export type VehiclePurchaseOrderColumns =
 
 interface Props {
   onRequestCreditNote: (purchaseOrderId: number) => void;
+  onRequestInvoice: (purchaseOrderId: number) => void;
 }
 
 export const vehiclePurchaseOrderColumns = ({
   onRequestCreditNote,
+  onRequestInvoice,
 }: Props): VehiclePurchaseOrderColumns[] => [
   {
     accessorKey: "status",
@@ -79,6 +81,34 @@ export const vehiclePurchaseOrderColumns = ({
   {
     accessorKey: "invoice_dynamics",
     header: "Factura Dynamics",
+    cell: ({ row }) => {
+      const value = row.original.invoice_dynamics;
+      return value ? (
+        <div className="flex items-center gap-2">
+          <Badge variant="outline" className="font-mono text-sm font-normal">
+            {value}
+          </Badge>
+          <Button
+            variant="outline"
+            size="icon-xs"
+            color="blue"
+            onClick={() => onRequestInvoice(row.original.id)}
+          >
+            <Search />
+          </Button>
+        </div>
+      ) : (
+        <Button
+          variant="outline"
+          size="xs"
+          color="blue"
+          onClick={() => onRequestInvoice(row.original.id)}
+        >
+          <Search />
+          Consultar
+        </Button>
+      );
+    },
   },
   {
     accessorKey: "receipt_dynamics",
@@ -95,11 +125,12 @@ export const vehiclePurchaseOrderColumns = ({
         </Badge>
       ) : (
         <Button
-          variant="ghost"
+          variant="outline"
           size="xs"
-          color="orange"
+          color="indigo"
           onClick={() => onRequestCreditNote(row.original.id)}
         >
+          <Search />
           Consultar
         </Button>
       );

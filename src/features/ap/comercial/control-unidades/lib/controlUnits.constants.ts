@@ -19,6 +19,8 @@ export const CONTROL_UNITS: ModelComplete<ControlUnitsResource> = {
   ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/actualizar`,
 };
 
+export const CONTROL_UNITS_ROUTE_ADD_CONSIGNMENT = `${ABSOLUTE_ROUTE}/consignacion/agregar`;
+
 // Tipos de documento
 export const DOCUMENT_TYPES = [
   { value: "GUIA_REMISION", label: "Guía de Remisión" },
