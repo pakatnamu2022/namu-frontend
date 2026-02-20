@@ -22,6 +22,7 @@ export default function ControlUnitsTable({
         data={data}
         isLoading={isLoading}
         initialColumnVisibility={{
+          id: false,
           document_type: false,
           issue_date: false,
           transfer_reason_description: true,

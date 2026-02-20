@@ -120,6 +120,10 @@ export const ControlUnitsColumns = ({
   permissions,
 }: Props): ControlUnitsColumns[] => [
   {
+    accessorKey: "id",
+    header: "ID",
+  },
+  {
     accessorKey: "document_number",
     header: "Número Doc.",
     cell: ({ row }) => {

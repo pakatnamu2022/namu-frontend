@@ -49,7 +49,7 @@ export default function ControlUnitsPage() {
   const [cancelId, setCancelId] = useState<number | null>(null);
   const [selectedShipment, setSelectedShipment] =
     useState<ControlUnitsResource | null>(null);
-  const { MODEL, ROUTE } = CONTROL_UNITS;
+  const { ROUTE } = CONTROL_UNITS;
   const deleteMutation = useDeleteControlUnits();
   const markAsReceivedMutation = useMarkAsReceived();
   const cancelMutation = useCancelShippingGuide();

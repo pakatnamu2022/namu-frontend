@@ -86,6 +86,9 @@ export default function AddVehiclePurchaseOrderPage() {
     );
   }
 
+  // Datos del vehículo de la guía de consignación
+  const vehicle = consignmentData?.vehicle;
+
   // Pre-poblar el item del vehículo desde la guía de consignación
   const consignmentVehicleItem =
     isConsignmentOrder && consignmentData?.items?.[0]
@@ -107,15 +110,26 @@ export default function AddVehiclePurchaseOrderPage() {
       />
       <VehiclePurchaseOrderForm
         defaultValues={{
-          vin: "",
-          year: currentYear(),
-          engine_number: "",
-          ap_brand_id: "",
-          ap_models_vn_id: "",
-          vehicle_color_id: "",
-          supplier_order_type_id: "",
-          engine_type_id: "",
-          sede_id: "",
+          // Campos del vehículo: se pre-llenan desde el shipping guide si es consignación
+          vin: vehicle?.vin ?? "",
+          year: vehicle?.year ?? currentYear(),
+          engine_number: vehicle?.engine_number ?? "",
+          ap_brand_id: vehicle?.model?.brand_id
+            ? vehicle.model.brand_id.toString()
+            : "",
+          ap_models_vn_id: vehicle?.ap_models_vn_id
+            ? vehicle.ap_models_vn_id.toString()
+            : "",
+          vehicle_color_id: vehicle?.vehicle_color_id
+            ? vehicle.vehicle_color_id.toString()
+            : "",
+          supplier_order_type_id: isConsignmentOrder ? "641" : "",
+          engine_type_id: vehicle?.engine_type_id
+            ? vehicle.engine_type_id.toString()
+            : "",
+          sede_id: consignmentData?.sede_receiver_id
+            ? String(consignmentData.sede_receiver_id)
+            : "",
           invoice_series: "",
           invoice_number: "",
           emission_date: new Date(),

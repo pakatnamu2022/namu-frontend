@@ -4,6 +4,8 @@ import {
   vehiclePurchaseOrderSchemaUpdate,
   genericPurchaseOrderSchemaCreate,
   genericPurchaseOrderSchemaUpdate,
+  consignmentPurchaseOrderSchemaCreate,
+  consignmentPurchaseOrderSchemaUpdate,
 } from "../lib/vehiclePurchaseOrder.schema";
 import { useForm, useFieldArray, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -83,13 +85,17 @@ export const VehiclePurchaseOrderForm = ({
 
   const form = useForm({
     resolver: zodResolver(
-      mode === "create"
-        ? isVehiclePurchase
-          ? vehiclePurchaseOrderSchemaCreate
-          : genericPurchaseOrderSchemaCreate
-        : isVehiclePurchase
-          ? vehiclePurchaseOrderSchemaUpdate
-          : genericPurchaseOrderSchemaUpdate,
+      isConsignmentOrder
+        ? mode === "create"
+          ? consignmentPurchaseOrderSchemaCreate
+          : consignmentPurchaseOrderSchemaUpdate
+        : mode === "create"
+          ? isVehiclePurchase
+            ? vehiclePurchaseOrderSchemaCreate
+            : genericPurchaseOrderSchemaCreate
+          : isVehiclePurchase
+            ? vehiclePurchaseOrderSchemaUpdate
+            : genericPurchaseOrderSchemaUpdate,
     ) as any,
     defaultValues: {
       ...defaultValues,
@@ -866,7 +872,7 @@ export const VehiclePurchaseOrderForm = ({
               control={form.control}
             />
 
-            {!isConsignmentOrder && (
+            {
               <FormSelect
                 name="warehouse_id"
                 label="Almacén"
@@ -878,7 +884,7 @@ export const VehiclePurchaseOrderForm = ({
                 control={form.control}
                 disabled={isLoadingWarehouses || warehouses.length === 0}
               />
-            )}
+            }
 
             <FormInput
               control={form.control}
@@ -1123,7 +1129,7 @@ export const VehiclePurchaseOrderForm = ({
                   type="button"
                   disabled={
                     isSubmitting ||
-                    (isConsignmentOrder && !form.formState.isValid) ||
+                    !form.formState.isValid ||
                     (mode === "resend" && !hasChanges) ||
                     subtotalDifference > 1
                   }
