@@ -15,7 +15,6 @@ import {
 } from "@/components/ui/dialog";
 import { WorkScheduleSchema } from "../lib/work-schedule.schema";
 import { WORK_SCHEDULE_STATUS_OPTIONS } from "../lib/work-schedule.constant";
-import { WorkTypeResource } from "../../tipo-dia-trabajo/lib/work-type.interface";
 import { WorkScheduleResource } from "../lib/work-schedule.interface";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
@@ -34,7 +33,7 @@ interface WorkScheduleFormProps {
   onOpenChange: (open: boolean) => void;
   onSubmit: (data: WorkScheduleSchema) => void;
   isSubmitting?: boolean;
-  workTypes: WorkTypeResource[];
+  codes: string[];
   periodId: number;
   workerId: number;
   workerName: string;
@@ -47,7 +46,7 @@ export function WorkScheduleForm({
   onOpenChange,
   onSubmit,
   isSubmitting = false,
-  workTypes,
+  codes,
   periodId,
   workerId,
   workerName,
@@ -56,16 +55,10 @@ export function WorkScheduleForm({
 }: WorkScheduleFormProps) {
   const isEditing = !!editingSchedule;
 
-  const defaultWorkType = workTypes.find(
-    (wt) => !wt.is_night_shift && !wt.is_holiday && !wt.is_sunday,
-  );
-
   const form = useForm({
     defaultValues: {
       worker_id: workerId,
-      work_type_id: String(
-        editingSchedule?.work_type.id ?? defaultWorkType?.id ?? "",
-      ),
+      code: editingSchedule?.work_type.code ?? codes[0] ?? "",
       period_id: periodId,
       work_date: editingSchedule?.work_date ?? selectedDate.toISOString(),
       hours_worked: editingSchedule?.hours_worked ?? null,
@@ -76,14 +69,12 @@ export function WorkScheduleForm({
   });
 
   const handleSubmit = (data: any) => {
-    const workTypeId = parseInt(data.work_type_id);
-    const selectedWorkType = workTypes.find((wt) => wt.id === workTypeId);
     const finalData: WorkScheduleSchema = {
       worker_id: data.worker_id,
-      work_type_id: workTypeId,
+      code: data.code,
       period_id: data.period_id,
       work_date: data.work_date,
-      hours_worked: data.hours_worked ?? selectedWorkType?.base_hours ?? 8,
+      hours_worked: data.hours_worked ?? null,
       extra_hours: data.extra_hours ?? 0,
       notes: data.notes,
       status: data.status,
@@ -91,10 +82,9 @@ export function WorkScheduleForm({
     onSubmit(finalData);
   };
 
-  const workTypeOptions = workTypes.map((wt) => ({
-    value: String(wt.id),
-    label: `${wt.code} - ${wt.name}`,
-    description: wt.description,
+  const codeOptions = codes.map((c) => ({
+    value: c,
+    label: c,
   }));
 
   const statusOptions = WORK_SCHEDULE_STATUS_OPTIONS.map((opt) => ({
@@ -125,10 +115,10 @@ export function WorkScheduleForm({
           >
             <FormSelect
               control={form.control}
-              name="work_type_id"
-              label="Tipo de Trabajo"
-              placeholder="Selecciona el tipo"
-              options={workTypeOptions}
+              name="code"
+              label="Código"
+              placeholder="Selecciona el código"
+              options={codeOptions}
               required
             />
 

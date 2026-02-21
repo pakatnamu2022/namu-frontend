@@ -25,7 +25,7 @@ import {
   useAllPayrollPeriods,
   useCurrentPayrollPeriod,
 } from "@/features/gp/gestionhumana/planillas/periodo-planilla/lib/payroll-period.hook";
-import { useAllWorkTypes } from "@/features/gp/gestionhumana/planillas/tipo-dia-trabajo/lib/work-type.hook";
+import { useAttendanceRuleCodes } from "@/features/gp/gestionhumana/planillas/reglas-asistencia/lib/attendance-rule.hook";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { useForm } from "react-hook-form";
 import { Form } from "@/components/ui/form";
@@ -62,8 +62,8 @@ export default function WorkSchedulesPage() {
     useAllPayrollPeriods();
   const { data: currentPeriod, isLoading: isLoadingCurrentPeriod } =
     useCurrentPayrollPeriod();
-  const { data: workTypes = [], isLoading: isLoadingWorkTypes } =
-    useAllWorkTypes();
+  const { data: codes = [], isLoading: isLoadingCodes } =
+    useAttendanceRuleCodes();
 
   // Set default period when current period loads
   useEffect(() => {
@@ -203,7 +203,7 @@ export default function WorkSchedulesPage() {
   if (!currentView) return <div>No hay</div>;
 
   const isLoadingData =
-    isLoadingPeriods || isLoadingCurrentPeriod || isLoadingWorkTypes;
+    isLoadingPeriods || isLoadingCurrentPeriod || isLoadingCodes;
 
   return (
     <div className="space-y-4">
@@ -316,7 +316,7 @@ export default function WorkSchedulesPage() {
             onOpenChange={setFormOpen}
             onSubmit={handleSubmit}
             isSubmitting={isSubmitting}
-            workTypes={workTypes}
+            codes={codes}
             periodId={selectedPeriodId}
             workerId={selectedWorkerId}
             workerName={selectedWorkerData.worker_name}

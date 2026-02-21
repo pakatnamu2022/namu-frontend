@@ -60,7 +60,7 @@ export type WorkScheduleStatus =
 
 export interface WorkScheduleRequest {
   worker_id: number;
-  work_type_id: number;
+  code: string;
   period_id: number;
   work_date: string;
   hours_worked?: number | null;
