@@ -55,10 +55,10 @@ export const useCycleDetails = (
 };
 
 export const usePersonsInCycle = (params: Record<string, any>) => {
-  const { idCycle } = params;
+  const { idCycle, ...rest } = params;
   return useQuery({
-    queryKey: ["cycle", idCycle, "persons"],
-    queryFn: () => getPersonsInCycle(idCycle.toString()),
+    queryKey: ["cycle", idCycle, "persons", rest],
+    queryFn: () => getPersonsInCycle(idCycle.toString(), rest),
     refetchOnWindowFocus: false,
   });
 };

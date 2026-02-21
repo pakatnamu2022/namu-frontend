@@ -69,9 +69,12 @@ interface WorkerResponseInCycle {
 
 export async function getPersonsInCycle(
   id: string,
+  params?: Record<string, any>,
 ): Promise<WorkerResponseInCycle> {
+  const config: AxiosRequestConfig = { params };
   const { data } = await api.get<WorkerResponseInCycle>(
     `${ENDPOINT}/${id}/participants`,
+    config,
   );
   return data;
 }
