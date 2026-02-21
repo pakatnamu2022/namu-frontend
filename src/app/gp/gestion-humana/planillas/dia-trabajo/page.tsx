@@ -62,8 +62,7 @@ export default function WorkSchedulesPage() {
     useAllPayrollPeriods();
   const { data: currentPeriod, isLoading: isLoadingCurrentPeriod } =
     useCurrentPayrollPeriod();
-  const { data: codes = [], isLoading: isLoadingCodes } =
-    useAttendanceRuleCodes();
+  const { data: codes = [] } = useAttendanceRuleCodes();
 
   // Set default period when current period loads
   useEffect(() => {
@@ -144,7 +143,8 @@ export default function WorkSchedulesPage() {
   };
 
   const handleEditSchedule = (schedule: WorkScheduleResource) => {
-    setSelectedDate(new Date(schedule.work_date));
+    // Añadir hora para evitar desfase UTC al parsear "YYYY-MM-DD"
+    setSelectedDate(new Date(schedule.work_date + "T00:00:00"));
     setEditingSchedule(schedule);
     setFormOpen(true);
   };
@@ -202,8 +202,7 @@ export default function WorkSchedulesPage() {
   if (!checkRouteExists(ROUTE)) notFound();
   if (!currentView) return <div>No hay</div>;
 
-  const isLoadingData =
-    isLoadingPeriods || isLoadingCurrentPeriod || isLoadingCodes;
+  const isLoadingData = isLoadingPeriods || isLoadingCurrentPeriod;
 
   return (
     <div className="space-y-4">

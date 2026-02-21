@@ -20,7 +20,7 @@ export const ATTENDANCE_RULE: ModelComplete<AttendanceRuleResource> = {
   EMPTY: {
     id: 0,
     code: "",
-    hour_type: "",
+    hour_type: "DIURNO",
     hours: null,
     multiplier: 1,
     pay: false,

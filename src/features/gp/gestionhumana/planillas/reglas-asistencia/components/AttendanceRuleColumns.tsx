@@ -30,6 +30,13 @@ export const attendanceRuleColumns = ({
     ),
   },
   {
+    accessorKey: "description",
+    header: "Descripción",
+    cell: ({ getValue }) => (
+      <span className="text-wrap line-clamp-1">{getValue() as string}</span>
+    ),
+  },
+  {
     accessorKey: "hour_type",
     header: "Tipo de Hora",
     cell: ({ getValue }) => (

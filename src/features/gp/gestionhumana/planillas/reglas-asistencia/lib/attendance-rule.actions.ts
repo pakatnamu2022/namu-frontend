@@ -9,6 +9,10 @@ import { ATTENDANCE_RULE } from "./attendance-rule.constant";
 
 const { ENDPOINT } = ATTENDANCE_RULE;
 
+function unwrap<T>(response: any): T {
+  return response?.data ?? response;
+}
+
 export async function getAttendanceRules(
   params?: Record<string, any>,
 ): Promise<AttendanceRuleResponse> {
@@ -20,26 +24,23 @@ export async function getAttendanceRules(
 export async function findAttendanceRuleById(
   id: number,
 ): Promise<AttendanceRuleResource> {
-  const response = await api.get<AttendanceRuleResource>(`${ENDPOINT}/${id}`);
-  return response.data;
+  const { data } = await api.get<any>(`${ENDPOINT}/${id}`);
+  return unwrap<AttendanceRuleResource>(data);
 }
 
 export async function storeAttendanceRule(
-  data: any,
+  payload: any,
 ): Promise<AttendanceRuleResource> {
-  const response = await api.post<AttendanceRuleResource>(ENDPOINT, data);
-  return response.data;
+  const { data } = await api.post<any>(ENDPOINT, payload);
+  return unwrap<AttendanceRuleResource>(data);
 }
 
 export async function updateAttendanceRule(
   id: number,
-  data: any,
+  payload: any,
 ): Promise<AttendanceRuleResource> {
-  const response = await api.put<AttendanceRuleResource>(
-    `${ENDPOINT}/${id}`,
-    data,
-  );
-  return response.data;
+  const { data } = await api.put<any>(`${ENDPOINT}/${id}`, payload);
+  return unwrap<AttendanceRuleResource>(data);
 }
 
 export async function deleteAttendanceRule(
@@ -49,7 +50,13 @@ export async function deleteAttendanceRule(
   return data;
 }
 
-export async function getAttendanceRuleCodes(): Promise<string[]> {
-  const { data } = await api.get<{ data: string[] }>(`${ENDPOINT}/codes`);
-  return data.data;
+export interface AttendanceCodeItem {
+  code: string;
+  description: string | null;
+}
+
+export async function getAttendanceRuleCodes(): Promise<AttendanceCodeItem[]> {
+  const { data } = await api.get<any>(`${ENDPOINT}/codes`);
+  const inner = unwrap<any>(data);
+  return Array.isArray(inner) ? inner : (inner?.data ?? []);
 }

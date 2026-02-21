@@ -8,46 +8,40 @@ export interface WorkScheduleResponse {
 
 export interface WorkScheduleResource {
   id: number;
+  worker_id?: number;
+  code: string;
+  period_id?: number;
   work_date: string;
-  hours_worked: number;
-  extra_hours: number;
-  total_hours: number;
-  notes: string | null;
+  hours_worked?: number;
+  extra_hours?: number;
+  total_hours?: number | null;
   status: WorkScheduleStatus;
-  worker: WorkScheduleWorker;
-  work_type: WorkScheduleWorkType;
-  period: WorkSchedulePeriod;
+  notes: string | null;
   created_at: string;
   updated_at: string;
+
+  // Relaciones opcionales
+  worker?: WorkScheduleWorker;
+  period?: WorkSchedulePeriod;
 }
 
 export interface WorkScheduleWorker {
   id: number;
   full_name: string;
   vat: string;
-}
-
-export interface WorkScheduleWorkType {
-  id: number;
-  code: string;
-  name: string;
-  description: string;
-  multiplier: number;
-  base_hours: number;
-  is_extra_hours: boolean;
-  is_night_shift: boolean;
-  is_holiday: boolean;
-  is_sunday: boolean;
-  active: boolean;
-  order: number;
-  created_at: string;
-  updated_at: string;
+  sueldo?: number;
+  horas_jornada?: number;
 }
 
 export interface WorkSchedulePeriod {
   id: number;
   code: string;
   name: string;
+  year: number;
+  month: number;
+  start_date: string;
+  end_date: string;
+  status: string;
 }
 
 export type WorkScheduleStatus =
@@ -63,10 +57,8 @@ export interface WorkScheduleRequest {
   code: string;
   period_id: number;
   work_date: string;
-  hours_worked?: number | null;
-  extra_hours?: number | null;
+  status?: WorkScheduleStatus;
   notes?: string | null;
-  status?: WorkScheduleStatus | null;
 }
 
 export interface WorkScheduleBulkRequest {
@@ -74,6 +66,7 @@ export interface WorkScheduleBulkRequest {
   schedules: Omit<WorkScheduleRequest, "period_id">[];
 }
 
+// Respuesta del endpoint GET /schedules/summary/{periodId}
 export interface WorkScheduleSummaryResponse {
   period: WorkScheduleSummaryPeriod;
   workers_count: number;
@@ -88,7 +81,7 @@ export interface WorkScheduleSummaryPeriod {
   month: number;
   start_date: string;
   end_date: string;
-  payment_date: string;
+  payment_date: string | null;
   status: string;
   can_modify: boolean;
   can_calculate: boolean;
@@ -100,11 +93,23 @@ export interface WorkScheduleSummaryPeriod {
 export interface WorkScheduleWorkerSummary {
   worker_id: number;
   worker_name: string;
-  total_normal_hours: number;
-  total_extra_hours: number;
-  total_night_hours: number;
-  total_holiday_hours: number;
+  salary: number;
+  shift_hours: number;
+  base_hour_value: number;
+  details: WorkScheduleSummaryDetail[];
+  total_amount: number;
+}
+
+export interface WorkScheduleSummaryDetail {
+  code: string;
+  hour_type: string; // "DIURNO" | "NOCTURNO" | "REFRIGERIO"
+  hours: number;
+  multiplier: number;
+  pay: boolean;
+  use_shift: boolean;
+  hour_value: number;
   days_worked: number;
+  total: number;
 }
 
 export interface GetWorkSchedulesProps {

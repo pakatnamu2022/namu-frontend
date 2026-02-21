@@ -1,6 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { AttendanceRuleResource, AttendanceRuleResponse } from "./attendance-rule.interface";
-import { findAttendanceRuleById, getAttendanceRuleCodes, getAttendanceRules } from "./attendance-rule.actions";
+import {
+  AttendanceCodeItem,
+  findAttendanceRuleById,
+  getAttendanceRuleCodes,
+  getAttendanceRules,
+} from "./attendance-rule.actions";
 import { ATTENDANCE_RULE } from "./attendance-rule.constant";
 
 const { QUERY_KEY } = ATTENDANCE_RULE;
@@ -23,7 +28,7 @@ export const useAttendanceRuleById = (id: number) => {
 };
 
 export const useAttendanceRuleCodes = () => {
-  return useQuery<string[]>({
+  return useQuery<AttendanceCodeItem[]>({
     queryKey: [`${QUERY_KEY}-codes`],
     queryFn: getAttendanceRuleCodes,
     refetchOnWindowFocus: false,
