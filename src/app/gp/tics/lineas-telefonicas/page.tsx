@@ -42,6 +42,7 @@ export default function PhoneLinePage() {
 
   const { data, isLoading, refetch } = usePhoneLines({
     page,
+    per_page,
     search,
     telephoneAccount$company_id: companyId,
   });
