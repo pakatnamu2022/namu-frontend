@@ -14,14 +14,16 @@ import { FormInput } from "@/shared/components/FormInput";
 import { FormSwitch } from "@/shared/components/FormSwitch";
 import { Link } from "react-router-dom";
 import { PHONE_LINE } from "../lib/phoneLine.constants";
+import { TelephonePlanResource } from "../../telephonePlan/lib/telephonePlan.interface";
+import { TelephoneAccountResource } from "../../telephoneAccount/lib/telephoneAccount.interface";
 
 interface PhoneLineFormProps {
   defaultValues: Partial<PhoneLineSchema>;
   onSubmit: (data: any) => void;
   isSubmitting?: boolean;
   mode?: "create" | "update";
-  telephoneAccounts?: any[];
-  telephonePlans?: any[];
+  telephoneAccounts?: TelephoneAccountResource[];
+  telephonePlans?: TelephonePlanResource[];
 }
 
 export const PhoneLineForm = ({
@@ -53,8 +55,8 @@ export const PhoneLineForm = ({
             name="telephone_account_id"
             label="Cuenta telefónica"
             placeholder="Selecciona una cuenta"
-            options={telephoneAccounts.map((account: any) => ({
-              label: account.account_number,
+            options={telephoneAccounts.map((account: TelephoneAccountResource) => ({
+              label: `${account.operator} | ${account.account_number}`,
               description: account.company,
               value: account.id.toString(),
             }))}

@@ -48,26 +48,14 @@ export async function deletePhoneLine(id: number): Promise<GeneralResponse> {
   return data;
 }
 
-export async function getAllTelephoneAccounts(): Promise<any[]> {
-  const config: AxiosRequestConfig = { params: { all: true } };
-  const { data } = await api.get<any[]>("/gp/tics/telephoneAccount", config);
-  return data;
-}
-
-export async function getAllTelephonePlans(): Promise<any[]> {
-  const config: AxiosRequestConfig = { params: { all: true } };
-  const { data } = await api.get<any[]>("/gp/tics/telephonePlan", config);
-  return data;
-}
-
 export async function assignPhoneLineWorker(
   phone_line_id: number,
   worker_id: number,
 ): Promise<GeneralResponse> {
-  const { data } = await api.post<GeneralResponse>(
-    "/gp/tics/phoneLineWorker",
-    { phone_line_id, worker_id },
-  );
+  const { data } = await api.post<GeneralResponse>("/gp/tics/phoneLineWorker", {
+    phone_line_id,
+    worker_id,
+  });
   return data;
 }
 
