@@ -36,6 +36,7 @@ export default function TelephoneAccountPage() {
 
   const { data, isLoading, refetch } = useTelephoneAccounts({
     page,
+    per_page,
     search,
     company_id: companyId,
   });

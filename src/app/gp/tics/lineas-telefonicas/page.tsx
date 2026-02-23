@@ -38,10 +38,11 @@ export default function PhoneLinePage() {
 
   useEffect(() => {
     setPage(1);
-  }, [search, per_page]);
+  }, [search, per_page, page]);
 
   const { data, isLoading, refetch } = usePhoneLines({
     page,
+    per_page,
     search,
     telephoneAccount$company_id: companyId,
   });
