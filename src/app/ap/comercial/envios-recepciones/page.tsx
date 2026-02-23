@@ -1,7 +1,7 @@
 "use client";
 
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import PageSkeleton from "@/shared/components/PageSkeleton";
 import TitleComponent from "@/shared/components/TitleComponent";
 import DataTablePagination from "@/shared/components/DataTablePagination";
@@ -64,11 +64,6 @@ export default function ShipmentsReceptionsPage() {
   const markAsReceivedMutation = useMarkAsReceived();
   const cancelMutation = useCancelShippingGuide();
   const permissions = useModulePermissions(ROUTE);
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setPage(1);
-  }, [search, per_page]);
 
   const { data, isLoading, refetch, isFetching } = useShipmentsReceptions({
     page,

@@ -22,6 +22,9 @@ import {
   Box,
   FileText,
   Search,
+  Copy,
+  Check,
+  Tag,
 } from "lucide-react";
 import {
   ProductTransferSchema,
@@ -51,6 +54,7 @@ import { ValidationIndicator } from "@/shared/components/ValidationIndicator.tsx
 import { DocumentValidationStatus } from "@/shared/components/DocumentValidationStatus.tsx";
 import { useLicenseValidation } from "@/shared/hooks/useDocumentValidation.ts";
 import { Card } from "@/components/ui/card.tsx";
+import { Badge } from "@/components/ui/badge.tsx";
 import { BUSINESS_PARTNERS } from "@/core/core.constants.ts";
 import { TYPE_RECEIPT_SERIES } from "@/features/ap/configuraciones/maestros-general/asignar-serie-venta/lib/assignSalesSeries.constants.ts";
 import { useAuthorizedSeries } from "@/features/ap/configuraciones/maestros-general/asignar-serie-usuario/lib/userSeriesAssignment.hook.ts";
@@ -126,6 +130,13 @@ export const ProductTransferForm = ({
     name: string;
   } | null>(null);
 
+  // Estado para copiar códigos de productos
+  const [copiedCode, setCopiedCode] = useState<string | null>(null);
+  // Estado para almacenar los productos seleccionados (en modo create)
+  const [selectedProducts, setSelectedProducts] = useState<
+    Map<number, InventoryResource>
+  >(new Map());
+
   // Determinar si es persona natural o jurídica
   const isPersonaNatural =
     typePersonId === BUSINESS_PARTNERS.TYPE_PERSON_NATURAL_ID;
@@ -159,6 +170,19 @@ export const ProductTransferForm = ({
     control: form.control,
     name: "details",
   });
+
+  // Función para copiar código de producto
+  const handleCopyCode = async (code: string, identifier: string) => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopiedCode(identifier);
+      setTimeout(() => {
+        setCopiedCode(null);
+      }, 2000);
+    } catch (err) {
+      console.error("Error al copiar:", err);
+    }
+  };
 
   const watchTransmitterOriginId = form.watch("transmitter_origin_id");
   const watchReceiverDestinationId = form.watch("receiver_destination_id");
@@ -334,7 +358,7 @@ export const ProductTransferForm = ({
         });
       }
     }
-  }, [watchTransmitterOriginId, suppliers, selectedSupplier]);
+  }, [watchTransmitterOriginId, suppliers, selectedSupplier, form]);
 
   // Actualizar el cliente seleccionado cuando cambie el campo
   useEffect(() => {
@@ -361,7 +385,7 @@ export const ProductTransferForm = ({
         });
       }
     }
-  }, [watchReceiverDestinationId, customers, selectedCustomer]);
+  }, [watchReceiverDestinationId, customers, selectedCustomer, form]);
 
   // Limpiar detalles cuando cambia el tipo de transferencia (PRODUCTO <-> SERVICIO)
   useEffect(() => {
@@ -374,6 +398,8 @@ export const ProductTransferForm = ({
       fields.length > 0
     ) {
       form.setValue("details", []);
+      // Limpiar productos seleccionados
+      setSelectedProducts(new Map());
     }
 
     // Actualizar la referencia al tipo actual
@@ -391,6 +417,8 @@ export const ProductTransferForm = ({
       // Limpiar detalles de productos
       if (fields.length > 0) {
         form.setValue("details", []);
+        // Limpiar productos seleccionados
+        setSelectedProducts(new Map());
       }
     }
   }, [
@@ -416,6 +444,25 @@ export const ProductTransferForm = ({
         quantity: "1",
       });
     }
+  };
+
+  const handleRemoveDetail = (index: number) => {
+    remove(index);
+    // Limpiar el producto seleccionado del mapa
+    setSelectedProducts((prev) => {
+      const newMap = new Map(prev);
+      newMap.delete(index);
+      // Reindexar los productos que vienen después del eliminado
+      const reindexedMap = new Map();
+      newMap.forEach((value, key) => {
+        if (key > index) {
+          reindexedMap.set(key - 1, value);
+        } else {
+          reindexedMap.set(key, value);
+        }
+      });
+      return reindexedMap;
+    });
   };
 
   if (
@@ -849,8 +896,8 @@ export const ProductTransferForm = ({
                       type="button"
                       variant="ghost"
                       size="icon"
-                      className="h-7 w-7 text-destructive hover:bg-destructive/10"
-                      onClick={() => remove(index)}
+                      color="red"
+                      onClick={() => handleRemoveDetail(index)}
                       disabled={mode === "update"}
                     >
                       <Trash2 className="h-4 w-4" />
@@ -864,47 +911,130 @@ export const ProductTransferForm = ({
                         // Modo edición: Mostrar nombre del producto (solo lectura)
                         <div className="space-y-1">
                           <FormLabel>Producto *</FormLabel>
-                          <div className="h-auto min-h-10 w-full rounded-md border border-input bg-muted/50 px-3 py-2 text-sm flex items-center">
-                            <span className="font-medium text-sm truncate">
-                              {transferData?.details?.[index]?.product?.name ||
-                                "Producto no disponible"}
-                            </span>
+                          <div className="h-auto min-h-10 w-full rounded-md border border-input bg-muted/50 px-3 py-2 text-sm">
+                            <div className="flex flex-col gap-2">
+                              <span className="font-medium text-sm">
+                                {transferData?.details?.[index]?.product
+                                  ?.name || "Producto no disponible"}
+                              </span>
+                              {transferData?.details?.[index]?.product
+                                ?.code && (
+                                <div className="flex items-center gap-2">
+                                  <Badge
+                                    variant="outline"
+                                    className="text-xs w-fit"
+                                  >
+                                    <Tag className="size-3 mr-1" />
+                                    {transferData.details[index].product.code}
+                                  </Badge>
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-5 w-5 p-0 hover:bg-slate-200"
+                                    onClick={() =>
+                                      handleCopyCode(
+                                        transferData.details[index].product
+                                          .code,
+                                        `product-${index}`,
+                                      )
+                                    }
+                                  >
+                                    {copiedCode === `product-${index}` ? (
+                                      <Check className="h-3 w-3 text-green-600" />
+                                    ) : (
+                                      <Copy className="h-3 w-3" />
+                                    )}
+                                  </Button>
+                                </div>
+                              )}
+                            </div>
                           </div>
                         </div>
                       ) : (
                         // Modo creación: Selector asíncrono
-                        <FormSelectAsync
-                          name={`details.${index}.product_id`}
-                          label="Producto *"
-                          placeholder="Buscar producto..."
-                          control={form.control}
-                          useQueryHook={useInventory}
-                          mapOptionFn={(inventory: InventoryResource) => ({
-                            label: () => (
-                              <div className="flex items-center justify-between gap-2 w-full">
-                                <span className="font-medium truncate">
-                                  {inventory.product_name}
-                                </span>
-                                <span
-                                  className={`text-xs font-semibold px-2 py-0.5 rounded shrink-0 ${
-                                    inventory.available_quantity > 0
-                                      ? "bg-green-100 text-green-700"
-                                      : "bg-red-100 text-red-700"
-                                  }`}
+                        <div className="space-y-1">
+                          <FormSelectAsync
+                            name={`details.${index}.product_id`}
+                            label="Producto *"
+                            placeholder="Buscar producto..."
+                            control={form.control}
+                            useQueryHook={useInventory}
+                            mapOptionFn={(inventory: InventoryResource) => ({
+                              label: () => (
+                                <div className="flex items-center justify-between gap-2 w-full">
+                                  <span className="font-medium truncate">
+                                    {inventory.product_name}
+                                  </span>
+                                  <span
+                                    className={`text-xs font-semibold px-2 py-0.5 rounded shrink-0 ${
+                                      inventory.available_quantity > 0
+                                        ? "bg-green-100 text-green-700"
+                                        : "bg-red-100 text-red-700"
+                                    }`}
+                                  >
+                                    Stock: {inventory.available_quantity}
+                                  </span>
+                                </div>
+                              ),
+                              value: inventory.product_id.toString(),
+                            })}
+                            additionalParams={{
+                              warehouse_id:
+                                selectedOriginEstablishment?.warehouse_id,
+                            }}
+                            perPage={10}
+                            debounceMs={500}
+                            onValueChange={(value, item) => {
+                              if (value && item) {
+                                setSelectedProducts((prev) => {
+                                  const newMap = new Map(prev);
+                                  newMap.set(index, item as InventoryResource);
+                                  return newMap;
+                                });
+                              } else {
+                                // Si se limpia el valor, eliminar del mapa
+                                setSelectedProducts((prev) => {
+                                  const newMap = new Map(prev);
+                                  newMap.delete(index);
+                                  return newMap;
+                                });
+                              }
+                            }}
+                          />
+                          {selectedProducts.get(index) && (
+                            <div className="flex items-center gap-2 mt-2">
+                              <Badge
+                                variant="outline"
+                                className="text-xs w-fit"
+                              >
+                                <Tag className="size-3 mr-1" />
+                                {selectedProducts.get(index)!.product.code ||
+                                  "Sin código"}
+                              </Badge>
+                              {selectedProducts.get(index)!.product.code && (
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-5 w-5 p-0 hover:bg-slate-200"
+                                  onClick={() =>
+                                    handleCopyCode(
+                                      selectedProducts.get(index)!.product.code,
+                                      `product-create-${index}`,
+                                    )
+                                  }
                                 >
-                                  Stock: {inventory.available_quantity}
-                                </span>
-                              </div>
-                            ),
-                            value: inventory.product_id.toString(),
-                          })}
-                          additionalParams={{
-                            warehouse_id:
-                              selectedOriginEstablishment?.warehouse_id,
-                          }}
-                          perPage={10}
-                          debounceMs={500}
-                        />
+                                  {copiedCode === `product-create-${index}` ? (
+                                    <Check className="h-3 w-3 text-green-600" />
+                                  ) : (
+                                    <Copy className="h-3 w-3" />
+                                  )}
+                                </Button>
+                              )}
+                            </div>
+                          )}
+                        </div>
                       )}
 
                       <FormField
