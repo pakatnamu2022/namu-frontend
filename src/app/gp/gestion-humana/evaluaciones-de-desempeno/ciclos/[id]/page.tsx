@@ -175,6 +175,7 @@ export default function CyclePersonDetailPage() {
 
         <CyclePersonDetailActions
           id={idCycle}
+          hasDetails={(data?.meta?.total ?? 0) > 0}
           onAssign={() => setOpenAssign(true)}
         />
       </HeaderTableWrapper>

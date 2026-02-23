@@ -178,8 +178,8 @@ export const ControlUnitsForm = ({
     error: conductorDniError,
   } = useLicenseValidation(
     conductorDni,
-    false,
-    // !isFirstLoad && !!conductorDni && conductorDni.length === 8,
+    // false,
+    !isFirstLoad && !!conductorDni && conductorDni.length === 8,
   );
 
   // Estados para almacenar el proveedor/cliente seleccionado

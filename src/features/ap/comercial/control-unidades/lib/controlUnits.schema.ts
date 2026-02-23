@@ -60,7 +60,7 @@ const controlUnitsSchemaBase = z.object({
   license: z
     .string()
     .min(9, "La licencia debe tener al menos 9 caracteres")
-    .max(10, "La licencia no puede exceder 10 caracteres"),
+    .max(11, "La licencia no puede exceder 11 caracteres"),
   plate: z
     .string()
     .min(6, "La placa debe tener al menos 6 caracteres")
