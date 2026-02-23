@@ -87,3 +87,23 @@ export async function deleteHierarchicalCategoryObjective(body: {
   const { data } = await api.post<GeneralResponse>(`${ENDPOINT}/destroy`, body);
   return data;
 }
+
+export async function regeneratePersonObjectives(
+  categoryId: number,
+  personId: number
+): Promise<GeneralResponse> {
+  const { data } = await api.post<GeneralResponse>(
+    `${ENDPOINT}/${categoryId}/regenerate-person/${personId}`
+  );
+  return data;
+}
+
+export async function homogeneousWeightsPerson(
+  categoryId: number,
+  personId: number
+): Promise<GeneralResponse> {
+  const { data } = await api.post<GeneralResponse>(
+    `${ENDPOINT}/${categoryId}/homogeneous-weights/${personId}`
+  );
+  return data;
+}

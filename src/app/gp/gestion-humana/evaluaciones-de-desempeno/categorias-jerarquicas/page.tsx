@@ -22,7 +22,6 @@ import { HierarchicalCategoryResource } from "@/features/gp/gestionhumana/evalua
 import { useQueryClient } from "@tanstack/react-query";
 import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import { HierarchicalCategoryObjectivesModal } from "@/features/gp/gestionhumana/evaluaciondesempeño/categorias-jerarquicas/components/HierarchicalCategoryObjectivesModal";
-import { useAllObjectives } from "@/features/gp/gestionhumana/evaluaciondesempeño/objetivos/lib/objective.hook";
 import { HierarchicalCategoryCompetenceModal } from "@/features/gp/gestionhumana/evaluaciondesempeño/categorias-jerarquicas/components/HierarchicalCategoryCompetencesModal";
 import { useAllCompetences } from "@/features/gp/gestionhumana/evaluaciondesempeño/competencias/lib/competence.hook";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
@@ -65,9 +64,6 @@ export default function HierarchicalCategoryPage() {
   });
 
   const { data: positions = [] } = useAllPositions();
-  const { data: objectives = [] } = useAllObjectives({
-    active: 1,
-  });
   const { data: competences = [] } = useAllCompetences();
 
   const handleDelete = async () => {
@@ -204,7 +200,6 @@ export default function HierarchicalCategoryPage() {
             }
           }}
           category={selectedForObjective}
-          objectives={objectives}
         />
       )}
 
