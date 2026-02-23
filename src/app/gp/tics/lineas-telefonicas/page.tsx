@@ -38,7 +38,7 @@ export default function PhoneLinePage() {
 
   useEffect(() => {
     setPage(1);
-  }, [search, per_page, page]);
+  }, [search, per_page]);
 
   const { data, isLoading, refetch } = usePhoneLines({
     page,
