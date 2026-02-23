@@ -38,7 +38,7 @@ export default function TelephonePlanModal({
           setDefaultValues({
             name: data.name,
             price: parseFloat(data.price),
-            description: data.description,
+            description: data.description || "",
           });
         })
         .catch(() => {

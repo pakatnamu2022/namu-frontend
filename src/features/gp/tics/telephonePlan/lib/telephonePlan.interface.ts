@@ -10,7 +10,7 @@ export interface TelephonePlanResource {
   id: string;
   name: string;
   price: string;
-  description: string;
+  description?: string;
 }
 
 export interface TelephonePlanRequest {
