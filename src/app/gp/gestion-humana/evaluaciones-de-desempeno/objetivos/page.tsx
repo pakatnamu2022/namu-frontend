@@ -78,7 +78,7 @@ export default function ObjectivePage() {
       errorToast(
         editingObjective
           ? "Error al actualizar el objetivo."
-          : "Error al crear el objetivo."
+          : "Error al crear el objetivo.",
       );
     } finally {
       setIsSubmitting(false);

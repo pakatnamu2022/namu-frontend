@@ -1,12 +1,13 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { SearchableSelect } from "@/shared/components/SearchableSelect";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
+import { SearchableSelectAsync } from "@/shared/components/SearchableSelectAsync";
+import { useObjectives } from "../../objetivos/lib/objective.hook";
+import { ObjectiveResource } from "../../objetivos/lib/objective.interface";
 
 interface Props {
   adding: boolean;
   setSelectedId: (id: number) => void;
-  objectives: { id: number; name: string }[];
   selectedId: number | null;
   isDuplicate: (id: number) => boolean;
   isUpdating: boolean;
@@ -16,7 +17,6 @@ interface Props {
 export const AddObjectiveSelect = ({
   adding,
   setSelectedId,
-  objectives,
   selectedId,
   isDuplicate,
   isUpdating,
@@ -34,15 +34,20 @@ export const AddObjectiveSelect = ({
           className="border rounded-md p-3 bg-tertiary"
         >
           <div className="flex items-center gap-2 w-full">
-            <SearchableSelect
+            <SearchableSelectAsync
               onChange={(val) => setSelectedId(Number(val))}
-              options={objectives.map((p) => ({
-                value: p.id.toString(),
-                label: p.name,
-              }))}
+              useQueryHook={useObjectives}
+              additionalParams={{
+                active: 1,
+              }}
+              mapOptionFn={(o: ObjectiveResource) => ({
+                value: o.id.toString(),
+                label: o.name,
+                description: o.isAscending ? "Ascendente" : "Descendente",
+              })}
               value={selectedId ? String(selectedId) : ""}
               placeholder="Selecciona un objetivo"
-              className="!w-full truncate text-xs"
+              className="w-full! truncate text-xs"
             />
 
             <Button
