@@ -5,10 +5,6 @@ import { useMutation } from "@tanstack/react-query";
 import { PhoneLineForm } from "@/features/gp/tics/phoneLine/components/PhoneLineForm";
 import { PhoneLineSchema } from "@/features/gp/tics/phoneLine/lib/phoneLine.schema";
 import { storePhoneLine } from "@/features/gp/tics/phoneLine/lib/phoneLine.actions";
-import {
-  useAllTelephoneAccounts,
-  useAllTelephonePlans,
-} from "@/features/gp/tics/phoneLine/lib/phoneLine.hook";
 import { ERROR_MESSAGE, errorToast, successToast } from "@/core/core.function";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
@@ -16,6 +12,8 @@ import FormWrapper from "@/shared/components/FormWrapper";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { PHONE_LINE } from "@/features/gp/tics/phoneLine/lib/phoneLine.constants";
 import FormSkeleton from "@/shared/components/FormSkeleton";
+import { useAllTelephonePlans } from "@/features/gp/tics/telephonePlan/lib/telephonePlan.hook";
+import { useAllTelephoneAccounts } from "@/features/gp/tics/telephoneAccount/lib/telephoneAccount.hook";
 
 export default function AddPhoneLinePage() {
   const router = useNavigate();
