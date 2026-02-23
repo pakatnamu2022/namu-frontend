@@ -29,10 +29,11 @@ export default function TelephonePlanPage() {
 
   useEffect(() => {
     setPage(1);
-  }, [search, per_page]);
+  }, [search, per_page, page]);
 
   const { data, isLoading, refetch } = useTelephonePlans({
     page,
+    per_page,
     search,
   });
 
