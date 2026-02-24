@@ -33,6 +33,7 @@ export default function TelephonePlanPage() {
 
   const { data, isLoading, refetch } = useTelephonePlans({
     page,
+    per_page,
     search,
   });
 

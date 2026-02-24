@@ -37,6 +37,7 @@ export default function EquipmentPage() {
 
   const { data, isLoading, refetch } = useEquipments({
     page,
+    per_page,
     search,
     status_id: status === "all" ? undefined : status,
     estado_uso: useStatus === "all" ? undefined : useStatus,
