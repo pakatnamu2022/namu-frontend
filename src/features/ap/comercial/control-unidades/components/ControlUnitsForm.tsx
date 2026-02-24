@@ -104,7 +104,7 @@ export const ControlUnitsForm = ({
     defaultValues: {
       ...defaultValues,
       document_type: "GUIA_REMISION",
-      transfer_reason_id: "23",
+      transfer_reason_id: "18",
       issuer_type: "SYSTEM",
     },
     mode: "onChange",

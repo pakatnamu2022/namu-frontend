@@ -30,12 +30,15 @@ import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SHIPMENTS_RECEPTIONS } from "../lib/shipmentsReceptions.constants";
 import { FileText, Car } from "lucide-react";
+import { CONTROL_UNITS } from "../../control-unidades/lib/controlUnits.constants";
+import { FormInput } from "@/shared/components/FormInput";
 
 interface ReceptionChecklistFormProps {
   shippingGuideId: number; // ID de la guía (requerido)
   onSubmit: (data: ReceptionChecklistSchema) => void;
   isSubmitting?: boolean;
   onCancel?: () => void;
+  unitControl?: boolean; // Nuevo prop para indicar si es desde control de unidades
 }
 
 export const ReceptionChecklistForm = ({
@@ -43,18 +46,20 @@ export const ReceptionChecklistForm = ({
   onSubmit,
   isSubmitting = false,
   onCancel,
+  unitControl = false,
 }: ReceptionChecklistFormProps) => {
-  const { ABSOLUTE_ROUTE } = SHIPMENTS_RECEPTIONS;
+  const { ABSOLUTE_ROUTE } = unitControl ? CONTROL_UNITS : SHIPMENTS_RECEPTIONS;
   const router = useNavigate();
   const form = useForm<ReceptionChecklistSchema>({
     resolver: zodResolver<
       ReceptionChecklistSchema,
       any,
       ReceptionChecklistSchema
-    >(receptionChecklistSchemaUpdate),
+    >(receptionChecklistSchemaUpdate as any),
     defaultValues: {
       shipping_guide_id: String(shippingGuideId),
       items_receiving: {},
+      kilometers: "",
     },
     mode: "onChange",
   });
@@ -88,6 +93,14 @@ export const ReceptionChecklistForm = ({
       // Setear la nota si existe
       if (receptionChecklist.note_received) {
         form.setValue("note", receptionChecklist.note_received);
+      }
+
+      // Setear el kilometraje si existe
+      if ((receptionChecklist as any).kilometers != null) {
+        form.setValue(
+          "kilometers",
+          String((receptionChecklist as any).kilometers),
+        );
       }
     }
   }, [receptionChecklist, form]);
@@ -233,6 +246,16 @@ export const ReceptionChecklistForm = ({
             category: (item as any).category || "EQUIPAMIENTO",
             has_quantity: (item as any).has_quantity || false,
           }))}
+        />
+
+        {/* Sección: Kilometraje */}
+        <FormInput
+          control={form.control}
+          name="kilometers"
+          label="Kilometraje"
+          placeholder="Ingresa el kilometraje del vehículo"
+          type="number"
+          required
         />
 
         {/* Sección: Observaciones */}
