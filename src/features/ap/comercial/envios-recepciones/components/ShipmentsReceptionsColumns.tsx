@@ -50,8 +50,6 @@ interface Props {
   };
 }
 
-// Componente para manejar la carga de imagen
-// eslint-disable-next-line react-refresh/only-export-components
 const ImagePreview = ({ fileUrl }: { fileUrl: string }) => {
   const [isLoading, setIsLoading] = useState(true);
 

@@ -8,3 +8,7 @@ export const DISCOUNT_REQUEST_MESON = {
 
 export const TYPE_GLOBAL = "GLOBAL";
 export const TYPE_PARTIAL = "PARTIAL";
+
+export const STATUS_PENDING = "pending";
+export const STATUS_APPROVED = "approved";
+export const STATUS_REJECTED = "rejected";

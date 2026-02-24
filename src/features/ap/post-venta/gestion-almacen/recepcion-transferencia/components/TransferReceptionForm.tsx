@@ -85,6 +85,7 @@ export const TransferReceptionForm = ({
       is_physical_warehouse: 1,
     });
 
+  // eslint-disable-next-line react-hooks/incompatible-library
   const watchedDetails = form.watch("details");
 
   // Cargar automáticamente los productos de la transferencia

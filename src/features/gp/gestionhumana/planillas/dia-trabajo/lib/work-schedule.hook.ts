@@ -5,7 +5,6 @@ import {
   WorkScheduleSummaryResponse,
 } from "./work-schedule.interface";
 import {
-  getAllWorkSchedules,
   getWorkSchedules,
   getWorkSchedulesByPeriod,
   getWorkScheduleSummary,
@@ -22,17 +21,9 @@ export const useWorkSchedules = (params?: Record<string, any>) => {
   });
 };
 
-export const useAllWorkSchedules = (params?: Record<string, any>) => {
-  return useQuery<WorkScheduleResource[]>({
-    queryKey: [`${QUERY_KEY}-all`, params],
-    queryFn: () => getAllWorkSchedules(params),
-    refetchOnWindowFocus: false,
-  });
-};
-
 export const useWorkSchedulesByPeriod = (
   periodId: number | null,
-  params?: Record<string, any>
+  params?: Record<string, any>,
 ) => {
   return useQuery<WorkScheduleResource[]>({
     queryKey: [`${QUERY_KEY}-period`, periodId, params],

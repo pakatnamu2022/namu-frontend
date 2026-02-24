@@ -1,106 +1,123 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Legend,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  ChartConfig,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  ChartLegend,
+  ChartLegendContent,
+} from "@/components/ui/chart";
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import { WorkOrderPlanningResource } from "../lib/workOrderPlanning.interface";
 
 interface WorkerPerformanceChartProps {
   data: WorkOrderPlanningResource[];
 }
 
-export function WorkerPerformanceChart({
-  data,
-}: WorkerPerformanceChartProps) {
-  // Agrupar datos por trabajador
-  const workerData = data.reduce((acc, planning) => {
-    const workerName = planning.worker_name;
-    if (!acc[workerName]) {
-      acc[workerName] = {
-        name: workerName,
-        estimadas: 0,
-        reales: 0,
-        tareas: 0,
-      };
-    }
-    acc[workerName].estimadas += Number(planning.estimated_hours) || 0;
-    acc[workerName].reales += Number(planning.actual_hours) || 0;
-    acc[workerName].tareas += 1;
-    return acc;
-  }, {} as Record<string, { name: string; estimadas: number; reales: number; tareas: number }>);
+const chartConfig = {
+  estimadas: {
+    label: "Horas Estimadas",
+    color: "var(--chart-1)",
+  },
+  reales: {
+    label: "Horas Reales",
+    color: "var(--chart-2)",
+  },
+} satisfies ChartConfig;
 
-  const chartData = Object.values(workerData).map((worker) => ({
-    ...worker,
-    estimadas: parseFloat(worker.estimadas.toFixed(1)),
-    reales: parseFloat(worker.reales.toFixed(1)),
+export function WorkerPerformanceChart({ data }: WorkerPerformanceChartProps) {
+  const workerMap = data.reduce(
+    (acc, planning) => {
+      const name = planning.worker_name;
+      if (!acc[name]) {
+        acc[name] = { name, estimadas: 0, reales: 0, tareas: 0 };
+      }
+      acc[name].estimadas += Number(planning.estimated_hours) || 0;
+      acc[name].reales += Number(planning.actual_hours) || 0;
+      acc[name].tareas += 1;
+      return acc;
+    },
+    {} as Record<
+      string,
+      { name: string; estimadas: number; reales: number; tareas: number }
+    >,
+  );
+
+  const chartData = Object.values(workerMap).map((w) => ({
+    ...w,
+    estimadas: parseFloat(w.estimadas.toFixed(1)),
+    reales: parseFloat(w.reales.toFixed(1)),
   }));
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>Rendimiento por Trabajador</CardTitle>
+        <CardDescription>
+          Horas estimadas vs horas reales por operario
+        </CardDescription>
       </CardHeader>
       <CardContent>
-        <ResponsiveContainer width="100%" height={350}>
-          <BarChart data={chartData}>
-            <CartesianGrid strokeDasharray="3 3" />
+        <ChartContainer
+          config={chartConfig}
+          className="aspect-auto h-[300px] w-full"
+        >
+          <BarChart data={chartData} margin={{ left: 8, right: 8, bottom: 40 }}>
+            <CartesianGrid vertical={false} />
             <XAxis
               dataKey="name"
-              angle={-45}
+              tickLine={false}
+              axisLine={false}
+              tickMargin={8}
+              angle={-35}
               textAnchor="end"
-              height={100}
-              tick={{ fontSize: 12 }}
+              tick={{ fontSize: 11 }}
+              interval={0}
             />
             <YAxis
-              label={{ value: "Horas", angle: -90, position: "insideLeft" }}
+              tickLine={false}
+              axisLine={false}
+              tickMargin={4}
+              tickFormatter={(v) => `${v}h`}
             />
-            <Tooltip
-              content={({ active, payload }) => {
-                if (active && payload && payload.length) {
-                  const data = payload[0].payload;
-                  return (
-                    <div className="rounded-lg border bg-background p-2 shadow-sm">
-                      <div className="font-semibold">{data.name}</div>
-                      <div className="text-sm">
-                        <div className="text-blue-600">
-                          Estimadas: {data.estimadas}h
-                        </div>
-                        <div className="text-green-600">
-                          Reales: {data.reales}h
-                        </div>
-                        <div className="text-gray-600">
-                          Tareas: {data.tareas}
-                        </div>
-                      </div>
+            <ChartTooltip
+              cursor={false}
+              content={
+                <ChartTooltipContent
+                  formatter={(value, name) => (
+                    <div className="flex items-center gap-2">
+                      <span>
+                        {chartConfig[name as keyof typeof chartConfig]?.label ??
+                          name}
+                        :
+                      </span>
+                      <span className="font-semibold">{value}h</span>
                     </div>
-                  );
-                }
-                return null;
-              }}
+                  )}
+                />
+              }
             />
-            <Legend />
+            <ChartLegend content={<ChartLegendContent />} />
             <Bar
               dataKey="estimadas"
-              fill="#3b82f6"
-              name="Horas Estimadas"
+              fill="var(--color-estimadas)"
               radius={[4, 4, 0, 0]}
             />
             <Bar
               dataKey="reales"
-              fill="#22c55e"
-              name="Horas Reales"
+              fill="var(--color-reales)"
               radius={[4, 4, 0, 0]}
             />
           </BarChart>
-        </ResponsiveContainer>
+        </ChartContainer>
       </CardContent>
     </Card>
   );

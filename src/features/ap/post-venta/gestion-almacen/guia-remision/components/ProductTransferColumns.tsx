@@ -18,6 +18,7 @@ import { Badge } from "@/components/ui/badge.tsx";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { SUNAT_CONCEPTS_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
+import ShippingGuideHistory from "@/features/ap/comercial/envios-recepciones/components/ShippingGuideHistory";
 
 export type ProductTransferColumns = ColumnDef<ProductTransferResource>;
 
@@ -342,6 +343,9 @@ export const productTransferColumns = ({
               <Eye className="size-5" />
             </Button>
           )}
+
+          {/* Historial - Solo para GUIA_REMISION */}
+          <ShippingGuideHistory shippingGuideId={reference_id} />
 
           {/* Enviar a Nubefact - Solo origen y si NO ha sido enviado */}
           {isOrigin && !isSent && onSendToNubefact && reference_id && (

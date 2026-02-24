@@ -44,6 +44,8 @@ interface DiscountRequestModalProps {
   onSuccess?: () => void;
   /** Tipo de ítem al que aplica el descuento */
   itemType?: "PRODUCT" | "LABOR";
+  /** Descuento máximo permitido (0-100). Por defecto 100. */
+  maxDiscount?: number;
 }
 
 export const DiscountRequestModal = ({
@@ -57,17 +59,24 @@ export const DiscountRequestModal = ({
   existingRequest,
   onSuccess,
   itemType = "PRODUCT",
+  maxDiscount = 100,
 }: DiscountRequestModalProps) => {
   const queryClient = useQueryClient();
   const isEditing = !!existingRequest;
+
+  // Descuento mínimo: el porcentaje ya aplicado al ítem (para PARTIAL) o 0 (para GLOBAL)
+  const minDiscount =
+    type === TYPE_PARTIAL ? Number(detail?.discount_percentage ?? 0) : 0;
+
+  const defaultPct = existingRequest
+    ? Number(existingRequest.requested_discount_percentage)
+    : Math.max(5, minDiscount);
 
   const form = useForm<DiscountRequestSchema>({
     resolver: zodResolver(discountRequestSchema),
     defaultValues: {
       type,
-      requested_discount_percentage: existingRequest
-        ? Number(existingRequest.requested_discount_percentage)
-        : 0,
+      requested_discount_percentage: defaultPct,
       requested_discount_amount: existingRequest
         ? Number(existingRequest.requested_discount_amount)
         : 0,
@@ -80,11 +89,12 @@ export const DiscountRequestModal = ({
 
   useEffect(() => {
     if (!open) return;
-    const resetValues = {
+    const pct = existingRequest
+      ? Number(existingRequest.requested_discount_percentage)
+      : Math.max(5, minDiscount);
+    form.reset({
       type,
-      requested_discount_percentage: existingRequest
-        ? Number(existingRequest.requested_discount_percentage)
-        : 0,
+      requested_discount_percentage: pct,
       requested_discount_amount: existingRequest
         ? Number(existingRequest.requested_discount_amount)
         : 0,
@@ -92,9 +102,17 @@ export const DiscountRequestModal = ({
       ap_order_quotation_detail_id:
         type === TYPE_PARTIAL && detail ? detail.id : null,
       item_type: existingRequest?.item_type ?? itemType,
-    };
-    form.reset(resetValues);
-  }, [detail, existingRequest, form, itemType, open, quotationId, type]);
+    });
+  }, [
+    detail,
+    existingRequest,
+    form,
+    itemType,
+    minDiscount,
+    open,
+    quotationId,
+    type,
+  ]);
 
   const discountPercentage = useWatch({
     control: form.control,
@@ -188,17 +206,25 @@ export const DiscountRequestModal = ({
             </div>
 
             {/* Porcentaje — único campo editable */}
-            <FormInput
-              control={form.control}
-              name="requested_discount_percentage"
-              label="Porcentaje de descuento solicitado"
-              type="number"
-              min={0}
-              max={100}
-              step={0.01}
-              addonEnd={<span className="text-xs font-medium">%</span>}
-              required
-            />
+            <div className="space-y-1">
+              <FormInput
+                control={form.control}
+                name="requested_discount_percentage"
+                label="Porcentaje de descuento solicitado"
+                type="number"
+                min={0}
+                max={maxDiscount}
+                step={0.01}
+                addonEnd={<span className="text-xs font-medium">%</span>}
+                required
+              />
+              <p className="text-xs text-muted-foreground">
+                Máximo permitido:{" "}
+                <span className="font-semibold text-foreground">
+                  {maxDiscount.toFixed(2)}%
+                </span>
+              </p>
+            </div>
 
             {/* Monto — solo referencia visual, calculado del porcentaje */}
             <div className="flex flex-col gap-1">

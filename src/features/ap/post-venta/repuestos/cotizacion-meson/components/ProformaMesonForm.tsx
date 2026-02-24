@@ -58,6 +58,12 @@ import { VEHICLES_RP } from "@/features/ap/comercial/vehiculos/lib/vehicles.cons
 import { FormInputText } from "@/shared/components/FormInputText";
 import { AREA_MESON } from "@/features/ap/ap-master/lib/apMaster.constants";
 import { ITEM_TYPE_PRODUCT } from "../../../taller/cotizacion-detalle/lib/proformaDetails.constants";
+import { DiscountRequestOrderQuotationResource } from "@/features/ap/post-venta/repuestos/descuento-cotizacion-meson/lib/discountRequestMeson.interface";
+import {
+  STATUS_APPROVED,
+  TYPE_GLOBAL,
+  TYPE_PARTIAL,
+} from "@/features/ap/post-venta/repuestos/descuento-cotizacion-meson/lib/discountRequestMeson.constants";
 
 const onSelectSupplyType = [
   { label: "Stock", value: "STOCK" },
@@ -73,6 +79,7 @@ function ProductDetailItem({
   selectedCurrency,
   stockData,
   defaultProductOption,
+  approvedDiscount,
 }: {
   index: number;
   form: any;
@@ -80,6 +87,8 @@ function ProductDetailItem({
   selectedCurrency: any;
   stockData: StockByProductIdsResponse | null;
   defaultProductOption?: { value: string; label: string };
+  detailId?: number;
+  approvedDiscount?: number;
 }) {
   const productId = form.watch(`details.${index}.product_id`);
   const { data: productData } = useProductById(Number(productId) || 0);
@@ -134,35 +143,33 @@ function ProductDetailItem({
     <div className="border rounded-lg bg-white transition-colors">
       {/* Vista Desktop - Formato Tabla */}
       <div className="hidden md:grid grid-cols-14 gap-3 px-4 py-3 items-start">
-        <div
-          className="col-span-1 flex justify-center pt-2"
-          style={{ maxWidth: "40px" }}
-        >
-          <Badge color="secondary" className="text-xs">
-            {index + 1}
-          </Badge>
-        </div>
-
         <div className="col-span-4">
-          <FormSelectAsync
-            name={`details.${index}.product_id`}
-            label=""
-            placeholder="Seleccione repuesto"
-            control={form.control}
-            useQueryHook={useProduct}
-            mapOptionFn={(product) => ({
-              label: `${product.code} - ${product.name}`,
-              value: product.id.toString(),
-            })}
-            perPage={10}
-            debounceMs={500}
-            defaultOption={defaultProductOption}
-          />
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="shrink-0 inline-flex items-center justify-center size-5 rounded-full bg-primary/10 text-primary text-[10px] font-bold">
+              {index + 1}
+            </span>
+            <div className="flex-1 min-w-0">
+              <FormSelectAsync
+                name={`details.${index}.product_id`}
+                label=""
+                placeholder="Seleccione repuesto"
+                control={form.control}
+                useQueryHook={useProduct}
+                mapOptionFn={(product) => ({
+                  label: `${product.code} - ${product.name}`,
+                  value: product.id.toString(),
+                })}
+                perPage={10}
+                debounceMs={500}
+                defaultOption={defaultProductOption}
+              />
+            </div>
+          </div>
         </div>
 
         {/* Tarjeta de stock expandida - se extiende hasta antes del botón eliminar */}
         {currentProductStock && productId && (
-          <div className="col-span-13 row-start-2 col-start-2">
+          <div className="col-span-14 row-start-2 col-start-1">
             <div className="p-2.5 bg-blue-50 border border-blue-200 rounded-md">
               <div className="flex items-center gap-2 mb-2 flex-wrap">
                 <div className="flex items-center gap-1.5">
@@ -368,7 +375,7 @@ function ProductDetailItem({
           />
         </div>
 
-        <div className="col-span-1">
+        <div className="col-span-2">
           <FormField
             control={form.control}
             name={`details.${index}.discount_percentage`}
@@ -379,18 +386,30 @@ function ProductDetailItem({
                     type="number"
                     step="0.01"
                     min="0"
-                    max="100"
+                    max={approvedDiscount ?? 5}
                     placeholder="Dcto %"
                     {...field}
                     value={field.value || ""}
-                    onChange={(e) =>
-                      field.onChange(
-                        e.target.value ? Number(e.target.value) : undefined,
-                      )
+                    onChange={(e) => {
+                      const val = e.target.value
+                        ? Number(e.target.value)
+                        : undefined;
+                      const maxAllowed = approvedDiscount ?? 5;
+                      if (val !== undefined && val > maxAllowed) return;
+                      field.onChange(val);
+                    }}
+                    className={
+                      approvedDiscount !== undefined
+                        ? "h-9 border-green-400"
+                        : "h-9"
                     }
-                    className="h-9"
                   />
                 </FormControl>
+                <p className="text-[10px] font-medium mt-0.5 text-green-600">
+                  Máx.{" "}
+                  {approvedDiscount !== undefined ? "aprobado" : "permitido"}:{" "}
+                  {(approvedDiscount ?? 5).toFixed(2)}%
+                </p>
                 <FormMessage />
               </FormItem>
             )}
@@ -672,12 +691,26 @@ function ProductDetailItem({
                     type="number"
                     step="0.01"
                     min="0"
-                    max="100"
+                    max={approvedDiscount ?? 5}
                     {...field}
-                    onChange={(e) => field.onChange(Number(e.target.value))}
-                    className="h-9"
+                    onChange={(e) => {
+                      const val = Number(e.target.value);
+                      const maxAllowed = approvedDiscount ?? 5;
+                      if (val > maxAllowed) return;
+                      field.onChange(val);
+                    }}
+                    className={
+                      approvedDiscount !== undefined
+                        ? "h-9 border-green-400"
+                        : "h-9"
+                    }
                   />
                 </FormControl>
+                <p className="text-[10px] font-medium mt-0.5 text-green-600">
+                  Máx.{" "}
+                  {approvedDiscount !== undefined ? "aprobado" : "permitido"}:{" "}
+                  {(approvedDiscount ?? 5).toFixed(2)}%
+                </p>
                 <FormMessage />
               </FormItem>
             )}
@@ -737,6 +770,7 @@ interface ProformaMesonFormProps {
   clientData?: CustomersResource;
   vehicleData?: VehicleResource;
   quotationData?: OrderQuotationResource;
+  approvedDiscountRequests?: DiscountRequestOrderQuotationResource[];
 }
 
 export default function ProformaMesonForm({
@@ -748,6 +782,7 @@ export default function ProformaMesonForm({
   clientData,
   vehicleData,
   quotationData,
+  approvedDiscountRequests = [],
 }: ProformaMesonFormProps) {
   const [exchangeRate, setExchangeRate] = useState<number | null>(null);
   const [isLoadingExchangeRate, setIsLoadingExchangeRate] = useState(false);
@@ -965,6 +1000,7 @@ export default function ProformaMesonForm({
         form.setValue(`details.${index}.total_amount`, calculatedTotal);
       }
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [watchAllFields, exchangeRate, selectedCurrency]);
 
   const formatCurrency = (amount: number) => {
@@ -1200,19 +1236,13 @@ export default function ProformaMesonForm({
             <div className="space-y-3">
               {/* Cabecera de tabla - Solo Desktop */}
               <div className="hidden md:grid grid-cols-14 gap-3 bg-gray-100 px-4 py-2 rounded-t-lg text-xs font-semibold text-gray-700 border-b">
-                <div
-                  className="col-span-1 text-center"
-                  style={{ maxWidth: "40px" }}
-                >
-                  #
-                </div>
                 <div className="col-span-4">Repuesto</div>
                 <div className="col-span-1 text-center">Cant.</div>
                 <div className="col-span-2 text-center">P. Ext. ($)</div>
                 <div className="col-span-2 text-center">
                   P. Unit. ({selectedCurrency?.symbol || "S/."})
                 </div>
-                <div className="col-span-1 text-center">Dcto %</div>
+                <div className="col-span-2 text-center">Dcto %</div>
                 <div className="col-span-2 text-center">
                   Total ({selectedCurrency?.symbol || "S/."})
                 </div>
@@ -1233,6 +1263,25 @@ export default function ProformaMesonForm({
                       }
                     : undefined;
 
+                  // Resolver descuento aprobado: GLOBAL aplica a todos, PARTIAL por detail_id
+                  const globalApproved = approvedDiscountRequests.find(
+                    (r) =>
+                      r.type === TYPE_GLOBAL && r.status === STATUS_APPROVED,
+                  );
+                  const partialApproved = originalDetail
+                    ? approvedDiscountRequests.find(
+                        (r) =>
+                          r.type === TYPE_PARTIAL &&
+                          r.status === STATUS_APPROVED &&
+                          r.ap_order_quotation_detail_id === originalDetail.id,
+                      )
+                    : undefined;
+                  const approvedDiscount = globalApproved
+                    ? Number(globalApproved.requested_discount_percentage)
+                    : partialApproved
+                      ? Number(partialApproved.requested_discount_percentage)
+                      : undefined;
+
                   return (
                     <ProductDetailItem
                       key={field.id}
@@ -1242,6 +1291,8 @@ export default function ProformaMesonForm({
                       selectedCurrency={selectedCurrency}
                       stockData={stockData}
                       defaultProductOption={defaultProductOption}
+                      detailId={originalDetail?.id}
+                      approvedDiscount={approvedDiscount}
                     />
                   );
                 })}

@@ -98,6 +98,7 @@ export function FormSelectAsync({
   const [allOptions, setAllOptions] = useState<Option[]>(
     defaultOption ? [defaultOption] : [],
   );
+  const rawItemsRef = useRef<Map<string, any>>(new Map());
   const [selectedOption, setSelectedOption] = useState<Option | null>(
     defaultOption || null,
   );
@@ -158,6 +159,12 @@ export function FormSelectAsync({
   useEffect(() => {
     if (data?.data) {
       const newOptions = data.data.map(mapOptionFn);
+
+      // Guardar items crudos en el ref para tenerlos disponibles al seleccionar
+      data.data.forEach((item) => {
+        const option = mapOptionFn(item);
+        rawItemsRef.current.set(option.value, item);
+      });
 
       if (page === 1) {
         // Preservar defaultOption si no está en los resultados nuevos
@@ -337,12 +344,11 @@ export function FormSelectAsync({
                                     ? ""
                                     : option.value;
                                 field.onChange(newValue);
-                                // Llamar onValueChange si existe, pasando el item completo
+                                // Llamar onValueChange si existe, pasando el item completo desde el ref
                                 if (onValueChange) {
-                                  const selectedItem = data?.data?.find(
-                                    (item) =>
-                                      mapOptionFn(item).value === option.value,
-                                  );
+                                  const selectedItem = newValue
+                                    ? rawItemsRef.current.get(option.value)
+                                    : undefined;
                                   onValueChange(newValue, selectedItem);
                                 }
                                 setOpen(false);

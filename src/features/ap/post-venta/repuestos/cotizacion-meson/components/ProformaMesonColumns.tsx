@@ -7,7 +7,7 @@ import {
   Eye,
   PackageOpen,
   XCircle,
-  BadgePercent,
+  Percent,
 } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import {
@@ -58,7 +58,6 @@ export const orderQuotationMesonColumns = ({
       const value = getValue() as string;
       return value && <p className="font-semibold">{value}</p>;
     },
-    enableSorting: false,
   },
   {
     accessorKey: "quotation_date",
@@ -72,7 +71,6 @@ export const orderQuotationMesonColumns = ({
         return date;
       }
     },
-    enableSorting: false,
   },
   {
     accessorKey: "expiration_date",
@@ -86,7 +84,6 @@ export const orderQuotationMesonColumns = ({
         return date;
       }
     },
-    enableSorting: false,
   },
   {
     accessorKey: "collection_date",
@@ -100,17 +97,14 @@ export const orderQuotationMesonColumns = ({
         return date;
       }
     },
-    enableSorting: false,
   },
   {
     accessorKey: "client.full_name",
     header: "Cliente",
-    enableSorting: false,
   },
   {
     accessorKey: "vehicle.plate",
     header: "Placa",
-    enableSorting: false,
     cell: ({ getValue }) => {
       const value = getValue() as string;
       return value || "-";
@@ -119,7 +113,6 @@ export const orderQuotationMesonColumns = ({
   {
     accessorKey: "type_currency.name",
     header: "Moneda",
-    enableSorting: false,
   },
   {
     accessorKey: "total_amount",
@@ -129,37 +122,30 @@ export const orderQuotationMesonColumns = ({
       const currencySymbol = row.original.type_currency?.symbol || "S/.";
       return `${currencySymbol} ${Number(amount || 0).toFixed(2)}`;
     },
-    enableSorting: false,
   },
   {
     accessorKey: "observations",
     header: "Observaciones",
-    enableSorting: false,
   },
   {
     accessorKey: "discard_reason",
     header: "Motivo de Descarte",
-    enableSorting: false,
   },
   {
     accessorKey: "discarded_note",
     header: "Notas de Descarte",
-    enableSorting: false,
   },
   {
     accessorKey: "discarded_by_name",
     header: "Descartado Por",
-    enableSorting: false,
   },
   {
     accessorKey: "discarded_at",
     header: "Fecha de Descarte",
-    enableSorting: false,
   },
   {
     accessorKey: "supply_type",
     header: "Abastecimiento",
-    enableSorting: false,
   },
   {
     accessorKey: "is_fully_paid",
@@ -168,14 +154,30 @@ export const orderQuotationMesonColumns = ({
       const value = getValue() as boolean;
       return (
         <Badge
-          color={value ? "default" : "secondary"}
+          variant="outline"
+          color={value ? "green" : "red"}
           className="capitalize w-8 flex items-center justify-center"
         >
           {value ? "Sí" : "No"}
         </Badge>
       );
     },
-    enableSorting: false,
+  },
+  {
+    accessorKey: "has_management_discount",
+    header: "Dcto. Gerencial",
+    cell: ({ getValue }) => {
+      const value = getValue() as boolean;
+      return (
+        <Badge
+          variant="outline"
+          color={value ? "green" : "gray"}
+          className="capitalize w-8 flex items-center justify-center"
+        >
+          {value ? "Sí" : "No"}
+        </Badge>
+      );
+    },
   },
   {
     accessorKey: "status",
@@ -307,7 +309,7 @@ export const orderQuotationMesonColumns = ({
                 tooltip="Solicitar Descuento"
                 onClick={() => onRequestDiscount(id)}
               >
-                <BadgePercent className="size-5" />
+                <Percent className="size-5" />
               </Button>
             )}
 

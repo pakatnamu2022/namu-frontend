@@ -22,7 +22,7 @@ import { storeTransferReception } from "@/features/ap/post-venta/gestion-almacen
 export default function CreateTransferReceptionPage() {
   const router = useNavigate();
   const { currentView, checkRouteExists } = useCurrentModule();
-  const { MODEL } = TRANSFER_RECEPTION;
+  const { MODEL, ABSOLUTE_ROUTE } = TRANSFER_RECEPTION;
   const { productTransferId } = useParams<{ productTransferId: string }>();
   const productTransferIdNum = productTransferId
     ? parseInt(productTransferId)
@@ -35,9 +35,7 @@ export default function CreateTransferReceptionPage() {
     mutationFn: storeTransferReception,
     onSuccess: () => {
       successToast(SUCCESS_MESSAGE(MODEL, "create"));
-      router(
-        `/ap/post-venta/gestion-de-almacen/guia-remision/recepcion/${productTransferId}`,
-      );
+      router(`${ABSOLUTE_ROUTE}/recepcion/${productTransferId}`);
     },
     onError: (error: any) => {
       const msg = error?.response?.data?.message || "";
@@ -76,9 +74,7 @@ export default function CreateTransferReceptionPage() {
         isSubmitting={isPending}
         mode="create"
         onCancel={() =>
-          router(
-            `/ap/post-venta/gestion-de-almacen/guia-remision/recepcion/${productTransferId}`,
-          )
+          router(`${ABSOLUTE_ROUTE}/recepcion/${productTransferId}`)
         }
         itemType={productTransfer.item_type as "PRODUCTO" | "SERVICIO"}
         productTransferItems={productTransfer.details?.map((detail) => ({

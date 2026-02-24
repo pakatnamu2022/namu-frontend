@@ -11,6 +11,8 @@ import {
   Pencil,
   Tag,
   Percent,
+  CheckCircle,
+  XCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -26,21 +28,31 @@ import {
   ITEM_TYPE_LABOR,
   ORDER_QUOTATION_DETAILS,
 } from "../lib/proformaDetails.constants";
-import { storeOrderQuotationDetails } from "../lib/proformaDetails.actions";
+import {
+  storeOrderQuotationDetails,
+  updateOrderQuotationDetails,
+} from "../lib/proformaDetails.actions";
 import { OrderQuotationDetailsResource } from "../lib/proformaDetails.interface";
 import {
   laborDetailSchema,
   LaborDetailSchema,
 } from "../lib/proformaDetails.schema";
 import { FormInput } from "@/shared/components/FormInput";
+import { EditableCell } from "@/shared/components/EditableCell";
 import { DiscountRequestOrderQuotationResource } from "@/features/ap/post-venta/repuestos/descuento-cotizacion-meson/lib/discountRequestMeson.interface";
 import { DiscountRequestModal } from "@/features/ap/post-venta/repuestos/descuento-cotizacion-meson/components/DiscountRequestModal";
-import { deleteDiscountRequestOrderQuotation } from "@/features/ap/post-venta/repuestos/descuento-cotizacion-meson/lib/discountRequestMeson.actions";
-import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
+import {
+  approveDiscountRequestOrderQuotation,
+  rejectDiscountRequestOrderQuotation,
+} from "@/features/ap/post-venta/repuestos/descuento-cotizacion-meson/lib/discountRequestMeson.actions";
+import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import {
   TYPE_GLOBAL,
   TYPE_PARTIAL,
   DISCOUNT_REQUEST_MESON,
+  STATUS_APPROVED,
+  STATUS_PENDING,
+  STATUS_REJECTED,
 } from "@/features/ap/post-venta/repuestos/descuento-cotizacion-meson/lib/discountRequestMeson.constants";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
@@ -75,7 +87,6 @@ export default function LaborDetailsSection({
     useState<OrderQuotationDetailsResource | null>(null);
   const [editingRequest, setEditingRequest] =
     useState<DiscountRequestOrderQuotationResource | null>(null);
-  const [deleteId, setDeleteId] = useState<number | null>(null);
 
   const form = useForm({
     resolver: zodResolver(laborDetailSchema),
@@ -93,20 +104,33 @@ export default function LaborDetailsSection({
     },
   });
 
-  const { mutate: doDelete } = useMutation({
-    mutationFn: deleteDiscountRequestOrderQuotation,
+  const { mutate: doApprove, isPending: isApproving } = useMutation({
+    mutationFn: approveDiscountRequestOrderQuotation,
     onSuccess: () => {
-      successToast("Solicitud eliminada correctamente");
+      successToast("Solicitud aprobada correctamente");
       queryClient.invalidateQueries({
         queryKey: [DISCOUNT_REQUEST_MESON.QUERY_KEY],
       });
-      setDeleteId(null);
     },
     onError: (error: any) => {
       const message =
-        error?.response?.data?.message || "Error al eliminar la solicitud";
+        error?.response?.data?.message || "Error al aprobar la solicitud";
       errorToast(message);
-      setDeleteId(null);
+    },
+  });
+
+  const { mutate: doReject, isPending: isRejecting } = useMutation({
+    mutationFn: rejectDiscountRequestOrderQuotation,
+    onSuccess: () => {
+      successToast("Solicitud rechazada correctamente");
+      queryClient.invalidateQueries({
+        queryKey: [DISCOUNT_REQUEST_MESON.QUERY_KEY],
+      });
+    },
+    onError: (error: any) => {
+      const message =
+        error?.response?.data?.message || "Error al rechazar la solicitud";
+      errorToast(message);
     },
   });
 
@@ -134,6 +158,35 @@ export default function LaborDetailsSection({
     setModalOpen(false);
     setSelectedDetail(null);
     setEditingRequest(null);
+  };
+
+  const handleDiscountUpdate = async (
+    detail: OrderQuotationDetailsResource,
+    newPct: number,
+  ) => {
+    try {
+      const subtotal = detail.quantity * detail.unit_price;
+      const total_amount = subtotal - (subtotal * newPct) / 100;
+      await updateOrderQuotationDetails(detail.id, {
+        order_quotation_id: detail.order_quotation_id,
+        item_type: detail.item_type,
+        description: detail.description,
+        quantity: detail.quantity,
+        unit_measure: detail.unit_measure,
+        retail_price_external: detail.retail_price_external,
+        freight_commission: detail.freight_commission,
+        exchange_rate: detail.exchange_rate,
+        unit_price: detail.unit_price,
+        discount_percentage: newPct,
+        total_amount,
+        observations: detail.observations ?? undefined,
+      });
+      successToast("Descuento actualizado correctamente");
+      await onRefresh();
+    } catch (error: any) {
+      const msg = error?.response?.data?.message || "";
+      errorToast(msg || "Error al actualizar el descuento");
+    }
   };
 
   const onSubmit = async (data: LaborDetailSchema) => {
@@ -194,10 +247,21 @@ export default function LaborDetailsSection({
         r.type === TYPE_PARTIAL && r.ap_order_quotation_detail_id === detailId,
     );
 
+  // Calcular descuento máximo permitido (para formulario)
+  const globalApprovedRequest = discountRequests.find(
+    (r) => r.type === TYPE_GLOBAL && r.status === STATUS_APPROVED,
+  );
+  const maxDiscountAllowed = globalApprovedRequest
+    ? Number(globalApprovedRequest.requested_discount_percentage)
+    : 5;
+
   const baseAmountForModal =
     modalType === TYPE_GLOBAL
       ? globalBaseAmount
       : Number(selectedDetail?.total_amount || 0);
+
+  // Para el modal siempre permitir solicitar hasta 100% (es una solicitud, no aplicación directa)
+  const maxDiscountForModal = 100;
 
   return (
     <Card className="p-6">
@@ -243,16 +307,34 @@ export default function LaborDetailsSection({
               />
             </div>
 
-            <div className="sm:col-span-1 lg:col-span-2">
+            <div className="sm:col-span-1 lg:col-span-2 space-y-1">
               <FormInput
                 control={form.control}
                 name="discount_percentage"
                 label="Desc. %"
                 placeholder="Ej: 0.00"
-                className="h-9 text-xs"
+                className={
+                  globalApprovedRequest
+                    ? "h-9 text-xs border-green-400"
+                    : "h-9 text-xs"
+                }
                 inputMode="numeric"
                 type="number"
+                min={0}
+                max={maxDiscountAllowed}
+                onChange={(e) => {
+                  const val = e.target.value ? Number(e.target.value) : 0;
+                  if (val > maxDiscountAllowed) {
+                    form.setValue("discount_percentage", maxDiscountAllowed);
+                  } else {
+                    form.setValue("discount_percentage", val);
+                  }
+                }}
               />
+              <p className="text-[10px] font-medium text-green-600">
+                Máx. {globalApprovedRequest ? "aprobado" : "permitido"}:{" "}
+                {maxDiscountAllowed.toFixed(2)}%
+              </p>
             </div>
 
             <div className="sm:col-span-1 lg:col-span-3">
@@ -305,11 +387,42 @@ export default function LaborDetailsSection({
                     ).toFixed(2)}
                     %
                   </span>
-                  <Badge color={globalRequest.is_approved ? "green" : "orange"}>
-                    {globalRequest.is_approved ? "Aprobado" : "Pendiente"}
+                  <Badge
+                    color={
+                      globalRequest.status === STATUS_APPROVED
+                        ? "green"
+                        : globalRequest.status === STATUS_REJECTED
+                          ? "red"
+                          : "orange"
+                    }
+                  >
+                    {globalRequest.status === STATUS_APPROVED
+                      ? "Aprobado"
+                      : globalRequest.status === STATUS_REJECTED
+                        ? "Rechazado"
+                        : "Pendiente"}
                   </Badge>
-                  {!globalRequest.is_approved && (
+                  {globalRequest.status === STATUS_PENDING && (
                     <>
+                      <ConfirmationDialog
+                        trigger={
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            className="size-7 text-green-600 hover:text-green-600 hover:bg-green-50"
+                            tooltip="Aprobar solicitud global"
+                            disabled={isApproving}
+                          >
+                            <CheckCircle className="size-4" />
+                          </Button>
+                        }
+                        title="¿Aprobar solicitud?"
+                        description="Se aprobará el descuento global solicitado. ¿Deseas continuar?"
+                        confirmText="Sí, aprobar"
+                        cancelText="Cancelar"
+                        icon="info"
+                        onConfirm={() => doApprove(globalRequest.id)}
+                      />
                       <Button
                         variant="outline"
                         size="icon"
@@ -319,15 +432,26 @@ export default function LaborDetailsSection({
                       >
                         <Pencil className="size-4" />
                       </Button>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        className="size-7 text-destructive hover:text-destructive hover:bg-destructive/10"
-                        tooltip="Eliminar solicitud global"
-                        onClick={() => setDeleteId(globalRequest.id)}
-                      >
-                        <Trash2 className="size-4" />
-                      </Button>
+                      <ConfirmationDialog
+                        trigger={
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            className="size-7 text-destructive hover:text-destructive hover:bg-destructive/10"
+                            tooltip="Rechazar solicitud global"
+                            disabled={isRejecting}
+                          >
+                            <XCircle className="size-4" />
+                          </Button>
+                        }
+                        title="¿Rechazar solicitud?"
+                        description="Se rechazará el descuento global solicitado. ¿Deseas continuar?"
+                        confirmText="Sí, rechazar"
+                        cancelText="Cancelar"
+                        variant="destructive"
+                        icon="danger"
+                        onConfirm={() => doReject(globalRequest.id)}
+                      />
                     </>
                   )}
                 </div>
@@ -362,26 +486,32 @@ export default function LaborDetailsSection({
         ) : (
           <div className="border rounded-lg overflow-hidden">
             {/* Cabecera de tabla - oculta en móvil */}
-            <div className="hidden md:grid grid-cols-12 gap-3 bg-gray-100 px-4 py-2 text-xs font-semibold text-gray-700 border-b">
+            <div className="hidden md:grid grid-cols-12 gap-2 bg-gray-100 px-4 py-2 text-xs font-semibold text-gray-700 border-b">
               <div className="col-span-3">Descripción</div>
-              <div className="col-span-2 text-center">Horas</div>
-              <div className="col-span-2 text-right">Precio/Hora</div>
-              <div className="col-span-1 text-right">Desc.</div>
-              <div className="col-span-2 text-right">Total</div>
-              <div className="col-span-2 text-left">Desc. parcial</div>
+              <div className="col-span-1 text-center">Horas</div>
+              <div className="col-span-2 text-center">Precio/Hora</div>
+              <div className="col-span-1 text-center">Desc.</div>
+              <div className="col-span-2 text-center">Total</div>
+              <div className="col-span-3 text-right">Desc. parcial</div>
             </div>
 
             {/* Items */}
             <div className="divide-y">
               {laborDetails.map((detail) => {
                 const partialRequest = getPartialRequest(detail.id);
+                const approvedRequest =
+                  partialRequest?.status === STATUS_APPROVED
+                    ? partialRequest
+                    : globalRequest?.status === STATUS_APPROVED
+                      ? globalRequest
+                      : null;
                 return (
                   <div
                     key={detail.id}
                     className="px-4 py-3 hover:bg-gray-50 transition-colors"
                   >
                     {/* Vista Desktop */}
-                    <div className="hidden md:grid grid-cols-12 gap-3 items-center">
+                    <div className="hidden md:grid grid-cols-12 gap-2 items-center">
                       <div className="col-span-3">
                         <p className="text-sm font-medium text-gray-900 truncate">
                           {detail.description}
@@ -393,7 +523,7 @@ export default function LaborDetailsSection({
                         )}
                       </div>
 
-                      <div className="col-span-2 text-center">
+                      <div className="col-span-1 text-center">
                         <span className="text-sm font-medium">
                           {detail.quantity}{" "}
                           <span className="text-xs text-gray-500">
@@ -402,25 +532,41 @@ export default function LaborDetailsSection({
                         </span>
                       </div>
 
-                      <div className="col-span-2 text-right">
+                      <div className="col-span-2 text-center">
                         <span className="text-sm">
                           {formatCurrency(detail.unit_price)}
                         </span>
                       </div>
 
-                      <div className="col-span-1 text-right">
-                        <span className="text-sm text-orange-600">
-                          -{detail.discount_percentage}%
-                        </span>
+                      {/* Columna Desc. — editable si hay solicitud aprobada */}
+                      <div className="col-span-1 text-center">
+                        {approvedRequest ? (
+                          <EditableCell
+                            id={detail.id}
+                            value={detail.discount_percentage}
+                            min={0}
+                            max={Number(
+                              approvedRequest.requested_discount_percentage,
+                            )}
+                            widthClass="w-16"
+                            onUpdate={(_id, val) =>
+                              handleDiscountUpdate(detail, Number(val))
+                            }
+                          />
+                        ) : (
+                          <span className="text-sm text-orange-600">
+                            -{detail.discount_percentage}%
+                          </span>
+                        )}
                       </div>
 
-                      <div className="col-span-2 text-right">
+                      <div className="col-span-2 text-center">
                         <span className="text-sm font-bold text-primary">
                           {formatCurrency(detail.total_amount)}
                         </span>
                       </div>
 
-                      <div className="col-span-2">
+                      <div className="col-span-3 flex justify-end">
                         {partialRequest ? (
                           <div className="flex items-center gap-1 flex-wrap">
                             <span className="text-xs font-semibold">
@@ -431,15 +577,40 @@ export default function LaborDetailsSection({
                             </span>
                             <Badge
                               color={
-                                partialRequest.is_approved ? "green" : "orange"
+                                partialRequest.status === STATUS_APPROVED
+                                  ? "green"
+                                  : partialRequest.status === STATUS_REJECTED
+                                    ? "red"
+                                    : "orange"
                               }
                             >
-                              {partialRequest.is_approved
+                              {partialRequest.status === STATUS_APPROVED
                                 ? "Aprobado"
-                                : "Pendiente"}
+                                : partialRequest.status === STATUS_REJECTED
+                                  ? "Rechazado"
+                                  : "Pendiente"}
                             </Badge>
-                            {!partialRequest.is_approved && (
+                            {partialRequest.status === STATUS_PENDING && (
                               <>
+                                <ConfirmationDialog
+                                  trigger={
+                                    <Button
+                                      variant="outline"
+                                      size="icon"
+                                      className="size-7 text-green-600 hover:text-green-600 hover:bg-green-50"
+                                      tooltip="Aprobar solicitud"
+                                      disabled={isApproving}
+                                    >
+                                      <CheckCircle className="size-4" />
+                                    </Button>
+                                  }
+                                  title="¿Aprobar solicitud?"
+                                  description="Se aprobará el descuento parcial solicitado. ¿Deseas continuar?"
+                                  confirmText="Sí, aprobar"
+                                  cancelText="Cancelar"
+                                  icon="info"
+                                  onConfirm={() => doApprove(partialRequest.id)}
+                                />
                                 <Button
                                   variant="outline"
                                   size="icon"
@@ -451,15 +622,26 @@ export default function LaborDetailsSection({
                                 >
                                   <Pencil className="size-4" />
                                 </Button>
-                                <Button
-                                  variant="outline"
-                                  size="icon"
-                                  className="size-7 text-destructive hover:text-destructive hover:bg-destructive/10"
-                                  tooltip="Eliminar solicitud"
-                                  onClick={() => setDeleteId(partialRequest.id)}
-                                >
-                                  <Trash2 className="size-4" />
-                                </Button>
+                                <ConfirmationDialog
+                                  trigger={
+                                    <Button
+                                      variant="outline"
+                                      size="icon"
+                                      className="size-7 text-destructive hover:text-destructive hover:bg-destructive/10"
+                                      tooltip="Rechazar solicitud"
+                                      disabled={isRejecting}
+                                    >
+                                      <XCircle className="size-4" />
+                                    </Button>
+                                  }
+                                  title="¿Rechazar solicitud?"
+                                  description="Se rechazará el descuento parcial solicitado. ¿Deseas continuar?"
+                                  confirmText="Sí, rechazar"
+                                  cancelText="Cancelar"
+                                  variant="destructive"
+                                  icon="danger"
+                                  onConfirm={() => doReject(partialRequest.id)}
+                                />
                               </>
                             )}
                           </div>
@@ -516,11 +698,26 @@ export default function LaborDetailsSection({
                             {formatCurrency(detail.unit_price)}
                           </span>
                         </div>
-                        <div>
+                        <div className="flex items-center gap-1">
                           <span className="text-gray-500">Desc:</span>
-                          <span className="font-medium ml-1 text-orange-600">
-                            -{formatCurrency(detail.discount_percentage)}
-                          </span>
+                          {approvedRequest ? (
+                            <EditableCell
+                              id={detail.id}
+                              value={detail.discount_percentage}
+                              min={0}
+                              max={Number(
+                                approvedRequest.requested_discount_percentage,
+                              )}
+                              widthClass="w-16"
+                              onUpdate={(_id, val) =>
+                                handleDiscountUpdate(detail, Number(val))
+                              }
+                            />
+                          ) : (
+                            <span className="font-medium ml-1 text-orange-600">
+                              -{detail.discount_percentage}%
+                            </span>
+                          )}
                         </div>
                         <div className="text-right">
                           <span className="text-gray-500">Total:</span>
@@ -543,17 +740,41 @@ export default function LaborDetailsSection({
                               </span>
                               <Badge
                                 color={
-                                  partialRequest.is_approved
+                                  partialRequest.status === STATUS_APPROVED
                                     ? "green"
-                                    : "orange"
+                                    : partialRequest.status === STATUS_REJECTED
+                                      ? "red"
+                                      : "orange"
                                 }
                               >
-                                {partialRequest.is_approved
+                                {partialRequest.status === STATUS_APPROVED
                                   ? "Aprobado"
-                                  : "Pendiente"}
+                                  : partialRequest.status === STATUS_REJECTED
+                                    ? "Rechazado"
+                                    : "Pendiente"}
                               </Badge>
-                              {!partialRequest.is_approved && (
+                              {partialRequest.status === STATUS_PENDING && (
                                 <>
+                                  <ConfirmationDialog
+                                    trigger={
+                                      <Button
+                                        variant="outline"
+                                        size="icon"
+                                        className="size-7 text-green-600 hover:text-green-600 hover:bg-green-50"
+                                        disabled={isApproving}
+                                      >
+                                        <CheckCircle className="size-4" />
+                                      </Button>
+                                    }
+                                    title="¿Aprobar solicitud?"
+                                    description="Se aprobará el descuento parcial solicitado. ¿Deseas continuar?"
+                                    confirmText="Sí, aprobar"
+                                    cancelText="Cancelar"
+                                    icon="info"
+                                    onConfirm={() =>
+                                      doApprove(partialRequest.id)
+                                    }
+                                  />
                                   <Button
                                     variant="outline"
                                     size="icon"
@@ -564,16 +785,27 @@ export default function LaborDetailsSection({
                                   >
                                     <Pencil className="size-4" />
                                   </Button>
-                                  <Button
-                                    variant="outline"
-                                    size="icon"
-                                    className="size-7 text-destructive hover:text-destructive hover:bg-destructive/10"
-                                    onClick={() =>
-                                      setDeleteId(partialRequest.id)
+                                  <ConfirmationDialog
+                                    trigger={
+                                      <Button
+                                        variant="outline"
+                                        size="icon"
+                                        className="size-7 text-destructive hover:text-destructive hover:bg-destructive/10"
+                                        disabled={isRejecting}
+                                      >
+                                        <XCircle className="size-4" />
+                                      </Button>
                                     }
-                                  >
-                                    <Trash2 className="size-4" />
-                                  </Button>
+                                    title="¿Rechazar solicitud?"
+                                    description="Se rechazará el descuento parcial solicitado. ¿Deseas continuar?"
+                                    confirmText="Sí, rechazar"
+                                    cancelText="Cancelar"
+                                    variant="destructive"
+                                    icon="danger"
+                                    onConfirm={() =>
+                                      doReject(partialRequest.id)
+                                    }
+                                  />
                                 </>
                               )}
                             </div>
@@ -611,15 +843,8 @@ export default function LaborDetailsSection({
         currencySymbol={currencySymbol}
         existingRequest={editingRequest ?? undefined}
         itemType="LABOR"
+        maxDiscount={maxDiscountForModal}
       />
-
-      {deleteId !== null && (
-        <SimpleDeleteDialog
-          open={true}
-          onOpenChange={(open) => !open && setDeleteId(null)}
-          onConfirm={() => Promise.resolve(doDelete(deleteId))}
-        />
-      )}
     </Card>
   );
 }

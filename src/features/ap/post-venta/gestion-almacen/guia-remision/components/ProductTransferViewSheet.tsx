@@ -20,11 +20,15 @@ import {
   User,
   Building2,
   CreditCard,
+  Copy,
+  Check,
+  Tag,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { ProductTransferDetailResource } from "@/features/ap/post-venta/gestion-almacen/guia-remision/lib/productTransfer.interface.ts";
 import GeneralSheet from "@/shared/components/GeneralSheet.tsx";
 import { findProductTransferById } from "@/features/ap/post-venta/gestion-almacen/guia-remision/lib/productTransfer.actions.ts";
+import { useState } from "react";
 
 interface ProductTransferViewSheetProps {
   open: boolean;
@@ -62,6 +66,8 @@ export function ProductTransferViewSheet({
   onOpenChange,
   transferId,
 }: ProductTransferViewSheetProps) {
+  const [copiedCode, setCopiedCode] = useState<string | null>(null);
+
   const { data: transferData, isLoading } = useQuery({
     queryKey: ["product-transfer-detail", transferId],
     queryFn: () => findProductTransferById(transferId),
@@ -71,6 +77,18 @@ export function ProductTransferViewSheet({
   const formatDate = (date: string | null) => {
     if (!date) return "-";
     return format(new Date(date), "dd/MM/yyyy HH:mm", { locale: es });
+  };
+
+  const handleCopyCode = async (code: string, identifier: string) => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopiedCode(identifier);
+      setTimeout(() => {
+        setCopiedCode(null);
+      }, 2000);
+    } catch (err) {
+      console.error("Error al copiar:", err);
+    }
   };
 
   return (
@@ -186,6 +204,18 @@ export function ProductTransferViewSheet({
                         </p>
                         <p className="text-base font-semibold">
                           {transferData.reference.document_number}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-2">
+                      <FileCheck className="size-5 text-muted-foreground mt-0.5" />
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">
+                          Número de Documento Dynamics
+                        </p>
+                        <p className="text-base font-semibold">
+                          {transferData.reference.dyn_series}
                         </p>
                       </div>
                     </div>
@@ -479,53 +509,97 @@ export function ProductTransferViewSheet({
             </h3>
             <div className="space-y-3">
               {transferData.details.map(
-                (detail: ProductTransferDetailResource, index: number) => (
-                  <div key={detail.id} className="border rounded-lg p-4">
-                    <div className="flex justify-between items-start gap-4">
+                (detail: ProductTransferDetailResource) => (
+                  <div
+                    key={detail.id}
+                    className="p-3 rounded-lg border bg-card"
+                  >
+                    <div className="flex justify-between items-start gap-3 mb-2">
                       <div className="flex-1 min-w-0">
                         {detail.product ? (
                           <>
-                            <p className="font-semibold">
+                            <p className="font-semibold text-sm truncate">
                               {detail.product.name}
                             </p>
-                            <p className="text-sm text-muted-foreground">
-                              Código: {detail.product.code} | Código Dinámico:{" "}
-                              {detail.product.dyn_code}
-                            </p>
+                            <div className="flex items-center gap-2 mt-1 flex-wrap">
+                              {detail.product.code && (
+                                <div className="flex items-center gap-1">
+                                  <Badge variant="outline" className="text-xs">
+                                    <Tag className="size-3 mr-1" />
+                                    {detail.product.code}
+                                  </Badge>
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-5 w-5 p-0 hover:bg-slate-200"
+                                    onClick={() =>
+                                      handleCopyCode(
+                                        detail.product!.code,
+                                        `product-${detail.id}`,
+                                      )
+                                    }
+                                  >
+                                    {copiedCode === `product-${detail.id}` ? (
+                                      <Check className="h-3 w-3 text-green-600" />
+                                    ) : (
+                                      <Copy className="h-3 w-3" />
+                                    )}
+                                  </Button>
+                                </div>
+                              )}
+                              {detail.product.dyn_code && (
+                                <div className="flex items-center gap-1">
+                                  <Badge variant="outline" className="text-xs">
+                                    <Tag className="size-3 mr-1" />
+                                    Dyn: {detail.product.dyn_code}
+                                  </Badge>
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-5 w-5 p-0 hover:bg-slate-200"
+                                    onClick={() =>
+                                      handleCopyCode(
+                                        String(detail.product!.dyn_code),
+                                        `dyn-${detail.id}`,
+                                      )
+                                    }
+                                  >
+                                    {copiedCode === `dyn-${detail.id}` ? (
+                                      <Check className="h-3 w-3 text-green-600" />
+                                    ) : (
+                                      <Copy className="h-3 w-3" />
+                                    )}
+                                  </Button>
+                                </div>
+                              )}
+                            </div>
                             {detail.product.description && (
-                              <p className="text-sm text-muted-foreground mt-1">
+                              <p className="text-xs text-muted-foreground mt-1">
                                 {detail.product.description}
-                              </p>
-                            )}
-                            {detail.notes && (
-                              <p className="text-sm text-muted-foreground mt-1">
-                                {detail.notes}
                               </p>
                             )}
                           </>
                         ) : (
-                          <p className="font-semibold">
+                          <p className="font-semibold text-sm">
                             {detail.notes || "Servicio sin descripción"}
                           </p>
                         )}
                       </div>
-                      <div className="flex items-center gap-3 shrink-0">
-                        <div className="text-right">
-                          <p className="text-xs text-muted-foreground mb-1">
-                            Cantidad
-                          </p>
-                          <Badge
-                            color="secondary"
-                            className="text-sm font-semibold"
-                          >
-                            {detail.quantity}
-                          </Badge>
-                        </div>
-                        <Badge variant="outline" className="ml-2">
-                          #{index + 1}
+                      <div className="text-right shrink-0">
+                        <Badge color="default" className="text-xs h-6">
+                          {Number(detail.quantity).toFixed(2)}
                         </Badge>
                       </div>
                     </div>
+                    {detail.notes && detail.product && (
+                      <div className="mt-2 pt-2 border-t">
+                        <p className="text-xs text-muted-foreground">
+                          Nota: {detail.notes}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 ),
               )}
