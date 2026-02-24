@@ -64,6 +64,7 @@ import {
   TYPE_GLOBAL,
   TYPE_PARTIAL,
 } from "@/features/ap/post-venta/repuestos/descuento-cotizacion-meson/lib/discountRequestMeson.constants";
+import { STATUS_ORDER_QUOTATION } from "../../../taller/cotizacion/lib/proforma.constants";
 
 const onSelectSupplyType = [
   { label: "Stock", value: "STOCK" },
@@ -80,6 +81,7 @@ function ProductDetailItem({
   stockData,
   defaultProductOption,
   approvedDiscount,
+  isDetailsDisabled = false,
 }: {
   index: number;
   form: any;
@@ -89,6 +91,7 @@ function ProductDetailItem({
   defaultProductOption?: { value: string; label: string };
   detailId?: number;
   approvedDiscount?: number;
+  isDetailsDisabled?: boolean;
 }) {
   const productId = form.watch(`details.${index}.product_id`);
   const { data: productData } = useProductById(Number(productId) || 0);
@@ -162,6 +165,7 @@ function ProductDetailItem({
                 perPage={10}
                 debounceMs={500}
                 defaultOption={defaultProductOption}
+                disabled={isDetailsDisabled}
               />
             </div>
           </div>
@@ -317,6 +321,7 @@ function ProductDetailItem({
                     {...field}
                     onChange={(e) => field.onChange(Number(e.target.value))}
                     className="h-9"
+                    disabled={isDetailsDisabled}
                   />
                 </FormControl>
                 <FormMessage />
@@ -346,6 +351,7 @@ function ProductDetailItem({
                     }
                     onPaste={(e) => handlePaste(e, field)}
                     className="h-9"
+                    disabled={isDetailsDisabled}
                   />
                 </FormControl>
                 <FormMessage />
@@ -403,6 +409,7 @@ function ProductDetailItem({
                         ? "h-9 border-green-400"
                         : "h-9"
                     }
+                    disabled={isDetailsDisabled}
                   />
                 </FormControl>
                 <p className="text-[10px] font-medium mt-0.5 text-green-600">
@@ -443,6 +450,7 @@ function ProductDetailItem({
             size="icon"
             className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
             onClick={onRemove}
+            disabled={isDetailsDisabled}
           >
             <Trash2 className="h-4 w-4" />
           </Button>
@@ -471,6 +479,7 @@ function ProductDetailItem({
             size="icon"
             className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
             onClick={onRemove}
+            disabled={isDetailsDisabled}
           >
             <Trash2 className="h-4 w-4" />
           </Button>
@@ -489,6 +498,7 @@ function ProductDetailItem({
           perPage={10}
           debounceMs={500}
           defaultOption={defaultProductOption}
+          disabled={isDetailsDisabled}
         />
 
         {/* Mostrar stock inline debajo del selector - Mobile */}
@@ -624,6 +634,7 @@ function ProductDetailItem({
                     {...field}
                     onChange={(e) => field.onChange(Number(e.target.value))}
                     className="h-9"
+                    disabled={isDetailsDisabled}
                   />
                 </FormControl>
                 <FormMessage />
@@ -651,6 +662,7 @@ function ProductDetailItem({
                     }
                     onPaste={(e) => handlePaste(e, field)}
                     className="h-9"
+                    disabled={isDetailsDisabled}
                   />
                 </FormControl>
                 <FormMessage />
@@ -704,6 +716,7 @@ function ProductDetailItem({
                         ? "h-9 border-green-400"
                         : "h-9"
                     }
+                    disabled={isDetailsDisabled}
                   />
                 </FormControl>
                 <p className="text-[10px] font-medium mt-0.5 text-green-600">
@@ -750,6 +763,7 @@ function ProductDetailItem({
                   value={field.value || ""}
                   placeholder="Opcional"
                   className="h-9"
+                  disabled={isDetailsDisabled}
                 />
               </FormControl>
               <FormMessage />
@@ -791,6 +805,12 @@ export default function ProformaMesonForm({
     null,
   );
   const [isPartModalOpen, setIsPartModalOpen] = useState(false);
+
+  // Determinar si los detalles deben estar deshabilitados
+  const isDetailsDisabled =
+    mode === "update" &&
+    (quotationData?.status === STATUS_ORDER_QUOTATION.TO_BILL ||
+      quotationData?.has_management_discount);
 
   const form = useForm<QuotationMesonWithProductsSchema>({
     resolver: zodResolver(
@@ -1180,6 +1200,7 @@ export default function ProformaMesonForm({
                 onClick={() => setIsPartModalOpen(true)}
                 size="sm"
                 variant="outline"
+                disabled={isDetailsDisabled}
               >
                 <PackagePlus className="h-4 w-4 mr-2" />
                 Crear Repuesto
@@ -1188,7 +1209,7 @@ export default function ProformaMesonForm({
                 type="button"
                 onClick={addProduct}
                 size="sm"
-                disabled={!quotationDate}
+                disabled={!quotationDate || isDetailsDisabled}
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Agregar Repuesto
@@ -1293,6 +1314,7 @@ export default function ProformaMesonForm({
                       defaultProductOption={defaultProductOption}
                       detailId={originalDetail?.id}
                       approvedDiscount={approvedDiscount}
+                      isDetailsDisabled={isDetailsDisabled}
                     />
                   );
                 })}

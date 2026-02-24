@@ -27,6 +27,7 @@ interface Props {
   onView?: (id: number) => void;
   onSendToNubefact?: (id: number) => void;
   onQueryFromNubefact?: (id: number) => void;
+  onReceive?: (id: number) => void;
   permissions: {
     canUpdate: boolean;
     canDelete: boolean;
@@ -34,7 +35,6 @@ interface Props {
     canReceive?: boolean;
   };
   routeUpdate?: string;
-  routeReception?: string;
   warehouseId?: string;
 }
 
@@ -43,14 +43,14 @@ export const productTransferColumns = ({
   onView,
   onSendToNubefact,
   onQueryFromNubefact,
+  onReceive,
   permissions,
   routeUpdate,
-  routeReception,
   warehouseId,
 }: Props): ProductTransferColumns[] => [
   {
-    id: "guia_info",
-    header: "Guía de Remisión",
+    id: "nro_reference",
+    header: "Nro Referencia",
     cell: ({ row }) => {
       const { reference } = row.original;
       if (!reference) return "-";
@@ -60,10 +60,21 @@ export const productTransferColumns = ({
           <span className="font-mono text-sm font-semibold">
             {reference.document_number}
           </span>
-          <span className="text-xs text-muted-foreground">
-            {reference.document_type === "GUIA_REMISION"
-              ? "Guía Remisión"
-              : "Guía Traslado"}
+        </div>
+      );
+    },
+  },
+  {
+    id: "nro_reference_dyn",
+    header: "Nro Dynamics",
+    cell: ({ row }) => {
+      const { reference } = row.original;
+      if (!reference) return "-";
+
+      return (
+        <div className="flex flex-col gap-1">
+          <span className="font-mono text-sm font-semibold">
+            {reference.dyn_series}
           </span>
         </div>
       );
@@ -380,20 +391,19 @@ export const productTransferColumns = ({
           {/* Recepcionar - Solo destino, enviado, aceptado por SUNAT y no recepcionado aún */}
           {isDestination &&
             permissions.canReceive &&
-            routeReception &&
+            onReceive &&
             isSent &&
             isAcceptedBySunat &&
             !isReceived && (
-              <Link to={`${routeReception}/${id}`}>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="size-7"
-                  tooltip="Recepcionar"
-                >
-                  <PackageCheck className="size-4" />
-                </Button>
-              </Link>
+              <Button
+                variant="outline"
+                size="icon"
+                className="size-7"
+                tooltip="Recepcionar"
+                onClick={() => onReceive(id)}
+              >
+                <PackageCheck className="size-4" />
+              </Button>
             )}
 
           {/* Editar - Solo origen, oculto si fue aceptada por SUNAT */}

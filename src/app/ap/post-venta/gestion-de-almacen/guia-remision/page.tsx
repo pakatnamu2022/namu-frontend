@@ -30,11 +30,14 @@ import {
   useSendShippingGuideToNubefact,
   useQueryShippingGuideFromNubefact,
 } from "@/features/ap/post-venta/gestion-almacen/guia-remision/lib/productTransfer.hook.ts";
+import { getAllTransferReceptions } from "@/features/ap/post-venta/gestion-almacen/recepcion-transferencia/lib/transferReception.actions.ts";
+import { useNavigate } from "react-router-dom";
 import { ProductTransferViewSheet } from "@/features/ap/post-venta/gestion-almacen/guia-remision/components/ProductTransferViewSheet.tsx";
 import { useMyPhysicalWarehouse } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook.ts";
 
 export default function ProductTransferPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
+  const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
@@ -119,6 +122,19 @@ export default function ProductTransferPage() {
     });
   };
 
+  const handleReceive = async (id: number) => {
+    const ROUTE_RECEPTION =
+      "/ap/post-venta/gestion-de-almacen/guia-remision/recepcion";
+    const receptions = await getAllTransferReceptions({
+      productTransferId: id,
+    });
+    if (receptions.length === 0) {
+      navigate(`${ROUTE_RECEPTION}/agregar/${id}`);
+    } else {
+      navigate(`${ROUTE_RECEPTION}/${id}`);
+    }
+  };
+
   const handleQueryFromNubefact = (id: number) => {
     queryFromNubefactMutation.mutate(id, {
       onSettled: () => {
@@ -152,9 +168,8 @@ export default function ProductTransferPage() {
             ...permissions,
             canReceive: permissions.canCreate,
           },
+          onReceive: handleReceive,
           routeUpdate: ROUTE_UPDATE,
-          routeReception:
-            "/ap/post-venta/gestion-de-almacen/guia-remision/recepcion",
           warehouseId,
         })}
         data={data?.data || []}

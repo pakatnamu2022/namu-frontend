@@ -1,4 +1,4 @@
-  import GeneralSheet from "@/shared/components/GeneralSheet";
+import GeneralSheet from "@/shared/components/GeneralSheet";
 import {
   Table,
   TableBody,
@@ -53,7 +53,7 @@ export function OrderQuotationDeliverySheet({
     <GeneralSheet
       open={open}
       onClose={onClose}
-      title="Salida de Inventario"
+      title="Entrega de Repuestos"
       subtitle={
         orderQuotation
           ? `Cotización ${orderQuotation.quotation_number}`
@@ -105,7 +105,11 @@ function DeliverySheetContent({
 }: DeliverySheetContentProps) {
   const queryClient = useQueryClient();
   const currencySymbol = orderQuotation.type_currency?.symbol || "S/.";
-  const alreadyDelivered = orderQuotation.output_generation_warehouse;
+  const alreadyDelivered =
+    orderQuotation.delivery_document_number &&
+    orderQuotation.delivery_document_number.trim() !== "" &&
+    orderQuotation.customer_signature_delivery_url &&
+    orderQuotation.customer_signature_delivery_url.trim() !== "";
 
   const form = useForm<DeliveryFormData>({
     resolver: zodResolver(deliverySchema),
@@ -119,7 +123,7 @@ function DeliverySheetContent({
     mutationFn: (data: DeliveryFormData) =>
       deliverInventoryOutput(orderQuotation.id, data),
     onSuccess: () => {
-      successToast("Salida de inventario generada correctamente");
+      successToast("Entrega generada correctamente");
       queryClient.invalidateQueries({
         queryKey: ["orderQuotationDelivery", orderQuotation.id],
       });
@@ -209,33 +213,42 @@ function DeliverySheetContent({
       {/* Sección de firma y DNI */}
       {alreadyDelivered ? (
         <div className="space-y-4">
-          <h3 className="font-semibold text-lg">Datos de Recepción</h3>
-          <div className="bg-green-50 border border-green-200 p-4 rounded-lg space-y-4">
-            <div>
-              <p className="text-xs text-muted-foreground mb-1 flex items-center gap-1">
-                <IdCard className="h-3 w-3" /> DNI del Receptor
-              </p>
-              <p className="text-sm font-semibold">
-                {orderQuotation.delivery_document_number || "N/A"}
-              </p>
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground mb-2 flex items-center gap-1">
-                <PenLine className="h-3 w-3" /> Firma del Receptor
-              </p>
-              {orderQuotation.customer_signature_delivery_url ? (
-                <SignaturePad
-                  label="Firma del Receptor"
-                  value={orderQuotation.customer_signature_delivery_url}
-                  onChange={() => {}}
-                  disabled
-                />
-              ) : (
-                <p className="text-sm text-muted-foreground italic">
-                  No hay firma registrada
+          <div className="flex items-center justify-between">
+            <h3 className="font-semibold text-lg">Datos de Recepción</h3>
+            <div className="flex items-center gap-2 bg-blue-100 px-3 py-1.5 rounded-md">
+              <IdCard className="h-4 w-4 text-blue-700" />
+              <div className="text-right">
+                <p className="text-[10px] text-blue-600 font-medium">DNI</p>
+                <p className="text-sm font-bold text-blue-900">
+                  {orderQuotation.delivery_document_number || "N/A"}
                 </p>
-              )}
+              </div>
             </div>
+          </div>
+
+          <div className="bg-linear-to-br from-slate-50 to-slate-100/50 border border-slate-200 p-5 rounded-lg">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="p-2 bg-slate-600 rounded-lg">
+                <PenLine className="h-4 w-4 text-white" />
+              </div>
+              <p className="text-sm text-slate-700 font-medium">
+                Firma del Receptor
+              </p>
+            </div>
+            {orderQuotation.customer_signature_delivery_url ? (
+              <div className="flex justify-center items-center bg-white border-2 border-dashed border-slate-300 rounded-lg p-4 min-h-[120px]">
+                <img
+                  src={orderQuotation.customer_signature_delivery_url}
+                  alt="Firma del receptor"
+                  className="h-24 w-auto object-contain"
+                  style={{ imageRendering: "auto" }}
+                />
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground italic text-center py-10">
+                No hay firma registrada
+              </p>
+            )}
           </div>
         </div>
       ) : (
@@ -297,16 +310,14 @@ function DeliverySheetContent({
             <div className="flex justify-end">
               <Button
                 type="submit"
-                disabled={
-                  deliverMutation.isPending || !form.formState.isValid
-                }
+                disabled={deliverMutation.isPending || !form.formState.isValid}
               >
                 {deliverMutation.isPending && (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 )}
                 {deliverMutation.isPending
-                  ? "Generando salida..."
-                  : "Confirmar Salida de Inventario"}
+                  ? "Generando entrega..."
+                  : "Confirmar Entrega"}
               </Button>
             </div>
           </form>

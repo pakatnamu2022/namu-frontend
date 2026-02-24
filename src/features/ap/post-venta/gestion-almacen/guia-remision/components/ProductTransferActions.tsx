@@ -28,7 +28,7 @@ export default function ProductTransferActions({ permissions }: Props) {
         className="ml-auto"
         onClick={() => router(ROUTE_ADD!)}
       >
-        <Plus className="size-4 mr-2" /> Agregar Transferencia
+        <Plus className="size-4 mr-2" /> Agregar guía
       </Button>
     </ActionsWrapper>
   );
