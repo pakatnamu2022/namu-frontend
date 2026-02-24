@@ -84,8 +84,8 @@ export default function TransferReceptionsPage() {
           </Button>
           <div className="flex-1">
             <TitleComponent
-              title={`Recepciones - Transferencia`}
-              subtitle={`Gestión de Transferencia: ${productTransfer.movement_number}`}
+              title={`Recepciones - ${productTransfer.movement_number}`}
+              subtitle="Gestión de recepciones de transferencia"
               icon="PackageCheck"
             />
           </div>

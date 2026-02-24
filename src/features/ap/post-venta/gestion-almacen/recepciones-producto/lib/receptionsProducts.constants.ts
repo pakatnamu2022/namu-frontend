@@ -25,3 +25,15 @@ export const RECEPTION_TYPES = [
   { value: "GIFT", label: "Regalo" },
   { value: "SAMPLE", label: "Muestra" },
 ] as const;
+
+/**
+ * Traducciones para status
+ */
+export function translateStatusPurchase(status?: string | null): string {
+  const translations: Record<string, string> = {
+    APPROVED: "Aprobado",
+    PARTIAL: "Parcial",
+    INCOMPLETE: "Incompleto",
+  };
+  return status ? (translations[status] ?? status) : "-";
+}
