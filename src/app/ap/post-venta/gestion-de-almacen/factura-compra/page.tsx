@@ -16,6 +16,11 @@ import PurchaseOrderWarehouseActions from "@/features/ap/post-venta/gestion-alma
 import PurchaseOrderWarehouseOptions from "@/features/ap/post-venta/gestion-almacen/factura-compra/components/PurchaseOrderWarehouseOptions";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import { CM_POSTVENTA_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
+import { ERROR_MESSAGE, errorToast, successToast } from "@/core/core.function";
+import {
+  dispatchSyncCreditNote,
+  dispatchSyncInvoice,
+} from "@/features/ap/comercial/ordenes-compra-vehiculo/lib/vehiclePurchaseOrder.actions";
 
 export default function PurchaseOrderWarehousePage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -23,7 +28,7 @@ export default function PurchaseOrderWarehousePage() {
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
   const [sedeId, setSedeId] = useState<string>("");
-  const { ROUTE } = PURCHASE_INVOICE_PV;
+  const { ROUTE, MODEL } = PURCHASE_INVOICE_PV;
 
   const { data, isLoading, isFetching, refetch } = useVehiclePurchaseOrder({
     page,
@@ -42,6 +47,36 @@ export default function PurchaseOrderWarehousePage() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sedes]);
+
+  const handleRequestInvoice = async (purchaseOrderId: number) => {
+    await dispatchSyncInvoice(purchaseOrderId)
+      .then((response) => {
+        if (response.message) {
+          successToast(response.message);
+        }
+        refetch();
+      })
+      .catch((error: any) => {
+        const errorMsg =
+          error.response?.data?.message || ERROR_MESSAGE(MODEL, "fetch");
+        errorToast(errorMsg);
+      });
+  };
+
+  const handleRequestCreditNote = async (purchaseOrderId: number) => {
+    await dispatchSyncCreditNote(purchaseOrderId)
+      .then((response) => {
+        if (response.message) {
+          successToast(response.message);
+        }
+        refetch();
+      })
+      .catch((error: any) => {
+        const errorMsg =
+          error.response?.data?.message || ERROR_MESSAGE(MODEL, "fetch");
+        errorToast(errorMsg);
+      });
+  };
 
   if (isLoadingModule) return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
@@ -63,8 +98,8 @@ export default function PurchaseOrderWarehousePage() {
       <VehiclePurchaseOrderTable
         isLoading={isLoading}
         columns={vehiclePurchaseOrderColumns({
-          onRequestInvoice: () => {}, // No se maneja en esta vista
-          onRequestCreditNote: () => {}, // No se maneja en esta vista
+          onRequestInvoice: handleRequestInvoice,
+          onRequestCreditNote: handleRequestCreditNote,
         })}
         data={data?.data || []}
       >

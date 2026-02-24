@@ -3,12 +3,11 @@
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import PageSkeleton from "@/shared/components/PageSkeleton";
 import { notFound } from "@/shared/hooks/useNotFound";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useOrderQuotationById } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.hook";
 import { ORDER_QUOTATION_MESON } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.constants";
-import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import FormWrapper from "@/shared/components/FormWrapper";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -16,33 +15,43 @@ import { DiscountRequestModal } from "@/features/ap/post-venta/repuestos/descuen
 import { OrderQuotationDetailsResource } from "@/features/ap/post-venta/taller/cotizacion-detalle/lib/proformaDetails.interface";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { CheckCircle, Pencil, Percent, Tag, Trash2 } from "lucide-react";
-import { useDiscountRequestsByQuotation } from "@/features/ap/post-venta/repuestos/descuento-cotizacion-meson/lib/discountRequestMeson.hook";
+import { CheckCircle, Pencil, Percent, Tag, XCircle } from "lucide-react";
+import { useDiscountRequestsQuotation } from "@/features/ap/post-venta/repuestos/descuento-cotizacion-meson/lib/discountRequestMeson.hook";
 import { DiscountRequestOrderQuotationResource } from "@/features/ap/post-venta/repuestos/descuento-cotizacion-meson/lib/discountRequestMeson.interface";
 import {
   approveDiscountRequestOrderQuotation,
   deleteDiscountRequestOrderQuotation,
+  rejectDiscountRequestOrderQuotation,
 } from "@/features/ap/post-venta/repuestos/descuento-cotizacion-meson/lib/discountRequestMeson.actions";
 import {
   DISCOUNT_REQUEST_MESON,
+  STATUS_APPROVED,
+  STATUS_PENDING,
+  STATUS_REJECTED,
   TYPE_GLOBAL,
   TYPE_PARTIAL,
 } from "@/features/ap/post-venta/repuestos/descuento-cotizacion-meson/lib/discountRequestMeson.constants";
 import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
+import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { errorToast, successToast } from "@/core/core.function";
 import { ITEM_TYPE_PRODUCT } from "@/features/ap/post-venta/taller/cotizacion-detalle/lib/proformaDetails.constants";
+import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
+import BackButton from "@/shared/components/BackButton";
+import TitleComponent from "@/shared/components/TitleComponent";
 
 export default function RequestDiscountOrderQuotationMesonPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const { ROUTE, ABSOLUTE_ROUTE } = ORDER_QUOTATION_MESON;
-  const router = useNavigate();
   const { id } = useParams();
   const queryClient = useQueryClient();
 
   // Hooks para obtener datos
   const { data: quotation, isLoading } = useOrderQuotationById(Number(id));
   const { data: discountRequests = [], isLoading: isLoadingRequests } =
-    useDiscountRequestsByQuotation(Number(id));
+    useDiscountRequestsQuotation({
+      ap_order_quotation_id: Number(id),
+      status: [STATUS_PENDING, STATUS_APPROVED],
+    });
 
   // Local state
   const [modalOpen, setModalOpen] = useState(false);
@@ -82,6 +91,21 @@ export default function RequestDiscountOrderQuotationMesonPage() {
         error?.response?.data?.message || "Error al eliminar la solicitud";
       errorToast(message);
       setDeleteId(null);
+    },
+  });
+
+  const { mutate: doReject, isPending: isRejecting } = useMutation({
+    mutationFn: rejectDiscountRequestOrderQuotation,
+    onSuccess: () => {
+      successToast("Solicitud rechazada correctamente");
+      queryClient.invalidateQueries({
+        queryKey: [DISCOUNT_REQUEST_MESON.QUERY_KEY],
+      });
+    },
+    onError: (error: any) => {
+      const message =
+        error?.response?.data?.message || "Error al rechazar la solicitud";
+      errorToast(message);
     },
   });
 
@@ -156,11 +180,14 @@ export default function RequestDiscountOrderQuotationMesonPage() {
     <FormWrapper>
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-2">
-        <TitleFormComponent
-          title="Solicitar Descuento"
-          mode="edit"
-          icon={currentView.icon}
-        />
+        <HeaderTableWrapper>
+          <BackButton size="icon" name="Clientes" route={ABSOLUTE_ROUTE} />
+          <TitleComponent
+            title="Solicitar Descuento"
+            subtitle="Gestiona las solicitudes de descuento para esta cotización"
+            icon={currentView.icon}
+          />
+        </HeaderTableWrapper>
         {hasMultipleItems && (
           <div className="w-full flex justify-end items-center gap-2 flex-wrap">
             {globalRequest ? (
@@ -174,21 +201,42 @@ export default function RequestDiscountOrderQuotationMesonPage() {
                   )}
                   %
                 </span>
-                <Badge color={globalRequest.is_approved ? "green" : "orange"}>
-                  {globalRequest.is_approved ? "Aprobado" : "Pendiente"}
+                <Badge
+                  color={
+                    globalRequest.status === STATUS_APPROVED
+                      ? "green"
+                      : globalRequest.status === STATUS_REJECTED
+                        ? "red"
+                        : "orange"
+                  }
+                >
+                  {globalRequest.status === STATUS_APPROVED
+                    ? "Aprobado"
+                    : globalRequest.status === STATUS_REJECTED
+                      ? "Rechazado"
+                      : "Pendiente"}
                 </Badge>
-                {!globalRequest.is_approved && (
+                {globalRequest.status === STATUS_PENDING && (
                   <>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      className="size-7 text-green-600 hover:text-green-600 hover:bg-green-50"
-                      tooltip="Aprobar solicitud global"
-                      onClick={() => doApprove(globalRequest.id)}
-                      disabled={isApproving}
-                    >
-                      <CheckCircle className="size-4" />
-                    </Button>
+                    <ConfirmationDialog
+                      trigger={
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="size-7 text-green-600 hover:text-green-600 hover:bg-green-50"
+                          tooltip="Aprobar solicitud global"
+                          disabled={isApproving}
+                        >
+                          <CheckCircle className="size-4" />
+                        </Button>
+                      }
+                      title="¿Aprobar solicitud?"
+                      description="Se aprobará el descuento global solicitado. ¿Deseas continuar?"
+                      confirmText="Sí, aprobar"
+                      cancelText="Cancelar"
+                      icon="info"
+                      onConfirm={() => doApprove(globalRequest.id)}
+                    />
                     <Button
                       variant="outline"
                       size="icon"
@@ -198,15 +246,26 @@ export default function RequestDiscountOrderQuotationMesonPage() {
                     >
                       <Pencil className="size-4" />
                     </Button>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      className="size-7 text-destructive hover:text-destructive hover:bg-destructive/10"
-                      tooltip="Eliminar solicitud global"
-                      onClick={() => setDeleteId(globalRequest.id)}
-                    >
-                      <Trash2 className="size-4" />
-                    </Button>
+                    <ConfirmationDialog
+                      trigger={
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="size-7 text-destructive hover:text-destructive hover:bg-destructive/10"
+                          tooltip="Rechazar solicitud global"
+                          disabled={isRejecting}
+                        >
+                          <XCircle className="size-4" />
+                        </Button>
+                      }
+                      title="¿Rechazar solicitud?"
+                      description="Se rechazará el descuento global solicitado. ¿Deseas continuar?"
+                      confirmText="Sí, rechazar"
+                      cancelText="Cancelar"
+                      variant="destructive"
+                      icon="danger"
+                      onConfirm={() => doReject(globalRequest.id)}
+                    />
                   </>
                 )}
               </div>
@@ -331,25 +390,40 @@ export default function RequestDiscountOrderQuotationMesonPage() {
                         </span>
                         <Badge
                           color={
-                            partialRequest.is_approved ? "green" : "orange"
+                            partialRequest.status === STATUS_APPROVED
+                              ? "green"
+                              : partialRequest.status === STATUS_REJECTED
+                                ? "red"
+                                : "orange"
                           }
                         >
-                          {partialRequest.is_approved
+                          {partialRequest.status === STATUS_APPROVED
                             ? "Aprobado"
-                            : "Pendiente"}
+                            : partialRequest.status === STATUS_REJECTED
+                              ? "Rechazado"
+                              : "Pendiente"}
                         </Badge>
-                        {!partialRequest.is_approved && (
+                        {partialRequest.status === STATUS_PENDING && (
                           <>
-                            <Button
-                              variant="outline"
-                              size="icon"
-                              className="size-7 text-green-600 hover:text-green-600 hover:bg-green-50"
-                              tooltip="Aprobar solicitud"
-                              onClick={() => doApprove(partialRequest.id)}
-                              disabled={isApproving}
-                            >
-                              <CheckCircle className="size-4" />
-                            </Button>
+                            <ConfirmationDialog
+                              trigger={
+                                <Button
+                                  variant="outline"
+                                  size="icon"
+                                  className="size-7 text-green-600 hover:text-green-600 hover:bg-green-50"
+                                  tooltip="Aprobar solicitud"
+                                  disabled={isApproving}
+                                >
+                                  <CheckCircle className="size-4" />
+                                </Button>
+                              }
+                              title="¿Aprobar solicitud?"
+                              description="Se aprobará el descuento parcial solicitado. ¿Deseas continuar?"
+                              confirmText="Sí, aprobar"
+                              cancelText="Cancelar"
+                              icon="info"
+                              onConfirm={() => doApprove(partialRequest.id)}
+                            />
                             <Button
                               variant="outline"
                               size="icon"
@@ -361,15 +435,26 @@ export default function RequestDiscountOrderQuotationMesonPage() {
                             >
                               <Pencil className="size-4" />
                             </Button>
-                            <Button
-                              variant="outline"
-                              size="icon"
-                              className="size-7 text-destructive hover:text-destructive hover:bg-destructive/10"
-                              tooltip="Eliminar solicitud"
-                              onClick={() => setDeleteId(partialRequest.id)}
-                            >
-                              <Trash2 className="size-4" />
-                            </Button>
+                            <ConfirmationDialog
+                              trigger={
+                                <Button
+                                  variant="outline"
+                                  size="icon"
+                                  className="size-7 text-destructive hover:text-destructive hover:bg-destructive/10"
+                                  tooltip="Rechazar solicitud"
+                                  disabled={isRejecting}
+                                >
+                                  <XCircle className="size-4" />
+                                </Button>
+                              }
+                              title="¿Rechazar solicitud?"
+                              description="Se rechazará el descuento parcial solicitado. ¿Deseas continuar?"
+                              confirmText="Sí, rechazar"
+                              cancelText="Cancelar"
+                              variant="destructive"
+                              icon="danger"
+                              onConfirm={() => doReject(partialRequest.id)}
+                            />
                           </>
                         )}
                       </div>
@@ -392,12 +477,6 @@ export default function RequestDiscountOrderQuotationMesonPage() {
             })}
           </tbody>
         </table>
-      </div>
-
-      <div className="flex justify-end">
-        <Button variant="outline" onClick={() => router(ABSOLUTE_ROUTE)}>
-          Volver
-        </Button>
       </div>
 
       <DiscountRequestModal

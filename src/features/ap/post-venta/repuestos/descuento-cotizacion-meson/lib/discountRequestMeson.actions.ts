@@ -3,18 +3,28 @@ import { GeneralResponse } from "@/shared/lib/response.interface";
 import {
   DiscountRequestOrderQuotationRequest,
   DiscountRequestOrderQuotationResource,
+  getDiscountRequestOrderProps,
 } from "./discountRequestMeson.interface";
+import { AxiosRequestConfig } from "axios";
 
 const ENDPOINT = "/ap/postVenta/discountRequestsOrderQuotation";
 
-export async function getDiscountRequestsByQuotation(
-  quotationId: number,
-): Promise<DiscountRequestOrderQuotationResource[]> {
-  const response = await api.get<{ data: DiscountRequestOrderQuotationResource[] }>(
+export async function getAllDiscountRequestsQuotation({
+  params,
+}: getDiscountRequestOrderProps): Promise<
+  DiscountRequestOrderQuotationResource[]
+> {
+  const config: AxiosRequestConfig = {
+    params: {
+      ...params,
+      all: true,
+    },
+  };
+  const { data } = await api.get<DiscountRequestOrderQuotationResource[]>(
     ENDPOINT,
-    { params: { ap_order_quotation_id: quotationId } },
+    config,
   );
-  return response.data.data;
+  return data;
 }
 
 export async function storeDiscountRequestOrderQuotation(
@@ -43,5 +53,12 @@ export async function approveDiscountRequestOrderQuotation(
   id: number,
 ): Promise<GeneralResponse> {
   const response = await api.put<GeneralResponse>(`${ENDPOINT}/${id}/approve`);
+  return response.data;
+}
+
+export async function rejectDiscountRequestOrderQuotation(
+  id: number,
+): Promise<GeneralResponse> {
+  const response = await api.put<GeneralResponse>(`${ENDPOINT}/${id}/reject`);
   return response.data;
 }

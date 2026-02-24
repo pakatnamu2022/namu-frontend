@@ -28,7 +28,7 @@ export default function InventoryMovementActions({
         onClick={() => setDialogOpen(true)}
         className="h-8 w-8 p-0"
         disabled={!hasDetails}
-        title={hasDetails ? "Ver detalles" : "Sin detalles disponibles"}
+        tooltip={hasDetails ? "Ver detalles" : "Sin detalles disponibles"}
       >
         <Eye className="h-4 w-4" />
       </Button>

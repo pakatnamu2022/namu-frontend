@@ -13,7 +13,7 @@ import {
   WorkScheduleWorkerSummary,
   WorkScheduleSummaryPeriod,
 } from "../lib/work-schedule.interface";
-import { Clock, Sun, Moon, Calendar, Users } from "lucide-react";
+import { DollarSign, Users } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -54,16 +54,7 @@ export function WorkScheduleSummary({
     );
   }
 
-  const totals = summary.reduce(
-    (acc, worker) => ({
-      normal: acc.normal + worker.total_normal_hours,
-      extra: acc.extra + worker.total_extra_hours,
-      night: acc.night + worker.total_night_hours,
-      holiday: acc.holiday + worker.total_holiday_hours,
-      days: acc.days + worker.days_worked,
-    }),
-    { normal: 0, extra: 0, night: 0, holiday: 0, days: 0 },
-  );
+  const totalPlanilla = summary.reduce((acc, w) => acc + w.total_amount, 0);
 
   return (
     <Card>
@@ -90,39 +81,27 @@ export function WorkScheduleSummary({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="min-w-[200px]">Trabajador</TableHead>
-                <TableHead className="text-center">
-                  <div className="flex items-center justify-center gap-1">
-                    <Sun className="h-3 w-3" />
-                    <span>Normal</span>
-                  </div>
-                </TableHead>
-                <TableHead className="text-center">
-                  <div className="flex items-center justify-center gap-1">
-                    <Clock className="h-3 w-3" />
-                    <span>Extra</span>
-                  </div>
-                </TableHead>
-                <TableHead className="text-center">
-                  <div className="flex items-center justify-center gap-1">
-                    <Moon className="h-3 w-3" />
-                    <span>Nocturno</span>
-                  </div>
-                </TableHead>
-                <TableHead className="text-center">
-                  <div className="flex items-center justify-center gap-1">
-                    <Calendar className="h-3 w-3" />
-                    <span>Feriado</span>
-                  </div>
-                </TableHead>
-                <TableHead className="text-center">Días</TableHead>
+                <TableHead className="min-w-[180px]">Trabajador</TableHead>
+                <TableHead className="text-right">Sueldo</TableHead>
+                <TableHead className="text-right">Total</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
+              {summary.length === 0 && (
+                <TableRow>
+                  <TableCell
+                    colSpan={3}
+                    className="text-center text-muted-foreground py-6"
+                  >
+                    Sin registros en este período
+                  </TableCell>
+                </TableRow>
+              )}
+
               {summary.map((worker) => (
                 <TableRow
                   key={worker.worker_id}
-                  className={`cursor-pointer hover:bg-muted/50 ${
+                  className={`cursor-pointer hover:bg-muted/50 transition-colors ${
                     selectedWorkerId === worker.worker_id ? "bg-primary/10" : ""
                   }`}
                   onClick={() => onWorkerSelect?.(worker.worker_id)}
@@ -130,65 +109,39 @@ export function WorkScheduleSummary({
                   <TableCell className="font-medium">
                     <div className="flex items-center gap-2">
                       {selectedWorkerId === worker.worker_id && (
-                        <div className="w-1 h-6 bg-primary rounded-full" />
+                        <div className="w-1 h-6 bg-primary rounded-full shrink-0" />
                       )}
-                      <span className="truncate">{worker.worker_name}</span>
+                      <span className="truncate text-sm">
+                        {worker.worker_name}
+                      </span>
                     </div>
                   </TableCell>
-                  <TableCell className="text-center">
-                    {worker.total_normal_hours > 0 ? (
-                      <Badge color="secondary">
-                        {worker.total_normal_hours}h
-                      </Badge>
-                    ) : (
-                      <span className="text-muted-foreground">-</span>
-                    )}
+                  <TableCell className="text-right text-sm text-muted-foreground">
+                    S/ {worker.salary.toFixed(2)}
                   </TableCell>
-                  <TableCell className="text-center">
-                    {worker.total_extra_hours > 0 ? (
-                      <Badge variant="outline" color="orange">
-                        {worker.total_extra_hours}h
-                      </Badge>
-                    ) : (
-                      <span className="text-muted-foreground">-</span>
-                    )}
-                  </TableCell>
-                  <TableCell className="text-center">
-                    {worker.total_night_hours > 0 ? (
-                      <Badge variant="outline" color="blue">
-                        {worker.total_night_hours}h
-                      </Badge>
-                    ) : (
-                      <span className="text-muted-foreground">-</span>
-                    )}
-                  </TableCell>
-                  <TableCell className="text-center">
-                    {worker.total_holiday_hours > 0 ? (
-                      <Badge variant="outline" color="purple">
-                        {worker.total_holiday_hours}h
-                      </Badge>
-                    ) : (
-                      <span className="text-muted-foreground">-</span>
-                    )}
-                  </TableCell>
-                  <TableCell className="text-center">
-                    <Badge color="secondary">{worker.days_worked}</Badge>
+                  <TableCell className="text-right font-semibold text-sm">
+                    <span
+                      className={
+                        worker.total_amount >= 0
+                          ? "text-green-700"
+                          : "text-red-600"
+                      }
+                    >
+                      S/ {worker.total_amount.toFixed(2)}
+                    </span>
                   </TableCell>
                 </TableRow>
               ))}
 
               {summary.length > 1 && (
-                <TableRow className="bg-muted/50 font-semibold">
-                  <TableCell>TOTAL</TableCell>
-                  <TableCell className="text-center">
-                    {totals.normal}h
+                <TableRow className="bg-muted/50 font-semibold border-t-2">
+                  <TableCell className="flex items-center gap-1">
+                    <DollarSign className="h-4 w-4" /> Total planilla
                   </TableCell>
-                  <TableCell className="text-center">{totals.extra}h</TableCell>
-                  <TableCell className="text-center">{totals.night}h</TableCell>
-                  <TableCell className="text-center">
-                    {totals.holiday}h
+                  <TableCell />
+                  <TableCell className="text-right">
+                    S/ {totalPlanilla.toFixed(2)}
                   </TableCell>
-                  <TableCell className="text-center">{totals.days}</TableCell>
                 </TableRow>
               )}
             </TableBody>

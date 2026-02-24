@@ -1,7 +1,14 @@
 "use client";
 
 import { useForm } from "react-hook-form";
-import { Form } from "@/components/ui/form";
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { Loader2, Save, X } from "lucide-react";
@@ -14,27 +21,22 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { WorkScheduleSchema } from "../lib/work-schedule.schema";
-import { WORK_SCHEDULE_STATUS_OPTIONS } from "../lib/work-schedule.constant";
-import { WorkTypeResource } from "../../tipo-dia-trabajo/lib/work-type.interface";
 import { WorkScheduleResource } from "../lib/work-schedule.interface";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
-} from "@/components/ui/form";
-import { FormInput } from "@/shared/components/FormInput";
+
+interface AttendanceCode {
+  code: string;
+  description: string | null;
+}
 
 interface WorkScheduleFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSubmit: (data: WorkScheduleSchema) => void;
   isSubmitting?: boolean;
-  workTypes: WorkTypeResource[];
+  codes: AttendanceCode[];
   periodId: number;
   workerId: number;
   workerName: string;
@@ -47,7 +49,7 @@ export function WorkScheduleForm({
   onOpenChange,
   onSubmit,
   isSubmitting = false,
-  workTypes,
+  codes,
   periodId,
   workerId,
   workerName,
@@ -56,51 +58,32 @@ export function WorkScheduleForm({
 }: WorkScheduleFormProps) {
   const isEditing = !!editingSchedule;
 
-  const defaultWorkType = workTypes.find(
-    (wt) => !wt.is_night_shift && !wt.is_holiday && !wt.is_sunday,
-  );
+  const codeOptions = codes.map((c) => ({
+    value: c.code,
+    label: c.description ? `${c.code} — ${c.description}` : c.code,
+  }));
 
   const form = useForm({
     defaultValues: {
       worker_id: workerId,
-      work_type_id: String(
-        editingSchedule?.work_type.id ?? defaultWorkType?.id ?? "",
-      ),
+      code: editingSchedule?.code ?? codes[0]?.code ?? "",
       period_id: periodId,
-      work_date: editingSchedule?.work_date ?? selectedDate.toISOString(),
-      hours_worked: editingSchedule?.hours_worked ?? null,
-      extra_hours: editingSchedule?.extra_hours ?? 0,
+      work_date: editingSchedule
+        ? format(new Date(editingSchedule.work_date + (editingSchedule.work_date.includes("T") ? "" : "T00:00:00")), "yyyy-MM-dd")
+        : format(selectedDate, "yyyy-MM-dd"),
       notes: editingSchedule?.notes ?? null,
-      status: editingSchedule?.status ?? "WORKED",
     },
   });
 
   const handleSubmit = (data: any) => {
-    const workTypeId = parseInt(data.work_type_id);
-    const selectedWorkType = workTypes.find((wt) => wt.id === workTypeId);
-    const finalData: WorkScheduleSchema = {
+    onSubmit({
       worker_id: data.worker_id,
-      work_type_id: workTypeId,
+      code: data.code,
       period_id: data.period_id,
       work_date: data.work_date,
-      hours_worked: data.hours_worked ?? selectedWorkType?.base_hours ?? 8,
-      extra_hours: data.extra_hours ?? 0,
-      notes: data.notes,
-      status: data.status,
-    };
-    onSubmit(finalData);
+      notes: data.notes || null,
+    });
   };
-
-  const workTypeOptions = workTypes.map((wt) => ({
-    value: String(wt.id),
-    label: `${wt.code} - ${wt.name}`,
-    description: wt.description,
-  }));
-
-  const statusOptions = WORK_SCHEDULE_STATUS_OPTIONS.map((opt) => ({
-    value: opt.value,
-    label: opt.label,
-  }));
 
   const formattedDate = format(selectedDate, "EEEE, d 'de' MMMM 'de' yyyy", {
     locale: es,
@@ -114,7 +97,7 @@ export function WorkScheduleForm({
             {isEditing ? "Editar" : "Agregar"} Día de Trabajo
           </DialogTitle>
           <DialogDescription>
-            {workerName} - {formattedDate}
+            {workerName} — {formattedDate}
           </DialogDescription>
         </DialogHeader>
 
@@ -125,37 +108,11 @@ export function WorkScheduleForm({
           >
             <FormSelect
               control={form.control}
-              name="work_type_id"
-              label="Tipo de Trabajo"
-              placeholder="Selecciona el tipo"
-              options={workTypeOptions}
+              name="code"
+              label="Código de asistencia"
+              placeholder="Selecciona el código"
+              options={codeOptions}
               required
-            />
-
-            <div className="grid grid-cols-2 gap-4">
-              <FormInput
-                control={form.control}
-                name="hours_worked"
-                label="Horas Trabajadas"
-                type="number"
-                placeholder="8"
-              />
-
-              <FormInput
-                control={form.control}
-                name="extra_hours"
-                label="Horas Extra"
-                type="number"
-                placeholder="0"
-              />
-            </div>
-
-            <FormSelect
-              control={form.control}
-              name="status"
-              label="Estado"
-              placeholder="Selecciona el estado"
-              options={statusOptions}
             />
 
             <FormField

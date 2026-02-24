@@ -245,7 +245,7 @@ export function OrderQuotationBillingForm({
         }
       }
     }
-  }, [quotation?.id, currencyTypes, form]);
+  }, [quotation.id, currencyTypes, form, quotation]);
 
   // Efecto para cargar items cuando cambia la cotización o isAdvancePayment
   useEffect(() => {
@@ -402,30 +402,31 @@ export function OrderQuotationBillingForm({
       }
     }
   }, [
-    quotation?.id,
-    quotation?.details,
-    quotation?.advances,
+    quotation.id,
+    quotation.details,
+    quotation.advances,
     igvTypes,
     porcentaje_de_igv,
     isAdvancePayment,
     form,
+    quotation,
   ]);
 
   // Observar items para re-calcular totales cuando cambien
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const items = form.watch("items") || [];
 
   // Calcular totales
   const totales = useMemo(() => {
-    // Trabajar con precisión completa durante los cálculos, redondear solo al final
-    let total_gravada = 0;
-    let total_inafecta = 0;
-    let total_exonerada = 0;
-    let total_igv = 0;
-    let total_gratuita = 0;
-    let total_anticipo = 0;
-
-    // Función auxiliar para redondear a 2 decimales (solo al final)
+    // Función auxiliar para redondear a 2 decimales
     const round2 = (num: number) => Math.round(num * 100) / 100;
+
+    // Acumulamos subtotales sin redondeo intermedio (flotantes puros)
+    let raw_gravada = 0;
+    let raw_inafecta = 0;
+    let raw_exonerada = 0;
+    let raw_gratuita = 0;
+    let raw_anticipo_subtotal = 0;
 
     items.forEach((item) => {
       const igvType = igvTypes.find(
@@ -435,49 +436,51 @@ export function OrderQuotationBillingForm({
       if (igvType?.code_nubefact === "1") {
         // Gravado
         if (item.anticipo_regularizacion) {
-          total_gravada -= item.subtotal;
-          total_igv -= item.igv; // Restar también el IGV del anticipo
-          total_anticipo += item.subtotal;
+          raw_anticipo_subtotal += item.subtotal;
         } else {
-          total_gravada += item.subtotal;
-          total_igv += item.igv; // Sumar el IGV del item
+          raw_gravada += item.subtotal;
         }
       } else if (igvType?.code_nubefact === "20") {
         // Exonerado
         if (item.anticipo_regularizacion) {
-          total_exonerada += item.subtotal;
-          total_anticipo += item.subtotal;
+          raw_anticipo_subtotal += item.subtotal;
         } else {
-          total_exonerada += item.subtotal;
+          raw_exonerada += item.subtotal;
         }
       } else if (igvType?.code_nubefact === "30") {
         // Inafecto
         if (item.anticipo_regularizacion) {
-          total_anticipo += item.subtotal;
+          raw_anticipo_subtotal += item.subtotal;
         } else {
-          total_inafecta += item.subtotal;
+          raw_inafecta += item.subtotal;
         }
       } else if (
         igvType?.code_nubefact?.startsWith("1") ||
         igvType?.code_nubefact?.startsWith("2")
       ) {
         // Gratuito
-        total_gratuita += item.subtotal;
+        raw_gratuita += item.subtotal;
       }
     });
 
-    // Redondear solo al final para evitar errores de precisión acumulados
-    total_gravada = round2(total_gravada);
-    total_inafecta = round2(total_inafecta);
-    total_exonerada = round2(total_exonerada);
-    total_gratuita = round2(total_gratuita);
-    total_anticipo = round2(total_anticipo);
-    total_igv = round2(total_igv); // Redondear el IGV acumulado
+    // Subtotales netos (items positivos - anticipos): redondear al final
+    const total_gravada = round2(raw_gravada - raw_anticipo_subtotal);
+    const total_inafecta = round2(raw_inafecta);
+    const total_exonerada = round2(raw_exonerada);
+    const total_gratuita = round2(raw_gratuita);
+    const total_anticipo = round2(raw_anticipo_subtotal);
 
-    // Calcular total final
-    const suma_antes_redondeo =
-      total_gravada + total_inafecta + total_exonerada + total_igv;
-    const total = round2(suma_antes_redondeo);
+    // IGV neto calculado sobre el subtotal neto de una sola vez
+    // Esto evita el error de 0.01 que surge de sumar IGVs redondeados individualmente
+    // y luego restar el IGV del anticipo que fue calculado de forma distinta
+    const subtotal_neto_gravado = raw_gravada - raw_anticipo_subtotal;
+    const total_igv = round2(subtotal_neto_gravado * (porcentaje_de_igv / 100));
+
+    // Total neto: subtotales netos + IGV neto
+    // Para anticipos completos (subtotal_neto = 0) el total resultará exactamente 0
+    const total = round2(
+      total_gravada + total_inafecta + total_exonerada + total_igv,
+    );
 
     return {
       total_gravada,

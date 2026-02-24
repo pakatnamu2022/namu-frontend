@@ -60,9 +60,12 @@ export function WorkScheduleCalendar({
   const schedulesByDate = useMemo(() => {
     const map = new Map<string, WorkScheduleResource>();
     schedules
-      .filter((s) => s.worker.id === workerId)
+      .filter((s) => (s.worker_id ?? s.worker?.id) === workerId)
       .forEach((schedule) => {
-        const dateKey = format(new Date(schedule.work_date), "yyyy-MM-dd");
+        if (!schedule.work_date) return;
+        const dateObj = new Date(schedule.work_date + "T00:00:00");
+        if (isNaN(dateObj.getTime())) return;
+        const dateKey = format(dateObj, "yyyy-MM-dd");
         map.set(dateKey, schedule);
       });
     return map;
@@ -96,17 +99,17 @@ export function WorkScheduleCalendar({
               onMouseLeave={() => setHoveredDay(null)}
             >
               <div className="text-xs font-medium">{format(day, "d")}</div>
-              <div className="text-[10px] font-medium truncate">
-                {schedule.work_type.code}
+              <div className="text-[10px] font-bold truncate">
+                {schedule.code}
               </div>
-              <div className="text-[10px]">
-                {schedule.total_hours}h
-                {schedule.extra_hours > 0 && (
-                  <span className="text-orange-600 ml-1">
-                    +{schedule.extra_hours}
-                  </span>
-                )}
+              <div className="text-[10px] truncate opacity-75">
+                {statusOption?.label}
               </div>
+              {!!schedule.extra_hours && (
+                <div className="text-[9px] font-semibold text-amber-700">
+                  +{schedule.extra_hours}h extra
+                </div>
+              )}
               {isHovered && canModify && (
                 <div className="absolute top-1 right-1 flex gap-0.5">
                   <Button
@@ -137,11 +140,14 @@ export function WorkScheduleCalendar({
           </TooltipTrigger>
           <TooltipContent>
             <div className="space-y-1">
-              <p className="font-medium">{schedule.work_type.name}</p>
-              <p>
-                Horas: {schedule.hours_worked} | Extra: {schedule.extra_hours}
-              </p>
-              <p>Total: {schedule.total_hours}h</p>
+              <p className="font-medium">Código: {schedule.code}</p>
+              <p>Estado: {statusOption?.label}</p>
+              {schedule.hours_worked != null && (
+                <p>Horas trabajadas: {schedule.hours_worked}h</p>
+              )}
+              {!!schedule.extra_hours && (
+                <p>Horas extra: {schedule.extra_hours}h</p>
+              )}
               {schedule.notes && (
                 <p className="text-xs italic">{schedule.notes}</p>
               )}

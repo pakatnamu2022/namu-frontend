@@ -192,7 +192,8 @@ export const inventoryMovementsColumns = (): InventoryMovementColumns[] => [
               RUC: {quotation.advances[0].cliente_numero_de_documento}
             </span>
             <span className="text-xs text-gray-500">
-              Cotización: {quotation.quotation_number}
+              Factura:{" "}
+              {quotation.advances[quotation.advances.length - 1].full_number}
             </span>
           </div>
         );

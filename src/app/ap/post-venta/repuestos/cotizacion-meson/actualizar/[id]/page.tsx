@@ -20,6 +20,11 @@ import { useQueryClient } from "@tanstack/react-query";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import FormWrapper from "@/shared/components/FormWrapper";
 import { ITEM_TYPE_PRODUCT } from "@/features/ap/post-venta/taller/cotizacion-detalle/lib/proformaDetails.constants";
+import { useDiscountRequestsQuotation } from "@/features/ap/post-venta/repuestos/descuento-cotizacion-meson/lib/discountRequestMeson.hook";
+import {
+  STATUS_APPROVED,
+  STATUS_PENDING,
+} from "@/features/ap/post-venta/repuestos/descuento-cotizacion-meson/lib/discountRequestMeson.constants";
 
 export default function UpdateOrderQuotationMesonPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -31,6 +36,12 @@ export default function UpdateOrderQuotationMesonPage() {
 
   const { data: quotation, isLoading: isLoadingQuotation } =
     useOrderQuotationById(Number(id));
+
+  const { data: approvedDiscountRequests = [], isLoading: isLoadingDiscounts } =
+    useDiscountRequestsQuotation({
+      ap_order_quotation_id: Number(id),
+      status: [STATUS_PENDING, STATUS_APPROVED],
+    });
 
   const handleSubmit = async (data: QuotationMesonWithProductsSchema) => {
     try {
@@ -56,7 +67,8 @@ export default function UpdateOrderQuotationMesonPage() {
     router(ABSOLUTE_ROUTE);
   };
 
-  if (isLoadingModule || isLoadingQuotation) return <PageSkeleton />;
+  if (isLoadingModule || isLoadingQuotation || isLoadingDiscounts)
+    return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
   if (!currentView) notFound();
   if (!quotation) notFound();
@@ -113,6 +125,7 @@ export default function UpdateOrderQuotationMesonPage() {
         vehicleData={quotation.vehicle}
         clientData={quotation.client}
         quotationData={quotation}
+        approvedDiscountRequests={approvedDiscountRequests}
       />
     </FormWrapper>
   );
