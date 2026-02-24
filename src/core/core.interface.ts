@@ -3,7 +3,11 @@ import * as LucideReact from "lucide-react";
 export interface ModelInterface {
   name: string;
   plural?: string;
-  gender: boolean; // true for F and false for M
+  /**
+   * true for feminine (e.g., "la", "una") and false for masculine (e.g., "el", "un").
+   * Indicates the grammatical gender of the model name for correct article usage in Spanish.
+   */
+  gender: boolean;
   message?: string;
 }
 

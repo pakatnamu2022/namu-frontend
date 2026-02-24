@@ -261,3 +261,7 @@ export const formatDateLong = (
 ): string => {
   return formatDate(date, "d 'de' MMMM 'de' yyyy");
 };
+
+export const TEXT_NEW = ({ name, gender }: ModelInterface) =>
+  `Nuev${gender ? "a" : "o"} ${name}`;
+export const TEXT_UPDATE = ({ name }: ModelInterface) => `Actualizar ${name}`;

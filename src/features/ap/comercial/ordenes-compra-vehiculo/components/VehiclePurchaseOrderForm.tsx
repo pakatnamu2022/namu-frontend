@@ -32,9 +32,9 @@ import { useAllSupplierOrderType } from "@/features/ap/configuraciones/vehiculos
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import { useWarehouseByModelSede } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
 import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.hook";
-import { useAllSuppliers } from "../../proveedores/lib/suppliers.hook";
+import { useSuppliers } from "../../proveedores/lib/suppliers.hook";
 import { useAllUnitMeasurement } from "@/features/ap/configuraciones/maestros-general/unidad-medida/lib/unitMeasurement.hook";
-import { EMPRESA_AP, TYPE_BUSINESS_PARTNERS } from "@/core/core.constants";
+import { EMPRESA_AP } from "@/core/core.constants";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import VehicleColorModal from "@/features/ap/configuraciones/vehiculos/colores-vehiculo/components/VehicleColorModal";
@@ -265,10 +265,6 @@ export const VehiclePurchaseOrderForm = ({
   } = useAllSupplierOrderType();
 
   // Invoice hooks
-  const { data: suppliers = [], isLoading: isLoadingSuppliers } =
-    useAllSuppliers({
-      type: [TYPE_BUSINESS_PARTNERS.PROVEEDOR, TYPE_BUSINESS_PARTNERS.AMBOS],
-    });
   const { data: currencies = [], isLoading: isLoadingCurrencies } =
     useAllCurrencyTypes();
 
@@ -499,7 +495,6 @@ export const VehiclePurchaseOrderForm = ({
 
   // Solo mostrar skeleton en carga inicial, no durante búsquedas (fetching)
   const isInitialLoading =
-    isLoadingSuppliers ||
     isLoadingCurrencies ||
     isLoadingUnitMeasurements ||
     (isLoadingBrands && !isFetchingBrands) ||
@@ -801,18 +796,20 @@ export const VehiclePurchaseOrderForm = ({
             title="Información de la Factura"
             icon={FileText}
             className="xl:col-span-2"
-            cols={{ sm: 1, md: 2, lg: 2, xl: 3 }}
+            cols={{ sm: 1, md: 2, lg: 3, xl: 4 }}
             gap="gap-3"
           >
-            <FormSelect
+            <FormSelectAsync
               name="supplier_id"
               label="Proveedor"
               placeholder="Selecciona un proveedor"
-              options={suppliers.map((item) => ({
+              useQueryHook={useSuppliers}
+              mapOptionFn={(item) => ({
                 label: item.full_name,
                 value: item.id.toString(),
-              }))}
+              })}
               control={form.control}
+              preloadId={defaultValues.supplier_id || undefined}
             />
 
             <FormInput
@@ -965,17 +962,6 @@ export const VehiclePurchaseOrderForm = ({
 
             <FormInput
               control={form.control}
-              name="total"
-              label="Total (Requerido)"
-              type="number"
-              className="bg-muted"
-              placeholder="Ej: 29500.00"
-              step="0.01"
-              min={0}
-            />
-
-            <FormInput
-              control={form.control}
               name="isc"
               label="ISC (Opcional)"
               type="number"
@@ -995,6 +981,16 @@ export const VehiclePurchaseOrderForm = ({
                 </p>
               )}
             </FormInput>
+
+            <FormInput
+              control={form.control}
+              name="total"
+              label="Total (Requerido)"
+              type="number"
+              placeholder="Ej: 29500.00"
+              step="0.01" 
+              min={0}
+            />
           </GroupFormSection>
 
           {/* Sección 3: Resumen de Factura */}
