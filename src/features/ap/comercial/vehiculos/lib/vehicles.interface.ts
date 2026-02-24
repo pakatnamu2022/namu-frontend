@@ -141,6 +141,39 @@ export interface VehicleClientDebtInfo {
   notas_debito: any[];
 }
 
+export interface VinMatchSummary {
+  total_vins_from_excel: number;
+  total_matched: number;
+  total_not_found: number;
+  total_found_different_status: number;
+}
+
+export interface VinMatchedItem {
+  vin: string;
+  id: number;
+  year: number;
+  model: string;
+  color: string;
+  vehicle_status: string;
+  vehicle_status_color?: string;
+  warehouse_physical: string;
+}
+
+export interface VinFoundDifferentStatus {
+  vin: string;
+  id: number;
+  vehicle_status?: string;
+  vehicle_status_color?: string;
+  ap_vehicle_status_id: number;
+}
+
+export interface VinMatchResponse {
+  summary: VinMatchSummary;
+  matched: VinMatchedItem[];
+  not_found: string[];
+  found_different_status: VinFoundDifferentStatus[];
+}
+
 export interface VehiclePurchaseOrderData {
   vehicle: VehicleResource;
   purchase_order: {
