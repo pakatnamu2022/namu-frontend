@@ -9,7 +9,6 @@ import {
   SUCCESS_MESSAGE,
   successToast,
 } from "@/core/core.function";
-import FormWrapper from "@/shared/components/FormWrapper";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import { ReceptionChecklistSchema } from "@/features/ap/comercial/envios-recepciones/lib/shipmentsReceptions.schema";
 import FormSkeleton from "@/shared/components/FormSkeleton";
@@ -21,6 +20,7 @@ import {
 import { ReceptionChecklistForm } from "@/features/ap/comercial/envios-recepciones/components/ReceptionChecklistForm";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { CONTROL_UNITS } from "@/features/ap/comercial/control-unidades/lib/controlUnits.constants";
+import PageWrapper from "@/shared/components/PageWrapper";
 
 export default function ControlUnitCheckListPage() {
   const { id } = useParams();
@@ -66,20 +66,18 @@ export default function ControlUnitCheckListPage() {
   if (!currentView) notFound();
 
   return (
-    <FormWrapper>
-      <div className="space-y-4">
-        <TitleFormComponent
-          title={MODEL.name}
-          icon={currentView?.icon || "FileText"}
-        />
-        <ReceptionChecklistForm
-          shippingGuideId={Number(id)}
-          onSubmit={handleSubmit}
-          isSubmitting={isPending}
-          onCancel={() => router(ABSOLUTE_ROUTE)}
-          unitControl={true}
-        />
-      </div>
-    </FormWrapper>
+    <PageWrapper>
+      <TitleFormComponent
+        title={MODEL.name}
+        icon={currentView?.icon || "FileText"}
+      />
+      <ReceptionChecklistForm
+        shippingGuideId={Number(id)}
+        onSubmit={handleSubmit}
+        isSubmitting={isPending}
+        onCancel={() => router(ABSOLUTE_ROUTE)}
+        unitControl={true}
+      />
+    </PageWrapper>
   );
 }

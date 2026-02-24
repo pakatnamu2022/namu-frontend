@@ -152,11 +152,24 @@ export type ShipmentsReceptionsSchema = z.infer<
   typeof shipmentsReceptionsSchemaCreate
 >;
 
+// Schema de daños para checklist de recepción
+export const receptionChecklistDamageSchema = z.object({
+  damage_type: z.string().max(100),
+  x_coordinate: z.number().nullable().optional(),
+  y_coordinate: z.number().nullable().optional(),
+  description: z.string().nullable().optional(),
+  photo_url: z.string().optional(),
+  photo_file: z.instanceof(File).optional(),
+});
+
+export type ReceptionChecklistDamageSchema = z.infer<
+  typeof receptionChecklistDamageSchema
+>;
+
 // Schema para checklist de recepción (update)
 export const receptionChecklistSchemaUpdate = z.object({
   shipping_guide_id: z.string(),
   note: z.string().optional(),
-  items_receiving: z.record(z.string(), z.string()),
   kilometers: z.coerce
     .string()
     .min(1, "El kilometraje es requerido")
@@ -167,6 +180,13 @@ export const receptionChecklistSchemaUpdate = z.object({
       },
       { message: "El kilometraje debe ser un número mayor o igual a 0" },
     ),
+  photo_front: z.instanceof(File).nullable().optional(),
+  photo_back: z.instanceof(File).nullable().optional(),
+  photo_left: z.instanceof(File).nullable().optional(),
+  photo_right: z.instanceof(File).nullable().optional(),
+  general_observations: z.string().max(1000).optional(),
+  items_receiving: z.record(z.string(), z.string()),
+  damages: z.array(receptionChecklistDamageSchema).default([]),
 });
 
 export type ReceptionChecklistSchema = z.infer<

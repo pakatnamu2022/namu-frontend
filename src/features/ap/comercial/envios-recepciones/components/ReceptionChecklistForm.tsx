@@ -29,9 +29,12 @@ import { FormSubmitConfirmation } from "@/shared/components/FormSubmitConfirmati
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SHIPMENTS_RECEPTIONS } from "../lib/shipmentsReceptions.constants";
-import { FileText, Car } from "lucide-react";
+import { FileText, Car, Camera } from "lucide-react";
 import { CONTROL_UNITS } from "../../control-unidades/lib/controlUnits.constants";
 import { FormInput } from "@/shared/components/FormInput";
+import { FileUploadWithCamera } from "@/shared/components/FileUploadWithCamera";
+import VehicleDamageMarker from "@/features/ap/post-venta/taller/inspeccion-vehiculo/components/VehicleDamageMarker";
+import { GroupFormSection } from "@/shared/components/GroupFormSection";
 
 interface ReceptionChecklistFormProps {
   shippingGuideId: number; // ID de la guía (requerido)
@@ -60,9 +63,14 @@ export const ReceptionChecklistForm = ({
       shipping_guide_id: String(shippingGuideId),
       items_receiving: {},
       kilometers: "",
+      damages: [],
     },
     mode: "onChange",
   });
+
+  const handleDamagesChange = (damages: any[]) => {
+    form.setValue("damages", damages);
+  };
 
   const {
     data: deliveryChecklist = [],
@@ -258,7 +266,117 @@ export const ReceptionChecklistForm = ({
           required
         />
 
-        {/* Sección: Observaciones */}
+        {/* Sección: Fotos del Vehículo */}
+        <GroupFormSection
+          title="Fotos del estado del vehículo (Opcional)"
+          icon={Camera}
+          iconColor="text-orange-600"
+          bgColor="bg-orange-50"
+          cols={{ sm: 2 }}
+        >
+          <FormField
+            control={form.control}
+            name="photo_front"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <FileUploadWithCamera
+                    label="Foto Frontal"
+                    accept="image/*"
+                    value={field.value}
+                    onChange={(file) => field.onChange(file)}
+                    disabled={isSubmitting}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="photo_back"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <FileUploadWithCamera
+                    label="Foto Trasera"
+                    accept="image/*"
+                    value={field.value}
+                    onChange={(file) => field.onChange(file)}
+                    disabled={isSubmitting}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="photo_left"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <FileUploadWithCamera
+                    label="Foto Lateral Izquierda"
+                    accept="image/*"
+                    value={field.value}
+                    onChange={(file) => field.onChange(file)}
+                    disabled={isSubmitting}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="photo_right"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <FileUploadWithCamera
+                    label="Foto Lateral Derecha"
+                    accept="image/*"
+                    value={field.value}
+                    onChange={(file) => field.onChange(file)}
+                    disabled={isSubmitting}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </GroupFormSection>
+
+        {/* Sección: Marcador de Daños */}
+        <VehicleDamageMarker
+          damages={form.watch("damages") as any || []}
+          onChange={handleDamagesChange}
+          disabled={isSubmitting}
+        />
+
+        {/* Sección: Observaciones Generales */}
+        <FormField
+          control={form.control}
+          name="general_observations"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Observaciones Generales (Opcional)</FormLabel>
+              <FormControl>
+                <Textarea
+                  placeholder="Ingrese observaciones generales del estado del vehículo..."
+                  className="resize-none"
+                  rows={4}
+                  {...field}
+                  value={field.value ?? ""}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Sección: Notas */}
         <FormField
           control={form.control}
           name="note"
