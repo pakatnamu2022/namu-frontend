@@ -15,6 +15,7 @@ export interface ShipmentsReceptionsResource {
   series: string;
   correlative: string;
   document_number: string;
+  dyn_series: string;
   issue_date: string;
   requires_sunat: boolean;
   is_sunat_registered: boolean;
