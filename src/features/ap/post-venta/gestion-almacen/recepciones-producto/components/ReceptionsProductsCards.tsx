@@ -25,11 +25,11 @@ import { Button } from "@/components/ui/button.tsx";
 import {
   translateReasonObservation,
   translateReceptionTypeStatus,
-  translateStatus,
 } from "@/features/ap/post-venta/gestion-almacen/recepcion-transferencia/lib/transferReception.constants.ts";
 import { useState } from "react";
 import { InvoiceDetailSheet } from "@/features/ap/post-venta/gestion-almacen/recepcion-compra/components/InvoiceDetailSheet.tsx";
 import { VehiclePurchaseOrderResource } from "@/features/ap/comercial/ordenes-compra-vehiculo/lib/vehiclePurchaseOrder.interface.ts";
+import { translateStatusPurchase } from "../lib/receptionsProducts.constants";
 
 interface Props {
   data: ReceptionResource[];
@@ -110,7 +110,7 @@ export default function ReceptionsProductsCards({
                       variant="default"
                       className={isSingleCard ? "text-xs" : "text-[10px]"}
                     >
-                      {translateStatus(reception.status)}
+                      {translateStatusPurchase(reception.status)}
                     </Badge>
                   )}
                   {reception.reception_type && (
