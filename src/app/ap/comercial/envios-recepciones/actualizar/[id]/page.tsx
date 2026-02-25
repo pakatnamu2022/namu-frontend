@@ -22,6 +22,8 @@ import {
 } from "@/features/ap/comercial/envios-recepciones/lib/shipmentsReceptions.actions";
 import { ShipmentsReceptionsResource } from "@/features/ap/comercial/envios-recepciones/lib/shipmentsReceptions.interface";
 import { notFound } from "@/shared/hooks/useNotFound";
+import { useEffect } from "react";
+import { useSidebar } from "@/components/ui/sidebar";
 
 export default function UpdateShipmentsReceptionsPage() {
   const { id } = useParams();
@@ -29,7 +31,7 @@ export default function UpdateShipmentsReceptionsPage() {
   const queryClient = useQueryClient();
   const { currentView, checkRouteExists } = useCurrentModule();
   const { ROUTE, QUERY_KEY, MODEL, ABSOLUTE_ROUTE } = SHIPMENTS_RECEPTIONS;
-
+  const { setOpen, setOpenMobile } = useSidebar();
   const { data: ShipmentsReceptions, isLoading: loadingShipmentsReceptions } =
     useQuery({
       queryKey: [QUERY_KEY, id],
@@ -58,7 +60,7 @@ export default function UpdateShipmentsReceptionsPage() {
   };
 
   function mapShipmentsReceptionsToForm(
-    data: ShipmentsReceptionsResource
+    data: ShipmentsReceptionsResource,
   ): Partial<ShipmentsReceptionsSchema> & {
     transmitter_establishment?: any;
     receiver_establishment?: any;
@@ -100,6 +102,11 @@ export default function UpdateShipmentsReceptionsPage() {
   }
 
   const isLoadingAny = loadingShipmentsReceptions || !ShipmentsReceptions;
+
+  useEffect(() => {
+    setOpen(false);
+    setOpenMobile(false);
+  }, []);
 
   if (isLoadingAny) {
     return <FormSkeleton />;

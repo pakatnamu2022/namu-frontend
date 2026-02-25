@@ -55,7 +55,7 @@ function SidebarItem({
   currentView?: ViewsResponseMenuChild | null;
   isTopLevel: boolean;
 }) {
-  const { setOpenMobile, isMobile } = useSidebar();
+  const { setOpenMobile, isMobile, state, setOpen } = useSidebar();
   const hasChildren = item.children && item.children.length > 0;
 
   const IconComponent = LucideReact[
@@ -65,6 +65,8 @@ function SidebarItem({
   const handleLinkClick = () => {
     if (isMobile) {
       setOpenMobile(false);
+    } else if (state === "collapsed") {
+      setOpen(true);
     }
   };
 
