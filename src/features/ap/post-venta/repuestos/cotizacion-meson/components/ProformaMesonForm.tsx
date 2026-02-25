@@ -32,7 +32,13 @@ import {
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { useState, useEffect } from "react";
-import { EMPRESA_AP, IGV, STATUS_ACTIVE } from "@/core/core.constants";
+import {
+  DEFAULT_APPROVED_DISCOUNT,
+  EMPRESA_AP,
+  IGV,
+  STATUS_ACTIVE,
+} from "@/core/core.constants";
+import { useAuthStore } from "@/features/auth/lib/auth.store";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import {
@@ -81,6 +87,7 @@ function ProductDetailItem({
   stockData,
   defaultProductOption,
   approvedDiscount,
+  defaultDiscount,
   isDetailsDisabled = false,
 }: {
   index: number;
@@ -91,6 +98,7 @@ function ProductDetailItem({
   defaultProductOption?: { value: string; label: string };
   detailId?: number;
   approvedDiscount?: number;
+  defaultDiscount: number;
   isDetailsDisabled?: boolean;
 }) {
   const productId = form.watch(`details.${index}.product_id`);
@@ -392,7 +400,7 @@ function ProductDetailItem({
                     type="number"
                     step="0.01"
                     min="0"
-                    max={approvedDiscount ?? 5}
+                    max={approvedDiscount ?? defaultDiscount}
                     placeholder="Dcto %"
                     {...field}
                     value={field.value || ""}
@@ -400,7 +408,7 @@ function ProductDetailItem({
                       const val = e.target.value
                         ? Number(e.target.value)
                         : undefined;
-                      const maxAllowed = approvedDiscount ?? 5;
+                      const maxAllowed = approvedDiscount ?? defaultDiscount;
                       if (val !== undefined && val > maxAllowed) return;
                       field.onChange(val);
                     }}
@@ -415,7 +423,7 @@ function ProductDetailItem({
                 <p className="text-[10px] font-medium mt-0.5 text-green-600">
                   Máx.{" "}
                   {approvedDiscount !== undefined ? "aprobado" : "permitido"}:{" "}
-                  {(approvedDiscount ?? 5).toFixed(2)}%
+                  {(approvedDiscount ?? defaultDiscount).toFixed(2)}%
                 </p>
                 <FormMessage />
               </FormItem>
@@ -703,11 +711,11 @@ function ProductDetailItem({
                     type="number"
                     step="0.01"
                     min="0"
-                    max={approvedDiscount ?? 5}
+                    max={approvedDiscount ?? defaultDiscount}
                     {...field}
                     onChange={(e) => {
                       const val = Number(e.target.value);
-                      const maxAllowed = approvedDiscount ?? 5;
+                      const maxAllowed = approvedDiscount ?? defaultDiscount;
                       if (val > maxAllowed) return;
                       field.onChange(val);
                     }}
@@ -722,7 +730,7 @@ function ProductDetailItem({
                 <p className="text-[10px] font-medium mt-0.5 text-green-600">
                   Máx.{" "}
                   {approvedDiscount !== undefined ? "aprobado" : "permitido"}:{" "}
-                  {(approvedDiscount ?? 5).toFixed(2)}%
+                  {(approvedDiscount ?? defaultDiscount).toFixed(2)}%
                 </p>
                 <FormMessage />
               </FormItem>
@@ -805,6 +813,10 @@ export default function ProformaMesonForm({
     null,
   );
   const [isPartModalOpen, setIsPartModalOpen] = useState(false);
+
+  const { user } = useAuthStore();
+  const defaultDiscount =
+    user?.discount_percentage ?? DEFAULT_APPROVED_DISCOUNT;
 
   // Determinar si los detalles deben estar deshabilitados
   const isDetailsDisabled =
@@ -1314,6 +1326,7 @@ export default function ProformaMesonForm({
                       defaultProductOption={defaultProductOption}
                       detailId={originalDetail?.id}
                       approvedDiscount={approvedDiscount}
+                      defaultDiscount={defaultDiscount}
                       isDetailsDisabled={isDetailsDisabled}
                     />
                   );

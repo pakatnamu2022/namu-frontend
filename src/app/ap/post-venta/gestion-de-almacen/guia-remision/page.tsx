@@ -20,6 +20,7 @@ import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper.tsx";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions.ts";
 import { notFound } from "@/shared/hooks/useNotFound.ts";
 import { deleteProductTransfer } from "@/features/ap/post-venta/gestion-almacen/guia-remision/lib/productTransfer.actions.ts";
+import { syncShippingGuideWithDynamics } from "@/features/ap/comercial/envios-recepciones/lib/shipmentsReceptions.actions.ts";
 import ProductTransferActions from "@/features/ap/post-venta/gestion-almacen/guia-remision/components/ProductTransferActions.tsx";
 import ProductTransferTable from "@/features/ap/post-venta/gestion-almacen/guia-remision/components/ProductTransferTable.tsx";
 import { productTransferColumns } from "@/features/ap/post-venta/gestion-almacen/guia-remision/components/ProductTransferColumns.tsx";
@@ -82,7 +83,7 @@ export default function ProductTransferPage() {
     }
   }, [dateFrom, dateTo]);
 
-  const { data, isLoading, refetch } = useProductTransfers({
+  const { data, isLoading, isFetching, refetch } = useProductTransfers({
     page,
     search,
     per_page,
@@ -143,6 +144,22 @@ export default function ProductTransferPage() {
     });
   };
 
+  const handleSyncWithDynamics = async (id: number) => {
+    await syncShippingGuideWithDynamics(id)
+      .then((response) => {
+        if (response.message) {
+          successToast(response.message);
+        }
+
+        refetch();
+      })
+      .catch((error: any) => {
+        const errorMsg =
+          error.response?.data?.message || ERROR_MESSAGE(MODEL, "fetch");
+        errorToast(errorMsg);
+      });
+  };
+
   if (isLoadingModule || isLoadingWarehouses) return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();
   if (!currentView) notFound();
@@ -155,7 +172,11 @@ export default function ProductTransferPage() {
           subtitle={currentView.descripcion}
           icon={currentView.icon}
         />
-        <ProductTransferActions permissions={permissions} />
+        <ProductTransferActions
+          isFetching={isFetching && !isLoading}
+          onRefresh={refetch}
+          permissions={permissions}
+        />
       </HeaderTableWrapper>
       <ProductTransferTable
         isLoading={isLoading}
@@ -169,6 +190,7 @@ export default function ProductTransferPage() {
             canReceive: permissions.canCreate,
           },
           onReceive: handleReceive,
+          onSyncWithDynamics: handleSyncWithDynamics,
           routeUpdate: ROUTE_UPDATE,
           warehouseId,
         })}

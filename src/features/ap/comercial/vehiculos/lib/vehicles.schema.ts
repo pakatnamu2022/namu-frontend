@@ -1,4 +1,8 @@
-import { requiredStringId } from "@/shared/lib/global.schema";
+import {
+  requiredNumber,
+  requiredStringId,
+  requiredText,
+} from "@/shared/lib/global.schema";
 import { z } from "zod";
 
 export const vehicleSchemaCreate = z.object({
@@ -9,25 +13,9 @@ export const vehicleSchemaCreate = z.object({
     .refine((value) => value.trim() !== "", {
       message: "Placa es requerida",
     }),
-  vin: z
-    .string()
-    .length(17, "El VIN debe tener exactamente 17 caracteres")
-    .refine((value) => value.trim() !== "", {
-      message: "VIN es requerido",
-    }),
-  year: z
-    .number()
-    .min(1900, "El año debe ser mayor o igual a 1900")
-    .max(
-      new Date().getFullYear() + 1,
-      `El año no puede ser mayor a ${new Date().getFullYear() + 1}`
-    ),
-  engine_number: z
-    .string()
-    .max(30, "El número de motor no puede tener más de 30 caracteres")
-    .refine((value) => value.trim() !== "", {
-      message: "Número de motor es requerido",
-    }),
+  vin: requiredText("El VIN es requerido", 17, 17),
+  year: requiredNumber("El año es requerido", 1886),
+  engine_number: requiredText("El número de motor es requerido", 1, 30),
   ap_models_vn_id: requiredStringId("El modelo es requerido"),
   vehicle_color_id: requiredStringId("El color es requerido"),
   engine_type_id: requiredStringId("El tipo de motor es requerido"),

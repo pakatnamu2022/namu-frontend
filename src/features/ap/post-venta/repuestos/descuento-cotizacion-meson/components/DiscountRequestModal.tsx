@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { Loader } from "lucide-react";
 import { errorToast, successToast } from "@/core/core.function";
+import { DEFAULT_APPROVED_DISCOUNT } from "@/core/core.constants";
 import { FormInput } from "@/shared/components/FormInput";
 import {
   discountRequestSchema,
@@ -70,7 +71,7 @@ export const DiscountRequestModal = ({
 
   const defaultPct = existingRequest
     ? Number(existingRequest.requested_discount_percentage)
-    : Math.max(5, minDiscount);
+    : Math.max(DEFAULT_APPROVED_DISCOUNT, minDiscount);
 
   const form = useForm<DiscountRequestSchema>({
     resolver: zodResolver(discountRequestSchema),
@@ -91,7 +92,7 @@ export const DiscountRequestModal = ({
     if (!open) return;
     const pct = existingRequest
       ? Number(existingRequest.requested_discount_percentage)
-      : Math.max(5, minDiscount);
+      : Math.max(DEFAULT_APPROVED_DISCOUNT, minDiscount);
     form.reset({
       type,
       requested_discount_percentage: pct,

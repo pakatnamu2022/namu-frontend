@@ -9,12 +9,13 @@ import {
   RefreshCw,
   CheckCircle2,
   XCircle,
-  Info,
+  CloudUpload,
   type LucideIcon,
 } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog.tsx";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge.tsx";
+import { TableHeaderWithTooltip } from "@/shared/components/TableHeaderWithTooltip.tsx";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { SUNAT_CONCEPTS_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
@@ -28,6 +29,7 @@ interface Props {
   onSendToNubefact?: (id: number) => void;
   onQueryFromNubefact?: (id: number) => void;
   onReceive?: (id: number) => void;
+  onSyncWithDynamics?: (id: number) => void;
   permissions: {
     canUpdate: boolean;
     canDelete: boolean;
@@ -44,6 +46,7 @@ export const productTransferColumns = ({
   onSendToNubefact,
   onQueryFromNubefact,
   onReceive,
+  onSyncWithDynamics,
   permissions,
   routeUpdate,
   warehouseId,
@@ -66,17 +69,38 @@ export const productTransferColumns = ({
   },
   {
     id: "nro_reference_dyn",
-    header: "Nro Dynamics",
+    header: () => (
+      <TableHeaderWithTooltip
+        label="Nro Dynamics"
+        tooltip="Consulta si ya fue contabilizado en dynamics"
+      />
+    ),
     cell: ({ row }) => {
-      const { reference } = row.original;
+      const { reference, reference_id } = row.original;
       if (!reference) return "-";
 
+      const dynSeries = reference.dyn_series;
+
+      if (dynSeries) {
+        return (
+          <Badge variant="outline" className="font-mono text-sm font-normal">
+            {dynSeries}
+          </Badge>
+        );
+      }
+
+      if (!onSyncWithDynamics || !reference_id) return "-";
+
       return (
-        <div className="flex flex-col gap-1">
-          <span className="font-mono text-sm font-semibold">
-            {reference.dyn_series}
-          </span>
-        </div>
+        <Button
+          variant="outline"
+          size="xs"
+          color="blue"
+          onClick={() => onSyncWithDynamics(reference_id)}
+        >
+          <CloudUpload className="size-3.5" />
+          Sincronizar
+        </Button>
       );
     },
   },
@@ -188,38 +212,30 @@ export const productTransferColumns = ({
   {
     id: "status_sunat",
     header: () => (
-      <div className="flex items-center gap-1.5">
-        <span>Estado SUNAT</span>
-        <Badge
-          variant="ghost"
-          tooltipVariant="muted"
-          tooltip={
-            <div className="space-y-2">
-              <h4 className="font-semibold text-sm mb-2">Estados de SUNAT</h4>
-              <div className="space-y-1.5 text-xs">
-                <div className="flex items-center gap-2">
-                  <div className="size-2 rounded-full bg-green-600" />
-                  <span>Aceptado por SUNAT</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="size-2 rounded-full bg-primary" />
-                  <span>En espera de respuesta</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="size-2 rounded-full bg-destructive" />
-                  <span>Rechazado (&gt;5h sin respuesta)</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="size-2 rounded-full bg-gray-400" />
-                  <span>No enviado</span>
-                </div>
-              </div>
-            </div>
-          }
-        >
-          <Info className="size-3.5 text-muted-foreground hover:text-foreground transition-colors" />
-        </Badge>
-      </div>
+      <TableHeaderWithTooltip
+        label="Estado SUNAT"
+        tooltip={{
+          title: "Estados de SUNAT",
+          items: [
+            {
+              label: "Aceptado por SUNAT",
+              indicator: <div className="size-2 rounded-full bg-green-600" />,
+            },
+            {
+              label: "En espera de respuesta",
+              indicator: <div className="size-2 rounded-full bg-primary" />,
+            },
+            {
+              label: "Rechazado (>5h sin respuesta)",
+              indicator: <div className="size-2 rounded-full bg-destructive" />,
+            },
+            {
+              label: "No enviado",
+              indicator: <div className="size-2 rounded-full bg-gray-400" />,
+            },
+          ],
+        }}
+      />
     ),
     cell: ({ row }) => {
       const { reference } = row.original;

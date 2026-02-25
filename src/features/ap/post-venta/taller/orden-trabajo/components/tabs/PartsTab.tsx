@@ -42,6 +42,7 @@ import { useWorkOrderContext } from "../../contexts/WorkOrderContext";
 import { findWorkOrderById } from "../../lib/workOrder.actions";
 import { FormInput } from "@/shared/components/FormInput";
 import { useAuthStore } from "@/features/auth/lib/auth.store";
+import { DEFAULT_APPROVED_DISCOUNT } from "@/core/core.constants";
 import { ITEM_TYPE_PRODUCT } from "../../../cotizacion-detalle/lib/proformaDetails.constants";
 
 interface PartsTabProps {
@@ -80,8 +81,9 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
     useState<string>("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
 
-  // Obtener el porcentaje máximo de descuento del usuario (default 5%)
-  const maxDiscountPercentage = user?.discount_percentage ?? 5;
+  // Obtener el porcentaje máximo de descuento del usuario
+  const maxDiscountPercentage =
+    user?.discount_percentage ?? DEFAULT_APPROVED_DISCOUNT;
 
   // Formulario para actualizar repuesto
   const form = useForm<AddPartFormValues>({
