@@ -115,9 +115,46 @@ export async function updateReceptionChecklist(
   id: number,
   payload: ReceptionChecklistRequest
 ): Promise<ReceptionChecklistResponse> {
-  const { data } = await api.put<ReceptionChecklistResponse>(
+  const formData = new FormData();
+
+  formData.append("shipping_guide_id", payload.shipping_guide_id);
+  formData.append("kilometers", payload.kilometers);
+
+  if (payload.note) formData.append("note", payload.note);
+  if (payload.general_observations)
+    formData.append("general_observations", payload.general_observations);
+
+  if (payload.photo_front instanceof File)
+    formData.append("photo_front", payload.photo_front);
+  if (payload.photo_back instanceof File)
+    formData.append("photo_back", payload.photo_back);
+  if (payload.photo_left instanceof File)
+    formData.append("photo_left", payload.photo_left);
+  if (payload.photo_right instanceof File)
+    formData.append("photo_right", payload.photo_right);
+
+  // items_receiving: solo los IDs seleccionados como array de enteros
+  Object.keys(payload.items_receiving).forEach((itemId) => {
+    formData.append("items_receiving[]", itemId);
+  });
+
+  // damages: indexados como damages[i][campo]
+  (payload.damages ?? []).forEach((damage, i) => {
+    formData.append(`damages[${i}][damage_type]`, damage.damage_type);
+    if (damage.x_coordinate != null)
+      formData.append(`damages[${i}][x_coordinate]`, String(damage.x_coordinate));
+    if (damage.y_coordinate != null)
+      formData.append(`damages[${i}][y_coordinate]`, String(damage.y_coordinate));
+    if (damage.description)
+      formData.append(`damages[${i}][description]`, damage.description);
+    if (damage.photo_file instanceof File)
+      formData.append(`damages[${i}][photo]`, damage.photo_file);
+  });
+
+  const { data } = await api.post<ReceptionChecklistResponse>(
     `${CHECKLIST_ENDPOINT}/${id}`,
-    payload
+    formData,
+    { headers: { "Content-Type": "multipart/form-data" } }
   );
   return data;
 }
