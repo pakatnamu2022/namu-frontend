@@ -131,6 +131,32 @@ export interface ReceptionChecklistResponse {
   note_received: string;
   data: ReceptionChecklistResource[];
   accessories: AccessoryResource[];
+  inspection?: ReceptionInspectionResource;
+}
+
+export interface ReceptionInspectionResource {
+  id: number;
+  shipping_guide_id: number;
+  photo_front_url?: string | null;
+  photo_back_url?: string | null;
+  photo_left_url?: string | null;
+  photo_right_url?: string | null;
+  general_observations?: string | null;
+  inspected_by: number;
+  inspected_by_name: string;
+  created_at: string;
+  damages: ReceptionInspectionDamageResource[];
+}
+
+export interface ReceptionInspectionDamageResource {
+  id: number;
+  receiving_inspection_id: number;
+  damage_type: string;
+  x_coordinate?: string | null;
+  y_coordinate?: string | null;
+  description?: string | null;
+  photo_url?: string | null;
+  created_at: string;
 }
 
 export interface ReceptionChecklistResource {
@@ -149,10 +175,25 @@ export interface AccessoryResource {
   unit_measurement: string;
 }
 
+export interface ReceptionChecklistDamageRequest {
+  damage_type: string;
+  x_coordinate?: number | null;
+  y_coordinate?: number | null;
+  description?: string | null;
+  photo_file?: File;
+}
+
 export interface ReceptionChecklistRequest {
-  items_receiving: Record<string, string>;
   shipping_guide_id: string;
+  kilometers: string;
   note?: string;
+  general_observations?: string;
+  photo_front?: File | null;
+  photo_back?: File | null;
+  photo_left?: File | null;
+  photo_right?: File | null;
+  items_receiving: Record<string, string>;
+  damages?: ReceptionChecklistDamageRequest[];
 }
 
 // Respuesta de Nubefact
