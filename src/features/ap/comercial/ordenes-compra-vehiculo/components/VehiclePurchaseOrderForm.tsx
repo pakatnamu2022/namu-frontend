@@ -26,7 +26,7 @@ import { FormSelect } from "@/shared/components/FormSelect";
 import { useMemo, useRef, useState, useEffect } from "react";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { useAllModelsVn } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.hook";
-import { useAllVehicleColor } from "@/features/ap/configuraciones/vehiculos/colores-vehiculo/lib/vehicleColor.hook";
+import { useVehicleColor } from "@/features/ap/configuraciones/vehiculos/colores-vehiculo/lib/vehicleColor.hook";
 import { useAllEngineTypes } from "@/features/ap/configuraciones/vehiculos/tipos-motor/lib/engineTypes.hook";
 import { useAllSupplierOrderType } from "@/features/ap/configuraciones/vehiculos/tipos-pedido-proveedor/lib/supplierOrderType.hook";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
@@ -251,8 +251,6 @@ export const VehiclePurchaseOrderForm = ({
     family$brand_id: form.watch("ap_brand_id"),
   });
 
-  const { data: colors = [], isLoading: isLoadingColors } =
-    useAllVehicleColor();
   const { data: engineTypes = [], isLoading: isLoadingEngineTypes } =
     useAllEngineTypes();
   const { data: sedes = [], isLoading: isLoadingSedes } = useMySedes({
@@ -500,7 +498,6 @@ export const VehiclePurchaseOrderForm = ({
     (isLoadingBrands && !isFetchingBrands) ||
     (isVehiclePurchase &&
       ((isLoadingModelsVn && !isFetchingModelsVn) ||
-        isLoadingColors ||
         isLoadingEngineTypes ||
         isLoadingSupplierOrderTypes ||
         isLoadingSedes));
@@ -520,7 +517,7 @@ export const VehiclePurchaseOrderForm = ({
               title="Información del Vehículo"
               icon={Car}
               className="xl:col-span-3"
-              cols={{ sm: 1, md: 2, lg: 3, xl: 4 }}
+              cols={{ sm: 1, md: 2, lg: 3, xl: 4, "2xl": 5 }}
               gap="gap-3"
             >
               <div className="sm:col-span-1 md:col-span-1 lg:col-span-1 xl:col-span-2">
@@ -543,6 +540,17 @@ export const VehiclePurchaseOrderForm = ({
                   allowClear={true}
                 />
               </div>
+
+              <FormSelect
+                name="supplier_order_type_id"
+                label="Tipo de Pedido"
+                placeholder="Selecciona un tipo"
+                options={supplierOrderTypes.map((item) => ({
+                  label: item.code + " - " + item.description,
+                  value: item.id.toString(),
+                }))}
+                control={form.control}
+              />
 
               <FormSelect
                 name="sede_id"
@@ -621,39 +629,30 @@ export const VehiclePurchaseOrderForm = ({
                 type="number"
               />
 
-              <FormSelect
+              <FormSelectAsync
                 name="vehicle_color_id"
                 label="Color"
                 placeholder="Selecciona un color"
-                options={colors.map((item) => ({
+                useQueryHook={useVehicleColor}
+                mapOptionFn={(item) => ({
                   label: item.description,
                   value: item.id.toString(),
-                  description: item.code,
-                }))}
+                  description: item.code ?? "-",
+                })}
                 control={form.control}
               >
                 <Button
                   type="button"
                   variant="outline"
-                  size={isMobile ? "icon-sm" : "icon-lg"}
+                  size="icon"
                   className="aspect-square"
                   onClick={() => setIsColorModalOpen(true)}
                   title="Agregar nuevo color"
                 >
                   <Plus className="size-2 md:size-4" />
                 </Button>
-              </FormSelect>
+              </FormSelectAsync>
 
-              <FormSelect
-                name="supplier_order_type_id"
-                label="Tipo de Pedido"
-                placeholder="Selecciona un tipo"
-                options={supplierOrderTypes.map((item) => ({
-                  label: item.code + " - " + item.description,
-                  value: item.id.toString(),
-                }))}
-                control={form.control}
-              />
               <FormSelect
                 name="engine_type_id"
                 label="Tipo de Motor"
@@ -745,6 +744,23 @@ export const VehiclePurchaseOrderForm = ({
                             minimumFractionDigits: 2,
                             maximumFractionDigits: 2,
                           })}
+                        </p>
+                      </div>
+                      <div>
+                        <span className="font-medium text-muted-foreground text-xs">
+                          Margen de Ganancia Estimado
+                        </span>
+                        <p className="text-gray-900">
+                          {Number(
+                            ((selectedQuotation.doc_sale_price -
+                              Number(form.watch("total"))) /
+                              Number(form.watch("total"))) *
+                              100,
+                          ).toLocaleString("es-PE", {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })}{" "}
+                          %
                         </p>
                       </div>
                     </div>
@@ -988,7 +1004,7 @@ export const VehiclePurchaseOrderForm = ({
               label="Total (Requerido)"
               type="number"
               placeholder="Ej: 29500.00"
-              step="0.01" 
+              step="0.01"
               min={0}
             />
           </GroupFormSection>
