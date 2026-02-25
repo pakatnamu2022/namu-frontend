@@ -6,6 +6,7 @@ import {
   GetMyAgendaProps,
   MyAgendaResponse,
   CommercialMastersResponse,
+  getOpportunitiesProps,
 } from "./opportunities.interface";
 import { OPPORTUNITIES, OPPORTUNITY_ACTIONS } from "./opportunities.constants";
 import { api } from "@/core/api";
@@ -16,6 +17,7 @@ import {
 } from "./opportunities.schema";
 import { ParamsProps } from "@/core/core.interface";
 import { AP_MASTERS } from "../../../ap-master/lib/apMaster.constants";
+import { FamiliesResponse } from "@/features/ap/configuraciones/vehiculos/familias/lib/families.interface";
 
 const { ENDPOINT } = OPPORTUNITIES;
 const { ENDPOINT: ACTIONS_ENDPOINT } = OPPORTUNITY_ACTIONS;
@@ -168,7 +170,9 @@ export const getCommercialMasters = async ({
 };
 
 // Get families
-export const getFamilies = async (): Promise<any[]> => {
-  const response = await api.get("/ap/configuration/families");
-  return response.data.data;
+export const getFamilies = async (
+  params?: getOpportunitiesProps,
+): Promise<FamiliesResponse> => {
+  const response = await api.get("/ap/configuration/families", { params });
+  return response.data;
 };

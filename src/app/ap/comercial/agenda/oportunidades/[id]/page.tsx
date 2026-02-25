@@ -3,7 +3,6 @@
 import { Link, useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import TitleComponent from "@/shared/components/TitleComponent";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,6 +14,7 @@ import {
   Phone,
   Mail,
   MessageSquare,
+  TextIcon,
 } from "lucide-react";
 import { errorToast } from "@/core/core.function";
 import { Badge } from "@/components/ui/badge";
@@ -36,7 +36,6 @@ import {
 import { GeneralModal } from "@/shared/components/GeneralModal";
 import FormWrapper from "@/shared/components/FormWrapper";
 import { OpportunityActionResource } from "@/features/ap/comercial/oportunidades/lib/opportunityAction.interface";
-import BackButton from "@/shared/components/BackButton";
 import { cn } from "@/lib/utils";
 import EmptyModel from "@/shared/components/EmptyModel";
 import { AGENDA } from "@/features/ap/comercial/agenda/lib/agenda.constants";
@@ -44,6 +43,8 @@ import FormSkeleton from "@/shared/components/FormSkeleton";
 import { useInvalidateQuery } from "@/core/core.hook";
 import { Textarea } from "@/components/ui/textarea";
 import { PURCHASE_REQUEST_QUOTE } from "@/features/ap/comercial/solicitudes-cotizaciones/lib/purchaseRequestQuote.constants";
+import TitleFormComponent from "@/shared/components/TitleFormComponent";
+import { GroupFormSection } from "@/shared/components/GroupFormSection";
 
 const { ABSOLUTE_ROUTE, QUERY_KEY } = OPPORTUNITIES;
 const { ABSOLUTE_ROUTE: AGENDA_ABSOLUTE_ROUTE } = AGENDA;
@@ -99,14 +100,14 @@ export default function OpportunityDetailPage() {
           setEditingAction(null);
           invalidateQueryId();
         },
-      }
+      },
     );
   };
 
   const handleDeleteAction = (actionId: number) => {
     if (isClosedOpportunity) {
       errorToast(
-        "Esta oportunidad está cerrada. No se pueden eliminar acciones."
+        "Esta oportunidad está cerrada. No se pueden eliminar acciones.",
       );
       return;
     }
@@ -116,7 +117,7 @@ export default function OpportunityDetailPage() {
   const handleEditAction = (action: OpportunityActionResource) => {
     if (isClosedOpportunity) {
       errorToast(
-        "Esta oportunidad está cerrada. No se pueden actualizar acciones."
+        "Esta oportunidad está cerrada. No se pueden actualizar acciones.",
       );
       return;
     }
@@ -139,7 +140,7 @@ export default function OpportunityDetailPage() {
           setShowCloseModal(false);
           setCloseComment("");
         },
-      }
+      },
     );
   };
 
@@ -153,26 +154,20 @@ export default function OpportunityDetailPage() {
   return (
     <FormWrapper>
       <HeaderTableWrapper>
-        <div className="flex items-center gap-4 w-full">
-          <BackButton
-            name=""
-            variant="default"
-            size="icon"
-            route={`${ABSOLUTE_ROUTE}`}
-          />
-          <TitleComponent
-            title={`${opportunity.client.full_name}`}
-            subtitle={
-              opportunity.family.brand + " " + opportunity.family.description
-            }
-            // icon="Target"
-            isTruncate={false}
-          />
-        </div>
+        <TitleFormComponent
+          title={opportunity.client.full_name}
+          mode="edit"
+          subtitle={
+            opportunity.family.brand + " " + opportunity.family.description
+          }
+          backRoute={ABSOLUTE_ROUTE}
+        />
+
         {!isClosedOpportunity && (
           <div className="flex justify-end items-center gap-2 w-full">
             <Button
-              variant="tertiary"
+              variant="secondary"
+              color="red"
               size="sm"
               onClick={() => setShowCloseModal(true)}
             >
@@ -180,7 +175,9 @@ export default function OpportunityDetailPage() {
               Cerrar Oportunidad
             </Button>
 
-            <Link to={`${PURCHASE_REQUEST_QUOTE_ROUTE_ADD.replace(':opportunity_id', opportunity.id.toString())}`}>
+            <Link
+              to={`${PURCHASE_REQUEST_QUOTE_ROUTE_ADD.replace(":opportunity_id", opportunity.id.toString())}`}
+            >
               <Button variant="default" size="sm">
                 <FileText className="size-4" />
                 Generar Solicitud
@@ -197,24 +194,23 @@ export default function OpportunityDetailPage() {
         )}
       </HeaderTableWrapper>
 
-      {/* Opportunity Details */}
-      <Card className="w-full">
-        <CardHeader>
-          <div className="flex items-start justify-between">
-            <div>
-              <h2 className="text-base md:text-2xl font-bold text-primary">
-                {opportunity.family.brand} {opportunity.family.description}
-              </h2>
-              <p className="text-xs md:text-base text-muted-foreground">
-                {opportunity.opportunity_type}
-              </p>
-            </div>
-            <Badge variant="ghost" className={cn(statusColor)}>
-              {opportunity.opportunity_status}
-            </Badge>
+      <GroupFormSection
+        title="Detalles de la Oportunidad"
+        cols={{ sm: 1 }}
+        icon={TextIcon}
+      >
+        <div className="flex items-start justify-between">
+          <div>
+            <h2 className="text-base md:text-2xl font-bold text-primary"></h2>
+            <p className="text-xs md:text-base text-muted-foreground">
+              {opportunity.opportunity_type}
+            </p>
           </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
+          <Badge variant="ghost" className={cn(statusColor)}>
+            {opportunity.opportunity_status}
+          </Badge>
+        </div>
+        <div className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
             <div>
               <p className="text-xs md:text-sm text-muted-foreground">
@@ -245,7 +241,7 @@ export default function OpportunityDetailPage() {
           </div>
 
           {/* Información de contacto del cliente */}
-          <div className="space-y-4 p-4 rounded-lg border border-gray-200 bg-linear-to-br from-gray-50 to-white">
+          <div className="space-y-4 p-4 rounded-lg bg-linear-to-br from-gray-50 to-white">
             <p className="text-sm font-bold text-gray-900">
               Información de Contacto
             </p>
@@ -258,7 +254,9 @@ export default function OpportunityDetailPage() {
                     <Phone className="size-4 text-blue-600" />
                   </div>
                   <div className="flex-1">
-                    <p className="text-xs text-gray-500 font-medium">Teléfono</p>
+                    <p className="text-xs text-gray-500 font-medium">
+                      Teléfono
+                    </p>
                     <p className="text-sm font-semibold text-gray-900">
                       {opportunity.client.phone || "Sin teléfono"}
                     </p>
@@ -271,7 +269,9 @@ export default function OpportunityDetailPage() {
                       className="h-9 gap-2 text-xs font-medium text-white"
                       asChild
                     >
-                      <a href={`tel:+51${opportunity.client.phone.replace(/[\s\-()]/g, "")}`}>
+                      <a
+                        href={`tel:+51${opportunity.client.phone.replace(/[\s\-()]/g, "")}`}
+                      >
                         <Phone className="size-3.5" />
                         Llamar
                       </a>
@@ -352,7 +352,9 @@ export default function OpportunityDetailPage() {
                       className="h-9 gap-2 text-xs font-medium text-white"
                       asChild
                     >
-                      <a href={`tel:+51${opportunity.client.secondary_phone.replace(/[\s\-()]/g, "")}`}>
+                      <a
+                        href={`tel:+51${opportunity.client.secondary_phone.replace(/[\s\-()]/g, "")}`}
+                      >
                         <Phone className="size-3.5" />
                         Llamar
                       </a>
@@ -409,7 +411,7 @@ export default function OpportunityDetailPage() {
           </div>
 
           {isClosedOpportunity && (
-            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 space-y-3">
+            <div className="bg-gray-50 rounded-lg p-4 space-y-3">
               <div className="flex items-center gap-4">
                 <CircleX className="size-6 text-gray-600" />
                 <p className="text-gray-800 font-semibold">
@@ -429,12 +431,12 @@ export default function OpportunityDetailPage() {
               )}
             </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </GroupFormSection>
 
       {/* Actions Timeline */}
-      <Card className="border-none shadow-none">
-        <CardHeader className="px-0 md:p-6">
+      <Card className="border-none shadow-none gap-3">
+        <CardHeader>
           <div className="flex items-center justify-between">
             <div className="flex gap-2 items-center">
               <NotebookText className="size-5 text-primary" />
