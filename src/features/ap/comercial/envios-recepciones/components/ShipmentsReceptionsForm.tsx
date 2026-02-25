@@ -12,7 +12,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Hash, Loader, Truck, Search } from "lucide-react";
 import {
@@ -621,7 +620,7 @@ export const ShipmentsReceptionsForm = ({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(handleFormSubmit)}
-        className="space-y-6 w-full"
+        className="space-y-6 w-full grid grid-cols-1 lg:grid-cols-2 gap-3"
       >
         {/* Sección: Información del Traslado */}
         <GroupFormSection
@@ -633,9 +632,7 @@ export const ShipmentsReceptionsForm = ({
             sm: 1,
             md: 2,
             lg: 3,
-            xl: 4,
           }}
-          gap="gap-3"
           headerExtra={
             nextDocumentNumber ? (
               <div className="flex items-center gap-1.5 text-xs font-mono bg-muted border border-border rounded px-2 py-0.5">
@@ -691,26 +688,13 @@ export const ShipmentsReceptionsForm = ({
 
           {/* Serie - Condicional según Tipo de Emisor */}
           {watchIssuerType === "PROVEEDOR" ? (
-            <FormField
+            <FormInput
               control={form.control}
               name="series"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Serie</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Ej: T001"
-                      className="uppercase"
-                      maxLength={4}
-                      {...field}
-                      onChange={(e) =>
-                        field.onChange(e.target.value.toUpperCase())
-                      }
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              label="Serie"
+              placeholder="Ej: T001"
+              maxLength={4}
+              uppercase
             />
           ) : (
             <FormSelect
@@ -729,18 +713,11 @@ export const ShipmentsReceptionsForm = ({
 
           {/* Correlativo - Condicional según Tipo de Emisor */}
           {watchIssuerType === "PROVEEDOR" && (
-            <FormField
+            <FormInput
               control={form.control}
               name="correlative"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Correlativo</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Ej: 00001234" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              label="Correlativo"
+              placeholder="Ej: 00001234"
             />
           )}
 
@@ -816,32 +793,19 @@ export const ShipmentsReceptionsForm = ({
             disabledRange={{ before: new Date() }}
           />
 
-          <FormField
+          <FormInput
             control={form.control}
             name="total_packages"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Núm. Bultos</FormLabel>
-                <FormControl>
-                  <Input type="number" placeholder="1" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Núm. Bultos"
+            placeholder="1"
+            type="number"
           />
 
-          <FormField
+          <FormInput
             control={form.control}
             name="total_weight"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Peso Total</FormLabel>
-                <FormControl>
-                  <Input placeholder="779.55" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Peso Total"
+            placeholder="779.55"
           />
         </GroupFormSection>
 
@@ -854,12 +818,10 @@ export const ShipmentsReceptionsForm = ({
           cols={{
             sm: 1,
             md: 2,
-            lg: 3,
-            xl: 4,
           }}
-          gap="gap-3"
         >
-          {/* Ubicación Origen */}
+          {/* Ubicación Origen y Destino */}
+          <div className="col-span-full grid grid-cols-1 md:grid-cols-2 gap-3">
           <div className="space-y-2">
             <FormSelect
               name="transmitter_origin_id"
@@ -942,18 +904,21 @@ export const ShipmentsReceptionsForm = ({
               </div>
             )}
           </div>
+          </div>
 
-          <FormSelect
-            name="transport_company_id"
-            label="Empresa Transporte"
-            placeholder="Selecciona empresa"
-            options={suppliers.map((item) => ({
-              label: item.full_name,
-              value: item.id.toString(),
-            }))}
-            control={form.control}
-            strictFilter={true}
-          />
+          <div className="col-span-full">
+            <FormSelect
+              name="transport_company_id"
+              label="Empresa Transporte"
+              placeholder="Selecciona empresa"
+              options={suppliers.map((item) => ({
+                label: item.full_name,
+                value: item.id.toString(),
+              }))}
+              control={form.control}
+              strictFilter={true}
+            />
+          </div>
 
           <FormInput
             control={form.control}
@@ -985,88 +950,61 @@ export const ShipmentsReceptionsForm = ({
             }
           />
 
-          <FormField
+          <FormInput
             control={form.control}
             name="driver_name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Nombre del Conductor</FormLabel>
-                <FormControl>
-                  <Input placeholder="Nombre completo" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Nombre del Conductor"
+            placeholder="Nombre completo"
+            uppercase
           />
 
-          <FormField
+          <FormInput
             control={form.control}
             name="license"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="flex items-center gap-2 relative">
-                  Licencia de Conducir
-                  {conductorDniData?.success &&
-                    conductorDniData.data?.licencia?.estado && (
-                      <span className="text-xs font-normal text-primary absolute right-0">
-                        {conductorDniData.data.licencia.estado}
-                      </span>
-                    )}
-                </FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: Q12345678" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label={
+              <div className="flex items-center gap-2 relative">
+                Licencia de Conducir
+                {conductorDniData?.success &&
+                  conductorDniData.data?.licencia?.estado && (
+                    <span className="text-xs font-normal text-primary absolute right-0">
+                      {conductorDniData.data.licencia.estado}
+                    </span>
+                  )}
+              </div>
+            }
+            uppercase
+            placeholder="Ej: Q12345678"
           />
 
-          <FormField
+          <FormInput
             control={form.control}
             name="plate"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Placa del Vehículo (cigueña)</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="Ej: ABC-123"
-                    className="uppercase"
-                    {...field}
-                    onChange={(e) =>
-                      field.onChange(e.target.value.toUpperCase())
-                    }
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Placa del Vehículo (cigueña)"
+            placeholder="Ej: ABC-123"
+            uppercase
           />
-        </GroupFormSection>
 
-        {/* Sección: Observaciones */}
-        <div className="space-y-4">
-          <FormField
-            control={form.control}
-            name="notes"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Notas u Observaciones</FormLabel>
-                <FormControl>
-                  <Textarea
-                    placeholder="Observaciones adicionales sobre el traslado..."
-                    className="resize-none"
-                    rows={4}
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
+          <div className="space-y-4 col-span-full">
+            <FormField
+              control={form.control}
+              name="notes"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Notas u Observaciones</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Observaciones adicionales sobre el traslado..."
+                      className="resize-none"
+                      rows={4}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
 
-        {/* Sección: Imagen de la Guía */}
-        <div className="space-y-4">
           <ImageUploadField
             form={form}
             name="file"
@@ -1074,14 +1012,11 @@ export const ShipmentsReceptionsForm = ({
             maxSizeInMB={5}
             required={false}
           />
-        </div>
-        {/* 
-        <pre>
-          <code>{JSON.stringify(form.getValues(), null, 2)}</code>
-        </pre> */}
+        </GroupFormSection>
 
         {/* Botones de Acción */}
-        <div className="flex gap-4 w-full justify-end">
+        <div className="flex flex-col gap-4 col-span-full">
+          <div className="flex gap-4 justify-end mt-auto">
           <ConfirmationDialog
             trigger={
               <Button type="button" variant="outline">
@@ -1111,6 +1046,7 @@ export const ShipmentsReceptionsForm = ({
                 ? "Crear Guía de Remisión"
                 : "Actualizar Guía de Remisión"}
           </Button>
+          </div>
         </div>
 
         {/* Modales para selección de establecimientos */}
