@@ -15,12 +15,14 @@ import { useCreateShipmentsReceptions } from "@/features/ap/comercial/envios-rec
 import { ShipmentsReceptionsSchema } from "@/features/ap/comercial/envios-recepciones/lib/shipmentsReceptions.schema";
 import { notFound } from "@/shared/hooks/useNotFound";
 import PageWrapper from "@/shared/components/PageWrapper";
+import { useEffect } from "react";
+import { useSidebar } from "@/components/ui/sidebar";
 
 export default function AddShipmentsReceptionsPage() {
   const router = useNavigate();
   const { currentView, checkRouteExists } = useCurrentModule();
   const { ROUTE, MODEL, ABSOLUTE_ROUTE } = SHIPMENTS_RECEPTIONS;
-
+  const { setOpen, setOpenMobile } = useSidebar();
   const createMutation = useCreateShipmentsReceptions();
 
   const handleSubmit = (data: ShipmentsReceptionsSchema) => {
@@ -39,6 +41,11 @@ export default function AddShipmentsReceptionsPage() {
   const handleCancel = () => {
     router(ABSOLUTE_ROUTE);
   };
+
+  useEffect(() => {
+    setOpen(false);
+    setOpenMobile(false);
+  }, []);
 
   if (!checkRouteExists(ROUTE)) notFound();
 
