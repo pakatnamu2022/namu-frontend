@@ -166,7 +166,7 @@ export default function OpportunityDetailPage() {
         {!isClosedOpportunity && (
           <div className="flex justify-end items-center gap-2 w-full">
             <Button
-              variant="secondary"
+              variant="ghost"
               color="red"
               size="sm"
               onClick={() => setShowCloseModal(true)}
@@ -175,19 +175,19 @@ export default function OpportunityDetailPage() {
               Cerrar Oportunidad
             </Button>
 
+            <Link to={`${ABSOLUTE_ROUTE}/actualizar/${opportunity.id}`}>
+              <Button variant="secondary" color="primary" size="sm">
+                <Edit className="size-4" />
+                Editar
+              </Button>
+            </Link>
+
             <Link
               to={`${PURCHASE_REQUEST_QUOTE_ROUTE_ADD.replace(":opportunity_id", opportunity.id.toString())}`}
             >
               <Button variant="default" size="sm">
                 <FileText className="size-4" />
                 Generar Solicitud
-              </Button>
-            </Link>
-
-            <Link to={`${ABSOLUTE_ROUTE}/actualizar/${opportunity.id}`}>
-              <Button variant="outline" size="sm">
-                <Edit className="size-4" />
-                Editar
               </Button>
             </Link>
           </div>
@@ -199,13 +199,10 @@ export default function OpportunityDetailPage() {
         cols={{ sm: 1 }}
         icon={TextIcon}
       >
-        <div className="flex items-start justify-between">
-          <div>
-            <h2 className="text-base md:text-2xl font-bold text-primary"></h2>
-            <p className="text-xs md:text-base text-muted-foreground">
-              {opportunity.opportunity_type}
-            </p>
-          </div>
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-muted-foreground">
+            {opportunity.opportunity_type}
+          </p>
           <Badge variant="ghost" className={cn(statusColor)}>
             {opportunity.opportunity_status}
           </Badge>
@@ -241,7 +238,7 @@ export default function OpportunityDetailPage() {
           </div>
 
           {/* Información de contacto del cliente */}
-          <div className="space-y-4 p-4 rounded-lg bg-linear-to-br from-gray-50 to-white">
+          <div className="space-y-4 p-4 rounded-lg bg-muted/40">
             <p className="text-sm font-bold text-gray-900">
               Información de Contacto
             </p>
@@ -264,11 +261,7 @@ export default function OpportunityDetailPage() {
                 </div>
                 {opportunity.client.phone && (
                   <div className="flex gap-2 ml-11">
-                    <Button
-                      size="sm"
-                      className="h-9 gap-2 text-xs font-medium text-white"
-                      asChild
-                    >
+                    <Button size="sm" color="blue" asChild>
                       <a
                         href={`tel:+51${opportunity.client.phone.replace(/[\s\-()]/g, "")}`}
                       >
@@ -276,11 +269,7 @@ export default function OpportunityDetailPage() {
                         Llamar
                       </a>
                     </Button>
-                    <Button
-                      size="sm"
-                      className="h-9 gap-2 text-xs font-medium bg-green-700 hover:bg-green-800 text-white"
-                      asChild
-                    >
+                    <Button size="sm" color="green" asChild>
                       <a
                         href={`https://wa.me/51${opportunity.client.phone.replace(/[\s\-()]/g, "")}`}
                         target="_blank"
@@ -297,8 +286,8 @@ export default function OpportunityDetailPage() {
               {/* Email */}
               <div className="space-y-2">
                 <div className="flex items-center gap-3">
-                  <div className="bg-red-100 p-2 rounded-lg">
-                    <Mail className="size-4 text-secondary" />
+                  <div className="bg-indigo-100 p-2 rounded-lg">
+                    <Mail className="size-4 text-indigo-600" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-xs text-gray-500 font-medium">
@@ -311,11 +300,7 @@ export default function OpportunityDetailPage() {
                 </div>
                 {opportunity.client.email && (
                   <div className="ml-11">
-                    <Button
-                      size="sm"
-                      className="h-9 gap-2 text-xs font-medium bg-secondary hover:bg-secondary/90 text-white"
-                      asChild
-                    >
+                    <Button color="indigo" size="sm" asChild>
                       <a href={`mailto:${opportunity.client.email}`}>
                         <Mail className="size-3.5" />
                         Enviar correo
@@ -347,11 +332,7 @@ export default function OpportunityDetailPage() {
                     </div>
                   </div>
                   <div className="flex gap-2 ml-11">
-                    <Button
-                      size="sm"
-                      className="h-9 gap-2 text-xs font-medium text-white"
-                      asChild
-                    >
+                    <Button size="sm" color="blue" asChild>
                       <a
                         href={`tel:+51${opportunity.client.secondary_phone.replace(/[\s\-()]/g, "")}`}
                       >
@@ -359,11 +340,7 @@ export default function OpportunityDetailPage() {
                         Llamar
                       </a>
                     </Button>
-                    <Button
-                      size="sm"
-                      className="h-9 gap-2 text-xs font-medium bg-green-700 hover:bg-green-800 text-white"
-                      asChild
-                    >
+                    <Button size="sm" color="green" asChild>
                       <a
                         href={`https://wa.me/51${opportunity.client.secondary_phone.replace(/[\s\-()]/g, "")}`}
                         target="_blank"
@@ -394,11 +371,7 @@ export default function OpportunityDetailPage() {
                     </div>
                   </div>
                   <div className="ml-11">
-                    <Button
-                      size="sm"
-                      className="h-9 gap-2 text-xs font-medium bg-secondary hover:bg-secondary/90 text-white"
-                      asChild
-                    >
+                    <Button size="sm" asChild>
                       <a href={`mailto:${opportunity.client.secondary_email}`}>
                         <Mail className="size-3.5" />
                         Enviar correo
@@ -411,20 +384,20 @@ export default function OpportunityDetailPage() {
           </div>
 
           {isClosedOpportunity && (
-            <div className="bg-gray-50 rounded-lg p-4 space-y-3">
-              <div className="flex items-center gap-4">
-                <CircleX className="size-6 text-gray-600" />
-                <p className="text-gray-800 font-semibold">
+            <div className="bg-muted/50 rounded-lg p-4 space-y-3">
+              <div className="flex items-center gap-3">
+                <CircleX className="size-5 text-muted-foreground shrink-0" />
+                <p className="text-sm font-semibold text-foreground">
                   Esta oportunidad está cerrada. No se pueden modificar
                   acciones.
                 </p>
               </div>
               {opportunity.comment && (
-                <div className="pl-10">
-                  <p className="text-sm text-muted-foreground mb-1">
+                <div className="pl-8">
+                  <p className="text-xs text-muted-foreground mb-1">
                     Comentario de cierre:
                   </p>
-                  <p className="text-sm text-gray-700 bg-white border border-gray-200 rounded-md p-3">
+                  <p className="text-sm text-foreground bg-background border rounded-md p-3">
                     {opportunity.comment}
                   </p>
                 </div>
@@ -470,7 +443,9 @@ export default function OpportunityDetailPage() {
           setEditingAction(null);
         }}
         title={editingAction ? "Editar Acción" : "Nueva Acción"}
-        maxWidth="!max-w-(--breakpoint-md)"
+        subtitle="Registra las acciones de seguimiento realizadas"
+        icon="Activity"
+        size="2xl"
       >
         <OpportunityActionForm
           defaultValues={{
