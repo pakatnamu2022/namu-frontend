@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
+  Hash,
   Loader,
   Truck,
   Search,
@@ -61,6 +62,7 @@ import { CM_COMERCIAL_ID } from "@/features/ap/ap-master/lib/apMaster.constants"
 import { useQueryClient } from "@tanstack/react-query";
 import VehicleModal from "../../vehiculos/components/VehicleModal";
 import { VEHICLES } from "../../vehiculos/lib/vehicles.constants";
+import { useNextShippingGuideDocumentNumber } from "../lib/controlUnits.hook";
 
 interface ControlUnitsFormProps {
   defaultValues: Partial<ControlUnitsSchema> & {
@@ -201,6 +203,12 @@ export const ControlUnitsForm = ({
   const watchSedeTransmitterId = form.watch("sede_transmitter_id");
   const watchArticleClassId = form.watch("ap_class_article_id");
   const watchDocumentSeriesId = form.watch("document_series_id");
+
+  const { data: nextDocumentNumber } = useNextShippingGuideDocumentNumber(
+    mode === "create" && watchIssuerType === "SYSTEM" && watchDocumentSeriesId
+      ? Number(watchDocumentSeriesId)
+      : undefined,
+  );
 
   // Get vehicles filtrados por sede
   // Si es COMPRA: is_received = 0 (vehículos que no han sido recibidos)
@@ -655,6 +663,14 @@ export const ControlUnitsForm = ({
             md: 2,
             lg: 3,
           }}
+          headerExtra={
+            nextDocumentNumber ? (
+              <div className="flex items-center gap-1.5 text-xs font-mono bg-muted border border-border rounded px-2 py-0.5">
+                <Hash className="size-3 text-muted-foreground" />
+                <span className="font-semibold">{nextDocumentNumber.document_number}</span>
+              </div>
+            ) : undefined
+          }
         >
           {/* Alert Consignación */}
           <Alert variant="info" className="col-span-full">

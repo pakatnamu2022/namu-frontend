@@ -144,6 +144,22 @@ export async function storeConsignment(
   return data;
 }
 
+export interface NextDocumentNumber {
+  series: string;
+  correlative: string;
+  document_number: string;
+}
+
+export async function getNextShippingGuideDocumentNumber(
+  documentSeriesId: number
+): Promise<NextDocumentNumber> {
+  const { data } = await api.get<NextDocumentNumber>(
+    "/ap/commercial/shippingGuides/next-document-number",
+    { params: { document_series_id: documentSeriesId } }
+  );
+  return data;
+}
+
 // Función para cancelar guía de remisión
 export async function cancelShippingGuide(
   id: number,

@@ -14,7 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader, Truck, Search } from "lucide-react";
+import { Hash, Loader, Truck, Search } from "lucide-react";
 import {
   ShipmentsReceptionsSchema,
   shipmentsReceptionsSchemaCreate,
@@ -54,6 +54,7 @@ import { useAllVehicles } from "../../vehiculos/lib/vehicles.hook";
 import { TYPES_OPERATION_ID } from "@/features/ap/configuraciones/maestros-general/tipos-operacion/lib/typesOperation.constants";
 import { CM_COMERCIAL_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 import { FormInput } from "@/shared/components/FormInput";
+import { useNextShippingGuideDocumentNumber } from "../lib/shipmentsReceptions.hook";
 
 interface ShipmentsReceptionsFormProps {
   defaultValues: Partial<ShipmentsReceptionsSchema> & {
@@ -159,6 +160,12 @@ export const ShipmentsReceptionsForm = ({
   const watchSedeTransmitterId = form.watch("sede_transmitter_id");
   const watchArticleClassId = form.watch("ap_class_article_id");
   const watchDocumentSeriesId = form.watch("document_series_id");
+
+  const { data: nextDocumentNumber } = useNextShippingGuideDocumentNumber(
+    mode === "create" && watchIssuerType === "SYSTEM" && watchDocumentSeriesId
+      ? Number(watchDocumentSeriesId)
+      : undefined,
+  );
 
   // Get vehicles filtrados por sede
   // Si es COMPRA: is_received = 0 (vehículos que no han sido recibidos)
@@ -629,6 +636,14 @@ export const ShipmentsReceptionsForm = ({
             xl: 4,
           }}
           gap="gap-3"
+          headerExtra={
+            nextDocumentNumber ? (
+              <div className="flex items-center gap-1.5 text-xs font-mono bg-muted border border-border rounded px-2 py-0.5">
+                <Hash className="size-3 text-muted-foreground" />
+                <span className="font-semibold">{nextDocumentNumber.document_number}</span>
+              </div>
+            ) : undefined
+          }
         >
           <FormSelect
             control={form.control}

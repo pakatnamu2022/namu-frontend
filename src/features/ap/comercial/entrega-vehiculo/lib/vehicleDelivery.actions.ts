@@ -88,6 +88,22 @@ export async function generateOrUpdateShippingGuide(
   return data;
 }
 
+export interface NextShippingGuideDocumentNumber {
+  series: string;
+  correlative: string;
+  document_number: string;
+}
+
+export async function getNextShippingGuideDocumentNumber(
+  documentSeriesId: number
+): Promise<NextShippingGuideDocumentNumber> {
+  const { data } = await api.get<NextShippingGuideDocumentNumber>(
+    "/ap/commercial/shippingGuides/next-document-number",
+    { params: { document_series_id: documentSeriesId } }
+  );
+  return data;
+}
+
 // Función para enviar a Dynamic
 export async function sendVehicleDeliveryToDynamic(
   id: number
