@@ -9,7 +9,7 @@ import { ClipboardMinus } from "lucide-react";
 import { useAllBrands } from "../../marcas/lib/brands.hook";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { useAllFamilies } from "../../familias/lib/families.hook";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { CM_POSTVENTA_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 import {
@@ -53,24 +53,16 @@ export const ModelsVnPvForm = ({
     brand_id: marcaSeleccionada,
   });
 
+  const initialBrandId = useRef(defaultValues.brand_id ?? "");
+
   useEffect(() => {
-    if (mode === "create") {
-      if (marcaSeleccionada) {
-        const familiaActual = form.getValues("family_id");
-        if (familiaActual) {
-          form.setValue("family_id", "", {
-            shouldValidate: false,
-            shouldDirty: true,
-          });
-        }
-      } else {
-        form.setValue("family_id", "", {
-          shouldValidate: false,
-          shouldDirty: true,
-        });
-      }
-    }
-  }, [marcaSeleccionada, form, mode]);
+    if (marcaSeleccionada === initialBrandId.current) return;
+    // Solo limpiar family_id cuando el usuario cambia la marca respecto al valor inicial
+    form.setValue("family_id", "", {
+      shouldValidate: false,
+      shouldDirty: true,
+    });
+  }, [marcaSeleccionada, form]);
 
   const getFamilyOptions = () => {
     if (!marcaSeleccionada) {

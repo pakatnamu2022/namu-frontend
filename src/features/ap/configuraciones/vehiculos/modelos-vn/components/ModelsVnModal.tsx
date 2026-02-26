@@ -90,7 +90,7 @@ export default function ModelsVnModal({
           onCancel={onClose}
           onSubmit={handleSubmit}
           isSubmitting={isPending}
-          mode="create"
+          mode={mode}
         />
       ) : (
         <FormSkeleton />
