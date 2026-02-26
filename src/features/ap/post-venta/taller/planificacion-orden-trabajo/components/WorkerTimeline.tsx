@@ -9,8 +9,9 @@ import {
 import { Badge } from "@/components/ui/badge";
 import {
   WorkOrderPlanningResource,
-  PLANNING_STATUS_COLORS,
-  PLANNING_STATUS_LABELS,
+  PLANNING_VISUAL_STATE_COLORS,
+  PLANNING_VISUAL_STATE_LABELS,
+  getPlanningVisualState,
 } from "../lib/workOrderPlanning.interface";
 import {
   WORK_SCHEDULE,
@@ -242,7 +243,13 @@ export function WorkerTimeline({
   }, [selectedWorkOrder, activeGroup]);
 
   // Horarios en minutos desde medianoche (definidos en workOrderPlanning.constants.ts)
-  const { MORNING_START, MORNING_END, LUNCH_START, AFTERNOON_START, AFTERNOON_END } = WORK_SCHEDULE;
+  const {
+    MORNING_START,
+    MORNING_END,
+    LUNCH_START,
+    AFTERNOON_START,
+    AFTERNOON_END,
+  } = WORK_SCHEDULE;
 
   const { data: workers = [] } = useAllWorkers({
     cargo_id: POSITION_TYPE.OPERATORS,
@@ -352,6 +359,15 @@ export function WorkerTimeline({
     const startMin = startTime.getMinutes();
     const startTotalMin = startHour * 60 + startMin;
     const endTotalMin = endHour * 60 + endMinute;
+
+    // Si el día seleccionado es hoy, no permitir horas pasadas
+    if (isSameDay(selectedDate, new Date())) {
+      const now = new Date();
+      const nowTotalMin = now.getHours() * 60 + now.getMinutes();
+      if (startTotalMin < nowTotalMin) {
+        return false;
+      }
+    }
 
     // Verificar que no cruce el almuerzo
     if (startTotalMin < LUNCH_START && endTotalMin > LUNCH_START) {
@@ -792,18 +808,18 @@ export function WorkerTimeline({
       )}
 
       <div className="flex items-center gap-6 p-4 bg-gray-50 rounded-lg flex-wrap">
-        <div className="flex items-center gap-2">
-          <div className="w-4 h-4 bg-blue-200 border-2 border-blue-500 rounded"></div>
-          <span className="text-sm">Planificado</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="w-4 h-4 bg-amber-200 border-2 border-amber-500 rounded"></div>
-          <span className="text-sm">Caso Excepcional</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="w-4 h-4 bg-green-500 rounded"></div>
-          <span className="text-sm">Completado</span>
-        </div>
+        {(
+          ["planned", "paused", "in_progress", "overtime", "completed"] as const
+        ).map((state) => (
+          <div key={state} className="flex items-center gap-2">
+            <div
+              className={`w-4 h-4 rounded border-2 ${PLANNING_VISUAL_STATE_COLORS[state].bg} ${PLANNING_VISUAL_STATE_COLORS[state].border}`}
+            />
+            <span className="text-sm">
+              {PLANNING_VISUAL_STATE_LABELS[state]}
+            </span>
+          </div>
+        ))}
         <div className="flex items-center gap-2">
           <TrendingUp className="h-4 w-4 text-green-600" />
           <span className="text-sm">Más eficiente</span>
@@ -907,26 +923,21 @@ export function WorkerTimeline({
                             }}
                             onClick={() => onPlanningClick?.(planning)}
                           >
-                            {/* Barra única - color según estado o tipo */}
+                            {/* Barra única - color según estado visual */}
                             <div
                               className={`h-5 rounded border-2 ${
                                 isExternal
                                   ? "border-amber-500 bg-amber-200"
-                                  : PLANNING_STATUS_COLORS[planning.status]
-                                      .border
-                              } ${
-                                !isExternal && planning.actual_start_datetime
-                                  ? PLANNING_STATUS_COLORS[planning.status].bg
-                                  : !isExternal
-                                    ? "bg-blue-200 opacity-50"
-                                    : ""
+                                  : `${PLANNING_VISUAL_STATE_COLORS[getPlanningVisualState(planning)].border} ${PLANNING_VISUAL_STATE_COLORS[getPlanningVisualState(planning)].bg}`
                               }`}
                             ></div>
 
                             {/* Texto centrado */}
                             <div className="absolute top-0 left-0 right-0 h-5 flex items-center justify-center pointer-events-none z-10">
                               <div className="flex items-center gap-1 px-1">
-                                <span className="text-[10px] font-medium truncate text-gray-900">
+                                <span
+                                  className={`text-[10px] font-medium truncate ${isExternal ? "text-amber-900" : PLANNING_VISUAL_STATE_COLORS[getPlanningVisualState(planning)].text}`}
+                                >
                                   {planning.work_order_correlative}
                                 </span>
                                 {isExternal && (
@@ -1023,15 +1034,13 @@ export function WorkerTimeline({
                               </div>
                             </div>
                             <Badge
-                              className={`${
-                                PLANNING_STATUS_COLORS[planning.status].bg
-                              } ${
-                                PLANNING_STATUS_COLORS[planning.status].text
-                              } hover:${
-                                PLANNING_STATUS_COLORS[planning.status].bg
-                              }`}
+                              className={`${PLANNING_VISUAL_STATE_COLORS[getPlanningVisualState(planning)].bg} ${PLANNING_VISUAL_STATE_COLORS[getPlanningVisualState(planning)].text} hover:${PLANNING_VISUAL_STATE_COLORS[getPlanningVisualState(planning)].bg}`}
                             >
-                              {PLANNING_STATUS_LABELS[planning.status]}
+                              {
+                                PLANNING_VISUAL_STATE_LABELS[
+                                  getPlanningVisualState(planning)
+                                ]
+                              }
                             </Badge>
                           </div>
                         </TooltipContent>

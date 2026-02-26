@@ -133,3 +133,42 @@ export const DEFAULT_GROUP_COLOR = {
 export interface getWorkOrderProps {
   params?: Record<string, any>;
 }
+
+export interface VehicleWorkOrderHistoryWork {
+  description: string;
+  actual_hours: number | null;
+  worker: string | null;
+  actual_start_datetime: string | null;
+  actual_end_datetime: string | null;
+  status: string;
+}
+
+export interface VehicleWorkOrderHistoryPart {
+  description: string;
+  quantity: string;
+}
+
+export interface VehicleWorkOrderHistoryItem {
+  correlative: string;
+  opening_date: string;
+  estimated_delivery_date: string | null;
+  actual_delivery_date: string | null;
+  diagnosis_date: string | null;
+  status: string;
+  sede: string;
+  advisor: string;
+  is_guarantee: boolean;
+  is_recall: boolean;
+  description_recall: string | null;
+  type_recall: string | null;
+  observations: string | null;
+  works_performed: VehicleWorkOrderHistoryWork[];
+  parts_used: VehicleWorkOrderHistoryPart[];
+}
+
+export interface VehicleWorkOrderHistoryResponse {
+  vehicle_id: number;
+  vehicle_plate: string;
+  vehicle_vin: string;
+  data: VehicleWorkOrderHistoryItem[];
+}
