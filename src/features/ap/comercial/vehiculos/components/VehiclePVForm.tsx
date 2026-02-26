@@ -406,6 +406,7 @@ export const VehiclePVForm = ({
           });
         }}
         title="Agregar Nuevo Modelo VN"
+        mode="create"
       />
     </Form>
   );
