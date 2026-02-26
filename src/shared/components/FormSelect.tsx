@@ -199,6 +199,7 @@ interface FormSelectProps {
   popoverWidth?: string;
   portalContainer?: HTMLElement | null;
   size?: "sm" | "default" | "lg";
+  selectOnFocus?: boolean;
 }
 
 export function FormSelect({
@@ -224,6 +225,7 @@ export function FormSelect({
   popoverWidth = "min-w-(--radix-popover-trigger-width)! w-auto",
   size,
   portalContainer,
+  selectOnFocus = true,
 }: FormSelectProps) {
   const [open, setOpen] = useState(false);
   const isMobile = useIsMobile();
@@ -237,7 +239,12 @@ export function FormSelect({
 
         // Auto-select if only one option is available
         useEffect(() => {
-          if (options.length === 1 && !field.value && !disabled) {
+          if (
+            selectOnFocus &&
+            options.length === 1 &&
+            !field.value &&
+            !disabled
+          ) {
             field.onChange(options[0].value);
           }
         }, [options, field.value, disabled]);
