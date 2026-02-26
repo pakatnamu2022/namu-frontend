@@ -118,11 +118,10 @@ export const DiscountRequestWorkOrderModal = ({
         requested_discount_amount: computedDiscountMonto,
         item_type: data.item_type,
         ap_work_order_id: workOrderId,
+        part_labour_model:
+          type === TYPE_PARTIAL ? partLabourModel : data.item_type,
         ...(type === TYPE_PARTIAL && partLabourId !== undefined
-          ? {
-              part_labour_id: partLabourId,
-              part_labour_model: partLabourModel,
-            }
+          ? { part_labour_id: partLabourId }
           : {}),
       };
       return isEditing
