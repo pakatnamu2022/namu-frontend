@@ -21,6 +21,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
+import FormSkeleton from "./FormSkeleton";
 
 export interface GeneralSheetProps {
   open: boolean;
@@ -35,6 +36,7 @@ export interface GeneralSheetProps {
   icon?: keyof typeof LucideReact;
   size?: Size;
   type?: "default" | "tablet" | "mobile";
+  isLoading?: boolean;
 }
 
 type Size =
@@ -78,6 +80,7 @@ const GeneralSheet: React.FC<GeneralSheetProps> = ({
   icon,
   size = "lg",
   type,
+  isLoading,
 }) => {
   const isMobile = useIsMobile();
   const isTablet = useIsTablet();
@@ -131,7 +134,7 @@ const GeneralSheet: React.FC<GeneralSheetProps> = ({
             <SheetClose onClick={onClose} />
           </SheetHeader>
           <div className="no-scrollbar overflow-y-auto py-2 px-4 h-full">
-            {children}
+            {isLoading ? <FormSkeleton /> : children}
           </div>
           <SheetFooter>{childrenFooter}</SheetFooter>
         </SheetContent>
@@ -167,7 +170,7 @@ const GeneralSheet: React.FC<GeneralSheetProps> = ({
             <DrawerClose onClick={onClose} />
           </DrawerHeader>
           <div className="no-scrollbar overflow-y-auto py-2 px-4 h-full">
-            {children}
+            {isLoading ? <FormSkeleton /> : children}
           </div>
           <DrawerFooter>{childrenFooter}</DrawerFooter>
         </DrawerContent>

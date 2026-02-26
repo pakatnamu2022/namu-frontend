@@ -4,7 +4,7 @@ import GeneralSheet from "@/shared/components/GeneralSheet";
 import { Badge } from "@/components/ui/badge";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { NumberFormat } from "@/shared/components/NumberFormat";
-import { PurchaseRequestQuoteResource } from "../lib/purchaseRequestQuote.interface";
+import { usePurchaseRequestQuoteById } from "../lib/purchaseRequestQuote.hook";
 import {
   FileText,
   User,
@@ -26,30 +26,33 @@ import {
 interface PurchaseRequestQuoteDetailModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  quote: PurchaseRequestQuoteResource;
+  id: number;
 }
 
 export default function PurchaseRequestQuoteDetailModal({
   open,
   onOpenChange,
-  quote,
+  id,
 }: PurchaseRequestQuoteDetailModalProps) {
+  const { data: quote, isLoading } = usePurchaseRequestQuoteById(id);
+
   const hasBonusDiscounts =
-    quote.bonus_discounts && quote.bonus_discounts.length > 0;
-  const hasAccessories = quote.accessories && quote.accessories.length > 0;
-  const model = quote.ap_vehicle?.model ?? quote.model;
+    quote?.bonus_discounts && quote.bonus_discounts.length > 0;
+  const hasAccessories = quote?.accessories && quote.accessories.length > 0;
+  const model = quote?.ap_vehicle?.model ?? quote?.model;
 
   return (
     <GeneralSheet
       open={open}
       onClose={() => onOpenChange(false)}
       title="Detalle de Cotización"
-      subtitle={`${quote.correlative} - ${quote.type_document}`}
+      subtitle={quote ? `${quote.correlative} - ${quote.type_document}` : undefined}
       icon="FileText"
       side="right"
       size="5xl"
+      isLoading={isLoading}
     >
-      <div className="space-y-6">
+      {quote && <div className="space-y-6">
         {/* Información General */}
         <GroupFormSection
           title="Información General"
@@ -519,7 +522,7 @@ export default function PurchaseRequestQuoteDetailModal({
             </div>
           </GroupFormSection>
         )}
-      </div>
+      </div>}
     </GeneralSheet>
   );
 }

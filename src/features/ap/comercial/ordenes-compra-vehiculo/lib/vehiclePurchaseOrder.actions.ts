@@ -6,6 +6,7 @@ import {
   GetVehiclePurchaseOrderProps,
   MigrationHistoryResponse,
   MigrationLogsResponse,
+  NextCorrelativeResponse,
   VehiclePurchaseOrderResource,
   VehiclePurchaseOrderResponse,
 } from "./vehiclePurchaseOrder.interface";
@@ -123,4 +124,21 @@ export async function dispatchSyncInvoice(
     `${ENDPOINT}/${id}/dispatchSyncInvoiceJob`,
   );
   return response.data;
+}
+
+export async function getNextCorrelative(
+  sedeId: number,
+  typeOperationId: number,
+): Promise<NextCorrelativeResponse> {
+  const config: AxiosRequestConfig = {
+    params: {
+      sede_id: sedeId,
+      type_operation_id: typeOperationId,
+    },
+  };
+  const { data } = await api.get<NextCorrelativeResponse>(
+    `${ENDPOINT}/next-correlative`,
+    config,
+  );
+  return data;
 }

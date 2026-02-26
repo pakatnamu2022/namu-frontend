@@ -21,11 +21,15 @@ import {
   Plus,
   Package,
   FileEdit,
+  Hash,
 } from "lucide-react";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { useMemo, useRef, useState, useEffect } from "react";
 import FormSkeleton from "@/shared/components/FormSkeleton";
-import { useAllModelsVn } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.hook";
+import {
+  useModelVnById,
+  useModelsVn,
+} from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.hook";
 import { useVehicleColor } from "@/features/ap/configuraciones/vehiculos/colores-vehiculo/lib/vehicleColor.hook";
 import { useAllEngineTypes } from "@/features/ap/configuraciones/vehiculos/tipos-motor/lib/engineTypes.hook";
 import { useAllSupplierOrderType } from "@/features/ap/configuraciones/vehiculos/tipos-pedido-proveedor/lib/supplierOrderType.hook";
@@ -43,8 +47,9 @@ import { VEHICLE_COLOR } from "@/features/ap/configuraciones/vehiculos/colores-v
 import { useAllBrandsBySede } from "../../../configuraciones/ventas/asignar-marca/lib/assignBrandConsultant.hook";
 import { UNIT_MEASUREMENT_ID } from "../../../configuraciones/maestros-general/unidad-medida/lib/unitMeasurement.constants";
 import { VEHICLE_PURCHASE_ORDER } from "../lib/vehiclePurchaseOrder.constants";
+import { useNextCorrelative } from "../lib/vehiclePurchaseOrder.hook";
+import { CM_COMERCIAL_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 import { FormInput } from "@/shared/components/FormInput";
-import { useIsMobile } from "@/hooks/use-mobile";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { useNavigate } from "react-router-dom";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
@@ -53,6 +58,7 @@ import {
   usePurchaseRequestQuoteById,
 } from "../../solicitudes-cotizaciones/lib/purchaseRequestQuote.hook";
 import { PurchaseRequestQuoteResource } from "../../solicitudes-cotizaciones/lib/purchaseRequestQuote.interface";
+import { ModelsVnResource } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.interface";
 
 interface VehiclePurchaseOrderFormProps {
   defaultValues: Partial<VehiclePurchaseOrderSchema>;
@@ -72,7 +78,6 @@ export const VehiclePurchaseOrderForm = ({
   consignmentShippingGuideId,
 }: VehiclePurchaseOrderFormProps) => {
   const isConsignmentOrder = !!consignmentShippingGuideId;
-  const isMobile = useIsMobile();
   const navigate = useNavigate();
   const { ABSOLUTE_ROUTE } = VEHICLE_PURCHASE_ORDER;
   const queryClient = useQueryClient();
@@ -242,15 +247,6 @@ export const VehiclePurchaseOrderForm = ({
     form.watch("sede_id") ? Number(form.watch("sede_id")) : undefined,
   );
 
-  // Vehicle hooks
-  const {
-    data: modelsVn = [],
-    isLoading: isLoadingModelsVn,
-    isFetching: isFetchingModelsVn,
-  } = useAllModelsVn({
-    family$brand_id: form.watch("ap_brand_id"),
-  });
-
   const { data: engineTypes = [], isLoading: isLoadingEngineTypes } =
     useAllEngineTypes();
   const { data: sedes = [], isLoading: isLoadingSedes } = useMySedes({
@@ -319,9 +315,16 @@ export const VehiclePurchaseOrderForm = ({
   const selectedBrand = useMemo(() => {
     return brands.find((b) => b.id.toString() === brandId);
   }, [brands, brandId]);
-  const selectedModel = useMemo(() => {
-    return modelsVn.find((m) => m.id.toString() === modelId);
-  }, [modelsVn, modelId]);
+  const { data: selectedModel } = useModelVnById(modelId ? Number(modelId) : 0);
+
+  const {
+    data: nextCorrelative,
+    isLoading: isLoadingCorrelative,
+    isFetching: isFetchingCorrelative,
+  } = useNextCorrelative(
+    sedeId ? Number(sedeId) : undefined,
+    sedeId ? CM_COMERCIAL_ID : undefined,
+  );
 
   // Actualizar descripción del primer item automáticamente
   useEffect(() => {
@@ -374,30 +377,18 @@ export const VehiclePurchaseOrderForm = ({
     }
   }, [selectedQuotation, brands, form]);
 
-  // Paso 3: Auto-completar el modelo cuando los modelos se hayan cargado
+  // Paso 3: Auto-completar el modelo cuando se selecciona una cotización
   useEffect(() => {
-    if (
-      selectedQuotation &&
-      selectedQuotation.ap_models_vn_id &&
-      modelsVn.length > 0
-    ) {
+    if (selectedQuotation && selectedQuotation.ap_models_vn_id) {
       const currentModelId = form.getValues("ap_models_vn_id");
       if (currentModelId !== selectedQuotation.ap_models_vn_id.toString()) {
-        // Verificar que el modelo esté en la lista de modelos cargados
-        const modelExists = modelsVn.some(
-          (model) =>
-            model.id.toString() ===
-            selectedQuotation.ap_models_vn_id?.toString(),
+        form.setValue(
+          "ap_models_vn_id",
+          selectedQuotation.ap_models_vn_id.toString(),
         );
-        if (modelExists) {
-          form.setValue(
-            "ap_models_vn_id",
-            selectedQuotation.ap_models_vn_id.toString(),
-          );
-        }
       }
     }
-  }, [selectedQuotation, modelsVn, form]);
+  }, [selectedQuotation, form]);
 
   // El subtotal SIEMPRE se calcula como: Total / 1.18 (redondeado a 2 decimales)
   // La validación es diferente según haya ISC o no:
@@ -497,8 +488,7 @@ export const VehiclePurchaseOrderForm = ({
     isLoadingUnitMeasurements ||
     (isLoadingBrands && !isFetchingBrands) ||
     (isVehiclePurchase &&
-      ((isLoadingModelsVn && !isFetchingModelsVn) ||
-        isLoadingEngineTypes ||
+      (isLoadingEngineTypes ||
         isLoadingSupplierOrderTypes ||
         isLoadingSedes));
 
@@ -568,6 +558,28 @@ export const VehiclePurchaseOrderForm = ({
                 }
               />
 
+              {sedeId && (
+                <div className="flex flex-col justify-end gap-1">
+                  <span className="text-xs font-medium text-muted-foreground leading-none">
+                    Correlativo a Generar
+                  </span>
+                  <div className="flex items-center gap-2 h-9 px-3 rounded-md border border-dashed border-primary/40 bg-primary/5">
+                    <Hash className="h-3.5 w-3.5 text-primary shrink-0" />
+                    {isLoadingCorrelative || isFetchingCorrelative ? (
+                      <span className="text-xs text-muted-foreground animate-pulse">
+                        Calculando...
+                      </span>
+                    ) : nextCorrelative ? (
+                      <span className="text-sm font-semibold text-primary tracking-wide">
+                        {nextCorrelative.number}
+                      </span>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">—</span>
+                    )}
+                  </div>
+                </div>
+              )}
+
               <FormSelect
                 name="ap_brand_id"
                 label="Marca"
@@ -587,18 +599,22 @@ export const VehiclePurchaseOrderForm = ({
               />
 
               <div className="sm:col-span-1 md:col-span-1 lg:col-span-2 xl:col-span-2">
-                <FormSelect
+                <FormSelectAsync
                   name="ap_models_vn_id"
-                  label="Modelo VN"
+                  label="Modelo"
                   placeholder="Selecciona un modelo"
-                  options={modelsVn.map((item) => ({
+                  useQueryHook={useModelsVn}
+                  mapOptionFn={(item: ModelsVnResource) => ({
                     label: item.version,
                     value: item.id.toString(),
                     description: item.code,
-                  }))}
+                  })}
+                  additionalParams={{
+                    family$brand_id: form.watch("ap_brand_id"),
+                  }}
                   control={form.control}
+                  useFindByIdHook={useModelVnById}
                   disabled={
-                    isLoadingModelsVn ||
                     !selectedBrand ||
                     !!selectedQuotation ||
                     isLoadingQuotation ||
