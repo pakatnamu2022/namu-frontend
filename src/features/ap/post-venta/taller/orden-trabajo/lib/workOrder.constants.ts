@@ -20,6 +20,16 @@ export const WORKER_ORDER: ModelComplete<WorkOrderResource> = {
   ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/actualizar`,
 };
 
+// ESTADOS DE ORDEN DE TRABAJO
+export const WORK_ORDER_STATUS = {
+  APERTURADO: "APERTURADO",
+  RECEPCIONADO: "RECEPCIONADO",
+  EN_TRABAJO: "EN TRABAJO",
+  TERMINADO: "TERMINADO",
+  CERRADO: "CERRADO",
+  ANULADO: "ANULADO",
+} as const;
+
 // RUTAS PARA POSTVENTA - CAJA
 const ROUTE_CAJA = "orden-trabajo-taller-caja";
 const ABSOLUTE_ROUTE_CAJA = `/ap/post-venta/caja/${ROUTE_CAJA}`;

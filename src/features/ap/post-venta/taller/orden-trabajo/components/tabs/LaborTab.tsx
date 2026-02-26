@@ -208,6 +208,9 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
           workOrderId,
         ],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["workOrderLabour", "all", { work_order_id: workOrderId }],
+      });
     },
     onError: (error: any) => {
       errorToast(
@@ -226,6 +229,9 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
           "work-order",
           workOrderId,
         ],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["workOrderLabour", "all", { work_order_id: workOrderId }],
       });
     },
     onError: (error: any) => {

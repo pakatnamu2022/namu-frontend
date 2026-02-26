@@ -12,6 +12,10 @@ import {
   PLANNING_STATUS_COLORS,
   PLANNING_STATUS_LABELS,
 } from "../lib/workOrderPlanning.interface";
+import {
+  WORK_SCHEDULE,
+  minutesToTimelinePosition,
+} from "../lib/workOrderPlanning.constants";
 import { format, parseISO, isSameDay, addHours } from "date-fns";
 import { es } from "date-fns/locale";
 import {
@@ -237,12 +241,8 @@ export function WorkerTimeline({
     );
   }, [selectedWorkOrder, activeGroup]);
 
-  // Horarios en minutos desde medianoche
-  const MORNING_START = 480; // 8:00
-  const MORNING_END = 780; // 13:00
-  const LUNCH_START = 780; // 13:00
-  const AFTERNOON_START = 864; // 14:24
-  const AFTERNOON_END = 1080; // 18:00
+  // Horarios en minutos desde medianoche (definidos en workOrderPlanning.constants.ts)
+  const { MORNING_START, MORNING_END, LUNCH_START, AFTERNOON_START, AFTERNOON_END } = WORK_SCHEDULE;
 
   const { data: workers = [] } = useAllWorkers({
     cargo_id: POSITION_TYPE.OPERATORS,
@@ -267,23 +267,7 @@ export function WorkerTimeline({
 
   // Convertir hora a posición en el timeline (0-100%)
   const timeToPosition = (hours: number, minutes: number): number => {
-    const totalMinutes = hours * 60 + minutes;
-
-    // Mañana: 8:00-13:00
-    if (totalMinutes >= MORNING_START && totalMinutes <= MORNING_END) {
-      const morningProgress =
-        (totalMinutes - MORNING_START) / (MORNING_END - MORNING_START);
-      return morningProgress * 50; // Mañana ocupa 50% del timeline
-    }
-
-    // Tarde: 14:24-18:00
-    if (totalMinutes >= AFTERNOON_START && totalMinutes <= AFTERNOON_END) {
-      const afternoonProgress =
-        (totalMinutes - AFTERNOON_START) / (AFTERNOON_END - AFTERNOON_START);
-      return 60 + afternoonProgress * 40; // Tarde ocupa del 60% al 100%
-    }
-
-    return 0;
+    return minutesToTimelinePosition(hours * 60 + minutes);
   };
 
   // Convertir posición del timeline (0-100%) a hora
@@ -475,17 +459,17 @@ export function WorkerTimeline({
     activeGroup !== null;
 
   const timeMarkers = [
-    { time: "8:00", position: 0 },
-    { time: "9:00", position: 10 },
-    { time: "10:00", position: 20 },
-    { time: "11:00", position: 30 },
-    { time: "12:00", position: 40 },
-    { time: "13:00", position: 50 },
-    { time: "14:24", position: 60 },
-    { time: "15:00", position: 69 },
-    { time: "16:00", position: 80 },
-    { time: "17:00", position: 91 },
-    { time: "18:00", position: 100 },
+    { time: "8:00", position: timeToPosition(8, 0) },
+    { time: "9:00", position: timeToPosition(9, 0) },
+    { time: "10:00", position: timeToPosition(10, 0) },
+    { time: "11:00", position: timeToPosition(11, 0) },
+    { time: "12:00", position: timeToPosition(12, 0) },
+    { time: "13:00", position: timeToPosition(13, 0) },
+    { time: "14:24", position: timeToPosition(14, 24) },
+    { time: "15:00", position: timeToPosition(15, 0) },
+    { time: "16:00", position: timeToPosition(16, 0) },
+    { time: "17:00", position: timeToPosition(17, 0) },
+    { time: "18:00", position: timeToPosition(18, 0) },
   ];
 
   const timelineContent = (

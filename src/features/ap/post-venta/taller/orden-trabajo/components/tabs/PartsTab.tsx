@@ -107,7 +107,9 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
 
   // Modal de descuento
   const [modalOpen, setModalOpen] = useState(false);
-  const [modalType, setModalType] = useState<"GLOBAL" | "PARTIAL">(TYPE_PARTIAL);
+  const [modalType, setModalType] = useState<"GLOBAL" | "PARTIAL">(
+    TYPE_PARTIAL,
+  );
   const [selectedPart, setSelectedPart] = useState<any | null>(null);
   const [editingRequest, setEditingRequest] =
     useState<DiscountRequestWorkOrderQuotationResource | null>(null);
@@ -192,7 +194,9 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
       }),
     onSuccess: () => {
       successToast("Repuestos insertados exitosamente desde la cotización");
-      queryClient.invalidateQueries({ queryKey: ["workOrderParts", workOrderId] });
+      queryClient.invalidateQueries({
+        queryKey: ["workOrderParts", workOrderId],
+      });
       queryClient.invalidateQueries({ queryKey: ["workOrder", workOrderId] });
       setSelectedProductIds([]);
     },
@@ -215,8 +219,15 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
       }),
     onSuccess: () => {
       successToast("Repuesto agregado exitosamente");
-      queryClient.invalidateQueries({ queryKey: ["workOrderParts", workOrderId] });
-      form.reset({ product_id: "", quantity_used: 1, unit_price: 0, discount_percentage: 0 });
+      queryClient.invalidateQueries({
+        queryKey: ["workOrderParts", workOrderId],
+      });
+      form.reset({
+        product_id: "",
+        quantity_used: 1,
+        unit_price: 0,
+        discount_percentage: 0,
+      });
       setShowAddForm(false);
     },
     onError: (error: any) => {
@@ -226,8 +237,14 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
   });
 
   const handleSubmitPart = (data: AddPartFormValues) => {
-    if (!selectedGroupNumber) { errorToast("Debe seleccionar un grupo"); return; }
-    if (!selectedWarehouseForAdd) { errorToast("Debe seleccionar un almacén"); return; }
+    if (!selectedGroupNumber) {
+      errorToast("Debe seleccionar un grupo");
+      return;
+    }
+    if (!selectedWarehouseForAdd) {
+      errorToast("Debe seleccionar un almacén");
+      return;
+    }
     storePartMutation.mutate(data);
   };
 
@@ -256,7 +273,9 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
     mutationFn: (id: number) => deleteWorkOrderParts(id),
     onSuccess: () => {
       successToast("Repuesto eliminado exitosamente");
-      queryClient.invalidateQueries({ queryKey: ["workOrderParts", workOrderId] });
+      queryClient.invalidateQueries({
+        queryKey: ["workOrderParts", workOrderId],
+      });
       queryClient.invalidateQueries({ queryKey: ["workOrder", workOrderId] });
       setDeleteId(null);
     },
@@ -324,7 +343,14 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
     onSuccess: () => {
       successToast("Solicitud aprobada correctamente");
       queryClient.invalidateQueries({
-        queryKey: [DISCOUNT_REQUEST_TALLER.QUERY_KEY, "work-order", workOrderId],
+        queryKey: [
+          DISCOUNT_REQUEST_TALLER.QUERY_KEY,
+          "work-order",
+          workOrderId,
+        ],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["workOrderParts", workOrderId],
       });
     },
     onError: (error: any) => {
@@ -339,7 +365,14 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
     onSuccess: () => {
       successToast("Solicitud rechazada correctamente");
       queryClient.invalidateQueries({
-        queryKey: [DISCOUNT_REQUEST_TALLER.QUERY_KEY, "work-order", workOrderId],
+        queryKey: [
+          DISCOUNT_REQUEST_TALLER.QUERY_KEY,
+          "work-order",
+          workOrderId,
+        ],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["workOrderParts", workOrderId],
       });
     },
     onError: (error: any) => {
@@ -352,7 +385,11 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
   const renderStatusBadge = (status: string) => (
     <Badge
       color={
-        status === "approved" ? "green" : status === "rejected" ? "red" : "orange"
+        status === "approved"
+          ? "green"
+          : status === "rejected"
+            ? "red"
+            : "orange"
       }
       className="text-xs"
     >
@@ -489,19 +526,30 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => { setShowAddForm(false); form.reset(); }}
+                  onClick={() => {
+                    setShowAddForm(false);
+                    form.reset();
+                  }}
                 >
                   Cancelar
                 </Button>
                 <Button
                   type="submit"
-                  disabled={storePartMutation.isPending || !form.watch("product_id")}
+                  disabled={
+                    storePartMutation.isPending || !form.watch("product_id")
+                  }
                   className="gap-2"
                 >
                   {storePartMutation.isPending ? (
-                    <><Loader2 className="h-4 w-4 animate-spin" />Guardando...</>
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Guardando...
+                    </>
                   ) : (
-                    <><Plus className="h-4 w-4" />Agregar</>
+                    <>
+                      <Plus className="h-4 w-4" />
+                      Agregar
+                    </>
                   )}
                 </Button>
               </div>
@@ -514,7 +562,8 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
       {hasAssociatedQuotation &&
         associatedQuotation &&
         associatedQuotation.details?.filter(
-          (d: any) => d.item_type === ITEM_TYPE_PRODUCT && d.status === "pending",
+          (d: any) =>
+            d.item_type === ITEM_TYPE_PRODUCT && d.status === "pending",
         ).length > 0 && (
           <Card className="p-6">
             <div className="space-y-4">
@@ -523,12 +572,14 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
                   <Package className="h-6 w-6 text-primary" />
                   <div>
                     <h3 className="text-lg font-semibold">
-                      Cotización Asociada: {associatedQuotation.quotation_number}
+                      Cotización Asociada:{" "}
+                      {associatedQuotation.quotation_number}
                     </h3>
                     <p className="text-sm text-gray-600">
                       {associatedQuotation.details?.filter(
                         (d: any) =>
-                          d.item_type === ITEM_TYPE_PRODUCT && d.status === "pending",
+                          d.item_type === ITEM_TYPE_PRODUCT &&
+                          d.status === "pending",
                       ).length || 0}{" "}
                       producto(s)
                     </p>
@@ -556,21 +607,40 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
                   </Select>
                   <Button
                     onClick={() => {
-                      if (!selectedWarehouseForBulk) { errorToast("Debe seleccionar un almacén"); return; }
-                      if (selectedProductIds.length === 0) { errorToast("Debe seleccionar al menos un producto"); return; }
-                      if (!selectedGroupNumber) { errorToast("Debe seleccionar un grupo"); return; }
+                      if (!selectedWarehouseForBulk) {
+                        errorToast("Debe seleccionar un almacén");
+                        return;
+                      }
+                      if (selectedProductIds.length === 0) {
+                        errorToast("Debe seleccionar al menos un producto");
+                        return;
+                      }
+                      if (!selectedGroupNumber) {
+                        errorToast("Debe seleccionar un grupo");
+                        return;
+                      }
                       storeBulkMutation.mutate({
                         warehouseId: Number(selectedWarehouseForBulk),
                         groupNumber: selectedGroupNumber,
                       });
                     }}
-                    disabled={storeBulkMutation.isPending || selectedProductIds.length === 0}
+                    disabled={
+                      storeBulkMutation.isPending ||
+                      selectedProductIds.length === 0
+                    }
                     className="gap-2"
                   >
                     {storeBulkMutation.isPending ? (
-                      <><Loader2 className="h-4 w-4 animate-spin" />Insertando...</>
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Insertando...
+                      </>
                     ) : (
-                      <><Plus className="h-4 w-4" />Insertar al Grupo {selectedGroupNumber} ({selectedProductIds.length})</>
+                      <>
+                        <Plus className="h-4 w-4" />
+                        Insertar al Grupo {selectedGroupNumber} (
+                        {selectedProductIds.length})
+                      </>
                     )}
                   </Button>
                 </div>
@@ -585,12 +655,14 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
                           checked={
                             associatedQuotation.details?.filter(
                               (d: any) =>
-                                d.item_type === ITEM_TYPE_PRODUCT && d.status === "pending",
+                                d.item_type === ITEM_TYPE_PRODUCT &&
+                                d.status === "pending",
                             ).length > 0 &&
                             selectedProductIds.length ===
                               associatedQuotation.details?.filter(
                                 (d: any) =>
-                                  d.item_type === ITEM_TYPE_PRODUCT && d.status === "pending",
+                                  d.item_type === ITEM_TYPE_PRODUCT &&
+                                  d.status === "pending",
                               ).length
                           }
                           onCheckedChange={handleToggleAll}
@@ -607,7 +679,8 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
                     {associatedQuotation.details
                       ?.filter(
                         (detail: any) =>
-                          detail.item_type === ITEM_TYPE_PRODUCT && detail.status === "pending",
+                          detail.item_type === ITEM_TYPE_PRODUCT &&
+                          detail.status === "pending",
                       )
                       .map((detail: any) => {
                         const currencySymbol =
@@ -617,28 +690,38 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
                             <TableCell>
                               <Checkbox
                                 checked={selectedProductIds.includes(detail.id)}
-                                onCheckedChange={() => handleToggleProduct(detail.id)}
+                                onCheckedChange={() =>
+                                  handleToggleProduct(detail.id)
+                                }
                               />
                             </TableCell>
                             <TableCell>
-                              <p className="font-medium">{detail.description}</p>
+                              <p className="font-medium">
+                                {detail.description}
+                              </p>
                             </TableCell>
                             <TableCell className="text-center">
                               {Number(detail.quantity).toFixed(2)}
                             </TableCell>
                             <TableCell className="text-right">
                               <p className="text-sm">
-                                {currencySymbol} {Number(detail.unit_price || 0).toFixed(2)}
+                                {currencySymbol}{" "}
+                                {Number(detail.unit_price || 0).toFixed(2)}
                               </p>
                             </TableCell>
                             <TableCell className="text-right">
                               <p className="text-sm text-orange-600">
-                                -{Number(detail.discount_percentage || 0).toFixed(2)} %
+                                -
+                                {Number(
+                                  detail.discount_percentage || 0,
+                                ).toFixed(2)}{" "}
+                                %
                               </p>
                             </TableCell>
                             <TableCell className="text-right">
                               <p className="text-sm font-semibold">
-                                {currencySymbol} {Number(detail.total_amount || 0).toFixed(2)}
+                                {currencySymbol}{" "}
+                                {Number(detail.total_amount || 0).toFixed(2)}
                               </p>
                             </TableCell>
                           </TableRow>
@@ -678,7 +761,10 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
                       Desc. global:
                     </span>
                     <span className="font-semibold">
-                      {Number(globalRequest.requested_discount_percentage).toFixed(2)}%
+                      {Number(
+                        globalRequest.requested_discount_percentage,
+                      ).toFixed(2)}
+                      %
                     </span>
                     {renderStatusBadge(globalRequest.status)}
                     {globalRequest.status === "pending" && (
@@ -773,22 +859,32 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
                       <p className="font-medium">{part.product_name}</p>
                     </TableCell>
                     <TableCell>
-                      <p className="text-sm text-gray-600">{part.warehouse_name}</p>
+                      <p className="text-sm text-gray-600">
+                        {part.warehouse_name}
+                      </p>
                     </TableCell>
                     <TableCell>
-                      <p className="text-sm text-gray-600">{part.registered_by_name}</p>
+                      <p className="text-sm text-gray-600">
+                        {part.registered_by_name}
+                      </p>
                     </TableCell>
-                    <TableCell className="text-center">{part.quantity_used}</TableCell>
+                    <TableCell className="text-center">
+                      {part.quantity_used}
+                    </TableCell>
                     <TableCell className="text-right">
                       {workOrder?.type_currency?.symbol || "S/"}{" "}
-                      {part.unit_price ? Number(part.unit_price).toFixed(2) : "0.00"}
+                      {part.unit_price
+                        ? Number(part.unit_price).toFixed(2)
+                        : "0.00"}
                     </TableCell>
                     <TableCell className="text-right text-orange-600">
                       -{part.discount_percentage}%
                     </TableCell>
                     <TableCell className="text-right font-semibold">
                       {workOrder?.type_currency?.symbol || "S/"}{" "}
-                      {part.total_amount ? Number(part.total_amount).toFixed(2) : "0.00"}
+                      {part.total_amount
+                        ? Number(part.total_amount).toFixed(2)
+                        : "0.00"}
                     </TableCell>
                     <TableCell className="text-center">
                       <div className="flex items-center justify-center gap-1">
@@ -817,14 +913,18 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
                                       confirmText="Sí, aprobar"
                                       cancelText="Cancelar"
                                       icon="info"
-                                      onConfirm={() => doApprove(partialRequest.id)}
+                                      onConfirm={() =>
+                                        doApprove(partialRequest.id)
+                                      }
                                     />
                                     <Button
                                       variant="ghost"
                                       size="sm"
                                       className="h-7 w-7 p-0"
                                       tooltip="Editar solicitud"
-                                      onClick={() => handleOpenEdit(partialRequest, part)}
+                                      onClick={() =>
+                                        handleOpenEdit(partialRequest, part)
+                                      }
                                     >
                                       <Pencil className="h-4 w-4" />
                                     </Button>
@@ -846,7 +946,9 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
                                       cancelText="Cancelar"
                                       variant="destructive"
                                       icon="danger"
-                                      onConfirm={() => doReject(partialRequest.id)}
+                                      onConfirm={() =>
+                                        doReject(partialRequest.id)
+                                      }
                                     />
                                   </>
                                 )}
@@ -857,7 +959,9 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
                                 size="sm"
                                 className="h-7 w-7 p-0 text-primary hover:text-primary hover:bg-primary/10"
                                 tooltip="Solicitar descuento parcial"
-                                onClick={() => handleOpenCreate(TYPE_PARTIAL, part)}
+                                onClick={() =>
+                                  handleOpenCreate(TYPE_PARTIAL, part)
+                                }
                               >
                                 <Tag className="h-4 w-4" />
                               </Button>
@@ -887,7 +991,10 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
               <p className="text-xl font-bold">
                 {workOrder?.type_currency?.symbol || "S/"}{" "}
                 {filteredParts
-                  .reduce((acc, part) => acc + parseFloat(part.total_amount || "0"), 0)
+                  .reduce(
+                    (acc, part) => acc + parseFloat(part.total_amount || "0"),
+                    0,
+                  )
                   .toFixed(2)}
               </p>
             </div>
