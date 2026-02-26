@@ -220,7 +220,6 @@ export const VehiclePVForm = ({
             label="Número de Motor"
             placeholder="Ej: ENG32345XYZA"
             control={form.control}
-            type="number"
           />
 
           <FormSelectAsync
