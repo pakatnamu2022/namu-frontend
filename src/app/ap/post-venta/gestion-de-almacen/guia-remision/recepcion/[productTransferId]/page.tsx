@@ -85,12 +85,12 @@ export default function TransferReceptionsPage() {
           <div className="flex-1">
             <TitleComponent
               title={`Recepciones - ${productTransfer.movement_number}`}
-              subtitle="Gestión de recepciones de transferencia"
+              subtitle="Lista de recepciones asociadas a esta guía de remisión"
               icon="PackageCheck"
             />
           </div>
         </div>
-        {permissions.canCreate && (
+        {permissions.canCreate && (!data || data.length === 0) && (
           <Button
             size="sm"
             variant="outline"

@@ -110,10 +110,6 @@ export default function OrderQuotationMesonPage() {
     router(`${ROUTE_UPDATE}/${id}`);
   };
 
-  const handleBilling = (id: number) => {
-    router(`${ABSOLUTE_ROUTE}/facturar/${id}`);
-  };
-
   const handleRequestDiscount = (id: number) => {
     router(`${ABSOLUTE_ROUTE}/solicitar-descuento/${id}`);
   };
@@ -158,7 +154,6 @@ export default function OrderQuotationMesonPage() {
         columns={orderQuotationMesonColumns({
           onDelete: setDeleteId,
           onUpdate: handleUpdate,
-          onBilling: handleBilling,
           onViewBilling: handleViewBilling,
           onViewDelivery: handleViewDelivery,
           onRequestDiscount: handleRequestDiscount,

@@ -32,7 +32,8 @@ export default function BankModal({ id, open, onClose, title, mode }: Props) {
     refetch,
   } = mode === "create"
     ? { data: EMPTY, isLoading: false, refetch: () => {} }
-    : useBankById(id!);
+    : // eslint-disable-next-line react-hooks/rules-of-hooks
+      useBankById(id!);
 
   function mapBankToForm(data: BankResource): Partial<BankSchema> {
     return {

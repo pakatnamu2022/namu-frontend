@@ -48,6 +48,7 @@ export interface OrderQuotationResource {
   manager_approval_by: string | null;
   customer_signature_delivery_url: string | null;
   delivery_document_number: string | null;
+  has_management_discount: boolean;
 }
 
 export interface ApprovalRequest {

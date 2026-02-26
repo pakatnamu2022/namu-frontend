@@ -22,7 +22,8 @@ export default function ProductTransferTable({
         data={data}
         isLoading={isLoading}
         initialColumnVisibility={{
-          guia_info: true,
+          nro_reference: true,
+          nro_reference_dyn: true,
           fechas_guia: true,
           warehouse_code: true,
           warehouse_destination_code: true,
@@ -32,6 +33,7 @@ export default function ProductTransferTable({
           status_recepcion: true,
           notas_guia: false,
           total_items: false,
+          total_quantity: false,
         }}
       >
         {children}

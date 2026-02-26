@@ -8,10 +8,8 @@ import PageSkeleton from "@/shared/components/PageSkeleton.tsx";
 import TitleComponent from "@/shared/components/TitleComponent.tsx";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper.tsx";
 import { notFound } from "@/shared/hooks/useNotFound.ts";
-import { useWarehousesByCompany } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook.ts";
-import { EMPRESA_AP } from "@/core/core.constants.ts";
 import { Button } from "@/components/ui/button.tsx";
-import { Warehouse, ArrowLeft } from "lucide-react";
+import { Warehouse, ArrowLeft, CheckCircle } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -19,9 +17,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card.tsx";
+import { Badge } from "@/components/ui/badge.tsx";
 import { PRODUCT } from "@/features/ap/post-venta/gestion-almacen/productos/lib/product.constants.ts";
 import { assignToWarehouse } from "@/features/ap/post-venta/gestion-almacen/productos/lib/product.actions.ts";
-import { CM_POSTVENTA_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
+import { useWarehousesByProduct } from "@/features/ap/post-venta/gestion-almacen/productos/lib/product.hook";
 
 export default function AssignWarehousePage() {
   const router = useNavigate();
@@ -31,13 +30,7 @@ export default function AssignWarehousePage() {
   const { ABSOLUTE_ROUTE } = PRODUCT;
 
   const { data: warehouses = [], isLoading: isLoadingWarehouses } =
-    useWarehousesByCompany({
-      my: 1,
-      is_received: 1,
-      empresa_id: EMPRESA_AP.id,
-      type_operation_id: CM_POSTVENTA_ID,
-      only_physical: 1,
-    });
+    useWarehousesByProduct(parseInt(id!));
 
   const handleAssignToWarehouse = async (warehouseId: number) => {
     if (!id) return;
@@ -96,13 +89,23 @@ export default function AssignWarehousePage() {
           {warehouses.map((warehouse) => (
             <Card
               key={warehouse.id}
-              className="hover:shadow-lg transition-shadow"
+              className={`hover:shadow-lg transition-shadow ${
+                warehouse.has_product ? "border-blue-200 bg-blue-50/50" : ""
+              }`}
             >
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Warehouse className="size-5" />
-                  {warehouse.dyn_code}
-                </CardTitle>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center gap-2">
+                    <Warehouse className="size-5" />
+                    {warehouse.dyn_code}
+                  </CardTitle>
+                  {warehouse.has_product && (
+                    <Badge>
+                      <CheckCircle className="size-3" />
+                      Asignado
+                    </Badge>
+                  )}
+                </div>
                 <CardDescription>
                   {warehouse.description || "Sin descripción"}
                 </CardDescription>
@@ -119,11 +122,19 @@ export default function AssignWarehousePage() {
                 <Button
                   className="w-full"
                   onClick={() => handleAssignToWarehouse(warehouse.id)}
-                  disabled={isAssigning !== null}
+                  disabled={isAssigning !== null || warehouse.has_product}
+                  variant={warehouse.has_product ? "outline" : "default"}
                 >
-                  {isAssigning === warehouse.id
-                    ? "Asignando..."
-                    : "Asignar a este almacén"}
+                  {warehouse.has_product ? (
+                    <>
+                      <CheckCircle className="size-4 mr-2" />
+                      Ya asignado
+                    </>
+                  ) : isAssigning === warehouse.id ? (
+                    "Asignando..."
+                  ) : (
+                    "Asignar a este almacén"
+                  )}
                 </Button>
               </CardContent>
             </Card>

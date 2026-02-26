@@ -57,7 +57,7 @@ export default function CreateTransferReceptionPage() {
   return (
     <FormWrapper>
       <TitleFormComponent
-        title={`Nueva Recepción - Transferencia ${productTransfer.movement_number}`}
+        title={`Nueva Recepción ${productTransfer.movement_number}`}
         mode="create"
         icon="PackageCheck"
       />

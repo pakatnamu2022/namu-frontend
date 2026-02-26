@@ -17,6 +17,7 @@ import { FormInput } from "@/shared/components/FormInput";
 import { FormCombobox } from "@/shared/components/FormCombobox";
 import { WorkOrderItemResource } from "../../orden-trabajo-item/lib/workOrderItem.interface";
 import { useAuthStore } from "@/features/auth/lib/auth.store";
+import { DEFAULT_APPROVED_DISCOUNT } from "@/core/core.constants";
 
 interface WorkOrderLabourFormProps {
   workOrderId: number;
@@ -38,8 +39,9 @@ export default function WorkOrderLabourForm({
   const storeMutation = useStoreWorkOrderLabour();
   const { user } = useAuthStore();
 
-  // Obtener el porcentaje máximo de descuento del usuario (default 5%)
-  const maxDiscountPercentage = user?.discount_percentage ?? 5;
+  // Obtener el porcentaje máximo de descuento del usuario
+  const maxDiscountPercentage =
+    user?.discount_percentage ?? DEFAULT_APPROVED_DISCOUNT;
 
   const form = useForm<WorkOrderLabourFormValues>({
     resolver: zodResolver(createWorkOrderLabourSchema(maxDiscountPercentage)),

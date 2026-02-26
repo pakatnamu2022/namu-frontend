@@ -26,6 +26,8 @@ import {
   ERROR_MESSAGE,
   SUCCESS_MESSAGE,
 } from "@/core/core.function";
+import { DEFAULT_APPROVED_DISCOUNT } from "@/core/core.constants";
+import { useAuthStore } from "@/features/auth/lib/auth.store";
 import {
   ITEM_TYPE_PRODUCT,
   ORDER_QUOTATION_DETAILS,
@@ -98,6 +100,7 @@ export default function ProductDetailsSection({
 }: ProductDetailsSectionProps) {
   const [isSaving, setIsSaving] = useState(false);
   const queryClient = useQueryClient();
+  const { user } = useAuthStore();
 
   // Estado del modal de descuento
   const [modalOpen, setModalOpen] = useState(false);
@@ -363,7 +366,7 @@ export default function ProductDetailsSection({
   );
   const maxDiscountAllowed = globalApprovedRequest
     ? Number(globalApprovedRequest.requested_discount_percentage)
-    : 5;
+    : (user?.discount_percentage ?? DEFAULT_APPROVED_DISCOUNT);
 
   const baseAmountForModal =
     modalType === TYPE_GLOBAL

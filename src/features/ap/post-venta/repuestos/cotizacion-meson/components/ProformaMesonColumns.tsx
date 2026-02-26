@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import {
   Pencil,
   Download,
-  Receipt,
   Eye,
   PackageOpen,
   XCircle,
@@ -24,13 +23,13 @@ import { OrderQuotationResource } from "../../../taller/cotizacion/lib/proforma.
 import { downloadOrderQuotationRepuestoPdf } from "../../../taller/cotizacion/lib/proforma.actions";
 import { useState } from "react";
 import { DiscardQuotationModal } from "./DiscardQuotationModal";
+import { STATUS_ORDER_QUOTATION } from "../../../taller/cotizacion/lib/proforma.constants";
 
 export type OrderQuotationMesonColumns = ColumnDef<OrderQuotationResource>;
 
 interface Props {
   onDelete: (id: number) => void;
   onUpdate: (id: number) => void;
-  onBilling: (id: number) => void;
   onViewBilling: (orderQuotation: OrderQuotationResource) => void;
   onViewDelivery: (orderQuotation: OrderQuotationResource) => void;
   onRequestDiscount: (id: number) => void;
@@ -44,7 +43,6 @@ interface Props {
 export const orderQuotationMesonColumns = ({
   onUpdate,
   onDelete,
-  onBilling,
   onViewBilling,
   onViewDelivery,
   onRequestDiscount,
@@ -187,13 +185,13 @@ export const orderQuotationMesonColumns = ({
 
       const getStatusBadge = (status: string) => {
         switch (status) {
-          case "Descartado":
+          case STATUS_ORDER_QUOTATION.DISCARDED:
             return <Badge color="red">{status}</Badge>;
-          case "Aperturado":
+          case STATUS_ORDER_QUOTATION.OPEN:
             return <Badge color="indigo">{status}</Badge>;
-          case "Por Facturar":
+          case STATUS_ORDER_QUOTATION.TO_BILL:
             return <Badge color="orange">{status}</Badge>;
-          case "Facturado":
+          case STATUS_ORDER_QUOTATION.BILLED:
             return <Badge color="green">{status}</Badge>;
           default:
             return <Badge color="secondary">{status}</Badge>;
@@ -219,8 +217,6 @@ export const orderQuotationMesonColumns = ({
       const [showDiscardModal, setShowDiscardModal] = useState(false);
 
       const isDiscarded = status === "Descartado";
-
-      const isOpened = status === "Aperturado";
 
       const isForInvoicing = status === "Por Facturar";
 
@@ -273,18 +269,6 @@ export const orderQuotationMesonColumns = ({
               </DropdownMenuContent>
             </DropdownMenu>
 
-            {!isDiscarded && !isOpened && !is_fully_paid && (
-              <Button
-                variant="outline"
-                size="icon"
-                className="size-7"
-                tooltip="Facturar"
-                onClick={() => onBilling(id)}
-              >
-                <Receipt className="size-5" />
-              </Button>
-            )}
-
             {!isDiscarded && is_fully_paid && (
               <Button
                 variant="outline"
@@ -292,8 +276,8 @@ export const orderQuotationMesonColumns = ({
                 className="size-7"
                 tooltip={
                   output_generation_warehouse
-                    ? "Ver Salida de Inventario"
-                    : "Generar Salida de Inventario"
+                    ? "Ver Entrega"
+                    : "Generar Entrega"
                 }
                 onClick={() => onViewDelivery(row.original)}
               >
@@ -301,7 +285,7 @@ export const orderQuotationMesonColumns = ({
               </Button>
             )}
 
-            {!isDiscarded && !has_invoice_generated && (
+            {!isDiscarded && !has_invoice_generated && !isForInvoicing && (
               <Button
                 variant="outline"
                 size="icon"
