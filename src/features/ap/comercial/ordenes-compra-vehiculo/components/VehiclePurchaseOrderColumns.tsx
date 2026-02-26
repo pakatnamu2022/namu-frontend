@@ -91,7 +91,7 @@ export const vehiclePurchaseOrderColumns = ({
           <Button
             variant="outline"
             size="icon-xs"
-            color="blue"
+            color="orange"
             onClick={() => onRequestInvoice(row.original.id)}
           >
             <Search />
@@ -101,7 +101,7 @@ export const vehiclePurchaseOrderColumns = ({
         <Button
           variant="outline"
           size="xs"
-          color="blue"
+          color="orange"
           onClick={() => onRequestInvoice(row.original.id)}
         >
           <Search />

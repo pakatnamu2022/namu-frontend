@@ -338,10 +338,12 @@ export function ElectronicDocumentForm({
 
         // Construir descripción base del vehículo
         let descripcion = "";
+        let unidadDeMedida = "NIU";
 
         // Si es anticipo, usar descripción simple
         if (isAdvancePayment) {
           descripcion = `ANTICIPO DE CLIENTE`;
+          unidadDeMedida = "ZZ"; // Unidad no definida, ya que es un anticipo
         } else {
           // Si es venta total, usar formato detallado SUNAT
           const vehicle = quotation.ap_vehicle;
@@ -372,7 +374,7 @@ MODELO: ${vehicle?.model?.version || ``}
           account_plan_id: isAdvancePayment
             ? QUOTATION_ACCOUNT_PLAN_IDS.ADVANCE_PAYMENT
             : QUOTATION_ACCOUNT_PLAN_IDS.FULL_SALE,
-          unidad_de_medida: "NIU",
+          unidad_de_medida: unidadDeMedida,
           codigo: quotation.ap_vehicle_id?.toString() || undefined,
           descripcion,
           cantidad: 1,

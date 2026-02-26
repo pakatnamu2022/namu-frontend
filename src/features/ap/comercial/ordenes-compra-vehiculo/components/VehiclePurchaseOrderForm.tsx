@@ -488,9 +488,7 @@ export const VehiclePurchaseOrderForm = ({
     isLoadingUnitMeasurements ||
     (isLoadingBrands && !isFetchingBrands) ||
     (isVehiclePurchase &&
-      (isLoadingEngineTypes ||
-        isLoadingSupplierOrderTypes ||
-        isLoadingSedes));
+      (isLoadingEngineTypes || isLoadingSupplierOrderTypes || isLoadingSedes));
 
   if (isInitialLoading) return <FormSkeleton />;
 
@@ -762,23 +760,6 @@ export const VehiclePurchaseOrderForm = ({
                           })}
                         </p>
                       </div>
-                      <div>
-                        <span className="font-medium text-muted-foreground text-xs">
-                          Margen de Ganancia Estimado
-                        </span>
-                        <p className="text-gray-900">
-                          {Number(
-                            ((selectedQuotation.doc_sale_price -
-                              Number(form.watch("total"))) /
-                              Number(form.watch("total"))) *
-                              100,
-                          ).toLocaleString("es-PE", {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })}{" "}
-                          %
-                        </p>
-                      </div>
                     </div>
                   </div>
                 </div>
@@ -1042,9 +1023,9 @@ export const VehiclePurchaseOrderForm = ({
               {Number(subtotalInput) > 0 && (
                 <div className="flex justify-between items-center py-2 border-b">
                   <span className="text-sm text-muted-foreground">
-                    Subtotal:
+                    Subtotal
                   </span>
-                  <span className="font-medium">
+                  <span className="font-medium font-mono">
                     {new Intl.NumberFormat("es-PE", {
                       minimumFractionDigits: 2,
                       maximumFractionDigits: 2,
@@ -1055,8 +1036,8 @@ export const VehiclePurchaseOrderForm = ({
 
               {Number(igvInput) > 0 && (
                 <div className="flex justify-between items-center py-2 border-b">
-                  <span className="text-sm text-muted-foreground">IGV:</span>
-                  <span className="font-medium">
+                  <span className="text-sm text-muted-foreground">IGV</span>
+                  <span className="font-medium font-mono">
                     {new Intl.NumberFormat("es-PE", {
                       minimumFractionDigits: 2,
                       maximumFractionDigits: 2,
@@ -1067,8 +1048,8 @@ export const VehiclePurchaseOrderForm = ({
 
               {Number(iscInput) > 0 && (
                 <div className="flex justify-between items-center py-2 border-b">
-                  <span className="text-sm text-muted-foreground">ISC:</span>
-                  <span className="font-medium">
+                  <span className="text-sm text-muted-foreground">ISC</span>
+                  <span className="font-medium font-mono">
                     {new Intl.NumberFormat("es-PE", {
                       minimumFractionDigits: 2,
                       maximumFractionDigits: 2,
@@ -1077,15 +1058,59 @@ export const VehiclePurchaseOrderForm = ({
                 </div>
               )}
 
-              <div className="flex justify-between items-center py-3 bg-primary/5 px-3 rounded-md">
-                <span className="font-semibold">Total:</span>
-                <span className="font-bold text-lg text-primary">
+              <div className="flex justify-between items-end py-3 rounded-md">
+                <span className="font-semibold">Total</span>
+                <span className="text-2xl font-medium text-primary">
                   {new Intl.NumberFormat("es-PE", {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2,
                   }).format(Number(totalInput))}
                 </span>
               </div>
+
+              {selectedQuotation && Number(totalInput) > 0 && (
+                <div className="flex justify-between items-center py-2 border-t">
+                  <span className="text-sm text-muted-foreground">
+                    Margen de Ganancia Estimado
+                  </span>
+                  <span
+                    className={`font-medium text-lg ${
+                      Number(
+                        ((selectedQuotation.doc_sale_price -
+                          Number(totalInput)) /
+                          Number(totalInput)) *
+                          100,
+                      ) < 0
+                        ? "text-red-600"
+                        : Number(
+                              ((selectedQuotation.doc_sale_price -
+                                Number(totalInput)) /
+                                Number(totalInput)) *
+                                100,
+                            ) === 0
+                          ? "text-blue-600"
+                          : Number(
+                                ((selectedQuotation.doc_sale_price -
+                                  Number(totalInput)) /
+                                  Number(totalInput)) *
+                                  100,
+                              ) <= 4
+                            ? "text-yellow-600"
+                            : "text-green-600"
+                    }`}
+                  >
+                    {Number(
+                      ((selectedQuotation.doc_sale_price - Number(totalInput)) /
+                        Number(totalInput)) *
+                        100,
+                    ).toLocaleString("es-PE", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}{" "}
+                    %
+                  </span>
+                </div>
+              )}
 
               <p className="text-xs text-muted-foreground text-center pt-2">
                 * Valores de la factura física
