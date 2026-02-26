@@ -11,7 +11,7 @@ export interface DiscountRequestWorkOrderQuotationResource {
   approval_date: string | null;
   is_approved: boolean;
   status: "pending" | "approved" | "rejected";
-  item_type: "PRODUCT" | "LABOR";
+  item_type: "PART" | "LABOUR";
 }
 
 export interface DiscountRequestWorkOrderQuotationRequest {
@@ -21,5 +21,5 @@ export interface DiscountRequestWorkOrderQuotationRequest {
   ap_work_order_id?: number;
   part_labour_id?: number;
   part_labour_model?: string;
-  item_type: "PRODUCT" | "LABOR";
+  item_type: "PART" | "LABOUR";
 }

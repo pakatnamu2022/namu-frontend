@@ -72,7 +72,9 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
 
   // Modal de descuento
   const [modalOpen, setModalOpen] = useState(false);
-  const [modalType, setModalType] = useState<"GLOBAL" | "PARTIAL">(TYPE_PARTIAL);
+  const [modalType, setModalType] = useState<"GLOBAL" | "PARTIAL">(
+    TYPE_PARTIAL,
+  );
   const [selectedLabour, setSelectedLabour] = useState<any | null>(null);
   const [editingRequest, setEditingRequest] =
     useState<DiscountRequestWorkOrderQuotationResource | null>(null);
@@ -107,7 +109,7 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
   const { data: allDiscountRequests = [] } =
     useDiscountRequestsByWorkOrder(workOrderId);
   const discountRequests = allDiscountRequests.filter(
-    (r) => r.item_type === "LABOR",
+    (r) => r.item_type === "LABOUR",
   );
 
   const updateGroupMutation = useUpdateWorkOrderLabour();
@@ -200,7 +202,11 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
     onSuccess: () => {
       successToast("Solicitud aprobada correctamente");
       queryClient.invalidateQueries({
-        queryKey: [DISCOUNT_REQUEST_TALLER.QUERY_KEY, "work-order", workOrderId],
+        queryKey: [
+          DISCOUNT_REQUEST_TALLER.QUERY_KEY,
+          "work-order",
+          workOrderId,
+        ],
       });
     },
     onError: (error: any) => {
@@ -215,7 +221,11 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
     onSuccess: () => {
       successToast("Solicitud rechazada correctamente");
       queryClient.invalidateQueries({
-        queryKey: [DISCOUNT_REQUEST_TALLER.QUERY_KEY, "work-order", workOrderId],
+        queryKey: [
+          DISCOUNT_REQUEST_TALLER.QUERY_KEY,
+          "work-order",
+          workOrderId,
+        ],
       });
     },
     onError: (error: any) => {
@@ -228,7 +238,11 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
   const renderStatusBadge = (status: string) => (
     <Badge
       color={
-        status === "approved" ? "green" : status === "rejected" ? "red" : "orange"
+        status === "approved"
+          ? "green"
+          : status === "rejected"
+            ? "red"
+            : "orange"
       }
       className="text-xs"
     >
@@ -414,7 +428,10 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
                     Desc. global:
                   </span>
                   <span className="font-semibold">
-                    {Number(globalRequest.requested_discount_percentage).toFixed(2)}%
+                    {Number(
+                      globalRequest.requested_discount_percentage,
+                    ).toFixed(2)}
+                    %
                   </span>
                   {renderStatusBadge(globalRequest.status)}
                   {globalRequest.status === "pending" && (
@@ -697,7 +714,7 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
         }
         currencySymbol={workOrder?.type_currency?.symbol || "S/"}
         existingRequest={editingRequest ?? undefined}
-        itemType="LABOR"
+        itemType="LABOUR"
       />
     </div>
   );
