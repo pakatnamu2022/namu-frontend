@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import VehicleMovements from "./VehicleMovements";
+import VehicleWorkOrderHistory from "./VehicleWorkOrderHistory";
 import { CM_POSTVENTA_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 export type VehicleColumns = ColumnDef<VehicleResource>;
@@ -87,12 +88,17 @@ export const vehicleColumns = ({
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
-      const { id, movements, type_operation_id } = row.original;
+      const { id, plate, movements, type_operation_id } = row.original;
 
       return (
         <div className="flex items-center gap-2">
           {/* Movements */}
           <VehicleMovements movements={movements || []} />
+
+          {/* Work Order History */}
+          {type_operation_id === CM_POSTVENTA_ID && (
+            <VehicleWorkOrderHistory vehicleId={id} vehiclePlate={plate} />
+          )}
 
           {/* Edit */}
           {type_operation_id === CM_POSTVENTA_ID && (

@@ -4,7 +4,10 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import {
   WorkOrderPlanningResource,
-  PLANNING_STATUS_LABELS,
+  PLANNING_VISUAL_STATE_COLORS,
+  PLANNING_VISUAL_STATE_LABELS,
+  getPlanningVisualState,
+  getPlanningActions,
 } from "../../planificacion-orden-trabajo/lib/workOrderPlanning.interface";
 import { format, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
@@ -158,25 +161,19 @@ export const assignedWorkColumns = ({
       const status = row.original.status;
       const hasActive = row.original.has_active_session;
 
-      const variantMap = {
-        planned: "blue" as const,
-        in_progress: "orange" as const,
-        completed: "green" as const,
-        canceled: "destructive" as const,
-      };
+      const visualState = getPlanningVisualState(row.original);
+      const colors = PLANNING_VISUAL_STATE_COLORS[visualState];
 
       return (
-        <>
-          <Badge color={variantMap[status]}>
-            {PLANNING_STATUS_LABELS[status]}
+        <div className="flex items-center gap-2">
+          <Badge className={`${colors.bg} ${colors.text} hover:${colors.bg}`}>
+            {PLANNING_VISUAL_STATE_LABELS[visualState]}
           </Badge>
-          {status === "in_progress" && hasActive && (
-            <Play className="size-5 inline-block ml-2" />
-          )}
+          {status === "in_progress" && hasActive && <Play className="size-5" />}
           {status === "in_progress" && !hasActive && (
-            <Pause className="size-5 inline-block ml-2" />
+            <Pause className="size-5" />
           )}
-        </>
+        </div>
       );
     },
   },
@@ -185,21 +182,8 @@ export const assignedWorkColumns = ({
     header: "Acciones",
     cell: ({ row }) => {
       const planning = row.original;
-      const status = planning.status;
-      const hasActive = row.original.has_active_session;
-
-      // Verificar si hay sesiones pausadas
-      const hasPausedSession =
-        planning.sessions &&
-        planning.sessions.length > 0 &&
-        planning.sessions.some((session) => session.status === "paused");
-
-      // Lógica de estados según requerimientos
-      const showStart = status === "planned" && !hasPausedSession;
-      const showContinue =
-        hasPausedSession && status === "in_progress" && !hasActive;
-      const showPauseAndComplete =
-        status === "in_progress" && planning.has_active_session;
+      const { showStart, showContinue, showPauseAndComplete } =
+        getPlanningActions(planning);
 
       return (
         <div className="flex items-center gap-2">
@@ -247,31 +231,6 @@ export const assignedWorkColumns = ({
               </DropdownMenuContent>
             </DropdownMenu>
           )}
-          {/* <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="icon" className="size-7">
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => onStart?.(planning)}>
-                <PlayCircle className="h-4 w-4 mr-2 text-green-600" />
-                Iniciar
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onContinue?.(planning)}>
-                <PlayCircle className="h-4 w-4 mr-2 text-primary" />
-                Continuar
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onPause?.(planning)}>
-                <PauseCircle className="h-4 w-4 mr-2 text-yellow-600" />
-                Pausar
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onComplete?.(planning)}>
-                <CheckCircle className="h-4 w-4 mr-2 text-primary" />
-                Completar
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu> */}
         </div>
       );
     },

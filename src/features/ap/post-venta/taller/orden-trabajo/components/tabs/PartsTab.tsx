@@ -468,7 +468,10 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
                   placeholder="Buscar producto en el almacén..."
                   control={form.control}
                   useQueryHook={useInventory}
-                  additionalParams={{ warehouse_id: selectedWarehouseForAdd }}
+                  additionalParams={{
+                    warehouse_id: selectedWarehouseForAdd,
+                    available_quantity: 0,
+                  }}
                   mapOptionFn={(inventory: InventoryResource) => ({
                     label: () => (
                       <div className="flex items-center justify-between gap-2 w-full">
