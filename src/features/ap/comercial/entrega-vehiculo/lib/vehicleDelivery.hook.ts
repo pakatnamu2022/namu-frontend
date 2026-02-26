@@ -8,6 +8,7 @@ import {
   generateOrUpdateShippingGuide,
   queryVehicleDeliveryFromNubefact,
   sendVehicleDeliveryToDynamic,
+  getNextShippingGuideDocumentNumber,
 } from "./vehicleDelivery.actions";
 import { VEHICLE_DELIVERY } from "./vehicleDelivery.constants";
 import { successToast, errorToast } from "@/core/core.function";
@@ -130,5 +131,17 @@ export const useGenerateOrUpdateShippingGuide = () => {
 export const useSendVehicleDeliveryToDynamic = () => {
   return useMutation({
     mutationFn: (id: number) => sendVehicleDeliveryToDynamic(id),
+  });
+};
+
+// Hook para obtener el siguiente número de guía de remisión
+export const useNextShippingGuideDocumentNumber = (
+  documentSeriesId?: number
+) => {
+  return useQuery({
+    queryKey: ["shippingGuide", "next-document-number", documentSeriesId],
+    queryFn: () => getNextShippingGuideDocumentNumber(documentSeriesId!),
+    enabled: !!documentSeriesId,
+    refetchOnWindowFocus: false,
   });
 };

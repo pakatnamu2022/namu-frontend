@@ -23,6 +23,7 @@ import {
   updateShipmentsReceptions,
   markAsReceived,
   cancelShippingGuide,
+  getNextShippingGuideDocumentNumber,
 } from "./shipmentsReceptions.actions";
 import { successToast, errorToast } from "@/core/core.function";
 import { toast } from "sonner";
@@ -295,5 +296,17 @@ export const useCancelShippingGuide = () => {
         });
       }
     },
+  });
+};
+
+// Hook para obtener el siguiente número de documento
+export const useNextShippingGuideDocumentNumber = (
+  documentSeriesId?: number
+) => {
+  return useQuery({
+    queryKey: ["shippingGuide", "next-document-number", documentSeriesId],
+    queryFn: () => getNextShippingGuideDocumentNumber(documentSeriesId!),
+    enabled: !!documentSeriesId,
+    refetchOnWindowFocus: false,
   });
 };

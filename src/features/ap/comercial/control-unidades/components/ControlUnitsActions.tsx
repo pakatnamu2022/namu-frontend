@@ -6,6 +6,7 @@ import ActionsWrapper from "@/shared/components/ActionsWrapper";
 import { useNavigate } from "react-router-dom";
 import { CONTROL_UNITS } from "../lib/controlUnits.constants";
 import { cn } from "@/lib/utils";
+import { TEXT_NEW } from "@/core/core.function";
 
 interface Props {
   permissions: {
@@ -21,7 +22,7 @@ export default function ControlUnitsActions({
   isFetching,
 }: Props) {
   const router = useNavigate();
-  const { ROUTE_ADD } = CONTROL_UNITS;
+  const { ROUTE_ADD, MODEL } = CONTROL_UNITS;
 
   if (!permissions.canCreate) {
     return null;
@@ -37,7 +38,7 @@ export default function ControlUnitsActions({
       </Button>
       <Button size="sm" onClick={() => router(ROUTE_ADD!)}>
         <Plus className="mr-2 h-4 w-4" />
-        Nuevo Control de Unidades
+        {TEXT_NEW(MODEL)}
       </Button>
     </ActionsWrapper>
   );

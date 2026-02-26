@@ -396,6 +396,7 @@ import AddControlUnitsPage from "./app/ap/comercial/control-unidades/agregar/pag
 import UpdateControlUnitsPage from "./app/ap/comercial/control-unidades/actualizar/[id]/page.tsx";
 import ControlUnitCheckListPage from "./app/ap/comercial/control-unidades/checklist/[id]/page.tsx";
 import ControlUnitsPage from "./app/ap/comercial/control-unidades/page.tsx";
+import { CONTROL_UNITS } from "./features/ap/comercial/control-unidades/lib/controlUnits.constants.ts";
 
 // ============================================================================
 // PROTECTED ROUTE COMPONENT
@@ -717,13 +718,13 @@ function App() {
 
               {/* Control de Unidades */}
               {RouterCrud(
-                "control-unidades",
+                CONTROL_UNITS.ROUTE,
                 <ControlUnitsPage />,
                 <AddControlUnitsPage />,
                 <UpdateControlUnitsPage />,
               )}
               <Route
-                path="control-unidades/checklist/:id"
+                path={CONTROL_UNITS.CHECKLIST_ROUTE}
                 element={<ControlUnitCheckListPage />}
               />
 

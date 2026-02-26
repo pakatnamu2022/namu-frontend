@@ -24,7 +24,8 @@ export default function renderSidebarItems(
   company: string | number,
   moduleSlug: string,
   subModuleSlug: string = "",
-  currentView?: ViewsResponseMenuChild | null
+  currentView?: ViewsResponseMenuChild | null,
+  isTopLevel: boolean = true
 ) {
   return items.map((item) => (
     <SidebarItem
@@ -34,6 +35,7 @@ export default function renderSidebarItems(
       moduleSlug={moduleSlug}
       subModuleSlug={subModuleSlug}
       currentView={currentView}
+      isTopLevel={isTopLevel}
     />
   ));
 }
@@ -44,14 +46,16 @@ function SidebarItem({
   moduleSlug,
   subModuleSlug,
   currentView,
+  isTopLevel,
 }: {
   item: ViewsResponseMenuChild;
   company: string | number;
   moduleSlug: string;
   subModuleSlug: string;
   currentView?: ViewsResponseMenuChild | null;
+  isTopLevel: boolean;
 }) {
-  const { setOpenMobile, isMobile } = useSidebar();
+  const { setOpenMobile, isMobile, state, setOpen } = useSidebar();
   const hasChildren = item.children && item.children.length > 0;
 
   const IconComponent = LucideReact[
@@ -61,6 +65,8 @@ function SidebarItem({
   const handleLinkClick = () => {
     if (isMobile) {
       setOpenMobile(false);
+    } else if (state === "collapsed") {
+      setOpen(true);
     }
   };
 
@@ -91,7 +97,8 @@ function SidebarItem({
                   company,
                   moduleSlug,
                   subModuleSlug,
-                  currentView
+                  currentView,
+                  false
                 )}
               </SidebarMenu>
             </SidebarMenuSub>
@@ -101,22 +108,39 @@ function SidebarItem({
     );
   }
 
+  const linkTo = subModuleSlug
+    ? `/${company}/${moduleSlug}/${subModuleSlug}/${item.route}`
+    : `/${company}/${moduleSlug}/${item.route}`;
+
+  const icon = IconComponent ? (
+    <IconComponent className="size-4 shrink-0" />
+  ) : (
+    <LucideReact.User className="size-4 shrink-0" />
+  );
+
+  if (isTopLevel) {
+    return (
+      <SidebarMenuItem>
+        <SidebarMenuButton
+          asChild
+          isActive={item.id === currentView?.id}
+          tooltip={item.descripcion}
+          className="py-0 h-7"
+        >
+          <Link to={linkTo} onClick={handleLinkClick}>
+            {icon}
+            <span className="truncate text-sm">{item.descripcion}</span>
+          </Link>
+        </SidebarMenuButton>
+      </SidebarMenuItem>
+    );
+  }
+
   return (
     <SidebarMenuSubItem>
       <SidebarMenuSubButton asChild isActive={item.id === currentView?.id}>
-        <Link
-          to={
-            subModuleSlug
-              ? `/${company}/${moduleSlug}/${subModuleSlug}/${item.route}`
-              : `/${company}/${moduleSlug}/${item.route}`
-          }
-          onClick={handleLinkClick}
-        >
-          {IconComponent ? (
-            <IconComponent className="size-4 shrink-0" />
-          ) : (
-            <LucideReact.User className="size-4 shrink-0" />
-          )}
+        <Link to={linkTo} onClick={handleLinkClick}>
+          {icon}
           <span className="truncate">{item.descripcion}</span>
         </Link>
       </SidebarMenuSubButton>

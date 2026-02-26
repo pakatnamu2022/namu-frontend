@@ -24,6 +24,7 @@ interface ChecklistFieldProps {
   name: string;
   label?: string;
   items: ChecklistItem[];
+  compact?: boolean;
 }
 
 /**
@@ -51,6 +52,7 @@ export const ChecklistField = ({
   name,
   label = "Checklist",
   items,
+  compact = false,
 }: ChecklistFieldProps) => {
   // Agrupar items por categoría
   const groupedItems = items.reduce((acc, item) => {
@@ -173,7 +175,8 @@ export const ChecklistField = ({
                         <FormControl key={item.id}>
                           <label
                             className={`
-                              flex items-center gap-3 p-3 rounded-lg border transition-all cursor-pointer select-none
+                              flex items-center gap-2 rounded-lg border transition-all cursor-pointer select-none
+                              ${compact ? "p-1.5" : "p-3"}
                               ${
                                 isChecked
                                   ? "border-primary bg-muted"

@@ -24,6 +24,7 @@ import {
   cancelShippingGuide,
   sendControlUnitsToNubefact,
   queryControlUnitsFromNubefact,
+  getNextShippingGuideDocumentNumber,
 } from "./controlUnits.actions";
 import {
   successToast,
@@ -249,6 +250,18 @@ export const useQueryControlUnitsFromNubefact = () => {
           "Error al consultar estado en SUNAT",
       );
     },
+  });
+};
+
+// Hook para obtener el siguiente número de documento
+export const useNextShippingGuideDocumentNumber = (
+  documentSeriesId?: number
+) => {
+  return useQuery({
+    queryKey: ["shippingGuide", "next-document-number", documentSeriesId],
+    queryFn: () => getNextShippingGuideDocumentNumber(documentSeriesId!),
+    enabled: !!documentSeriesId,
+    refetchOnWindowFocus: false,
   });
 };
 

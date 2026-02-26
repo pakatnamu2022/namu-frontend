@@ -136,7 +136,7 @@ export default function AddVehiclePurchaseOrderPage() {
           subtotal: 0,
           igv: 0,
           total: 0,
-          supplier_id: "",
+          supplier_id: consignmentData?.transmitter_id.toString() ?? "",
           currency_id: "",
           warehouse_id: "",
           items: consignmentVehicleItem ? [consignmentVehicleItem] : [],

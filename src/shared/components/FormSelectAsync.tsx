@@ -66,6 +66,7 @@ interface FormSelectAsyncProps {
   additionalParams?: Record<string, any>; // Parámetros adicionales para el hook
   onValueChange?: (value: string, item?: any) => void; // Callback cuando cambia el valor
   allowClear?: boolean;
+  preloadId?: string; // Pagina automáticamente hasta encontrar la opción con este value
 }
 
 export function FormSelectAsync({
@@ -90,6 +91,7 @@ export function FormSelectAsync({
   additionalParams = {},
   onValueChange,
   allowClear = true,
+  preloadId,
 }: FormSelectAsyncProps) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -103,6 +105,7 @@ export function FormSelectAsync({
     defaultOption || null,
   );
   const scrollRef = useRef<HTMLDivElement>(null);
+  const preloadDoneRef = useRef(false);
 
   // Sincronizar cuando defaultOption cambie (ej. al seleccionar cotización)
   useEffect(() => {
@@ -188,6 +191,24 @@ export function FormSelectAsync({
       }
     }
   }, [data, page, mapOptionFn, defaultOption]);
+
+  // Auto-paginar hasta encontrar la opción con preloadId
+  useEffect(() => {
+    if (!preloadId || preloadDoneRef.current || isFetching || isLoading) return;
+
+    const found = allOptions.some((opt) => opt.value === preloadId);
+    if (found) {
+      preloadDoneRef.current = true;
+      return;
+    }
+
+    if (data?.meta?.last_page && page < data.meta.last_page) {
+      setPage((prev) => prev + 1);
+    } else if (data) {
+      // Se agotaron las páginas sin encontrarlo
+      preloadDoneRef.current = true;
+    }
+  }, [preloadId, allOptions, data, page, isFetching, isLoading]);
 
   // Manejar scroll para cargar más
   const handleScroll = useCallback(
@@ -282,7 +303,7 @@ export function FormSelectAsync({
                       role="combobox"
                       disabled={disabled}
                       className={cn(
-                        "w-full justify-between min-h-10 flex",
+                        "w-full justify-between flex",
                         !field.value && "text-muted-foreground",
                         field.value && "bg-muted",
                         className,

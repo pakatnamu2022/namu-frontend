@@ -101,7 +101,11 @@ const GeneralSheet: React.FC<GeneralSheetProps> = ({
       <Sheet open={open} onOpenChange={(v) => !v && onClose()} modal={modal}>
         <SheetContent
           side={side}
-          className={cn(sizes[size], className, "rounded-tl-xl rounded-bl-xl gap-0")}
+          className={cn(
+            sizes[size],
+            className,
+            "rounded-tl-xl rounded-bl-xl gap-0",
+          )}
         >
           <SheetHeader>
             <div className="flex items-center gap-2">
@@ -126,7 +130,7 @@ const GeneralSheet: React.FC<GeneralSheetProps> = ({
             </div>
             <SheetClose onClick={onClose} />
           </SheetHeader>
-          <div className="no-scrollbar overflow-y-auto py-2 px-4">
+          <div className="no-scrollbar overflow-y-auto py-2 px-4 h-full">
             {children}
           </div>
           <SheetFooter>{childrenFooter}</SheetFooter>
@@ -162,7 +166,7 @@ const GeneralSheet: React.FC<GeneralSheetProps> = ({
             </div>
             <DrawerClose onClick={onClose} />
           </DrawerHeader>
-          <div className="no-scrollbar overflow-y-auto py-2 px-4">
+          <div className="no-scrollbar overflow-y-auto py-2 px-4 h-full">
             {children}
           </div>
           <DrawerFooter>{childrenFooter}</DrawerFooter>

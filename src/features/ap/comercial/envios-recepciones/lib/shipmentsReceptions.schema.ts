@@ -18,7 +18,7 @@ const shipmentsReceptionsSchemaBase = z.object({
       },
       {
         message: "La serie debe empezar con 'T' y tener máximo 4 caracteres",
-      }
+      },
     ),
   correlative: z.string().optional(),
   issue_date: z.union([z.literal(""), z.date()]).optional(),
@@ -26,7 +26,7 @@ const shipmentsReceptionsSchemaBase = z.object({
   sede_receiver_id: z.string().optional(),
   transmitter_origin_id: requiredStringId("El origen del emisor es requerido"),
   receiver_destination_id: requiredStringId(
-    "El destino del receptor es requerido"
+    "El destino del receptor es requerido",
   ),
   transmitter_id: requiredStringId("El emisor es requerido"),
   receiver_id: requiredStringId("El receptor es requerido"),
@@ -38,7 +38,7 @@ const shipmentsReceptionsSchemaBase = z.object({
         const num = Number(val);
         return !isNaN(num) && num >= 1;
       },
-      { message: "El total de bultos debe ser un número mayor o igual a 1" }
+      { message: "El total de bultos debe ser un número mayor o igual a 1" },
     ),
   total_weight: z
     .string()
@@ -48,11 +48,11 @@ const shipmentsReceptionsSchemaBase = z.object({
         const num = Number(val);
         return !isNaN(num) && num >= 0.1;
       },
-      { message: "El peso total debe ser un número mayor o igual a 0.1" }
+      { message: "El peso total debe ser un número mayor o igual a 0.1" },
     ),
   file: z.instanceof(File).nullable().optional(),
   transport_company_id: requiredStringId(
-    "La empresa de transporte es requerida"
+    "La empresa de transporte es requerida",
   ),
   driver_doc: z
     .string()
@@ -67,13 +67,13 @@ const shipmentsReceptionsSchemaBase = z.object({
     .max(7, "La placa no puede exceder 7 caracteres")
     .regex(
       /^[A-Z0-9-]+$/,
-      "La placa solo puede contener letras mayúsculas, números y guiones"
+      "La placa solo puede contener letras mayúsculas, números y guiones",
     ),
   driver_name: z.string().min(1, "El nombre del conductor es requerido"),
   notes: z.string().optional(),
   transfer_reason_id: requiredStringId("El motivo de traslado es requerido"),
   transfer_modality_id: requiredStringId(
-    "La modalidad de traslado es requerida"
+    "La modalidad de traslado es requerida",
   ),
 });
 
@@ -94,7 +94,7 @@ export const shipmentsReceptionsSchemaCreate = shipmentsReceptionsSchemaBase
     {
       message: "Debe completar los campos de serie y correlativo correctamente",
       path: ["document_series_id"],
-    }
+    },
   )
   .refine(
     (data) => {
@@ -107,7 +107,7 @@ export const shipmentsReceptionsSchemaCreate = shipmentsReceptionsSchemaBase
     {
       message: "La sede origen es requerida",
       path: ["sede_transmitter_id"],
-    }
+    },
   )
   .refine(
     (data) => {
@@ -122,7 +122,7 @@ export const shipmentsReceptionsSchemaCreate = shipmentsReceptionsSchemaBase
       message:
         "En transporte público, el remitente no puede ser igual al transportista",
       path: ["transport_company_id"],
-    }
+    },
   )
   .refine(
     (data) => {
@@ -141,7 +141,7 @@ export const shipmentsReceptionsSchemaCreate = shipmentsReceptionsSchemaBase
     {
       message: "La sede destino es requerida para este motivo de traslado",
       path: ["sede_receiver_id"],
-    }
+    },
   );
 
 // Schema para actualización (todos los campos opcionales)
@@ -152,11 +152,41 @@ export type ShipmentsReceptionsSchema = z.infer<
   typeof shipmentsReceptionsSchemaCreate
 >;
 
+// Schema de daños para checklist de recepción
+export const receptionChecklistDamageSchema = z.object({
+  damage_type: z.string().max(100),
+  x_coordinate: z.number().nullable().optional(),
+  y_coordinate: z.number().nullable().optional(),
+  description: z.string().nullable().optional(),
+  photo_url: z.string().optional(),
+  photo_file: z.instanceof(File).optional(),
+});
+
+export type ReceptionChecklistDamageSchema = z.infer<
+  typeof receptionChecklistDamageSchema
+>;
+
 // Schema para checklist de recepción (update)
 export const receptionChecklistSchemaUpdate = z.object({
   shipping_guide_id: z.string(),
   note: z.string().optional(),
+  kilometers: z.coerce
+    .string()
+    .min(1, "El kilometraje es requerido")
+    .refine(
+      (val) => {
+        const num = Number(val);
+        return !isNaN(num) && num >= 0;
+      },
+      { message: "El kilometraje debe ser un número mayor o igual a 0" },
+    ),
+  photo_front: z.instanceof(File).nullable().optional(),
+  photo_back: z.instanceof(File).nullable().optional(),
+  photo_left: z.instanceof(File).nullable().optional(),
+  photo_right: z.instanceof(File).nullable().optional(),
+  general_observations: z.string().max(1000).optional(),
   items_receiving: z.record(z.string(), z.string()),
+  damages: z.array(receptionChecklistDamageSchema).default([]),
 });
 
 export type ReceptionChecklistSchema = z.infer<
