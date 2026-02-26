@@ -419,7 +419,7 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
                   <Button
                     variant="secondary"
                     size="icon"
-                    className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8"
+                    className="absolute top-2 right-2 h-8 w-8"
                     onClick={() =>
                       window.open(inspection.photo_front_url, "_blank")
                     }
@@ -460,7 +460,7 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
                   <Button
                     variant="secondary"
                     size="icon"
-                    className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8"
+                    className="absolute top-2 right-2 h-8 w-8"
                     onClick={() =>
                       window.open(inspection.photo_back_url, "_blank")
                     }
@@ -501,7 +501,7 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
                   <Button
                     variant="secondary"
                     size="icon"
-                    className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8"
+                    className="absolute top-2 right-2 h-8 w-8"
                     onClick={() =>
                       window.open(inspection.photo_left_url, "_blank")
                     }
@@ -542,7 +542,7 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
                   <Button
                     variant="secondary"
                     size="icon"
-                    className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8"
+                    className="absolute top-2 right-2 h-8 w-8"
                     onClick={() =>
                       window.open(inspection.photo_right_url, "_blank")
                     }
@@ -790,7 +790,7 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
                       <Button
                         variant="secondary"
                         size="icon"
-                        className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8"
+                        className="absolute top-2 right-2 h-8 w-8"
                         onClick={() => window.open(damage.photo_url, "_blank")}
                         title="Ver imagen en nueva pestaña"
                       >

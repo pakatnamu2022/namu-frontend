@@ -178,7 +178,7 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
   const { data: allDiscountRequests = [] } =
     useDiscountRequestsByWorkOrder(workOrderId);
   const discountRequests = allDiscountRequests.filter(
-    (r) => r.item_type === "PRODUCT",
+    (r) => r.item_type === "PART",
   );
 
   const storeBulkMutation = useMutation({
@@ -922,7 +922,7 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
         }
         currencySymbol={workOrder?.type_currency?.symbol || "S/"}
         existingRequest={editingRequest ?? undefined}
-        itemType="PRODUCT"
+        itemType="PART"
       />
     </div>
   );

@@ -35,7 +35,7 @@ const schema = z.object({
   requested_discount_amount: z
     .number({ error: "Ingrese un monto válido" })
     .min(0, "Debe ser mayor o igual a 0"),
-  item_type: z.enum(["PRODUCT", "LABOR"]),
+  item_type: z.enum(["PART", "LABOUR"]),
 });
 
 type FormSchema = z.infer<typeof schema>;
@@ -54,7 +54,7 @@ interface DiscountRequestWorkOrderModalProps {
   itemDescription?: string;
   currencySymbol?: string;
   existingRequest?: DiscountRequestWorkOrderQuotationResource;
-  itemType: "PRODUCT" | "LABOR";
+  itemType: "PART" | "LABOUR";
   onSuccess?: () => void;
 }
 
@@ -136,7 +136,11 @@ export const DiscountRequestWorkOrderModal = ({
           : "Solicitud de descuento enviada correctamente",
       );
       queryClient.invalidateQueries({
-        queryKey: [DISCOUNT_REQUEST_TALLER.QUERY_KEY, "work-order", workOrderId],
+        queryKey: [
+          DISCOUNT_REQUEST_TALLER.QUERY_KEY,
+          "work-order",
+          workOrderId,
+        ],
       });
       onSuccess?.();
       form.reset();
