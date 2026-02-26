@@ -20,9 +20,10 @@ import { SUNAT_CONCEPTS_TYPE } from "@/features/gp/maestro-general/conceptos-sun
 import { useAllSunatConcepts } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.hook";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { notFound } from "@/shared/hooks/useNotFound";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import PageWrapper from "@/shared/components/PageWrapper";
 import { AREA_COMERCIAL } from "@/features/ap/ap-master/lib/apMaster.constants";
+import { useSidebar } from "@/components/ui/sidebar";
 
 export default function AddGeneralElectronicDocumentPage() {
   const { ROUTE, MODEL, ABSOLUTE_ROUTE } = ELECTRONIC_DOCUMENT;
@@ -154,6 +155,12 @@ export default function AddGeneralElectronicDocumentPage() {
   const handleSubmit = (data: ElectronicDocumentSchema) => {
     mutate(data);
   };
+
+  const { setOpen, setOpenMobile } = useSidebar();
+  useEffect(() => {
+    setOpen(false);
+    setOpenMobile(false);
+  }, []);
 
   if (isLoadingModule) return <FormSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();

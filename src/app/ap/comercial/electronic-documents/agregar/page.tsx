@@ -24,6 +24,7 @@ import { notFound } from "@/shared/hooks/useNotFound";
 import { STATUS_ACTIVE } from "@/core/core.constants";
 import PageWrapper from "@/shared/components/PageWrapper";
 import { AREA_COMERCIAL } from "@/features/ap/ap-master/lib/apMaster.constants";
+import { useSidebar } from "@/components/ui/sidebar";
 
 export default function AddElectronicDocumentPage() {
   const { ROUTE, MODEL, ABSOLUTE_ROUTE, QUERY_KEY } = ELECTRONIC_DOCUMENT;
@@ -160,7 +161,12 @@ export default function AddElectronicDocumentPage() {
     onSuccess: (_, variables) => {
       if (variables.purchase_request_quote_id) {
         queryClient.invalidateQueries({
-          queryKey: [QUERY_KEY, "advances", "quotation", parseInt(variables.purchase_request_quote_id)],
+          queryKey: [
+            QUERY_KEY,
+            "advances",
+            "quotation",
+            parseInt(variables.purchase_request_quote_id),
+          ],
         });
       }
       successToast(SUCCESS_MESSAGE(MODEL, "create"));
@@ -171,6 +177,12 @@ export default function AddElectronicDocumentPage() {
       errorToast(ERROR_MESSAGE(MODEL, "create", msg));
     },
   });
+
+  const { setOpen, setOpenMobile } = useSidebar();
+  useEffect(() => {
+    setOpen(false);
+    setOpenMobile(false);
+  }, []);
 
   const handleSubmit = (data: ElectronicDocumentSchema) => {
     mutate(data);

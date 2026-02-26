@@ -36,6 +36,7 @@ export function QuotationSection({ form }: QuotationSectionProps) {
         additionalParams={{
           is_approved: 1, // Solo cotizaciones aprobadas
           is_paid: 0, // Solo cotizaciones no pagadas
+          has_vehicle: 1, // Solo cotizaciones que tienen vehículo asociado
         }}
         useFindByIdHook={usePurchaseRequestQuoteById}
       />
