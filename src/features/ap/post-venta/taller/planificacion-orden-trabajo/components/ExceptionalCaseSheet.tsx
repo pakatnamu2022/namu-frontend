@@ -26,6 +26,7 @@ import {
   exceptionalCaseSchema,
   ExceptionalCaseFormValues,
 } from "../lib/workOrderPlanning.schema";
+import { WORK_SCHEDULE } from "../lib/workOrderPlanning.constants";
 import {
   Loader,
   Check,
@@ -205,12 +206,7 @@ export function ExceptionalCaseSheet({
     const minutes = date.getMinutes();
     const totalMinutes = hours * 60 + minutes;
 
-    // Horario de trabajo: 8:00 AM (480 min) a 6:00 PM (1080 min)
-    // Almuerzo: 1:00 PM (780 min) a 2:24 PM (864 min)
-    const MORNING_START = 480; // 8:00
-    const LUNCH_START = 780; // 13:00
-    const LUNCH_END = 864; // 14:24
-    const AFTERNOON_END = 1080; // 18:00
+    const { MORNING_START, LUNCH_START, LUNCH_END, AFTERNOON_END } = WORK_SCHEDULE;
 
     // Verificar que esté dentro del horario laboral
     if (totalMinutes < MORNING_START || totalMinutes > AFTERNOON_END) {
