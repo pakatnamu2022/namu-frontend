@@ -40,7 +40,7 @@ import { CalendarDays, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function WorkSchedulesPage() {
@@ -60,8 +60,12 @@ export default function WorkSchedulesPage() {
   // Queries
   const { data: periods = [], isLoading: isLoadingPeriods } =
     useAllPayrollPeriods();
-  const { data: currentPeriod, isLoading: isLoadingCurrentPeriod } =
-    useCurrentPayrollPeriod();
+  const {
+    data: currentPeriod,
+    isLoading: isLoadingCurrentPeriod,
+    error: currentPeriodError,
+    isError: isCurrentPeriodError,
+  } = useCurrentPayrollPeriod();
   const { data: codes = [] } = useAttendanceRuleCodes();
 
   // Set default period when current period loads
@@ -213,6 +217,27 @@ export default function WorkSchedulesPage() {
           icon={currentView.icon}
         />
         <div className="flex items-center gap-2">
+          {isLoadingData ? (
+            <Skeleton className="h-9 w-52" />
+          ) : (
+            <div className="flex flex-col gap-0.5">
+              <Form {...form}>
+                <FormSelect
+                  control={form.control}
+                  name="period_id"
+                  placeholder="Selecciona un período"
+                  options={periodOptions}
+                  disabled={isLoadingPeriods}
+                />
+              </Form>
+              {isCurrentPeriodError && (
+                <p className="text-xs text-destructive">
+                  {(currentPeriodError as any)?.response?.data?.message ??
+                    "No se pudo cargar el período actual"}
+                </p>
+              )}
+            </div>
+          )}
           <Button
             variant="outline"
             size="sm"
@@ -225,36 +250,9 @@ export default function WorkSchedulesPage() {
         </div>
       </HeaderTableWrapper>
 
-      {/* Period Selector */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base flex items-center gap-2">
-            <CalendarDays className="h-5 w-5" />
-            Seleccionar Período
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {isLoadingData ? (
-            <Skeleton className="h-10 w-full max-w-xs" />
-          ) : (
-            <Form {...form}>
-              <div className="max-w-xs">
-                <FormSelect
-                  control={form.control}
-                  name="period_id"
-                  placeholder="Selecciona un período"
-                  options={periodOptions}
-                  disabled={isLoadingPeriods}
-                />
-              </div>
-            </Form>
-          )}
-        </CardContent>
-      </Card>
-
-      {selectedPeriodId && (
+      {selectedPeriodId ? (
         <div className="grid gap-4 lg:grid-cols-3">
-          {/* Summary Table */}
+          {/* Resumen */}
           <div className="lg:col-span-1">
             <WorkScheduleSummary
               period={summaryData?.period}
@@ -266,35 +264,23 @@ export default function WorkSchedulesPage() {
             />
           </div>
 
-          {/* Calendar View */}
+          {/* Calendario */}
           <div className="lg:col-span-2">
             {selectedWorkerId && selectedWorkerData && selectedPeriod ? (
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-semibold">
-                    Calendario -{" "}
-                    {format(
-                      new Date(selectedPeriod.year, selectedPeriod.month - 1),
-                      "MMMM yyyy",
-                      { locale: es },
-                    )}
-                  </h2>
-                </div>
-                <WorkScheduleCalendar
-                  year={selectedPeriod.year}
-                  month={selectedPeriod.month}
-                  schedules={schedules}
-                  workerId={selectedWorkerId}
-                  workerName={selectedWorkerData.worker_name}
-                  onAddSchedule={handleAddSchedule}
-                  onEditSchedule={handleEditSchedule}
-                  onDeleteSchedule={setDeleteId}
-                  canModify={selectedPeriod.can_modify !== false}
-                />
-              </div>
+              <WorkScheduleCalendar
+                year={selectedPeriod.year}
+                month={selectedPeriod.month}
+                schedules={schedules}
+                workerId={selectedWorkerId}
+                workerName={`${selectedWorkerData.worker_name} — ${format(new Date(selectedPeriod.year, selectedPeriod.month - 1), "MMMM yyyy", { locale: es })}`}
+                onAddSchedule={handleAddSchedule}
+                onEditSchedule={handleEditSchedule}
+                onDeleteSchedule={setDeleteId}
+                canModify={selectedPeriod.can_modify !== false}
+              />
             ) : (
-              <Card className="h-full flex items-center justify-center min-h-[400px]">
-                <CardContent className="text-center text-muted-foreground">
+              <Card className="flex items-center justify-center min-h-[400px]">
+                <CardContent className="text-center text-muted-foreground py-8">
                   <CalendarDays className="h-12 w-12 mx-auto mb-4 opacity-50" />
                   <p>Selecciona un trabajador de la tabla de resumen</p>
                   <p className="text-sm">para ver y gestionar su calendario</p>
@@ -303,6 +289,16 @@ export default function WorkSchedulesPage() {
             )}
           </div>
         </div>
+      ) : (
+        <Card className="flex items-center justify-center min-h-[300px]">
+          <CardContent className="text-center text-muted-foreground py-8">
+            <CalendarDays className="h-12 w-12 mx-auto mb-4 opacity-50" />
+            <p className="font-medium">Selecciona un período para comenzar</p>
+            <p className="text-sm">
+              Elige un período de planilla en el selector de arriba
+            </p>
+          </CardContent>
+        </Card>
       )}
 
       {/* Form Modal */}

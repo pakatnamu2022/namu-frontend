@@ -5,7 +5,6 @@ import { PayrollPeriodResource } from "../lib/payroll-period.interface";
 import { Button } from "@/components/ui/button";
 import { Pencil, Lock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { useNavigate } from "react-router-dom";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { PAYROLL_PERIOD } from "../lib/payroll-period.constant";
 import { format } from "date-fns";
@@ -25,9 +24,11 @@ const statusConfig: Record<
 export const payrollPeriodColumns = ({
   onDelete,
   onClose,
+  onEdit,
 }: {
   onDelete: (id: number) => void;
   onClose: (id: number) => void;
+  onEdit: (id: number) => void;
 }): PayrollPeriodColumns[] => [
   {
     accessorKey: "code",
@@ -96,9 +97,7 @@ export const payrollPeriodColumns = ({
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
-      const router = useNavigate();
       const { id, can_modify, status } = row.original;
-      const { ROUTE_UPDATE } = PAYROLL_PERIOD;
 
       return (
         <div className="flex items-center gap-2">
@@ -107,7 +106,7 @@ export const payrollPeriodColumns = ({
               variant="outline"
               size="icon"
               className="size-7"
-              onClick={() => router(`${ROUTE_UPDATE}/${id}`)}
+              onClick={() => onEdit(id)}
             >
               <Pencil className="size-4" />
             </Button>
