@@ -264,6 +264,7 @@ import UpdateVehiclesRepuestosPage from "./app/ap/post-venta/repuestos/vehiculos
 import ProductRepuestoPage from "./app/ap/post-venta/repuestos/producto-repuesto/page.tsx";
 import AddProductRepuestoPage from "./app/ap/post-venta/repuestos/producto-repuesto/agregar/page.tsx";
 import UpdateProductRepuestoPage from "./app/ap/post-venta/repuestos/producto-repuesto/actualizar/[id]/page.tsx";
+import AssignWarehouseRepuestoPage from "./app/ap/post-venta/repuestos/producto-repuesto/asignar-almacen/[id]/page.tsx";
 import InventoryRepuestoPage from "./app/ap/post-venta/repuestos/inventario-repuesto/page.tsx";
 import ProductRepuestoKardexPage from "./app/ap/post-venta/repuestos/inventario-repuesto/movimientos/[productId]/[warehouseId]/page.tsx";
 import CustomersRpPage from "./app/ap/post-venta/repuestos/clientes-repuestos/page.tsx";
@@ -1360,6 +1361,10 @@ function App() {
               <Route
                 path="repuestos/producto-repuesto/actualizar/:id"
                 element={<UpdateProductRepuestoPage />}
+              />
+              <Route
+                path="repuestos/producto-repuesto/asignar-almacen/:id"
+                element={<AssignWarehouseRepuestoPage />}
               />
               <Route
                 path="repuestos/inventario-repuesto"
