@@ -37,6 +37,8 @@ import { SheetShipmentDetailsDialog } from "@/features/ap/comercial/envios-recep
 import { notFound } from "@/shared/hooks/useNotFound";
 import { format } from "date-fns";
 import { AREA_COMERCIAL } from "@/features/ap/ap-master/lib/apMaster.constants";
+import { useMutation } from "@tanstack/react-query";
+import { dispatchShippingGuideMigration } from "@/features/ap/comercial/entrega-vehiculo/lib/vehicleDelivery.actions";
 
 export default function ShipmentsReceptionsPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -64,6 +66,14 @@ export default function ShipmentsReceptionsPage() {
   const markAsReceivedMutation = useMarkAsReceived();
   const cancelMutation = useCancelShippingGuide();
   const permissions = useModulePermissions(ROUTE);
+  const migrateMutation = useMutation({
+    mutationFn: dispatchShippingGuideMigration,
+    onSuccess: () => successToast("Migración despachada correctamente"),
+    onError: (error: any) => {
+      const msg = error?.response?.data?.message || "";
+      errorToast(`Error al despachar migración: ${msg}`);
+    },
+  });
 
   const { data, isLoading, refetch, isFetching } = useShipmentsReceptions({
     page,
@@ -162,6 +172,7 @@ export default function ShipmentsReceptionsPage() {
           onMarkAsReceived: setMarkAsReceivedId,
           onViewDetails: setSelectedShipment,
           onCancel: setCancelId,
+          onMigrate: (id) => migrateMutation.mutate(id),
           permissions,
         })}
         data={data?.data || []}

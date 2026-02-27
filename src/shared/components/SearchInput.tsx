@@ -1,6 +1,6 @@
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useEffect, useRef, useState } from "react";
+import { FormInput } from "./FormInput";
+import { Search } from "lucide-react";
 
 export default function SearchInput({
   value,
@@ -31,16 +31,14 @@ export default function SearchInput({
   }, [value]);
 
   return (
-    <div className="flex flex-col gap-1.5">
-      {label && (
-        <Label className="text-sm font-medium">{label}</Label>
-      )}
-      <Input
-        className="w-full md:w-64 h-8 text-xs md:text-sm"
-        placeholder={placeholder}
-        value={inputValue}
-        onChange={(e) => setInputValue(e.target.value)}
-      />
-    </div>
+    <FormInput
+      label={label}
+      name="search"
+      className="w-full md:w-64 h-8! text-xs md:text-sm"
+      placeholder={placeholder}
+      value={inputValue}
+      onChange={(e) => setInputValue(e.target.value)}
+      addonStart={<Search size="16" />}
+    />
   );
 }

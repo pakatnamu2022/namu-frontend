@@ -23,6 +23,7 @@ import VehicleTable from "@/features/ap/comercial/vehiculos/components/VehicleTa
 import VehicleOptions from "@/features/ap/comercial/vehiculos/components/VehicleOptions";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { CM_COMERCIAL_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
+import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 
 export default function VehiclesPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -31,16 +32,20 @@ export default function VehiclesPage() {
   const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const { MODEL, ROUTE } = VEHICLES;
+  const permissions = useModulePermissions(ROUTE);
 
   useEffect(() => {
     setPage(1);
   }, [search, per_page]);
-  const { data, isLoading, refetch } = useVehicles({
-    page,
-    search,
-    per_page,
-    type_operation_id: CM_COMERCIAL_ID,
-  });
+  const { data, isLoading, refetch } = useVehicles(
+    {
+      page,
+      search,
+      per_page,
+      type_operation_id: CM_COMERCIAL_ID,
+    },
+    true,
+  );
 
   const handleDelete = async () => {
     if (!deleteId) return;
@@ -74,6 +79,7 @@ export default function VehiclesPage() {
         isLoading={isLoading}
         columns={vehicleColumns({
           onDelete: setDeleteId,
+          permissions: permissions,
         })}
         data={data?.data || []}
         initialColumnVisibility={{ plate: true }}

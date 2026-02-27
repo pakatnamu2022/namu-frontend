@@ -70,7 +70,7 @@ export const OpportunityActionForm = ({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 w-full">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <FormSelect
             name="action_type_id"
             label="Tipo de Acción"

@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Check, RefreshCw, Search, X } from "lucide-react";
+import { ArrowRightLeft, Check, RefreshCw, Search, X } from "lucide-react";
 import { VehiclePurchaseOrderResource } from "../lib/vehiclePurchaseOrder.interface";
 import VehiclePurchaseOrderMigrationHistory from "./VehiclePurchaseOrderMigrationHistory";
 import VehiclePurchaseOrderDetailButton from "./VehiclePurchaseOrderDetailButton";
@@ -14,11 +14,13 @@ export type VehiclePurchaseOrderColumns =
 interface Props {
   onRequestCreditNote: (purchaseOrderId: number) => void;
   onRequestInvoice: (purchaseOrderId: number) => void;
+  onMigrate?: (id: number) => void;
 }
 
 export const vehiclePurchaseOrderColumns = ({
   onRequestCreditNote,
   onRequestInvoice,
+  onMigrate,
 }: Props): VehiclePurchaseOrderColumns[] => [
   {
     accessorKey: "status",
@@ -91,7 +93,7 @@ export const vehiclePurchaseOrderColumns = ({
           <Button
             variant="outline"
             size="icon-xs"
-            color="blue"
+            color="orange"
             onClick={() => onRequestInvoice(row.original.id)}
           >
             <Search />
@@ -101,7 +103,7 @@ export const vehiclePurchaseOrderColumns = ({
         <Button
           variant="outline"
           size="xs"
-          color="blue"
+          color="orange"
           onClick={() => onRequestInvoice(row.original.id)}
         >
           <Search />
@@ -214,6 +216,19 @@ export const vehiclePurchaseOrderColumns = ({
 
           {/* Migration History */}
           <VehiclePurchaseOrderMigrationHistory purchaseOrderId={id} />
+
+          {/* Migrar */}
+          {onMigrate && (
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-7"
+              tooltip="Migrar"
+              onClick={() => onMigrate(id)}
+            >
+              <ArrowRightLeft className="size-4" />
+            </Button>
+          )}
 
           {/* Resend (only if conditions are met) */}
           {canResend && (

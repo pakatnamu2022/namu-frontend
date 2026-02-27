@@ -10,7 +10,7 @@ interface Props {
 
 export default function OpportunityClientCard({ data }: Props) {
   return (
-    <Card className="bg-muted/50">
+    <Card className="bg-muted/50 gap-2">
       <CardHeader>
         <h3 className="text-base font-semibold text-primary">
           Información del Cliente

@@ -19,12 +19,13 @@ import {
   useOpportunityStatuses,
   useClientStatuses,
   useOpportunityTypes,
+  useFamilies,
 } from "../lib/opportunities.hook";
 import { useAllCustomers } from "../../clientes/lib/customers.hook";
 import { TYPE_BUSINESS_PARTNERS } from "@/core/core.constants";
-import { useAllFamilies } from "@/features/ap/configuraciones/vehiculos/familias/lib/families.hook";
 import { FamiliesResource } from "@/features/ap/configuraciones/vehiculos/familias/lib/families.interface";
 import { OPPORTUNITIES } from "../lib/opportunities.constants";
+import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 
 interface OpportunityFormProps {
   defaultValues: Partial<OpportunitySchema>;
@@ -34,6 +35,7 @@ interface OpportunityFormProps {
   onCancel?: () => void;
   clientId?: number;
   showClientSelector?: boolean; // New prop to control if client selector is shown
+  leadBrandId?: number;
 }
 
 export const OpportunityForm = ({
@@ -43,12 +45,13 @@ export const OpportunityForm = ({
   mode = "create",
   clientId,
   showClientSelector = false,
+  leadBrandId,
 }: OpportunityFormProps) => {
   const { ABSOLUTE_ROUTE } = OPPORTUNITIES;
   const router = useNavigate();
   const form = useForm({
     resolver: zodResolver(
-      mode === "create" ? opportunitySchemaCreate : opportunitySchemaUpdate
+      mode === "create" ? opportunitySchemaCreate : opportunitySchemaUpdate,
     ),
     defaultValues: {
       ...defaultValues,
@@ -63,7 +66,6 @@ export const OpportunityForm = ({
     useClientStatuses();
   const { data: opportunityTypes, isLoading: isLoadingTypes } =
     useOpportunityTypes();
-  const { data: families, isLoading: isLoadingFamilies } = useAllFamilies();
   const { data: customers = [], isLoading: isLoadingCustomers } =
     useAllCustomers({
       type: [TYPE_BUSINESS_PARTNERS.CLIENTE, TYPE_BUSINESS_PARTNERS.AMBOS],
@@ -73,7 +75,6 @@ export const OpportunityForm = ({
     isLoadingStatuses ||
     isLoadingClientStatuses ||
     isLoadingTypes ||
-    isLoadingFamilies ||
     (showClientSelector && isLoadingCustomers);
 
   if (isLoading) return <FormSkeleton />;
@@ -110,18 +111,17 @@ export const OpportunityForm = ({
             </div>
           )}
 
-          <FormSelect
+          <FormSelectAsync
             name="family_id"
             label="Familia de Producto"
             placeholder="Selecciona familia"
-            options={
-              families?.map((item: FamiliesResource) => ({
-                label: item.brand + " " + item.description,
-                value: item.id.toString(),
-              })) || []
-            }
+            useQueryHook={useFamilies}
+            mapOptionFn={(item: FamiliesResource) => ({
+              label: item.brand + " " + item.description,
+              value: item.id.toString(),
+            })}
             control={form.control}
-            strictFilter={true}
+            additionalParams={leadBrandId ? { brand_id: leadBrandId } : {}}
           />
 
           <FormSelect
