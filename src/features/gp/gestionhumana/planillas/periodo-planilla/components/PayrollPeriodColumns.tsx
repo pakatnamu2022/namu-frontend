@@ -3,11 +3,9 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { PayrollPeriodResource } from "../lib/payroll-period.interface";
 import { Button } from "@/components/ui/button";
-import { Pencil, Lock } from "lucide-react";
+import { Pencil, Lock, Calculator } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { useNavigate } from "react-router-dom";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
-import { PAYROLL_PERIOD } from "../lib/payroll-period.constant";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 
@@ -25,9 +23,13 @@ const statusConfig: Record<
 export const payrollPeriodColumns = ({
   onDelete,
   onClose,
+  onEdit,
+  onCalculate,
 }: {
   onDelete: (id: number) => void;
   onClose: (id: number) => void;
+  onEdit: (id: number) => void;
+  onCalculate: (period: PayrollPeriodResource) => void;
 }): PayrollPeriodColumns[] => [
   {
     accessorKey: "code",
@@ -96,18 +98,26 @@ export const payrollPeriodColumns = ({
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
-      const router = useNavigate();
       const { id, can_modify, status } = row.original;
-      const { ROUTE_UPDATE } = PAYROLL_PERIOD;
 
       return (
         <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="icon"
+            className="size-7"
+            onClick={() => onCalculate(row.original)}
+            tooltip="Calcular nómina"
+          >
+            <Calculator className="size-4" />
+          </Button>
           {can_modify && (
             <Button
               variant="outline"
               size="icon"
               className="size-7"
-              onClick={() => router(`${ROUTE_UPDATE}/${id}`)}
+              onClick={() => onEdit(id)}
+              tooltip="Editar periodo"
             >
               <Pencil className="size-4" />
             </Button>
@@ -118,7 +128,7 @@ export const payrollPeriodColumns = ({
               size="icon"
               className="size-7"
               onClick={() => onClose(id)}
-              title="Cerrar periodo"
+              tooltip="Cerrar periodo"
             >
               <Lock className="size-4" />
             </Button>

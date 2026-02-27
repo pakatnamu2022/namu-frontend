@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import VehicleMovements from "./VehicleMovements";
+import VehicleWorkOrderHistory from "./VehicleWorkOrderHistory";
 import { CM_POSTVENTA_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 export type VehicleColumns = ColumnDef<VehicleResource>;
@@ -13,11 +14,17 @@ export type VehicleColumns = ColumnDef<VehicleResource>;
 interface Props {
   onDelete?: (id: number) => void;
   onUpdate?: (id: number) => void;
+  permissions: {
+    canViewHistory: boolean;
+    canUpdate: boolean;
+    canDelete: boolean;
+  };
 }
 
 export const vehicleColumns = ({
   onUpdate,
   onDelete,
+  permissions,
 }: Props): VehicleColumns[] => [
   {
     accessorKey: "owner_name",
@@ -87,15 +94,23 @@ export const vehicleColumns = ({
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
-      const { id, movements, type_operation_id } = row.original;
+      const { id, plate, movements, type_operation_id } = row.original;
 
       return (
         <div className="flex items-center gap-2">
           {/* Movements */}
-          <VehicleMovements movements={movements || []} />
+          {permissions.canViewHistory && (
+            <VehicleMovements movements={movements || []} />
+          )}
+
+          {/* Work Order History */}
+          {permissions.canViewHistory &&
+            type_operation_id === CM_POSTVENTA_ID && (
+              <VehicleWorkOrderHistory vehicleId={id} vehiclePlate={plate} />
+            )}
 
           {/* Edit */}
-          {type_operation_id === CM_POSTVENTA_ID && (
+          {permissions.canUpdate && type_operation_id === CM_POSTVENTA_ID && (
             <Button
               variant="outline"
               size="icon"
@@ -108,7 +123,7 @@ export const vehicleColumns = ({
           )}
 
           {/* Delete */}
-          {type_operation_id === CM_POSTVENTA_ID && (
+          {permissions.canDelete && type_operation_id === CM_POSTVENTA_ID && (
             <DeleteButton onClick={() => onDelete!(id)} />
           )}
         </div>

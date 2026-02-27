@@ -18,9 +18,7 @@ import {
   deleteModelsVn,
   updateModelsVn,
 } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.actions";
-import ModelsVnActions from "@/features/ap/configuraciones/vehiculos/modelos-vn/components/ModelsVnActions";
 import ModelsVnTable from "@/features/ap/configuraciones/vehiculos/modelos-vn/components/ModelsVnTable";
-import { modelsVnColumns } from "@/features/ap/configuraciones/vehiculos/modelos-vn/components/ModelsVnColumns";
 import ModelsVnOptions from "@/features/ap/configuraciones/vehiculos/modelos-vn/components/ModelsVnOptions";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { MODELS_VN_REPUESTOS } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.constanst";
@@ -28,12 +26,16 @@ import { useAllBrands } from "@/features/ap/configuraciones/vehiculos/marcas/lib
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { CM_POSTVENTA_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
+import ModelsVnModal from "@/features/ap/configuraciones/vehiculos/modelos-vn/components/ModelsVnModal";
+import ModelsVnPvActions from "@/features/ap/configuraciones/vehiculos/modelos-vn/components/ModelsVnPvActions";
+import { modelsVnPvColumns } from "@/features/ap/configuraciones/vehiculos/modelos-vn/components/ModelsVnPvColumns";
 
 export default function ModelsVnRepuestosPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
+  const [updateId, setUpdateId] = useState<number | null>(null);
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [brandId, setBrandId] = useState<string>("");
   const { ROUTE, MODEL } = MODELS_VN_REPUESTOS;
@@ -91,16 +93,17 @@ export default function ModelsVnRepuestosPage() {
           subtitle={currentView.descripcion}
           icon={currentView.icon}
         />
-        <ModelsVnActions
+        <ModelsVnPvActions
           permissions={permissions}
           isCommercial={CM_POSTVENTA_ID}
         />
       </HeaderTableWrapper>
       <ModelsVnTable
         isLoading={isLoading}
-        columns={modelsVnColumns({
-          onToggleStatus: handleToggleStatus,
+        columns={modelsVnPvColumns({
+          onUpdate: setUpdateId,
           onDelete: setDeleteId,
+          onToggleStatus: handleToggleStatus,
           permissions,
           isCommercial: CM_POSTVENTA_ID,
         })}
@@ -114,6 +117,18 @@ export default function ModelsVnRepuestosPage() {
           setBrandId={setBrandId}
         />
       </ModelsVnTable>
+
+      {updateId !== null && (
+        <ModelsVnModal
+          id={updateId}
+          title={"Actualizar Modelo VN"}
+          open={true}
+          onClose={() => {
+            setUpdateId(null);
+          }}
+          mode="update"
+        />
+      )}
 
       {deleteId !== null && (
         <SimpleDeleteDialog

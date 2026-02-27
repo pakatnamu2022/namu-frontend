@@ -587,7 +587,7 @@ export const ProductTransferForm = ({
             control={form.control}
             name="movement_date"
             label="Fecha de Emisión"
-            disabledRange={{ before: new Date() }}
+            disabled
           />
 
           <FormSelect
@@ -982,6 +982,7 @@ export const ProductTransferForm = ({
                             additionalParams={{
                               warehouse_id:
                                 selectedOriginEstablishment?.warehouse_id,
+                              available_quantity: 0,
                             }}
                             perPage={10}
                             debounceMs={500}
@@ -1166,8 +1167,8 @@ export const ProductTransferForm = ({
             {isSubmitting
               ? "Guardando..."
               : mode === "create"
-                ? "Crear Transferencia"
-                : "Actualizar Transferencia"}
+                ? "Registrar Guía"
+                : "Actualizar Guía"}
           </Button>
         </div>
 

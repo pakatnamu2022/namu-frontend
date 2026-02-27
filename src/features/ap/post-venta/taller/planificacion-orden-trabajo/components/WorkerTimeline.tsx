@@ -9,9 +9,14 @@ import {
 import { Badge } from "@/components/ui/badge";
 import {
   WorkOrderPlanningResource,
-  PLANNING_STATUS_COLORS,
-  PLANNING_STATUS_LABELS,
+  PLANNING_VISUAL_STATE_COLORS,
+  PLANNING_VISUAL_STATE_LABELS,
+  getPlanningVisualState,
 } from "../lib/workOrderPlanning.interface";
+import {
+  WORK_SCHEDULE,
+  minutesToTimelinePosition,
+} from "../lib/workOrderPlanning.constants";
 import { format, parseISO, isSameDay, addHours } from "date-fns";
 import { es } from "date-fns/locale";
 import {
@@ -88,6 +93,7 @@ interface WorkerTimelineProps {
   fullPage?: boolean;
   sedeId?: string;
   onRefresh?: () => void;
+  readOnly?: boolean;
 }
 
 export function WorkerTimeline({
@@ -103,6 +109,7 @@ export function WorkerTimeline({
   fullPage = false,
   sedeId,
   onRefresh,
+  readOnly = false,
 }: WorkerTimelineProps) {
   const [selectedTime, setSelectedTime] = useState<{
     time: Date;
@@ -237,12 +244,14 @@ export function WorkerTimeline({
     );
   }, [selectedWorkOrder, activeGroup]);
 
-  // Horarios en minutos desde medianoche
-  const MORNING_START = 480; // 8:00
-  const MORNING_END = 780; // 13:00
-  const LUNCH_START = 780; // 13:00
-  const AFTERNOON_START = 864; // 14:24
-  const AFTERNOON_END = 1080; // 18:00
+  // Horarios en minutos desde medianoche (definidos en workOrderPlanning.constants.ts)
+  const {
+    MORNING_START,
+    MORNING_END,
+    LUNCH_START,
+    AFTERNOON_START,
+    AFTERNOON_END,
+  } = WORK_SCHEDULE;
 
   const { data: workers = [] } = useAllWorkers({
     cargo_id: POSITION_TYPE.OPERATORS,
@@ -267,23 +276,7 @@ export function WorkerTimeline({
 
   // Convertir hora a posición en el timeline (0-100%)
   const timeToPosition = (hours: number, minutes: number): number => {
-    const totalMinutes = hours * 60 + minutes;
-
-    // Mañana: 8:00-13:00
-    if (totalMinutes >= MORNING_START && totalMinutes <= MORNING_END) {
-      const morningProgress =
-        (totalMinutes - MORNING_START) / (MORNING_END - MORNING_START);
-      return morningProgress * 50; // Mañana ocupa 50% del timeline
-    }
-
-    // Tarde: 14:24-18:00
-    if (totalMinutes >= AFTERNOON_START && totalMinutes <= AFTERNOON_END) {
-      const afternoonProgress =
-        (totalMinutes - AFTERNOON_START) / (AFTERNOON_END - AFTERNOON_START);
-      return 60 + afternoonProgress * 40; // Tarde ocupa del 60% al 100%
-    }
-
-    return 0;
+    return minutesToTimelinePosition(hours * 60 + minutes);
   };
 
   // Convertir posición del timeline (0-100%) a hora
@@ -368,6 +361,15 @@ export function WorkerTimeline({
     const startMin = startTime.getMinutes();
     const startTotalMin = startHour * 60 + startMin;
     const endTotalMin = endHour * 60 + endMinute;
+
+    // Si el día seleccionado es hoy, no permitir horas pasadas
+    if (isSameDay(selectedDate, new Date())) {
+      const now = new Date();
+      const nowTotalMin = now.getHours() * 60 + now.getMinutes();
+      if (startTotalMin < nowTotalMin) {
+        return false;
+      }
+    }
 
     // Verificar que no cruce el almuerzo
     if (startTotalMin < LUNCH_START && endTotalMin > LUNCH_START) {
@@ -475,17 +477,17 @@ export function WorkerTimeline({
     activeGroup !== null;
 
   const timeMarkers = [
-    { time: "8:00", position: 0 },
-    { time: "9:00", position: 10 },
-    { time: "10:00", position: 20 },
-    { time: "11:00", position: 30 },
-    { time: "12:00", position: 40 },
-    { time: "13:00", position: 50 },
-    { time: "14:24", position: 60 },
-    { time: "15:00", position: 69 },
-    { time: "16:00", position: 80 },
-    { time: "17:00", position: 91 },
-    { time: "18:00", position: 100 },
+    { time: "8:00", position: timeToPosition(8, 0) },
+    { time: "9:00", position: timeToPosition(9, 0) },
+    { time: "10:00", position: timeToPosition(10, 0) },
+    { time: "11:00", position: timeToPosition(11, 0) },
+    { time: "12:00", position: timeToPosition(12, 0) },
+    { time: "13:00", position: timeToPosition(13, 0) },
+    { time: "14:24", position: timeToPosition(14, 24) },
+    { time: "15:00", position: timeToPosition(15, 0) },
+    { time: "16:00", position: timeToPosition(16, 0) },
+    { time: "17:00", position: timeToPosition(17, 0) },
+    { time: "18:00", position: timeToPosition(18, 0) },
   ];
 
   const timelineContent = (
@@ -511,14 +513,16 @@ export function WorkerTimeline({
             <RefreshCw className="h-4 w-4" />
             Actualizar
           </Button>
-          <Button
-            variant="outline"
-            onClick={() => setIsExceptionalCaseOpen(true)}
-            className="gap-2"
-          >
-            <Clock className="h-4 w-4" />
-            Caso Excepcional
-          </Button>
+          {!readOnly && (
+            <Button
+              variant="outline"
+              onClick={() => setIsExceptionalCaseOpen(true)}
+              className="gap-2"
+            >
+              <Clock className="h-4 w-4" />
+              Caso Excepcional
+            </Button>
+          )}
         </div>
       </div>
 
@@ -808,17 +812,21 @@ export function WorkerTimeline({
       )}
 
       <div className="flex items-center gap-6 p-4 bg-gray-50 rounded-lg flex-wrap">
+        {(
+          ["planned", "paused", "in_progress", "overtime", "completed"] as const
+        ).map((state) => (
+          <div key={state} className="flex items-center gap-2">
+            <div
+              className={`w-4 h-4 rounded border-2 ${PLANNING_VISUAL_STATE_COLORS[state].bg} ${PLANNING_VISUAL_STATE_COLORS[state].border}`}
+            />
+            <span className="text-sm">
+              {PLANNING_VISUAL_STATE_LABELS[state]}
+            </span>
+          </div>
+        ))}
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 bg-blue-200 border-2 border-blue-500 rounded"></div>
-          <span className="text-sm">Planificado</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="w-4 h-4 bg-amber-200 border-2 border-amber-500 rounded"></div>
-          <span className="text-sm">Caso Excepcional</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="w-4 h-4 bg-green-500 rounded"></div>
-          <span className="text-sm">Completado</span>
+          <div className="w-4 h-4 rounded border-2 bg-red-500 border-red-700" />
+          <span className="text-sm">Exceso real</span>
         </div>
         <div className="flex items-center gap-2">
           <TrendingUp className="h-4 w-4 text-green-600" />
@@ -909,6 +917,22 @@ export function WorkerTimeline({
                   const needsTopMargin =
                     isExternal && previousPlanning?.type !== "external";
 
+                  // Calcular overtime: tiempo real excedió el planificado
+                  const hasOvertime =
+                    planning.planned_end_datetime &&
+                    planning.actual_end_datetime &&
+                    parseISO(planning.actual_end_datetime) >
+                      parseISO(planning.planned_end_datetime);
+                  const overtimeStartPos = hasOvertime
+                    ? calculatePosition(planning.planned_end_datetime!)
+                    : 0;
+                  const overtimeEndPos = hasOvertime
+                    ? calculatePosition(planning.actual_end_datetime!)
+                    : 0;
+                  const overtimeWidth = hasOvertime
+                    ? overtimeEndPos - overtimeStartPos
+                    : 0;
+
                   return (
                     <TooltipProvider key={planning.id}>
                       <Tooltip>
@@ -923,26 +947,21 @@ export function WorkerTimeline({
                             }}
                             onClick={() => onPlanningClick?.(planning)}
                           >
-                            {/* Barra única - color según estado o tipo */}
+                            {/* Barra única - color según estado visual */}
                             <div
                               className={`h-5 rounded border-2 ${
                                 isExternal
                                   ? "border-amber-500 bg-amber-200"
-                                  : PLANNING_STATUS_COLORS[planning.status]
-                                      .border
-                              } ${
-                                !isExternal && planning.actual_start_datetime
-                                  ? PLANNING_STATUS_COLORS[planning.status].bg
-                                  : !isExternal
-                                    ? "bg-blue-200 opacity-50"
-                                    : ""
+                                  : `${PLANNING_VISUAL_STATE_COLORS[getPlanningVisualState(planning)].border} ${PLANNING_VISUAL_STATE_COLORS[getPlanningVisualState(planning)].bg}`
                               }`}
                             ></div>
 
                             {/* Texto centrado */}
                             <div className="absolute top-0 left-0 right-0 h-5 flex items-center justify-center pointer-events-none z-10">
                               <div className="flex items-center gap-1 px-1">
-                                <span className="text-[10px] font-medium truncate text-gray-900">
+                                <span
+                                  className={`text-[10px] font-medium truncate ${isExternal ? "text-amber-900" : PLANNING_VISUAL_STATE_COLORS[getPlanningVisualState(planning)].text}`}
+                                >
                                   {planning.work_order_correlative}
                                 </span>
                                 {isExternal && (
@@ -953,6 +972,33 @@ export function WorkerTimeline({
                                 {getEfficiencyIcon(planning)}
                               </div>
                             </div>
+
+                            {/* Barra de tiempo excedido (overtime) - solo visual, no afecta interacción */}
+                            {hasOvertime && overtimeWidth > 0 && (
+                              <div
+                                className="absolute top-0 h-5 pointer-events-none z-40"
+                                style={{
+                                  left: `${overtimeWidth > 0 ? ((overtimeStartPos - startPos) / width) * 100 : 0}%`,
+                                  width: `${(overtimeWidth / width) * 100}%`,
+                                }}
+                              >
+                                <div className="h-full bg-red-500 border-2 border-red-700 rounded-r opacity-80 flex items-center justify-center">
+                                  <span className="text-[9px] font-bold text-white px-0.5 truncate">
+                                    +
+                                    {Math.round(
+                                      (parseISO(
+                                        planning.actual_end_datetime!,
+                                      ).getTime() -
+                                        parseISO(
+                                          planning.planned_end_datetime!,
+                                        ).getTime()) /
+                                        60000,
+                                    )}
+                                    m
+                                  </span>
+                                </div>
+                              </div>
+                            )}
                           </div>
                         </TooltipTrigger>
                         <TooltipContent
@@ -1039,15 +1085,13 @@ export function WorkerTimeline({
                               </div>
                             </div>
                             <Badge
-                              className={`${
-                                PLANNING_STATUS_COLORS[planning.status].bg
-                              } ${
-                                PLANNING_STATUS_COLORS[planning.status].text
-                              } hover:${
-                                PLANNING_STATUS_COLORS[planning.status].bg
-                              }`}
+                              className={`${PLANNING_VISUAL_STATE_COLORS[getPlanningVisualState(planning)].bg} ${PLANNING_VISUAL_STATE_COLORS[getPlanningVisualState(planning)].text} hover:${PLANNING_VISUAL_STATE_COLORS[getPlanningVisualState(planning)].bg}`}
                             >
-                              {PLANNING_STATUS_LABELS[planning.status]}
+                              {
+                                PLANNING_VISUAL_STATE_LABELS[
+                                  getPlanningVisualState(planning)
+                                ]
+                              }
                             </Badge>
                           </div>
                         </TooltipContent>

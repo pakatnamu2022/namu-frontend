@@ -2,15 +2,7 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { Form } from "@/components/ui/form";
 import { Loader } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -37,6 +29,7 @@ import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-gene
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { CM_COMERCIAL_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
+import { FormInput } from "@/shared/components/FormInput";
 
 interface ModelsVnFormProps {
   defaultValues: Partial<ModelsVnSchema>;
@@ -59,8 +52,7 @@ export const ModelsVnForm = ({
     ),
     defaultValues: {
       ...defaultValues,
-      type_operation_id:
-        defaultValues.type_operation_id ?? String(CM_COMERCIAL_ID),
+      type_operation_id: String(CM_COMERCIAL_ID),
     },
     mode: "onChange",
   });
@@ -247,25 +239,13 @@ export const ModelsVnForm = ({
             }}
             gap="gap-3"
           >
-            <FormField
-              control={form.control}
+            <FormInput
               name="code"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm font-medium text-gray-700">
-                    Cod.
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      className="bg-accent"
-                      placeholder="Ej: 0101004"
-                      {...field}
-                      readOnly
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              label="Cod."
+              placeholder="Ej: 0101004"
+              className="bg-accent"
+              control={form.control}
+              readOnly
             />
             <FormSelect
               name="brand_id"
@@ -289,24 +269,12 @@ export const ModelsVnForm = ({
               control={form.control}
               disabled={!marcaSeleccionada || isLoadingFamilies}
             />
-            <FormField
-              control={form.control}
+            <FormInput
               name="version"
+              label="Versión"
+              placeholder="Ej: X7 PLUS LIMITED 1.5 MT 4X2"
+              control={form.control}
               disabled={isLoadingbrands}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm font-medium text-gray-700">
-                    Versión
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Ej: X7 PLUS LIMITED 1.5 MT 4X2"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
             />
             <FormSelect
               name="class_id"
@@ -342,80 +310,36 @@ export const ModelsVnForm = ({
               }))}
               control={form.control}
             />
-            {typeOperationId === String(CM_COMERCIAL_ID) && (
-              <FormField
-                control={form.control}
-                name="power"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-sm font-medium text-gray-700">
-                      Potencia
-                    </FormLabel>
-                    <FormControl>
-                      <Input placeholder="Ej: 0.00" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
-            <FormField
+
+            <FormInput
+              name="power"
+              label="Potencia"
+              placeholder="Ej: 0.00"
               control={form.control}
-              name="model_year"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm font-medium text-gray-700">
-                    Año Modelo
-                  </FormLabel>
-                  <FormControl>
-                    <Input type="number" placeholder="Ej: 2024" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
             />
-            {typeOperationId === String(CM_COMERCIAL_ID) && (
-              <>
-                <FormField
-                  control={form.control}
-                  name="wheelbase"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium text-gray-700">
-                        Distancia Ejes
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          placeholder="Ej: 0.00"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="axles_number"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium text-gray-700">
-                        Núm. Ejes
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          placeholder="Ej: 0.00"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </>
-            )}
+
+            <FormInput
+              name="model_year"
+              label="Año Modelo"
+              placeholder="Ej: 2024"
+              control={form.control}
+              type="number"
+            />
+
+            <FormInput
+              name="wheelbase"
+              label="Distancia Ejes"
+              placeholder="Ej: 0.00"
+              control={form.control}
+            />
+
+            <FormInput
+              name="axles_number"
+              label="Núm. Ejes"
+              placeholder="Ej: 0"
+              control={form.control}
+            />
+
             <FormSelect
               name="vehicle_type_id"
               label="Tipo Vehículo"
@@ -426,6 +350,7 @@ export const ModelsVnForm = ({
               }))}
               control={form.control}
             />
+
             <FormSelect
               name="body_type_id"
               label="Tipo Carrocería"
@@ -456,379 +381,195 @@ export const ModelsVnForm = ({
               }))}
               control={form.control}
             />
-            {typeOperationId === String(CM_COMERCIAL_ID) && (
-              <>
-                <FormField
-                  control={form.control}
-                  name="width"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium text-gray-700">
-                        Ancho
-                      </FormLabel>
-                      <FormControl>
-                        <Input placeholder="Ej: 0.00" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="length"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium text-gray-700">
-                        Largo
-                      </FormLabel>
-                      <FormControl>
-                        <Input placeholder="Ej: 0.00" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="height"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium text-gray-700">
-                        Altura
-                      </FormLabel>
-                      <FormControl>
-                        <Input placeholder="Ej: 0.00" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="seats_number"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium text-gray-700">
-                        Núm. Asientos
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          placeholder="Ej: 0.00"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </>
-            )}
-            <FormField
+
+            <FormInput
+              name="width"
+              label="Ancho"
+              placeholder="Ej: 0.00"
               control={form.control}
+            />
+
+            <FormInput
+              name="length"
+              label="Largo"
+              placeholder="Ej: 0.00"
+              control={form.control}
+            />
+
+            <FormInput
+              name="height"
+              label="Altura"
+              placeholder="Ej: 0.00"
+              control={form.control}
+            />
+
+            <FormInput
+              name="seats_number"
+              label="Núm. Asientos"
+              placeholder="Ej: 0.00"
+              control={form.control}
+              type="number"
+            />
+
+            <FormInput
               name="doors_number"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm font-medium text-gray-700">
-                    Núm. Puertas
-                  </FormLabel>
-                  <FormControl>
-                    <Input type="number" placeholder="Ej: 0.00" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            {typeOperationId === String(CM_COMERCIAL_ID) && (
-              <>
-                <FormField
-                  control={form.control}
-                  name="net_weight"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium text-gray-700">
-                        Peso Neto
-                      </FormLabel>
-                      <FormControl>
-                        <Input placeholder="Ej: 0.00" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="gross_weight"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium text-gray-700">
-                        Peso Bruto
-                      </FormLabel>
-                      <FormControl>
-                        <Input placeholder="Ej: 0.00" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="payload"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium text-gray-700">
-                        Carga Útil
-                      </FormLabel>
-                      <FormControl>
-                        <Input placeholder="Ej: 0.00" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="displacement"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium text-gray-700">
-                        Cilindrada
-                      </FormLabel>
-                      <FormControl>
-                        <Input placeholder="Ej: 0.00" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="cylinders_number"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium text-gray-700">
-                        Núm. Cilindros
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          placeholder="Ej: 0.00"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </>
-            )}
-            <FormField
+              label="Núm. Puertas"
+              placeholder="Ej: 0.00"
               control={form.control}
+              type="number"
+            />
+
+            <FormInput
+              name="net_weight"
+              label="Peso Neto"
+              placeholder="Ej: 0.00"
+              control={form.control}
+            />
+
+            <FormInput
+              name="gross_weight"
+              label="Peso Bruto"
+              placeholder="Ej: 0.00"
+              control={form.control}
+            />
+
+            <FormInput
+              name="payload"
+              label="Carga Útil"
+              placeholder="Ej: 0.00"
+              control={form.control}
+            />
+
+            <FormInput
+              name="displacement"
+              label="Cilindrada"
+              placeholder="Ej: 0.00"
+              control={form.control}
+            />
+
+            <FormInput
+              name="cylinders_number"
+              label="Núm. Cilindros"
+              placeholder="Ej: 0.00"
+              control={form.control}
+              type="number"
+            />
+
+            <FormInput
               name="passengers_number"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm font-medium text-gray-700">
-                    Núm. Pasajeros
-                  </FormLabel>
-                  <FormControl>
-                    <Input type="number" placeholder="Ej: 0.00" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
+              label="Núm. Pasajeros"
+              placeholder="Ej: 0.00"
               control={form.control}
+              type="number"
+            />
+
+            <FormInput
               name="wheels_number"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm font-medium text-gray-700">
-                    Núm. Ruedas
-                  </FormLabel>
-                  <FormControl>
-                    <Input type="number" placeholder="Ej: 0.00" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              label="Núm. Ruedas"
+              placeholder="Ej: 0.00"
+              control={form.control}
+              type="number"
             />
           </GroupFormSection>
 
           {/* Sección: Precio Distribuidor */}
-          {typeOperationId === String(CM_COMERCIAL_ID) && (
-            <GroupFormSection
-              title="Precio Distribuidor"
-              icon={CircleDollarSign}
-              iconColor="text-gray-600"
-              bgColor="bg-gray-50"
-              cols={{
-                xl: 4,
-                "2xl": 5,
-              }}
-              gap="gap-3"
-            >
-              <FormSelect
-                name="currency_type_id"
-                label="Tipo Moneda"
-                placeholder="Seleccionar Tipo"
-                options={currencyTypes.map((currencyType) => ({
-                  label: currencyType.name,
-                  value: currencyType.id.toString(),
-                }))}
-                control={form.control}
-              />
-              <FormField
-                control={form.control}
-                name="distributor_price"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-sm font-medium text-gray-700">
-                      Precio Distribuidor
-                    </FormLabel>
-                    <FormControl>
-                      <Input type="number" placeholder="Ej: 0.00" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="transport_cost"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-sm font-medium text-gray-700">
-                      Costo Transporte
-                    </FormLabel>
-                    <FormControl>
-                      <Input type="number" placeholder="Ej: 0.00" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="other_amounts"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-sm font-medium text-gray-700">
-                      Otros Importes
-                    </FormLabel>
-                    <FormControl>
-                      <Input type="number" placeholder="Ej: 0.00" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="purchase_discount"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-sm font-medium text-gray-700">
-                      % Dsc. de Compra
-                    </FormLabel>
-                    <FormControl>
-                      <Input type="number" placeholder="Ej: 0.00" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="igv_amount"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-sm font-medium text-gray-700">
-                      Importe IGV
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        className="bg-accent"
-                        placeholder="Ej: 0.00"
-                        {...field}
-                        readOnly
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="total_purchase_excl_igv"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-sm font-medium text-gray-700">
-                      Total Compra sin IGV
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        className="bg-accent"
-                        placeholder="Ej: 0.00"
-                        {...field}
-                        readOnly
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="total_purchase_incl_igv"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-sm font-medium text-gray-700">
-                      Total Compra con IGV
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        className="bg-accent"
-                        placeholder="Ej: 0.00"
-                        {...field}
-                        readOnly
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="sale_price"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-sm font-medium text-gray-700">
-                      Precio Venta
-                    </FormLabel>
-                    <FormControl>
-                      <Input type="number" placeholder="Ej: 0.00" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="margin"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-sm font-medium text-gray-700">
-                      % Margen
-                    </FormLabel>
-                    <FormControl>
-                      <Input type="number" placeholder="Ej: 0.00" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </GroupFormSection>
-          )}
+          <GroupFormSection
+            title="Precio Distribuidor"
+            icon={CircleDollarSign}
+            iconColor="text-gray-600"
+            bgColor="bg-gray-50"
+            cols={{
+              xl: 4,
+              "2xl": 5,
+            }}
+            gap="gap-3"
+          >
+            <FormSelect
+              name="currency_type_id"
+              label="Tipo Moneda"
+              placeholder="Seleccionar Tipo"
+              options={currencyTypes.map((currencyType) => ({
+                label: currencyType.name,
+                value: currencyType.id.toString(),
+              }))}
+              control={form.control}
+            />
+
+            <FormInput
+              name="distributor_price"
+              label="Precio Distribuidor"
+              placeholder="Ej: 0.00"
+              control={form.control}
+              type="number"
+            />
+
+            <FormInput
+              name="transport_cost"
+              label="Costo Transporte"
+              placeholder="Ej: 0.00"
+              control={form.control}
+              type="number"
+            />
+
+            <FormInput
+              name="other_amounts"
+              label="Otros Importes"
+              placeholder="Ej: 0.00"
+              control={form.control}
+              type="number"
+            />
+
+            <FormInput
+              name="purchase_discount"
+              label="% Dsc. de Compra"
+              placeholder="Ej: 0.00"
+              control={form.control}
+              type="number"
+            />
+
+            <FormInput
+              name="igv_amount"
+              label="Importe IGV"
+              placeholder="Ej: 0.00"
+              control={form.control}
+              className="bg-accent"
+              readOnly
+            />
+
+            <FormInput
+              name="total_purchase_excl_igv"
+              label="Total Compra sin IGV"
+              placeholder="Ej: 0.00"
+              control={form.control}
+              className="bg-accent"
+              readOnly
+            />
+
+            <FormInput
+              name="total_purchase_incl_igv"
+              label="Total Compra con IGV"
+              placeholder="Ej: 0.00"
+              control={form.control}
+              className="bg-accent"
+              readOnly
+            />
+
+            <FormInput
+              name="sale_price"
+              label="Precio Venta"
+              placeholder="Ej: 0.00"
+              control={form.control}
+              type="number"
+            />
+
+            <FormInput
+              name="margin"
+              label="% Margen"
+              placeholder="Ej: 0.00"
+              control={form.control}
+              type="number"
+            />
+          </GroupFormSection>
         </div>
         <div className="flex gap-4 w-full justify-end">
           <ConfirmationDialog

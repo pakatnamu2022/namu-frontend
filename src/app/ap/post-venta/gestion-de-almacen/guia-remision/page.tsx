@@ -20,6 +20,7 @@ import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper.tsx";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions.ts";
 import { notFound } from "@/shared/hooks/useNotFound.ts";
 import { deleteProductTransfer } from "@/features/ap/post-venta/gestion-almacen/guia-remision/lib/productTransfer.actions.ts";
+import { syncShippingGuideWithDynamics } from "@/features/ap/comercial/envios-recepciones/lib/shipmentsReceptions.actions.ts";
 import ProductTransferActions from "@/features/ap/post-venta/gestion-almacen/guia-remision/components/ProductTransferActions.tsx";
 import ProductTransferTable from "@/features/ap/post-venta/gestion-almacen/guia-remision/components/ProductTransferTable.tsx";
 import { productTransferColumns } from "@/features/ap/post-venta/gestion-almacen/guia-remision/components/ProductTransferColumns.tsx";
@@ -30,11 +31,14 @@ import {
   useSendShippingGuideToNubefact,
   useQueryShippingGuideFromNubefact,
 } from "@/features/ap/post-venta/gestion-almacen/guia-remision/lib/productTransfer.hook.ts";
+import { useNavigate } from "react-router-dom";
 import { ProductTransferViewSheet } from "@/features/ap/post-venta/gestion-almacen/guia-remision/components/ProductTransferViewSheet.tsx";
 import { useMyPhysicalWarehouse } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook.ts";
+import type { ProductTransferResource } from "@/features/ap/post-venta/gestion-almacen/guia-remision/lib/productTransfer.interface.ts";
 
 export default function ProductTransferPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
+  const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
@@ -43,7 +47,7 @@ export default function ProductTransferPage() {
   const [sendToNubefactId, setSendToNubefactId] = useState<number | null>(null);
   const [viewId, setViewId] = useState<number>(0);
   const [isViewSheetOpen, setIsViewSheetOpen] = useState(false);
-  const { MODEL, ROUTE, ROUTE_UPDATE } = PRODUCT_TRANSFER;
+  const { MODEL, ROUTE, ROUTE_UPDATE, ABSOLUTE_ROUTE } = PRODUCT_TRANSFER;
   const permissions = useModulePermissions(ROUTE);
   const sendToNubefactMutation = useSendShippingGuideToNubefact();
   const queryFromNubefactMutation = useQueryShippingGuideFromNubefact();
@@ -79,7 +83,7 @@ export default function ProductTransferPage() {
     }
   }, [dateFrom, dateTo]);
 
-  const { data, isLoading, refetch } = useProductTransfers({
+  const { data, isLoading, isFetching, refetch } = useProductTransfers({
     page,
     search,
     per_page,
@@ -119,12 +123,40 @@ export default function ProductTransferPage() {
     });
   };
 
+  const handleReceive = ({
+    id,
+    transfer_reception,
+  }: Pick<ProductTransferResource, "id" | "transfer_reception">) => {
+    const ROUTE_RECEPTION = `${ABSOLUTE_ROUTE}/recepcion`;
+    if (!transfer_reception || transfer_reception.length === 0) {
+      navigate(`${ROUTE_RECEPTION}/agregar/${id}`);
+    } else {
+      navigate(`${ROUTE_RECEPTION}/${id}`);
+    }
+  };
+
   const handleQueryFromNubefact = (id: number) => {
     queryFromNubefactMutation.mutate(id, {
       onSettled: () => {
         refetch();
       },
     });
+  };
+
+  const handleSyncWithDynamics = async (id: number) => {
+    await syncShippingGuideWithDynamics(id)
+      .then((response) => {
+        if (response.message) {
+          successToast(response.message);
+        }
+
+        refetch();
+      })
+      .catch((error: any) => {
+        const errorMsg =
+          error.response?.data?.message || ERROR_MESSAGE(MODEL, "fetch");
+        errorToast(errorMsg);
+      });
   };
 
   if (isLoadingModule || isLoadingWarehouses) return <PageSkeleton />;
@@ -139,7 +171,11 @@ export default function ProductTransferPage() {
           subtitle={currentView.descripcion}
           icon={currentView.icon}
         />
-        <ProductTransferActions permissions={permissions} />
+        <ProductTransferActions
+          isFetching={isFetching && !isLoading}
+          onRefresh={refetch}
+          permissions={permissions}
+        />
       </HeaderTableWrapper>
       <ProductTransferTable
         isLoading={isLoading}
@@ -152,9 +188,9 @@ export default function ProductTransferPage() {
             ...permissions,
             canReceive: permissions.canCreate,
           },
+          onReceive: handleReceive,
+          onSyncWithDynamics: handleSyncWithDynamics,
           routeUpdate: ROUTE_UPDATE,
-          routeReception:
-            "/ap/post-venta/gestion-de-almacen/guia-remision/recepcion",
           warehouseId,
         })}
         data={data?.data || []}

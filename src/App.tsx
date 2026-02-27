@@ -184,11 +184,7 @@ import ModelsVnPage from "./app/ap/configuraciones/vehiculos/modelos-vn/page.tsx
 import AddModelsVnPage from "./app/ap/configuraciones/vehiculos/modelos-vn/agregar/page.tsx";
 import UpdateModelsVnPage from "./app/ap/configuraciones/vehiculos/modelos-vn/actualizar/[id]/page.tsx";
 import ModelsVnPvPage from "./app/ap/post-venta/taller/modelos-vn-taller/page.tsx";
-import AddModelsVnPvPage from "@/app/ap/post-venta/taller/modelos-vn-taller/agregar/page.tsx";
-import UpdateModelsVnPvPage from "@/app/ap/post-venta/taller/modelos-vn-taller/actualizar/[id]/page.tsx";
 import ModelsVnRepuestosPage from "./app/ap/post-venta/repuestos/modelos-vn-repuestos/page.tsx";
-import AddModelsVnRepuestosPage from "./app/ap/post-venta/repuestos/modelos-vn-repuestos/agregar/page.tsx";
-import UpdateModelsVnRepuestosPage from "./app/ap/post-venta/repuestos/modelos-vn-repuestos/actualizar/[id]/page.tsx";
 import TypeVehicleOriginPage from "./app/ap/configuraciones/vehiculos/origen-vehiculo/page.tsx";
 import BodyTypePage from "./app/ap/configuraciones/vehiculos/tipos-carroceria/page.tsx";
 import FuelTypePage from "./app/ap/configuraciones/vehiculos/tipos-combustible/page.tsx";
@@ -257,7 +253,6 @@ import UpdateApprovedAccesoriesPage from "./app/ap/post-venta/repuestos/accesori
 import OrderQuotationMesonPage from "./app/ap/post-venta/repuestos/cotizacion-meson/page.tsx";
 import AddOrderQuotationMesonPage from "./app/ap/post-venta/repuestos/cotizacion-meson/agregar/page.tsx";
 import UpdateOrderQuotationMesonPage from "./app/ap/post-venta/repuestos/cotizacion-meson/actualizar/[id]/page.tsx";
-import BillOrderQuotationMesonPage from "./app/ap/post-venta/repuestos/cotizacion-meson/facturar/[id]/page.tsx";
 import RequestDiscountOrderQuotationMesonPage from "./app/ap/post-venta/repuestos/cotizacion-meson/solicitar-descuento/[id]/page.tsx";
 import SalesReceiptsRepuestoPage from "./app/ap/post-venta/repuestos/comprobante-venta-repuesto/page.tsx";
 import PurchaseRequestRepuestoPage from "./app/ap/post-venta/repuestos/solicitud-compra-repuesto/page.tsx";
@@ -311,6 +306,7 @@ import VehicleInspectionPage from "./app/ap/post-venta/taller/orden-trabajo/[wor
 import SalesReceiptsTallerPage from "./app/ap/post-venta/taller/comprobante-venta-taller/page.tsx";
 import BoxPage from "./app/ap/post-venta/caja/page.tsx";
 import SalesReceiptsCajaPage from "./app/ap/post-venta/caja/comprante-venta-caja/page.tsx";
+import UpdateSalesReceiptsCajaPage from "./app/ap/post-venta/caja/comprante-venta-caja/actualizar/[id]/page.tsx";
 import OrderQuotationMesonCajaPage from "./app/ap/post-venta/caja/cotizacion-repuesto-caja/page.tsx";
 import WorkOrderCajaPage from "./app/ap/post-venta/caja/order-trabajo-taller-caja/page.tsx";
 import ManageWorkOrderCajaPage from "./app/ap/post-venta/caja/order-trabajo-taller-caja/gestionar/[id]/page.tsx";
@@ -379,10 +375,6 @@ import ControlFreightPage from "./app/tp/comercial-tp/control-fletes/page.tsx";
 import PayrollPeriodsPage from "./app/gp/gestion-humana/planillas/periodos/page.tsx";
 import AddPayrollPeriodPage from "./app/gp/gestion-humana/planillas/periodos/agregar/page.tsx";
 import UpdatePayrollPeriodPage from "./app/gp/gestion-humana/planillas/periodos/actualizar/[id]/page.tsx";
-import WorkTypePage from "./app/gp/gestion-humana/planillas/tipo-dia-trabajo/page.tsx";
-import AddWorkTypePage from "./app/gp/gestion-humana/planillas/tipo-dia-trabajo/agregar/page.tsx";
-import UpdateWorkTypePage from "./app/gp/gestion-humana/planillas/tipo-dia-trabajo/actualizar/[id]/page.tsx";
-import ManageSegmentsPage from "./app/gp/gestion-humana/planillas/tipo-dia-trabajo/segmentos/[id]/page.tsx";
 import AttendanceRulePage from "./app/gp/gestion-humana/planillas/reglas-asistencia/page.tsx";
 import AddAttendanceRulePage from "./app/gp/gestion-humana/planillas/reglas-asistencia/agregar/page.tsx";
 import UpdateAttendanceRulePage from "./app/gp/gestion-humana/planillas/reglas-asistencia/actualizar/[id]/page.tsx";
@@ -1326,10 +1318,6 @@ function App() {
                 element={<UpdateOrderQuotationMesonPage />}
               />
               <Route
-                path="repuestos/cotizacion-meson/facturar/:id"
-                element={<BillOrderQuotationMesonPage />}
-              />
-              <Route
                 path="repuestos/cotizacion-meson/solicitar-descuento/:id"
                 element={<RequestDiscountOrderQuotationMesonPage />}
               />
@@ -1409,26 +1397,10 @@ function App() {
                 path="repuestos/modelos-vn-repuestos"
                 element={<ModelsVnRepuestosPage />}
               />
-              <Route
-                path="repuestos/modelos-vn-repuestos/agregar"
-                element={<AddModelsVnRepuestosPage />}
-              />
-              <Route
-                path="repuestos/modelos-vn-repuestos/actualizar/:id"
-                element={<UpdateModelsVnRepuestosPage />}
-              />
               {/* Taller */}
               <Route path="taller" element={<WorkshopPage />} />
               <Route path="taller/lavado-vehiculo" element={<CardWashPage />} />
               <Route path="taller/modelos-vn-pv" element={<ModelsVnPvPage />} />
-              <Route
-                path="taller/modelos-vn-pv/agregar"
-                element={<AddModelsVnPvPage />}
-              />
-              <Route
-                path="taller/modelos-vn-pv/actualizar/:id"
-                element={<UpdateModelsVnPvPage />}
-              />
               <Route
                 path="taller/citas"
                 element={<AppointmentPlanningPage />}
@@ -1555,6 +1527,10 @@ function App() {
               <Route
                 path="caja/comprobante-venta-caja"
                 element={<SalesReceiptsCajaPage />}
+              />
+              <Route
+                path="caja/comprobante-venta-caja/actualizar/:id"
+                element={<UpdateSalesReceiptsCajaPage />}
               />
               <Route
                 path="caja/cotizacion-repuesto-caja"
@@ -1848,17 +1824,6 @@ function App() {
                 <AddPayrollPeriodPage />,
                 <UpdatePayrollPeriodPage />,
               )}
-              {/* Tipo de Dia de Trabajo */}
-              {RouterCrud(
-                "planillas/tipo-dia-trabajo",
-                <WorkTypePage />,
-                <AddWorkTypePage />,
-                <UpdateWorkTypePage />,
-              )}
-              <Route
-                path="planillas/tipo-dia-trabajo/segmentos/:id"
-                element={<ManageSegmentsPage />}
-              />
 
               {/* Reglas de Asistencia */}
               {RouterCrud(

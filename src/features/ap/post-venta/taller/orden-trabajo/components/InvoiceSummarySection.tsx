@@ -10,7 +10,8 @@ import { AssignSalesSeriesResource } from "@/features/ap/configuraciones/maestro
 import { useCustomersById } from "@/features/ap/comercial/clientes/lib/customers.hook";
 import { CustomersResource } from "@/features/ap/comercial/clientes/lib/customers.interface";
 import { ElectronicDocumentResource } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.interface";
-import { SUNAT_TYPE_INVOICES_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
+import { WorkOrderLabourResource } from "../../orden-trabajo-labor/lib/workOrderLabour.interface";
+import { WorkOrderPartsResource } from "../../orden-trabajo-repuesto/lib/workOrderParts.interface";
 
 interface InvoiceSummarySectionProps {
   form: UseFormReturn<ElectronicDocumentSchema>;
@@ -34,6 +35,8 @@ interface InvoiceSummarySectionProps {
   porcentaje_de_igv: number;
   isAdvancePayment: boolean;
   advancePayments?: ElectronicDocumentResource[];
+  labours: WorkOrderLabourResource[];
+  parts: WorkOrderPartsResource[];
 }
 
 export function InvoiceSummarySection({
@@ -50,19 +53,49 @@ export function InvoiceSummarySection({
   porcentaje_de_igv,
   isAdvancePayment,
   advancePayments = [],
+  labours,
+  parts,
 }: InvoiceSummarySectionProps) {
-  const items = form.watch("items") || [];
+  //const items = form.watch("items") || [];
   const selectedDocumentType = form.watch("sunat_concept_document_type_id");
   const series = form.watch("serie");
   const clientId = form.watch("client_id");
 
   // Obtener el cliente seleccionado solo por ID
   const { data: selectedCustomerFromApi } = useCustomersById(
-    clientId ? Number(clientId) : 0
+    clientId ? Number(clientId) : 0,
   );
 
   // Usar el cliente de la API si existe, sino usar el defaultCustomer como fallback
   const selectedCustomer = selectedCustomerFromApi || defaultCustomer;
+
+  // Verificar si hay anticipos reales (is_advance_payment = true)
+  const hasRealAdvancePayments = advancePayments.some(
+    (advance) => advance.is_advance_payment === true,
+  );
+
+  // Calcular el total de la orden de trabajo desde labours y parts (sin IGV)
+  const laboursTotal = labours.reduce(
+    (sum, labour) => sum + parseFloat(labour.total_cost || "0"),
+    0,
+  );
+  const partsTotal = parts.reduce(
+    (sum, part) => sum + parseFloat(part.total_amount || "0"),
+    0,
+  );
+  const subtotal = laboursTotal + partsTotal;
+  const workOrderTotal = subtotal * (1 + porcentaje_de_igv / 100);
+
+  // Total pagado con todos los advances
+  const totalPaid = advancePayments.reduce(
+    (sum, advance) => sum + (Number(advance.total) || 0),
+    0,
+  );
+  const pendingBalance = workOrderTotal - totalPaid;
+
+  // Si el saldo está completado (<=0) y NO hay anticipos reales, no se puede facturar nada más
+  const isCompletedWithoutAdvances =
+    pendingBalance <= 0 && !hasRealAdvancePayments;
 
   return (
     <div className="lg:col-span-1 h-full">
@@ -156,7 +189,7 @@ export function InvoiceSummarySection({
           <Separator className="bg-muted-foreground/20" />
 
           {/* Items Summary */}
-          <div className="space-y-2">
+          {/* <div className="space-y-2">
             <p className="text-xs font-medium text-muted-foreground mb-3">
               Items ({items.length})
             </p>
@@ -219,9 +252,9 @@ export function InvoiceSummarySection({
                 })
               )}
             </div>
-          </div>
+          </div> */}
 
-          <Separator className="bg-muted-foreground/20" />
+          {/* <Separator className="bg-muted-foreground/20" /> */}
 
           {/* Totales */}
           <div className="space-y-3">
@@ -278,9 +311,11 @@ export function InvoiceSummarySection({
               </span>
               <span className="text-xl font-bold text-primary">
                 {currencySymbol}{" "}
-                {totales.total.toLocaleString("es-PE", {
-                  minimumFractionDigits: 2,
-                })}
+                {isCompletedWithoutAdvances
+                  ? (0).toLocaleString("es-PE", { minimumFractionDigits: 2 })
+                  : totales.total.toLocaleString("es-PE", {
+                      minimumFractionDigits: 2,
+                    })}
               </span>
             </div>
           </div>
@@ -294,7 +329,10 @@ export function InvoiceSummarySection({
               className="w-full"
               size="lg"
               disabled={
-                isPending || !form.formState.isValid || totales.total <= 0
+                isPending ||
+                !form.formState.isValid ||
+                isCompletedWithoutAdvances ||
+                (totales.total <= 0 && !hasRealAdvancePayments)
               }
             >
               {form.watch("enviar_automaticamente_a_la_sunat") ? (
@@ -305,16 +343,24 @@ export function InvoiceSummarySection({
               {isPending
                 ? "Guardando..."
                 : isEdit
-                ? "Actualizar Documento"
-                : form.watch("enviar_automaticamente_a_la_sunat")
-                ? "Guardar y Enviar a SUNAT"
-                : "Guardar Documento"}
+                  ? "Actualizar Documento"
+                  : form.watch("enviar_automaticamente_a_la_sunat")
+                    ? "Guardar y Enviar a SUNAT"
+                    : "Guardar Documento"}
             </Button>
-            {totales.total <= 0 && (
+            {isCompletedWithoutAdvances && (
               <p className="text-xs text-center text-destructive font-medium">
-                El total debe ser mayor a 0 para guardar el documento
+                Esta orden ya está completamente facturada. No se puede crear
+                más documentos.
               </p>
             )}
+            {!isCompletedWithoutAdvances &&
+              totales.total <= 0 &&
+              !hasRealAdvancePayments && (
+                <p className="text-xs text-center text-destructive font-medium">
+                  El total debe ser mayor a 0 para guardar el documento
+                </p>
+              )}
             <Button
               type="button"
               variant="outline"
@@ -331,7 +377,7 @@ export function InvoiceSummarySection({
             <p className="text-xs text-center text-muted-foreground">
               {form.watch("fecha_de_emision")
                 ? new Date(
-                    form.watch("fecha_de_emision") + "T00:00:00"
+                    form.watch("fecha_de_emision") + "T00:00:00",
                   ).toLocaleDateString("es-PE", {
                     day: "2-digit",
                     month: "long",

@@ -16,6 +16,15 @@ export async function getDiscountRequestsByWorkOrderQuotation(
   return response.data.data;
 }
 
+export async function getDiscountRequestsByWorkOrder(
+  workOrderId: number,
+): Promise<DiscountRequestWorkOrderQuotationResource[]> {
+  const response = await api.get<{
+    data: DiscountRequestWorkOrderQuotationResource[];
+  }>(ENDPOINT, { params: { ap_work_order_id: workOrderId } });
+  return response.data.data;
+}
+
 export async function storeDiscountRequestWorkOrderQuotation(
   data: DiscountRequestWorkOrderQuotationRequest,
 ): Promise<GeneralResponse> {

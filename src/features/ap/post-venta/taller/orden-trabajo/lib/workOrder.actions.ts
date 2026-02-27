@@ -7,6 +7,7 @@ import {
   WorkOrderResponse,
   WorkOrderRequest,
   WorkOrderPaymentSummary,
+  VehicleWorkOrderHistoryResponse,
 } from "./workOrder.interface";
 import { WORKER_ORDER } from "./workOrder.constants";
 
@@ -115,6 +116,15 @@ export async function downloadPreLiquidationPdf(id: number): Promise<void> {
   // Limpiar
   link.parentNode?.removeChild(link);
   window.URL.revokeObjectURL(url);
+}
+
+export async function getVehicleWorkOrderHistory(
+  vehicleId: number
+): Promise<VehicleWorkOrderHistoryResponse> {
+  const { data } = await api.get<VehicleWorkOrderHistoryResponse>(
+    `${ENDPOINT}/vehicle/${vehicleId}/history`
+  );
+  return data;
 }
 
 export async function unlinkQuotation(id: number): Promise<WorkOrderResource> {

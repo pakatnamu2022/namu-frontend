@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Car, Loader, Plus, ExternalLink } from "lucide-react";
+import { Car, Loader, Plus } from "lucide-react";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import FormSkeleton from "@/shared/components/FormSkeleton";
@@ -35,14 +35,16 @@ import { usePlateValidation } from "@/shared/hooks/useDocumentValidation";
 import { useEffect, useState } from "react";
 import { ModelsVnResource } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.interface";
 import VehicleColorModal from "@/features/ap/configuraciones/vehiculos/colores-vehiculo/components/VehicleColorModal";
+import ModelsVnModal from "@/features/ap/configuraciones/vehiculos/modelos-vn/components/ModelsVnModal";
 import { useQueryClient } from "@tanstack/react-query";
 import { VEHICLE_COLOR } from "@/features/ap/configuraciones/vehiculos/colores-vehiculo/lib/vehicleColor.constants";
+import { MODELS_VN } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.constanst";
 import { useCustomers } from "../../clientes/lib/customers.hook";
 import { CUSTOMERS_PV } from "../../clientes/lib/customers.constants";
 import { CustomersResource } from "../../clientes/lib/customers.interface";
 import { VehicleResource } from "../lib/vehicles.interface";
-import { MODELS_VN_REPUESTOS } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.constanst";
 import { CM_POSTVENTA_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
+import { FormInput } from "@/shared/components/FormInput";
 
 interface VehiclePVFormProps {
   defaultValues: Partial<VehicleSchema>;
@@ -63,6 +65,7 @@ export const VehiclePVForm = ({
 }: VehiclePVFormProps) => {
   const queryClient = useQueryClient();
   const [isColorModalOpen, setIsColorModalOpen] = useState(false);
+  const [isModelModalOpen, setIsModelModalOpen] = useState(false);
   const form = useForm({
     resolver: zodResolver(
       mode === "create" ? vehicleSchemaCreate : vehicleSchemaUpdate,
@@ -114,7 +117,7 @@ export const VehiclePVForm = ({
       form.setValue("vin", "");
       form.setValue("engine_number", "");
     }
-  }, [plateData, form]);
+  }, [plateData, form, isFirstLoad]);
 
   // Auto-seleccionar el primer almacén cuando se carguen los datos
   useEffect(() => {
@@ -197,55 +200,26 @@ export const VehiclePVForm = ({
             )}
           />
 
-          <FormField
-            control={form.control}
+          <FormInput
             name="vin"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>VIN</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="Ej: 1HGBH41AX1N109189"
-                    maxLength={17}
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="VIN"
+            placeholder="Ej: 1HGBH41AX1N109189"
+            control={form.control}
           />
 
-          <FormField
-            control={form.control}
+          <FormInput
             name="year"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Año</FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    placeholder="Ej: 2025"
-                    {...field}
-                    onChange={(e) => field.onChange(Number(e.target.value))}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Año"
+            placeholder="Ej: 2025"
+            control={form.control}
+            type="number"
           />
 
-          <FormField
-            control={form.control}
+          <FormInput
             name="engine_number"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Número de Motor</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: ENG32345XYZA" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Número de Motor"
+            placeholder="Ej: ENG32345XYZA"
+            control={form.control}
           />
 
           <FormSelectAsync
@@ -283,12 +257,10 @@ export const VehiclePVForm = ({
               variant="outline"
               size="icon-lg"
               className="aspect-square"
-              onClick={() =>
-                window.open(MODELS_VN_REPUESTOS.ROUTE_ADD, "_blank")
-              }
+              onClick={() => setIsModelModalOpen(true)}
               tooltip="Agregar nuevo modelo"
             >
-              <ExternalLink className="h-4 w-4" />
+              <Plus className="h-4 w-4" />
             </Button>
           </FormSelectAsync>
 
@@ -374,7 +346,7 @@ export const VehiclePVForm = ({
               onClick={() => window.open(CUSTOMERS_PV.ROUTE_ADD, "_blank")}
               tooltip="Agregar nuevo cliente"
             >
-              <ExternalLink className="h-4 w-4" />
+              <Plus className="h-4 w-4" />
             </Button>
           </FormSelectAsync>
 
@@ -421,6 +393,18 @@ export const VehiclePVForm = ({
           });
         }}
         title="Agregar Nuevo Color"
+        mode="create"
+      />
+
+      <ModelsVnModal
+        open={isModelModalOpen}
+        onClose={() => {
+          setIsModelModalOpen(false);
+          queryClient.invalidateQueries({
+            queryKey: [MODELS_VN.QUERY_KEY],
+          });
+        }}
+        title="Agregar Nuevo Modelo VN"
         mode="create"
       />
     </Form>

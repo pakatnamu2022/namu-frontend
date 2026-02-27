@@ -63,9 +63,10 @@ export function WorkScheduleCalendar({
       .filter((s) => (s.worker_id ?? s.worker?.id) === workerId)
       .forEach((schedule) => {
         if (!schedule.work_date) return;
-        const dateObj = new Date(schedule.work_date + "T00:00:00");
-        if (isNaN(dateObj.getTime())) return;
-        const dateKey = format(dateObj, "yyyy-MM-dd");
+        // work_date puede venir como ISO completo "2026-02-02T05:00:00.000000Z"
+        // o como fecha sola "2026-02-02". Extraemos solo la parte yyyy-MM-dd.
+        const dateKey = schedule.work_date.slice(0, 10);
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(dateKey)) return;
         map.set(dateKey, schedule);
       });
     return map;

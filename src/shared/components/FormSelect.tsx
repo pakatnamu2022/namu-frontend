@@ -238,6 +238,7 @@ export function FormSelect({
         const selected = options.find((opt) => opt.value === field.value);
 
         // Auto-select if only one option is available
+        // eslint-disable-next-line react-hooks/rules-of-hooks
         useEffect(() => {
           if (
             selectOnFocus &&

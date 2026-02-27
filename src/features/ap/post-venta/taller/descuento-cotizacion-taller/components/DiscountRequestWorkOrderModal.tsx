@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import {
   Dialog,
   DialogContent,
@@ -15,10 +16,6 @@ import { Loader } from "lucide-react";
 import { errorToast, successToast } from "@/core/core.function";
 import { FormInput } from "@/shared/components/FormInput";
 import {
-  discountRequestTallerSchema,
-  DiscountRequestTallerSchema,
-} from "../lib/discountRequestTaller.schema";
-import {
   storeDiscountRequestWorkOrderQuotation,
   updateDiscountRequestWorkOrderQuotation,
 } from "../lib/discountRequestTaller.actions";
@@ -27,51 +24,66 @@ import {
   TYPE_GLOBAL,
   TYPE_PARTIAL,
 } from "../lib/discountRequestTaller.constants";
-import { OrderQuotationDetailsResource } from "@/features/ap/post-venta/taller/cotizacion-detalle/lib/proformaDetails.interface";
 import { DiscountRequestWorkOrderQuotationResource } from "../lib/discountRequestTaller.interface";
 
-interface DiscountRequestTallerModalProps {
+const schema = z.object({
+  type: z.enum(["GLOBAL", "PARTIAL"]),
+  requested_discount_percentage: z
+    .number({ error: "Ingrese un porcentaje válido" })
+    .min(0, "Mínimo 0%")
+    .max(100, "Máximo 100%"),
+  requested_discount_amount: z
+    .number({ error: "Ingrese un monto válido" })
+    .min(0, "Debe ser mayor o igual a 0"),
+  item_type: z.enum(["PART", "LABOUR"]),
+});
+
+type FormSchema = z.infer<typeof schema>;
+
+interface DiscountRequestWorkOrderModalProps {
   open: boolean;
   onClose: () => void;
   type: "GLOBAL" | "PARTIAL";
-  quotationId: number;
+  workOrderId: number;
   baseAmount: number;
-  detail?: OrderQuotationDetailsResource;
+  /** Para descuento parcial: id del part/labour */
+  partLabourId?: number;
+  /** Para descuento parcial: MODEL_PART | MODEL_LABOUR */
+  partLabourModel?: string;
+  /** Descripción del item para mostrar en el modal */
+  itemDescription?: string;
   currencySymbol?: string;
   existingRequest?: DiscountRequestWorkOrderQuotationResource;
+  itemType: "PART" | "LABOUR";
   onSuccess?: () => void;
-  itemType?: "PRODUCT" | "LABOR";
 }
 
-export const DiscountRequestTallerModal = ({
+export const DiscountRequestWorkOrderModal = ({
   open,
   onClose,
   type,
-  quotationId,
+  workOrderId,
   baseAmount,
-  detail,
+  partLabourId,
+  partLabourModel,
+  itemDescription,
   currencySymbol = "S/.",
   existingRequest,
+  itemType,
   onSuccess,
-  itemType = "PRODUCT",
-}: DiscountRequestTallerModalProps) => {
+}: DiscountRequestWorkOrderModalProps) => {
   const queryClient = useQueryClient();
   const isEditing = !!existingRequest;
 
-  const form = useForm<DiscountRequestTallerSchema>({
-    resolver: zodResolver(discountRequestTallerSchema),
+  const form = useForm<FormSchema>({
+    resolver: zodResolver(schema),
     defaultValues: {
       type,
       requested_discount_percentage: existingRequest
         ? Number(existingRequest.requested_discount_percentage)
         : 0,
-      requested_discount_amount: existingRequest
-        ? Number(existingRequest.requested_discount_amount)
-        : 0,
-      ap_order_quotation_id: type === TYPE_GLOBAL ? quotationId : null,
-      ap_order_quotation_detail_id:
-        type === TYPE_PARTIAL && detail ? detail.id : null,
-      item_type: existingRequest?.item_type ?? itemType,
+      requested_discount_amount: 0,
+      item_type: itemType,
     },
   });
 
@@ -82,15 +94,10 @@ export const DiscountRequestTallerModal = ({
       requested_discount_percentage: existingRequest
         ? Number(existingRequest.requested_discount_percentage)
         : 0,
-      requested_discount_amount: existingRequest
-        ? Number(existingRequest.requested_discount_amount)
-        : 0,
-      ap_order_quotation_id: type === TYPE_GLOBAL ? quotationId : null,
-      ap_order_quotation_detail_id:
-        type === TYPE_PARTIAL && detail ? detail.id : null,
-      item_type: existingRequest?.item_type ?? itemType,
+      requested_discount_amount: 0,
+      item_type: itemType,
     });
-  }, [detail, existingRequest, form, itemType, open, quotationId, type]);
+  }, [open, type, existingRequest, form, itemType]);
 
   const discountPercentage = useWatch({
     control: form.control,
@@ -104,16 +111,23 @@ export const DiscountRequestTallerModal = ({
   const totalConDescuento = baseAmount - computedDiscountMonto;
 
   const { mutate: submitRequest, isPending } = useMutation({
-    mutationFn: (data: DiscountRequestTallerSchema) =>
-      isEditing
-        ? updateDiscountRequestWorkOrderQuotation(existingRequest!.id, {
-            ...data,
-            requested_discount_amount: computedDiscountMonto,
-          })
-        : storeDiscountRequestWorkOrderQuotation({
-            ...data,
-            requested_discount_amount: computedDiscountMonto,
-          }),
+    mutationFn: (data: FormSchema) => {
+      const payload = {
+        type: data.type,
+        requested_discount_percentage: data.requested_discount_percentage,
+        requested_discount_amount: computedDiscountMonto,
+        item_type: data.item_type,
+        ap_work_order_id: workOrderId,
+        part_labour_model:
+          type === TYPE_PARTIAL ? partLabourModel : data.item_type,
+        ...(type === TYPE_PARTIAL && partLabourId !== undefined
+          ? { part_labour_id: partLabourId }
+          : {}),
+      };
+      return isEditing
+        ? updateDiscountRequestWorkOrderQuotation(existingRequest!.id, payload)
+        : storeDiscountRequestWorkOrderQuotation(payload);
+    },
     onSuccess: () => {
       successToast(
         isEditing
@@ -121,7 +135,11 @@ export const DiscountRequestTallerModal = ({
           : "Solicitud de descuento enviada correctamente",
       );
       queryClient.invalidateQueries({
-        queryKey: [DISCOUNT_REQUEST_TALLER.QUERY_KEY],
+        queryKey: [
+          DISCOUNT_REQUEST_TALLER.QUERY_KEY,
+          "work-order",
+          workOrderId,
+        ],
       });
       onSuccess?.();
       form.reset();
@@ -135,8 +153,8 @@ export const DiscountRequestTallerModal = ({
     },
   });
 
-  const handleSubmit = (data: DiscountRequestTallerSchema) => {
-    submitRequest({ ...data, item_type: itemType });
+  const handleSubmit = (data: FormSchema) => {
+    submitRequest(data);
   };
 
   const handleCancel = () => {
@@ -153,8 +171,8 @@ export const DiscountRequestTallerModal = ({
       ? "Solicitar Descuento Global"
       : "Solicitar Descuento Parcial";
   const description = isGlobal
-    ? "Se aplicará un descuento sobre el total de la cotización."
-    : `Descuento sobre el ítem: ${detail?.description ?? ""}`;
+    ? "Se aplicará un descuento sobre el total de la orden de trabajo."
+    : `Descuento sobre el ítem: ${itemDescription ?? ""}`;
 
   return (
     <Dialog open={open} onOpenChange={handleCancel}>
@@ -170,8 +188,8 @@ export const DiscountRequestTallerModal = ({
             className="space-y-4"
           >
             <div className="rounded-md border bg-muted/40 p-3 text-sm space-y-1">
-              {!isGlobal && detail && (
-                <p className="font-medium">{detail.description}</p>
+              {!isGlobal && itemDescription && (
+                <p className="font-medium">{itemDescription}</p>
               )}
               <div className="flex justify-between text-xs text-muted-foreground">
                 <span>Monto base</span>

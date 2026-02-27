@@ -128,7 +128,7 @@ export default function TransferReceptionsCards({
                       isSingleCard ? "text-sm mt-1" : "text-xs mt-0.5"
                     }`}
                   >
-                    Transferencia: {movement?.movement_number || "-"}
+                    Movimiento: {movement?.movement_number || "-"}
                   </p>
                 </div>
                 <div className="flex gap-2">

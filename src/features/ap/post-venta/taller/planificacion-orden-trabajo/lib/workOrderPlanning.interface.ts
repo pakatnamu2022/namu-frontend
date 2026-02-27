@@ -109,6 +109,116 @@ export const PLANNING_STATUS_COLORS: Record<
   },
 };
 
+// Visual states derived from planning data (not backend states)
+// Used across WorkerTimeline and AssignedWorkColumns
+export type PlanningVisualState =
+  | "planned"       // status === "planned", sin sesiones pausadas
+  | "paused"        // status === "in_progress" + sesión pausada (sin sesión activa)
+  | "in_progress"   // status === "in_progress" + sesión activa
+  | "overtime"      // status === "in_progress" + sesión activa + tiempo excedido
+  | "completed";    // status === "completed"
+
+export const PLANNING_VISUAL_STATE_COLORS: Record<
+  PlanningVisualState,
+  { bg: string; text: string; border: string }
+> = {
+  planned: {
+    bg: "bg-blue-100",
+    text: "text-blue-800",
+    border: "border-blue-400",
+  },
+  paused: {
+    bg: "bg-yellow-100",
+    text: "text-yellow-800",
+    border: "border-yellow-400",
+  },
+  in_progress: {
+    bg: "bg-green-100",
+    text: "text-green-800",
+    border: "border-green-400",
+  },
+  overtime: {
+    bg: "bg-red-100",
+    text: "text-red-800",
+    border: "border-red-400",
+  },
+  completed: {
+    bg: "bg-gray-900",
+    text: "text-white",
+    border: "border-gray-900",
+  },
+};
+
+export const PLANNING_VISUAL_STATE_LABELS: Record<PlanningVisualState, string> =
+  {
+    planned: "Planificado",
+    paused: "Pausado",
+    in_progress: "En Progreso",
+    overtime: "Excediendo Tiempo",
+    completed: "Completado",
+  };
+
+/**
+ * Deriva el estado visual de un planning considerando sesiones y tiempo.
+ * El "overtime" se calcula comparando el tiempo actual contra
+ * planned_start_datetime + estimated_hours cuando hay sesión activa.
+ */
+export function getPlanningVisualState(
+  planning: WorkOrderPlanningResource,
+  now: Date = new Date()
+): PlanningVisualState {
+  const { status, has_active_session, sessions, planned_start_datetime, estimated_hours } =
+    planning;
+
+  if (status === "completed") return "completed";
+  if (status === "planned") return "planned";
+
+  if (status === "in_progress") {
+    const hasPausedSession =
+      sessions && sessions.length > 0
+        ? sessions.some((s) => s.status === "paused")
+        : false;
+
+    if (!has_active_session && hasPausedSession) return "paused";
+
+    if (has_active_session) {
+      // Calcular si excedió el tiempo estimado
+      if (planned_start_datetime && estimated_hours) {
+        const start = new Date(planned_start_datetime);
+        const expectedEnd = new Date(
+          start.getTime() + estimated_hours * 60 * 60 * 1000
+        );
+        if (now > expectedEnd) return "overtime";
+      }
+      return "in_progress";
+    }
+  }
+
+  return "planned";
+}
+
+/**
+ * Lógica centralizada para determinar qué acciones mostrar en un planning.
+ */
+export function getPlanningActions(planning: WorkOrderPlanningResource): {
+  showStart: boolean;
+  showContinue: boolean;
+  showPauseAndComplete: boolean;
+} {
+  const { status, has_active_session, sessions } = planning;
+
+  const hasPausedSession =
+    sessions && sessions.length > 0
+      ? sessions.some((s) => s.status === "paused")
+      : false;
+
+  return {
+    showStart: status === "planned" && !hasPausedSession,
+    showContinue: hasPausedSession && status === "in_progress" && !has_active_session,
+    showPauseAndComplete: status === "in_progress" && has_active_session,
+  };
+}
+
 // Mock data for development
 export interface WorkerMock {
   id: number;

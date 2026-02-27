@@ -6,10 +6,10 @@ const transferReceptionDetailSchema = z.object({
   product_id: z.string().optional(),
   quantity_sent: z
     .number()
-    .min(0.01, { message: "La cantidad enviada debe ser mayor a 0" }),
+    .min(0, { message: "La cantidad enviada debe ser mayor a 0" }),
   quantity_received: z
     .number()
-    .min(0.01, { message: "La cantidad recibida debe ser mayor a 0" }),
+    .min(0, { message: "La cantidad recibida debe ser mayor a 0" }),
   observed_quantity: z
     .number()
     .min(0, { message: "La cantidad observada debe ser mayor o igual a 0" })
@@ -35,7 +35,7 @@ const transferReceptionDetailSchema = z.object({
 
 const transferReceptionSchemaBase = z.object({
   transfer_movement_id: requiredStringId(
-    "Transferencia de producto es requerida"
+    "Transferencia de producto es requerida",
   ),
   reception_date: z.date({ message: "Fecha de recepción es requerida" }),
   warehouse_id: requiredStringId("Almacén es requerido"),
@@ -59,13 +59,13 @@ export type TransferReceptionDetailSchema = z.infer<
 >;
 
 export function validateTransferReceptionFormData(
-  data: any
+  data: any,
 ): TransferReceptionSchema {
   return transferReceptionSchemaCreate.parse(data);
 }
 
 export function validateTransferReceptionUpdateFormData(
-  data: any
+  data: any,
 ): Partial<TransferReceptionSchema> {
   return transferReceptionSchemaUpdate.parse(data);
 }

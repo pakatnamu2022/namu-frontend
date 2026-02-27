@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Settings, ClipboardCheck, Pencil } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { WorkOrderResource } from "../lib/workOrder.interface";
+import { WORK_ORDER_STATUS } from "../lib/workOrder.constants";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge";
@@ -144,7 +145,8 @@ export const workOrderColumns = ({
     header: "Acciones",
     cell: ({ row }) => {
       const { id, is_inspection_completed, status } = row.original;
-      const isClosed = status?.description === "CERRADO";
+      const isClosed = status?.description === WORK_ORDER_STATUS.CERRADO;
+      const isOpen = status?.description === WORK_ORDER_STATUS.APERTURADO;
 
       return (
         <div className="flex items-center gap-2">
@@ -172,7 +174,7 @@ export const workOrderColumns = ({
             </Button>
           )}
 
-          {permissions.canUpdate && !isClosed && (
+          {permissions.canUpdate && isOpen && (
             <Button
               variant="outline"
               size="icon"
@@ -184,7 +186,7 @@ export const workOrderColumns = ({
             </Button>
           )}
 
-          {permissions.canDelete && !isClosed && (
+          {permissions.canDelete && isOpen && (
             <DeleteButton onClick={() => onDelete(id)} />
           )}
         </div>

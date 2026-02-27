@@ -134,7 +134,7 @@ export const TransferReceptionForm = ({
             placeholder="Selecciona una fecha"
             dateFormat="dd/MM/yyyy"
             captionLayout="dropdown"
-            disabledRange={{ after: new Date() }}
+            disabled
           />
 
           <FormSelect

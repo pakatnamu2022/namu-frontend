@@ -5,9 +5,20 @@ import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Package, Loader2, Plus, Trash2 } from "lucide-react";
+import {
+  Package,
+  Loader2,
+  Plus,
+  Trash2,
+  Tag,
+  Pencil,
+  CheckCircle,
+  XCircle,
+  Percent,
+} from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Form } from "@/components/ui/form";
 import {
@@ -37,12 +48,27 @@ import { useInventory } from "@/features/ap/post-venta/gestion-almacen/inventari
 import { InventoryResource } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.interface";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
+import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import GroupSelector from "../GroupSelector";
 import { useWorkOrderContext } from "../../contexts/WorkOrderContext";
 import { findWorkOrderById } from "../../lib/workOrder.actions";
 import { FormInput } from "@/shared/components/FormInput";
 import { useAuthStore } from "@/features/auth/lib/auth.store";
+import { DEFAULT_APPROVED_DISCOUNT } from "@/core/core.constants";
 import { ITEM_TYPE_PRODUCT } from "../../../cotizacion-detalle/lib/proformaDetails.constants";
+import { useDiscountRequestsByWorkOrder } from "../../../descuento-cotizacion-taller/lib/discountRequestTaller.hook";
+import { DiscountRequestWorkOrderModal } from "../../../descuento-cotizacion-taller/components/DiscountRequestWorkOrderModal";
+import {
+  approveDiscountRequestWorkOrderQuotation,
+  rejectDiscountRequestWorkOrderQuotation,
+} from "../../../descuento-cotizacion-taller/lib/discountRequestTaller.actions";
+import {
+  DISCOUNT_REQUEST_TALLER,
+  TYPE_GLOBAL,
+  TYPE_PARTIAL,
+  MODEL_PART,
+} from "../../../descuento-cotizacion-taller/lib/discountRequestTaller.constants";
+import { DiscountRequestWorkOrderQuotationResource } from "../../../descuento-cotizacion-taller/lib/discountRequestTaller.interface";
 
 interface PartsTabProps {
   workOrderId: number;
@@ -55,7 +81,6 @@ interface AddPartFormValues {
   discount_percentage: number;
 }
 
-// Función para crear el schema con validación dinámica de descuento
 const createPartFormSchema = (maxDiscount: number) => {
   return z.object({
     product_id: z.string().min(1, "El producto es requerido"),
@@ -80,13 +105,21 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
     useState<string>("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
 
-  // Obtener el porcentaje máximo de descuento del usuario (default 5%)
-  const maxDiscountPercentage = user?.discount_percentage ?? 5;
+  // Modal de descuento
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalType, setModalType] = useState<"GLOBAL" | "PARTIAL">(
+    TYPE_PARTIAL,
+  );
+  const [selectedPart, setSelectedPart] = useState<any | null>(null);
+  const [editingRequest, setEditingRequest] =
+    useState<DiscountRequestWorkOrderQuotationResource | null>(null);
 
-  // Formulario para actualizar repuesto
+  const maxDiscountPercentage =
+    user?.discount_percentage ?? DEFAULT_APPROVED_DISCOUNT;
+
   const form = useForm<AddPartFormValues>({
     resolver: zodResolver(createPartFormSchema(maxDiscountPercentage)),
-    mode: "onChange", // Validar en tiempo real
+    mode: "onChange",
     defaultValues: {
       product_id: "",
       quantity_used: 1,
@@ -102,7 +135,6 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
     enabled: !!workOrderId,
   });
 
-  // Consultar la orden de trabajo con sus items
   const { data: workOrder, isLoading: isLoadingWorkOrder } = useQuery({
     queryKey: ["workOrder", workOrderId],
     queryFn: () => findWorkOrderById(workOrderId),
@@ -110,11 +142,9 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
 
   const items = useMemo(() => workOrder?.items || [], [workOrder?.items]);
 
-  // Obtener la cotización asociada si existe
   const associatedQuotation = workOrder?.order_quotation || null;
   const hasAssociatedQuotation = workOrder?.order_quotation_id !== null;
 
-  // Auto-seleccionar el primer grupo si no hay ninguno seleccionado
   useEffect(() => {
     if (items.length > 0 && selectedGroupNumber === null) {
       const firstGroup = Math.min(...items.map((i) => i.group_number));
@@ -123,11 +153,8 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
   }, [items, selectedGroupNumber, setSelectedGroupNumber]);
 
   const { data: warehouses = [], isLoading: isLoadingWarehouses } =
-    useAllWarehouse({
-      is_physical_warehouse: 1,
-    });
+    useAllWarehouse({ is_physical_warehouse: 1 });
 
-  // Filtrar almacenes por sede de la OT
   const filteredWarehouses = useMemo(() => {
     if (workOrder?.sede_id) {
       return warehouses.filter((w) => w.sede_id === Number(workOrder.sede_id));
@@ -135,7 +162,6 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
     return warehouses;
   }, [warehouses, workOrder?.sede_id]);
 
-  // Auto-seleccionar almacén cuando se carga la OT
   useEffect(() => {
     if (filteredWarehouses.length > 0 && !selectedWarehouseForBulk) {
       setSelectedWarehouseForBulk(filteredWarehouses[0].id.toString());
@@ -143,13 +169,19 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filteredWarehouses]);
 
-  // Auto-seleccionar almacén para actualizar repuesto
   useEffect(() => {
     if (filteredWarehouses.length > 0 && !selectedWarehouseForAdd) {
       setSelectedWarehouseForAdd(filteredWarehouses[0].id.toString());
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filteredWarehouses]);
+
+  // Solicitudes de descuento de la OT — solo las de PRODUCT
+  const { data: allDiscountRequests = [] } =
+    useDiscountRequestsByWorkOrder(workOrderId);
+  const discountRequests = allDiscountRequests.filter(
+    (r) => r.item_type === "PART",
+  );
 
   const storeBulkMutation = useMutation({
     mutationFn: (params: { warehouseId: number; groupNumber: number }) =>
@@ -165,9 +197,7 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
       queryClient.invalidateQueries({
         queryKey: ["workOrderParts", workOrderId],
       });
-      queryClient.invalidateQueries({
-        queryKey: ["workOrder", workOrderId],
-      });
+      queryClient.invalidateQueries({ queryKey: ["workOrder", workOrderId] });
       setSelectedProductIds([]);
     },
     onError: (error: any) => {
@@ -176,7 +206,6 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
     },
   });
 
-  // Mutación para actualizar un repuesto individual
   const storePartMutation = useMutation({
     mutationFn: (data: AddPartFormValues) =>
       storeWorkOrderParts({
@@ -203,7 +232,7 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
     },
     onError: (error: any) => {
       const msg = error?.response?.data?.message || "";
-      errorToast(msg || "Error al actualizar el repuesto");
+      errorToast(msg || "Error al agregar el repuesto");
     },
   });
 
@@ -240,37 +269,6 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
     }
   };
 
-  // const updateGroupMutation = useMutation({
-  //   mutationFn: ({
-  //     partId,
-  //     newGroupNumber,
-  //     part,
-  //   }: {
-  //     partId: number;
-  //     newGroupNumber: number;
-  //     part: any;
-  //   }) =>
-  //     updateWorkOrderParts(partId, {
-  //       id: part.id,
-  //       work_order_id: workOrderId,
-  //       group_number: newGroupNumber,
-  //       warehouse_id: part.warehouse_id,
-  //       product_id: part.product_id,
-  //       quantity_used: part.quantity_used,
-  //     }),
-  //   onSuccess: () => {
-  //     successToast("Grupo actualizado exitosamente");
-  //     queryClient.invalidateQueries({
-  //       queryKey: ["workOrderParts", workOrderId],
-  //     });
-  //   },
-  //   onError: (error: any) => {
-  //     const msg = error?.response?.data?.message || "";
-  //     errorToast(msg || "Error al actualizar el grupo");
-  //   },
-  // });
-
-  // Mutación para eliminar repuesto
   const deleteMutation = useMutation({
     mutationFn: (id: number) => deleteWorkOrderParts(id),
     onSuccess: () => {
@@ -278,9 +276,7 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
       queryClient.invalidateQueries({
         queryKey: ["workOrderParts", workOrderId],
       });
-      queryClient.invalidateQueries({
-        queryKey: ["workOrder", workOrderId],
-      });
+      queryClient.invalidateQueries({ queryKey: ["workOrder", workOrderId] });
       setDeleteId(null);
     },
     onError: (error: any) => {
@@ -294,21 +290,115 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
     deleteMutation.mutate(deleteId);
   };
 
-  // const handleGroupChange = (part: any, newGroupNumber: number) => {
-  //   updateGroupMutation.mutate({
-  //     partId: part.id,
-  //     newGroupNumber,
-  //     part,
-  //   });
-  // };
-
-  // // Obtener los números de grupos únicos disponibles
-  // const availableGroups = useMemo(() => {
-  //   return Array.from(new Set(items.map((item) => item.group_number))).sort();
-  // }, [items]);
-
   const filteredParts = parts.filter(
     (part) => part.group_number === selectedGroupNumber,
+  );
+
+  // --- Lógica global/partial ---
+  const globalRequest = discountRequests.find((r) => r.type === TYPE_GLOBAL);
+  const hasPartialRequests = discountRequests.some(
+    (r) => r.type === TYPE_PARTIAL,
+  );
+  const hasMultipleItems = filteredParts.length > 1;
+
+  const getPartialRequest = (partId: number) =>
+    discountRequests.find(
+      (r) =>
+        r.type === TYPE_PARTIAL &&
+        r.part_labour_id === partId &&
+        r.part_labour_model === MODEL_PART,
+    );
+
+  // Total de repuestos filtrados (base para el global)
+  const globalBaseAmount = filteredParts.reduce(
+    (acc, p) => acc + parseFloat(p.total_amount || "0"),
+    0,
+  );
+
+  const handleOpenCreate = (type: "GLOBAL" | "PARTIAL", part?: any) => {
+    setEditingRequest(null);
+    setModalType(type);
+    setSelectedPart(part ?? null);
+    setModalOpen(true);
+  };
+
+  const handleOpenEdit = (
+    request: DiscountRequestWorkOrderQuotationResource,
+    part?: any,
+  ) => {
+    setEditingRequest(request);
+    setModalType(request.type);
+    setSelectedPart(part ?? null);
+    setModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setModalOpen(false);
+    setSelectedPart(null);
+    setEditingRequest(null);
+  };
+
+  const { mutate: doApprove, isPending: isApproving } = useMutation({
+    mutationFn: approveDiscountRequestWorkOrderQuotation,
+    onSuccess: () => {
+      successToast("Solicitud aprobada correctamente");
+      queryClient.invalidateQueries({
+        queryKey: [
+          DISCOUNT_REQUEST_TALLER.QUERY_KEY,
+          "work-order",
+          workOrderId,
+        ],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["workOrderParts", workOrderId],
+      });
+    },
+    onError: (error: any) => {
+      errorToast(
+        error?.response?.data?.message || "Error al aprobar la solicitud",
+      );
+    },
+  });
+
+  const { mutate: doReject, isPending: isRejecting } = useMutation({
+    mutationFn: rejectDiscountRequestWorkOrderQuotation,
+    onSuccess: () => {
+      successToast("Solicitud rechazada correctamente");
+      queryClient.invalidateQueries({
+        queryKey: [
+          DISCOUNT_REQUEST_TALLER.QUERY_KEY,
+          "work-order",
+          workOrderId,
+        ],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["workOrderParts", workOrderId],
+      });
+    },
+    onError: (error: any) => {
+      errorToast(
+        error?.response?.data?.message || "Error al rechazar la solicitud",
+      );
+    },
+  });
+
+  const renderStatusBadge = (status: string) => (
+    <Badge
+      color={
+        status === "approved"
+          ? "green"
+          : status === "rejected"
+            ? "red"
+            : "orange"
+      }
+      className="text-xs"
+    >
+      {status === "approved"
+        ? "Aprobado"
+        : status === "rejected"
+          ? "Rechazado"
+          : "Pendiente"}
+    </Badge>
   );
 
   if (isLoading || isLoadingWarehouses || isLoadingWorkOrder) {
@@ -358,7 +448,6 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
               onSubmit={form.handleSubmit(handleSubmitPart)}
               className="space-y-4"
             >
-              {/* Almacén (bloqueado) */}
               <div className="bg-blue-50 border border-blue-200 rounded-md px-3 py-2">
                 <p className="text-xs text-primary">
                   <span className="font-semibold">Almacén:</span>{" "}
@@ -372,7 +461,6 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
                 </p>
               </div>
 
-              {/* Producto */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 <FormSelectAsync
                   name="product_id"
@@ -382,6 +470,7 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
                   useQueryHook={useInventory}
                   additionalParams={{
                     warehouse_id: selectedWarehouseForAdd,
+                    available_quantity: 0,
                   }}
                   mapOptionFn={(inventory: InventoryResource) => ({
                     label: () => (
@@ -415,7 +504,6 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
                 />
               </div>
 
-              {/* Precio y Descuento */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <FormInput
                   name="unit_price"
@@ -437,7 +525,6 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
                 />
               </div>
 
-              {/* Botones */}
               <div className="flex justify-end gap-2">
                 <Button
                   type="button"
@@ -474,7 +561,7 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
         </Card>
       )}
 
-      {/* Mostrar cotización asociada */}
+      {/* Cotización asociada */}
       {hasAssociatedQuotation &&
         associatedQuotation &&
         associatedQuotation.details?.filter(
@@ -483,7 +570,6 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
         ).length > 0 && (
           <Card className="p-6">
             <div className="space-y-4">
-              {/* Header de la cotización asociada */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <Package className="h-6 w-6 text-primary" />
@@ -563,7 +649,6 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
                 </div>
               </div>
 
-              {/* Tabla de productos de la cotización asociada */}
               <div className="border rounded-lg overflow-hidden">
                 <Table>
                   <TableHeader>
@@ -667,6 +752,94 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
         </Card>
       ) : (
         <Card className="p-6">
+          {/* Header con botón descuento global */}
+          <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+            <h3 className="text-lg font-semibold">Repuestos Registrados</h3>
+
+            {hasMultipleItems && (
+              <div className="flex items-center gap-2 flex-wrap">
+                {globalRequest ? (
+                  <div className="flex items-center gap-2 text-sm border rounded-md px-3 py-1.5">
+                    <span className="text-muted-foreground text-xs">
+                      Desc. global:
+                    </span>
+                    <span className="font-semibold">
+                      {Number(
+                        globalRequest.requested_discount_percentage,
+                      ).toFixed(2)}
+                      %
+                    </span>
+                    {renderStatusBadge(globalRequest.status)}
+                    {globalRequest.status === "pending" && (
+                      <>
+                        <ConfirmationDialog
+                          trigger={
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              className="size-7 text-green-600 hover:text-green-600 hover:bg-green-50"
+                              tooltip="Aprobar solicitud global"
+                              disabled={isApproving}
+                            >
+                              <CheckCircle className="size-4" />
+                            </Button>
+                          }
+                          title="¿Aprobar solicitud?"
+                          description="Se aprobará el descuento global para los repuestos. ¿Deseas continuar?"
+                          confirmText="Sí, aprobar"
+                          cancelText="Cancelar"
+                          icon="info"
+                          onConfirm={() => doApprove(globalRequest.id)}
+                        />
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="size-7"
+                          tooltip="Editar solicitud global"
+                          onClick={() => handleOpenEdit(globalRequest)}
+                        >
+                          <Pencil className="size-4" />
+                        </Button>
+                        <ConfirmationDialog
+                          trigger={
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              className="size-7 text-destructive hover:text-destructive hover:bg-destructive/10"
+                              tooltip="Rechazar solicitud global"
+                              disabled={isRejecting}
+                            >
+                              <XCircle className="size-4" />
+                            </Button>
+                          }
+                          title="¿Rechazar solicitud?"
+                          description="Se rechazará el descuento global para los repuestos. ¿Deseas continuar?"
+                          confirmText="Sí, rechazar"
+                          cancelText="Cancelar"
+                          variant="destructive"
+                          icon="danger"
+                          onConfirm={() => doReject(globalRequest.id)}
+                        />
+                      </>
+                    )}
+                  </div>
+                ) : (
+                  !hasPartialRequests && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleOpenCreate(TYPE_GLOBAL)}
+                      className="gap-2"
+                    >
+                      <Percent className="size-4" />
+                      Desc. global
+                    </Button>
+                  )
+                )}
+              </div>
+            )}
+          </div>
+
           <Table>
             <TableHeader>
               <TableRow>
@@ -677,102 +850,158 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
                 <TableHead className="text-right">Precio Unit.</TableHead>
                 <TableHead className="text-right">Desc.</TableHead>
                 <TableHead className="text-right">Costo Total</TableHead>
-                {/* <TableHead className="text-center">Grupo</TableHead> */}
-                <TableHead className="text-center w-[100px]">
-                  Acciones
-                </TableHead>
+                <TableHead className="text-center w-40">Acciones</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredParts.map((part) => (
-                <TableRow key={part.id}>
-                  <TableCell>
-                    <div>
+              {filteredParts.map((part) => {
+                const partialRequest = getPartialRequest(part.id);
+                return (
+                  <TableRow key={part.id}>
+                    <TableCell>
                       <p className="font-medium">{part.product_name}</p>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <p className="text-sm text-gray-600">
-                      {part.warehouse_name}
-                    </p>
-                  </TableCell>
-                  <TableCell>
-                    <p className="text-sm text-gray-600">
-                      {part.registered_by_name}
-                    </p>
-                  </TableCell>
-                  <TableCell className="text-center">
-                    {part.quantity_used}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {workOrder?.type_currency?.symbol || "S/"}{" "}
-                    {part.unit_price
-                      ? Number(part.unit_price).toFixed(2)
-                      : "0.00"}
-                  </TableCell>
-                  <TableCell className="text-right text-orange-600">
-                    -{part.discount_percentage}%
-                  </TableCell>
-                  <TableCell className="text-right font-semibold">
-                    {workOrder?.type_currency?.symbol || "S/"}{" "}
-                    {part.total_amount
-                      ? Number(part.total_amount).toFixed(2)
-                      : "0.00"}
-                  </TableCell>
-                  {/* <TableCell className="text-center">
-                    <Select
-                      value={part.group_number.toString()}
-                      onValueChange={(value) =>
-                        handleGroupChange(part, Number(value))
-                      }
-                    >
-                      <SelectTrigger className="w-[120px] mx-auto">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {availableGroups.map((groupNumber) => (
-                          <SelectItem
-                            key={groupNumber}
-                            value={groupNumber.toString()}
-                          >
-                            Grupo {groupNumber}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </TableCell> */}
-                  <TableCell className="text-center">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setDeleteId(part.id)}
-                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
+                    </TableCell>
+                    <TableCell>
+                      <p className="text-sm text-gray-600">
+                        {part.warehouse_name}
+                      </p>
+                    </TableCell>
+                    <TableCell>
+                      <p className="text-sm text-gray-600">
+                        {part.registered_by_name}
+                      </p>
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {part.quantity_used}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {workOrder?.type_currency?.symbol || "S/"}{" "}
+                      {part.unit_price
+                        ? Number(part.unit_price).toFixed(2)
+                        : "0.00"}
+                    </TableCell>
+                    <TableCell className="text-right text-orange-600">
+                      -{part.discount_percentage}%
+                    </TableCell>
+                    <TableCell className="text-right font-semibold">
+                      {workOrder?.type_currency?.symbol || "S/"}{" "}
+                      {part.total_amount
+                        ? Number(part.total_amount).toFixed(2)
+                        : "0.00"}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <div className="flex items-center justify-center gap-1">
+                        {/* Descuento parcial: solo si no hay global */}
+                        {!globalRequest && (
+                          <>
+                            {partialRequest ? (
+                              <>
+                                {renderStatusBadge(partialRequest.status)}
+                                {partialRequest.status === "pending" && (
+                                  <>
+                                    <ConfirmationDialog
+                                      trigger={
+                                        <Button
+                                          variant="ghost"
+                                          size="sm"
+                                          className="h-7 w-7 p-0 text-green-600 hover:text-green-600 hover:bg-green-50"
+                                          tooltip="Aprobar solicitud"
+                                          disabled={isApproving}
+                                        >
+                                          <CheckCircle className="h-4 w-4" />
+                                        </Button>
+                                      }
+                                      title="¿Aprobar solicitud?"
+                                      description="Se aprobará el descuento solicitado para este repuesto. ¿Deseas continuar?"
+                                      confirmText="Sí, aprobar"
+                                      cancelText="Cancelar"
+                                      icon="info"
+                                      onConfirm={() =>
+                                        doApprove(partialRequest.id)
+                                      }
+                                    />
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className="h-7 w-7 p-0"
+                                      tooltip="Editar solicitud"
+                                      onClick={() =>
+                                        handleOpenEdit(partialRequest, part)
+                                      }
+                                    >
+                                      <Pencil className="h-4 w-4" />
+                                    </Button>
+                                    <ConfirmationDialog
+                                      trigger={
+                                        <Button
+                                          variant="ghost"
+                                          size="sm"
+                                          className="h-7 w-7 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+                                          tooltip="Rechazar solicitud"
+                                          disabled={isRejecting}
+                                        >
+                                          <XCircle className="h-4 w-4" />
+                                        </Button>
+                                      }
+                                      title="¿Rechazar solicitud?"
+                                      description="Se rechazará el descuento solicitado para este repuesto. ¿Deseas continuar?"
+                                      confirmText="Sí, rechazar"
+                                      cancelText="Cancelar"
+                                      variant="destructive"
+                                      icon="danger"
+                                      onConfirm={() =>
+                                        doReject(partialRequest.id)
+                                      }
+                                    />
+                                  </>
+                                )}
+                              </>
+                            ) : (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-7 w-7 p-0 text-primary hover:text-primary hover:bg-primary/10"
+                                tooltip="Solicitar descuento parcial"
+                                onClick={() =>
+                                  handleOpenCreate(TYPE_PARTIAL, part)
+                                }
+                              >
+                                <Tag className="h-4 w-4" />
+                              </Button>
+                            )}
+                          </>
+                        )}
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setDeleteId(part.id)}
+                          className="h-7 w-7 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
 
           {/* Total de Repuestos */}
-          {filteredParts.length > 0 && (
-            <div className="flex justify-end mt-4 pt-4 border-t">
-              <div className="text-right">
-                <p className="text-sm text-gray-600">Total de Repuestos:</p>
-                <p className="text-xl font-bold">
-                  {workOrder?.type_currency?.symbol || "S/"}{" "}
-                  {filteredParts
-                    .reduce(
-                      (acc, part) => acc + parseFloat(part.total_amount || "0"),
-                      0,
-                    )
-                    .toFixed(2)}
-                </p>
-              </div>
+          <div className="flex justify-end mt-4 pt-4 border-t">
+            <div className="text-right">
+              <p className="text-sm text-gray-600">Total de Repuestos:</p>
+              <p className="text-xl font-bold">
+                {workOrder?.type_currency?.symbol || "S/"}{" "}
+                {filteredParts
+                  .reduce(
+                    (acc, part) => acc + parseFloat(part.total_amount || "0"),
+                    0,
+                  )
+                  .toFixed(2)}
+              </p>
             </div>
-          )}
+          </div>
         </Card>
       )}
 
@@ -784,6 +1013,27 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
           onConfirm={handleDelete}
         />
       )}
+
+      {/* Modal Solicitar Descuento */}
+      <DiscountRequestWorkOrderModal
+        open={modalOpen}
+        onClose={handleCloseModal}
+        type={modalType}
+        workOrderId={workOrderId}
+        baseAmount={
+          modalType === TYPE_GLOBAL
+            ? globalBaseAmount
+            : parseFloat(selectedPart?.total_amount || "0")
+        }
+        partLabourId={modalType === TYPE_PARTIAL ? selectedPart?.id : undefined}
+        partLabourModel={modalType === TYPE_PARTIAL ? MODEL_PART : undefined}
+        itemDescription={
+          modalType === TYPE_PARTIAL ? selectedPart?.product_name : undefined
+        }
+        currencySymbol={workOrder?.type_currency?.symbol || "S/"}
+        existingRequest={editingRequest ?? undefined}
+        itemType="PART"
+      />
     </div>
   );
 }

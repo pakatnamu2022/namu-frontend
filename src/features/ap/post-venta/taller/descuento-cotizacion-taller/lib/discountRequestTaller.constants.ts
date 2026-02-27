@@ -8,3 +8,6 @@ export const DISCOUNT_REQUEST_TALLER = {
 
 export const TYPE_GLOBAL = "GLOBAL";
 export const TYPE_PARTIAL = "PARTIAL";
+
+export const MODEL_PART = "PART";
+export const MODEL_LABOUR = "LABOUR";

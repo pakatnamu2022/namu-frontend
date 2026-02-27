@@ -92,6 +92,8 @@ export const IGV = {
   FACTOR: 1.18,
 };
 
+export const DEFAULT_APPROVED_DISCOUNT = 5;
+
 export const BUSINESS_PARTNERS = {
   MARRIED_ID: "700",
   CO_OWNER_ID: "955",

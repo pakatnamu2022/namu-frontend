@@ -1,23 +1,25 @@
 export interface DiscountRequestWorkOrderQuotationResource {
   id: number;
   type: "GLOBAL" | "PARTIAL";
-  ap_order_quotation_id: number | null;
-  ap_order_quotation_detail_id: number | null;
-  manager_id: number | null;
+  ap_work_order_id: number;
+  part_labour_id: number | null;
+  part_labour_model: string | null;
   approved_id: number | null;
   request_date: string | null;
   requested_discount_percentage: number;
   requested_discount_amount: number;
   approval_date: string | null;
   is_approved: boolean;
-  item_type: "PRODUCT" | "LABOR";
+  status: "pending" | "approved" | "rejected";
+  item_type: "PART" | "LABOUR";
 }
 
 export interface DiscountRequestWorkOrderQuotationRequest {
   type: "GLOBAL" | "PARTIAL";
   requested_discount_percentage: number;
   requested_discount_amount: number;
-  ap_order_quotation_id?: number | null;
-  ap_order_quotation_detail_id?: number | null;
-  item_type: "PRODUCT" | "LABOR";
+  ap_work_order_id?: number;
+  part_labour_id?: number;
+  part_labour_model?: string;
+  item_type: "PART" | "LABOUR";
 }
