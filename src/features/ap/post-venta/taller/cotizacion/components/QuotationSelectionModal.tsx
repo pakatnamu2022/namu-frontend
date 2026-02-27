@@ -41,11 +41,6 @@ export const QuotationSelectionModal = ({
   };
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setPage(1);
-  }, [per_page]);
-
-  useEffect(() => {
     if (dateFrom && dateTo && dateFrom > dateTo) {
       errorToast("La fecha 'Desde' no puede ser mayor que la fecha 'Hasta'.");
     }

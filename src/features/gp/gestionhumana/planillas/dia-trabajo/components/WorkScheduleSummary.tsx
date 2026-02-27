@@ -60,7 +60,6 @@ interface WorkScheduleSummaryProps {
 }
 
 export function WorkScheduleSummary({
-  period,
   summary,
   workersCount,
   isLoading = false,
@@ -112,7 +111,10 @@ export function WorkScheduleSummary({
         <div className="px-3 py-2 border-b flex items-center justify-between bg-muted/40 shrink-0">
           <div className="flex items-center gap-1.5">
             <span className="text-sm font-semibold">Trabajadores</span>
-            <Badge variant="outline" className="text-xs h-4 px-1.5 py-0 leading-none">
+            <Badge
+              variant="outline"
+              className="text-xs h-4 px-1.5 py-0 leading-none"
+            >
               {workersCount}
             </Badge>
             {/* {period && (
@@ -147,51 +149,53 @@ export function WorkScheduleSummary({
             </EmptyHeader>
           </Empty>
         ) : (
-        <div className="overflow-y-auto max-h-[calc(100vh-14rem)]">
-          <Table>
-            <TableHeader className="hidden">
-              <TableRow>
-                <TableHead />
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {summary.map((worker) => {
-                const isSelected = selectedWorkerId === worker.worker_id;
-                return (
-                  <TableRow
-                    key={worker.worker_id}
-                    className={cn(
-                      "cursor-pointer transition-colors h-9",
-                      isSelected
-                        ? "bg-primary/10 hover:bg-primary/15"
-                        : "hover:bg-muted/50",
-                    )}
-                    onClick={() => onWorkerSelect?.(worker.worker_id)}
-                  >
-                    <TableCell className="py-1.5 px-3">
-                      <div className="flex items-center justify-between gap-1.5">
-                        <div className="flex items-center gap-1.5 min-w-0">
-                          <div
-                            className={cn(
-                              "w-0.5 h-5 rounded-full shrink-0 transition-opacity",
-                              isSelected ? "bg-primary opacity-100" : "opacity-0",
-                            )}
-                          />
-                          <span className="text-xs font-medium truncate">
-                            {worker.worker_name}
-                          </span>
+          <div className="overflow-y-auto max-h-[calc(100vh-14rem)]">
+            <Table>
+              <TableHeader className="hidden">
+                <TableRow>
+                  <TableHead />
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {summary.map((worker) => {
+                  const isSelected = selectedWorkerId === worker.worker_id;
+                  return (
+                    <TableRow
+                      key={worker.worker_id}
+                      className={cn(
+                        "cursor-pointer transition-colors h-9",
+                        isSelected
+                          ? "bg-primary/10 hover:bg-primary/15"
+                          : "hover:bg-muted/50",
+                      )}
+                      onClick={() => onWorkerSelect?.(worker.worker_id)}
+                    >
+                      <TableCell className="py-1.5 px-3">
+                        <div className="flex items-center justify-between gap-1.5">
+                          <div className="flex items-center gap-1.5 min-w-0">
+                            <div
+                              className={cn(
+                                "w-0.5 h-5 rounded-full shrink-0 transition-opacity",
+                                isSelected
+                                  ? "bg-primary opacity-100"
+                                  : "opacity-0",
+                              )}
+                            />
+                            <span className="text-xs font-medium truncate">
+                              {worker.worker_name}
+                            </span>
+                          </div>
+                          {isSelected && (
+                            <CalendarDays className="h-3.5 w-3.5 text-primary shrink-0" />
+                          )}
                         </div>
-                        {isSelected && (
-                          <CalendarDays className="h-3.5 w-3.5 text-primary shrink-0" />
-                        )}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </div>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </div>
         )}
       </Card>
 
@@ -207,7 +211,8 @@ export function WorkScheduleSummary({
           <DialogHeader className="px-4 pt-4 pb-3 border-b">
             <DialogTitle className="text-base">Agregar trabajador</DialogTitle>
             <DialogDescription className="text-xs mt-0.5">
-              Selecciona un trabajador para gestionar su horario en este período.
+              Selecciona un trabajador para gestionar su horario en este
+              período.
             </DialogDescription>
           </DialogHeader>
           <Command>
