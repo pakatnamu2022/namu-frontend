@@ -13,6 +13,9 @@ import {
   Pencil,
   FileMinus,
   FilePlus,
+  ArrowRightLeft,
+  BookCheck,
+  BookX,
 } from "lucide-react";
 import { ElectronicDocumentResource } from "../lib/electronicDocument.interface";
 import {
@@ -25,6 +28,7 @@ import { AnnulDocumentDialog } from "./CancelDocumentDialog";
 import ElectronicDocumentMigrationHistory from "./ElectronicDocumentMigrationHistory";
 import { SUNAT_TYPE_INVOICES_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
 import { AREA_COMERCIAL } from "@/features/ap/ap-master/lib/apMaster.constants";
+import MigrationStatusBadge from "./MigrationStatusBadge";
 
 export type ElectronicDocumentColumn = ColumnDef<ElectronicDocumentResource>;
 
@@ -32,7 +36,8 @@ interface Props {
   onView: (document: ElectronicDocumentResource) => void;
   onSendToSunat?: (id: number) => void;
   onAnnul?: (id: number, reason: string) => void;
-  onPreCancel?: (id: number) => Promise<void>;
+  onPreCancel?: (id: number) => Promise<boolean>;
+  onMigrate?: (id: number) => void;
   permissions: {
     canSend: boolean;
     canUpdate: boolean;
@@ -48,6 +53,7 @@ export const electronicDocumentColumns = ({
   onSendToSunat,
   onAnnul,
   onPreCancel,
+  onMigrate,
   permissions,
   module,
 }: Props): ElectronicDocumentColumn[] => {
@@ -102,8 +108,8 @@ export const electronicDocumentColumns = ({
           <Badge
             variant="outline"
             className={`${config.className} flex items-center gap-1 w-fit`}
+            icon={Icon}
           >
-            <Icon className="h-3 w-3" />
             <span>{config.label}</span>
           </Badge>
         );
@@ -218,10 +224,10 @@ export const electronicDocumentColumns = ({
           return (
             <Badge
               variant="outline"
-              className="bg-green-100 text-green-700 border-green-300 flex items-center gap-1 w-fit"
+              color="green"
               tooltip={sunat_description}
+              icon={CheckCircle}
             >
-              <CheckCircle className="h-3 w-3" />
               <span>Aceptado</span>
             </Badge>
           );
@@ -229,26 +235,29 @@ export const electronicDocumentColumns = ({
           return (
             <Badge
               variant="outline"
-              className="bg-red-100 text-red-700 border-red-300 flex items-center gap-1 w-fit"
+              color="red"
               tooltip={sunat_description}
+              icon={XCircle}
             >
-              <XCircle className="h-3 w-3" />
               <span>Rechazado</span>
             </Badge>
           );
         }
 
         return (
-          <Badge variant="outline" className="text-muted-foreground">
-            <Clock className="h-3 w-3 mr-1" />
-            Pendiente
+          <Badge
+            variant="outline"
+            className="text-muted-foreground"
+            icon={Clock}
+          >
+            <span>Pendiente</span>
           </Badge>
         );
       },
     },
     {
       accessorKey: "anulado",
-      header: "Anulado",
+      header: "Anulado SUNAT",
       cell: ({ row }) => {
         const anulado = row.original.anulado;
         const status = row.original.status;
@@ -256,25 +265,77 @@ export const electronicDocumentColumns = ({
         return anulado ? (
           <Badge
             variant="outline"
-            className="bg-red-100 text-red-700 border-red-300 flex items-center gap-1 w-fit"
+            color="red"
             tooltip={"Documento anulado en SUNAT"}
+            icon={XCircle}
           >
-            <XCircle className="h-3 w-3" />
             <span>Anulado</span>
           </Badge>
         ) : status === "cancelled" ? (
-          <Badge variant="outline" className="text-muted-foreground">
-            <Clock className="h-3 w-3 mr-1" />
+          <Badge
+            icon={Clock}
+            variant="outline"
+            className="text-muted-foreground"
+          >
             Pendiente
           </Badge>
         ) : (
           <Badge
             variant="outline"
-            className="bg-green-100 text-green-700 border-green-300 flex items-center gap-1 w-fit"
+            color="green"
             tooltip={"Documento no anulado"}
+            icon={CheckCircle}
           >
-            <CheckCircle className="h-3 w-3" />
             <span>No Anulado</span>
+          </Badge>
+        );
+      },
+    },
+    {
+      accessorKey: "is_accounted",
+      header: "Contabilización",
+      cell: ({ getValue }) => {
+        const value = getValue() as boolean | undefined;
+        if (value === true) {
+          return (
+            <Badge variant="outline" color="green" icon={BookCheck}>
+              <span>Contabilizado</span>
+            </Badge>
+          );
+        }
+        return (
+          <Badge
+            variant="outline"
+            className="text-muted-foreground"
+            icon={BookX}
+          >
+            <span>Trabajo</span>
+          </Badge>
+        );
+      },
+    },
+    {
+      accessorKey: "migration_status",
+      header: "Estado Migración",
+      cell: ({ getValue }) => {
+        return <MigrationStatusBadge migration_status={getValue() as string} />;
+      },
+    },
+    {
+      accessorKey: "is_annulled",
+      header: "Anulado Dynamics",
+      cell: ({ getValue }) => {
+        const value = getValue() as boolean | undefined;
+        if (value === true) {
+          return (
+            <Badge variant="outline" color="red" icon={XCircle}>
+              <span>Sí</span>
+            </Badge>
+          );
+        }
+        return (
+          <Badge variant="outline" color="green" icon={CheckCircle}>
+            <span>No</span>
           </Badge>
         );
       },
@@ -298,6 +359,11 @@ export const electronicDocumentColumns = ({
         // eslint-disable-next-line react-hooks/rules-of-hooks
         const router = useNavigate();
         const document = row.original;
+
+        const canMigrate =
+          onMigrate &&
+          document.migration_status !== "completed" &&
+          document.aceptada_por_sunat; // Solo mostrar botón migrar si no está migrado completamente
 
         const canSendToSunat =
           document.status === "draft" && onSendToSunat && permissions.canSend;
@@ -389,8 +455,9 @@ export const electronicDocumentColumns = ({
                     size="icon"
                     className="size-7"
                     tooltip="Enviar a SUNAT"
+                    color="blue"
                   >
-                    <Send className="h-4 w-4 text-blue-500" />
+                    <Send />
                   </Button>
                 }
               />
@@ -401,13 +468,14 @@ export const electronicDocumentColumns = ({
               <Button
                 variant="outline"
                 size="icon"
+                color="blue"
                 className="size-7"
                 onClick={() =>
                   router(`${ABSOLUTE_ROUTE}/${document.id}/credit-note`)
                 }
                 tooltip="Generar Nota de Crédito"
               >
-                <FileMinus className="h-4 w-4 text-blue-600" />
+                <FileMinus />
               </Button>
             )}
 
@@ -421,8 +489,9 @@ export const electronicDocumentColumns = ({
                   router(`${ABSOLUTE_ROUTE}/${document.id}/debit-note`)
                 }
                 tooltip="Generar Nota de Débito"
+                color="purple"
               >
-                <FilePlus className="h-4 w-4 text-purple-600" />
+                <FilePlus />
               </Button>
             )}
 
@@ -441,8 +510,33 @@ export const electronicDocumentColumns = ({
                     size="icon"
                     className="size-7"
                     tooltip="Anular en Nubefact"
+                    color="orange"
                   >
-                    <Ban className="h-4 w-4 text-orange-600" />
+                    <Ban />
+                  </Button>
+                }
+              />
+            )}
+
+            {/* Migrar */}
+
+            {canMigrate && (
+              <ConfirmationDialog
+                title="Confirmar migración"
+                description="¿Está seguro de que desea migrar este documento?"
+                onConfirm={() => onMigrate(document.id)}
+                icon="info"
+                confirmText="Sí, enviar"
+                cancelText="No, cancelar"
+                trigger={
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    color="indigo"
+                    className="size-7"
+                    tooltip="Migrar"
+                  >
+                    <ArrowRightLeft className="h-4 w-4" />
                   </Button>
                 }
               />

@@ -52,8 +52,7 @@ export default function PurchaseRequestQuotePage() {
   const [unassignVehicleId, setUnassignVehicleId] = useState<number | null>(
     null,
   );
-  const [detailQuote, setDetailQuote] =
-    useState<PurchaseRequestQuoteResource | null>(null);
+  const [detailQuote, setDetailQuote] = useState<number | null>(null);
   const [dateFrom, setDateFrom] = useState<Date | undefined>(
     new Date(new Date().getFullYear(), new Date().getMonth(), 1),
   );
@@ -179,7 +178,7 @@ export default function PurchaseRequestQuotePage() {
         <PurchaseRequestQuoteDetailModal
           open={true}
           onOpenChange={(open) => !open && setDetailQuote(null)}
-          quote={detailQuote}
+          id={detailQuote}
         />
       )}
 

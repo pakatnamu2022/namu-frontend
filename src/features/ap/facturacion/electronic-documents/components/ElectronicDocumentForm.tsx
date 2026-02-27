@@ -18,10 +18,7 @@ import {
   useNextCorrelativeElectronicDocument,
   useAdvancePaymentsByQuotation,
 } from "../lib/electronicDocument.hook";
-import {
-  useAllPurchaseRequestQuote,
-  usePurchaseRequestQuoteById,
-} from "@/features/ap/comercial/solicitudes-cotizaciones/lib/purchaseRequestQuote.hook";
+import { usePurchaseRequestQuoteById } from "@/features/ap/comercial/solicitudes-cotizaciones/lib/purchaseRequestQuote.hook";
 import { DocumentInfoSection } from "./sections/DocumentInfoSection";
 import { QuotationSection } from "./sections/QuotationSection";
 import { QuotationFinancialInfo } from "./sections/QuotationFinancialInfo";
@@ -30,7 +27,6 @@ import { AdditionalConfigSection } from "./sections/AdditionalConfigSection";
 import { SummarySection } from "./sections/SummarySection";
 import { CustomersResource } from "@/features/ap/comercial/clientes/lib/customers.interface";
 import { useAllApBank } from "@/features/ap/configuraciones/maestros-general/chequeras/lib/apBank.hook";
-import FormSkeleton from "@/shared/components/FormSkeleton";
 import { SUNAT_TYPE_INVOICES_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
 
 interface ElectronicDocumentFormProps {
@@ -77,15 +73,6 @@ export function ElectronicDocumentForm({
   // Ref para evitar procesar anticipos múltiples veces por la misma cotización + modo
   // Guardamos una key en formato `${quotationId}:total` o `${quotationId}:advance`
   const processedAdvancePaymentsForQuotationKey = useRef<string | null>(null);
-
-  // Fetch todas las cotizaciones disponibles
-  const { data: quotations = [], isLoading: isLoadingQuotations } =
-    useAllPurchaseRequestQuote({
-      status: "approved", // Solo cotizaciones aprobadas
-      // has_vehicle: 1, // TODO: Consultar si es que se puede facturar si es que no tiene vehículo y que SitioId se mandaria a Dynamics
-      is_approved: 1,
-      is_paid: 0, // Solo cotizaciones no pagadas
-    });
 
   // Fetch la cotización seleccionada
   const { data: quotation } = usePurchaseRequestQuoteById(
@@ -338,10 +325,12 @@ export function ElectronicDocumentForm({
 
         // Construir descripción base del vehículo
         let descripcion = "";
+        let unidadDeMedida = "NIU";
 
         // Si es anticipo, usar descripción simple
         if (isAdvancePayment) {
           descripcion = `ANTICIPO DE CLIENTE`;
+          unidadDeMedida = "ZZ"; // Unidad no definida, ya que es un anticipo
         } else {
           // Si es venta total, usar formato detallado SUNAT
           const vehicle = quotation.ap_vehicle;
@@ -372,7 +361,7 @@ MODELO: ${vehicle?.model?.version || ``}
           account_plan_id: isAdvancePayment
             ? QUOTATION_ACCOUNT_PLAN_IDS.ADVANCE_PAYMENT
             : QUOTATION_ACCOUNT_PLAN_IDS.FULL_SALE,
-          unidad_de_medida: "NIU",
+          unidad_de_medida: unidadDeMedida,
           codigo: quotation.ap_vehicle_id?.toString() || undefined,
           descripcion,
           cantidad: 1,
@@ -628,10 +617,6 @@ MODELO: ${vehicle?.model?.version || ``}
         ? "$"
         : "";
 
-  if (useQuotation && isLoadingQuotations) {
-    return <FormSkeleton />;
-  }
-
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -639,9 +624,7 @@ MODELO: ${vehicle?.model?.version || ``}
           {/* Formulario - 2/3 del ancho */}
           <div className="lg:col-span-2 space-y-6">
             {/* Vincular con Cotización - Solo si useQuotation es true */}
-            {useQuotation && (
-              <QuotationSection form={form} quotations={quotations} />
-            )}
+            {useQuotation && <QuotationSection form={form} />}
 
             {/* Información Financiera de la Cotización */}
             {quotation && selectedQuotationId && (

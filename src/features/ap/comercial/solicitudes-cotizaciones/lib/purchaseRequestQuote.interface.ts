@@ -1,6 +1,7 @@
 import { type Links, type Meta } from "@/shared/lib/pagination.interface";
 import { VehicleResource } from "../../vehiculos/lib/vehicles.interface";
 import { WorkerResource } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.interface";
+import { ModelsVnResource } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.interface";
 
 export interface PurchaseRequestQuoteResponse {
   data: PurchaseRequestQuoteResource[];
@@ -76,6 +77,7 @@ export interface PurchaseRequestQuoteResource {
   created_at: string;
   updated_at: string;
   ap_vehicle?: VehicleResource;
+  model?: ModelsVnResource;
 }
 
 export interface PurchaseRequestQuoteRequest {

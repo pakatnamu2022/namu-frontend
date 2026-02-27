@@ -39,7 +39,6 @@ export const useMyLeadsInfinite = (params?: Record<string, any>) => {
       return current_page < last_page ? current_page + 1 : undefined;
     },
     initialPageParam: 1,
-    refetchOnWindowFocus: false,
   });
 };
 

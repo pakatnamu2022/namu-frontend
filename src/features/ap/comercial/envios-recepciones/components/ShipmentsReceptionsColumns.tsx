@@ -17,6 +17,7 @@ import {
   Eye,
   Ban,
   LucideIcon,
+  ArrowRightLeft,
 } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import type { ShipmentsReceptionsResource } from "../lib/shipmentsReceptions.interface";
@@ -43,6 +44,7 @@ interface Props {
   onMarkAsReceived: (id: number) => void;
   onViewDetails: (shipment: ShipmentsReceptionsResource) => void;
   onCancel: (id: number) => void;
+  onMigrate?: (id: number) => void;
   permissions: {
     canSend: boolean;
     canUpdate: boolean;
@@ -111,6 +113,7 @@ export const ShipmentsReceptionsColumns = ({
   onMarkAsReceived,
   onViewDetails,
   onCancel,
+  onMigrate,
   permissions,
 }: Props): ShipmentsReceptionsColumns[] => [
   {
@@ -564,6 +567,19 @@ export const ShipmentsReceptionsColumns = ({
             (isGuiaRemision ? !isSent : !isAlreadyReceived) && (
               <DeleteButton onClick={() => onDelete(id)} />
             )}
+
+          {/* Migrar */}
+          {onMigrate && isGuiaRemision && (
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-7"
+              tooltip="Migrar"
+              onClick={() => onMigrate(id)}
+            >
+              <ArrowRightLeft className="size-4" />
+            </Button>
+          )}
 
           {/* Cancelar guía - Solo para GUIA_REMISION, cuando ya fue recepcionado y está ACTIVO */}
           {isGuiaRemision && isAlreadyReceived && status && (

@@ -104,6 +104,10 @@ export async function getNextShippingGuideDocumentNumber(
   return data;
 }
 
+export async function dispatchAllShippingGuides(): Promise<void> {
+  await api.post("/ap/commercial/shippingGuides/dispatch-all");
+}
+
 // Función para enviar a Dynamic
 export async function sendVehicleDeliveryToDynamic(
   id: number
@@ -112,4 +116,8 @@ export async function sendVehicleDeliveryToDynamic(
     `${ENDPOINT}/${id}/send-to-dynamic`
   );
   return data;
+}
+
+export async function dispatchShippingGuideMigration(id: number): Promise<void> {
+  await api.post(`/ap/commercial/shippingGuides/${id}/dispatch-migration`);
 }

@@ -28,18 +28,18 @@ export const useAllCustomers = (params?: Record<string, any>) => {
   });
 };
 
-export const useCustomersById = (id: number) => {
+export const useCustomersById = (id: number, enabled: boolean = true) => {
   return useQuery({
     queryKey: [QUERY_KEY, id],
     queryFn: () => findCustomersById(id),
     refetchOnWindowFocus: false,
-    enabled: id > 0,
+    enabled: id > 0 && enabled,
   });
 };
 
 export const useCustomerValidated = (
   id: number,
-  lead_id: number
+  lead_id: number,
 ): UseQueryResult<CustomersResource, AxiosError<MessageResponse>> => {
   return useQuery({
     queryKey: [QUERY_KEY, id, lead_id],

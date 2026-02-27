@@ -1,7 +1,5 @@
-"use client";
-
-import { Search } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import FilterWrapper from "@/shared/components/FilterWrapper";
+import SearchInput from "@/shared/components/SearchInput";
 
 interface VehicleOptionsProps {
   search: string;
@@ -13,16 +11,12 @@ export default function VehicleOptions({
   setSearch,
 }: VehicleOptionsProps) {
   return (
-    <div className="flex items-center gap-2 flex-wrap">
-      <div className="relative w-full sm:w-64">
-        <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-muted-foreground size-4" />
-        <Input
-          placeholder="Buscar por VIN, modelo..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="pl-8"
-        />
-      </div>
-    </div>
+    <FilterWrapper>
+      <SearchInput
+        placeholder="Buscar por VIN, modelo..."
+        value={search}
+        onChange={setSearch}
+      />
+    </FilterWrapper>
   );
 }

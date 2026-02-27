@@ -18,6 +18,7 @@ import {
   RefreshCw,
   ShoppingCart,
   LucideIcon,
+  ArrowRightLeft,
 } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import type { ControlUnitsResource } from "../lib/controlUnits.interface";
@@ -48,6 +49,7 @@ interface Props {
   onCancel: (id: number) => void;
   onSendToNubefact: (id: number) => void;
   onQueryFromNubefact: (id: number) => void;
+  onMigrate?: (id: number) => void;
   permissions: {
     canUpdate: boolean;
     canDelete: boolean;
@@ -117,6 +119,7 @@ export const ControlUnitsColumns = ({
   onCancel,
   onSendToNubefact,
   onQueryFromNubefact,
+  onMigrate,
   permissions,
 }: Props): ControlUnitsColumns[] => [
   {
@@ -616,6 +619,19 @@ export const ControlUnitsColumns = ({
           {permissions.canDelete &&
             !isAlreadyReceived &&
             !isAcceptedBySunat && <DeleteButton onClick={() => onDelete(id)} />}
+
+          {/* Migrar */}
+          {onMigrate && (
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-7"
+              tooltip="Migrar"
+              onClick={() => onMigrate(id)}
+            >
+              <ArrowRightLeft className="size-4" />
+            </Button>
+          )}
 
           {/* Cancelar guía - Solo cuando ya fue recepcionado y está ACTIVO */}
           {isAlreadyReceived && status && (

@@ -5,14 +5,7 @@ import {
 } from "../lib/purchaseRequestQuote.schema";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+import { Form } from "@/components/ui/form";
 import { Building2, Plus } from "lucide-react";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
@@ -28,13 +21,15 @@ import {
 } from "../../clientes/lib/customers.hook";
 import { CustomersResource } from "../../clientes/lib/customers.interface";
 import { useAllModelsVn } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.hook";
-import { useAllVehicleColor } from "@/features/ap/configuraciones/vehiculos/colores-vehiculo/lib/vehicleColor.hook";
+import {
+  useAllVehicleColor,
+  useVehicleColor,
+} from "@/features/ap/configuraciones/vehiculos/colores-vehiculo/lib/vehicleColor.hook";
 import { useEffect, useState, useRef, useMemo } from "react";
 import { BonusDiscountTable } from "./BonusDiscountTable";
 import { ApprovedAccessoriesTable } from "./ApprovedAccessoriesTable";
 import { useAllConceptDiscountBond } from "../lib/purchaseRequestQuote.hook";
 import { useAllApprovedAccesories } from "@/features/ap/post-venta/repuestos/accesorios-homologados/lib/approvedAccessories.hook";
-import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.hook";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
@@ -49,10 +44,10 @@ import { OpportunityInfoCard } from "./OpportunityInfoCard";
 import { OpportunityResource } from "../../oportunidades/lib/opportunities.interface";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 import { Button } from "@/components/ui/button";
-import { useIsMobile } from "@/hooks/use-mobile";
 import VehicleColorModal from "@/features/ap/configuraciones/vehiculos/colores-vehiculo/components/VehicleColorModal";
 import { useQueryClient } from "@tanstack/react-query";
 import { VEHICLE_COLOR } from "@/features/ap/configuraciones/vehiculos/colores-vehiculo/lib/vehicleColor.constants";
+import { VehicleColorResource } from "@/features/ap/configuraciones/vehiculos/colores-vehiculo/lib/vehicleColor.interface";
 
 interface PurchaseRequestQuoteFormProps {
   defaultValues: Partial<PurchaseRequestQuoteSchema>;
@@ -82,7 +77,6 @@ export const PurchaseRequestQuoteForm = ({
   opportunity,
   onCancel,
 }: PurchaseRequestQuoteFormProps) => {
-  const isMobile = useIsMobile();
   const [isColorModalOpen, setIsColorModalOpen] = useState(false);
   const queryClient = useQueryClient();
   const { ROUTE } = PURCHASE_REQUEST_QUOTE;
@@ -863,30 +857,29 @@ export const PurchaseRequestQuoteForm = ({
                     disabled={isLoadingModelsVn}
                   />
 
-                  <FormSelect
+                  <FormSelectAsync
                     name="vehicle_color_id"
                     label="Color"
                     placeholder="Selecciona un color"
-                    options={color.map((item) => ({
-                      label: item.description,
+                    useQueryHook={useVehicleColor}
+                    mapOptionFn={(item: VehicleColorResource) => ({
                       value: item.id.toString(),
-                    }))}
+                      label: item.description,
+                      description: item.code ?? "S/C",
+                    })}
                     control={form.control}
-                    strictFilter={true}
-                    startsWith={true}
-                    sortByLength={true}
                   >
                     <Button
                       type="button"
                       variant="outline"
-                      size={isMobile ? "icon-sm" : "icon-lg"}
+                      size={"icon"}
                       className="aspect-square"
                       onClick={() => setIsColorModalOpen(true)}
                       title="Agregar nuevo color"
                     >
                       <Plus className="size-2 md:size-4" />
                     </Button>
-                  </FormSelect>
+                  </FormSelectAsync>
                 </>
               )}
 
@@ -1023,18 +1016,12 @@ export const PurchaseRequestQuoteForm = ({
                   )}
               </FormInput>
 
-              <FormField
+              <FormInput
                 control={form.control}
                 name="warranty"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Garantía</FormLabel>
-                    <FormControl>
-                      <Input placeholder="3 años o 100.000km" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+                label="Garantía"
+                type="text"
+                placeholder="3 años o 100km"
               />
             </GroupFormSection>
 

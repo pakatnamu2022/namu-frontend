@@ -22,7 +22,11 @@ import {
   useQueryVehicleDeliveryFromNubefact,
   useSendVehicleDeliveryToDynamic,
 } from "@/features/ap/comercial/entrega-vehiculo/lib/vehicleDelivery.hook";
-import { deleteVehicleDelivery } from "@/features/ap/comercial/entrega-vehiculo/lib/vehicleDelivery.actions";
+import {
+  deleteVehicleDelivery,
+  dispatchShippingGuideMigration,
+} from "@/features/ap/comercial/entrega-vehiculo/lib/vehicleDelivery.actions";
+import { useMutation } from "@tanstack/react-query";
 import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { VEHICLE_DELIVERY } from "@/features/ap/comercial/entrega-vehiculo/lib/vehicleDelivery.constants";
@@ -56,6 +60,14 @@ export default function VehicleDeliveryPage() {
   const sendToNubefactMutation = useSendVehicleDeliveryToNubefact();
   const queryFromNubefactMutation = useQueryVehicleDeliveryFromNubefact();
   const sendToDynamicMutation = useSendVehicleDeliveryToDynamic();
+  const migrateMutation = useMutation({
+    mutationFn: dispatchShippingGuideMigration,
+    onSuccess: () => successToast("Migración despachada correctamente"),
+    onError: (error: any) => {
+      const msg = error?.response?.data?.message || "";
+      errorToast(`Error al despachar migración: ${msg}`);
+    },
+  });
 
   useEffect(() => {
     setPage(1);
@@ -145,6 +157,7 @@ export default function VehicleDeliveryPage() {
           onQueryFromNubefact: handleQueryFromNubefact,
           onSendToDynamic: setSendToDynamicId,
           onViewDetails: setSelectedVehicle,
+          onMigrate: (id) => migrateMutation.mutate(id),
           permissions,
         })}
         data={data?.data || []}

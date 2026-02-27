@@ -5,15 +5,6 @@ import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { FormSwitch } from "@/shared/components/FormSwitch";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
-import {
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import { ElectronicDocumentSchema } from "../../lib/electronicDocument.schema";
 import { SunatConceptsResource } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.interface";
 import { AssignSalesSeriesResource } from "@/features/ap/configuraciones/maestros-general/asignar-serie-venta/lib/assignSalesSeries.interface";
@@ -23,6 +14,7 @@ import {
 } from "@/features/ap/comercial/clientes/lib/customers.hook";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import { CustomersResource } from "@/features/ap/comercial/clientes/lib/customers.interface";
+import { FormInput } from "@/shared/components/FormInput";
 
 interface DocumentInfoSectionProps {
   form: UseFormReturn<ElectronicDocumentSchema>;
@@ -226,28 +218,18 @@ export function DocumentInfoSection({
         placeholder="Seleccionar serie"
       />
 
-      <FormField
+      <FormInput
         control={form.control}
         name="numero"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Número</FormLabel>
-            <FormControl>
-              <Input
-                type="number"
-                placeholder="Auto-generado"
-                disabled
-                {...field}
-              />
-            </FormControl>
-            <FormDescription className="text-xs">
-              {isEdit
-                ? "El correlativo no se puede modificar"
-                : "Se genera automáticamente"}
-            </FormDescription>
-            <FormMessage />
-          </FormItem>
-        )}
+        label="Número"
+        type="number"
+        placeholder="Auto-generado"
+        disabled
+        description={
+          isEdit
+            ? "El correlativo no se puede modificar"
+            : "Se genera automáticamente"
+        }
       />
     </GroupFormSection>
   );
