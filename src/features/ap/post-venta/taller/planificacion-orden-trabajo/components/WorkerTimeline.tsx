@@ -825,6 +825,10 @@ export function WorkerTimeline({
           </div>
         ))}
         <div className="flex items-center gap-2">
+          <div className="w-4 h-4 rounded border-2 bg-red-500 border-red-700" />
+          <span className="text-sm">Exceso real</span>
+        </div>
+        <div className="flex items-center gap-2">
           <TrendingUp className="h-4 w-4 text-green-600" />
           <span className="text-sm">Más eficiente</span>
         </div>
@@ -913,6 +917,22 @@ export function WorkerTimeline({
                   const needsTopMargin =
                     isExternal && previousPlanning?.type !== "external";
 
+                  // Calcular overtime: tiempo real excedió el planificado
+                  const hasOvertime =
+                    planning.planned_end_datetime &&
+                    planning.actual_end_datetime &&
+                    parseISO(planning.actual_end_datetime) >
+                      parseISO(planning.planned_end_datetime);
+                  const overtimeStartPos = hasOvertime
+                    ? calculatePosition(planning.planned_end_datetime!)
+                    : 0;
+                  const overtimeEndPos = hasOvertime
+                    ? calculatePosition(planning.actual_end_datetime!)
+                    : 0;
+                  const overtimeWidth = hasOvertime
+                    ? overtimeEndPos - overtimeStartPos
+                    : 0;
+
                   return (
                     <TooltipProvider key={planning.id}>
                       <Tooltip>
@@ -952,6 +972,33 @@ export function WorkerTimeline({
                                 {getEfficiencyIcon(planning)}
                               </div>
                             </div>
+
+                            {/* Barra de tiempo excedido (overtime) - solo visual, no afecta interacción */}
+                            {hasOvertime && overtimeWidth > 0 && (
+                              <div
+                                className="absolute top-0 h-5 pointer-events-none z-40"
+                                style={{
+                                  left: `${overtimeWidth > 0 ? ((overtimeStartPos - startPos) / width) * 100 : 0}%`,
+                                  width: `${(overtimeWidth / width) * 100}%`,
+                                }}
+                              >
+                                <div className="h-full bg-red-500 border-2 border-red-700 rounded-r opacity-80 flex items-center justify-center">
+                                  <span className="text-[9px] font-bold text-white px-0.5 truncate">
+                                    +
+                                    {Math.round(
+                                      (parseISO(
+                                        planning.actual_end_datetime!,
+                                      ).getTime() -
+                                        parseISO(
+                                          planning.planned_end_datetime!,
+                                        ).getTime()) /
+                                        60000,
+                                    )}
+                                    m
+                                  </span>
+                                </div>
+                              </div>
+                            )}
                           </div>
                         </TooltipTrigger>
                         <TooltipContent

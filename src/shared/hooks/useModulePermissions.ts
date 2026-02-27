@@ -128,6 +128,12 @@ export const PERMISSION_ACTIONS: PermissionAction[] = [
     icon: "Download",
     description: "Permite recepcionar vehículos o productos",
   },
+  {
+    value: "history",
+    label: "Historial",
+    icon: "Clock",
+    description: "Permite ver el historial de acciones o cambios",
+  },
 ];
 
 /**
@@ -179,5 +185,6 @@ export function useModulePermissions(moduleCode: string) {
     canOtOptions: hasModulePermission("otOptions"),
     canManage: hasModulePermission("manage"),
     canReceive: hasModulePermission("receive"),
+    canViewHistory: hasModulePermission("history"),
   };
 }

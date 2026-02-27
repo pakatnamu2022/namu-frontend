@@ -156,7 +156,7 @@ export default function InvoiceForm({
         );
       }
     }
-  }, [workOrder?.id, currencyTypes, form]);
+  }, [workOrder.id, currencyTypes, form, workOrder]);
 
   // Efecto para cargar items automáticamente desde labours y parts
   useEffect(() => {
@@ -215,13 +215,20 @@ export default function InvoiceForm({
       // MODO VENTA NORMAL: Crear items individuales
       const invoiceItems: ElectronicDocumentItemSchema[] = [];
 
+      // Función auxiliar para redondear a 2 decimales
+      const round2 = (num: number) => Math.round(num * 100) / 100;
+
       // Agregar items de mano de obra
       // total_cost viene sin IGV del backend (es el subtotal)
       labours.forEach((labour) => {
-        const valor_unitario = parseFloat(labour.total_cost || "0");
-        const precio_unitario = valor_unitario * (1 + porcentaje_de_igv / 100);
-        const subtotal = valor_unitario;
-        const igvAmount = subtotal * (porcentaje_de_igv / 100);
+        const subtotalDetail = parseFloat(labour.total_cost || "0");
+        const valor_unitario = round2(subtotalDetail);
+        const precio_unitario = round2(
+          valor_unitario * (1 + porcentaje_de_igv / 100),
+        );
+        const subtotal = round2(subtotalDetail);
+        const igvAmount = round2(subtotal * (porcentaje_de_igv / 100));
+        const total = round2(subtotal + igvAmount);
 
         invoiceItems.push({
           account_plan_id: QUOTATION_ACCOUNT_PLAN_IDS.FULL_SALE,
@@ -234,7 +241,7 @@ export default function InvoiceForm({
           subtotal: subtotal,
           sunat_concept_igv_type_id: gravadaType?.id || 0,
           igv: igvAmount,
-          total: precio_unitario,
+          total: total,
         });
       });
 
@@ -243,10 +250,13 @@ export default function InvoiceForm({
       parts.forEach((part) => {
         const totalAmount = parseFloat(part.total_amount || "0");
         const cantidad = part.quantity_used;
-        const valor_unitario = totalAmount / cantidad;
-        const precio_unitario = valor_unitario * (1 + porcentaje_de_igv / 100);
-        const subtotal = totalAmount;
-        const igvAmount = subtotal * (porcentaje_de_igv / 100);
+        const valor_unitario = round2(totalAmount / cantidad);
+        const precio_unitario = round2(
+          valor_unitario * (1 + porcentaje_de_igv / 100),
+        );
+        const subtotal = round2(totalAmount);
+        const igvAmount = round2(subtotal * (porcentaje_de_igv / 100));
+        const total = round2(subtotal + igvAmount);
 
         invoiceItems.push({
           account_plan_id: QUOTATION_ACCOUNT_PLAN_IDS.FULL_SALE,
@@ -259,7 +269,7 @@ export default function InvoiceForm({
           subtotal: subtotal,
           sunat_concept_igv_type_id: gravadaType?.id || 0,
           igv: igvAmount,
-          total: subtotal + igvAmount,
+          total: total,
         });
       });
 
@@ -268,14 +278,20 @@ export default function InvoiceForm({
         advances
           .filter((advance) => advance.is_advance_payment === true)
           .forEach((advance) => {
+            // Función auxiliar para redondear a 2 decimales
+            const round2 = (num: number) => Math.round(num * 100) / 100;
+
             // Calcular los valores base del anticipo para restar
             // IMPORTANTE: Convertir a número porque puede venir como string desde la API
             const total_con_igv = Number(advance.total) || 0;
-            const precio_unitario = total_con_igv; // El anticipo es cantidad 1
-            const valor_unitario =
-              precio_unitario / (1 + porcentaje_de_igv / 100);
-            const subtotal = valor_unitario;
-            const igvAmount = subtotal * (porcentaje_de_igv / 100);
+            const precio_unitario = round2(total_con_igv); // El anticipo es cantidad 1
+            const valor_unitario = round2(
+              precio_unitario / (1 + porcentaje_de_igv / 100),
+            );
+            const subtotal = round2(valor_unitario);
+            // IGV = total - subtotal (por residuo, no por multiplicación independiente)
+            // Esto evita que round2(subtotal) + round2(igv) != total_con_igv
+            const igvAmount = round2(total_con_igv - subtotal);
 
             // Crear item de regularización en NEGATIVO
             invoiceItems.push({
@@ -323,12 +339,15 @@ export default function InvoiceForm({
 
   // Calcular totales
   const totales = useMemo(() => {
-    let total_gravada = 0;
-    let total_inafecta = 0;
-    let total_exonerada = 0;
-    let total_igv = 0;
-    let total_gratuita = 0;
-    let total_anticipo = 0;
+    // Función auxiliar para redondear a 2 decimales
+    const round2 = (num: number) => Math.round(num * 100) / 100;
+
+    // Acumulamos subtotales sin redondeo intermedio (flotantes puros)
+    let raw_gravada = 0;
+    let raw_inafecta = 0;
+    let raw_exonerada = 0;
+    let raw_gratuita = 0;
+    let raw_anticipo_subtotal = 0;
 
     items.forEach((item) => {
       const igvType = igvTypes.find(
@@ -338,37 +357,51 @@ export default function InvoiceForm({
       if (igvType?.code_nubefact === "1") {
         // Gravado
         if (item.anticipo_regularizacion) {
-          total_gravada += -item.subtotal;
-          total_anticipo += item.subtotal;
+          raw_anticipo_subtotal += item.subtotal;
         } else {
-          total_gravada += item.subtotal;
+          raw_gravada += item.subtotal;
         }
       } else if (igvType?.code_nubefact === "20") {
         // Exonerado
         if (item.anticipo_regularizacion) {
-          total_exonerada += item.subtotal;
-          total_anticipo += item.subtotal;
+          raw_anticipo_subtotal += item.subtotal;
         } else {
-          total_exonerada += item.subtotal;
+          raw_exonerada += item.subtotal;
         }
       } else if (igvType?.code_nubefact === "30") {
         // Inafecto
         if (item.anticipo_regularizacion) {
-          total_anticipo += item.subtotal;
+          raw_anticipo_subtotal += item.subtotal;
         } else {
-          total_inafecta += item.subtotal;
+          raw_inafecta += item.subtotal;
         }
       } else if (
         igvType?.code_nubefact?.startsWith("1") ||
         igvType?.code_nubefact?.startsWith("2")
       ) {
         // Gratuito
-        total_gratuita += item.subtotal;
+        raw_gratuita += item.subtotal;
       }
     });
 
-    total_igv = total_gravada * (porcentaje_de_igv / 100);
-    const total = total_gravada + total_inafecta + total_exonerada + total_igv;
+    // Subtotales netos (items positivos - anticipos): redondear al final
+    const total_gravada = round2(raw_gravada - raw_anticipo_subtotal);
+    const total_inafecta = round2(raw_inafecta);
+    const total_exonerada = round2(raw_exonerada);
+    const total_gratuita = round2(raw_gratuita);
+    const total_anticipo = round2(raw_anticipo_subtotal);
+
+    // IGV neto calculado sobre el subtotal neto de una sola vez
+    // Esto evita el error de 0.01 que surge de sumar IGVs redondeados individualmente
+    // y luego restar el IGV del anticipo que fue calculado de forma distinta
+    const subtotal_neto_gravado = raw_gravada - raw_anticipo_subtotal;
+    const total_igv = round2(subtotal_neto_gravado * (porcentaje_de_igv / 100));
+
+    // Total neto: subtotales netos + IGV neto
+    // Para anticipos completos (subtotal_neto = 0) el total resultará exactamente 0
+    const total = round2(
+      total_gravada + total_inafecta + total_exonerada + total_igv,
+    );
 
     return {
       total_gravada,
