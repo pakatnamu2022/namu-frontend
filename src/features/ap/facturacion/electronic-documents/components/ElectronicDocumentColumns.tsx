@@ -15,11 +15,6 @@ import {
   FilePlus,
 } from "lucide-react";
 import { ElectronicDocumentResource } from "../lib/electronicDocument.interface";
-import {
-  ELECTRONIC_DOCUMENT,
-  ELECTRONIC_DOCUMENT_REPUESTOS,
-  ELECTRONIC_DOCUMENT_TALLER,
-} from "../lib/electronicDocument.constants";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { AnnulDocumentDialog } from "./CancelDocumentDialog";
 import ElectronicDocumentMigrationHistory from "./ElectronicDocumentMigrationHistory";
@@ -29,6 +24,7 @@ import { AREA_COMERCIAL } from "@/features/ap/ap-master/lib/apMaster.constants";
 export type ElectronicDocumentColumn = ColumnDef<ElectronicDocumentResource>;
 
 interface Props {
+  routeAbsolute: string;
   onView: (document: ElectronicDocumentResource) => void;
   onSendToSunat?: (id: number) => void;
   onAnnul?: (id: number, reason: string) => void;
@@ -40,24 +36,17 @@ interface Props {
     canCreateCreditNote: boolean;
     canCreateDebitNote: boolean;
   };
-  module: "COMERCIAL" | "TALLER" | "REPUESTOS";
 }
 
 export const electronicDocumentColumns = ({
+  routeAbsolute: ABSOLUTE_ROUTE,
   onView,
   onSendToSunat,
   onAnnul,
   onPreCancel,
   permissions,
-  module,
 }: Props): ElectronicDocumentColumn[] => {
   // Determinar la ruta según el módulo
-  const { ABSOLUTE_ROUTE } =
-    module === "COMERCIAL"
-      ? ELECTRONIC_DOCUMENT
-      : module === "TALLER"
-        ? ELECTRONIC_DOCUMENT_TALLER
-        : ELECTRONIC_DOCUMENT_REPUESTOS;
 
   return [
     {

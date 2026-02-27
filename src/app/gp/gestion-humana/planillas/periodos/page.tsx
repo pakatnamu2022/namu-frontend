@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import PageSkeleton from "@/shared/components/PageSkeleton";
 import { usePayrollPeriods } from "@/features/gp/gestionhumana/planillas/periodo-planilla/lib/payroll-period.hook";
 import PayrollPeriodActions from "@/features/gp/gestionhumana/planillas/periodo-planilla/components/PayrollPeriodActions";
+import PayrollPeriodModal from "@/features/gp/gestionhumana/planillas/periodo-planilla/components/PayrollPeriodModal";
 import PayrollPeriodTable from "@/features/gp/gestionhumana/planillas/periodo-planilla/components/PayrollPeriodTable";
 import { payrollPeriodColumns } from "@/features/gp/gestionhumana/planillas/periodo-planilla/components/PayrollPeriodColumns";
 import PayrollPeriodOptions from "@/features/gp/gestionhumana/planillas/periodo-planilla/components/PayrollPeriodOptions";
@@ -26,6 +27,8 @@ import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { PAYROLL_PERIOD } from "@/features/gp/gestionhumana/planillas/periodo-planilla/lib/payroll-period.constant";
 import { SimpleConfirmDialog } from "@/shared/components/SimpleConfirmDialog";
+import { PayrollPeriodResource } from "@/features/gp/gestionhumana/planillas/periodo-planilla/lib/payroll-period.interface";
+import PayrollCalculationPanel from "@/features/gp/gestionhumana/planillas/calculo-planilla/components/PayrollCalculationPanel";
 
 export default function PayrollPeriodsPage() {
   const { MODEL, ROUTE } = PAYROLL_PERIOD;
@@ -35,6 +38,9 @@ export default function PayrollPeriodsPage() {
   const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [closeId, setCloseId] = useState<number | null>(null);
+  const [createOpen, setCreateOpen] = useState(false);
+  const [editId, setEditId] = useState<number | null>(null);
+  const [calculationPeriod, setCalculationPeriod] = useState<PayrollPeriodResource | null>(null);
 
   useEffect(() => {
     setPage(1);
@@ -88,7 +94,7 @@ export default function PayrollPeriodsPage() {
           subtitle={currentView.descripcion}
           icon={currentView.icon}
         />
-        <PayrollPeriodActions />
+        <PayrollPeriodActions onAdd={() => setCreateOpen(true)} />
       </HeaderTableWrapper>
 
       <PayrollPeriodTable
@@ -96,11 +102,28 @@ export default function PayrollPeriodsPage() {
         columns={payrollPeriodColumns({
           onDelete: setDeleteId,
           onClose: setCloseId,
+          onEdit: setEditId,
+          onCalculate: setCalculationPeriod,
         })}
         data={data?.data || []}
       >
         <PayrollPeriodOptions search={search} setSearch={setSearch} />
       </PayrollPeriodTable>
+
+      <PayrollPeriodModal
+        open={createOpen}
+        onClose={() => setCreateOpen(false)}
+        mode="create"
+      />
+
+      {editId !== null && (
+        <PayrollPeriodModal
+          open={true}
+          onClose={() => setEditId(null)}
+          id={editId}
+          mode="update"
+        />
+      )}
 
       {deleteId !== null && (
         <SimpleDeleteDialog
@@ -119,6 +142,14 @@ export default function PayrollPeriodsPage() {
           description="¿Estás seguro de que deseas cerrar este periodo? Esta acción no se puede deshacer."
           confirmText="Cerrar"
           cancelText="Cancelar"
+        />
+      )}
+
+      {calculationPeriod !== null && (
+        <PayrollCalculationPanel
+          open={true}
+          period={calculationPeriod}
+          onClose={() => setCalculationPeriod(null)}
         />
       )}
 

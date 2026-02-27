@@ -306,6 +306,7 @@ import VehicleInspectionPage from "./app/ap/post-venta/taller/orden-trabajo/[wor
 import SalesReceiptsTallerPage from "./app/ap/post-venta/taller/comprobante-venta-taller/page.tsx";
 import BoxPage from "./app/ap/post-venta/caja/page.tsx";
 import SalesReceiptsCajaPage from "./app/ap/post-venta/caja/comprante-venta-caja/page.tsx";
+import UpdateSalesReceiptsCajaPage from "./app/ap/post-venta/caja/comprante-venta-caja/actualizar/[id]/page.tsx";
 import OrderQuotationMesonCajaPage from "./app/ap/post-venta/caja/cotizacion-repuesto-caja/page.tsx";
 import WorkOrderCajaPage from "./app/ap/post-venta/caja/order-trabajo-taller-caja/page.tsx";
 import ManageWorkOrderCajaPage from "./app/ap/post-venta/caja/order-trabajo-taller-caja/gestionar/[id]/page.tsx";
@@ -374,10 +375,6 @@ import ControlFreightPage from "./app/tp/comercial-tp/control-fletes/page.tsx";
 import PayrollPeriodsPage from "./app/gp/gestion-humana/planillas/periodos/page.tsx";
 import AddPayrollPeriodPage from "./app/gp/gestion-humana/planillas/periodos/agregar/page.tsx";
 import UpdatePayrollPeriodPage from "./app/gp/gestion-humana/planillas/periodos/actualizar/[id]/page.tsx";
-import WorkTypePage from "./app/gp/gestion-humana/planillas/tipo-dia-trabajo/page.tsx";
-import AddWorkTypePage from "./app/gp/gestion-humana/planillas/tipo-dia-trabajo/agregar/page.tsx";
-import UpdateWorkTypePage from "./app/gp/gestion-humana/planillas/tipo-dia-trabajo/actualizar/[id]/page.tsx";
-import ManageSegmentsPage from "./app/gp/gestion-humana/planillas/tipo-dia-trabajo/segmentos/[id]/page.tsx";
 import AttendanceRulePage from "./app/gp/gestion-humana/planillas/reglas-asistencia/page.tsx";
 import AddAttendanceRulePage from "./app/gp/gestion-humana/planillas/reglas-asistencia/agregar/page.tsx";
 import UpdateAttendanceRulePage from "./app/gp/gestion-humana/planillas/reglas-asistencia/actualizar/[id]/page.tsx";
@@ -1532,6 +1529,10 @@ function App() {
                 element={<SalesReceiptsCajaPage />}
               />
               <Route
+                path="caja/comprobante-venta-caja/actualizar/:id"
+                element={<UpdateSalesReceiptsCajaPage />}
+              />
+              <Route
                 path="caja/cotizacion-repuesto-caja"
                 element={<OrderQuotationMesonCajaPage />}
               />
@@ -1823,17 +1824,6 @@ function App() {
                 <AddPayrollPeriodPage />,
                 <UpdatePayrollPeriodPage />,
               )}
-              {/* Tipo de Dia de Trabajo */}
-              {RouterCrud(
-                "planillas/tipo-dia-trabajo",
-                <WorkTypePage />,
-                <AddWorkTypePage />,
-                <UpdateWorkTypePage />,
-              )}
-              <Route
-                path="planillas/tipo-dia-trabajo/segmentos/:id"
-                element={<ManageSegmentsPage />}
-              />
 
               {/* Reglas de Asistencia */}
               {RouterCrud(

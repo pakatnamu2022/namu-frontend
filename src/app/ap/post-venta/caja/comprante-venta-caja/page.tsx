@@ -33,7 +33,7 @@ import {
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 
 export default function SalesReceiptsCajaPage() {
-  const { ROUTE } = ELECTRONIC_DOCUMENT_CAJA;
+  const { ROUTE, ABSOLUTE_ROUTE } = ELECTRONIC_DOCUMENT_CAJA;
   const permissions = useModulePermissions(ROUTE);
   const queryClient = useQueryClient();
   const [sedeId, setSedeId] = useState<string>("");
@@ -164,7 +164,7 @@ export default function SalesReceiptsCajaPage() {
             canCreateCreditNote,
             canCreateDebitNote,
           },
-          module: "REPUESTOS",
+          routeAbsolute: ABSOLUTE_ROUTE,
         })}
         data={data?.data || []}
       >

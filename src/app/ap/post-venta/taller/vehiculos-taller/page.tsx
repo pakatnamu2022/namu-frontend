@@ -24,6 +24,7 @@ import { VEHICLES_TLL } from "@/features/ap/comercial/vehiculos/lib/vehicles.con
 import { useNavigate } from "react-router-dom";
 import { useVehicles } from "@/features/ap/comercial/vehiculos/lib/vehicles.hook.ts";
 import { CM_POSTVENTA_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
+import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 
 export default function VehiclesPostVentaPage() {
   const router = useNavigate();
@@ -33,6 +34,7 @@ export default function VehiclesPostVentaPage() {
   const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const { MODEL, ROUTE, ROUTE_UPDATE } = VEHICLES_TLL;
+  const permissions = useModulePermissions(ROUTE);
 
   useEffect(() => {
     setPage(1);
@@ -77,6 +79,7 @@ export default function VehiclesPostVentaPage() {
         columns={vehicleColumns({
           onDelete: setDeleteId,
           onUpdate: (id) => router(`${ROUTE_UPDATE}/${id}`),
+          permissions,
         })}
         data={data?.data || []}
         initialColumnVisibility={{ plate: true }}

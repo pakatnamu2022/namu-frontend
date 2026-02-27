@@ -19,13 +19,17 @@ import {
 import { WorkScheduleCalendar } from "@/features/gp/gestionhumana/planillas/dia-trabajo/components/WorkScheduleCalendar";
 import { WorkScheduleForm } from "@/features/gp/gestionhumana/planillas/dia-trabajo/components/WorkScheduleForm";
 import { WorkScheduleSummary } from "@/features/gp/gestionhumana/planillas/dia-trabajo/components/WorkScheduleSummary";
-import { WorkScheduleResource } from "@/features/gp/gestionhumana/planillas/dia-trabajo/lib/work-schedule.interface";
+import {
+  WorkScheduleResource,
+  WorkScheduleWorkerSummary,
+} from "@/features/gp/gestionhumana/planillas/dia-trabajo/lib/work-schedule.interface";
 import { WorkScheduleSchema } from "@/features/gp/gestionhumana/planillas/dia-trabajo/lib/work-schedule.schema";
 import {
   useAllPayrollPeriods,
   useCurrentPayrollPeriod,
 } from "@/features/gp/gestionhumana/planillas/periodo-planilla/lib/payroll-period.hook";
 import { useAttendanceRuleCodes } from "@/features/gp/gestionhumana/planillas/reglas-asistencia/lib/attendance-rule.hook";
+import { useAllWorkers } from "@/features/gp/gestionhumana/gestion-de-personal/trabajadores/lib/worker.hook";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { useForm } from "react-hook-form";
 import { Form } from "@/components/ui/form";
@@ -40,8 +44,20 @@ import { CalendarDays, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
+import { POSITION_TYPE } from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.constant";
+
+interface ExtraWorker {
+  id: number;
+  name: string;
+}
 
 export default function WorkSchedulesPage() {
   const { MODEL, ROUTE } = WORK_SCHEDULE;
@@ -50,6 +66,7 @@ export default function WorkSchedulesPage() {
   // State
   const [selectedPeriodId, setSelectedPeriodId] = useState<number | null>(null);
   const [selectedWorkerId, setSelectedWorkerId] = useState<number | null>(null);
+  const [extraWorkers, setExtraWorkers] = useState<ExtraWorker[]>([]);
   const [formOpen, setFormOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [editingSchedule, setEditingSchedule] =
@@ -60,9 +77,16 @@ export default function WorkSchedulesPage() {
   // Queries
   const { data: periods = [], isLoading: isLoadingPeriods } =
     useAllPayrollPeriods();
-  const { data: currentPeriod, isLoading: isLoadingCurrentPeriod } =
-    useCurrentPayrollPeriod();
+  const {
+    data: currentPeriod,
+    isLoading: isLoadingCurrentPeriod,
+    error: currentPeriodError,
+    isError: isCurrentPeriodError,
+  } = useCurrentPayrollPeriod();
   const { data: codes = [] } = useAttendanceRuleCodes();
+  const { data: allWorkers = [], isLoading: isLoadingWorkers } = useAllWorkers({
+    cargo_id: POSITION_TYPE.SECURITY_AGENT,
+  });
 
   // Set default period when current period loads
   useEffect(() => {
@@ -95,6 +119,7 @@ export default function WorkSchedulesPage() {
       if (periodId !== selectedPeriodId) {
         setSelectedPeriodId(periodId);
         setSelectedWorkerId(null);
+        setExtraWorkers([]);
       }
     }
   }, [watchedPeriodId, selectedPeriodId]);
@@ -122,14 +147,50 @@ export default function WorkSchedulesPage() {
     }));
   }, [periods]);
 
-  // Selected worker data
-  const selectedWorkerData = useMemo(() => {
-    if (!selectedWorkerId || !summaryData) return null;
-    return summaryData.summary.find((w) => w.worker_id === selectedWorkerId);
-  }, [selectedWorkerId, summaryData]);
+  // Workers available for the "add worker" dialog (mapped from WorkerResource)
+  const availableWorkers = useMemo(() => {
+    return allWorkers.map((w) => ({ id: w.id, name: w.name }));
+  }, [allWorkers]);
+
+  // Merge summary data with manually added extra workers
+  const displaySummary = useMemo((): WorkScheduleWorkerSummary[] => {
+    const base = summaryData?.summary ?? [];
+    const summaryIds = new Set(base.map((s) => s.worker_id));
+    const extras = extraWorkers
+      .filter((w) => !summaryIds.has(w.id))
+      .map(
+        (w): WorkScheduleWorkerSummary => ({
+          worker_id: w.id,
+          worker_name: w.name,
+          salary: 0,
+          shift_hours: 0,
+          base_hour_value: 0,
+          details: [],
+          total_amount: 0,
+        }),
+      );
+    return [...base, ...extras];
+  }, [summaryData, extraWorkers]);
+
+  // Selected worker data (from summary or extra workers)
+  const selectedWorkerData = useMemo((): WorkScheduleWorkerSummary | null => {
+    if (!selectedWorkerId) return null;
+    const fromSummary = displaySummary.find(
+      (w) => w.worker_id === selectedWorkerId,
+    );
+    return fromSummary ?? null;
+  }, [selectedWorkerId, displaySummary]);
 
   const handleWorkerSelect = (workerId: number) => {
     setSelectedWorkerId(workerId === selectedWorkerId ? null : workerId);
+  };
+
+  const handleAddWorker = (workerId: number, workerName: string) => {
+    setExtraWorkers((prev) => {
+      if (prev.some((w) => w.id === workerId)) return prev;
+      return [...prev, { id: workerId, name: workerName }];
+    });
+    setSelectedWorkerId(workerId);
   };
 
   const handleAddSchedule = (date: Date) => {
@@ -143,8 +204,8 @@ export default function WorkSchedulesPage() {
   };
 
   const handleEditSchedule = (schedule: WorkScheduleResource) => {
-    // Añadir hora para evitar desfase UTC al parsear "YYYY-MM-DD"
-    setSelectedDate(new Date(schedule.work_date + "T00:00:00"));
+    const datePart = schedule.work_date.slice(0, 10);
+    setSelectedDate(new Date(datePart + "T00:00:00"));
     setEditingSchedule(schedule);
     setFormOpen(true);
   };
@@ -205,7 +266,7 @@ export default function WorkSchedulesPage() {
   const isLoadingData = isLoadingPeriods || isLoadingCurrentPeriod;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       <HeaderTableWrapper>
         <TitleComponent
           title={currentView.descripcion}
@@ -213,32 +274,11 @@ export default function WorkSchedulesPage() {
           icon={currentView.icon}
         />
         <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleRefresh}
-            disabled={!selectedPeriodId}
-          >
-            <RefreshCw className="h-4 w-4 mr-2" />
-            Actualizar
-          </Button>
-        </div>
-      </HeaderTableWrapper>
-
-      {/* Period Selector */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base flex items-center gap-2">
-            <CalendarDays className="h-5 w-5" />
-            Seleccionar Período
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
           {isLoadingData ? (
-            <Skeleton className="h-10 w-full max-w-xs" />
+            <Skeleton className="h-9 w-52" />
           ) : (
-            <Form {...form}>
-              <div className="max-w-xs">
+            <div className="flex flex-col gap-0.5">
+              <Form {...form}>
                 <FormSelect
                   control={form.control}
                   name="period_id"
@@ -246,63 +286,85 @@ export default function WorkSchedulesPage() {
                   options={periodOptions}
                   disabled={isLoadingPeriods}
                 />
-              </div>
-            </Form>
+              </Form>
+              {isCurrentPeriodError && (
+                <p className="text-xs text-destructive">
+                  {(currentPeriodError as any)?.response?.data?.message ??
+                    "No se pudo cargar el período actual"}
+                </p>
+              )}
+            </div>
           )}
-        </CardContent>
-      </Card>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleRefresh}
+            disabled={!selectedPeriodId}
+          >
+            <RefreshCw className="h-4 w-4 mr-1.5" />
+            Actualizar
+          </Button>
+        </div>
+      </HeaderTableWrapper>
 
-      {selectedPeriodId && (
-        <div className="grid gap-4 lg:grid-cols-3">
-          {/* Summary Table */}
-          <div className="lg:col-span-1">
+      {selectedPeriodId ? (
+        <div className="grid gap-3 lg:grid-cols-7 items-start">
+          {/* Lista de trabajadores — 1 columna, alto del calendario */}
+          <div className="lg:col-span-2 lg:sticky lg:top-4 self-start">
             <WorkScheduleSummary
               period={summaryData?.period}
-              summary={summaryData?.summary || []}
-              workersCount={summaryData?.workers_count || 0}
+              summary={displaySummary}
+              workersCount={displaySummary.length}
               isLoading={isLoadingSummary}
               selectedWorkerId={selectedWorkerId ?? undefined}
               onWorkerSelect={handleWorkerSelect}
+              availableWorkers={availableWorkers}
+              isLoadingWorkers={isLoadingWorkers}
+              onAddWorker={handleAddWorker}
             />
           </div>
 
-          {/* Calendar View */}
-          <div className="lg:col-span-2">
+          {/* Calendario — 4 columnas */}
+          <div className="lg:col-span-5">
             {selectedWorkerId && selectedWorkerData && selectedPeriod ? (
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-semibold">
-                    Calendario -{" "}
-                    {format(
-                      new Date(selectedPeriod.year, selectedPeriod.month - 1),
-                      "MMMM yyyy",
-                      { locale: es },
-                    )}
-                  </h2>
-                </div>
-                <WorkScheduleCalendar
-                  year={selectedPeriod.year}
-                  month={selectedPeriod.month}
-                  schedules={schedules}
-                  workerId={selectedWorkerId}
-                  workerName={selectedWorkerData.worker_name}
-                  onAddSchedule={handleAddSchedule}
-                  onEditSchedule={handleEditSchedule}
-                  onDeleteSchedule={setDeleteId}
-                  canModify={selectedPeriod.can_modify !== false}
-                />
-              </div>
+              <WorkScheduleCalendar
+                year={selectedPeriod.year}
+                month={selectedPeriod.month}
+                schedules={schedules}
+                workerId={selectedWorkerId}
+                workerName={`${selectedWorkerData.worker_name} — ${format(new Date(selectedPeriod.year, selectedPeriod.month - 1), "MMMM yyyy", { locale: es })}`}
+                onAddSchedule={handleAddSchedule}
+                onEditSchedule={handleEditSchedule}
+                onDeleteSchedule={setDeleteId}
+                canModify={selectedPeriod.can_modify !== false}
+              />
             ) : (
-              <Card className="h-full flex items-center justify-center min-h-[400px]">
-                <CardContent className="text-center text-muted-foreground">
-                  <CalendarDays className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p>Selecciona un trabajador de la tabla de resumen</p>
-                  <p className="text-sm">para ver y gestionar su calendario</p>
-                </CardContent>
-              </Card>
+              <Empty>
+                <EmptyHeader>
+                  <EmptyMedia variant="icon">
+                    <CalendarDays />
+                  </EmptyMedia>
+                  <EmptyTitle>Sin trabajador seleccionado</EmptyTitle>
+                  <EmptyDescription>
+                    Selecciona un trabajador de la lista para ver su calendario
+                  </EmptyDescription>
+                </EmptyHeader>
+              </Empty>
             )}
           </div>
         </div>
+      ) : (
+        <Empty>
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <CalendarDays />
+            </EmptyMedia>
+            <EmptyTitle>Selecciona un período</EmptyTitle>
+            <EmptyDescription>
+              Elige un período de planilla en el selector de arriba
+            </EmptyDescription>
+          </EmptyHeader>
+        </Empty>
       )}
 
       {/* Form Modal */}

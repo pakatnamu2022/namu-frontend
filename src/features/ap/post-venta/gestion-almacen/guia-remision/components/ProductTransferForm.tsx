@@ -982,6 +982,7 @@ export const ProductTransferForm = ({
                             additionalParams={{
                               warehouse_id:
                                 selectedOriginEstablishment?.warehouse_id,
+                              available_quantity: 0,
                             }}
                             perPage={10}
                             debounceMs={500}

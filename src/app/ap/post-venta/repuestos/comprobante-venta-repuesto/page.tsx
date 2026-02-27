@@ -30,7 +30,7 @@ import { AREA_MESON } from "@/features/ap/ap-master/lib/apMaster.constants";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 
 export default function SalesReceiptsRepuestoPage() {
-  const { ROUTE } = ELECTRONIC_DOCUMENT_REPUESTOS;
+  const { ROUTE, ABSOLUTE_ROUTE } = ELECTRONIC_DOCUMENT_REPUESTOS;
   const permissions = useModulePermissions(ROUTE);
   const queryClient = useQueryClient();
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -159,7 +159,7 @@ export default function SalesReceiptsRepuestoPage() {
             canCreateCreditNote,
             canCreateDebitNote,
           },
-          module: "REPUESTOS",
+          routeAbsolute: ABSOLUTE_ROUTE,
         })}
         data={data?.data || []}
       >

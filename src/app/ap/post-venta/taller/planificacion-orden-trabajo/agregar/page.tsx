@@ -24,6 +24,21 @@ export default function CreatePlanningPage() {
   const [estimatedHours, setEstimatedHours] = useState(2);
   const selectedSedeId = localStorage.getItem("planningPage_selectedSedeId");
 
+  const getInitialDate = (): Date => {
+    const stored = localStorage.getItem("planningPage_selectedDate");
+    if (stored) {
+      const parsed = new Date(stored);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const parsedDay = new Date(parsed);
+      parsedDay.setHours(0, 0, 0, 0);
+      if (parsedDay >= today) return parsed;
+    }
+    return new Date();
+  };
+
+  const [selectedDate] = useState<Date>(getInitialDate);
+
   const { ROUTE } = WORK_ORDER_PLANNING;
   const { data, refetch } = useGetWorkOrderPlanning();
   const createMutation = useCreateWorkOrderPlanning();
@@ -36,7 +51,7 @@ export default function CreatePlanningPage() {
     hours: number,
     workOrderId: number,
     description: string,
-    groupNumber: number
+    groupNumber: number,
   ) => {
     try {
       // Formatear fecha/hora en formato local sin conversión a UTC
@@ -95,7 +110,7 @@ export default function CreatePlanningPage() {
 
       <div className="w-full">
         <WorkerTimeline
-          selectedDate={new Date()}
+          selectedDate={selectedDate}
           data={plannings}
           selectionMode={true}
           estimatedHours={estimatedHours}
