@@ -422,3 +422,12 @@ export async function deleteDepositFile(
   );
   return data;
 }
+
+export async function regenerateBudgets(
+  id: number
+): Promise<PerDiemRequestResource> {
+  const response = await api.post<PerDiemRequestResource>(
+    `${ENDPOINT}/${id}/regenerate-budgets`
+  );
+  return response.data;
+}
