@@ -14,11 +14,19 @@ import {
   eachDayOfInterval,
   isSameDay,
   isToday,
+  isBefore,
+  startOfDay,
 } from "date-fns";
 import { es } from "date-fns/locale";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, Clock, Maximize2 } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Clock,
+  Eye,
+  CalendarPlus,
+} from "lucide-react";
 import { WorkerTimelineView } from "./WorkerTimelineView";
 import {
   HoverCard,
@@ -29,6 +37,7 @@ import {
 interface PlanningCalendarProps {
   data: WorkOrderPlanningResource[];
   onPlanningClick?: (planning: WorkOrderPlanningResource) => void;
+  onNewPlanning?: (date: Date) => void;
   sedeId?: string;
   onRefresh?: () => void;
 }
@@ -36,6 +45,7 @@ interface PlanningCalendarProps {
 export function PlanningCalendar({
   data,
   onPlanningClick,
+  onNewPlanning,
   sedeId,
   onRefresh,
 }: PlanningCalendarProps) {
@@ -58,17 +68,21 @@ export function PlanningCalendar({
 
   const previousMonth = () => {
     setCurrentDate(
-      new Date(currentDate.getFullYear(), currentDate.getMonth() - 1)
+      new Date(currentDate.getFullYear(), currentDate.getMonth() - 1),
     );
   };
 
   const nextMonth = () => {
     setCurrentDate(
-      new Date(currentDate.getFullYear(), currentDate.getMonth() + 1)
+      new Date(currentDate.getFullYear(), currentDate.getMonth() + 1),
     );
   };
 
+  const [timelineReadOnly, setTimelineReadOnly] = useState(false);
+
   const handleExpandDay = (day: Date) => {
+    const past = isBefore(startOfDay(day), startOfDay(new Date()));
+    setTimelineReadOnly(past);
     setSelectedDayForTimeline(day);
     setShowTimeline(true);
   };
@@ -90,6 +104,7 @@ export function PlanningCalendar({
         onBack={handleBackToCalendar}
         sedeId={sedeId}
         onRefresh={onRefresh}
+        readOnly={timelineReadOnly}
       />
     );
   }
@@ -132,41 +147,63 @@ export function PlanningCalendar({
           {daysInMonth.map((day) => {
             const plannings = getPlanningsForDay(day);
             const isCurrentDay = isToday(day);
+            const isPast = isBefore(startOfDay(day), startOfDay(new Date()));
 
             return (
               <div
                 key={day.toISOString()}
-                className={`min-h-[100px] p-2 border rounded-lg ${
-                  isCurrentDay
-                    ? "bg-blue-50 border-blue-300"
-                    : "bg-background border-border"
+                className={`min-h-[100px] p-2 border rounded-lg transition-colors ${
+                  isPast
+                    ? "bg-muted/40 border-border"
+                    : isCurrentDay
+                      ? "bg-blue-50 border-blue-300"
+                      : "bg-background border-border"
                 }`}
               >
                 <div className="flex items-center justify-between mb-1">
                   <div
                     className={`text-sm font-semibold ${
-                      isCurrentDay ? "text-blue-600" : ""
+                      isPast
+                        ? "text-muted-foreground"
+                        : isCurrentDay
+                          ? "text-blue-600"
+                          : ""
                     }`}
                   >
                     {format(day, "d")}
                   </div>
-                  {plannings.length > 0 && (
+                  <div className="flex items-center gap-0.5">
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="h-5 w-5 p-0 hover:bg-primary/10"
+                      className="h-5 w-5 p-0 hover:bg-muted"
+                      tooltip="Ver timeline"
                       onClick={() => handleExpandDay(day)}
                     >
-                      <Maximize2 className="h-3 w-3" />
+                      <Eye className="h-3 w-3" />
                     </Button>
-                  )}
+                    {!isPast && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-5 w-5 p-0 hover:bg-primary/10 text-primary"
+                        tooltip="Planificar"
+                        onClick={() => onNewPlanning?.(day)}
+                      >
+                        <CalendarPlus className="h-3 w-3" />
+                      </Button>
+                    )}
+                  </div>
                 </div>
                 <div className="space-y-1">
                   {plannings.map((planning) => (
                     <HoverCard key={planning.id}>
                       <HoverCardTrigger asChild>
                         <div
-                          onClick={() => onPlanningClick?.(planning)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onPlanningClick?.(planning);
+                          }}
                           className={`text-xs p-1 rounded cursor-pointer ${
                             PLANNING_STATUS_COLORS[planning.status].bg
                           } ${

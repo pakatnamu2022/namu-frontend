@@ -93,6 +93,7 @@ interface WorkerTimelineProps {
   fullPage?: boolean;
   sedeId?: string;
   onRefresh?: () => void;
+  readOnly?: boolean;
 }
 
 export function WorkerTimeline({
@@ -108,6 +109,7 @@ export function WorkerTimeline({
   fullPage = false,
   sedeId,
   onRefresh,
+  readOnly = false,
 }: WorkerTimelineProps) {
   const [selectedTime, setSelectedTime] = useState<{
     time: Date;
@@ -511,14 +513,16 @@ export function WorkerTimeline({
             <RefreshCw className="h-4 w-4" />
             Actualizar
           </Button>
-          <Button
-            variant="outline"
-            onClick={() => setIsExceptionalCaseOpen(true)}
-            className="gap-2"
-          >
-            <Clock className="h-4 w-4" />
-            Caso Excepcional
-          </Button>
+          {!readOnly && (
+            <Button
+              variant="outline"
+              onClick={() => setIsExceptionalCaseOpen(true)}
+              className="gap-2"
+            >
+              <Clock className="h-4 w-4" />
+              Caso Excepcional
+            </Button>
+          )}
         </div>
       </div>
 
