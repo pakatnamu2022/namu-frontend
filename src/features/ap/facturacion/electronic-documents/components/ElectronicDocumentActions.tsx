@@ -1,13 +1,23 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { BookCheck, FilePlus, Files, Plus, RefreshCw, Send } from "lucide-react";
+import {
+  BookCheck,
+  FilePlus,
+  Files,
+  Plus,
+  RefreshCw,
+  Send,
+} from "lucide-react";
 import ActionsWrapper from "@/shared/components/ActionsWrapper";
 import { useNavigate } from "react-router-dom";
 import { ELECTRONIC_DOCUMENT } from "../lib/electronicDocument.constants";
 import { cn } from "@/lib/utils";
 import { useMutation } from "@tanstack/react-query";
-import { dispatchAllElectronicDocuments, syncAccountingStatus } from "../lib/electronicDocument.actions";
+import {
+  dispatchAllElectronicDocuments,
+  syncAccountingStatus,
+} from "../lib/electronicDocument.actions";
 import { toast } from "sonner";
 
 import {
@@ -75,7 +85,7 @@ export default function ElectronicDocumentActions({
             "animate-pulse": syncAccountingMutation.isPending,
           })}
         />
-        Consultar Contabilizaciones
+        Contabilizaciones
       </Button>
 
       <Button
