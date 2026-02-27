@@ -121,11 +121,7 @@ export default function SalesReceiptsTallerPage() {
 
   const handlePreCancel = async (id: number) => {
     const result = await preCancelElectronicDocument(id);
-    if (!result.annulled) {
-      throw new Error(
-        "El documento no está anulado en Dynamics. No se puede anular en Nubefact.",
-      );
-    }
+    return result.annulled;
   };
 
   const handleRefresh = () => {
