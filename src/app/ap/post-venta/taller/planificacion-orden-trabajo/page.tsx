@@ -149,7 +149,9 @@ export default function PlanningPage() {
     }
   };
 
-  const handleOpenCreatePlanning = () => {
+  const handleOpenCreatePlanning = (date?: Date) => {
+    const targetDate = date ?? new Date();
+    localStorage.setItem("planningPage_selectedDate", targetDate.toISOString());
     navigate(`${ABSOLUTE_ROUTE}/agregar`);
   };
 
@@ -185,7 +187,7 @@ export default function PlanningPage() {
             classNameOption="text-xs"
             allowClear={false}
           />
-          <Button onClick={handleOpenCreatePlanning}>
+          <Button onClick={() => handleOpenCreatePlanning()}>
             <Plus className="h-4 w-4 mr-2" />
             Nueva Planificación
           </Button>
@@ -220,6 +222,7 @@ export default function PlanningPage() {
           <PlanningCalendar
             data={plannings}
             onPlanningClick={handleViewPlanning}
+            onNewPlanning={handleOpenCreatePlanning}
             sedeId={sedeId}
             onRefresh={refetch}
           />

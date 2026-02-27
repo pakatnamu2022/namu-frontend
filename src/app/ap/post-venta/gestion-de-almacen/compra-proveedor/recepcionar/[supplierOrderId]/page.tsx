@@ -245,11 +245,6 @@ export default function ReceptionsProductsPage() {
         customContent={
           <ReceptionsProductsCards
             data={data!}
-            onDelete={setDeleteId}
-            permissions={{
-              canUpdate: permissions.canUpdate,
-              canDelete: permissions.canDelete,
-            }}
             routeUpdate={`${ROUTE_UPDATE}/${supplierOrderId}`}
             routeInvoice={`${ABSOLUTE_ROUTE}/recepcionar/facturar`}
             supplierOrderNumber={supplierOrder.order_number}
