@@ -30,6 +30,9 @@ import { SheetShipmentDetailsDialog } from "@/features/ap/comercial/control-unid
 import { notFound } from "@/shared/hooks/useNotFound";
 import { format } from "date-fns";
 import { AREA_COMERCIAL } from "@/features/ap/ap-master/lib/apMaster.constants";
+import { useMutation } from "@tanstack/react-query";
+import { dispatchShippingGuideMigration } from "@/features/ap/comercial/entrega-vehiculo/lib/vehicleDelivery.actions";
+import { errorToast, successToast } from "@/core/core.function";
 
 export default function ControlUnitsPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -56,6 +59,14 @@ export default function ControlUnitsPage() {
   const sendToNubefactMutation = useSendControlUnitsToNubefact();
   const queryFromNubefactMutation = useQueryControlUnitsFromNubefact();
   const permissions = useModulePermissions(ROUTE);
+  const migrateMutation = useMutation({
+    mutationFn: dispatchShippingGuideMigration,
+    onSuccess: () => successToast("Migración despachada correctamente"),
+    onError: (error: any) => {
+      const msg = error?.response?.data?.message || "";
+      errorToast(`Error al despachar migración: ${msg}`);
+    },
+  });
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -135,6 +146,7 @@ export default function ControlUnitsPage() {
           onCancel: setCancelId,
           onSendToNubefact: (id) => sendToNubefactMutation.mutate(id),
           onQueryFromNubefact: (id) => queryFromNubefactMutation.mutate(id),
+          onMigrate: (id) => migrateMutation.mutate(id),
           permissions,
         })}
         data={data?.data || []}

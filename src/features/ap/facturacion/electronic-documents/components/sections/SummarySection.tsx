@@ -8,7 +8,7 @@ import { ElectronicDocumentSchema } from "../../lib/electronicDocument.schema";
 import { SunatConceptsResource } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.interface";
 import { PurchaseRequestQuoteResource } from "@/features/ap/comercial/solicitudes-cotizaciones/lib/purchaseRequestQuote.interface";
 import { AssignSalesSeriesResource } from "@/features/ap/configuraciones/maestros-general/asignar-serie-venta/lib/assignSalesSeries.interface";
-import { useAllCustomers } from "@/features/ap/comercial/clientes/lib/customers.hook";
+import { useCustomersById } from "@/features/ap/comercial/clientes/lib/customers.hook";
 import { CustomersResource } from "@/features/ap/comercial/clientes/lib/customers.interface";
 import { ElectronicDocumentResource } from "../../lib/electronicDocument.interface";
 import { SUNAT_TYPE_INVOICES_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
@@ -54,14 +54,11 @@ export function SummarySection({
   const items = form.watch("items") || [];
   const selectedDocumentType = form.watch("sunat_concept_document_type_id");
   const series = form.watch("serie");
-  const clientId = form.watch("client_id");
-
-  // Usar el cliente pasado como prop si está disponible, de lo contrario buscarlo en la lista
-  const { data: customers = [] } = useAllCustomers();
-  const selectedCustomerFromList = customers.find(
-    (customer) => customer.id.toString() === clientId
-  );
-  const selectedCustomer = selectedCustomerProp || selectedCustomerFromList;
+  const selectedClientId = form.watch("client_id");
+  // Buscar el cliente seleccionado
+  const selectedCustomer =
+    useCustomersById(Number(selectedClientId), !!selectedClientId).data ||
+    selectedCustomerProp;
 
   return (
     <div className="lg:col-span-1 lg:row-start-1 lg:col-start-3 h-full">
@@ -178,7 +175,7 @@ export function SummarySection({
                   const isNegative =
                     item.anticipo_regularizacion &&
                     advancePayments.find(
-                      (ap) => ap.id === Number(item.reference_document_id)
+                      (ap) => ap.id === Number(item.reference_document_id),
                     )?.sunat_concept_document_type_id !==
                       SUNAT_TYPE_INVOICES_ID.NOTA_CREDITO;
 
@@ -323,10 +320,10 @@ export function SummarySection({
               {isPending
                 ? "Guardando..."
                 : isEdit
-                ? "Actualizar Documento"
-                : form.watch("enviar_automaticamente_a_la_sunat")
-                ? "Guardar y Enviar a SUNAT"
-                : "Guardar Documento"}
+                  ? "Actualizar Documento"
+                  : form.watch("enviar_automaticamente_a_la_sunat")
+                    ? "Guardar y Enviar a SUNAT"
+                    : "Guardar Documento"}
             </Button>
             <Button
               type="button"
@@ -343,7 +340,7 @@ export function SummarySection({
             <p className="text-xs text-center text-muted-foreground">
               {form.watch("fecha_de_emision")
                 ? new Date(
-                    form.watch("fecha_de_emision") + "T00:00:00"
+                    form.watch("fecha_de_emision") + "T00:00:00",
                   ).toLocaleDateString("es-PE", {
                     day: "2-digit",
                     month: "long",

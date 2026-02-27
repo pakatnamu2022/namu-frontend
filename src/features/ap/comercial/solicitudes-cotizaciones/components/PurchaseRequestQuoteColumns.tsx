@@ -15,7 +15,7 @@ interface Props {
   onDownloadPdf: (id: number) => void;
   onAssignVehicle: (purchaseRequestQuote: PurchaseRequestQuoteResource) => void;
   onUnassignVehicle: (id: number) => void;
-  onViewDetail: (purchaseRequestQuote: PurchaseRequestQuoteResource) => void;
+  onViewDetail: (id: number) => void;
   permissions: {
     canUpdate: boolean;
     canApprove: boolean;
@@ -138,7 +138,7 @@ export const purchaseRequestQuoteColumns = ({
             size="icon"
             className="size-7"
             tooltip="Ver Detalle"
-            onClick={() => onViewDetail(row.original)}
+            onClick={() => onViewDetail(row.original.id)}
           >
             <Eye className="size-5" />
           </Button>

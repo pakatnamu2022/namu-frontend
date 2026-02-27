@@ -27,6 +27,7 @@ import { useAuthorizedSeries } from "@/features/ap/configuraciones/maestros-gene
 import { notFound } from "@/shared/hooks/useNotFound";
 import { STATUS_ACTIVE } from "@/core/core.constants";
 import PageWrapper from "@/shared/components/PageWrapper";
+import { useSidebar } from "@/components/ui/sidebar";
 
 export default function UpdateElectronicDocumentPage() {
   const { ROUTE, MODEL, ABSOLUTE_ROUTE } = ELECTRONIC_DOCUMENT;
@@ -273,6 +274,12 @@ export default function UpdateElectronicDocumentPage() {
   const handleSubmit = (data: ElectronicDocumentSchema) => {
     mutate(data);
   };
+
+  const { setOpen, setOpenMobile } = useSidebar();
+  useEffect(() => {
+    setOpen(false);
+    setOpenMobile(false);
+  }, []);
 
   if (isLoadingModule) return <PageSkeleton />;
   if (!checkRouteExists(ROUTE)) notFound();

@@ -101,3 +101,7 @@ export type ContactType =
   | "REUNIÓN"
   | "VIDEOLLAMADA"
   | "WHATSAPP";
+
+export interface getOpportunitiesProps {
+  params?: Record<string, any>;
+}

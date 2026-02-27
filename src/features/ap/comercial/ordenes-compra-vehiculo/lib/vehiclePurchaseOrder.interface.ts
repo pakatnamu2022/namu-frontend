@@ -151,6 +151,12 @@ export interface GetVehiclePurchaseOrderProps {
   params?: Record<string, any>;
 }
 
+export interface NextCorrelativeResponse {
+  series: string;
+  number_correlative: string;
+  number: string;
+}
+
 // Migration interfaces
 export interface MigrationLog {
   id: number;

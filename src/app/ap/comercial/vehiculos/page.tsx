@@ -35,12 +35,15 @@ export default function VehiclesPage() {
   useEffect(() => {
     setPage(1);
   }, [search, per_page]);
-  const { data, isLoading, refetch } = useVehicles({
-    page,
-    search,
-    per_page,
-    type_operation_id: CM_COMERCIAL_ID,
-  });
+  const { data, isLoading, refetch } = useVehicles(
+    {
+      page,
+      search,
+      per_page,
+      type_operation_id: CM_COMERCIAL_ID,
+    },
+    true,
+  );
 
   const handleDelete = async () => {
     if (!deleteId) return;

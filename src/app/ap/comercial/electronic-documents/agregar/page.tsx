@@ -2,7 +2,7 @@
 
 import { useNavigate } from "react-router-dom";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMemo, useEffect } from "react";
@@ -24,10 +24,12 @@ import { notFound } from "@/shared/hooks/useNotFound";
 import { STATUS_ACTIVE } from "@/core/core.constants";
 import PageWrapper from "@/shared/components/PageWrapper";
 import { AREA_COMERCIAL } from "@/features/ap/ap-master/lib/apMaster.constants";
+import { useSidebar } from "@/components/ui/sidebar";
 
 export default function AddElectronicDocumentPage() {
-  const { ROUTE, MODEL, ABSOLUTE_ROUTE } = ELECTRONIC_DOCUMENT;
+  const { ROUTE, MODEL, ABSOLUTE_ROUTE, QUERY_KEY } = ELECTRONIC_DOCUMENT;
   const router = useNavigate();
+  const queryClient = useQueryClient();
   const { currentView, checkRouteExists, isLoadingModule } = useCurrentModule();
 
   // Fetch all SunatConcepts in a single query
@@ -156,7 +158,17 @@ export default function AddElectronicDocumentPage() {
 
   const { mutate, isPending } = useMutation({
     mutationFn: storeElectronicDocument,
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
+      if (variables.purchase_request_quote_id) {
+        queryClient.invalidateQueries({
+          queryKey: [
+            QUERY_KEY,
+            "advances",
+            "quotation",
+            parseInt(variables.purchase_request_quote_id),
+          ],
+        });
+      }
       successToast(SUCCESS_MESSAGE(MODEL, "create"));
       router(ABSOLUTE_ROUTE);
     },
@@ -165,6 +177,12 @@ export default function AddElectronicDocumentPage() {
       errorToast(ERROR_MESSAGE(MODEL, "create", msg));
     },
   });
+
+  const { setOpen, setOpenMobile } = useSidebar();
+  useEffect(() => {
+    setOpen(false);
+    setOpenMobile(false);
+  }, []);
 
   const handleSubmit = (data: ElectronicDocumentSchema) => {
     mutate(data);
