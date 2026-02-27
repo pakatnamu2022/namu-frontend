@@ -52,6 +52,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty";
+import { POSITION_TYPE } from "@/features/gp/gestionhumana/gestion-de-personal/posiciones/lib/position.constant";
 
 interface ExtraWorker {
   id: number;
@@ -83,7 +84,9 @@ export default function WorkSchedulesPage() {
     isError: isCurrentPeriodError,
   } = useCurrentPayrollPeriod();
   const { data: codes = [] } = useAttendanceRuleCodes();
-  const { data: allWorkers = [], isLoading: isLoadingWorkers } = useAllWorkers();
+  const { data: allWorkers = [], isLoading: isLoadingWorkers } = useAllWorkers({
+    cargo_id: POSITION_TYPE.SECURITY_AGENT,
+  });
 
   // Set default period when current period loads
   useEffect(() => {
@@ -155,15 +158,17 @@ export default function WorkSchedulesPage() {
     const summaryIds = new Set(base.map((s) => s.worker_id));
     const extras = extraWorkers
       .filter((w) => !summaryIds.has(w.id))
-      .map((w): WorkScheduleWorkerSummary => ({
-        worker_id: w.id,
-        worker_name: w.name,
-        salary: 0,
-        shift_hours: 0,
-        base_hour_value: 0,
-        details: [],
-        total_amount: 0,
-      }));
+      .map(
+        (w): WorkScheduleWorkerSummary => ({
+          worker_id: w.id,
+          worker_name: w.name,
+          salary: 0,
+          shift_hours: 0,
+          base_hour_value: 0,
+          details: [],
+          total_amount: 0,
+        }),
+      );
     return [...base, ...extras];
   }, [summaryData, extraWorkers]);
 
@@ -199,7 +204,8 @@ export default function WorkSchedulesPage() {
   };
 
   const handleEditSchedule = (schedule: WorkScheduleResource) => {
-    setSelectedDate(new Date(schedule.work_date + "T00:00:00"));
+    const datePart = schedule.work_date.slice(0, 10);
+    setSelectedDate(new Date(datePart + "T00:00:00"));
     setEditingSchedule(schedule);
     setFormOpen(true);
   };

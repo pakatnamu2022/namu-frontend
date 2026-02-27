@@ -27,6 +27,8 @@ import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { PAYROLL_PERIOD } from "@/features/gp/gestionhumana/planillas/periodo-planilla/lib/payroll-period.constant";
 import { SimpleConfirmDialog } from "@/shared/components/SimpleConfirmDialog";
+import { PayrollPeriodResource } from "@/features/gp/gestionhumana/planillas/periodo-planilla/lib/payroll-period.interface";
+import PayrollCalculationPanel from "@/features/gp/gestionhumana/planillas/calculo-planilla/components/PayrollCalculationPanel";
 
 export default function PayrollPeriodsPage() {
   const { MODEL, ROUTE } = PAYROLL_PERIOD;
@@ -38,6 +40,7 @@ export default function PayrollPeriodsPage() {
   const [closeId, setCloseId] = useState<number | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
   const [editId, setEditId] = useState<number | null>(null);
+  const [calculationPeriod, setCalculationPeriod] = useState<PayrollPeriodResource | null>(null);
 
   useEffect(() => {
     setPage(1);
@@ -100,6 +103,7 @@ export default function PayrollPeriodsPage() {
           onDelete: setDeleteId,
           onClose: setCloseId,
           onEdit: setEditId,
+          onCalculate: setCalculationPeriod,
         })}
         data={data?.data || []}
       >
@@ -138,6 +142,14 @@ export default function PayrollPeriodsPage() {
           description="¿Estás seguro de que deseas cerrar este periodo? Esta acción no se puede deshacer."
           confirmText="Cerrar"
           cancelText="Cancelar"
+        />
+      )}
+
+      {calculationPeriod !== null && (
+        <PayrollCalculationPanel
+          open={true}
+          period={calculationPeriod}
+          onClose={() => setCalculationPeriod(null)}
         />
       )}
 

@@ -375,10 +375,6 @@ import ControlFreightPage from "./app/tp/comercial-tp/control-fletes/page.tsx";
 import PayrollPeriodsPage from "./app/gp/gestion-humana/planillas/periodos/page.tsx";
 import AddPayrollPeriodPage from "./app/gp/gestion-humana/planillas/periodos/agregar/page.tsx";
 import UpdatePayrollPeriodPage from "./app/gp/gestion-humana/planillas/periodos/actualizar/[id]/page.tsx";
-import WorkTypePage from "./app/gp/gestion-humana/planillas/tipo-dia-trabajo/page.tsx";
-import AddWorkTypePage from "./app/gp/gestion-humana/planillas/tipo-dia-trabajo/agregar/page.tsx";
-import UpdateWorkTypePage from "./app/gp/gestion-humana/planillas/tipo-dia-trabajo/actualizar/[id]/page.tsx";
-import ManageSegmentsPage from "./app/gp/gestion-humana/planillas/tipo-dia-trabajo/segmentos/[id]/page.tsx";
 import AttendanceRulePage from "./app/gp/gestion-humana/planillas/reglas-asistencia/page.tsx";
 import AddAttendanceRulePage from "./app/gp/gestion-humana/planillas/reglas-asistencia/agregar/page.tsx";
 import UpdateAttendanceRulePage from "./app/gp/gestion-humana/planillas/reglas-asistencia/actualizar/[id]/page.tsx";
@@ -1828,17 +1824,6 @@ function App() {
                 <AddPayrollPeriodPage />,
                 <UpdatePayrollPeriodPage />,
               )}
-              {/* Tipo de Dia de Trabajo */}
-              {RouterCrud(
-                "planillas/tipo-dia-trabajo",
-                <WorkTypePage />,
-                <AddWorkTypePage />,
-                <UpdateWorkTypePage />,
-              )}
-              <Route
-                path="planillas/tipo-dia-trabajo/segmentos/:id"
-                element={<ManageSegmentsPage />}
-              />
 
               {/* Reglas de Asistencia */}
               {RouterCrud(
