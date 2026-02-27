@@ -495,6 +495,8 @@ export default function InvoiceForm({
             porcentaje_de_igv={porcentaje_de_igv}
             isAdvancePayment={isAdvancePayment}
             advancePayments={advances}
+            labours={labours}
+            parts={parts}
           />
         </div>
       </form>
