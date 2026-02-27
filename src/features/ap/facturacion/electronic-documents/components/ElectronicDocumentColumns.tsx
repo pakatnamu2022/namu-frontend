@@ -251,7 +251,7 @@ export const electronicDocumentColumns = ({
     },
     {
       accessorKey: "anulado",
-      header: "Anulado",
+      header: "Anulado SUNAT",
       cell: ({ row }) => {
         const anulado = row.original.anulado;
         const status = row.original.status;
@@ -332,7 +332,7 @@ export const electronicDocumentColumns = ({
     },
     {
       accessorKey: "is_annulled",
-      header: "Anulado (Sist.)",
+      header: "Anulado Dynamics",
       cell: ({ getValue }) => {
         const value = getValue() as boolean | undefined;
         if (value === true) {
@@ -376,6 +376,9 @@ export const electronicDocumentColumns = ({
         // eslint-disable-next-line react-hooks/rules-of-hooks
         const router = useNavigate();
         const document = row.original;
+
+        const canMigrate =
+          onMigrate && document.migration_status === "completed"; // Solo mostrar botón migrar si no está migrado completamente
 
         const canSendToSunat =
           document.status === "draft" && onSendToSunat && permissions.canSend;
@@ -527,7 +530,7 @@ export const electronicDocumentColumns = ({
             )}
 
             {/* Migrar */}
-            {onMigrate && (
+            {canMigrate && (
               <Button
                 variant="outline"
                 size="icon"
