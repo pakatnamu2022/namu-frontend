@@ -3,7 +3,6 @@ import { ModelsVnResource, ModelsVnResponse } from "./modelsVn.interface";
 import {
   findModelsVnById,
   getAllModelsVn,
-  findModelsVnById,
   getModelsVn,
   getModelsVnSearch,
 } from "./modelsVn.actions";
@@ -40,15 +39,6 @@ export const useAllModelsVn = (params?: Record<string, any>) => {
   return useQuery<ModelsVnResource[]>({
     queryKey: [QUERY_KEY, "all", params],
     queryFn: () => getAllModelsVn({ params }),
-    refetchOnWindowFocus: false,
-  });
-};
-
-export const useModelVnById = (id: number) => {
-  return useQuery<ModelsVnResource>({
-    queryKey: [QUERY_KEY, "byId", id],
-    queryFn: () => findModelsVnById(id),
-    enabled: !!id && id !== 0,
     refetchOnWindowFocus: false,
   });
 };

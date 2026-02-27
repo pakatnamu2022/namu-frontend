@@ -44,7 +44,7 @@ export function WorkerTimelineView({
               })}
             </CardTitle>
             {readOnly && (
-              <Badge variant="secondary" className="flex items-center gap-1">
+              <Badge>
                 <Lock className="h-3 w-3" />
                 Solo lectura
               </Badge>
