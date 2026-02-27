@@ -5,7 +5,6 @@ import { useState, useEffect } from "react";
 import TitleComponent from "@/shared/components/TitleComponent";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { OpportunityForm } from "@/features/ap/comercial/oportunidades/components/OpportunityForm";
 import { OpportunityActionForm } from "@/features/ap/comercial/oportunidades/components/OpportunityActionForm";
 import {
@@ -22,6 +21,8 @@ import { MessageResponse } from "@/core/core.interface";
 import OpportunityClientCard from "@/features/ap/comercial/oportunidades/components/OpportunityClientCard";
 import { LeadInfoCard } from "@/features/ap/comercial/oportunidades/components/LeadInfoCard";
 import { useManageLead } from "@/features/ap/comercial/gestionar-leads/lib/manageLeads.hook";
+import { GroupFormSection } from "@/shared/components/GroupFormSection";
+import { ClipboardCheck } from "lucide-react";
 
 const { ABSOLUTE_ROUTE } = OPPORTUNITIES;
 
@@ -40,10 +41,10 @@ export default function AddOpportunityPage() {
   const createActionMutation = useCreateOpportunityAction();
   const { data, isLoading, error } = useCustomerValidated(
     clientIdFromQuery ? Number(clientIdFromQuery) : 0,
-    leadIdFromQuery ? Number(leadIdFromQuery) : 0
+    leadIdFromQuery ? Number(leadIdFromQuery) : 0,
   );
   const { data: leadData, isLoading: isLoadingLead } = useManageLead(
-    leadIdFromQuery ? Number(leadIdFromQuery) : 0
+    leadIdFromQuery ? Number(leadIdFromQuery) : 0,
   );
 
   // Redirigir si no hay client_id
@@ -82,11 +83,11 @@ export default function AddOpportunityPage() {
             ERROR_MESSAGE(
               OPPORTUNITIES.MODEL,
               "create",
-              error.response.data.message
-            )
+              error.response.data.message,
+            ),
           );
         },
-      }
+      },
     );
   };
 
@@ -99,7 +100,7 @@ export default function AddOpportunityPage() {
         onSuccess: () => {
           router(`${ABSOLUTE_ROUTE}/${createdOpportunityId}`);
         },
-      }
+      },
     );
   };
 
@@ -150,35 +151,35 @@ export default function AddOpportunityPage() {
           mode="create"
           clientId={clientIdFromQuery ? Number(clientIdFromQuery) : undefined}
           showClientSelector={!clientIdFromQuery}
+          leadBrandId={leadData?.vehicle_brand_id}
         />
       ) : (
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold">
-                Registra el primer contacto (Opcional)
-              </h3>
-              <Button variant="ghost" onClick={handleSkipAction}>
-                Omitir y Finalizar
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <OpportunityActionForm
-              defaultValues={{
-                opportunity_id: createdOpportunityId?.toString(),
-                action_type_id: "",
-                action_contact_type_id: "",
-                description: "",
-                result: false,
-              }}
-              onSubmit={handleActionSubmit}
-              isSubmitting={createActionMutation.isPending}
-              opportunityId={createdOpportunityId || undefined}
-              mode="create"
-            />
-          </CardContent>
-        </Card>
+        <GroupFormSection
+          title="Registrar Primera Acción(Opcional)"
+          cols={{
+            sm: 1,
+          }}
+          icon={ClipboardCheck}
+          headerExtra={
+            <Button variant="ghost" onClick={handleSkipAction}>
+              Omitir y Finalizar
+            </Button>
+          }
+        >
+          <OpportunityActionForm
+            defaultValues={{
+              opportunity_id: createdOpportunityId?.toString(),
+              action_type_id: "",
+              action_contact_type_id: "",
+              description: "",
+              result: false,
+            }}
+            onSubmit={handleActionSubmit}
+            isSubmitting={createActionMutation.isPending}
+            opportunityId={createdOpportunityId || undefined}
+            mode="create"
+          />
+        </GroupFormSection>
       )}
     </FormWrapper>
   );

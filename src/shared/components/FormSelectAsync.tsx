@@ -21,7 +21,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Control } from "react-hook-form";
+import { Control, useWatch } from "react-hook-form";
 import { useState, useEffect, useRef, useCallback } from "react";
 import React from "react";
 import { Option } from "@/core/core.interface";
@@ -32,6 +32,11 @@ import {
 } from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";
 import RequiredField from "./RequiredField";
+
+const noopFindById = (_id: any): { data: undefined; isLoading: false } => ({
+  data: undefined,
+  isLoading: false,
+});
 
 interface FormSelectAsyncProps {
   name: string;
@@ -67,6 +72,7 @@ interface FormSelectAsyncProps {
   onValueChange?: (value: string, item?: any) => void; // Callback cuando cambia el valor
   allowClear?: boolean;
   preloadId?: string; // Pagina automáticamente hasta encontrar la opción con este value
+  useFindByIdHook?: (id: any) => { data?: any; isLoading: boolean }; // Hook para cargar un recurso por ID sin paginar
 }
 
 export function FormSelectAsync({
@@ -92,6 +98,7 @@ export function FormSelectAsync({
   onValueChange,
   allowClear = true,
   preloadId,
+  useFindByIdHook,
 }: FormSelectAsyncProps) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -132,6 +139,13 @@ export function FormSelectAsync({
     per_page: perPage,
     ...additionalParams,
   });
+
+  // Hook para cargar el recurso actual por ID (evita auto-paginar)
+  const currentFieldValue = useWatch({ control, name });
+  const effectiveFindByIdHook = useFindByIdHook ?? noopFindById;
+  const { data: findByIdData } = effectiveFindByIdHook(
+    currentFieldValue || 0,
+  );
 
   // Debounce para el search
   useEffect(() => {
@@ -191,6 +205,17 @@ export function FormSelectAsync({
       }
     }
   }, [data, page, mapOptionFn, defaultOption]);
+
+  // Agregar a allOptions el item encontrado por useFindByIdHook
+  useEffect(() => {
+    if (!findByIdData) return;
+    const option = mapOptionFn(findByIdData);
+    rawItemsRef.current.set(option.value, findByIdData);
+    setAllOptions((prev) => {
+      const exists = prev.some((opt) => opt.value === option.value);
+      return exists ? prev : [option, ...prev];
+    });
+  }, [findByIdData, mapOptionFn]);
 
   // Auto-paginar hasta encontrar la opción con preloadId
   useEffect(() => {
@@ -303,7 +328,7 @@ export function FormSelectAsync({
                       role="combobox"
                       disabled={disabled}
                       className={cn(
-                        "w-full justify-between flex",
+                        "w-full justify-between flex truncate",
                         !field.value && "text-muted-foreground",
                         field.value && "bg-muted",
                         className,
@@ -323,7 +348,7 @@ export function FormSelectAsync({
 
                 <PopoverContent
                   container={portalContainer}
-                  className="p-0 w-(--radix-popover-trigger-width)!"
+                  className="p-0 min-w-(--radix-popover-trigger-width) w-auto"
                   onWheel={(e) => e.stopPropagation()}
                   onWheelCapture={(e) => e.stopPropagation()}
                   onTouchMove={(e) => e.stopPropagation()}

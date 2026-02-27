@@ -46,13 +46,13 @@ export function FormSwitch<T extends FieldValues>({
       name={name}
       render={({ field }) => (
         <FormItem>
-          {label && <FormLabel className="h-fit flex">{label}</FormLabel>}
+          {label && <FormLabel className="h-fit flex mb-1">{label}</FormLabel>}
           <FormLabel
             className={cn(
-              "flex flex-row items-center justify-between rounded-lg border shadow-xs bg-background hover:bg-muted hover:cursor-pointer",
+              "flex flex-row items-center justify-between rounded-md border shadow-xs bg-background hover:bg-muted hover:cursor-pointer",
               sizeClasses[size],
               className,
-              autoHeight ? "h-auto" : "h-8 md:h-10"
+              autoHeight ? "h-auto" : ""
             )}
           >
             <div className="flex flex-col gap-1 flex-1 min-w-0">

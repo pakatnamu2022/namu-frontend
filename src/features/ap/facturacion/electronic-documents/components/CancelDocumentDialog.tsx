@@ -11,12 +11,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { errorToast } from "@/core/core.function";
+import { errorToast, warningToast } from "@/core/core.function";
 
 interface AnnulDocumentDialogProps {
   onConfirm: (reason: string) => void;
   trigger: React.ReactNode;
-  onPreCancel?: () => Promise<void>;
+  onPreCancel?: () => Promise<boolean>;
 }
 
 export function AnnulDocumentDialog({
@@ -33,13 +33,19 @@ export function AnnulDocumentDialog({
     if (onPreCancel) {
       setIsValidating(true);
       try {
-        await onPreCancel();
-        setOpen(true);
+        const isAnnulled = await onPreCancel();
+        if (isAnnulled) {
+          setOpen(true);
+        } else {
+          warningToast(
+            "El documento no está anulado en Dynamics. No se puede anular en Nubefact.",
+          );
+        }
       } catch (error: any) {
         errorToast(
           error.response?.data?.message ||
             error.message ||
-            "Documento no encontrado en Dynamics"
+            "Documento no encontrado en Dynamics",
         );
       } finally {
         setIsValidating(false);

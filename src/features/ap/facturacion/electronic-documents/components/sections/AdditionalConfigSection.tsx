@@ -1,19 +1,11 @@
 import { UseFormReturn } from "react-hook-form";
 import { Settings } from "lucide-react";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
-import {
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { ElectronicDocumentSchema } from "../../lib/electronicDocument.schema";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { ApBankResource } from "@/features/ap/configuraciones/maestros-general/chequeras/lib/apBank.interface";
+import { FormInput } from "@/shared/components/FormInput";
+import { FormTextArea } from "@/shared/components/FormTextArea";
 
 interface AdditionalConfigSectionProps {
   form: UseFormReturn<ElectronicDocumentSchema>;
@@ -126,25 +118,12 @@ export function AdditionalConfigSection({
         description="Chequera asociada al medio de pago."
       />
 
-      <FormField
+      <FormInput
         control={form.control}
         name="operation_number"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel className="flex">Número de Operación</FormLabel>
-            <FormControl>
-              <Input
-                placeholder="Número de Operación"
-                {...field}
-                value={field.value || ""}
-              />
-            </FormControl>
-            <FormDescription className="text-xs font-normal">
-              Número de operación asociada al pago.
-            </FormDescription>
-            <FormMessage />
-          </FormItem>
-        )}
+        label="Número de Operación"
+        placeholder="Número de Operación"
+        description="Número de operación asociada al pago."
       />
 
       {isModuleCommercial && (
@@ -158,28 +137,15 @@ export function AdditionalConfigSection({
         />
       )}
 
-      <FormField
-        control={form.control}
-        name="observaciones"
-        render={({ field }) => (
-          <FormItem className="md:col-span-3">
-            <FormLabel>Observaciones</FormLabel>
-            <FormControl>
-              <Textarea
-                placeholder="Observaciones adicionales..."
-                className="resize-none"
-                rows={3}
-                {...field}
-                value={field.value || ""}
-              />
-            </FormControl>
-            <FormDescription className="text-xs font-normal">
-              Información adicional que se mostrará en el documento.
-            </FormDescription>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+      <div className="col-span-full">
+        <FormTextArea
+          control={form.control}
+          name="observaciones"
+          label="Observaciones"
+          placeholder="Observaciones adicionales..."
+          description="Información adicional que se mostrará en el documento."
+        />
+      </div>
     </GroupFormSection>
   );
 }

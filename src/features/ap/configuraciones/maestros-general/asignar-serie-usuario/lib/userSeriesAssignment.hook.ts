@@ -18,7 +18,6 @@ export const useUserSeriesAssignment = (params?: Record<string, any>) => {
   return useQuery<UserSeriesAssignmentResponse>({
     queryKey: [QUERY_KEY, params],
     queryFn: () => getUserSeriesAssignment({ params }),
-    refetchOnWindowFocus: false,
   });
 };
 

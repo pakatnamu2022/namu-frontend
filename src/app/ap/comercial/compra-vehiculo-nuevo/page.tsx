@@ -18,8 +18,10 @@ import { CM_COMERCIAL_ID } from "@/features/ap/ap-master/lib/apMaster.constants"
 import {
   dispatchSyncCreditNote,
   dispatchSyncInvoice,
+  dispatchVehiclePurchaseOrderMigration,
 } from "@/features/ap/comercial/ordenes-compra-vehiculo/lib/vehiclePurchaseOrder.actions";
 import { ERROR_MESSAGE, errorToast, successToast } from "@/core/core.function";
+import { useMutation } from "@tanstack/react-query";
 
 export default function VehiclePurchaseOrderPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -34,6 +36,14 @@ export default function VehiclePurchaseOrderPage() {
   const [colorId, setColorId] = useState("all");
   const [statusId, setStatusId] = useState("all");
   const { MODEL, ROUTE } = VEHICLE_PURCHASE_ORDER;
+  const migrateMutation = useMutation({
+    mutationFn: dispatchVehiclePurchaseOrderMigration,
+    onSuccess: () => successToast("Migración despachada correctamente"),
+    onError: (error: any) => {
+      const msg = error?.response?.data?.message || "";
+      errorToast(`Error al despachar migración: ${msg}`);
+    },
+  });
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -114,6 +124,7 @@ export default function VehiclePurchaseOrderPage() {
         columns={vehiclePurchaseOrderColumns({
           onRequestInvoice: handleRequestInvoice,
           onRequestCreditNote: handleRequestCreditNote,
+          onMigrate: (id) => migrateMutation.mutate(id),
         })}
         data={data?.data || []}
       >
