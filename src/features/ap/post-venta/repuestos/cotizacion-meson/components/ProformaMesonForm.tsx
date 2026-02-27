@@ -1158,7 +1158,7 @@ export default function ProformaMesonForm({
               placeholder="Selecciona una fecha"
               dateFormat="dd/MM/yyyy"
               captionLayout="dropdown"
-              disabledRange={{ before: new Date() }}
+              disabled
             />
 
             <DatePickerFormField
