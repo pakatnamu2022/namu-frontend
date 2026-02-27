@@ -126,6 +126,14 @@ export async function dispatchSyncInvoice(
   return response.data;
 }
 
+export async function dispatchAllVehiclePurchaseOrders(): Promise<void> {
+  await api.post(`${ENDPOINT}/migration/dispatch-all`);
+}
+
+export async function dispatchVehiclePurchaseOrderMigration(id: number): Promise<void> {
+  await api.post(`${ENDPOINT}/migration/${id}/dispatch-migration`);
+}
+
 export async function getNextCorrelative(
   sedeId: number,
   typeOperationId: number,

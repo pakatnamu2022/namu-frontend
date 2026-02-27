@@ -15,6 +15,7 @@ import {
   XCircle,
   Info,
   Database,
+  ArrowRightLeft,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -34,6 +35,7 @@ interface Props {
   onQueryFromNubefact: (id: number) => void;
   onSendToDynamic: (id: number) => void;
   onViewDetails: (vehicle: VehiclesDeliveryResource) => void;
+  onMigrate?: (id: number) => void;
   permissions: {
     canUpdate: boolean;
     canDelete: boolean;
@@ -47,6 +49,7 @@ export const vehicleDeliveryColumns = ({
   onQueryFromNubefact,
   onSendToDynamic,
   onViewDetails,
+  onMigrate,
   permissions,
 }: Props): VehicleDeliveryColumns[] => [
   {
@@ -336,6 +339,19 @@ export const vehicleDeliveryColumns = ({
               onClick={() => onSendToDynamic(id)}
             >
               <Database className="size-4" />
+            </Button>
+          )}
+
+          {/* Migrar */}
+          {onMigrate && shipping_guide_id && (
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-7"
+              tooltip="Migrar"
+              onClick={() => onMigrate(id)}
+            >
+              <ArrowRightLeft className="size-4" />
             </Button>
           )}
 

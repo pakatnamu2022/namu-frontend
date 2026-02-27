@@ -13,6 +13,7 @@ import {
   Pencil,
   FileMinus,
   FilePlus,
+  ArrowRightLeft,
 } from "lucide-react";
 import { ElectronicDocumentResource } from "../lib/electronicDocument.interface";
 import {
@@ -32,7 +33,8 @@ interface Props {
   onView: (document: ElectronicDocumentResource) => void;
   onSendToSunat?: (id: number) => void;
   onAnnul?: (id: number, reason: string) => void;
-  onPreCancel?: (id: number) => Promise<void>;
+  onPreCancel?: (id: number) => Promise<boolean>;
+  onMigrate?: (id: number) => void;
   permissions: {
     canSend: boolean;
     canUpdate: boolean;
@@ -48,6 +50,7 @@ export const electronicDocumentColumns = ({
   onSendToSunat,
   onAnnul,
   onPreCancel,
+  onMigrate,
   permissions,
   module,
 }: Props): ElectronicDocumentColumn[] => {
@@ -280,6 +283,81 @@ export const electronicDocumentColumns = ({
       },
     },
     {
+      accessorKey: "was_dyn_requested",
+      header: "Solicitado DYN",
+      cell: ({ getValue }) => {
+        const value = getValue() as boolean | undefined;
+        if (value === true) {
+          return (
+            <Badge
+              variant="outline"
+              className="bg-blue-100 text-blue-700 border-blue-300 flex items-center gap-1 w-fit"
+            >
+              <CheckCircle className="h-3 w-3" />
+              <span>Sí</span>
+            </Badge>
+          );
+        }
+        return (
+          <Badge variant="outline" className="text-muted-foreground">
+            <XCircle className="h-3 w-3 mr-1" />
+            No
+          </Badge>
+        );
+      },
+    },
+    {
+      accessorKey: "is_accounted",
+      header: "Contabilizado",
+      cell: ({ getValue }) => {
+        const value = getValue() as boolean | undefined;
+        if (value === true) {
+          return (
+            <Badge
+              variant="outline"
+              className="bg-green-100 text-green-700 border-green-300 flex items-center gap-1 w-fit"
+            >
+              <CheckCircle className="h-3 w-3" />
+              <span>Sí</span>
+            </Badge>
+          );
+        }
+        return (
+          <Badge variant="outline" className="text-muted-foreground">
+            <XCircle className="h-3 w-3 mr-1" />
+            No
+          </Badge>
+        );
+      },
+    },
+    {
+      accessorKey: "is_annulled",
+      header: "Anulado (Sist.)",
+      cell: ({ getValue }) => {
+        const value = getValue() as boolean | undefined;
+        if (value === true) {
+          return (
+            <Badge
+              variant="outline"
+              className="bg-red-100 text-red-700 border-red-300 flex items-center gap-1 w-fit"
+            >
+              <XCircle className="h-3 w-3" />
+              <span>Sí</span>
+            </Badge>
+          );
+        }
+        return (
+          <Badge
+            variant="outline"
+            className="bg-green-100 text-green-700 border-green-300 flex items-center gap-1 w-fit"
+          >
+            <CheckCircle className="h-3 w-3" />
+            <span>No</span>
+          </Badge>
+        );
+      },
+    },
+    {
       accessorKey: "area_id",
       header: "Área",
       cell: ({ getValue }) => {
@@ -446,6 +524,19 @@ export const electronicDocumentColumns = ({
                   </Button>
                 }
               />
+            )}
+
+            {/* Migrar */}
+            {onMigrate && (
+              <Button
+                variant="outline"
+                size="icon"
+                className="size-7"
+                tooltip="Migrar"
+                onClick={() => onMigrate(document.id)}
+              >
+                <ArrowRightLeft className="h-4 w-4" />
+              </Button>
             )}
 
             {/* Migration History */}

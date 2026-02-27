@@ -273,3 +273,15 @@ export async function getMigrationHistory(
   );
   return data;
 }
+
+export async function dispatchAllElectronicDocuments(): Promise<void> {
+  await api.post(`${ENDPOINT}/dispatch-all`);
+}
+
+export async function dispatchElectronicDocumentMigration(id: number): Promise<void> {
+  await api.post(`${ENDPOINT}/${id}/dispatch-migration`);
+}
+
+export async function syncAccountingStatus(): Promise<void> {
+  await api.post(`${ENDPOINT}/sync-accounting-status`);
+}
