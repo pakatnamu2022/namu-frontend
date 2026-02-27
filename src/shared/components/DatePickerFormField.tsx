@@ -109,7 +109,7 @@ export function DatePickerFormField<T extends FieldValues>({
 
   const handleChange = (date: Date | undefined) => {
     if (date) {
-      field.onChange(date, "yyyy-MM-dd");
+      field.onChange(format(date, dateFormat));
       if (isMobile) setDrawerOpen(false);
     } else {
       field.onChange("");

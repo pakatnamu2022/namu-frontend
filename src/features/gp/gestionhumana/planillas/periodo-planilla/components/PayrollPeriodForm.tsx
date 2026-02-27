@@ -9,7 +9,6 @@ import {
   payrollPeriodSchemaUpdate,
 } from "../lib/payroll-period.schema";
 import { Loader } from "lucide-react";
-import { Link } from "react-router-dom";
 import { Form } from "@/components/ui/form";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
@@ -33,6 +32,7 @@ const MONTHS = [
 interface PayrollPeriodFormProps {
   defaultValues: Partial<PayrollPeriodSchema>;
   onSubmit: (data: PayrollPeriodSchema) => void;
+  onCancel?: () => void;
   isSubmitting?: boolean;
   mode?: "create" | "update";
 }
@@ -40,18 +40,19 @@ interface PayrollPeriodFormProps {
 export const PayrollPeriodForm = ({
   defaultValues,
   onSubmit,
+  onCancel,
   isSubmitting = false,
   mode = "create",
 }: PayrollPeriodFormProps) => {
-  const { ABSOLUTE_ROUTE, MODEL } = PAYROLL_PERIOD;
+  const { MODEL } = PAYROLL_PERIOD;
 
   const form = useForm<PayrollPeriodSchema>({
     resolver: zodResolver(
       mode === "create" ? payrollPeriodSchemaCreate : payrollPeriodSchemaUpdate,
     ) as any,
     defaultValues: {
-      year: defaultValues.year ?? new Date().getFullYear(),
-      month: defaultValues.month ?? new Date().getMonth() + 1,
+      year: String(defaultValues.year ?? new Date().getFullYear()) as any,
+      month: String(defaultValues.month ?? new Date().getMonth() + 1) as any,
       payment_date: defaultValues.payment_date ?? "",
       company_id: defaultValues.company_id,
     },
@@ -97,11 +98,9 @@ export const PayrollPeriodForm = ({
         </div>
 
         <div className="flex gap-4 w-full justify-end">
-          <Link to={ABSOLUTE_ROUTE}>
-            <Button type="button" variant="outline">
-              Cancelar
-            </Button>
-          </Link>
+          <Button type="button" variant="outline" onClick={onCancel}>
+            Cancelar
+          </Button>
 
           <Button
             type="submit"
