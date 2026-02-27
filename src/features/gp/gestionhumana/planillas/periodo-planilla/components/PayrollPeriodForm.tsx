@@ -9,7 +9,8 @@ import {
   payrollPeriodSchemaUpdate,
 } from "../lib/payroll-period.schema";
 import { Loader } from "lucide-react";
-import { Form, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { Form } from "@/components/ui/form";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 import { PAYROLL_PERIOD } from "../lib/payroll-period.constant";

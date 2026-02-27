@@ -28,7 +28,7 @@ interface Props {
   onView?: (id: number) => void;
   onSendToNubefact?: (id: number) => void;
   onQueryFromNubefact?: (id: number) => void;
-  onReceive?: (id: number) => void;
+  onReceive?: (row: ProductTransferResource) => void;
   onSyncWithDynamics?: (id: number) => void;
   permissions: {
     canUpdate: boolean;
@@ -416,7 +416,7 @@ export const productTransferColumns = ({
                 size="icon"
                 className="size-7"
                 tooltip="Recepcionar"
-                onClick={() => onReceive(id)}
+                onClick={() => onReceive(row.original)}
               >
                 <PackageCheck className="size-4" />
               </Button>

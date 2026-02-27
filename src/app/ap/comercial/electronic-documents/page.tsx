@@ -29,7 +29,7 @@ import { notFound } from "@/shared/hooks/useNotFound";
 import { AREA_COMERCIAL } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 export default function ElectronicDocumentsPage() {
-  const { ROUTE } = ELECTRONIC_DOCUMENT;
+  const { ROUTE, ABSOLUTE_ROUTE } = ELECTRONIC_DOCUMENT;
   const permissions = useModulePermissions(ROUTE);
   const queryClient = useQueryClient();
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -155,7 +155,7 @@ export default function ElectronicDocumentsPage() {
             canCreateCreditNote,
             canCreateDebitNote,
           },
-          module: "COMERCIAL",
+          routeAbsolute: ABSOLUTE_ROUTE,
         })}
         data={data?.data || []}
       >
