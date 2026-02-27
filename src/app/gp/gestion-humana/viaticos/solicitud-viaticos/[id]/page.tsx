@@ -27,6 +27,7 @@ import { Receipt } from "lucide-react";
 import ExpensesTable from "@/features/profile/viaticos/components/ExpensesTable";
 import { errorToast, successToast } from "@/core/core.function";
 import AddFlightTicketModal from "@/features/profile/viaticos/components/AddFlightTicketModal";
+import FormSkeleton from "@/shared/components/FormSkeleton";
 
 export default function PerDiemRequestDetailAdminPage() {
   const { id } = useParams<{ id: string }>();
@@ -85,18 +86,7 @@ export default function PerDiemRequestDetailAdminPage() {
   const isCancelled = request?.status === "cancelled";
 
   if (isLoading) {
-    return (
-      <FormWrapper>
-        <div className="space-y-6">
-          <Skeleton className="h-10 w-full max-w-md" />
-          <div className="space-y-4">
-            <Skeleton className="h-48 w-full" />
-            <Skeleton className="h-48 w-full" />
-            <Skeleton className="h-96 w-full" />
-          </div>
-        </div>
-      </FormWrapper>
-    );
+    return <FormSkeleton />;
   }
 
   if (!request) {
