@@ -44,7 +44,7 @@ export default function UpdateExpensePage() {
 
   const { mutate, isPending } = useUpdatePerDiemExpense(
     Number(expenseId),
-    Number(id)
+    Number(id),
   );
 
   const handleSubmit = (data: ExpenseSchema) => {
@@ -67,7 +67,7 @@ export default function UpdateExpensePage() {
 
           successToast(
             "Gasto actualizado",
-            "El gasto ha sido actualizado exitosamente."
+            "El gasto ha sido actualizado exitosamente.",
           );
           setShowConfirmModal(false);
           setPendingData(null);
@@ -75,9 +75,8 @@ export default function UpdateExpensePage() {
         },
         onError: (error: any) => {
           errorToast(
-            "Error al actualizar",
             error.response?.data?.message ||
-              "No se pudo actualizar el gasto. Inténtalo de nuevo."
+              "No se pudo actualizar el gasto. Inténtalo de nuevo.",
           );
         },
       });

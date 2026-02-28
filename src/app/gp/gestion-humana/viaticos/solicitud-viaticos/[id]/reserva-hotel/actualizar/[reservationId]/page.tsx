@@ -82,7 +82,6 @@ export default function UpdateHotelReservationPage() {
         },
         onError: (error: any) => {
           errorToast(
-            "Error al actualizar",
             error.response?.data?.message ||
               "No se pudo actualizar la reserva. Inténtalo de nuevo.",
           );

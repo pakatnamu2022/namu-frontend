@@ -12,6 +12,7 @@ import {
   RotateCcwSquare,
   RotateCcw,
   MailPlus,
+  RefreshCw,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { PerDiemRequestResource } from "../lib/perDiemRequest.interface";
@@ -23,6 +24,7 @@ import {
   expenseTotalWithEvidencePdf,
   resendPerDiemRequestEmails,
   resetApprovals,
+  regenerateBudgets,
 } from "../lib/perDiemRequest.actions";
 import {
   ABSOLUTE_ROUTE_GP,
@@ -74,6 +76,8 @@ export function PerDiemRequestRowActions({
   const [sendToB, setSendToBoss] = useState(false);
   const [sendToAccounting, setSendToAccounting] = useState(false);
   const [isResetApprovalsDialogOpen, setIsResetApprovalsDialogOpen] =
+    useState(false);
+  const [isRegenerateBudgetsDialogOpen, setIsRegenerateBudgetsDialogOpen] =
     useState(false);
 
   const hasHotelReservation = !!request.hotel_reservation;
@@ -168,6 +172,22 @@ export function PerDiemRequestRowActions({
     onError: (error: any) => {
       errorToast(
         error?.response?.data?.message || "Error al restablecer aprobaciones",
+      );
+    },
+  });
+
+  const regenerateBudgetsMutation = useMutation({
+    mutationFn: (requestId: number) => regenerateBudgets(requestId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [PER_DIEM_REQUEST.QUERY_KEY],
+      });
+      successToast("Presupuestos regenerados exitosamente");
+      setIsRegenerateBudgetsDialogOpen(false);
+    },
+    onError: (error: any) => {
+      errorToast(
+        error?.response?.data?.message || "Error al regenerar presupuestos",
       );
     },
   });
@@ -416,6 +436,30 @@ export function PerDiemRequestRowActions({
             icon="warning"
             open={isResetApprovalsDialogOpen}
             onOpenChange={setIsResetApprovalsDialogOpen}
+          />
+        )}
+
+        {request.status === "in_progress" && module === "gh" && (
+          <ConfirmationDialog
+            trigger={
+              <Button
+                variant="outline"
+                size="icon-xs"
+                tooltip="Regenerar presupuestos"
+                disabled={regenerateBudgetsMutation.isPending}
+              >
+                <RefreshCw className="size-4" />
+              </Button>
+            }
+            title="¿Regenerar presupuestos?"
+            description="Esta acción regenerará los presupuestos y cálculos de la solicitud. ¿Deseas continuar?"
+            confirmText="Sí, regenerar"
+            cancelText="Cancelar"
+            onConfirm={() => regenerateBudgetsMutation.mutate(request.id)}
+            variant="default"
+            icon="info"
+            open={isRegenerateBudgetsDialogOpen}
+            onOpenChange={setIsRegenerateBudgetsDialogOpen}
           />
         )}
 
