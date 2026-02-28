@@ -115,17 +115,22 @@ export function OrderQuotationDocumentInfoSection({
   }, [defaultCustomer, clientId, form, lockedClientId]);
 
   // Forzar el switch a true (anticipo) cuando no hay stock suficiente
+  // Forzar el switch a false (venta interna) cuando el saldo pendiente es 0
   useEffect(() => {
     if (!hasSufficientStock) {
       form.setValue("is_advance_payment", true, {
         shouldValidate: false,
       });
+    } else if (pendingBalance === 0) {
+      form.setValue("is_advance_payment", false, {
+        shouldValidate: false,
+      });
     }
-  }, [hasSufficientStock, form]);
+  }, [hasSufficientStock, pendingBalance, form]);
 
   // Determinar si el switch debe estar habilitado
-  // Se habilita cuando: hay stock suficiente O el saldo pendiente es 0 (ya pagó todo)
-  const isToggleEnabled = hasSufficientStock || pendingBalance === 0;
+  // Se deshabilita cuando: no hay stock suficiente O el saldo pendiente es 0 (ya pagó todo)
+  const isToggleEnabled = hasSufficientStock && pendingBalance !== 0;
 
   // Filtrar tipos de documento según el document_type_id del cliente
   const filteredDocumentTypes = documentTypes.filter((type) => {
@@ -277,7 +282,7 @@ export function OrderQuotationDocumentInfoSection({
             !hasSufficientStock && pendingBalance > 0
               ? "Sin stock suficiente: Solo se permite anticipo"
               : pendingBalance === 0
-                ? "Pago completo realizado: Puede generar documento de venta final"
+                ? "Pago completo realizado: Solo se permite venta interna"
                 : isAdvancePayment
                   ? "Tipo de operación: Venta Interna - Anticipos (código 04)"
                   : "Tipo de operación: Venta Interna (código 01)"
