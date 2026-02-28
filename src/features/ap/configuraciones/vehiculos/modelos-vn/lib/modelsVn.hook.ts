@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { ModelsVnResource, ModelsVnResponse } from "./modelsVn.interface";
 import {
+  findModelsVnById,
   getAllModelsVn,
   getModelsVn,
   getModelsVnSearch,
@@ -23,6 +24,14 @@ export const useModelsVnSearch = (params?: Record<string, any>) => {
     queryKey: [QUERY_KEY, params],
     queryFn: () => getModelsVnSearch({ params }),
     refetchOnWindowFocus: false,
+  });
+};
+
+export const useModelVnById = (id: number) => {
+  return useQuery({
+    queryKey: [QUERY_KEY, id],
+    queryFn: () => findModelsVnById(id),
+    enabled: !!id,
   });
 };
 
