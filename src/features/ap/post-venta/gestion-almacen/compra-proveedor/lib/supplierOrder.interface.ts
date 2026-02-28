@@ -44,6 +44,7 @@ export interface SupplierOrderResource {
   total_amount: number;
   has_receptions: boolean;
   invoice_numbers: string[];
+  oc_dyn_numbers: string[];
   status: boolean;
   supplier?: SuppliersResource;
   sede?: SedeResource;

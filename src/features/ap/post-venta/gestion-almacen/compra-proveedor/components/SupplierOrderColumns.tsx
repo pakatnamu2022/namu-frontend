@@ -92,7 +92,7 @@ export const supplierOrderColumns = ({
   },
   {
     accessorKey: "has_invoice",
-    header: "Asocio Factura",
+    header: "Factura",
     cell: ({ getValue, row }) => {
       const isTake = getValue() as boolean;
       const invoiceNumbers = row.original.invoice_numbers || [];
@@ -109,6 +109,30 @@ export const supplierOrderColumns = ({
         <div className="flex flex-col gap-0.5">
           {invoiceNumbers.map((invoice, index) => (
             <CopyCell key={index} value={invoice} />
+          ))}
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "has_invoice",
+    header: "OC Dymamic",
+    cell: ({ getValue, row }) => {
+      const isTake = getValue() as boolean;
+      const invoiceNumbers = row.original.oc_dyn_numbers || [];
+
+      if (!isTake) {
+        return (
+          <Badge variant="outline" color="red" className="w-fit">
+            No
+          </Badge>
+        );
+      }
+
+      return (
+        <div className="flex flex-col gap-0.5">
+          {invoiceNumbers.map((purchase_order, index) => (
+            <CopyCell key={index} value={purchase_order} />
           ))}
         </div>
       );

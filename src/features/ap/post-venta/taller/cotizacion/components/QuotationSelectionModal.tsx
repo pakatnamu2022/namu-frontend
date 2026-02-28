@@ -47,6 +47,7 @@ export const QuotationSelectionModal = ({
     page,
     per_page,
     is_take: 0,
+    has_invoice_generated: 1,
     sede_id: sedeId,
     supply_type: [SUPPLY_TYPE.LIMA, SUPPLY_TYPE.IMPORTACION],
     status: STATUS_ORDER_QUOTATION.TO_BILL,
