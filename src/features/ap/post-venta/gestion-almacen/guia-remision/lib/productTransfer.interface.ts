@@ -2,6 +2,7 @@ import { type Links, type Meta } from "@/shared/lib/pagination.interface.ts";
 import { ProductResource } from "@/features/ap/post-venta/gestion-almacen/productos/lib/product.interface.ts";
 import { WarehouseResource } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.interface.ts";
 import { ShipmentsReceptionsResource } from "@/features/ap/comercial/envios-recepciones/lib/shipmentsReceptions.interface.ts";
+import { TransferReceptionResource } from "../../recepcion-transferencia/lib/transferReception.interface";
 
 export interface ProductTransferResponse {
   data: ProductTransferResource[];
@@ -31,6 +32,7 @@ export interface ProductTransferResource {
   total_items: number;
   total_quantity: string;
   details: ProductTransferDetailResource[];
+  transfer_reception: TransferReceptionResource[] | null;
   created_at: string;
   updated_at: string;
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { useNavigate } from "react-router-dom";
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import { useEffect, useState } from "react";
 import {
@@ -29,6 +30,7 @@ import {
 } from "@/features/ap/post-venta/gestion-almacen/productos/lib/product.actions";
 
 export default function ProductRepuestoPage() {
+  const router = useNavigate();
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
@@ -36,7 +38,7 @@ export default function ProductRepuestoPage() {
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [viewProductId, setViewProductId] = useState<number | null>(null);
   const [isDetailSheetOpen, setIsDetailSheetOpen] = useState(false);
-  const { MODEL, ROUTE } = PRODUCT_REPUESTOS;
+  const { MODEL, ROUTE, ABSOLUTE_ROUTE } = PRODUCT_REPUESTOS;
   const permissions = useModulePermissions(ROUTE);
 
   useEffect(() => {
@@ -62,6 +64,10 @@ export default function ProductRepuestoPage() {
   const handleView = (id: number) => {
     setViewProductId(id);
     setIsDetailSheetOpen(true);
+  };
+
+  const handleAssignWarehouse = (id: number) => {
+    router(`${ABSOLUTE_ROUTE}/asignar-almacen/${id}`);
   };
 
   const handleDelete = async () => {
@@ -99,6 +105,7 @@ export default function ProductRepuestoPage() {
           onUpdate: () => {},
           onDelete: setDeleteId,
           onView: handleView,
+          onAssignWarehouse: handleAssignWarehouse,
           permissions,
         })}
         data={data?.data || []}

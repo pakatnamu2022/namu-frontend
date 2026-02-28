@@ -2,10 +2,11 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { WorkOrderPlanningResource } from "../lib/workOrderPlanning.interface";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Lock } from "lucide-react";
 import { WorkerTimeline } from "./WorkerTimeline";
 
 interface WorkerTimelineViewProps {
@@ -15,6 +16,7 @@ interface WorkerTimelineViewProps {
   onBack: () => void;
   sedeId?: string;
   onRefresh?: () => void;
+  readOnly?: boolean;
 }
 
 export function WorkerTimelineView({
@@ -24,6 +26,7 @@ export function WorkerTimelineView({
   onBack,
   sedeId,
   onRefresh,
+  readOnly = false,
 }: WorkerTimelineViewProps) {
   return (
     <Card>
@@ -40,6 +43,12 @@ export function WorkerTimelineView({
                 locale: es,
               })}
             </CardTitle>
+            {readOnly && (
+              <Badge>
+                <Lock className="h-3 w-3" />
+                Solo lectura
+              </Badge>
+            )}
           </div>
         </div>
       </CardHeader>
@@ -52,6 +61,7 @@ export function WorkerTimelineView({
           fullPage={true}
           sedeId={sedeId}
           onRefresh={onRefresh}
+          readOnly={readOnly}
         />
       </CardContent>
     </Card>

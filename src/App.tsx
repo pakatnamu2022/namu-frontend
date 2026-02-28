@@ -264,6 +264,7 @@ import UpdateVehiclesRepuestosPage from "./app/ap/post-venta/repuestos/vehiculos
 import ProductRepuestoPage from "./app/ap/post-venta/repuestos/producto-repuesto/page.tsx";
 import AddProductRepuestoPage from "./app/ap/post-venta/repuestos/producto-repuesto/agregar/page.tsx";
 import UpdateProductRepuestoPage from "./app/ap/post-venta/repuestos/producto-repuesto/actualizar/[id]/page.tsx";
+import AssignWarehouseRepuestoPage from "./app/ap/post-venta/repuestos/producto-repuesto/asignar-almacen/[id]/page.tsx";
 import InventoryRepuestoPage from "./app/ap/post-venta/repuestos/inventario-repuesto/page.tsx";
 import ProductRepuestoKardexPage from "./app/ap/post-venta/repuestos/inventario-repuesto/movimientos/[productId]/[warehouseId]/page.tsx";
 import CustomersRpPage from "./app/ap/post-venta/repuestos/clientes-repuestos/page.tsx";
@@ -306,6 +307,7 @@ import VehicleInspectionPage from "./app/ap/post-venta/taller/orden-trabajo/[wor
 import SalesReceiptsTallerPage from "./app/ap/post-venta/taller/comprobante-venta-taller/page.tsx";
 import BoxPage from "./app/ap/post-venta/caja/page.tsx";
 import SalesReceiptsCajaPage from "./app/ap/post-venta/caja/comprante-venta-caja/page.tsx";
+import UpdateSalesReceiptsCajaPage from "./app/ap/post-venta/caja/comprante-venta-caja/actualizar/[id]/page.tsx";
 import OrderQuotationMesonCajaPage from "./app/ap/post-venta/caja/cotizacion-repuesto-caja/page.tsx";
 import WorkOrderCajaPage from "./app/ap/post-venta/caja/order-trabajo-taller-caja/page.tsx";
 import ManageWorkOrderCajaPage from "./app/ap/post-venta/caja/order-trabajo-taller-caja/gestionar/[id]/page.tsx";
@@ -374,10 +376,6 @@ import ControlFreightPage from "./app/tp/comercial-tp/control-fletes/page.tsx";
 import PayrollPeriodsPage from "./app/gp/gestion-humana/planillas/periodos/page.tsx";
 import AddPayrollPeriodPage from "./app/gp/gestion-humana/planillas/periodos/agregar/page.tsx";
 import UpdatePayrollPeriodPage from "./app/gp/gestion-humana/planillas/periodos/actualizar/[id]/page.tsx";
-import WorkTypePage from "./app/gp/gestion-humana/planillas/tipo-dia-trabajo/page.tsx";
-import AddWorkTypePage from "./app/gp/gestion-humana/planillas/tipo-dia-trabajo/agregar/page.tsx";
-import UpdateWorkTypePage from "./app/gp/gestion-humana/planillas/tipo-dia-trabajo/actualizar/[id]/page.tsx";
-import ManageSegmentsPage from "./app/gp/gestion-humana/planillas/tipo-dia-trabajo/segmentos/[id]/page.tsx";
 import AttendanceRulePage from "./app/gp/gestion-humana/planillas/reglas-asistencia/page.tsx";
 import AddAttendanceRulePage from "./app/gp/gestion-humana/planillas/reglas-asistencia/agregar/page.tsx";
 import UpdateAttendanceRulePage from "./app/gp/gestion-humana/planillas/reglas-asistencia/actualizar/[id]/page.tsx";
@@ -1365,6 +1363,10 @@ function App() {
                 element={<UpdateProductRepuestoPage />}
               />
               <Route
+                path="repuestos/producto-repuesto/asignar-almacen/:id"
+                element={<AssignWarehouseRepuestoPage />}
+              />
+              <Route
                 path="repuestos/inventario-repuesto"
                 element={<InventoryRepuestoPage />}
               />
@@ -1530,6 +1532,10 @@ function App() {
               <Route
                 path="caja/comprobante-venta-caja"
                 element={<SalesReceiptsCajaPage />}
+              />
+              <Route
+                path="caja/comprobante-venta-caja/actualizar/:id"
+                element={<UpdateSalesReceiptsCajaPage />}
               />
               <Route
                 path="caja/cotizacion-repuesto-caja"
@@ -1823,17 +1829,6 @@ function App() {
                 <AddPayrollPeriodPage />,
                 <UpdatePayrollPeriodPage />,
               )}
-              {/* Tipo de Dia de Trabajo */}
-              {RouterCrud(
-                "planillas/tipo-dia-trabajo",
-                <WorkTypePage />,
-                <AddWorkTypePage />,
-                <UpdateWorkTypePage />,
-              )}
-              <Route
-                path="planillas/tipo-dia-trabajo/segmentos/:id"
-                element={<ManageSegmentsPage />}
-              />
 
               {/* Reglas de Asistencia */}
               {RouterCrud(

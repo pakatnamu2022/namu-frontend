@@ -30,7 +30,7 @@ import { AREA_TALLER } from "@/features/ap/ap-master/lib/apMaster.constants";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 
 export default function SalesReceiptsTallerPage() {
-  const { ROUTE } = ELECTRONIC_DOCUMENT_TALLER;
+  const { ROUTE, ABSOLUTE_ROUTE } = ELECTRONIC_DOCUMENT_TALLER;
   const permissions = useModulePermissions(ROUTE);
   const queryClient = useQueryClient();
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -165,7 +165,7 @@ export default function SalesReceiptsTallerPage() {
             canCreateCreditNote,
             canCreateDebitNote,
           },
-          module: "REPUESTOS",
+          routeAbsolute: ABSOLUTE_ROUTE,
         })}
         data={data?.data || []}
       >

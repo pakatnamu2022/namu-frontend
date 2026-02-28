@@ -31,10 +31,10 @@ import {
   useSendShippingGuideToNubefact,
   useQueryShippingGuideFromNubefact,
 } from "@/features/ap/post-venta/gestion-almacen/guia-remision/lib/productTransfer.hook.ts";
-import { getAllTransferReceptions } from "@/features/ap/post-venta/gestion-almacen/recepcion-transferencia/lib/transferReception.actions.ts";
 import { useNavigate } from "react-router-dom";
 import { ProductTransferViewSheet } from "@/features/ap/post-venta/gestion-almacen/guia-remision/components/ProductTransferViewSheet.tsx";
 import { useMyPhysicalWarehouse } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook.ts";
+import type { ProductTransferResource } from "@/features/ap/post-venta/gestion-almacen/guia-remision/lib/productTransfer.interface.ts";
 
 export default function ProductTransferPage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -47,7 +47,7 @@ export default function ProductTransferPage() {
   const [sendToNubefactId, setSendToNubefactId] = useState<number | null>(null);
   const [viewId, setViewId] = useState<number>(0);
   const [isViewSheetOpen, setIsViewSheetOpen] = useState(false);
-  const { MODEL, ROUTE, ROUTE_UPDATE } = PRODUCT_TRANSFER;
+  const { MODEL, ROUTE, ROUTE_UPDATE, ABSOLUTE_ROUTE } = PRODUCT_TRANSFER;
   const permissions = useModulePermissions(ROUTE);
   const sendToNubefactMutation = useSendShippingGuideToNubefact();
   const queryFromNubefactMutation = useQueryShippingGuideFromNubefact();
@@ -123,13 +123,12 @@ export default function ProductTransferPage() {
     });
   };
 
-  const handleReceive = async (id: number) => {
-    const ROUTE_RECEPTION =
-      "/ap/post-venta/gestion-de-almacen/guia-remision/recepcion";
-    const receptions = await getAllTransferReceptions({
-      productTransferId: id,
-    });
-    if (receptions.length === 0) {
+  const handleReceive = ({
+    id,
+    transfer_reception,
+  }: Pick<ProductTransferResource, "id" | "transfer_reception">) => {
+    const ROUTE_RECEPTION = `${ABSOLUTE_ROUTE}/recepcion`;
+    if (!transfer_reception || transfer_reception.length === 0) {
       navigate(`${ROUTE_RECEPTION}/agregar/${id}`);
     } else {
       navigate(`${ROUTE_RECEPTION}/${id}`);

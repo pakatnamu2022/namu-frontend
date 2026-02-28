@@ -27,6 +27,8 @@ export interface ElectronicDocumentResource {
   origin_entity_id: number;
   ap_vehicle_movement_id?: number;
   purchase_request_quote_id?: number;
+  order_quotation_id?: number;
+  work_order_id?: number;
   credit_note_id?: number;
   debit_note_id?: number;
   client_id: number;
