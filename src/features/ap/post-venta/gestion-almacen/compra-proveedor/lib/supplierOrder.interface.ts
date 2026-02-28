@@ -42,8 +42,8 @@ export interface SupplierOrderResource {
   net_amount: number;
   tax_amount: number;
   total_amount: number;
-  is_take: boolean;
   has_receptions: boolean;
+  invoice_numbers: string[];
   status: boolean;
   supplier?: SuppliersResource;
   sede?: SedeResource;

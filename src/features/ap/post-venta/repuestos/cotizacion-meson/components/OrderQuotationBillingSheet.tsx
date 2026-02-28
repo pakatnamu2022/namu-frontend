@@ -22,6 +22,8 @@ import {
   User,
   Calendar,
   MessageSquare,
+  Check,
+  Copy,
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { findOrderQuotationById } from "../../../taller/cotizacion/lib/proforma.actions";
@@ -41,6 +43,7 @@ import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { SignaturePad } from "../../../taller/inspeccion-vehiculo/components/SignaturePad";
 import { confirmOrderQuotation } from "../lib/quotationMeson.actions";
 import { errorToast, successToast } from "@/core/core.function";
+import { useState } from "react";
 
 interface OrderQuotationBillingSheetProps {
   orderQuotationId: number | null;
@@ -152,6 +155,8 @@ function BillingSheetContent({
   const hasAdvances = advances.length > 0;
   const totalAdvances = advances.reduce((sum, doc) => sum + doc.total, 0);
   const currencySymbol = orderQuotation.type_currency?.symbol || "S/.";
+  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+  const [copiedField, setCopiedField] = useState<string | null>(null);
 
   // Verificar si debe mostrar la sección de firma
   const shouldShowSignature = orderQuotation.status === "Aperturado";
@@ -184,6 +189,26 @@ function BillingSheetContent({
       );
     },
   });
+
+  const handleCopyCode = async (
+    code: string,
+    field: string,
+    index?: number,
+  ) => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopiedField(field);
+      if (index !== undefined) {
+        setCopiedIndex(index);
+      }
+      setTimeout(() => {
+        setCopiedField(null);
+        setCopiedIndex(null);
+      }, 2000);
+    } catch (err) {
+      console.error("Error al copiar:", err);
+    }
+  };
 
   const onSubmitSignature = (data: SignatureFormData) => {
     confirmMutation.mutate(data);
@@ -489,8 +514,8 @@ function BillingSheetContent({
           <Table>
             <TableHeader>
               <TableRow className="bg-muted/50">
-                <TableHead className="text-left">Código</TableHead>
-                <TableHead>Descripción</TableHead>
+                <TableHead className="text-left">#</TableHead>
+                <TableHead>Producto</TableHead>
                 <TableHead className="text-center">Cantidad</TableHead>
                 <TableHead className="text-right">P. Unitario</TableHead>
                 <TableHead className="text-right">% Dto.</TableHead>
@@ -498,13 +523,42 @@ function BillingSheetContent({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {orderQuotation.details?.map((detail) => (
+              {orderQuotation.details?.map((detail, index) => (
                 <TableRow key={detail.id}>
                   <TableCell>
-                    <div className="text-sm">{detail.product!.code}</div>
+                    <div className="text-sm">{index + 1}</div>
                   </TableCell>
                   <TableCell>
                     <div className="text-sm">{detail.description}</div>
+                    <div className="flex items-center gap-1">
+                      <span className="text-xs text-muted-foreground">
+                        Código: {detail.product?.code || "N/A"}
+                      </span>
+                      {detail.product?.code && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="h-5 w-5 p-0 hover:bg-slate-200"
+                          onClick={() => {
+                            if (detail.product?.code) {
+                              handleCopyCode(
+                                detail.product.code,
+                                "product_code",
+                                index,
+                              );
+                            }
+                          }}
+                        >
+                          {copiedIndex === index &&
+                          copiedField === "product_code" ? (
+                            <Check className="h-3 w-3 text-green-600" />
+                          ) : (
+                            <Copy className="h-3 w-3" />
+                          )}
+                        </Button>
+                      )}
+                    </div>
                   </TableCell>
                   <TableCell className="text-center">
                     <div className="text-sm">

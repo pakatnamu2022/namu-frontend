@@ -5,6 +5,7 @@ import { Eye, Pencil, PackageCheck } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog.tsx";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge.tsx";
+import { CopyCell } from "@/shared/components/CopyCell";
 
 export type SupplierOrderColumns = ColumnDef<SupplierOrderResource>;
 
@@ -32,7 +33,7 @@ export const supplierOrderColumns = ({
     header: "Nº Pedido",
     cell: ({ getValue }) => {
       const value = getValue() as string;
-      return value && <p className="font-semibold">{value}</p>;
+      return value && <CopyCell value={value} />;
     },
   },
   {
@@ -92,12 +93,24 @@ export const supplierOrderColumns = ({
   {
     accessorKey: "has_invoice",
     header: "Asocio Factura",
-    cell: ({ getValue }) => {
+    cell: ({ getValue, row }) => {
       const isTake = getValue() as boolean;
+      const invoiceNumbers = row.original.invoice_numbers || [];
+
+      if (!isTake) {
+        return (
+          <Badge variant="outline" color="red" className="w-fit">
+            No
+          </Badge>
+        );
+      }
+
       return (
-        <Badge color={isTake ? "default" : "secondary"}>
-          {isTake ? "Si" : "No"}
-        </Badge>
+        <div className="flex flex-col gap-0.5">
+          {invoiceNumbers.map((invoice, index) => (
+            <CopyCell key={index} value={invoice} />
+          ))}
+        </div>
       );
     },
   },
@@ -105,9 +118,7 @@ export const supplierOrderColumns = ({
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
-      const { id, is_take, has_receptions } = row.original;
-      const canEditDelete = !is_take; // Disable edit/delete if already taken
-      console.log("Row Data:", row.original); // Debugging line
+      const { id, has_receptions } = row.original;
 
       return (
         <div className="flex items-center gap-2">
@@ -136,23 +147,20 @@ export const supplierOrderColumns = ({
             </Link>
           )}
 
-          {permissions.canUpdate &&
-            !has_receptions &&
-            canEditDelete &&
-            routeUpdate && (
-              <Link to={`${routeUpdate}/${id}`}>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="size-7"
-                  tooltip="Editar"
-                >
-                  <Pencil className="size-4" />
-                </Button>
-              </Link>
-            )}
+          {permissions.canUpdate && !has_receptions && routeUpdate && (
+            <Link to={`${routeUpdate}/${id}`}>
+              <Button
+                variant="outline"
+                size="icon"
+                className="size-7"
+                tooltip="Editar"
+              >
+                <Pencil className="size-4" />
+              </Button>
+            </Link>
+          )}
 
-          {permissions.canDelete && !has_receptions && canEditDelete && (
+          {permissions.canDelete && !has_receptions && (
             <DeleteButton onClick={() => onDelete(id)} />
           )}
         </div>

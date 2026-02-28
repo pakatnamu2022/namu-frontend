@@ -2,15 +2,30 @@ import { api } from "@/core/api";
 import { OrderQuotationResource } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.interface";
 import { QuotationMesonWithProductsSchema } from "./quotationMeson.schema";
 import { GeneralResponse } from "@/shared/lib/response.interface";
+import { format } from "date-fns";
 
 const ENDPOINT = "/ap/postVenta/orderQuotations";
+
+function formatDateField(val: unknown): string | unknown {
+  if (val instanceof Date) return format(val, "yyyy-MM-dd");
+  return val;
+}
+
+function prepareDates(data: QuotationMesonWithProductsSchema) {
+  return {
+    ...data,
+    quotation_date: formatDateField(data.quotation_date),
+    expiration_date: formatDateField(data.expiration_date),
+    collection_date: formatDateField(data.collection_date),
+  };
+}
 
 export async function storeOrderQuotationWithProducts(
   data: QuotationMesonWithProductsSchema,
 ): Promise<OrderQuotationResource> {
   const response = await api.post<OrderQuotationResource>(
     `${ENDPOINT}/with-products`,
-    data,
+    prepareDates(data),
   );
   return response.data;
 }
@@ -21,7 +36,7 @@ export async function updateOrderQuotationWithProducts(
 ): Promise<OrderQuotationResource> {
   const response = await api.put<OrderQuotationResource>(
     `${ENDPOINT}/${id}/with-products`,
-    data,
+    prepareDates(data),
   );
   return response.data;
 }
