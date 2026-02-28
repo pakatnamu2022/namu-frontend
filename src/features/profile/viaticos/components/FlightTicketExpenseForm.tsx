@@ -47,7 +47,7 @@ export default function FlightTicketExpenseForm({
   const [isFirstLoad, setIsFirstLoad] = useState(true);
 
   const form = useForm<ExpenseSchema>({
-    resolver: zodResolver(expenseSchema),
+    resolver: zodResolver(expenseSchema) as any,
     defaultValues: {
       receipt_amount: 0,
       receipt_type: "invoice",
@@ -62,10 +62,10 @@ export default function FlightTicketExpenseForm({
   // Validación de RUC cuando el campo tiene 11 dígitos (RUC peruano estándar)
   const shouldValidateRuc = Boolean(
     !isFirstLoad &&
-      rucValue &&
-      rucValue.length === 11 &&
-      /^\d+$/.test(rucValue) &&
-      (receiptType === "invoice" || receiptType === "ticket")
+    rucValue &&
+    rucValue.length === 11 &&
+    /^\d+$/.test(rucValue) &&
+    (receiptType === "invoice" || receiptType === "ticket"),
   );
 
   const {
@@ -85,7 +85,7 @@ export default function FlightTicketExpenseForm({
   useEffect(() => {
     if (expenseTypeId && flightTicketTypes) {
       const selectedExpenseType = flightTicketTypes.find(
-        (type) => type.id.toString() === expenseTypeId
+        (type) => type.id.toString() === expenseTypeId,
       );
 
       if (selectedExpenseType) {
