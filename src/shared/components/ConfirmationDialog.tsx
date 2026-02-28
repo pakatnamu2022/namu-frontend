@@ -134,7 +134,7 @@ export const ConfirmationDialog = ({
         <AlertDialogHeader>
           {IconHeader}
         </AlertDialogHeader>
-        <AlertDialogDescription className="text-left mt-2">
+        <AlertDialogDescription className="text-left">
           {description}
         </AlertDialogDescription>
         {children && <div className="mt-4">{children}</div>}
