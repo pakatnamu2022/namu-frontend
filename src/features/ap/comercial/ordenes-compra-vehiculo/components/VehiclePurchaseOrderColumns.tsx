@@ -7,6 +7,7 @@ import { VehiclePurchaseOrderResource } from "../lib/vehiclePurchaseOrder.interf
 import VehiclePurchaseOrderMigrationHistory from "./VehiclePurchaseOrderMigrationHistory";
 import VehiclePurchaseOrderDetailButton from "./VehiclePurchaseOrderDetailButton";
 import { VEHICLE_PURCHASE_ORDER } from "../lib/vehiclePurchaseOrder.constants";
+import MigrationStatusBadge from "@/features/ap/facturacion/electronic-documents/components/MigrationStatusBadge";
 
 export type VehiclePurchaseOrderColumns =
   ColumnDef<VehiclePurchaseOrderResource>;
@@ -23,32 +24,6 @@ export const vehiclePurchaseOrderColumns = ({
   onMigrate,
 }: Props): VehiclePurchaseOrderColumns[] => [
   {
-    accessorKey: "status",
-    header: "Estado",
-    cell: ({ getValue }) => {
-      const value = getValue() as boolean;
-      return value ? (
-        <Badge
-          tooltip="Válida"
-          className="border-0 py-0 h-6 flex justify-center items-center w-fit px-2 gap-2 text-xs"
-        >
-          <Check className="h-4 w-4" />
-          <span>Válida</span>
-        </Badge>
-      ) : (
-        <Badge
-          color="secondary"
-          tooltip="Anulada"
-          tooltipVariant="secondary"
-          className="border-0 h-6 p-0 flex justify-center items-center w-fit px-2 gap-2 text-xs"
-        >
-          <X className="h-4 w-4" />
-          <span>Anulada</span>
-        </Badge>
-      );
-    },
-  },
-  {
     accessorKey: "number",
     header: "Nro. Orden",
     cell: ({ getValue }) => {
@@ -63,10 +38,6 @@ export const vehiclePurchaseOrderColumns = ({
     },
   },
   {
-    accessorKey: "emission_date",
-    header: "Fecha Emisión",
-  },
-  {
     accessorKey: "number_guide",
     header: "Nro. Guía",
     cell: ({ getValue }) => {
@@ -79,6 +50,10 @@ export const vehiclePurchaseOrderColumns = ({
         )
       );
     },
+  },
+  {
+    accessorKey: "emission_date",
+    header: "Fecha Emisión",
   },
   {
     accessorKey: "invoice_dynamics",
@@ -143,12 +118,17 @@ export const vehiclePurchaseOrderColumns = ({
     header: "Proveedor",
   },
   {
-    accessorKey: "invoice_series",
-    header: "Serie",
-  },
-  {
-    accessorKey: "invoice_number",
+    accessorKey: "invoice",
     header: "Factura",
+    cell: ({ row }) => {
+      const invoice =
+        row.original.invoice_series + "-" + row.original.invoice_number;
+      return (
+        <Badge variant="outline" className="font-mono text-sm font-normal">
+          {invoice}
+        </Badge>
+      );
+    },
   },
   {
     accessorKey: "subtotal",
@@ -190,6 +170,35 @@ export const vehiclePurchaseOrderColumns = ({
     cell: ({ getValue }) => {
       const value = getValue() as string | null;
       return value || "N/A";
+    },
+  },
+  {
+    accessorKey: "status",
+    header: "Estado",
+    cell: ({ getValue }) => {
+      const value = getValue() as boolean;
+      return value ? (
+        <Badge tooltip="Válida" icon={Check} color="green" variant="outline">
+          <span>Válida</span>
+        </Badge>
+      ) : (
+        <Badge
+          color="red"
+          variant="outline"
+          tooltip="Anulada"
+          tooltipVariant="secondary"
+          icon={X}
+        >
+          <span>Anulada</span>
+        </Badge>
+      );
+    },
+  },
+  {
+    accessorKey: "migration_status",
+    header: "Estado Migración",
+    cell: ({ getValue }) => {
+      return <MigrationStatusBadge migration_status={getValue() as string} />;
     },
   },
   {

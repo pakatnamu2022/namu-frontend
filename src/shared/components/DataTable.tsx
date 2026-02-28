@@ -19,7 +19,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import type { VisibilityState } from "@tanstack/react-table";
 import DataTableColumnFilter from "./DataTableColumnFilter";
 import FormSkeleton from "./FormSkeleton";
@@ -121,6 +121,22 @@ export function DataTable<TData, TValue>({
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
     initialColumnVisibility ?? {},
   );
+  const tableContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const container = tableContainerRef.current;
+    if (!container) return;
+
+    const handleWheel = (e: WheelEvent) => {
+      if (!e.target || !container.contains(e.target as Node)) return;
+      if (container.scrollWidth <= container.clientWidth) return;
+      e.preventDefault();
+      container.scrollLeft += e.deltaY;
+    };
+
+    document.addEventListener("wheel", handleWheel, { passive: false });
+    return () => document.removeEventListener("wheel", handleWheel);
+  }, []);
 
   const table = useReactTable({
     data,
@@ -145,6 +161,18 @@ export function DataTable<TData, TValue>({
     ...(onSortingChange && { onSortingChange }),
   });
 
+  const isActionsCol = (id: string) =>
+    id.toLowerCase().includes("action") || id.toLowerCase().includes("accion");
+
+  const hasActionsColumn = table.getAllColumns().some((col) => isActionsCol(col.id));
+
+  const stickyHeaderBg =
+    variant === "outline"
+      ? "bg-muted/50"
+      : variant === "simple" || variant === "ghost"
+        ? "bg-background"
+        : "bg-muted";
+
   return (
     <div
       className={cn(
@@ -155,20 +183,29 @@ export function DataTable<TData, TValue>({
       <div className="flex md:flex-wrap gap-2 justify-end md:justify-between w-full">
         {children}
         {isVisibleColumnFilter && !mobileCardRender && (
-          <DataTableColumnFilter table={table} />
+          <DataTableColumnFilter table={table} tableContainerRef={tableContainerRef} />
         )}
       </div>
 
       {/* Vista de Tabla para pantallas grandes */}
       <div className={cn(dataTableVariants({ variant }), className)}>
-        <div className="overflow-x-auto w-full">
+        <div ref={tableContainerRef} className="overflow-x-auto w-full">
           <Table className="text-xs md:text-sm">
             <TableHeader className={cn(headerVariants({ variant }))}>
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id} className="text-nowrap h-10">
                   {headerGroup.headers.map((header) => {
                     return (
-                      <TableHead key={header.id} className="h-10">
+                      <TableHead
+                        key={header.id}
+                        data-column-id={header.id}
+                        className={cn(
+                          "h-10",
+                          hasActionsColumn &&
+                            isActionsCol(header.id) &&
+                            cn("sticky right-0 z-20 border-l border-border", stickyHeaderBg),
+                        )}
+                      >
                         {header.isPlaceholder ? null : header.column.columnDef
                             .enableSorting ? (
                           <Button
@@ -214,10 +251,18 @@ export function DataTable<TData, TValue>({
                 table.getRowModel().rows.map((row) => (
                   <TableRow
                     key={row.id}
-                    className="text-nowrap hover:bg-muted bg-background"
+                    className="text-nowrap hover:bg-muted bg-background group"
                   >
                     {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id} className="p-2 truncate">
+                      <TableCell
+                        key={cell.id}
+                        className={cn(
+                          "p-2 truncate",
+                          hasActionsColumn &&
+                            isActionsCol(cell.column.id) &&
+                            "sticky right-0 z-1 bg-background group-hover:bg-muted border-l border-border",
+                        )}
+                      >
                         {flexRender(
                           cell.column.columnDef.cell,
                           cell.getContext(),

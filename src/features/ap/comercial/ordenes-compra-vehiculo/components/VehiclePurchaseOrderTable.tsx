@@ -30,7 +30,7 @@ export default function VehiclePurchaseOrderTable({
           receipt_dynamics: true,
           subtotal: false,
           total: true,
-          warehouse: true,
+          warehouse: false,
           sede: false,
           status: true,
           credit_note_dynamics: false,
