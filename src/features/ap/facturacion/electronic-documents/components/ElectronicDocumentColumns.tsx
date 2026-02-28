@@ -283,8 +283,9 @@ export const electronicDocumentColumns = ({
     {
       accessorKey: "is_accounted",
       header: "Contabilización",
-      cell: ({ getValue }) => {
-        const value = getValue() as boolean | undefined;
+      cell: ({ row }) => {
+        const was_migrated = row.original.migration_status === "completed";
+        const value = row.original.is_accounted;
         if (value === true) {
           return (
             <Badge variant="outline" color="green" icon={BookCheck}>
@@ -294,11 +295,11 @@ export const electronicDocumentColumns = ({
         }
         return (
           <Badge
+            color={was_migrated ? "orange" : "gray"}
             variant="outline"
-            className="text-muted-foreground"
             icon={BookX}
           >
-            <span>Trabajo</span>
+            <span>{was_migrated ? "No Contabilizado" : "No Migrado"}</span>
           </Badge>
         );
       },
