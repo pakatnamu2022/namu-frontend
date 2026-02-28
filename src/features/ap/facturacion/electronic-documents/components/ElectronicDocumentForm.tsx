@@ -69,6 +69,10 @@ export function ElectronicDocumentForm({
 
   // Ref para rastrear la última cotización cargada (evitar loops)
   const lastLoadedQuotationId = useRef<number | null>(null);
+  // Ref independiente para el tracking de items (el efecto de moneda actualiza
+  // lastLoadedQuotationId antes de que corra el efecto de items, así que usar
+  // un ref separado evita que los items de la cotización anterior queden al cambiar)
+  const lastItemsQuotationId = useRef<number | null>(null);
   const lastLoadedAdvancePaymentState = useRef<boolean | null>(null);
   // Ref para evitar procesar anticipos múltiples veces por la misma cotización + modo
   // Guardamos una key en formato `${quotationId}:total` o `${quotationId}:advance`
@@ -131,6 +135,7 @@ export function ElectronicDocumentForm({
       setSelectedQuotationId(parseInt(purchaseRequestQuoteId));
       // resetear tracking de procesamiento cuando se selecciona nueva cotización
       processedAdvancePaymentsForQuotationKey.current = null;
+      lastItemsQuotationId.current = null;
     } else {
       setSelectedQuotationId(null);
     }
@@ -175,6 +180,7 @@ export function ElectronicDocumentForm({
 
   const resetData = () => {
     lastLoadedQuotationId.current = null;
+    lastItemsQuotationId.current = null;
     lastLoadedAdvancePaymentState.current = null;
     processedAdvancePaymentsForQuotationKey.current = null;
     // Limpiar cliente
@@ -258,11 +264,12 @@ export function ElectronicDocumentForm({
 
     if (
       quotation &&
-      (quotation.id !== lastLoadedQuotationId.current ||
+      (quotation.id !== lastItemsQuotationId.current ||
         isAdvancePayment !== lastLoadedAdvancePaymentState.current)
     ) {
       form.setValue("items", []);
-      // Marcar este estado como procesado
+      // Marcar esta cotización e estado como procesados
+      lastItemsQuotationId.current = quotation.id;
       lastLoadedAdvancePaymentState.current = isAdvancePayment;
 
       // Si cambió el modo de anticipo, resetear el tracking de anticipos procesados
@@ -538,14 +545,16 @@ MODELO: ${vehicle?.model?.version || ``}
     // El IGV ya fue sumado de los items directamente (no recalcular)
     const total = total_gravada + total_inafecta + total_exonerada + total_igv;
 
+    // Redondear a 2 decimales para evitar errores de punto flotante (ej: -1.8e-12 → 0)
+    const round2 = (n: number) => Math.round(n * 100) / 100;
     return {
-      total_gravada,
-      total_inafecta,
-      total_exonerada,
-      total_igv,
-      total_gratuita,
-      total_anticipo,
-      total,
+      total_gravada: round2(total_gravada),
+      total_inafecta: round2(total_inafecta),
+      total_exonerada: round2(total_exonerada),
+      total_igv: round2(total_igv),
+      total_gratuita: round2(total_gratuita),
+      total_anticipo: round2(total_anticipo),
+      total: round2(total),
     };
   };
 
@@ -645,6 +654,7 @@ MODELO: ${vehicle?.model?.version || ``}
               currencyTypes={currencyTypes}
               isFromQuotation={!!selectedQuotationId}
               hasVehicle={hasVehicle}
+              pendingBalance={pendingBalance}
               defaultCustomerId={
                 quotation?.holder_id ? Number(quotation.holder_id) : null
               }

@@ -155,7 +155,7 @@ export default function AddOpportunityPage() {
         />
       ) : (
         <GroupFormSection
-          title="Registrar Primera Acción(Opcional)"
+          title="Registrar Primera Acción (Opcional)"
           cols={{
             sm: 1,
           }}

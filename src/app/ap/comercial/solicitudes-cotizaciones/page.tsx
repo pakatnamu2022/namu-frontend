@@ -6,7 +6,6 @@ import { useEffect, useState } from "react";
 import PageSkeleton from "@/shared/components/PageSkeleton";
 import TitleComponent from "@/shared/components/TitleComponent";
 import DataTablePagination from "@/shared/components/DataTablePagination";
-import { SimpleApproveDialog } from "@/shared/components/SimpleApproveDialog";
 import {
   Dialog,
   DialogContent,
@@ -15,7 +14,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, CheckCircle } from "lucide-react";
 import { ERROR_MESSAGE, errorToast, successToast } from "@/core/core.function";
 import {
   DEFAULT_PER_PAGE,
@@ -39,6 +38,7 @@ import { PurchaseRequestQuoteResource } from "@/features/ap/comercial/solicitude
 import { notFound } from "@/shared/hooks/useNotFound";
 import { format } from "date-fns";
 import { useAllSedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
+import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 
 export default function PurchaseRequestQuotePage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -159,10 +159,25 @@ export default function PurchaseRequestQuotePage() {
       </PurchaseRequestQuoteTable>
 
       {approveId !== null && (
-        <SimpleApproveDialog
+        <ConfirmationDialog
+          trigger={
+            <Button
+              variant="default"
+              size="icon-xs"
+              tooltip="Confirmar solicitud"
+            >
+              <CheckCircle className="size-4" />
+            </Button>
+          }
+          title="¿Confirmar solicitud de viáticos?"
+          description="¿Está seguro de que desea confirmar esta solicitud de cotización? Esta acción actualizará el estado de aprobación."
+          confirmText="Sí, confirmar"
+          cancelText="Cancelar"
+          onConfirm={handleApprove}
+          variant="default"
+          icon="info"
           open={true}
           onOpenChange={(open) => !open && setApproveId(null)}
-          onConfirm={handleApprove}
         />
       )}
 

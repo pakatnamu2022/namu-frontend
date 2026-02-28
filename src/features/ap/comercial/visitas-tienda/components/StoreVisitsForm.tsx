@@ -18,7 +18,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Loader } from "lucide-react";
+import { Check, Loader, X } from "lucide-react";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { useAllSedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import {
@@ -34,7 +34,6 @@ import {
 } from "@/shared/hooks/useDocumentValidation";
 import { useEffect, useState, useRef } from "react";
 import { DocumentValidationStatus } from "../../../../../shared/components/DocumentValidationStatus";
-import { ValidationIndicator } from "@/shared/components/ValidationIndicator";
 import { useAllIncomeSector } from "../../sectores-ingreso/lib/incomeSector.hook";
 import {
   useAllBrandsBySede,
@@ -42,6 +41,7 @@ import {
 } from "@/features/ap/configuraciones/ventas/asignar-marca/lib/assignBrandConsultant.hook";
 import { STORE_VISITS } from "../lib/storeVisits.constants";
 import { AREA_COMERCIAL } from "@/features/ap/ap-master/lib/apMaster.constants";
+import { FormInput } from "@/shared/components/FormInput";
 
 interface StoreVisitsFormProps {
   defaultValues: Partial<StoreVisitsSchema>;
@@ -257,45 +257,50 @@ export const StoreVisitsForm = ({
             strictFilter={true}
           />
 
-          <FormField
+          <FormInput
             control={form.control}
+            label={
+              <div className="flex items-center justify-between gap-2 w-full">
+                Núm. Documento
+                <DocumentValidationStatus
+                  shouldValidate={shouldValidate}
+                  documentNumber={documentNumber!}
+                  expectedDigits={expectedDigits}
+                  isValidating={isValidatingDocument}
+                />
+              </div>
+            }
             name="num_doc"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="flex items-center gap-2 relative">
-                  Núm. Documento
-                  <DocumentValidationStatus
-                    shouldValidate={shouldValidate}
-                    documentNumber={documentNumber!}
-                    expectedDigits={expectedDigits}
-                    isValidating={isValidatingDocument}
-                  />
-                </FormLabel>
-                <FormControl>
-                  <div className="relative">
-                    <Input
-                      placeholder={
-                        selectedDocumentType
-                          ? `Ingrese ${expectedDigits} dígitos`
-                          : "Ingrese número"
-                      }
-                      {...field}
-                      maxLength={expectedDigits || undefined}
-                    />
-                    <ValidationIndicator
-                      show={shouldValidate && !!documentNumber}
-                      isValidating={isValidatingDocument}
-                      isValid={validationData?.success && !!validationData.data}
-                      hasError={
-                        !!validationError ||
-                        (!!validationData && !validationData.data)
-                      }
-                    />
-                  </div>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            type="text"
+            inputMode="numeric"
+            placeholder={
+              selectedDocumentType
+                ? `Ingrese ${expectedDigits} dígitos`
+                : "Ingrese número"
+            }
+            maxLength={expectedDigits || undefined}
+            onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
+              e.target.value = e.target.value.replace(/\D/g, "");
+            }}
+            addonEnd={
+              shouldValidate &&
+              documentNumber && (
+                <div>
+                  {isValidatingDocument && (
+                    <div className="animate-spin h-4 w-4 border-2 border-amber-500 border-t-transparent rounded-full" />
+                  )}
+                  {validationData?.success && validationData.data && (
+                    <Check className="text-green-500" />
+                  )}
+                  {(validationError ||
+                    (validationData &&
+                      !validationData.data &&
+                      validationData?.source !== "database")) && (
+                    <X className="text-red-500" />
+                  )}
+                </div>
+              )
+            }
           />
 
           <FormField

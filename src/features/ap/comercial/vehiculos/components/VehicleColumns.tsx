@@ -95,7 +95,7 @@ export const vehicleColumns = ({
     header: "Acciones",
     cell: ({ row }) => {
       const { id, plate, movements, type_operation_id } = row.original;
-
+      console.log(permissions); // Debug log to check the data structure
       return (
         <div className="flex items-center gap-2">
           {/* Movements */}

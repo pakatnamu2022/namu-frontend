@@ -26,6 +26,7 @@ interface DocumentInfoSectionProps {
   currencyTypes: SunatConceptsResource[];
   isFromQuotation?: boolean;
   hasVehicle?: boolean;
+  pendingBalance?: number;
   onCustomerChange?: (customer: CustomersResource | undefined) => void;
 }
 
@@ -39,6 +40,7 @@ export function DocumentInfoSection({
   isFromQuotation = false,
   defaultCustomerId,
   hasVehicle = true,
+  pendingBalance = 0,
   onCustomerChange,
 }: DocumentInfoSectionProps) {
   const [selectedCustomer, setSelectedCustomer] = useState<
@@ -165,14 +167,16 @@ export function DocumentInfoSection({
         control={form.control}
         name="is_advance_payment"
         label="Tipo de Operación"
-        disabled={!isFromQuotation || !hasVehicle}
+        disabled={!isFromQuotation || !hasVehicle || pendingBalance <= 0}
         text={isAdvancePayment ? "Anticipo" : "Venta Interna"}
         description={
           !hasVehicle && isFromQuotation
             ? "Cotización sin vehículo: Solo se permite anticipo"
-            : isAdvancePayment
-              ? "Tipo de operación: Venta Interna - Anticipos (código 04)"
-              : "Tipo de operación: Venta Interna (código 01)"
+            : isFromQuotation && pendingBalance <= 0
+              ? "Saldo pendiente S/ 0: No se puede registrar anticipo"
+              : isAdvancePayment
+                ? "Tipo de operación: Venta Interna - Anticipos (código 04)"
+                : "Tipo de operación: Venta Interna (código 01)"
         }
       />
 
