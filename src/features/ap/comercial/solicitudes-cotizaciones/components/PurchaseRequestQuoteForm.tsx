@@ -699,8 +699,7 @@ export const PurchaseRequestQuoteForm = ({
             <GroupFormSection
               title="Información General"
               icon={Building2}
-              iconColor="text-primary"
-              bgColor="bg-blue-50"
+              color="blue"
               cols={{ sm: 1, md: 2 }}
             >
               <FormSelect
@@ -795,8 +794,7 @@ export const PurchaseRequestQuoteForm = ({
             <GroupFormSection
               title="Información del Vehículo"
               icon={Building2}
-              iconColor="text-gray-500"
-              bgColor="bg-gray-50"
+              color="gray"
               cols={{ sm: 1, md: 2 }}
             >
               {/* Switch para seleccionar Con VIN o Sin VIN */}

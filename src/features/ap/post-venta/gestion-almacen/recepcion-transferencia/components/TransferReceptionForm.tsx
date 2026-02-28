@@ -123,8 +123,7 @@ export const TransferReceptionForm = ({
         <GroupFormSection
           title="Información de Recepción"
           icon={FileText}
-          iconColor="text-primary"
-          bgColor="bg-blue-50"
+          color="blue"
           cols={{ sm: 2, md: 2 }}
         >
           <DatePickerFormField

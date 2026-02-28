@@ -5,12 +5,9 @@ import {
   DropdownMenuContent,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
-import { ChevronDown, Columns, ScanSearch } from "lucide-react";
-import { useReactTable } from "@tanstack/react-table";
-
-type Column = ReturnType<ReturnType<typeof useReactTable>["getAllColumns"]>[number];
+import { Check, ChevronDown, Columns, ScanSearch } from "lucide-react";
+import { useReactTable, type Column } from "@tanstack/react-table";
 
 export default function DataTableColumnFilter<TData>({
   table,
@@ -22,7 +19,7 @@ export default function DataTableColumnFilter<TData>({
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
 
-  const getColumnLabel = (column: Column) =>
+  const getColumnLabel = (column: Column<TData>) =>
     (column.columnDef.meta as { title?: string })?.title ??
     (typeof column.columnDef.header === "string"
       ? column.columnDef.header
@@ -73,7 +70,7 @@ export default function DataTableColumnFilter<TData>({
     [tableContainerRef],
   );
 
-  const handleLocate = (column: Column) => {
+  const handleLocate = (column: Column<TData>) => {
     if (!column.getIsVisible()) {
       column.toggleVisibility(true);
     }
@@ -108,25 +105,27 @@ export default function DataTableColumnFilter<TData>({
             filteredColumns.map((column) => (
               <div
                 key={column.id}
-                className="flex items-center gap-2 px-2 py-1.5 rounded-sm mx-1 hover:bg-accent group cursor-default"
+                className="flex items-center gap-2 px-2 py-1.5 rounded-sm mx-1 hover:bg-accent cursor-default"
               >
-                <Checkbox
-                  id={`col-${column.id}`}
-                  checked={column.getIsVisible()}
-                  onCheckedChange={(value) =>
-                    column.toggleVisibility(!!value)
-                  }
-                />
-                <label
-                  htmlFor={`col-${column.id}`}
-                  className="flex-1 text-sm capitalize cursor-pointer truncate select-none"
+                <button
+                  title={column.getIsVisible() ? "Ocultar columna" : "Mostrar columna"}
+                  onClick={() => column.toggleVisibility(!column.getIsVisible())}
+                  className="h-4 w-4 shrink-0 flex items-center justify-center"
+                >
+                  <Check
+                    className={`h-4 w-4 transition-opacity ${column.getIsVisible() ? "opacity-100 text-primary" : "opacity-20"}`}
+                  />
+                </button>
+                <button
+                  className="flex-1 text-sm capitalize truncate text-left"
+                  onClick={() => column.toggleVisibility(!column.getIsVisible())}
                 >
                   {getColumnLabel(column)}
-                </label>
+                </button>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-6 w-6 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                  className="h-6 w-6 shrink-0"
                   title="Ir a columna"
                   onClick={(e) => {
                     e.stopPropagation();

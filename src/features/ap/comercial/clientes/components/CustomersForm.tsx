@@ -619,8 +619,7 @@ export const CustomersForm = ({
         <GroupFormSection
           title="Información Personal"
           icon={User}
-          iconColor="text-primary"
-          bgColor="bg-blue-50"
+          color="blue"
           cols={{ sm: 2, md: 3 }}
           headerExtra={
             notificationMessage && (
@@ -942,8 +941,7 @@ export const CustomersForm = ({
             <GroupFormSection
               title="Representante Legal"
               icon={Scale}
-              iconColor="text-purple-600"
-              bgColor="bg-purple-50"
+              color="purple"
               cols={{ sm: 2, md: 3 }}
               className="mt-8 md:col-span-3"
             >
@@ -1010,8 +1008,7 @@ export const CustomersForm = ({
           <GroupFormSection
             title="Datos del Cónyuge"
             icon={Heart}
-            iconColor="text-pink-600"
-            bgColor="bg-pink-50"
+            color="pink"
             cols={{ sm: 1, md: 3 }}
             className="mt-8"
           >
@@ -1064,8 +1061,7 @@ export const CustomersForm = ({
         <GroupFormSection
           title="Información de Contacto"
           icon={Building2}
-          iconColor="text-secondary"
-          bgColor="bg-red-50"
+          color="red"
           cols={{ sm: 2, md: 3 }}
         >
           <FormInput
@@ -1111,8 +1107,7 @@ export const CustomersForm = ({
           <GroupFormSection
             title="Licencias"
             icon={FileText}
-            iconColor="text-gray-600"
-            bgColor="bg-gray-50"
+            color="gray"
             cols={{ sm: 2, md: 3 }}
           >
             <FormInput

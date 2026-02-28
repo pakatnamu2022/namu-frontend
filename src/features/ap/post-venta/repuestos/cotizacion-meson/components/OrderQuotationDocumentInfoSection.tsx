@@ -216,8 +216,7 @@ export function OrderQuotationDocumentInfoSection({
       <GroupFormSection
         title="Información del Documento"
         icon={FileText}
-        iconColor="text-primary"
-        bgColor="bg-primary/5"
+        color="primary"
         cols={{ sm: 1, md: 3 }}
       >
         <div className="md:col-span-3">

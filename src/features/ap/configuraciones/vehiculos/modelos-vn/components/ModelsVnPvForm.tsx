@@ -109,8 +109,7 @@ export const ModelsVnPvForm = ({
           <GroupFormSection
             title="Datos Generales"
             icon={ClipboardMinus}
-            iconColor="text-primary"
-            bgColor="bg-blue-50"
+            color="blue"
             cols={{
               sm: 1,
             }}

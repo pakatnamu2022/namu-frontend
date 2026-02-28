@@ -231,8 +231,7 @@ export const ModelsVnForm = ({
           <GroupFormSection
             title="Datos Generales"
             icon={ClipboardMinus}
-            iconColor="text-secondary"
-            bgColor="bg-red-50"
+            color="red"
             cols={{
               xl: 4,
               "2xl": 5,
@@ -292,8 +291,7 @@ export const ModelsVnForm = ({
           <GroupFormSection
             title="Datos Técnicos"
             icon={Settings}
-            iconColor="text-primary"
-            bgColor="bg-blue-50"
+            color="blue"
             cols={{
               xl: 4,
               "2xl": 5,
@@ -476,8 +474,7 @@ export const ModelsVnForm = ({
           <GroupFormSection
             title="Precio Distribuidor"
             icon={CircleDollarSign}
-            iconColor="text-gray-600"
-            bgColor="bg-gray-50"
+            color="gray"
             cols={{
               xl: 4,
               "2xl": 5,

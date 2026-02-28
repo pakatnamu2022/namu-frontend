@@ -66,8 +66,7 @@ export function OrderQuotationFinancialInfo({
     <GroupFormSection
       title="Resumen de Pagos"
       icon={TrendingUp}
-      iconColor="text-primary"
-      bgColor="bg-primary/5"
+      color="primary"
       cols={{ sm: 1 }}
     >
       <div className="space-y-6">

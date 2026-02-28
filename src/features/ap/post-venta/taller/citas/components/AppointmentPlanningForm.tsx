@@ -253,8 +253,7 @@ export const AppointmentPlanningForm = ({
         <GroupFormSection
           title="Información del Cliente"
           icon={Calendar}
-          iconColor="text-primary"
-          bgColor="bg-blue-50"
+          color="blue"
           cols={{ sm: 2, md: 3 }}
         >
           <FormSelectAsync
@@ -400,8 +399,7 @@ export const AppointmentPlanningForm = ({
         <GroupFormSection
           title="Información de la Cita"
           icon={Calendar}
-          iconColor="text-gray-800"
-          bgColor="bg-gray-50"
+          color="gray"
           cols={{ sm: 1 }}
         >
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">

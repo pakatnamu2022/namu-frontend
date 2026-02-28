@@ -344,8 +344,7 @@ export const ApprovedAccessoriesTable = ({
     <GroupFormSection
       title="Accesorios Homologados / Obsequios"
       icon={PackagePlus}
-      iconColor="text-gray-500"
-      bgColor="bg-gray-50"
+      color="gray"
       cols={{ sm: 1 }}
       headerExtra={
         <Button
