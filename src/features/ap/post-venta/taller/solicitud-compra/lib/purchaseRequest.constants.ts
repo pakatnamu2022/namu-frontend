@@ -4,8 +4,9 @@ import { PurchaseRequestResource } from "./purchaseRequest.interface";
 // Estados de solicitud de compra
 export const PURCHASE_REQUEST_STATUS = {
   pending: "Pendiente",
-  approved: "Aprobado",
-  rejected: "Rechazado",
+  ordered: "Ordenado",
+  received: "Recibido",
+  cancelled: "Cancelado",
 } as const;
 
 export type PurchaseRequestStatus = keyof typeof PURCHASE_REQUEST_STATUS;

@@ -116,6 +116,10 @@ export default function PurchaseRequestForm({
   const hasAppointment = form.watch("has_appointment");
   const selectedQuotationId = form.watch("ap_order_quotation_id");
 
+  const selectedWarehouse = warehouses.find(
+    (w) => w.id.toString() === selectedWarehouseId,
+  );
+
   // Estado local para el selector temporal de productos
   const [tempProductId, setTempProductId] = useState<string>("");
   const [tempProductData, setTempProductData] =
@@ -145,7 +149,7 @@ export default function PurchaseRequestForm({
     if (!hasAppointment) {
       form.setValue("ap_order_quotation_id", "");
     }
-  }, [hasAppointment]);
+  }, [form, hasAppointment]);
 
   const loadQuotations = useCallback(async () => {
     try {
@@ -746,6 +750,7 @@ export default function PurchaseRequestForm({
         {/* Modal de Selección de Cotización */}
         <QuotationSelectionModal
           open={isQuotationModalOpen}
+          sedeId={selectedWarehouse?.sede_id}
           onOpenChange={setIsQuotationModalOpen}
           onSelectQuotation={handleSelectQuotation}
         />

@@ -906,6 +906,7 @@ export default function ProformaMesonForm({
   useEffect(() => {
     if (quotationDate) {
       const quotationDateObj = new Date(quotationDate);
+      if (isNaN(quotationDateObj.getTime())) return;
       const expirationDateObj = new Date(quotationDateObj);
       expirationDateObj.setDate(quotationDateObj.getDate() + 7);
       form.setValue("expiration_date", expirationDateObj);
@@ -919,9 +920,12 @@ export default function ProformaMesonForm({
     const fetchExchangeRate = async () => {
       if (!quotationDate) return;
 
+      const dateObj = new Date(quotationDate);
+      if (isNaN(dateObj.getTime())) return;
+
       setIsLoadingExchangeRate(true);
       try {
-        const formattedDate = format(new Date(quotationDate), "yyyy-MM-dd");
+        const formattedDate = format(dateObj, "yyyy-MM-dd");
         const response = await api.get(
           `/gp/mg/exchange-rate/by-date-and-currency?to_currency_id=${CURRENCY_TYPE_IDS.DOLLARS}&date=${formattedDate}`,
         );

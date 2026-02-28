@@ -9,13 +9,22 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { FileText, Loader2, Package, ClipboardList } from "lucide-react";
+import {
+  FileText,
+  Loader2,
+  Package,
+  ClipboardList,
+  Copy,
+  Check,
+} from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { findPurchaseRequestById } from "../lib/purchaseRequest.actions";
 import type { PurchaseRequestResource } from "../lib/purchaseRequest.interface";
 import { PURCHASE_REQUEST_STATUS } from "../lib/purchaseRequest.constants";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
+import { Button } from "@/components/ui/button";
+import { useState } from "react";
 
 interface PurchaseRequestDetailSheetProps {
   purchaseRequestId: number | null;
@@ -82,6 +91,28 @@ function DetailSheetContent({ purchaseRequest }: DetailSheetContentProps) {
     PURCHASE_REQUEST_STATUS[
       purchaseRequest.status as keyof typeof PURCHASE_REQUEST_STATUS
     ] || purchaseRequest.status;
+  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+  const [copiedField, setCopiedField] = useState<string | null>(null);
+
+  const handleCopyCode = async (
+    code: string,
+    field: string,
+    index?: number,
+  ) => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopiedField(field);
+      if (index !== undefined) {
+        setCopiedIndex(index);
+      }
+      setTimeout(() => {
+        setCopiedField(null);
+        setCopiedIndex(null);
+      }, 2000);
+    } catch (err) {
+      console.error("Error al copiar:", err);
+    }
+  };
 
   return (
     <div className="space-y-6 px-6">
@@ -295,23 +326,48 @@ function DetailSheetContent({ purchaseRequest }: DetailSheetContentProps) {
             <Table>
               <TableHeader>
                 <TableRow className="bg-muted/50">
-                  <TableHead className="text-left">Código</TableHead>
+                  <TableHead className="text-left">#</TableHead>
                   <TableHead>Producto</TableHead>
                   <TableHead className="text-center">Cantidad</TableHead>
                   <TableHead>Notas</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {details.map((detail) => (
+                {details.map((detail, index) => (
                   <TableRow key={detail.id}>
                     <TableCell>
-                      <div className="text-sm font-medium">
-                        {detail.product?.code || "N/A"}
-                      </div>
+                      <div className="text-sm font-medium">{index + 1}</div>
                     </TableCell>
                     <TableCell>
-                      <div className="text-sm">
-                        {detail.product?.name || "N/A"}
+                      <div className="text-sm">{detail.product?.name}</div>
+                      <div className="flex items-center gap-1">
+                        <span className="text-xs text-muted-foreground">
+                          Código: {detail.product?.code || "N/A"}
+                        </span>
+                        {detail.product?.code && (
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="h-5 w-5 p-0 hover:bg-slate-200"
+                            onClick={() => {
+                              if (detail.product?.code) {
+                                handleCopyCode(
+                                  detail.product.code,
+                                  "product_code",
+                                  index,
+                                );
+                              }
+                            }}
+                          >
+                            {copiedIndex === index &&
+                            copiedField === "product_code" ? (
+                              <Check className="h-3 w-3 text-green-600" />
+                            ) : (
+                              <Copy className="h-3 w-3" />
+                            )}
+                          </Button>
+                        )}
                       </div>
                     </TableCell>
                     <TableCell className="text-center">

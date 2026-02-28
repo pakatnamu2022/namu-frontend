@@ -73,7 +73,7 @@ export function DatePickerFormField<T extends FieldValues>({
   disabled = false,
   disabledRange,
   captionLayout = "label",
-  // end month = one year more than today
+  // end month = one year more than today ()
   endMonth = new Date(
     new Date().getFullYear() + 1,
     new Date().getMonth(),
@@ -109,7 +109,7 @@ export function DatePickerFormField<T extends FieldValues>({
 
   const handleChange = (date: Date | undefined) => {
     if (date) {
-      field.onChange(format(date, "yyyy-MM-dd"));
+      field.onChange(date);
       if (isMobile) setDrawerOpen(false);
     } else {
       field.onChange("");
