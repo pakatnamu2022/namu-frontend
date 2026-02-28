@@ -37,7 +37,7 @@ export function useCreatePerDiemExpense(
   options?: {
     onSuccess?: () => void;
     onError?: (error: any) => void;
-  }
+  },
 ) {
   const queryClient = useQueryClient();
 
@@ -72,7 +72,7 @@ export function useUpdatePerDiemExpense(
   options?: {
     onSuccess?: () => void;
     onError?: (error: any) => void;
-  }
+  },
 ) {
   const queryClient = useQueryClient();
 
@@ -80,7 +80,6 @@ export function useUpdatePerDiemExpense(
     mutationFn: (expenseData: FormData) =>
       updatePerDiemExpense(expenseId, expenseData),
     onSuccess: async () => {
-      successToast(SUCCESS_MESSAGE(MODEL, "update"));
       // Invalidar tanto las queries específicas como las generales
       await queryClient.invalidateQueries({
         queryKey: [PER_DIEM_REQUEST.QUERY_KEY],
@@ -94,8 +93,6 @@ export function useUpdatePerDiemExpense(
       options?.onSuccess?.();
     },
     onError: (error: any) => {
-      const msg = error?.response?.data?.message || "";
-      errorToast(ERROR_MESSAGE(MODEL, "update", msg));
       options?.onError?.(error);
     },
   });
@@ -109,7 +106,7 @@ export function useDeletePerDiemExpense(
   options?: {
     onSuccess?: () => void;
     onError?: (error: any) => void;
-  }
+  },
 ) {
   const queryClient = useQueryClient();
 

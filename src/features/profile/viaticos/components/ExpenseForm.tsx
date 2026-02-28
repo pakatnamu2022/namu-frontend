@@ -83,7 +83,7 @@ export default function ExpenseForm({
   );
 
   const form = useForm<ExpenseSchema>({
-    resolver: zodResolver(dynamicSchema),
+    resolver: zodResolver(dynamicSchema) as any,
     defaultValues: {
       receipt_amount: 0,
       receipt_type: "invoice",

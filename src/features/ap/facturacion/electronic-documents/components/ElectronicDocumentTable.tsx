@@ -22,7 +22,7 @@ export default function ElectronicDocumentTable({
         data={data}
         isLoading={isLoading}
         initialColumnVisibility={{
-          status: true,
+          status: false,
           documentType: false,
           serie: true,
           cliente_denominacion: true,
