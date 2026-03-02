@@ -11,12 +11,14 @@ interface AdditionalConfigSectionProps {
   form: UseFormReturn<ElectronicDocumentSchema>;
   checkbooks: ApBankResource[];
   isModuleCommercial?: boolean;
+  useQuotation?: boolean;
 }
 
 export function AdditionalConfigSection({
   form,
   checkbooks,
   isModuleCommercial = true,
+  useQuotation = false,
 }: AdditionalConfigSectionProps) {
   const medioDePago = form.watch("medio_de_pago");
 
@@ -90,7 +92,9 @@ export function AdditionalConfigSection({
             label: "CREDITO",
             value: "CREDITO",
           },
-        ]}
+        ].filter((option) =>
+          useQuotation ? option.value === "CONTADO" : true,
+        )}
         placeholder="Seleccione una opción"
         description="Condiciones de pago del documento."
       />

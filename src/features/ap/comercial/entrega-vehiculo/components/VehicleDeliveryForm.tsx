@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Loader } from "lucide-react";
+import { Loader, Car, User, FileText } from "lucide-react";
 import { DateTimePickerForm } from "@/shared/components/DateTimePickerForm";
 import { FormSelect } from "@/shared/components/FormSelect";
 import FormSkeleton from "@/shared/components/FormSkeleton";
@@ -29,9 +29,11 @@ import { useAllClassArticle } from "@/features/ap/configuraciones/maestros-gener
 import {
   useAllVehicles,
   useVehicleClientDebtInfo,
+  useVehicles,
 } from "../../vehiculos/lib/vehicles.hook";
 import { AlertCircle, CheckCircle2 } from "lucide-react";
 import { CM_COMERCIAL_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
+import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 
 interface VehicleDeliveryFormProps {
   defaultValues: Partial<VehicleDeliverySchema>;
@@ -148,7 +150,7 @@ export const VehicleDeliveryForm = ({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-full">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <FormSelect
             name="ap_class_article_id"
             label="Clase de Artículo"
@@ -176,23 +178,27 @@ export const VehicleDeliveryForm = ({
           />
 
           {/* Vehicle Select */}
-          <FormSelect
+          <FormSelectAsync
             name="vehicle_id"
-            label="Vehículo"
+            label="Vehículo Facturado"
             placeholder={
               watchSedeId
                 ? "Selecciona un vehículo"
                 : "Primero selecciona una sede"
             }
-            options={
-              vehiclesVn?.map((item) => ({
-                label: item!.vin,
-                value: item!.id.toString(),
-                description:
-                  item!.sede_name_warehouse + " - " + item!.warehouse_name ||
-                  "",
-              })) || []
-            }
+            useQueryHook={useVehicles}
+            mapOptionFn={(item) => ({
+              label: item.vin,
+              value: item.id.toString(),
+              description:
+                item.sede_name_warehouse + " - " + item.warehouse_name || "",
+            })}
+            additionalParams={{
+              warehouse$sede_id: watchSedeId ? Number(watchSedeId) : undefined,
+              warehouse$is_received: 1,
+              warehouse$article_class_id: watchArticleClassId,
+              is_paid: 1,
+            }}
             control={form.control}
             disabled={!watchSedeId || isLoadingVehicles}
           />
@@ -220,127 +226,250 @@ export const VehicleDeliveryForm = ({
         {selectedVehicleId && (
           <>
             {isLoadingDebtInfo ? (
-              <Card className="p-4 bg-gray-50/50 border-gray-200">
-                <p className="text-sm text-gray-500">
-                  Cargando información del vehículo y cliente...
-                </p>
+              <Card className="p-5 border-gray-200 bg-gray-50/50">
+                <div className="flex items-center gap-3 text-sm text-gray-500">
+                  <Loader className="h-4 w-4 animate-spin" />
+                  Cargando información del vehículo...
+                </div>
               </Card>
             ) : debtInfo ? (
-              <Card className="overflow-hidden border-gray-200">
-                {/* Header con estado de deuda */}
-                <div className="flex items-center justify-between px-5 py-3.5 bg-gray-50 border-b">
-                  <h3 className="text-base font-semibold text-gray-800">
-                    Información de Entrega
-                  </h3>
-                  <div
-                    className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium ${
-                      debtInfo.debt_summary.debt_is_paid
-                        ? "bg-green-50 text-green-700 border border-green-200"
-                        : "bg-red-50 text-red-700 border border-red-200"
-                    }`}
-                  >
+              <Card className="overflow-hidden shadow-sm">
+                {/* Hero header */}
+                <div
+                  className={`px-5 py-4 flex flex-wrap items-center justify-between gap-3 ${
+                    debtInfo.debt_summary.debt_is_paid
+                      ? "bg-green-600"
+                      : "bg-red-600"
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="bg-white/20 p-2 rounded-lg">
+                      <Car className="h-5 w-5 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-white/70 text-xs font-medium uppercase tracking-wide">
+                        VIN
+                      </p>
+                      <p className="text-white font-bold text-xl leading-tight">
+                        {debtInfo.vehicle.vin}
+                      </p>
+                      <p className="text-white/70 text-xs mt-0.5">
+                        {debtInfo.vehicle.model} · {debtInfo.vehicle.year}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 bg-white/20 px-3.5 py-2 rounded-full border border-white/30">
                     {debtInfo.debt_summary.debt_is_paid ? (
                       <>
-                        <CheckCircle2 className="h-4 w-4" />
-                        <span>Deuda Pagada</span>
+                        <CheckCircle2 className="h-4 w-4 text-white" />
+                        <span className="text-white text-sm font-semibold">
+                          Deuda Pagada
+                        </span>
                       </>
                     ) : (
                       <>
-                        <AlertCircle className="h-4 w-4" />
-                        <span>
-                          Deuda: $
-                          {debtInfo.debt_summary.pending_debt.toFixed(2)}
+                        <AlertCircle className="h-4 w-4 text-white" />
+                        <span className="text-white text-sm font-semibold">
+                          Deuda Pendiente
                         </span>
                       </>
                     )}
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 p-5">
-                  {/* Columna: Vehículo */}
-                  <div className="space-y-3.5 bg-blue-50/50 p-4 rounded-lg border border-blue-100">
-                    <h4 className="text-xs font-semibold text-blue-900 uppercase tracking-wide pb-2 border-b border-blue-200">
-                      Vehículo
-                    </h4>
-                    <div className="grid grid-cols-2 gap-3.5">
-                      <div className="space-y-1">
-                        <p className="text-xs text-gray-500 font-medium">VIN</p>
-                        <p className="text-sm font-semibold text-gray-900">
-                          {debtInfo.vehicle.vin}
-                        </p>
+                <div className="p-5 space-y-4">
+                  {/* Vehicle & Client */}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    {/* Vehicle */}
+                    <div className="rounded-xl border border-blue-100 bg-blue-50/40 p-4">
+                      <div className="flex items-center gap-2 mb-3.5 pb-2.5 border-b border-blue-100">
+                        <Car className="h-4 w-4 text-blue-600" />
+                        <h4 className="text-xs font-bold text-blue-700 uppercase tracking-widest">
+                          Datos del Vehículo
+                        </h4>
                       </div>
-                      <div className="space-y-1">
-                        <p className="text-xs text-gray-500 font-medium">
-                          Modelo
-                        </p>
-                        <p className="text-sm font-semibold text-gray-900">
-                          {debtInfo.vehicle.model}
-                        </p>
+                      <div className="grid grid-cols-2 gap-x-4 gap-y-3">
+                        <div>
+                          <p className="text-[10px] text-gray-400 uppercase font-semibold tracking-wide">
+                            Modelo
+                          </p>
+                          <p className="text-sm font-semibold text-gray-800">
+                            {debtInfo.vehicle.model}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-[10px] text-gray-400 uppercase font-semibold tracking-wide">
+                            Código
+                          </p>
+                          <p className="text-sm font-semibold text-gray-800">
+                            {debtInfo.vehicle.model_code}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-[10px] text-gray-400 uppercase font-semibold tracking-wide">
+                            Año
+                          </p>
+                          <p className="text-sm font-semibold text-gray-800">
+                            {debtInfo.vehicle.year}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-[10px] text-gray-400 uppercase font-semibold tracking-wide">
+                            Tipo Motor
+                          </p>
+                          <p className="text-sm font-semibold text-gray-800">
+                            {debtInfo.vehicle.engineType}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-[10px] text-gray-400 uppercase font-semibold tracking-wide">
+                            Nº Motor
+                          </p>
+                          <p className="text-sm font-semibold text-gray-800">
+                            {debtInfo.vehicle.engine_number}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-[10px] text-gray-400 uppercase font-semibold tracking-wide">
+                            Almacén
+                          </p>
+                          <p className="text-sm font-semibold text-gray-800">
+                            {debtInfo.vehicle.warehouse_physical}
+                          </p>
+                        </div>
                       </div>
-                      <div className="space-y-1">
-                        <p className="text-xs text-gray-500 font-medium">Año</p>
-                        <p className="text-sm font-semibold text-gray-900">
-                          {debtInfo.vehicle.year}
-                        </p>
+                    </div>
+
+                    {/* Client */}
+                    <div className="rounded-xl border border-purple-100 bg-purple-50/40 p-4">
+                      <div className="flex items-center gap-2 mb-3.5 pb-2.5 border-b border-purple-100">
+                        <User className="h-4 w-4 text-purple-600" />
+                        <h4 className="text-xs font-bold text-purple-700 uppercase tracking-widest">
+                          Datos del Cliente
+                        </h4>
                       </div>
-                      <div className="space-y-1">
-                        <p className="text-xs text-gray-500 font-medium">
-                          Motor
-                        </p>
-                        <p className="text-sm font-semibold text-gray-900">
-                          {debtInfo.vehicle.engine_number}
-                        </p>
-                      </div>
-                      <div className="col-span-2 space-y-1">
-                        <p className="text-xs text-gray-500 font-medium">
-                          Almacén
-                        </p>
-                        <p className="text-sm font-semibold text-gray-900">
-                          {debtInfo.vehicle.warehouse_physical}
-                        </p>
+                      <div className="space-y-3">
+                        <div>
+                          <p className="text-[10px] text-gray-400 uppercase font-semibold tracking-wide">
+                            Documento
+                          </p>
+                          <p className="text-sm font-semibold text-gray-800">
+                            {debtInfo.client.num_doc}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-[10px] text-gray-400 uppercase font-semibold tracking-wide">
+                            Nombre
+                          </p>
+                          <p className="text-sm font-semibold text-gray-800">
+                            {debtInfo.client.full_name}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-[10px] text-gray-400 uppercase font-semibold tracking-wide">
+                            Dirección
+                          </p>
+                          <p className="text-sm font-semibold text-gray-800">
+                            {debtInfo.client.direction}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-[10px] text-gray-400 uppercase font-semibold tracking-wide">
+                            Email
+                          </p>
+                          <p className="text-sm font-semibold text-gray-800">
+                            {debtInfo.client.email}
+                          </p>
+                        </div>
                       </div>
                     </div>
                   </div>
 
-                  {/* Columna: Cliente */}
-                  <div className="space-y-3.5 bg-red-50/50 p-4 rounded-lg border border-red-100">
-                    <h4 className="text-xs font-semibold text-red-900 uppercase tracking-wide pb-2 border-b border-red-200">
-                      Cliente
-                    </h4>
-                    <div className="grid grid-cols-2 gap-3.5">
-                      <div className="space-y-1">
-                        <p className="text-xs text-gray-500 font-medium">
-                          Documento
-                        </p>
-                        <p className="text-sm font-semibold text-gray-900">
-                          {debtInfo.client.num_doc}
-                        </p>
-                      </div>
-                      <div className="space-y-1">
-                        <p className="text-xs text-gray-500 font-medium">
-                          Nombre
-                        </p>
-                        <p className="text-sm font-semibold text-gray-900">
-                          {debtInfo.client.full_name}
-                        </p>
-                      </div>
-                      <div className="col-span-2 space-y-1">
-                        <p className="text-xs text-gray-500 font-medium">
-                          Dirección
-                        </p>
-                        <p className="text-sm font-semibold text-gray-900">
-                          {debtInfo.client.direction}
-                        </p>
-                      </div>
-                      <div className="col-span-2 space-y-1">
-                        <p className="text-xs text-gray-500 font-medium">
-                          Email
-                        </p>
-                        <p className="text-sm font-semibold text-gray-900">
-                          {debtInfo.client.email}
-                        </p>
-                      </div>
+                  {/* Financial summary */}
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="rounded-xl border bg-white p-3.5 text-center shadow-sm">
+                      <p className="text-[10px] text-gray-400 uppercase font-semibold tracking-wide mb-1">
+                        Precio Venta
+                      </p>
+                      <p className="text-base font-bold text-gray-900">
+                        S/ {debtInfo.debt_summary.total_sale_price.toFixed(2)}
+                      </p>
+                      <p className="text-[10px] text-gray-400 mt-0.5">
+                        Cot. #{debtInfo.purchase_quote.correlative}
+                      </p>
                     </div>
+                    <div className="rounded-xl border border-green-100 bg-green-50/60 p-3.5 text-center shadow-sm">
+                      <p className="text-[10px] text-green-600 uppercase font-semibold tracking-wide mb-1">
+                        Total Pagado
+                      </p>
+                      <p className="text-base font-bold text-green-700">
+                        S/ {debtInfo.debt_summary.total_paid.toFixed(2)}
+                      </p>
+                      <p className="text-[10px] text-green-500 mt-0.5">
+                        {debtInfo.documents_summary.total_documents} doc.
+                      </p>
+                    </div>
+                    <div
+                      className={`rounded-xl border p-3.5 text-center shadow-sm ${
+                        debtInfo.debt_summary.debt_is_paid
+                          ? "border-green-100 bg-green-50/60"
+                          : "border-red-100 bg-red-50/60"
+                      }`}
+                    >
+                      <p
+                        className={`text-[10px] uppercase font-semibold tracking-wide mb-1 ${
+                          debtInfo.debt_summary.debt_is_paid
+                            ? "text-green-600"
+                            : "text-red-600"
+                        }`}
+                      >
+                        Deuda Pendiente
+                      </p>
+                      <p
+                        className={`text-base font-bold ${
+                          debtInfo.debt_summary.debt_is_paid
+                            ? "text-green-700"
+                            : "text-red-700"
+                        }`}
+                      >
+                        S/ {debtInfo.debt_summary.pending_debt.toFixed(2)}
+                      </p>
+                      <p
+                        className={`text-[10px] mt-0.5 ${
+                          debtInfo.debt_summary.debt_is_paid
+                            ? "text-green-500"
+                            : "text-red-500"
+                        }`}
+                      >
+                        {debtInfo.debt_summary.status}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Documents badges */}
+                  <div className="flex items-center gap-3 flex-wrap bg-gray-50 rounded-xl border px-4 py-2.5">
+                    <div className="flex items-center gap-1.5 text-gray-500">
+                      <FileText className="h-3.5 w-3.5" />
+                      <span className="text-xs font-medium">Documentos:</span>
+                    </div>
+                    <span className="text-xs bg-blue-100 text-blue-700 font-semibold px-2.5 py-1 rounded-full">
+                      {debtInfo.documents_summary.total_facturas} Factura
+                      {debtInfo.documents_summary.total_facturas !== 1
+                        ? "s"
+                        : ""}
+                    </span>
+                    {debtInfo.documents_summary.total_notas_credito > 0 && (
+                      <span className="text-xs bg-green-100 text-green-700 font-semibold px-2.5 py-1 rounded-full">
+                        {debtInfo.documents_summary.total_notas_credito} N.
+                        Crédito
+                      </span>
+                    )}
+                    {debtInfo.documents_summary.total_notas_debito > 0 && (
+                      <span className="text-xs bg-amber-100 text-amber-700 font-semibold px-2.5 py-1 rounded-full">
+                        {debtInfo.documents_summary.total_notas_debito} N.
+                        Débito
+                      </span>
+                    )}
                   </div>
                 </div>
               </Card>
