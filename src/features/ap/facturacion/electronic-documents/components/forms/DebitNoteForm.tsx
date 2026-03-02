@@ -393,8 +393,7 @@ export function DebitNoteForm({
                 title="Documento Original"
                 icon={FileCheck}
                 className="lg:col-span-2"
-                iconColor="text-primary"
-                bgColor="bg-primary/5"
+                color="primary"
                 cols={{ sm: 1, md: 3 }}
               >
                 <div>
@@ -448,8 +447,7 @@ export function DebitNoteForm({
                 title="Información del Cliente"
                 icon={User}
                 className="lg:col-span-2"
-                iconColor="text-primary"
-                bgColor="bg-primary/5"
+                color="primary"
                 cols={{ sm: 1, md: 1 }}
               >
                 <FormSelect
@@ -553,8 +551,7 @@ export function DebitNoteForm({
                 title="Items del Documento Original"
                 icon={FileText}
                 className="lg:col-span-2"
-                iconColor="text-primary"
-                bgColor="bg-primary/5"
+                color="primary"
                 cols={{ sm: 1, md: 1 }}
               >
                 <div className="w-full flex justify-end">

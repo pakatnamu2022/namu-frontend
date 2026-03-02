@@ -91,8 +91,7 @@ export const VehicleInspectionForm = ({
         <GroupFormSection
           title="Información de Inspección"
           icon={ClipboardCheck}
-          iconColor="text-primary"
-          bgColor="bg-blue-50"
+          color="blue"
           cols={{ sm: 2 }}
         >
           <DatePickerFormField
@@ -149,8 +148,7 @@ export const VehicleInspectionForm = ({
         <GroupFormSection
           title="Fotos del estado de ingreso del vehículo (Opcional)"
           icon={Camera}
-          iconColor="text-orange-600"
-          bgColor="bg-orange-50"
+          color="orange"
           cols={{ sm: 2 }}
         >
           <FormField
@@ -240,8 +238,7 @@ export const VehicleInspectionForm = ({
         <GroupFormSection
           title="Observaciones Generales"
           icon={ClipboardCheck}
-          iconColor="text-gray-800"
-          bgColor="bg-gray-50"
+          color="gray"
           cols={{ sm: 1 }}
         >
           <FormInputText
@@ -256,8 +253,7 @@ export const VehicleInspectionForm = ({
         <GroupFormSection
           title="Firmas de Conformidad"
           icon={PenLine}
-          iconColor="text-primary"
-          bgColor="bg-blue-50"
+          color="blue"
           cols={{ sm: 1 }}
         >
           <FormField

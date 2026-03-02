@@ -143,8 +143,7 @@ export const ProductForm = ({
         <GroupFormSection
           title="Información Básica"
           icon={LibraryBig}
-          iconColor="text-primary"
-          bgColor="bg-blue-50"
+          color="blue"
           cols={{ sm: 2, md: 3 }}
         >
           <FormInput
@@ -228,8 +227,7 @@ export const ProductForm = ({
           <GroupFormSection
             title="Configuración de Almacenes"
             icon={Warehouse}
-            iconColor="text-primary"
-            bgColor="bg-blue-50"
+            color="blue"
           >
             <div className="col-span-full space-y-3">
               {fields.map((field, index) => (

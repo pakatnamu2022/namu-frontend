@@ -209,8 +209,7 @@ export function CreditNoteForm({
               title="Documento Original"
               icon={FileCheck}
               className="lg:col-span-2"
-              iconColor="text-primary"
-              bgColor="bg-primary/5"
+              color="primary"
               cols={{ sm: 1, md: 3 }}
             >
               <div>
@@ -260,8 +259,7 @@ export function CreditNoteForm({
               title="Configuración de Nota de Crédito"
               icon={NotepadText}
               className="lg:col-span-2"
-              iconColor="text-primary"
-              bgColor="bg-primary/5"
+              color="primary"
               cols={{ sm: 1, md: 2 }}
             >
               <FormSelect
@@ -362,8 +360,7 @@ export function CreditNoteForm({
               title="Items del Documento Original"
               icon={FileText}
               className="lg:col-span-2"
-              iconColor="text-primary"
-              bgColor="bg-primary/5"
+              color="primary"
               cols={{ sm: 1, md: 1 }}
             >
               <CreditNoteItemsTable

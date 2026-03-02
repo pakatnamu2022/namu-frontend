@@ -74,8 +74,7 @@ export function AdditionalConfigSection({
     <GroupFormSection
       title="Configuración Adicional"
       icon={Settings}
-      iconColor="text-primary"
-      bgColor="bg-primary/5"
+      color="primary"
       cols={{ sm: 1, md: 3 }}
     >
       <FormSelect

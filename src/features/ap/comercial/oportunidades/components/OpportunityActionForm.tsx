@@ -2,16 +2,8 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
-} from "@/components/ui/form";
+import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { Loader } from "lucide-react";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { FormSelect } from "@/shared/components/FormSelect";
@@ -24,8 +16,9 @@ import {
   useActionTypes,
   useActionContactTypes,
 } from "../lib/opportunities.hook";
-import { Switch } from "@/components/ui/switch";
 import { OpportunityActionResource } from "../lib/opportunityAction.interface";
+import { FormSwitch } from "@/shared/components/FormSwitch";
+import { FormTextArea } from "@/shared/components/FormTextArea";
 
 interface OpportunityActionFormProps {
   defaultValues: Partial<OpportunityActionSchema> | OpportunityActionResource;
@@ -48,7 +41,7 @@ export const OpportunityActionForm = ({
     resolver: zodResolver(
       mode === "create"
         ? opportunityActionSchemaCreate
-        : opportunityActionSchemaUpdate
+        : opportunityActionSchemaUpdate,
     ),
     defaultValues: {
       ...defaultValues,
@@ -99,46 +92,22 @@ export const OpportunityActionForm = ({
             strictFilter={true}
           />
 
-          <FormField
-            control={form.control}
-            name="result"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="flex flex-col gap-1">
-                  <div className="h-6 flex items-center">Resultado</div>
-                  <div className="flex flex-row items-center justify-between rounded-md border h-10 px-3 bg-background hover:bg-accent transition-colors hover:cursor-pointer">
-                    <p className="text-sm font-medium text-muted-foreground">
-                      Marcar si la acción fue exitosa.
-                    </p>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                  </div>
-                </FormLabel>
-              </FormItem>
-            )}
-          />
+          <div className="col-span-full">
+            <FormSwitch
+              control={form.control}
+              name="result"
+              label="Resultado"
+              text="Marcar si la acción fue exitosa."
+            />
+          </div>
 
-          <div className="col-span-1 sm:col-span-2">
-            <FormField
+          <div className="col-span-full">
+            <FormTextArea
               control={form.control}
               name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Descripción</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Describe lo conversado o acordado en esta acción..."
-                      rows={4}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              label="Descripción"
+              placeholder="Describe lo conversado o acordado en esta acción..."
+              uppercase
             />
           </div>
         </div>

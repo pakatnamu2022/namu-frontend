@@ -276,8 +276,7 @@ export const WorkOrderForm = ({
         <GroupFormSection
           title="Información Cita"
           icon={FileText}
-          iconColor="text-primary"
-          bgColor="bg-blue-50"
+          color="blue"
           cols={{ sm: 1 }}
         >
           {/* Checkbox Tiene Cita */}
@@ -336,8 +335,7 @@ export const WorkOrderForm = ({
         <GroupFormSection
           title="Inspección de Vehículo"
           icon={ClipboardCheck}
-          iconColor="text-primary"
-          bgColor="bg-blue-50"
+          color="blue"
           cols={{ sm: 1 }}
         >
           {/* Checkbox Tiene Inspección */}
@@ -452,8 +450,7 @@ export const WorkOrderForm = ({
         <GroupFormSection
           title="Datos del Servicio"
           icon={Car}
-          iconColor="text-gray-800"
-          bgColor="bg-gray-50"
+          color="gray"
           cols={{ sm: 2 }}
         >
           <FormSelectAsync
@@ -569,8 +566,7 @@ export const WorkOrderForm = ({
         <GroupFormSection
           title="Información de la OT"
           icon={Building}
-          iconColor="text-gray-800"
-          bgColor="bg-gray-50"
+          color="gray"
           cols={{ sm: 2, lg: 3 }}
         >
           <FormSelect
@@ -630,8 +626,7 @@ export const WorkOrderForm = ({
           <GroupFormSection
             title="Trabajos"
             icon={List}
-            iconColor="text-primary"
-            bgColor="bg-blue-50"
+            color="blue"
             cols={{ sm: 1 }}
           >
             <div className="space-y-4">
@@ -738,8 +733,7 @@ export const WorkOrderForm = ({
         <GroupFormSection
           title="Observaciones"
           icon={FileText}
-          iconColor="text-gray-800"
-          bgColor="bg-gray-50"
+          color="gray"
           cols={{ sm: 1 }}
         >
           <FormInputText

@@ -482,8 +482,7 @@ export const ProductTransferForm = ({
         <GroupFormSection
           icon={Truck}
           title="Información del Traslado"
-          iconColor="text-gray-600 dark:text-gray-300"
-          bgColor="bg-gray-50 dark:bg-gray-800"
+          color="gray"
           cols={{
             sm: 1,
             md: 2,
@@ -643,8 +642,7 @@ export const ProductTransferForm = ({
         <GroupFormSection
           icon={Truck}
           title="Conductor y Transporte"
-          iconColor="text-primary"
-          bgColor="bg-blue-50"
+          color="blue"
           cols={{
             sm: 1,
             md: 2,

@@ -47,7 +47,6 @@ export const useNextCorrelativeElectronicDocument = (
   return useQuery<{ number: string }>({
     queryKey: [QUERY_KEY, { documentTypeId, series }],
     queryFn: () => getNextCorrelativeElectronicDocument(documentTypeId, series),
-    refetchOnWindowFocus: false,
     enabled: !!documentTypeId && !!series && documentTypeId > 0 && series > 0,
   });
 };

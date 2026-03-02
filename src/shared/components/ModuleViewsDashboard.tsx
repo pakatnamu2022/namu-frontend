@@ -133,16 +133,16 @@ export default function ModuleViewsDashboard({
               <h2 className="text-xl font-semibold text-muted-foreground">
                 Submódulos
               </h2>
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
                 {submodules.map((submodule) => (
                   <Card
                     key={submodule.id}
                     className="py-0 gap-0 cursor-pointer transition-all hover:shadow-lg hover:scale-105 active:scale-95 border-2"
                     onClick={() => handleItemClick(submodule)}
                   >
-                    <CardHeader className="space-y-1">
+                    <CardHeader className="space-y-1 p-2 gap-0! md:p-3 h-full">
                       <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 md:h-12 md:w-12 items-center justify-center rounded-lg bg-secondary/20 text-secondary-foreground">
+                        <div className="flex min-h-10 min-w-10 md:min-h-12 md:min-w-12 items-center justify-center rounded-lg bg-secondary/20 text-secondary-foreground">
                           {getIcon(submodule.icon ?? "FolderOpen") || (
                             <LucideReact.FolderOpen className="h-5 w-5 md:w-6 md:h-6" />
                           )}
@@ -174,25 +174,25 @@ export default function ModuleViewsDashboard({
                   Vistas
                 </h2>
               )}
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
                 {views.map((view) => (
                   <Card
                     key={view.id}
                     className="py-0 cursor-pointer transition-all hover:shadow-lg hover:scale-105 active:scale-95"
                     onClick={() => handleItemClick(view)}
                   >
-                    <CardHeader className="space-y-1 p-2 gap-0! md:p-6 h-full">
+                    <CardHeader className="space-y-1 p-2 gap-0! md:p-3 h-full">
                       <div className="flex items-center gap-3 h-full">
-                        <div className="flex h-10 w-10 md:h-12 md:w-12 items-center justify-center rounded-lg bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-foreground">
+                        <div className="flex min-h-10 min-w-10 md:min-h-12 md:min-w-12 items-center justify-center rounded-lg bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-foreground">
                           {getIcon(view.icon ?? "FileText") || (
-                            <LucideReact.FileText className="h-5 w-5 md:w-6 md:h-6" />
+                            <LucideReact.FileText className="min-h-5 min-w-5 md:min-w-6 md:min-h-6" />
                           )}
                         </div>
                         <div>
                           <CardTitle className="text-base line-clamp-2">
                             {view.descripcion}
                           </CardTitle>
-                          <CardDescription className="text-xs md:text-sm">
+                          <CardDescription className="text-xs md:text-sm line-clamp-1">
                             {SUBTITLE(
                               {
                                 name: view.descripcion,
