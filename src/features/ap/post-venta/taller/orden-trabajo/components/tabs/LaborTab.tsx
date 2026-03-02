@@ -655,14 +655,16 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
                               )}
                             </>
                           )}
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setDeleteId(labour.id)}
-                            className="h-7 w-7 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
+                          {!globalRequest && !partialRequest && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setDeleteId(labour.id)}
+                              className="h-7 w-7 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          )}
                         </div>
                       </TableCell>
                     </TableRow>

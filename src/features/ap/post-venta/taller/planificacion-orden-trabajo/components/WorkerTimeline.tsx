@@ -475,6 +475,13 @@ export function WorkerTimeline({
     selectedItemId !== null &&
     activeGroup !== null;
 
+  // Posición de la hora actual en el timeline (solo relevante si selectedDate es hoy)
+  const nowTimelinePosition = useMemo(() => {
+    if (!isSameDay(selectedDate, new Date())) return null;
+    const now = new Date();
+    return minutesToTimelinePosition(now.getHours() * 60 + now.getMinutes());
+  }, [selectedDate]);
+
   const timeMarkers = [
     { time: "8:00", position: timeToPosition(8, 0) },
     { time: "9:00", position: timeToPosition(9, 0) },
@@ -889,6 +896,14 @@ export function WorkerTimeline({
                   className="absolute top-0 bottom-0 bg-gray-100"
                   style={{ left: "60%", width: "40%" }}
                 ></div>
+
+                {/* Zona de horas pasadas (solo si es hoy) */}
+                {nowTimelinePosition !== null && nowTimelinePosition > 0 && (
+                  <div
+                    className="absolute top-0 bottom-0 bg-slate-400/20 border-r-2 border-slate-400/50 z-10 pointer-events-none"
+                    style={{ left: 0, width: `${nowTimelinePosition}%` }}
+                  />
+                )}
 
                 {/* Marcadores de hora */}
                 {timeMarkers.map((marker, index) => (

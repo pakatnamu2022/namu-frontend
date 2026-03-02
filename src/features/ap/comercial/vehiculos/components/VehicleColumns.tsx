@@ -16,6 +16,7 @@ interface Props {
   onUpdate?: (id: number) => void;
   permissions: {
     canViewHistory: boolean;
+    canMaintenance: boolean;
     canUpdate: boolean;
     canDelete: boolean;
   };
@@ -104,7 +105,7 @@ export const vehicleColumns = ({
           )}
 
           {/* Work Order History */}
-          {permissions.canViewHistory &&
+          {permissions.canMaintenance &&
             type_operation_id === CM_POSTVENTA_ID && (
               <VehicleWorkOrderHistory vehicleId={id} vehiclePlate={plate} />
             )}

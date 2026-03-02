@@ -30,6 +30,16 @@ export const WORK_ORDER_STATUS = {
   ANULADO: "ANULADO",
 } as const;
 
+// IDs DE ESTADOS DE ORDEN DE TRABAJO
+export const WORK_ORDER_STATUS_ID = {
+  APERTURADO: 884,
+  RECEPCIONADO: 889,
+  EN_TRABAJO: 890,
+  TERMINADO: 891,
+  CERRADO: 892,
+  ANULADO: 893,
+} as const;
+
 // RUTAS PARA POSTVENTA - CAJA
 const ROUTE_CAJA = "orden-trabajo-taller-caja";
 const ABSOLUTE_ROUTE_CAJA = `/ap/post-venta/caja/${ROUTE_CAJA}`;

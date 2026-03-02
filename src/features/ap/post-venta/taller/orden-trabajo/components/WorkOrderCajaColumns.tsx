@@ -1,9 +1,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-import { Settings, ClipboardCheck, Pencil } from "lucide-react";
-import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
+import { Settings } from "lucide-react";
 import { WorkOrderResource } from "../lib/workOrder.interface";
-import { WORK_ORDER_STATUS } from "../lib/workOrder.constants";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge";
@@ -11,10 +9,7 @@ import { Badge } from "@/components/ui/badge";
 export type WorkOrderColumns = ColumnDef<WorkOrderResource>;
 
 interface Props {
-  onDelete: (id: number) => void;
-  onUpdate: (id: number) => void;
   onManage: (id: number) => void;
-  onInspect: (id: number) => void;
   permissions: {
     canReceive: boolean;
     canManage: boolean;
@@ -23,11 +18,8 @@ interface Props {
   };
 }
 
-export const workOrderColumns = ({
-  onDelete,
-  onUpdate,
+export const workOrderCajaColumns = ({
   onManage,
-  onInspect,
   permissions,
 }: Props): WorkOrderColumns[] => [
   {
@@ -125,22 +117,6 @@ export const workOrderColumns = ({
     },
   },
   {
-    accessorKey: "has_management_discount",
-    header: "Dcto. Gerencial",
-    cell: ({ getValue }) => {
-      const value = getValue() as boolean;
-      return (
-        <Badge
-          variant="outline"
-          color={value ? "green" : "gray"}
-          className="capitalize w-8 flex items-center justify-center"
-        >
-          {value ? "Sí" : "No"}
-        </Badge>
-      );
-    },
-  },
-  {
     accessorKey: "is_invoiced",
     header: "Facturado",
     cell: ({ getValue }) => {
@@ -160,24 +136,10 @@ export const workOrderColumns = ({
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
-      const { id, is_inspection_completed, status } = row.original;
-      const isClosed = status?.description === WORK_ORDER_STATUS.CERRADO;
-      const isOpen = status?.description === WORK_ORDER_STATUS.APERTURADO;
+      const { id } = row.original;
 
       return (
         <div className="flex items-center gap-2">
-          {permissions.canReceive && !is_inspection_completed && !isClosed && (
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-7"
-              onClick={() => onInspect(id)}
-              tooltip="Recepción de Vehículo"
-            >
-              <ClipboardCheck className="size-5" />
-            </Button>
-          )}
-
           {permissions.canManage && (
             <Button
               variant="outline"
@@ -188,22 +150,6 @@ export const workOrderColumns = ({
             >
               <Settings className="size-5" />
             </Button>
-          )}
-
-          {permissions.canUpdate && isOpen && (
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-7"
-              tooltip="Editar"
-              onClick={() => onUpdate(id)}
-            >
-              <Pencil className="size-5" />
-            </Button>
-          )}
-
-          {permissions.canDelete && isOpen && (
-            <DeleteButton onClick={() => onDelete(id)} />
           )}
         </div>
       );
