@@ -260,8 +260,7 @@ export function ItemsSection({
       <GroupFormSection
         title="Items"
         icon={Package}
-        iconColor="text-primary"
-        bgColor="bg-primary/5"
+        color="primary"
         cols={{ sm: 1 }}
         gap="gap-1"
       >

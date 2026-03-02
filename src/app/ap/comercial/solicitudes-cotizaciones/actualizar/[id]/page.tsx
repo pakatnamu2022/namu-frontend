@@ -22,6 +22,7 @@ import { PurchaseRequestQuoteResource } from "@/features/ap/comercial/solicitude
 import { PurchaseRequestQuoteForm } from "@/features/ap/comercial/solicitudes-cotizaciones/components/PurchaseRequestQuoteForm";
 import { notFound } from "@/shared/hooks/useNotFound";
 import PageWrapper from "@/shared/components/PageWrapper";
+import { useOpportunity } from "@/features/ap/comercial/oportunidades/lib/opportunities.hook";
 
 export default function UpdatePurchaseRequestQuotePage() {
   const { id } = useParams();
@@ -79,6 +80,10 @@ export default function UpdatePurchaseRequestQuotePage() {
     };
   }
 
+  const { data: opportunity } = useOpportunity(
+    PurchaseRequestQuote?.opportunity_id ?? 0,
+  );
+
   const isLoadingAny = loadingPurchaseRequestQuote || !PurchaseRequestQuote;
 
   if (isLoadingAny) {
@@ -100,6 +105,7 @@ export default function UpdatePurchaseRequestQuotePage() {
         onSubmit={handleSubmit}
         isSubmitting={isPending}
         mode="update"
+        opportunity={opportunity}
         onCancel={() => router(ABSOLUTE_ROUTE)}
       />
     </PageWrapper>

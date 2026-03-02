@@ -111,7 +111,8 @@ export const ERROR_MESSAGE = (
 export const SUBTITLE: ({ name }: ModelInterface, action: Action) => string = (
   { name },
   action,
-) => `Aquí puedes ${ACTIONS[action]} ${name.toLowerCase()}.`;
+) =>
+  `${ACTIONS[action].charAt(0).toUpperCase() + ACTIONS[action].slice(1)} ${name.toLowerCase()}.`;
 
 function roundTwoDecimalPlacesUp(valor: number): number {
   return Math.ceil(valor * 100) / 100;

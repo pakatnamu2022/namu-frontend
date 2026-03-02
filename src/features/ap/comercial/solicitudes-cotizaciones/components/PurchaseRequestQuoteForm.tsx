@@ -11,6 +11,7 @@ import { FormSelect } from "@/shared/components/FormSelect";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import { FormSwitch } from "@/shared/components/FormSwitch";
 import { FormInput } from "@/shared/components/FormInput";
+import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { PurchaseRequestQuoteSummary } from "./PurchaseRequestQuoteSummary";
 import { useMyOpportunities } from "../../oportunidades/lib/opportunities.hook";
@@ -80,6 +81,12 @@ export const PurchaseRequestQuoteForm = ({
   const [isColorModalOpen, setIsColorModalOpen] = useState(false);
   const queryClient = useQueryClient();
   const { ROUTE } = PURCHASE_REQUEST_QUOTE;
+  const defaultDeadline = (() => {
+    const d = new Date();
+    d.setDate(d.getDate() + 30);
+    return d.toISOString().split("T")[0];
+  })();
+
   const form = useForm({
     resolver: zodResolver(
       mode === "create"
@@ -87,6 +94,7 @@ export const PurchaseRequestQuoteForm = ({
         : purchaseRequestQuoteSchemaUpdate,
     ),
     defaultValues: {
+      quote_deadline: defaultDeadline,
       ...defaultValues,
     },
     mode: "onChange",
@@ -699,8 +707,7 @@ export const PurchaseRequestQuoteForm = ({
             <GroupFormSection
               title="Información General"
               icon={Building2}
-              iconColor="text-primary"
-              bgColor="bg-blue-50"
+              color="blue"
               cols={{ sm: 1, md: 2 }}
             >
               <FormSelect
@@ -789,14 +796,20 @@ export const PurchaseRequestQuoteForm = ({
                 control={form.control}
                 strictFilter={true}
               />
+
+              <DatePickerFormField
+                control={form.control}
+                name="quote_deadline"
+                label="Fecha Límite de Cotización"
+                captionLayout="dropdown"
+              />
             </GroupFormSection>
 
             {/*Seccion Información de Vehiculo*/}
             <GroupFormSection
               title="Información del Vehículo"
               icon={Building2}
-              iconColor="text-gray-500"
-              bgColor="bg-gray-50"
+              color="gray"
               cols={{ sm: 1, md: 2 }}
             >
               {/* Switch para seleccionar Con VIN o Sin VIN */}

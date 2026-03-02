@@ -145,8 +145,7 @@ export const ReceptionChecklistForm = ({
               <GroupFormSection
                 title="Información del Vehículo"
                 icon={Car}
-                iconColor="text-primary"
-                bgColor="bg-blue-50"
+                color="blue"
                 cols={{ sm: 1 }}
               >
                 <div className="grid grid-cols-1 gap-1.5">
@@ -229,8 +228,7 @@ export const ReceptionChecklistForm = ({
               <GroupFormSection
                 title="Accesorios de la Compra"
                 icon={FileText}
-                iconColor="text-amber-600"
-                bgColor="bg-amber-50"
+                color="amber"
                 cols={{ sm: 1 }}
               >
                 <div className="space-y-1.5">
@@ -255,8 +253,7 @@ export const ReceptionChecklistForm = ({
             <GroupFormSection
               title="Kilometraje"
               icon={Gauge}
-              iconColor="text-gray-700"
-              bgColor="bg-gray-50"
+              color="gray"
               cols={{ sm: 1 }}
             >
               <FormInput
@@ -276,8 +273,7 @@ export const ReceptionChecklistForm = ({
             <GroupFormSection
               title="Equipamiento del Vehículo"
               icon={ClipboardList}
-              iconColor="text-primary"
-              bgColor="bg-blue-50"
+              color="blue"
               cols={{ sm: 1 }}
               gap="gap-0"
             >
@@ -299,8 +295,7 @@ export const ReceptionChecklistForm = ({
             <GroupFormSection
               title="Fotos del estado del vehículo (Opcional)"
               icon={Camera}
-              iconColor="text-orange-600"
-              bgColor="bg-orange-50"
+              color="orange"
               cols={{ sm: 4 }}
             >
               <FormField
@@ -381,8 +376,7 @@ export const ReceptionChecklistForm = ({
             <GroupFormSection
               title="Marcador de Daños"
               icon={AlertTriangle}
-              iconColor="text-red-600"
-              bgColor="bg-red-50"
+              color="red"
               cols={{ sm: 1 }}
               gap="gap-0"
               headerExtra={
@@ -419,8 +413,7 @@ export const ReceptionChecklistForm = ({
             <GroupFormSection
               title="Observaciones"
               icon={FileText}
-              iconColor="text-gray-700"
-              bgColor="bg-gray-50"
+              color="gray"
               cols={{ sm: 1 }}
             >
               <FormField

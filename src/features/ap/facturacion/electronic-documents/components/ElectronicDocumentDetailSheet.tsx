@@ -424,7 +424,7 @@ export function ElectronicDocumentDetailSheet({
                     {document.items.map((item, index) => (
                       <TableRow key={index}>
                         <TableCell>
-                          <div className="text-sm font-medium text-nowrap! whitespace-pre-line">
+                          <div className="text-xs font-medium text-nowrap! whitespace-pre-line">
                             {item.descripcion}
                           </div>
                           <div className="text-xs text-muted-foreground">

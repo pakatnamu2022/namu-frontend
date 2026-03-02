@@ -32,6 +32,7 @@ const purchaseRequestQuoteSchemaBase = z.object({
   ),
   doc_type_currency_id: requiredStringId("Moneda es requerido"),
   sede_id: requiredStringId("Sede es requerido"),
+  quote_deadline: z.string().min(1, "Fecha límite de cotización es requerida"),
 });
 
 export const purchaseRequestQuoteSchemaCreate =

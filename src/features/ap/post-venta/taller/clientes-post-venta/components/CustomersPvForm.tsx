@@ -681,8 +681,7 @@ export const CustomersPvForm = ({
         <GroupFormSection
           title="Información de Contacto"
           icon={Building2}
-          iconColor="text-secondary"
-          bgColor="bg-red-50"
+          color="red"
           cols={{ sm: 2, md: 3 }}
         >
           <FormField

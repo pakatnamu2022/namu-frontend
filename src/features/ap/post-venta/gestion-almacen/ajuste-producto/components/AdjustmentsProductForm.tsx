@@ -129,8 +129,7 @@ export const AdjustmentsProductForm = ({
         <GroupFormSection
           title="Información del Movimiento"
           icon={FileText}
-          iconColor="text-primary"
-          bgColor="bg-blue-50"
+          color="blue"
         >
           <FormSelect
             name="movement_type"

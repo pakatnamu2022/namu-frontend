@@ -41,6 +41,5 @@ export const useAuthorizedSeries = (params?: Record<string, any>) => {
   return useQuery<AssignSalesSeriesResource[]>({
     queryKey: [QUERY_KEY, params],
     queryFn: () => getAuthorizedSeries({ params }),
-    refetchOnWindowFocus: false,
   });
 };

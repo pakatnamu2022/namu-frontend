@@ -80,8 +80,7 @@ export const WorkerForm = ({
           <GroupFormSection
             title="Firma del Trabajador"
             icon={PenLine}
-            iconColor="text-primary"
-            bgColor="bg-blue-50"
+            color="blue"
             cols={{ sm: 1 }}
           >
             <FormSelectAsync

@@ -21,6 +21,7 @@ import PageWrapper from "@/shared/components/PageWrapper";
 import { useControlUnitsById } from "@/features/ap/comercial/control-unidades/lib/controlUnits.hook";
 import { UNIT_MEASUREMENT_ID } from "@/features/ap/configuraciones/maestros-general/unidad-medida/lib/unitMeasurement.constants";
 import FormSkeleton from "@/shared/components/FormSkeleton";
+import { CURRENCY_TYPE_IDS } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.constants";
 
 export default function AddVehiclePurchaseOrderPage() {
   const router = useNavigate();
@@ -137,7 +138,7 @@ export default function AddVehiclePurchaseOrderPage() {
           igv: 0,
           total: 0,
           supplier_id: consignmentData?.transmitter_id.toString() ?? "",
-          currency_id: "",
+          currency_id: CURRENCY_TYPE_IDS.DOLLARS,
           warehouse_id: "",
           items: consignmentVehicleItem ? [consignmentVehicleItem] : [],
           discount: 0,

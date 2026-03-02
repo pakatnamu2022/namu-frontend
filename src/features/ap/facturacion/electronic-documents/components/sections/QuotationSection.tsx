@@ -18,8 +18,7 @@ export function QuotationSection({ form }: QuotationSectionProps) {
     <GroupFormSection
       title="Datos de Cotización"
       icon={FileCheck}
-      iconColor="text-secondary"
-      bgColor="bg-secondary/5"
+      color="secondary"
       cols={{ sm: 1, md: 1 }}
     >
       <FormSelectAsync

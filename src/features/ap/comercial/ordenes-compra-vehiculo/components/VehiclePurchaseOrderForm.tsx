@@ -262,6 +262,21 @@ export const VehiclePurchaseOrderForm = ({
   const { data: currencies = [], isLoading: isLoadingCurrencies } =
     useAllCurrencyTypes();
 
+  // Auto-select first supplier order type in create mode
+  useEffect(() => {
+    if (
+      mode === "create" &&
+      !isConsignmentOrder &&
+      supplierOrderTypes.length > 0 &&
+      !form.getValues("supplier_order_type_id")
+    ) {
+      form.setValue(
+        "supplier_order_type_id",
+        supplierOrderTypes[0].id.toString(),
+      );
+    }
+  }, [mode, isConsignmentOrder, supplierOrderTypes, form]);
+
   // Warehouse hooks
   const { data: warehouses = [], isLoading: isLoadingWarehouses } =
     useWarehouseByModelSede({

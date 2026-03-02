@@ -29,6 +29,7 @@ export default function VehiclePurchaseOrderDetailView({
       {/* Información General */}
       <GroupFormSection
         title="Información General"
+        color="gray"
         icon={Info}
         cols={{ sm: 1, md: 2, lg: 4 }}
       >
