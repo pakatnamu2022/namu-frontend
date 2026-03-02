@@ -308,6 +308,10 @@ import SalesReceiptsTallerPage from "./app/ap/post-venta/taller/comprobante-vent
 import BoxPage from "./app/ap/post-venta/caja/page.tsx";
 import SalesReceiptsCajaPage from "./app/ap/post-venta/caja/comprante-venta-caja/page.tsx";
 import UpdateSalesReceiptsCajaPage from "./app/ap/post-venta/caja/comprante-venta-caja/actualizar/[id]/page.tsx";
+import AddCreditNoteCajaPage from "./app/ap/post-venta/caja/comprante-venta-caja/[id]/credit-note/page.tsx";
+import UpdateCreditNoteCajaPage from "./app/ap/post-venta/caja/comprante-venta-caja/[id]/credit-note/actualizar/[credit]/page.tsx";
+import AddDebitNoteCajaPage from "./app/ap/post-venta/caja/comprante-venta-caja/[id]/debit-note/page.tsx";
+import UpdateDebitNoteCajaPage from "./app/ap/post-venta/caja/comprante-venta-caja/[id]/debit-note/actualizar/[debit]/page.tsx";
 import OrderQuotationMesonCajaPage from "./app/ap/post-venta/caja/cotizacion-repuesto-caja/page.tsx";
 import WorkOrderCajaPage from "./app/ap/post-venta/caja/order-trabajo-taller-caja/page.tsx";
 import ManageWorkOrderCajaPage from "./app/ap/post-venta/caja/order-trabajo-taller-caja/gestionar/[id]/page.tsx";
@@ -1536,6 +1540,25 @@ function App() {
               <Route
                 path="caja/comprobante-venta-caja/actualizar/:id"
                 element={<UpdateSalesReceiptsCajaPage />}
+              />
+              {/* Credit Note */}
+              <Route
+                path="caja/comprobante-venta-caja/:id/credit-note"
+                element={<AddCreditNoteCajaPage />}
+              />
+              <Route
+                path="caja/comprobante-venta-caja/:id/credit-note/actualizar/:credit"
+                element={<UpdateCreditNoteCajaPage />}
+              />
+
+              {/* Debit Note */}
+              <Route
+                path="caja/comprobante-venta-caja/:id/debit-note"
+                element={<AddDebitNoteCajaPage />}
+              />
+              <Route
+                path="caja/comprobante-venta-caja/:id/debit-note/actualizar/:debit"
+                element={<UpdateDebitNoteCajaPage />}
               />
               <Route
                 path="caja/cotizacion-repuesto-caja"

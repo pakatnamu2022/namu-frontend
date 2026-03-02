@@ -52,7 +52,6 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent } from "@/components/ui/card";
 import { DateTimePickerForm } from "@/shared/components/DateTimePickerForm";
 import { FormInput } from "@/shared/components/FormInput";
 import { errorToast, successToast } from "@/core/core.function";
@@ -78,7 +77,7 @@ export function ExceptionalCaseSheet({
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [pageWorkOrder, setPageWorkOrder] = useState(1);
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(
-    undefined
+    undefined,
   );
 
   const form = useForm<ExceptionalCaseFormValues>({
@@ -106,7 +105,7 @@ export function ExceptionalCaseSheet({
 
   const workOrders = useMemo(
     () => workOrdersData?.data || [],
-    [workOrdersData?.data]
+    [workOrdersData?.data],
   );
 
   // Debounce para búsqueda
@@ -149,7 +148,7 @@ export function ExceptionalCaseSheet({
   const availableGroups = useMemo(() => {
     if (!selectedWorkOrder?.items) return [];
     const groups = new Set(
-      selectedWorkOrder.items.map((item) => item.group_number)
+      selectedWorkOrder.items.map((item) => item.group_number),
     );
     return Array.from(groups).sort();
   }, [selectedWorkOrder]);
@@ -165,7 +164,7 @@ export function ExceptionalCaseSheet({
     if (!selectedWorkOrder?.items) return [];
     if (activeGroup === null) return selectedWorkOrder.items;
     return selectedWorkOrder.items.filter(
-      (item) => item.group_number === activeGroup
+      (item) => item.group_number === activeGroup,
     );
   }, [selectedWorkOrder, activeGroup]);
 
@@ -206,7 +205,8 @@ export function ExceptionalCaseSheet({
     const minutes = date.getMinutes();
     const totalMinutes = hours * 60 + minutes;
 
-    const { MORNING_START, LUNCH_START, LUNCH_END, AFTERNOON_END } = WORK_SCHEDULE;
+    const { MORNING_START, LUNCH_START, LUNCH_END, AFTERNOON_END } =
+      WORK_SCHEDULE;
 
     // Verificar que esté dentro del horario laboral
     if (totalMinutes < MORNING_START || totalMinutes > AFTERNOON_END) {
@@ -225,7 +225,7 @@ export function ExceptionalCaseSheet({
     // Validar horario permitido
     if (!validateWorkingHours(data.planned_start_datetime)) {
       errorToast(
-        "El horario seleccionado no está permitido. El horario de trabajo es de 8:00 AM a 6:00 PM, excluyendo el almuerzo (1:00 PM - 2:24 PM)."
+        "El horario seleccionado no está permitido. El horario de trabajo es de 8:00 AM a 6:00 PM, excluyendo el almuerzo (1:00 PM - 2:24 PM).",
       );
       return;
     }
@@ -248,7 +248,7 @@ export function ExceptionalCaseSheet({
     } catch (error: any) {
       errorToast(
         error?.response?.data?.message ||
-          "Error al crear la planificación excepcional"
+          "Error al crear la planificación excepcional",
       );
     }
   };
@@ -344,7 +344,7 @@ export function ExceptionalCaseSheet({
                                   "mr-2 h-4 w-4",
                                   selectedWorkOrderId === wo.id.toString()
                                     ? "opacity-100"
-                                    : "opacity-0"
+                                    : "opacity-0",
                                 )}
                               />
                               <div className="flex items-center gap-2">
@@ -388,7 +388,7 @@ export function ExceptionalCaseSheet({
                 <div className="flex flex-wrap gap-2">
                   {availableGroups.map((group) => {
                     const itemCount = selectedWorkOrder.items.filter(
-                      (item) => item.group_number === group
+                      (item) => item.group_number === group,
                     ).length;
                     return (
                       <div key={group} className="flex items-center space-x-2">
@@ -415,53 +415,55 @@ export function ExceptionalCaseSheet({
 
           {/* Lista de Descripciones */}
           {selectedWorkOrder && activeGroup !== null && (
-            <div className="space-y-2 p-4 bg-slate-50 rounded-lg border border-slate-200">
-              <Label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+            <div className="space-y-1.5 p-3 bg-slate-50 rounded-lg border border-slate-200">
+              <Label className="text-sm font-semibold text-slate-700 flex items-center gap-1.5">
                 <ListChecks className="h-4 w-4" />
                 Seleccionar Descripción de Trabajo
               </Label>
-              <div className="space-y-2 max-h-64 overflow-y-auto">
+              <div className="space-y-1 max-h-56 overflow-y-auto">
                 {filteredItems.length > 0 ? (
                   filteredItems.map((item) => (
-                    <Card
+                    <div
                       key={item.id}
-                      className={`cursor-pointer transition-all hover:shadow-md ${
+                      className={`flex items-start gap-2 px-2 py-3 rounded border cursor-pointer transition-colors ${
                         selectedItemId === item.id
-                          ? "bg-blue-50 border-blue-300 shadow-sm"
-                          : "bg-white hover:bg-slate-50"
+                          ? "bg-blue-50 border-blue-300"
+                          : "bg-white border-slate-100 hover:bg-slate-50 hover:border-slate-200"
                       }`}
                       onClick={() => handleItemSelect(item.id)}
                     >
-                      <CardContent className="p-3">
-                        <div className="flex items-start gap-3">
-                          <div className="flex items-center h-5">
-                            <input
-                              type="radio"
-                              name="item-selection"
-                              checked={selectedItemId === item.id}
-                              onChange={() => handleItemSelect(item.id)}
-                              className="h-4 w-4 text-primary border-gray-300 focus:ring-primary"
-                            />
-                          </div>
-                          <div className="flex-1 space-y-1">
-                            <div className="flex items-center gap-2">
-                              <Badge
-                                variant="outline"
-                                className="text-xs font-semibold bg-linear-to-r from-blue-50 to-indigo-50"
-                              >
-                                {item.type_planning_name}
-                              </Badge>
-                            </div>
-                            <p className="text-sm font-medium text-slate-800 leading-relaxed">
-                              {item.description}
-                            </p>
-                          </div>
+                      <div className="flex items-center h-5 shrink-0 mt-0.5">
+                        <input
+                          type="radio"
+                          name="item-selection"
+                          checked={selectedItemId === item.id}
+                          onChange={() => handleItemSelect(item.id)}
+                          className="h-4 w-4 text-primary border-gray-300 focus:ring-primary"
+                        />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <Badge
+                            variant="outline"
+                            className="text-xs font-semibold bg-linear-to-r from-blue-50 to-indigo-50 px-1.5 py-0"
+                          >
+                            {item.type_planning_name}
+                          </Badge>
+                          <Badge
+                            variant="outline"
+                            className="text-xs font-semibold bg-linear-to-r from-blue-50 to-indigo-50 px-1.5 py-0"
+                          >
+                            {item.type_operation_name}
+                          </Badge>
                         </div>
-                      </CardContent>
-                    </Card>
+                        <p className="text-sm font-medium text-slate-800 leading-snug mt-0.5 truncate">
+                          {item.description}
+                        </p>
+                      </div>
+                    </div>
                   ))
                 ) : (
-                  <p className="text-sm text-muted-foreground text-center py-4">
+                  <p className="text-sm text-muted-foreground text-center py-3">
                     No hay items disponibles para este grupo
                   </p>
                 )}

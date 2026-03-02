@@ -65,7 +65,6 @@ import {
 } from "@/components/ui/command";
 import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Card, CardContent } from "@/components/ui/card";
 import {
   AT_WORK_WORK_ORDER_ID,
   FINISHED_WORK_ORDER_ID,
@@ -692,8 +691,8 @@ export function WorkerTimeline({
 
           {/* Lista de Descripciones */}
           {selectedWorkOrder && activeGroup !== null && (
-            <div className="space-y-2 p-4 bg-white rounded-lg border border-slate-200">
-              <Label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+            <div className="space-y-1.5 p-3 bg-white rounded-lg border border-slate-200">
+              <Label className="text-sm font-semibold text-slate-700 flex items-center gap-1.5">
                 <ListChecks className="h-4 w-4" />
                 Seleccionar Descripción de Trabajo
               </Label>
@@ -701,44 +700,46 @@ export function WorkerTimeline({
                 value={selectedItemId?.toString() || ""}
                 onValueChange={(value) => setSelectedItemId(Number(value))}
               >
-                <div className="space-y-2 max-h-64 overflow-y-auto">
+                <div className="space-y-1 max-h-56 overflow-y-auto">
                   {filteredItems.length > 0 ? (
                     filteredItems.map((item) => (
-                      <Card
+                      <div
                         key={item.id}
-                        className={`cursor-pointer transition-all hover:shadow-md ${
+                        className={`flex items-start gap-2 px-2 py-3 rounded border cursor-pointer transition-colors ${
                           selectedItemId === item.id
-                            ? "bg-blue-50 border-blue-300 shadow-sm"
-                            : "bg-white hover:bg-slate-50"
+                            ? "bg-blue-50 border-blue-300"
+                            : "bg-white border-slate-100 hover:bg-slate-50 hover:border-slate-200"
                         }`}
                         onClick={() => handleItemSelect(item.id)}
                       >
-                        <CardContent className="p-3">
-                          <div className="flex items-start gap-3">
-                            <RadioGroupItem
-                              value={item.id.toString()}
-                              id={`item-${item.id}`}
-                              className="mt-0.5"
-                            />
-                            <div className="flex-1 space-y-1">
-                              <div className="flex items-center gap-2">
-                                <Badge
-                                  variant="outline"
-                                  className="text-xs font-semibold bg-linear-to-r from-blue-50 to-indigo-50"
-                                >
-                                  {item.type_planning_name}
-                                </Badge>
-                              </div>
-                              <p className="text-sm font-medium text-slate-800 leading-relaxed">
-                                {item.description}
-                              </p>
-                            </div>
+                        <RadioGroupItem
+                          value={item.id.toString()}
+                          id={`item-${item.id}`}
+                          className="mt-0.5 shrink-0"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <Badge
+                              variant="outline"
+                              className="text-xs font-semibold bg-linear-to-r from-blue-50 to-indigo-50 px-1.5 py-0"
+                            >
+                              {item.type_planning_name}
+                            </Badge>
+                            <Badge
+                              variant="outline"
+                              className="text-xs font-semibold bg-linear-to-r from-blue-50 to-indigo-50 px-1.5 py-0"
+                            >
+                              {item.type_operation_name}
+                            </Badge>
                           </div>
-                        </CardContent>
-                      </Card>
+                          <p className="text-sm font-medium text-slate-800 leading-snug mt-0.5 truncate">
+                            {item.description}
+                          </p>
+                        </div>
+                      </div>
                     ))
                   ) : (
-                    <p className="text-sm text-muted-foreground text-center py-4">
+                    <p className="text-sm text-muted-foreground text-center py-3">
                       No hay items disponibles para este grupo
                     </p>
                   )}
