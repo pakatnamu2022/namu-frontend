@@ -66,9 +66,9 @@ export const vehiclePurchaseOrderColumns = ({
             {value}
           </Badge>
           <Button
-            variant="outline"
+            variant="secondary"
             size="icon-xs"
-            color="orange"
+            color="blue"
             onClick={() => onRequestInvoice(row.original.id)}
           >
             <Search />
@@ -76,9 +76,9 @@ export const vehiclePurchaseOrderColumns = ({
         </div>
       ) : (
         <Button
-          variant="outline"
+          variant="secondary"
           size="xs"
-          color="orange"
+          color="blue"
           onClick={() => onRequestInvoice(row.original.id)}
         >
           <Search />
@@ -218,6 +218,11 @@ export const vehiclePurchaseOrderColumns = ({
         purchaseOrder.migration_status === "updated_with_nc" &&
         purchaseOrder.resent === false;
 
+      const canMigrate =
+        onMigrate &&
+        purchaseOrder.status &&
+        purchaseOrder.migration_status !== "completed";
+
       return (
         <div className="flex items-center gap-2">
           {/* View Detail */}
@@ -227,7 +232,7 @@ export const vehiclePurchaseOrderColumns = ({
           <VehiclePurchaseOrderMigrationHistory purchaseOrderId={id} />
 
           {/* Migrar */}
-          {onMigrate && (
+          {canMigrate && (
             <Button
               variant="outline"
               size="icon"

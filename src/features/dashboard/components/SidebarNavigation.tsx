@@ -21,9 +21,13 @@ export default function SidebarNavigation() {
 
   const handleBack = () => {
     if (subModuleSlug) {
-      router(
-        `/modules/${currentCompany?.empresa_abreviatura}/${currentModule?.slug}`,
-      );
+      if (currentModule?.children && currentModule.children.length > 1) {
+        router(
+          `/modules/${currentCompany?.empresa_abreviatura}/${currentModule?.slug}`,
+        );
+      } else {
+        router(`/modules/${currentCompany?.empresa_abreviatura}`);
+      }
     } else {
       router(`/modules/${currentCompany?.empresa_abreviatura}`);
     }
@@ -68,7 +72,10 @@ export default function SidebarNavigation() {
                 <ArrowLeft className="size-4" />
                 <span>
                   {subModuleSlug
-                    ? `Volver a ${currentModule?.descripcion}`
+                    ? currentModule?.children.length &&
+                      currentModule?.children.length > 1
+                      ? `Volver a ${currentModule?.descripcion}`
+                      : `Volver a ${currentCompany?.empresa_nombre}`
                     : `Volver a ${currentCompany?.empresa_nombre}`}
                 </span>
               </SidebarMenuButton>

@@ -227,7 +227,8 @@ export function DocumentInfoSection({
         label="Número"
         type="number"
         placeholder="Auto-generado"
-        disabled
+        readOnly
+        optional
         description={
           isEdit
             ? "El correlativo no se puede modificar"

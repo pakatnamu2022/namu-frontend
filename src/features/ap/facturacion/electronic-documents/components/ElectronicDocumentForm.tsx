@@ -696,6 +696,7 @@ MODELO: ${vehicle?.model?.version || ``}
             quotation={quotation}
             advancePayments={advancePayments}
             selectedCustomer={selectedCustomer}
+            onSubmit={form.handleSubmit(onSubmit)}
           />
         </div>
 

@@ -1,14 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { GeneralModal } from "@/shared/components/GeneralModal";
 import { useAllVehicles } from "../../vehiculos/lib/vehicles.hook";
 import { useAssignVehicleToPurchaseRequestQuote } from "../lib/purchaseRequestQuote.hook";
 import { VehicleResource } from "../../vehiculos/lib/vehicles.interface";
@@ -59,115 +54,128 @@ export default function AssignVehicleModal({
     }
   };
 
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Asignar Vehículo a Cotización</DialogTitle>
-          <DialogDescription>
-            Selecciona un vehículo disponible para asignar a esta cotización
-          </DialogDescription>
-        </DialogHeader>
+  const handleClose = () => {
+    onOpenChange(false);
+    setSelectedVehicleId(null);
+  };
 
-        <div className="space-y-4">
-          {isLoading ? (
-            <div className="flex items-center justify-center py-8">
-              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-            </div>
-          ) : vehicles && vehicles.length > 0 ? (
-            <div className="space-y-2">
-              {vehicles.map((vehicle: VehicleResource) => (
+  return (
+    <GeneralModal
+      open={open}
+      onClose={handleClose}
+      title="Asignar vehículo a cotización"
+      subtitle="Selecciona un vehículo disponible para asignar a esta cotización"
+      icon="Car"
+      size="3xl"
+      childrenFooter={
+        <div className="flex justify-end gap-2">
+          <Button variant="outline" onClick={handleClose}>
+            Cancelar
+          </Button>
+          <Button
+            onClick={handleAssignVehicle}
+            disabled={!selectedVehicleId || assignVehicleMutation.isPending}
+          >
+            {assignVehicleMutation.isPending ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Asignando...
+              </>
+            ) : (
+              "Asignar vehículo"
+            )}
+          </Button>
+        </div>
+      }
+    >
+      {isLoading ? (
+        <div className="flex items-center justify-center py-10">
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        </div>
+      ) : vehicles && vehicles.length > 0 ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          {vehicles.map((vehicle: VehicleResource) => {
+            const isSelected = selectedVehicleId === vehicle.id;
+            return (
+              <div
+                key={vehicle.id}
+                className={`flex items-start gap-3 px-3 py-2.5 border rounded-lg cursor-pointer transition-all ${
+                  isSelected
+                    ? "border-primary bg-primary/5 shadow-sm"
+                    : "border-border hover:border-primary/40 hover:bg-muted/30"
+                }`}
+                onClick={() => setSelectedVehicleId(vehicle.id)}
+              >
+                {/* Radio indicator */}
                 <div
-                  key={vehicle.id}
-                  className={`p-4 border rounded-lg cursor-pointer transition-all ${
-                    selectedVehicleId === vehicle.id
-                      ? "border-primary bg-primary/5"
-                      : "border-border hover:border-primary/50"
+                  className={`mt-0.5 h-4 w-4 rounded-full border-2 shrink-0 flex items-center justify-center transition-colors ${
+                    isSelected
+                      ? "border-primary bg-primary"
+                      : "border-muted-foreground/40"
                   }`}
-                  onClick={() => setSelectedVehicleId(vehicle.id)}
                 >
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <h4 className="font-semibold">
-                          {vehicle.model.version}
-                        </h4>
-                        <span className="text-xs text-muted-foreground">
-                          ({vehicle.model.code})
-                        </span>
-                      </div>
-                      <div className="grid grid-cols-2 gap-2 mt-2 text-sm text-muted-foreground">
-                        <div>
-                          <span className="font-medium">VIN:</span>{" "}
-                          {vehicle.vin}
-                        </div>
-                        <div>
-                          <span className="font-medium">Año:</span>{" "}
-                          {vehicle.year}
-                        </div>
-                        <div>
-                          <span className="font-medium">Color:</span>{" "}
-                          {vehicle.vehicle_color}
-                        </div>
-                        <div>
-                          <span className="font-medium">Motor:</span>{" "}
-                          {vehicle.engine_type}
-                        </div>
-                        {vehicle.warehouse_name && (
-                          <div className="col-span-2">
-                            <span className="font-medium">Almacén:</span>{" "}
-                            {vehicle.warehouse_name}
-                          </div>
-                        )}
-                      </div>
-                      <div className="mt-2">
-                        <span
-                          className="inline-flex items-center rounded-full px-2 py-1 text-xs font-medium"
-                          style={{
-                            backgroundColor: `${vehicle.status_color}20`,
-                            color: vehicle.status_color,
-                          }}
-                        >
-                          {vehicle.vehicle_status}
-                        </span>
-                      </div>
-                    </div>
+                  {isSelected && (
+                    <div className="h-1.5 w-1.5 rounded-full bg-white" />
+                  )}
+                </div>
+
+                {/* Content */}
+                <div className="flex-1 min-w-0">
+                  {/* VIN — prominent */}
+                  <p className="font-bold text-sm font-mono leading-tight tracking-wide truncate">
+                    {vehicle.vin}
+                  </p>
+
+                  {/* Model + code */}
+                  <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                    <span className="text-xs text-foreground/80 font-medium truncate">
+                      {vehicle.model.version}
+                    </span>
+                    <Badge
+                      variant="outline"
+                      className="font-mono text-[10px] px-1.5 py-0"
+                    >
+                      {vehicle.model.code}
+                    </Badge>
+                  </div>
+
+                  {/* Specs + status */}
+                  <div className="flex items-center gap-1 mt-1 text-[11px] text-muted-foreground flex-wrap">
+                    <span>{vehicle.year}</span>
+                    <span className="opacity-40">·</span>
+                    <span>{vehicle.vehicle_color}</span>
+                    <span className="opacity-40">·</span>
+                    <span>{vehicle.engine_type}</span>
+                    {vehicle.warehouse_name && (
+                      <>
+                        <span className="opacity-40">·</span>
+                        <span>{vehicle.warehouse_name}</span>
+                      </>
+                    )}
+                  </div>
+
+                  {/* Status */}
+                  <div className="mt-1">
+                    <span
+                      className="inline-flex items-center rounded-full px-1.5 py-0.5 text-[10px] font-medium"
+                      style={{
+                        backgroundColor: `${vehicle.status_color}20`,
+                        color: vehicle.status_color,
+                      }}
+                    >
+                      {vehicle.vehicle_status}
+                    </span>
                   </div>
                 </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-8 text-muted-foreground">
-              No hay vehículos disponibles
-            </div>
-          )}
-
-          <div className="flex justify-end gap-2 pt-4">
-            <Button
-              variant="outline"
-              onClick={() => {
-                onOpenChange(false);
-                setSelectedVehicleId(null);
-              }}
-            >
-              Cancelar
-            </Button>
-            <Button
-              onClick={handleAssignVehicle}
-              disabled={!selectedVehicleId || assignVehicleMutation.isPending}
-            >
-              {assignVehicleMutation.isPending ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Asignando...
-                </>
-              ) : (
-                "Asignar Vehículo"
-              )}
-            </Button>
-          </div>
+              </div>
+            );
+          })}
         </div>
-      </DialogContent>
-    </Dialog>
+      ) : (
+        <div className="text-center py-10 text-sm text-muted-foreground">
+          No hay vehículos disponibles
+        </div>
+      )}
+    </GeneralModal>
   );
 }

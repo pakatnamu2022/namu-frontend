@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
 import { ElectronicDocumentSchema } from "../../lib/electronicDocument.schema";
 import { SunatConceptsResource } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.interface";
 import { PurchaseRequestQuoteResource } from "@/features/ap/comercial/solicitudes-cotizaciones/lib/purchaseRequestQuote.interface";
@@ -35,6 +36,7 @@ interface SummarySectionProps {
   quotation?: PurchaseRequestQuoteResource | null;
   advancePayments?: ElectronicDocumentResource[];
   selectedCustomer?: CustomersResource;
+  onSubmit: () => void;
 }
 
 export function SummarySection({
@@ -50,6 +52,7 @@ export function SummarySection({
   quotation,
   advancePayments = [],
   selectedCustomer: selectedCustomerProp,
+  onSubmit,
 }: SummarySectionProps) {
   const items = form.watch("items") || [];
   const selectedDocumentType = form.watch("sunat_concept_document_type_id");
@@ -61,8 +64,8 @@ export function SummarySection({
     selectedCustomerProp;
 
   return (
-    <div className="lg:col-span-1 lg:row-start-1 lg:col-start-3 h-full">
-      <Card className="h-full sticky top-6 bg-linear-to-br from-primary/5 via-background to-muted/20 border-primary/20">
+    <div className="lg:col-span-1 lg:row-start-1 lg:col-start-3">
+      <Card className="h-fit sticky top-6 bg-linear-to-br from-primary/5 via-background to-muted/20 border-primary/20">
         <CardHeader className="space-y-1">
           <div className="flex items-center justify-between">
             <CardTitle className="text-lg flex items-center gap-2">
@@ -154,10 +157,10 @@ export function SummarySection({
             </p>
           </div>
 
-          <Separator className="bg-muted-foreground/20" />
+          <Separator className="bg-muted-foreground/20 hidden" />
 
           {/* Items Summary */}
-          <div className="space-y-2">
+          <div className="space-y-2 hidden">
             <p className="text-xs font-medium text-muted-foreground mb-3">
               Items ({items.length})
             </p>
@@ -306,33 +309,52 @@ export function SummarySection({
 
           {/* Action Buttons */}
           <div className="space-y-2 pt-4">
-            <Button
-              type="submit"
-              className="w-full"
-              size="lg"
-              disabled={isPending || !form.formState.isValid}
-            >
-              {form.watch("enviar_automaticamente_a_la_sunat") ? (
-                <Send className="size-4 mr-2" />
-              ) : (
-                <FileCheck className="size-4 mr-2" />
-              )}
-              {isPending
-                ? "Guardando..."
-                : isEdit
-                  ? "Actualizar Documento"
-                  : form.watch("enviar_automaticamente_a_la_sunat")
-                    ? "Guardar y Enviar a SUNAT"
-                    : "Guardar Documento"}
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              className="w-full"
-              onClick={() => window.history.back()}
-            >
-              Cancelar
-            </Button>
+            <ConfirmationDialog
+              trigger={
+                <Button
+                  type="button"
+                  className="w-full"
+                  size="lg"
+                  disabled={isPending || !form.formState.isValid}
+                >
+                  {form.watch("enviar_automaticamente_a_la_sunat") ? (
+                    <Send className="size-4 mr-2" />
+                  ) : (
+                    <FileCheck className="size-4 mr-2" />
+                  )}
+                  {isPending
+                    ? "Guardando..."
+                    : isEdit
+                      ? "Actualizar Documento"
+                      : form.watch("enviar_automaticamente_a_la_sunat")
+                        ? "Guardar y Enviar a SUNAT"
+                        : "Guardar Documento"}
+                </Button>
+              }
+              title={isEdit ? "¿Actualizar documento?" : "¿Guardar documento?"}
+              description={
+                isEdit
+                  ? "¿Estás seguro de que deseas actualizar este documento electrónico?"
+                  : "¿Estás seguro de que deseas guardar este documento electrónico?"
+              }
+              confirmText={isEdit ? "Sí, actualizar" : "Sí, guardar"}
+              cancelText="No, revisar"
+              icon="info"
+              onConfirm={onSubmit}
+            />
+            <ConfirmationDialog
+              trigger={
+                <Button type="button" variant="outline" className="w-full">
+                  Cancelar
+                </Button>
+              }
+              title="¿Cancelar?"
+              description="Se perderán todos los datos ingresados. ¿Estás seguro de que deseas cancelar?"
+              confirmText="Sí, cancelar"
+              cancelText="No, continuar"
+              icon="warning"
+              onConfirm={() => window.history.back()}
+            />
           </div>
 
           {/* Footer Info */}
