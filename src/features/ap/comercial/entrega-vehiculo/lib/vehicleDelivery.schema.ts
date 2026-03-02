@@ -5,7 +5,7 @@ export const vehicleDeliverySchemaCreate = z
   .object({
     sede_id: requiredStringId("Selecciona una Sede"),
     vehicle_id: z.string().min(1, "El vehículo es requerido"),
-    scheduled_delivery_date: z.date({
+    scheduled_delivery_date: z.coerce.date({
       error: "La fecha de entrega programada es requerida",
     }),
     wash_date: z.date({
@@ -23,7 +23,7 @@ export const vehicleDeliverySchemaCreate = z
 export const vehicleDeliverySchemaUpdate = z
   .object({
     vehicle_id: z.string().min(1, "El vehículo es requerido"),
-    scheduled_delivery_date: z.date({
+    scheduled_delivery_date: z.coerce.date({
       error: "La fecha de entrega programada es requerida",
     }),
     wash_date: z.date({
