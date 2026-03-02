@@ -22,6 +22,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { parse } from "date-fns";
 
 interface PurchaseRequestQuoteDetailModalProps {
   open: boolean;
@@ -61,7 +62,7 @@ export default function PurchaseRequestQuoteDetailModal({
             title="Información General"
             color="gray"
             icon={FileText}
-            cols={{ sm: 1, md: 2, xl: 4 }}
+            cols={{ sm: 1, md: 2, xl: 5 }}
             headerExtra={
               <Badge
                 color={quote.is_approved ? "default" : "secondary"}
@@ -85,8 +86,17 @@ export default function PurchaseRequestQuoteDetailModal({
                 Fecha Límite
               </p>
               <p className="font-medium">
+                {/* PPP */}
                 {quote.quote_deadline
-                  ? new Date(quote.quote_deadline).toLocaleDateString("es-PE")
+                  ? parse(
+                      quote.quote_deadline,
+                      "yyyy-MM-dd",
+                      new Date(),
+                    ).toLocaleDateString("es-PE", {
+                      day: "numeric",
+                      month: "long",
+                      year: "numeric",
+                    })
                   : "No especificada"}
               </p>
             </div>
@@ -101,7 +111,7 @@ export default function PurchaseRequestQuoteDetailModal({
               <p className="text-xs text-muted-foreground">Garantía</p>
               <p className="font-medium">{quote.warranty || "N/A"}</p>
             </div>
-            <div>
+            <div className="xl:col-span-2">
               <p className="text-xs text-muted-foreground">Asesor</p>
               <p className="font-medium">{quote.consultant?.name || "N/A"}</p>
             </div>
@@ -117,22 +127,28 @@ export default function PurchaseRequestQuoteDetailModal({
               <p className="text-xs text-muted-foreground">Tipo de Cambio</p>
               <p className="font-medium">{quote.exchange_rate}</p>
             </div>
-            <div>
+            {/* <div>
               <p className="text-xs text-muted-foreground">Moneda Facturado</p>
               <p className="font-medium">
                 {quote.doc_type_currency} ({quote.doc_type_currency_symbol})
               </p>
-            </div>
+            </div> */}
             <div>
               <p className="text-xs text-muted-foreground">Precio Base</p>
               <p className="font-medium text-emerald-600 text-xl">
-                <NumberFormat value={Number(quote.base_selling_price)} />
+                <NumberFormat
+                  value={Number(quote.base_selling_price)}
+                  prefix={quote.doc_type_currency_symbol}
+                />
               </p>
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Precio de Venta</p>
               <p className="font-medium text-green-600 text-2xl">
-                <NumberFormat value={Number(quote.sale_price)} />
+                <NumberFormat
+                  value={Number(quote.sale_price)}
+                  prefix={quote.doc_type_currency_symbol}
+                />
               </p>
             </div>
           </GroupFormSection>
@@ -142,15 +158,21 @@ export default function PurchaseRequestQuoteDetailModal({
             title="Información del Titular"
             icon={User}
             color="gray"
-            cols={{ sm: 1, md: 2, xl: 4 }}
+            cols={{ sm: 1, md: 2, xl: 5 }}
           >
-            <div className="col-span-2">
+            <div className="xl:col-span-2">
               <p className="text-xs text-muted-foreground">Nombre Completo</p>
               <p className="font-semibold">{quote.holder}</p>
             </div>
-            <div className="col-span-2">
+            <div className="xl:col-span-3">
               <p className="text-xs text-muted-foreground">Cliente</p>
               <p className="font-medium">{quote.client_name || "N/A"}</p>
+            </div>
+            <div className="xl:col-span-2">
+              <p className="text-xs text-muted-foreground">Email</p>
+              <p className="font-medium text-sm break-all">
+                {quote.holder_email || "N/A"}
+              </p>
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Tipo de Documento</p>
@@ -167,12 +189,6 @@ export default function PurchaseRequestQuoteDetailModal({
             <div>
               <p className="text-xs text-muted-foreground">Teléfono</p>
               <p className="font-medium">{quote.holder_phone || "N/A"}</p>
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground">Email</p>
-              <p className="font-medium text-sm break-all">
-                {quote.holder_email || "N/A"}
-              </p>
             </div>
             <div className="col-span-full">
               <p className="text-xs text-muted-foreground">Dirección</p>

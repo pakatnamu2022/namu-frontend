@@ -154,7 +154,7 @@ export function DatePickerFormField<T extends FieldValues>({
               </Button>
             </FormControl>
           </DrawerTrigger>
-          <DrawerContent className="w-auto p-0 overflow-hidden">
+          <DrawerContent className="w-auto p-0">
             <DrawerHeader>
               <DrawerTitle>Selecciona una fecha</DrawerTitle>
             </DrawerHeader>
@@ -190,7 +190,7 @@ export function DatePickerFormField<T extends FieldValues>({
               </Button>
             </FormControl>
           </PopoverTrigger>
-          <PopoverContent className="w-auto p-0 overflow-hidden" align="start">
+          <PopoverContent className="w-auto p-0 max-h-none overflow-hidden" align="start">
             <Calendar
               mode="single"
               locale={es}

@@ -23,6 +23,7 @@ import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { AlertTriangle, BadgeInfo, X } from "lucide-react";
 import { ReactNode, useState } from "react";
+import { AlertDialogTitle } from "@radix-ui/react-alert-dialog";
 
 interface ConfirmationDialogProps {
   trigger: ReactNode;
@@ -58,7 +59,9 @@ export const ConfirmationDialog = ({
 
   const isControlled = controlledOpen !== undefined;
   const isOpen = isControlled ? controlledOpen : internalOpen;
-  const setIsOpen = isControlled ? (controlledOnOpenChange || (() => {})) : setInternalOpen;
+  const setIsOpen = isControlled
+    ? controlledOnOpenChange || (() => {})
+    : setInternalOpen;
 
   const handleConfirm = () => {
     setIsOpen(false);
@@ -71,15 +74,15 @@ export const ConfirmationDialog = ({
     icon === "danger"
       ? "text-red-500"
       : icon === "warning"
-      ? "text-amber-500"
-      : "text-blue-500";
+        ? "text-amber-500"
+        : "text-blue-500";
 
   const iconBgColor =
     icon === "danger"
       ? "bg-red-100"
       : icon === "warning"
-      ? "bg-amber-100"
-      : "bg-blue-100";
+        ? "bg-amber-100"
+        : "bg-blue-100";
 
   const IconHeader = (
     <div className="flex items-center gap-3">
@@ -92,11 +95,7 @@ export const ConfirmationDialog = ({
 
   if (isMobile) {
     return (
-      <Drawer
-        open={isOpen}
-        onOpenChange={setIsOpen}
-        dismissible={false}
-      >
+      <Drawer open={isOpen} onOpenChange={setIsOpen} dismissible={false}>
         <DrawerTrigger asChild>{trigger}</DrawerTrigger>
         <DrawerContent onPointerDownOutside={(e) => e.preventDefault()}>
           <DrawerHeader>
@@ -132,7 +131,7 @@ export const ConfirmationDialog = ({
       <AlertDialogTrigger asChild>{trigger}</AlertDialogTrigger>
       <AlertDialogContent className="sm:max-w-md">
         <AlertDialogHeader>
-          {IconHeader}
+          <AlertDialogTitle>{IconHeader}</AlertDialogTitle>
         </AlertDialogHeader>
         <AlertDialogDescription className="text-left">
           {description}

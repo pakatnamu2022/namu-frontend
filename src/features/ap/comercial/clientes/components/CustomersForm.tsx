@@ -1004,7 +1004,7 @@ export const CustomersForm = ({
         </GroupFormSection>
 
         {/* Sección: Datos del Cónyuge (Solo si está casado) */}
-        {!isJuridica && isMarried && !fromOpportunities && (
+        {!isJuridica && isMarried && (
           <GroupFormSection
             title="Datos del Cónyuge"
             icon={Heart}
