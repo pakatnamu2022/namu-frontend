@@ -24,7 +24,7 @@ import { FormSelect } from "@/shared/components/FormSelect";
 import { FormInput } from "@/shared/components/FormInput";
 import { FormSwitch } from "@/shared/components/FormSwitch";
 import { ViewResource } from "../lib/view.interface";
-import { CompanyResource } from "../../empresa/lib/company.interface";
+import { CompanyResource } from "@/features/gp/maestro-general/empresa/lib/company.interface";
 import RequiredField from "@/shared/components/RequiredField";
 import { IconPicker } from "@/components/ui/icon-picker";
 import { VIEW } from "../lib/view.constants";

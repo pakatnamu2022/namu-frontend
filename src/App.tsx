@@ -358,6 +358,8 @@ import UpdatePayrollConceptPage from "./app/gp/gestion-humana/planillas/concepto
 import SedePage from "./app/gp/maestro-general/sede/page.tsx";
 import UpdateSedePage from "./app/gp/maestro-general/sede/actualizar/[id]/page.tsx";
 import AddSedePage from "./app/gp/maestro-general/sede/agregar/page.tsx";
+import CompanyPage from "./app/gp/maestro-general/empresa/page.tsx";
+import UpdateCompanyPage from "./app/gp/maestro-general/empresa/actualizar/[id]/page.tsx";
 import TICsModulePage from "./app/gp/tics/page.tsx";
 import EquipmentPage from "./app/gp/tics/equipos/page.tsx";
 import AddEquipmentPage from "./app/gp/tics/equipos/agregar/page.tsx";
@@ -1885,6 +1887,8 @@ function App() {
               <Route path="sede" element={<SedePage />} />
               <Route path="sede/agregar" element={<AddSedePage />} />
               <Route path="sede/actualizar/:id" element={<UpdateSedePage />} />
+              <Route path="empresa" element={<CompanyPage />} />
+              <Route path="empresa/actualizar/:id" element={<UpdateCompanyPage />} />
             </Route>
 
             {/* ======================================================== */}

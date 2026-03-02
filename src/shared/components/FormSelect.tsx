@@ -200,6 +200,7 @@ interface FormSelectProps {
   portalContainer?: HTMLElement | null;
   size?: "sm" | "default" | "lg";
   selectOnFocus?: boolean;
+  onValueChange?: (value: string) => void;
 }
 
 export function FormSelect({
@@ -226,6 +227,7 @@ export function FormSelect({
   size,
   portalContainer,
   selectOnFocus = true,
+  onValueChange,
 }: FormSelectProps) {
   const [open, setOpen] = useState(false);
   const isMobile = useIsMobile();
@@ -254,6 +256,7 @@ export function FormSelect({
           const newValue =
             optionValue === field.value && !required ? "" : optionValue;
           field.onChange(newValue);
+          onValueChange?.(newValue);
           setOpen(false);
         };
 

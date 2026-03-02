@@ -9,7 +9,7 @@ import {
   updateTelephoneAccount,
   findTelephoneAccountById,
 } from "../lib/telephoneAccount.actions";
-import { useAllCompanies } from "@/features/gp/gestionsistema/empresa/lib/company.hook";
+import { useAllCompanies } from "@/features/gp/maestro-general/empresa/lib/company.hook";
 import { useEffect } from "react";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 
