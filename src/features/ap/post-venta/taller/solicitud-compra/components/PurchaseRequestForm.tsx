@@ -38,7 +38,7 @@ import FormSkeleton from "@/shared/components/FormSkeleton";
 import { useMyPhysicalWarehouse } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
 import { useInventory } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.hook";
 import { InventoryResource } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.interface";
-import { getAllOrderQuotations } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.actions";
+import { findOrderQuotationById } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.actions";
 import { OrderQuotationResource } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.interface";
 import { QuotationSelectionModal } from "../../cotizacion/components/QuotationSelectionModal";
 import { errorToast } from "@/core/core.function";
@@ -84,7 +84,8 @@ export default function PurchaseRequestForm({
     }
     return [];
   });
-  const [quotations, setQuotations] = useState<OrderQuotationResource[]>([]);
+  const [selectedQuotationData, setSelectedQuotationData] =
+    useState<OrderQuotationResource | null>(null);
   const [isLoadingQuotations, setIsLoadingQuotations] = useState(false);
   const [isQuotationModalOpen, setIsQuotationModalOpen] = useState(false);
   const [isPartModalOpen, setIsPartModalOpen] = useState(false);
@@ -151,76 +152,50 @@ export default function PurchaseRequestForm({
     }
   }, [form, hasAppointment]);
 
-  const loadQuotations = useCallback(async () => {
-    try {
-      setIsLoadingQuotations(true);
-      const response = await getAllOrderQuotations({
-        is_take: 0,
-      });
-      setQuotations(response || []);
-      return response || [];
-    } catch (error: any) {
-      const msgError =
-        error?.response?.data?.message || "Error al cargar las cotizaciones.";
-      errorToast(msgError);
-      setQuotations([]);
-      return [];
-    } finally {
-      setIsLoadingQuotations(false);
-    }
-  }, []);
-
   const loadQuotationDetails = useCallback(
-    async (
-      quotationId: string,
-      quotationsToSearch?: OrderQuotationResource[],
-    ) => {
-      // Usar quotationsToSearch si se proporciona, sino usar el estado quotations
-      const quotationsArray = quotationsToSearch || quotations;
+    async (quotationId: string) => {
+      try {
+        setIsLoadingQuotations(true);
+        const quotation = await findOrderQuotationById(Number(quotationId));
+        if (!quotation?.details) return;
 
-      const selectedQuotation = quotationsArray.find(
-        (q) => q.id.toString() === quotationId,
-      );
+        setSelectedQuotationData(quotation);
 
-      if (!selectedQuotation || !selectedQuotation.details) return;
+        const productDetails = quotation.details.filter(
+          (detail) => detail.item_type === ITEM_TYPE_PRODUCT,
+        );
 
-      // Filtrar solo los productos (item_type = "PRODUCT")
-      const productDetails = selectedQuotation.details.filter(
-        (detail) => detail.item_type === ITEM_TYPE_PRODUCT,
-      );
+        const newDetails: PurchaseRequestDetailSchema[] = productDetails.map(
+          (detail) => ({
+            product_id: detail.product_id!.toString(),
+            product_name: detail.product?.name || "",
+            product_code: detail.product?.code || "",
+            quantity: Number(detail.quantity) || 1,
+            notes: "",
+          }),
+        );
 
-      // Mapear a PurchaseRequestDetailSchema
-      const newDetails: PurchaseRequestDetailSchema[] = productDetails.map(
-        (detail) => ({
-          product_id: detail.product_id!.toString(),
-          product_name: detail.product?.name || "",
-          product_code: detail.product?.code || "",
-          quantity: Number(detail.quantity) || 1, // Asegurar que sea number
-          notes: "",
-        }),
-      );
+        setDetails(newDetails);
 
-      // Setear los detalles en la tabla
-      setDetails(newDetails);
-
-      // Setear el supply_type si existe en la cotización
-      if (selectedQuotation.supply_type) {
-        form.setValue("supply_type", selectedQuotation.supply_type);
+        if (quotation.supply_type) {
+          form.setValue("supply_type", quotation.supply_type);
+        }
+      } catch (error: any) {
+        const msgError =
+          error?.response?.data?.message || "Error al cargar la cotización.";
+        errorToast(msgError);
+      } finally {
+        setIsLoadingQuotations(false);
       }
     },
-    [quotations, form],
+    [form],
   );
 
   useEffect(() => {
     if (selectedQuotationId) {
-      // Si quotations está vacío, cargarlas primero
-      if (quotations.length === 0) {
-        loadQuotations().then((loadedQuotations) => {
-          loadQuotationDetails(selectedQuotationId, loadedQuotations);
-        });
-      } else {
-        loadQuotationDetails(selectedQuotationId);
-      }
+      loadQuotationDetails(selectedQuotationId);
+    } else {
+      setSelectedQuotationData(null);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedQuotationId]);
@@ -295,21 +270,14 @@ export default function PurchaseRequestForm({
   };
 
   const getSelectedQuotationLabel = () => {
-    if (!selectedQuotationId || quotations.length === 0) return null;
+    if (!selectedQuotationId || !selectedQuotationData) return null;
 
-    const quotation = quotations.find(
-      (q) => q.id.toString() === selectedQuotationId,
-    );
-
-    if (!quotation) return null;
-
-    // Validar si existe vehículo
-    const vehicle = quotation?.vehicle;
+    const vehicle = selectedQuotationData.vehicle;
     const vehicleInfo = vehicle
       ? `${vehicle.plate || vehicle.vin} (${vehicle.model?.brand || ""} ${vehicle.model?.family || ""})`
       : "-";
 
-    return `${quotation.quotation_number} - ${vehicleInfo} - S/ ${quotation.total_amount.toFixed(2)}`;
+    return `${selectedQuotationData.quotation_number} - ${vehicleInfo} - S/ ${selectedQuotationData.total_amount.toFixed(2)}`;
   };
 
   return (
@@ -395,7 +363,6 @@ export default function PurchaseRequestForm({
                           variant="outline"
                           className="w-full justify-start"
                           onClick={() => {
-                            loadQuotations();
                             setIsQuotationModalOpen(true);
                           }}
                           disabled={isLoadingQuotations}

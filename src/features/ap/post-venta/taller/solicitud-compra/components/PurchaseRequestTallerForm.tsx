@@ -27,8 +27,8 @@ import {
 import { Input } from "@/components/ui/input";
 import {
   PurchaseRequestSchema,
-  purchaseRequestSchemaCreate,
-  purchaseRequestSchemaUpdate,
+  purchaseRequestTallerSchemaCreate,
+  purchaseRequestTallerSchemaUpdate,
   PurchaseRequestDetailSchema,
 } from "../lib/purchaseRequest.schema";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
@@ -38,18 +38,14 @@ import FormSkeleton from "@/shared/components/FormSkeleton";
 import { useMyPhysicalWarehouse } from "@/features/ap/configuraciones/maestros-general/almacenes/lib/warehouse.hook";
 import { useInventory } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.hook";
 import { InventoryResource } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.interface";
-import { getAllOrderQuotations } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.actions";
+import { findOrderQuotationById } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.actions";
 import { OrderQuotationResource } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.interface";
 import { errorToast } from "@/core/core.function";
 import { FormInputText } from "@/shared/components/FormInputText";
 import QuotationPartModal from "@/features/ap/post-venta/repuestos/cotizacion-meson/components/QuotationPartModal";
 import { ITEM_TYPE_PRODUCT } from "../../cotizacion-detalle/lib/proformaDetails.constants";
 import { QuotationSelectionTallerModal } from "../../cotizacion/components/QuotationSelectionTallerModal";
-
-const onSelectSupplyType = [
-  { label: "Lima", value: "LIMA" },
-  { label: "Importación", value: "IMPORTACION" },
-];
+import { AREA_TALLER } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 interface PurchaseRequestFormProps {
   defaultValues: Partial<PurchaseRequestSchema>;
@@ -59,6 +55,7 @@ interface PurchaseRequestFormProps {
   onCancel?: () => void;
   showQuotationOption?: boolean;
   allowCreateProduct?: boolean;
+  area_id?: number;
 }
 
 export default function PurchaseRequestTallerForm({
@@ -69,6 +66,7 @@ export default function PurchaseRequestTallerForm({
   onCancel,
   showQuotationOption = true,
   allowCreateProduct = false,
+  area_id = AREA_TALLER,
 }: PurchaseRequestFormProps) {
   const [details, setDetails] = useState<PurchaseRequestDetailSchema[]>(() => {
     // Transformar los detalles del backend al formato esperado
@@ -84,7 +82,8 @@ export default function PurchaseRequestTallerForm({
     }
     return [];
   });
-  const [quotations, setQuotations] = useState<OrderQuotationResource[]>([]);
+  const [selectedQuotationData, setSelectedQuotationData] =
+    useState<OrderQuotationResource | null>(null);
   const [isLoadingQuotations, setIsLoadingQuotations] = useState(false);
   const [isQuotationModalOpen, setIsQuotationModalOpen] = useState(false);
   const [isPartModalOpen, setIsPartModalOpen] = useState(false);
@@ -97,14 +96,15 @@ export default function PurchaseRequestTallerForm({
   const form = useForm({
     resolver: zodResolver(
       mode === "create"
-        ? purchaseRequestSchemaCreate
-        : purchaseRequestSchemaUpdate,
+        ? purchaseRequestTallerSchemaCreate
+        : purchaseRequestTallerSchemaUpdate,
     ),
     defaultValues: {
       warehouse_id: "",
       requested_date: new Date(),
       observations: "",
       has_appointment: false,
+      area_id,
       ...defaultValues,
       // Usar los details ya transformados
       details: details,
@@ -151,79 +151,46 @@ export default function PurchaseRequestTallerForm({
     }
   }, [form, hasAppointment]);
 
-  const loadQuotations = useCallback(async () => {
+  const loadQuotationDetails = useCallback(async (quotationId: string) => {
     try {
       setIsLoadingQuotations(true);
-      const response = await getAllOrderQuotations({
-        is_take: 0,
-      });
-      setQuotations(response || []);
-      return response || [];
-    } catch (error: any) {
-      const msgError =
-        error?.response?.data?.message || "Error al cargar las cotizaciones.";
-      errorToast(msgError);
-      setQuotations([]);
-      return [];
-    } finally {
-      setIsLoadingQuotations(false);
-    }
-  }, []);
+      const quotation = await findOrderQuotationById(Number(quotationId));
+      if (!quotation?.details) return;
 
-  const loadQuotationDetails = useCallback(
-    async (
-      quotationId: string,
-      quotationsToSearch?: OrderQuotationResource[],
-    ) => {
-      // Usar quotationsToSearch si se proporciona, sino usar el estado quotations
-      const quotationsArray = quotationsToSearch || quotations;
+      setSelectedQuotationData(quotation);
 
-      const selectedQuotation = quotationsArray.find(
-        (q) => q.id.toString() === quotationId,
-      );
-
-      if (!selectedQuotation || !selectedQuotation.details) return;
-
-      // Filtrar solo los productos (item_type = "PRODUCT") con supply_type LIMA o IMPORTACION
-      const productDetails = selectedQuotation.details.filter(
+      const productDetails = quotation.details.filter(
         (detail) =>
           detail.item_type === ITEM_TYPE_PRODUCT &&
           (detail.supply_type === "LIMA" ||
             detail.supply_type === "IMPORTACION"),
       );
 
-      // Mapear a PurchaseRequestDetailSchema
       const newDetails: PurchaseRequestDetailSchema[] = productDetails.map(
         (detail) => ({
           product_id: detail.product_id!.toString(),
           product_name: detail.product?.name || "",
           product_code: detail.product?.code || "",
-          quantity: Number(detail.quantity) || 1, // Asegurar que sea number
+          quantity: Number(detail.quantity) || 1,
           notes: "",
         }),
       );
 
-      // Setear los detalles en la tabla
       setDetails(newDetails);
-
-      // Setear el supply_type si existe en la cotización
-      if (selectedQuotation.supply_type) {
-        form.setValue("supply_type", selectedQuotation.supply_type);
-      }
-    },
-    [quotations, form],
-  );
+    } catch (error: any) {
+      const msgError =
+        error?.response?.data?.message || "Error al cargar la cotización.";
+      errorToast(msgError);
+    } finally {
+      setIsLoadingQuotations(false);
+    }
+  }, []);
 
   useEffect(() => {
     if (selectedQuotationId) {
-      // Si quotations está vacío, cargarlas primero
-      if (quotations.length === 0) {
-        loadQuotations().then((loadedQuotations) => {
-          loadQuotationDetails(selectedQuotationId, loadedQuotations);
-        });
-      } else {
-        loadQuotationDetails(selectedQuotationId);
-      }
+      loadQuotationDetails(selectedQuotationId);
+    } else {
+      setSelectedQuotationData(null);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedQuotationId]);
@@ -298,21 +265,14 @@ export default function PurchaseRequestTallerForm({
   };
 
   const getSelectedQuotationLabel = () => {
-    if (!selectedQuotationId || quotations.length === 0) return null;
+    if (!selectedQuotationId || !selectedQuotationData) return null;
 
-    const quotation = quotations.find(
-      (q) => q.id.toString() === selectedQuotationId,
-    );
-
-    if (!quotation) return null;
-
-    // Validar si existe vehículo
-    const vehicle = quotation?.vehicle;
+    const vehicle = selectedQuotationData.vehicle;
     const vehicleInfo = vehicle
       ? `${vehicle.plate || vehicle.vin} (${vehicle.model?.brand || ""} ${vehicle.model?.family || ""})`
       : "-";
 
-    return `${quotation.quotation_number} - ${vehicleInfo} - S/ ${quotation.total_amount.toFixed(2)}`;
+    return `${selectedQuotationData.quotation_number} - ${vehicleInfo} - S/ ${selectedQuotationData.total_amount.toFixed(2)}`;
   };
 
   return (
@@ -321,7 +281,7 @@ export default function PurchaseRequestTallerForm({
         {/* Información General */}
         <Card className="p-6">
           <h3 className="text-lg font-semibold mb-4">Información General</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <FormSelect
               name="warehouse_id"
               label="Almacén"
@@ -342,16 +302,6 @@ export default function PurchaseRequestTallerForm({
               dateFormat="dd/MM/yyyy"
               captionLayout="dropdown"
               disabledRange={{ before: new Date() }}
-            />
-
-            <FormSelect
-              control={form.control}
-              name="supply_type"
-              options={onSelectSupplyType}
-              label="Tipo de Abastecimiento"
-              placeholder="Seleccionar un tipo"
-              disabled={!!selectedQuotationId}
-              required
             />
           </div>
 
@@ -398,7 +348,6 @@ export default function PurchaseRequestTallerForm({
                           variant="outline"
                           className="w-full justify-start"
                           onClick={() => {
-                            loadQuotations();
                             setIsQuotationModalOpen(true);
                           }}
                           disabled={isLoadingQuotations}

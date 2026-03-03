@@ -11,6 +11,7 @@ import {
   CheckCircle,
   XCircle,
   Percent,
+  Loader2,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -35,6 +36,7 @@ import {
   useGetAllWorkOrderLabour,
   useUpdateWorkOrderLabour,
   useDeleteWorkOrderLabour,
+  useStoreWorkOrderLabour,
 } from "@/features/ap/post-venta/taller/orden-trabajo-labor/lib/workOrderLabour.hook";
 import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
@@ -68,7 +70,11 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
   const [showForm, setShowForm] = useState(false);
   const { selectedGroupNumber, setSelectedGroupNumber } = useWorkOrderContext();
   const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [addingFromQuotationId, setAddingFromQuotationId] = useState<
+    number | null
+  >(null);
   const queryClient = useQueryClient();
+  const storeLabourMutation = useStoreWorkOrderLabour();
 
   // Modal de descuento
   const [modalOpen, setModalOpen] = useState(false);
@@ -144,6 +150,34 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
 
   const handleSuccess = () => {
     setShowForm(false);
+  };
+
+  const handleAddFromQuotation = (item: any) => {
+    if (!selectedGroupNumber) {
+      errorToast("Debe seleccionar un grupo");
+      return;
+    }
+    setAddingFromQuotationId(item.id);
+    storeLabourMutation.mutate(
+      {
+        description: item.description,
+        time_spent: String(item.quantity),
+        hourly_rate: String(item.unit_price),
+        discount_percentage: String(item.discount_percentage ?? 0),
+        work_order_id: String(workOrderId),
+        group_number: selectedGroupNumber,
+        quotation_detail_id: item.id,
+      },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({
+            queryKey: ["workOrder", workOrderId],
+          });
+          setAddingFromQuotationId(null);
+        },
+        onError: () => setAddingFromQuotationId(null),
+      },
+    );
   };
 
   const handleDelete = async () => {
@@ -375,6 +409,25 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
                         {Number(item.total_amount || 0).toFixed(2)}
                       </span>
                     </div>
+                    {item.status === "pending" && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-7 w-7 p-0 shrink-0 text-primary hover:text-primary hover:bg-primary/10"
+                        tooltip="Agregar mano de obra"
+                        disabled={
+                          addingFromQuotationId === item.id ||
+                          storeLabourMutation.isPending
+                        }
+                        onClick={() => handleAddFromQuotation(item)}
+                      >
+                        {addingFromQuotationId === item.id ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Plus className="h-4 w-4" />
+                        )}
+                      </Button>
+                    )}
                   </div>
                 ))}
               </div>

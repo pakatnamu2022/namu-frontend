@@ -16,6 +16,7 @@ import { PURCHASE_REQUEST_TALLER } from "@/features/ap/post-venta/taller/solicit
 import { storePurchaseRequest } from "@/features/ap/post-venta/taller/solicitud-compra/lib/purchaseRequest.actions.ts";
 import { PurchaseRequestSchema } from "@/features/ap/post-venta/taller/solicitud-compra/lib/purchaseRequest.schema.ts";
 import PurchaseRequestTallerForm from "@/features/ap/post-venta/taller/solicitud-compra/components/PurchaseRequestTallerForm";
+import { AREA_TALLER } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 export default function AddPurchaseRequestPVPage() {
   const router = useNavigate();
@@ -50,8 +51,9 @@ export default function AddPurchaseRequestPVPage() {
       />
       <PurchaseRequestTallerForm
         defaultValues={{
-          requested_date: "",
+          requested_date: new Date().toISOString().split("T")[0],
           observations: "",
+          area_id: AREA_TALLER,
         }}
         onSubmit={handleSubmit}
         isSubmitting={isPending}

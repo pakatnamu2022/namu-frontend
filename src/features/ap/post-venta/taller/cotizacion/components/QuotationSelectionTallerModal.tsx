@@ -52,7 +52,6 @@ export const QuotationSelectionTallerModal = ({
   const { data, isLoading } = useForPurchaseRequest({
     page,
     per_page,
-    is_take: 0,
     sede_id: sedeId,
     quotation_date:
       dateFrom && dateTo

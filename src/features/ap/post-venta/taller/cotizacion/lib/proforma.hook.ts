@@ -35,7 +35,7 @@ export const useOrderQuotations = (params?: Record<string, any>) => {
 
 export const useForPurchaseRequest = (params?: Record<string, any>) => {
   return useQuery({
-    queryKey: [QUERY_KEY, params],
+    queryKey: [QUERY_KEY, "for-purchase-request", params],
     queryFn: () => getForPurchaseRequest({ params }),
     refetchOnWindowFocus: false,
   });

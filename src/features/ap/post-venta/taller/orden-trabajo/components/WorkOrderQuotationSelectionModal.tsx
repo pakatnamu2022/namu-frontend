@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { GeneralModal } from "@/shared/components/GeneralModal";
 import { Calendar } from "lucide-react";
-import { useOrderQuotations } from "../../cotizacion/lib/proforma.hook";
+import { useForPurchaseRequest } from "../../cotizacion/lib/proforma.hook";
 import { OrderQuotationResource } from "../../cotizacion/lib/proforma.interface";
 import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import DatePicker from "@/shared/components/DatePicker";
@@ -16,7 +16,6 @@ import {
   getFirstDayOfMonth,
 } from "@/core/core.function";
 import SearchInput from "@/shared/components/SearchInput";
-import { AREA_TALLER } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 interface WorkOrderQuotationSelectionModalProps {
   open: boolean;
@@ -53,12 +52,10 @@ export const WorkOrderQuotationSelectionModal = ({
     }
   }, [dateFrom, dateTo]);
 
-  const { data, isLoading } = useOrderQuotations({
+  const { data, isLoading } = useForPurchaseRequest({
     page,
     per_page,
-    search,
     is_take: 0,
-    area_id: AREA_TALLER.toString(),
     vehicle_id: vehicleId,
     quotation_date:
       dateFrom && dateTo
