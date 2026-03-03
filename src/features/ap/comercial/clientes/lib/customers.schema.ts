@@ -10,7 +10,7 @@ const customersBaseObject = z.object({
   full_name: z.string().refine((value) => value.trim() !== "", {
     message: "Razón social es requerido",
   }),
-  birth_date: z.union([z.literal(""), z.date()]).optional(),
+  birth_date: z.coerce.date().optional(),
   nationality: z.string().min(1, "La nacionalidad es requerida"),
   num_doc: z.string().min(1, "El número de documento es requerido"),
   spouse_num_doc: z.string().optional(),

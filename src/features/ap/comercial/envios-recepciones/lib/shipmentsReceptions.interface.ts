@@ -71,6 +71,7 @@ export interface ShipmentsReceptionsResource {
   status?: boolean;
   receiving_checklists: any[];
   items: ShipmentItemResource[];
+  migration_status: string;
 }
 
 export interface ShipmentItemResource {

@@ -21,7 +21,7 @@ const controlUnitsSchemaBase = z.object({
       },
     ),
   correlative: z.string().optional(),
-  issue_date: z.union([z.literal(""), z.date()]).optional(),
+  issue_date: z.coerce.date().optional(),
   sede_transmitter_id: requiredStringId("La sede del emisor es requerida"),
   sede_receiver_id: z.string().optional(),
   transmitter_origin_id: requiredStringId("El origen del emisor es requerido"),

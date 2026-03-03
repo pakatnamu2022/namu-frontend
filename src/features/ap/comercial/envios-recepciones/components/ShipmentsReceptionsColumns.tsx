@@ -569,17 +569,19 @@ export const ShipmentsReceptionsColumns = ({
             )}
 
           {/* Migrar */}
-          {onMigrate && isGuiaRemision && (
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-7"
-              tooltip="Migrar"
-              onClick={() => onMigrate(id)}
-            >
-              <ArrowRightLeft className="size-4" />
-            </Button>
-          )}
+          {onMigrate &&
+            isGuiaRemision &&
+            row.original.migration_status !== "completed" && (
+              <Button
+                variant="outline"
+                size="icon"
+                className="size-7"
+                tooltip="Migrar"
+                onClick={() => onMigrate(id)}
+              >
+                <ArrowRightLeft className="size-4" />
+              </Button>
+            )}
 
           {/* Cancelar guía - Solo para GUIA_REMISION, cuando ya fue recepcionado y está ACTIVO */}
           {isGuiaRemision && isAlreadyReceived && status && (
