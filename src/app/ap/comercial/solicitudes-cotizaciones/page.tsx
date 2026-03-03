@@ -47,6 +47,8 @@ export default function PurchaseRequestQuotePage() {
   const [search, setSearch] = useState("");
   const [sedeId, setSedeId] = useState("");
   const [approveId, setApproveId] = useState<number | null>(null);
+  const [selectedModelId, setSelectedModelId] = useState<string>("");
+  const [selectedBrandId, setSelectedBrandId] = useState<string>("");
   const [assignVehicleQuote, setAssignVehicleQuote] =
     useState<PurchaseRequestQuoteResource | null>(null);
   const [unassignVehicleId, setUnassignVehicleId] = useState<number | null>(
@@ -77,6 +79,8 @@ export default function PurchaseRequestQuotePage() {
     status: STATUS_ACTIVE,
     created_to: [formattedDateFrom, formattedDateTo],
     sede_id: sedeId,
+    ap_models_vn_id: selectedModelId,
+    apModelsVn$family$brand_id: selectedBrandId,
   });
 
   const handleApprove = async () => {
@@ -155,6 +159,10 @@ export default function PurchaseRequestQuotePage() {
           setSedeId={setSedeId}
           sedes={sedesData}
           canViewBranches={canViewBranches}
+          selectedModelId={selectedModelId}
+          setSelectedModelId={setSelectedModelId}
+          selectedBrandId={selectedBrandId}
+          setSelectedBrandId={setSelectedBrandId}
         />
       </PurchaseRequestQuoteTable>
 

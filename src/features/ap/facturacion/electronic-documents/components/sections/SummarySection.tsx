@@ -79,17 +79,19 @@ export function SummarySection({
               {isEdit ? "Edición" : "Nuevo"}
             </Badge>
           </div>
-          <p className="text-xs text-muted-foreground">
-            {series
-              ? authorizedSeries.find((s) => s.id === Number(series))?.series
-              : "****"}
-            -{form.watch("numero") || "########"}
-          </p>
-          {isAdvancePayment && (
-            <Badge color="secondary" className="w-fit">
-              Anticipo
-            </Badge>
-          )}
+          <div className="flex gap-2 justify-between">
+            <p className="text-xs text-muted-foreground">
+              {series
+                ? authorizedSeries.find((s) => s.id === Number(series))?.series
+                : "****"}
+              -{form.watch("numero") || "########"}
+            </p>
+            {isAdvancePayment && (
+              <Badge color="orange" className="w-fit">
+                Anticipo
+              </Badge>
+            )}
+          </div>
           {quotation && (
             <Badge variant="outline" className="w-fit">
               Desde Cotización: COT-{quotation.id}
@@ -147,8 +149,8 @@ export function SummarySection({
           </div>
 
           {/* IGV Info */}
-          <div className="space-y-1 p-3 rounded-lg bg-blue-50 border border-blue-200">
-            <p className="text-xs font-medium text-blue-600">
+          <div className="space-y-1 p-3 rounded-lg bg-blue-50 border border-blue-200 dark:bg-blue-900/10 dark:border-blue-700/20">
+            <p className="text-xs font-medium text-blue-600 dark:text-blue-400">
               IGV: {porcentaje_de_igv}%
             </p>
             <p className="text-xs text-muted-foreground">
@@ -276,11 +278,11 @@ export function SummarySection({
             <Separator className="bg-primary/20" />
 
             <div className="flex justify-between items-center p-3 rounded-lg bg-primary/10 border border-primary/30">
-              <span className="text-base font-semibold text-primary">
+              <span className="text-base font-semibold text-blue-600 dark:text-blue-400">
                 Total
               </span>
-              <span className="text-xl font-bold text-primary">
-                {currencySymbol}{" "}
+              <span className="text-2xl font-medium text-blue-600 dark:text-blue-400">
+                {currencySymbol}
                 {/* Calcular el total real a cobrar (resta anticipos automáticamente) */}
                 {totales.total.toLocaleString("es-PE", {
                   minimumFractionDigits: 2,

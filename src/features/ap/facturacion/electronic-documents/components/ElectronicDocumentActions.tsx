@@ -26,6 +26,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
+import { MigrationAllResponse } from "../lib/electronicDocument.interface";
+import { GeneralModal } from "@/shared/components/GeneralModal";
+import { useState } from "react";
 
 interface ElectronicDocumentActionsProps {
   onRefresh: () => void;
@@ -43,10 +47,13 @@ export default function ElectronicDocumentActions({
   const router = useNavigate();
   const { ROUTE_ADD } = ELECTRONIC_DOCUMENT;
 
+  const [migrationResult, setMigrationResult] =
+    useState<MigrationAllResponse | null>(null);
+
   const dispatchAllMutation = useMutation({
     mutationFn: dispatchAllElectronicDocuments,
-    onSuccess: () => {
-      toast.success("Migración iniciada correctamente");
+    onSuccess: (data: MigrationAllResponse) => {
+      setMigrationResult(data);
       onRefresh();
     },
     onError: () => {
@@ -66,6 +73,26 @@ export default function ElectronicDocumentActions({
   });
 
   return (
+    <>
+    <GeneralModal
+      open={!!migrationResult}
+      onClose={() => setMigrationResult(null)}
+      title="Migración iniciada"
+      subtitle={`Se despacharon ${migrationResult?.total_dispatched ?? 0} documentos. Revisa el historial de migración para más detalles.`}
+      icon="Send"
+      size="2xl"
+    >
+      <ul className="divide-y">
+        {migrationResult?.dispatched.map((item) => (
+          <li key={item.number} className="flex justify-between py-2 text-sm">
+            <span className="font-medium">Documento ID {item.number}</span>
+            <span className="text-muted-foreground">
+              {item.reason?.description || "En proceso"}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </GeneralModal>
     <ActionsWrapper>
       <Button size="sm" variant="outline" onClick={onRefresh}>
         <RefreshCw
@@ -88,19 +115,27 @@ export default function ElectronicDocumentActions({
         Contabilizaciones
       </Button>
 
-      <Button
-        size="sm"
-        variant="outline"
-        onClick={() => dispatchAllMutation.mutate()}
-        disabled={dispatchAllMutation.isPending}
-      >
-        <Send
-          className={cn("size-4 mr-2", {
-            "animate-pulse": dispatchAllMutation.isPending,
-          })}
-        />
-        Migrar Todo
-      </Button>
+      <ConfirmationDialog
+        trigger={
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={dispatchAllMutation.isPending}
+          >
+            <Send
+              className={cn("size-4 mr-2", {
+                "animate-pulse": dispatchAllMutation.isPending,
+              })}
+            />
+            Migrar Todo
+          </Button>
+        }
+        onConfirm={() => dispatchAllMutation.mutate()}
+        title="Confirmar Migración"
+        description="¿Estás seguro de que deseas iniciar la migración de todos los documentos electrónicos? Esta acción puede tardar varios minutos."
+        confirmText="Sí, iniciar migración"
+        cancelText="Cancelar"
+      />
 
       {permissions.canCreate && (
         <DropdownMenu>
@@ -123,5 +158,6 @@ export default function ElectronicDocumentActions({
         </DropdownMenu>
       )}
     </ActionsWrapper>
+    </>
   );
 }
