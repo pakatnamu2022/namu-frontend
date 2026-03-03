@@ -64,13 +64,31 @@ export const AP_MASTER_TYPE = {
   DISCARDING_SPAREPART: "MOTIVO_DESCARTE_REPUESTO",
 };
 
-// Commercial Module ID Constants
+
+/**
+ * Comercial Type Operation ID
+ */
 export const CM_COMERCIAL_ID = 794;
+/**
+ * Post Venta Type Operation ID
+ */
 export const CM_POSTVENTA_ID = 804;
 
+/**
+ * Commercial Area ID
+ */
 export const AREA_COMERCIAL = 826;
+/**
+ * Post Venta Area ID
+ */
 export const AREA_POSTVENTA = 825;
+/**
+ * Taller Area ID
+ */
 export const AREA_TALLER = 881;
+/**
+ * Mesón Area ID
+ */
 export const AREA_MESON = 882;
 
 export const AREAS_ID = [

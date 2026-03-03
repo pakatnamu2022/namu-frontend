@@ -151,3 +151,14 @@ export async function unassignVehicleFromPurchaseRequestQuote(
   );
   return response.data;
 }
+
+export async function swapVehicleInPurchaseRequestQuote(
+  id: number,
+  ap_vehicle_id: number
+): Promise<PurchaseRequestQuoteResource> {
+  const response = await api.post<PurchaseRequestQuoteResource>(
+    `${ENDPOINT}/swapVehicle/${id}`,
+    { ap_vehicle_id }
+  );
+  return response.data;
+}

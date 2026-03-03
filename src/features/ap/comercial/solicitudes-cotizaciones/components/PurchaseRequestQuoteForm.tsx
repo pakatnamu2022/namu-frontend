@@ -21,7 +21,12 @@ import {
   useCustomersById,
 } from "../../clientes/lib/customers.hook";
 import { CustomersResource } from "../../clientes/lib/customers.interface";
-import { useAllModelsVn } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.hook";
+import {
+  useAllModelsVn,
+  useModelVnById,
+  useModelsVn,
+} from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.hook";
+import { ModelsVnResource } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.interface";
 import {
   useAllVehicleColor,
   useVehicleColor,
@@ -157,7 +162,7 @@ export const PurchaseRequestQuoteForm = ({
     return undefined;
   }, [selectedHolder]);
 
-  const { data: modelsVn = [], isLoading: isLoadingModelsVn } = useAllModelsVn({
+  const { data: modelsVn = [] } = useAllModelsVn({
     family_id: selectedFamilyId,
   });
   const { data: color = [], isLoading: isLoadingColor } = useAllVehicleColor();
@@ -857,17 +862,18 @@ export const PurchaseRequestQuoteForm = ({
               {/* Mostrar campos de Modelo VN y Color cuando with_vin es false */}
               {!withVinWatch && (
                 <>
-                  <FormSelect
+                  <FormSelectAsync
                     name="ap_models_vn_id"
                     label="Modelo VN"
                     placeholder="Selecciona un modelo"
-                    options={modelsVn.map((item) => ({
-                      label: item.code + " - " + item.version,
-                      value: item.id.toString(),
-                    }))}
                     control={form.control}
-                    strictFilter={true}
-                    disabled={isLoadingModelsVn}
+                    useQueryHook={useModelsVn}
+                    mapOptionFn={(item: ModelsVnResource) => ({
+                      value: item.id.toString(),
+                      label: item.code + " - " + item.version,
+                    })}
+                    additionalParams={{ family_id: selectedFamilyId }}
+                    useFindByIdHook={useModelVnById}
                   />
 
                   <FormSelectAsync
