@@ -13,9 +13,9 @@ import FormWrapper from "@/shared/components/FormWrapper.tsx";
 import TitleFormComponent from "@/shared/components/TitleFormComponent.tsx";
 import { notFound } from "@/shared/hooks/useNotFound.ts";
 import { PURCHASE_REQUEST_TALLER } from "@/features/ap/post-venta/taller/solicitud-compra/lib/purchaseRequest.constants.ts";
-import PurchaseRequestForm from "@/features/ap/post-venta/taller/solicitud-compra/components/PurchaseRequestForm.tsx";
 import { storePurchaseRequest } from "@/features/ap/post-venta/taller/solicitud-compra/lib/purchaseRequest.actions.ts";
 import { PurchaseRequestSchema } from "@/features/ap/post-venta/taller/solicitud-compra/lib/purchaseRequest.schema.ts";
+import PurchaseRequestTallerForm from "@/features/ap/post-venta/taller/solicitud-compra/components/PurchaseRequestTallerForm";
 
 export default function AddPurchaseRequestPVPage() {
   const router = useNavigate();
@@ -48,7 +48,7 @@ export default function AddPurchaseRequestPVPage() {
         mode="create"
         icon={currentView.icon}
       />
-      <PurchaseRequestForm
+      <PurchaseRequestTallerForm
         defaultValues={{
           requested_date: "",
           observations: "",

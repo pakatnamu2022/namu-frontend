@@ -2,7 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Package, CheckCircle2, Loader2 } from "lucide-react";
+import {
+  ArrowLeft,
+  Package,
+  CheckCircle2,
+  Loader2,
+  Copy,
+  Check,
+} from "lucide-react";
 import PageSkeleton from "@/shared/components/PageSkeleton.tsx";
 import TitleComponent from "@/shared/components/TitleComponent.tsx";
 import { Button } from "@/components/ui/button.tsx";
@@ -33,6 +40,8 @@ export default function AprobacionProductosPage() {
     OrderQuotationDetailsResource[]
   >([]);
 
+  const [copiedField, setCopiedField] = useState<string | null>(null);
+  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   const [confirmChief, setConfirmChief] = useState(false);
   const [confirmManager, setConfirmManager] = useState(false);
   const [isApproving, setIsApproving] = useState(false);
@@ -87,6 +96,24 @@ export default function AprobacionProductosPage() {
     }
   };
 
+  const handleCopyCode = async (
+    code: string,
+    field: string,
+    index?: number,
+  ) => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopiedField(field);
+      if (index !== undefined) setCopiedIndex(index);
+      setTimeout(() => {
+        setCopiedField(null);
+        setCopiedIndex(null);
+      }, 2000);
+    } catch (err) {
+      console.error("Error al copiar:", err);
+    }
+  };
+
   const formatCurrency = (amount: number) => {
     const symbol = quotation?.type_currency?.symbol || "S/.";
     return `${symbol} ${Number(amount || 0).toFixed(2)}`;
@@ -117,11 +144,7 @@ export default function AprobacionProductosPage() {
         <Button
           variant="outline"
           size="icon"
-          onClick={() =>
-            navigate(
-              `${ORDER_QUOTATION_TALLER.ABSOLUTE_ROUTE}/gestionar/${quotationId}`,
-            )
-          }
+          onClick={() => navigate(ORDER_QUOTATION_TALLER.ABSOLUTE_ROUTE)}
         >
           <ArrowLeft className="h-5 w-5" />
         </Button>
@@ -132,38 +155,69 @@ export default function AprobacionProductosPage() {
       </div>
 
       {/* Resumen de cotización */}
-      <Card className="p-6 bg-gray-100 border-gray-200">
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-semibold text-gray-700">
-            Cotización {quotation.quotation_number}
-          </h3>
-          <Badge color="secondary">{quotation.status}</Badge>
-        </div>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
-          <div>
-            <p className="text-xs text-gray-500">Cliente</p>
-            <p className="font-medium">
-              {quotation.client?.full_name || "N/A"}
-            </p>
-          </div>
-          <div>
-            <p className="text-xs text-gray-500">Vehículo</p>
-            <p className="font-medium">{quotation.vehicle?.plate || "N/A"}</p>
-          </div>
-          <div>
-            <p className="text-xs text-gray-500">Moneda</p>
-            <p className="font-medium">
-              {quotation.type_currency?.name || "N/A"}
-            </p>
-          </div>
-          <div>
-            <p className="text-xs text-gray-500">Total Repuestos</p>
-            <p className="font-bold text-primary">
-              {formatCurrency(totalProducts)}
-            </p>
+      <div className="grid grid-cols-2 sm:grid-cols-5 divide-x divide-y sm:divide-y-0 divide-gray-200 border border-gray-200 rounded-lg bg-white overflow-hidden">
+        <div className="flex flex-col gap-0.5 px-5 py-3">
+          <span className="text-[10px] text-gray-400 uppercase tracking-widest">
+            Cotización
+          </span>
+          <div className="flex items-center gap-1">
+            <span className="text-sm font-bold text-gray-900">
+              {quotation.quotation_number}
+            </span>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="h-5 w-5 p-0 text-gray-400 hover:text-gray-700 hover:bg-gray-100"
+              onClick={() =>
+                handleCopyCode(quotation.quotation_number, "quotation_number")
+              }
+            >
+              {copiedField === "quotation_number" ? (
+                <Check className="h-3 w-3 text-green-600" />
+              ) : (
+                <Copy className="h-3 w-3" />
+              )}
+            </Button>
           </div>
         </div>
-      </Card>
+
+        <div className="flex flex-col gap-0.5 px-5 py-3">
+          <span className="text-[10px] text-gray-400 uppercase tracking-widest">
+            Cliente
+          </span>
+          <span className="text-sm font-semibold text-gray-900 truncate">
+            {quotation.client?.full_name || "—"}
+          </span>
+        </div>
+
+        <div className="flex flex-col gap-0.5 px-5 py-3">
+          <span className="text-[10px] text-gray-400 uppercase tracking-widest">
+            Vehículo
+          </span>
+          <span className="text-sm font-semibold text-gray-900">
+            {quotation.vehicle?.plate || "—"}
+          </span>
+        </div>
+
+        <div className="flex flex-col gap-0.5 px-5 py-3">
+          <span className="text-[10px] text-gray-400 uppercase tracking-widest">
+            Moneda
+          </span>
+          <span className="text-sm font-semibold text-gray-900">
+            {quotation.type_currency?.name || "—"}
+          </span>
+        </div>
+
+        <div className="flex flex-col gap-0.5 px-5 py-3 bg-gray-50">
+          <span className="text-[10px] text-gray-400 uppercase tracking-widest">
+            Total Repuestos
+          </span>
+          <span className="text-sm font-bold text-primary">
+            {formatCurrency(totalProducts)}
+          </span>
+        </div>
+      </div>
 
       {/* Tabla de productos a aprobar */}
       <Card className="p-6">
@@ -186,32 +240,55 @@ export default function AprobacionProductosPage() {
           <div className="border rounded-lg overflow-hidden">
             {/* Cabecera */}
             <div className="hidden md:grid grid-cols-12 gap-3 bg-gray-100 px-4 py-2 text-xs font-semibold text-gray-700 border-b">
-              <div className="col-span-5">Repuesto</div>
+              <div className="col-span-4">Repuesto</div>
               <div className="col-span-2 text-center">Cantidad</div>
-              <div className="col-span-2 text-right">Tipo Abas.</div>
-              <div className="col-span-1 text-right">Precio Unit.</div>
+              <div className="col-span-1 text-center">Tipo Abas.</div>
+              <div className="col-span-2 text-center">Precio Unit.</div>
+              <div className="col-span-1 text-center">Desc.</div>
               <div className="col-span-2 text-right">Total</div>
             </div>
 
             {/* Filas */}
             <div className="divide-y">
-              {productDetails.map((detail) => (
+              {productDetails.map((detail, index) => (
                 <div key={detail.id}>
                   {/* Desktop */}
                   <div className="hidden md:grid grid-cols-12 gap-3 px-4 py-3 items-center">
-                    <div className="col-span-5">
-                      {detail.product?.code && (
-                        <span className="text-xs font-mono bg-blue-100 text-blue-800 px-2 py-0.5 rounded mr-2">
-                          {detail.product.code}
-                        </span>
-                      )}
-                      <p className="text-sm font-medium text-gray-900 mt-0.5">
+                    <div className="col-span-4">
+                      <p className="text-sm font-medium text-gray-900">
                         {detail.description}
                       </p>
                       {detail.observations && (
                         <p className="text-xs text-gray-500 mt-0.5">
                           {detail.observations}
                         </p>
+                      )}
+                      {detail.product?.code && (
+                        <div className="flex items-center gap-1 mb-0.5">
+                          <span className="text-xs font-mono bg-blue-100 text-blue-800 px-2 py-0.5 rounded">
+                            {detail.product.code}
+                          </span>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="h-5 w-5 p-0 hover:bg-slate-200"
+                            onClick={() =>
+                              handleCopyCode(
+                                detail.product!.code,
+                                "product_code",
+                                index,
+                              )
+                            }
+                          >
+                            {copiedIndex === index &&
+                            copiedField === "product_code" ? (
+                              <Check className="h-3 w-3 text-green-600" />
+                            ) : (
+                              <Copy className="h-3 w-3 text-gray-400" />
+                            )}
+                          </Button>
+                        </div>
                       )}
                     </div>
                     <div className="col-span-2 text-center text-sm">
@@ -220,11 +297,20 @@ export default function AprobacionProductosPage() {
                         {detail.unit_measure}
                       </span>
                     </div>
-                    <div className="col-span-2 text-right text-sm">
+                    <div className="col-span-1 text-center text-sm">
                       {detail.supply_type}
                     </div>
-                    <div className="col-span-1 text-right text-sm">
+                    <div className="col-span-2 text-center text-sm">
                       {formatCurrency(detail.unit_price)}
+                    </div>
+                    <div className="col-span-1 text-center text-sm">
+                      {Number(detail.discount_percentage) > 0 ? (
+                        <span className="text-orange-600 font-medium">
+                          -{detail.discount_percentage}%
+                        </span>
+                      ) : (
+                        <span className="text-gray-400">—</span>
+                      )}
                     </div>
                     <div className="col-span-2 text-right text-sm font-bold text-primary">
                       {formatCurrency(detail.total_amount)}
@@ -238,6 +324,28 @@ export default function AprobacionProductosPage() {
                         <span className="text-xs font-mono bg-blue-100 text-blue-800 px-2 py-0.5 rounded">
                           {detail.product.code}
                         </span>
+                      )}
+                      {detail.product?.code && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="h-5 w-5 p-0 hover:bg-slate-200"
+                          onClick={() =>
+                            handleCopyCode(
+                              detail.product!.code,
+                              "product_code_mobile",
+                              index,
+                            )
+                          }
+                        >
+                          {copiedIndex === index &&
+                          copiedField === "product_code_mobile" ? (
+                            <Check className="h-3 w-3 text-green-600" />
+                          ) : (
+                            <Copy className="h-3 w-3 text-gray-400" />
+                          )}
+                        </Button>
                       )}
                     </div>
                     <p className="text-sm font-medium text-gray-900">
@@ -263,6 +371,16 @@ export default function AprobacionProductosPage() {
                         </span>
                       </span>
                       <span className="text-gray-500 text-right">
+                        Desc.:{" "}
+                        {Number(detail.discount_percentage) > 0 ? (
+                          <span className="font-medium text-orange-600">
+                            -{detail.discount_percentage}%
+                          </span>
+                        ) : (
+                          <span className="font-medium text-gray-900">—</span>
+                        )}
+                      </span>
+                      <span className="text-gray-500 col-span-2 text-right">
                         Total:{" "}
                         <span className="font-bold text-primary">
                           {formatCurrency(detail.total_amount)}

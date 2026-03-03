@@ -17,6 +17,8 @@ interface Props {
   onManage: (id: number) => void;
   onApprove: (id: number) => void;
   permissions: {
+    canApprove: boolean;
+    canManage: boolean;
     canUpdate: boolean;
     canDelete: boolean;
   };
@@ -98,11 +100,7 @@ export const orderQuotationColumns = ({
     cell: ({ getValue }) => {
       const value = getValue() as boolean;
       return (
-        <Badge
-          variant="outline"
-          color={value ? "green" : "gray"}
-          className="capitalize w-8 flex items-center justify-center"
-        >
+        <Badge variant="outline" color={value ? "green" : "gray"}>
           {value ? "Sí" : "No"}
         </Badge>
       );
@@ -114,11 +112,31 @@ export const orderQuotationColumns = ({
     cell: ({ getValue }) => {
       const value = getValue() as boolean;
       return (
-        <Badge
-          variant="outline"
-          color={value ? "green" : "gray"}
-          className="capitalize w-8 flex items-center justify-center"
-        >
+        <Badge variant="outline" color={value ? "green" : "gray"}>
+          {value ? "Sí" : "No"}
+        </Badge>
+      );
+    },
+  },
+  {
+    accessorKey: "chief_approval_by",
+    header: "Aprobado Jefe",
+    cell: ({ getValue }) => {
+      const value = getValue() as string | null;
+      return (
+        <Badge variant="outline" color={value ? "green" : "red"}>
+          {value ? "Sí" : "No"}
+        </Badge>
+      );
+    },
+  },
+  {
+    accessorKey: "manager_approval_by",
+    header: "Aprobado Gerente",
+    cell: ({ getValue }) => {
+      const value = getValue() as string | null;
+      return (
+        <Badge variant="outline" color={value ? "green" : "red"}>
           {value ? "Sí" : "No"}
         </Badge>
       );
@@ -128,7 +146,14 @@ export const orderQuotationColumns = ({
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
-      const { id } = row.original;
+      const {
+        id,
+        chief_approval_by,
+        manager_approval_by,
+        has_management_discount,
+      } = row.original;
+      const isFullyApproved = !!chief_approval_by && !!manager_approval_by;
+      const isLocked = isFullyApproved || !!has_management_discount;
 
       const handleDownloadPdf = async () => {
         try {
@@ -141,25 +166,29 @@ export const orderQuotationColumns = ({
 
       return (
         <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="icon"
-            className="size-7"
-            onClick={() => onManage(id)}
-            tooltip="Gestionar"
-          >
-            <Settings className="size-5" />
-          </Button>
+          {permissions.canManage && (
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-7"
+              onClick={() => onManage(id)}
+              tooltip="Gestionar"
+            >
+              <Settings className="size-5" />
+            </Button>
+          )}
 
-          <Button
-            variant="outline"
-            size="icon"
-            className="size-7"
-            onClick={() => onApprove(id)}
-            tooltip="Aprobar"
-          >
-            <ClipboardCheck className="size-5" />
-          </Button>
+          {permissions.canApprove && !isFullyApproved && (
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-7"
+              onClick={() => onApprove(id)}
+              tooltip="Aprobar"
+            >
+              <ClipboardCheck className="size-5" />
+            </Button>
+          )}
 
           <Button
             variant="outline"
@@ -171,7 +200,7 @@ export const orderQuotationColumns = ({
             <Download className="size-5" />
           </Button>
 
-          {permissions.canUpdate && (
+          {permissions.canUpdate && !isLocked && (
             <Button
               variant="outline"
               size="icon"
@@ -183,7 +212,7 @@ export const orderQuotationColumns = ({
             </Button>
           )}
 
-          {permissions.canDelete && (
+          {permissions.canDelete && !isLocked && (
             <DeleteButton onClick={() => onDelete(id)} />
           )}
         </div>

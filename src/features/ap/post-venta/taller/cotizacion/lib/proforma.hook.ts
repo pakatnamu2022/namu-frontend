@@ -12,6 +12,7 @@ import {
   deleteOrderQuotation,
   getOrderQuotations,
   findOrderQuotationById,
+  getForPurchaseRequest,
 } from "./proforma.actions";
 import { OrderQuotationRequest } from "./proforma.interface";
 
@@ -28,6 +29,14 @@ export const useOrderQuotations = (params?: Record<string, any>) => {
   return useQuery({
     queryKey: [QUERY_KEY, params],
     queryFn: () => getOrderQuotations({ params }),
+    refetchOnWindowFocus: false,
+  });
+};
+
+export const useForPurchaseRequest = (params?: Record<string, any>) => {
+  return useQuery({
+    queryKey: [QUERY_KEY, params],
+    queryFn: () => getForPurchaseRequest({ params }),
     refetchOnWindowFocus: false,
   });
 };

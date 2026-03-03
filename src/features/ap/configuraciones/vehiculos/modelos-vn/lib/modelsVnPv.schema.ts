@@ -12,6 +12,7 @@ export const modelsVnPvSchemaCreate = z.object({
   brand_id: requiredStringId("Marca es requerida"),
   family_id: requiredStringId("Familia es requerida"),
   type_operation_id: z.string().optional(),
+  class_id: z.string().optional(),
 });
 
 export const modelsVnPvSchemaUpdate = modelsVnPvSchemaCreate.partial();
