@@ -1,6 +1,6 @@
 "use client";
 
-import AvailableCompanies from "@/features/companies/components/Companies";
+import AvailableCompanies from "@/features/gp/maestro-general/empresa/components/Companies.tsx";
 
 export default function CompaniesPage() {
   return (

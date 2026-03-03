@@ -1,4 +1,4 @@
-import { type Links, type Meta } from "@/shared/lib/pagination.interface";
+import { type Links, type Meta } from "@/shared/lib/pagination.interface.ts";
 
 export interface CompanyResponse {
   data: CompanyResource[];
@@ -18,6 +18,8 @@ export interface CompanyResource {
   phone: string;
   address: string;
   city: string;
+  detraction_amount: number;
+  billing_detraction_type_id: string;
 }
 
 export interface getCompanysProps {

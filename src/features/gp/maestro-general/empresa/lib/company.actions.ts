@@ -1,10 +1,10 @@
-import { api } from "@/core/api";
+import { api } from "@/core/api.ts";
 import type { AxiosRequestConfig } from "axios";
 import {
   getCompanysProps,
   CompanyResource,
   CompanyResponse,
-} from "./company.interface";
+} from "./company.interface.ts";
 
 export async function getCompany({
   params,
@@ -28,7 +28,24 @@ export async function getAllCompanies(): Promise<CompanyResource[]> {
   return data;
 }
 
+export async function findCompanyById(id: number): Promise<CompanyResource> {
+  const { data } = await api.get<CompanyResource>(`/company/${id}`);
+  return data;
+}
+
 export async function storeCompany(data: any): Promise<CompanyResponse> {
   const response = await api.post<CompanyResponse>("/company", data);
   return response.data;
+}
+
+export async function updateCompany(
+  id: number,
+  data: any
+): Promise<CompanyResource> {
+  const response = await api.put<CompanyResource>(`/company/${id}`, data);
+  return response.data;
+}
+
+export async function deleteCompany(id: number): Promise<void> {
+  await api.delete(`/company/${id}`);
 }

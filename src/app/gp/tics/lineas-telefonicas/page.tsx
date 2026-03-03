@@ -22,7 +22,7 @@ import { notFound } from "@/shared/hooks/useNotFound";
 import PhoneLineImportModal from "@/features/gp/tics/phoneLine/components/PhoneLineImportModal";
 import PhoneLineAssignModal from "@/features/gp/tics/phoneLine/components/PhoneLineAssignModal";
 import PhoneLineHistorySheet from "@/features/gp/tics/phoneLine/components/PhoneLineHistorySheet";
-import { useAllCompanies } from "@/features/gp/gestionsistema/empresa/lib/company.hook";
+import { useAllCompanies } from "@/features/gp/maestro-general/empresa/lib/company.hook";
 
 export default function PhoneLinePage() {
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();

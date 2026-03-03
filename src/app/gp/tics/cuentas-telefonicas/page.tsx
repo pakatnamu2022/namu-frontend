@@ -16,7 +16,7 @@ import { errorToast, successToast } from "@/core/core.function";
 import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { notFound } from "@/shared/hooks/useNotFound";
-import { useAllCompanies } from "@/features/gp/gestionsistema/empresa/lib/company.hook";
+import { useAllCompanies } from "@/features/gp/maestro-general/empresa/lib/company.hook";
 import TelephoneAccountModal from "@/features/gp/tics/telephoneAccount/components/TelephoneAccountModal";
 
 export default function TelephoneAccountPage() {

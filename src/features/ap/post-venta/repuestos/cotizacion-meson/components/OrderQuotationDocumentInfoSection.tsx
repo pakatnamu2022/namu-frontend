@@ -6,15 +6,6 @@ import { FormSelect } from "@/shared/components/FormSelect";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
 import { FormSwitch } from "@/shared/components/FormSwitch";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
-import {
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import { ElectronicDocumentSchema } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.schema";
 import { SunatConceptsResource } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.interface";
 import { AssignSalesSeriesResource } from "@/features/ap/configuraciones/maestros-general/asignar-serie-venta/lib/assignSalesSeries.interface";
@@ -22,6 +13,7 @@ import { useCustomers } from "@/features/ap/comercial/clientes/lib/customers.hoo
 import { CustomersResource } from "@/features/ap/comercial/clientes/lib/customers.interface";
 import { useMemo } from "react";
 import { SUNAT_TYPE_INVOICES_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
+import { FormInput } from "@/shared/components/FormInput";
 
 interface OrderQuotationDocumentInfoSectionProps {
   form: UseFormReturn<ElectronicDocumentSchema>;
@@ -115,17 +107,22 @@ export function OrderQuotationDocumentInfoSection({
   }, [defaultCustomer, clientId, form, lockedClientId]);
 
   // Forzar el switch a true (anticipo) cuando no hay stock suficiente
+  // Forzar el switch a false (venta interna) cuando el saldo pendiente es 0
   useEffect(() => {
     if (!hasSufficientStock) {
       form.setValue("is_advance_payment", true, {
         shouldValidate: false,
       });
+    } else if (pendingBalance === 0) {
+      form.setValue("is_advance_payment", false, {
+        shouldValidate: false,
+      });
     }
-  }, [hasSufficientStock, form]);
+  }, [hasSufficientStock, pendingBalance, form]);
 
   // Determinar si el switch debe estar habilitado
-  // Se habilita cuando: hay stock suficiente O el saldo pendiente es 0 (ya pagó todo)
-  const isToggleEnabled = hasSufficientStock || pendingBalance === 0;
+  // Se deshabilita cuando: no hay stock suficiente O el saldo pendiente es 0 (ya pagó todo)
+  const isToggleEnabled = hasSufficientStock && pendingBalance !== 0;
 
   // Filtrar tipos de documento según el document_type_id del cliente
   const filteredDocumentTypes = documentTypes.filter((type) => {
@@ -276,7 +273,7 @@ export function OrderQuotationDocumentInfoSection({
             !hasSufficientStock && pendingBalance > 0
               ? "Sin stock suficiente: Solo se permite anticipo"
               : pendingBalance === 0
-                ? "Pago completo realizado: Puede generar documento de venta final"
+                ? "Pago completo realizado: Solo se permite venta interna"
                 : isAdvancePayment
                   ? "Tipo de operación: Venta Interna - Anticipos (código 04)"
                   : "Tipo de operación: Venta Interna (código 01)"
@@ -330,28 +327,17 @@ export function OrderQuotationDocumentInfoSection({
           required
         />
 
-        <FormField
+        <FormInput
           control={form.control}
           name="numero"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Número</FormLabel>
-              <FormControl>
-                <Input
-                  type="number"
-                  placeholder="Auto-generado"
-                  disabled
-                  {...field}
-                />
-              </FormControl>
-              <FormDescription className="text-xs">
-                {isEdit
-                  ? "El correlativo no se puede modificar"
-                  : "Se genera automáticamente"}
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
+          label="Número"
+          placeholder="Auto-generado"
+          description={
+            isEdit
+              ? "El correlativo no se puede modificar"
+              : "Se genera automáticamente"
+          }
+          disabled
         />
       </GroupFormSection>
     </>

@@ -1,18 +1,11 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { Form } from "@/components/ui/form";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
 import { FormSelect } from "@/shared/components/FormSelect";
+import { FormInput } from "@/shared/components/FormInput";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import {
   SedeSchema,
@@ -21,7 +14,7 @@ import {
 } from "../lib/sede.schema";
 
 import { useEffect } from "react";
-import { useAllCompanies } from "../../../gestionsistema/empresa/lib/company.hook";
+import { useAllCompanies } from "@/features/gp/maestro-general/empresa/lib/company.hook";
 import {
   useAllDepartment,
   useAllDistrict,
@@ -46,7 +39,7 @@ export const SedeForm = ({
   const { ABSOLUTE_ROUTE } = SEDE;
   const form = useForm({
     resolver: zodResolver(
-      mode === "create" ? sedeSchemaCreate : sedeSchemaUpdate
+      mode === "create" ? sedeSchemaCreate : sedeSchemaUpdate,
     ),
     defaultValues: {
       ...defaultValues,
@@ -77,7 +70,7 @@ export const SedeForm = ({
   useEffect(() => {
     if (name && companyId) {
       const company = companies.find(
-        (company) => company.id === parseInt(companyId)
+        (company) => company.id === parseInt(companyId),
       );
       if (company) {
         const abbreviation = `${company.abbreviation}_${name
@@ -98,7 +91,7 @@ export const SedeForm = ({
       form.setValue("province_id", "");
       form.setValue("district_id", "");
     }
-  }, [selectedDepartmentId, form, mode]);
+  }, [selectedDepartmentId, form, mode, defaultValues.department_id]);
 
   useEffect(() => {
     if (mode === "create" && selectedProvinceId) {
@@ -110,10 +103,7 @@ export const SedeForm = ({
 
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-4 w-full"
-      >
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-full">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <FormSelect
             name="empresa_id"
@@ -125,77 +115,36 @@ export const SedeForm = ({
             }))}
             control={form.control}
           />
-          <FormField
+          <FormInput
             control={form.control}
             name="suc_abrev"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Nombre</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: TP_CHICLAYO_01" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Nombre"
+            placeholder="Ej: TP_CHICLAYO_01"
           />
-          <FormField
+          <FormInput
             control={form.control}
             name="abreviatura"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Abreviatura</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="Ej: TP_CHI_01"
-                    {...field}
-                    disabled={true}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Abreviatura"
+            placeholder="Ej: TP_CHI_01"
+            disabled
           />
-          <FormField
+          <FormInput
             control={form.control}
             name="dyn_code"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Cod. Dynamic</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: TP1" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Cod. Dynamic"
+            placeholder="Ej: TP1"
           />
-          <FormField
+          <FormInput
             control={form.control}
             name="establishment"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Establecimiento</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ej: Transportes Pakatnamú" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Establecimiento"
+            placeholder="Ej: Transportes Pakatnamú"
           />
-          <FormField
+          <FormInput
             control={form.control}
             name="direccion"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Dirección</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="Ej: CARRETERA LAMBAYEQUE  Mz. A Lote 06 Km. 4.5 - LAMBAYEQUE"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Dirección"
+            placeholder="Ej: CARRETERA LAMBAYEQUE Mz. A Lote 06 Km. 4.5 - LAMBAYEQUE"
           />
           <FormSelect
             name="department_id"
@@ -214,8 +163,8 @@ export const SedeForm = ({
               !selectedDepartmentId
                 ? "Seleccione Departamento"
                 : isLoadingProvinces
-                ? "Cargando..."
-                : "Selecciona una Provincia"
+                  ? "Cargando..."
+                  : "Selecciona una Provincia"
             }
             options={provinces.map((province) => ({
               label: province.name,
@@ -231,8 +180,8 @@ export const SedeForm = ({
               !selectedProvinceId
                 ? "Seleccione Provincia"
                 : isLoadingDistricts
-                ? "Cargando..."
-                : "Selecciona un Distrito"
+                  ? "Cargando..."
+                  : "Selecciona un Distrito"
             }
             options={districts.map((district) => ({
               label: district.name,

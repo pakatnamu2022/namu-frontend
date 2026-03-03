@@ -1,10 +1,10 @@
 "use client";
 
-import { Card, CardTitle } from "@/components/ui/card";
+import { Card, CardTitle } from "@/components/ui/card.tsx";
 import { useNavigate } from "react-router-dom";
-import { useAuthStore } from "@/features/auth/lib/auth.store";
-import CardSkeletonGrid from "@/shared/components/CardSkeletonGrid";
-import { CONSTANTS } from "@/core/core.constants";
+import { useAuthStore } from "@/features/auth/lib/auth.store.ts";
+import CardSkeletonGrid from "@/shared/components/CardSkeletonGrid.tsx";
+import { CONSTANTS } from "@/core/core.constants.ts";
 
 export default function AvailableCompanies() {
   const router = useNavigate();
@@ -13,12 +13,6 @@ export default function AvailableCompanies() {
   const handleCompanySelect = (company: string) => {
     router(`/modules/${company}`);
   };
-
-  // useEffect(() => {
-  //   if (permissions && permissions?.length === 1) {
-  //     handleCompanySelect(permissions[0].empresa_abreviatura);
-  //   }
-  // }, [permissions, router]);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">

@@ -308,6 +308,10 @@ import SalesReceiptsTallerPage from "./app/ap/post-venta/taller/comprobante-vent
 import BoxPage from "./app/ap/post-venta/caja/page.tsx";
 import SalesReceiptsCajaPage from "./app/ap/post-venta/caja/comprante-venta-caja/page.tsx";
 import UpdateSalesReceiptsCajaPage from "./app/ap/post-venta/caja/comprante-venta-caja/actualizar/[id]/page.tsx";
+import AddCreditNoteCajaPage from "./app/ap/post-venta/caja/comprante-venta-caja/[id]/credit-note/page.tsx";
+import UpdateCreditNoteCajaPage from "./app/ap/post-venta/caja/comprante-venta-caja/[id]/credit-note/actualizar/[credit]/page.tsx";
+import AddDebitNoteCajaPage from "./app/ap/post-venta/caja/comprante-venta-caja/[id]/debit-note/page.tsx";
+import UpdateDebitNoteCajaPage from "./app/ap/post-venta/caja/comprante-venta-caja/[id]/debit-note/actualizar/[debit]/page.tsx";
 import OrderQuotationMesonCajaPage from "./app/ap/post-venta/caja/cotizacion-repuesto-caja/page.tsx";
 import WorkOrderCajaPage from "./app/ap/post-venta/caja/order-trabajo-taller-caja/page.tsx";
 import ManageWorkOrderCajaPage from "./app/ap/post-venta/caja/order-trabajo-taller-caja/gestionar/[id]/page.tsx";
@@ -354,6 +358,8 @@ import UpdatePayrollConceptPage from "./app/gp/gestion-humana/planillas/concepto
 import SedePage from "./app/gp/maestro-general/sede/page.tsx";
 import UpdateSedePage from "./app/gp/maestro-general/sede/actualizar/[id]/page.tsx";
 import AddSedePage from "./app/gp/maestro-general/sede/agregar/page.tsx";
+import CompanyPage from "./app/gp/maestro-general/empresa/page.tsx";
+import UpdateCompanyPage from "./app/gp/maestro-general/empresa/actualizar/[id]/page.tsx";
 import TICsModulePage from "./app/gp/tics/page.tsx";
 import EquipmentPage from "./app/gp/tics/equipos/page.tsx";
 import AddEquipmentPage from "./app/gp/tics/equipos/agregar/page.tsx";
@@ -1537,6 +1543,25 @@ function App() {
                 path="caja/comprobante-venta-caja/actualizar/:id"
                 element={<UpdateSalesReceiptsCajaPage />}
               />
+              {/* Credit Note */}
+              <Route
+                path="caja/comprobante-venta-caja/:id/credit-note"
+                element={<AddCreditNoteCajaPage />}
+              />
+              <Route
+                path="caja/comprobante-venta-caja/:id/credit-note/actualizar/:credit"
+                element={<UpdateCreditNoteCajaPage />}
+              />
+
+              {/* Debit Note */}
+              <Route
+                path="caja/comprobante-venta-caja/:id/debit-note"
+                element={<AddDebitNoteCajaPage />}
+              />
+              <Route
+                path="caja/comprobante-venta-caja/:id/debit-note/actualizar/:debit"
+                element={<UpdateDebitNoteCajaPage />}
+              />
               <Route
                 path="caja/cotizacion-repuesto-caja"
                 element={<OrderQuotationMesonCajaPage />}
@@ -1862,6 +1887,8 @@ function App() {
               <Route path="sede" element={<SedePage />} />
               <Route path="sede/agregar" element={<AddSedePage />} />
               <Route path="sede/actualizar/:id" element={<UpdateSedePage />} />
+              <Route path="empresa" element={<CompanyPage />} />
+              <Route path="empresa/actualizar/:id" element={<UpdateCompanyPage />} />
             </Route>
 
             {/* ======================================================== */}

@@ -276,7 +276,7 @@ export const WorkOrderForm = ({
         <GroupFormSection
           title="Información Cita"
           icon={FileText}
-          color="blue"
+          color="primary"
           cols={{ sm: 1 }}
         >
           {/* Checkbox Tiene Cita */}
@@ -335,7 +335,7 @@ export const WorkOrderForm = ({
         <GroupFormSection
           title="Inspección de Vehículo"
           icon={ClipboardCheck}
-          color="blue"
+          color="primary"
           cols={{ sm: 1 }}
         >
           {/* Checkbox Tiene Inspección */}
@@ -626,7 +626,7 @@ export const WorkOrderForm = ({
           <GroupFormSection
             title="Trabajos"
             icon={List}
-            color="blue"
+            color="primary"
             cols={{ sm: 1 }}
           >
             <div className="space-y-4">
