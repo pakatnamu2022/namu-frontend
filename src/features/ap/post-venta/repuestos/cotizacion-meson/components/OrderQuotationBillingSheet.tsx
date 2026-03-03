@@ -867,7 +867,7 @@ function BillingSheetContent({
               <GroupFormSection
                 title="Firma de Conformidad del Cliente"
                 icon={PenLine}
-                color="blue"
+                color="primary"
                 cols={{ sm: 1 }}
               >
                 <FormField

@@ -13,6 +13,9 @@ import {
 } from "../lib/company.schema";
 import { COMPANY } from "../lib/company.constants";
 import { FormInput } from "@/shared/components/FormInput";
+import { useAllSunatConcepts } from "../../conceptos-sunat/lib/sunatConcepts.hook";
+import { SUNAT_CONCEPTS_TYPE } from "../../conceptos-sunat/lib/sunatConcepts.constants";
+import { FormSelect } from "@/shared/components/FormSelect";
 
 interface CompanyFormProps {
   defaultValues: Partial<CompanySchema>;
@@ -36,6 +39,13 @@ export const CompanyForm = ({
       ...defaultValues,
     },
     mode: "onChange",
+  });
+
+  const {
+    data: billingDetractionType = [],
+    isLoading: isLoadingDillingDetractionType,
+  } = useAllSunatConcepts({
+    type: [SUNAT_CONCEPTS_TYPE.BILLING_DETRACTION_TYPE],
   });
 
   return (
@@ -113,16 +123,17 @@ export const CompanyForm = ({
             placeholder="Ej: 100.00"
           />
 
-          {/* <FormSelect
+          <FormSelect
             name="billing_detraction_type_id"
             label="Tipo de detracción"
             placeholder="Selecciona un tipo"
-            options={companies.map((company) => ({
-              label: company.name,
-              value: company.id.toString(),
+            options={billingDetractionType.map((item) => ({
+              label: item.description,
+              value: item.id.toString(),
             }))}
             control={form.control}
-          /> */}
+            disabled={isLoadingDillingDetractionType}
+          />
         </div>
         <div className="flex gap-4 w-full justify-end">
           <Link to={ABSOLUTE_ROUTE}>

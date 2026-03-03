@@ -17,7 +17,6 @@ import {
   WORKER_ORDER_CAJA,
 } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.constants";
 import { useGetWorkOrder } from "@/features/ap/post-venta/taller/orden-trabajo/lib/workOrder.hook";
-import WorkOrderActions from "@/features/ap/post-venta/taller/orden-trabajo/components/WorkOrderActions";
 import WorkOrderTable from "@/features/ap/post-venta/taller/orden-trabajo/components/WorkOrderTable";
 import WorkOrderOptions from "@/features/ap/post-venta/taller/orden-trabajo/components/WorkOrderOptions";
 import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
@@ -88,7 +87,6 @@ export default function WorkOrderCajaPage() {
           subtitle={currentView.descripcion}
           icon={currentView.icon}
         />
-        <WorkOrderActions permissions={permissions} />
       </HeaderTableWrapper>
 
       <WorkOrderTable

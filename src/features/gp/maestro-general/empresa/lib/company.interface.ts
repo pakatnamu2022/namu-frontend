@@ -18,6 +18,8 @@ export interface CompanyResource {
   phone: string;
   address: string;
   city: string;
+  detraction_amount: number;
+  billing_detraction_type_id: string;
 }
 
 export interface getCompanysProps {
