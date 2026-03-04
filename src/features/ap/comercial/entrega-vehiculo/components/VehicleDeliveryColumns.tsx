@@ -339,7 +339,7 @@ export const vehicleDeliveryColumns = ({
               size="icon"
               className="size-7"
               tooltip="Migrar"
-              onClick={() => onMigrate(id)}
+              onClick={() => onMigrate(shipping_guide_id)}
             >
               <ArrowRightLeft className="size-4" />
             </Button>
