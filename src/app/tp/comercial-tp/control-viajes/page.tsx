@@ -62,7 +62,7 @@ export default function ControlTravelPage() {
       <HeaderTableWrapper>
         <TitleComponent
           title={`${currentView.descripcion || "Control de Viajes"}`}
-          subtitle={userComplete?.role === 'COMERCIAL Y FACTURACION TP' ? 'Gestión de Combustible' : 'Mis Viajes'}
+          subtitle={(userComplete?.role === 'COMERCIAL Y FACTURACION TP') || (userComplete?.position === 'ASISTENTE DE OPERACIONES') ? 'Gestión de Combustible' : 'Mis Viajes'}
           icon={currentView.icon}
         />
       </HeaderTableWrapper>

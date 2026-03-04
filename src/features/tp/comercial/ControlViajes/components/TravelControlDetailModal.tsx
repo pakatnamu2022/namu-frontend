@@ -427,7 +427,7 @@ export function TravelControlDetailModal({
     };
 
   const isDriver = userComplete?.position?.toUpperCase() === 'CONDUCTOR DE TRACTO CAMION';
-  const isComercial = userComplete?.role?.toUpperCase() === 'COMERCIAL Y FACTURACION TP';
+  const isComercial = (userComplete?.role?.toUpperCase() === 'COMERCIAL Y FACTURACION TP') || (userComplete?.position.toUpperCase() === 'ASISTENTE DE OPERACIONES');
   const canStart = localTrip?.status === 'pending' && 
                     initialKmValue && 
                     initialKmValue.trim() !== "" &&
