@@ -297,7 +297,7 @@ export const vehicleDeliveryColumns = ({
             icon={FileText}
             color="cyan"
             variant="default"
-            canRender={!sent_at}
+            canRender={!sent_at || aceptada_por_sunat !== true} // Solo mostrar si NO ha sido enviado o no fue aceptado
           />
 
           {/* Enviar a Nubefact - Solo si hay guía generada y NO ha sido aceptado por SUNAT */}
