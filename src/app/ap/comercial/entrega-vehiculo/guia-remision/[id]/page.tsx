@@ -303,9 +303,8 @@ export default function ShippingGuidePage(): JSX.Element {
                       license: shippingGuide.license || "",
                       plate: shippingGuide.plate || "",
                       driver_name: shippingGuide.driver_name || "",
-                      carrier_ruc: shippingGuide.ruc_transport || "",
-                      company_name_transport:
-                        shippingGuide.company_name_transport || "",
+                      transport_company_id:
+                        shippingGuide.transport_company_id?.toString() || "",
                       notes: shippingGuide.notes || "",
                     }
                   : undefined

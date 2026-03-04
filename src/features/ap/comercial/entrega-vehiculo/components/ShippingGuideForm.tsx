@@ -17,11 +17,8 @@ import {
   ShippingGuideSchema,
 } from "../lib/ShippingGuides.schema";
 import { Textarea } from "@/components/ui/textarea";
-import { useEffect, useState, useRef } from "react";
-import {
-  useLicenseValidation,
-  useRucValidation,
-} from "@/shared/hooks/useDocumentValidation";
+import { useEffect, useRef } from "react";
+import { useLicenseValidation } from "@/shared/hooks/useDocumentValidation";
 import { DocumentValidationStatus } from "@/shared/components/DocumentValidationStatus";
 import { ValidationIndicator } from "@/shared/components/ValidationIndicator";
 import { FormSelect } from "@/shared/components/FormSelect";
@@ -33,6 +30,9 @@ import { useAllSunatConcepts } from "@/features/gp/maestro-general/conceptos-sun
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { FormInput } from "@/shared/components/FormInput";
+import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
+import { useSuppliers } from "@/features/ap/comercial/proveedores/lib/suppliers.hook";
+import { SuppliersResource } from "@/features/ap/comercial/proveedores/lib/suppliers.interface";
 
 interface ShippingGuideFormProps {
   defaultValues?: Partial<ShippingGuideSchema>;
@@ -56,21 +56,15 @@ export const ShippingGuideForm = ({
       driver_doc: defaultValues?.driver_doc || "",
       license: defaultValues?.license || "",
       driver_name: defaultValues?.driver_name || "",
-      carrier_ruc: defaultValues?.carrier_ruc || "",
-      company_name_transport: defaultValues?.company_name_transport || "",
+      transport_company_id: defaultValues?.transport_company_id || "",
       plate: defaultValues?.plate || "",
       notes: defaultValues?.notes || "",
     },
     mode: "onChange",
   });
 
-  const [carrierStatus, setCarrierStatus] = useState("-");
-  const [carrierCondition, setCarrierCondition] = useState("-");
-
   const driverDocChangedByUser = useRef(false);
-  const carrierRucChangedByUser = useRef(false);
   const initialDriverDoc = useRef<string>("");
-  const initialCarrierRuc = useRef<string>("");
 
   useEffect(() => {
     if (defaultValues) {
@@ -79,15 +73,12 @@ export const ShippingGuideForm = ({
         driver_doc: defaultValues.driver_doc || "",
         license: defaultValues.license || "",
         driver_name: defaultValues.driver_name || "",
-        carrier_ruc: defaultValues.carrier_ruc || "",
-        company_name_transport: defaultValues.company_name_transport || "",
+        transport_company_id: defaultValues.transport_company_id || "",
         plate: defaultValues.plate || "",
         notes: defaultValues.notes || "",
       });
       initialDriverDoc.current = defaultValues.driver_doc || "";
-      initialCarrierRuc.current = defaultValues.carrier_ruc || "";
       driverDocChangedByUser.current = false;
-      carrierRucChangedByUser.current = false;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
@@ -95,15 +86,13 @@ export const ShippingGuideForm = ({
     defaultValues?.driver_doc,
     defaultValues?.license,
     defaultValues?.driver_name,
-    defaultValues?.carrier_ruc,
-    defaultValues?.company_name_transport,
+    defaultValues?.transport_company_id,
     defaultValues?.plate,
     defaultValues?.notes,
   ]);
 
   const transferModalityId = form.watch("transfer_modality_id");
   const conductorDni = String(form.watch("driver_doc") ?? "");
-  const carrierRuc = String(form.watch("carrier_ruc") ?? "");
 
   const isPrivateTransport =
     transferModalityId === SUNAT_CONCEPTS_ID.TYPE_TRANSPORTATION_PRIVATE;
@@ -116,13 +105,6 @@ export const ShippingGuideForm = ({
       driverDocChangedByUser.current = true;
     }
   }, [conductorDni, isPrivateTransport]);
-
-  useEffect(() => {
-    if (!isPublicTransport || !carrierRuc) return;
-    if (carrierRuc !== initialCarrierRuc.current) {
-      carrierRucChangedByUser.current = true;
-    }
-  }, [carrierRuc, isPublicTransport]);
 
   const shouldValidateDriver =
     isPrivateTransport &&
@@ -143,18 +125,6 @@ export const ShippingGuideForm = ({
     type: [SUNAT_CONCEPTS_TYPE.TYPE_TRANSPORTATION],
   });
 
-  const shouldValidateRuc =
-    isPublicTransport &&
-    !!carrierRuc &&
-    carrierRuc.length === 11 &&
-    carrierRucChangedByUser.current;
-
-  const {
-    data: rucData,
-    isLoading: isRucLoading,
-    error: rucError,
-  } = useRucValidation(carrierRuc, shouldValidateRuc);
-
   useEffect(() => {
     if (isPublicTransport) {
       form.setValue("driver_doc", "", { shouldValidate: true });
@@ -162,11 +132,7 @@ export const ShippingGuideForm = ({
       form.setValue("driver_name", "", { shouldValidate: true });
       driverDocChangedByUser.current = false;
     } else if (isPrivateTransport) {
-      form.setValue("carrier_ruc", "", { shouldValidate: true });
-      form.setValue("company_name_transport", "", { shouldValidate: true });
-      setCarrierStatus("-");
-      setCarrierCondition("-");
-      carrierRucChangedByUser.current = false;
+      form.setValue("transport_company_id", "", { shouldValidate: true });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [transferModalityId]);
@@ -189,43 +155,21 @@ export const ShippingGuideForm = ({
       }
     } else if (conductorDniData !== undefined) {
       if (form.getValues("license") !== "") {
-        form.setValue("license", "", { shouldValidate: true, shouldDirty: true });
+        form.setValue("license", "", {
+          shouldValidate: true,
+          shouldDirty: true,
+        });
       }
       if (form.getValues("driver_name") !== "") {
-        form.setValue("driver_name", "", { shouldValidate: true, shouldDirty: true });
+        form.setValue("driver_name", "", {
+          shouldValidate: true,
+          shouldDirty: true,
+        });
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [conductorDniData, isPrivateTransport]);
 
-  useEffect(() => {
-    if (!isPublicTransport) return;
-    if (rucData?.success && rucData.data && rucData.data.valid) {
-      const rucInfo = rucData.data;
-      if (form.getValues("company_name_transport") !== (rucInfo.business_name || "")) {
-        form.setValue("company_name_transport", rucInfo.business_name || "", {
-          shouldValidate: true,
-          shouldDirty: true,
-        });
-      }
-      setCarrierStatus(rucInfo.status || "NO PROCESADO");
-      setCarrierCondition(rucInfo.condition || "NO PROCESADO");
-    } else if (rucData !== undefined) {
-      if (form.getValues("company_name_transport") !== "") {
-        form.setValue("company_name_transport", "", {
-          shouldValidate: true,
-          shouldDirty: true,
-        });
-      }
-      setCarrierStatus("-");
-      setCarrierCondition("-");
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [rucData, isPublicTransport]);
-
-  const shouldDisableRucFields = Boolean(
-    rucData?.success && rucData.data && rucData.data.valid,
-  );
   const shouldDisableLicenseFields = Boolean(
     conductorDniData?.success && conductorDniData.data,
   );
@@ -234,34 +178,12 @@ export const ShippingGuideForm = ({
     return <FormSkeleton />;
   }
 
-  const carrierStatusBadges = carrierStatus !== "-" && carrierCondition !== "-" && (
-    <div className="absolute right-0 -top-1 flex gap-1">
-      <div
-        className={`px-2 py-0.5 rounded-full text-[10px] font-medium flex items-center gap-1 ${
-          carrierStatus === "ACTIVO"
-            ? "bg-green-100 text-green-800 border border-green-200"
-            : "bg-red-100 text-red-800 border border-red-200"
-        }`}
-      >
-        <div className={`w-1.5 h-1.5 rounded-full ${carrierStatus === "ACTIVO" ? "bg-green-500" : "bg-red-500"}`} />
-        {carrierStatus}
-      </div>
-      <div
-        className={`px-2 py-0.5 rounded-full text-[10px] font-medium flex items-center gap-1 ${
-          carrierCondition === "HABIDO"
-            ? "bg-green-100 text-green-800 border border-green-200"
-            : "bg-yellow-100 text-yellow-800 border border-yellow-200"
-        }`}
-      >
-        <div className={`w-1.5 h-1.5 rounded-full ${carrierCondition === "HABIDO" ? "bg-green-500" : "bg-yellow-500"}`} />
-        {carrierCondition}
-      </div>
-    </div>
-  );
-
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-full">
+      <form
+        onSubmit={form.handleSubmit(onSubmit as any)}
+        className="space-y-4 w-full"
+      >
         {/* Sección 1: Información de Traslado */}
         <GroupFormSection
           title="Información de Traslado"
@@ -324,7 +246,7 @@ export const ShippingGuideForm = ({
                 </div>
               }
               placeholder="Ej: 12345678"
-              type="number"
+              inputMode="numeric"
               maxLength={8}
               disabled={isDisabled}
               addonEnd={
@@ -372,50 +294,19 @@ export const ShippingGuideForm = ({
             cols={{ sm: 1, md: 2 }}
             gap="gap-4"
           >
-            <FormInput
-              control={form.control}
-              name="carrier_ruc"
-              label={
-                <div className="flex items-center gap-2 relative">
-                  RUC del Transportista
-                  <DocumentValidationStatus
-                    shouldValidate={true}
-                    documentNumber={carrierRuc || ""}
-                    expectedDigits={11}
-                    isValidating={isRucLoading}
-                    leftPosition="right-0"
-                  />
-                </div>
-              }
-              placeholder="Ej: 20123456789"
-              type="number"
-              maxLength={11}
+            <FormSelectAsync
+              control={form.control as any}
+              name="transport_company_id"
+              label="Transportista"
+              placeholder="Buscar transportista..."
+              useQueryHook={useSuppliers}
+              mapOptionFn={(item: SuppliersResource) => ({
+                value: item.id.toString(),
+                label: `${item.num_doc || "S/N"} | ${item.full_name || "S/N"}`,
+              })}
+              perPage={10}
+              debounceMs={500}
               disabled={isDisabled}
-              addonEnd={
-                <ValidationIndicator
-                  show={!!carrierRuc}
-                  isValidating={isRucLoading}
-                  isValid={rucData?.success && rucData.data && rucData.data.valid}
-                  hasError={
-                    !!rucError ||
-                    (rucData &&
-                      (!rucData.success ||
-                        (rucData.data && !rucData.data.valid)))
-                  }
-                />
-              }
-            />
-            <FormInput
-              control={form.control}
-              name="company_name_transport"
-              label={
-                <div className="flex items-center gap-2 relative w-full">
-                  Razón Social
-                  {carrierStatusBadges}
-                </div>
-              }
-              placeholder="Razón social del transportista"
-              disabled={isDisabled || shouldDisableRucFields}
             />
             <FormInput
               control={form.control}
