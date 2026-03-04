@@ -29,22 +29,22 @@ import EstablishmentsOptions from "@/features/ap/comercial/establecimientos/comp
 import { useEstablishments } from "@/features/ap/comercial/establecimientos/lib/establishments.hook";
 import { notFound } from "@/shared/hooks/useNotFound";
 import BackButton from "@/shared/components/BackButton";
-import { SUPPLIERS } from "@/features/ap/comercial/proveedores/lib/suppliers.constants";
-import { SUPPLIER_ESTABLISHMENTS } from "@/features/ap/comercial/establecimientos/lib/establishments.constants";
+import { SUPPLIER_WAREHOUSE } from "@/features/ap/comercial/proveedores/lib/suppliers.constants";
+import { SUPPLIER_WAREHOUSE_ESTABLISHMENTS } from "@/features/ap/comercial/establecimientos/lib/establishments.constants";
 
-export default function SupplierEstablishmentsListPage() {
+export default function SupplierStoreEstablishmentsListPage() {
   const { id } = useParams();
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [deleteId, setDeleteId] = useState<number | null>(null);
-  const { MODEL, ABSOLUTE_ROUTE } = SUPPLIER_ESTABLISHMENTS;
+  const { MODEL, ABSOLUTE_ROUTE } = SUPPLIER_WAREHOUSE_ESTABLISHMENTS;
   const {
     ABSOLUTE_ROUTE: SUPPLIERS_ABSOLUTE_ROUTE,
     ROUTE,
     QUERY_KEY,
-  } = SUPPLIERS;
+  } = SUPPLIER_WAREHOUSE;
   const permissions = useModulePermissions(ROUTE);
 
   useEffect(() => {

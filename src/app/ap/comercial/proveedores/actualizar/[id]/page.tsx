@@ -56,7 +56,7 @@ export default function UpdateSuppliersPage() {
   };
 
   function mapSuppliersToForm(
-    data: SuppliersResource
+    data: SuppliersResource,
   ): Partial<SuppliersSchema> {
     return {
       first_name: data.first_name,
@@ -109,6 +109,7 @@ export default function UpdateSuppliersPage() {
         onSubmit={handleSubmit}
         isSubmitting={isPending}
         mode="update"
+        onCancel={() => router(ABSOLUTE_ROUTE!)}
       />
     </FormWrapper>
   );

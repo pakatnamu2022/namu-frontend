@@ -13,7 +13,7 @@ import {
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import FormWrapper from "@/shared/components/FormWrapper";
-import { ESTABLISHMENTS } from "@/features/ap/comercial/establecimientos/lib/establishments.constants";
+import { SUPPLIER_WAREHOUSE_ESTABLISHMENTS } from "@/features/ap/comercial/establecimientos/lib/establishments.constants";
 import {
   findEstablishmentsById,
   updateEstablishments,
@@ -21,15 +21,16 @@ import {
 import { EstablishmentsSchema } from "@/features/ap/comercial/establecimientos/lib/establishments.schema";
 import { EstablishmentsResource } from "@/features/ap/comercial/establecimientos/lib/establishments.interface";
 import { EstablishmentsForm } from "@/features/ap/comercial/establecimientos/components/EstablishmentsForm";
-import { CUSTOMERS } from "@/features/ap/comercial/clientes/lib/customers.constants";
+import { SUPPLIER_WAREHOUSE } from "@/features/ap/comercial/proveedores/lib/suppliers.constants";
 import { notFound } from "@/shared/hooks/useNotFound";
 
-export default function UpdateSupplierEstablishmentPage() {
+export default function UpdateSupplierStoreEstablishmentPage() {
   const { id, establishmentId } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();
   const { currentView, checkRouteExists } = useCurrentModule();
-  const { QUERY_KEY, MODEL, ABSOLUTE_ROUTE } = ESTABLISHMENTS;
+  const { QUERY_KEY, MODEL, ABSOLUTE_ROUTE } =
+    SUPPLIER_WAREHOUSE_ESTABLISHMENTS;
 
   const { data: establishment, isLoading: loadingEstablishment } = useQuery({
     queryKey: [QUERY_KEY, establishmentId],
@@ -80,7 +81,7 @@ export default function UpdateSupplierEstablishmentPage() {
   if (isLoadingAny) {
     return <FormSkeleton />;
   }
-  if (!checkRouteExists(CUSTOMERS.ROUTE)) notFound();
+  if (!checkRouteExists(SUPPLIER_WAREHOUSE.ROUTE)) notFound();
   if (!currentView) notFound();
 
   return (
@@ -96,7 +97,7 @@ export default function UpdateSupplierEstablishmentPage() {
         isSubmitting={isPending}
         mode="update"
         businessPartnerId={establishment.business_partner_id}
-        onCancel={() => router(`/ap/comercial/clientes/establecimientos/${id}`)}
+        onCancel={() => router(`${ABSOLUTE_ROUTE}/${id}`)}
       />
     </FormWrapper>
   );

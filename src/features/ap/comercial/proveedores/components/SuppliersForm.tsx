@@ -33,14 +33,12 @@ import {
 } from "@/core/core.constants";
 import { DocumentValidationStatus } from "../../../../../shared/components/DocumentValidationStatus";
 import { ConfirmationDialog } from "@/shared/components/ConfirmationDialog";
-import { useNavigate } from "react-router-dom";
 import {
   SuppliersSchema,
   suppliersSchemaCreate,
   suppliersSchemaUpdate,
 } from "../lib/suppliers.schema";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
-import { SUPPLIERS } from "../lib/suppliers.constants";
 
 interface SuppliersFormProps {
   defaultValues: Partial<SuppliersSchema>;
@@ -55,11 +53,11 @@ export const SuppliersForm = ({
   onSubmit,
   isSubmitting = false,
   mode = "create",
+  onCancel,
 }: SuppliersFormProps) => {
-  const router = useNavigate();
   const form = useForm({
     resolver: zodResolver(
-      mode === "create" ? suppliersSchemaCreate : suppliersSchemaUpdate
+      mode === "create" ? suppliersSchemaCreate : suppliersSchemaUpdate,
     ),
     defaultValues: {
       ...defaultValues,
@@ -68,7 +66,6 @@ export const SuppliersForm = ({
     },
     mode: "onChange",
   });
-  const { ABSOLUTE_ROUTE } = SUPPLIERS;
   const [isFirstLoad, setIsFirstLoad] = useState(true);
   const [companyStatus, setCompanyStatus] = useState("-");
   const [companyCondition, setCompanyCondition] = useState("-");
@@ -93,12 +90,12 @@ export const SuppliersForm = ({
   const typePersonWatch = form.watch("type_person_id");
   const isJuridica = typePersonId === BUSINESS_PARTNERS.TYPE_PERSON_JURIDICA_ID;
   const selectedDocumentTypeRuc = documentTypes.find(
-    (type) => type.id.toString() === BUSINESS_PARTNERS.TYPE_DOCUMENT_RUC_ID
+    (type) => type.id.toString() === BUSINESS_PARTNERS.TYPE_DOCUMENT_RUC_ID,
   );
   const numDigitsRuc = selectedDocumentTypeRuc?.code;
 
   const selectedDocumentType = documentTypes.find(
-    (type) => type.id.toString() === documentTypeId
+    (type) => type.id.toString() === documentTypeId,
   );
 
   const shouldValidate = VALIDATABLE_DOCUMENT.IDS.includes(documentTypeId!);
@@ -110,7 +107,7 @@ export const SuppliersForm = ({
     documentNumber && documentNumber.length === expectedDigits;
 
   const shouldTriggerValidation = Boolean(
-    shouldValidate && isValidLength && validationType
+    shouldValidate && isValidLength && validationType,
   );
 
   const hasDocumentChanged =
@@ -202,7 +199,7 @@ export const SuppliersForm = ({
     if (typePersonWatch === BUSINESS_PARTNERS.TYPE_PERSON_NATURAL_ID) {
       form.setValue("document_type_id", BUSINESS_PARTNERS.TYPE_DOCUMENT_DNI_ID);
     }
-  }, [typePersonWatch]);
+  }, [form, isFirstLoad, typePersonWatch]);
 
   // Efecto para auto-completar campos cuando se obtienen datos válidos
   useEffect(() => {
@@ -247,7 +244,7 @@ export const SuppliersForm = ({
         form.setValue("company_condition", condition, { shouldValidate: true });
 
         const matchedDistrict = districts.find(
-          (district) => district.ubigeo === ubigeo
+          (district) => district.ubigeo === ubigeo,
         );
         if (matchedDistrict) {
           form.setValue("district_id", String(matchedDistrict.id), {
@@ -287,7 +284,16 @@ export const SuppliersForm = ({
         form.setValue("maternal_surname", "", { shouldValidate: true });
       }
     }
-  }, [validationData, validationError, form, dniData, rucData, isJuridica]);
+  }, [
+    validationData,
+    validationError,
+    form,
+    dniData,
+    rucData,
+    isJuridica,
+    isFirstLoad,
+    districts,
+  ]);
 
   // Agregar este useEffect después de los otros useEffect existentes
   useEffect(() => {
@@ -320,7 +326,7 @@ export const SuppliersForm = ({
 
   // AQUÍ VAN LAS VARIABLES DE ESTADO DINÁMICAS
   const shouldDisableMainFields = Boolean(
-    validationData?.success && validationData.data
+    validationData?.success && validationData.data,
   );
 
   // Función para filtrar tipos de documento según tipo de persona
@@ -329,7 +335,7 @@ export const SuppliersForm = ({
 
     if (typePersonWatch === BUSINESS_PARTNERS.TYPE_PERSON_JURIDICA_ID) {
       return documentTypes.filter(
-        (doc) => doc.id.toString() == BUSINESS_PARTNERS.TYPE_DOCUMENT_RUC_ID
+        (doc) => doc.id.toString() == BUSINESS_PARTNERS.TYPE_DOCUMENT_RUC_ID,
       );
     }
     if (typePersonWatch !== BUSINESS_PARTNERS.TYPE_PERSON_JURIDICA_ID) {
@@ -369,7 +375,7 @@ export const SuppliersForm = ({
                       : "bg-red-100 text-secondary border border-red-200"
                   }`}
                 >
-                  <Info className="size-4 flex-shrink-0" />
+                  <Info className="size-4 shrink-0" />
                   <span className="text-xs font-medium">
                     {notificationMessage}
                   </span>
@@ -776,19 +782,19 @@ export const SuppliersForm = ({
         </GroupFormSection>
 
         <div className="flex gap-4 w-full justify-end">
-          <ConfirmationDialog
-            trigger={
-              <Button type="button" variant="outline">
-                Cancelar
-              </Button>
-            }
-            title="¿Cancelar registro?"
-            variant="destructive"
-            icon="warning"
-            onConfirm={() => {
-              router(ABSOLUTE_ROUTE!);
-            }}
-          />
+          {onCancel && (
+            <ConfirmationDialog
+              trigger={
+                <Button type="button" variant="outline">
+                  Cancelar
+                </Button>
+              }
+              title="¿Cancelar registro?"
+              variant="destructive"
+              icon="warning"
+              onConfirm={onCancel}
+            />
+          )}
 
           <Button
             type="submit"

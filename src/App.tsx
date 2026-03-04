@@ -246,6 +246,12 @@ import PurchaseOrderWarehousePage from "@/app/ap/post-venta/gestion-de-almacen/f
 import WarehousePurchaseRequestPage from "./app/ap/post-venta/gestion-de-almacen/solicitud-compra-almacen/page.tsx";
 import AddWarehousePurchaseRequestPage from "@/app/ap/post-venta/gestion-de-almacen/solicitud-compra-almacen/agregar/page.tsx";
 import UpdateWarehousePurchaseRequestPage from "@/app/ap/post-venta/gestion-de-almacen/solicitud-compra-almacen/actualizar/[id]/page.tsx";
+import SuppliersStorePage from "./app/ap/post-venta/gestion-de-almacen/proveedor-almacen/page.tsx";
+import AddSupplierStorePage from "./app/ap/post-venta/gestion-de-almacen/proveedor-almacen/agregar/page.tsx";
+import UpdateSuppliersStorePage from "./app/ap/post-venta/gestion-de-almacen/proveedor-almacen/actualizar/[id]/page.tsx";
+import SupplierStoreEstablishmentsListPage from "./app/ap/post-venta/gestion-de-almacen/proveedor-almacen/establecimientos/[id]/page.tsx";
+import AddSupplierStoreEstablishmentPage from "./app/ap/post-venta/gestion-de-almacen/proveedor-almacen/establecimientos/[id]/agregar/page.tsx";
+import UpdateSupplierStoreEstablishmentPage from "./app/ap/post-venta/gestion-de-almacen/proveedor-almacen/establecimientos/[id]/actualizar/[establishmentId]/page.tsx";
 import SparePartsPage from "./app/ap/post-venta/repuestos/page.tsx";
 import ApprovedAccesoriesPage from "./app/ap/post-venta/repuestos/accesorios-homologados/page.tsx";
 import AddApprovedAccesoriesPage from "./app/ap/post-venta/repuestos/accesorios-homologados/agregar/page.tsx";
@@ -1297,6 +1303,31 @@ function App() {
               <Route
                 path="gestion-de-almacen/solicitud-compra-almacen/actualizar/:id"
                 element={<UpdateWarehousePurchaseRequestPage />}
+              />
+              {/* Proveedor Almacén */}
+              <Route
+                path="gestion-de-almacen/proveedor-almacen"
+                element={<SuppliersStorePage />}
+              />
+              <Route
+                path="gestion-de-almacen/proveedor-almacen/agregar"
+                element={<AddSupplierStorePage />}
+              />
+              <Route
+                path="gestion-de-almacen/proveedor-almacen/actualizar/:id"
+                element={<UpdateSuppliersStorePage />}
+              />
+              <Route
+                path="gestion-de-almacen/proveedor-almacen/establecimientos/:id"
+                element={<SupplierStoreEstablishmentsListPage />}
+              />
+              <Route
+                path="gestion-de-almacen/proveedor-almacen/establecimientos/:id/agregar"
+                element={<AddSupplierStoreEstablishmentPage />}
+              />
+              <Route
+                path="gestion-de-almacen/proveedor-almacen/establecimientos/:id/actualizar/:establishmentId"
+                element={<UpdateSupplierStoreEstablishmentPage />}
               />
               {/* Repuestos */}
               <Route path="repuestos" element={<SparePartsPage />} />
