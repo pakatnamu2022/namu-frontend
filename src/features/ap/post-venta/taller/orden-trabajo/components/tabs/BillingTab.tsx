@@ -196,7 +196,9 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
       navigate("/ap/post-venta/caja/comprobante-venta-caja");
     },
     onError: (error: any) => {
-      errorToast(error?.message || "Error al crear la factura");
+      const errorMessage =
+        error?.response?.data?.message || "Error al crear la factura";
+      errorToast(errorMessage);
     },
   });
 

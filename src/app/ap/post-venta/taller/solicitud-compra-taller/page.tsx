@@ -70,6 +70,7 @@ export default function PurchaseRequestPVPage() {
       dateFrom && dateTo
         ? [formatDate(dateFrom), formatDate(dateTo)]
         : undefined,
+    warehouse_id: warehouseId,
   });
 
   useEffect(() => {

@@ -20,6 +20,7 @@ import { VehicleResource } from "@/features/ap/comercial/vehiculos/lib/vehicles.
 import { VehicleSchema } from "@/features/ap/comercial/vehiculos/lib/vehicles.schema.ts";
 import { notFound } from "@/shared/hooks/useNotFound.ts";
 import { useVehicleById } from "@/features/ap/comercial/vehiculos/lib/vehicles.hook.ts";
+import { CUSTOMERS_PV } from "@/features/ap/comercial/clientes/lib/customers.constants";
 
 export default function UpdateVehiclePVPage() {
   const { id } = useParams();
@@ -88,6 +89,7 @@ export default function UpdateVehiclePVPage() {
         mode="update"
         vehicleData={vehicle}
         onCancel={() => router(ABSOLUTE_ROUTE!)}
+        routeAdd={CUSTOMERS_PV.ROUTE_ADD}
       />
     </FormWrapper>
   );

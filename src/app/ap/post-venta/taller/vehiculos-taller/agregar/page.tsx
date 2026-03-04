@@ -15,6 +15,7 @@ import { storeVehicle } from "@/features/ap/comercial/vehiculos/lib/vehicles.act
 import TitleFormComponent from "@/shared/components/TitleFormComponent.tsx";
 import { VehiclePVForm } from "@/features/ap/comercial/vehiculos/components/VehiclePVForm.tsx";
 import { notFound } from "@/shared/hooks/useNotFound.ts";
+import { CUSTOMERS_PV } from "@/features/ap/comercial/clientes/lib/customers.constants";
 
 export default function AddVehiclePVPage() {
   const router = useNavigate();
@@ -65,6 +66,7 @@ export default function AddVehiclePVPage() {
         isSubmitting={isPending}
         mode="create"
         onCancel={() => router(ABSOLUTE_ROUTE!)}
+        routeAdd={CUSTOMERS_PV.ROUTE_ADD}
       />
     </FormWrapper>
   );

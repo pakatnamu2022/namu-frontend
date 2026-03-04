@@ -134,6 +134,12 @@ export const PERMISSION_ACTIONS: PermissionAction[] = [
     icon: "Clock",
     description: "Permite ver el historial de acciones o cambios",
   },
+  {
+    value: "maintenance",
+    label: "Mantenimiento",
+    icon: "Tool",
+    description: "Permite acceder a opciones de mantenimiento",
+  },
 ];
 
 /**
@@ -186,5 +192,6 @@ export function useModulePermissions(moduleCode: string) {
     canManage: hasModulePermission("manage"),
     canReceive: hasModulePermission("receive"),
     canViewHistory: hasModulePermission("history"),
+    canMaintenance: hasModulePermission("maintenance"),
   };
 }

@@ -82,6 +82,7 @@ export default function PurchaseRequestRepuestoPage() {
       dateFrom && dateTo
         ? [formatDate(dateFrom), formatDate(dateTo)]
         : undefined,
+    warehouse_id: warehouseId,
   });
 
   const handleDelete = async () => {

@@ -202,6 +202,7 @@ interface FormSelectProps {
   selectOnFocus?: boolean;
   withLenghOne?: boolean;
   candSelect?: boolean;
+  onValueChange?: (value: string) => void;
 }
 
 export function FormSelect({
@@ -228,8 +229,7 @@ export function FormSelect({
   size,
   portalContainer,
   selectOnFocus = true,
-  withLenghOne = false,
-  candSelect = true,
+  onValueChange,
 }: FormSelectProps) {
   const [open, setOpen] = useState(false);
   const isMobile = useIsMobile();
@@ -253,6 +253,7 @@ export function FormSelect({
           const newValue =
             optionValue === field.value && !required ? "" : optionValue;
           field.onChange(newValue);
+          onValueChange?.(newValue);
           setOpen(false);
         };
 

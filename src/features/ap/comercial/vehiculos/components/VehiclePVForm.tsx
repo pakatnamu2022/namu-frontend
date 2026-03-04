@@ -40,7 +40,6 @@ import { useQueryClient } from "@tanstack/react-query";
 import { VEHICLE_COLOR } from "@/features/ap/configuraciones/vehiculos/colores-vehiculo/lib/vehicleColor.constants";
 import { MODELS_VN } from "@/features/ap/configuraciones/vehiculos/modelos-vn/lib/modelsVn.constanst";
 import { useCustomers } from "../../clientes/lib/customers.hook";
-import { CUSTOMERS_PV } from "../../clientes/lib/customers.constants";
 import { CustomersResource } from "../../clientes/lib/customers.interface";
 import { VehicleResource } from "../lib/vehicles.interface";
 import { CM_POSTVENTA_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
@@ -53,6 +52,7 @@ interface VehiclePVFormProps {
   mode?: "create" | "update";
   vehicleData?: VehicleResource; // Datos completos del vehículo cuando se edita
   onCancel?: () => void;
+  routeAdd: string; // Ruta para agregar un nuevo vehículo, se usará en el botón de agregar modelo
 }
 
 export const VehiclePVForm = ({
@@ -62,6 +62,7 @@ export const VehiclePVForm = ({
   mode = "create",
   vehicleData,
   onCancel,
+  routeAdd,
 }: VehiclePVFormProps) => {
   const queryClient = useQueryClient();
   const [isColorModalOpen, setIsColorModalOpen] = useState(false);
@@ -343,7 +344,7 @@ export const VehiclePVForm = ({
               variant="outline"
               size="icon-lg"
               className="aspect-square"
-              onClick={() => window.open(CUSTOMERS_PV.ROUTE_ADD, "_blank")}
+              onClick={() => window.open(routeAdd, "_blank")}
               tooltip="Agregar nuevo cliente"
             >
               <Plus className="h-4 w-4" />

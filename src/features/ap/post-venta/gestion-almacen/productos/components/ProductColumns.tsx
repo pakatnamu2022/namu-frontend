@@ -10,6 +10,7 @@ import {
   SelectItem,
   SelectTrigger,
 } from "@/components/ui/select.tsx";
+import { CopyCell } from "@/shared/components/CopyCell";
 
 export type ProductColumns = ColumnDef<ProductResource>;
 
@@ -38,12 +39,18 @@ export const productColumns = ({
     header: "Cód.",
     cell: ({ getValue }) => {
       const value = getValue() as string;
-      return value && <p className="font-semibold">{value}</p>;
+      return value ? (
+        <CopyCell value={value} className="font-semibold" />
+      ) : null;
     },
   },
   {
     accessorKey: "dyn_code",
     header: "Cód. Dynamic",
+    cell: ({ getValue }) => {
+      const value = getValue() as string;
+      return value ? <CopyCell value={value} /> : null;
+    },
   },
   {
     accessorKey: "name",

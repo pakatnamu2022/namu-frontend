@@ -216,6 +216,7 @@ export const modelsVnPvColumns = ({
               size="icon"
               className="size-7"
               onClick={() => onUpdate(id)}
+              disabled={type_operation_id !== isCommercial}
             >
               <Pencil className="size-5" />
             </Button>
@@ -223,7 +224,10 @@ export const modelsVnPvColumns = ({
 
           {/* Delete */}
           {permissions.canDelete && (
-            <DeleteButton onClick={() => onDelete(id)} />
+            <DeleteButton
+              onClick={() => onDelete(id)}
+              disabled={type_operation_id !== isCommercial}
+            />
           )}
         </div>
       );

@@ -427,7 +427,7 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
           <Button
             onClick={() => setShowAddForm(true)}
             className="gap-2"
-            disabled={items.length === 0}
+            disabled={items.length === 0 || (workOrder?.advances?.length ?? 0) > 0}
           >
             <Plus className="h-4 w-4" />
             Agregar Repuesto
@@ -971,14 +971,16 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
                             )}
                           </>
                         )}
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setDeleteId(part.id)}
-                          className="h-7 w-7 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                        {!globalRequest && !partialRequest && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setDeleteId(part.id)}
+                            className="h-7 w-7 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        )}
                       </div>
                     </TableCell>
                   </TableRow>
