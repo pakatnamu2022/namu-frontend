@@ -230,7 +230,7 @@ export function FormSelect({
   portalContainer,
   selectOnFocus = true,
   onValueChange,
-  withLenghOne = true,
+  withLenghOne = false,
   candSelect = true,
 }: FormSelectProps) {
   const [open, setOpen] = useState(false);
@@ -246,7 +246,7 @@ export function FormSelect({
         // Auto-select if only one option is available
         // eslint-disable-next-line react-hooks/rules-of-hooks
         useEffect(() => {
-          if (selectOnFocus && withLenghOne && !field.value && !disabled) {
+          if (selectOnFocus && withLenghOne && !field.value && !disabled && options.length < 0) {
             field.onChange(options[0].value);
           }
         }, [options, field.value, disabled]);
