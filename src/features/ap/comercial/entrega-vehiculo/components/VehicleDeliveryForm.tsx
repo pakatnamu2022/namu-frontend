@@ -149,80 +149,82 @@ export const VehicleDeliveryForm = ({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-full">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <FormSelect
-            name="ap_class_article_id"
-            label="Clase de Artículo"
-            placeholder="Selecciona una Clase"
-            options={articleClass.map((item) => ({
-              label: item.description,
-              value: item.id.toString(),
-            }))}
-            control={form.control}
-            strictFilter={true}
-          />
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 w-full">
+        {/* Sección: Selección */}
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <FormSelect
+              name="ap_class_article_id"
+              label="Clase de Artículo"
+              placeholder="Selecciona una Clase"
+              options={articleClass.map((item) => ({
+                label: item.description,
+                value: item.id.toString(),
+              }))}
+              control={form.control}
+              strictFilter={true}
+            />
 
-          <FormSelect
-            name="sede_id"
-            label="Sede"
-            placeholder="Selecciona sede"
-            options={mySedes.map((item) => ({
-              label: item.sede,
-              description: item.description,
-              value: item.sede_id.toString(),
-            }))}
-            control={form.control}
-            strictFilter={true}
-            disabled={!watchArticleClassId || isLoadingMySedes}
-          />
+            <FormSelect
+              name="sede_id"
+              label="Sede"
+              placeholder="Selecciona sede"
+              options={mySedes.map((item) => ({
+                label: item.sede,
+                description: item.description,
+                value: item.sede_id.toString(),
+              }))}
+              control={form.control}
+              strictFilter={true}
+              disabled={!watchArticleClassId || isLoadingMySedes}
+            />
 
-          {/* Vehicle Select */}
-          <FormSelectAsync
-            name="vehicle_id"
-            label="Vehículo Facturado"
-            placeholder={
-              watchSedeId
-                ? "Selecciona un vehículo"
-                : "Primero selecciona una sede"
-            }
-            useQueryHook={useVehicles}
-            mapOptionFn={(item) => ({
-              label: item.vin,
-              value: item.id.toString(),
-              description:
-                item.sede_name_warehouse + " - " + item.warehouse_name || "",
-            })}
-            additionalParams={{
-              warehouse$sede_id: watchSedeId ? Number(watchSedeId) : undefined,
-              warehouse$is_received: 1,
-              warehouse$article_class_id: watchArticleClassId,
-              is_paid: 1,
-            }}
-            control={form.control}
-            disabled={!watchSedeId || isLoadingVehicles}
-          />
+            <FormSelectAsync
+              name="vehicle_id"
+              label="Vehículo Facturado"
+              placeholder={
+                watchSedeId
+                  ? "Selecciona un vehículo"
+                  : "Primero selecciona una sede"
+              }
+              useQueryHook={useVehicles}
+              mapOptionFn={(item) => ({
+                label: item.vin,
+                value: item.id.toString(),
+                description:
+                  item.sede_name_warehouse + " - " + item.warehouse_name || "",
+              })}
+              additionalParams={{
+                warehouse$sede_id: watchSedeId ? Number(watchSedeId) : undefined,
+                warehouse$is_received: 1,
+                warehouse$article_class_id: watchArticleClassId,
+                is_paid: 1,
+              }}
+              control={form.control}
+              disabled={!watchSedeId || isLoadingVehicles}
+            />
+          </div>
 
-          {/* Scheduled Delivery Date */}
-          <DateTimePickerForm
-            control={form.control}
-            name="scheduled_delivery_date"
-            label="Fecha y Hora de Entrega Programada"
-            placeholder="Selecciona la fecha y hora de entrega"
-            minDate={new Date()}
-          />
-
-          {/* Wash Date */}
-          <DateTimePickerForm
-            control={form.control}
-            name="wash_date"
-            label="Fecha y Hora de Lavado"
-            placeholder="Selecciona la fecha y hora de lavado"
-            minDate={new Date()}
-          />
+          {/* Fechas en su propia fila */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <DateTimePickerForm
+              control={form.control}
+              name="scheduled_delivery_date"
+              label="Fecha y Hora de Entrega Programada"
+              placeholder="Selecciona la fecha y hora de entrega"
+              minDate={new Date()}
+            />
+            <DateTimePickerForm
+              control={form.control}
+              name="wash_date"
+              label="Fecha y Hora de Lavado"
+              placeholder="Selecciona la fecha y hora de lavado"
+              minDate={new Date()}
+            />
+          </div>
         </div>
 
-        {/* Información del Vehículo, Cliente */}
+        {/* Información del Vehículo y Cliente */}
         {selectedVehicleId && (
           <>
             {isLoadingDebtInfo ? (
@@ -233,43 +235,43 @@ export const VehicleDeliveryForm = ({
                 </div>
               </Card>
             ) : debtInfo ? (
-              <Card className="overflow-hidden shadow-sm">
-                {/* Hero header */}
-                <div
-                  className={`px-5 py-4 flex flex-wrap items-center justify-between gap-3 ${
-                    debtInfo.debt_summary.debt_is_paid
-                      ? "bg-green-600"
-                      : "bg-red-600"
-                  }`}
-                >
+              <Card className="overflow-hidden shadow-sm border-0 ring-1 ring-gray-200">
+                {/* Header con slate oscuro — badge de estado */}
+                <div className="bg-slate-800 px-5 py-4 flex flex-wrap items-center justify-between gap-3">
                   <div className="flex items-center gap-3">
-                    <div className="bg-white/20 p-2 rounded-lg">
+                    <div className="bg-white/10 p-2 rounded-lg">
                       <Car className="h-5 w-5 text-white" />
                     </div>
                     <div>
-                      <p className="text-white/70 text-xs font-medium uppercase tracking-wide">
+                      <p className="text-white/50 text-xs font-medium uppercase tracking-wide">
                         VIN
                       </p>
                       <p className="text-white font-bold text-xl leading-tight">
                         {debtInfo.vehicle.vin}
                       </p>
-                      <p className="text-white/70 text-xs mt-0.5">
+                      <p className="text-white/50 text-xs mt-0.5">
                         {debtInfo.vehicle.model} · {debtInfo.vehicle.year}
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 bg-white/20 px-3.5 py-2 rounded-full border border-white/30">
+                  <div
+                    className={`flex items-center gap-2 px-3.5 py-2 rounded-full border ${
+                      debtInfo.debt_summary.debt_is_paid
+                        ? "bg-green-500/20 border-green-400/40"
+                        : "bg-amber-500/20 border-amber-400/40"
+                    }`}
+                  >
                     {debtInfo.debt_summary.debt_is_paid ? (
                       <>
-                        <CheckCircle2 className="h-4 w-4 text-white" />
-                        <span className="text-white text-sm font-semibold">
+                        <CheckCircle2 className="h-4 w-4 text-green-400" />
+                        <span className="text-green-300 text-sm font-semibold">
                           Deuda Pagada
                         </span>
                       </>
                     ) : (
                       <>
-                        <AlertCircle className="h-4 w-4 text-white" />
-                        <span className="text-white text-sm font-semibold">
+                        <AlertCircle className="h-4 w-4 text-amber-400" />
+                        <span className="text-amber-300 text-sm font-semibold">
                           Deuda Pendiente
                         </span>
                       </>
@@ -280,11 +282,11 @@ export const VehicleDeliveryForm = ({
                 <div className="p-5 space-y-4">
                   {/* Vehicle & Client */}
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                    {/* Vehicle */}
-                    <div className="rounded-xl border border-blue-100 bg-blue-50/40 p-4">
-                      <div className="flex items-center gap-2 mb-3.5 pb-2.5 border-b border-blue-100">
-                        <Car className="h-4 w-4 text-blue-600" />
-                        <h4 className="text-xs font-bold text-blue-700 uppercase tracking-widest">
+                    {/* Vehículo */}
+                    <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-4">
+                      <div className="flex items-center gap-2 mb-3.5 pb-2.5 border-b border-slate-200">
+                        <Car className="h-4 w-4 text-slate-500" />
+                        <h4 className="text-xs font-bold text-slate-600 uppercase tracking-widest">
                           Datos del Vehículo
                         </h4>
                       </div>
@@ -340,11 +342,11 @@ export const VehicleDeliveryForm = ({
                       </div>
                     </div>
 
-                    {/* Client */}
-                    <div className="rounded-xl border border-purple-100 bg-purple-50/40 p-4">
-                      <div className="flex items-center gap-2 mb-3.5 pb-2.5 border-b border-purple-100">
-                        <User className="h-4 w-4 text-purple-600" />
-                        <h4 className="text-xs font-bold text-purple-700 uppercase tracking-widest">
+                    {/* Cliente */}
+                    <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-4">
+                      <div className="flex items-center gap-2 mb-3.5 pb-2.5 border-b border-slate-200">
+                        <User className="h-4 w-4 text-slate-500" />
+                        <h4 className="text-xs font-bold text-slate-600 uppercase tracking-widest">
                           Datos del Cliente
                         </h4>
                       </div>
@@ -385,7 +387,7 @@ export const VehicleDeliveryForm = ({
                     </div>
                   </div>
 
-                  {/* Financial summary */}
+                  {/* Resumen financiero */}
                   <div className="grid grid-cols-3 gap-3">
                     <div className="rounded-xl border bg-white p-3.5 text-center shadow-sm">
                       <p className="text-[10px] text-gray-400 uppercase font-semibold tracking-wide mb-1">
@@ -413,14 +415,14 @@ export const VehicleDeliveryForm = ({
                       className={`rounded-xl border p-3.5 text-center shadow-sm ${
                         debtInfo.debt_summary.debt_is_paid
                           ? "border-green-100 bg-green-50/60"
-                          : "border-red-100 bg-red-50/60"
+                          : "border-amber-100 bg-amber-50/60"
                       }`}
                     >
                       <p
                         className={`text-[10px] uppercase font-semibold tracking-wide mb-1 ${
                           debtInfo.debt_summary.debt_is_paid
                             ? "text-green-600"
-                            : "text-red-600"
+                            : "text-amber-600"
                         }`}
                       >
                         Deuda Pendiente
@@ -429,7 +431,7 @@ export const VehicleDeliveryForm = ({
                         className={`text-base font-bold ${
                           debtInfo.debt_summary.debt_is_paid
                             ? "text-green-700"
-                            : "text-red-700"
+                            : "text-amber-700"
                         }`}
                       >
                         S/ {debtInfo.debt_summary.pending_debt.toFixed(2)}
@@ -438,7 +440,7 @@ export const VehicleDeliveryForm = ({
                         className={`text-[10px] mt-0.5 ${
                           debtInfo.debt_summary.debt_is_paid
                             ? "text-green-500"
-                            : "text-red-500"
+                            : "text-amber-500"
                         }`}
                       >
                         {debtInfo.debt_summary.status}
@@ -446,13 +448,28 @@ export const VehicleDeliveryForm = ({
                     </div>
                   </div>
 
-                  {/* Documents badges */}
+                  {/* Alerta de deuda pendiente */}
+                  {!debtInfo.debt_summary.debt_is_paid && (
+                    <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
+                      <AlertCircle className="h-4 w-4 text-amber-500 mt-0.5 shrink-0" />
+                      <p className="text-sm text-amber-800">
+                        Este vehículo tiene una deuda pendiente de{" "}
+                        <strong>
+                          S/ {debtInfo.debt_summary.pending_debt.toFixed(2)}
+                        </strong>
+                        . No se puede registrar la entrega hasta que sea
+                        cancelada.
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Badges de documentos */}
                   <div className="flex items-center gap-3 flex-wrap bg-gray-50 rounded-xl border px-4 py-2.5">
                     <div className="flex items-center gap-1.5 text-gray-500">
                       <FileText className="h-3.5 w-3.5" />
                       <span className="text-xs font-medium">Documentos:</span>
                     </div>
-                    <span className="text-xs bg-blue-100 text-blue-700 font-semibold px-2.5 py-1 rounded-full">
+                    <span className="text-xs bg-slate-100 text-slate-700 font-semibold px-2.5 py-1 rounded-full">
                       {debtInfo.documents_summary.total_facturas} Factura
                       {debtInfo.documents_summary.total_facturas !== 1
                         ? "s"
@@ -477,7 +494,7 @@ export const VehicleDeliveryForm = ({
           </>
         )}
 
-        {/* Observations */}
+        {/* Observaciones */}
         <FormField
           control={form.control}
           name="observations"
