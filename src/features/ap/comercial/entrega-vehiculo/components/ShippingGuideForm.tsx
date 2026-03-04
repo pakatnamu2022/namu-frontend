@@ -50,7 +50,7 @@ export const ShippingGuideForm = ({
   onCancel,
 }: ShippingGuideFormProps) => {
   const form = useForm<ShippingGuideSchema>({
-    resolver: zodResolver(shippingGuideSchema),
+    resolver: zodResolver(shippingGuideSchema) as any,
     defaultValues: {
       transfer_modality_id: defaultValues?.transfer_modality_id || "",
       driver_doc: defaultValues?.driver_doc || "",

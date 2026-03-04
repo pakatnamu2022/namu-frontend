@@ -14,7 +14,7 @@ export const shippingGuideSchema = z
     driver_name: z.string().optional(),
 
     // Campos para transporte público (transportista RUC)
-    carrier_ruc: z.string().optional(),
+    carrier_ruc: z.coerce.string().optional(),
     company_name_transport: z.string().optional(),
 
     // Placa (obligatoria solo para transporte privado)
