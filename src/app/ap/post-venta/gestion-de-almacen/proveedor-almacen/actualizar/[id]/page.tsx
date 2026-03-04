@@ -13,7 +13,7 @@ import {
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import FormWrapper from "@/shared/components/FormWrapper";
-import { SUPPLIERS } from "@/features/ap/comercial/proveedores/lib/suppliers.constants";
+import { SUPPLIER_WAREHOUSE } from "@/features/ap/comercial/proveedores/lib/suppliers.constants";
 import {
   findSuppliersById,
   updateSuppliers,
@@ -23,12 +23,12 @@ import { SuppliersResource } from "@/features/ap/comercial/proveedores/lib/suppl
 import { SuppliersForm } from "@/features/ap/comercial/proveedores/components/SuppliersForm";
 import { notFound } from "@/shared/hooks/useNotFound";
 
-export default function UpdateSuppliersPage() {
+export default function UpdateSuppliersStorePage() {
   const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();
   const { currentView, checkRouteExists } = useCurrentModule();
-  const { ROUTE, QUERY_KEY, MODEL, ABSOLUTE_ROUTE } = SUPPLIERS;
+  const { ROUTE, QUERY_KEY, MODEL, ABSOLUTE_ROUTE } = SUPPLIER_WAREHOUSE;
 
   const { data: Suppliers, isLoading: loadingSuppliers } = useQuery({
     queryKey: [QUERY_KEY, id],
@@ -56,7 +56,7 @@ export default function UpdateSuppliersPage() {
   };
 
   function mapSuppliersToForm(
-    data: SuppliersResource
+    data: SuppliersResource,
   ): Partial<SuppliersSchema> {
     return {
       first_name: data.first_name,
@@ -109,6 +109,7 @@ export default function UpdateSuppliersPage() {
         onSubmit={handleSubmit}
         isSubmitting={isPending}
         mode="update"
+        onCancel={() => router(ABSOLUTE_ROUTE!)}
       />
     </FormWrapper>
   );

@@ -13,24 +13,24 @@ import {
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import FormWrapper from "@/shared/components/FormWrapper";
-import { ESTABLISHMENTS } from "@/features/ap/comercial/establecimientos/lib/establishments.constants";
+import { SUPPLIER_WAREHOUSE_ESTABLISHMENTS } from "@/features/ap/comercial/establecimientos/lib/establishments.constants";
 import { createEstablishments } from "@/features/ap/comercial/establecimientos/lib/establishments.actions";
 import { EstablishmentsSchema } from "@/features/ap/comercial/establecimientos/lib/establishments.schema";
 import { EstablishmentsForm } from "@/features/ap/comercial/establecimientos/components/EstablishmentsForm";
-import { CUSTOMERS } from "@/features/ap/comercial/clientes/lib/customers.constants";
+import { SUPPLIER_WAREHOUSE } from "@/features/ap/comercial/proveedores/lib/suppliers.constants";
 import { findCustomersById } from "@/features/ap/comercial/clientes/lib/customers.actions";
 import { notFound } from "@/shared/hooks/useNotFound";
 
-export default function AddSupplierEstablishmentPage() {
+export default function AddSupplierStoreEstablishmentPage() {
   const { id } = useParams();
   const router = useNavigate();
   const queryClient = useQueryClient();
   const { currentView, checkRouteExists } = useCurrentModule();
-  const { MODEL, ABSOLUTE_ROUTE } = ESTABLISHMENTS;
+  const { MODEL, ABSOLUTE_ROUTE } = SUPPLIER_WAREHOUSE_ESTABLISHMENTS;
 
   // Get customer data
   const { data: customer, isLoading: loadingCustomer } = useQuery({
-    queryKey: [CUSTOMERS.QUERY_KEY, id],
+    queryKey: [SUPPLIER_WAREHOUSE.QUERY_KEY, id],
     queryFn: () => findCustomersById(Number(id)),
     refetchOnWindowFocus: false,
   });
@@ -40,7 +40,7 @@ export default function AddSupplierEstablishmentPage() {
     onSuccess: async () => {
       successToast(SUCCESS_MESSAGE(MODEL, "create"));
       await queryClient.invalidateQueries({
-        queryKey: [ESTABLISHMENTS.QUERY_KEY],
+        queryKey: [SUPPLIER_WAREHOUSE_ESTABLISHMENTS.QUERY_KEY],
       });
       router(`${ABSOLUTE_ROUTE}/${id}`);
     },
@@ -59,7 +59,7 @@ export default function AddSupplierEstablishmentPage() {
   if (isLoadingAny) {
     return <FormSkeleton />;
   }
-  if (!checkRouteExists(CUSTOMERS.ROUTE)) notFound();
+  if (!checkRouteExists(SUPPLIER_WAREHOUSE.ROUTE)) notFound();
   if (!currentView) notFound();
 
   return (

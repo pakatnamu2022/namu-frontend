@@ -12,16 +12,16 @@ import {
 import FormWrapper from "@/shared/components/FormWrapper";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import { EMPRESA_AP } from "@/core/core.constants";
-import { SUPPLIERS } from "@/features/ap/comercial/proveedores/lib/suppliers.constants";
+import { SUPPLIER_WAREHOUSE } from "@/features/ap/comercial/proveedores/lib/suppliers.constants";
 import { storeSuppliers } from "@/features/ap/comercial/proveedores/lib/suppliers.actions";
 import { SuppliersSchema } from "@/features/ap/comercial/proveedores/lib/suppliers.schema";
 import { SuppliersForm } from "@/features/ap/comercial/proveedores/components/SuppliersForm";
 import { notFound } from "@/shared/hooks/useNotFound";
 
-export default function AddSupplierPage() {
+export default function AddSupplierStorePage() {
   const router = useNavigate();
   const { currentView, checkRouteExists } = useCurrentModule();
-  const { ROUTE, MODEL, ABSOLUTE_ROUTE } = SUPPLIERS;
+  const { ROUTE, MODEL, ABSOLUTE_ROUTE } = SUPPLIER_WAREHOUSE;
 
   const { mutate, isPending } = useMutation({
     mutationFn: storeSuppliers,
@@ -75,6 +75,7 @@ export default function AddSupplierPage() {
         onSubmit={handleSubmit}
         isSubmitting={isPending}
         mode="create"
+        onCancel={() => router(ABSOLUTE_ROUTE!)}
       />
     </FormWrapper>
   );
