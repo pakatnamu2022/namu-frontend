@@ -1,6 +1,5 @@
 import { useNavigate } from "react-router-dom";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
   FileText,
@@ -24,6 +23,7 @@ import ElectronicDocumentMigrationHistory from "./ElectronicDocumentMigrationHis
 import { SUNAT_TYPE_INVOICES_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
 import { AREA_COMERCIAL } from "@/features/ap/ap-master/lib/apMaster.constants";
 import MigrationStatusBadge from "./MigrationStatusBadge";
+import { ButtonAction } from "@/shared/components/ButtonAction";
 
 export type ElectronicDocumentColumn = ColumnDef<ElectronicDocumentResource>;
 
@@ -363,6 +363,7 @@ export const electronicDocumentColumns = ({
           document.aceptada_por_sunat &&
           !document.anulado &&
           onAnnul &&
+          document.is_accounted &&
           document.migration_status === "completed" &&
           permissions.canAnnul;
 
@@ -375,25 +376,26 @@ export const electronicDocumentColumns = ({
           isInvoiceOrBoleta &&
           document.status === "accepted" &&
           document.aceptada_por_sunat &&
+          document.is_accounted &&
           // document.migrated_at &&
           // document.migration_status === "completed" &&
           !document.anulado &&
           !document.credit_note_id &&
           permissions.canCreateCreditNote;
 
+        const canViewMigrationHistory = document.migration_status !== "pending";
+
         const canCreateDebitNote =
           isInvoiceOrBoleta &&
           document.status === "accepted" &&
           document.aceptada_por_sunat &&
           !document.anulado &&
-          document.migrated_at &&
+          !!document.migrated_at &&
           document.migration_status === "completed" &&
           document.items?.some(
             (item) => item.anticipo_regularizacion === true,
           ) &&
           permissions.canCreateDebitNote;
-
-        const canViewMigrationHistory = document.migration_status !== "pending";
 
         const routeToEdit =
           document.sunat_concept_document_type_id ===
@@ -407,106 +409,77 @@ export const electronicDocumentColumns = ({
         return (
           <div className="flex items-center gap-1">
             {/* Ver detalles */}
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-7"
+            <ButtonAction
               onClick={() => onView(document)}
               tooltip="Ver detalles"
-            >
-              <Eye className="h-4 w-4" />
-            </Button>
+              icon={Eye}
+            />
 
             {/* Editar (solo si es borrador) */}
-            {canEdit && (
-              <Button
-                variant="outline"
-                size="icon"
-                className="size-7"
-                onClick={() => router(routeToEdit)}
-                tooltip="Editar"
-              >
-                <Pencil className="h-4 w-4" />
-              </Button>
-            )}
+            <ButtonAction
+              onClick={() => router(routeToEdit)}
+              tooltip="Editar"
+              icon={Pencil}
+              canRender={canEdit}
+            />
 
             {/* Enviar a SUNAT (solo si es borrador) */}
-            {canSendToSunat && (
-              <ConfirmationDialog
-                title="Confirmar envío a SUNAT"
-                description="¿Está seguro de que desea enviar este documento a SUNAT?"
-                onConfirm={() => onSendToSunat(document.id)}
-                icon="info"
-                confirmText="Sí, enviar"
-                cancelText="No, cancelar"
-                trigger={
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="size-7"
-                    tooltip="Enviar a SUNAT"
-                    color="blue"
-                  >
-                    <Send />
-                  </Button>
-                }
-              />
-            )}
+            <ConfirmationDialog
+              title="Confirmar envío a SUNAT"
+              description="¿Está seguro de que desea enviar este documento a SUNAT?"
+              onConfirm={() => onSendToSunat && onSendToSunat(document.id)}
+              icon="info"
+              confirmText="Sí, enviar"
+              cancelText="No, cancelar"
+              trigger={
+                <ButtonAction
+                  tooltip="Enviar a SUNAT"
+                  icon={Send}
+                  canRender={canSendToSunat}
+                  color="blue"
+                />
+              }
+            />
 
             {/* Generar Nota de Crédito */}
-            {canCreateCreditNote && (
-              <Button
-                variant="outline"
-                size="icon"
-                color="blue"
-                className="size-7"
-                onClick={() =>
-                  router(`${ABSOLUTE_ROUTE}/${document.id}/credit-note`)
-                }
-                tooltip="Generar Nota de Crédito"
-              >
-                <FileMinus />
-              </Button>
-            )}
+            <ButtonAction
+              tooltip="Generar Nota de Crédito"
+              icon={FileMinus}
+              canRender={canCreateCreditNote}
+              color="blue"
+              onClick={() =>
+                router(`${ABSOLUTE_ROUTE}/${document.id}/credit-note`)
+              }
+            />
 
             {/* Generar Nota de Débito */}
-            {canCreateDebitNote && (
-              <Button
-                variant="outline"
-                size="icon"
-                className="size-7"
-                onClick={() =>
-                  router(`${ABSOLUTE_ROUTE}/${document.id}/debit-note`)
-                }
-                tooltip="Generar Nota de Débito"
-                color="purple"
-              >
-                <FilePlus />
-              </Button>
-            )}
+            <ButtonAction
+              tooltip="Generar Nota de Débito"
+              icon={FilePlus}
+              canRender={canCreateDebitNote}
+              color="purple"
+              onClick={() =>
+                router(`${ABSOLUTE_ROUTE}/${document.id}/debit-note`)
+              }
+            />
 
             {/* Anular en Nubefact (solo si no está anulado) */}
-            {canAnnul && (
-              <AnnulDocumentDialog
-                onConfirm={(reason) => onAnnul(document.id, reason)}
-                onPreCancel={
-                  onPreCancel
-                    ? async () => await onPreCancel(document.id)
-                    : undefined
-                }
-                trigger={
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="size-7"
-                    tooltip="Anular en Nubefact"
-                    color="orange"
-                  >
-                    <Ban />
-                  </Button>
-                }
-              />
-            )}
+            <AnnulDocumentDialog
+              onConfirm={(reason) => onAnnul && onAnnul(document.id, reason)}
+              onPreCancel={
+                onPreCancel
+                  ? async () => await onPreCancel(document.id)
+                  : undefined
+              }
+              trigger={
+                <ButtonAction
+                  tooltip="Anular en Nubefact"
+                  icon={Ban}
+                  canRender={canAnnul}
+                  color="orange"
+                />
+              }
+            />
 
             {/* Migrar */}
 
@@ -519,15 +492,12 @@ export const electronicDocumentColumns = ({
                 confirmText="Sí, enviar"
                 cancelText="No, cancelar"
                 trigger={
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    color="indigo"
-                    className="size-7"
+                  <ButtonAction
                     tooltip="Migrar"
-                  >
-                    <ArrowRightLeft className="h-4 w-4" />
-                  </Button>
+                    icon={ArrowRightLeft}
+                    canRender={canMigrate}
+                    color="indigo"
+                  />
                 }
               />
             )}

@@ -228,3 +228,45 @@ export interface EventHistoryResponse {
   error?: string;
   proceso_estado?: number;
 }
+
+export interface MigrationAllResponse {
+  total_dispatched: number;
+  dispatched: Dispatched[];
+}
+
+export interface Dispatched {
+  id: number;
+  number: string;
+  migration_status: string;
+  reason: Reason;
+}
+
+export interface Reason {
+  type: string;
+  description: string;
+  steps: (Step | Steps2 | Steps3)[];
+}
+
+export interface Steps3 {
+  step: string;
+  status: string;
+  attempts: number;
+  error: null;
+  last_attempt_at: string;
+}
+
+export interface Steps2 {
+  step: string;
+  status: string;
+  attempts: number;
+  error: string;
+  last_attempt_at: string;
+}
+
+export interface Step {
+  step: string;
+  status: string;
+  attempts: number;
+  error: null;
+  last_attempt_at: null | string;
+}

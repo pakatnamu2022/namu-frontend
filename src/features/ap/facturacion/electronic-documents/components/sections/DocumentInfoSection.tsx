@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { FileText } from "lucide-react";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
@@ -59,18 +59,6 @@ export function DocumentInfoSection({
       form.setValue("client_id", loadedCustomer.id.toString());
     }
   }, [loadedCustomer, form]);
-
-  const defaultOption = useMemo(() => {
-    if (loadedCustomer) {
-      return {
-        value: loadedCustomer.id.toString(),
-        label: `${loadedCustomer.full_name} - ${
-          loadedCustomer.num_doc || "S/N"
-        }`,
-      };
-    }
-    return undefined;
-  }, [loadedCustomer]);
 
   // Filtrar tipos de documento según el document_type_id del cliente
   const filteredDocumentTypes = documentTypes.filter((type) => {
@@ -137,10 +125,8 @@ export function DocumentInfoSection({
               ? "Cliente asignado desde la cotización (puede modificarlo si lo desea)"
               : "Seleccione el cliente"
           }
-          perPage={10}
-          debounceMs={500}
-          disabled={isEdit}
-          defaultOption={defaultOption}
+          useFindByIdHook={useCustomersById}
+          disabled={isEdit || isFromQuotation}
           onValueChange={(_, customer) => {
             // Actualizar el estado con el cliente seleccionado
             const customerResource = customer as CustomersResource | undefined;

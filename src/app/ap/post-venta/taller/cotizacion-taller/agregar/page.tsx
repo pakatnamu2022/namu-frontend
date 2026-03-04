@@ -52,8 +52,8 @@ export default function AddOrderQuotationPage() {
       <OrderQuotationForm
         defaultValues={{
           vehicle_id: "",
-          quotation_date: "",
-          expiration_date: "",
+          quotation_date: undefined,
+          expiration_date: undefined,
           observations: "",
           sede_id: "",
           currency_id: CURRENCY_TYPE_IDS.SOLES,

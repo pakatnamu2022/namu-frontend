@@ -90,16 +90,7 @@ export interface GetVehiclesProps {
 }
 
 export interface VehicleClientDebtInfo {
-  vehicle: {
-    id: number;
-    vin: string;
-    model_code: string;
-    year: number;
-    engine_number: string;
-    engineType: string;
-    model: string;
-    warehouse_physical: string;
-  };
+  vehicle: VehicleResource;
   client: {
     id: number;
     num_doc: string;

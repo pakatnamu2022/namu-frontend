@@ -44,6 +44,26 @@ export const vehicleColumns = ({
     },
   },
   {
+    accessorKey: "vehicle_status",
+    header: "Estado Vehículo",
+    cell: ({ row }) => {
+      const value = row.original.vehicle_status;
+      const statusColor = row.original.status_color;
+      return (
+        value && (
+          <p
+            style={{
+              color: statusColor,
+            }}
+            className="font-semibold py-0.5 px-2 bg-muted rounded-md w-fit text-xs"
+          >
+            {value}
+          </p>
+        )
+      );
+    },
+  },
+  {
     accessorKey: "plate",
     header: "Placa",
   },

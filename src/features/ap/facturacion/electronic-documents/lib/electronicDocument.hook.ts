@@ -64,7 +64,6 @@ export const useAdvancePaymentsByQuotation = (quotationId: number | null) => {
   return useQuery<AdvancePaymentsByQuotationResponse>({
     queryKey: [QUERY_KEY, "advances", "quotation", quotationId],
     queryFn: () => getAdvancePaymentsByQuotation(quotationId!),
-    refetchOnWindowFocus: false,
     enabled: !!quotationId && quotationId > 0,
   });
 };

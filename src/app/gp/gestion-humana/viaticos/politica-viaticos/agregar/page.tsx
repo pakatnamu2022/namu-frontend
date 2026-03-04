@@ -62,8 +62,8 @@ export default function AddPerDiemPolicyPage() {
         defaultValues={{
           version: "",
           name: "",
-          effective_from: "",
-          effective_to: "",
+          effective_from: undefined,
+          effective_to: undefined,
           is_current: false,
           notes: "",
         }}

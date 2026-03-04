@@ -17,6 +17,7 @@ interface AdditionalConfigSectionProps {
   form: UseFormReturn<ElectronicDocumentSchema>;
   checkbooks: ApBankResource[];
   isModuleCommercial?: boolean;
+  useQuotation?: boolean;
 }
 
 export function AdditionalConfigSection({

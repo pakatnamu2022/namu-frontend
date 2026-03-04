@@ -27,7 +27,7 @@ import { AREA_COMERCIAL } from "@/features/ap/ap-master/lib/apMaster.constants";
 import { useSidebar } from "@/components/ui/sidebar";
 
 export default function AddElectronicDocumentPage() {
-  const { ROUTE, MODEL, ABSOLUTE_ROUTE, QUERY_KEY } = ELECTRONIC_DOCUMENT;
+  const { ROUTE, MODEL, ABSOLUTE_ROUTE } = ELECTRONIC_DOCUMENT;
   const router = useNavigate();
   const queryClient = useQueryClient();
   const { currentView, checkRouteExists, isLoadingModule } = useCurrentModule();
@@ -161,12 +161,8 @@ export default function AddElectronicDocumentPage() {
     onSuccess: (_, variables) => {
       if (variables.purchase_request_quote_id) {
         queryClient.invalidateQueries({
-          queryKey: [
-            QUERY_KEY,
-            "advances",
-            "quotation",
-            parseInt(variables.purchase_request_quote_id),
-          ],
+          predicate: () => true,
+          type: "active",
         });
       }
       successToast(SUCCESS_MESSAGE(MODEL, "create"));

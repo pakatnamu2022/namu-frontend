@@ -11,6 +11,7 @@ import {
   getAllConceptDiscountBond,
   getAllPurchaseRequestQuote,
   getPurchaseRequestQuote,
+  swapVehicleInPurchaseRequestQuote,
 } from "./purchaseRequestQuote.actions";
 
 const { QUERY_KEY } = PURCHASE_REQUEST_QUOTE;
@@ -58,6 +59,23 @@ export const useAssignVehicleToPurchaseRequestQuote = () => {
       id: number;
       ap_vehicle_id: number;
     }) => assignVehicleToPurchaseRequestQuote(id, ap_vehicle_id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
+    },
+  });
+};
+
+export const useSwapVehiclePurchaseRequestQuote = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      id,
+      ap_vehicle_id,
+    }: {
+      id: number;
+      ap_vehicle_id: number;
+    }) => swapVehicleInPurchaseRequestQuote(id, ap_vehicle_id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
     },

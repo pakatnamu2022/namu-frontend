@@ -22,11 +22,11 @@ export default function PurchaseRequestQuoteTable({
         data={data}
         isLoading={isLoading}
         initialColumnVisibility={{
+          doc_type_currency:false,
           correlative: true,
           type_document: true,
           doc_sale_price: true,
           sale_price: false,
-          doc_type_currency: true,
           comment: false,
           holder: true,
           client_name: false,
@@ -35,7 +35,7 @@ export default function PurchaseRequestQuoteTable({
           base_selling_price: false,
           warranty: false,
           sede: false,
-          ap_vehicle: false,
+          ap_vehicle: true,
         }}
       >
         {children}

@@ -63,7 +63,7 @@ export default function AddControlUnitsPage() {
             document_series_id: "",
             series: "",
             correlative: "",
-            issue_date: "",
+            issue_date: undefined,
             transmitter_origin_id: "",
             receiver_destination_id: "",
             transmitter_id: "",

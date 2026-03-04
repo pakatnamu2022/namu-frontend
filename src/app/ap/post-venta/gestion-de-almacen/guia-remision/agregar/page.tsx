@@ -52,13 +52,13 @@ export default function AddProductTransferPage() {
       <ProductTransferForm
         defaultValues={{
           document_series_id: "",
-          movement_date: "",
+          movement_date: undefined,
           notes: "",
           driver_name: "",
           driver_doc: "",
           license: "",
           plate: "",
-          issue_date: "",
+          issue_date: undefined,
           issuer_type: "SYSTEM",
           document_type: "GUIA_REMISION",
           transfer_reason_id: SUNAT_CONCEPTS_ID.TRANSFER_REASON_TRASLADO_SEDE,

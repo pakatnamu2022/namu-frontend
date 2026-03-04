@@ -19,7 +19,6 @@ export const useVehicleDelivery = (params?: Record<string, any>) => {
   return useQuery<VehiclesDeliveryResponse>({
     queryKey: [QUERY_KEY, params],
     queryFn: () => getVehiclesDelivery({ params }),
-    refetchOnWindowFocus: false,
   });
 };
 
