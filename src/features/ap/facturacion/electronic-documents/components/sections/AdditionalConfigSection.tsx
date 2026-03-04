@@ -24,7 +24,6 @@ export function AdditionalConfigSection({
   form,
   checkbooks,
   isModuleCommercial = true,
-  useQuotation = false,
 }: AdditionalConfigSectionProps) {
   const medioDePago = form.watch("medio_de_pago");
   const condicionesDePago = form.watch("condiciones_de_pago");
