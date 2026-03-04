@@ -230,6 +230,8 @@ export function FormSelect({
   portalContainer,
   selectOnFocus = true,
   onValueChange,
+  withLenghOne = true,
+  candSelect = true,
 }: FormSelectProps) {
   const [open, setOpen] = useState(false);
   const isMobile = useIsMobile();

@@ -102,8 +102,8 @@ export const ShippingGuideForm = ({
   ]);
 
   const transferModalityId = form.watch("transfer_modality_id");
-  const conductorDni = form.watch("driver_doc");
-  const carrierRuc = form.watch("carrier_ruc");
+  const conductorDni = String(form.watch("driver_doc") ?? "");
+  const carrierRuc = String(form.watch("carrier_ruc") ?? "");
 
   const isPrivateTransport =
     transferModalityId === SUNAT_CONCEPTS_ID.TYPE_TRANSPORTATION_PRIVATE;
