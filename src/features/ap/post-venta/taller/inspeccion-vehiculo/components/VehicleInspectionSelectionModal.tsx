@@ -1,10 +1,5 @@
 import { useState, useEffect } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { GeneralModal } from "@/shared/components/GeneralModal";
 import { Calendar, Car } from "lucide-react";
 import { useVehicleInspection } from "../lib/vehicleInspection.hook";
 import { VehicleInspectionResource } from "../lib/vehicleInspection.interface";
@@ -157,74 +152,71 @@ export const VehicleInspectionSelectionModal = ({
   ];
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[90vw] sm:w-[85vw] md:w-[80vw] lg:w-[75vw] xl:w-[70vw] 2xl:max-w-[1400px] h-[85vh] sm:h-[80vh] md:h-[75vh] lg:h-[80vh] overflow-hidden flex flex-col p-3 sm:p-4 md:p-5 lg:p-6">
-        <DialogHeader>
-          <DialogTitle className="text-lg sm:text-xl">
-            Seleccionar Inspección de Vehículo
-          </DialogTitle>
-        </DialogHeader>
-
-        <div className="flex-1 overflow-auto space-y-3 sm:space-y-4 p-1 sm:p-2">
-          {/* Filtros */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
-            <div className="w-full">
-              <SearchInput
-                value={search}
-                onChange={setSearch}
-                placeholder="Buscar placa o cliente..."
-                label="Buscar"
-              />
-            </div>
-            <div className="w-full">
-              <DatePicker
-                value={dateFrom}
-                onChange={setDateFrom}
-                label="Fecha Desde"
-                placeholder="Fecha Desde"
-                showClearButton={false}
-                captionLayout="dropdown"
-              />
-            </div>
-            <div className="w-full">
-              <DatePicker
-                value={dateTo}
-                onChange={setDateTo}
-                label="Fecha Hasta"
-                placeholder="Fecha Hasta"
-                showClearButton={false}
-                captionLayout="dropdown"
-              />
-            </div>
+    <GeneralModal
+      open={open}
+      onClose={() => onOpenChange(false)}
+      title="Seleccionar Inspección de Vehículo"
+      size="7xl"
+    >
+      <div className="space-y-4">
+        {/* Filtros */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
+          <div className="w-full">
+            <SearchInput
+              value={search}
+              onChange={setSearch}
+              placeholder="Buscar placa o cliente..."
+              label="Buscar"
+            />
           </div>
-
-          {/* Tabla */}
-          <VehicleInspectionSelectionTable
-            columns={columns}
-            data={data?.data || []}
-            isLoading={isLoading}
-            initialColumnVisibility={{
-              vehicle_plate: true,
-              vehicle_vin: true,
-              work_order_correlative: true,
-              inspection_datetime: true,
-              mileage: true,
-              inspected_by_name: true,
-            }}
-            onRowClick={handleRowClick}
-          />
-
-          {/* Paginación */}
-          <DataTablePagination
-            page={page}
-            totalPages={data?.meta?.last_page || 1}
-            totalData={data?.meta?.total || 0}
-            onPageChange={setPage}
-            per_page={per_page}
-            setPerPage={setPerPage}
-          />
+          <div className="w-full">
+            <DatePicker
+              value={dateFrom}
+              onChange={setDateFrom}
+              label="Fecha Desde"
+              placeholder="Fecha Desde"
+              showClearButton={false}
+              captionLayout="dropdown"
+            />
+          </div>
+          <div className="w-full">
+            <DatePicker
+              value={dateTo}
+              onChange={setDateTo}
+              label="Fecha Hasta"
+              placeholder="Fecha Hasta"
+              showClearButton={false}
+              captionLayout="dropdown"
+            />
+          </div>
         </div>
-      </DialogContent>
-    </Dialog>
+
+        {/* Tabla */}
+        <VehicleInspectionSelectionTable
+          columns={columns}
+          data={data?.data || []}
+          isLoading={isLoading}
+          initialColumnVisibility={{
+            vehicle_plate: true,
+            vehicle_vin: true,
+            work_order_correlative: true,
+            inspection_datetime: true,
+            mileage: true,
+            inspected_by_name: true,
+          }}
+          onRowClick={handleRowClick}
+        />
+
+        {/* Paginación */}
+        <DataTablePagination
+          page={page}
+          totalPages={data?.meta?.last_page || 1}
+          totalData={data?.meta?.total || 0}
+          onPageChange={setPage}
+          per_page={per_page}
+          setPerPage={setPerPage}
+        />
+      </div>
+    </GeneralModal>
   );
 };

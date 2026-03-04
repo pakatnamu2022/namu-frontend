@@ -27,8 +27,8 @@ import {
 import { Input } from "@/components/ui/input";
 import {
   PurchaseRequestSchema,
-  purchaseRequestSchemaCreate,
-  purchaseRequestSchemaUpdate,
+  purchaseRequestTallerSchemaCreate,
+  purchaseRequestTallerSchemaUpdate,
   PurchaseRequestDetailSchema,
 } from "../lib/purchaseRequest.schema";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
@@ -40,16 +40,12 @@ import { useInventory } from "@/features/ap/post-venta/gestion-almacen/inventari
 import { InventoryResource } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.interface";
 import { findOrderQuotationById } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.actions";
 import { OrderQuotationResource } from "@/features/ap/post-venta/taller/cotizacion/lib/proforma.interface";
-import { QuotationSelectionModal } from "../../cotizacion/components/QuotationSelectionModal";
 import { errorToast } from "@/core/core.function";
 import { FormInputText } from "@/shared/components/FormInputText";
 import QuotationPartModal from "@/features/ap/post-venta/repuestos/cotizacion-meson/components/QuotationPartModal";
 import { ITEM_TYPE_PRODUCT } from "../../cotizacion-detalle/lib/proformaDetails.constants";
-
-const onSelectSupplyType = [
-  { label: "Lima", value: "LIMA" },
-  { label: "Importación", value: "IMPORTACION" },
-];
+import { QuotationSelectionTallerModal } from "../../cotizacion/components/QuotationSelectionTallerModal";
+import { AREA_TALLER } from "@/features/ap/ap-master/lib/apMaster.constants";
 
 interface PurchaseRequestFormProps {
   defaultValues: Partial<PurchaseRequestSchema>;
@@ -59,9 +55,10 @@ interface PurchaseRequestFormProps {
   onCancel?: () => void;
   showQuotationOption?: boolean;
   allowCreateProduct?: boolean;
+  area_id?: number;
 }
 
-export default function PurchaseRequestForm({
+export default function PurchaseRequestTallerForm({
   defaultValues,
   onSubmit,
   isSubmitting = false,
@@ -69,6 +66,7 @@ export default function PurchaseRequestForm({
   onCancel,
   showQuotationOption = true,
   allowCreateProduct = false,
+  area_id = AREA_TALLER,
 }: PurchaseRequestFormProps) {
   const [details, setDetails] = useState<PurchaseRequestDetailSchema[]>(() => {
     // Transformar los detalles del backend al formato esperado
@@ -98,14 +96,15 @@ export default function PurchaseRequestForm({
   const form = useForm({
     resolver: zodResolver(
       mode === "create"
-        ? purchaseRequestSchemaCreate
-        : purchaseRequestSchemaUpdate,
+        ? purchaseRequestTallerSchemaCreate
+        : purchaseRequestTallerSchemaUpdate,
     ),
     defaultValues: {
       warehouse_id: "",
       requested_date: new Date(),
       observations: "",
       has_appointment: false,
+      area_id,
       ...defaultValues,
       // Usar los details ya transformados
       details: details,
@@ -152,44 +151,40 @@ export default function PurchaseRequestForm({
     }
   }, [form, hasAppointment]);
 
-  const loadQuotationDetails = useCallback(
-    async (quotationId: string) => {
-      try {
-        setIsLoadingQuotations(true);
-        const quotation = await findOrderQuotationById(Number(quotationId));
-        if (!quotation?.details) return;
+  const loadQuotationDetails = useCallback(async (quotationId: string) => {
+    try {
+      setIsLoadingQuotations(true);
+      const quotation = await findOrderQuotationById(Number(quotationId));
+      if (!quotation?.details) return;
 
-        setSelectedQuotationData(quotation);
+      setSelectedQuotationData(quotation);
 
-        const productDetails = quotation.details.filter(
-          (detail) => detail.item_type === ITEM_TYPE_PRODUCT,
-        );
+      const productDetails = quotation.details.filter(
+        (detail) =>
+          detail.item_type === ITEM_TYPE_PRODUCT &&
+          (detail.supply_type === "LIMA" ||
+            detail.supply_type === "IMPORTACION"),
+      );
 
-        const newDetails: PurchaseRequestDetailSchema[] = productDetails.map(
-          (detail) => ({
-            product_id: detail.product_id!.toString(),
-            product_name: detail.product?.name || "",
-            product_code: detail.product?.code || "",
-            quantity: Number(detail.quantity) || 1,
-            notes: "",
-          }),
-        );
+      const newDetails: PurchaseRequestDetailSchema[] = productDetails.map(
+        (detail) => ({
+          product_id: detail.product_id!.toString(),
+          product_name: detail.product?.name || "",
+          product_code: detail.product?.code || "",
+          quantity: Number(detail.quantity) || 1,
+          notes: "",
+        }),
+      );
 
-        setDetails(newDetails);
-
-        if (quotation.supply_type) {
-          form.setValue("supply_type", quotation.supply_type);
-        }
-      } catch (error: any) {
-        const msgError =
-          error?.response?.data?.message || "Error al cargar la cotización.";
-        errorToast(msgError);
-      } finally {
-        setIsLoadingQuotations(false);
-      }
-    },
-    [form],
-  );
+      setDetails(newDetails);
+    } catch (error: any) {
+      const msgError =
+        error?.response?.data?.message || "Error al cargar la cotización.";
+      errorToast(msgError);
+    } finally {
+      setIsLoadingQuotations(false);
+    }
+  }, []);
 
   useEffect(() => {
     if (selectedQuotationId) {
@@ -286,7 +281,7 @@ export default function PurchaseRequestForm({
         {/* Información General */}
         <Card className="p-6">
           <h3 className="text-lg font-semibold mb-4">Información General</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <FormSelect
               name="warehouse_id"
               label="Almacén"
@@ -307,16 +302,6 @@ export default function PurchaseRequestForm({
               dateFormat="dd/MM/yyyy"
               captionLayout="dropdown"
               disabledRange={{ before: new Date() }}
-            />
-
-            <FormSelect
-              control={form.control}
-              name="supply_type"
-              options={onSelectSupplyType}
-              label="Tipo de Abastecimiento"
-              placeholder="Seleccionar un tipo"
-              disabled={!!selectedQuotationId}
-              required
             />
           </div>
 
@@ -394,7 +379,7 @@ export default function PurchaseRequestForm({
 
         {/* Productos */}
         <Card className="p-6">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Package className="h-5 w-5 text-primary" />
               <h3 className="text-lg font-semibold">Productos Solicitados</h3>
@@ -715,7 +700,7 @@ export default function PurchaseRequestForm({
         </div>
 
         {/* Modal de Selección de Cotización */}
-        <QuotationSelectionModal
+        <QuotationSelectionTallerModal
           open={isQuotationModalOpen}
           sedeId={selectedWarehouse?.sede_id}
           onOpenChange={setIsQuotationModalOpen}

@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import { GeneralModal } from "@/shared/components/GeneralModal";
 import { Calendar } from "lucide-react";
-import { useForPurchaseRequest } from "../../cotizacion/lib/proforma.hook";
-import { OrderQuotationResource } from "../../cotizacion/lib/proforma.interface";
+import { useForPurchaseRequest } from "../lib/proforma.hook";
+import { OrderQuotationResource } from "../lib/proforma.interface";
 import { DEFAULT_PER_PAGE } from "@/core/core.constants";
 import DatePicker from "@/shared/components/DatePicker";
 import DataTablePagination from "@/shared/components/DataTablePagination";
-import { QuotationSelectionTable } from "../../cotizacion/components/QuotationSelectionTable";
+import { QuotationSelectionTable } from "./QuotationSelectionTable";
 import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
@@ -15,26 +15,23 @@ import {
   getCurrentDayOfMonth,
   getFirstDayOfMonth,
 } from "@/core/core.function";
-import SearchInput from "@/shared/components/SearchInput";
 
-interface WorkOrderQuotationSelectionModalProps {
+interface QuotationSelectionModalProps {
   open: boolean;
+  sedeId?: number;
   onOpenChange: (open: boolean) => void;
-  onSelectQuotation: (quotationId: number) => void;
-  vehicleId?: string;
+  onSelectQuotation: (quotationId: string) => void;
 }
 
-export const WorkOrderQuotationSelectionModal = ({
+export const QuotationSelectionTallerModal = ({
   open,
+  sedeId,
   onOpenChange,
   onSelectQuotation,
-  vehicleId,
-}: WorkOrderQuotationSelectionModalProps) => {
+}: QuotationSelectionModalProps) => {
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const currentDate = new Date();
-  const [search, setSearch] = useState("");
-
   const [dateFrom, setDateFrom] = useState<Date | undefined>(
     getFirstDayOfMonth(currentDate),
   );
@@ -55,8 +52,7 @@ export const WorkOrderQuotationSelectionModal = ({
   const { data, isLoading } = useForPurchaseRequest({
     page,
     per_page,
-    is_take: 0,
-    vehicle_id: vehicleId,
+    sede_id: sedeId,
     quotation_date:
       dateFrom && dateTo
         ? [formatDate(dateFrom), formatDate(dateTo)]
@@ -64,7 +60,7 @@ export const WorkOrderQuotationSelectionModal = ({
   });
 
   const handleRowClick = (quotation: OrderQuotationResource) => {
-    onSelectQuotation(quotation.id);
+    onSelectQuotation(quotation.id.toString());
     onOpenChange(false);
   };
 
@@ -89,12 +85,21 @@ export const WorkOrderQuotationSelectionModal = ({
       accessorKey: "vehicle",
       header: "Vehículo",
       cell: ({ row }) => {
-        const vehicle = row.original.vehicle;
+        const vehicle = row.original?.vehicle;
+
+        if (!vehicle) {
+          return <span className="text-muted-foreground">-</span>;
+        }
+
+        const plate = vehicle?.plate || vehicle?.vin || "-";
+        const brand = vehicle?.model?.brand || "";
+        const family = vehicle?.model?.family || "";
+
         return (
           <div className="flex flex-col gap-0.5">
-            <span className="font-medium">{vehicle.plate || "-"}</span>
+            <span className="font-medium">{plate}</span>
             <span className="text-xs text-muted-foreground">
-              {vehicle.model?.brand || ""} {vehicle.model?.family || ""}
+              {brand} {family}
             </span>
           </div>
         );
@@ -149,12 +154,6 @@ export const WorkOrderQuotationSelectionModal = ({
       <div className="space-y-4">
         {/* Filtros */}
         <div className="flex items-center gap-2 flex-wrap">
-          <SearchInput
-            label="Buscar Cotización"
-            value={search}
-            onChange={setSearch}
-            placeholder="Buscar orden de trabajo..."
-          />
           <DatePicker
             value={dateFrom}
             onChange={setDateFrom}

@@ -15,6 +15,7 @@ import { ModelsVnPvForm } from "./ModelsVnPvForm";
 import { ModelsVnResource } from "../lib/modelsVn.interface";
 import { ModelsVnPvSchema } from "../lib/modelsVnPv.schema";
 import { useModelVnById } from "../lib/modelsVn.hook";
+import { CLASS_ARTICLE_ID } from "../../../maestros-general/clase-articulo/lib/classArticle.constants";
 
 interface Props {
   id?: number;
@@ -77,6 +78,7 @@ export default function ModelsVnModal({
       brand_id: String(data.brand_id),
       version: data.version,
       type_operation_id: String(CM_POSTVENTA_ID),
+      class_id: String(CLASS_ARTICLE_ID.M_VEH_USA),
     };
   }
 

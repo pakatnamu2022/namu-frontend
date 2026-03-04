@@ -15,6 +15,8 @@ import {
   CheckCircle,
   XCircle,
   Percent,
+  Copy,
+  Check,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -104,6 +106,17 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
   const [selectedWarehouseForAdd, setSelectedWarehouseForAdd] =
     useState<string>("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [copiedPartId, setCopiedPartId] = useState<number | null>(null);
+
+  const handleCopyCode = async (code: string, partId: number) => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopiedPartId(partId);
+      setTimeout(() => setCopiedPartId(null), 2000);
+    } catch (err) {
+      console.error("Error al copiar:", err);
+    }
+  };
 
   // Modal de descuento
   const [modalOpen, setModalOpen] = useState(false);
@@ -427,7 +440,9 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
           <Button
             onClick={() => setShowAddForm(true)}
             className="gap-2"
-            disabled={items.length === 0 || (workOrder?.advances?.length ?? 0) > 0}
+            disabled={
+              items.length === 0 || (workOrder?.advances?.length ?? 0) > 0
+            }
           >
             <Plus className="h-4 w-4" />
             Agregar Repuesto
@@ -843,7 +858,7 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Producto</TableHead>
+                <TableHead>Repuesto</TableHead>
                 <TableHead>Almacén</TableHead>
                 <TableHead>Registrado por</TableHead>
                 <TableHead className="text-center">Cantidad</TableHead>
@@ -860,6 +875,29 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
                   <TableRow key={part.id}>
                     <TableCell>
                       <p className="font-medium">{part.product_name}</p>
+                      {part.product_code && (
+                        <div className="flex items-center gap-1 mt-0.5">
+                          <span className="text-xs text-muted-foreground">
+                            {part.product_code}
+                          </span>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="h-5 w-5 p-0 hover:bg-slate-200"
+                            tooltip="Copiar código"
+                            onClick={() =>
+                              handleCopyCode(part.product_code!, part.id)
+                            }
+                          >
+                            {copiedPartId === part.id ? (
+                              <Check className="h-3 w-3 text-green-600" />
+                            ) : (
+                              <Copy className="h-3 w-3" />
+                            )}
+                          </Button>
+                        </div>
+                      )}
                     </TableCell>
                     <TableCell>
                       <p className="text-sm text-gray-600">

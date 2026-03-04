@@ -11,20 +11,20 @@ import {
 } from "@/core/core.function";
 import FormWrapper from "@/shared/components/FormWrapper";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
+import { EMPRESA_AP } from "@/core/core.constants";
+import { SUPPLIERS } from "@/features/ap/comercial/proveedores/lib/suppliers.constants";
+import { storeSuppliers } from "@/features/ap/comercial/proveedores/lib/suppliers.actions";
+import { SuppliersSchema } from "@/features/ap/comercial/proveedores/lib/suppliers.schema";
+import { SuppliersForm } from "@/features/ap/comercial/proveedores/components/SuppliersForm";
 import { notFound } from "@/shared/hooks/useNotFound";
-import { PURCHASE_REQUEST_REPUESTOS } from "@/features/ap/post-venta/taller/solicitud-compra/lib/purchaseRequest.constants";
-import { AREA_MESON } from "@/features/ap/ap-master/lib/apMaster.constants";
-import PurchaseRequestForm from "@/features/ap/post-venta/taller/solicitud-compra/components/PurchaseRequestForm";
-import { storePurchaseRequest } from "@/features/ap/post-venta/taller/solicitud-compra/lib/purchaseRequest.actions";
-import { PurchaseRequestSchema } from "@/features/ap/post-venta/taller/solicitud-compra/lib/purchaseRequest.schema";
 
-export default function AddPurchaseRequestRepuestoPage() {
+export default function AddSupplierPage() {
   const router = useNavigate();
   const { currentView, checkRouteExists } = useCurrentModule();
-  const { ROUTE, MODEL, ABSOLUTE_ROUTE } = PURCHASE_REQUEST_REPUESTOS;
+  const { ROUTE, MODEL, ABSOLUTE_ROUTE } = SUPPLIERS;
 
   const { mutate, isPending } = useMutation({
-    mutationFn: storePurchaseRequest,
+    mutationFn: storeSuppliers,
     onSuccess: () => {
       successToast(SUCCESS_MESSAGE(MODEL, "create"));
       router(ABSOLUTE_ROUTE!);
@@ -35,10 +35,9 @@ export default function AddPurchaseRequestRepuestoPage() {
     },
   });
 
-  const handleSubmit = (data: PurchaseRequestSchema) => {
+  const handleSubmit = (data: SuppliersSchema) => {
     mutate(data);
   };
-
   if (!checkRouteExists(ROUTE)) notFound();
   if (!currentView) notFound();
 
@@ -49,17 +48,33 @@ export default function AddPurchaseRequestRepuestoPage() {
         mode="create"
         icon={currentView.icon}
       />
-      <PurchaseRequestForm
+      <SuppliersForm
         defaultValues={{
-          supply_type: "LIMA",
-          requested_date: new Date(),
-          observations: "",
-          area_id: AREA_MESON,
+          first_name: "",
+          middle_name: "",
+          paternal_surname: "",
+          maternal_surname: "",
+          full_name: "",
+          num_doc: "",
+          direction: "",
+          email: "",
+          secondary_email: "",
+          phone: "",
+          secondary_phone: "",
+          secondary_phone_contact_name: "",
+          supplier_tax_class_id: "",
+          type_person_id: "",
+          district_id: "",
+          document_type_id: "",
+          person_segment_id: "",
+          company_id: EMPRESA_AP.id,
+          type: "",
+          company_status: "",
+          company_condition: "",
         }}
         onSubmit={handleSubmit}
         isSubmitting={isPending}
         mode="create"
-        onCancel={() => router(ABSOLUTE_ROUTE!)}
       />
     </FormWrapper>
   );
