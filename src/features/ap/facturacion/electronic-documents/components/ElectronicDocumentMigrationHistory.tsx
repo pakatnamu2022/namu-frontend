@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { Badge, BadgeColor } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -89,86 +89,32 @@ export default function ElectronicDocumentMigrationHistory({
   };
 
   const getStatusBadge = (status: string, statusName?: string) => {
-    const variants: Record<
-      string,
-      { bg: string; text: string; hover: string }
-    > = {
-      pending: {
-        bg: "bg-yellow-100",
-        text: "text-yellow-800",
-        hover: "hover:bg-yellow-200",
-      },
-      in_progress: {
-        bg: "bg-blue-100",
-        text: "text-blue-800",
-        hover: "hover:bg-blue-200",
-      },
-      completed: {
-        bg: "bg-green-100",
-        text: "text-green-800",
-        hover: "hover:bg-green-200",
-      },
-      failed: {
-        bg: "bg-red-100",
-        text: "text-red-800",
-        hover: "hover:bg-red-200",
-      },
-      updated_with_nc: {
-        bg: "bg-purple-100",
-        text: "text-purple-800",
-        hover: "hover:bg-purple-200",
-      },
+    const variants: Record<string, BadgeColor> = {
+      pending: "yellow",
+      in_progress: "blue",
+      completed: "green",
+      failed: "red",
+      updated_with_nc: "purple",
     };
 
-    const variant = variants[status] || {
-      bg: "bg-gray-100",
-      text: "text-gray-800",
-      hover: "hover:bg-gray-200",
-    };
+    const variant = variants[status] || "gray";
 
-    return (
-      <Badge
-        className={cn(variant.bg, variant.text, variant.hover, "border-0")}
-      >
-        {statusName || status}
-      </Badge>
-    );
+    return <Badge color={variant}>{statusName || status}</Badge>;
   };
 
   const getProcesoEstadoBadge = (
     procesoEstado: number,
     procesoEstadoName: string,
   ) => {
-    const variants: Record<
-      number,
-      { bg: string; text: string; hover: string }
-    > = {
-      1: {
-        bg: "bg-green-100",
-        text: "text-green-800",
-        hover: "hover:bg-green-200",
-      },
-      2: { bg: "bg-red-100", text: "text-red-800", hover: "hover:bg-red-200" },
-      0: {
-        bg: "bg-yellow-100",
-        text: "text-yellow-800",
-        hover: "hover:bg-yellow-200",
-      },
+    const variants: Record<number, BadgeColor> = {
+      1: "green",
+      2: "red",
+      0: "yellow",
     };
 
-    const variant = variants[procesoEstado] || {
-      bg: "bg-gray-100",
-      text: "text-gray-800",
-      hover: "hover:bg-gray-200",
-    };
+    const variant = variants[procesoEstado] || "gray";
 
-    return (
-      <Badge
-        className={cn(variant.bg, variant.text, variant.hover, "border-0")}
-      >
-        {procesoEstadoName}
-      </Badge>
-    );
+    return <Badge color={variant}>{procesoEstadoName}</Badge>;
   };
 
   const formatDate = (dateString: string) => {

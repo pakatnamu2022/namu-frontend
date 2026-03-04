@@ -394,7 +394,7 @@ export const PurchaseOrderProductsForm = ({
               dateFormat="dd/MM/yyyy"
               captionLayout="dropdown"
               disabledRange={{
-                before: watchedEmissionDate || new Date(),
+                before: watchedEmissionDate instanceof Date ? watchedEmissionDate : new Date(),
               }}
               disabled={true}
             />

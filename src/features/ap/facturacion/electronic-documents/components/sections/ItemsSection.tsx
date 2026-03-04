@@ -306,6 +306,7 @@ export function ItemsSection({
           onEditItem={editItem}
           isAdvancePayment={isAdvancePayment}
           showActions={showActions}
+          canRemoveItem={!useQuotation}
         />
       </GroupFormSection>
 

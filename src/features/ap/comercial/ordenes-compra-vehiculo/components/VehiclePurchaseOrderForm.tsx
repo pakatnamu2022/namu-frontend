@@ -624,6 +624,7 @@ export const VehiclePurchaseOrderForm = ({
                   })}
                   additionalParams={{
                     family$brand_id: form.watch("ap_brand_id"),
+                    type_operation_id: CM_COMERCIAL_ID,
                   }}
                   control={form.control}
                   useFindByIdHook={useModelVnById}

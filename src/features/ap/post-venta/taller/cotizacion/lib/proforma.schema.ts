@@ -10,7 +10,7 @@ export const orderQuotationSchemaCreate = z.object({
     .refine((val) => val !== "", {
       message: "Fecha de cotización es requerida",
     }),
-  expiration_date: z.union([z.literal(""), z.date()]),
+  expiration_date: z.coerce.date(),
   observations: z.string().min(0).max(500).optional(),
   area_id: optionalStringId("Área es requerido"),
   currency_id: requiredStringId("Moneda es requerida"),

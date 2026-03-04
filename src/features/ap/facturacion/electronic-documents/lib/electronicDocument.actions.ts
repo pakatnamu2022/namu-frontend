@@ -13,13 +13,14 @@ import {
   AdvancePaymentsByQuotationResponse,
   ElectronicDocumentMigrationLogsResponse,
   ElectronicDocumentMigrationHistoryResponse,
+  MigrationAllResponse,
 } from "./electronicDocument.interface";
 import { ParamsProps } from "@/core/core.interface";
 
 const { ENDPOINT } = ELECTRONIC_DOCUMENT;
 
 export async function getElectronicDocuments(
-  params?: ParamsProps
+  params?: ParamsProps,
 ): Promise<ElectronicDocumentResponse> {
   const config: AxiosRequestConfig = {
     params: {
@@ -32,7 +33,7 @@ export async function getElectronicDocuments(
 
 export async function getNextCorrelativeElectronicDocument(
   document_type: number,
-  series: number
+  series: number,
 ): Promise<{ number: string }> {
   const config: AxiosRequestConfig = {
     params: {
@@ -42,13 +43,13 @@ export async function getNextCorrelativeElectronicDocument(
   };
   const { data } = await api.get<{ number: string }>(
     `${ENDPOINT}/nextDocumentNumber`,
-    config
+    config,
   );
   return data;
 }
 
 export async function getAllElectronicDocuments(
-  params?: ParamsProps
+  params?: ParamsProps,
 ): Promise<ElectronicDocumentResource[]> {
   const config: AxiosRequestConfig = {
     params: {
@@ -58,16 +59,16 @@ export async function getAllElectronicDocuments(
   };
   const { data } = await api.get<ElectronicDocumentResource[]>(
     ENDPOINT,
-    config
+    config,
   );
   return data;
 }
 
 export async function findElectronicDocumentById(
-  id: number
+  id: number,
 ): Promise<ElectronicDocumentResource> {
   const response = await api.get<ElectronicDocumentResource>(
-    `${ENDPOINT}/${id}`
+    `${ENDPOINT}/${id}`,
   );
   return response.data;
 }
@@ -75,16 +76,16 @@ export async function findElectronicDocumentById(
 export async function getElectronicDocumentsByEntity(
   module: string,
   entityType: string,
-  entityId: number
+  entityId: number,
 ): Promise<ElectronicDocumentResource[]> {
   const response = await api.get<ElectronicDocumentResource[]>(
-    `${ENDPOINT}/by-entity/${module}/${entityType}/${entityId}`
+    `${ENDPOINT}/by-entity/${module}/${entityType}/${entityId}`,
   );
   return response.data;
 }
 
 export async function storeElectronicDocument(
-  data: ElectronicDocumentSchema
+  data: ElectronicDocumentSchema,
 ): Promise<ElectronicDocumentResource> {
   const response = await api.post<ElectronicDocumentResource>(ENDPOINT, data);
   return response.data;
@@ -92,11 +93,11 @@ export async function storeElectronicDocument(
 
 export async function updateElectronicDocument(
   id: number,
-  data: ElectronicDocumentSchema
+  data: ElectronicDocumentSchema,
 ): Promise<ElectronicDocumentResource> {
   const response = await api.put<ElectronicDocumentResource>(
     `${ENDPOINT}/${id}`,
-    data
+    data,
   );
   return response.data;
 }
@@ -106,39 +107,39 @@ export async function deleteElectronicDocument(id: number): Promise<void> {
 }
 
 export async function sendElectronicDocumentToSunat(
-  id: number
+  id: number,
 ): Promise<ElectronicDocumentResource> {
   const response = await api.post<ElectronicDocumentResource>(
-    `${ENDPOINT}/${id}/send`
+    `${ENDPOINT}/${id}/send`,
   );
   return response.data;
 }
 
 export async function queryElectronicDocumentStatus(
-  id: number
+  id: number,
 ): Promise<ElectronicDocumentResource> {
   const response = await api.post<ElectronicDocumentResource>(
-    `${ENDPOINT}/${id}/query`
+    `${ENDPOINT}/${id}/query`,
   );
   return response.data;
 }
 
 export async function preCancelElectronicDocument(
-  id: number
+  id: number,
 ): Promise<{ annulled: boolean }> {
   const response = await api.get<{ annulled: boolean }>(
-    `${ENDPOINT}/${id}/pre-cancel`
+    `${ENDPOINT}/${id}/pre-cancel`,
   );
   return response.data;
 }
 
 export async function cancelElectronicDocument(
   id: number,
-  reason: string
+  reason: string,
 ): Promise<ElectronicDocumentResource> {
   const response = await api.post<ElectronicDocumentResource>(
     `${ENDPOINT}/${id}/cancel`,
-    { reason }
+    { reason },
   );
   return response.data;
 }
@@ -146,7 +147,7 @@ export async function cancelElectronicDocument(
 export async function getNextCreditNoteNumber(
   id: number,
   series: number,
-  document_type: number
+  document_type: number,
 ): Promise<{ number: string }> {
   const config: AxiosRequestConfig = {
     params: {
@@ -157,29 +158,29 @@ export async function getNextCreditNoteNumber(
 
   const response = await api.get<{ number: string }>(
     `${ENDPOINT}/${id}/nextCreditNoteNumber`,
-    config
+    config,
   );
   return response.data;
 }
 
 export async function createCreditNote(
   id: number,
-  data: CreditNoteSchema
+  data: CreditNoteSchema,
 ): Promise<ElectronicDocumentResource> {
   const response = await api.post<ElectronicDocumentResource>(
     `${ENDPOINT}/${id}/credit-note`,
-    data
+    data,
   );
   return response.data;
 }
 
 export async function updateCreditNote(
   id: number,
-  data: CreditNoteSchema
+  data: CreditNoteSchema,
 ): Promise<ElectronicDocumentResource> {
   const response = await api.patch<ElectronicDocumentResource>(
     `${ENDPOINT}/${id}`,
-    data
+    data,
   );
   return response.data;
 }
@@ -187,7 +188,7 @@ export async function updateCreditNote(
 export async function getNextDebitNoteNumber(
   id: number,
   series: number,
-  document_type: number
+  document_type: number,
 ): Promise<{ number: string }> {
   const config: AxiosRequestConfig = {
     params: {
@@ -198,7 +199,7 @@ export async function getNextDebitNoteNumber(
 
   const response = await api.get<{ number: string }>(
     `${ENDPOINT}/${id}/nextDebitNoteNumber`,
-    config
+    config,
   );
   return response.data;
 }
@@ -209,12 +210,12 @@ export async function getNextDebitNoteNumber(
 function enrichDebitNotePayload(
   documentId: number,
   data: DebitNoteSchema,
-  fecha_de_emision: string
+  fecha_de_emision: string,
 ) {
   return {
     original_document_id: documentId,
     sunat_concept_debit_note_type_id: Number(
-      data.sunat_concept_debit_note_type_id
+      data.sunat_concept_debit_note_type_id,
     ),
     series: Number(data.series),
     fecha_de_emision: fecha_de_emision,
@@ -228,57 +229,62 @@ function enrichDebitNotePayload(
 export async function createDebitNote(
   id: number,
   data: DebitNoteSchema,
-  fecha_de_emision: string
+  fecha_de_emision: string,
 ): Promise<ElectronicDocumentResource> {
   const payload = enrichDebitNotePayload(id, data, fecha_de_emision);
   const response = await api.post<ElectronicDocumentResource>(
     `${ENDPOINT}/${id}/debit-note`,
-    payload
+    payload,
   );
   return response.data;
 }
 
 export async function getAdvancePaymentsByVehicle(
-  vehicleId: number
+  vehicleId: number,
 ): Promise<AdvancePaymentsByQuotationResponse> {
   const response = await api.get<AdvancePaymentsByQuotationResponse>(
-    `/ap/commercial/vehicles/${vehicleId}/invoices`
+    `/ap/commercial/vehicles/${vehicleId}/invoices`,
   );
   return response.data;
 }
 
 export async function getAdvancePaymentsByQuotation(
-  quotationId: number
+  quotationId: number,
 ): Promise<AdvancePaymentsByQuotationResponse> {
   const response = await api.get<AdvancePaymentsByQuotationResponse>(
-    `/ap/commercial/purchaseRequestQuote/${quotationId}/invoices`
+    `/ap/commercial/purchaseRequestQuote/${quotationId}/invoices`,
   );
   return response.data;
 }
 
 export async function getMigrationLogs(
-  purchaseOrderId: number
+  purchaseOrderId: number,
 ): Promise<ElectronicDocumentMigrationLogsResponse> {
   const { data } = await api.get<ElectronicDocumentMigrationLogsResponse>(
-    `${ENDPOINT}/${purchaseOrderId}/logs`
+    `${ENDPOINT}/${purchaseOrderId}/logs`,
   );
   return data;
 }
 
 export async function getMigrationHistory(
-  purchaseOrderId: number
+  purchaseOrderId: number,
 ): Promise<ElectronicDocumentMigrationHistoryResponse> {
   const { data } = await api.get<ElectronicDocumentMigrationHistoryResponse>(
-    `${ENDPOINT}/${purchaseOrderId}/history`
+    `${ENDPOINT}/${purchaseOrderId}/history`,
   );
   return data;
 }
 
-export async function dispatchAllElectronicDocuments(): Promise<void> {
-  await api.post(`${ENDPOINT}/dispatch-all`);
+export async function dispatchAllElectronicDocuments(): Promise<MigrationAllResponse> {
+  const { data } = await api.post<MigrationAllResponse>(
+    `${ENDPOINT}/dispatch-all`,
+  );
+  return data;
 }
 
-export async function dispatchElectronicDocumentMigration(id: number): Promise<void> {
+export async function dispatchElectronicDocumentMigration(
+  id: number,
+): Promise<void> {
   await api.post(`${ENDPOINT}/${id}/dispatch-migration`);
 }
 

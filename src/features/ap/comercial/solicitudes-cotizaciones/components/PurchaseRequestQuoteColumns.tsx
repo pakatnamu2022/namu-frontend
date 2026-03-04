@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-import { FileText, Pencil, Check, Car, Link2Off, Eye } from "lucide-react";
+import { FileText, Pencil, Check, Car, Link2Off, Eye, ArrowLeftRight } from "lucide-react";
 import { NumberFormat } from "@/shared/components/NumberFormat";
 import { PurchaseRequestQuoteResource } from "../lib/purchaseRequestQuote.interface";
 import { PURCHASE_REQUEST_QUOTE } from "../lib/purchaseRequestQuote.constants";
@@ -15,6 +15,7 @@ interface Props {
   onDownloadPdf: (id: number) => void;
   onAssignVehicle: (purchaseRequestQuote: PurchaseRequestQuoteResource) => void;
   onUnassignVehicle: (id: number) => void;
+  onSwapVehicle: (purchaseRequestQuote: PurchaseRequestQuoteResource) => void;
   onViewDetail: (id: number) => void;
   permissions: {
     canUpdate: boolean;
@@ -29,6 +30,7 @@ export const purchaseRequestQuoteColumns = ({
   onDownloadPdf,
   onAssignVehicle,
   onUnassignVehicle,
+  onSwapVehicle,
   onViewDetail,
   permissions,
 }: Props): PurchaseRequestQuoteColumns[] => [
@@ -42,16 +44,21 @@ export const purchaseRequestQuoteColumns = ({
   },
   {
     accessorKey: "doc_type_currency",
-    header: "Moneda Facturado",
+    header: "Moneda",
   },
   {
     accessorKey: "doc_sale_price",
-    header: "Precio de Venta Facturado",
-    cell: ({ getValue }) => <NumberFormat value={getValue() as number} />,
+    header: "P. Venta",
+    cell: ({ row }) => (
+      <NumberFormat
+        prefix={row.original.doc_type_currency}
+        value={row.original.doc_sale_price as number}
+      />
+    ),
   },
   {
     accessorKey: "sale_price",
-    header: "Precio de Venta",
+    header: "P. Venta Vehículo",
     cell: ({ getValue }) => <NumberFormat value={getValue() as number} />,
   },
   {
@@ -63,6 +70,10 @@ export const purchaseRequestQuoteColumns = ({
     header: "Titular",
   },
   {
+    accessorKey: "client_name",
+    header: "Cliente",
+  },
+  {
     accessorKey: "consultant.name",
     header: "Asesor",
   },
@@ -72,18 +83,23 @@ export const purchaseRequestQuoteColumns = ({
     cell: ({ getValue }) => {
       const isApproved = getValue() as boolean;
       return (
-        <Badge
-          color={isApproved ? "default" : "secondary"}
-          className={isApproved ? "bg-primary" : "bg-secondary"}
-        >
+        <Badge color={isApproved ? "blue" : "red"}>
           {isApproved ? "Sí" : "No"}
         </Badge>
       );
     },
   },
   {
-    accessorKey: "client_name",
-    header: "Cliente",
+    accessorKey: "is_paid",
+    header: "Pagado",
+    cell: ({ getValue }) => {
+      const is_paid = getValue() as boolean;
+      return (
+        <Badge variant="outline" color={is_paid ? "green" : "red"}>
+          {is_paid ? "Sí" : "No"}
+        </Badge>
+      );
+    },
   },
   {
     accessorKey: "exchange_rate",
@@ -110,11 +126,9 @@ export const purchaseRequestQuoteColumns = ({
     accessorKey: "ap_vehicle",
     header: "Vehículo Asignado",
     cell: ({ getValue }) => {
-      const vehicle = getValue() as PurchaseRequestQuoteResource["ap_vehicle"];
+      const vehicle = getValue() as string;
       return vehicle ? (
-        <p>
-          {vehicle.model.version} - {vehicle.vin}
-        </p>
+        <p>{vehicle}</p>
       ) : (
         <p className="italic text-muted-foreground">No asignado</p>
       );
@@ -130,6 +144,14 @@ export const purchaseRequestQuoteColumns = ({
       const isApproved = Boolean(is_approved);
       const hasVehicle = Boolean(row.original.ap_vehicle_id);
 
+      const canAssignVehicle = permissions.canAssign && !hasVehicle;
+      const canUnassignVehicle =
+        permissions.canAssign && hasVehicle && !row.original.is_paid;
+      const canSwapVehicle =
+        permissions.canAssign && hasVehicle && !row.original.is_paid;
+      const canEdit =
+        permissions.canUpdate && !row.original.is_invoiced && !hasVehicle;
+
       return (
         <div className="flex items-center gap-2">
           {/* View Detail */}
@@ -144,7 +166,7 @@ export const purchaseRequestQuoteColumns = ({
           </Button>
 
           {/* Assign Vehicle */}
-          {permissions.canAssign && !hasVehicle && (
+          {canAssignVehicle && (
             <Button
               variant="outline"
               size="icon"
@@ -156,8 +178,21 @@ export const purchaseRequestQuoteColumns = ({
             </Button>
           )}
 
+          {/* Swap Vehicle */}
+          {canSwapVehicle && (
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-7"
+              tooltip="Cambiar Vehículo"
+              onClick={() => onSwapVehicle(row.original)}
+            >
+              <ArrowLeftRight className="size-5" />
+            </Button>
+          )}
+
           {/* Unassign Vehicle */}
-          {permissions.canAssign && hasVehicle && (
+          {canUnassignVehicle && (
             <Button
               variant="outline"
               size="icon"
@@ -168,7 +203,6 @@ export const purchaseRequestQuoteColumns = ({
               <Link2Off className="size-5" />
             </Button>
           )}
-
           {/* PDF - Only show if user has export permission */}
           {permissions.canExport && (
             <Button
@@ -181,9 +215,8 @@ export const purchaseRequestQuoteColumns = ({
               <FileText className="size-5" />
             </Button>
           )}
-
           {/* Edit - Only show if user has update permission */}
-          {permissions.canUpdate && (
+          {canEdit && (
             <Button
               variant="outline"
               size="icon"
@@ -194,7 +227,6 @@ export const purchaseRequestQuoteColumns = ({
               <Pencil className="size-5" />
             </Button>
           )}
-
           {/* Approve - Only show if user has approve permission */}
           {permissions.canApprove && (
             <Button

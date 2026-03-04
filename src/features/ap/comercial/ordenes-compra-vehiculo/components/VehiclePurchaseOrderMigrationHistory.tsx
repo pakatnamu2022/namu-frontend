@@ -152,7 +152,7 @@ const formatDate = (dateString: string) => {
   }
 };
 
-const migrationLogsColumns: ColumnDef<MigrationLog>[] = [
+const getMigrationLogsColumns = (): ColumnDef<MigrationLog>[] => [
   {
     accessorKey: "step",
     header: "Paso",
@@ -202,17 +202,6 @@ const migrationLogsColumns: ColumnDef<MigrationLog>[] = [
     accessorKey: "attempts",
     header: "Intentos",
     cell: ({ row }) => <Badge variant="outline">{row.original.attempts}</Badge>,
-  },
-  {
-    accessorKey: "completed_at",
-    header: "Completado",
-    cell: ({ row }) => (
-      <span className="text-xs">
-        {row.original.completed_at
-          ? formatDate(row.original.completed_at)
-          : "-"}
-      </span>
-    ),
   },
 ];
 
@@ -354,7 +343,7 @@ export default function VehiclePurchaseOrderMigrationHistory({
 
                   {/* Logs Table */}
                   <DataTable
-                    columns={migrationLogsColumns}
+                    columns={getMigrationLogsColumns()}
                     data={logsTableData}
                     variant="simple"
                     isVisibleColumnFilter={false}

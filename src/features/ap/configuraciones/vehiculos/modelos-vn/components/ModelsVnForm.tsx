@@ -274,6 +274,7 @@ export const ModelsVnForm = ({
               placeholder="Ej: X7 PLUS LIMITED 1.5 MT 4X2"
               control={form.control}
               disabled={isLoadingbrands}
+              uppercase
             />
             <FormSelect
               name="class_id"
@@ -406,7 +407,6 @@ export const ModelsVnForm = ({
               label="Núm. Asientos"
               placeholder="Ej: 0.00"
               control={form.control}
-              type="number"
             />
 
             <FormInput
@@ -490,6 +490,9 @@ export const ModelsVnForm = ({
                 value: currencyType.id.toString(),
               }))}
               control={form.control}
+              selectOnFocus
+              withLenghOne
+              candSelect={false}
             />
 
             <FormInput
@@ -581,10 +584,7 @@ export const ModelsVnForm = ({
             onConfirm={onCancel}
           />
 
-          <Button
-            type="submit"
-            disabled={isSubmitting || !form.formState.isValid}
-          >
+          <Button type="submit" disabled={isSubmitting}>
             <Loader
               className={`mr-2 h-4 w-4 ${!isSubmitting ? "hidden" : ""}`}
             />

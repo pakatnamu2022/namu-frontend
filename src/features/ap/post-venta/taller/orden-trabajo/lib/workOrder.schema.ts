@@ -16,7 +16,7 @@ export const workOrderSchemaCreate = z
     vehicle_inspection_id: z.string().optional(),
     vehicle_id: requiredStringId("Vehículo es requerido"),
     sede_id: requiredStringId("Sede es requerida"),
-    opening_date: z.union([z.literal(""), z.date()]),
+    opening_date: z.coerce.date(),
     currency_id: requiredStringId("Moneda es requerida"),
     estimated_delivery_date: z
       .union([z.literal(""), z.date()])

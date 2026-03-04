@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { Badge } from "@/components/ui/badge";
+import { Badge, BadgeColor } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,6 +16,7 @@ import {
   Ban,
   SearchCheck,
   Loader2,
+  LucideIcon,
 } from "lucide-react";
 import type { ElectronicDocumentResource } from "../lib/electronicDocument.interface";
 import {
@@ -72,36 +73,38 @@ export function ElectronicDocumentDetailSheet({
         ? "$"
         : "";
 
-  const statusConfig = {
+  const statusConfig: Record<
+    string,
+    { label: string; icon: LucideIcon; color: BadgeColor }
+  > = {
     draft: {
       label: "Borrador",
       icon: FileText,
-      className: "bg-gray-100 text-gray-700 border-gray-300",
+      color: "gray",
     },
     sent: {
       label: "Enviado",
       icon: Send,
-      className: "bg-blue-100 text-blue-700 border-blue-300",
+      color: "blue",
     },
     accepted: {
       label: "Aceptado",
       icon: CheckCircle,
-      className: "bg-green-100 text-green-700 border-green-300",
+      color: "green",
     },
     rejected: {
       label: "Rechazado",
       icon: XCircle,
-      className: "bg-red-100 text-red-700 border-red-300",
+      color: "red",
     },
     cancelled: {
       label: "Anulado",
       icon: Ban,
-      className: "bg-orange-100 text-orange-700 border-orange-300",
+      color: "orange",
     },
   };
 
   const config = statusConfig[document.status as keyof typeof statusConfig];
-  const StatusIcon = config?.icon || FileText;
 
   return (
     <GeneralSheet
@@ -117,11 +120,7 @@ export function ElectronicDocumentDetailSheet({
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <p className="text-sm font-medium text-muted-foreground">Estado</p>
-            <Badge
-              variant="outline"
-              className={`${config?.className} flex items-center gap-1 w-fit`}
-            >
-              <StatusIcon className="h-3 w-3" />
+            <Badge variant="outline" color={config?.color} icon={config.icon}>
               <span>{config?.label}</span>
             </Badge>
           </div>

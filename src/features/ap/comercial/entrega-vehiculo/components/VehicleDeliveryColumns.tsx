@@ -26,6 +26,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import ShippingGuideHistory from "../../envios-recepciones/components/ShippingGuideHistory";
+import { ButtonAction } from "@/shared/components/ButtonAction";
 
 export type VehicleDeliveryColumns = ColumnDef<VehiclesDeliveryResource>;
 
@@ -267,7 +268,7 @@ export const vehicleDeliveryColumns = ({
         status_dynamic,
       } = row.original;
       const router = useNavigate();
-      const { ABSOLUTE_ROUTE} = VEHICLE_DELIVERY;
+      const { ABSOLUTE_ROUTE } = VEHICLE_DELIVERY;
 
       // Verificar si fue enviado y aceptado por SUNAT
       const isAcceptedBySunat = sent_at && aceptada_por_sunat === true;
@@ -290,18 +291,14 @@ export const vehicleDeliveryColumns = ({
             <ShippingGuideHistory shippingGuideId={shipping_guide_id} />
           )}
 
-          {/* Guía de Remisión */}
-          {!sent_at && (
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-7"
-              tooltip="Guía de Remisión"
-              onClick={() => router(`${ABSOLUTE_ROUTE}/guia-remision/${id}`)}
-            >
-              <FileText className="size-4" />
-            </Button>
-          )}
+          <ButtonAction
+            tooltip="Guía de Remisión"
+            onClick={() => router(`${ABSOLUTE_ROUTE}/guia-remision/${id}`)}
+            icon={FileText}
+            color="cyan"
+            variant="default"
+            canRender={!sent_at}
+          />
 
           {/* Enviar a Nubefact - Solo si hay guía generada y NO ha sido aceptado por SUNAT */}
           {shipping_guide_id && !isAcceptedBySunat && (

@@ -33,6 +33,7 @@ import PurchaseRequestQuoteTable from "@/features/ap/comercial/solicitudes-cotiz
 import { purchaseRequestQuoteColumns } from "@/features/ap/comercial/solicitudes-cotizaciones/components/PurchaseRequestQuoteColumns";
 import PurchaseRequestQuoteOptions from "@/features/ap/comercial/solicitudes-cotizaciones/components/PurchaseRequestQuoteOptions";
 import AssignVehicleModal from "@/features/ap/comercial/solicitudes-cotizaciones/components/AssignVehicleModal";
+import SwapVehicleModal from "@/features/ap/comercial/solicitudes-cotizaciones/components/SwapVehicleModal";
 import PurchaseRequestQuoteDetailModal from "@/features/ap/comercial/solicitudes-cotizaciones/components/PurchaseRequestQuoteDetailModal";
 import { PurchaseRequestQuoteResource } from "@/features/ap/comercial/solicitudes-cotizaciones/lib/purchaseRequestQuote.interface";
 import { notFound } from "@/shared/hooks/useNotFound";
@@ -47,7 +48,11 @@ export default function PurchaseRequestQuotePage() {
   const [search, setSearch] = useState("");
   const [sedeId, setSedeId] = useState("");
   const [approveId, setApproveId] = useState<number | null>(null);
+  const [selectedModelId, setSelectedModelId] = useState<string>("");
+  const [selectedBrandId, setSelectedBrandId] = useState<string>("");
   const [assignVehicleQuote, setAssignVehicleQuote] =
+    useState<PurchaseRequestQuoteResource | null>(null);
+  const [swapVehicleQuote, setSwapVehicleQuote] =
     useState<PurchaseRequestQuoteResource | null>(null);
   const [unassignVehicleId, setUnassignVehicleId] = useState<number | null>(
     null,
@@ -77,6 +82,8 @@ export default function PurchaseRequestQuotePage() {
     status: STATUS_ACTIVE,
     created_to: [formattedDateFrom, formattedDateTo],
     sede_id: sedeId,
+    ap_models_vn_id: selectedModelId,
+    apModelsVn$family$brand_id: selectedBrandId,
   });
 
   const handleApprove = async () => {
@@ -137,6 +144,7 @@ export default function PurchaseRequestQuotePage() {
           onDownloadPdf: handleDownloadPdf,
           onAssignVehicle: setAssignVehicleQuote,
           onUnassignVehicle: setUnassignVehicleId,
+          onSwapVehicle: setSwapVehicleQuote,
           onViewDetail: setDetailQuote,
           permissions,
         })}
@@ -155,6 +163,10 @@ export default function PurchaseRequestQuotePage() {
           setSedeId={setSedeId}
           sedes={sedesData}
           canViewBranches={canViewBranches}
+          selectedModelId={selectedModelId}
+          setSelectedModelId={setSelectedModelId}
+          selectedBrandId={selectedBrandId}
+          setSelectedBrandId={setSelectedBrandId}
         />
       </PurchaseRequestQuoteTable>
 
@@ -186,6 +198,14 @@ export default function PurchaseRequestQuotePage() {
           open={true}
           onOpenChange={(open) => !open && setAssignVehicleQuote(null)}
           quote={assignVehicleQuote}
+        />
+      )}
+
+      {swapVehicleQuote !== null && (
+        <SwapVehicleModal
+          open={true}
+          onOpenChange={(open) => !open && setSwapVehicleQuote(null)}
+          quote={swapVehicleQuote}
         />
       )}
 

@@ -97,6 +97,10 @@ export async function getMigrationHistory(
   return data;
 }
 
+export async function resetMigrationLog(logId: number): Promise<void> {
+  await api.post(`${ENDPOINT}/migration/logs/${logId}/reset`);
+}
+
 export async function resendVehiclePurchaseOrder(
   id: number,
   data: any,

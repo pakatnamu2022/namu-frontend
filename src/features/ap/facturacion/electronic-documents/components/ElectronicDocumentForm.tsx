@@ -678,7 +678,11 @@ MODELO: ${vehicle?.model?.version || ``}
             />
 
             {/* Configuración Adicional */}
-            <AdditionalConfigSection form={form} checkbooks={checkbooks} />
+            <AdditionalConfigSection
+              form={form}
+              checkbooks={checkbooks}
+              useQuotation={useQuotation}
+            />
           </div>
 
           {/* Resumen tipo Recibo - 1/3 del ancho */}
