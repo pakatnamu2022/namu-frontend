@@ -32,6 +32,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import WorkOrderLabourForm from "@/features/ap/post-venta/taller/orden-trabajo-labor/components/WorkOrderLabourForm";
+import { EditableCell } from "@/shared/components/EditableCell";
 import {
   useGetAllWorkOrderLabour,
   useUpdateWorkOrderLabour,
@@ -130,6 +131,36 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
         discount_percentage: labour.discount_percentage,
         work_order_id: labour.work_order_id,
         worker_id: newWorkerId,
+        group_number: labour.group_number,
+      },
+    });
+  };
+
+  const handleTimeSpentChange = (labour: any, newValue: any) => {
+    updateGroupMutation.mutate({
+      id: labour.id,
+      data: {
+        description: labour.description,
+        time_spent: String(newValue),
+        hourly_rate: labour.hourly_rate,
+        discount_percentage: labour.discount_percentage,
+        work_order_id: labour.work_order_id,
+        worker_id: labour.worker_id,
+        group_number: labour.group_number,
+      },
+    });
+  };
+
+  const handleHourlyRateChange = (labour: any, newValue: any) => {
+    updateGroupMutation.mutate({
+      id: labour.id,
+      data: {
+        description: labour.description,
+        time_spent: labour.time_spent,
+        hourly_rate: String(newValue),
+        discount_percentage: labour.discount_percentage,
+        work_order_id: labour.work_order_id,
+        worker_id: labour.worker_id,
         group_number: labour.group_number,
       },
     });
@@ -615,11 +646,29 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
                         </Select>
                       </TableCell>
                       <TableCell className="text-right">
-                        {labour.time_spent}
+                        <div className="flex justify-end">
+                          <EditableCell
+                            id={labour.id}
+                            value={labour.time_spent}
+                            onUpdate={(_, v) => handleTimeSpentChange(labour, v)}
+                            widthClass="w-20"
+                            min={0}
+                          />
+                        </div>
                       </TableCell>
                       <TableCell className="text-right">
-                        {workOrder?.type_currency?.symbol || "S/"}{" "}
-                        {labour.hourly_rate}
+                        <div className="flex justify-end items-center gap-1">
+                          <span className="text-sm text-muted-foreground">
+                            {workOrder?.type_currency?.symbol || "S/"}
+                          </span>
+                          <EditableCell
+                            id={labour.id}
+                            value={labour.hourly_rate}
+                            onUpdate={(_, v) => handleHourlyRateChange(labour, v)}
+                            widthClass="w-20"
+                            min={0}
+                          />
+                        </div>
                       </TableCell>
                       <TableCell className="text-right text-orange-600">
                         -{labour.discount_percentage}%

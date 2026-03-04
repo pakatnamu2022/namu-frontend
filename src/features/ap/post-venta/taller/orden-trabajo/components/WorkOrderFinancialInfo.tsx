@@ -23,12 +23,12 @@ export function WorkOrderFinancialInfo({
 }: WorkOrderFinancialInfoProps) {
   // Calcular subtotal de la orden de trabajo desde labours y parts (sin IGV)
   const laboursTotal = labours.reduce(
-    (sum, labour) => sum + (parseFloat(labour.total_cost || "0")),
+    (sum, labour) => sum + parseFloat(labour.total_cost || "0"),
     0,
   );
 
   const partsTotal = parts.reduce(
-    (sum, part) => sum + (parseFloat(part.total_amount || "0")),
+    (sum, part) => sum + parseFloat(part.total_amount || "0"),
     0,
   );
 
@@ -133,18 +133,28 @@ export function WorkOrderFinancialInfo({
               {advances.map((advance) => (
                 <div
                   key={advance.id}
-                  className="flex items-center justify-between text-xs py-1 px-2 rounded bg-muted/30"
+                  className="p-2 rounded bg-muted/20 border border-muted space-y-1.5"
                 >
-                  <span className="text-foreground">
-                    {advance.serie}-{advance.numero}
-                  </span>
-                  <span className="font-medium text-foreground">
-                    {advance.sunat_concept_document_type_id ===
-                    SUNAT_TYPE_INVOICES_ID.NOTA_CREDITO
-                      ? "- "
-                      : ""}
-                    {currencySymbol} {Number(advance.total).toFixed(2)}
-                  </span>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-medium text-foreground">
+                      {advance.serie}-{advance.numero}
+                    </span>
+                    <span className="text-xs font-bold text-foreground">
+                      {advance.sunat_concept_document_type_id ===
+                      SUNAT_TYPE_INVOICES_ID.NOTA_CREDITO
+                        ? "- "
+                        : ""}
+                      {currencySymbol} {Number(advance.total).toFixed(2)}
+                    </span>
+                  </div>
+                  {advance.cliente_denominacion && (
+                    <div className="text-xs text-muted-foreground">
+                      <p className="font-medium">
+                        {advance.cliente_denominacion}
+                      </p>
+                      <p>RUC: {advance.cliente_numero_de_documento}</p>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
