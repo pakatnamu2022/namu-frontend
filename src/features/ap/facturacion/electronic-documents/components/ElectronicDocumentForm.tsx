@@ -40,7 +40,6 @@ interface ElectronicDocumentFormProps {
   identityDocumentTypes?: SunatConceptsResource[];
   currencyTypes?: SunatConceptsResource[];
   igvTypes?: SunatConceptsResource[];
-  detractionTypes?: SunatConceptsResource[];
   creditNoteTypes?: SunatConceptsResource[];
   debitNoteTypes?: SunatConceptsResource[];
   useQuotation?: boolean; // Mostrar select de cotizaciones

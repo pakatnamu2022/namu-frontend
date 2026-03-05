@@ -1,5 +1,5 @@
 import { AREAS_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
-import { optionalStringId, requiredStringId } from "@/shared/lib/global.schema";
+import { optionalStringId, requiredDate, requiredStringId } from "@/shared/lib/global.schema";
 import { z } from "zod";
 import { PAYMENT_CONDITION_CREDIT } from "./electronicDocument.constants";
 
@@ -70,7 +70,7 @@ export const ElectronicDocumentSchema = z
     client_id: requiredStringId("Cliente requerido"),
 
     // ===== FECHAS =====
-    fecha_de_emision: z.coerce.string(),
+    fecha_de_emision: requiredDate("Fecha de emisión requerida"),
     fecha_de_vencimiento: z.string().optional(),
 
     // ===== MONEDA Y CAMBIO =====
@@ -175,19 +175,6 @@ export const ElectronicDocumentSchema = z
       message:
         "La fecha de vencimiento debe ser posterior a la fecha de emisión",
       path: ["fecha_de_vencimiento"],
-    },
-  )
-  .refine(
-    (data) => {
-      // Validar detracción
-      if (data.detraccion && !data.sunat_concept_detraction_type_id) {
-        return false;
-      }
-      return true;
-    },
-    {
-      message: "Debe especificar el tipo de detracción",
-      path: ["sunat_concept_detraction_type_id"],
     },
   )
   .refine(
