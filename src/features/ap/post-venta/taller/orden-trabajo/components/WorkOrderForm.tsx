@@ -156,6 +156,15 @@ export const WorkOrderForm = ({
         form.setValue("sede_id", selectedAppointment.sede_id.toString());
       }
 
+      // Setear fecha y hora estimada de entrega desde la cita
+      if (selectedAppointment.delivery_date && selectedAppointment.delivery_time) {
+        const time = selectedAppointment.delivery_time.slice(0, 5); // "15:30:00" -> "15:30"
+        form.setValue(
+          "estimated_delivery_time",
+          `${selectedAppointment.delivery_date}T${time}`,
+        );
+      }
+
       // Agregar item desde la cita solo si no hay items
       if (fields.length === 0) {
         append({

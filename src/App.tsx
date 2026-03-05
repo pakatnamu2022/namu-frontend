@@ -305,6 +305,8 @@ import WorkOrderPage from "./app/ap/post-venta/taller/orden-trabajo/page.tsx";
 import AddWorkOrderPage from "./app/ap/post-venta/taller/orden-trabajo/agregar/page.tsx";
 import UpdateWorkOrderPage from "./app/ap/post-venta/taller/orden-trabajo/actualizar/[id]/page.tsx";
 import ManageWorkOrderPage from "./app/ap/post-venta/taller/orden-trabajo/gestionar/[id]/page.tsx";
+import WorkOrderReceptionPage from "./app/ap/post-venta/taller/recepcion-orden-trabajo/page.tsx";
+import ManageWorkOrderReceptionPage from "./app/ap/post-venta/taller/recepcion-orden-trabajo/gestionar/[id]/page.tsx";
 import GeneralInformationPage from "./app/ap/post-venta/taller/orden-trabajo/gestionar/[id]/informacion-general/page.tsx";
 import WorkOrderPlanningPage from "./app/ap/post-venta/taller/planificacion-orden-trabajo/page.tsx";
 import AddWorkOrderPlanningPage from "./app/ap/post-venta/taller/planificacion-orden-trabajo/agregar/page.tsx";
@@ -1543,6 +1545,14 @@ function App() {
                 element={<ManageWorkOrderPage />}
               />
               <Route
+                path="taller/recepcion-orden-trabajo"
+                element={<WorkOrderReceptionPage />}
+              />
+              <Route
+                path="taller/recepcion-orden-trabajo/gestionar/:id"
+                element={<ManageWorkOrderReceptionPage />}
+              />
+              <Route
                 path="taller/orden-trabajo/gestionar/:id/informacion-general"
                 element={<GeneralInformationPage />}
               />
@@ -1931,7 +1941,10 @@ function App() {
               <Route path="sede/agregar" element={<AddSedePage />} />
               <Route path="sede/actualizar/:id" element={<UpdateSedePage />} />
               <Route path="empresa" element={<CompanyPage />} />
-              <Route path="empresa/actualizar/:id" element={<UpdateCompanyPage />} />
+              <Route
+                path="empresa/actualizar/:id"
+                element={<UpdateCompanyPage />}
+              />
             </Route>
 
             {/* ======================================================== */}
