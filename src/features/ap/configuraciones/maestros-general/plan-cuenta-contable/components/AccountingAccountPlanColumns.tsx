@@ -57,6 +57,20 @@ export const accountingAccountPlanColumns = ({
     header: "Tipo Cuenta Contable",
   },
   {
+    accessorKey: "is_detraction",
+    header: "Detracción",
+    cell: ({ getValue }) => {
+      const value = getValue() as boolean;
+      return (
+        <Switch
+          checked={value}
+          disabled
+          className={cn(value ? "bg-primary" : "bg-secondary")}
+        />
+      );
+    },
+  },
+  {
     accessorKey: "status",
     header: "Estado",
     cell: ({ getValue }) => {

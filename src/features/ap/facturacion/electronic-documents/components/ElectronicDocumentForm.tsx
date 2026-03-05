@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { Form } from "@/components/ui/form";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   ElectronicDocumentSchema,
   ElectronicDocumentItemSchema,
@@ -79,9 +80,8 @@ export function ElectronicDocumentForm({
   const processedAdvancePaymentsForQuotationKey = useRef<string | null>(null);
 
   // Fetch la cotización seleccionada
-  const { data: quotation } = usePurchaseRequestQuoteById(
-    selectedQuotationId || 0,
-  );
+  const { data: quotation, isLoading: isLoadingQuotation } =
+    usePurchaseRequestQuoteById(selectedQuotationId || 0);
 
   // Obtener anticipos previos de la cotización
   const vehicleId = quotation?.ap_vehicle_id || null;
@@ -636,7 +636,10 @@ MODELO: ${vehicle?.model?.version || ``}
             {useQuotation && <QuotationSection form={form} />}
 
             {/* Información Financiera de la Cotización */}
-            {quotation && selectedQuotationId && (
+            {selectedQuotationId && isLoadingQuotation && (
+              <Skeleton className="h-32 w-full rounded-lg" />
+            )}
+            {quotation && selectedQuotationId && !isLoadingQuotation && (
               <QuotationFinancialInfo
                 quotation={quotation}
                 advances={advancePayments}

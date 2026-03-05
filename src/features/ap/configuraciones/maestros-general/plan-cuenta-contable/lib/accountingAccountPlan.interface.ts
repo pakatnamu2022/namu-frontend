@@ -13,6 +13,7 @@ export interface AccountingAccountPlanResource {
   description: string;
   accounting_type_id: number;
   status: boolean;
+  is_detraction: boolean;
 }
 
 export interface AccountingAccountPlanRequest {
@@ -20,6 +21,7 @@ export interface AccountingAccountPlanRequest {
   description: string;
   accounting_type_id: number;
   status: boolean;
+  is_detraction: boolean;
 }
 
 export interface getAccountingAccountPlanProps {
