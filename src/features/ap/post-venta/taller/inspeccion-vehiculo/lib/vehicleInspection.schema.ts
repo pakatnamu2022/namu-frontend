@@ -52,10 +52,10 @@ export const vehicleInspectionSchemaCreate = z.object({
   damages: z.array(vehicleInspectionDamageSchema).default([]),
   customer_signature: z.string().min(1, "Firma del cliente es requerida"),
   // Fotos del vehículo
-  photo_front: z.instanceof(File).nullable().optional(),
-  photo_back: z.instanceof(File).nullable().optional(),
-  photo_left: z.instanceof(File).nullable().optional(),
-  photo_right: z.instanceof(File).nullable().optional(),
+  photo_front: z.instanceof(File, { message: "Foto delantera es requerida" }),
+  photo_back: z.instanceof(File, { message: "Foto trasera es requerida" }),
+  photo_left: z.instanceof(File, { message: "Foto izquierda es requerida" }),
+  photo_right: z.instanceof(File, { message: "Foto derecha es requerida" }),
 });
 
 export const vehicleInspectionSchemaUpdate =

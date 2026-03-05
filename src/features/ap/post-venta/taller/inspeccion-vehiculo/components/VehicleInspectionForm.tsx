@@ -146,7 +146,7 @@ export const VehicleInspectionForm = ({
 
         {/* Fotos del Vehículo - Solo visible cuando dirty_unit está marcado */}
         <GroupFormSection
-          title="Fotos del estado de ingreso del vehículo (Opcional)"
+          title="Fotos del estado de ingreso del vehículo"
           icon={Camera}
           color="orange"
           cols={{ sm: 2 }}

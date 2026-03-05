@@ -69,13 +69,13 @@ export default function PayrollConstantsPage() {
     if (!deleteId) return;
     try {
       await deleteGeneralMasters(deleteId);
-      await refetch();
       successToast(
         SUCCESS_MESSAGE(
           { name: "Constante", plural: "Constantes", gender: false },
           "delete",
         ),
       );
+      await refetch();
     } catch (error: any) {
       const msg = error?.response?.data?.message || "";
       errorToast(
@@ -150,6 +150,8 @@ export default function PayrollConstantsPage() {
           open={true}
           onClose={() => setUpdateId(null)}
           mode="update"
+          defaultType={PAYROLL_CONSTANTS_TYPE}
+          lockedType={true}
         />
       )}
 
