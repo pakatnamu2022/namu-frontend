@@ -48,7 +48,7 @@ interface FilterComboboxProps {
   popoverWidth?: string;
 }
 
-export function FilterCombobox({
+export function FilterMultiSelect({
   value,
   onChange,
   options,

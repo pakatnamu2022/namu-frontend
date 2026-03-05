@@ -1,4 +1,4 @@
-import { FilterCombobox } from "@/shared/components/FilterCombobox";
+import { FilterMultiSelect } from "@/shared/components/FilterMultiSelect";
 import FilterWrapper from "@/shared/components/FilterWrapper";
 import SearchInput from "@/shared/components/SearchInput";
 
@@ -22,7 +22,7 @@ export default function VehicleOptions({
         value={search}
         onChange={setSearch}
       />
-      <FilterCombobox
+      <FilterMultiSelect
         placeholder="Estado Vehículo"
         value={ap_vehicle_status_id}
         onChange={set_ap_vehicle_status_id}

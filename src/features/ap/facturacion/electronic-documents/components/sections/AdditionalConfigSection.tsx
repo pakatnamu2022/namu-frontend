@@ -1,9 +1,11 @@
 import { UseFormReturn, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
 import { Settings } from "lucide-react";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { ElectronicDocumentSchema } from "../../lib/electronicDocument.schema";
 import { FormSelect } from "@/shared/components/FormSelect";
+import { FormCombobox } from "@/shared/components/FormCombobox";
 import { ApBankResource } from "@/features/ap/configuraciones/maestros-general/chequeras/lib/apBank.interface";
 import { FormInput } from "@/shared/components/FormInput";
 import { FormTextArea } from "@/shared/components/FormTextArea";
@@ -12,6 +14,7 @@ import {
   PAYMENT_CONDITION_CREDIT,
   CREDIT_DAYS_OPTIONS,
 } from "../../lib/electronicDocument.constants";
+import z from "zod";
 
 interface AdditionalConfigSectionProps {
   form: UseFormReturn<ElectronicDocumentSchema>;
@@ -30,8 +33,16 @@ export function AdditionalConfigSection({
   const isCredito = condicionesDePago === PAYMENT_CONDITION_CREDIT;
 
   // Form auxiliar solo para UI - los días de crédito no se envían al backend
+  const creditDaysSchema = z.object({
+    credit_days: z.string().min(1, "Requerido").refine(
+      (val) => Number.isInteger(Number(val)) && Number(val) > 0,
+      { message: "Debe ser un número entero positivo" },
+    ),
+  });
   const creditDaysForm = useForm<{ credit_days: string }>({
+    resolver: zodResolver(creditDaysSchema),
     defaultValues: { credit_days: "" },
+    mode: "onChange",
   });
 
   // Limpiar al cambiar a CONTADO
@@ -42,6 +53,15 @@ export function AdditionalConfigSection({
       form.setValue("fecha_de_vencimiento", undefined);
     }
   }, [isCredito, form, creditDaysForm]);
+
+  // Recalcular fecha de vencimiento cuando cambian los días de crédito
+  const creditDaysValue = creditDaysForm.watch("credit_days");
+  useEffect(() => {
+    if (creditDaysValue) {
+      handleCreditDaysChange(creditDaysValue);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [creditDaysValue]);
 
   function handleCreditDaysChange(days: string) {
     const fechaEmision = form.getValues("fecha_de_emision");
@@ -72,10 +92,9 @@ export function AdditionalConfigSection({
       : checkbooks;
 
   const paymentMethodOptions = [
-    {
-      label: "EFECTIVO",
-      value: "EFECTIVO",
-    },
+    ...(!isModuleCommercial
+      ? [{ label: "EFECTIVO", value: "EFECTIVO" }]
+      : []),
     {
       label: "TARJETA",
       value: "TARJETA",
@@ -87,10 +106,6 @@ export function AdditionalConfigSection({
     {
       label: "DEPÓSITO BANCARIO",
       value: "DEPOSITO BANCARIO",
-    },
-    {
-      label: "OTRO",
-      value: "OTRO",
     },
   ];
 
@@ -132,60 +147,74 @@ export function AdditionalConfigSection({
         description="Condiciones de pago del documento."
       />
 
-      {isCredito && (
-        <FormSelect
-          control={creditDaysForm.control}
-          label="Días de Crédito *"
-          name="credit_days"
-          options={CREDIT_DAYS_OPTIONS.map((o) => ({
-            label: o.label,
-            value: o.value,
-          }))}
-          placeholder="Seleccione los días"
-          description="La fecha de vencimiento se calculará automáticamente."
-          onValueChange={handleCreditDaysChange}
-        />
-      )}
+      {isCredito ? (
+        <>
+          <FormCombobox
+            control={creditDaysForm.control}
+            label="Días de Crédito *"
+            name="credit_days"
+            options={CREDIT_DAYS_OPTIONS.map((o) => ({
+              label: o.label,
+              value: o.value,
+            }))}
+            placeholder="Seleccione los días"
+            description="La fecha de vencimiento se calculará automáticamente."
+            validateCreate={(val) => /^\d+$/.test(val)}
+          />
+          {isModuleCommercial && (
+            <FormSelect
+              control={form.control}
+              label="Tipo de Financiamiento"
+              name="financing_type"
+              options={filteredFinancingTypeOptions}
+              placeholder="Seleccione una opción"
+              description="Tipo de financiamiento del documento."
+            />
+          )}
+        </>
+      ) : (
+        <>
+          <FormSelect
+            control={form.control}
+            label="Medio de Pago *"
+            name="medio_de_pago"
+            options={paymentMethodOptions}
+            placeholder="Seleccione una opción"
+            description="Medio de pago utilizado en el documento."
+          />
 
-      <FormSelect
-        control={form.control}
-        label="Medio de Pago *"
-        name="medio_de_pago"
-        options={paymentMethodOptions}
-        placeholder="Seleccione una opción"
-        description="Medio de pago utilizado en el documento."
-      />
+          <FormSelect
+            control={form.control}
+            label="Entidad"
+            name="bank_id"
+            options={filteredCheckbooks.map((checkbook) => ({
+              label: checkbook.code,
+              value: String(checkbook.id),
+              description: checkbook.account_number,
+            }))}
+            placeholder="Seleccione una opción"
+            description="Chequera asociada al medio de pago."
+          />
 
-      <FormSelect
-        control={form.control}
-        label="Entidad"
-        name="bank_id"
-        options={filteredCheckbooks.map((checkbook) => ({
-          label: checkbook.code,
-          value: String(checkbook.id),
-          description: checkbook.account_number,
-        }))}
-        placeholder="Seleccione una opción"
-        description="Chequera asociada al medio de pago."
-      />
+          <FormInput
+            control={form.control}
+            name="operation_number"
+            label="Número de Operación"
+            placeholder="Número de Operación"
+            description="Número de operación asociada al pago."
+          />
 
-      <FormInput
-        control={form.control}
-        name="operation_number"
-        label="Número de Operación"
-        placeholder="Número de Operación"
-        description="Número de operación asociada al pago."
-      />
-
-      {isModuleCommercial && (
-        <FormSelect
-          control={form.control}
-          label="Tipo de Financiamiento"
-          name="financing_type"
-          options={filteredFinancingTypeOptions}
-          placeholder="Seleccione una opción"
-          description="Tipo de financiamiento del documento."
-        />
+          {isModuleCommercial && (
+            <FormSelect
+              control={form.control}
+              label="Tipo de Financiamiento"
+              name="financing_type"
+              options={filteredFinancingTypeOptions}
+              placeholder="Seleccione una opción"
+              description="Tipo de financiamiento del documento."
+            />
+          )}
+        </>
       )}
 
       <div className="col-span-full">
