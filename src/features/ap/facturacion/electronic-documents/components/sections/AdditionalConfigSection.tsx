@@ -199,13 +199,15 @@ export function AdditionalConfigSection({
             description="Chequera asociada al medio de pago."
           />
 
-          <FormInput
-            control={form.control}
-            name="operation_number"
-            label="Número de Operación"
-            placeholder="Número de Operación"
-            description="Número de operación asociada al pago."
-          />
+          {medioDePago !== "EFECTIVO" && (
+            <FormInput
+              control={form.control}
+              name="operation_number"
+              label="Número de Operación"
+              placeholder="Número de Operación"
+              description="Número de operación asociada al pago."
+            />
+          )}
 
           {isModuleCommercial && (
             <FormSelect
