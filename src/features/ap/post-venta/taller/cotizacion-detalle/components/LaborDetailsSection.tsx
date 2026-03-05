@@ -67,6 +67,12 @@ interface LaborDetailsSectionProps {
   currencySymbol: string;
   exchangeRate: number;
   discountRequests: DiscountRequestOrderQuotationResource[];
+  // permissions: {
+  //   canUpdate: boolean;
+  //   canApprove: boolean;
+  //   canReject: boolean;
+  //   canRequest: boolean;
+  // };
 }
 
 export default function LaborDetailsSection({
@@ -493,7 +499,7 @@ export default function LaborDetailsSection({
               <div className="col-span-3">Descripción</div>
               <div className="col-span-1 text-center">Horas</div>
               <div className="col-span-2 text-center">Precio/Hora</div>
-              <div className="col-span-1 text-center">Desc.</div>
+              <div className="col-span-1 text-center">% Desc.</div>
               <div className="col-span-2 text-center">Total</div>
               <div className="col-span-3 text-right">Desc. parcial</div>
             </div>
@@ -541,24 +547,22 @@ export default function LaborDetailsSection({
                         </span>
                       </div>
 
-                      {/* Columna Desc. — editable si hay solicitud aprobada */}
+                      {/* Columna Desc. — editable solo si NO hay solicitud de gerencia aprobada/pendiente */}
                       <div className="col-span-1 text-center">
-                        {approvedRequest ? (
+                        {!approvedRequest ? (
                           <EditableCell
                             id={detail.id}
                             value={detail.discount_percentage}
                             min={0}
-                            max={Number(
-                              approvedRequest.requested_discount_percentage,
-                            )}
+                            max={maxDiscountAllowed}
                             widthClass="w-16"
                             onUpdate={(_id, val) =>
                               handleDiscountUpdate(detail, Number(val))
                             }
                           />
                         ) : (
-                          <span className="text-sm text-orange-600">
-                            -{detail.discount_percentage}%
+                          <span className="text-sm text-green-600 font-semibold">
+                            -{detail.discount_percentage}
                           </span>
                         )}
                       </div>
@@ -703,21 +707,19 @@ export default function LaborDetailsSection({
                         </div>
                         <div className="flex items-center gap-1">
                           <span className="text-gray-500">Desc:</span>
-                          {approvedRequest ? (
+                          {!approvedRequest ? (
                             <EditableCell
                               id={detail.id}
                               value={detail.discount_percentage}
                               min={0}
-                              max={Number(
-                                approvedRequest.requested_discount_percentage,
-                              )}
+                              max={maxDiscountAllowed}
                               widthClass="w-16"
                               onUpdate={(_id, val) =>
                                 handleDiscountUpdate(detail, Number(val))
                               }
                             />
                           ) : (
-                            <span className="font-medium ml-1 text-orange-600">
+                            <span className="font-medium ml-1 text-green-600">
                               -{detail.discount_percentage}%
                             </span>
                           )}

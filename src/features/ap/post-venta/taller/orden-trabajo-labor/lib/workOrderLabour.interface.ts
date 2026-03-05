@@ -13,6 +13,7 @@ export interface WorkOrderLabourResource {
   hourly_rate: string;
   discount_percentage?: string;
   total_cost: string;
+  net_amount: string;
   worker_id: string;
   work_order_id: string;
   worker_full_name: string;

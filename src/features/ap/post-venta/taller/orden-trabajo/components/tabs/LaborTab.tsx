@@ -609,8 +609,9 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
                   <TableHead className="text-left">Operario</TableHead>
                   <TableHead className="text-right">Tiempo (hrs)</TableHead>
                   <TableHead className="text-right">Tarifa/Hora</TableHead>
+                  <TableHead className="text-right">Cto. Total</TableHead>
                   <TableHead className="text-right">Desc.</TableHead>
-                  <TableHead className="text-right">Costo Total</TableHead>
+                  <TableHead className="text-right">Cto. Neto</TableHead>
                   <TableHead className="text-center w-40">Acciones</TableHead>
                 </TableRow>
               </TableHeader>
@@ -650,7 +651,9 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
                           <EditableCell
                             id={labour.id}
                             value={labour.time_spent}
-                            onUpdate={(_, v) => handleTimeSpentChange(labour, v)}
+                            onUpdate={(_, v) =>
+                              handleTimeSpentChange(labour, v)
+                            }
                             widthClass="w-20"
                             min={0}
                           />
@@ -664,18 +667,24 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
                           <EditableCell
                             id={labour.id}
                             value={labour.hourly_rate}
-                            onUpdate={(_, v) => handleHourlyRateChange(labour, v)}
+                            onUpdate={(_, v) =>
+                              handleHourlyRateChange(labour, v)
+                            }
                             widthClass="w-20"
                             min={0}
                           />
                         </div>
+                      </TableCell>
+                      <TableCell className="text-right font-semibold">
+                        {workOrder?.type_currency?.symbol || "S/"}{" "}
+                        {labour.total_cost}
                       </TableCell>
                       <TableCell className="text-right text-orange-600">
                         -{labour.discount_percentage}%
                       </TableCell>
                       <TableCell className="text-right font-semibold">
                         {workOrder?.type_currency?.symbol || "S/"}{" "}
-                        {labour.total_cost}
+                        {labour.net_amount}
                       </TableCell>
                       <TableCell className="text-center">
                         <div className="flex items-center justify-center gap-1">
@@ -786,7 +795,7 @@ export default function LaborTab({ workOrderId }: LaborTabProps) {
                   {filteredLabours
                     .reduce(
                       (acc, labour) =>
-                        acc + parseFloat(labour.total_cost || "0"),
+                        acc + parseFloat(labour.net_amount || "0"),
                       0,
                     )
                     .toFixed(2)}

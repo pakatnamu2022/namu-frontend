@@ -698,7 +698,7 @@ export default function GeneralInformationPage() {
                             S/ {parseFloat(part.unit_price ?? "0").toFixed(2)}
                           </td>
                           <td className="py-2 px-3 text-right font-semibold text-green-700">
-                            S/ {parseFloat(part.total_amount ?? "0").toFixed(2)}
+                            S/ {parseFloat(part.net_amount ?? "0").toFixed(2)}
                           </td>
                         </tr>
                       ))}
@@ -715,8 +715,7 @@ export default function GeneralInformationPage() {
                           S/{" "}
                           {workOrder.parts
                             .reduce(
-                              (acc, p) =>
-                                acc + parseFloat(p.total_amount ?? "0"),
+                              (acc, p) => acc + parseFloat(p.net_amount ?? "0"),
                               0,
                             )
                             .toFixed(2)}

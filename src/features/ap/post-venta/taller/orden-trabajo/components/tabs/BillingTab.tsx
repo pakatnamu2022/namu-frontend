@@ -375,7 +375,7 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
                   <div className="flex justify-between px-4 py-1.5">
                     <span className="text-gray-600">Subtotal</span>
                     <span className="font-medium">
-                      S/ {paymentSummary.payment_summary.subtotal.toFixed(2)}
+                      S/ {paymentSummary.payment_summary.total_cost.toFixed(2)}
                     </span>
                   </div>
                   {paymentSummary.payment_summary.discount_amount > 0 && (

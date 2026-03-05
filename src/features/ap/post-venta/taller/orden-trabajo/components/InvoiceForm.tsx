@@ -221,7 +221,7 @@ export default function InvoiceForm({
       // Agregar items de mano de obra
       // total_cost viene sin IGV del backend (es el subtotal)
       labours.forEach((labour) => {
-        const subtotalDetail = parseFloat(labour.total_cost || "0");
+        const subtotalDetail = parseFloat(labour.net_amount || "0");
         const valor_unitario = round2(subtotalDetail);
         const precio_unitario = round2(
           valor_unitario * (1 + porcentaje_de_igv / 100),
@@ -248,7 +248,7 @@ export default function InvoiceForm({
       // Agregar items de repuestos
       // total_amount viene sin IGV del backend (es el subtotal)
       parts.forEach((part) => {
-        const totalAmount = parseFloat(part.total_amount || "0");
+        const totalAmount = parseFloat(part.net_amount || "0");
         const cantidad = part.quantity_used;
         const valor_unitario = round2(totalAmount / cantidad);
         const precio_unitario = round2(

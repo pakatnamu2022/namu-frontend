@@ -73,7 +73,8 @@ export interface WorkOrderPaymentSummary {
   payment_summary: {
     labour_cost: number;
     parts_cost: number;
-    subtotal: number;
+    total_cost: number;
+    net_amount: number;
     discount_amount: number;
     tax_amount: number;
     total_amount: number;

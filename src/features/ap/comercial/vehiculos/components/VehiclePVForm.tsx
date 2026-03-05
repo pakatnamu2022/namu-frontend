@@ -167,8 +167,8 @@ export const VehiclePVForm = ({
             control={form.control}
             name="plate"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel className="flex items-center gap-2 relative">
+              <FormItem className="flex flex-col justify-between">
+                <FormLabel className="flex justify-start items-center text-xs md:text-sm mb-1 leading-none h-fit dark:text-muted-foreground relative">
                   Nro. Placa
                   <DocumentValidationStatus
                     shouldValidate={true}
@@ -182,6 +182,7 @@ export const VehiclePVForm = ({
                 <FormControl>
                   <div className="relative">
                     <Input
+                      className="h-8 md:h-9 text-xs md:text-sm"
                       placeholder="Número de Placa"
                       {...field}
                       maxLength={8}

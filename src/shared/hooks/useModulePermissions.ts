@@ -140,6 +140,12 @@ export const PERMISSION_ACTIONS: PermissionAction[] = [
     icon: "Tool",
     description: "Permite acceder a opciones de mantenimiento",
   },
+  {
+    value: "request",
+    label: "Solicitar",
+    icon: "AlertCircle",
+    description: "Permite solicitar cambios o descuentos",
+  },
 ];
 
 /**
@@ -193,5 +199,6 @@ export function useModulePermissions(moduleCode: string) {
     canReceive: hasModulePermission("receive"),
     canViewHistory: hasModulePermission("history"),
     canMaintenance: hasModulePermission("maintenance"),
+    canRequest: hasModulePermission("request"),
   };
 }

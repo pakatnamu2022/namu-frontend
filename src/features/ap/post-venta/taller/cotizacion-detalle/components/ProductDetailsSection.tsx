@@ -849,7 +849,7 @@ export default function ProductDetailsSection({
               <div className="col-span-2 text-center">Cant.</div>
               <div className="col-span-2 text-center">Tipo Abas.</div>
               <div className="col-span-3 text-center">Precio Unit.</div>
-              <div className="col-span-2 text-center">Desc.</div>
+              <div className="col-span-2 text-center">% Desc.</div>
               <div className="col-span-3 text-center">Total</div>
               <div className="col-span-2 text-center">Reg. por</div>
               <div className="col-span-2 text-right">Desc. parcial</div>
@@ -917,22 +917,20 @@ export default function ProductDetailsSection({
                       </div>
 
                       <div className="col-span-2 flex justify-center">
-                        {approvedRequest ? (
+                        {!approvedRequest ? (
                           <EditableCell
                             id={detail.id}
                             value={detail.discount_percentage}
                             min={0}
-                            max={Number(
-                              approvedRequest.requested_discount_percentage,
-                            )}
+                            max={maxDiscountAllowed}
                             widthClass="w-16"
                             onUpdate={(_id, val) =>
                               handleDiscountUpdate(detail, Number(val))
                             }
                           />
                         ) : (
-                          <span className="text-sm text-orange-600">
-                            -{detail.discount_percentage}%
+                          <span className="text-sm text-green-600 font-semibold">
+                            -{detail.discount_percentage}
                           </span>
                         )}
                       </div>
@@ -1106,21 +1104,19 @@ export default function ProductDetailsSection({
                         </div>
                         <div className="flex items-center gap-1">
                           <span className="text-gray-500">Desc.:</span>
-                          {approvedRequest ? (
+                          {!approvedRequest ? (
                             <EditableCell
                               id={detail.id}
                               value={detail.discount_percentage}
                               min={0}
-                              max={Number(
-                                approvedRequest.requested_discount_percentage,
-                              )}
+                              max={maxDiscountAllowed}
                               widthClass="w-16"
                               onUpdate={(_id, val) =>
                                 handleDiscountUpdate(detail, Number(val))
                               }
                             />
                           ) : (
-                            <span className="ml-1 font-medium text-orange-600">
+                            <span className="ml-1 font-medium text-green-600">
                               -{detail.discount_percentage}%
                             </span>
                           )}
