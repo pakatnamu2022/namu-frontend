@@ -18,6 +18,8 @@ interface GeneralMastersFormProps {
   defaultValues?: GeneralMastersSchema;
   mode: "create" | "update";
   onCancel?: () => void;
+  lockedCode?: boolean;
+  lockedType?: boolean;
 }
 
 export default function GeneralMastersForm({
@@ -26,6 +28,8 @@ export default function GeneralMastersForm({
   defaultValues,
   mode,
   onCancel,
+  lockedCode,
+  lockedType,
 }: GeneralMastersFormProps) {
   const { data: typesData, isLoading: isLoadingTypes } =
     useGeneralMastersTypes();
@@ -57,6 +61,7 @@ export default function GeneralMastersForm({
           name="code"
           label="Código"
           placeholder="Ingrese el código"
+          disabled={lockedCode}
         />
 
         <FormInput
@@ -66,16 +71,18 @@ export default function GeneralMastersForm({
           placeholder="Ingrese la descripción"
         />
 
-        <FormCombobox
-          control={form.control}
-          name="type"
-          label="Tipo"
-          placeholder="Seleccione o escriba un tipo"
-          options={typeOptions}
-          isLoadingOptions={isLoadingTypes}
-          required
-          allowCreate={true}
-        />
+        {!lockedType && (
+          <FormCombobox
+            control={form.control}
+            name="type"
+            label="Tipo"
+            placeholder="Seleccione o escriba un tipo"
+            options={typeOptions}
+            isLoadingOptions={isLoadingTypes}
+            required
+            allowCreate={true}
+          />
+        )}
 
         <FormInput
           control={form.control}
