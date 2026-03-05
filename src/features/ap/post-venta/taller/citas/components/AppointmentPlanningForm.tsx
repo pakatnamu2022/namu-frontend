@@ -26,7 +26,6 @@ import {
   useVehicleById,
 } from "@/features/ap/comercial/vehiculos/lib/vehicles.hook";
 import FormSkeleton from "@/shared/components/FormSkeleton";
-import { Textarea } from "@/components/ui/textarea";
 import AppointmentTimeSlotPicker from "./AppointmentTimeSlotPicker";
 import { GroupFormSection } from "@/shared/components/GroupFormSection";
 import { Card } from "@/components/ui/card";
@@ -40,6 +39,8 @@ import { VEHICLES_TLL } from "@/features/ap/comercial/vehiculos/lib/vehicles.con
 import { AppointmentPlanningResource } from "../lib/appointmentPlanning.interface";
 import { DocumentValidationStatus } from "@/shared/components/DocumentValidationStatus";
 import { ValidationIndicator } from "@/shared/components/ValidationIndicator";
+import { FormInput } from "@/shared/components/FormInput";
+import { FormInputText } from "@/shared/components/FormInputText";
 import {
   useDniValidation,
   useRucValidation,
@@ -297,8 +298,8 @@ export const AppointmentPlanningForm = ({
             control={form.control}
             name="num_doc_client"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel className="flex items-center gap-2 relative">
+              <FormItem className="flex flex-col justify-between">
+                <FormLabel className="flex justify-start items-center text-xs md:text-sm mb-1 leading-none h-fit dark:text-muted-foreground relative">
                   Cliente DNI/RUC
                   <DocumentValidationStatus
                     shouldValidate={true}
@@ -311,6 +312,7 @@ export const AppointmentPlanningForm = ({
                 <FormControl>
                   <div className="relative">
                     <Input
+                      className="h-8 md:h-9 text-xs md:text-sm"
                       placeholder="8 dígitos (DNI) o 11 dígitos (RUC)"
                       {...field}
                       maxLength={11}
@@ -332,54 +334,27 @@ export const AppointmentPlanningForm = ({
             )}
           />
 
-          <FormField
+          <FormInput
             control={form.control}
             name="full_name_client"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Nombre Completo</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="Nombre del cliente"
-                    {...field}
-                    disabled={shouldDisableCustomerFields}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Nombre Completo"
+            placeholder="Nombre del cliente"
+            disabled={shouldDisableCustomerFields}
           />
 
-          <FormField
+          <FormInput
             control={form.control}
             name="email_client"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email</FormLabel>
-                <FormControl>
-                  <Input
-                    type="email"
-                    placeholder="email@ejemplo.com"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Email"
+            type="email"
+            placeholder="email@ejemplo.com"
           />
 
-          <FormField
+          <FormInput
             control={form.control}
             name="phone_client"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Teléfono</FormLabel>
-                <FormControl>
-                  <Input placeholder="Teléfono del cliente" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Teléfono"
+            placeholder="Teléfono del cliente"
           />
 
           <FormSelect
@@ -531,42 +506,22 @@ export const AppointmentPlanningForm = ({
                       minutos.
                     </p>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <FormField
+                      <FormInput
                         control={form.control}
                         name="date_appointment"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Fecha de Cita</FormLabel>
-                            <FormControl>
-                              <Input
-                                type="date"
-                                {...field}
-                                readOnly
-                                className="bg-white"
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
+                        label="Fecha de Cita"
+                        type="date"
+                        readOnly
+                        className="bg-white"
                       />
 
-                      <FormField
+                      <FormInput
                         control={form.control}
                         name="time_appointment"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Hora de Cita</FormLabel>
-                            <FormControl>
-                              <Input
-                                type="time"
-                                {...field}
-                                readOnly
-                                className="bg-white"
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
+                        label="Hora de Cita"
+                        type="time"
+                        readOnly
+                        className="bg-white"
                       />
                     </div>
                   </div>
@@ -599,42 +554,22 @@ export const AppointmentPlanningForm = ({
                       También disponible en intervalos de 15 minutos.
                     </p>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <FormField
+                      <FormInput
                         control={form.control}
                         name="delivery_date"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Fecha de Entrega</FormLabel>
-                            <FormControl>
-                              <Input
-                                type="date"
-                                {...field}
-                                readOnly
-                                className="bg-white"
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
+                        label="Fecha de Entrega"
+                        type="date"
+                        readOnly
+                        className="bg-white"
                       />
 
-                      <FormField
+                      <FormInput
                         control={form.control}
                         name="delivery_time"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Hora de Entrega</FormLabel>
-                            <FormControl>
-                              <Input
-                                type="time"
-                                {...field}
-                                readOnly
-                                className="bg-white"
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
+                        label="Hora de Entrega"
+                        type="time"
+                        readOnly
+                        className="bg-white"
                       />
                     </div>
                   </div>
@@ -654,22 +589,12 @@ export const AppointmentPlanningForm = ({
           </div>
 
           <div className="mt-6">
-            <FormField
+            <FormInputText
               control={form.control}
               name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Descripción</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Descripción de la cita"
-                      rows={4}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              label="Descripción"
+              placeholder="Descripción de la cita"
+              rows={4}
             />
           </div>
         </GroupFormSection>

@@ -579,7 +579,7 @@ export default function InventoryMovementDetailsSheet({
                 <div>
                   <p className="text-xs text-muted-foreground">Total</p>
                   <p className="font-semibold text-lg">
-                    S/ {workOrderPart.total_amount || "0.00"}
+                    S/ {workOrderPart.net_amount || "0.00"}
                   </p>
                 </div>
                 <div>

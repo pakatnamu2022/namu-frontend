@@ -146,6 +146,12 @@ export const PERMISSION_ACTIONS: PermissionAction[] = [
     icon: "AlertCircle",
     description: "Permite solicitar cambios o descuentos",
   },
+  {
+    value: "editDiscount",
+    label: "Editar Descuento",
+    icon: "Edit3",
+    description: "Permite editar descuentos en cotizaciones",
+  },
 ];
 
 /**
@@ -200,5 +206,6 @@ export function useModulePermissions(moduleCode: string) {
     canViewHistory: hasModulePermission("history"),
     canMaintenance: hasModulePermission("maintenance"),
     canRequest: hasModulePermission("request"),
+    canEditDiscount: hasModulePermission("editDiscount"),
   };
 }

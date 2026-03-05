@@ -67,12 +67,12 @@ interface LaborDetailsSectionProps {
   currencySymbol: string;
   exchangeRate: number;
   discountRequests: DiscountRequestOrderQuotationResource[];
-  // permissions: {
-  //   canUpdate: boolean;
-  //   canApprove: boolean;
-  //   canReject: boolean;
-  //   canRequest: boolean;
-  // };
+  permissions: {
+    canEditDiscount: boolean;
+    canApprove: boolean;
+    canReject: boolean;
+    canRequest: boolean;
+  };
 }
 
 export default function LaborDetailsSection({
@@ -84,6 +84,7 @@ export default function LaborDetailsSection({
   currencySymbol,
   exchangeRate,
   discountRequests,
+  permissions,
 }: LaborDetailsSectionProps) {
   const [isSaving, setIsSaving] = useState(false);
   const queryClient = useQueryClient();
@@ -599,60 +600,71 @@ export default function LaborDetailsSection({
                             </Badge>
                             {partialRequest.status === STATUS_PENDING && (
                               <>
-                                <ConfirmationDialog
-                                  trigger={
-                                    <Button
-                                      variant="outline"
-                                      size="icon"
-                                      className="size-7 text-green-600 hover:text-green-600 hover:bg-green-50"
-                                      tooltip="Aprobar solicitud"
-                                      disabled={isApproving}
-                                    >
-                                      <CheckCircle className="size-4" />
-                                    </Button>
-                                  }
-                                  title="¿Aprobar solicitud?"
-                                  description="Se aprobará el descuento parcial solicitado. ¿Deseas continuar?"
-                                  confirmText="Sí, aprobar"
-                                  cancelText="Cancelar"
-                                  icon="info"
-                                  onConfirm={() => doApprove(partialRequest.id)}
-                                />
-                                <Button
-                                  variant="outline"
-                                  size="icon"
-                                  className="size-7"
-                                  tooltip="Editar solicitud"
-                                  onClick={() =>
-                                    handleOpenEdit(partialRequest, detail)
-                                  }
-                                >
-                                  <Pencil className="size-4" />
-                                </Button>
-                                <ConfirmationDialog
-                                  trigger={
-                                    <Button
-                                      variant="outline"
-                                      size="icon"
-                                      className="size-7 text-destructive hover:text-destructive hover:bg-destructive/10"
-                                      tooltip="Rechazar solicitud"
-                                      disabled={isRejecting}
-                                    >
-                                      <XCircle className="size-4" />
-                                    </Button>
-                                  }
-                                  title="¿Rechazar solicitud?"
-                                  description="Se rechazará el descuento parcial solicitado. ¿Deseas continuar?"
-                                  confirmText="Sí, rechazar"
-                                  cancelText="Cancelar"
-                                  variant="destructive"
-                                  icon="danger"
-                                  onConfirm={() => doReject(partialRequest.id)}
-                                />
+                                {permissions.canApprove && (
+                                  <ConfirmationDialog
+                                    trigger={
+                                      <Button
+                                        variant="outline"
+                                        size="icon"
+                                        className="size-7 text-green-600 hover:text-green-600 hover:bg-green-50"
+                                        tooltip="Aprobar solicitud"
+                                        disabled={isApproving}
+                                      >
+                                        <CheckCircle className="size-4" />
+                                      </Button>
+                                    }
+                                    title="¿Aprobar solicitud?"
+                                    description="Se aprobará el descuento parcial solicitado. ¿Deseas continuar?"
+                                    confirmText="Sí, aprobar"
+                                    cancelText="Cancelar"
+                                    icon="info"
+                                    onConfirm={() =>
+                                      doApprove(partialRequest.id)
+                                    }
+                                  />
+                                )}
+                                {permissions.canEditDiscount && (
+                                  <Button
+                                    variant="outline"
+                                    size="icon"
+                                    className="size-7"
+                                    tooltip="Editar solicitud"
+                                    onClick={() =>
+                                      handleOpenEdit(partialRequest, detail)
+                                    }
+                                  >
+                                    <Pencil className="size-4" />
+                                  </Button>
+                                )}
+                                {permissions.canReject && (
+                                  <ConfirmationDialog
+                                    trigger={
+                                      <Button
+                                        variant="outline"
+                                        size="icon"
+                                        className="size-7 text-destructive hover:text-destructive hover:bg-destructive/10"
+                                        tooltip="Rechazar solicitud"
+                                        disabled={isRejecting}
+                                      >
+                                        <XCircle className="size-4" />
+                                      </Button>
+                                    }
+                                    title="¿Rechazar solicitud?"
+                                    description="Se rechazará el descuento parcial solicitado. ¿Deseas continuar?"
+                                    confirmText="Sí, rechazar"
+                                    cancelText="Cancelar"
+                                    variant="destructive"
+                                    icon="danger"
+                                    onConfirm={() =>
+                                      doReject(partialRequest.id)
+                                    }
+                                  />
+                                )}
                               </>
                             )}
                           </div>
                         ) : (
+                          permissions.canRequest &&
                           !globalRequest && (
                             <Button
                               variant="outline"

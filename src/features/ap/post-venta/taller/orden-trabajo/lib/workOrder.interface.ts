@@ -36,6 +36,7 @@ export interface WorkOrderResource {
   sede_name: string;
   opening_date: string;
   estimated_delivery_date: string;
+  estimated_delivery_time: string;
   actual_delivery_date: string;
   diagnosis_date: string;
   observations: string;
@@ -62,7 +63,7 @@ export interface WorkOrderRequest {
   vehicle_id: string;
   sede_id: string;
   opening_date: string | Date;
-  estimated_delivery_date: string | Date;
+  estimated_delivery_time: string | Date;
   diagnosis_date: string | Date;
   observations: string;
 }

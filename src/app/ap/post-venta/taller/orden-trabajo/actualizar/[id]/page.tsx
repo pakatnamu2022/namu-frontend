@@ -68,10 +68,14 @@ export default function UpdateWorkOrderPage() {
       currency_id: data.currency_id ? String(data.currency_id) : "",
       sede_id: data.sede_id ? String(data.sede_id) : "",
       opening_date: data.opening_date ? new Date(data.opening_date) : undefined,
-      estimated_delivery_date: data.estimated_delivery_date
-        ? new Date(data.estimated_delivery_date)
+      estimated_delivery_time: (() => {
+        const date = data.estimated_delivery_date?.split(" ")[0];
+        const time = data.estimated_delivery_time?.substring(0, 5);
+        return date && time ? `${date}T${time}` : undefined;
+      })(),
+      diagnosis_date: data.diagnosis_date
+        ? new Date(data.diagnosis_date)
         : undefined,
-      diagnosis_date: data.diagnosis_date ? new Date(data.diagnosis_date) : undefined,
       observations: data.observations || "",
       is_guarantee: data.is_guarantee ?? false,
       is_recall: data.is_recall ?? false,
