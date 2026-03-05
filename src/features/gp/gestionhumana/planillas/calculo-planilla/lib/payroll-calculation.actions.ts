@@ -1,5 +1,6 @@
 import { api } from "@/core/api";
 import {
+  AttendancesData,
   GenerateCalculationsResponse,
   PayrollSummaryResponse,
 } from "./payroll-calculation.interface";
@@ -40,6 +41,19 @@ export async function recalculatePayrollCalculations(
 ): Promise<GenerateCalculationsResponse> {
   const { data } = await api.post<GenerateCalculationsResponse>(
     `${PAYROLL_CALCULATION_ENDPOINT}/recalculate-calculations/${periodId}`,
+  );
+  return data;
+}
+
+/**
+ * GET /schedules/attendances/{periodId}
+ * Retorna las asistencias día a día de todos los trabajadores del período
+ */
+export async function getPayrollAttendances(
+  periodId: number,
+): Promise<AttendancesData> {
+  const { data } = await api.get<AttendancesData>(
+    `${PAYROLL_CALCULATION_ENDPOINT}/attendances/${periodId}`,
   );
   return data;
 }

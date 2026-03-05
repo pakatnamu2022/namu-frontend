@@ -114,7 +114,7 @@ export default function PayrollCalculationToolbar({
           </Button>
         )}
 
-        {hasCalculations && !isClosed && (
+        {/* {hasCalculations && !isClosed && (
           <Button
             variant="outline"
             size="sm"
@@ -128,7 +128,20 @@ export default function PayrollCalculationToolbar({
             )}
             Recalcular
           </Button>
-        )}
+        )} */}
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setShowRecalcConfirm(true)}
+          disabled={isRecalculating}
+        >
+          {isRecalculating ? (
+            <Loader2 className="size-4 mr-1.5 animate-spin" />
+          ) : (
+            <RefreshCw className="size-4 mr-1.5" />
+          )}
+          Recalcular
+        </Button>
       </div>
 
       <SimpleConfirmDialog

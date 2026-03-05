@@ -1,8 +1,18 @@
 import { PayrollPeriodResource } from "../../periodo-planilla/lib/payroll-period.interface";
 
-export type PayrollCalculationStatus = "DRAFT" | "CALCULATED" | "APPROVED" | "PAID";
+export type PayrollCalculationStatus =
+  | "DRAFT"
+  | "CALCULATED"
+  | "APPROVED"
+  | "PAID";
 export type DetailType = "EARNING" | "DEDUCTION" | "CONTRIBUTION";
-export type DetailCategory = "ATTENDANCE" | "BONUS" | "TAX" | "INSURANCE" | "LOAN" | "OTHER";
+export type DetailCategory =
+  | "ATTENDANCE"
+  | "BONUS"
+  | "TAX"
+  | "INSURANCE"
+  | "LOAN"
+  | "OTHER";
 export type HourType = "DIURNO" | "NOCTURNO" | null;
 
 export interface PayrollCalculationDetail {
@@ -89,6 +99,43 @@ export interface PayrollSummaryData {
 }
 
 export interface PayrollSummaryResponse extends PayrollSummaryData {
+  success?: boolean;
+}
+
+// --- Attendances by period ---
+
+export interface DailyAttendance {
+  date: string;
+  code: string;
+  status: string;
+}
+
+export interface AttendanceSummary {
+  codes: Record<string, number>;
+  total_days: number;
+}
+
+export interface WorkerAttendance {
+  worker_id: number;
+  worker_name: string;
+  document_number: string;
+  daily_attendances: DailyAttendance[];
+  summary: AttendanceSummary;
+}
+
+export interface AttendancePeriodInfo {
+  period_id: number;
+  period_name: string;
+  start_date: string;
+  end_date: string;
+  total_workers: number;
+}
+
+export interface AttendancesData extends AttendancePeriodInfo {
+  attendances: WorkerAttendance[];
+}
+
+export interface AttendancesResponse extends AttendancesData {
   success?: boolean;
 }
 
