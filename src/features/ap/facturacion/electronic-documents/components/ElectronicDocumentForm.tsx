@@ -100,6 +100,7 @@ export function ElectronicDocumentForm({
   const selectedDocumentType = form.watch("sunat_concept_document_type_id");
   const purchaseRequestQuoteId = form.watch("purchase_request_quote_id");
   const isAdvancePayment = form.watch("is_advance_payment") || false;
+  const isDetraction = form.watch("detraccion") || false;
 
   // Consultar series autorizadas
   const { data: authorizedSeries = [] } = useAuthorizedSeries({
@@ -658,6 +659,7 @@ MODELO: ${vehicle?.model?.version || ``}
               isFromQuotation={!!selectedQuotationId}
               hasVehicle={hasVehicle}
               pendingBalance={pendingBalance}
+              useQuotation={useQuotation}
               defaultCustomerId={
                 quotation?.holder_id ? Number(quotation.holder_id) : null
               }
@@ -678,6 +680,7 @@ MODELO: ${vehicle?.model?.version || ``}
               }
               isFromQuotation={!!selectedQuotationId}
               useQuotation={useQuotation}
+              isDetraction={isDetraction}
             />
 
             {/* Configuración Adicional */}
