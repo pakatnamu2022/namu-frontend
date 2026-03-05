@@ -88,11 +88,14 @@ export function AdditionalConfigSection({
   // Filtrar chequeras: si medio de pago es EFECTIVO, solo mostrar las que contengan "CAJ"
   const filteredCheckbooks =
     medioDePago === "EFECTIVO"
-      ? checkbooks.filter(
-          (checkbook) =>
-            checkbook.code.toUpperCase().includes("CAJ01")
+      ? checkbooks.filter((checkbook) =>
+          checkbook.code.toUpperCase().includes("CAJ01"),
         )
-      : checkbooks;
+      : medioDePago !== "EFECTIVO"
+        ? checkbooks.filter(
+            (checkbook) => !checkbook.code.toUpperCase().includes("CAJ"),
+          )
+        : checkbooks;
 
   const paymentMethodOptions = [
     ...(!isModuleCommercial ? [{ label: "EFECTIVO", value: "EFECTIVO" }] : []),
