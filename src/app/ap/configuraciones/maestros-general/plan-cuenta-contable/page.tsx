@@ -60,6 +60,16 @@ export default function AccountingAccountPlanPage() {
     }
   };
 
+  const handleToggleDetraction = async (id: number, newValue: boolean) => {
+    try {
+      await updateAccountingAccountPlan(id, { is_detraction: newValue });
+      await refetch();
+      successToast("Detracción actualizada correctamente.");
+    } catch {
+      errorToast("Error al actualizar la detracción.");
+    }
+  };
+
   const handleDelete = async () => {
     if (!deleteId) return;
     try {
@@ -92,6 +102,7 @@ export default function AccountingAccountPlanPage() {
         isLoading={isLoading}
         columns={accountingAccountPlanColumns({
           onToggleStatus: handleToggleStatus,
+          onToggleDetraction: handleToggleDetraction,
           onDelete: setDeleteId,
           onUpdate: setUpdateId,
           permissions,

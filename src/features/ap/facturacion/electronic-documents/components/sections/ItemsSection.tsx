@@ -46,7 +46,7 @@ export function ItemsSection({
   isDetraction = false,
 }: ItemsSectionProps) {
   const { data: accountPlans } = useAllAccountingAccountPlan(
-    isDetraction ? { is_detraction: true } : undefined,
+    isDetraction ? { is_detraction: 1 } : undefined,
   );
 
   const [newItem, setNewItem] = useState({

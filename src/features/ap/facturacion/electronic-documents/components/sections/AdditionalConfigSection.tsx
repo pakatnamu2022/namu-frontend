@@ -27,6 +27,7 @@ export function AdditionalConfigSection({
   form,
   checkbooks,
   isModuleCommercial = true,
+  useQuotation = false,
 }: AdditionalConfigSectionProps) {
   const medioDePago = form.watch("medio_de_pago");
   const condicionesDePago = form.watch("condiciones_de_pago");
@@ -165,7 +166,7 @@ export function AdditionalConfigSection({
             description="La fecha de vencimiento se calculará automáticamente."
             validateCreate={(val) => /^\d+$/.test(val)}
           />
-          {isModuleCommercial && (
+          {useQuotation && (
             <FormSelect
               control={form.control}
               label="Tipo de Financiamiento *"
@@ -211,10 +212,10 @@ export function AdditionalConfigSection({
             />
           )}
 
-          {isModuleCommercial && (
+          {useQuotation && (
             <FormSelect
               control={form.control}
-              label="Tipo de Financiamiento *"
+              label="Tipo de Financiamiento"
               name="financing_type"
               options={filteredFinancingTypeOptions}
               placeholder="Seleccione una opción"
