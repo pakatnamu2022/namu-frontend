@@ -34,10 +34,12 @@ export function AdditionalConfigSection({
 
   // Form auxiliar solo para UI - los días de crédito no se envían al backend
   const creditDaysSchema = z.object({
-    credit_days: z.string().min(1, "Requerido").refine(
-      (val) => Number.isInteger(Number(val)) && Number(val) > 0,
-      { message: "Debe ser un número entero positivo" },
-    ),
+    credit_days: z
+      .string()
+      .min(1, "Requerido")
+      .refine((val) => Number.isInteger(Number(val)) && Number(val) > 0, {
+        message: "Debe ser un número entero positivo",
+      }),
   });
   const creditDaysForm = useForm<{ credit_days: string }>({
     resolver: zodResolver(creditDaysSchema),
@@ -86,15 +88,15 @@ export function AdditionalConfigSection({
   // Filtrar chequeras: si medio de pago es EFECTIVO, solo mostrar las que contengan "CAJ"
   const filteredCheckbooks =
     medioDePago === "EFECTIVO"
-      ? checkbooks.filter((checkbook) =>
-          checkbook.code.toUpperCase().includes("CAJ"),
+      ? checkbooks.filter(
+          (checkbook) =>
+            checkbook.code.toUpperCase().includes("CAJ") &&
+            !checkbook.code.toUpperCase().includes("CAJGEN"),
         )
       : checkbooks;
 
   const paymentMethodOptions = [
-    ...(!isModuleCommercial
-      ? [{ label: "EFECTIVO", value: "EFECTIVO" }]
-      : []),
+    ...(!isModuleCommercial ? [{ label: "EFECTIVO", value: "EFECTIVO" }] : []),
     {
       label: "TARJETA",
       value: "TARJETA",
@@ -164,11 +166,12 @@ export function AdditionalConfigSection({
           {isModuleCommercial && (
             <FormSelect
               control={form.control}
-              label="Tipo de Financiamiento"
+              label="Tipo de Financiamiento *"
               name="financing_type"
               options={filteredFinancingTypeOptions}
               placeholder="Seleccione una opción"
               description="Tipo de financiamiento del documento."
+              required
             />
           )}
         </>
@@ -207,11 +210,12 @@ export function AdditionalConfigSection({
           {isModuleCommercial && (
             <FormSelect
               control={form.control}
-              label="Tipo de Financiamiento"
+              label="Tipo de Financiamiento *"
               name="financing_type"
               options={filteredFinancingTypeOptions}
               placeholder="Seleccione una opción"
               description="Tipo de financiamiento del documento."
+              required
             />
           )}
         </>
