@@ -90,8 +90,7 @@ export function AdditionalConfigSection({
     medioDePago === "EFECTIVO"
       ? checkbooks.filter(
           (checkbook) =>
-            checkbook.code.toUpperCase().includes("CAJ") &&
-            !checkbook.code.toUpperCase().includes("CAJGEN"),
+            checkbook.code.toUpperCase().includes("CAJ01")
         )
       : checkbooks;
 
