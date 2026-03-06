@@ -11,12 +11,16 @@ import { PAYROLL_PERIOD } from "@/features/gp/gestionhumana/planillas/periodo-pl
 import {
   usePayrollAttendances,
   usePayrollCalculationSummary,
+  usePayrollReport,
 } from "@/features/gp/gestionhumana/planillas/calculo-planilla/lib/payroll-calculation.hook";
 import { SummaryWorkerItem } from "@/features/gp/gestionhumana/planillas/calculo-planilla/lib/payroll-calculation.interface";
-import PayrollCalculationToolbar from "@/features/gp/gestionhumana/planillas/calculo-planilla/components/PayrollCalculationToolbar";
+import PayrollCalculationToolbar, {
+  ActiveView,
+} from "@/features/gp/gestionhumana/planillas/calculo-planilla/components/PayrollCalculationToolbar";
 import PayrollCalculationSummaryTable from "@/features/gp/gestionhumana/planillas/calculo-planilla/components/PayrollCalculationSummaryTable";
 import PayrollCalculationDetailModal from "@/features/gp/gestionhumana/planillas/calculo-planilla/components/PayrollCalculationDetailModal";
 import PayrollAttendanceTable from "@/features/gp/gestionhumana/planillas/calculo-planilla/components/PayrollAttendanceTable";
+import PayrollReportTable from "@/features/gp/gestionhumana/planillas/calculo-planilla/components/PayrollReportTable";
 
 function TableSkeleton() {
   return (
@@ -33,7 +37,7 @@ export default function PayrollCalculationPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  const [previewEnabled, setPreviewEnabled] = useState(false);
+  const [activeView, setActiveView] = useState<ActiveView>("attendances");
   const [selectedWorker, setSelectedWorker] =
     useState<SummaryWorkerItem | null>(null);
 
@@ -44,7 +48,7 @@ export default function PayrollCalculationPage() {
   });
 
   const {
-    data: attendancesResponse,
+    data: attendancesData,
     isLoading: isLoadingAttendances,
     isError: isErrorAttendances,
   } = usePayrollAttendances(period ? period.id : null);
@@ -54,20 +58,28 @@ export default function PayrollCalculationPage() {
     isLoading: isLoadingSummary,
     isError: isErrorSummary,
     refetch: refetchSummary,
-  } = usePayrollCalculationSummary(previewEnabled && period ? period.id : null);
+  } = usePayrollCalculationSummary(
+    activeView === "totals" && period ? period.id : null,
+  );
 
-  const handlePreview = () => {
-    setPreviewEnabled(true);
-    if (previewEnabled) {
-      refetchSummary();
+  const {
+    data: reportData,
+    isLoading: isLoadingReport,
+    isError: isErrorReport,
+    refetch: refetchReport,
+  } = usePayrollReport(activeView === "report" && period ? period.id : null);
+
+  const handleChangeView = (view: ActiveView) => {
+    if (view === activeView) {
+      if (view === "totals") refetchSummary();
+      if (view === "report") refetchReport();
     }
+    setActiveView(view);
   };
 
   const handleSuccess = () => {
     queryClient.invalidateQueries({ queryKey: [PAYROLL_PERIOD.QUERY_KEY] });
-    if (previewEnabled) {
-      refetchSummary();
-    }
+    if (activeView === "totals") refetchSummary();
   };
 
   if (isLoadingPeriod || !period) {
@@ -81,12 +93,10 @@ export default function PayrollCalculationPage() {
   }
 
   const summary = summaryResponse?.summary ?? [];
-  const periodInfo = summaryResponse?.period;
-  const attendancesData = attendancesResponse;
 
   return (
     <div className="space-y-5 p-6">
-      {/* Header + Toolbar en la misma fila */}
+      {/* Header + Toolbar */}
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex items-center gap-3">
           <Button
@@ -103,49 +113,49 @@ export default function PayrollCalculationPage() {
             </h1>
             <p className="text-sm text-muted-foreground">
               Período: {period.code} | Estado: {period.status} |{" "}
-              {periodInfo
-                ? `${periodInfo.start_date} → ${periodInfo.end_date}`
-                : `${period.start_date} → ${period.end_date}`}
+              {period.start_date} → {period.end_date}
             </p>
           </div>
         </div>
 
-        {/* Botones: Generar/Recalcular + Ver Resumen */}
         <PayrollCalculationToolbar
           periodId={period.id}
           periodStatus={period.status}
-          onPreview={handlePreview}
+          activeView={activeView}
+          onChangeView={handleChangeView}
           onSuccess={handleSuccess}
         />
       </div>
 
-      {/* Tabla de asistencias — vista principal */}
-      <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-foreground">
-            Asistencias del Período
-          </h2>
-          {attendancesData && (
-            <span className="text-xs text-muted-foreground">
-              {attendancesData.total_workers} trabajador(es)
-            </span>
-          )}
-        </div>
-
-        {isLoadingAttendances && <TableSkeleton />}
-
-        {isErrorAttendances && !isLoadingAttendances && (
-          <div className="py-6 text-center text-sm text-red-600 dark:text-red-400">
-            No se pudieron cargar las asistencias del período.
+      {/* Vista: Asistencias */}
+      {activeView === "attendances" && (
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-semibold text-foreground">
+              Asistencias del Período
+            </h2>
+            {attendancesData && (
+              <span className="text-xs text-muted-foreground">
+                {attendancesData.total_workers} trabajador(es)
+              </span>
+            )}
           </div>
-        )}
 
-        {attendancesData && <PayrollAttendanceTable data={attendancesData} />}
-      </div>
+          {isLoadingAttendances && <TableSkeleton />}
 
-      {/* Resumen de cálculos (opcional, al activar preview) */}
-      {previewEnabled && (
-        <div className="space-y-2 pt-2 border-t">
+          {isErrorAttendances && !isLoadingAttendances && (
+            <div className="py-6 text-center text-sm text-red-600 dark:text-red-400">
+              No se pudieron cargar las asistencias del período.
+            </div>
+          )}
+
+          {attendancesData && <PayrollAttendanceTable data={attendancesData} />}
+        </div>
+      )}
+
+      {/* Vista: Ver Totales */}
+      {activeView === "totals" && (
+        <div className="space-y-2">
           <h2 className="text-sm font-semibold text-foreground">
             Resumen de Cálculos
           </h2>
@@ -160,18 +170,29 @@ export default function PayrollCalculationPage() {
           )}
 
           {!isLoadingSummary && !isErrorSummary && (
-            <>
-              {summary.length > 0 && (
-                <div className="text-xs text-muted-foreground">
-                  {summaryResponse?.workers_count ?? summary.length}{" "}
-                  trabajador(es) con asistencias.{" "}
-                  <span className="italic">
-                    Haz clic en la flecha para ver el desglose por trabajador.
-                  </span>
-                </div>
-              )}
-              <PayrollCalculationSummaryTable summary={summary} />
-            </>
+            <PayrollCalculationSummaryTable summary={summary} />
+          )}
+        </div>
+      )}
+
+      {/* Vista: Resumen de Nómina */}
+      {activeView === "report" && (
+        <div className="space-y-2">
+          <h2 className="text-sm font-semibold text-foreground">
+            Resumen de Nómina — {period.name}
+          </h2>
+
+          {isLoadingReport && <TableSkeleton />}
+
+          {isErrorReport && !isLoadingReport && (
+            <div className="py-6 text-center text-sm text-red-600 dark:text-red-400">
+              No se pudo cargar el reporte. Verifica que el período tenga
+              cálculos generados.
+            </div>
+          )}
+
+          {reportData && !isLoadingReport && !isErrorReport && (
+            <PayrollReportTable data={reportData} />
           )}
         </div>
       )}

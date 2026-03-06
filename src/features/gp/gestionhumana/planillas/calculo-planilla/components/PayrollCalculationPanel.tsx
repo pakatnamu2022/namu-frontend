@@ -5,7 +5,9 @@ import { useQueryClient } from "@tanstack/react-query";
 import { PayrollPeriodResource } from "../../periodo-planilla/lib/payroll-period.interface";
 import { usePayrollCalculationSummary } from "../lib/payroll-calculation.hook";
 import { SummaryWorkerItem } from "../lib/payroll-calculation.interface";
-import PayrollCalculationToolbar from "./PayrollCalculationToolbar";
+import PayrollCalculationToolbar, {
+  ActiveView,
+} from "./PayrollCalculationToolbar";
 import PayrollCalculationSummaryTable from "./PayrollCalculationSummaryTable";
 import PayrollCalculationDetailModal from "./PayrollCalculationDetailModal";
 import { GeneralModal } from "@/shared/components/GeneralModal";
@@ -35,7 +37,7 @@ export default function PayrollCalculationPanel({
   onClose,
 }: Props) {
   const queryClient = useQueryClient();
-  const [previewEnabled, setPreviewEnabled] = useState(false);
+  const [activeView, setActiveView] = useState<ActiveView>("attendances");
   const [selectedWorker, setSelectedWorker] =
     useState<SummaryWorkerItem | null>(null);
 
@@ -44,22 +46,16 @@ export default function PayrollCalculationPanel({
     isLoading: isLoadingSummary,
     isError: isErrorSummary,
     refetch: refetchSummary,
-  } = usePayrollCalculationSummary(previewEnabled ? period.id : null);
+  } = usePayrollCalculationSummary(activeView === "totals" ? period.id : null);
 
-  const handlePreview = () => {
-    setPreviewEnabled(true);
-    if (previewEnabled) {
-      refetchSummary();
-    }
+  const handleChangeView = (view: ActiveView) => {
+    if (view === activeView && view === "totals") refetchSummary();
+    setActiveView(view);
   };
 
   const handleSuccess = () => {
-    // Invalida el query de períodos para que se actualice el estado del período
     queryClient.invalidateQueries({ queryKey: [PAYROLL_PERIOD.QUERY_KEY] });
-    // Si el preview estaba activo, refresca el resumen
-    if (previewEnabled) {
-      refetchSummary();
-    }
+    if (activeView === "totals") refetchSummary();
   };
 
   const summary = summaryResponse?.summary ?? [];
@@ -86,17 +82,18 @@ export default function PayrollCalculationPanel({
             <PayrollCalculationToolbar
               periodId={period.id}
               periodStatus={period.status}
-              onPreview={handlePreview}
+              activeView={activeView}
+              onChangeView={handleChangeView}
               onSuccess={handleSuccess}
             />
           </div>
 
           {/* Contenido del resumen */}
-          {!previewEnabled && (
+          {activeView !== "totals" && (
             <div className="py-8 text-center text-muted-foreground text-sm flex flex-col items-center gap-2">
               <AlertCircle className="size-8 text-muted-foreground/50" />
               <p>
-                Haz clic en <strong>Ver Resumen</strong> para previsualizar los
+                Haz clic en <strong>Ver Totales</strong> para previsualizar los
                 cálculos,
               </p>
               <p>
@@ -106,16 +103,16 @@ export default function PayrollCalculationPanel({
             </div>
           )}
 
-          {previewEnabled && isLoadingSummary && <SummarySkeleton />}
+          {activeView === "totals" && isLoadingSummary && <SummarySkeleton />}
 
-          {previewEnabled && isErrorSummary && (
+          {activeView === "totals" && isErrorSummary && (
             <div className="py-6 text-center text-sm text-red-600 dark:text-red-400">
               No se pudo cargar el resumen. Verifica que el período tenga
               asistencias registradas.
             </div>
           )}
 
-          {previewEnabled && !isLoadingSummary && !isErrorSummary && (
+          {activeView === "totals" && !isLoadingSummary && !isErrorSummary && (
             <>
               {summary.length > 0 && (
                 <div className="text-xs text-muted-foreground mb-1">
