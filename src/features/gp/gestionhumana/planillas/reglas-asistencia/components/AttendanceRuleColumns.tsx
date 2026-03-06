@@ -5,7 +5,7 @@ import { AttendanceRuleResource } from "../lib/attendance-rule.interface";
 import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
-import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
 import { useNavigate } from "react-router-dom";
 import { ATTENDANCE_RULE } from "../lib/attendance-rule.constant";
 import {
@@ -19,8 +19,10 @@ export type AttendanceRuleColumns = ColumnDef<AttendanceRuleResource>;
 
 export const attendanceRuleColumns = ({
   onDelete,
+  onToggle,
 }: {
   onDelete: (id: number) => void;
+  onToggle: (id: number, field: "pay" | "use_shift", value: boolean) => void;
 }): AttendanceRuleColumns[] => [
   {
     accessorKey: "code",
@@ -63,17 +65,27 @@ export const attendanceRuleColumns = ({
   {
     accessorKey: "pay",
     header: "¿Se paga?",
-    cell: ({ getValue }) => {
+    cell: ({ getValue, row }) => {
       const val = getValue() as boolean;
-      return <Badge variant="default">{val ? "Sí" : "No"}</Badge>;
+      return (
+        <Switch
+          checked={val}
+          onCheckedChange={(checked) => onToggle(row.original.id, "pay", checked)}
+        />
+      );
     },
   },
   {
     accessorKey: "use_shift",
-    header: "¿Usa turno?",
-    cell: ({ getValue }) => {
+    header: "¿Usa Jornada?",
+    cell: ({ getValue, row }) => {
       const val = getValue() as boolean;
-      return <Badge variant="default">{val ? "Sí" : "No"}</Badge>;
+      return (
+        <Switch
+          checked={val}
+          onCheckedChange={(checked) => onToggle(row.original.id, "use_shift", checked)}
+        />
+      );
     },
   },
   {

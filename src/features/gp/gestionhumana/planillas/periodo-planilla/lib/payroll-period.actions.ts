@@ -33,7 +33,7 @@ export async function getAllPayrollPeriods(): Promise<PayrollPeriodResource[]> {
 }
 
 export async function findPayrollPeriodById(
-  id: string
+  id: string,
 ): Promise<PayrollPeriodResource> {
   const response = await api.get<PayrollPeriodResource>(`${ENDPOINT}/${id}`);
   return response.data;
@@ -44,21 +44,35 @@ export async function getCurrentPayrollPeriod(): Promise<PayrollPeriodResource> 
   return response.data;
 }
 
-export async function storePayrollPeriod(data: any): Promise<PayrollPeriodResponse> {
+export async function storePayrollPeriod(
+  data: any,
+): Promise<PayrollPeriodResponse> {
   const response = await api.post<PayrollPeriodResponse>(ENDPOINT, data);
   return response.data;
 }
 
 export async function updatePayrollPeriod(
   id: string,
-  data: any
+  data: any,
 ): Promise<PayrollPeriodResponse> {
-  const response = await api.put<PayrollPeriodResponse>(`${ENDPOINT}/${id}`, data);
+  const response = await api.put<PayrollPeriodResponse>(
+    `${ENDPOINT}/${id}`,
+    data,
+  );
   return response.data;
 }
 
-export async function deletePayrollPeriod(id: number): Promise<GeneralResponse> {
+export async function deletePayrollPeriod(
+  id: number,
+): Promise<GeneralResponse> {
   const { data } = await api.delete<GeneralResponse>(`${ENDPOINT}/${id}`);
+  return data;
+}
+
+export async function processPayrollPeriod(
+  id: number,
+): Promise<GeneralResponse> {
+  const { data } = await api.post<GeneralResponse>(`${ENDPOINT}/${id}/process`);
   return data;
 }
 

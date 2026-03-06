@@ -76,11 +76,11 @@ export function InvoiceSummarySection({
 
   // Calcular el total de la orden de trabajo desde labours y parts (sin IGV)
   const laboursTotal = labours.reduce(
-    (sum, labour) => sum + parseFloat(labour.total_cost || "0"),
+    (sum, labour) => sum + parseFloat(labour.net_amount || "0"),
     0,
   );
   const partsTotal = parts.reduce(
-    (sum, part) => sum + parseFloat(part.total_amount || "0"),
+    (sum, part) => sum + parseFloat(part.net_amount || "0"),
     0,
   );
   const subtotal = laboursTotal + partsTotal;

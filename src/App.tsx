@@ -305,6 +305,8 @@ import WorkOrderPage from "./app/ap/post-venta/taller/orden-trabajo/page.tsx";
 import AddWorkOrderPage from "./app/ap/post-venta/taller/orden-trabajo/agregar/page.tsx";
 import UpdateWorkOrderPage from "./app/ap/post-venta/taller/orden-trabajo/actualizar/[id]/page.tsx";
 import ManageWorkOrderPage from "./app/ap/post-venta/taller/orden-trabajo/gestionar/[id]/page.tsx";
+import WorkOrderReceptionPage from "./app/ap/post-venta/taller/recepcion-orden-trabajo/page.tsx";
+import ManageWorkOrderReceptionPage from "./app/ap/post-venta/taller/recepcion-orden-trabajo/gestionar/[id]/page.tsx";
 import GeneralInformationPage from "./app/ap/post-venta/taller/orden-trabajo/gestionar/[id]/informacion-general/page.tsx";
 import WorkOrderPlanningPage from "./app/ap/post-venta/taller/planificacion-orden-trabajo/page.tsx";
 import AddWorkOrderPlanningPage from "./app/ap/post-venta/taller/planificacion-orden-trabajo/agregar/page.tsx";
@@ -388,10 +390,12 @@ import ControlFreightPage from "./app/tp/comercial-tp/control-fletes/page.tsx";
 import PayrollPeriodsPage from "./app/gp/gestion-humana/planillas/periodos/page.tsx";
 import AddPayrollPeriodPage from "./app/gp/gestion-humana/planillas/periodos/agregar/page.tsx";
 import UpdatePayrollPeriodPage from "./app/gp/gestion-humana/planillas/periodos/actualizar/[id]/page.tsx";
+import PayrollCalculationPage from "./app/gp/gestion-humana/planillas/periodos/calcular/[id]/page.tsx";
 import AttendanceRulePage from "./app/gp/gestion-humana/planillas/reglas-asistencia/page.tsx";
 import AddAttendanceRulePage from "./app/gp/gestion-humana/planillas/reglas-asistencia/agregar/page.tsx";
 import UpdateAttendanceRulePage from "./app/gp/gestion-humana/planillas/reglas-asistencia/actualizar/[id]/page.tsx";
 import WorkSchedulesPage from "./app/gp/gestion-humana/planillas/dia-trabajo/page.tsx";
+import PayrollConstantsPage from "./app/gp/gestion-humana/planillas/constantes/page.tsx";
 import ProfileLayout from "./features/dashboard/components/ProfileLayout.tsx";
 import ControlGoalPage from "./app/tp/comercial-tp/control-metas/page.tsx";
 import EquipmentTypePage from "./app/gp/tics/tipos-de-equipo/page.tsx";
@@ -1541,6 +1545,14 @@ function App() {
                 element={<ManageWorkOrderPage />}
               />
               <Route
+                path="taller/recepcion-orden-trabajo"
+                element={<WorkOrderReceptionPage />}
+              />
+              <Route
+                path="taller/recepcion-orden-trabajo/gestionar/:id"
+                element={<ManageWorkOrderReceptionPage />}
+              />
+              <Route
                 path="taller/orden-trabajo/gestionar/:id/informacion-general"
                 element={<GeneralInformationPage />}
               />
@@ -1885,6 +1897,10 @@ function App() {
                 <AddPayrollPeriodPage />,
                 <UpdatePayrollPeriodPage />,
               )}
+              <Route
+                path="planillas/periodos/calcular/:id"
+                element={<PayrollCalculationPage />}
+              />
 
               {/* Reglas de Asistencia */}
               {RouterCrud(
@@ -1893,6 +1909,12 @@ function App() {
                 <AddAttendanceRulePage />,
                 <UpdateAttendanceRulePage />,
               )}
+
+              {/* Constantes de Planilla */}
+              <Route
+                path="planillas/constantes"
+                element={<PayrollConstantsPage />}
+              />
             </Route>
 
             {/* ======================================================== */}
@@ -1919,7 +1941,10 @@ function App() {
               <Route path="sede/agregar" element={<AddSedePage />} />
               <Route path="sede/actualizar/:id" element={<UpdateSedePage />} />
               <Route path="empresa" element={<CompanyPage />} />
-              <Route path="empresa/actualizar/:id" element={<UpdateCompanyPage />} />
+              <Route
+                path="empresa/actualizar/:id"
+                element={<UpdateCompanyPage />}
+              />
             </Route>
 
             {/* ======================================================== */}

@@ -66,7 +66,6 @@ export default function UpdateCompanyPage() {
       city: data.city || "",
       website: data.website || "",
       detraction_amount: data.detraction_amount,
-      billing_detraction_type_id: String(data.billing_detraction_type_id),
     };
   }
 

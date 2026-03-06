@@ -161,8 +161,12 @@ export function DateTimePickerForm<T extends FieldValues>({
   }, []);
 
   return (
-    <FormItem>
-      {label && <FormLabel className="leading-none">{label}</FormLabel>}
+    <FormItem className="flex flex-col justify-between">
+      {label && (
+        <FormLabel className="flex justify-start items-center text-xs md:text-sm mb-1 leading-none dark:text-muted-foreground">
+          {label}
+        </FormLabel>
+      )}
       <FormControl>
         <Popover open={isOpen} onOpenChange={setIsOpen}>
           <PopoverTrigger asChild>

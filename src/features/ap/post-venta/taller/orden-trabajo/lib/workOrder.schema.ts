@@ -17,11 +17,9 @@ const workOrderSchemaBase = z.object({
   sede_id: requiredStringId("Sede es requerida"),
   opening_date: z.coerce.date(),
   currency_id: requiredStringId("Moneda es requerida"),
-  estimated_delivery_date: z
-    .union([z.literal(""), z.date()])
-    .refine((val) => val !== "", {
-      message: "Fecha estimada de entrega es requerida",
-    }),
+  estimated_delivery_time: z
+    .string()
+    .min(1, "La fecha y hora de inicio es requerida"),
   diagnosis_date: z
     .union([z.literal(""), z.date()])
     .refine((val) => val !== "", {
@@ -37,27 +35,39 @@ const workOrderSchemaBase = z.object({
   type_recall: z.enum(["ROJO", "AMARILLO", "VERDE"]).optional(),
 });
 
-const appointmentRefine = (data: { has_appointment?: boolean; appointment_planning_id?: string }) => {
+const appointmentRefine = (data: {
+  has_appointment?: boolean;
+  appointment_planning_id?: string;
+}) => {
   if (data.has_appointment) {
-    return !!data.appointment_planning_id && data.appointment_planning_id.length > 0;
+    return (
+      !!data.appointment_planning_id && data.appointment_planning_id.length > 0
+    );
   }
   return true;
 };
 
-const inspectionRefine = (data: { has_inspection?: boolean; vehicle_inspection_id?: string }) => {
+const inspectionRefine = (data: {
+  has_inspection?: boolean;
+  vehicle_inspection_id?: string;
+}) => {
   if (data.has_inspection) {
-    return !!data.vehicle_inspection_id && data.vehicle_inspection_id.length > 0;
+    return (
+      !!data.vehicle_inspection_id && data.vehicle_inspection_id.length > 0
+    );
   }
   return true;
 };
 
 export const workOrderSchemaCreate = workOrderSchemaBase
   .refine(appointmentRefine, {
-    message: "Cita de planificación es requerida cuando 'Tiene cita' está activo",
+    message:
+      "Cita de planificación es requerida cuando 'Tiene cita' está activo",
     path: ["appointment_planning_id"],
   })
   .refine(inspectionRefine, {
-    message: "Inspección de vehículo es requerida cuando 'Tiene inspección' está activo",
+    message:
+      "Inspección de vehículo es requerida cuando 'Tiene inspección' está activo",
     path: ["vehicle_inspection_id"],
   });
 
@@ -67,11 +77,13 @@ export const workOrderSchemaUpdate = workOrderSchemaBase
   })
   .partial()
   .refine(appointmentRefine, {
-    message: "Cita de planificación es requerida cuando 'Tiene cita' está activo",
+    message:
+      "Cita de planificación es requerida cuando 'Tiene cita' está activo",
     path: ["appointment_planning_id"],
   })
   .refine(inspectionRefine, {
-    message: "Inspección de vehículo es requerida cuando 'Tiene inspección' está activo",
+    message:
+      "Inspección de vehículo es requerida cuando 'Tiene inspección' está activo",
     path: ["vehicle_inspection_id"],
   });
 

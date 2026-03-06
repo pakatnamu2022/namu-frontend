@@ -16,8 +16,6 @@ export interface PayrollPeriodResource {
   end_date: string;
   payment_date: string;
   status: PayrollPeriodStatus;
-  can_modify: boolean;
-  can_calculate: boolean;
   company?: Company;
   created_at: string;
   updated_at: string;

@@ -11,7 +11,10 @@ import { attendanceRuleColumns } from "@/features/gp/gestionhumana/planillas/reg
 import AttendanceRuleOptions from "@/features/gp/gestionhumana/planillas/reglas-asistencia/components/AttendanceRuleOptions";
 import AttendanceRuleActions from "@/features/gp/gestionhumana/planillas/reglas-asistencia/components/AttendanceRuleActions";
 import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
-import { deleteAttendanceRule } from "@/features/gp/gestionhumana/planillas/reglas-asistencia/lib/attendance-rule.actions";
+import {
+  deleteAttendanceRule,
+  updateAttendanceRule,
+} from "@/features/gp/gestionhumana/planillas/reglas-asistencia/lib/attendance-rule.actions";
 import {
   ERROR_MESSAGE,
   errorToast,
@@ -40,6 +43,24 @@ export default function AttendanceRulePage() {
     per_page,
     search,
   });
+
+  const handleToggle = async (
+    id: number,
+    field: "pay" | "use_shift",
+    value: boolean,
+  ) => {
+    const rule = data?.data.find((r) => r.id === id);
+    if (!rule) return;
+    try {
+      await updateAttendanceRule(id, { ...rule, [field]: value });
+      await refetch();
+      successToast(SUCCESS_MESSAGE(MODEL, "update"));
+    } catch (error: any) {
+      errorToast(
+        error?.response?.data?.message ?? ERROR_MESSAGE(MODEL, "update"),
+      );
+    }
+  };
 
   const handleDelete = async () => {
     if (!deleteId) return;
@@ -73,7 +94,10 @@ export default function AttendanceRulePage() {
 
       <AttendanceRuleTable
         isLoading={isLoading}
-        columns={attendanceRuleColumns({ onDelete: setDeleteId })}
+        columns={attendanceRuleColumns({
+          onDelete: setDeleteId,
+          onToggle: handleToggle,
+        })}
         data={data?.data || []}
       >
         <AttendanceRuleOptions search={search} setSearch={setSearch} />

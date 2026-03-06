@@ -352,7 +352,6 @@ export default function WorkSchedulesPage() {
                 onAddSchedule={handleAddSchedule}
                 onEditSchedule={handleEditSchedule}
                 onDeleteSchedule={setDeleteId}
-                canModify={selectedPeriod.can_modify !== false}
               />
             ) : (
               <Empty className="min-h-[calc(100vh-14rem)] border rounded-lg">

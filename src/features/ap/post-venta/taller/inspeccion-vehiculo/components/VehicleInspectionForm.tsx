@@ -24,6 +24,7 @@ import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 import { FormInput } from "@/shared/components/FormInput";
 import { FormInputText } from "@/shared/components/FormInputText";
 import { FileUploadWithCamera } from "@/shared/components/FileUploadWithCamera";
+import { FormSwitch } from "@/shared/components/FormSwitch";
 
 interface VehicleInspectionFormProps {
   defaultValues: Partial<VehicleInspectionSchema>;
@@ -129,6 +130,17 @@ export const VehicleInspectionForm = ({
             control={form.control}
             strictFilter={true}
           />
+
+          <FormSwitch
+            name="washed"
+            label="¿Se realizará lavado?"
+            text={
+              form.watch("washed")
+                ? "Sí, se realizará lavado"
+                : "No, no se realizará lavado"
+            }
+            control={form.control}
+          />
         </GroupFormSection>
 
         {/* Checklist de Verificación */}
@@ -146,7 +158,7 @@ export const VehicleInspectionForm = ({
 
         {/* Fotos del Vehículo - Solo visible cuando dirty_unit está marcado */}
         <GroupFormSection
-          title="Fotos del estado de ingreso del vehículo (Opcional)"
+          title="Fotos del estado de ingreso del vehículo"
           icon={Camera}
           color="orange"
           cols={{ sm: 2 }}

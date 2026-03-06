@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { SummaryWorkerItem } from "../lib/payroll-calculation.interface";
-import { ChevronDown, ChevronRight } from "lucide-react";
+import { ChevronDown, ChevronRight, Search } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 interface Props {
   summary: SummaryWorkerItem[];
@@ -93,6 +94,14 @@ function WorkerRow({ worker }: { worker: SummaryWorkerItem }) {
 }
 
 export default function PayrollCalculationSummaryTable({ summary }: Props) {
+  const [search, setSearch] = useState("");
+
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return summary;
+    return summary.filter((w) => w.worker_name.toLowerCase().includes(q));
+  }, [summary, search]);
+
   if (!summary || summary.length === 0) {
     return (
       <div className="py-8 text-center text-muted-foreground text-sm">
@@ -104,34 +113,54 @@ export default function PayrollCalculationSummaryTable({ summary }: Props) {
   const grandTotal = summary.reduce((acc, w) => acc + w.total_amount, 0);
 
   return (
-    <div className="overflow-x-auto rounded-md border">
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="bg-muted/50 border-b">
-            <th className="px-4 py-2 w-8" />
-            <th className="px-4 py-2 text-left font-semibold">Trabajador</th>
-            <th className="px-4 py-2 text-right font-semibold">Sueldo</th>
-            <th className="px-4 py-2 text-right font-semibold">Jornada</th>
-            <th className="px-4 py-2 text-right font-semibold">Valor/Hora</th>
-            <th className="px-4 py-2 text-right font-semibold">Total Neto</th>
-          </tr>
-        </thead>
-        <tbody>
-          {summary.map((worker) => (
-            <WorkerRow key={worker.worker_id} worker={worker} />
-          ))}
-        </tbody>
-        <tfoot>
-          <tr className="border-t bg-muted/50">
-            <td colSpan={5} className="px-4 py-2 text-right font-semibold">
-              Total General ({summary.length} trabajadores)
-            </td>
-            <td className="px-4 py-2 text-right font-bold text-green-700 dark:text-green-400">
-              {formatCurrency(grandTotal)}
-            </td>
-          </tr>
-        </tfoot>
-      </table>
+    <div className="space-y-3">
+      <div className="relative w-full max-w-xs">
+        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+        <Input
+          placeholder="Buscar por nombre..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="pl-8 h-8 text-sm"
+        />
+      </div>
+
+      <div className="overflow-x-auto rounded-md border">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="bg-muted/50 border-b">
+              <th className="px-4 py-2 w-8" />
+              <th className="px-4 py-2 text-left font-semibold">Trabajador</th>
+              <th className="px-4 py-2 text-right font-semibold">Sueldo</th>
+              <th className="px-4 py-2 text-right font-semibold">Jornada</th>
+              <th className="px-4 py-2 text-right font-semibold">Valor/Hora</th>
+              <th className="px-4 py-2 text-right font-semibold">Total Neto</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.length === 0 ? (
+              <tr>
+                <td colSpan={6} className="py-8 text-center text-sm text-muted-foreground">
+                  Sin resultados para &quot;{search}&quot;
+                </td>
+              </tr>
+            ) : (
+              filtered.map((worker) => (
+                <WorkerRow key={worker.worker_id} worker={worker} />
+              ))
+            )}
+          </tbody>
+          <tfoot>
+            <tr className="border-t bg-muted/50">
+              <td colSpan={5} className="px-4 py-2 text-right font-semibold">
+                Total General ({summary.length} trabajadores)
+              </td>
+              <td className="px-4 py-2 text-right font-bold text-green-700 dark:text-green-400">
+                {formatCurrency(grandTotal)}
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
     </div>
   );
 }

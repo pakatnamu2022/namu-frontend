@@ -42,7 +42,7 @@ export default function PayrollPeriodModal({ id, open, onClose, mode }: Props) {
     return {
       year: data.year,
       month: data.month,
-      payment_date: data.payment_date ?? "",
+      payment_date: data.payment_date ? new Date(data.payment_date) : "",
       company_id: data.company?.id,
     };
   }
@@ -70,13 +70,13 @@ export default function PayrollPeriodModal({ id, open, onClose, mode }: Props) {
   const isLoadingAny =
     mode === "update" && (loadingPayrollPeriod || !payrollPeriod);
 
-  const defaultValues =
+  const defaultValues: Partial<PayrollPeriodSchema> =
     mode === "update" && payrollPeriod
       ? mapToForm(payrollPeriod)
       : {
           year: new Date().getFullYear(),
           month: new Date().getMonth() + 1,
-          payment_date: "",
+          payment_date: "" as const,
         };
 
   const title =
