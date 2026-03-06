@@ -39,4 +39,4 @@ export interface CreatePayrollPeriodPayload {
   company_id: number;
 }
 
-export interface UpdatePayrollPeriodPayload extends Partial<CreatePayrollPeriodPayload> {}
+export type UpdatePayrollPeriodPayload = Partial<CreatePayrollPeriodPayload>;
