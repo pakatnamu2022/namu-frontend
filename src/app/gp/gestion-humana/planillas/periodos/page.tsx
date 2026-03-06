@@ -113,6 +113,7 @@ export default function PayrollPeriodsPage() {
         isLoading={isLoading}
         columns={payrollPeriodColumns({
           onDelete: setDeleteId,
+          onProcess: setProcessId,
           onClose: setCloseId,
           onEdit: setEditId,
           onCalculate: (period) =>
