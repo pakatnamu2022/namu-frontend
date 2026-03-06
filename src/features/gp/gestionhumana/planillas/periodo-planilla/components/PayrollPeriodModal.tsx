@@ -30,15 +30,15 @@ export default function PayrollPeriodModal({ id, open, onClose, mode }: Props) {
   const queryClient = useQueryClient();
   const { MODEL, QUERY_KEY } = PAYROLL_PERIOD;
 
-  const {
-    data: payrollPeriod,
-    isLoading: loadingPayrollPeriod,
-  } = mode === "create"
-    ? { data: undefined, isLoading: false }
-    : // eslint-disable-next-line react-hooks/rules-of-hooks
-      useFindPayrollPeriodById(id!);
+  const { data: payrollPeriod, isLoading: loadingPayrollPeriod } =
+    mode === "create"
+      ? { data: undefined, isLoading: false }
+      : // eslint-disable-next-line react-hooks/rules-of-hooks
+        useFindPayrollPeriodById(id!);
 
-  function mapToForm(data: PayrollPeriodResource): Partial<PayrollPeriodSchema> {
+  function mapToForm(
+    data: PayrollPeriodResource,
+  ): Partial<PayrollPeriodSchema> {
     return {
       year: data.year,
       month: data.month,
@@ -53,19 +53,22 @@ export default function PayrollPeriodModal({ id, open, onClose, mode }: Props) {
         ? storePayrollPeriod(data)
         : updatePayrollPeriod(String(id!), data),
     onSuccess: async () => {
-      successToast(SUCCESS_MESSAGE(MODEL, mode === "create" ? "create" : "update"));
+      successToast(
+        SUCCESS_MESSAGE(MODEL, mode === "create" ? "create" : "update"),
+      );
       await queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
       onClose();
     },
     onError: (error: any) => {
       errorToast(
         error?.response?.data?.message ??
-          ERROR_MESSAGE(MODEL, mode === "create" ? "create" : "update")
+          ERROR_MESSAGE(MODEL, mode === "create" ? "create" : "update"),
       );
     },
   });
 
-  const isLoadingAny = mode === "update" && (loadingPayrollPeriod || !payrollPeriod);
+  const isLoadingAny =
+    mode === "update" && (loadingPayrollPeriod || !payrollPeriod);
 
   const defaultValues =
     mode === "update" && payrollPeriod
@@ -77,12 +80,10 @@ export default function PayrollPeriodModal({ id, open, onClose, mode }: Props) {
         };
 
   const title =
-    mode === "create"
-      ? `Agregar ${MODEL.name}`
-      : `Editar ${MODEL.name}`;
+    mode === "create" ? `Agregar ${MODEL.name}` : `Editar ${MODEL.name}`;
 
   return (
-    <GeneralModal open={open} onClose={onClose} title={title}>
+    <GeneralModal open={open} onClose={onClose} title={title} size="xl">
       {isLoadingAny ? (
         <FormSkeleton />
       ) : (

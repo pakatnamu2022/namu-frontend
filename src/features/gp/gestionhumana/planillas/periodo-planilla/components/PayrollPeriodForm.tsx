@@ -13,6 +13,7 @@ import { Form } from "@/components/ui/form";
 import { FormSelect } from "@/shared/components/FormSelect";
 import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 import { PAYROLL_PERIOD } from "../lib/payroll-period.constant";
+import { useAllCompanies } from "@/features/gp/maestro-general/empresa/lib/company.hook";
 
 const MONTHS = [
   { value: "1", label: "Enero" },
@@ -45,6 +46,7 @@ export const PayrollPeriodForm = ({
   mode = "create",
 }: PayrollPeriodFormProps) => {
   const { MODEL } = PAYROLL_PERIOD;
+  const { data: companies = [] } = useAllCompanies();
 
   const form = useForm<PayrollPeriodSchema>({
     resolver: zodResolver(
@@ -94,6 +96,14 @@ export const PayrollPeriodForm = ({
             label="Fecha de Pago"
             placeholder="Selecciona la fecha de pago"
             captionLayout="dropdown"
+          />
+
+          <FormSelect
+            control={form.control}
+            name="company_id"
+            label="Empresa"
+            placeholder="Selecciona la empresa"
+            options={companies.map((c) => ({ value: String(c.id), label: c.name }))}
           />
         </div>
 
