@@ -51,6 +51,7 @@ export const vehicleInspectionSchemaCreate = z.object({
   mileage: requiredNumber("Kilometraje es requerido"),
   damages: z.array(vehicleInspectionDamageSchema).default([]),
   customer_signature: z.string().min(1, "Firma del cliente es requerida"),
+  washed: z.boolean().default(true),
   // Fotos del vehículo
   photo_front: z.instanceof(File, { message: "Foto delantera es requerida" }),
   photo_back: z.instanceof(File, { message: "Foto trasera es requerida" }),

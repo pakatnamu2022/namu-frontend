@@ -16,6 +16,7 @@ import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
 import {
   closePayrollPeriod,
   deletePayrollPeriod,
+  processPayrollPeriod,
 } from "@/features/gp/gestionhumana/planillas/periodo-planilla/lib/payroll-period.actions";
 import {
   ERROR_MESSAGE,
@@ -29,7 +30,6 @@ import { notFound } from "@/shared/hooks/useNotFound";
 import { PAYROLL_PERIOD } from "@/features/gp/gestionhumana/planillas/periodo-planilla/lib/payroll-period.constant";
 import { SimpleConfirmDialog } from "@/shared/components/SimpleConfirmDialog";
 
-
 export default function PayrollPeriodsPage() {
   const { MODEL, ROUTE, ABSOLUTE_ROUTE } = PAYROLL_PERIOD;
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
@@ -38,6 +38,7 @@ export default function PayrollPeriodsPage() {
   const [per_page, setPerPage] = useState(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [processId, setProcessId] = useState<number | null>(null);
   const [closeId, setCloseId] = useState<number | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
   const [editId, setEditId] = useState<number | null>(null);
@@ -60,6 +61,21 @@ export default function PayrollPeriodsPage() {
       );
     } finally {
       setDeleteId(null);
+    }
+  };
+
+  const handleProcess = async () => {
+    if (!processId) return;
+    try {
+      await processPayrollPeriod(processId);
+      await refetch();
+      successToast("Periodo procesado correctamente");
+    } catch (error: any) {
+      errorToast(
+        error?.response?.data?.message ?? "Error al cerrar el periodo",
+      );
+    } finally {
+      setCloseId(null);
     }
   };
 
@@ -99,7 +115,8 @@ export default function PayrollPeriodsPage() {
           onDelete: setDeleteId,
           onClose: setCloseId,
           onEdit: setEditId,
-          onCalculate: (period) => navigate(`${ABSOLUTE_ROUTE}/calcular/${period.id}`),
+          onCalculate: (period) =>
+            navigate(`${ABSOLUTE_ROUTE}/calcular/${period.id}`),
         })}
         data={data?.data || []}
       >
@@ -126,6 +143,18 @@ export default function PayrollPeriodsPage() {
           open={true}
           onOpenChange={(open) => !open && setDeleteId(null)}
           onConfirm={handleDelete}
+        />
+      )}
+
+      {processId !== null && (
+        <SimpleConfirmDialog
+          open={true}
+          onOpenChange={(open) => !open && setProcessId(null)}
+          onConfirm={handleProcess}
+          title="Procesar Periodo"
+          description="¿Estás seguro de que deseas procesar este periodo? Esto iniciará el cálculo de la nómina y no podrás modificar el periodo hasta que se complete el proceso."
+          confirmText="Cerrar"
+          cancelText="Cancelar"
         />
       )}
 

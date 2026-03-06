@@ -13,6 +13,7 @@ import {
   Ban,
   RotateCcw,
   RefreshCw,
+  Droplets,
 } from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
@@ -345,6 +346,24 @@ export default function ReceptionTab({ workOrderId }: ReceptionTabProps) {
               <p className="font-semibold text-sm sm:text-base">
                 {inspection.damages?.length || 0} daños
               </p>
+            </div>
+          </div>
+
+          <div className="flex items-start gap-2">
+            <Droplets className="h-5 w-5 text-gray-500 mt-0.5 shrink-0" />
+            <div className="min-w-0">
+              <p className="text-xs sm:text-sm text-gray-600">Lavado</p>
+              {inspection.washed ? (
+                <span className="inline-flex items-center gap-1 text-sm font-semibold text-blue-600">
+                  <CheckCircle2 className="h-4 w-4" />
+                  Sí solicitó lavado
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1 text-sm font-semibold text-gray-500">
+                  <XCircle className="h-4 w-4" />
+                  No solicitó lavado
+                </span>
+              )}
             </div>
           </div>
         </div>

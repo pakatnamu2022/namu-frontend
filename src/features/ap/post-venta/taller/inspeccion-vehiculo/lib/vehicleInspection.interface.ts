@@ -38,6 +38,7 @@ export interface VehicleInspectionResource {
   inspected_by_name: string;
   inspection_date: string | Date;
   customer_signature_url: string;
+  washed: boolean;
   photo_front_url: string;
   photo_back_url: string;
   photo_left_url: string;

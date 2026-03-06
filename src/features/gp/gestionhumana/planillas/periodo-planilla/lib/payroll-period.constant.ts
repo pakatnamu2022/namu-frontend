@@ -17,3 +17,28 @@ export const PAYROLL_PERIOD: ModelComplete = {
   ROUTE_ADD: `${ABSOLUTE_ROUTE}/agregar`,
   ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/actualizar`,
 };
+
+export const PAYROLL_PERIOD_STATUS = {
+  OPEN: "OPEN",
+  PROCESSING: "PROCESSING",
+  CALCULATED: "CALCULATED",
+  APPROVED: "APPROVED",
+  CLOSED: "CLOSED",
+};
+
+export const PAYROLL_PERIOD_STATUS_CONFIG: Record<
+  string,
+  { label: string; color: "default" | "secondary" | "destructive" | "muted" }
+> = {
+  [PAYROLL_PERIOD_STATUS.OPEN]: { label: "Abierto", color: "muted" },
+  [PAYROLL_PERIOD_STATUS.PROCESSING]: {
+    label: "Procesando",
+    color: "secondary",
+  },
+  [PAYROLL_PERIOD_STATUS.CALCULATED]: {
+    label: "Calculado",
+    color: "secondary",
+  },
+  [PAYROLL_PERIOD_STATUS.APPROVED]: { label: "Aprobado", color: "default" },
+  [PAYROLL_PERIOD_STATUS.CLOSED]: { label: "Cerrado", color: "default" },
+};

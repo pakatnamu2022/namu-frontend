@@ -55,8 +55,6 @@ export interface PayrollCalculation {
   total_contributions: number;
   net_salary: number;
   status: PayrollCalculationStatus;
-  can_modify: boolean;
-  can_approve: boolean;
   calculated_at: string;
   calculated_by: number;
   approved_at: string | null;
