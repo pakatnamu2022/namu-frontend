@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Calculator, RefreshCw, Eye, Loader2 } from "lucide-react";
+import { Calculator, RefreshCw, Loader2 } from "lucide-react";
 import { SimpleConfirmDialog } from "@/shared/components/SimpleConfirmDialog";
 import {
   generatePayrollCalculations,
@@ -10,18 +10,19 @@ import {
 } from "../lib/payroll-calculation.actions";
 import { errorToast, successToast } from "@/core/core.function";
 import { PayrollPeriodStatus } from "../../periodo-planilla/lib/payroll-period.interface";
+import { PAYROLL_PERIOD_STATUS } from "../../periodo-planilla/lib/payroll-period.constant";
+
+export type ActiveView = "attendances" | "totals" | "report";
 
 interface Props {
   periodId: number;
   periodStatus: PayrollPeriodStatus;
-  onPreview: () => void;
   onSuccess: () => void;
 }
 
 export default function PayrollCalculationToolbar({
   periodId,
   periodStatus,
-  onPreview,
   onSuccess,
 }: Props) {
   const [isGenerating, setIsGenerating] = useState(false);
@@ -29,10 +30,10 @@ export default function PayrollCalculationToolbar({
   const [showRecalcConfirm, setShowRecalcConfirm] = useState(false);
   const [hasExistingCalculations, setHasExistingCalculations] = useState(false);
 
-  const isClosed = periodStatus === "CLOSED";
+  const isClosed = periodStatus === PAYROLL_PERIOD_STATUS.CLOSED;
   const hasCalculations =
-    periodStatus === "CALCULATED" ||
-    periodStatus === "CLOSED" ||
+    periodStatus === PAYROLL_PERIOD_STATUS.CALCULATED ||
+    periodStatus === PAYROLL_PERIOD_STATUS.CLOSED ||
     hasExistingCalculations;
 
   const handleGenerate = async () => {
@@ -88,16 +89,6 @@ export default function PayrollCalculationToolbar({
   return (
     <>
       <div className="flex flex-wrap items-center gap-2">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={onPreview}
-          disabled={isClosed}
-        >
-          <Eye className="size-4 mr-1.5" />
-          Ver Resumen
-        </Button>
-
         {!hasCalculations && (
           <Button
             variant="default"
@@ -110,13 +101,13 @@ export default function PayrollCalculationToolbar({
             ) : (
               <Calculator className="size-4 mr-1.5" />
             )}
-            Generar Cálculos
+            Generar Cálculos de Nómina
           </Button>
         )}
 
         {hasCalculations && !isClosed && (
           <Button
-            variant="outline"
+            variant="default"
             size="sm"
             onClick={() => setShowRecalcConfirm(true)}
             disabled={isRecalculating}
@@ -126,7 +117,7 @@ export default function PayrollCalculationToolbar({
             ) : (
               <RefreshCw className="size-4 mr-1.5" />
             )}
-            Recalcular
+            Recalcular Nómina
           </Button>
         )}
       </div>

@@ -1,8 +1,4 @@
-import {
-  requiredNumber,
-  requiredStringId,
-  requiredText,
-} from "@/shared/lib/global.schema";
+import { requiredNumber, requiredText } from "@/shared/lib/global.schema";
 import { z } from "zod";
 
 export const companySchemaCreate = z.object({
@@ -20,9 +16,6 @@ export const companySchemaCreate = z.object({
   city: z.string().optional(),
   website: z.string().optional(),
   detraction_amount: requiredNumber("Monto de detracción", 0),
-  billing_detraction_type_id: requiredStringId(
-    "Tipo de detracción es requerido",
-  ),
 });
 
 export const companySchemaUpdate = companySchemaCreate.partial();

@@ -21,6 +21,10 @@ interface GeneralMastersModalProps {
   open: boolean;
   onClose: () => void;
   mode: "create" | "update";
+  defaultCode?: string;
+  lockedCode?: boolean;
+  defaultType?: string;
+  lockedType?: boolean;
 }
 
 export default function GeneralMastersModal({
@@ -28,14 +32,23 @@ export default function GeneralMastersModal({
   open,
   onClose,
   mode,
+  defaultCode,
+  lockedCode,
+  defaultType,
+  lockedType,
 }: GeneralMastersModalProps) {
   const { MODEL, EMPTY } = GENERAL_MASTERS;
+  const emptyWithCode = {
+    ...EMPTY,
+    ...(defaultCode ? { code: defaultCode } : {}),
+    ...(defaultType ? { type: defaultType } : {}),
+  };
   const {
     data: master,
     isLoading: loadingMaster,
     refetch,
   } = mode === "create"
-    ? { data: EMPTY, isLoading: false, refetch: () => {} }
+    ? { data: emptyWithCode, isLoading: false, refetch: () => {} }
     : // eslint-disable-next-line react-hooks/rules-of-hooks
       useGeneralMastersById(id!);
 
@@ -63,9 +76,9 @@ export default function GeneralMastersModal({
 
   const mappedMaster = master
     ? {
-        code: master.code,
-        description: master.description,
-        type: master.type,
+        code: master.code ?? "",
+        description: master.description ?? "",
+        type: master.type ?? "",
         value: master.value,
         status: Boolean(master.status),
       }
@@ -89,6 +102,8 @@ export default function GeneralMastersModal({
           defaultValues={mappedMaster}
           mode={mode}
           onCancel={onClose}
+          lockedCode={lockedCode}
+          lockedType={lockedType}
         />
       ) : (
         <FormSkeleton />

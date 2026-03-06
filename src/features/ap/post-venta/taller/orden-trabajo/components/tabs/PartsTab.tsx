@@ -324,7 +324,7 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
 
   // Total de repuestos filtrados (base para el global)
   const globalBaseAmount = filteredParts.reduce(
-    (acc, p) => acc + parseFloat(p.total_amount || "0"),
+    (acc, p) => acc + parseFloat(p.net_amount || "0"),
     0,
   );
 
@@ -863,8 +863,9 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
                 <TableHead>Registrado por</TableHead>
                 <TableHead className="text-center">Cantidad</TableHead>
                 <TableHead className="text-right">Precio Unit.</TableHead>
+                <TableHead className="text-right">Cto. Total</TableHead>
                 <TableHead className="text-right">Desc.</TableHead>
-                <TableHead className="text-right">Costo Total</TableHead>
+                <TableHead className="text-right">Cto. Neto</TableHead>
                 <TableHead className="text-center w-40">Acciones</TableHead>
               </TableRow>
             </TableHeader>
@@ -918,13 +919,19 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
                         ? Number(part.unit_price).toFixed(2)
                         : "0.00"}
                     </TableCell>
+                    <TableCell className="text-right font-semibold">
+                      {workOrder?.type_currency?.symbol || "S/"}{" "}
+                      {part.total_cost
+                        ? Number(part.total_cost).toFixed(2)
+                        : "0.00"}
+                    </TableCell>
                     <TableCell className="text-right text-orange-600">
                       -{part.discount_percentage}%
                     </TableCell>
                     <TableCell className="text-right font-semibold">
                       {workOrder?.type_currency?.symbol || "S/"}{" "}
-                      {part.total_amount
-                        ? Number(part.total_amount).toFixed(2)
+                      {part.net_amount
+                        ? Number(part.net_amount).toFixed(2)
                         : "0.00"}
                     </TableCell>
                     <TableCell className="text-center">
@@ -1035,7 +1042,7 @@ export default function PartsTab({ workOrderId }: PartsTabProps) {
                 {workOrder?.type_currency?.symbol || "S/"}{" "}
                 {filteredParts
                   .reduce(
-                    (acc, part) => acc + parseFloat(part.total_amount || "0"),
+                    (acc, part) => acc + parseFloat(part.net_amount || "0"),
                     0,
                   )
                   .toFixed(2)}

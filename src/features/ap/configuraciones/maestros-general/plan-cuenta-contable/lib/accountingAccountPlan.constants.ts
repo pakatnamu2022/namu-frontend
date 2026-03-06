@@ -25,5 +25,6 @@ export const ACCOUNTING_ACCOUNT_PLAN: ModelComplete<AccountingAccountPlanResourc
       description: "",
       accounting_type_id: 0,
       status: true,
+      is_detraction: false,
     },
   };

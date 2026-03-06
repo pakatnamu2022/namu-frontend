@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
 import { FormSelect } from "@/shared/components/FormSelect";
+import { FormSwitch } from "@/shared/components/FormSwitch";
 import FormSkeleton from "@/shared/components/FormSkeleton";
 import { useAllAccountingAccountType } from "@/features/ap/configuraciones/maestros-general/tipos-cuenta-contable/lib/accountingAccountType.hook";
 
@@ -108,6 +109,12 @@ export const AccountingAccountPlanForm = ({
               value: accountingAccountPlan.id.toString(),
             }))}
             control={form.control}
+          />
+          <FormSwitch
+            control={form.control}
+            name="is_detraction"
+            label="Detracción"
+            text="¿Es detracción?"
           />
         </div>
 

@@ -20,10 +20,10 @@ export interface WorkOrderPartsResource {
   is_delivered: boolean;
   registered_by_name: string;
   unit_price?: string;
-  subtotal?: string;
+  total_cost?: string;
   tax_amount?: string;
   discount_percentage: number;
-  total_amount?: string;
+  net_amount?: string;
 }
 
 export interface WorkOrderPartsRequest {

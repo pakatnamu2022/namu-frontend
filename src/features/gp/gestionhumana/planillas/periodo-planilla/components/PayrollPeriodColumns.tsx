@@ -3,30 +3,27 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { PayrollPeriodResource } from "../lib/payroll-period.interface";
 import { Button } from "@/components/ui/button";
-import { Pencil, Lock, Calculator } from "lucide-react";
+import { Pencil, Lock, Calculator, Play } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
+import {
+  PAYROLL_PERIOD_STATUS,
+  PAYROLL_PERIOD_STATUS_CONFIG,
+} from "../lib/payroll-period.constant";
 
 export type PayrollPeriodColumns = ColumnDef<PayrollPeriodResource>;
 
-const statusConfig: Record<
-  string,
-  { label: string; color: "default" | "secondary" | "destructive" | "muted" }
-> = {
-  OPEN: { label: "Abierto", color: "muted" },
-  CALCULATED: { label: "Calculado", color: "secondary" },
-  CLOSED: { label: "Cerrado", color: "default" },
-};
-
 export const payrollPeriodColumns = ({
   onDelete,
+  onProcess,
   onClose,
   onEdit,
   onCalculate,
 }: {
   onDelete: (id: number) => void;
+  onProcess: (id: number) => void;
   onClose: (id: number) => void;
   onEdit: (id: number) => void;
   onCalculate: (period: PayrollPeriodResource) => void;
@@ -87,18 +84,26 @@ export const payrollPeriodColumns = ({
     header: "Estado",
     cell: ({ getValue }) => {
       const status = getValue() as string;
-      const config = statusConfig[status] || {
+      const config = PAYROLL_PERIOD_STATUS_CONFIG[status] || {
         label: status,
         color: "default",
       };
-      return <Badge color={config.color}>{config.label}</Badge>;
+      return (
+        <Badge variant="outline" color={config.color}>
+          {config.label}
+        </Badge>
+      );
     },
+  },
+  {
+    accessorKey: "company.name",
+    header: "Empresa",
   },
   {
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
-      const { id, can_modify, status } = row.original;
+      const { id, status } = row.original;
 
       return (
         <div className="flex items-center gap-2">
@@ -111,18 +116,18 @@ export const payrollPeriodColumns = ({
           >
             <Calculator className="size-4" />
           </Button>
-          {can_modify && (
+          {status === PAYROLL_PERIOD_STATUS.OPEN && (
             <Button
               variant="outline"
               size="icon"
               className="size-7"
-              onClick={() => onEdit(id)}
-              tooltip="Editar periodo"
+              onClick={() => onProcess(id)}
+              tooltip="Procesar periodo"
             >
-              <Pencil className="size-4" />
+              <Play className="size-4" />
             </Button>
           )}
-          {status !== "CLOSED" && (
+          {status === PAYROLL_PERIOD_STATUS.APPROVED && (
             <Button
               variant="outline"
               size="icon"
@@ -133,7 +138,20 @@ export const payrollPeriodColumns = ({
               <Lock className="size-4" />
             </Button>
           )}
-          {can_modify && <DeleteButton onClick={() => onDelete(id)} />}
+          {status === PAYROLL_PERIOD_STATUS.OPEN && (
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-7"
+              onClick={() => onEdit(id)}
+              tooltip="Editar periodo"
+            >
+              <Pencil className="size-4" />
+            </Button>
+          )}
+          {status === PAYROLL_PERIOD_STATUS.OPEN && (
+            <DeleteButton onClick={() => onDelete(id)} />
+          )}
         </div>
       );
     },

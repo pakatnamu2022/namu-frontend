@@ -59,7 +59,6 @@ export default function AddWorkOrderPage() {
           currency_id: CURRENCY_TYPE_IDS.SOLES,
           sede_id: "",
           opening_date: new Date(),
-          estimated_delivery_date: "",
           diagnosis_date: "",
           observations: "",
           has_appointment: fromAppointment,

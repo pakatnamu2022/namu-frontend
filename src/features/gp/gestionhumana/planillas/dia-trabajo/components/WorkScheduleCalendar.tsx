@@ -117,6 +117,7 @@ export function WorkScheduleCalendar({
                     size="icon"
                     variant="ghost"
                     className="h-5 w-5"
+                    color="blue"
                     onClick={(e) => {
                       e.stopPropagation();
                       onEditSchedule(schedule);
@@ -127,7 +128,8 @@ export function WorkScheduleCalendar({
                   <Button
                     size="icon"
                     variant="ghost"
-                    className="h-5 w-5 text-destructive"
+                    className="h-5 w-5"
+                    color="red"
                     onClick={(e) => {
                       e.stopPropagation();
                       onDeleteSchedule(schedule.id);

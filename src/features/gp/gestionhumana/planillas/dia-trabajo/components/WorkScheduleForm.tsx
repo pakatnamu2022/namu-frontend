@@ -10,7 +10,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
-import { FormSelect } from "@/shared/components/FormSelect";
+import { AttendanceCodeChips } from "./AttendanceCodeChips";
 import { Loader2, Save, X } from "lucide-react";
 import {
   Dialog,
@@ -58,11 +58,6 @@ export function WorkScheduleForm({
 }: WorkScheduleFormProps) {
   const isEditing = !!editingSchedule;
 
-  const codeOptions = codes.map((c) => ({
-    value: c.code,
-    label: c.description ? `${c.code} — ${c.description}` : c.code,
-  }));
-
   const form = useForm({
     defaultValues: {
       worker_id: workerId,
@@ -106,13 +101,10 @@ export function WorkScheduleForm({
             onSubmit={form.handleSubmit(handleSubmit)}
             className="space-y-4"
           >
-            <FormSelect
+            <AttendanceCodeChips
               control={form.control}
               name="code"
-              label="Código de asistencia"
-              placeholder="Selecciona el código"
-              options={codeOptions}
-              required
+              codes={codes}
             />
 
             <FormField

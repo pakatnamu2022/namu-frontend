@@ -25,7 +25,10 @@ import { useAllApBank } from "@/features/ap/configuraciones/maestros-general/che
 import { storeElectronicDocument } from "@/features/ap/facturacion/electronic-documents/lib/electronicDocument.actions";
 import InvoiceForm from "../InvoiceForm";
 import { errorToast, successToast } from "@/core/core.function";
-import { SUNAT_CONCEPTS_TYPE } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
+import {
+  SUNAT_CONCEPTS_TYPE,
+  SUNAT_TRANSACTIONS_ID,
+} from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
 import { WORKER_ORDER } from "../../lib/workOrder.constants";
 import { AREA_TALLER } from "@/features/ap/ap-master/lib/apMaster.constants";
 
@@ -48,7 +51,6 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
   const { data: sunatConcepts = [] } = useAllSunatConcepts({
     type: [
       SUNAT_CONCEPTS_TYPE.BILLING_DOCUMENT_TYPE,
-      SUNAT_CONCEPTS_TYPE.BILLING_TRANSACTION_TYPE,
       SUNAT_CONCEPTS_TYPE.BILLING_CURRENCY,
       SUNAT_CONCEPTS_TYPE.BILLING_IGV_TYPE,
     ],
@@ -59,15 +61,6 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
     () =>
       sunatConcepts.filter(
         (concept) => concept.type === SUNAT_CONCEPTS_TYPE.BILLING_DOCUMENT_TYPE,
-      ),
-    [sunatConcepts],
-  );
-
-  const transactionTypes = useMemo(
-    () =>
-      sunatConcepts.filter(
-        (concept) =>
-          concept.type === SUNAT_CONCEPTS_TYPE.BILLING_TRANSACTION_TYPE,
       ),
     [sunatConcepts],
   );
@@ -93,7 +86,8 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
     defaultValues: {
       sunat_concept_document_type_id: "",
       serie: "",
-      sunat_concept_transaction_type_id: "",
+      sunat_concept_transaction_type_id:
+        SUNAT_TRANSACTIONS_ID.VENTA_INTERNA.toString(),
       area_id: AREA_TALLER.toString(),
       is_advance_payment: false,
       client_id: "",
@@ -214,7 +208,8 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
     form.reset({
       sunat_concept_document_type_id: "",
       serie: "",
-      sunat_concept_transaction_type_id: "",
+      sunat_concept_transaction_type_id:
+        SUNAT_TRANSACTIONS_ID.VENTA_INTERNA.toString(),
       area_id: AREA_TALLER.toString(),
       is_advance_payment: false,
       client_id: workOrder?.invoice_to_client?.id?.toString() || "",
@@ -375,7 +370,7 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
                   <div className="flex justify-between px-4 py-1.5">
                     <span className="text-gray-600">Subtotal</span>
                     <span className="font-medium">
-                      S/ {paymentSummary.payment_summary.subtotal.toFixed(2)}
+                      S/ {paymentSummary.payment_summary.total_cost.toFixed(2)}
                     </span>
                   </div>
                   {paymentSummary.payment_summary.discount_amount > 0 && (
@@ -409,7 +404,6 @@ export default function BillingTab({ workOrderId }: BillingTabProps) {
               isPending={createInvoiceMutation.isPending}
               selectedGroupNumber={selectedGroupNumber}
               documentTypes={documentTypes}
-              transactionTypes={transactionTypes}
               currencyTypes={currencyTypes}
               igvTypes={igvTypes}
               authorizedSeries={authorizedSeries}

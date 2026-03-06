@@ -38,7 +38,6 @@ export const generalMastersColumns = ({
   {
     accessorKey: "status",
     header: "Estado",
-    enableSorting: true,
     cell: ({ row }) => {
       const status = row.original.status === 1;
       return (

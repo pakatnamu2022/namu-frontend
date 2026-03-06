@@ -3,7 +3,8 @@
 import { useCurrentModule } from "@/shared/hooks/useCurrentModule";
 import TitleComponent from "@/shared/components/TitleComponent";
 import DataTablePagination from "@/shared/components/DataTablePagination";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import PageSkeleton from "@/shared/components/PageSkeleton";
 import { usePayrollPeriods } from "@/features/gp/gestionhumana/planillas/periodo-planilla/lib/payroll-period.hook";
 import PayrollPeriodActions from "@/features/gp/gestionhumana/planillas/periodo-planilla/components/PayrollPeriodActions";
@@ -15,6 +16,7 @@ import { SimpleDeleteDialog } from "@/shared/components/SimpleDeleteDialog";
 import {
   closePayrollPeriod,
   deletePayrollPeriod,
+  processPayrollPeriod,
 } from "@/features/gp/gestionhumana/planillas/periodo-planilla/lib/payroll-period.actions";
 import {
   ERROR_MESSAGE,
@@ -27,24 +29,19 @@ import HeaderTableWrapper from "@/shared/components/HeaderTableWrapper";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { PAYROLL_PERIOD } from "@/features/gp/gestionhumana/planillas/periodo-planilla/lib/payroll-period.constant";
 import { SimpleConfirmDialog } from "@/shared/components/SimpleConfirmDialog";
-import { PayrollPeriodResource } from "@/features/gp/gestionhumana/planillas/periodo-planilla/lib/payroll-period.interface";
-import PayrollCalculationPanel from "@/features/gp/gestionhumana/planillas/calculo-planilla/components/PayrollCalculationPanel";
 
 export default function PayrollPeriodsPage() {
-  const { MODEL, ROUTE } = PAYROLL_PERIOD;
+  const { MODEL, ROUTE, ABSOLUTE_ROUTE } = PAYROLL_PERIOD;
   const { checkRouteExists, isLoadingModule, currentView } = useCurrentModule();
+  const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [processId, setProcessId] = useState<number | null>(null);
   const [closeId, setCloseId] = useState<number | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
   const [editId, setEditId] = useState<number | null>(null);
-  const [calculationPeriod, setCalculationPeriod] = useState<PayrollPeriodResource | null>(null);
-
-  useEffect(() => {
-    setPage(1);
-  }, [search, per_page]);
 
   const { data, isLoading, refetch } = usePayrollPeriods({
     page,
@@ -60,10 +57,25 @@ export default function PayrollPeriodsPage() {
       successToast(SUCCESS_MESSAGE(MODEL, "delete"));
     } catch (error: any) {
       errorToast(
-        error?.response?.data?.message ?? ERROR_MESSAGE(MODEL, "delete")
+        error?.response?.data?.message ?? ERROR_MESSAGE(MODEL, "delete"),
       );
     } finally {
       setDeleteId(null);
+    }
+  };
+
+  const handleProcess = async () => {
+    if (!processId) return;
+    try {
+      await processPayrollPeriod(processId);
+      await refetch();
+      successToast("Periodo procesado correctamente");
+    } catch (error: any) {
+      errorToast(
+        error?.response?.data?.message ?? "Error al cerrar el periodo",
+      );
+    } finally {
+      setCloseId(null);
     }
   };
 
@@ -75,7 +87,7 @@ export default function PayrollPeriodsPage() {
       successToast("Periodo cerrado correctamente");
     } catch (error: any) {
       errorToast(
-        error?.response?.data?.message ?? "Error al cerrar el periodo"
+        error?.response?.data?.message ?? "Error al cerrar el periodo",
       );
     } finally {
       setCloseId(null);
@@ -101,9 +113,11 @@ export default function PayrollPeriodsPage() {
         isLoading={isLoading}
         columns={payrollPeriodColumns({
           onDelete: setDeleteId,
+          onProcess: setProcessId,
           onClose: setCloseId,
           onEdit: setEditId,
-          onCalculate: setCalculationPeriod,
+          onCalculate: (period) =>
+            navigate(`${ABSOLUTE_ROUTE}/calcular/${period.id}`),
         })}
         data={data?.data || []}
       >
@@ -133,6 +147,18 @@ export default function PayrollPeriodsPage() {
         />
       )}
 
+      {processId !== null && (
+        <SimpleConfirmDialog
+          open={true}
+          onOpenChange={(open) => !open && setProcessId(null)}
+          onConfirm={handleProcess}
+          title="Procesar Periodo"
+          description="¿Estás seguro de que deseas procesar este periodo? Esto iniciará el cálculo de la nómina y no podrás modificar el periodo hasta que se complete el proceso."
+          confirmText="Procesar"
+          cancelText="Cancelar"
+        />
+      )}
+
       {closeId !== null && (
         <SimpleConfirmDialog
           open={true}
@@ -142,14 +168,6 @@ export default function PayrollPeriodsPage() {
           description="¿Estás seguro de que deseas cerrar este periodo? Esta acción no se puede deshacer."
           confirmText="Cerrar"
           cancelText="Cancelar"
-        />
-      )}
-
-      {calculationPeriod !== null && (
-        <PayrollCalculationPanel
-          open={true}
-          period={calculationPeriod}
-          onClose={() => setCalculationPeriod(null)}
         />
       )}
 

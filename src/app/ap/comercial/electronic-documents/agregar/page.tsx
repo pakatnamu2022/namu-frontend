@@ -90,15 +90,6 @@ export default function AddElectronicDocumentPage() {
     [sunatConcepts],
   );
 
-  const detractionTypes = useMemo(
-    () =>
-      sunatConcepts.filter(
-        (concept) =>
-          concept.type === SUNAT_CONCEPTS_TYPE.BILLING_DETRACTION_TYPE,
-      ),
-    [sunatConcepts],
-  );
-
   const creditNoteTypes = useMemo(
     () =>
       sunatConcepts.filter(
@@ -209,7 +200,6 @@ export default function AddElectronicDocumentPage() {
         identityDocumentTypes={identityDocumentTypes || []}
         currencyTypes={currencyTypes || []}
         igvTypes={igvTypes || []}
-        detractionTypes={detractionTypes || []}
         creditNoteTypes={creditNoteTypes || []}
         debitNoteTypes={debitNoteTypes || []}
         useQuotation={true}

@@ -22,6 +22,7 @@ export const accountingAccountPlanSchemaCreate = z.object({
     }),
   accounting_type_id: requiredStringId("Tipo de cuenta contable es requerido"),
   status: z.boolean().optional().default(true),
+  is_detraction: z.boolean().optional().default(false),
 });
 
 export const accountingAccountPlanSchemaUpdate =

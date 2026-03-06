@@ -20,6 +20,25 @@ export const WORKER_ORDER: ModelComplete<WorkOrderResource> = {
   ROUTE_UPDATE: `${ABSOLUTE_ROUTE}/actualizar`,
 };
 
+// RUTAS PARA RECEPCION DE ORDEN DE TRABAJO - TALLER
+const ROUTE_RECEPCION = "recepcion-orden-trabajo";
+const ABSOLUTE_ROUTE_RECEPCION = `/ap/post-venta/taller/${ROUTE_RECEPCION}`;
+
+export const WORKER_ORDER_RECEPCION: ModelComplete<WorkOrderResource> = {
+  MODEL: {
+    name: "Orden de Trabajo",
+    plural: "Ordenes de Trabajo",
+    gender: true,
+  },
+  ICON: "ContactRound",
+  ENDPOINT: "/ap/postVenta/workOrders",
+  QUERY_KEY: "workOrders",
+  ROUTE: ROUTE_RECEPCION,
+  ABSOLUTE_ROUTE: ABSOLUTE_ROUTE_RECEPCION,
+  ROUTE_ADD: `${ABSOLUTE_ROUTE_RECEPCION}/agregar`,
+  ROUTE_UPDATE: `${ABSOLUTE_ROUTE_RECEPCION}/actualizar`,
+};
+
 // ESTADOS DE ORDEN DE TRABAJO
 export const WORK_ORDER_STATUS = {
   APERTURADO: "APERTURADO",

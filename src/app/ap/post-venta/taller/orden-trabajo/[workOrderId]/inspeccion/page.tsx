@@ -75,6 +75,7 @@ export default function VehicleInspectionPage() {
     formData.append("tool_kit", data.tool_kit ? "1" : "0");
     formData.append("jack_and_lever", data.jack_and_lever ? "1" : "0");
     formData.append("general_observations", data.general_observations || "");
+    formData.append("washed", data.washed ? "1" : "0");
     //photos front, back, left, right
     if (data.photo_front) {
       formData.append("photo_front", data.photo_front);
@@ -167,6 +168,7 @@ export default function VehicleInspectionPage() {
     fluid_caps: false,
     tool_kit: false,
     jack_and_lever: false,
+    washed: false,
     general_observations: "",
     inspection_date: getCurrentDate(),
     fuel_level: workOrder.fuel_level || "",

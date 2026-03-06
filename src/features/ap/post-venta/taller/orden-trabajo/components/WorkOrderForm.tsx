@@ -39,7 +39,6 @@ import { EMPRESA_AP } from "@/core/core.constants";
 import { AppointmentPlanningResource } from "../../citas/lib/appointmentPlanning.interface";
 import { useMySedes } from "@/features/gp/maestro-general/sede/lib/sede.hook";
 import { useAllTypesPlanning } from "@/features/ap/configuraciones/postventa/tipos-planificacion/lib/typesPlanning.hook";
-import { DatePickerFormField } from "@/shared/components/DatePickerFormField";
 import {
   DEFAULT_GROUP_COLOR,
   GROUP_COLORS,
@@ -55,6 +54,7 @@ import { FormInput } from "@/shared/components/FormInput";
 import { FormInputText } from "@/shared/components/FormInputText";
 import { useAllCurrencyTypes } from "@/features/ap/configuraciones/maestros-general/tipos-moneda/lib/CurrencyTypes.hook";
 import { useAllTypesOperationsAppointment } from "@/features/ap/configuraciones/postventa/tipos-operacion-cita/lib/typesOperationsAppointment.hook";
+import { DateTimePickerForm } from "@/shared/components/DateTimePickerForm";
 
 const getGroupColor = (groupNumber: number) => {
   return GROUP_COLORS[groupNumber] || DEFAULT_GROUP_COLOR;
@@ -147,9 +147,22 @@ export const WorkOrderForm = ({
           "vehicle_id",
           selectedAppointment.ap_vehicle_id.toString(),
         );
+        // Setear selectedVehicle para mostrar la info del vehículo
+        if (selectedAppointment.vehicle) {
+          setSelectedVehicle(selectedAppointment.vehicle);
+        }
       }
       if (selectedAppointment.sede_id) {
         form.setValue("sede_id", selectedAppointment.sede_id.toString());
+      }
+
+      // Setear fecha y hora estimada de entrega desde la cita
+      if (selectedAppointment.delivery_date && selectedAppointment.delivery_time) {
+        const time = selectedAppointment.delivery_time.slice(0, 5); // "15:30:00" -> "15:30"
+        form.setValue(
+          "estimated_delivery_time",
+          `${selectedAppointment.delivery_date}T${time}`,
+        );
       }
 
       // Agregar item desde la cita solo si no hay items
@@ -172,7 +185,7 @@ export const WorkOrderForm = ({
       form.setValue("appointment_planning_id", "");
       setSelectedAppointment(null);
       form.setValue("vehicle_id", "");
-      form.setValue("sede_id", "");
+      setSelectedVehicle(null);
       // Limpiar todos los items si hay alguno
       if (fields.length > 0) {
         form.setValue("items", []);
@@ -224,6 +237,9 @@ export const WorkOrderForm = ({
   const handleSelectAppointment = (
     appointment: AppointmentPlanningResource,
   ) => {
+    // Resetear selectedVehicle primero para forzar re-sync del defaultOption
+    // aunque se vuelva a seleccionar el mismo vehículo
+    setSelectedVehicle(null);
     form.setValue("appointment_planning_id", appointment.id.toString());
     setSelectedAppointment(appointment);
   };
@@ -468,14 +484,21 @@ export const WorkOrderForm = ({
             perPage={10}
             debounceMs={500}
             defaultOption={
-              workOrderData?.vehicle
+              selectedVehicle
                 ? {
-                    value: workOrderData.vehicle.id.toString(),
-                    label: `${workOrderData.vehicle.vin || "S/N"} | ${
-                      workOrderData.vehicle.plate || ""
-                    } | ${workOrderData.vehicle.model?.brand || ""}`,
+                    value: selectedVehicle.id.toString(),
+                    label: `${selectedVehicle.vin || "S/N"} | ${
+                      selectedVehicle.plate || ""
+                    } | ${selectedVehicle.model?.brand || ""}`,
                   }
-                : undefined
+                : workOrderData?.vehicle
+                  ? {
+                      value: workOrderData.vehicle.id.toString(),
+                      label: `${workOrderData.vehicle.vin || "S/N"} | ${
+                        workOrderData.vehicle.plate || ""
+                      } | ${workOrderData.vehicle.model?.brand || ""}`,
+                    }
+                  : undefined
             }
             onValueChange={(_value, item) => {
               setSelectedVehicle(item || null);
@@ -580,15 +603,15 @@ export const WorkOrderForm = ({
             placeholder="Seleccionar moneda"
             required
           />
-          <DatePickerFormField
+
+          {/* Fecha y Hora de Inicio con validación */}
+          <DateTimePickerForm
+            name="estimated_delivery_time"
+            label="Fecha y Hora Estimada de Entrega"
             control={form.control}
-            name="estimated_delivery_date"
-            label="Fecha Estimada de Entrega"
-            placeholder="Selecciona una fecha"
-            dateFormat="dd/MM/yyyy"
-            captionLayout="dropdown"
-            disabledRange={{ before: new Date() }}
+            placeholder="Seleccione fecha y hora"
           />
+
           <FormSwitch
             name="is_guarantee"
             label="Vehículo en Garantía"

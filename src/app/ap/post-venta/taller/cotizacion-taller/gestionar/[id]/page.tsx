@@ -31,6 +31,7 @@ import {
   STATUS_APPROVED,
   STATUS_PENDING,
 } from "@/features/ap/post-venta/repuestos/descuento-cotizacion-meson/lib/discountRequestMeson.constants";
+import { useModulePermissions } from "@/shared/hooks/useModulePermissions";
 
 export default function ManageQuotationPage() {
   const params = useParams();
@@ -42,6 +43,8 @@ export default function ManageQuotationPage() {
     null,
   );
   const [details, setDetails] = useState<OrderQuotationDetailsResource[]>([]);
+  const { ROUTE, ABSOLUTE_ROUTE } = ORDER_QUOTATION_TALLER;
+  const permissions = useModulePermissions(ROUTE);
 
   const { data: discountRequests = [] } = useDiscountRequestsQuotation({
     ap_order_quotation_id: Number(quotationId),
@@ -144,7 +147,7 @@ export default function ManageQuotationPage() {
         <Button
           variant="outline"
           size="icon"
-          onClick={() => navigate(ORDER_QUOTATION_TALLER.ABSOLUTE_ROUTE)}
+          onClick={() => navigate(ABSOLUTE_ROUTE)}
         >
           <ArrowLeft className="h-5 w-5" />
         </Button>
@@ -292,6 +295,7 @@ export default function ManageQuotationPage() {
         discountRequests={discountRequests.filter(
           (r) => r.item_type === "LABOR",
         )}
+        permissions={permissions}
       />
 
       {/* Sección de Productos */}
@@ -307,6 +311,7 @@ export default function ManageQuotationPage() {
         discountRequests={discountRequests.filter(
           (r) => r.item_type === "PRODUCT",
         )}
+        permissions={permissions}
       />
     </div>
   );
