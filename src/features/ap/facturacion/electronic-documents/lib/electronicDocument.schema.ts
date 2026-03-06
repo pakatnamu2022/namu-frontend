@@ -1,6 +1,7 @@
 import { AREAS_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
-import { optionalStringId, requiredStringId } from "@/shared/lib/global.schema";
+import { optionalStringId, requiredDate, requiredStringId } from "@/shared/lib/global.schema";
 import { z } from "zod";
+import { PAYMENT_CONDITION_CREDIT } from "./electronicDocument.constants";
 
 // Schema para Item del Documento
 export const ElectronicDocumentItemSchema = z.object({
@@ -69,7 +70,7 @@ export const ElectronicDocumentSchema = z
     client_id: requiredStringId("Cliente requerido"),
 
     // ===== FECHAS =====
-    fecha_de_emision: z.coerce.string(),
+    fecha_de_emision: requiredDate("Fecha de emisión requerida"),
     fecha_de_vencimiento: z.string().optional(),
 
     // ===== MONEDA Y CAMBIO =====
@@ -126,7 +127,7 @@ export const ElectronicDocumentSchema = z
     // ===== CAMPOS OPCIONALES =====
     observaciones: z.string().max(1000, "Máximo 1000 caracteres").optional(),
     condiciones_de_pago: z.string().min(1, "Condiciones de pago requeridas"),
-    medio_de_pago: z.string().min(1, "Medio de pago requerido"),
+    medio_de_pago: z.string().optional(),
     bank_id: optionalStringId("Chequera es inválida"),
     operation_number: z
       .string()
@@ -178,19 +179,6 @@ export const ElectronicDocumentSchema = z
   )
   .refine(
     (data) => {
-      // Validar detracción
-      if (data.detraccion && !data.sunat_concept_detraction_type_id) {
-        return false;
-      }
-      return true;
-    },
-    {
-      message: "Debe especificar el tipo de detracción",
-      path: ["sunat_concept_detraction_type_id"],
-    },
-  )
-  .refine(
-    (data) => {
       // Validar NC: documento que se modifica
       if ([31].includes(Number(data.sunat_concept_document_type_id))) {
         return !!(
@@ -225,6 +213,32 @@ export const ElectronicDocumentSchema = z
       message:
         "Debe especificar el documento que se modifica y el tipo de nota de débito",
       path: ["sunat_concept_debit_note_type_id"],
+    },
+  )
+  .refine(
+    (data) => {
+      // Medio de pago requerido cuando es CONTADO
+      if (data.condiciones_de_pago !== PAYMENT_CONDITION_CREDIT) {
+        return !!data.medio_de_pago;
+      }
+      return true;
+    },
+    {
+      message: "Medio de pago requerido",
+      path: ["medio_de_pago"],
+    },
+  )
+  .refine(
+    (data) => {
+      // Tipo de financiamiento requerido solo cuando hay cotización vinculada
+      if (data.purchase_request_quote_id) {
+        return !!data.financing_type;
+      }
+      return true;
+    },
+    {
+      message: "Tipo de financiamiento requerido",
+      path: ["financing_type"],
     },
   );
 

@@ -27,6 +27,7 @@ interface DocumentInfoSectionProps {
   isFromQuotation?: boolean;
   hasVehicle?: boolean;
   pendingBalance?: number;
+  useQuotation?: boolean;
   onCustomerChange?: (customer: CustomersResource | undefined) => void;
 }
 
@@ -41,6 +42,7 @@ export function DocumentInfoSection({
   defaultCustomerId,
   hasVehicle = true,
   pendingBalance = 0,
+  useQuotation = false,
   onCustomerChange,
 }: DocumentInfoSectionProps) {
   const [selectedCustomer, setSelectedCustomer] = useState<
@@ -165,6 +167,17 @@ export function DocumentInfoSection({
                 : "Tipo de operación: Venta Interna (código 01)"
         }
       />
+
+      {/* Switch de Detracción - solo cuando no es cotización */}
+      {!useQuotation && (
+        <FormSwitch
+          control={form.control}
+          name="detraccion"
+          label="Detracción"
+          text="Aplicar Detracción"
+          description="Se aplicará el 12% de detracción al documento"
+        />
+      )}
 
       <FormSelect
         control={form.control}

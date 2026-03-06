@@ -57,117 +57,124 @@ const normalizeText = (text: string): string => {
 };
 
 // Componente separado para el contenido del Command
-const ComboboxCommandContent = React.memo(({
-  options,
-  selectedValue,
-  onSelect,
-  onCreateNew,
-  isLoadingOptions,
-  searchValue,
-  setSearchValue,
-  allowCreate = true,
-}: {
-  options: Option[];
-  selectedValue: string;
-  onSelect: (value: string) => void;
-  onCreateNew: (value: string) => void;
-  isLoadingOptions: boolean;
-  searchValue: string;
-  setSearchValue: (value: string) => void;
-  allowCreate?: boolean;
-}) => {
-  const normalizedSearch = normalizeText(searchValue);
+const ComboboxCommandContent = React.memo(
+  ({
+    options,
+    selectedValue,
+    onSelect,
+    onCreateNew,
+    isLoadingOptions,
+    searchValue,
+    setSearchValue,
+    allowCreate = true,
+    validateCreate,
+  }: {
+    options: Option[];
+    selectedValue: string;
+    onSelect: (value: string) => void;
+    onCreateNew: (value: string) => void;
+    isLoadingOptions: boolean;
+    searchValue: string;
+    setSearchValue: (value: string) => void;
+    allowCreate?: boolean;
+    validateCreate?: (value: string) => boolean;
+  }) => {
+    const normalizedSearch = normalizeText(searchValue);
 
-  const filteredOptions = React.useMemo(() => {
-    if (!searchValue) return options;
+    const filteredOptions = React.useMemo(() => {
+      if (!searchValue) return options;
 
-    return options.filter((option) => {
-      const label = typeof option.label === "function" ? option.label() : option.label;
-      const normalizedLabel = normalizeText(label?.toString() || "");
-      return normalizedLabel.includes(normalizedSearch);
-    });
-  }, [options, searchValue, normalizedSearch]);
+      return options.filter((option) => {
+        const label =
+          typeof option.label === "function" ? option.label() : option.label;
+        const normalizedLabel = normalizeText(label?.toString() || "");
+        return normalizedLabel.includes(normalizedSearch);
+      });
+    }, [options, searchValue, normalizedSearch]);
 
-  const exactMatch = filteredOptions.find(
-    (option) => normalizeText(option.value) === normalizedSearch
-  );
+    const exactMatch = filteredOptions.find(
+      (option) => normalizeText(option.value) === normalizedSearch,
+    );
 
-  const showCreateOption = allowCreate && searchValue && !exactMatch;
+    const showCreateOption =
+      allowCreate &&
+      searchValue &&
+      !exactMatch &&
+      (!validateCreate || validateCreate(searchValue));
 
-  return (
-    <Command className="md:max-h-72 overflow-hidden" shouldFilter={false}>
-      <CommandInput
-        className="border-none focus:ring-0"
-        placeholder="Buscar o escribir nuevo..."
-        value={searchValue}
-        onValueChange={setSearchValue}
-      />
-      <CommandList className="md:max-h-60 overflow-y-auto">
-        {isLoadingOptions ? (
-          <div className="py-6 text-center text-sm flex flex-col items-center justify-center gap-2">
-            <Loader2 className="h-4 w-4 animate-spin text-primary" />
-            <span className="text-muted-foreground">Cargando...</span>
-          </div>
-        ) : (
-          <>
-            {filteredOptions.length === 0 && !showCreateOption && (
-              <CommandEmpty className="py-4 text-center text-sm">
-                No hay resultados.
-              </CommandEmpty>
-            )}
+    return (
+      <Command className="md:max-h-72 overflow-hidden" shouldFilter={false}>
+        <CommandInput
+          className="border-none focus:ring-0"
+          placeholder="Buscar o escribir nuevo..."
+          value={searchValue}
+          onValueChange={setSearchValue}
+        />
+        <CommandList className="md:max-h-60 overflow-y-auto">
+          {isLoadingOptions ? (
+            <div className="py-6 text-center text-sm flex flex-col items-center justify-center gap-2">
+              <Loader2 className="h-4 w-4 animate-spin text-primary" />
+              <span className="text-muted-foreground">Cargando...</span>
+            </div>
+          ) : (
+            <>
+              {filteredOptions.length === 0 && !showCreateOption && (
+                <CommandEmpty className="py-4 text-center text-sm">
+                  No hay resultados.
+                </CommandEmpty>
+              )}
 
-            {filteredOptions.length > 0 && (
-              <CommandGroup heading="Opciones disponibles">
-                {filteredOptions.map((option) => (
-                  <CommandItem
-                    key={option.value}
-                    className="cursor-pointer"
-                    onSelect={() => onSelect(option.value)}
-                  >
-                    <Check
-                      className={cn(
-                        "mr-2 h-4 w-4 shrink-0",
-                        option.value === selectedValue
-                          ? "opacity-100"
-                          : "opacity-0"
-                      )}
-                    />
-                    <div className="flex flex-col min-w-0 flex-1">
-                      <span className="truncate">
-                        {typeof option.label === "function"
-                          ? option.label()
-                          : option.label}
-                      </span>
-                      {option.description && (
-                        <span className="text-[10px] text-muted-foreground truncate">
-                          {option.description}
+              {filteredOptions.length > 0 && (
+                <CommandGroup heading="Opciones disponibles">
+                  {filteredOptions.map((option) => (
+                    <CommandItem
+                      key={option.value}
+                      className="cursor-pointer"
+                      onSelect={() => onSelect(option.value)}
+                    >
+                      <Check
+                        className={cn(
+                          "mr-2 h-4 w-4 shrink-0",
+                          option.value === selectedValue
+                            ? "opacity-100"
+                            : "opacity-0",
+                        )}
+                      />
+                      <div className="flex flex-col min-w-0 flex-1">
+                        <span className="truncate">
+                          {typeof option.label === "function"
+                            ? option.label()
+                            : option.label}
                         </span>
-                      )}
-                    </div>
-                  </CommandItem>
-                ))}
-              </CommandGroup>
-            )}
+                        {option.description && (
+                          <span className="text-[10px] text-muted-foreground truncate">
+                            {option.description}
+                          </span>
+                        )}
+                      </div>
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              )}
 
-            {showCreateOption && (
-              <CommandGroup heading="Crear nuevo">
-                <CommandItem
-                  className="cursor-pointer text-primary"
-                  onSelect={() => onCreateNew(normalizedSearch)}
-                >
-                  <Plus className="mr-2 h-4 w-4" />
-                  <span>
-                    Crear "{normalizedSearch}"
-                  </span>
-                </CommandItem>
-              </CommandGroup>
-            )}
-          </>
-        )}
-      </CommandList>
-    </Command>
-  );
-});
+              {showCreateOption && (
+                <CommandGroup heading="Crear nuevo">
+                  <CommandItem
+                    className="cursor-pointer text-primary"
+                    onSelect={() => onCreateNew(normalizedSearch)}
+                  >
+                    <Plus className="mr-2 h-4 w-4" />
+                    <span>Crear "{normalizedSearch}"</span>
+                  </CommandItem>
+                </CommandGroup>
+              )}
+            </>
+          )}
+        </CommandList>
+      </Command>
+    );
+  },
+);
 
 ComboboxCommandContent.displayName = "ComboboxCommandContent";
 
@@ -188,6 +195,7 @@ interface FormComboboxProps {
   portalContainer?: HTMLElement | null;
   size?: "sm" | "default" | "lg";
   allowCreate?: boolean;
+  validateCreate?: (value: string) => boolean;
 }
 
 export function FormCombobox({
@@ -203,10 +211,11 @@ export function FormCombobox({
   isLoadingOptions = false,
   className,
   required = false,
-  popoverWidth = "w-(--radix-popover-trigger-width)!",
+  popoverWidth = "min-w-(--radix-popover-trigger-width)! w-auto",
   size,
   portalContainer,
   allowCreate = true,
+  validateCreate,
 }: FormComboboxProps) {
   const [open, setOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
@@ -220,7 +229,8 @@ export function FormCombobox({
         const selected = options.find((opt) => opt.value === field.value);
 
         const handleSelect = (optionValue: string) => {
-          const newValue = optionValue === field.value && !required ? "" : optionValue;
+          const newValue =
+            optionValue === field.value && !required ? "" : optionValue;
           field.onChange(newValue);
           setSearchValue("");
           setOpen(false);
@@ -242,19 +252,20 @@ export function FormCombobox({
             searchValue={searchValue}
             setSearchValue={setSearchValue}
             allowCreate={allowCreate}
+            validateCreate={validateCreate}
           />
         );
 
         const triggerButton = (
           <Button
-            size={size ? size : isMobile ? "sm" : "lg"}
+            size={size ? size : isMobile ? "sm" : "default"}
             variant="outline"
             role="combobox"
             disabled={disabled}
             className={cn(
               "w-full justify-between flex",
               !field.value && "text-muted-foreground",
-              className
+              className,
             )}
           >
             <span className="text-nowrap! line-clamp-1">
@@ -263,8 +274,8 @@ export function FormCombobox({
                   ? selected.label()
                   : selected.label
                 : field.value
-                ? field.value
-                : placeholder}
+                  ? field.value
+                  : placeholder}
             </span>
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
@@ -275,7 +286,7 @@ export function FormCombobox({
             {label && typeof label === "function"
               ? label()
               : label && (
-                  <FormLabel className="flex justify-start items-center text-xs md:text-sm mb-1">
+                  <FormLabel className="flex justify-start items-center text-xs md:text-sm mb-1 leading-none">
                     {label}
                     {required && <RequiredField />}
                     {tooltip && (

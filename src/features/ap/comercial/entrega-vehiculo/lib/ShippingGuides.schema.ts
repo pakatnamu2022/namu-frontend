@@ -13,9 +13,8 @@ export const shippingGuideSchema = z
     license: z.string().optional(),
     driver_name: z.string().optional(),
 
-    // Campos para transporte público (transportista RUC)
-    carrier_ruc: z.coerce.string().optional(),
-    company_name_transport: z.string().optional(),
+    // Campos para transporte público (transportista - selección de proveedor)
+    transport_company_id: z.string().optional(),
 
     // Placa (obligatoria solo para transporte privado)
     plate: z.string().optional(),
@@ -94,23 +93,12 @@ export const shippingGuideSchema = z
         });
       }
     } else if (isPublicTransport) {
-      // Transporte público - OBLIGATORIO: datos del transportista RUC
-      if (!data.carrier_ruc || data.carrier_ruc.length !== 11) {
+      // Transporte público - OBLIGATORIO: proveedor transportista
+      if (!data.transport_company_id || data.transport_company_id.trim().length === 0) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message:
-            "El RUC del transportista es obligatorio y debe tener 11 dígitos",
-          path: ["carrier_ruc"],
-        });
-      }
-      if (
-        !data.company_name_transport ||
-        data.company_name_transport.trim().length === 0
-      ) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "La razón social del transportista es obligatoria",
-          path: ["company_name_transport"],
+          message: "El transportista es obligatorio para transporte público",
+          path: ["transport_company_id"],
         });
       }
 

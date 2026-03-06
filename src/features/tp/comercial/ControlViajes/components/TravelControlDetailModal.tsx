@@ -479,27 +479,23 @@ export function TravelControlDetailModal({
       setValue(field, sanitizedValue, { shouldValidate: true });
     };
 
-  const isDriver =
-    userComplete?.position?.toUpperCase() === "CONDUCTOR DE TRACTO CAMION";
-  const isComercial =
-    userComplete?.role?.toUpperCase() === "COMERCIAL Y FACTURACION TP";
-  const canStart =
-    localTrip?.status === "pending" &&
-    initialKmValue &&
-    initialKmValue.trim() !== "" &&
-    isDriver &&
-    !isStartingRoute &&
-    !errors.initialKm &&
-    !!startPhoto;
-  const canEnd =
-    localTrip?.status === "in_progress" &&
-    finalKmValue &&
-    finalKmValue.trim() !== "" &&
-    isDriver &&
-    !isEndingRoute &&
-    !errors.finalKm &&
-    (!tonnageValue || tonnageValue.trim() === "" || !errors.tonnage) &&
-    !!endPhoto;
+  const isDriver = userComplete?.position?.toUpperCase() === 'CONDUCTOR DE TRACTO CAMION';
+  const isComercial = (userComplete?.role?.toUpperCase() === 'COMERCIAL Y FACTURACION TP') || (userComplete?.position.toUpperCase() === 'ASISTENTE DE OPERACIONES');
+  const canStart = localTrip?.status === 'pending' && 
+                    initialKmValue && 
+                    initialKmValue.trim() !== "" &&
+                    isDriver && 
+                    !isStartingRoute &&
+                    !errors.initialKm && 
+                    !!startPhoto;
+  const canEnd = localTrip?.status === 'in_progress' && 
+                  finalKmValue && 
+                  finalKmValue.trim() !== "" &&
+                  isDriver && 
+                  !isEndingRoute &&
+                  !errors.finalKm &&
+                  (!tonnageValue || tonnageValue.trim() === "" || !errors.tonnage) && 
+                  !!endPhoto;
 
   if (!localTrip) {
     return <>{trigger}</>;

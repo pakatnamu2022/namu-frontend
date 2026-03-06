@@ -30,6 +30,7 @@ interface ItemsSectionProps {
   isFromQuotation?: boolean;
   showActions?: boolean;
   useQuotation?: boolean;
+  isDetraction?: boolean;
 }
 
 export function ItemsSection({
@@ -42,8 +43,11 @@ export function ItemsSection({
   isFromQuotation = false,
   showActions = true,
   useQuotation = false,
+  isDetraction = false,
 }: ItemsSectionProps) {
-  const { data: accountPlans } = useAllAccountingAccountPlan();
+  const { data: accountPlans } = useAllAccountingAccountPlan(
+    isDetraction ? { is_detraction: 1 } : undefined,
+  );
 
   const [newItem, setNewItem] = useState({
     unidad_de_medida: "NIU",

@@ -167,7 +167,6 @@ export const vehicleDeliveryColumns = ({
     cell: ({ row }) => {
       const sentAt = row.getValue("sent_at") as string | null;
       const aceptadaPorSunat = row.original.aceptada_por_sunat;
-      const WAITING_TIME_HOURS = 5;
 
       // Configuración de estados con estilos modernos
       const statusConfig = {
@@ -198,19 +197,13 @@ export const vehicleDeliveryColumns = ({
 
       if (sentAt) {
         const sentDate = new Date(sentAt);
-        const now = new Date();
-        const hoursDiff =
-          (now.getTime() - sentDate.getTime()) / (1000 * 60 * 60);
 
         // Determinar estado
         let status: keyof typeof statusConfig;
 
         if (aceptadaPorSunat === true) {
           status = "accepted";
-        } else if (
-          aceptadaPorSunat === false &&
-          hoursDiff > WAITING_TIME_HOURS
-        ) {
+        } else if (aceptadaPorSunat === false) {
           status = "rejected";
         } else {
           status = "pending";
@@ -297,7 +290,7 @@ export const vehicleDeliveryColumns = ({
             icon={FileText}
             color="cyan"
             variant="default"
-            canRender={!sent_at}
+            canRender={!sent_at || aceptada_por_sunat !== true} // Solo mostrar si NO ha sido enviado o no fue aceptado
           />
 
           {/* Enviar a Nubefact - Solo si hay guía generada y NO ha sido aceptado por SUNAT */}
@@ -346,7 +339,7 @@ export const vehicleDeliveryColumns = ({
               size="icon"
               className="size-7"
               tooltip="Migrar"
-              onClick={() => onMigrate(id)}
+              onClick={() => onMigrate(shipping_guide_id)}
             >
               <ArrowRightLeft className="size-4" />
             </Button>

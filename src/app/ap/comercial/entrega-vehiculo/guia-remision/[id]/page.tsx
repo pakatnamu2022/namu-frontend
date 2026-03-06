@@ -43,7 +43,8 @@ export default function ShippingGuidePage(): JSX.Element {
     vehicleDelivery?.sent_at &&
     (vehicleDelivery?.aceptada_por_sunat || vehicleDelivery?.status_dynamic),
   );
-  const canEdit = !shippingGuide?.aceptada_por_sunat && !isSent;
+  const rejectedBySunat = vehicleDelivery?.aceptada_por_sunat === false;
+  const canEdit = !shippingGuide?.aceptada_por_sunat && (!isSent || rejectedBySunat);
 
   const handleSubmit = async (data: ShippingGuideSchema) => {
     try {
@@ -266,7 +267,7 @@ export default function ShippingGuidePage(): JSX.Element {
                 <CardContent className="pt-6">
                   <p className="text-sm text-yellow-800">
                     Esta guía de remisión ya ha sido{" "}
-                    {vehicleDelivery.aceptada_por_sunat
+                    {shippingGuide?.aceptada_por_sunat
                       ? "aceptada por SUNAT"
                       : "enviada a Dynamic"}{" "}
                     y no puede ser editada.
@@ -302,9 +303,8 @@ export default function ShippingGuidePage(): JSX.Element {
                       license: shippingGuide.license || "",
                       plate: shippingGuide.plate || "",
                       driver_name: shippingGuide.driver_name || "",
-                      carrier_ruc: shippingGuide.ruc_transport || "",
-                      company_name_transport:
-                        shippingGuide.company_name_transport || "",
+                      transport_company_id:
+                        shippingGuide.transport_company_id?.toString() || "",
                       notes: shippingGuide.notes || "",
                     }
                   : undefined

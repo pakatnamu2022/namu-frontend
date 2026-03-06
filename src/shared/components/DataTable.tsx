@@ -1,13 +1,13 @@
 "use client";
 
 import {
-  ColumnFiltersState,
+  type ColumnFiltersState,
   flexRender,
   getCoreRowModel,
   useReactTable,
   type ColumnDef,
-  SortingState,
-  OnChangeFn,
+  type SortingState,
+  type OnChangeFn,
 } from "@tanstack/react-table";
 
 import {
@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/table";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { useState, useRef, useEffect } from "react";
-import type { VisibilityState } from "@tanstack/react-table";
+import type { RowSelectionState, VisibilityState } from "@tanstack/react-table";
 import DataTableColumnFilter from "./DataTableColumnFilter";
 import FormSkeleton from "./FormSkeleton";
 import { cn } from "@/lib/utils";
@@ -101,6 +101,10 @@ interface DataTableProps<TData, TValue> extends VariantProps<
   sorting?: SortingState;
   onSortingChange?: OnChangeFn<SortingState>;
   manualSorting?: boolean;
+  rowSelection?: RowSelectionState;
+  onRowSelectionChange?: OnChangeFn<RowSelectionState>;
+  enableRowSelection?: boolean;
+  getRowId?: (originalRow: TData, index: number) => string;
 }
 
 export function DataTable<TData, TValue>({
@@ -116,11 +120,17 @@ export function DataTable<TData, TValue>({
   sorting,
   onSortingChange,
   manualSorting = false,
+  rowSelection,
+  onRowSelectionChange,
+  enableRowSelection = false,
+  getRowId,
 }: DataTableProps<TData, TValue>) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
     initialColumnVisibility ?? {},
   );
+  const [internalRowSelection, setInternalRowSelection] = useState({});
+
   const tableContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -146,9 +156,13 @@ export function DataTable<TData, TValue>({
     enableSorting: true,
     enableSortingRemoval: true,
     enableMultiSort: false,
+    enableRowSelection,
+    getRowId,
     state: {
       columnFilters,
       columnVisibility,
+      ...(rowSelection !== undefined && { rowSelection }),
+      ...(rowSelection === undefined && { rowSelection: internalRowSelection }),
       ...(sorting !== undefined && { sorting }),
       pagination: {
         pageIndex: 0,
@@ -158,13 +172,19 @@ export function DataTable<TData, TValue>({
     getCoreRowModel: getCoreRowModel(),
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
+    ...(onRowSelectionChange && { onRowSelectionChange }),
+    ...(onRowSelectionChange === undefined && {
+      onRowSelectionChange: setInternalRowSelection,
+    }),
     ...(onSortingChange && { onSortingChange }),
   });
 
   const isActionsCol = (id: string) =>
     id.toLowerCase().includes("action") || id.toLowerCase().includes("accion");
 
-  const hasActionsColumn = table.getAllColumns().some((col) => isActionsCol(col.id));
+  const hasActionsColumn = table
+    .getAllColumns()
+    .some((col) => isActionsCol(col.id));
 
   const stickyHeaderBg =
     variant === "outline"
@@ -183,7 +203,10 @@ export function DataTable<TData, TValue>({
       <div className="flex md:flex-wrap gap-2 justify-end md:justify-between w-full">
         {children}
         {isVisibleColumnFilter && !mobileCardRender && (
-          <DataTableColumnFilter table={table} tableContainerRef={tableContainerRef} />
+          <DataTableColumnFilter
+            table={table}
+            tableContainerRef={tableContainerRef}
+          />
         )}
       </div>
 
@@ -203,7 +226,10 @@ export function DataTable<TData, TValue>({
                           "h-10",
                           hasActionsColumn &&
                             isActionsCol(header.id) &&
-                            cn("sticky right-0 z-20 border-l border-border", stickyHeaderBg),
+                            cn(
+                              "sticky right-0 z-20 border-l border-border",
+                              stickyHeaderBg,
+                            ),
                         )}
                       >
                         {header.isPlaceholder ? null : header.column.columnDef
