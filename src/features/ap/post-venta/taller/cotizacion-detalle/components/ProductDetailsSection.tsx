@@ -15,6 +15,9 @@ import {
   Percent,
   CheckCircle,
   XCircle,
+  Warehouse,
+  AlertCircle,
+  Check,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -69,6 +72,8 @@ import {
   STATUS_REJECTED,
 } from "@/features/ap/post-venta/repuestos/descuento-cotizacion-meson/lib/discountRequestMeson.constants";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { getStockByProductIds } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.actions";
+import { StockByProductIdsResponse } from "@/features/ap/post-venta/gestion-almacen/inventario/lib/inventory.interface";
 
 const onSelectSupplyType = [
   { label: "Stock", value: "STOCK" },
@@ -199,6 +204,10 @@ export default function ProductDetailsSection({
   const [exchangeRate, setExchangeRate] = useState<number | null>(null);
   const [isLoadingExchangeRate, setIsLoadingExchangeRate] = useState(false);
   const [isPartModalOpen, setIsPartModalOpen] = useState(false);
+  const [stockData, setStockData] = useState<StockByProductIdsResponse | null>(
+    null,
+  );
+  const [isCopied, setIsCopied] = useState(false);
 
   const form = useForm({
     resolver: zodResolver(productDetailSchema),
@@ -258,6 +267,24 @@ export default function ProductDetailsSection({
       form.setValue("unit_measure", productData.unit_measurement_name || "UND");
     }
   }, [productData, form]);
+
+  // Fetch stock por almacén cuando se selecciona un producto
+  useEffect(() => {
+    const fetchStock = async () => {
+      const id = Number(selectedProductId);
+      if (!id) {
+        setStockData(null);
+        return;
+      }
+      try {
+        const response = await getStockByProductIds([id]);
+        setStockData(response);
+      } catch {
+        setStockData(null);
+      }
+    };
+    fetchStock();
+  }, [selectedProductId]);
 
   useEffect(() => {
     const fetchExchangeRate = async () => {
@@ -379,7 +406,7 @@ export default function ProductDetailsSection({
 
   return (
     <Card className="p-6">
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Package className="h-5 w-5 text-primary" />
           <h3 className="text-lg font-semibold">Repuestos</h3>
@@ -457,6 +484,154 @@ export default function ProductDetailsSection({
               />
             </div>
           </div>
+
+          {/* Stock por almacén del repuesto seleccionado */}
+          {stockData &&
+            selectedProductId &&
+            (() => {
+              const currentStock = stockData.data?.find(
+                (s) => s.product_id === Number(selectedProductId),
+              );
+              if (!currentStock) return null;
+              return (
+                <div className="p-2.5 bg-blue-50 border border-blue-200 rounded-md">
+                  <div className="flex items-center gap-2 mb-2 flex-wrap">
+                    <div className="flex items-center gap-1.5">
+                      <Warehouse className="h-3.5 w-3.5 text-primary" />
+                      <span className="text-xs font-semibold text-primary">
+                        Stock Disponible
+                      </span>
+                    </div>
+                    {productData?.brand_name && (
+                      <span className="text-xs text-primary">
+                        Marca:{" "}
+                        <span className="font-medium">
+                          {productData.brand_name}
+                        </span>
+                      </span>
+                    )}
+                    {productData?.code && (
+                      <div className="flex items-center gap-1">
+                        <span className="text-xs text-primary">
+                          Cod:{" "}
+                          <span className="font-medium">
+                            {productData.code}
+                          </span>
+                        </span>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="h-5 w-5 hover:bg-blue-100"
+                          onClick={() => {
+                            navigator.clipboard
+                              .writeText(productData.code)
+                              .then(() => {
+                                setIsCopied(true);
+                                setTimeout(() => setIsCopied(false), 2000);
+                              });
+                          }}
+                          tooltip="Copiar código"
+                        >
+                          {isCopied ? (
+                            <Check className="h-3 w-3 text-green-600" />
+                          ) : (
+                            <Copy className="h-3 w-3 text-primary" />
+                          )}
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                  {currentStock.warehouses.length > 0 ? (
+                    <div className="space-y-2">
+                      <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
+                        {currentStock.warehouses.map((warehouse) => (
+                          <div
+                            key={warehouse.warehouse_id}
+                            className="bg-white p-2 rounded border border-blue-100 space-y-1"
+                          >
+                            <div className="flex items-start justify-between">
+                              <span className="font-semibold text-gray-800 text-xs">
+                                {warehouse.warehouse_name}
+                              </span>
+                              {warehouse.is_out_of_stock && (
+                                <Badge
+                                  color="destructive"
+                                  className="text-xs py-0 px-1 h-4"
+                                >
+                                  Sin Stock
+                                </Badge>
+                              )}
+                            </div>
+                            <div className="flex gap-3 text-xs">
+                              <div>
+                                <span className="text-gray-500">Disp:</span>
+                                <span className="ml-1 text-green-600 font-bold">
+                                  {warehouse.available_quantity}
+                                </span>
+                              </div>
+                              {warehouse.quantity_in_transit > 0 && (
+                                <div>
+                                  <span className="text-gray-500">Trán:</span>
+                                  <span className="ml-1 text-primary font-bold">
+                                    {warehouse.quantity_in_transit}
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                            <div className="grid grid-cols-3 gap-1 text-[10px] pt-1 border-t border-gray-200">
+                              <div>
+                                <div className="text-gray-500">Últ. compra</div>
+                                <div className="font-semibold text-gray-700">
+                                  ${" "}
+                                  {warehouse.last_purchase_price?.toFixed(2) ||
+                                    "0.00"}
+                                </div>
+                              </div>
+                              <div>
+                                <div className="text-gray-500">P. público</div>
+                                <div className="font-semibold text-gray-700">
+                                  ${" "}
+                                  {warehouse.public_sale_price?.toFixed(2) ||
+                                    "0.00"}
+                                </div>
+                              </div>
+                              <div>
+                                <div className="text-gray-500">P. mín</div>
+                                <div className="font-semibold text-gray-700">
+                                  ${" "}
+                                  {warehouse.minimum_sale_price?.toFixed(2) ||
+                                    "0.00"}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="pt-1.5 border-t border-blue-300 text-xs font-semibold text-gray-700 flex items-center justify-between">
+                        <span>
+                          Total:{" "}
+                          <span className="text-green-600 text-sm">
+                            {currentStock.total_available_quantity}
+                          </span>{" "}
+                          disponibles
+                        </span>
+                        {currentStock.warehouses.length > 1 && (
+                          <Badge color="secondary" className="text-xs">
+                            {currentStock.warehouses.length} almacenes
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-1 text-xs text-gray-500 bg-white p-2 rounded">
+                      <AlertCircle className="h-3 w-3" />
+                      <span>Sin stock disponible</span>
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
 
           {/* Segunda fila: Cantidad, Precio Unitario, Descuento y Tipo de Abastecimiento */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">

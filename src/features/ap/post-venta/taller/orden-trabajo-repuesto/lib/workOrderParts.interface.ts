@@ -13,6 +13,7 @@ export interface WorkOrderPartsResource {
   group_number: number;
   product_id: string;
   product_name: string;
+  product_code?: string;
   warehouse_id: string;
   warehouse_name: string;
   quantity_used: number;

@@ -18,6 +18,7 @@ import {
   modelsVnPvSchemaUpdate,
 } from "../lib/modelsVnPv.schema";
 import { FormInput } from "@/shared/components/FormInput";
+import { CLASS_ARTICLE_ID } from "../../../maestros-general/clase-articulo/lib/classArticle.constants";
 
 interface ModelsVnFormProps {
   defaultValues: Partial<ModelsVnPvSchema>;
@@ -44,6 +45,7 @@ export const ModelsVnPvForm = ({
       ...defaultValues,
       type_operation_id:
         defaultValues.type_operation_id ?? String(CM_POSTVENTA_ID),
+      class_id: String(CLASS_ARTICLE_ID.M_VEH_USA),
     },
     mode: "onChange",
   });
@@ -109,7 +111,7 @@ export const ModelsVnPvForm = ({
           <GroupFormSection
             title="Datos Generales"
             icon={ClipboardMinus}
-            color="blue"
+            color="primary"
             cols={{
               sm: 1,
             }}

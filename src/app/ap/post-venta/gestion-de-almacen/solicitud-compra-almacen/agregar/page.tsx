@@ -14,6 +14,7 @@ import FormWrapper from "@/shared/components/FormWrapper";
 import TitleFormComponent from "@/shared/components/TitleFormComponent";
 import { notFound } from "@/shared/hooks/useNotFound";
 import { PURCHASE_REQUEST_ALMACEN } from "@/features/ap/post-venta/taller/solicitud-compra/lib/purchaseRequest.constants";
+import { AREA_POSTVENTA } from "@/features/ap/ap-master/lib/apMaster.constants";
 import PurchaseRequestForm from "@/features/ap/post-venta/taller/solicitud-compra/components/PurchaseRequestForm";
 import { storePurchaseRequest } from "@/features/ap/post-venta/taller/solicitud-compra/lib/purchaseRequest.actions";
 import { PurchaseRequestSchema } from "@/features/ap/post-venta/taller/solicitud-compra/lib/purchaseRequest.schema";
@@ -54,6 +55,7 @@ export default function AddWarehousePurchaseRequestPage() {
           supply_type: "LIMA",
           requested_date: getTodayLocalDateString(),
           observations: "",
+          area_id: AREA_POSTVENTA,
         }}
         onSubmit={handleSubmit}
         isSubmitting={isPending}

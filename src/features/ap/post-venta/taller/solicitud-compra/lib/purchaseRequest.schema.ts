@@ -17,6 +17,7 @@ export const purchaseRequestSchemaCreate = z.object({
   observations: z.string().optional(),
   has_appointment: z.boolean().optional(),
   supply_type: z.enum(["STOCK", "LIMA", "IMPORTACION"]),
+  area_id: z.number().optional(),
   details: z
     .array(purchaseRequestDetailSchema)
     .min(1, "Debe actualizar al menos un producto"),
@@ -24,6 +25,13 @@ export const purchaseRequestSchemaCreate = z.object({
 
 export const purchaseRequestSchemaUpdate =
   purchaseRequestSchemaCreate.partial();
+
+// Schemas para el form Taller (sin supply_type)
+export const purchaseRequestTallerSchemaCreate =
+  purchaseRequestSchemaCreate.omit({ supply_type: true });
+
+export const purchaseRequestTallerSchemaUpdate =
+  purchaseRequestTallerSchemaCreate.partial();
 
 export type PurchaseRequestSchema = z.infer<typeof purchaseRequestSchemaCreate>;
 

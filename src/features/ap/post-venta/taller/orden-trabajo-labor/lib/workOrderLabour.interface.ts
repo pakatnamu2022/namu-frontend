@@ -25,8 +25,9 @@ export interface WorkOrderLabourRequest {
   hourly_rate: string;
   discount_percentage?: string;
   work_order_id: string;
-  worker_id: number;
+  worker_id?: number;
   group_number: number;
+  quotation_detail_id?: number;
 }
 
 export interface getWorkOrderLabourProps {

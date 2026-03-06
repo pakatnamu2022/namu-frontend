@@ -51,6 +51,11 @@ export default function ReceptionsProductsPage() {
 
   const { data, isLoading, refetch } = useAllReceptions({}, supplierOrderIdNum);
 
+  const hasCompleteReception = useMemo(
+    () => data?.some((r) => r.reception_type === "COMPLETE") ?? false,
+    [data],
+  );
+
   // Calcular el total de facturas de todas las recepciones
   const invoicesTotals = useMemo(() => {
     if (!data) return { total: 0, count: 0 };
@@ -131,7 +136,7 @@ export default function ReceptionsProductsPage() {
             />
           </div>
         </div>
-        {permissions.canCreate && (
+        {permissions.canCreate && !hasCompleteReception && (
           <Button size="sm" variant="outline" onClick={handleAddReception}>
             <Plus className="size-4 mr-2" /> Agregar Recepción
           </Button>

@@ -3,26 +3,22 @@
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import ActionsWrapper from "@/shared/components/ActionsWrapper";
-import { useNavigate } from "react-router-dom";
-import { SUPPLIERS } from "../lib/suppliers.constants";
 
 interface Props {
+  onAdd: () => void;
   permissions: {
     canCreate: boolean;
   };
 }
 
-export default function SuppliersActions({ permissions }: Props) {
-  const router = useNavigate();
-  const { ROUTE_ADD } = SUPPLIERS;
-
+export default function SuppliersActions({ onAdd, permissions }: Props) {
   if (!permissions.canCreate) {
     return null;
   }
 
   return (
     <ActionsWrapper>
-      <Button size="sm" className="ml-auto" onClick={() => router(ROUTE_ADD!)}>
+      <Button size="sm" className="ml-auto" onClick={onAdd}>
         <Plus className="size-4 mr-2" /> Agregar Proveedor
       </Button>
     </ActionsWrapper>

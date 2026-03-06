@@ -268,7 +268,7 @@ export default function LaborDetailsSection({
 
   return (
     <Card className="p-6">
-      <div className="flex items-center gap-2 mb-4">
+      <div className="flex items-center gap-2">
         <Wrench className="h-5 w-5 text-primary" />
         <h3 className="text-lg font-semibold">Mano de Obra</h3>
       </div>

@@ -22,6 +22,19 @@ export async function getOrderQuotations({
   return data;
 }
 
+export async function getForPurchaseRequest({
+  params,
+}: getOrderQuotationProps): Promise<OrderQuotationResponse> {
+  const config: AxiosRequestConfig = {
+    params,
+  };
+  const { data } = await api.get<OrderQuotationResponse>(
+    `${ENDPOINT}/for-purchase-request/list`,
+    config,
+  );
+  return data;
+}
+
 export async function getAllOrderQuotations(
   params?: Record<string, any>,
 ): Promise<OrderQuotationResource[]> {
