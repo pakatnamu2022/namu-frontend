@@ -21,6 +21,7 @@ import { AdditionalConfigSection } from "@/features/ap/facturacion/electronic-do
 import { ItemsSection } from "@/features/ap/facturacion/electronic-documents/components/sections/ItemsSection";
 import { WorkOrderResource } from "../lib/workOrder.interface";
 import { WorkOrderFinancialInfo } from "./WorkOrderFinancialInfo";
+import { FormDebugPanel } from "@/shared/components/FormDebugPanel";
 
 interface InvoiceFormProps {
   form: UseFormReturn<ElectronicDocumentSchema>;
@@ -30,7 +31,6 @@ interface InvoiceFormProps {
   isEdit?: boolean;
   selectedGroupNumber: number | null;
   documentTypes: SunatConceptsResource[];
-  transactionTypes: SunatConceptsResource[];
   currencyTypes: SunatConceptsResource[];
   igvTypes: SunatConceptsResource[];
   authorizedSeries: AssignSalesSeriesResource[];
@@ -46,7 +46,6 @@ export default function InvoiceForm({
   isEdit = false,
   selectedGroupNumber,
   documentTypes,
-  transactionTypes,
   currencyTypes,
   igvTypes,
   authorizedSeries,
@@ -84,58 +83,6 @@ export default function InvoiceForm({
       : selectedCurrency?.iso_code === "USD"
         ? "$"
         : "S/";
-
-  // Cambiar tipo de operación según si es anticipo o no
-  useEffect(() => {
-    if (transactionTypes.length === 0) return;
-
-    const currentValue = form.getValues("sunat_concept_transaction_type_id");
-
-    if (isAdvancePayment) {
-      // Anticipo: code_nubefact "04" - Venta Interna - Anticipos
-      const anticipoType = transactionTypes.find(
-        (type) => type.code_nubefact === "04",
-      );
-      if (anticipoType && currentValue !== anticipoType.id.toString()) {
-        form.setValue(
-          "sunat_concept_transaction_type_id",
-          anticipoType.id.toString(),
-          { shouldValidate: false },
-        );
-      }
-    } else {
-      // Verificar si hay anticipos previos en la orden de trabajo
-      const hasAdvances = advances?.some(
-        (advance) => advance.is_advance_payment === true,
-      );
-
-      if (hasAdvances) {
-        // Venta final con anticipos: code_nubefact "04" - Venta Interna - Anticipos
-        const anticipoType = transactionTypes.find(
-          (type) => type.code_nubefact === "04",
-        );
-        if (anticipoType && currentValue !== anticipoType.id.toString()) {
-          form.setValue(
-            "sunat_concept_transaction_type_id",
-            anticipoType.id.toString(),
-            { shouldValidate: false },
-          );
-        }
-      } else {
-        // Venta completa sin anticipos: code_nubefact "01" - Venta Interna
-        const normalType = transactionTypes.find(
-          (type) => type.code_nubefact === "01",
-        );
-        if (normalType && currentValue !== normalType.id.toString()) {
-          form.setValue(
-            "sunat_concept_transaction_type_id",
-            normalType.id.toString(),
-            { shouldValidate: false },
-          );
-        }
-      }
-    }
-  }, [isAdvancePayment, transactionTypes, advances, form]);
 
   // Efecto para cargar datos de la cotización
   useEffect(() => {
@@ -497,6 +444,12 @@ export default function InvoiceForm({
             advancePayments={advances}
             labours={labours}
             parts={parts}
+          />
+
+          <FormDebugPanel
+            form={form}
+            isSubmitting={isPending}
+            show={true} // Solo en desarrollo o le puedes poner True
           />
         </div>
       </form>

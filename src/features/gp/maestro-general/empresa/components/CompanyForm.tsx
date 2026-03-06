@@ -13,9 +13,6 @@ import {
 } from "../lib/company.schema";
 import { COMPANY } from "../lib/company.constants";
 import { FormInput } from "@/shared/components/FormInput";
-import { useAllSunatConcepts } from "../../conceptos-sunat/lib/sunatConcepts.hook";
-import { SUNAT_CONCEPTS_TYPE } from "../../conceptos-sunat/lib/sunatConcepts.constants";
-import { FormSelect } from "@/shared/components/FormSelect";
 
 interface CompanyFormProps {
   defaultValues: Partial<CompanySchema>;
@@ -39,13 +36,6 @@ export const CompanyForm = ({
       ...defaultValues,
     },
     mode: "onChange",
-  });
-
-  const {
-    data: billingDetractionType = [],
-    isLoading: isLoadingDillingDetractionType,
-  } = useAllSunatConcepts({
-    type: [SUNAT_CONCEPTS_TYPE.BILLING_DETRACTION_TYPE],
   });
 
   return (
@@ -121,18 +111,6 @@ export const CompanyForm = ({
             name="detraction_amount"
             label="Monto de detracción"
             placeholder="Ej: 100.00"
-          />
-
-          <FormSelect
-            name="billing_detraction_type_id"
-            label="Tipo de detracción"
-            placeholder="Selecciona un tipo"
-            options={billingDetractionType.map((item) => ({
-              label: `${item.description} (${item.code_nubefact})`,
-              value: item.id.toString(),
-            }))}
-            control={form.control}
-            disabled={isLoadingDillingDetractionType}
           />
         </div>
         <div className="flex gap-4 w-full justify-end">

@@ -195,7 +195,6 @@ function EditWorkOrderInvoicePage({
     useAllSunatConcepts({
       type: [
         SUNAT_CONCEPTS_TYPE.BILLING_DOCUMENT_TYPE,
-        SUNAT_CONCEPTS_TYPE.BILLING_TRANSACTION_TYPE,
         SUNAT_CONCEPTS_TYPE.BILLING_CURRENCY,
         SUNAT_CONCEPTS_TYPE.BILLING_IGV_TYPE,
       ],
@@ -205,13 +204,6 @@ function EditWorkOrderInvoicePage({
     () =>
       sunatConcepts.filter(
         (c) => c.type === SUNAT_CONCEPTS_TYPE.BILLING_DOCUMENT_TYPE,
-      ),
-    [sunatConcepts],
-  );
-  const transactionTypes = useMemo(
-    () =>
-      sunatConcepts.filter(
-        (c) => c.type === SUNAT_CONCEPTS_TYPE.BILLING_TRANSACTION_TYPE,
       ),
     [sunatConcepts],
   );
@@ -302,7 +294,6 @@ function EditWorkOrderInvoicePage({
         isEdit={true}
         selectedGroupNumber={null}
         documentTypes={documentTypes}
-        transactionTypes={transactionTypes}
         currencyTypes={currencyTypes}
         igvTypes={igvTypes}
         authorizedSeries={authorizedSeries}

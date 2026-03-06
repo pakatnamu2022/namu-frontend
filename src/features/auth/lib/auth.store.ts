@@ -78,12 +78,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
   logout: async () => {
     // Call API logout FIRST with active token
-    try {
-      await logout();
-    } catch (error) {
-      // If logout fails (401, network, etc.), still proceed with local cleanup
-      console.log("Logout API call failed:", error);
-    }
+    await logout();
 
     // Then remove token and clear state
     if (typeof window !== "undefined") {
