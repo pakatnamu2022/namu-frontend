@@ -88,7 +88,11 @@ export const payrollPeriodColumns = ({
         label: status,
         color: "default",
       };
-      return <Badge color={config.color}>{config.label}</Badge>;
+      return (
+        <Badge variant="outline" color={config.color}>
+          {config.label}
+        </Badge>
+      );
     },
   },
   {
@@ -107,15 +111,6 @@ export const payrollPeriodColumns = ({
             tooltip="Calcular nómina"
           >
             <Calculator className="size-4" />
-          </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            className="size-7"
-            onClick={() => onEdit(id)}
-            tooltip="Editar periodo"
-          >
-            <Pencil className="size-4" />
           </Button>
           {status === PAYROLL_PERIOD_STATUS.OPEN && (
             <Button
@@ -139,7 +134,20 @@ export const payrollPeriodColumns = ({
               <Lock className="size-4" />
             </Button>
           )}
-          <DeleteButton onClick={() => onDelete(id)} />
+          {status === PAYROLL_PERIOD_STATUS.OPEN && (
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-7"
+              onClick={() => onEdit(id)}
+              tooltip="Editar periodo"
+            >
+              <Pencil className="size-4" />
+            </Button>
+          )}
+          {status === PAYROLL_PERIOD_STATUS.OPEN && (
+            <DeleteButton onClick={() => onDelete(id)} />
+          )}
         </div>
       );
     },

@@ -48,6 +48,7 @@ export const AttendanceRuleForm = ({
     defaultValues: {
       code: defaultValues.code ?? "",
       hour_type: defaultValues.hour_type ?? undefined,
+      description: defaultValues.description ?? "",
       hours: defaultValues.hours ?? null,
       multiplier: defaultValues.multiplier ?? 1,
       pay: defaultValues.pay ?? false,
@@ -73,6 +74,14 @@ export const AttendanceRuleForm = ({
             label="Tipo de Hora"
             placeholder="Seleccione tipo de hora"
             options={HOUR_TYPE_OPTIONS}
+            control={form.control}
+            required
+          />
+
+          <FormInput
+            name="description"
+            label="Descripción"
+            placeholder="Ej: FERIADO NOCHE TRABAJADO"
             control={form.control}
             required
           />

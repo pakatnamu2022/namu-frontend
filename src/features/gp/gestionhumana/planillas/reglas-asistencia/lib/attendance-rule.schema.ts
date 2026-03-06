@@ -12,6 +12,10 @@ export const attendanceRuleSchemaUpdate = z.object({
     .max(24, "Las horas no pueden exceder 24")
     .nullable()
     .optional(),
+  description: z
+    .string()
+    .min(1, "La descripción es requerida")
+    .max(255, "La descripción no puede tener más de 255 caracteres"),
   multiplier: z.coerce
     .number()
     .min(0, "El multiplicador debe ser mayor o igual a 0"),

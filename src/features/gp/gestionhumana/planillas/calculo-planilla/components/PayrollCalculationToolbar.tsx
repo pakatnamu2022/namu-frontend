@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Calculator, RefreshCw, Eye, FileText, CalendarDays, Loader2 } from "lucide-react";
+import { Calculator, RefreshCw, Loader2 } from "lucide-react";
 import { SimpleConfirmDialog } from "@/shared/components/SimpleConfirmDialog";
 import {
   generatePayrollCalculations,
@@ -10,22 +10,19 @@ import {
 } from "../lib/payroll-calculation.actions";
 import { errorToast, successToast } from "@/core/core.function";
 import { PayrollPeriodStatus } from "../../periodo-planilla/lib/payroll-period.interface";
+import { PAYROLL_PERIOD_STATUS } from "../../periodo-planilla/lib/payroll-period.constant";
 
 export type ActiveView = "attendances" | "totals" | "report";
 
 interface Props {
   periodId: number;
   periodStatus: PayrollPeriodStatus;
-  activeView: ActiveView;
-  onChangeView: (view: ActiveView) => void;
   onSuccess: () => void;
 }
 
 export default function PayrollCalculationToolbar({
   periodId,
   periodStatus,
-  activeView,
-  onChangeView,
   onSuccess,
 }: Props) {
   const [isGenerating, setIsGenerating] = useState(false);
@@ -33,10 +30,10 @@ export default function PayrollCalculationToolbar({
   const [showRecalcConfirm, setShowRecalcConfirm] = useState(false);
   const [hasExistingCalculations, setHasExistingCalculations] = useState(false);
 
-  const isClosed = periodStatus === "CLOSED";
+  const isClosed = periodStatus === PAYROLL_PERIOD_STATUS.CLOSED;
   const hasCalculations =
-    periodStatus === "CALCULATED" ||
-    periodStatus === "CLOSED" ||
+    periodStatus === PAYROLL_PERIOD_STATUS.CALCULATED ||
+    periodStatus === PAYROLL_PERIOD_STATUS.CLOSED ||
     hasExistingCalculations;
 
   const handleGenerate = async () => {
@@ -92,34 +89,6 @@ export default function PayrollCalculationToolbar({
   return (
     <>
       <div className="flex flex-wrap items-center gap-2">
-        <Button
-          variant={activeView === "attendances" ? "default" : "outline"}
-          size="sm"
-          onClick={() => onChangeView("attendances")}
-        >
-          <CalendarDays className="size-4 mr-1.5" />
-          Asistencias
-        </Button>
-
-        <Button
-          variant={activeView === "totals" ? "default" : "outline"}
-          size="sm"
-          onClick={() => onChangeView("totals")}
-          disabled={isClosed}
-        >
-          <Eye className="size-4 mr-1.5" />
-          Ver Totales
-        </Button>
-
-        <Button
-          variant={activeView === "report" ? "default" : "outline"}
-          size="sm"
-          onClick={() => onChangeView("report")}
-        >
-          <FileText className="size-4 mr-1.5" />
-          Resumen
-        </Button>
-
         {!hasCalculations && (
           <Button
             variant="default"
@@ -132,13 +101,13 @@ export default function PayrollCalculationToolbar({
             ) : (
               <Calculator className="size-4 mr-1.5" />
             )}
-            Generar Cálculos
+            Generar Cálculos de Nómina
           </Button>
         )}
 
-        {/* {hasCalculations && !isClosed && (
+        {hasCalculations && !isClosed && (
           <Button
-            variant="outline"
+            variant="default"
             size="sm"
             onClick={() => setShowRecalcConfirm(true)}
             disabled={isRecalculating}
@@ -148,22 +117,9 @@ export default function PayrollCalculationToolbar({
             ) : (
               <RefreshCw className="size-4 mr-1.5" />
             )}
-            Recalcular
+            Recalcular Nómina
           </Button>
-        )} */}
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setShowRecalcConfirm(true)}
-          disabled={isRecalculating}
-        >
-          {isRecalculating ? (
-            <Loader2 className="size-4 mr-1.5 animate-spin" />
-          ) : (
-            <RefreshCw className="size-4 mr-1.5" />
-          )}
-          Recalcular
-        </Button>
+        )}
       </div>
 
       <SimpleConfirmDialog

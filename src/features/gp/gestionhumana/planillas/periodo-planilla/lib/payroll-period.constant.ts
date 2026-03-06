@@ -28,17 +28,17 @@ export const PAYROLL_PERIOD_STATUS = {
 
 export const PAYROLL_PERIOD_STATUS_CONFIG: Record<
   string,
-  { label: string; color: "default" | "secondary" | "destructive" | "muted" }
+  { label: string; color: "gray" | "orange" | "green" | "blue" }
 > = {
-  [PAYROLL_PERIOD_STATUS.OPEN]: { label: "Abierto", color: "muted" },
+  [PAYROLL_PERIOD_STATUS.OPEN]: { label: "Abierto", color: "blue" },
   [PAYROLL_PERIOD_STATUS.PROCESSING]: {
     label: "Procesando",
-    color: "secondary",
+    color: "orange",
   },
   [PAYROLL_PERIOD_STATUS.CALCULATED]: {
     label: "Calculado",
-    color: "secondary",
+    color: "green",
   },
-  [PAYROLL_PERIOD_STATUS.APPROVED]: { label: "Aprobado", color: "default" },
-  [PAYROLL_PERIOD_STATUS.CLOSED]: { label: "Cerrado", color: "default" },
+  [PAYROLL_PERIOD_STATUS.APPROVED]: { label: "Aprobado", color: "green" },
+  [PAYROLL_PERIOD_STATUS.CLOSED]: { label: "Cerrado", color: "gray" },
 };

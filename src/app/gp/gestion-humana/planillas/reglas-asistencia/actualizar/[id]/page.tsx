@@ -57,6 +57,7 @@ export default function UpdateAttendanceRulePage() {
     return {
       code: data.code,
       hour_type: data.hour_type,
+      description: data.description,
       hours: data.hours,
       multiplier: data.multiplier,
       pay: Boolean(data.pay),

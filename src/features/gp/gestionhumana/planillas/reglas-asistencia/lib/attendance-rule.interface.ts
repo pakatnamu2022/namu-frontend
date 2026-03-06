@@ -12,6 +12,7 @@ export interface AttendanceRuleResource {
   id: number;
   code: string;
   hour_type: HourType;
+  description: string;
   hours: number | null;
   multiplier: number;
   pay: boolean;

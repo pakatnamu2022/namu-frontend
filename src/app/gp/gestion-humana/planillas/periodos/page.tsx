@@ -154,7 +154,7 @@ export default function PayrollPeriodsPage() {
           onConfirm={handleProcess}
           title="Procesar Periodo"
           description="¿Estás seguro de que deseas procesar este periodo? Esto iniciará el cálculo de la nómina y no podrás modificar el periodo hasta que se complete el proceso."
-          confirmText="Cerrar"
+          confirmText="Procesar"
           cancelText="Cancelar"
         />
       )}
