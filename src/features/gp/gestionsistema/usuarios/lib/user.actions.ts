@@ -9,7 +9,7 @@ import {
   UserSedeResource,
   StoreUserSedesRequest,
 } from "./user.interface";
-import { CompanyResource } from "../../empresa/lib/company.interface";
+import { CompanyResource } from "@/features/gp/maestro-general/empresa/lib/company.interface";
 
 export async function getUser({
   params,

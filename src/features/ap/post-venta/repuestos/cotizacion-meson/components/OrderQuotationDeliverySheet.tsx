@@ -257,7 +257,7 @@ function DeliverySheetContent({
             <GroupFormSection
               title="Datos del Receptor"
               icon={IdCard}
-              color="blue"
+              color="primary"
               cols={{ sm: 1 }}
             >
               <FormField
@@ -282,7 +282,7 @@ function DeliverySheetContent({
             <GroupFormSection
               title="Firma de Recepción"
               icon={PenLine}
-              color="blue"
+              color="primary"
               cols={{ sm: 1 }}
             >
               <FormField

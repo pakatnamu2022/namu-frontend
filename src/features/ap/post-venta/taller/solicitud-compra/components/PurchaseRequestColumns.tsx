@@ -9,6 +9,7 @@ import { es } from "date-fns/locale";
 import { PURCHASE_REQUEST_STATUS } from "../lib/purchaseRequest.constants";
 import { errorToast, successToast } from "@/core/core.function";
 import { downloadPurchaseRequestPdf } from "../lib/purchaseRequest.actions";
+import { CopyCell } from "@/shared/components/CopyCell";
 
 export type PurchaseRequestColumns = ColumnDef<PurchaseRequestResource>;
 
@@ -33,7 +34,9 @@ export const purchaseRequestColumns = ({
     header: "Número de Solicitud",
     cell: ({ getValue }) => {
       const value = getValue() as string;
-      return value && <p className="font-semibold">{value}</p>;
+      return value ? (
+        <CopyCell value={value} className="font-semibold" />
+      ) : null;
     },
     enableSorting: false,
   },
@@ -62,12 +65,19 @@ export const purchaseRequestColumns = ({
   {
     accessorKey: "ap_order_quotation_id",
     header: "Asociado a Cotización",
-    cell: ({ getValue }) => {
+    cell: ({ getValue, row }) => {
       const value = getValue() as number | null;
+      const quotationNumber = row.original.ap_order_quotation?.quotation_number;
       return value !== null ? (
-        <Badge color="default">SI</Badge>
+        <div className="flex items-center gap-2">
+          {quotationNumber && (
+            <CopyCell value={quotationNumber} className="font-medium" />
+          )}
+        </div>
       ) : (
-        <Badge color="secondary">NO</Badge>
+        <Badge variant="outline" color="gray">
+          NO
+        </Badge>
       );
     },
   },
@@ -82,22 +92,41 @@ export const purchaseRequestColumns = ({
   {
     accessorKey: "supplier_order_numbers",
     header: "Orden de Proveedor",
+    cell: ({ getValue }) => {
+      const value = getValue() as string[] | null;
+      if (value && value.length > 0) {
+        return value.map((num, index) => (
+          <CopyCell key={index} value={num} className="font-medium" />
+        ));
+      }
+      return (
+        <Badge variant="outline" color="gray">
+          NO
+        </Badge>
+      );
+    },
   },
   {
     accessorKey: "status",
     header: "Estado",
     cell: ({ row }) => {
-      const { status, status_color } = row.original;
+      const { status } = row.original;
       const statusText =
         PURCHASE_REQUEST_STATUS[
           status as keyof typeof PURCHASE_REQUEST_STATUS
         ] || status;
+      const statusColorMap: Record<
+        string,
+        "yellow" | "blue" | "green" | "red" | "gray"
+      > = {
+        pending: "gray",
+        ordered: "blue",
+        received: "green",
+        cancelled: "red",
+      };
+      const color = statusColorMap[status] ?? "gray";
       return (
-        <Badge
-          style={{
-            backgroundColor: status_color || "#6B7280",
-          }}
-        >
+        <Badge variant="outline" color={color}>
           {statusText}
         </Badge>
       );
@@ -139,7 +168,7 @@ export const purchaseRequestColumns = ({
             variant="outline"
             size="icon"
             className="size-7"
-            tooltip="Facturar"
+            tooltip="Descargar PDF"
             onClick={() => handleDownloadPdf(id)}
           >
             <Download className="size-5" />

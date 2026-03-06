@@ -67,7 +67,7 @@ export default function UpdateCustomersPage() {
       full_name: data.full_name || "",
       birth_date: data.birth_date
         ? parse(data.birth_date, "yyyy-MM-dd", new Date())
-        : "",
+        : undefined,
       nationality: data.nationality,
       num_doc: data.num_doc,
       spouse_num_doc: data.spouse_num_doc || "",

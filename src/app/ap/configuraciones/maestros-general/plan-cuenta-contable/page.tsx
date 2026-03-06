@@ -34,6 +34,7 @@ export default function AccountingAccountPlanPage() {
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
+  const [detractionFilter, setDetractionFilter] = useState("all");
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [updateId, setUpdateId] = useState<number | null>(null);
   const { MODEL, ROUTE } = ACCOUNTING_ACCOUNT_PLAN;
@@ -41,11 +42,12 @@ export default function AccountingAccountPlanPage() {
 
   useEffect(() => {
     setPage(1);
-  }, [search, per_page]);
+  }, [search, per_page, detractionFilter]);
   const { data, isLoading, refetch } = useAccountingAccountPlan({
     page,
     search,
     per_page,
+    ...(detractionFilter !== "all" && { is_detraction: detractionFilter }),
   });
 
   const handleToggleStatus = async (id: number, newStatus: boolean) => {
@@ -55,6 +57,16 @@ export default function AccountingAccountPlanPage() {
       successToast("Estado actualizado correctamente.");
     } catch {
       errorToast("Error al actualizar el estado.");
+    }
+  };
+
+  const handleToggleDetraction = async (id: number, newValue: boolean) => {
+    try {
+      await updateAccountingAccountPlan(id, { is_detraction: newValue });
+      await refetch();
+      successToast("Detracción actualizada correctamente.");
+    } catch {
+      errorToast("Error al actualizar la detracción.");
     }
   };
 
@@ -90,13 +102,19 @@ export default function AccountingAccountPlanPage() {
         isLoading={isLoading}
         columns={accountingAccountPlanColumns({
           onToggleStatus: handleToggleStatus,
+          onToggleDetraction: handleToggleDetraction,
           onDelete: setDeleteId,
           onUpdate: setUpdateId,
           permissions,
         })}
         data={data?.data || []}
       >
-        <AccountingAccountPlanOptions search={search} setSearch={setSearch} />
+        <AccountingAccountPlanOptions
+          search={search}
+          setSearch={setSearch}
+          detractionFilter={detractionFilter}
+          setDetractionFilter={setDetractionFilter}
+        />
       </AccountingAccountPlanTable>
 
       {deleteId !== null && (

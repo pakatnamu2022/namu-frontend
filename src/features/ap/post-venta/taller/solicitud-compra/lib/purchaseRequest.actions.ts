@@ -9,8 +9,21 @@ import {
   PurchaseRequestResponse,
 } from "./purchaseRequest.interface";
 import { PURCHASE_REQUEST_TALLER } from "./purchaseRequest.constants";
+import { format } from "date-fns";
 
 const { ENDPOINT } = PURCHASE_REQUEST_TALLER;
+
+function formatDateField(val: unknown): string | unknown {
+  if (val instanceof Date) return format(val, "yyyy-MM-dd");
+  return val;
+}
+
+function prepareDates(data: PurchaseRequestRequest) {
+  return {
+    ...data,
+    requested_date: formatDateField(data.requested_date),
+  };
+}
 
 export async function getPurchaseRequests({
   params,
@@ -58,7 +71,10 @@ export async function findPurchaseRequestById(
 export async function storePurchaseRequest(
   data: PurchaseRequestRequest,
 ): Promise<PurchaseRequestResource> {
-  const response = await api.post<PurchaseRequestResource>(ENDPOINT, data);
+  const response = await api.post<PurchaseRequestResource>(
+    ENDPOINT,
+    prepareDates(data),
+  );
   return response.data;
 }
 
@@ -68,7 +84,7 @@ export async function updatePurchaseRequest(
 ): Promise<PurchaseRequestResource> {
   const response = await api.put<PurchaseRequestResource>(
     `${ENDPOINT}/${id}`,
-    data,
+    prepareDates(data),
   );
   return response.data;
 }

@@ -26,6 +26,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import ShippingGuideHistory from "../../envios-recepciones/components/ShippingGuideHistory";
+import { ButtonAction } from "@/shared/components/ButtonAction";
 
 export type VehicleDeliveryColumns = ColumnDef<VehiclesDeliveryResource>;
 
@@ -166,7 +167,6 @@ export const vehicleDeliveryColumns = ({
     cell: ({ row }) => {
       const sentAt = row.getValue("sent_at") as string | null;
       const aceptadaPorSunat = row.original.aceptada_por_sunat;
-      const WAITING_TIME_HOURS = 5;
 
       // Configuración de estados con estilos modernos
       const statusConfig = {
@@ -197,19 +197,13 @@ export const vehicleDeliveryColumns = ({
 
       if (sentAt) {
         const sentDate = new Date(sentAt);
-        const now = new Date();
-        const hoursDiff =
-          (now.getTime() - sentDate.getTime()) / (1000 * 60 * 60);
 
         // Determinar estado
         let status: keyof typeof statusConfig;
 
         if (aceptadaPorSunat === true) {
           status = "accepted";
-        } else if (
-          aceptadaPorSunat === false &&
-          hoursDiff > WAITING_TIME_HOURS
-        ) {
+        } else if (aceptadaPorSunat === false) {
           status = "rejected";
         } else {
           status = "pending";
@@ -267,7 +261,7 @@ export const vehicleDeliveryColumns = ({
         status_dynamic,
       } = row.original;
       const router = useNavigate();
-      const { ABSOLUTE_ROUTE} = VEHICLE_DELIVERY;
+      const { ABSOLUTE_ROUTE } = VEHICLE_DELIVERY;
 
       // Verificar si fue enviado y aceptado por SUNAT
       const isAcceptedBySunat = sent_at && aceptada_por_sunat === true;
@@ -290,18 +284,14 @@ export const vehicleDeliveryColumns = ({
             <ShippingGuideHistory shippingGuideId={shipping_guide_id} />
           )}
 
-          {/* Guía de Remisión */}
-          {!sent_at && (
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-7"
-              tooltip="Guía de Remisión"
-              onClick={() => router(`${ABSOLUTE_ROUTE}/guia-remision/${id}`)}
-            >
-              <FileText className="size-4" />
-            </Button>
-          )}
+          <ButtonAction
+            tooltip="Guía de Remisión"
+            onClick={() => router(`${ABSOLUTE_ROUTE}/guia-remision/${id}`)}
+            icon={FileText}
+            color="cyan"
+            variant="default"
+            canRender={!sent_at || aceptada_por_sunat !== true} // Solo mostrar si NO ha sido enviado o no fue aceptado
+          />
 
           {/* Enviar a Nubefact - Solo si hay guía generada y NO ha sido aceptado por SUNAT */}
           {shipping_guide_id && !isAcceptedBySunat && (
@@ -349,7 +339,7 @@ export const vehicleDeliveryColumns = ({
               size="icon"
               className="size-7"
               tooltip="Migrar"
-              onClick={() => onMigrate(id)}
+              onClick={() => onMigrate(shipping_guide_id)}
             >
               <ArrowRightLeft className="size-4" />
             </Button>

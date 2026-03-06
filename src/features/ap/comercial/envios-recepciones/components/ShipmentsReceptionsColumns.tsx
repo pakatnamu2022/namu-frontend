@@ -18,6 +18,8 @@ import {
   Ban,
   LucideIcon,
   ArrowRightLeft,
+  BookCheck,
+  BookX,
 } from "lucide-react";
 import { DeleteButton } from "@/shared/components/SimpleDeleteDialog";
 import type { ShipmentsReceptionsResource } from "../lib/shipmentsReceptions.interface";
@@ -34,6 +36,7 @@ import {
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { useState } from "react";
 import { SUNAT_CONCEPTS_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
+import { ButtonAction } from "@/shared/components/ButtonAction";
 
 export type ShipmentsReceptionsColumns = ColumnDef<ShipmentsReceptionsResource>;
 
@@ -433,6 +436,30 @@ export const ShipmentsReceptionsColumns = ({
     },
   },
   {
+    accessorKey: "is_accounted",
+    header: "Contabilización",
+    cell: ({ row }) => {
+      const was_migrated = row.original.migration_status === "completed";
+      const value = row.original.is_accounted;
+      if (value === true) {
+        return (
+          <Badge variant="outline" color="green" icon={BookCheck}>
+            <span>Contabilizado</span>
+          </Badge>
+        );
+      }
+      return (
+        <Badge
+          color={was_migrated ? "orange" : "gray"}
+          variant="outline"
+          icon={BookX}
+        >
+          <span>{was_migrated ? "No Contabilizado" : "No Migrado"}</span>
+        </Badge>
+      );
+    },
+  },
+  {
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {
@@ -568,20 +595,16 @@ export const ShipmentsReceptionsColumns = ({
               <DeleteButton onClick={() => onDelete(id)} />
             )}
 
-          {/* Migrar */}
-          {onMigrate &&
-            isGuiaRemision &&
-            row.original.migration_status !== "completed" && (
-              <Button
-                variant="outline"
-                size="icon"
-                className="size-7"
-                tooltip="Migrar"
-                onClick={() => onMigrate(id)}
-              >
-                <ArrowRightLeft className="size-4" />
-              </Button>
-            )}
+          <ButtonAction
+            tooltip="Migrar"
+            onClick={() => onMigrate && onMigrate(id)}
+            icon={ArrowRightLeft}
+            canRender={
+              onMigrate &&
+              isGuiaRemision &&
+              row.original.migration_status !== "completed"
+            }
+          />
 
           {/* Cancelar guía - Solo para GUIA_REMISION, cuando ya fue recepcionado y está ACTIVO */}
           {isGuiaRemision && isAlreadyReceived && status && (

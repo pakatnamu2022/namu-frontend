@@ -1,34 +1,29 @@
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { VehiclesDeliveryResource } from "../lib/vehicleDelivery.interface";
-import { useVehicleDeliveryById } from "../lib/vehicleDelivery.hook";
+import { Button } from "@/components/ui/button";
+import { SUNAT_CONCEPTS_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
+import GeneralSheet from "@/shared/components/GeneralSheet";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import {
-  FileText,
-  Download,
-  QrCode,
-  FileCode,
-  User,
-  Calendar,
   Building2,
-  CheckCircle2,
-  XCircle,
+  Calendar,
   Car,
+  CheckCircle2,
   ClipboardList,
+  Download,
   FileCheck,
-  Truck,
+  FileCode,
+  FileText,
   MapPin,
   Package,
+  QrCode,
+  Truck,
+  User,
+  XCircle,
 } from "lucide-react";
-import { SUNAT_CONCEPTS_ID } from "@/features/gp/maestro-general/conceptos-sunat/lib/sunatConcepts.constants";
 import { Link } from "react-router-dom";
+import { useVehicleDeliveryById } from "../lib/vehicleDelivery.hook";
+import { VehiclesDeliveryResource } from "../lib/vehicleDelivery.interface";
 
 interface VehicleDeliveryDetailsSheetProps {
   open: boolean;
@@ -43,13 +38,10 @@ export function VehicleDeliveryDetailsSheet({
 }: VehicleDeliveryDetailsSheetProps) {
   const vehicleId = initialVehicle?.id || 0;
 
-  // Consultar datos completos desde la API solo si está abierto y tiene un ID válido
   const { data: vehicleDelivery } = useVehicleDeliveryById(
     vehicleId,
     open && vehicleId > 0
   );
-
-  if (!initialVehicle || !vehicleDelivery) return null;
 
   const formatDate = (date: string | Date | null | undefined) => {
     if (!date) return "-";
@@ -71,30 +63,25 @@ export function VehicleDeliveryDetailsSheet({
     }
   };
 
-  // Determinar si es transporte público o privado
   const isPublicTransport =
-    vehicleDelivery.shipping_guide?.transfer_modality_id ===
+    vehicleDelivery?.shipping_guide?.transfer_modality_id ===
     SUNAT_CONCEPTS_ID.TYPE_TRANSPORTATION_PUBLIC;
   const isPrivateTransport =
-    vehicleDelivery.shipping_guide?.transfer_modality_id ===
+    vehicleDelivery?.shipping_guide?.transfer_modality_id ===
     SUNAT_CONCEPTS_ID.TYPE_TRANSPORTATION_PRIVATE;
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent
-        side="right"
-        className="w-full sm:max-w-3xl lg:max-w-4xl overflow-y-auto"
-      >
-        <SheetHeader className="pb-6 border-b">
-          <SheetTitle className="text-2xl font-bold text-primary">
-            Detalles de Entrega de Vehículo
-          </SheetTitle>
-          <p className="text-sm text-muted-foreground mt-1">
-            VIN: {vehicleDelivery.vin || "N/A"}
-          </p>
-        </SheetHeader>
-
-        <div className="space-y-6 mt-6">
+    <GeneralSheet
+      open={open}
+      onClose={() => onOpenChange(false)}
+      title="Detalles de Entrega de Vehículo"
+      subtitle={vehicleDelivery ? `VIN: ${vehicleDelivery.vin || "N/A"}` : undefined}
+      icon="Truck"
+      size="4xl"
+      isLoading={!vehicleDelivery && !!initialVehicle}
+    >
+      {vehicleDelivery && (
+        <div className="space-y-6">
           {/* Información del Vehículo */}
           <div className="space-y-4 p-5 bg-blue-50/50 rounded-lg border border-blue-100">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -102,9 +89,7 @@ export function VehicleDeliveryDetailsSheet({
                 <div className="flex items-start gap-3">
                   <Car className="size-5 text-primary mt-0.5" />
                   <div className="flex-1">
-                    <p className="text-xs font-medium text-gray-500 mb-1">
-                      VIN
-                    </p>
+                    <p className="text-xs font-medium text-gray-500 mb-1">VIN</p>
                     <p className="text-base font-semibold text-gray-900">
                       {vehicleDelivery.vin || "-"}
                     </p>
@@ -114,9 +99,7 @@ export function VehicleDeliveryDetailsSheet({
                 <div className="flex items-start gap-3">
                   <Building2 className="size-5 text-primary mt-0.5" />
                   <div className="flex-1">
-                    <p className="text-xs font-medium text-gray-500 mb-1">
-                      Sede
-                    </p>
+                    <p className="text-xs font-medium text-gray-500 mb-1">Sede</p>
                     <p className="text-base text-gray-900">
                       {vehicleDelivery.sede_name || "-"}
                     </p>
@@ -128,9 +111,7 @@ export function VehicleDeliveryDetailsSheet({
                 <div className="flex items-start gap-3">
                   <User className="size-5 text-primary mt-0.5" />
                   <div className="flex-1">
-                    <p className="text-xs font-medium text-gray-500 mb-1">
-                      Asesor
-                    </p>
+                    <p className="text-xs font-medium text-gray-500 mb-1">Asesor</p>
                     <p className="text-base text-gray-900">
                       {vehicleDelivery.advisor_name || "-"}
                     </p>
@@ -153,7 +134,7 @@ export function VehicleDeliveryDetailsSheet({
               </div>
             </div>
 
-            {/* Fechas dentro de la card del vehículo */}
+            {/* Fechas */}
             <div className="border-t border-blue-200 pt-4 mt-4">
               <div className="flex items-center gap-2 mb-3">
                 <Calendar className="size-5 text-primary" />
@@ -179,7 +160,7 @@ export function VehicleDeliveryDetailsSheet({
               </div>
             </div>
 
-            {/* Observaciones dentro de la card del vehículo */}
+            {/* Observaciones */}
             {vehicleDelivery.observations && (
               <div className="border-t border-blue-200 pt-4 mt-4">
                 <div className="flex items-center gap-2 mb-2">
@@ -195,7 +176,7 @@ export function VehicleDeliveryDetailsSheet({
             )}
           </div>
 
-          {/* Información de Guía de Remisión */}
+          {/* Guía de Remisión */}
           {vehicleDelivery.shipping_guide && (
             <>
               <div className="space-y-3">
@@ -245,9 +226,7 @@ export function VehicleDeliveryDetailsSheet({
                                   vehicleDelivery.shipping_guide.issue_date
                                 ),
                                 "dd/MM/yyyy",
-                                {
-                                  locale: es,
-                                }
+                                { locale: es }
                               )
                             : "-"}
                         </p>
@@ -309,16 +288,13 @@ export function VehicleDeliveryDetailsSheet({
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-5 bg-blue-50/50 rounded-lg border border-blue-100">
                   <div>
-                    <p className="text-xs font-medium text-gray-500 mb-1">
-                      Placa
-                    </p>
+                    <p className="text-xs font-medium text-gray-500 mb-1">Placa</p>
                     <p className="text-base font-semibold text-gray-900">
                       {vehicleDelivery.shipping_guide.plate || "-"}
                     </p>
                   </div>
 
                   {isPrivateTransport ? (
-                    // Mostrar datos del conductor para transporte privado
                     <>
                       <div>
                         <p className="text-xs font-medium text-gray-500 mb-1">
@@ -346,7 +322,6 @@ export function VehicleDeliveryDetailsSheet({
                       </div>
                     </>
                   ) : isPublicTransport ? (
-                    // Mostrar datos del transportista para transporte público
                     <>
                       <div>
                         <p className="text-xs font-medium text-gray-500 mb-1">
@@ -377,7 +352,6 @@ export function VehicleDeliveryDetailsSheet({
                   Origen y Destino
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Origen */}
                   <div className="p-5 bg-linear-to-br from-blue-50 to-blue-100 rounded-lg border-2 border-blue-300 shadow-sm">
                     <div className="flex items-center gap-2 mb-3">
                       <div className="p-2 bg-primary rounded-lg">
@@ -410,7 +384,6 @@ export function VehicleDeliveryDetailsSheet({
                     </div>
                   </div>
 
-                  {/* Destino */}
                   <div className="p-5 bg-linear-to-br from-red-50 to-red-100 rounded-lg border-2 border-red-300 shadow-sm">
                     <div className="flex items-center gap-2 mb-3">
                       <div className="p-2 bg-secondary rounded-lg">
@@ -432,11 +405,9 @@ export function VehicleDeliveryDetailsSheet({
                         </p>
                       )}
                       {vehicleDelivery.shipping_guide.destination_address ? (
-                        <>
-                          <p className="text-xs text-gray-600 leading-relaxed">
-                            {vehicleDelivery.shipping_guide.destination_address}
-                          </p>
-                        </>
+                        <p className="text-xs text-gray-600 leading-relaxed">
+                          {vehicleDelivery.shipping_guide.destination_address}
+                        </p>
                       ) : (
                         <p className="text-xs text-gray-600 leading-relaxed">
                           {vehicleDelivery.shipping_guide.receiver_establishment
@@ -482,7 +453,7 @@ export function VehicleDeliveryDetailsSheet({
                 </div>
               )}
 
-              {/* Estado SUNAT de la Guía */}
+              {/* Estado SUNAT */}
               {vehicleDelivery.shipping_guide.requires_sunat && (
                 <div className="space-y-3">
                   <h3 className="text-lg font-semibold flex items-center gap-2 text-primary">
@@ -557,7 +528,7 @@ export function VehicleDeliveryDetailsSheet({
                 </div>
               )}
 
-              {/* Documentos SUNAT de la Guía */}
+              {/* Documentos SUNAT */}
               {vehicleDelivery.shipping_guide.requires_sunat &&
                 vehicleDelivery.shipping_guide.is_sunat_registered &&
                 (vehicleDelivery.shipping_guide.enlace_del_pdf ||
@@ -645,7 +616,7 @@ export function VehicleDeliveryDetailsSheet({
             </>
           )}
         </div>
-      </SheetContent>
-    </Sheet>
+      )}
+    </GeneralSheet>
   );
 }

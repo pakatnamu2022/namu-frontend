@@ -106,7 +106,7 @@ export const workOrderColumns = ({
     cell: ({ getValue }) => {
       const value = getValue() as boolean;
       return (
-        <Badge color={value ? "default" : "secondary"}>
+        <Badge variant="outline" color={value ? "green" : "blue"}>
           {value ? "Sí" : "No"}
         </Badge>
       );
@@ -118,7 +118,23 @@ export const workOrderColumns = ({
     cell: ({ getValue }) => {
       const value = getValue() as boolean;
       return (
-        <Badge color={value ? "default" : "secondary"}>
+        <Badge variant="outline" color={value ? "green" : "blue"}>
+          {value ? "Sí" : "No"}
+        </Badge>
+      );
+    },
+  },
+  {
+    accessorKey: "has_management_discount",
+    header: "Dcto. Gerencial",
+    cell: ({ getValue }) => {
+      const value = getValue() as boolean;
+      return (
+        <Badge
+          variant="outline"
+          color={value ? "green" : "gray"}
+          className="capitalize w-8 flex items-center justify-center"
+        >
           {value ? "Sí" : "No"}
         </Badge>
       );

@@ -16,6 +16,7 @@ interface Props {
   onUpdate?: (id: number) => void;
   permissions: {
     canViewHistory: boolean;
+    canMaintenance: boolean;
     canUpdate: boolean;
     canDelete: boolean;
   };
@@ -115,6 +116,7 @@ export const vehicleColumns = ({
     header: "Acciones",
     cell: ({ row }) => {
       const { id, plate, movements, type_operation_id } = row.original;
+
       return (
         <div className="flex items-center gap-2">
           {/* Movements */}
@@ -123,7 +125,7 @@ export const vehicleColumns = ({
           )}
 
           {/* Work Order History */}
-          {permissions.canViewHistory &&
+          {permissions.canMaintenance &&
             type_operation_id === CM_POSTVENTA_ID && (
               <VehicleWorkOrderHistory vehicleId={id} vehiclePlate={plate} />
             )}

@@ -79,8 +79,11 @@ export default function OpeningTab({ workOrderId }: OpeningTabProps) {
       successToast("Cliente de facturación actualizado");
       queryClient.invalidateQueries({ queryKey: ["workOrder", workOrderId] });
     },
-    onError: () => {
-      errorToast("Error al actualizar el cliente de facturación");
+    onError: (error: any) => {
+      const message =
+        error?.response?.data?.message ||
+        "Error al actualizar el cliente de facturación";
+      errorToast(message);
     },
   });
 
@@ -305,11 +308,17 @@ export default function OpeningTab({ workOrderId }: OpeningTabProps) {
               description={
                 isInvoiced
                   ? "Ya existe una factura emitida, no se puede modificar"
-                  : "Cliente a quien se le emitirá la factura de esta OT"
+                  : (workOrder?.advances?.length ?? 0) > 0
+                    ? "Ya se registraron avances de pago, no se puede modificar"
+                    : "Cliente a quien se le emitirá la factura de esta OT"
               }
               perPage={10}
               debounceMs={500}
-              disabled={isInvoiced || invoiceToMutation.isPending}
+              disabled={
+                isInvoiced ||
+                invoiceToMutation.isPending ||
+                (workOrder?.advances?.length ?? 0) > 0
+              }
               defaultOption={invoiceToDefaultOption}
               onValueChange={(value) => {
                 invoiceToMutation.mutate(value ? Number(value) : null);

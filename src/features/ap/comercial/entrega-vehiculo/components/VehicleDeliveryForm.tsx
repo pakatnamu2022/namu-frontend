@@ -8,15 +8,7 @@ import {
   vehicleDeliverySchemaUpdate,
 } from "../lib/vehicleDelivery.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
-} from "@/components/ui/form";
-import { Textarea } from "@/components/ui/textarea";
+import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Loader, Car, User, FileText } from "lucide-react";
 import { DateTimePickerForm } from "@/shared/components/DateTimePickerForm";
@@ -34,6 +26,7 @@ import {
 import { AlertCircle, CheckCircle2 } from "lucide-react";
 import { CM_COMERCIAL_ID } from "@/features/ap/ap-master/lib/apMaster.constants";
 import { FormSelectAsync } from "@/shared/components/FormSelectAsync";
+import { FormTextArea } from "@/shared/components/FormTextArea";
 
 interface VehicleDeliveryFormProps {
   defaultValues: Partial<VehicleDeliverySchema>;
@@ -195,7 +188,9 @@ export const VehicleDeliveryForm = ({
                   item.sede_name_warehouse + " - " + item.warehouse_name || "",
               })}
               additionalParams={{
-                warehouse$sede_id: watchSedeId ? Number(watchSedeId) : undefined,
+                warehouse$sede_id: watchSedeId
+                  ? Number(watchSedeId)
+                  : undefined,
                 warehouse$is_received: 1,
                 warehouse$article_class_id: watchArticleClassId,
                 is_paid: 1,
@@ -228,16 +223,23 @@ export const VehicleDeliveryForm = ({
         {selectedVehicleId && (
           <>
             {isLoadingDebtInfo ? (
-              <Card className="p-5 border-gray-200 bg-gray-50/50">
+              <Card className="py-0 px-5 border-gray-200 bg-gray-50/50">
                 <div className="flex items-center gap-3 text-sm text-gray-500">
                   <Loader className="h-4 w-4 animate-spin" />
                   Cargando información del vehículo...
                 </div>
               </Card>
             ) : debtInfo ? (
-              <Card className="overflow-hidden shadow-sm border-0 ring-1 ring-gray-200">
+              <Card className="py-0 overflow-hidden shadow-sm">
                 {/* Header con slate oscuro — badge de estado */}
-                <div className="bg-slate-800 px-5 py-4 flex flex-wrap items-center justify-between gap-3">
+                {/* Hero header */}
+                <div
+                  className={`px-5 py-4 flex flex-wrap items-center justify-between gap-3 ${
+                    debtInfo.debt_summary.debt_is_paid
+                      ? "bg-green-600"
+                      : "bg-red-600"
+                  }`}
+                >
                   <div className="flex items-center gap-3">
                     <div className="bg-white/10 p-2 rounded-lg">
                       <Car className="h-5 w-5 text-white" />
@@ -250,7 +252,8 @@ export const VehicleDeliveryForm = ({
                         {debtInfo.vehicle.vin}
                       </p>
                       <p className="text-white/50 text-xs mt-0.5">
-                        {debtInfo.vehicle.model} · {debtInfo.vehicle.year}
+                        {debtInfo.vehicle.model.version} ·{" "}
+                        {debtInfo.vehicle.year}
                       </p>
                     </div>
                   </div>
@@ -296,7 +299,7 @@ export const VehicleDeliveryForm = ({
                             Modelo
                           </p>
                           <p className="text-sm font-semibold text-gray-800">
-                            {debtInfo.vehicle.model}
+                            {debtInfo.vehicle.model.version}
                           </p>
                         </div>
                         <div>
@@ -304,7 +307,7 @@ export const VehicleDeliveryForm = ({
                             Código
                           </p>
                           <p className="text-sm font-semibold text-gray-800">
-                            {debtInfo.vehicle.model_code}
+                            {debtInfo.vehicle.model.code}
                           </p>
                         </div>
                         <div>
@@ -320,7 +323,7 @@ export const VehicleDeliveryForm = ({
                             Tipo Motor
                           </p>
                           <p className="text-sm font-semibold text-gray-800">
-                            {debtInfo.vehicle.engineType}
+                            {debtInfo.vehicle.engine_type}
                           </p>
                         </div>
                         <div>
@@ -336,7 +339,7 @@ export const VehicleDeliveryForm = ({
                             Almacén
                           </p>
                           <p className="text-sm font-semibold text-gray-800">
-                            {debtInfo.vehicle.warehouse_physical}
+                            {debtInfo.vehicle.warehouse_name}
                           </p>
                         </div>
                       </div>
@@ -490,27 +493,24 @@ export const VehicleDeliveryForm = ({
                   </div>
                 </div>
               </Card>
-            ) : null}
+            ) : (
+              <Card className="py-0 px-5 border-gray-200 bg-gray-50/50">
+                <div className="flex items-center gap-3 text-sm text-gray-500">
+                  <AlertCircle className="h-4 w-4 text-gray-400" />
+                  No se encontró información para el vehículo seleccionado.
+                </div>
+              </Card>
+            )}
           </>
         )}
 
         {/* Observaciones */}
-        <FormField
-          control={form.control}
+        <FormTextArea
           name="observations"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Observaciones</FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder="Ingrese observaciones sobre la entrega"
-                  className="min-h-[100px]"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          label="Observaciones"
+          placeholder="Ingrese observaciones sobre la entrega"
+          control={form.control}
+          uppercase
         />
 
         <div className="flex gap-4 w-full justify-end">

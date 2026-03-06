@@ -71,6 +71,7 @@ import {
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 const onSelectSupplyType = [
+  { label: "Stock", value: "STOCK" },
   { label: "Lima", value: "LIMA" },
   { label: "Importación", value: "IMPORTACION" },
 ];

@@ -1,6 +1,6 @@
 "use client";
 
-import { CompanyResource } from "@/features/gp/gestionsistema/empresa/lib/company.interface";
+import { CompanyResource } from "@/features/gp/maestro-general/empresa/lib/company.interface";
 import { SearchableSelect } from "@/shared/components/SearchableSelect";
 import SearchInput from "@/shared/components/SearchInput";
 

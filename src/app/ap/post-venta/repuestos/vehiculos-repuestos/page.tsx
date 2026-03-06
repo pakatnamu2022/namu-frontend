@@ -32,6 +32,7 @@ export default function VehiclesRepuestoPage() {
   const [page, setPage] = useState(1);
   const [per_page, setPerPage] = useState<number>(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
+  const [ap_vehicle_status_id, setApVehicleStatusId] = useState<string[]>([]);
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const { MODEL, ROUTE, ROUTE_UPDATE } = VEHICLES_RP;
   const permissions = useModulePermissions(ROUTE);
@@ -44,6 +45,7 @@ export default function VehiclesRepuestoPage() {
     search,
     per_page,
     type_operation_id: CM_POSTVENTA_ID,
+    ap_vehicle_status_id: ap_vehicle_status_id.length ? ap_vehicle_status_id : undefined,
   });
 
   const handleDelete = async () => {
@@ -84,7 +86,7 @@ export default function VehiclesRepuestoPage() {
         data={data?.data || []}
         initialColumnVisibility={{ plate: true }}
       >
-        <VehicleOptions search={search} setSearch={setSearch} />
+        <VehicleOptions search={search} setSearch={setSearch} ap_vehicle_status_id={ap_vehicle_status_id} set_ap_vehicle_status_id={setApVehicleStatusId} />
       </VehicleTable>
 
       {deleteId !== null && (

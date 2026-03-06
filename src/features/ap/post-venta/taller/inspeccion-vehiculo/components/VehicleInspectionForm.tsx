@@ -91,7 +91,7 @@ export const VehicleInspectionForm = ({
         <GroupFormSection
           title="Información de Inspección"
           icon={ClipboardCheck}
-          color="blue"
+          color="primary"
           cols={{ sm: 2 }}
         >
           <DatePickerFormField
@@ -253,7 +253,7 @@ export const VehicleInspectionForm = ({
         <GroupFormSection
           title="Firmas de Conformidad"
           icon={PenLine}
-          color="blue"
+          color="primary"
           cols={{ sm: 1 }}
         >
           <FormField
