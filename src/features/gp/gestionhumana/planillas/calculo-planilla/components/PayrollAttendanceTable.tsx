@@ -167,7 +167,7 @@ export default function PayrollAttendanceTable({ data }: Props) {
           <thead>
             {/* Month row */}
             <tr className="bg-muted/50 border-b">
-              <th className="sticky left-0 z-10 bg-muted/50 px-3 py-2 text-left text-xs font-semibold whitespace-nowrap min-w-[200px]">
+              <th className="sticky left-0 z-10 bg-muted/50 px-3 py-2 text-left text-sm font-semibold whitespace-nowrap min-w-[200px]">
                 Colaborador
               </th>
               {dates.map((date, i) => {
@@ -180,13 +180,13 @@ export default function PayrollAttendanceTable({ data }: Props) {
                       dates.filter((d) => d.slice(5, 7) === date.slice(5, 7))
                         .length
                     }
-                    className="px-1 py-1 text-center text-[10px] font-semibold text-muted-foreground border-l uppercase tracking-wide"
+                    className="px-1 py-1 text-center text-sm font-semibold text-muted-foreground border-l uppercase tracking-wide"
                   >
                     {formatMonth(date)}
                   </th>
                 ) : null;
               })}
-              <th className="px-3 py-2 text-left text-xs font-semibold whitespace-nowrap min-w-40">
+              <th className="px-3 py-2 text-left text-sm font-semibold whitespace-nowrap min-w-40">
                 Resumen
               </th>
             </tr>
@@ -196,7 +196,7 @@ export default function PayrollAttendanceTable({ data }: Props) {
               {dates.map((date) => (
                 <th
                   key={date}
-                  className="px-0.5 py-1 text-center text-[10px] text-muted-foreground w-7"
+                  className="px-0.5 py-1 text-center text-[12px] text-muted-foreground w-7"
                 >
                   {formatDay(date)}
                 </th>

@@ -139,6 +139,51 @@ export interface AttendancesResponse extends AttendancesData {
   success?: boolean;
 }
 
+// --- Report (calculations/report/{periodId}) ---
+
+export interface PayrollReportRow {
+  empresa: string;
+  nombre: string;
+  dni: string;
+  days_worked: number;
+  basic_salary: number;
+  night_bonus: number;
+  gross_salary: number;
+  overtime_25: number;
+  overtime_35: number;
+  holiday_pay: number;
+  compensatory_pay: number;
+  net_salary: number;
+}
+
+export interface PayrollReportTotals {
+  days_worked: number;
+  basic_salary: number;
+  night_bonus: number;
+  gross_salary: number;
+  overtime_25: number;
+  overtime_35: number;
+  holiday_pay: number;
+  compensatory_pay: number;
+  net_salary: number;
+}
+
+export interface PayrollReportPeriod {
+  id: number;
+  code: string;
+  name: string;
+}
+
+export interface PayrollReportData {
+  period: PayrollReportPeriod;
+  rows: PayrollReportRow[];
+  totals: PayrollReportTotals;
+}
+
+export interface PayrollReportResponse {
+  data: PayrollReportData;
+}
+
 // --- Generate / Recalculate response ---
 
 export interface GenerateCalculationsResult {

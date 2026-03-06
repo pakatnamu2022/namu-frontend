@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Calculator, RefreshCw, Eye, Loader2 } from "lucide-react";
+import { Calculator, RefreshCw, Eye, FileText, CalendarDays, Loader2 } from "lucide-react";
 import { SimpleConfirmDialog } from "@/shared/components/SimpleConfirmDialog";
 import {
   generatePayrollCalculations,
@@ -11,17 +11,21 @@ import {
 import { errorToast, successToast } from "@/core/core.function";
 import { PayrollPeriodStatus } from "../../periodo-planilla/lib/payroll-period.interface";
 
+export type ActiveView = "attendances" | "totals" | "report";
+
 interface Props {
   periodId: number;
   periodStatus: PayrollPeriodStatus;
-  onPreview: () => void;
+  activeView: ActiveView;
+  onChangeView: (view: ActiveView) => void;
   onSuccess: () => void;
 }
 
 export default function PayrollCalculationToolbar({
   periodId,
   periodStatus,
-  onPreview,
+  activeView,
+  onChangeView,
   onSuccess,
 }: Props) {
   const [isGenerating, setIsGenerating] = useState(false);
@@ -89,13 +93,31 @@ export default function PayrollCalculationToolbar({
     <>
       <div className="flex flex-wrap items-center gap-2">
         <Button
-          variant="outline"
+          variant={activeView === "attendances" ? "default" : "outline"}
           size="sm"
-          onClick={onPreview}
+          onClick={() => onChangeView("attendances")}
+        >
+          <CalendarDays className="size-4 mr-1.5" />
+          Asistencias
+        </Button>
+
+        <Button
+          variant={activeView === "totals" ? "default" : "outline"}
+          size="sm"
+          onClick={() => onChangeView("totals")}
           disabled={isClosed}
         >
           <Eye className="size-4 mr-1.5" />
-          Ver Resumen
+          Ver Totales
+        </Button>
+
+        <Button
+          variant={activeView === "report" ? "default" : "outline"}
+          size="sm"
+          onClick={() => onChangeView("report")}
+        >
+          <FileText className="size-4 mr-1.5" />
+          Resumen
         </Button>
 
         {!hasCalculations && (
