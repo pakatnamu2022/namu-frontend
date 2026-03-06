@@ -16,35 +16,35 @@ interface AttendanceCodeChipsProps {
 
 const CHIP_PALETTE: Record<string, { idle: string; active: string }> = {
   D: {
-    idle:   "bg-blue-500/5 text-blue-800 hover:bg-blue-500/10",
+    idle:   "bg-gray-500/5 text-gray-800 hover:bg-blue-500/10",
     active: "bg-blue-700 text-white",
   },
   N: {
-    idle:   "bg-emerald-500/5 text-emerald-800 hover:bg-emerald-500/10",
+    idle:   "bg-gray-500/5 text-gray-800 hover:bg-emerald-500/10",
     active: "bg-emerald-700 text-white",
   },
   F: {
-    idle:   "bg-red-500/5 text-red-800 hover:bg-red-500/10",
+    idle:   "bg-gray-500/5 text-gray-800 hover:bg-red-500/10",
     active: "bg-red-700 text-white",
   },
   V: {
-    idle:   "bg-purple-500/5 text-purple-800 hover:bg-purple-500/10",
+    idle:   "bg-gray-500/5 text-gray-800 hover:bg-purple-500/10",
     active: "bg-purple-700 text-white",
   },
   L: {
-    idle:   "bg-amber-500/5 text-amber-800 hover:bg-amber-500/10",
+    idle:   "bg-gray-500/5 text-gray-800 hover:bg-amber-500/10",
     active: "bg-amber-700 text-white",
   },
   P: {
-    idle:   "bg-sky-500/5 text-sky-800 hover:bg-sky-500/10",
+    idle:   "bg-gray-500/5 text-gray-800 hover:bg-sky-500/10",
     active: "bg-sky-700 text-white",
   },
   T: {
-    idle:   "bg-teal-500/5 text-teal-800 hover:bg-teal-500/10",
+    idle:   "bg-gray-500/5 text-gray-800 hover:bg-teal-500/10",
     active: "bg-teal-700 text-white",
   },
   M: {
-    idle:   "bg-orange-500/5 text-orange-800 hover:bg-orange-500/10",
+    idle:   "bg-gray-500/5 text-gray-800 hover:bg-orange-500/10",
     active: "bg-orange-700 text-white",
   },
 };
