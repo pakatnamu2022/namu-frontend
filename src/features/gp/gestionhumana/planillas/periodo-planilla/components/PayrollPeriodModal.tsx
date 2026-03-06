@@ -83,7 +83,7 @@ export default function PayrollPeriodModal({ id, open, onClose, mode }: Props) {
     mode === "create" ? `Agregar ${MODEL.name}` : `Editar ${MODEL.name}`;
 
   return (
-    <GeneralModal open={open} onClose={onClose} title={title}>
+    <GeneralModal open={open} onClose={onClose} title={title} size="xl">
       {isLoadingAny ? (
         <FormSkeleton />
       ) : (

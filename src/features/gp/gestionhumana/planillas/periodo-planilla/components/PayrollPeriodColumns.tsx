@@ -96,6 +96,10 @@ export const payrollPeriodColumns = ({
     },
   },
   {
+    accessorKey: "company.name",
+    header: "Empresa",
+  },
+  {
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => {

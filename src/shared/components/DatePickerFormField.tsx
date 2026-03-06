@@ -149,7 +149,7 @@ export function DatePickerFormField<T extends FieldValues>({
                 className="w-full justify-between font-normal text-xs"
                 disabled={disabled}
               >
-                {displayValue}
+                {displayValue} <span className="truncate">{displayValue}</span>
                 <CalendarPlusIcon className="ml-2 h-4 w-4 opacity-50" />
               </Button>
             </FormControl>
@@ -185,12 +185,15 @@ export function DatePickerFormField<T extends FieldValues>({
                 )}
                 disabled={disabled}
               >
-                {displayValue}
+                <span className="truncate">{displayValue}</span>
                 <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
               </Button>
             </FormControl>
           </PopoverTrigger>
-          <PopoverContent className="w-auto p-0 max-h-none overflow-hidden" align="start">
+          <PopoverContent
+            className="w-auto p-0 max-h-none overflow-hidden"
+            align="start"
+          >
             <Calendar
               mode="single"
               locale={es}

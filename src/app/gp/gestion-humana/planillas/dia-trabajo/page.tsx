@@ -41,6 +41,7 @@ import {
   successToast,
 } from "@/core/core.function";
 import { CalendarDays, RefreshCw } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
@@ -84,8 +85,16 @@ export default function WorkSchedulesPage() {
     isError: isCurrentPeriodError,
   } = useCurrentPayrollPeriod();
   const { data: codes = [] } = useAttendanceRuleCodes();
+
+  const selectedPeriodCompanyId = useMemo(() => {
+    return periods.find((p) => p.id === selectedPeriodId)?.company?.id;
+  }, [periods, selectedPeriodId]);
+
   const { data: allWorkers = [], isLoading: isLoadingWorkers } = useAllWorkers({
     cargo_id: POSITION_TYPE.SECURITY_AGENT,
+    ...(selectedPeriodCompanyId
+      ? { sede$empresa_id: selectedPeriodCompanyId }
+      : {}),
   });
 
   // Set default period when current period loads
@@ -268,11 +277,18 @@ export default function WorkSchedulesPage() {
   return (
     <div className="space-y-3">
       <HeaderTableWrapper>
-        <TitleComponent
-          title={currentView.descripcion}
-          subtitle={currentView.descripcion}
-          icon={currentView.icon}
-        />
+        <div className="flex items-center gap-2 min-w-0">
+          <TitleComponent
+            title={currentView.descripcion}
+            subtitle={currentView.descripcion}
+            icon={currentView.icon}
+          />
+          {selectedPeriod?.company && (
+            <Badge color="orange" className="text-xs shrink-0">
+              {selectedPeriod.company.name}
+            </Badge>
+          )}
+        </div>
         <div className="flex items-center gap-2">
           {isLoadingData ? (
             <Skeleton className="h-9 w-52" />
@@ -338,7 +354,7 @@ export default function WorkSchedulesPage() {
                 onDeleteSchedule={setDeleteId}
               />
             ) : (
-              <Empty>
+              <Empty className="min-h-[calc(100vh-14rem)] border rounded-lg">
                 <EmptyHeader>
                   <EmptyMedia variant="icon">
                     <CalendarDays />
@@ -353,7 +369,7 @@ export default function WorkSchedulesPage() {
           </div>
         </div>
       ) : (
-        <Empty>
+        <Empty className="min-h-[calc(100vh-10rem)]">
           <EmptyHeader>
             <EmptyMedia variant="icon">
               <CalendarDays />

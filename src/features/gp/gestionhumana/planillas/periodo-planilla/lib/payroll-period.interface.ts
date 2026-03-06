@@ -31,3 +31,12 @@ export type PayrollPeriodStatus = "OPEN" | "CALCULATED" | "CLOSED";
 export interface getPayrollPeriodsProps {
   params?: Record<string, any>;
 }
+
+export interface CreatePayrollPeriodPayload {
+  year: number;
+  month: number;
+  payment_date: string;
+  company_id: number;
+}
+
+export interface UpdatePayrollPeriodPayload extends Partial<CreatePayrollPeriodPayload> {}
