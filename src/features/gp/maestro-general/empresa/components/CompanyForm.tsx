@@ -128,7 +128,7 @@ export const CompanyForm = ({
             label="Tipo de detracción"
             placeholder="Selecciona un tipo"
             options={billingDetractionType.map((item) => ({
-              label: item.description,
+              label: `${item.description} (${item.code_nubefact})`,
               value: item.id.toString(),
             }))}
             control={form.control}
